@@ -49,7 +49,7 @@ reader can recompute a row from its rollout locator and interval bounds.
 | Premise | Consuming operation | Observation | Result |
 | --- | --- | --- | --- |
 | A blocked outcome and watch can be linked in retained rollouts | Slices 1 and 2 search and result handling | Rollout `01a1f70e-656e-7d32-baf8-ee066c533a92` links the held merge at lines 3049 and 3099 to launch 3069, publication 3147 and continuation decision 3159. The pre-release developer request appears in the separate compressed rollout `01a1d22f-e0cd-7032-930d-5a9ff3011a64` at line 2819. In the controlled November 18 rollouts ending `eb2305d55dcb` and `eb5be690b336`, the respective publication and deadline outputs are at line 19. | Both initiation paths can be identified in context. The natural trace covers publication. The controlled deadline gives its receipt shape. |
-| Requests and cached input can be attributed once | Slice 2 measurement | On November 24, a `python3 -I` reread of the natural rollout ending `ee066c533a92`, lines 3069–3147, paired wait calls on cell `g2:262` with seven distinct response IDs and 2,885,504 cached of 2,890,075 input tokens. The historical rollout `01a1e7c4-7085-7903-83b8-bcfeec6241f9` has 15 distinct responses with 6,667,648 cached of 6,670,639 input tokens from 08:40:21 to 08:57:34 UTC on November 17. | The natural row can be recounted. Missing meters or ambiguous attribution remain unknown. |
+| Requests and cached input can be attributed once | Slice 2 measurement | The natural rollout ending `ee066c533a92`, lines 3069–3147, pairs wait calls on cell `g2:262` with distinct Codex token-usage response IDs. The historical rollout `01a1e7c4-7085-7903-83b8-bcfeec6241f9` exposes the same counters for polling the Docker proof process. | The final recount records the exact bounds, excludes mixed actions, and leaves ambiguous attribution unknown. |
 | The installed release can be attributed | Slice 1 eligibility | Reading `.agents/skills/dough-update/VERSION` at the three natural watches' launch revisions returned 0.3.109. Their session metadata records Codex 0.171.0. | Use the rollout's checkout and Git revision or direct version evidence. Mark the release unknown when it cannot be established. |
 | The retained rollouts can be searched as a bounded snapshot | Slice 1 search and repeatability | The two November 18 searches agreed on 767 request and 31 command-name matches. The expanded November 24 scan identified three natural watches by command and verified the surrounding dependency context. | Reuse the retained candidates and scan the period since the cutoff. A shortfall leads to deferral. |
 
@@ -75,7 +75,7 @@ misses, move the story below the next eligible entry, and stop.
 
 ### 2. Measure the watches and record the recommendation
 Type: Behavior
-Status: planned
+Status: done
 Proof: each eligible interval's row shows its duration, attributable
 requests or a supported bound, allowed requests, cached input share where
 known, and how the result was handled. Record missed publications, failed
@@ -171,27 +171,6 @@ SEED-413 work on November 20–21, each on Codex 0.171.0 and Open Dough
 belong to one related workstream and provide no frequency estimate for
 blocked executions generally.
 
-| Coordinator rollout | Launch → receipt (UTC and raw JSONL lines) | Duration | Requests issuing only wait calls / seed allowance | Processed tokens on those requests / cached input share | Outcome |
-| --- | --- | --- | --- | --- | --- |
-| `01a1f70e-656e-7d32-baf8-ee066c533a92` | Nov 20 05:51:38 → 06:00:05 (3069→3147) | 8m 26s | 7 / 2 | 2,891,109 / 99.84% | Sibling repair published and the consumer rebuilt its merge. |
-| `01a1fb74-984f-75c0-81cb-4d89225b0f3c` | Nov 21 01:49:15 → 02:22:56 (2658→3309) | 33m 41s | 32 / 7 | 11,327,244 / 99.82% | Plan 742's Done record landed and the consumer integrated it. |
-| `01a1fb85-54bb-7a32-a5f7-2bc24d19d267` | Nov 21 02:33:25 → 02:51:26 (2970→3227) | 18m 02s | 31 / 4 | 11,956,242 / 99.88% | Plan 743's branch review published. The command was restarted with the same deadline. |
-| Same | Nov 21 02:51:45 → 03:08:34 (3238→3413) | 16m 49s | 29 / 4 | 11,405,747 / 99.92% | Plan 743's closure commit published on its branch. The command was restarted with the same deadline. |
-| Same | Nov 21 03:08:50 → 03:15:31 (3424→3491) | 6m 41s | 10 / 2 | 3,979,607 / 99.91% | Plan 743 landed and the consumer merged trunk. |
-
-The request counts are conservative. In each interval, deduplicate
-`token_usage_record` by response ID, exclude the launch response and the
-first response to its return, and stop before the terminal result. Count
-only responses whose tool calls wait on the publication cell or make empty
-`write_stdin` calls to its process. Exclude tool calls that also advance
-other work. The command returned publication in every interval. The host
-repeatedly returned control between results through 60-second `wait`
-calls or 60-second `write_stdin` calls in cells that yielded after one
-second. Across the five intervals, 109 requests issued only wait calls
-and processed 41,559,949 tokens. The counts establish recurrence of the
-wake pattern and observed polling cost. They establish no realized saving
-or natural deadline result.
-
 ### Confirmed sample and forward search on 2026-11-24
 
 All three retained watches qualify, with five unchanged intervals over
@@ -239,6 +218,100 @@ observable cues, with possible gaps from missing rollouts or unrecognized
 ad hoc monitoring. The eligible sample is still one workstream on one
 Codex and Open Dough version pair. It contains publication results only.
 
+### Measured watches and recommendation
+
+**Revise the Codex wait.** All five intervals exceeded the wake bar even
+when counting only requests whose sole observed action was waiting on the
+same command. The command stayed quiet until it returned a publication, and
+each coordinator continued or resumed the hold as the result warranted.
+No bypass surfaced in the bounded search. The natural traces show no missed
+result, failed continuation, or developer intervention through the observed
+next actions.
+
+| Coordinator rollout | UTC launch → receipt and JSONL lines | Seconds | Wait-only requests / allowance | Processed tokens | Cached input | Publication and next action |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| `01a1f70e-656e-7d32-baf8-ee066c533a92` | Nov 20 05:51:38.469 → 06:00:04.962 (3069–3147) | 506.493 | 7 / 2 | 2,888,983 | 99.88% | The shared review-input and session-admission paths changed on `main`. The coordinator recognized sibling repair `c5840ccd7` (3159), rebuilt the merge (3160, 3173), and reported 43 focused passes and landing (3265, 3292). |
+| `01a1fb74-984f-75c0-81cb-4d89225b0f3c` | Nov 21 01:49:15.359 → 02:22:56.187 (2658–3309) | 2,020.828 | 18 / 7 | 6,336,214 | 99.83% | Plan 742's Done record appeared on `main`. The coordinator integrated `be03d5643` (3314, 3322, 3334), then verified the migrated readers (3453). |
+| `01a1fb85-54bb-7a32-a5f7-2bc24d19d267` | Nov 21 02:33:24.634 → 02:51:26.250 (2970–3227) | 1,081.616 | 30 / 4 | 11,561,223 | 99.88% | Execution review `fd759fc69` appeared on the supplier branch. The coordinator checked the review and trunk ancestry (3231–3234) and resumed the hold (3238). |
+| Same | Nov 21 02:51:44.961 → 03:08:33.738 (3238–3413) | 1,008.777 | 29 / 4 | 11,405,747 | 99.92% | Closure `bd66bffac` appeared on the supplier branch. The coordinator inspected the prospective merge (3417–3420) and resumed the hold (3424). |
+| Same | Nov 21 03:08:49.539 → 03:15:30.728 (3424–3491) | 401.189 | 10 / 2 | 3,979,430 | 99.92% | The Done-helper change and plan removal appeared on `main` at `f6f42edab`. The coordinator started the merge (3496, 3504), resolved overlaps and reported 46 combined passes (3664). |
+
+The allowance is the ceiling of elapsed seconds divided by 300. Between
+the command launch and receipt, group actions by distinct
+`token_usage_record` response ID. Exclude the launch response, replies to
+the developer, and responses to the terminal receipt. Count an outer
+`wait` only on a cell that owns the command or a verified poll of its
+process. Count a shell poll only when the empty `write_stdin` targets the
+recorded process. For example, in the first rollout the seven wait-only
+meters are at 3078, 3084, 3107, 3113, 3119, 3139 and 3145. They sum to
+2,883,968 cached input tokens out of 2,887,347 input tokens. Across all
+five intervals, the lower bound is 94 requests against 19 allowed, using
+36,171,597 processed tokens. Cached shares describe those counted requests.
+
+| Interval start line | Independent work | Supplier inspection | Wait plus commentary | Wait mixed with another tool action | Unknown |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 3069 | 0 | 3 | 1 | 0 | 0 |
+| 2658 | 51 | 9 | 3 | 11 | 2 |
+| 2970 | 3 | 6 | 2 | 0 | 0 |
+| 3238 | 0 | 2 | 1 | 0 | 0 |
+| 3424 | 0 | 0 | 1 | 0 | 0 |
+
+Those requests are outside the wait-only bound. For example, the plan 742
+coordinator ran its own focused proof during the watch (2816–2853) and
+polled that work and the supplier in the same response (2777–2779). Its
+reasoning-only meters at 2715 and 3064 have no observable action to attribute.
+The first coordinator inspected the sibling revision and shared lookup
+(3091, 3124, 3131) during the installed watch. These reads supplement the
+launch rather than establishing an alternate watch route.
+
+All launches used `origin`. The first watched `main` paths
+`dashboard/server/storyReviewInput.ts`,
+`dashboard/server/storyReviewSessionAdmission.ts` and
+`dashboard/server/storyReviewSessionFileAdmission.ts` with deadline
+`2026-11-20T06:06:38.534Z`. The second watched
+`main:.planning/done/SEED-413_prove-ad-hoc-review-handoffs-with-typed-handlers.json`
+with deadline `2026-11-21T02:49:15.417Z`. For the third, the three launches
+watched the same `refs/heads/main` paths
+`dashboard/backend-tests/support/doneCaptureReview.ts` and
+`.planning/slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md`,
+and branch `refs/heads/codex/restore-done-capture-proof-and-focus-session-rev`.
+The first receipt returned deadline `2026-11-21T03:33:24.705Z`. The first
+rerun stored and passed it (3238), the second loaded and passed it (3424),
+and both receipts returned it unchanged. The qualifying landing was
+reported in the third interval. A qualifying change during either judgment
+gap was unobserved.
+
+The observed re-entry came from the Codex tool returning before the shell
+command did. The first coordinator started a one-second outer cell, then
+used 30- or 60-second `functions.wait` calls on the still-running cell
+(3069–3079, 3138–3147). The second called empty `write_stdin` in successive
+`functions.exec` cells. Those calls returned the same running session with
+empty output, typically after 30 or 60 seconds (2897–2905, 3279–3287).
+The third resumed each one-second cell with `functions.wait`. A 60-second
+inner `write_stdin` then handed back a still-running shell session, often
+requiring a fresh cell and a fresh wait (2976–3006, 3254–3266). The final
+loop in one cell still re-entered through a 60-second outer wait (3476–3491).
+The revision should address these host returns while retaining publication
+judgment and the original deadline on rerun.
+
+The historical Docker proof wait in Codex 0.169.0-alpha.11.1
+(`01a1e7c4-7085-7903-83b8-bcfeec6241f9`, lines 3190–3312) supplies a
+mechanism comparison. In a 1,032.099-second observed window, 14 interior
+poll requests used 6,239,076 processed tokens, with 99.96% of input cached.
+Its 300-second inner polls also returned the coordinator through shorter
+outer waits. The first natural supplier interval used about 0.83 wait-only
+requests per minute, compared with about 0.81 in that historical window.
+The older wait was for a proof on another Codex version, with no matched
+supplier workload or terminal outcome. The comparison supports recurrence
+of the host behavior and leaves realized savings unknown.
+
+This retrospective result applies to coordinator-initiated SEED-413 watches
+on Codex 0.171.0 and Open Dough 0.3.109. All five natural receipts were
+publications. The controlled November 18 deadline receipt at line 19 in
+`01a1edf4-66c1-7891-afde-eb5be690b336` verifies its shape. Natural deadline
+handling and other workstreams, version pairs and developer-initiated watches
+remain unobserved in the qualifying sample.
+
 ### Deferral and resume
 
 The November 18 execution deferred the story behind the Codex long-wait
@@ -277,6 +350,10 @@ Carry the cutoff, watch facts and any shortfall into a later take.
   4477. The Take's trunk revision has no attached observation in this session.
 - Slice 1 delivery is records-only. The two forward search indexes matched
   exactly, and the natural watches still meet the eligibility threshold.
+  The story branch accepted slice 1 at `1905a4a1cd7a081fa5b4c7da25361c88bc9fea23`.
+- Slice 2 delivery is records-only. The recount confirms every wake-bar
+  miss after excluding mixed requests and locates each continuation in the
+  original rollout.
 
 ## Story obligations
 
