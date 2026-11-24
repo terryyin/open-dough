@@ -203,19 +203,22 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
 
 **Identity:** SEED-413#renovate-later-dashboard-backend-unit-test-families
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["The remaining campaign spans several test families. Select and bound the next family before executable slice planning."],"basis":{"document":"41e13310730b328d3b05a4dd67f9fa01e0ada815fea846d2ce0738d49b1252ab"}}
 ```
 
 Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
 kept the [completed Done capture family](https://github.com/terryyin/open-dough/blob/8f4cc9480ccb0b736e3b29c787ab49a6ac80d366/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests).
 
-- **For / why.** Developers changing `dashboard/server/` get fast,
-  compile-time-checked unit tests for every remaining family: plain Node
-  Vitest cases that call strongly typed handlers directly with MakeMe domain
-  state and real Git and file collaborators. The campaign ends when
+- **Goal.** Developers changing `dashboard/server/` get fast feedback from
+  compile-time-checked cases. Keep the fewest clear, independent cases needed
+  to preserve behavioral coverage. Aim for about 100 ms per backend unit case
+  or faster.
+- **Scope.** Renovate each remaining family on plain Node Vitest. Call typed
+  production handlers directly with MakeMe domain state. Use real Git and file
+  collaborators where their behavior matters. The campaign ends when
   `dashboard/backend.playwright.config.ts` and the backend request and server
   wrappers in `dashboard/test-support/` are deleted.
-- **Evaluation.** Split by a verifiable outcome and size each story to one
+- **Family planning.** Split by a verifiable outcome and size each story to one
   plan. Group closely related families when they use the same typed inputs
   and arrangement. Recount the review families after
   [Review published changes](SEED-427-review-published-changes.md#review-published-changes)
@@ -239,6 +242,38 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
     place.
   - Delete retired `dashboard/test-support/` wrappers, add none, and leave no
     behavioral regression gap.
+
+**Speed and coverage for each family.** Apply the repository's test automation
+guidance when choosing the entry point, arranging state and writing assertions.
+Give each case one observable purpose and a concrete regression it catches.
+Use perpendicular coverage by varying one independent behavior with
+representative inputs. Keep a combined case when the interaction itself can
+change the outcome. Compare cases and assertions within the family and across
+test layers. Simplify or remove duplicates once a named surviving case catches
+the same regression at the required boundary. Keep distinct failure modes,
+contracts and interactions at their appropriate owners.
+[Backend test guidance](../../dashboard/backend-tests/README.md),
+[observable cases](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#write-observable-cases),
+[MakeMe](../../.agents/skills/dough-makeme/SKILL.md).
+
+Measure the selected family before and after with the maintained backend
+runner on comparable conditions. Record individual case times against the
+~100 ms target, case count and summed case time, plus elapsed time for the
+whole selection. Investigate slow survivors and record any cost still needed
+to exercise the behavior. Account for coverage moved to another suite so a
+smaller unit selection does not hide its cost or a lost regression check.
+
+**Key examples.**
+
+- When a typed reader case only needs an already-kept result, compose the
+  state with MakeMe and assert the read directly. Keep a separate collection
+  case that proves the real transition from an accepted landing to a saved
+  point.
+- When several variants repeat an assertion that is independent of what they
+  vary, keep the assertion with one representative case and remove the
+  repeated setup and checks. Retain a joint case when reopening the store can
+  change whether a pending proof recovers or a final proof is requested again.
+
 - **Revisit the completed Story Notes pilot.** The
   [handler](../../dashboard/server/storyNotes.ts) chooses its file through the
   machine home, so the [unit test suite](../../dashboard/backend-tests/review/story-notes.spec.ts)
@@ -314,13 +349,14 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
 
 **Identity:** SEED-413#renovate-landed-ci-backend-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"63e8abf2e464d61c9ff819eb871ea0df4d387fc0e59ea5ddc9ef9483ae0beaa4","plan":"3f9870a5c30cdc17d6bba78e05e7d077f96d80437df581689f8f3f0c328137ca"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3427ea0fc7fc9f3aab2d2a2b396557ccfd6ea9503d72184e942c27648a643572","plan":"db79c033b85bd4cfdc5622832acdd49793e671aaa28d4bad58e6527b15583412"}}
 ```
 
 **Goal.** Dashboard maintainers get faster, directly runnable feedback on how
 Landed collection resolves a build and how Intent reads its wall-time history.
 The checks keep the existing distinctions between a measurement, a pending
-answer, and a final gap.
+answer, and a final gap. Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families)
+to the wall-time cohort, aiming for about 100 ms per unit case or faster.
 
 **Scope.** Convert the 14 `dashboard/backend-tests/intent/landed-ci-history-*.spec.ts`
 files to typed production entries on Node Vitest. Cover initial collection and
@@ -330,13 +366,16 @@ waits. Compose landing receipts, Git history and saved records with MakeMe.
 Exercise actual collection when collection is the assertion. Preserve shared
 request admission and process lifetime proof at their existing owners. Scoped
 test history, automatic repeat, standalone proof collection and backend
-runner retirement stay in their own work.
+runner retirement stay in their own work. Reduce repeated setup and keep the
+smallest set of cases that detects the same regressions.
 
 **Key examples.**
 
 - Given an accepted landing with a queued exact run, collecting before and
   after completion shows a pending gap and then one measured exact build.
-  History and the selected comparison identify the same build.
+  History and the selected comparison identify the same build. Prove their
+  agreement once. Give expiry, repeated delivery and receipt retention their
+  own observations without repeating both reads wherever they add no signal.
 - Given a skipped landing whose equivalent build's proof read stays
   unanswered, another collection can resolve it when proof becomes readable.
   An answered final gap retains its reason and run identity.
@@ -361,12 +400,14 @@ its measured feedback stand on their own if scope history is deferred.
 
 **Identity:** SEED-413#renovate-landed-ci-scope-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/806-renovate-landed-ci-scope-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fe298426089c5db9a2dbf4a23e44fe4aa0d574877843fc0cd546807ca2195133","plan":"3656d7d117f8275039504a2db6538e28f68a77e90c5e9883f4cd03e4b1132b0d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/806-renovate-landed-ci-scope-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"210452aa16ba19b1e5ba03bee378e773166863250603e9134153bab52837069b","plan":"e632b65aeeb3a6aca36fd9578d79ddc634866d4259717a059395b583e5d825b0"}}
 ```
 
 **Goal.** Dashboard maintainers get faster, directly runnable feedback on how
 Landed collection turns exact CI artifacts into project and file scope history.
 The checks preserve the provenance, availability and finality of each point.
+Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families)
+to the scoped cohort, aiming for about 100 ms per unit case or faster.
 
 **Scope.** Convert the 13 `dashboard/backend-tests/intent/landed-ci-scope-*.spec.ts`
 files to typed production entries on Node Vitest. Cover GitHub and adapter
@@ -376,7 +417,8 @@ landing and completion inputs with real Git and temporary file stores where
 they carry the behavior. Preserve completion delivery and retry as actual
 operations in the case that observes them. Wall-time-only and runner-wait
 cases, automatic repeat, standalone proof collection and backend runner
-retirement stay in their own work.
+retirement stay in their own work. Reduce repeated setup and keep the
+smallest set of cases that detects the same regressions.
 
 **Key examples.**
 
@@ -388,7 +430,8 @@ retirement stay in their own work.
   uses its labelled later build while unrelated points stay outside the read.
 - Given an unanswered proof read, a later collector can recover the same
   attempt. A final unreadable proof stays final while another build resolves.
-  Actual completion retry keeps one measurement.
+  Exercise restart where saved evidence changes what the collector may retry.
+  Give actual completion retry its own case that keeps one measurement.
 - Given 20 ordered measurements, an unordered new landing waits without
   evicting one. Once ordered and measured, the twenty-first evicts the oldest
   in trunk order. Legacy proof and explanation-only gaps remain readable.

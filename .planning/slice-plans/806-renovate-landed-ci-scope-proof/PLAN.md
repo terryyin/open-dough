@@ -11,6 +11,10 @@ Intent reads across collection, restart and a bounded retained window.
 Wall-time-only and runner-wait proof, automatic repeat, standalone proof
 collection and backend runner retirement have separate owners.
 
+Apply the [campaign's speed and coverage criteria](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families).
+Aim for about 100 ms per unit case or faster. Use the smallest set of cases
+that still catches the distinct regressions in these 13 source files.
+
 ## Current decisions
 
 - Follow the North Star for [directly testable production code](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
@@ -91,15 +95,24 @@ this discrimination through the collector and store.
 ## Slices and outside-in proof
 
 Each file stem below denotes `dashboard/backend-tests/intent/landed-ci-scope-<stem>.spec.ts`.
-Keep every independent assertion in the roster. Compare purposes and case
-counts by title when a case moves or shares an existing owner.
+For each slice, map the original behavioral purposes to their surviving cases,
+including any moved proof. Give each case one observable purpose. Compose
+prerequisites with MakeMe and exercise real Git, persistence, collection or
+delivery when the assertion depends on it. Compare related cases across the
+cohort, wall-time history and existing owners. Remove repeated assertions and
+setup, varying one independent behavior per case and retaining combinations
+that affect the result.
+Check the focused run's case durations during each migration slice so it can
+simplify costly setup while it still owns that case.
 
 ### 1. An unanswered proof stays linked to the same attempt through recovery
 
 Type: Behavior
 Status: planned
 
-Measure the current two-worker scoped cohort before its first migration.
+Before migrating the first case, time the baseline command above with only
+the `landed-ci-scope-` selector. Use the proof record for each case duration,
+case and file counts and summed case time. Record shell elapsed separately.
 Convert `pending-proof`, `proof-recovery` and `proof-adapter-recovery`
 using the existing ordered collection pass and history reader. Supply
 real published ancestry, accepted landing receipts and typed GitHub or
@@ -109,9 +122,11 @@ ownership in the production caller.
 
 **Proof.** An unanswered read produces a linked pending gap without losing
 known run identity or independent trunk order. A succeeding pass or a
-reopened collector resolves it to the same attempt. Observe actual writes
-and public scoped reads. Verify production wiring with affected wall-time
-and scoped consumers if shared composition changes.
+reopened collector resolves it to the same attempt. Cover distinct provider
+and proof-state behavior with representative cases. Use reopen where saved
+state affects recovery, keeping the finality interaction with slice 2. Observe
+actual writes and public scoped reads. Verify production wiring with affected
+wall-time and scoped consumers if shared composition changes.
 
 ### 2. A reopened collector keeps final evidence and advances pending builds
 
@@ -192,25 +207,27 @@ adapter proof.
 Type: Behavior
 Status: planned
 
-Run the scoped selection on comparable awake AC macOS at two workers.
-Compare with the standalone baseline using matching behavior, reported
-separately as shell elapsed and summed case durations. Record workload,
-load, file and case counts and any proof moved elsewhere. Delete only
-support imports and files whose consumers are gone.
+Run the maintained scoped selection at two workers under conditions comparable
+to slice 1. Compare shell elapsed, summed case time and file and case counts.
+List individual case durations against the ~100 ms target. Investigate slower
+cases for avoidable setup, waiting and repeated proof, and document any retained
+cost and the behavior that needs it. Include the cost of any proof moved to
+another suite. Retire setup and support imports whose consumers are gone.
 
-**Proof.** The maintained runner lists and passes the scoped roster on
-plain Node Vitest. Every independent purpose has an identified owner.
-The comparable run is faster and the consumer trace shows no new wrapper,
-server mount, browser arrangement or unowned assertion in the cohort.
+**Proof.** The runner proof record shows passing Node Vitest cases and the
+comparable run is faster. The purpose map names surviving coverage for each
+removed or consolidated case and the focused proof shows that the surviving
+case rejects a representative regression. Inspect for direct typed entry and
+verify the cohort is free of server mounts, browser setup and new wrappers.
 
 ## Concern evidence
 
-Refinement was unnecessary after separating attempt identity, provenance,
-window and completion proofs. The common model is a landing receipt
-resolved against attempt evidence. The exact, equivalent and later roles
-remain available through one read projection. The map covers every scoped
-source file and retains the genuine delivery and restart triggers. No
-remaining slice-specific concern was identified.
+Refinement retained seven slices and assigned overlap review to each migration
+slice, with measurement in slices 1 and 7. The common model is a landing
+receipt resolved against attempt evidence. The exact, equivalent and later
+roles remain available through one read projection. The map covers every scoped
+source file and retains the genuine delivery and restart triggers. No remaining
+slice-specific concern was identified.
 
 ## Verification and delivery
 

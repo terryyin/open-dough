@@ -13,6 +13,10 @@ request and persistence contracts. Scoped test proof, standalone proof
 collection, reader restart, automatic-repeat correction and backend runner
 retirement have separate owners.
 
+Apply the [campaign's speed and coverage criteria](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families).
+Aim for about 100 ms per unit case or faster. Use the smallest set of cases
+that still catches the distinct regressions in these 14 source files.
+
 ## Current decisions
 
 - Follow the North Star for [directly testable production code](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
@@ -86,17 +90,25 @@ this discrimination at the typed reader.
 ## Slices and outside-in proof
 
 Each file stem below denotes `dashboard/backend-tests/intent/landed-ci-history-<stem>.spec.ts`.
-Retain every independent assertion in the roster. Compare purposes and case
-counts by title when a case moves or shares an existing owner.
+For each slice, map the original behavioral purposes to their surviving cases,
+including any moved proof. Give each case one observable purpose. Use MakeMe
+to compose prerequisites, and exercise Git, persistence or the collector when
+its real behavior is part of the assertion. Compare related cases across the
+cohort and existing owners. Remove repeated assertions and setup, varying one
+independent behavior per case and retaining combinations that affect the result.
+Check the focused run's case durations during each migration slice so it can
+simplify costly setup while it still owns that case.
 
 ### 1. Accepted landings are collected with the production lifecycle
 
 Type: Behavior
 Status: planned
 
-Capture a current two-worker baseline for this cohort before migrating its
-first case. Use `collection` and `lifecycle`. Make the existing ordered
-collection pass callable with typed project, records, history store, Git
+Before migrating the first case, time the baseline command above with only
+the `landed-ci-history-` selector. Use the proof record for each case duration,
+case and file counts and summed case time. Record shell elapsed separately.
+Use `collection` and `lifecycle`. Make the existing ordered collection pass
+callable with typed project, records, history store, Git
 order, CI and stop inputs. Keep production's auto-collection enablement,
 receipt-triggered scheduling and stopped-pass behavior in the owner that
 starts it. A landing recorded before collection starts becomes readable
@@ -124,8 +136,10 @@ and target after its launch record disappears.
 **Proof.** Read the pending gap before completion and trace the same
 exact run/attempt and duration through both typed readers after completion.
 Confirm repeat delivery yields one observation and the original receipt time
-controls the no-build horizon. Check the existing selected comparison
-contract wherever the input binding changes.
+controls the no-build horizon. Compare `pending` with `comparison-run` so
+one representative case owns reader agreement. Prove repeated delivery,
+the no-build horizon and receipt retention where each has a distinguishing
+result. Check the selected comparison contract wherever the binding changes.
 
 ### 3. Equivalent and later builds resolve from pending evidence
 
@@ -192,26 +206,27 @@ read and write behavior through the same store the pass uses.
 Type: Behavior
 Status: planned
 
-Run the maintained selection at two workers on comparable conditions and
-observe every assigned case on plain Node Vitest. Compare with slice 1's
-standalone baseline using shell elapsed and summed case durations for
-matching behavior. Record workload, load, case and file counts, and the
-cost of surviving proof elsewhere. Retire only setup and support imports
-with no remaining consumer.
+Run the maintained selection at two workers under conditions comparable to
+slice 1. Compare shell elapsed, summed case time and file and case counts.
+List individual case durations against the ~100 ms target. Investigate slower
+cases for avoidable setup, waiting and repeated proof, and document any retained
+cost and the behavior that needs it. Include the cost of any proof moved to
+another suite. Retire setup and support imports whose consumers are gone.
 
-**Proof.** The runner proof record lists only Vitest for the cohort and
-shows one passing execution per retained behavior. The case ledger accounts
-for any replacement or shared owner. The comparable run is faster and
-inspection finds no server mount, browser, new test-support wrapper or
-untraced deletion in this cohort. Record elapsed and case totals separately.
+**Proof.** The runner proof record shows passing Node Vitest cases and the
+comparable run is faster. The purpose map names surviving coverage for each
+removed or consolidated case and the focused proof shows that the surviving
+case rejects a representative regression. Inspect for direct typed entry and
+verify the cohort is free of server mounts, browser setup and new wrappers.
 
 ## Concern evidence
 
-Refinement was unnecessary after grouping the cases by observed outcome.
-The model is a receipt resolved to attempt evidence which a read projects.
-The runner-wait measure derives from that same attempt. The slice map covers
-all 14 files, with separate observations for expiry, recovery and passive
-reads. No remaining slice-specific concern was identified.
+Refinement retained seven slices and assigned overlap review to each migration
+slice, with measurement in slices 1 and 7. The model is a receipt resolved to
+attempt evidence which a read projects. The runner-wait measure derives from
+that same attempt. The slice map covers all 14 source files, with separate
+observations for expiry, recovery and passive reads. No remaining slice-specific
+concern was identified.
 
 ## Verification and delivery
 
