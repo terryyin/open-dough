@@ -1,27 +1,18 @@
-import { createElement } from "react";
-import { expect, test, vi } from "vitest";
-import { page } from "vitest/browser";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import type { LaunchAttemptSource } from "../../src/launchAttempts.ts";
-import { StartSession } from "../../src/StartSession.tsx";
-import { storyContext } from "../../src/followUpContext.ts";
 import type { StoryNote, StoryNotesAnswer } from "../../src/storyNote.ts";
-import { PageReadsOnPage } from "../../src/pageReads.tsx";
-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
-import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { adHocLaunches, launchDialog } from "./ad-hoc-launch-page.ts";
-import { useMountedLaunchAttempts } from "./mounted-launch-attempts.ts";
+import {
+  followUpRevision as revision,
+  openStoryFollowUp,
+} from "./follow-up-page.ts";
 import { mountStoryStartup } from "./story-startup-page.ts";
 
-const project = makeMe.aPublishedSource.openDough.please();
 const story = makeMe.aWorkEntry
   .with({
     identity: "SEED-826#notes",
     title: "Keep the follow-up notes",
   })
   .please();
-const revision = "7".repeat(40);
-const name = `${story.identity} — ${story.title}`;
 const waiting = makeMe.aStoryNote.withText("Still waiting").please();
 const sent = makeMe.aStoryNote
   .identifiedAs("34810000-0000-4000-8000-000000000202")
@@ -33,58 +24,16 @@ const answer = (...notes: StoryNote[]): StoryNotesAnswer => ({
   kind: "notes",
   notes: { [story.identity]: notes },
 });
-const machine = makeMe.aMachineAnswer.please();
 
-function FollowUpOnPage({ source }: { source: LaunchAttemptSource }) {
-  const { adHocAttemptOf, startAdHoc } = useMountedLaunchAttempts(
-    machine,
-    source,
-    0,
-  );
-  const { sessionPolicyOffer, rereadOffers } = adHocLaunches();
-  return createElement(StartSession, {
-    project: project.label,
-    sourceId: project.id,
-    launches: { adHocAttemptOf, startAdHoc, sessionPolicyOffer, rereadOffers },
-    presentTerminal: () => undefined,
-    followUp: {
-      name,
-      context: storyContext(
-        { ...story, completedAt: "2026-11-17T00:00:00.000Z" },
-        [],
-      ),
-      source: { story: { identity: story.identity, revision } },
-    },
-  });
-}
-
-async function mountFollowUp(read: StoryNotesAnswer) {
-  const accept = vi.fn<LaunchAttemptSource["accept"]>().mockResolvedValue({
-    kind: "failed",
-    explanation: "The test host declined this start.",
-  });
-  const source = {
-    accept,
-    waitForChange: vi
-      .fn<LaunchAttemptSource["waitForChange"]>()
-      .mockResolvedValue(undefined),
-  };
-  await mountComponent(
-    createElement(PageReadsOnPage, {
-      reads: pageReadsSupplying({ storyNotes: () => Promise.resolve(read) }),
-      children: createElement(FollowUpOnPage, { source }),
-    }),
-  );
-  const launcher = page.getByRole("button", { name: `Follow up ${name}` });
-  await launcher.click();
-  const form = launchDialog();
-  const attach = form.dialog.getByRole("checkbox", {
+async function mountFollowUp(notes: StoryNotesAnswer) {
+  const opened = await openStoryFollowUp(story, { notes });
+  const attach = opened.form.dialog.getByRole("checkbox", {
     name: "Attach story notes",
   });
-  const details = form.dialog.getByText("Waiting note details", {
+  const details = opened.form.dialog.getByText("Waiting note details", {
     exact: true,
   });
-  return { launcher, form, attach, details, accept };
+  return { ...opened, attach, details };
 }
 
 test("waiting note details preserve the choice and only selected notes are requested by Start", async () => {
