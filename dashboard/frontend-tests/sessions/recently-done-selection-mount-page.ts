@@ -24,7 +24,7 @@ const linkedRecord = makeMe.aLaunchRecord
   .launchedAt(minutesAgo(90))
   .markedDoneAt(minutesAgo(1))
   .please();
-const takenRecord = makeMe.aLaunchRecord
+export const takenRecord = makeMe.aLaunchRecord
   .executing({
     identity: "slice-plans/303-taken",
     title: takenTitle,
@@ -34,7 +34,7 @@ const takenRecord = makeMe.aLaunchRecord
   .launchedAt(minutesAgo(80))
   .markedDoneAt(minutesAgo(3))
   .please();
-const adHocRecord = makeMe.aLaunchRecord
+export const adHocRecord = makeMe.aLaunchRecord
   .adHoc({
     instruction: "Tidy Doughnut's notes",
     title: adHocTitle,

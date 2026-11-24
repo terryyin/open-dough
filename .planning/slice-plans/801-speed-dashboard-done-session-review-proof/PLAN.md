@@ -173,7 +173,7 @@ source control's dispatch.
 ### 5. Keep the current review state across a card and its session rows
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (19 cases).** `sessions/recently-done-sessions-review-cue{,-evidence,-races}.spec.ts`,
 `stories/recently-done-review-{cue,state,state-offer}.spec.ts`.
@@ -248,7 +248,10 @@ Status: planned
 
 **Roster.** The cases slice 1 left in
 `sessions/recently-done-sessions-sidebar{,-paging,-room,-touch}.spec.ts`,
-and those slice 2 left in `sessions/recently-done-sessions-select{,-touch}.spec.ts`
+and those slice 2 left in `sessions/recently-done-sessions-select{,-touch}.spec.ts`,
+and slice 5's touch cases: the 44px review control in
+`stories/recently-done-review-state-offer.spec.ts` and the long-title touch
+case in `sessions/recently-done-sessions-review-cue.spec.ts`
 (see the assertion map).
 
 **Proof.** Measure the three lists' floors, shared room with Running Cursor,
@@ -397,3 +400,32 @@ answer and a selectable Backlog story. Legacy file and its spent support
 | — "keyboard source reveal beyond ten keeps an open Side panel and leaves selection alone under reduced motion" (deleted) | 1280 wide; unselected story stays unselected; Terminal Side panel opened from the Taken entry stays visible; destination focused in view | Reveal spec "keyboard source reveal beyond ten keeps an open Side panel and leaves selection alone under reduced motion" (`answerTerminal` transport; Open terminal on the Taken entry). |
 | — "a failed source body keeps the Taken entry naming the identity and still reveals the gap card" (deleted) | Naming read fails → identity link; reveal read fails → focused destination says "This done story could not be read."; Taken entry still names identity | Reveal spec, same title (two failed source reads). |
 | — "an absent source keeps the Taken entry accessible with honest unavailable feedback" (deleted) | Notice "`<identity>` is unavailable in Open Dough's dashboard."; no destination; Taken entry kept | Reveal spec, same title (exact notice text). |
+
+Slice 5 (in progress). Replacements over `ConfiguredDashboard` with the
+existing `PageReads.reviewStates` reader (now passable through
+`mountBoardFrame`/`mountSessions`, no production change):
+`stories/recently-done-review-state-mount.spec.ts` ("state spec") over
+`stories/recently-done-review-state-mount-page.ts`, and
+`sessions/recently-done-review-cue-mount.spec.ts` ("cue spec") over
+`sessions/recently-done-review-cue-mount-page.ts` (per-project review states
+and Pygardon catalog the case answers, holds or fails). Each equivalent
+distinguishes the old regression by the same observation.
+
+| Old case | Distinct observations | Replacement or equivalent |
+| --- | --- | --- |
+| `stories/recently-done-review-state.spec.ts` — "Mark as reviewed keeps the card, selection and announcement as they were" (deleted) | All unreviewed; keyboard mark → Reviewed focused, one "Marked as reviewed." status, action list otherwise unchanged; others, order, "3 entries", C selected, A not, no Side panel, saved set; Cancel focus/keep; Escape closes and keeps | State spec "Mark as reviewed, Cancel and Escape keep the card, its order, count and selection, and announce once". |
+| `stories/recently-done-review-state.spec.ts` — "Marking and unreviewing a story keep the card's sessions as they were" (deleted) | Card's two sessions unchanged after mark and after Unreview | State spec "marking and unreviewing a story keep the card's sessions as they were" (session identities, plus the saved change sequence). |
+| `stories/recently-done-review-state-offer.spec.ts` — "a card whose record could not be read offers Mark as reviewed" (removed from file) | Unread text; Mark as reviewed offered | State spec, same title. |
+| `stories/recently-done-review-state-offer.spec.ts` — "a card whose record is still being read …" (removed from file) | Reading text; mark while reading; Reviewed kept after facts appear | State spec, same title. |
+| `stories/recently-done-review-state-offer.spec.ts` — "Review actions and both confirmation choices offer the shared 44px control height" (kept) | Coarse-pointer 44px heights | Kept on the touch page; moves with slice 9. |
+| `sessions/recently-done-sessions-review-cue.spec.ts` — "an unselected cross-project done-story row exposes its review need while the Board stays put" (removed) | Cue, "Needs review" description, unpressed, Open Dough kept | Cue spec "equal identities use their own project's review state; …" (opening assertions). |
+| `sessions/recently-done-sessions-review-cue.spec.ts` — "equal identities use their own project's review state; every shown matching row shares successful card changes" (removed) | Pygardon rows cue, Open Dough/ad hoc/Taken rows none; one Pygardon catalog read; Unreview → Open Dough row cues, Pygardon unchanged; Mark → clears only Open Dough row | Cue spec, same case (card operated with the Sessions sidebar closed). The final-report row is not in the mounted frame (its cue-free observation is the Taken/ad hoc rows'). |
+| `sessions/recently-done-sessions-review-cue.spec.ts` — "a newly revealed batch resolves the same published story without per-row catalog reads" (removed) | 20 shown, older absent; reveal → older row cues; ≤2 catalog reads | Cue spec, same title (29 rows, revealed through the end). |
+| `sessions/recently-done-sessions-review-cue.spec.ts` — "a long title leaves Needs review and separate Select and Open usable" (kept) | Coarse-pointer narrow touch geometry, 44px, tap Select/Open | Kept on the touch page; moves with slice 9. |
+| `sessions/recently-done-sessions-review-cue-evidence.spec.ts` — "failed catalog / failed review state supplies no warning; …" (removed) | No cue, Select/Open enabled; later read cues without selecting; Open Dough kept | Cue spec "failed catalog …" and "failed review state …" (later read via the next check interval). |
+| `sessions/recently-done-sessions-review-cue-evidence.spec.ts` — "pending catalog shows no initial warning, then resolves without selecting" (removed) | No cue while held; cue after release; unpressed | Cue spec, same title. |
+| `sessions/recently-done-sessions-review-cue-evidence.spec.ts` — failed/pending association (kept) | Ad hoc row association evidence | Legacy for SEED-426. |
+| `sessions/recently-done-sessions-review-cue-races.spec.ts` — "pending local review evidence stays unknown and its pre-save answer cannot restore a cleared cue" (removed) | Held read → no cue; release → cue; stale read asked before card Mark on Pygardon → cue cleared and stays cleared after the stale answer | Cue spec, same title (stale answer is the pre-save snapshot). |
+| `sessions/recently-done-sessions-review-cue-races.spec.ts` — "an obsolete association cannot warn the row after its project/association changes" (kept) | Ad hoc association context change | Legacy for SEED-426. |
+| `stories/recently-done-review-cue.spec.ts` — "an outstanding review is a readable red action beside quiet Reviewed in light/dark appearance" (deleted, both cases) | Exact red fill/foreground and quiet colours per scheme, 4.5:1 text and 3:1 control contrast, focus ring ≥2px at 3:1, keyboard mark/unreview keeps focus | `stories/recently-done-review-appearance-mount.spec.ts`, same titles (scheme via CDP emulated media). Spent helpers `expectReviewWarning`/`expectQuietReviewed` removed from `test-support/doneStoryReviewPage.ts`. |
+| Persistence across reload/restart | — | `e2e/stories/recently-done-review-state-persistence.spec.ts` (unchanged owner). |

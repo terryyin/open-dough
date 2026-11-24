@@ -12,6 +12,7 @@ import type { PublishedObservationReadSource } from "../../src/publishedObservat
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
+import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
 import {
   authenticatedSessionServices,
   type SessionServices,
@@ -46,6 +47,7 @@ export async function mountBoardFrame(
     done,
     ci,
     review,
+    reviewStates,
     doneCatalog,
     sessions = authenticatedSessionServices,
     awaitSessionsRead = true,
@@ -56,6 +58,8 @@ export async function mountBoardFrame(
     done?: DoneRecordReadSource;
     ci?: IntentCiReadSource;
     review?: ReviewSource;
+    // Each project's story review states, read and changed.
+    reviewStates?: StoryReviewStatesReadSource;
     // A case-owned published done catalog read for every project.
     doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
     // The shown session's final report, host status and terminal.
@@ -99,6 +103,7 @@ export async function mountBoardFrame(
         ...(done === undefined ? {} : { done }),
         ...(ci === undefined ? {} : { ci }),
         ...(review === undefined ? {} : { review }),
+        ...(reviewStates === undefined ? {} : { reviewStates }),
       }),
       settingsOpen: false,
       onOpenSettings: () => {},

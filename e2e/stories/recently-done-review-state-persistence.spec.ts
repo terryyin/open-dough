@@ -1,6 +1,6 @@
 // Story review state survives page reload and a real dashboard restart.
 // Keyboard Unreview after restart preserves card order, selection and repository bytes. The card-interaction journey remains in
-// ../../dashboard/frontend-tests/stories/recently-done-review-state.spec.ts.
+// ../../dashboard/frontend-tests/stories/recently-done-review-state-mount.spec.ts.
 
 import { doneStoryReview } from "../../dashboard/test-support/doneStoryReviewPage.ts";
 import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";

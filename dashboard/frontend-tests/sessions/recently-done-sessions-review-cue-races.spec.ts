@@ -1,4 +1,6 @@
-// Older answers cannot replace the current row context or a saved review.
+// An obsolete ad hoc association cannot warn a row whose context changed
+// (legacy for SEED-426). A story row's pre-save review answer:
+// ./recently-done-review-cue-mount.spec.ts.
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
 import {
@@ -8,58 +10,9 @@ import {
 import { expectSessionReviewCue } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import { givePageItsTurns } from "../../test-support/pageRequestNotes.ts";
-import {
-  chooseProject,
-  expectProjectChoice,
-} from "../../test-support/projectChoice.ts";
-import {
-  doneCard,
-  expectReviewed,
-  markAsReviewed,
-} from "../../test-support/doneStoryReviewPage.ts";
+import { expectProjectChoice } from "../../test-support/projectChoice.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { showColumn } from "../../test-support/boardPage.ts";
-import {
-  installFrontendCompletedStoryAssociation,
-  installFrontendStoryReviewState,
-} from "../../test-support/support/frontendServiceSubstitutes.ts";
-
-test("pending local review evidence stays unknown and its pre-save answer cannot restore a cleared cue", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, new Date());
-  const review = await installFrontendStoryReviewState(page);
-  const held = review.holdNext("pygardon");
-  review.answerNext([], "pygardon");
-  const { shown, row } = await openFrontendSelectionPage(
-    page,
-    frontendServices,
-  );
-  await held.received;
-  await expectSessionReviewCue(row(linked.title), false);
-  await expect(shown.select(linked.title)).toBeEnabled();
-  held.release();
-  await held.delivered;
-  await expectSessionReviewCue(row(linked.title), true);
-
-  const stale = review.holdNext("pygardon");
-  review.answerNext([], "pygardon");
-  await page.clock.runFor(checkIntervalMs);
-  await stale.received;
-  await chooseProject(page, "Pygardon");
-  await showColumn(page, "Recently done");
-  const card = doneCard(page, linked.title);
-  await expectReviewed(card, false);
-  await markAsReviewed(card).click();
-  await expectReviewed(card, true);
-  await expectSessionReviewCue(row(linked.title), false);
-  stale.release();
-  await stale.delivered;
-  await givePageItsTurns(page);
-  await expectReviewed(card, true);
-  await expectSessionReviewCue(row(linked.title), false);
-});
+import { installFrontendCompletedStoryAssociation } from "../../test-support/support/frontendServiceSubstitutes.ts";
 
 for (const replacement of ["project", "association"] as const) {
   test(`an obsolete association cannot warn the row after its ${replacement} changes`, async ({

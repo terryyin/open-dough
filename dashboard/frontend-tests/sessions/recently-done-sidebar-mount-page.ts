@@ -10,6 +10,7 @@ import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
 import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { SessionServices } from "../../src/sessionServices.ts";
+import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
 import { boardWork } from "../navigation/board-work.ts";
@@ -95,6 +96,7 @@ export async function mountSessions(
     doneBodies,
     view = "stories",
     sessions,
+    reviewStates,
   }: {
     awaitSessionsRead?: boolean;
     // Each project's published done catalog; others list none.
@@ -109,6 +111,8 @@ export async function mountSessions(
     view?: "stories" | "roster";
     // The shown session's final report, host status and terminal.
     sessions?: SessionServices;
+    // Each project's story review states, read and changed.
+    reviewStates?: StoryReviewStatesReadSource;
   } = {},
 ) {
   const [first, ...otherWork] = projectsWith(done);
@@ -127,6 +131,7 @@ export async function mountSessions(
       ...(doneCatalog === undefined ? {} : { doneCatalog }),
       ...(doneBodies === undefined ? {} : { done: doneBodies }),
       ...(sessions === undefined ? {} : { sessions }),
+      ...(reviewStates === undefined ? {} : { reviewStates }),
     },
   );
   await page.getByRole("button", { name: /^Sessions/ }).click();

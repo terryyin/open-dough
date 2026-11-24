@@ -1,114 +1,19 @@
-// Shown Recently done rows expose their linked story's outstanding local review.
+// At narrow touch width a long-titled row keeps its Needs review cue and its
+// separate Select and Open usable (moves with slice 9's touch proof). Story
+// rows' review cue: ./recently-done-review-cue-mount.spec.ts.
 import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import { expectProjectChoice } from "../../test-support/projectChoice.ts";
 import { expectSessionReviewCue } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
 import {
-  adHoc,
   cueSession,
-  duplicateTitle,
-  linked,
-  localSessionTitle,
-  localTitle,
   longSessionTitle,
   openFrontendReviewCueSessions,
-  report,
-  takenElsewhere,
 } from "../../test-support/support/frontendRecentlyDoneReviewCue.ts";
-import { openFrontendSelectionPage } from "../../test-support/support/frontendRecentlyDoneSelection.ts";
-import { isPygardonCatalog } from "../../test-support/pygardonCatalogReads.ts";
-import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
-import {
-  doneCard,
-  expectReviewed,
-  markAsReviewed,
-  unreviewStory,
-} from "../../test-support/doneStoryReviewPage.ts";
 import { box, tapWhereShown } from "../../test-support/pageLayout.ts";
 import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
-import { showColumn } from "../../test-support/boardPage.ts";
 import {
   finalReportPanel,
   finalReportText,
 } from "../../test-support/finalReportPages.ts";
-
-test("an unselected cross-project done-story row exposes its review need while the Board stays put", async ({
-  page,
-  frontendServices,
-}) => {
-  const { shown } = await openFrontendSelectionPage(page, frontendServices);
-  await expect(shown.reviewCue(linked.title)).toBeVisible();
-  await expect(shown.select(linked.title)).toHaveAccessibleDescription(
-    /Needs review/,
-  );
-  await expect(shown.select(linked.title)).toHaveAttribute(
-    "aria-pressed",
-    "false",
-  );
-  await expectProjectChoice(page, "Open Dough");
-});
-
-test("equal identities use their own project's review state; every shown matching row shares successful card changes", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, new Date());
-  let catalogs = 0;
-  page.on("request", (request) => {
-    if (isPygardonCatalog(new URL(request.url()))) catalogs += 1;
-  });
-  const { shown } = await openFrontendReviewCueSessions(page, frontendServices);
-  await expectSessionReviewCue(shown.row(linked.title), true);
-  await expectSessionReviewCue(shown.row(duplicateTitle), true);
-  for (const title of [
-    localSessionTitle,
-    adHoc.title,
-    report.title,
-    takenElsewhere.title,
-  ])
-    await expectSessionReviewCue(shown.row(title), false);
-  await untilPageRequestsAnswered(page);
-  expect(catalogs).toBe(1);
-  await expectProjectChoice(page, "Open Dough");
-  const card = doneCard(page, localTitle);
-  await showColumn(page, "Recently done");
-  await expectReviewed(card, true);
-  await unreviewStory(card, "Unreview this story?", "mouse");
-  await expectSessionReviewCue(shown.row(localSessionTitle), true);
-  await expectSessionReviewCue(shown.row(linked.title), true);
-  await markAsReviewed(card).click();
-  await expectSessionReviewCue(shown.row(localSessionTitle), false);
-  await expectSessionReviewCue(shown.row(linked.title), true);
-});
-
-test("a newly revealed batch resolves the same published story without per-row catalog reads", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, new Date());
-  const older = Array.from(Array(24).keys(), (index) =>
-    cueSession(`Older review session ${String(index)}`, index + 100),
-  );
-  let catalogs = 0;
-  page.on("request", (request) => {
-    if (isPygardonCatalog(new URL(request.url()))) catalogs += 1;
-  });
-  const { shown } = await openFrontendReviewCueSessions(
-    page,
-    frontendServices,
-    {
-      extra: older,
-    },
-  );
-  await expect(shown.entries).toHaveCount(20);
-  await expect(shown.row("Older review session 23")).toHaveCount(0);
-  await shown.revealOlder();
-  await expect(shown.entries).toHaveCount(30);
-  await expectSessionReviewCue(shown.row("Older review session 23"), true);
-  await untilPageRequestsAnswered(page);
-  expect(catalogs).toBeLessThanOrEqual(2);
-  await expectProjectChoice(page, "Open Dough");
-});
 
 test.describe("narrow touch review cue", () => {
   test.use({ viewport: phoneLaunchTouchViewport.portrait, hasTouch: true });
