@@ -85,6 +85,8 @@ legacy runner retirement.
 - Starting revision `2ae40178f5d1bd39555dd0b52fe87cab9d6f81c8`.
   Published Take `46dd56241b745df00d8459cd36483d8732187261` on trunk and
   the execution branch.
+- Slice 1 published as `d1271312797dc8394764efea4b74c969fd2c5d77` on the
+  execution branch.
 - Codex CI observer `sola-chan-804`, GitHub Actions `ci.yml` (CI),
   `/tmp/dough-ci-501/watch-CNuTjf`, PID 1090, session 45469, cell `g34:8`.
 
@@ -168,7 +170,7 @@ and `baseline-associations.log.run.json`. Disposition is records-only.
 
 ### 2. Admit independent work as a Taken story
 Type: Behavior
-Status: planned
+Status: done
 Proof: Distribution's installed startup against a fixture bare remote shows
 one canonical story, assignment and Taken entry after lost response and retry.
 
@@ -179,6 +181,29 @@ Use existing identity collision and concurrent-claim handling, including
 sibling admissions and divergent remote edits. Verify the queued list's order
 and that a refusal leaves both story and Taken absent. Exercise current CLI
 admission and an identity-bearing start so their normal paths still work.
+
+The installed `execution-start.mjs draft --repository PATH --remote origin
+--target BRANCH --title TEXT --goal TEXT` returns a proposed identity, link,
+title and `ownedDraft`. Retain that response and an attempt-specific
+publisher before calling `start --admit --identity ID --link HREF --title TEXT
+--owned-draft JSON`. Use the separate owned claim worktree and Trunk Mode
+when the session borrows the default checkout. Passing the default checkout
+as `--repository` keeps its HEAD, index and worktree outside the claim.
+Recover an uncertain result using the exact retained request and candidate.
+A definitive different-owner or occupied-seed refusal leaves the losing
+attempt unadmitted. A new draft of its launch request can allocate again.
+The backlog renderer rejects brackets in titles. Slice 3 applies the
+unusable-label fallback when the existing label cannot be recorded.
+
+The bare-remote proof observes exact published story and Taken membership,
+agent assignment, queue order, dirty checkout preservation, a lost response,
+an interrupted publication, and competing and sibling admissions. The
+unchanged startup, Dashboard and installer proof passed, as did Dashboard
+typecheck. The independent refactor consolidated retained-draft validation
+and restored legacy membership lookup order. Its 40 affected CLI tests passed.
+Literal commands, observations, consumer trace and terminal records are in
+`open-dough/evidence/slice-2-return.md` and `slice-2-refactor.md` in the
+worktree Git directory.
 
 ### 3. Open a new session under its admitted story
 Type: Behavior
