@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "sessionId": "4003715e-4b6c-4e37-91e8-4cdcae844a19",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T09:33:47.230Z",
+  "story": "SEED-427#review-published-changes",
+  "ranges": [
+    {
+      "base": "f5f354ab320dfea79b8c02b10125809e2e06fc2a",
+      "candidate": "a3093e76fb62f8810dddea0064a1abfe7740fbff"
+    },
+    {
+      "base": "a3093e76fb62f8810dddea0064a1abfe7740fbff",
+      "candidate": "e24c15efde0e0067d1fc84d2f1ff709cd6b8dcfa"
+    },
+    {
+      "base": "e24c15efde0e0067d1fc84d2f1ff709cd6b8dcfa",
+      "candidate": "c301a3c1d8c1334be06035311ce8553becc4c66a"
+    },
+    {
+      "base": "c301a3c1d8c1334be06035311ce8553becc4c66a",
+      "candidate": "b265461cb14fa8d8e063399de0b9fbbe0ef84618"
+    },
+    {
+      "base": "b265461cb14fa8d8e063399de0b9fbbe0ef84618",
+      "candidate": "e0671c2af104a21f5df8771150342630b8928ee5"
+    },
+    {
+      "base": "e0671c2af104a21f5df8771150342630b8928ee5",
+      "candidate": "49e2b24ff52c199c6310555e242e4aa34c96d332"
+    },
+    {
+      "base": "49e2b24ff52c199c6310555e242e4aa34c96d332",
+      "candidate": "69d617aa9d299e60ec106db2bb44e241d3dfc901"
+    },
+    {
+      "base": "69d617aa9d299e60ec106db2bb44e241d3dfc901",
+      "candidate": "0e187842da10cbd9203e68f731ad9a1c18f8b1de"
+    },
+    {
+      "base": "0e187842da10cbd9203e68f731ad9a1c18f8b1de",
+      "candidate": "10581e20a5b5d5455e1cac4d20fbfbbefd8feed5"
+    },
+    {
+      "base": "10581e20a5b5d5455e1cac4d20fbfbbefd8feed5",
+      "candidate": "a2d149089a009b9abcdde72e2921ca94659a8c11"
+    },
+    {
+      "base": "a2d149089a009b9abcdde72e2921ca94659a8c11",
+      "candidate": "d27619403d26707d0f925f64ae1684ef5f382768"
+    },
+    {
+      "base": "d27619403d26707d0f925f64ae1684ef5f382768",
+      "candidate": "5090569e782c0cb9cc1b8568d2bccec1d9f7c346"
+    },
+    {
+      "base": "5090569e782c0cb9cc1b8568d2bccec1d9f7c346",
+      "candidate": "6df5855fca1cb0d4d1648f734cd219c319fbc225"
+    },
+    {
+      "base": "590083ad044b2ba750a9be7840c2b12e2119affe",
+      "candidate": "944d44640e954d9a50f7f13054885f210fbb3e81"
+    }
+  ]
+}
