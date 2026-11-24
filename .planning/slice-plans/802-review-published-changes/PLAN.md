@@ -12,19 +12,18 @@ The seed owns the examples, removals and follow-up boundaries. Session startup,
 Done, workspace protection, authorized publication, landing and recovery retain
 their workflow owners. Session selection inside a story, combining ranges,
 expired-session recovery and new file or bookmark navigation belong to their
-existing follow-ups.
+existing follow-ups. Use the dashboard's existing Git access for these slices.
+[SEED-428](../../seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
+owns the Review repository cutover, shared fetches, offline review, and reuse
+across file reads.
 
 ## Existing solution and direction
 
 - [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-  names a dashboard-managed bare Review repository and makes origin authoritative
-  for published progress. Reuse the bounded Git fetch and process handling in
-  [gitTargetFetch.ts](../../../dashboard/server/gitTargetFetch.ts). Use the
-  configured project's repository identity and ref, with authenticated Git for
-  GitHub and the existing Git URL substitution in isolated fixtures. A request
-  identifies a configured project and comparison, never a filesystem path or
-  arbitrary ref to fetch. Initialize and refresh per project without writing in
-  the execution checkout. A missing object, branch or record is a review gap.
+  makes origin authoritative for published progress. Use the configured
+  project's existing Git access and its published refs and records. Requests
+  identify a configured project and comparison. A missing object, branch, or
+  record is a review gap.
 - [Taken CI endpoints](../../../dashboard/server/takenStoryEndpoints.ts) already
   read the published claim, recorded mode and branch, Take parent and origin tip.
   Reuse the endpoint and attribution logic with the Git source supplied by the
@@ -57,20 +56,17 @@ isolated Git origin and dashboard fixture.
 
 | Consuming operation | Observation and result | Execution coverage |
 | --- | --- | --- |
-| Done opens the attributed completion and literal file diff | `npm run --silent test:e2e -- e2e/review/story-review-completed.spec.ts e2e/sessions/recently-done-published-sessions.spec.ts --workers=1 --reporter=list` passed all four cases. The story reopened its original pair after trunk advanced. Session reads used recorded ranges, omitted interleaved work and showed recorded uncertainty. | Slices 1 and 5 extend the same journeys to a reader without an execution checkout. |
+| Done opens the attributed completion and literal file diff | `npm run --silent test:e2e -- e2e/review/story-review-completed.spec.ts e2e/sessions/recently-done-published-sessions.spec.ts --workers=1 --reporter=list` passed all four cases. The story reopened its original pair after trunk advanced. Session reads used recorded ranges, omitted interleaved work and showed recorded uncertainty. | Slices 1 and 5 make this published evidence the default for the corresponding reader. |
 | A first publication receipt retains the actual accepted landing pair | `npm run --silent test:e2e -- e2e/review/story-review-story-branch-landed.spec.ts --workers=1 --reporter=list` passed. Real integration and retirement left the earlier capture and execution landing selectable, including the actual resolution and fixed pair after further trunk movement. | Slice 4 keeps the accepted pair and drops review's dependency on the captured repository. |
 | The published UUID bounds subsequent file reads | `npm run --silent test:dashboard:backend -- dashboard/backend-tests/review/published-session-review.spec.ts --workers=1 --reporter=dot` passed all six cases, including a real recorded-pair diff and refusal of a different pair or file. | Slice 5 keeps this ownership through the normal published review and file handlers. |
 | Taken claims reach published CI evidence | `npm run --silent test:dashboard:backend -- dashboard/backend-tests/intent/ci-comparison-taken.spec.ts --workers=1 --reporter=dot` passed all three cases. | Slices 2 and 3 establish the new review behavior with real Git origin and keep CI's separate measured-revision assertions. |
-| A GitHub project can be fetched into a fresh bare repository independently of its execution checkout | `git init --bare` in a disposable directory, then `GIT_TERMINAL_PROMPT=0 git -C <bare> -c credential.helper= -c 'credential.helper=!gh auth git-credential' fetch --quiet --no-tags https://github.com/terryyin/open-dough.git '+refs/heads/main:refs/remotes/origin/main'` fetched `53cdf454bf7cadbc643a7c283fc8e57488e292f8`. `rev-parse` confirmed a bare repo and the fetched revision. `git diff` read the backlog delta at that revision. Scratch repository removed. | Slice 1 exercises the new dashboard reader's connection to the same Git boundary, with fixture origin substitution. |
 
 Returning an empty `files` list from `publishedSessionReview` in a scratch edit
 made the published pair case fail on missing `notes.md` while the five other
 cases passed. The edit was reverted.
 
-The new checkout-independent routes and session cleanup are slice outcomes.
-Start each with its smallest failing retained example. Validate the first
-dashboard fetch through the repo-specific runner fixture before moving more
-readers. Recheck test selection against the execution base.
+Start each slice with its smallest failing published example. Recheck test
+selection against the execution base.
 
 ## Outside-in proof and ordered slices
 
@@ -78,32 +74,29 @@ readers. Recheck test selection against the execution base.
 
 Type: Behavior
 Status: planned
-Proof: Extend the completed-story E2E opening and literal file diff after trunk
-advances so the reader's execution checkout and launch store are absent. Keep
-targeted completed-review backend cases for interleaved work and mixed merge
-edits. Use the configured project source and accepted completion history over
-a real isolated bare origin. Refuse a file outside the selected published pair.
+Proof: Open a completed story through the existing Git source on a reader with
+no session worktree or launch store. After trunk advances, open the same
+published completion and read its literal file diff. Keep targeted backend
+cases for interleaved work, mixed merge edits, and exact file admission.
 
-Move completion and its file admission to the Review repository. Put bounded,
-concurrent first fetch and retry at the shared Git boundary. Reuse existing
-completion attribution and preserve published revision, paths, notes and Proof
-context. Remove the completion reader's worktree and launch assumptions now.
-Later slices move active and session reviews to the same repository.
+Make published completion the default Done comparison. Reuse existing
+attribution and preserve published revision, paths, notes, and Proof context.
+Resolve the published input through the current configured Git source.
 
 ### 2. Read a Taken story's published branch before landing
 
 Type: Behavior
 Status: planned
-Proof: From a real published claim and story branch, open Review changes with a
-pushed file, a local-only commit and a dirty edit on the writer's machine. Show
-the attributed published diff, including a story-owned merge edit when present.
+Proof: From a real published claim and story branch, open Review changes on a
+reader without the writer's worktree. Read the attributable published diff,
+including a story-owned merge edit when present.
 Push a further change and Refresh. Keep the selected file and show the new head.
 Keep exact pair and literal path validation in the typed review handler.
 
-Resolve the recorded branch and Take bound from origin and reuse branch
-attribution over its published commits. Move the story branch reader off the
-dashboard's worktree path. Preserve the wider published comparison when incoming
-trunk work makes it meaningful. Trunk Mode still uses the old reader until 3.
+Resolve the recorded branch and Take bound from origin through the current
+configured Git source and reuse branch attribution over its published commits.
+Preserve the wider published comparison when incoming trunk work makes it
+meaningful. Trunk Mode moves to published review in slice 3.
 
 ### 3. Read a Taken Trunk story and remove the workspace comparison
 
@@ -132,9 +125,9 @@ shared file's actual merge resolution and associated Proof context. Keep one
 typed test for exact pair admission and the unavailable-evidence case.
 
 Prefer published session and completion records. A verified legacy landing
-receipt can identify a pair from authorized origin history, with no diff read
-from the receipt's local repository. Use a published landing only when the
-evidence identifies it and the configured target confirms it. Keep the
+receipt can identify a pair from authorized origin history. Read that pair
+through the configured Git source when the evidence identifies it and the
+configured target confirms it. Keep the
 existing prepare/accept/retry workflow and retain only the state it consumes.
 Consolidate Published completion and Landed runs selection into the shared
 chooser. Remove fallback readers whose only purpose was local captured review.
@@ -144,8 +137,8 @@ chooser. Remove fallback readers whose only purpose was local captured review.
 Type: Behavior
 Status: planned
 Proof: Extend the existing cross-machine Recently done journey with a reader
-without an execution checkout. Open a UUID with two ranges, select the second
-and read its diff. The same UUID opens the same comparison from a local Done
+that has no local launch history for the session. Open a UUID with two ranges,
+select the second and read its diff. The same UUID opens the same comparison from a local Done
 entry with native actions still available. Preserve a verified accepted landing
 where its older receipt is the available association. Use typed review and file
 handlers over the same configured source, clock and real isolated Git history.

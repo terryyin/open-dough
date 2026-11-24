@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-427#review-published-changes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/802-review-published-changes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f99f75cf2e08ffdf9821a6676f9c6503649298d441d1494547d33c487ff9eb3f","plan":"816d4891a47b65aa8e2454f6eedf5f27991689d4efd9bf80582dd76aee088552"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/802-review-published-changes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"35d10be5fa02800a1e8d6277169e69fc2571ddf4cd3f9f825d8b20b2a556d16b","plan":"df312e92316d051dea4d4f1c20b07f3f8579a5aca30ec36d2e0a8dbafb3fa143"}}
 ```
 
 **Goal.** A developer reviewing a story or session can open its published
@@ -52,20 +52,21 @@ comparison when still available. Remove worktree status, the uncommitted toggle,
 and the worktree commit chooser. File reading, Proof, notes and follow-up keep
 the published comparison's context.
 
-**Architecture.** Under [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md),
-the dashboard-managed bare Review repository reads origin's published history.
-A review can open without an execution checkout, owned worktree or local launch
-history. Prefer durable story and session evidence. A legacy receipt can identify
+**Delivery boundary.** Use the dashboard's existing Git access to read published
+history. Review uses durable story and session evidence and works independently
+of the session worktree and local launch history. A legacy receipt can identify
 an accepted landing when its exact pair is verified on the configured origin.
-Use immutable endpoints and literal paths from the selected comparison for
-subsequent file reads. Keep publication recovery and checkout safety with their
-workflow owners.
+Use immutable endpoints and literal paths from the selected comparison. Keep
+publication recovery and checkout safety with their workflow owners.
+[Read published reviews from the Review repository](SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
+owns moving these readers to the Review repository and proving they work without
+an execution checkout.
 
 **Key examples.**
 
-- A Taken Story Branch story has a pushed change, an unpushed commit and a dirty
-  edit. Opening its review on another machine reads the pushed comparison and
-  its files. Publishing another commit and refreshing advances the comparison.
+- A Taken Story Branch story has published a change to origin. Opening its
+  review from a reader's checkout shows the attributable comparison and its
+  files. Publishing another commit and refreshing advances the comparison.
   In Trunk Mode the same action shows attributable changes on origin's trunk,
   excluding another story's intervening work.
 - A story lands, its worktree and remote story branch are retired, and trunk

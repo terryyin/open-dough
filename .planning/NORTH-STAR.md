@@ -4,6 +4,23 @@ Temporary direction for current work; revise when evidence changes it and retire
 realized topics after checking affected stories. Accepted ADRs remain
 authoritative.
 
+## Read published comparisons from the Review repository
+
+After [Review published changes](seeds/SEED-427-review-published-changes.md#review-published-changes),
+move every published code review read to one dashboard-managed bare Review
+repository per project. Origin supplies the published history. Share bounded
+fetches per project and serve file lists, diffs, and source from local Git. Resolve
+each comparison from published evidence and reuse its exact endpoints and file
+list across Review changes and Intent. Refresh can advance the comparison. If
+origin is unavailable, keep the last readable comparison with its sync status.
+
+Review works independently of the execution checkout. Retire the superseded
+review routes and helpers once their callers use the Review repository. Remove
+this topic at wrap-up of
+[Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
+once the new path and its proof are in place. The durable repository roles are
+defined in [ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships).
+
 ## Make production code directly testable instead of growing test support
 
 Test support (`dashboard/test-support/` at ~790 files beside ~1,145 production
