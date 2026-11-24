@@ -33,11 +33,11 @@ intent introduced or affected by a newly developed story.
 - [Prove landed CI wall-time history through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof) — SEED-413#renovate-landed-ci-backend-proof ([plan](slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md))
 - [Prove landed CI scoped test history through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof) — SEED-413#renovate-landed-ci-scope-proof ([plan](slice-plans/806-renovate-landed-ci-scope-proof/PLAN.md))
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context ([plan](slice-plans/808-choose-clear-follow-up-context/PLAN.md))
-- [Verify the silent supplier wait in Codex](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use) — SEED-389#verify-silent-supplier-wait-in-use ([plan](slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md))
 - [Notify Claude Code of CI results through one path](seeds/SEED-423-shrink-the-installed-distribution.md#notify-claude-code-of-ci-through-one-path) — SEED-423#notify-claude-code-of-ci-through-one-path ([plan](slice-plans/809-notify-claude-code-of-ci-through-one-path/PLAN.md))
 
 ## Backlog list
 
+- [Reduce Codex wakes during supplier watches](seeds/SEED-431-reduce-codex-wakes-during-supplier-watches.md#reduce-codex-wakes-during-supplier-watches) — SEED-431#reduce-codex-wakes-during-supplier-watches
 - [Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository) — SEED-428#read-reviews-from-the-review-repository
 - [Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git
 - [Observe that a failed listing discover cancels the other branch](seeds/SEED-423-shrink-the-installed-distribution.md#observe-the-cancelled-listing-discover) — SEED-423#observe-the-cancelled-listing-discover

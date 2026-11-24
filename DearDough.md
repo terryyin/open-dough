@@ -7,10 +7,11 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 637. Removed numbers are never reused.
+- Highest allocated local number: 638. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158. `488645e95fe49110418f94953944bea1beb3afec:DearDough.md` retains the exact removed pointers to ODF-154, ODF-205, ODF-169 and ODF-338. `c8c3aa62af81c1cf1bb13eeb6eb79dc0b67b8c7b:DearDough.md` retains the removed empty DD-613 and DD-608 Occurrences headings and the ODF-532 source-recovery pointer. `af192fc772f2a1fd18e0a9870365991e849fe56a:DearDough.md` preserves the removed redundant plan 792 occurrence under ODF-368. `80087ac3086625e928680a3d495d2526a3fd144f:DearDough.md` retains the removed ODF-456 catalog pointer and ODF-368's plan 777 occurrence.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Recovery: `71e820478b6a0fb8854a6cb5f428b59b44d31225:DearDough.md` retains ODF-329 and ODF-368, removed for the line ceiling; their accounts stay in the finding catalog.
+- Recovery: `563d87eac574c046ab1634e315bb1582f9da313a:DearDough.md` retains the removed ODF-519 pointer. Its reconciled occurrence remains in the finding catalog.
 - Occurrence history is partial.
 - Recovery: `273d9687ed365db7e56ffa4291e4ef78763f855c:DearDough.md` retains the removed redundant recovery pointers. The same earlier log remains linked above.
 
@@ -43,17 +44,6 @@ A story promising parity with an existing view proved only settled states; every
 ### Occurrences
 
 - Execution: SEED-345#catch-delegated-lint-before-delivery (plan 786, first implementation `ffed8fb1b`). Timestamp: unknown (startup on 2026-11-23 +08:00). Tool: Codex. Open Dough release: 0.3.111 (installed guidance at Take `67f8d37bf`). Evidence: the initial parallel read of skill-authoring guidance, ODF-329 and execution references returned 28,521 tokens before truncation. Targeted follow-up reads recovered the delegation, source-review and obligation passages. Observed effect: the combined return hid required context and was followed by narrower reads. Inference: retrieving only the relevant finding section and the passages needed at each boundary would reduce that rereading. Token and time savings were unmeasured.
-
-## ODF-519 — Story Branch start reports a reused remote branch published without advancing it
-
-<a id="dd-543"></a>
-<a id="dd-543--story-branch-start-reports-a-reused-remote-branch-published-without-advancing-it"></a>
-Former local code: DD-543.
-
-- SEED-301#serve-frontend-dashboard-answers-through-makeme (plan 655; first implementation `b03df3cbb`)
-
-[Account and evidence at ODF-519](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-519.md#evidence-2026-11-23-open-dough-dd-543).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-545 — A Behavior slice holding view state, controls, styling, specs and E2E migration overran
 
@@ -996,3 +986,11 @@ Source recovery: `71e820478b6a0fb8854a6cb5f428b59b44d31225:DearDough.md`.
 ### Occurrences
 
 - Execution: SEED-429#skip-empty-instruction-recordings (plan 807, first implementation `d6d9ae22c`). Timestamp: unknown (slice delivery on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `857f49430`). Evidence: the implementation and refactor briefs reserved the staged lint hook and formatter for the coordinator and supplied no scoped read-only lint command. After both proof returns passed, guarded preparation refused `instruction-voice-page.ts` on `unbound-method` and `no-unsafe-return`. Observed effect: one withheld preparation, a fixture repair, and one additional mounted proof run before publication. Scoped read-only lint would have checked both rules before the handoff.
+
+## DD-638 — Deferring a story left its old agent assigned
+
+The deferred story returned to the backlog with its original agent profile. A later Take listed both the completed and active Codex sessions as assignments for the same story.
+
+### Occurrences
+
+- Execution: SEED-389#verify-silent-supplier-wait-in-use (plan 692, first delivery `1905a4a1c`). Timestamp: 2026-11-24T07:40:28.399Z. Tool: Codex. Model: gpt-6.2-sol. Open Dough release: 0.3.112 (installed guidance at Take `f7c7b9a34`). Evidence: `4758f1d59` returned the story to the backlog and retained Aino-chan's profile. Take `f7c7b9a34` added Maria-chan. Native thread reads showed Aino's completed turns and Maria's active turn. Observed effect: the developer paused execution to ask which session should stop. `23fb23548` released the stale profile without interrupting the active session. Inference: releasing the assignment as part of deferral could prevent a stale owner on the next Take. The time and tokens attributable to this interruption were unmeasured.
