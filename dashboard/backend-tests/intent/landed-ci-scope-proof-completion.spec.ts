@@ -11,7 +11,10 @@ import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
 import { readIntentCiProof } from "../../server/intentCiProofRead.ts";
-import { LandedCiCollection } from "../../server/landedCiCollection.ts";
+import {
+  LandedCiCollection,
+  machineLifecycle,
+} from "../../server/landedCiCollection.ts";
 import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
 import { passRead } from "../../server/landedCiPassRead.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
@@ -121,18 +124,20 @@ test("retrying a completion delivery preserves its landing's one scoped measurem
       .mockResolvedValue({ artifacts: [listedArtifact(subject)] }),
     archive,
   });
-  const collection = new LandedCiCollection({
-    read: (project, folder, stopped) =>
-      passRead(project, folder, stopped, {
-        providers: { github },
-        readArtifact: artifact,
-      }),
-    readProof: (project, attempt, signal) =>
-      readIntentCiProof(project, attempt, signal, () => repository, {
-        artifact,
-        adapter: readCiAdapterProof,
-      }),
-  });
+  const collection = new LandedCiCollection(
+    machineLifecycle({
+      read: (project, folder, stopped) =>
+        passRead(project, folder, stopped, {
+          providers: { github },
+          readArtifact: artifact,
+        }),
+      readProof: (project, attempt, signal) =>
+        readIntentCiProof(project, attempt, signal, () => repository, {
+          artifact,
+          adapter: readCiAdapterProof,
+        }),
+    }),
+  );
   onTestFinished(() => {
     collection.close();
   });

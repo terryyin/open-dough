@@ -1,24 +1,19 @@
 // The window a project history read answers from this machine's kept landed
 // CI history (../../server/intentCiHistoryRead.ts,
-// ../../server/landedCiMeasuredBuilds.ts), with no page open and a server
-// that collects nothing of its own accord: of 35 kept measured builds it
-// answers the newest 20 in trunk order with the gaps among and after them,
-// and none from before (SEED-285#see-landed-ci-wall-time-history example 8).
-// How Project Intent shows that window is
+// ../../server/landedCiMeasuredBuilds.ts), without collecting: of 35 kept
+// measured builds it answers the newest 20 in trunk order with the gaps among
+// and after them, and none from before
+// (SEED-285#see-landed-ci-wall-time-history example 8). How Project Intent
+// shows that window is
 // ../../frontend-tests/intent/intent-ci-wall-time-history-evidence.spec.ts; the
 // bound collection keeps is ./landed-ci-history-window.spec.ts.
-
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  keepLandedCiHistory,
-  landedCiHistory,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-
-test.use({ serverMode: "boundary" });
+  historyEntries,
+  keepHistory,
+  machineHome,
+} from "../support/landedCiPassInputs.ts";
 
 const dayMs = 24 * 60 * 60_000;
 const firstStart = Date.parse("2026-10-01T12:00:00Z");
@@ -30,9 +25,7 @@ const revisionOf = (day: number) =>
 const receiptOf = (n: number) =>
   `cccccccc-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
-test("of 35 kept measured builds, a history read answers the newest 20 in trunk order with the gaps among and after them, dropping an older gap", async ({
-  dashboard,
-}) => {
+test("of 35 kept measured builds, a history read answers the newest 20 in trunk order with the gaps among and after them, dropping an older gap", async () => {
   // One measured build a day for 35 days; CI never built a landing after
   // day 5's build and another after day 20's; one landing after day 34's is
   // still pending.
@@ -77,18 +70,13 @@ test("of 35 kept measured builds, a history read answers the newest 20 in trunk 
         ...(day === 34 ? [after] : []),
       ]),
     );
-  await keepLandedCiHistory(dashboard.home, history.please());
+  const home = machineHome();
+  await keepHistory(home, history.please());
 
-  const answer = await landedCiHistory(dashboard);
-  expect(answer).toMatchObject({ status: 200 });
-  const { entries } = answer.body as {
-    readonly entries: readonly {
-      readonly kind: string;
-      readonly revision: string;
-    }[];
-  };
   const point = (day: number) => ["point", revisionOf(day)];
-  expect(entries.map(({ kind, revision }) => [kind, revision])).toEqual([
+  expect(
+    (await historyEntries(home)).map(({ kind, revision }) => [kind, revision]),
+  ).toEqual([
     ...days.filter((day) => day >= 15 && day <= 20).map(point),
     ["gap", among],
     ...days.filter((day) => day > 20).map(point),

@@ -1,11 +1,8 @@
-// The existing live comparison's final gap omits the history-only named build.
+// The CI timing comparison (../../server/intentCiComparisonSlots.ts) answers
+// a final Landed gap with its reason alone, omitting the history-only named
+// build and proof read (./landed-ci-history-gaps.spec.ts).
 import { asComparisonSlot } from "../../server/intentCiComparisonSlots.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-
-test.use({ serverMode: "boundary" });
+import { expect, test } from "vitest";
 
 test("the CI timing comparison answers a Landed gap without the build the history names for it or why its CI proof could not be used", async () => {
   const explanation =

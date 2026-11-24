@@ -31,8 +31,9 @@ export async function collectRetainedMeasure(args: {
   history: ProjectHistory;
   read: Parameters<typeof landingResolution>[2];
   ended: () => boolean;
+  home?: string;
 }): Promise<ProjectHistory> {
-  const { source, landing, history, read, ended } = args;
+  const { source, landing, history, read, ended, home } = args;
   const observed = history.landings[landing.receipt]?.observed;
   if (observed?.kind !== "build") return history;
   const retained = history.builds[observed.build];
@@ -40,7 +41,10 @@ export async function collectRetainedMeasure(args: {
     return history;
   const measure = await answeredCollectedMeasureOf(retained, read);
   if (ended() || measure === undefined) return history;
-  return keepLandedCiCollectedEvidence(source.id, observed.build, {
-    timeWithoutRunnerWaits: measure,
-  });
+  return keepLandedCiCollectedEvidence(
+    source.id,
+    observed.build,
+    { timeWithoutRunnerWaits: measure },
+    home,
+  );
 }

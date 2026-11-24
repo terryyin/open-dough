@@ -20,8 +20,9 @@ export async function collectRetainedAttemptTiming(args: {
   order: readonly string[] | undefined;
   read: Parameters<typeof landingResolution>[2];
   ended: () => boolean;
+  home?: string;
 }): Promise<ProjectHistory> {
-  const { source, landing, history, read, order, ended } = args;
+  const { source, landing, history, read, order, ended, home } = args;
   const observed = history.landings[landing.receipt]?.observed;
   if (observed?.kind !== "build") return history;
   const build = history.builds[observed.build];
@@ -60,6 +61,7 @@ export async function collectRetainedAttemptTiming(args: {
         laterWithoutResult: 0,
       },
       order,
+      { home },
     );
   } catch {
     // Unavailable authoritative bounds leave an explained excluded sample.

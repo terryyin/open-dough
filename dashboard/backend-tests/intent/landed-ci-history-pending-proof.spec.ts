@@ -1,186 +1,126 @@
-// Landed CI wall-time history collection (../../server/landedCiCollection.ts)
-// of a confirmed skip whose equivalent build's CI proof read GitHub does not
-// answer, with no page open, a real bare origin
-// (../../test-support/support/startOrigin.ts) and the synthetic `claude`, each
-// collecting server checking at a test's pace: the skip waits for that
-// proof, as CI proof not read yet, for as long as GitHub does not answer,
-// while collection goes on to the older landings past it, and is that
-// build's reused equivalent point once GitHub answers, however long ago it
-// was recorded, never a final unreadable gap: only GitHub's answer settles a
-// CI proof (SEED-285#see-landed-ci-wall-time-history). Run times follow when
-// their landings were recorded, so the history answers them in trunk order.
-// Final gaps, an unopenable CI proof's among them, are in
-// ./landed-ci-history-gaps.spec.ts; the other pending states in
-// ./landed-ci-history-pending.spec.ts and
+// Landed CI collection passes (../../server/landedCiPass.ts) and the history
+// read (../../server/intentCiHistoryRead.ts), with no page: a confirmed skip
+// whose equivalent build's CI proof read GitHub does not answer waits as CI
+// proof not read yet, however long ago it was recorded, while collection
+// goes on to the older landings past it, and is that build's reused
+// equivalent point once GitHub answers, never a final unreadable gap: only
+// GitHub's answer settles a CI proof (SEED-285#see-landed-ci-wall-time-history).
+// Final gaps are in ./landed-ci-history-gaps.spec.ts; the other pending
+// states in ./landed-ci-history-pending.spec.ts and
 // ./landed-ci-history-pending-sources.spec.ts.
-
-import path from "node:path";
-import type { CiRunAnswer } from "../../test-support/support/baseCiActions.ts";
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { GitHubAcquisitionFailed } from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+import { unreadableBy } from "../../server/ciProofArtifact.ts";
+import type { CiProof } from "../../src/ciProof.ts";
 import {
-  answeredLanding,
-  landedCiHistory,
-  untilKept,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-import {
-  answeredRun,
-  landingMinutesAgo,
-  passedFrom,
-  publishCiWorkflow,
-  publishedChange,
-  recordedOnTrunk,
-  runningFrom,
-  timeAfter,
-  trunkRun,
-  usableProofOf,
-  type TrunkProofs,
-} from "../../test-support/support/landedCiTrunk.ts";
+  historyEntries,
+  landedCiPassInputs,
+} from "../support/landedCiPassInputs.ts";
 
-// No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+const hour = 3_600_000;
+const older = "1".repeat(40);
+const b = "2".repeat(40);
+const skip = "3".repeat(40);
+const olderAt = "2026-11-05T09:50:00.000Z";
+const skipAt = "2026-11-05T09:59:00.000Z";
 
-const minuteMs = 60_000;
-
-test("a skip whose equivalent build's CI proof read GitHub does not answer waits as CI proof not read yet for as long as GitHub does not answer, while collection measures the older landings past it", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  await publishCiWorkflow(origin);
-  // Oldest first: a landing whose build runs, a build of its own, and the
-  // newest landing, a skip resting on that build, whose CI proof read GitHub
-  // does not answer.
-  const older = await landingMinutesAgo(origin, "older", 10);
-  const b = await publishedChange(origin, { title: "b", kind: "code" });
-  const skip = await landingMinutesAgo(origin, "skip", 1, true);
-  const bRun = trunkRun(
-    b,
-    71,
-    passedFrom(timeAfter(older.at, minuteMs), minuteMs),
-  );
-  let runs: readonly CiRunAnswer[] = [
-    trunkRun(older.revision, 70, runningFrom(older.at)),
-    bRun,
-  ];
-  recordedOnTrunk(
-    origin,
-    github,
-    [older, skip],
-    () => runs,
-    () => ({ 71: { kind: "unanswered" } }),
-  );
-  const server = await startServer({ observationClock: true });
-  await untilKept(path.join(origin.machine, "home"), [older, skip]);
+test("a skip whose equivalent build's CI proof read GitHub does not answer waits for it for hours while the older landing past it is measured, then is that build's equivalent point once GitHub answers", async () => {
+  let now = Date.parse(skipAt) + 60_000;
+  let olderRun = makeMe.aRevisionCiRun
+    .with({
+      headSha: older,
+      databaseId: 70,
+      status: "in_progress",
+      conclusion: null,
+      createdAt: "2026-11-05T09:50:00Z",
+    })
+    .please();
+  const bRun = makeMe.aRevisionCiRun
+    .with({
+      headSha: b,
+      databaseId: 71,
+      startedAt: "2026-11-05T09:51:00Z",
+      completedAt: "2026-11-05T09:52:00Z",
+    })
+    .please();
+  let proof = (): CiProof =>
+    unreadableBy(
+      new GitHubAcquisitionFailed("artifacts", { kind: "unreachable" }),
+    );
+  const pass = landedCiPassInputs([older, b, skip], {
+    runs: () => [olderRun, bRun],
+    records: () => [
+      makeMe.aLaunchRecord
+        .executing({ identity: "SEED-9#older", title: "older" })
+        .launchedAt(olderAt)
+        .landedAt(older, { receipt: "eeeeeeee-0000-4000-8000-000000000001" })
+        .please(),
+      makeMe.aLaunchRecord
+        .executing({ identity: "SEED-9#skip", title: "skip" })
+        .launchedAt(skipAt)
+        .landedAt(skip, { receipt: "eeeeeeee-0000-4000-8000-000000000002" })
+        .please(),
+    ],
+    skips: [skip],
+    proofOf: () => proof(),
+    now: () => now,
+  });
   const skipWaits = {
     kind: "gap",
     reason: "pending",
     waitsFor: "proof",
-    ...answeredLanding(skip),
-    ...answeredRun(71),
+    revision: skip,
+    runId: 71,
+    runAttempt: 1,
   };
 
-  await expect
-    .poll(() => landedCiHistory(server))
-    .toEqual({
-      status: 200,
-      body: expect.objectContaining({
-        entries: [
-          {
-            kind: "gap",
-            reason: "pending",
-            waitsFor: "build",
-            ...answeredLanding(older),
-            ...answeredRun(70),
-          },
-          skipWaits,
-        ],
-      }),
-    });
+  await pass.collect();
+  expect(await historyEntries(pass.home)).toMatchObject([
+    {
+      kind: "gap",
+      reason: "pending",
+      waitsFor: "build",
+      revision: older,
+      runId: 70,
+    },
+    skipWaits,
+  ]);
 
-  // Hours later GitHub still does not answer the skip's proof read, and the
-  // older landing's build has passed in 6 min 5 s.
-  server.advanceObservationClock(3 * 60 * minuteMs);
-  runs = [trunkRun(older.revision, 70, passedFrom(older.at, 365_000)), bRun];
-  await expect
-    .poll(() => landedCiHistory(server))
-    .toEqual({
-      status: 200,
-      body: expect.objectContaining({
-        entries: [
-          {
-            kind: "point",
-            revision: older.revision,
-            ...answeredRun(70),
-            startedAt: older.at,
-            completedAt: timeAfter(older.at, 365_000),
-            landings: [{ ...answeredLanding(older), provenance: "exact" }],
-          },
-          skipWaits,
-        ],
-      }),
-    });
-});
+  // Hours later GitHub still does not answer, and the older build passed.
+  now += 3 * hour;
+  olderRun = makeMe.aRevisionCiRun
+    .with({
+      headSha: older,
+      databaseId: 70,
+      startedAt: "2026-11-05T09:50:00Z",
+      completedAt: "2026-11-05T09:56:05Z",
+    })
+    .please();
+  await pass.collect();
+  expect(await historyEntries(pass.home)).toMatchObject([
+    {
+      kind: "point",
+      revision: older,
+      runId: 70,
+      landings: [{ revision: older, provenance: "exact" }],
+    },
+    skipWaits,
+  ]);
 
-test("a skip recorded two hours ago whose equivalent build's CI proof read GitHub does not answer at first is that build's reused equivalent point once GitHub answers, never a final unreadable gap", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  await publishCiWorkflow(origin);
-  const b = await publishedChange(origin, { title: "b", kind: "code" });
-  const skip = await landingMinutesAgo(origin, "skip", 120, true);
-  const bRun = trunkRun(
-    b,
-    72,
-    passedFrom(timeAfter(skip.at, -10 * minuteMs), 5 * minuteMs),
-  );
-  let proofs: TrunkProofs = { 72: { kind: "unanswered" } };
-  recordedOnTrunk(
-    origin,
-    github,
-    [skip],
-    () => [bRun],
-    () => proofs,
-  );
-  const server = await startServer({ observationClock: true });
-
-  await expect
-    .poll(() => landedCiHistory(server))
-    .toEqual({
-      status: 200,
-      body: expect.objectContaining({
-        entries: [
-          {
-            kind: "gap",
-            reason: "pending",
-            waitsFor: "proof",
-            ...answeredLanding(skip),
-            ...answeredRun(72),
-          },
-        ],
-      }),
-    });
-
-  // GitHub answers the next read.
-  proofs = { 72: usableProofOf(bRun) };
-  await expect
-    .poll(() => landedCiHistory(server))
-    .toEqual({
-      status: 200,
-      body: expect.objectContaining({
-        entries: [
-          {
-            kind: "point",
-            revision: b,
-            ...answeredRun(72),
-            startedAt: bRun.startedAt,
-            completedAt: bRun.completedAt,
-            landings: [{ ...answeredLanding(skip), provenance: "equivalent" }],
-          },
-        ],
-      }),
-    });
+  proof = () =>
+    makeMe.aCiProof
+      .summaryFor({ runId: 71, runAttempt: 1, revision: b })
+      .please();
+  await pass.collect();
+  expect((await historyEntries(pass.home))[1]).toMatchObject({
+    kind: "point",
+    revision: b,
+    runId: 71,
+    startedAt: "2026-11-05T09:51:00Z",
+    completedAt: "2026-11-05T09:52:00Z",
+    landings: [
+      { revision: skip, receivedAt: skipAt, provenance: "equivalent" },
+    ],
+  });
 });

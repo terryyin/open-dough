@@ -219,10 +219,10 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   `dashboard/backend.playwright.config.ts` and the backend request and server
   wrappers in `dashboard/test-support/` are deleted.
 - **Remaining work.** This story keeps the campaign criteria below and owns
-  the backend specs outside the three bounded migrations already selected:
-  [wall-time history](#renovate-landed-ci-backend-proof),
-  [landed attempt evidence](#renovate-landed-ci-attempt-evidence), and
-  [Token Index](#renovate-usage-token-index-proof).
+  the backend specs outside the completed wall-time history (recoverable at
+  `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`) and the two bounded migrations already
+  selected: [landed attempt evidence](#renovate-landed-ci-attempt-evidence)
+  and [Token Index](#renovate-usage-token-index-proof).
   It also owns final runner retirement and the Story Notes store follow-up
   below. Keep the automatic-repeat correction's separately assigned coverage
   and load obligations with its plan. Count any legacy files it leaves for
@@ -302,8 +302,8 @@ smaller unit selection does not hide its cost or a lost regression check.
      command case. The other converted cases already use typed entry points.
      Remaining native Done cases belong to `sessions/`.
   2. Landed CI [scoped test history](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof)
-     is complete. [Wall-time history](#renovate-landed-ci-backend-proof) is
-     already Taken. Next come [attempt evidence](#renovate-landed-ci-attempt-evidence)
+     is complete. Wall-time history is complete too (recoverable at
+     `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`). Next come [attempt evidence](#renovate-landed-ci-attempt-evidence)
      and [Token Index](#renovate-usage-token-index-proof).
   3. Recount the remaining files against the available seams and CI cost.
      Intent still includes comparison, follow-up and lifecycle proof outside
@@ -314,7 +314,7 @@ smaller unit selection does not hide its cost or a lost regression check.
      remains relevant when that lifecycle is selected.
 - **Current inventory.** The backend runner's engine classification at
   `177084da6` reports 509 Playwright-selected specs of 577, with 68 on Vitest.
-  The Taken wall-time cohort accounts for 14. The two new cohorts account
+  The completed wall-time cohort accounts for 14. The two new cohorts account
   for 29 combined. Once all three ship, their disjoint inventory leaves 466
   legacy specs at this baseline: launches 103, sessions 76, Intent 69,
   observation 56, usage history 54, runtime 43, Review 33, terminals 18 and
@@ -442,57 +442,6 @@ Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-bac
 - Given a missing worker, a refresh retains the partial result until
   that evidence can be read. An unreadable store preserves the last
   saved summary and check time and reports failure.
-
-<a id="renovate-landed-ci-backend-proof"></a>
-
-### Prove landed CI wall-time history through typed backend handlers
-
-**Identity:** SEED-413#renovate-landed-ci-backend-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3427ea0fc7fc9f3aab2d2a2b396557ccfd6ea9503d72184e942c27648a643572","plan":"db79c033b85bd4cfdc5622832acdd49793e671aaa28d4bad58e6527b15583412"}}
-```
-
-**Goal.** Dashboard maintainers get faster, directly runnable feedback on how
-Landed collection resolves a build and how Intent reads its wall-time history.
-The checks keep the existing distinctions between a measurement, a pending
-answer, and a final gap. Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families)
-to the wall-time cohort, aiming for about 100 ms per unit case or faster.
-
-**Scope.** Convert the 14 `dashboard/backend-tests/intent/landed-ci-history-*.spec.ts`
-files to typed production entries on Node Vitest. Cover initial collection and
-restart, retained order and the measured window, exact and reused builds,
-agreement with the selected Landed comparison, and CI time without runner
-waits. Compose landing receipts, Git history and saved records with MakeMe.
-Exercise actual collection when collection is the assertion. Preserve shared
-request admission and process lifetime proof at their existing owners. Scoped
-test history, automatic repeat, standalone proof collection and backend
-runner retirement stay in their own work. Reduce repeated setup and keep the
-smallest set of cases that detects the same regressions.
-
-**Key examples.**
-
-- Given an accepted landing with a queued exact run, collecting before and
-  after completion shows a pending gap and then one measured exact build.
-  History and the selected comparison identify the same build. Prove their
-  agreement once. Give expiry, repeated delivery and receipt retention their
-  own observations without repeating both reads wherever they add no signal.
-- Given a skipped landing whose equivalent build's proof read stays
-  unanswered, another collection can resolve it when proof becomes readable.
-  An answered final gap retains its reason and run identity.
-- Given 35 saved measurements with out-of-window gaps and a pending landing
-  after the newest measurement, the history read returns the newest 20
-  measured builds in trunk order and retains the relevant gaps.
-- Given a completed attempt with runner waits, asking for the derived
-  measure yields time without those waits. Wall time remains available.
-  An unanswered jobs read can recover while an answered missing graph stays
-  a final gap for that build.
-
-**Sizing and learning.** The 14-file roster is twice the seven-file source
-roster of the earlier [Default main Done capture migration](https://github.com/terryyin/open-dough/blob/8f4cc9480ccb0b736e3b29c787ab49a6ac80d366/.planning/slice-plans/723-prove-done-capture-in-process/PLAN.md).
-It tests whether the composed-state approach also works across a collection
-pass and its read model. The estimate compares source files, with separate
-slices for the distinct transition and read promises. The wall-time proof and
-its measured feedback stand on their own if scope history is deferred.
 
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 

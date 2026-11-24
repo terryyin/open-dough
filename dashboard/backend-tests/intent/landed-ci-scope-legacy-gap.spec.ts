@@ -4,10 +4,8 @@ import path from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
-import {
-  keepLandedCiOrder,
-  updateProjectHistory,
-} from "../../server/landedCiHistoryStore.ts";
+import { keepLandedCiOrder } from "../../server/landedCiHistoryStore.ts";
+import { updateProjectHistory } from "../../server/landedCiKeepEvidence.ts";
 import { machineDashboardPath } from "../../server/machineHome.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();

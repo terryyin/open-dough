@@ -4,7 +4,7 @@ import { z } from "zod";
 import { priorBuildReferenceSchema } from "../src/ciPriorBuildReference.ts";
 import { followUpRuleSchema } from "../src/ciFollowUpRule.ts";
 import { keptBuildSchema } from "./landedCiObservation.ts";
-import { machineDashboardPath } from "./machineHome.ts";
+import { machineDocumentAt } from "./machineHome.ts";
 import {
   leaveMachineJson,
   readMachineJson,
@@ -113,8 +113,10 @@ const schema = z.object({
   landings: z.record(z.string(), landingSchema),
 });
 export type FollowUpLedger = z.infer<typeof schema>;
-export const followUpStore = (): MachineJsonStore<FollowUpLedger> => ({
-  file: machineDashboardPath("ci-follow-up.json"),
+export const followUpStore = (
+  home?: string,
+): MachineJsonStore<FollowUpLedger> => ({
+  file: machineDocumentAt("ci-follow-up.json", home),
   schema,
   empty: { landings: {} },
   unreadable: "preserve" as const,
@@ -124,8 +126,9 @@ export const followUpKey = (
   project: string,
   landing: Pick<LandingReference, "target" | "revision">,
 ) => JSON.stringify([project, landing.target, landing.revision]);
-export const readFollowUps = (): Promise<StoreRead<FollowUpLedger>> =>
-  readMachineJson(followUpStore());
+export const readFollowUps = (
+  home?: string,
+): Promise<StoreRead<FollowUpLedger>> => readMachineJson(followUpStore(home));
 export const changeFollowUps = (
   change: (ledger: FollowUpLedger) => FollowUpLedger | typeof leaveMachineJson,
 ) => replaceMachineJson(followUpStore(), change);
