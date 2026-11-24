@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof ([plan](slice-plans/801-speed-dashboard-done-session-review-proof/PLAN.md))
 - [Get fast proof of live sessions and terminal work](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof) — SEED-413#speed-dashboard-live-session-and-terminal-proof ([plan](slice-plans/800-speed-dashboard-live-session-and-terminal-proof/PLAN.md))
 - [Get fast proof of the dashboard frame, navigation and settings](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof) — SEED-413#speed-dashboard-frame-and-navigation-proof ([plan](slice-plans/802-speed-dashboard-frame-and-navigation-proof/PLAN.md))
-- [Prove each adapter proof reason below the E2E journey](seeds/SEED-413-renovate-dashboard-unit-tests.md#hold-adapter-proof-reasons-in-default-timeout) — SEED-413#hold-adapter-proof-reasons-in-default-timeout ([plan](slice-plans/798-prove-adapter-proof-reasons-below-the-journey/PLAN.md))
 
 ## Backlog list
 

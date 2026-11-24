@@ -644,50 +644,6 @@ or the report states the remaining cost.
 - The behavior and case-count ledger accounts for every story in the frontend
   campaign.
 
-<a id="hold-adapter-proof-reasons-in-default-timeout"></a>
-
-### Prove each adapter proof reason below the E2E journey
-
-**Identity:** SEED-413#hold-adapter-proof-reasons-in-default-timeout
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/798-prove-adapter-proof-reasons-below-the-journey/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ee87376f7aa980fff096ef8c335821f9b5e7392d0b47fea702fcdd2668f15c18","plan":"4c0541baffbd2b569380c3a9cecfae1d0584b2ec0c7381c367a322ed313d7173"}}
-```
-
-**Goal:** Developers get fast, discriminating proof of why Intent cannot show
-an adapter's CI evidence. Keep one representative workflow for missing proof
-and recovery in the existing CI status E2E spec, using the default timeout.
-
-**Scope:** Fold recovery into the existing adapter proof journey and retire
-the dedicated reasons spec. Prove exact wording, invalid and oversized replies,
-retry selection, remembered proof, ambiguous attempts, and problem styling in
-unit tests at the owning server, command, or rendered UI boundary. Preserve
-the product's behavior and wording. The neighboring E2E journeys for a running
-branch's ancestor, large valid proof, and a pending proof read are outside this
-correction.
-
-**Key examples:**
-
-- A passing attempt has no summary yet. Intent shows the adapter's explanation
-  and the passing verdict with no counts. When proof becomes available, the
-  reader selects **Check again** and sees counts for the same attempt beneath
-  the same verdict.
-- When proof answers fail to run, violate the response contract, name other
-  evidence, or exceed the limit, the reader gets the specific reason. The
-  oversized answer has a problem cue and an ordinary absence is neutral.
-- When a recent retry passes, it supplies the verdict and its valid proof
-  can be remembered. When another discovered run shares the shown attempt's
-  ID at its revision, Intent explains the ambiguity and makes no proof read.
-
-**Origin:** In SEED-423#install-without-the-custom-ci-adapter (plan 793,
-slice 4), at load average about 50, the eight-round case timed out twice
-(33.7 s and 39.7 s against 30 s) after every assertion passed. Its
-test-scoped Dashboard fixture used about 26 of the 30 seconds. It passed in
-11.2 s at load 25. Each reason line is a pure mapping from
-`dashboard/server/ciAdapterProof.ts` through `adapterUnavailableLine` in
-`dashboard/src/ciProofAbsenceWording.ts`, which the support test already
-proves for other reasons. Apply the
-[failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
-
 <a id="frontend-renovation-evidence"></a>
 
 ### Frontend renovation evidence
