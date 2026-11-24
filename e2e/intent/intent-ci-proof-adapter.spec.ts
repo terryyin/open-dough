@@ -1,9 +1,13 @@
 import {
   ciProofReading,
+  expectNoProofRows,
   expectProofRows,
   proofOf,
 } from "../../dashboard/test-support/intentCiProofPage.ts";
-import { expectCiAnswer } from "../../dashboard/test-support/intentCiStatusPage.ts";
+import {
+  checkCiAgain,
+  expectCiAnswer,
+} from "../../dashboard/test-support/intentCiStatusPage.ts";
 // The CI proof of a ciAdapter attempt in Intent's CI status tab
 // (../../dashboard/src/IntentCiProof.tsx, ../../dashboard/server/ciAdapterProof.ts): the project's own
 // adapter, run from the project folder as its discover is, is asked for the
@@ -47,53 +51,64 @@ import {
   toggleOnDevelopment,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 
-test("a ciAdapter attempt's proof is read through the project's adapter and shown below its verdict, named by its attemptId", async ({
+test("missing proof is read through the project's adapter and recovered for the same passing attempt", async ({
   page,
   dashboard,
 }) => {
-  const adapter = adapterProject(dashboard.home);
-  adapter.answer({
-    discover: { main: [passed(uuid, uuid, login, "main")] },
-    proof: testsSummary(uuid, login),
-  });
-  const { ci, panel, proof } = await openAdapterProof(page);
+  const adapter =
+    await test.step("Given the project has a configured CI adapter", () =>
+      adapterProject(dashboard.home));
+  const discover =
+    await test.step("And a passing adapter attempt has no summary yet", () => {
+      const discover = { main: [passed(7, 1, login, "main")] };
+      adapter.answer({
+        discover,
+        proof: { unavailable: "no summary retained" },
+      });
+      return discover;
+    });
+  const { ci, panel, proof } =
+    await test.step("When I open Intent's CI proof", () =>
+      openAdapterProof(page));
 
-  await test.step("the verdict reads as before; Proof names the attempt and shows its row", async () => {
+  await test.step("Then the passing verdict and tested attempt are shown", async () => {
     await expectCiAnswer(panel, verdict);
-    await expectAttemptAt(proof, `Attempt ${uuid}`, "4774f60");
-    await expectAttemptLinked(proof, `Attempt ${uuid}`, mainRun);
+    await expectAttemptAt(proof, "Attempt 1", "4774f60");
+    await expectAttemptLinked(proof, "Attempt 1", mainRun);
+  });
+  await test.step("And the adapter's reason is shown without counts", async () => {
+    await expect(ciProofReading(proof).unavailable).toHaveText([
+      "This attempt's CI adapter gave no CI proof summary: no summary retained.",
+    ]);
+    await expectNoProofRows(proof);
+  });
+
+  await test.step("Given proof is now available for that attempt", () => {
+    adapter.answer({ discover, proof: testsSummary("1", login) });
+  });
+  await test.step("When I check again", () => checkCiAgain(panel));
+  await test.step("Then counts appear for the same attempt under the same verdict", async () => {
     await expectProofRows(proof, [testsRow]);
+    await expectAttemptAt(proof, "Attempt 1", "4774f60");
+    await expectCiAnswer(panel, verdict);
+  });
+  await test.step("And the unavailable reason is gone", async () => {
     await expect(ciProofReading(proof).unavailable).toHaveCount(0);
   });
-
-  await test.step("the adapter was asked the documented proof request, and GitHub for no proof", () => {
-    expect(adapter.proofRequests()).toEqual([
-      {
-        operation: "proof",
-        check: { repo: repository, branch: "main" },
-        attempt: { runId: uuid, attemptId: uuid, sha: login },
-      },
-    ]);
+  await test.step("And both reads ask the adapter for the same attempt using text IDs", () => {
+    const request = {
+      operation: "proof",
+      check: { repo: repository, branch: "main" },
+      attempt: { runId: "7", attemptId: "1", sha: login },
+    };
+    expect(adapter.proofRequests()).toEqual([request, request]);
+  });
+  await test.step("And no GitHub Actions request is made", () => {
     expect(
       ci.published.requests.filter(({ request }) =>
         request.kind.startsWith("actions-"),
       ),
     ).toEqual([]);
-  });
-
-  await test.step("a numeric adapter attemptId matches the summary's text form of it", async () => {
-    adapter.answer({
-      discover: { main: [passed(7, 1, login, "main")] },
-      proof: testsSummary("1", login),
-    });
-    await panel.getByRole("button", { name: "Check again" }).click();
-    await expectAttemptAt(proof, "Attempt 1", "4774f60");
-    await expectProofRows(proof, [testsRow]);
-    expect(adapter.proofRequests().at(-1)).toEqual({
-      operation: "proof",
-      check: { repo: repository, branch: "main" },
-      attempt: { runId: "7", attemptId: "1", sha: login },
-    });
   });
 });
 

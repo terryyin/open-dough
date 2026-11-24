@@ -68,12 +68,29 @@ Node 24.21.0 and locked dependencies. Scratch changes were reverted.
 | Full command failure lines | A Node 24 smoke read called `readIntentCiProof` with a typed adapter subject and a temporary configured project. The real subprocess returned exit 2 with `unknown operation: proof`, then `{ attempts: [] }` on a separate read. `adapterUnavailableLine` emitted the same literal lines as the E2E assertions. |
 | Discovery and command boundaries | A scratch `ci-adapter-retry-judgment.spec.ts` passed through the backend group with both attempts' discovery `time` set, using `passedWithoutTimes` for the retry. Dropping the newer retry's ordering timestamp left the older failed verdict. The focused Distribution runner passed `dashboard-story-branch-ci-adapter.test.mjs`, `dashboard-ci-adapter-proof.test.mjs`, `ci-proof-read-adapter.test.mjs`, and `ci-command-adapter-proof.test.mjs`, including same-check and different-check ambiguity, proof runner replies, and reported reasons. |
 
+## Execution context
+
+Maki-chan resumed the published Take for publisher
+`dashboard-territory.local-open-dough` in Story Branch Mode from
+`/Users/terryyin/git/open-dough/.worktrees/prove-each-adapter-proof-reason-below-the-e2e-jo`.
+The launch started at `49148297c960c48f30305b84b3417a49ba7f83f2` and accepted
+the Take `91610ce0dc8c11e5296cd16a03d8ab30f96c4ece` on `origin/main` and
+`origin/codex/prove-each-adapter-proof-reason-below-the-e2e-jo`. Work remains
+in the linked checkout, with `origin/main` as the integration target. A
+checkout-local `npm ci` and the focused Playwright listing with
+`--reporter=list` verified the locked setup and seven-case baseline roster.
+
+The Codex CI observer watches the published story branch via `ci.yml` (CI),
+coordinator `adapter-proof-798`, directory `/tmp/dough-ci-501/watch-eFtW1t`,
+stream session `62286`, PID `81330`, yielded cell `g525:7`. The established
+Take on trunk predates this observer.
+
 ## Slices
 
 ### 1. Missing adapter proof and recovery use one composed workflow
 
 Type: Structure
-Status: planned
+Status: done
 
 Prove each command or reader reason and the mounted presentation and refresh
 before removing the eight-round matrix. Add the two real failing command
@@ -88,6 +105,27 @@ The retry and ambiguity cases remain in place until their owning slices.
 E2E selections. Confirm the reason checks discriminate using scratch changes
 at each moved rejection branch and the mounted UI flags. Preserve the E2E
 journey's failure signal when Check again cannot recover the proof.
+
+**Accepted observations.** On Node 24.21.0 and Bash 5 with the AC sleep guard:
+
+- `caffeinate -s -i npm test -- Distribution/tests/support/dashboard-ci-adapter-proof.test.mjs`
+  passed. The temporary configured adapter and typed Intent attempt yielded the
+  exact subprocess exit and envelope lines. Existing timeout and JSON cases still ran.
+- `caffeinate -s -i npm run --silent test:dashboard:backend -- intent/ci-proof-memory-adapter-gaps.spec.ts --workers=2 --reporter=line`
+  passed six cases. `ciAdapterProofReader` rejects all six inputs with their exact
+  lines, and the five typed replies each recover and remember a valid summary.
+- `caffeinate -s -i npm run --silent test:dashboard:frontend -- intent/intent-ci-proof-adapter-states.spec.ts --workers=2 --reporter=line`
+  passed both cases. The mounted homepage distinguishes the border treatments and
+  checks the refreshed time, proof subject, rows and verdict.
+- `caffeinate -s -i npm run --silent test:e2e -- e2e/intent/intent-ci-proof-adapter --workers=2 --reporter=line`
+  passed six cases. The configured adapter receives two requests for the same
+  text-normalized attempt, with a visible absence followed by counts after Check
+  again. Scratch breaks failed at the intended wording, styling and recovery
+  assertions. `slice1-implementation.md` in the worktree's Git evidence directory
+  indexes the focused runs, discriminating breaks and affected consumers.
+  The same six scenarios passed after the independent review split the Given
+  steps. The review found a live backend consumer of the adapter fixture's
+  stderr option and retained that option.
 
 ### 2. The retry's verdict and remembered proof have unit coverage
 

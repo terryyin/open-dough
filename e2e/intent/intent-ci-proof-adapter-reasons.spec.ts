@@ -4,22 +4,15 @@ import {
   expectProofRows,
 } from "../../dashboard/test-support/intentCiProofPage.ts";
 import { expectCiAnswer } from "../../dashboard/test-support/intentCiStatusPage.ts";
-// Why Intent's CI status tab shows no CI proof of a ciAdapter attempt
-// (../../dashboard/src/IntentCiProof.tsx, ../../dashboard/server/ciAdapterProof.ts): when the adapter
-// answers no proof read, gives its own reason, or answers what is not this
-// attempt's valid summary, or when another discovered attempt shares the
-// shown attemptId at its revision (asked of no adapter), one line says why,
-// with no counts and the verdict unchanged, and Check again reads both again.
-// An adapter attempt's shown proof: ./intent-ci-proof-adapter.spec.ts; a
-// time limit or non-JSON answer:
-// ../../Distribution/tests/support/dashboard-ci-adapter-proof.test.mjs.
+// Intent shows the retry's verdict and remembered CI proof. An attempt whose
+// ID another discovered attempt shares at its revision shows why it is
+// ambiguous, without requesting proof.
+// Missing proof and recovery: ./intent-ci-proof-adapter.spec.ts.
 
-import { SUMMARY_READ_LIMIT_BYTES } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { expectAttemptAt } from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 import {
   adapterProject,
-  type Answers,
   failed,
   openAdapterProof,
   passed,
@@ -31,100 +24,7 @@ import {
 import {
   login,
   repository,
-  signup,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
-import { tokenColour } from "../../dashboard/test-support/pageColours.ts";
-
-const oversizedProofLine =
-  "This attempt's CI proof is larger than the 1 MiB proof limit.";
-const noSummaryRetainedLine =
-  "This attempt's CI adapter gave no CI proof summary: no summary retained.";
-
-test("an adapter attempt whose adapter answers no proof of it gives one reason under Proof, no counts and an unchanged verdict, and Check again reads both again", async ({
-  page,
-  dashboard,
-}) => {
-  const adapter = adapterProject(dashboard.home);
-  const discover = { main: [passed("r1", "2", login, "main")] };
-  const summary = testsSummary("2", login).summary as Record<string, unknown>;
-  const cases: readonly [
-    readonly [string, Omit<Answers, "discover">],
-    ...(readonly [string, Omit<Answers, "discover">])[],
-  ] = [
-    [
-      // An adapter that predates proof exits nonzero for it.
-      "This attempt's CI adapter answered no proof read: it exited with status 2 (unknown operation: proof).",
-      { proof: {}, proofStderr: "unknown operation: proof" },
-    ],
-    [noSummaryRetainedLine, { proof: { unavailable: "no summary retained" } }],
-    [
-      "This attempt's CI proof summary is not a valid summary: schemaVersion is not 2.",
-      { proof: { summary: { ...summary, schemaVersion: 3 } } },
-    ],
-    [
-      "This attempt's CI proof summary is for another repository, attempt or revision: it names repository someone/else.",
-      { proof: { summary: { ...summary, repository: "someone/else" } } },
-    ],
-    [
-      "This attempt's CI proof summary is for another repository, attempt or revision: it names attempt 1.",
-      { proof: { summary: { ...summary, attemptId: "1" } } },
-    ],
-    [
-      `This attempt's CI proof summary is for another repository, attempt or revision: it names revision ${signup}.`,
-      { proof: { summary: { ...summary, revision: signup } } },
-    ],
-    [
-      // Past the proof call's answer limit (the collector contract's 1 MiB).
-      oversizedProofLine,
-      {
-        proof: {
-          summary: {
-            ...summary,
-            padding: "x".repeat(SUMMARY_READ_LIMIT_BYTES),
-          },
-        },
-      },
-    ],
-    [
-      "This attempt's CI adapter answered no proof read: CI adapter proof must return summary or unavailable.",
-      { proof: { attempts: [] } },
-    ],
-  ];
-  adapter.answer({ discover, ...cases[0][1] });
-  const { panel, proof } = await openAdapterProof(page);
-  const reason = ciProofReading(proof).unavailable;
-  const problemBorder = await tokenColour(page, "--problem");
-
-  for (const [index, [line, answer]] of cases.entries()) {
-    await test.step(line, async () => {
-      if (index > 0) {
-        const discovers = adapter.discoverRequests().length;
-        adapter.answer({ discover, ...answer });
-        await panel.getByRole("button", { name: "Check again" }).click();
-        await expect(reason).toHaveText([line]);
-        expect(adapter.discoverRequests().length).toBeGreaterThan(discovers);
-      } else await expect(reason).toHaveText([line]);
-      expect(adapter.proofRequests()).toHaveLength(index + 1);
-      await expectCiAnswer(panel, verdict);
-      await expectAttemptAt(proof, "Attempt 2", "4774f60");
-      await expectNoProofRows(proof);
-      await expect(proof).not.toContainText(/failed|passed/i);
-      if (line === oversizedProofLine) {
-        await expect(reason).toHaveClass(/intent-ci-proof-problem/);
-        expect(
-          await reason.evaluate((node) => getComputedStyle(node).borderColor),
-        ).toBe(problemBorder);
-      } else {
-        await expect(reason).not.toHaveClass(/intent-ci-proof-problem/);
-        if (line === noSummaryRetainedLine) {
-          expect(
-            await reason.evaluate((node) => getComputedStyle(node).borderColor),
-          ).not.toBe(problemBorder);
-        }
-      }
-    });
-  }
-});
 
 test("a retried adapter attempt shows the retry's verdict and proof, and Check again keeps that attempt's remembered summary", async ({
   page,
