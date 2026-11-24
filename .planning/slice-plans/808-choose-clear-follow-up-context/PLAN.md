@@ -5,15 +5,10 @@
 
 ## Execution context
 
-Kaoru-chan is executing in Story Branch Mode on
-`codex/choose-clear-follow-up-context`. The launch publisher is
-`dashboard-territory.local-open-dough`. The starting revision is
-`ddfaa6c71e86a74bcfd3f2d918bc086654bbbe46` and the Take
-`0648365e4e61dd56946fb5fe95dd3bb33edb01d0` was accepted on `origin/main`
-and the execution branch. The checkout uses Node 24.21.0 and passed
-`npm ci --offline --no-audit --no-fund` and `npm run typecheck:dashboard`.
-The story branch uses the `ci.yml` workflow for push verification.
-Slice 1 was accepted on that branch at `33533a6fff17635ac64769b53e135bcc5704c20f`.
+- Kaoru-chan executes in Story Branch Mode on `codex/choose-clear-follow-up-context` for `dashboard-territory.local-open-dough`.
+- The starting revision is `ddfaa6c71e86a74bcfd3f2d918bc086654bbbe46`. Take `0648365e4e61dd56946fb5fe95dd3bb33edb01d0` was accepted on `origin/main` and the execution branch.
+- Node 24.21.0 passed `npm ci --offline --no-audit --no-fund` and `npm run typecheck:dashboard`. The story branch uses `ci.yml`.
+- The story branch accepted slice 1 at `33533a6fff17635ac64769b53e135bcc5704c20f`, slice 2 at `a3bd4204093b203ea9e21c96f65f96b8791c6eba`, and its test repair at `1458a400129f67c6fb0983f89340b025b2cc3770`.
 
 ## Goal and scope
 
@@ -145,7 +140,7 @@ CI run `45353396533` exposed the flat-list expectation in `recently-done-card-me
 ### 3. A developer can inspect and attach the waiting notes together
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: From a new-side line with two available waiting notes, review the
 collapsed group without toggling it, then start with one selected session and
@@ -160,6 +155,13 @@ the receiving first input and assert the request target independently of both
 note targets. Keep the HTTP delivery assertions for the exact note versions
 after confirmed, refused and uncertain delivery in
 `agent-launch-follow-up-notes-delivery.spec.ts`.
+
+**Accepted proof.** The Intent new-line journeys verified the clear request
+and the attached request with its two independently anchored notes. The
+mounted chooser observed unchecked/closed defaults, disclosure, missing notes,
+Start and Cancel. The HTTP proof retained exact version delivery and admitted
+the required request when the optional store was unreadable.
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/intent/intent-follow-up-notes.spec.ts e2e/stories/recently-done-follow-up.spec.ts --workers=1 --reporter=dot`, `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:frontend -- dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts dashboard/frontend-tests/sessions/recently-done-card-membership-mount.spec.ts --workers=1 --reporter=dot`, and the notes admission and delivery cases in the focused backend run passed.
 
 ### 4. Published sessions can supply context on a second machine
 
@@ -204,13 +206,6 @@ At the typed launch boundary, try a mismatched range or path of the same
 session. The server refuses before invoking a native host. Keep the story
 status and source attribution proof of ordinary Follow up.
 
-## Concern evidence
-
-Slice-plan refinement was unnecessary. Each slice owns an observable change
-and proof through the same follow-up model. The current automatic context
-choices are interim through slices 2 and 3. This review found no remaining
-slice-specific concern.
-
 ## Story obligations
 
 ### G1. Retained sessions are included automatically
@@ -223,7 +218,7 @@ Disposition: proved by slice 2: The same-title keyboard and native input asserti
 
 Reported: slice 1 — "Current waiting notes become checked when they load."
 Story clause: "Optional selections start unchecked and details start collapsed."
-Disposition: interim until slices 3
+Disposition: proved by slice 3: `follow-up-note-handoff.spec.ts` observes the disclosure and unchecked defaults, and `intent-follow-up-notes.spec.ts` observes the clear and explicitly attached native launches.
 
 ### G3. The story-level request needs the reviewed comparison
 

@@ -2,7 +2,6 @@ import { createElement } from "react";
 import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { StoryNotesAttachment } from "../../src/AttachStoryNotes.tsx";
 import type { LaunchAttemptSource } from "../../src/launchAttempts.ts";
 import { StartSession } from "../../src/StartSession.tsx";
 import { storyContext } from "../../src/followUpContext.ts";
@@ -82,13 +81,32 @@ async function mountFollowUp(read: StoryNotesAnswer) {
   const attach = form.dialog.getByRole("checkbox", {
     name: "Attach story notes",
   });
-  return { launcher, form, attach, accept };
+  const details = form.dialog.getByText("Waiting note details", {
+    exact: true,
+  });
+  return { launcher, form, attach, details, accept };
 }
 
-test("Follow up defaults to waiting notes, Start sends the selected choice, and Cancel sends nothing", async () => {
-  const { launcher, form, attach, accept } = await mountFollowUp(
+test("waiting note details preserve the choice and only selected notes are requested by Start", async () => {
+  const { launcher, form, attach, details, accept } = await mountFollowUp(
     answer(waiting, sent),
   );
+  const waitingText = form.dialog.getByText(waiting.text, { exact: true });
+  await expect.element(attach).toBeEnabled();
+  await expect
+    .element(attach)
+    .toHaveAccessibleDescription("1 waiting of 2 notes");
+  await expect.element(attach).not.toBeChecked();
+  await expect.element(waitingText).not.toBeVisible();
+  await details.click();
+  await expect.element(waitingText).toBeVisible();
+  await expect
+    .element(form.dialog.getByText(sent.text, { exact: true }))
+    .not.toBeInTheDocument();
+  await expect.element(attach).not.toBeChecked();
+  await attach.click();
+  await details.click();
+  await expect.element(waitingText).not.toBeVisible();
   await expect.element(attach).toBeChecked();
   await form.start.click();
   await expect.element(form.dialog).not.toBeInTheDocument();
@@ -102,9 +120,8 @@ test("Follow up defaults to waiting notes, Start sends the selected choice, and 
   );
 
   await launcher.click();
-  await expect.element(attach).toBeChecked();
-  await attach.click();
   await expect.element(attach).not.toBeChecked();
+  await expect.element(waitingText).not.toBeVisible();
   await form.start.click();
   await expect.element(form.dialog).not.toBeInTheDocument();
   expect(accept).toHaveBeenNthCalledWith(
@@ -117,51 +134,29 @@ test("Follow up defaults to waiting notes, Start sends the selected choice, and 
   );
 
   await launcher.click();
-  await expect.element(attach).toBeChecked();
+  await attach.click();
   await form.cancel.click();
   await expect.element(form.dialog).not.toBeInTheDocument();
   expect(accept).toHaveBeenCalledTimes(2);
-});
-
-async function mountNotesAttachment(read: StoryNotesAnswer) {
-  const onAttach = vi.fn<(attach: boolean) => void>();
-  await mountComponent(
-    createElement(PageReadsOnPage, {
-      reads: pageReadsSupplying({ storyNotes: () => Promise.resolve(read) }),
-      children: createElement(StoryNotesAttachment, {
-        sourceId: project.id,
-        identity: story.identity,
-        onAttach,
-      }),
-    }),
-  );
-  return {
-    attach: page.getByRole("checkbox", { name: "Attach story notes" }),
-    onAttach,
-  };
-}
-
-test("the notes reader selects waiting notes and describes their count", async () => {
-  const { attach, onAttach } = await mountNotesAttachment(
-    answer(waiting, sent),
-  );
-  await expect
-    .element(attach)
-    .toHaveAccessibleDescription("1 waiting of 2 notes");
-  await expect.element(attach).toBeChecked();
-  await expect.element(attach).toBeEnabled();
-  await expect.poll(() => onAttach.mock.lastCall).toEqual([true]);
 });
 
 async function leavesNotesUnattached(
   read: StoryNotesAnswer,
   description: string,
 ) {
-  const { attach, onAttach } = await mountNotesAttachment(read);
+  const { attach, details, form, accept } = await mountFollowUp(read);
   await expect.element(attach).toHaveAccessibleDescription(description);
   await expect.element(attach).toBeDisabled();
   await expect.element(attach).not.toBeChecked();
-  await expect.poll(() => onAttach.mock.lastCall).toEqual([false]);
+  await expect.element(details).not.toBeInTheDocument();
+  await expect.element(form.start).toBeEnabled();
+  await form.start.click();
+  expect(accept).toHaveBeenCalledWith(
+    expect.objectContaining({
+      followUp: { story: { identity: story.identity, revision } },
+    }),
+    false,
+  );
 }
 
 test("the notes reader leaves Attach unavailable when no notes wait", async () => {

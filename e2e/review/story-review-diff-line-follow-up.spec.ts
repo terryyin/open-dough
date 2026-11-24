@@ -157,7 +157,7 @@ test.describe("diff line Follow up menu", () => {
         ]));
 
     await test.step("the line follow-up offers the waiting story note", async () => {
-      await attachStoryNotes(dialog).expectChecked(1, 1);
+      await attachStoryNotes(dialog).expectChoice(false, 1, 1);
     });
 
     await test.step("Cancel closes the line follow-up dialog", async () => {

@@ -3,71 +3,38 @@
 // request as `notes: true` when checked. Unavailable when none wait or the
 // notes could not be read; still allows starting without notes.
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId } from "react";
 import {
   attachStoryNotesDetail,
   attachStoryNotesLabel,
   attachStoryNotesNone,
 } from "./attachStoryNotesWords.ts";
-import {
-  storyNoteIsWaiting,
-  storyNotesFor,
-  type StoryNotesAnswer,
-} from "./storyNote.ts";
+import { FollowUpDetails } from "./FollowUpDetails.tsx";
+import { storyNoteItems } from "./followUpStoryNotes.ts";
+import { LaunchDisclosure } from "./LaunchDisclosure.tsx";
+import { storyNoteIsWaiting, storyNotesFor } from "./storyNote.ts";
 import { useStoryNotes } from "./storyNotes.ts";
 import { storyNotesUnreadable } from "./storyNotesReadSource.ts";
-import type { DialogSession } from "./LaunchSessionPolicy.tsx";
 import "./follow-up.css";
 
 type StoryNotesAttachmentProps = {
   readonly sourceId: string;
   readonly identity: string;
+  readonly checked: boolean;
   readonly onAttach: (attach: boolean) => void;
 };
-
-// Mounts Attach story notes above the Session group for a story follow-up.
-export function sessionAttachingStoryNotes(
-  session: DialogSession,
-  attach: StoryNotesAttachmentProps | undefined,
-): DialogSession {
-  if (attach === undefined) return session;
-  return {
-    ...session,
-    group: (id) => (
-      <>
-        <StoryNotesAttachment {...attach} />
-        {session.group(id)}
-      </>
-    ),
-  };
-}
 
 export function StoryNotesAttachment({
   sourceId,
   identity,
+  checked,
   onAttach,
 }: StoryNotesAttachmentProps) {
   const { answer } = useStoryNotes(sourceId);
-  return (
-    <AttachStoryNotes answer={answer} identity={identity} onAttach={onAttach} />
-  );
-}
-
-function AttachStoryNotes({
-  answer,
-  identity,
-  onAttach,
-}: {
-  readonly answer: StoryNotesAnswer | undefined;
-  readonly identity: string;
-  readonly onAttach: (attach: boolean) => void;
-}) {
   const { notes, unreadable } = storyNotesFor(answer, identity);
-  const waiting = notes.filter(storyNoteIsWaiting).length;
-  const total = notes.length;
+  const waiting = notes.filter(storyNoteIsWaiting);
   const loaded = answer !== undefined;
-  const available = loaded && !unreadable && waiting > 0;
-  const [checked, setChecked] = useState(available);
+  const available = waiting.length > 0;
   const detailId = useId();
   const inputId = useId();
   const detail = !loaded
@@ -75,33 +42,38 @@ function AttachStoryNotes({
     : unreadable
       ? storyNotesUnreadable
       : available
-        ? attachStoryNotesDetail(waiting, total)
+        ? attachStoryNotesDetail(waiting.length, notes.length)
         : attachStoryNotesNone;
 
   useEffect(() => {
-    setChecked(available);
-  }, [available]);
-
-  useEffect(() => {
-    onAttach(available && checked);
+    if (!available && checked) onAttach(false);
   }, [available, checked, onAttach]);
 
   return (
     <div className="attach-story-notes">
-      <input
-        type="checkbox"
-        id={inputId}
-        checked={available && checked}
-        disabled={!available}
-        aria-describedby={detailId}
-        onChange={(event) => {
-          setChecked(event.target.checked);
-        }}
-      />
-      <span>
-        <label htmlFor={inputId}>{attachStoryNotesLabel}</label>
-        <small id={detailId}>{detail}</small>
-      </span>
+      <div className="attach-story-notes-choice">
+        <input
+          type="checkbox"
+          id={inputId}
+          checked={available && checked}
+          disabled={!available}
+          aria-describedby={detailId}
+          onChange={(event) => {
+            onAttach(event.currentTarget.checked);
+          }}
+        />
+        <span>
+          <label htmlFor={inputId}>{attachStoryNotesLabel}</label>
+          <small id={detailId}>{detail}</small>
+        </span>
+      </div>
+      {available && (
+        <LaunchDisclosure summary="Waiting note details">
+          {waiting.map((note) => (
+            <FollowUpDetails key={note.id} items={storyNoteItems(note)} />
+          ))}
+        </LaunchDisclosure>
+      )}
     </div>
   );
 }

@@ -1,8 +1,10 @@
+import { StoryNotesAttachment } from "./AttachStoryNotes.tsx";
 import {
   followUpItems,
   sessionContext,
   type FollowUpContext,
 } from "./followUpContext.ts";
+import { FollowUpDetails } from "./FollowUpDetails.tsx";
 import type { FollowUpSource } from "./followUpRequest.ts";
 import { retainedFollowUpReference } from "./followUpSessions.ts";
 import { LaunchDisclosure } from "./LaunchDisclosure.tsx";
@@ -21,12 +23,18 @@ export type FollowUpShown = {
 
 export function FollowUpSubject({
   followUp,
+  sourceId,
   selected,
   onSessions,
+  attachNotes,
+  onNotes,
 }: {
   readonly followUp: FollowUpShown;
+  readonly sourceId: string;
   readonly selected: readonly SessionReference[];
   readonly onSessions: (sessions: readonly SessionReference[]) => void;
+  readonly attachNotes: boolean;
+  readonly onNotes: (attach: boolean) => void;
 }) {
   return (
     <div className="follow-up-subject">
@@ -76,19 +84,20 @@ export function FollowUpSubject({
                     </>
                   }
                 >
-                  <dl>
-                    {context.items.map(({ label, value }) => (
-                      <div key={label}>
-                        <dt>{label}</dt>
-                        <dd>{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                  <FollowUpDetails items={context.items} />
                 </LaunchDisclosure>
               </div>
             );
           })}
         </fieldset>
+      )}
+      {"story" in followUp.source && (
+        <StoryNotesAttachment
+          sourceId={sourceId}
+          identity={followUp.source.story.identity}
+          checked={attachNotes}
+          onAttach={onNotes}
+        />
       )}
     </div>
   );

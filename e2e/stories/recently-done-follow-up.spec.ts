@@ -220,7 +220,8 @@ test("starting a follow-up with attached notes marks them sent on the card and i
 
   await notes.expectWaiting(card, 1);
   await followUp(card, recoverStory).click();
-  await attach.expectChecked(1, 1);
+  await attach.expectChoice(false, 1, 1);
+  await attach.select();
   const text = "Follow up with the waiting note";
   await startSessionField(dialog).fill(text);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();

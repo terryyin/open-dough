@@ -6,7 +6,6 @@ import {
   type AgentLaunchRequest,
   type LaunchChoices,
 } from "./agentLaunch.ts";
-import { sessionAttachingStoryNotes } from "./AttachStoryNotes.tsx";
 import { FollowUpSubject, type FollowUpShown } from "./FollowUpSubject.tsx";
 import {
   followUpSourceAttaching,
@@ -53,10 +52,6 @@ export function StartSessionDialog({
   const [policy, setPolicy] = useState(unattachedPolicyOf({}));
   const [sessions, setSessions] = useState<readonly SessionReference[]>([]);
   const [attachNotes, setAttachNotes] = useState(false);
-  const storyIdentity =
-    followUp !== undefined && "story" in followUp.source
-      ? followUp.source.story.identity
-      : undefined;
   const workspace =
     policy.workspace === "isolated"
       ? "a new workspace of this project"
@@ -80,23 +75,21 @@ export function StartSessionDialog({
         followUp === undefined ? undefined : (
           <FollowUpSubject
             followUp={followUp}
+            sourceId={sourceId}
             selected={sessions}
             onSessions={setSessions}
+            attachNotes={attachNotes}
+            onNotes={setAttachNotes}
           />
         )
       }
       description={`${hostName(host)} starts a background session on this machine, in ${workspace}, with no story or skill${context}. It is listed as ${project} · ${adHocName}.`}
       fieldLabel="What would you like to talk about? (optional)"
-      session={sessionAttachingStoryNotes(
-        unattachedSession({
-          policy,
-          onPolicy: setPolicy,
-          offer: launches.sessionPolicyOffer(sourceId, "ad-hoc", host),
-        }),
-        storyIdentity === undefined
-          ? undefined
-          : { sourceId, identity: storyIdentity, onAttach: setAttachNotes },
-      )}
+      session={unattachedSession({
+        policy,
+        onPolicy: setPolicy,
+        offer: launches.sessionPolicyOffer(sourceId, "ad-hoc", host),
+      })}
       effects={
         <>
           <strong className="launch-dialog-summary">

@@ -52,8 +52,8 @@ async function resolveStoryFollowUp(
   );
   if (followUp.notes !== true) return { context: base };
   const waiting = await waitingStoryNotes(source.id, followUp.identity);
-  if (waiting === "unreadable")
-    throw new RefusedRequest(502, "The notes could not be read.");
+  if (waiting === "unreadable" || waiting.length === 0)
+    return { context: base };
   return {
     context: { ...base, notes: storyNotesContext(waiting) },
     notes: waiting.map((note) => ({
