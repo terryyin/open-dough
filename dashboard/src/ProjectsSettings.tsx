@@ -92,7 +92,7 @@ export function ProjectsSettings({
                   <dl>
                     <dt>GitHub repository</dt>
                     <dd>{source.repository}</dd>
-                    <dt>Local path</dt>
+                    <dt>Execution checkout</dt>
                     <dd>{projectFacts?.localPath ?? "Loading…"}</dd>
                     <ProjectClientConfiguration
                       inspection={projectFacts?.clientConfiguration}

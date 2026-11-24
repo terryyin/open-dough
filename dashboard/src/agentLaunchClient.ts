@@ -68,7 +68,7 @@ export type LaunchProblem = {
 // What asking for a launch answers the page: the attempt the local service
 // accepted, or a launch problem (`unacknowledged` when no answer could be
 // trusted, so the service may have accepted it); or, for its dialog, the
-// default checkout's existing changes to confirm before anything starts.
+// execution checkout's existing changes to confirm before anything starts.
 export type AcceptanceAnswer =
   | Extract<
       Acceptance,

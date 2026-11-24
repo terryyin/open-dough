@@ -1,6 +1,6 @@
 // @ts-check
 // What a kept launch's Done captured (`./launchOutcomeTestData.mjs` states
-// the Done mark): the commits its session made in the Default main checkout,
+// the Done mark): the commits its session made in the execution checkout,
 // the result its session branch reached, or the time either read failed. A
 // branch result is stated from the work's known revisions.
 
@@ -28,7 +28,7 @@ export class LaunchDoneCaptureBuilder {
   #capture = {};
 
   /**
-   * The commits the session made in its Default main checkout, kept at Done:
+   * The commits the session made in its execution checkout, kept at Done:
    * each run's pair in the checkout's common repository, oldest first, and
    * `shared` when another session was open in that checkout meanwhile. State
    * `readAt` when the kept run was read at a different time than the Done mark.

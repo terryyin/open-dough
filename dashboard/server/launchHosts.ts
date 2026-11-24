@@ -19,7 +19,7 @@ import type {
   HostLaunch,
   SessionObservation,
 } from "./hostLaunch.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import type { FinalReportRead } from "../src/finalReportContract.ts";
 import type { WorkspaceState } from "../src/launchRecord.ts";
 import type { HostDescription, HostIdentity } from "../src/hostDescription.ts";
@@ -65,7 +65,7 @@ import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 // ready prompt before `signal` ends the wait.
 export type WithAttachment = <T>(
   session: HostSession,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   use: (type: (input: string) => void) => Promise<T>,
   signal: AbortSignal,
   ready: ScreenReadiness,
@@ -85,14 +85,14 @@ export type LaunchHost = {
     readonly inspectionArgs?: readonly string[];
   };
   installedSkillPath(
-    project: ProjectFolder,
+    project: LocalFolder,
     skill: string,
     ...segments: readonly string[]
   ): string;
   launch(
     source: PublishedSource,
     request: RecordedLaunchRequest,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     signal: AbortSignal,
     established?: EstablishedLaunch,
     record?: LaunchRecording,
@@ -109,9 +109,9 @@ export type LaunchHost = {
   launchedSessions?(
     source: PublishedSource,
     request: RecordedLaunchRequest,
-    startedIn: ProjectFolder,
+    startedIn: LocalFolder,
     since: Date,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     signal: AbortSignal,
   ): Promise<readonly SessionObservation[] | undefined>;
   // Restore the vendor service for retained sessions without resuming work.
@@ -119,7 +119,7 @@ export type LaunchHost = {
   close?(): void;
   sessions?: (
     records: readonly LaunchRecord[],
-    folder: ProjectFolder,
+    folder: LocalFolder,
     signal: AbortSignal,
   ) => Promise<readonly SessionObservation[]>;
   readFinalReport?(
@@ -128,20 +128,20 @@ export type LaunchHost = {
   ): Promise<FinalReportRead>;
   attach?(
     session: HostSession,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     size: { readonly cols: number; readonly rows: number },
   ): TerminalAttachment;
   // Each host decides when it may rename; `stopped` abandons any wait.
   rename?(
     record: LaunchRecord,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     withAttachment: WithAttachment,
     intent: DoneIntent,
     stopped: AbortSignal,
   ): Promise<void>;
   stop?(
     session: HostSession,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     signal: AbortSignal,
   ): Promise<void>;
   // The same native stop as Mark as done's, where that mark stops the
@@ -150,7 +150,7 @@ export type LaunchHost = {
   // is delivered); Done learns that only from this fact.
   doneStop?(
     session: HostSession,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     signal: AbortSignal,
   ): Promise<void>;
   // Mark as done is only a local dashboard acknowledgement for this host:
@@ -160,7 +160,7 @@ export type LaunchHost = {
   // Removes an exited session's job from the host on Mark as done.
   remove?(
     session: HostSession,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     signal: AbortSignal,
   ): Promise<void>;
   // Runs only after this session's launch record has actually been
@@ -202,7 +202,7 @@ export function hostOperations(): HostOperations {
 
 export function installedSkillPath(
   host: AgentLaunchRequest["host"],
-  project: ProjectFolder,
+  project: LocalFolder,
   skill: string,
   ...segments: readonly string[]
 ): string {

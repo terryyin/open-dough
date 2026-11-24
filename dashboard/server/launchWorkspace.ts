@@ -5,14 +5,14 @@ import { hostDescription } from "../src/hostDescription.ts";
 import { establishedPlace, type LaunchRecord } from "../src/launchRecord.ts";
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 import path from "node:path";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 export const worktreesFolder = ".worktrees";
 
 const slugLimit = 48;
 
 export type WorkspaceChoice = {
-  readonly workspace: ProjectFolder;
+  readonly workspace: LocalFolder;
   readonly branch: string;
 };
 
@@ -39,15 +39,15 @@ function freeSlug(slug: string, taken: ReadonlySet<string>): string {
   return candidate;
 }
 
-// A workspace folder as the page shows a project's folders.
-export function shownWorkspace(project: ProjectFolder, slug: string): string {
+// A workspace folder as the page shows paths under the execution checkout.
+export function shownWorkspace(project: LocalFolder, slug: string): string {
   return `${project.shown}/${worktreesFolder}/${slug}`;
 }
 
-// A start's workspace as the page shows it: the project's folder itself when
-// the start took the default checkout, else its workspace under the folder.
+// A start's workspace as the page shows it: the project's execution checkout itself when
+// the start took the execution checkout, else its workspace under the folder.
 export function shownStartWorkspace(
-  project: ProjectFolder,
+  project: LocalFolder,
   workspace: string,
 ): string {
   if (workspace === project.path) return project.shown;
@@ -60,14 +60,14 @@ export function shownStartWorkspace(
 
 // A start's workspace as a folder of the project.
 export function startWorkspaceFolder(
-  project: ProjectFolder,
+  project: LocalFolder,
   workspace: string,
-): ProjectFolder {
+): LocalFolder {
   return { path: workspace, shown: shownStartWorkspace(project, workspace) };
 }
 
 export function launchWorkspace(
-  project: ProjectFolder,
+  project: LocalFolder,
   title: string,
   taken: ReadonlySet<string>,
   host: AgentLaunchRequest["host"],
@@ -86,7 +86,7 @@ export function launchWorkspace(
 // This is a response projection; the stored start retains its actual workspace.
 export function shownLaunchWorkspace(
   record: LaunchRecord,
-  project?: ProjectFolder,
+  project?: LocalFolder,
 ): { readonly shownWorkspace?: string } {
   const established = establishedPlace(record);
   if (established === undefined) return {};

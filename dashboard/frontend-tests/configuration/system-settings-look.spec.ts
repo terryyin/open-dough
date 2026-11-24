@@ -198,7 +198,7 @@ test("phone touch reads machine-local facts and returns from the last group afte
   ).toEqual([
     first.source.repository,
     local.localPath,
-    "The Client configuration could not be read from this project's local checkout.",
+    "The Client configuration could not be read from this project's execution checkout.",
   ]);
   await expect
     .element(

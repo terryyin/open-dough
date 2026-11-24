@@ -63,15 +63,15 @@ export async function expectEstablishedOneShot({
   cwd: string | undefined;
   instruction: string;
 }) {
-  const defaultMain = policy.workspace === "default-checkout";
-  const workspace = defaultMain
+  const executionCheckout = policy.workspace === "default-checkout";
+  const workspace = executionCheckout
     ? origin.project
     : path.join(origin.project, ".worktrees", slug);
-  const branch = defaultMain ? "main" : `${host}/${slug}`;
+  const branch = executionCheckout ? "main" : `${host}/${slug}`;
   expect(cwd).toBe(realpathSync(workspace));
   const flags = [
     "--one-shot",
-    ...(defaultMain ? ["--default-main"] : []),
+    ...(executionCheckout ? ["--default-main"] : []),
     ...(policy.landing === "auto-land" ? ["--auto-land"] : []),
   ];
   const [command, , reporting, developer, ...extra] = instruction.split("\n\n");
@@ -105,7 +105,7 @@ export async function expectEstablishedOneShot({
   // Nothing was published at start: no profile, Take, branch, or push.
   expect(await originState(origin)).toEqual(before);
   expect(existsSync(path.join(origin.project, ".worktrees", slug))).toBe(
-    !defaultMain,
+    !executionCheckout,
   );
 
   const [record] = (await recordsOf(server, "open-dough")) as LaunchRecord[];
@@ -124,9 +124,9 @@ export async function expectEstablishedOneShot({
     landing: policy.landing,
     startingRevision,
     ...(workflow === "execution" ? { mode: "story-branch" } : {}),
-    // Only the default checkout's start reports the fetched trunk beside its
+    // Only the execution checkout's start reports the fetched trunk beside its
     // own HEAD.
-    ...(workflow === "execution" && defaultMain
+    ...(workflow === "execution" && executionCheckout
       ? { fetched: startingRevision }
       : {}),
   });

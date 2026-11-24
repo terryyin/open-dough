@@ -13,7 +13,7 @@ import {
   type LandedResolution,
 } from "./landedCiObservation.ts";
 import { readIntentCiProof } from "./intentCiProofRead.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { isUnansweredProof } from "./ciProofArtifact.ts";
 
 export type CollectedProof = {
@@ -71,7 +71,7 @@ export async function collectedProofOf(
     source,
     subject,
     signal,
-    (asked) => projectFolder(asked).path,
+    (asked) => executionCheckout(asked).path,
   );
   const pending =
     collectableUnavailable(proof) &&

@@ -65,7 +65,7 @@ function KnownFacts({ attempt }: { readonly attempt: AttemptObservation }) {
       ) : outcome.kind === "launched" ? (
         "Its session started."
       ) : outcome.kind === "existing-changes" ? (
-        "It stopped at the default checkout's unconfirmed changes."
+        "It stopped at the execution checkout's unconfirmed changes."
       ) : outcome.kind === "base-ci" ? (
         "It stopped at the origin target's unconfirmed base CI."
       ) : (

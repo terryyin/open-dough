@@ -26,7 +26,7 @@ import {
   unattachedSummary,
 } from "../src/sessionPolicyWords.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import { shipsSessionPolicy } from "./startPolicy.ts";
 import { startOf } from "./startWorkflows.ts";
 import { establishesUnattached } from "./unattachedStart.ts";
@@ -34,7 +34,7 @@ import { establishesUnattached } from "./unattachedStart.ts";
 // Whether the selected host's installation in the project starts the
 // workflow itself and ships the shared policy that start reads.
 export async function sessionPolicyCapable(
-  project: ProjectFolder,
+  project: LocalFolder,
   workflow: LaunchWorkflow,
   host: AgentLaunchRequest["host"],
 ): Promise<boolean> {
@@ -55,7 +55,7 @@ const isDefault = (policy: SessionPolicy) =>
 // selected host's installation cannot.
 async function withUnattachedPolicy(
   request: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>,
-  project: ProjectFolder,
+  project: LocalFolder,
 ): Promise<AgentLaunchRequest> {
   const { policy: asked, ...rest } = request;
   const policy = unattachedPolicyOf({ policy: asked });
@@ -72,12 +72,12 @@ async function withUnattachedPolicy(
 }
 
 // The request with its policy as the boundary keeps it (none for the default
-// policy), or the refusal: a default main or automatic landing without
+// policy), or the refusal: an execution checkout or automatic landing without
 // one-shot tracking, or an installation that does not take the policy at its
 // start. An unattached request is admitted with its own policy.
 export async function withSessionPolicy(
   request: AgentLaunchRequest,
-  project: ProjectFolder,
+  project: LocalFolder,
 ): Promise<AgentLaunchRequest> {
   if (request.workflow === "ad-hoc")
     return withUnattachedPolicy(request, project);

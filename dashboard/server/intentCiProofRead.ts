@@ -6,7 +6,7 @@
 // (`./ciProofArtifact.ts`); a ciAdapter attempt by the text of its `run` and
 // `attempt-id`, the `run-branch` whose discover listed it and its
 // `revision`, and is read through the project's own adapter, run from the
-// project folder as discover is (`./ciAdapterProof.ts`). Anything else is
+// execution checkout as discover is (`./ciAdapterProof.ts`). Anything else is
 // refused here before any `gh` call or adapter run.
 
 import {
@@ -110,7 +110,7 @@ export function readingIntentCiProofOf(
 }
 
 // Performs one CI proof read: it always answers, with the reason when no
-// proof can be shown. `folderOf` resolves the project folder an adapter
+// proof can be shown. `folderOf` resolves the execution checkout an adapter
 // attempt's proof is asked in.
 export async function performIntentCiProofRead(
   source: PublishedSource,

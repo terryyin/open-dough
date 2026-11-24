@@ -19,11 +19,11 @@ import type { FakeGitHub } from "../../test-support/support/fakeGitHub.ts";
 import {
   dirty,
   status,
-} from "../../test-support/support/defaultCheckoutChanges.ts";
+} from "../../test-support/support/executionCheckoutChanges.ts";
 import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
 import { launchWaitMs } from "../../test-support/support/launchWait.ts";
 import {
-  defaultMainSession,
+  executionCheckoutSession,
   sessionBlock,
 } from "../../test-support/support/startSessionLanding.ts";
 
@@ -73,7 +73,7 @@ test("HTTP text preserves exact bytes once; completed blank launches permit anot
 });
 
 // With the real installed start (../../test-support/support/codexStart.ts): existing changes
-// in default main are confirmed before anything is created, and a session
+// in the execution checkout are confirmed before anything is created, and a session
 // that lands automatically is handed its established session first.
 startTest(
   "existing changes are confirmed before Codex creates anything, and an established session's block and reporting context are the whole first input",
@@ -106,7 +106,11 @@ startTest(
       ),
     ).toMatchObject({ kind: "launched" });
     const [record] = stored(dashboard.home);
-    const session = defaultMainSession(origin.project, "auto-land", revision);
+    const session = executionCheckoutSession(
+      origin.project,
+      "auto-land",
+      revision,
+    );
     expect(record?.establishedSession).toEqual(session);
     expect(record?.request).toMatchObject({ policy: asked.policy });
     expect(JSON.stringify(record)).not.toContain("existingChanges");

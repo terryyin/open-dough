@@ -1,7 +1,7 @@
 // What the unattached Start session specs share on a real start origin
 // (./startOrigin.ts): the installed start's invocations recorded as they
 // happen, the start an unattached session's place is established by, in the
-// default checkout or a new workspace, and the "Established session" block
+// execution checkout or a new workspace, and the "Established session" block
 // its first input carries.
 
 import { execFileSync } from "node:child_process";
@@ -99,7 +99,7 @@ export function recordStarts(origin: StartOrigin, host: Host = "claude") {
 // The start that establishes an unattached session in the project's default
 // checkout: the one-shot start with no identity or publisher, with
 // publication authority only for an automatic landing.
-export const defaultMainStart = (project: string, landing: Landing) => [
+export const executionCheckoutStart = (project: string, landing: Landing) => [
   "start",
   ...(landing === "auto-land" ? ["--push-authorized"] : []),
   "--one-shot",
@@ -169,9 +169,9 @@ export const isolatedSession = (
   startingRevision: revision,
 });
 
-// What a session established in the project's default checkout at `revision`
+// What a session established in the project's execution checkout at `revision`
 // is recorded as, and the block its first input carries.
-export const defaultMainSession = (
+export const executionCheckoutSession = (
   project: string,
   landing: Landing,
   revision: string,

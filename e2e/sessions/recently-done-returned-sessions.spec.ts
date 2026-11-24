@@ -45,7 +45,7 @@ import {
   markDoneAnyway,
 } from "../../dashboard/test-support/support/markDone.ts";
 
-// Marking done and reopening act in the project's folder.
+// Marking done and reopening act in the project's execution checkout.
 test.use({ projectFolders: ["open-dough"] });
 
 const hour = 60 * 60 * 1000;

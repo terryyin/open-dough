@@ -22,7 +22,7 @@ import {
 } from "./completionReporting.ts";
 import { establishedLaunch, type Started } from "./launchStart.ts";
 import { knownLaunchWorkspace } from "./knownLaunchWorkspace.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import { keptStartWords } from "./startResult.ts";
 
 export type PreparedAttemptReporting =
@@ -47,7 +47,7 @@ function incompleteReportingFailure(
 export async function refuseIncompleteKnownReporting(
   source: PublishedSource,
   request: AgentLaunchRequest,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   attempt: LaunchAttemptRecord,
   pending: LaunchRecord | undefined,
 ): Promise<LaunchResult | undefined> {
@@ -73,7 +73,7 @@ export async function refuseIncompleteKnownReporting(
 export async function prepareAttemptReporting(
   attempt: LaunchAttemptRecord,
   start: Exclude<Started, { kind: "stopped" }>,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   pending: LaunchRecord | undefined,
   kept: LaunchAttemptRecord["reporting"] | undefined,
 ): Promise<

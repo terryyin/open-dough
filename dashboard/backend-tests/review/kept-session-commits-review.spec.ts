@@ -8,7 +8,7 @@ import { RefusedRequest } from "../../server/localOrigin.ts";
 import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 
-test("the retained landing of a Default main session takes precedence over its later kept run", async () => {
+test("the retained landing of an execution checkout session takes precedence over its later kept run", async () => {
   const repository = await materializeLocalCheckout(
     undefined,
     makeMe.aRepository
@@ -24,7 +24,7 @@ test("the retained landing of a Default main session takes precedence over its l
   } = repository;
   const record = makeMe.aLaunchRecord
     .adHoc({ title: "Established and landed" })
-    .inDefaultCheckout({ workspace, landing: "auto-land", revision: base })
+    .inExecutionCheckout({ workspace, landing: "auto-land", revision: base })
     .inClaudeSession({ sessionId: "established-landed" })
     .withLanding(
       makeMe.aLaunchLanding
@@ -65,7 +65,7 @@ test("a file text read answers both sides of a kept run's pair and refuses a dif
   } = repository;
   const record = makeMe.aLaunchRecord
     .adHoc({ title: "Session with a kept run" })
-    .inDefaultCheckout({ workspace, landing: "review", revision: base })
+    .inExecutionCheckout({ workspace, landing: "review", revision: base })
     .inClaudeSession({ sessionId: "kept-run" })
     .keptSessionCommits({
       repository: workspace,
@@ -115,7 +115,7 @@ test("a Done session's branch result and kept run open as separate comparisons",
   const entryTree = stdout.trim();
   const record = makeMe.aLaunchRecord
     .adHoc({ title: "Branch result" })
-    .inDefaultCheckout({ workspace, landing: "review", revision: base })
+    .inExecutionCheckout({ workspace, landing: "review", revision: base })
     .inClaudeSession({ sessionId: "branch-result" })
     .branchResultFrom({
       repository: workspace,

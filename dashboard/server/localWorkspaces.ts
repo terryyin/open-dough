@@ -1,4 +1,4 @@
-// The linked worktrees of each configured project's local checkout that hold
+// The linked worktrees of each configured project's execution checkout that hold
 // a story's claim on this machine, read from local Git alone: the checkout's
 // worktree list, each worktree's own author config
 // (`workspace-agent-authorship.mjs` writes it for an owned workspace), the
@@ -29,7 +29,8 @@ import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
 import { gitFilesIdentity } from "./gitFilesIdentity.ts";
-import { folderExists, projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
+import { folderExists } from "./localFolder.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 
 // How long one project's worktrees may take to read.
@@ -65,7 +66,7 @@ function linkedWorktrees(
 // The remote-tracking trunk a worktree's agent profile is published on.
 const trunkOf = (source: PublishedSource) => `origin/${source.ref}`;
 
-// The worktrees of the project's local checkout holding a story's claim.
+// The worktrees of the project's execution checkout holding a story's claim.
 export async function localWorkspacesOf(
   source: PublishedSource,
 ): Promise<FoundWorkspace[]> {
@@ -85,7 +86,7 @@ async function workspacesFound(
   source: PublishedSource,
   signal: AbortSignal,
 ): Promise<FoundWorkspace[]> {
-  const project = projectFolder(source);
+  const project = executionCheckout(source);
   if (!(await folderExists(project))) return [];
   const git = async (cwd: string, ...args: string[]) =>
     (
@@ -93,7 +94,7 @@ async function workspacesFound(
     ).stdout.trim();
   const profiles = agentProfileDirectoryOf(source);
   try {
-    // Git lists worktrees by their resolved paths; the project's folder is
+    // Git lists worktrees by their resolved paths; the project's execution checkout is
     // named as configured, so each is placed under it again.
     const resolved = await realpath(project.path);
     const listed = linkedWorktrees(
@@ -169,7 +170,7 @@ const kept = new Map<
 async function observedWorkspacesOf(
   source: PublishedSource,
 ): Promise<FoundWorkspace[]> {
-  const project = projectFolder(source);
+  const project = executionCheckout(source);
   const files = await gitFilesIdentity(project.path, trunkOf(source));
   const identity =
     files === undefined

@@ -26,7 +26,7 @@ import {
   openSettings,
 } from "../../dashboard/test-support/feedbackMaintenanceDuePage.ts";
 
-test("a launch held because Open Dough's default main has existing changes says so on the row and in settings, and starts once they are gone", async ({
+test("a launch held because Open Dough's execution checkout has existing changes says so on the row and in settings, and starts once they are gone", async ({
   page,
   github,
 }) => {
@@ -44,7 +44,7 @@ test("a launch held because Open Dough's default main has existing changes says 
     await afterFurtherChecks(moving);
     expect(server.claudeLaunchCalls()).toEqual([]);
 
-    const reason = "default main has existing changes (1 changed path)";
+    const reason = "execution checkout has existing changes (1 changed path)";
     await openDashboard(page, server);
     await expect(row(page)).toHaveText(
       `Feedback maintenance due since ${due}; not started: ${reason}`,

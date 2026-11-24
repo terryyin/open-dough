@@ -136,7 +136,7 @@ test("the session's saved branch and delivery switch by keyboard and survive ref
   );
 });
 
-test("the saved branch leaves a session's Default main commits available", async ({
+test("the saved branch leaves a session's Execution checkout commits available", async ({
   page,
   frontendServices,
 }) => {
@@ -193,20 +193,20 @@ test("the saved branch leaves a session's Default main commits available", async
   });
 
   await sidePanelPages(page).phase(
-    "read the Default main comparison",
+    "read the execution checkout comparison",
     (pages) => {
       const review = pages.board.reviewDoneSession(title);
       pages.sessionRuns
-        .expectRuns(["Branch at Done", "Default main commits"])
-        .choose("Default main commits")
-        .expectShown("Default main commits");
-      pages.reviewToolbar.expectName("Default main commits");
+        .expectRuns(["Branch at Done", "Execution checkout commits"])
+        .choose("Execution checkout commits")
+        .expectShown("Execution checkout commits");
+      pages.reviewToolbar.expectName("Execution checkout commits");
       review.expectBodyText(
         "No changes: these session commits leave no difference.",
       );
       pages.sessionRuns
-        .chooseDefaultMainRun(laterRun)
-        .expectShown("Default main commits");
+        .chooseExecutionCheckoutRun(laterRun)
+        .expectShown("Execution checkout commits");
       review.expectFileDiff("Added later.txt", "later commit");
       review
         .refresh()

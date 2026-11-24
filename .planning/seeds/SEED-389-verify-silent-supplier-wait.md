@@ -41,23 +41,25 @@ records the trace boundaries, cache accounting, and historical baselines.
 
 **Identity:** SEED-389#verify-silent-supplier-wait-in-use
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9f868bc596f2e0a7bc68069be72c202f66dc78a277d37cde436f846ef390877a","plan":"a1de300b3f4a4e8dcbc303b4ec8acb49c152aa780e3220b9663437ce51892929"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7df4fe78cf54f0a7caaa0a2a6b3dddab0f0631d58566a8de046bf142f01d53c4","plan":"4f783e26a379bde3f9ddcc0e85abb0a792b4114cf89bed6601f488f3bb1afdd4"}}
 ```
 
 **Goal:** An Open Dough maintainer can decide whether to keep, revise, or
-remove the silent supplier wait on Codex based on real executions asked to
-watch a paused supplier. The review records a recommendation when the
-evidence supports one and identifies the missing evidence otherwise, under the
+remove the silent supplier wait on Codex based on real publication waits for
+named blocking dependencies. The review checks model work during the wait
+and what the coordinator does when the wait ends, under the
 [definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
 **Scope:**
 
-- A watch is a Codex coordinator session, on an installation at 0.3.102 or
-  later, in which the developer asks an execution held on a paused supplier
-  to watch it. Find watches by that request. Record a bypass of
-  `wait-for-publication.mjs` as a missed route. The Codex long-wait
-  correction shipped in 0.3.107. Record the installed release for each
-  watch so the recommendation identifies which guidance the evidence covers.
+- A watch is a Codex coordinator actively monitoring publication of a
+  named outcome that blocks its execution, on Open Dough 0.3.102 or later.
+  The coordinator may start the watch itself or at the developer's request.
+  The supplier may be working or paused. Use the trace to identify what is
+  blocked and which supplier outcome would let it continue. If the trace
+  shows active monitoring through an ad hoc route, record a bypass of
+  `wait-for-publication.mjs` as a missed route. Record the installed
+  release and Codex version. The host wait correction shipped in 0.3.107.
 - Judge once three watches from different executions each hold an unchanged
   interval longer than five minutes. Apply the same threshold to a missed
   route when its interval can be established. With fewer qualifying
@@ -66,18 +68,24 @@ evidence supports one and identifies the missing evidence otherwise, under the
 - For a command-routed wait, bound each unchanged interval by the launch
   and the command's publication or deadline result. A rerun after a
   nonqualifying publication starts a new interval. Apply the shared
-  request-counting exclusions. The bars are at most one model request per
-  started five unchanged minutes and, when there are counted requests, at
-  least 90% cached input summed over those requests.
+  request-counting exclusions. Attribute requests to the watch, recording
+  concurrent independent work and mixed or unknown attribution separately.
+  The bars are at most one model request per started five unchanged
+  minutes and, when there are counted requests, at least 90% cached input
+  summed over those requests. A lower bound can establish that the wake bar
+  was missed. It takes sufficient attribution to conclude that it was met.
 - Recommend, as Terry decided on 2026-11-18:
-  - **keep** when every unchanged interval meets both bars and every
-    publication and deadline was handled;
-  - **revise** when the command stayed silent and every publication and
-    deadline was handled, but a bar was missed. Name the host step that
-    woke the model;
+  - **keep** when every unchanged interval meets both bars and the
+    coordinator handled every observed publication or deadline;
+  - **revise** when the command stayed silent and the coordinator handled
+    every observed publication or deadline, but a bar was missed. Name
+    the host step that woke the model;
   - **remove** when a watch bypassed the command, missed a publication or
     deadline, or failed to continue after a qualifying publication;
-  - **inconclusive** when the traces cannot show which of these happened.
+  - **inconclusive** when the traces cannot distinguish those outcomes.
+- Bound the recommendation to the observed versions, wait outcomes and
+  workstreams. Record any unobserved terminal path. Estimate savings only
+  when comparable evidence supports the estimate.
 - The story ends at the recorded recommendation. Acting on revise or remove
   is queued as its own work at wrap-up, because the guidance and the command
   are shared with Claude Code.
@@ -86,6 +94,13 @@ evidence supports one and identifies the missing evidence otherwise, under the
 
 **Key examples:**
 
+- A coordinator holds its merge until a sibling publishes a named repair.
+  It starts a watch while the sibling is working. The wait stays unchanged
+  for eight minutes → eligible, including when the developer gave no
+  separate watch instruction.
+- A coordinator records a blocking dependency and ends its turn without
+  entering a wait → no watch. A routine wait for its own CI is also outside
+  this evaluation.
 - Three watches, unchanged for 12, 31, and 47 minutes, show at most 3, 7,
   and 10 model requests, each set at least 90% cached, and each continued on
   its publication or stopped at its deadline → keep.
@@ -110,8 +125,7 @@ evidence supports one and identifies the missing evidence otherwise, under the
   truncated trace leaves the handling of a publication unknown and the
   other evidence cannot settle the verdict → inconclusive.
 
-**Observed on 2026-11-18** in this machine's Codex rollouts, as the
-prediction the real watches are judged against, not as a verdict:
+**Observed on 2026-11-18** in this machine's Codex rollouts:
 
 - None of the 629 rollouts from 15 to 18 November runs
   `wait-for-publication.mjs`. The one known natural watch is the original
@@ -131,6 +145,11 @@ about once a minute.
 [Let a long Codex wait run without model requests](https://github.com/terryyin/open-dough/blob/5ecc84b8c26b6352370f5dc0ba790cbb963ab264/.planning/seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests)
 delivered the host-level correction. The controlled checks establish a
 comparison for evaluating later natural watches.
+
+The [November 24 trace review](../slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md#relevance-review-on-2026-11-24)
+found three later coordinator-initiated publication watches in one
+workstream. Terry approved including this kind of watch in the Codex
+evaluation on November 24.
 
 <a id="verify-silent-supplier-wait-in-claude-code"></a>
 

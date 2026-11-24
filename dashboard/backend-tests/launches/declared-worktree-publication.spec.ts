@@ -43,7 +43,7 @@ test("the declared worktree's installed landing and exact retry stay with the or
     .withDeclaringLaunch("default-launch", { launched: 60 }, branch, (launch) =>
       launch.reportingThrough(reportingAs(reference)),
     )
-    .withDefaultMainLaunch("other-launch", { launched: 60 }, (launch) =>
+    .withCheckoutLaunch("other-launch", { launched: 60 }, (launch) =>
       launch.reportingThrough(reportingAs(otherReference)),
     )
     .please();

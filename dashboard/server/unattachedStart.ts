@@ -1,7 +1,7 @@
 // An unattached session's start: the project's installed shared start
 // establishes where the conversation works before its native session begins,
 // as the start for one-shot work that names no identity, which publishes
-// nothing: in the default checkout as it is, or in a new workspace under
+// nothing: in the execution checkout as it is, or in a new workspace under
 // `.worktrees/` that the start creates. The dashboard owns the arguments and
 // reads the receipt; the installed formatter spells the "Established session"
 // block handed to the session. A launch that establishes no session
@@ -26,7 +26,7 @@ import {
   startWorkspaceFolder,
   type WorkspaceChoice,
 } from "./launchWorkspace.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import { installedExports, isFile } from "./startLaunch.ts";
 import { shipsSessionPolicy } from "./startPolicy.ts";
 import { takenSlugs } from "./startGit.ts";
@@ -39,7 +39,7 @@ import {
 import { withinStartWait } from "./startWait.ts";
 import { unattachedStartWords } from "./startWorkflows.ts";
 import { isolatedBranchReviewRepository } from "./sessionBranchCapture.ts";
-import { defaultCheckoutStart } from "./defaultLaunchStart.ts";
+import { executionCheckoutStart } from "./defaultLaunchStart.ts";
 
 const formatterScript = "established-session.mjs";
 
@@ -47,7 +47,7 @@ const formatterScript = "established-session.mjs";
 // unattached session: it ships the start, the shared policy that start reads,
 // and the formatter of the session's block.
 export async function establishesUnattached(
-  project: ProjectFolder,
+  project: LocalFolder,
   host: AgentLaunchRequest["host"],
 ): Promise<boolean> {
   const shipped = await Promise.all([
@@ -61,7 +61,7 @@ export async function establishesUnattached(
 // The block is written by the selected installation's own formatter, read
 // anew when the skill was updated while the server runs.
 async function formattedSession(
-  project: ProjectFolder,
+  project: LocalFolder,
   session: EstablishedSession,
   host: AgentLaunchRequest["host"],
 ): Promise<string> {
@@ -91,7 +91,7 @@ function stopped(
 // `session` when the label is a time or holds no usable word, numbered when
 // a workspace folder or a host branch already has it.
 async function sessionWorkspace(
-  project: ProjectFolder,
+  project: LocalFolder,
   request: UnattachedRequest,
 ): Promise<WorkspaceChoice> {
   const nameless = "session";
@@ -107,14 +107,14 @@ async function sessionWorkspace(
 // The start of an unattached launch's `attempt`, waiting for its script as a
 // story's start is waited for: none for a launch that establishes no session;
 // otherwise the session the installed start established, with its block, in
-// the project's default checkout on the trunk target or in the new workspace
+// the project's execution checkout on the trunk target or in the new workspace
 // its policy chose, where the native session then opens. A start kept from
 // the attempt's earlier run goes on where it was: from its established
 // session as it is, else by its script run again there.
 export async function unattachedStarted(
   source: PublishedSource,
   request: UnattachedRequest,
-  project: ProjectFolder,
+  project: LocalFolder,
   attempt: string,
 ): Promise<Started> {
   if (!establishesSession(request)) return { kind: "none" };
@@ -164,7 +164,7 @@ export async function unattachedStarted(
           ...(result.role === "default-checkout" &&
           result.startingRevision !== undefined
             ? {
-                defaultStart: await defaultCheckoutStart(
+                defaultStart: await executionCheckoutStart(
                   result.workspace,
                   result.startingRevision,
                 ),

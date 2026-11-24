@@ -3,7 +3,7 @@
 // launch wait, settled by Recheck under Startup recovery
 // (../../dashboard/server/launchVerification.ts): the session counted as the launch's is
 // the one Claude Code lists in that workspace, never one of the same name in
-// the project folder. Against the same real bare origin and installed starts
+// the execution checkout. Against the same real bare origin and installed starts
 // as ./responsive-session-recovery.spec.ts.
 
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
@@ -128,7 +128,7 @@ function onlyKeptLaunch(dashboard: { home: string }) {
   return record;
 }
 
-test("Recheck records the session listed in the start's workspace, not one of the same name in the project folder", async ({
+test("Recheck records the session listed in the start's workspace, not one of the same name in the execution checkout", async ({
   page,
   dashboard,
   origin,
@@ -150,7 +150,7 @@ test("Recheck records the session listed in the start's workspace, not one of th
   expect(kept?.start).toBeDefined();
   const [listed] = dashboard.claudeListing();
   const argv = call?.argv ?? [];
-  // The same name, since the launch was accepted, in the project folder.
+  // The same name, since the launch was accepted, in the execution checkout.
   dashboard.claudeListsSession({
     name: argv[argv.indexOf("--name") + 1] ?? "",
     cwd: realpathSync(origin.project),

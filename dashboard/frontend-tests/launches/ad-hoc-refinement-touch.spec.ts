@@ -58,9 +58,12 @@ test("touch rotation and restricted height preserve the refinement draft and cho
     for (const control of [
       cancel,
       form.start,
-      dialog.getByText("The session runs in this project's folder.", {
-        exact: true,
-      }),
+      dialog.getByText(
+        "The session runs in this project's execution checkout.",
+        {
+          exact: true,
+        },
+      ),
     ])
       await expect.element(control).toBeInViewport({ ratio: 1 });
     if (view === phone.short) {

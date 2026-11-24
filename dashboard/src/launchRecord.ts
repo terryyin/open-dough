@@ -46,7 +46,7 @@ export const launchRetentionDays = 30;
 // What a one-shot start of either workflow established: no assignment was
 // published, so it names no publisher, published revision, or agent. It
 // names the workspace's actual role (an isolated owned workspace or the
-// default checkout taken as it is), the selected landing, and, when the start
+// execution checkout taken as it is), the selected landing, and, when the start
 // reported them, the revision the result builds on and the fetched trunk.
 const oneShotContext = {
   tracking: z.literal("one-shot"),

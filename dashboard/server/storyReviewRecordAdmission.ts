@@ -10,7 +10,7 @@ import { namedReviewRun } from "./storyReviewRunAdmission.ts";
 import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
   admittedSessionReview,
@@ -131,7 +131,7 @@ async function admittedIdentityReview(
     identity,
     established: resolved.established,
     shown: shownStartWorkspace(
-      projectFolder(source),
+      executionCheckout(source),
       resolved.established.workspace,
     ),
     runs: found.runs,

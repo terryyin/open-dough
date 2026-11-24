@@ -68,7 +68,7 @@ export function problemOf(
     return {
       kind: "failed",
       explanation:
-        "The default checkout holds changes this start did not confirm, so nothing was started. Start again to review them.",
+        "The execution checkout holds changes this start did not confirm, so nothing was started. Start again to review them.",
     };
   if (outcome.kind === "base-ci")
     return {

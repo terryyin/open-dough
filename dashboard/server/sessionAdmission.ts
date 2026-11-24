@@ -20,7 +20,7 @@ import type { AgentLaunches } from "./agentLaunches.ts";
 import type { Recorded } from "./recordedSessionLookup.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { launchHost } from "./launchHosts.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { keptSession } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
@@ -72,7 +72,7 @@ export async function recordedSession(
     case "folder-not-found":
       throw new RefusedRequest(
         404,
-        `The project folder ${recorded.folder.shown} was not found on this machine.`,
+        `The execution checkout ${recorded.folder.shown} was not found on this machine.`,
       );
   }
 }
@@ -104,7 +104,7 @@ export async function namedSession(
   const retained =
     kind === "done" ? await keptSession(source.id, session) : undefined;
   if (retained?.completion !== undefined) {
-    return { source, record: retained, folder: projectFolder(source) };
+    return { source, record: retained, folder: executionCheckout(source) };
   }
   const recorded = await recordedSession(launches, source, session);
   return { source, ...recorded };

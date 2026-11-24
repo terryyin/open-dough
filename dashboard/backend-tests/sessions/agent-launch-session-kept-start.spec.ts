@@ -96,7 +96,7 @@ test.describe("a kept one-shot start", () => {
       );
       expect(last?.argv.at(-1)).toContain("- tracking: one-shot");
       expect(await originState(origin)).toEqual(before);
-      // One owned worktree beside the default checkout, as before.
+      // One owned worktree beside the execution checkout, as before.
       const worktrees = execFileSync(
         "git",
         ["-C", origin.project, "worktree", "list", "--porcelain"],

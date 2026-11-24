@@ -3,7 +3,7 @@
 import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import type { ClientConfigurationInspection } from "../src/projectConfiguration.ts";
-import { localFolder } from "./projectFolders.ts";
+import { localFolder } from "./localFolder.ts";
 
 const relativeFile = path.join(".planning", "open-dough.json");
 

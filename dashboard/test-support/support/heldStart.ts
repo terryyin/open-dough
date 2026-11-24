@@ -1,4 +1,4 @@
-// A project folder whose installed skill establishes a start but whose start
+// An execution checkout whose installed skill establishes a start but whose start
 // command only waits and reports nothing: the folder a page spec needs to see
 // what the page says while a start is under way, without a real origin. The
 // folder is a Git repository whose `origin` is spelled as the catalog

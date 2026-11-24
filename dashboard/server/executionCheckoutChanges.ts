@@ -1,4 +1,4 @@
-// The uncommitted changes in a project's default checkout, observed at the
+// The uncommitted changes in a project's execution checkout, observed at the
 // launch boundary before a launch that selects it starts anything: the paths
 // Git status reports as staged, changed, deleted, or untracked (never their
 // content), and a fingerprint of what was observed. A developer's
@@ -16,7 +16,7 @@ import {
   type ExistingChangesFound,
 } from "../src/agentLaunch.ts";
 import { runGit } from "./gitRunner.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 async function gitOutput(cwd: string, args: readonly string[]) {
   const { stdout } = await runGit(args, { cwd, maxBuffer: 64 * 1024 * 1024 });
@@ -37,7 +37,7 @@ function statusPaths(status: string): string[] {
 }
 
 // The revision the checkout's `HEAD` names, as Git prints it.
-export function checkoutHead(checkout: ProjectFolder): Promise<string> {
+export function checkoutHead(checkout: LocalFolder): Promise<string> {
   return gitOutput(checkout.path, ["rev-parse", "--verify", "HEAD"]);
 }
 
@@ -51,10 +51,10 @@ async function pathState(checkout: string, file: string): Promise<string> {
   }
 }
 
-// The default checkout's existing changes, or undefined when it holds none.
+// The execution checkout's existing changes, or undefined when it holds none.
 // A checkout Git cannot read is the start's to refuse.
 export async function existingChanges(
-  checkout: ProjectFolder,
+  checkout: LocalFolder,
 ): Promise<ExistingChangesFound | undefined> {
   let head: string;
   let status: string;

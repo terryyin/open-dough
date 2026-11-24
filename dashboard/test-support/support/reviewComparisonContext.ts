@@ -43,7 +43,7 @@ export async function expectSessionCommitsContext(
     .getByRole("heading", { name: "Session commits", exact: true })
     .locator("..");
   await expect(context).toContainText(
-    "Commits made in the Default main checkout while the session was open",
+    "Commits made in the execution checkout while the session was open",
   );
   for (const at of [facts.launchedAt, facts.doneAt])
     await expect(context.locator(`time[datetime="${at}"]`)).toBeVisible();

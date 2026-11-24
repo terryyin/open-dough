@@ -7,7 +7,7 @@ import {
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { installedSkillPath } from "./launchHosts.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import { continuedStart, policyArguments } from "./startPolicy.ts";
 import { lostStartArguments, ownerOf } from "./startGit.ts";
@@ -47,21 +47,21 @@ const workflow = "execution";
 
 // A script the selected host's installed execution skill ships.
 export const executePlanScript = (
-  project: ProjectFolder,
+  project: LocalFolder,
   host: StoryLaunchRequest["host"],
   name: string,
 ) => installedSkillPath(host, project, executePlanSkill, "scripts", name);
 
 // Whether the installation ships the shared start command.
 export const shipsStartScript = (
-  project: ProjectFolder,
+  project: LocalFolder,
   host: StoryLaunchRequest["host"],
 ) => isFile(executePlanScript(project, host, startScript));
 
 // The installed start command's result for these arguments.
 export async function runStartScript(
   args: readonly string[],
-  project: ProjectFolder,
+  project: LocalFolder,
   host: StoryLaunchRequest["host"],
   noteWorker: (pid: number) => Promise<void>,
 ): Promise<StartResult> {
@@ -82,7 +82,7 @@ export async function runStartScript(
 // Whether the project's installed skill can continue from a start: it ships
 // the start command and formatter, shared by admission and machine reads.
 export async function establishesStart(
-  project: ProjectFolder,
+  project: LocalFolder,
   host: StoryLaunchRequest["host"],
 ): Promise<boolean> {
   return (
@@ -95,7 +95,7 @@ export async function establishesStart(
 export async function beginStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
-  project: ProjectFolder,
+  project: LocalFolder,
   progress: WorkflowProgress,
   noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PlannedStart> {
@@ -114,7 +114,7 @@ export async function beginStart(
 async function runningStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
-  project: ProjectFolder,
+  project: LocalFolder,
   progress: WorkflowProgress,
   noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PlannedStart> {
@@ -238,7 +238,7 @@ async function runningStart(
 
 // The handoff is written by the selected installation's own formatter.
 export async function formattedStart(
-  project: ProjectFolder,
+  project: LocalFolder,
   start: EstablishedStart,
   host: StoryLaunchRequest["host"],
 ): Promise<string> {

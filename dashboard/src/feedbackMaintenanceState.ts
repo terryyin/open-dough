@@ -173,7 +173,7 @@ export function heldReason(
   if (refused.kind !== "existing-changes") return refused.explanation;
   const paths =
     refused.count === 1 ? "1 changed path" : `${refused.count} changed paths`;
-  return `default main has existing changes (${paths})`;
+  return `execution checkout has existing changes (${paths})`;
 }
 
 // What Open Dough's project row says beside Start session.

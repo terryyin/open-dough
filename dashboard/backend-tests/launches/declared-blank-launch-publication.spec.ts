@@ -1,4 +1,4 @@
-// A blank Default main launch that declared its worktree keeps its installed
+// A blank Execution checkout launch that declared its worktree keeps its installed
 // landing, exact retry and landing pins after retirement, until its
 // record is deleted.
 import { expect, onTestFinished, test } from "vitest";
@@ -20,7 +20,7 @@ import {
 } from "../support/installedPublisher.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
-test("a blank Default main launch keeps its declared landing until record deletion", async () => {
+test("a blank Execution checkout launch keeps its declared landing until record deletion", async () => {
   const branch = "blank-draft";
   const {
     checkout,

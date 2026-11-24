@@ -1,4 +1,4 @@
-// A Default main session's Done keeps only its comparison pair in Git.
+// An execution checkout session's Done keeps only its comparison pair in Git.
 // Replacing the capture or deleting the kept record releases its refs.
 import { renameSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -41,7 +41,7 @@ async function keptWithCommit() {
     records: { "default-launch": record },
   } = await aDoneCaptureCase()
     .withWork((at) => makeMe.aCheckoutWork.committing("notes", { at: at(40) }))
-    .withDefaultMainLaunch("default-launch", { launched: 60 })
+    .withCheckoutLaunch("default-launch", { launched: 60 })
     .please();
   return { checkout, home: keep(record), record, notes };
 }

@@ -1,5 +1,5 @@
 // The CI proof of one ciAdapter attempt (`./intentCiProofRead.ts`): asked of
-// the project's configured adapter (`proof`), run from the project folder
+// the project's configured adapter (`proof`), run from the execution checkout
 // through the shared CI proof read
 // (`../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`)
 // with the collector contract's summary read limit as `answerBytes`, then

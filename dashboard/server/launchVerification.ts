@@ -4,7 +4,7 @@
 // settles it as launched before any listing is read. Otherwise the listing
 // is read once. Of the sessions it
 // names with the launch's name, started in the folder the launch started in
-// (the project folder, or its kept start's workspace) at or after the
+// (the execution checkout, or its kept start's workspace) at or after the
 // attempt was accepted, those another launch record holds are not this
 // launch's. Exactly one left is this launch's session: it is kept as a launch
 // confirmation keeps it, with the kept start's facts, and the attempt settles
@@ -31,7 +31,7 @@ import {
 import { launchHost } from "./launchHosts.ts";
 import { keepRecord, readableRecordsByProject } from "./launchRecordStore.ts";
 import { launchRecord, launchStartContext } from "./launchRecord.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { keptStart, removeLaunchedStart } from "./startStore.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 
@@ -82,7 +82,7 @@ export async function verifyLaunch(
       session: { host: own.session.host, sessionId: own.session.sessionId },
     };
   const check = host.description.uncertaintyHint ?? "";
-  const project = projectFolder(source);
+  const project = executionCheckout(source);
   const kept = await keptStart(source.id, request.identity, request.workflow);
   // A kept start that established its facts: the launch started in its
   // workspace, with its policy.

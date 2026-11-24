@@ -10,8 +10,8 @@ import { recordsOf } from "../agentLaunchBoundary.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expectReportingBlock } from "./reportingInputAssertions.ts";
 import {
-  defaultMainSession,
-  defaultMainStart,
+  executionCheckoutSession,
+  executionCheckoutStart,
   sessionBlock,
   type StartCall,
 } from "./startSessionLanding.ts";
@@ -45,7 +45,7 @@ export async function expectNoSessionEstablishment(dashboard: DashboardServer) {
   return record;
 }
 
-export async function expectDefaultMainSessionLaunch(
+export async function expectExecutionCheckoutSessionLaunch(
   dashboard: DashboardServer,
   project: string,
   landing: EstablishedSession["landing"],
@@ -58,7 +58,7 @@ export async function expectDefaultMainSessionLaunch(
   expect(started?.cwd).toBe(realpathSync(project));
   await expect.poll(() => recordsOf(dashboard, "open-dough")).toHaveLength(1);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  const session = defaultMainSession(project, landing, revision);
+  const session = executionCheckoutSession(project, landing, revision);
   expect(record?.establishedSession).toEqual(session);
   const [block, reporting, ...developer] = (started?.instruction ?? "").split(
     "\n\n",
@@ -67,7 +67,7 @@ export async function expectDefaultMainSessionLaunch(
   expectReportingBlock(reporting, record?.request, dashboard);
   expect(developer).toEqual([text]);
   expect(starts().map(({ argv }) => argv)).toEqual([
-    defaultMainStart(project, landing),
+    executionCheckoutStart(project, landing),
   ]);
   return record;
 }

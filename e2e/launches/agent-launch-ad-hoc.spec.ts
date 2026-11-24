@@ -1,4 +1,4 @@
-// Start session's optional text goes to the selected project's folder; the
+// Start session's optional text goes to the selected project's execution checkout; the
 // session reads in Taken and the sidebar without a story card. The real
 // boundary launches synthetic Claude (../../dashboard/test-support/fixtures/fake-claude);
 // naming is ../../dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.

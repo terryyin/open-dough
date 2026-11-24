@@ -23,7 +23,7 @@ import {
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
 
-// What the published read needs: the configured checkout, the published
+// What the published read needs: the execution checkout, the published
 // revision it reads records from, and the configured backlog path.
 export interface PublishedSessionSource {
   readonly repository: string;
@@ -72,7 +72,7 @@ export async function publishedSessionRecord(
   return record;
 }
 
-// The files of one recorded pair, read from the configured checkout's
+// The files of one recorded pair, read from the execution checkout's
 // objects.
 const recordedPairFiles = (
   source: PublishedSessionSource,
@@ -114,7 +114,7 @@ export async function publishedSessionReview(
       comparison: "published-session",
       explanation: {
         repository:
-          "This project's configured checkout is missing or unreadable.",
+          "This project's execution checkout is missing or unreadable.",
         objects:
           "This session's published commits are not in this machine's Git. Fetch the project to review them.",
         changes: "This session's published changes could not be read.",

@@ -3,7 +3,7 @@
 
 import { existsSync } from "node:fs";
 import { defaultGitOutputLimit, GitFailure, runGit } from "./gitRunner.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 // Whether git succeeded, with what it printed to stderr.
 async function tryGit(
@@ -23,7 +23,7 @@ async function tryGit(
 }
 
 async function branchExists(
-  project: ProjectFolder,
+  project: LocalFolder,
   branch: string,
 ): Promise<boolean> {
   const found = await tryGit(project.path, [
@@ -42,7 +42,7 @@ export type BeforeStart = {
 };
 
 export async function beforeStart(
-  project: ProjectFolder,
+  project: LocalFolder,
   workspace: string,
   branch: string,
 ): Promise<BeforeStart> {
@@ -56,7 +56,7 @@ export async function beforeStart(
 // returns a sentence naming what could not be removed, or "" when nothing is
 // left behind.
 export async function removeCreatedWorkspace(
-  project: ProjectFolder,
+  project: LocalFolder,
   workspace: string,
   branch: string,
   before: BeforeStart,

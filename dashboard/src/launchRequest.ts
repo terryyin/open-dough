@@ -78,9 +78,9 @@ export function launchArguments(request: {
   ];
 }
 
-// The observed existing changes in the default checkout a developer confirmed
+// The observed existing changes in the execution checkout a developer confirmed
 // may join the session's result: the fingerprint of what the dashboard showed
-// (`../server/defaultCheckoutChanges.ts`). Transient: never recorded.
+// (`../server/executionCheckoutChanges.ts`). Transient: never recorded.
 export const existingChangesSchema = z.string().regex(/^[0-9a-f]{64}$/);
 
 // A work item's identity as a request names it.

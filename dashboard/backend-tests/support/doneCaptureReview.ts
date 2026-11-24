@@ -42,5 +42,5 @@ export const notCaptured = {
 export const noCommits = {
   kind: "landing-unavailable",
   comparison: "session-commits",
-  explanation: "This session made no commits in the Default main checkout.",
+  explanation: "This session made no commits in the execution checkout.",
 };

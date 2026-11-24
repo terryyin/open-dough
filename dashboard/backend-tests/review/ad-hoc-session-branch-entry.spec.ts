@@ -1,5 +1,5 @@
-// A Default main launch identifies its own branch: the entry keeps the state
-// and Default main tip it found, and Done keeps separate captured pairs.
+// An execution checkout launch identifies its own branch: the entry keeps the state
+// and Execution checkout tip it found, and Done keeps separate captured pairs.
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { retainedBranchPairFiles } from "../../server/retainedReviewPair.ts";
 import { expect, test } from "vitest";
@@ -21,7 +21,7 @@ const branch = "draft" as const;
 const aDraftBeforeEntry = aDoneCaptureCase()
   .withOrigin()
   .withWorkspace(branch)
-  .withDefaultMainLaunch("declared", { launched: 60 })
+  .withCheckoutLaunch("declared", { launched: 60 })
   .withWork((at) =>
     makeMe.aCheckoutWork.committing("onMain", {
       at: at(50),
@@ -37,7 +37,7 @@ const aDraftBeforeEntry = aDoneCaptureCase()
   )
   .kept();
 
-test("a declared branch keeps its entry state and Default main tip after main moves", async () => {
+test("a declared branch keeps its entry state and Execution checkout tip after main moves", async () => {
   const {
     published,
     at,
@@ -72,7 +72,7 @@ test("a declared branch keeps its entry state and Default main tip after main mo
   expect(await sessionBranchPins(workspace, record.session)).toEqual(pins);
 });
 
-test("Done saves the entry-time Default main run and the declared branch's own pair", async () => {
+test("Done saves the entry-time Execution checkout run and the declared branch's own pair", async () => {
   const {
     published,
     at,
@@ -150,7 +150,7 @@ test("an undeclared checkout move explains the missing branch association", asyn
     records: { undeclared: record },
     performWork,
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("undeclared", { launched: 60 })
+    .withCheckoutLaunch("undeclared", { launched: 60 })
     .kept()
     .please();
   await git(checkout.integration, "switch", "--quiet", "-c", "not-identified");
@@ -169,6 +169,6 @@ test("an undeclared checkout move explains the missing branch association", asyn
   ).toMatchObject({
     kind: "landing-unavailable",
     explanation:
-      "No branch was identified for this session, and no Default main commits were captured.",
+      "No branch was identified for this session, and no execution checkout commits were captured.",
   });
 });

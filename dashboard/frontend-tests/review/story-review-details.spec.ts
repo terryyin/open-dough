@@ -1,4 +1,4 @@
-// Details and their focus behavior in a retained Default main session review.
+// Details and their focus behavior in a retained Execution checkout session review.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
@@ -85,7 +85,7 @@ test("a session review opens on the diff and keeps its place while the eye revea
 
   await review.revealDetails();
   await review.expectEyeBesideComparison("Hide review details");
-  await review.expectDetailsSay("Commits made in the Default main checkout");
+  await review.expectDetailsSay("Commits made in the execution checkout");
   await review.expectDetailsSay(`From ${baseline} to ${tree}.`);
   await review.expectSelected(second);
   expect(review.codeScrollTop(second)).toBe(readingAt);

@@ -74,7 +74,7 @@ export function AddProjectDialog({
         <fieldset disabled={submitting} className="launch-dialog-submission">
           <div className="launch-dialog-body">
             <h2 id={`${id}-heading`}>Add project</h2>
-            <p>Choose a GitHub repository and its checkout on this machine.</p>
+            <p>Choose a GitHub repository and its execution checkout.</p>
             <label htmlFor={`${id}-url`}>GitHub URL</label>
             <input
               ref={urlField}
@@ -98,7 +98,7 @@ export function AddProjectDialog({
                 }
               }}
             />
-            <label htmlFor={`${id}-path`}>Local path</label>
+            <label htmlFor={`${id}-path`}>Execution checkout</label>
             <input
               id={`${id}-path`}
               className="frame-input"

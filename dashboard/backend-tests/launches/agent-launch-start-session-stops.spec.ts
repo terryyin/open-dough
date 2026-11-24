@@ -2,7 +2,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // An unattached Start session whose choices cannot be honored starts no
 // native session and silently runs nowhere else, with a real bare origin
 // (../../test-support/support/startOrigin.ts) and the synthetic `claude`: a choice the
-// installation cannot establish, in default main or a new workspace, is
+// installation cannot establish, in the execution checkout or a new workspace, is
 // refused before anything is accepted, and a start that stops, cannot be
 // formatted answers in the session's own words, which name no story, Take,
 // or assignment. Expiry wording belongs to the kept/recovery journeys.
@@ -48,7 +48,7 @@ const installed = (origin: StartOrigin, script: string) =>
     script,
   );
 
-// Commits the project's edits, so its default checkout holds no changes to
+// Commits the project's edits, so its execution checkout holds no changes to
 // confirm.
 const commit = (origin: StartOrigin) => {
   for (const args of [
@@ -72,7 +72,7 @@ test("a choice the installation cannot establish is refused before anything is a
   rmSync(installed(origin, "established-session.mjs"));
   commit(origin);
   for (const [policy, named] of [
-    [request.policy, "Default main · Automatically land"],
+    [request.policy, "Execution checkout · Automatically land"],
     [isolated, "Isolated workspace · Wait for review"],
   ] as const) {
     const refused = await accept(dashboard, { ...request, policy });

@@ -7,7 +7,7 @@ import {
   type LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { startWorkspaceFolder } from "./launchWorkspace.ts";
 import { settleSessionStart } from "./sessionStartStore.ts";
 import { unattachedStartWords } from "./startWorkflows.ts";
@@ -26,7 +26,7 @@ export async function settleSessionResult(
     ...result,
     sessionStartKept: true,
     explanation: `${result.explanation} ${unattachedStartWords.retained({
-      workspace: startWorkspaceFolder(projectFolder(source), kept.workspace)
+      workspace: startWorkspaceFolder(executionCheckout(source), kept.workspace)
         .shown,
       branch: kept.branch,
     })}`,

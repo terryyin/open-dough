@@ -42,7 +42,7 @@ const serverOf = (origin: StartOrigin, mode: Mode) => ({
   launchTimeoutMs: 30_000,
 });
 
-// A dashboard on the origin's machine, reading its project folder.
+// A dashboard on the origin's machine, reading its execution checkout.
 function start(
   origin: StartOrigin,
   mode: Mode,

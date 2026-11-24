@@ -21,7 +21,7 @@ import type {
 } from "../src/storyReviewRead.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import type { PublishedSessionSource } from "./publishedSessionReview.ts";
 import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
 import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
@@ -108,7 +108,7 @@ export async function reviewInput(
     return {
       read,
       published: await fetchedPublishedSessionSource(
-        projectFolder(source).path,
+        executionCheckout(source).path,
         source,
         read.subject.published,
         {

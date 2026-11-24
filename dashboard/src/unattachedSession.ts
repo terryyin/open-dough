@@ -20,7 +20,7 @@ type UnattachedChoices = {
   readonly followUp?: FollowUpSource | undefined;
 };
 
-// Whether the policy is the one no selection makes: the default checkout,
+// Whether the policy is the one no selection makes: the execution checkout,
 // waiting for review.
 export function isDefaultUnattachedPolicy(
   policy: UnattachedSessionPolicy,
@@ -51,7 +51,7 @@ export function sendsFirstInput(request: UnattachedChoices): boolean {
 
 // What an unattached session's start established, as the installed start
 // reported it: where the session works (an isolated owned workspace or the
-// default checkout taken as it is), its branch and trunk target, the landing
+// execution checkout taken as it is), its branch and trunk target, the landing
 // the developer chose, the revision its results build on, and the fetched trunk.
 // It names no tracking, identity, or agent: nothing was published or assigned.
 export const establishedSessionSchema = z.object({

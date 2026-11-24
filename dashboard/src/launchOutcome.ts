@@ -56,7 +56,7 @@ export const unreadableLaunchRecordsExplanation =
 export const launchUncertaintyReasons = ["timed-out", "unconfirmed"] as const;
 
 // Every answer but a launched session: nothing was started because the
-// default checkout holds changes the request did not confirm, or that changed
+// execution checkout holds changes the request did not confirm, or that changed
 // since it was confirmed; nothing was launched; or a session may or may not
 // have started.
 const unlaunchedSchemas = [

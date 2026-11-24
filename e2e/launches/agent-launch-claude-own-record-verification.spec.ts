@@ -83,7 +83,7 @@ for (const count of [1, 2]) {
       "open-dough": records.toReversed(),
     });
     expect(dashboard.claudeListing()).toEqual([]);
-    // Page session reads use HOME; verification reads in the project folder.
+    // Page session reads use HOME; verification reads in the execution checkout.
     const verificationListings = () =>
       dashboard
         .claudeCalls()

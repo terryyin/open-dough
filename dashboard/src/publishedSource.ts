@@ -1,5 +1,5 @@
 // Published repository facts shared by browser and server. The local dashboard
-// server owns the configured list and its local checkout paths.
+// server owns the configured list and its execution checkout paths.
 export type PublishedSource = {
   readonly id: string;
   readonly label: string;

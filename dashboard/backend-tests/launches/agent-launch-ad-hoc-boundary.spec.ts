@@ -1,6 +1,6 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
-// at the boundary server, for an ad hoc session: a project's folder and no story.
+// at the boundary server, for an ad hoc session: a project's execution checkout and no story.
 // The server derives the label, names the session `<project> · Ad hoc ·
 // <label>`, starts it at Open Dough's default effort with the developer's text
 // as typed or with no prompt at all, and keeps the label as the record's

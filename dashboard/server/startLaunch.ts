@@ -20,7 +20,7 @@ import {
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { launchWorkspace, type WorkspaceChoice } from "./launchWorkspace.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import { git, repositoryOf, takenSlugs } from "./startGit.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import type { StartRecord } from "./startStore.ts";
@@ -60,7 +60,7 @@ export type PlannedStart =
   // it ends, however long that takes.
   | {
       readonly kind: "running";
-      readonly workspace: ProjectFolder;
+      readonly workspace: LocalFolder;
       readonly branch: string;
       // The policy the start runs with: a kept start's own.
       readonly policy: SessionPolicy;
@@ -86,10 +86,10 @@ export function requireStartHost(
 
 // Where a start goes on, and with which policy: a kept start's workspace,
 // branch, claim model and policy as they were, whatever this launch asks;
-// else the requested policy, in the project's default checkout on `target`
+// else the requested policy, in the project's execution checkout on `target`
 // when it selects that, or in a shared workspace choice.
 export async function startChoice(
-  project: ProjectFolder,
+  project: LocalFolder,
   request: StoryLaunchRequest,
   kept: StartRecord | undefined,
   target: string,
@@ -163,7 +163,7 @@ export type StartCommandOutput = {
 export function runStartCommand(
   script: string,
   args: readonly string[],
-  project: ProjectFolder,
+  project: LocalFolder,
   operation: "start" | "continue" = "start",
   noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<StartCommandOutput | undefined> {
@@ -205,7 +205,7 @@ export function runStartCommand(
 export async function gatedStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
-  project: ProjectFolder,
+  project: LocalFolder,
   progress: WorkflowProgress,
   published: string,
   start: () => Promise<PlannedStart>,

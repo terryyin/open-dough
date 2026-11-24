@@ -21,7 +21,7 @@ import {
   type DoneTerminals,
 } from "./finishNativeDone.ts";
 import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import type { BranchCapture } from "./sessionBranchCapture.ts";
 
 export { doneSessionRecord } from "./doneSessionRecord.ts";
@@ -34,13 +34,13 @@ export type {
 export type DoneCollaborators = {
   readonly terminals: DoneTerminals;
   readonly hostFor: (host: HostIdentity) => DoneHost | undefined;
-  readonly reportingFolder: (sourceId: string) => ProjectFolder;
+  readonly reportingFolder: (sourceId: string) => LocalFolder;
   // Reads the branch result before a manual mark's record write;
   // production's Git-only capture by default.
   readonly capture?: BranchCapture;
 };
 
-// Quiet reports continue native Done and default checkout capture outside
+// Quiet reports continue native Done and execution checkout capture outside
 // reporting locks. The developer's Done takes over a reported rename.
 export class NativeDoneMarks {
   private readonly running = new Map<
@@ -104,7 +104,7 @@ export class NativeDoneMarks {
   async markDone(
     source: PublishedSource,
     record: LaunchRecord,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     launches: DoneLaunches,
   ): Promise<LaunchRecord> {
     const key = sessionKey(record.session);
@@ -151,7 +151,7 @@ export class NativeDoneMarks {
 async function markSessionDone(
   source: PublishedSource,
   record: LaunchRecord,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   launches: DoneLaunches,
   { terminals, hostFor, capture }: DoneCollaborators,
   stopped: AbortSignal,

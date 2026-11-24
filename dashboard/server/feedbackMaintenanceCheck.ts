@@ -6,7 +6,7 @@
 // minutes whether the feedback maintenance cycle is due
 // (`../src/feedbackMaintenanceDue.ts`), and when it is, accepts one
 // unattached launch through the one launch entry (`./agentLaunches.ts`): an
-// ad hoc request in the default checkout of the configured project whose
+// ad hoc request in the execution checkout of the configured project whose
 // repository is Open Dough's, on the authorized host and model, with the
 // cycle's invocation as its instruction and the due date it serves as its
 // marker, reporting to this dashboard. Only a production project environment
@@ -64,7 +64,7 @@ import { isNotFound } from "./ghFailure.ts";
 import { resolveRevisionViaGh } from "./ghRevision.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import { withStates } from "./launchStates.ts";
-import { machineFolder } from "./projectFolders.ts";
+import { machineFolder } from "./localFolder.ts";
 import { PinnedTexts } from "./pinnedTexts.ts";
 import {
   projectEnvironment,

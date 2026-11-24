@@ -59,7 +59,7 @@ type Continuation =
 const existingChanges: LaunchProblem = {
   kind: "failed",
   explanation:
-    "The default checkout holds changes this start did not confirm, so it was not continued. Review them in the default checkout, then continue again.",
+    "The execution checkout holds changes this start did not confirm, so it was not continued. Review them in the execution checkout, then continue again.",
 };
 
 export function useStartupRecovery({

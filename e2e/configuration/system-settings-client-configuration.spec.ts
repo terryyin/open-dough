@@ -19,7 +19,7 @@ const invalidText = "{ not valid json for inspection\n";
 const absentExplanation =
   "The Client configuration file (.planning/open-dough.json) is absent.";
 const unreadableExplanation =
-  "The Client configuration could not be read from this project's local checkout.";
+  "The Client configuration could not be read from this project's execution checkout.";
 
 let fixture: ReturnType<typeof projectConfigurationMachine>;
 test.beforeEach(() => {

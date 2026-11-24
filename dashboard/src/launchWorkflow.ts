@@ -52,7 +52,7 @@ export const launchWorkflows = {
     options: undefined,
     establishes: {
       sentence:
-        "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
+        "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under .worktrees/ in the execution checkout; pressing Start authorizes that push.",
       effect:
         "Publishes this story's Take to origin; pressing Start authorizes that push.",
       pending: "Preparing execution…",
@@ -76,7 +76,7 @@ export const launchWorkflows = {
     options: "refinement-options.json",
     establishes: {
       sentence:
-        "Start also publishes this story's Preparing announcement to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
+        "Start also publishes this story's Preparing announcement to the project's trunk on origin and creates a workspace under .worktrees/ in the execution checkout; pressing Start authorizes that push.",
       effect:
         "Publishes this story's Preparing announcement to origin; pressing Start authorizes that push.",
       pending: "Preparing refinement…",
@@ -182,5 +182,5 @@ export function workspaceWords(
   shownWorkspace: string | undefined,
 ): string | undefined {
   if (established === undefined) return undefined;
-  return `Workspace ${shownWorkspace ?? established.workspace}${"role" in established && established.role === "default-checkout" ? " (default main)" : ""}`;
+  return `Workspace ${shownWorkspace ?? established.workspace}${"role" in established && established.role === "default-checkout" ? " (execution checkout)" : ""}`;
 }

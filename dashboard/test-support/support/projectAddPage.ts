@@ -42,7 +42,7 @@ export async function addProjectThroughDialog(page: Page) {
   await page.getByRole("button", { name: "Add project", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Add project", exact: true });
   const url = dialog.getByRole("textbox", { name: "GitHub URL" });
-  const local = dialog.getByRole("textbox", { name: "Local path" });
+  const local = dialog.getByRole("textbox", { name: "Execution checkout" });
   await expect(url).toBeFocused();
   await url.fill(`https://github.com/${addedRepository}.git`);
   await expect(local).toHaveValue("~/git/sample-app");

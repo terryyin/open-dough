@@ -16,7 +16,7 @@ import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { sessionPolicyCapable } from "./launchSessionPolicy.ts";
 import { establishesUnattached } from "./unattachedStart.ts";
 import { readDefinition } from "./launchOptions.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { keptStartsByProject } from "./startStore.ts";
 import { startOf } from "./startWorkflows.ts";
 
@@ -28,7 +28,7 @@ export async function establishing(
 ): Promise<readonly string[]> {
   const ids = await Promise.all(
     configuredProjects().map(async (source) =>
-      (await startOf(workflow)?.establishes(projectFolder(source), host))
+      (await startOf(workflow)?.establishes(executionCheckout(source), host))
         ? source.id
         : undefined,
     ),
@@ -50,7 +50,7 @@ export async function offeredDefinitions(): Promise<
           const { skill, options: file } = launchWorkflows[workflow];
           if (file === undefined) return [];
           const answer = await readDefinition(
-            projectFolder(source),
+            executionCheckout(source),
             skill,
             file,
             host,
@@ -73,7 +73,7 @@ export async function offeredDefinitions(): Promise<
 }
 
 // The starts kept without a session, in catalog order: each names the
-// workspace as the page shows a project's folders and the Agent its claim
+// workspace as the page shows paths under the execution checkout and the Agent its claim
 // named, when the start reported one.
 export async function keptStarts(): Promise<readonly KeptStart[]> {
   const kept = {
@@ -93,7 +93,7 @@ export async function keptStarts(): Promise<readonly KeptStart[]> {
           identity: start.identity,
           branch: start.branch,
           workspace: shownStartWorkspace(
-            projectFolder(source),
+            executionCheckout(source),
             start.workspace,
           ),
           ...(agent === undefined ? {} : { agent }),
@@ -109,7 +109,10 @@ export async function establishingHosts() {
     configuredProjects().flatMap((source) =>
       launchHosts.flatMap((host) =>
         launchWorkflowNames.map(async (workflow) =>
-          (await startOf(workflow)?.establishes(projectFolder(source), host))
+          (await startOf(workflow)?.establishes(
+            executionCheckout(source),
+            host,
+          ))
             ? { source: source.id, workflow, host }
             : undefined,
         ),
@@ -129,8 +132,8 @@ export async function sessionPolicies() {
       launchHosts.flatMap((host) =>
         ([...launchWorkflowNames, "ad-hoc"] as const).map(async (workflow) =>
           (await (workflow === "ad-hoc"
-            ? establishesUnattached(projectFolder(source), host)
-            : sessionPolicyCapable(projectFolder(source), workflow, host)))
+            ? establishesUnattached(executionCheckout(source), host)
+            : sessionPolicyCapable(executionCheckout(source), workflow, host)))
             ? { source: source.id, workflow, host }
             : undefined,
         ),

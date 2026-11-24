@@ -91,7 +91,7 @@ export function StoryReviewDetailsSection({
             label={
               sessionComparisonKeys === undefined
                 ? undefined
-                : "Default main runs"
+                : "Execution checkout runs"
             }
             runs={sessionRuns}
             selected={runKey}

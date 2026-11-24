@@ -27,7 +27,7 @@ export const retiredSession = (
     .markedDoneAt(doneAt.toISOString())
     .please();
 
-// A Done ad hoc session in Default main that completed quietly, under this
+// A Done ad hoc session in the execution checkout that completed quietly, under this
 // native session id.
 export const quietSession = (sessionId: string, doneAt: Date): LaunchRecord =>
   makeMe.aLaunchRecord

@@ -12,7 +12,7 @@ import { ciConfiguration } from "./baseCiJudgment.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import type { BaseCiJudgment } from "./baseCiNearest.ts";
 import type { GitCall } from "./gitRunner.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 
 export function workflowOf(call: GitCall): string {
   return ciConfiguration(call.cwd ?? "").workflow;
@@ -113,13 +113,13 @@ export async function lookupContext(
     }
   | { readonly unavailable: string }
 > {
-  let folder: ReturnType<typeof projectFolder>;
+  let folder: ReturnType<typeof executionCheckout>;
   try {
-    folder = projectFolder(source);
+    folder = executionCheckout(source);
   } catch (error) {
     return {
       unavailable:
-        error instanceof Error ? error.message : "No configured project folder",
+        error instanceof Error ? error.message : "No execution checkout",
     };
   }
   const call: GitCall = {

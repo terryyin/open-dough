@@ -27,7 +27,7 @@ export const sessionChoiceWords: {
     legend: "Workspace",
     values: {
       isolated: "Isolated workspace",
-      "default-checkout": "Default main",
+      "default-checkout": "Execution checkout",
     },
   },
   landing: {
@@ -63,14 +63,14 @@ export function oneShotEffect(
     : `No assignment is published; the ${result} waits for review and nothing is pushed.`;
 }
 
-// Where a session in the default checkout runs.
-const onDefaultMain =
-  "in this project's folder on default main, with its existing changes";
+// Where a session in the execution checkout runs.
+const onExecutionCheckout =
+  "in this project's execution checkout, with its existing changes";
 
 // Where a session that starts now runs, by its workspace choice.
 const startsIn = (workspace: SessionPolicy["workspace"]) =>
   workspace === "default-checkout"
-    ? onDefaultMain
+    ? onExecutionCheckout
     : "in a new workspace under .worktrees/";
 
 // Where a one-shot session runs, for Command details: a kept start's shown
@@ -81,7 +81,7 @@ export function oneShotWhere(policy: SessionPolicy, keptIn?: string): string {
   }.`;
 }
 
-// `Default main · Automatically land`: where an unattached session runs and
+// `Execution checkout · Automatically land`: where an unattached session runs and
 // what follows the checks of what it later verifies. It has no tracking.
 export function unattachedSummary(policy: UnattachedSessionPolicy): string {
   return [

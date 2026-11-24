@@ -42,7 +42,7 @@ async function open(
 test("Start session tabs from instruction through session choices and closed command details to Start", async () => {
   const form = await open("offered");
   const where = form.dialog.getByText(
-    "The session runs in this project's folder on default main, with its existing changes.",
+    "The session runs in this project's execution checkout, with its existing changes.",
     { exact: true },
   );
   await expect.element(where).not.toBeVisible();
@@ -53,7 +53,7 @@ test("Start session tabs from instruction through session choices and closed com
     form.host,
     form.model,
     form.effort,
-    form.dialog.getByRole("radio", { name: "Default main" }),
+    form.dialog.getByRole("radio", { name: "Execution checkout" }),
     form.dialog.getByRole("radio", { name: "Wait for review" }),
     form.command,
     form.cancel,
@@ -69,7 +69,7 @@ test("Start session tabs from instruction through session choices and closed com
 const lands =
   "verified results land on origin without another review. Pressing Start authorizes that push.";
 const effect = {
-  "Default main": `Default main · Automatically land The session runs in this project's folder on default main, with its existing changes; ${lands}`,
+  "Execution checkout": `Execution checkout · Automatically land The session runs in this project's execution checkout, with its existing changes; ${lands}`,
   "Isolated workspace": `Isolated workspace · Automatically land The session runs in a new workspace under .worktrees/; ${lands}`,
 };
 
@@ -77,7 +77,7 @@ test("both workspace policies keep the automatic landing actions in view when na
   const { dialog, command, start, cancel } = await open("offered", {
     viewport: narrowDialog,
   });
-  const workspace = ["Isolated workspace", "Default main"] as const;
+  const workspace = ["Isolated workspace", "Execution checkout"] as const;
   const afterChecks = ["Wait for review", "Automatically land"] as const;
   const radio = (name: string) => dialog.getByRole("radio", { name });
   await radio(afterChecks[1]).click();
@@ -111,15 +111,15 @@ test("both workspace policies keep the automatic landing actions in view when na
   };
 
   await choicesFit(true);
-  await workspaceFits("Default main");
+  await workspaceFits("Execution checkout");
   await radio("Isolated workspace").click();
   await workspaceFits("Isolated workspace");
 
   await zoomToTwoHundredPercent();
   await choicesFit(false);
   await workspaceFits("Isolated workspace");
-  await radio("Default main").click();
-  await workspaceFits("Default main");
+  await radio("Execution checkout").click();
+  await workspaceFits("Execution checkout");
 });
 
 test("Start session explains unavailable choices without clipping them and keeps both actions reachable at 320 pixels and at 200% zoom", async () => {

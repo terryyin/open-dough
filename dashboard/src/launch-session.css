@@ -77,7 +77,7 @@
   }
 }
 
-/* The confirmation of existing changes in the default checkout: its paths
+/* The confirmation of existing changes in the execution checkout: its paths
    wrap rather than widen the dialog, and their list scrolls with the body. */
 .launch-changes h2:focus {
   outline: 2px solid var(--accent);

@@ -1,4 +1,4 @@
-// Default main commit attribution places a checkout's `HEAD` log entries and
+// Execution checkout commit attribution places a checkout's `HEAD` log entries and
 // groups the session's commits into runs, from the log's typed entries alone.
 import { expect, test } from "vitest";
 import {

@@ -64,7 +64,7 @@ import { AgentTerminals } from "./agentTerminals.ts";
 import { NativeDoneMarks } from "./doneMarks.ts";
 import { launchHost } from "./launchHosts.ts";
 import { configuredProject } from "./projectConfiguration.ts";
-import { localFolder, machineFolder } from "./projectFolders.ts";
+import { localFolder, machineFolder } from "./localFolder.ts";
 import { respondToLaunch } from "./agentLaunchResponse.ts";
 import {
   ensureCursorRunner,

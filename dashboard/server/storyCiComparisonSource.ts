@@ -8,7 +8,7 @@ import {
   type ComparisonBuildSource,
 } from "./comparisonBuildSource.ts";
 import { runGit } from "./gitRunner.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { lookupContext, workflowOf } from "./intentCiComparisonSlots.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import { readStoredLandedCiHistory } from "./landedCiHistoryStore.ts";
@@ -69,7 +69,7 @@ export function storyCiComparisonSource(
     },
     async verifyRevision(revision) {
       await runGit(["rev-parse", "--verify", `${revision}^{commit}`], {
-        cwd: projectFolder(source).path,
+        cwd: executionCheckout(source).path,
         signal,
         maxBuffer: 64 * 1024 * 1024,
       });

@@ -10,7 +10,8 @@ import {
   type LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
+import { type LocalFolder } from "./localFolder.ts";
 import {
   establishedLaunch,
   publicationOf,
@@ -79,7 +80,7 @@ async function startedRun(
   const owned = own;
   const { request, controller, attempt } = owned;
   const attachTerminal = takeTerminalHandoff(attempt.id);
-  const folder = projectFolder(source);
+  const folder = executionCheckout(source);
   const began = new Date(attempt.acceptedAt);
   const requested = recordedRequest(request, began);
   const pending = await pendingInputOf(source.id, request);
@@ -169,7 +170,7 @@ async function startedRun(
 async function launchRun(
   source: PublishedSource,
   recording: RecordedLaunchRequest,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   began: Date,
   start: Exclude<Started, { kind: "stopped" }>,
   controller: AbortController,

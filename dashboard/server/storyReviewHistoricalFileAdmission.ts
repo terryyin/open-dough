@@ -9,7 +9,7 @@ import type { ReviewedPairFile } from "../src/reviewedFileRead.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import {
   reviewedLandedRunByReference,
   reviewedLandedRuns,
@@ -124,7 +124,7 @@ async function admitPublishedCompletion(
       409,
       "The file or comparison does not belong to this published completion.",
     );
-  return { repository: projectFolder(source).path, ...file };
+  return { repository: executionCheckout(source).path, ...file };
 }
 
 // Admit a file against a landed run's exact retained pair and file list.

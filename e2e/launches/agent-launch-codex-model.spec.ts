@@ -26,7 +26,7 @@ import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.t
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 // The ad-hoc and vanished-model cases use codexLaunch.ts, which gives no
-// project folder; Start session needs the one an installed origin makes.
+// execution checkout; Start session needs the one an installed origin makes.
 test.use({ projectFolders: ["open-dough"] });
 
 // Chooses Native Luna at low effort from a catalog read one page at a time.

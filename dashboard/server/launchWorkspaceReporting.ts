@@ -9,7 +9,7 @@ import {
   type LaunchAttemptRecord,
 } from "../src/agentLaunch.ts";
 import { installedSkillPath } from "./launchHosts.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 export type MissingReportingSupport = {
   readonly helper: string;
@@ -71,7 +71,7 @@ export function preparesReporting(
 // requires its sibling first-landing expectation.
 export async function reportingSupport(
   host: AgentLaunchRequest["host"],
-  folder: ProjectFolder,
+  folder: LocalFolder,
 ): Promise<ReportingSupport> {
   const completion = installedSkillPath(
     host,
@@ -100,7 +100,7 @@ export async function reportingSupport(
 
 export async function missingReportingSupport(
   host: AgentLaunchRequest["host"],
-  folder: ProjectFolder,
+  folder: LocalFolder,
 ): Promise<MissingReportingSupport | undefined> {
   const support = await reportingSupport(host, folder);
   return support.kind === "incomplete" ? support.missing : undefined;

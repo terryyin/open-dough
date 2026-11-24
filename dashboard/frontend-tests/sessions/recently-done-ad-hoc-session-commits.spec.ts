@@ -1,4 +1,4 @@
-// A Default main session's review describes its kept commits, including when
+// An execution checkout session's review describes its kept commits, including when
 // no comparison can be shown.
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { columnCountOf } from "../../test-support/dashboardParts.ts";
@@ -31,11 +31,11 @@ for (const { checkout, shared } of [
   { checkout: "a checkout of its own", shared: false },
   { checkout: "a shared checkout", shared: true },
 ]) {
-  test(`a Default main session's commits from ${checkout} open from Review changes`, async ({
+  test(`an execution checkout session's commits from ${checkout} open from Review changes`, async ({
     page,
     frontendServices,
   }) => {
-    const title = "Default main session";
+    const title = "Execution checkout session";
     const session = doneSession(title)
       .keptSessionCommits({
         repository: "/tmp/default-main/.git",
@@ -113,13 +113,12 @@ for (const { checkout, shared } of [
   });
 }
 
-test("an unavailable Default main review describes the session's kept commits", async ({
+test("an unavailable Execution checkout review describes the session's kept commits", async ({
   page,
   frontendServices,
 }) => {
   const title = "Blank session";
-  const explanation =
-    "This session made no commits in the Default main checkout.";
+  const explanation = "This session made no commits in the execution checkout.";
   const session = doneSession(title)
     .keptSessionCommits({ repository: "/tmp/default-main/.git", runs: [] })
     .please();

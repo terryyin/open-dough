@@ -48,7 +48,7 @@ async function promptOf(cursor: FakeCursor) {
   return { client, prompt: cursor.input(client.pid).replace(/\r$/u, "") };
 }
 
-test("a blank follow-up with a chosen model on Default main starts on that model with the context and the reporting context", async ({
+test("a blank follow-up with a chosen model on the execution checkout starts on that model with the context and the reporting context", async ({
   dashboard,
   origin,
   cursor,

@@ -10,13 +10,13 @@ import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const branch = "topic" as const;
 
-// A Default main launch beside the topic worktree, at a base that holds the
+// An execution checkout launch beside the topic worktree, at a base that holds the
 // shared file.
 const aTopicCase = aDoneCaptureCase()
   .withBaseFiles({ "shared.txt": "original\n" })
   .withOrigin()
   .withWorkspace(branch)
-  .withDefaultMainLaunch("declared", { launched: 80 });
+  .withCheckoutLaunch("declared", { launched: 80 });
 
 test("capture separates declared branch work from its entry and its trunk import", async () => {
   const {

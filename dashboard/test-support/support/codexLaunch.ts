@@ -39,7 +39,7 @@ export const test = base.extend({
   },
   codexProtocol,
 });
-// The launches started exactly one native thread, in the project checkout
+// The launches started exactly one native thread, in the execution checkout
 // `cwd`, with no model or effort of their own.
 export function expectOneThreadStarted(native: FakeCodex, cwd: string) {
   expect(native.calls.filter((call) => call.method === "thread/start")).toEqual(

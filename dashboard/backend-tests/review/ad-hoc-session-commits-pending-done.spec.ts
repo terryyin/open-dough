@@ -23,7 +23,7 @@ test("a pending Done refuses the previous review and its files", async () => {
         .committing("first", { at: at(40) })
         .committing("second", { at: at(20) }),
     )
-    .withDefaultMainLaunch(
+    .withCheckoutLaunch(
       "launch",
       { launched: 60, done: 10 },
       // The previous capture read the first commit before Done was pending.
@@ -62,7 +62,7 @@ test("a pending Done cannot inherit the previous no-commit finding", async () =>
     records: { launch: record },
   } = await aDoneCaptureCase()
     .withWork((at) => makeMe.aCheckoutWork.committing("first", { at: at(20) }))
-    .withDefaultMainLaunch(
+    .withCheckoutLaunch(
       "launch",
       { launched: 60, done: 10 },
       // The previous capture found no commit before Done was pending.
@@ -96,7 +96,7 @@ test("capture excludes a commit that arrives after Done's tip was read", async (
         .committing("first", { at: at(40) })
         .committing("second", { at: at(20) }),
     )
-    .withDefaultMainLaunch("launch", { launched: 60 })
+    .withCheckoutLaunch("launch", { launched: 60 })
     .please();
 
   await performWork(

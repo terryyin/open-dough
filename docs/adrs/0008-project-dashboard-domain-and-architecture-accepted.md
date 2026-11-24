@@ -38,6 +38,8 @@ architecture.
 | Product intent | The maintained definition of intended behavior: what the current product is meant to do and why. It evolves with the product and survives individual stories. Each Product intent contains Purpose and Proof. |
 | Structure | The logical organization of the product's implementation, expressed through its domain model and mapped to packages, folders, files, and functions. |
 | Local workspace | An owned checkout in which a developer prepares changes and publishes to an authorized remote destination. Several worktrees can share one local repository. |
+| Execution checkout | The configured local project checkout used to run sessions directly or create their worktrees. |
+| Review repository | A dashboard-managed bare Git repository that fetches published project history for code review. |
 | Optional default checkout | A developer's checkout that may be refreshed after remote trunk publication. Its presence, edits, and freshness are local operational facts, not workflow authority. |
 
 Development, Product intent, and Structure are independent related perspectives.

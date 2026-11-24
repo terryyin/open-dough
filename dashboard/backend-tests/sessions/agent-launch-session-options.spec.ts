@@ -3,7 +3,7 @@
 // start (`execution-start.mjs start --one-shot`, `preparation-assignment.mjs
 // start --one-shot`) and a real bare origin (../../test-support/support/startOrigin.ts), with
 // the synthetic `claude` and Codex protocol boundaries. Every one-shot
-// combination of workspace (isolated or default main) and landing (review or
+// combination of workspace (isolated or execution checkout) and landing (review or
 // automatic) is started for both workflows: the session opens where the start
 // established it, its instruction names the policy's flags and the
 // established one-shot context, the start and launch records keep the policy

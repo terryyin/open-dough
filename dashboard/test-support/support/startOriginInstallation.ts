@@ -21,7 +21,7 @@ export const installedStartSkills = [
   "dough-story-wrap-up",
 ] as const;
 
-// The first commit's committer and author, and the project checkout's identity.
+// The first commit's committer and author, and the execution checkout's identity.
 export const dashboardDeveloper: GitPerson = {
   name: "Dashboard Developer",
   email: "developer@example.test",
@@ -36,7 +36,7 @@ function sourceFiles(directory: string): string[] {
 // The harness layer: `.gitignore` and the installed skills, read from source
 // now, join the description's first commit instead of a commit of their own.
 // The project's developer commits each revision that names no committer, as
-// the project checkout itself would.
+// the execution checkout itself would.
 export function withInstallation(
   repository: StartRepository,
   layout: StartOriginLayout,

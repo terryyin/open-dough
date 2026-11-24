@@ -1,4 +1,4 @@
-// What a start origin's project checkout holds beyond the published trunk:
+// What a start origin's execution checkout holds beyond the published trunk:
 // the trunk it has fetched, and each described workspace as a start leaves
 // a story's, a linked worktree `.worktrees/<slug>` on its branch.
 

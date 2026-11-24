@@ -48,7 +48,7 @@ test("a host whose installation cannot establish a session offers only the defau
   ] as const)
     await expect(radio(dialog, group, name)).toBeDisabled();
   for (const [group, name] of [
-    ["Workspace", "Default main"],
+    ["Workspace", "Execution checkout"],
     ["After checks", "Wait for review"],
   ] as const) {
     await expect(radio(dialog, group, name)).toBeEnabled();

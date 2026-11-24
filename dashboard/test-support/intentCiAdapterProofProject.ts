@@ -1,6 +1,6 @@
 // A ciAdapter project for proof in Intent's CI status and comparison
 // (../../e2e/intent/intent-ci-proof-adapter.spec.ts):
-// the project folder in the test home whose own adapter records each request
+// the execution checkout in the test home whose own adapter records each request
 // it is asked and answers from the test's answers; its attempts, a tests
 // summary of one, and the tab opened on its judged result.
 
@@ -37,7 +37,7 @@ import {
 } from "./intentCiAdapterFixture.ts";
 export type { Answers } from "./intentCiAdapterFixture.ts";
 
-// A ciAdapter project folder in the test home whose adapter records each
+// A ciAdapter execution checkout in the test home whose adapter records each
 // request it is asked, relative to the folder it runs in, and answers from
 // `answer`.
 export function adapterProject(home: string) {

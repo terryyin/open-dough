@@ -26,9 +26,9 @@ for (const { title, answer, explanation } of [
     answer: {
       kind: "landing-unavailable",
       comparison: "session-commits",
-      explanation: "This session made no commits in the Default main checkout.",
+      explanation: "This session made no commits in the execution checkout.",
     },
-    explanation: "This session made no commits in the Default main checkout.",
+    explanation: "This session made no commits in the execution checkout.",
   },
 ] satisfies { title: string; answer: StoryReview; explanation: string }[]) {
   test(`an ad hoc review explains ${title.toLowerCase()}`, async ({

@@ -1,6 +1,6 @@
 // Run the shared workflow's deterministic start and format its handoff before
 // the native session begins. A slow start warns while it keeps running.
-// Before a launch is accepted, a start in the default checkout first observes
+// Before a launch is accepted, a start in the execution checkout first observes
 // its existing changes: changes the request did not confirm, or that changed
 // since, answer with what was observed, and nothing starts. A new execution
 // start then judges the origin target's CI the same way: a non-pass answers
@@ -16,11 +16,11 @@ import {
   type SessionPolicy,
 } from "../src/agentLaunch.ts";
 import type { BaseCiFound } from "../src/baseCiConfirmation.ts";
-import { existingChanges } from "./defaultCheckoutChanges.ts";
+import { existingChanges } from "./executionCheckoutChanges.ts";
 import { baseCiFound, judgeBranchCi } from "./baseCiJudgment.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { EstablishedLaunch, UnattachedEstablished } from "./hostLaunch.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import {
   establishedFacts,
   requireStartHost,
@@ -82,7 +82,7 @@ function startFailed(
 }
 
 // The workspace a launch's session runs in: an unattached session's own
-// choice, the default checkout when it names none; a story start's policy, a
+// choice, the execution checkout when it names none; a story start's policy, a
 // kept start's own, whose kept start another host owns is refused; none for a
 // story workflow with no start.
 async function startWorkspace(
@@ -106,7 +106,7 @@ async function startWorkspace(
 export async function unconfirmedStart(
   source: PublishedSource,
   request: AgentLaunchRequest,
-  folder: ProjectFolder,
+  folder: LocalFolder,
 ): Promise<ExistingChangesFound | BaseCiFound | undefined> {
   if ((await startWorkspace(source, request)) === "default-checkout") {
     const found = await existingChanges(folder);
@@ -136,7 +136,7 @@ export async function unconfirmedStart(
 export async function started(
   source: PublishedSource,
   request: AgentLaunchRequest,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   progress: StartProgress,
   attemptId: string,
   noteSlow: (slowSince: string) => Promise<void> = async () => {},

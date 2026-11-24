@@ -146,7 +146,7 @@ test.describe("refinement of a project whose installed skill lacks the preparati
     origin.cleanup();
   });
 
-  test("launches as before, in the project folder, with no workspace and no profile", async () => {
+  test("launches as before, in the execution checkout, with no workspace and no profile", async () => {
     rmSync(
       path.join(
         origin.project,

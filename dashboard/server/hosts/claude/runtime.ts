@@ -1,5 +1,5 @@
 // The Claude Code host commands for the local launch boundary, each a fixed
-// `claude` argument array held here and run in the project folder:
+// `claude` argument array held here and run in the execution checkout:
 // `claude --bg` for a launch, whose name and instruction `./launch.ts`
 // supplies, Claude Code's own session listing, which confirms a launch and
 // answers each recorded session's state, `claude stop` or, for an exited
@@ -17,7 +17,7 @@ import {
   type SessionObservation,
 } from "../../hostLaunch.ts";
 import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
-import type { ProjectFolder } from "../../projectFolders.ts";
+import type { LocalFolder } from "../../localFolder.ts";
 import { parsedListing, type ListedSession } from "./listing.ts";
 
 type ClaudeRun = {
@@ -26,11 +26,11 @@ type ClaudeRun = {
   readonly stderr: string;
 };
 
-// One `claude` invocation in the project folder, settled whatever its exit.
+// One `claude` invocation in the execution checkout, settled whatever its exit.
 // Its stdin is closed at once: a background launch never reads it.
 function execClaude(
   args: readonly string[],
-  folder: ProjectFolder,
+  folder: LocalFolder,
   signal: AbortSignal,
 ): Promise<ClaudeRun> {
   return new Promise((resolve) => {
@@ -53,7 +53,7 @@ function execClaude(
 }
 
 // `claude --bg --name <name> [--model <alias>] [--effort <level>]
-// --disallowedTools Artifact [-- <instruction>]` in the project folder: one
+// --disallowedTools Artifact [-- <instruction>]` in the execution checkout: one
 // background session, whose short id it prints. With no instruction the session starts without a first prompt;
 // with no model, Claude Code's own model setting applies. A new launch always
 // records an effort (`../../agentLaunchAccept.ts`); only an attempt recorded
@@ -70,7 +70,7 @@ export function startClaudeInBackground(
     readonly model: string | undefined;
     readonly effort: string | undefined;
   },
-  folder: ProjectFolder,
+  folder: LocalFolder,
   signal: AbortSignal,
 ): Promise<ClaudeRun> {
   return execClaude(
@@ -92,12 +92,12 @@ export function startClaudeInBackground(
   );
 }
 
-// `claude attach <short id>` in the project folder, in a terminal of this
+// `claude attach <short id>` in the execution checkout, in a terminal of this
 // size: the only interactive process this dashboard runs. Ending it detaches
 // only; the session keeps running.
 export function attachClaude(
   shortId: string,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   size: { readonly cols: number; readonly rows: number },
 ): IPty {
   return spawnPty("claude", ["attach", shortId], {
@@ -109,11 +109,11 @@ export function attachClaude(
   });
 }
 
-// `claude stop <short id>` in the project folder, for a session Mark as done
+// `claude stop <short id>` in the execution checkout, for a session Mark as done
 // ends; Claude Code keeps its conversation.
 export async function stopClaude(
   shortId: string,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   signal: AbortSignal,
 ): Promise<void> {
   const result = await execClaude(["stop", shortId], folder, signal);
@@ -121,14 +121,14 @@ export async function stopClaude(
     throw new Error("The native stop could not be confirmed.");
 }
 
-// `claude rm <short id>` in the project folder, for an exited session Mark as
+// `claude rm <short id>` in the execution checkout, for an exited session Mark as
 // done removes from Claude Code's jobs. The short id alone: never a flag that
 // discards commits or removes a worktree. A failure names its one cause: the
 // folder exists, so `ENOENT` is the missing executable, as for a launch
 // (`./launch.ts`); what made Claude Code refuse is not read from its stderr.
 export async function removeClaude(
   shortId: string,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   signal: AbortSignal,
 ): Promise<void> {
   const { error } = await execClaude(["rm", shortId], folder, signal);
@@ -161,10 +161,10 @@ function parsedOnce(stdout: string): readonly ListedSession[] | undefined {
 }
 
 // Every session Claude Code lists, running or not, as it answers in the
-// project folder, or undefined when its listing could not be read. Both a
+// execution checkout, or undefined when its listing could not be read. Both a
 // launch's confirmation and a read of the launch records ask this.
 export async function claudeSessions(
-  folder: ProjectFolder,
+  folder: LocalFolder,
   signal: AbortSignal,
 ): Promise<readonly ListedSession[] | undefined> {
   const listing = await execClaude(listingArgs, folder, signal);
@@ -178,7 +178,7 @@ export async function claudeSessions(
 // absence. Native launch and rename confirmation reuse the private listing.
 export async function observeClaudeSessions(
   records: readonly LaunchRecord[],
-  folder: ProjectFolder,
+  folder: LocalFolder,
   signal: AbortSignal,
 ): Promise<readonly SessionObservation[]> {
   const listed = await claudeSessions(folder, signal);

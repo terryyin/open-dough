@@ -114,7 +114,7 @@ export const notLandedYetExplanation = "The story has not landed yet.";
 
 // Unavailable explanations that Intent hides beside a live judgment: board-
 // only Taken fixtures without a recoverable claim, and an unconfigured
-// project folder. Real claim/history gaps still show.
+// execution checkout. Real claim/history gaps still show.
 export const suppressedBesideJudgmentFragments = [
   "has no published completion record",
   "Unknown configured project",

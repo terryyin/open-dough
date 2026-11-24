@@ -1,4 +1,4 @@
-// Done keeps the work a Default main session made, with Git references that
+// Done keeps the work an execution checkout session made, with Git references that
 // let the typed review read it after the checkout's branches move away.
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { readFileSync } from "node:fs";
@@ -25,7 +25,7 @@ async function forgetInCheckout(
   await git(checkout, "prune", "--expire=now");
 }
 
-test("a Default main launch's commit kept at Done remains reviewable after trunk advances and every branch leaves it", async () => {
+test("an execution checkout launch's commit kept at Done remains reviewable after trunk advances and every branch leaves it", async () => {
   const {
     checkout,
     records: { launch: record },
@@ -34,7 +34,7 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
-    .withDefaultMainLaunch("launch", { launched: 60 })
+    .withCheckoutLaunch("launch", { launched: 60 })
     .kept()
     .please();
   const { pulled, typo } = await performWork(
@@ -93,7 +93,7 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
   expect(readFileSync(indexPath)).toEqual(index);
 });
 
-test("Done stores and pins the commit of an established Default main session", async () => {
+test("Done stores and pins the commit of an established Execution checkout session", async () => {
   const {
     checkout,
     records: { "established-default-main": record },

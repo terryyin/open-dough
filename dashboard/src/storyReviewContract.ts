@@ -96,7 +96,7 @@ export const storyReviewSchema = z
       landing: landedReviewContextSchema,
       ...fixedComparison,
     }),
-    // The commits a Default main session made in its checkout
+    // The commits an execution checkout session made in its checkout
     // (`./sessionCommits.ts`): one kept run's comparison, with the kept runs
     // oldest first and the answered run's position among them.
     z.object({
@@ -138,7 +138,7 @@ export const storyReviewSchema = z
     }),
     z.object({
       kind: z.literal("snapshot"),
-      // The workspace as the page shows the project's folders.
+      // The workspace as the page shows paths under the execution checkout.
       workspace: z.string().min(1),
       branch: z.string().min(1),
       remote: z.string().min(1),

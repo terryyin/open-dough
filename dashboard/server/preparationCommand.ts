@@ -6,7 +6,7 @@ import type {
   StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import { installedSkillPath } from "./launchHosts.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import { installedExports, isFile, runStartCommand } from "./startLaunch.ts";
 import { policyArguments } from "./startPolicy.ts";
 import {
@@ -33,7 +33,7 @@ export async function runPreparationCommand(
     readonly assigned?:
       Exclude<EstablishedPreparation, { tracking: "one-shot" }> | undefined;
   },
-  project: ProjectFolder,
+  project: LocalFolder,
   operation: "start" | "continue",
   noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PreparationResult> {
@@ -81,7 +81,7 @@ export async function runPreparationCommand(
 // Whether the project's installed skill can establish a preparation: it ships
 // the start command and the formatter.
 export async function establishesPreparation(
-  project: ProjectFolder,
+  project: LocalFolder,
   host: StoryLaunchRequest["host"],
 ): Promise<boolean> {
   const script = (name: string) =>
@@ -96,7 +96,7 @@ export async function establishesPreparation(
 // written by the formatter the installed skill ships beside its start
 // command.
 export async function formattedPreparation(
-  project: ProjectFolder,
+  project: LocalFolder,
   preparation: EstablishedPreparation,
   host: StoryLaunchRequest["host"],
 ): Promise<string> {

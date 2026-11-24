@@ -11,7 +11,7 @@ import {
   appendConfiguredProject,
   publishedProjects,
 } from "./projectConfiguration.ts";
-import { folderExists, localFolder } from "./projectFolders.ts";
+import { folderExists, localFolder } from "./localFolder.ts";
 import { rateLimitStop, runGh } from "./ghRead.ts";
 import { runGit } from "./gitRunner.ts";
 
@@ -40,7 +40,7 @@ export async function addProject(input: ProjectInput, signal: AbortSignal) {
   if (localPath === "" || !(await folderExists(folder)))
     throw new ProjectInputProblem(
       "localPath",
-      `The local folder ${localPath || "you entered"} was not found.`,
+      `The execution checkout ${localPath || "you entered"} was not found.`,
     );
   let origin: string;
   try {
@@ -62,7 +62,7 @@ export async function addProject(input: ProjectInput, signal: AbortSignal) {
     if (signal.aborted) throw signal.reason;
     throw new ProjectInputProblem(
       "localPath",
-      `The local folder ${localPath} is not the root of a Git checkout with an origin repository.`,
+      `The execution checkout ${localPath} is not the root of a Git checkout with an origin repository.`,
     );
   }
   const localRepository = githubRepository(origin);

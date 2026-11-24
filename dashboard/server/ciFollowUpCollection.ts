@@ -4,7 +4,7 @@ import { updateRepeat, retainRepeatAssessment } from "./ciFollowUpRetention.ts";
 import { landingCompletesStory } from "./completedStoryCapture.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { projectEnvironment } from "./projectConfiguration.ts";
 import type { ProjectHistory } from "./landedCiHistoryStore.ts";
 import { keptLandingReferences } from "./landedCiHistoryStore.ts";
@@ -47,7 +47,7 @@ export async function collectCiFollowUps(
         : { ...current, outcome },
     );
   }
-  const configuration = ciConfiguration(projectFolder(source).path);
+  const configuration = ciConfiguration(executionCheckout(source).path);
   const provider = configuredRepeatProvider(source, configuration);
   if (provider === undefined) return;
   for (const landing of keptLandingReferences(history)) {

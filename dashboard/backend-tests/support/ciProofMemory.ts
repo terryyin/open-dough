@@ -1,4 +1,4 @@
-// Actual wire bytes and a configured folder for proof-reader memory rules.
+// Actual wire bytes and an execution checkout for proof-reader memory rules.
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";

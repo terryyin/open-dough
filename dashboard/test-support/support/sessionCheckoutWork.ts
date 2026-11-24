@@ -1,4 +1,4 @@
-// Drives a Default main session through launch, dated work in its checkout
+// Drives an execution checkout session through launch, dated work in its checkout
 // and Done. The specs retain their own observations of Git and review answers.
 import { expect } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -8,7 +8,7 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import { commitAt } from "./sessionCheckoutGit.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 
-export class DefaultMainSessionWork {
+export class ExecutionCheckoutSessionWork {
   constructor(
     private readonly dashboard: DashboardServer,
     private readonly origin: StartOrigin,
@@ -22,7 +22,7 @@ export class DefaultMainSessionWork {
     return commitAt(this.checkout, at, file, content);
   }
 
-  // Launches an ad hoc session in the project's Default main checkout, blank
+  // Launches an ad hoc session in the project's execution checkout, blank
   // unless given an instruction; answers its record as launched.
   async launch(instruction?: string): Promise<LaunchRecord> {
     this.dashboard.claudeScenario("launched");

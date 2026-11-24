@@ -5,7 +5,7 @@
 // (../../dashboard/test-support/support/startOrigin.ts), the installed start recorded as it runs
 // (../../dashboard/test-support/support/startSessionLanding.ts), and the synthetic `claude`:
 // Automatically land runs the installed one-shot start with no identity in
-// the project folder and hands the session its "Established session" block,
+// the execution checkout and hands the session its "Established session" block,
 // then the reporting context, even with no text; the line beside Start names
 // the push Start authorizes. Change confirmation belongs to
 // ./agent-launch-start-session-existing-changes.spec.ts; default no-start
@@ -29,7 +29,7 @@ import {
   startSession,
   startSessionDialog,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import { status } from "../../dashboard/test-support/support/defaultCheckoutChanges.ts";
+import { status } from "../../dashboard/test-support/support/executionCheckoutChanges.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   expect,
@@ -43,15 +43,15 @@ import {
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
-  defaultMainSession,
-  defaultMainStart,
+  executionCheckoutSession,
+  executionCheckoutStart,
   recordStarts,
   sessionBlock,
 } from "../../dashboard/test-support/support/startSessionLanding.ts";
 import { expectLandingHandoff } from "../../dashboard/test-support/support/startSessionLandingCapture.ts";
 
 const where =
-  "The session runs in this project's folder on default main, with its existing changes;";
+  "The session runs in this project's execution checkout, with its existing changes;";
 const autoLand = { workspace: "default-checkout", landing: "auto-land" };
 
 const worktrees = (project: string) =>
@@ -59,7 +59,7 @@ const worktrees = (project: string) =>
     encoding: "utf8",
   });
 
-// The one session started in the project folder, with what it was sent and
+// The one session started in the execution checkout, with what it was sent and
 // the record kept.
 async function startedSession(dashboard: DashboardServer, project: string) {
   await expect
@@ -73,7 +73,7 @@ async function startedSession(dashboard: DashboardServer, project: string) {
   return { sent: started?.instruction, record };
 }
 
-test("Automatically land with no text names the push beside Start, runs the installed start in the project folder, and hands the session its landing intent", async ({
+test("Automatically land with no text names the push beside Start, runs the installed start in the execution checkout, and hands the session its landing intent", async ({
   page,
   dashboard,
   origin,
@@ -86,21 +86,21 @@ test("Automatically land with no text names the push beside Start, runs the inst
   const dialog = startSessionDialog(page, "Open Dough");
 
   // The Session group offers After checks from the default, with no
-  // Tracking; Workspace stays Default main.
+  // Tracking; Workspace stays Execution checkout.
   await expect(dialog.getByRole("group", { name: "Session" })).toBeVisible();
   await expect(dialog.getByRole("group", { name: "Tracking" })).toHaveCount(0);
-  await expect(radio(dialog, "Workspace", "Default main")).toBeChecked();
+  await expect(radio(dialog, "Workspace", "Execution checkout")).toBeChecked();
   await expect(
     dialog.getByRole("group", { name: "After checks" }).getByRole("radio"),
   ).toHaveCount(2);
   await expect(radio(dialog, "After checks", "Wait for review")).toBeChecked();
   const start = dialog.getByRole("button", { name: "Start", exact: true });
   await expect(start).toHaveAccessibleDescription(
-    `Default main · Wait for review ${where} nothing is published.`,
+    `Execution checkout · Wait for review ${where} nothing is published.`,
   );
   await radio(dialog, "After checks", "Automatically land").check();
   await expect(start).toHaveAccessibleDescription(
-    `Default main · Automatically land ${where} verified results land on origin without another review. Pressing Start authorizes that push.`,
+    `Execution checkout · Automatically land ${where} verified results land on origin without another review. Pressing Start authorizes that push.`,
   );
   await expect(
     dialog.getByText(
@@ -113,17 +113,17 @@ test("Automatically land with no text names the push beside Start, runs the inst
   await expect(dialog).toBeHidden();
   const { sent, record } = await startedSession(dashboard, origin.project);
 
-  // The installed start ran once, in the project folder, with no identity,
+  // The installed start ran once, in the execution checkout, with no identity,
   // publisher, or workspace of its own.
   expect(starts()).toEqual([
     {
-      argv: defaultMainStart(origin.project, "auto-land"),
+      argv: executionCheckoutStart(origin.project, "auto-land"),
       cwd: realpathSync(origin.project),
     },
   ]);
   // The first message is the block, then the reporting context, and nothing
   // of the developer's.
-  const session = defaultMainSession(origin.project, "auto-land", before);
+  const session = executionCheckoutSession(origin.project, "auto-land", before);
   const [block, reporting, ...extra] = (sent ?? "").split("\n\n");
   expect(block).toBe(sessionBlock(session));
   expect(extra).toEqual([]);
@@ -139,9 +139,9 @@ test("Automatically land with no text names the push beside Start, runs the inst
   expectLandingHandoff(record, sent ?? "", dashboard, origin.project);
   for (const absent of ["start", "preparation"])
     expect(record).not.toHaveProperty(absent);
-  // The session's entry names the default checkout it was established in.
+  // The session's entry names the execution checkout it was established in.
   await expect(sessionEntriesIn(parts(page).taken)).toContainText(
-    "Workspace ~/git/open-dough (default main)",
+    "Workspace ~/git/open-dough (execution checkout)",
   );
   for (const kept of [record, ...(await attempts(dashboard))])
     expect(JSON.stringify(kept)).not.toContain("existingChanges");

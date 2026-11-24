@@ -1,7 +1,7 @@
 // The flow owns allowance and retention; a provider owns CI evidence and work.
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { adapterRepeatProvider } from "./ciFollowUpAdapterProvider.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { githubRepeatProvider } from "./ciFollowUpGithubProvider.ts";
 import type { ciConfiguration } from "./baseCiJudgment.ts";
 import type { repeatDecisionOf } from "./ciFollowUpDecision.ts";
@@ -38,7 +38,7 @@ export function configuredRepeatProvider(
       ? undefined
       : adapterRepeatProvider(
           source,
-          projectFolder(source).path,
+          executionCheckout(source).path,
           configuration.adapter,
           configuration.rebuild,
         );
@@ -51,5 +51,5 @@ export function retainedRepeatProvider(
 ): RepeatProvider {
   if (request.provider === "github")
     return githubRepeatProvider(source, request.workflow);
-  return adapterRepeatProvider(source, projectFolder(source).path);
+  return adapterRepeatProvider(source, executionCheckout(source).path);
 }

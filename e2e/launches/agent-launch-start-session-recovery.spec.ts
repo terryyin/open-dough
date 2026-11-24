@@ -8,7 +8,7 @@
 // branch, opens the session there with its block, and runs no second start or
 // workspace selection. A start lost with its server:
 // ../../dashboard/backend-tests/launches/agent-launch-start-session-lost.spec.ts.
-// Default main, a refused start, and a conversation whose first input is
+// Execution checkout, a refused start, and a conversation whose first input is
 // unconfirmed: ../../dashboard/backend-tests/launches/agent-launch-start-session-kept.spec.ts.
 
 import { realpathSync } from "node:fs";

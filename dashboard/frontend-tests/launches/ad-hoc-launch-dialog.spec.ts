@@ -10,7 +10,7 @@ import {
 } from "./launch-layout-page.ts";
 import { openRefinement, refinementChoices } from "./refinement-launch-page.ts";
 
-const effect = "The session runs in this project's folder.";
+const effect = "The session runs in this project's execution checkout.";
 const preview = (identity: string) => `/dough-story-refinement ${identity}`;
 
 test("refinement tabs from the instruction through the closed disclosures to Start", async () => {

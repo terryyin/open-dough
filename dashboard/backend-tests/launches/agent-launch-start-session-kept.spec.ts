@@ -3,9 +3,9 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // HTTP with a real bare origin (../../test-support/support/startOrigin.ts) and the installed
 // start recorded and held as the case needs (../../test-support/support/keptSessionStart.ts):
 // a start refused before any workspace existed keeps nothing, so a later
-// Start selects its workspace afresh; a Default main start that outlasts its
+// Start selects its workspace afresh; an execution checkout start that outlasts its
 // wait is kept as an isolated one is and continues without a second start,
-// once the default checkout holds no unconfirmed change; and a conversation
+// once the execution checkout holds no unconfirmed change; and a conversation
 // whose first input is unconfirmed is recovered by its continuation, which
 // runs no start and makes no second workspace. The page journey and a start
 // lost with its server: ../../../e2e/launches/agent-launch-start-session-recovery.spec.ts.
@@ -29,8 +29,8 @@ import {
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
-  defaultMainSession,
-  defaultMainStart,
+  executionCheckoutSession,
+  executionCheckoutStart,
   git,
   isolatedSession,
   isolatedStart,
@@ -101,11 +101,11 @@ test("a start refused before any workspace existed keeps nothing, and a later St
   expect(keptSessionStarts(origin)).toEqual({});
 });
 
-test.describe("a Default main start that outlasts its wait", () => {
+test.describe("an execution checkout start that outlasts its wait", () => {
   // The start is held past this wait, however long the machine takes.
   test.use({ startTimeoutMs: 500 });
 
-  test("is kept in the project folder on trunk, and continues without a second start once default main holds no unconfirmed change", async ({
+  test("is kept in the execution checkout on trunk, and continues without a second start once execution checkout holds no unconfirmed change", async ({
     dashboard,
     origin,
   }) => {
@@ -127,7 +127,11 @@ test.describe("a Default main start that outlasts its wait", () => {
       branch: "main",
     });
     hold.release();
-    const session = defaultMainSession(origin.project, "auto-land", before);
+    const session = executionCheckoutSession(
+      origin.project,
+      "auto-land",
+      before,
+    );
     await expect
       .poll(() => keptSessionStarts(origin)[id]?.["session"], {
         timeout: 30_000,
@@ -155,7 +159,7 @@ test.describe("a Default main start that outlasts its wait", () => {
       sessionBlock(session),
     );
     expect(starts().map(({ argv }) => argv)).toEqual([
-      defaultMainStart(origin.project, "auto-land"),
+      executionCheckoutStart(origin.project, "auto-land"),
     ]);
     expect(worktrees(origin.project)).toEqual([]);
     expect(keptSessionStarts(origin)).toEqual({});

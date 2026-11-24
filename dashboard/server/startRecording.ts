@@ -37,7 +37,7 @@ export function establishedStart(
 type ClaimedStart = Extract<EstablishedStart, { publishedSha: string }>;
 
 // The established context a prepared one-shot start or preparation makes:
-// the facts it ran with, where it runs (the default checkout's role as the
+// the facts it ran with, where it runs (the execution checkout's role as the
 // start reported it), the policy's landing, and the revision and fetched
 // trunk the start reported. It names no assignment.
 export function establishedOneShot<Facts extends object>(

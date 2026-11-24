@@ -11,7 +11,7 @@ import { ciConfiguration } from "./baseCiJudgment.ts";
 import { resolveBranchHeadViaGh } from "./ghRevision.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
 import { fetchGitTarget, remoteBranchHead } from "./gitTargetFetch.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import type { StoryExecutionMode } from "./storyPublishedEndpointDerived.ts";
 import {
@@ -108,7 +108,7 @@ export async function takenStoryEndpoints(
   signal: AbortSignal,
 ): Promise<TakenStoryEndpoints> {
   try {
-    const directory = projectFolder(source).path;
+    const directory = executionCheckout(source).path;
     const call: GitCall = {
       cwd: directory,
       signal,

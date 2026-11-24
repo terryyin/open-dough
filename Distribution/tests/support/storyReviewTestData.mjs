@@ -150,7 +150,7 @@ export class StoryReviewBuilder {
     return this;
   }
 
-  // A Default main session's commits: one kept run.
+  // An execution checkout session's commits: one kept run.
   sessionCommits() {
     this.#kind = "session-commits";
     return this;

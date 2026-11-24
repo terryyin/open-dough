@@ -1,4 +1,4 @@
-// A Done capture case: the project's Default main checkout over a history
+// A Done capture case: the project's execution checkout over a history
 // that predates the case, the launch records named in it, and the timeline
 // stating each launch and Done in minutes before the case's clock.
 // Lives beside ./doneCaptureCase.ts, which holds the case's clock and effects,
@@ -101,7 +101,7 @@ export class DoneCaptureCaseBuilder<
   }
 
   // A blank launch whose start found the checkout on main at its base.
-  withDefaultMainLaunch<Name extends string>(
+  withCheckoutLaunch<Name extends string>(
     session: Name,
     times: Times,
     refine?: Refinement<Work>,
@@ -117,7 +117,7 @@ export class DoneCaptureCaseBuilder<
     );
   }
 
-  // A Default main launch that identified the named `worktree`, then at the
+  // An execution checkout launch that identified the named `worktree`, then at the
   // case's base, as its own branch.
   withDeclaringLaunch<Name extends string>(
     session: Name,
@@ -129,11 +129,15 @@ export class DoneCaptureCaseBuilder<
       session,
       times,
       ({ checkout, baseTree, worktree: at }) =>
-        makeMe.aLaunchRecord.ofDeclaringDefaultMainLaunch(session, checkout, {
-          workspace: at(worktree),
-          branch: worktree,
-          tree: baseTree,
-        }),
+        makeMe.aLaunchRecord.ofDeclaringExecutionCheckoutLaunch(
+          session,
+          checkout,
+          {
+            workspace: at(worktree),
+            branch: worktree,
+            tree: baseTree,
+          },
+        ),
       refine,
     );
   }
@@ -160,7 +164,7 @@ export class DoneCaptureCaseBuilder<
     );
   }
 
-  // A Default main launch that declared its landing from the named
+  // An execution checkout launch that declared its landing from the named
   // `worktree` at the case's base, reporting to the dashboard; `landing`
   // states the scenario's further landing data.
   withDeclaredLandingLaunch<Name extends string>(

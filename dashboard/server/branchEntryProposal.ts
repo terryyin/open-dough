@@ -53,7 +53,7 @@ export function entryRepository(record: LaunchRecord): string {
   if (record.request.workflow !== "ad-hoc" || repository === undefined)
     throw new RefusedRequest(
       409,
-      "This launch has no recorded Default main repository for a branch handoff.",
+      "This launch has no recorded execution checkout repository for a branch handoff.",
     );
   if (record.doneAt !== undefined)
     throw new RefusedRequest(

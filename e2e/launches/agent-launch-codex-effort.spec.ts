@@ -22,7 +22,7 @@ import {
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
 
-// codexLaunch.ts gives no project folder; Start session needs the one an
+// codexLaunch.ts gives no execution checkout; Start session needs the one an
 // installed origin makes.
 test.use({ projectFolders: ["open-dough"] });
 
@@ -76,7 +76,7 @@ journeyTest(
   },
 );
 
-test("effort-only story startup validates the actual established workspace rather than the project folder", async ({
+test("effort-only story startup validates the actual established workspace rather than the execution checkout", async ({
   page,
   origin,
   codexProtocol: fixture,
@@ -183,10 +183,12 @@ test("workspace confirmation keeps model and effort through Back and Continue", 
     .getByLabel("Reasoning effort", { exact: true })
     .selectOption("ultra");
   await radio(dialog, "Tracking", "One-shot").check();
-  await radio(dialog, "Workspace", "Default main").check();
+  await radio(dialog, "Workspace", "Execution checkout").check();
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(
-    dialog.getByRole("heading", { name: "Existing changes in default main" }),
+    dialog.getByRole("heading", {
+      name: "Existing changes in the execution checkout",
+    }),
   ).toBeVisible();
   expect(native.calls.filter((c) => c.method === "thread/start")).toEqual([]);
   await dialog.getByRole("button", { name: "Back", exact: true }).click();

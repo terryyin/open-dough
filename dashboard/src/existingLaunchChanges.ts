@@ -1,4 +1,4 @@
-// Default-checkout changes observed before a launch can confirm them.
+// Execution checkout changes observed before a launch can confirm them.
 import { z } from "zod";
 import { existingChangesSchema } from "./launchRequest.ts";
 

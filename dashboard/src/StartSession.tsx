@@ -1,11 +1,11 @@
 // The project actions row's Start session: the developer asks the selected host
-// to start a session on this machine in the selected project's folder,
+// to start a session on this machine in the selected project's execution checkout,
 // with no story or skill and an optional first message of their own. The
 // session is listed in Recently done and the Sessions sidebar, like any
 // launched session; no card lists it. Its Session group chooses where the
 // session runs and what follows the checks of what it later verifies; the
 // line beside Start names the choices and what Start authorizes. A session on
-// default main has existing changes there confirmed in the dialog before
+// execution checkout has existing changes there confirmed in the dialog before
 // anything starts (`LaunchExistingChanges`). The dialog closes once the local
 // service accepted the launch, leaving the keyboard on what says, beside the
 // button, that the startup goes on while the button waits for it. A session
@@ -189,7 +189,7 @@ export function StartSession({
               <FollowUpSubject followUp={followUp} />
             )
           }
-          description={`${hostName(host)} starts a background session on this machine, in ${policy.workspace === "isolated" ? "a new workspace of this project" : "this project's folder"}, with no story or skill${followUp === undefined ? "" : ", sending this context with your request"}. It is listed as ${project} · ${adHocName}.`}
+          description={`${hostName(host)} starts a background session on this machine, in ${policy.workspace === "isolated" ? "a new workspace of this project" : "this project's execution checkout"}, with no story or skill${followUp === undefined ? "" : ", sending this context with your request"}. It is listed as ${project} · ${adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
           session={sessionAttachingStoryNotes(
             unattachedSession({

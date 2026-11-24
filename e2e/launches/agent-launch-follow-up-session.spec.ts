@@ -97,7 +97,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
   await expect(startSessionField(dialog)).toBeFocused();
   await expect(startSessionField(dialog)).toHaveValue("");
   for (const [group, name] of [
-    ["Workspace", "Default main"],
+    ["Workspace", "Execution checkout"],
     ["After checks", "Wait for review"],
   ] as const)
     await expect(radio(dialog, group, name)).toBeChecked();

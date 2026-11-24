@@ -30,10 +30,15 @@ export class SessionRunSwitch extends PageObject {
     });
   }
 
-  chooseDefaultMainRun(label: string) {
-    return this.cueHere(`Default main runs: choose ${label}`, async () => {
-      await (await this.#review()).comparison.chooseDefaultMainRun(label);
-    });
+  chooseExecutionCheckoutRun(label: string) {
+    return this.cueHere(
+      `Execution checkout runs: choose ${label}`,
+      async () => {
+        await (
+          await this.#review()
+        ).comparison.chooseExecutionCheckoutRun(label);
+      },
+    );
   }
 
   choose(label: string) {

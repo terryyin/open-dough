@@ -22,15 +22,15 @@ const sharedAtDone = (
   kept: readonly LaunchRecord[],
 ) => checkoutSharedMeanwhile(record, { workspace: checkout.integration }, kept);
 
-test("Done saves the run and shared flag when two sessions overlap in Default main", async () => {
+test("Done saves the run and shared flag when two sessions overlap in Execution checkout", async () => {
   const {
     checkout,
     records: { first },
     performWork,
     at,
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("first", { launched: 60 })
-    .withDefaultMainLaunch("other", { launched: 60 })
+    .withCheckoutLaunch("first", { launched: 60 })
+    .withCheckoutLaunch("other", { launched: 60 })
     .kept()
     .please();
   const { committed } = await performWork(
@@ -48,26 +48,26 @@ test("Done saves the run and shared flag when two sessions overlap in Default ma
   });
 });
 
-test("a session done after this one launched still shares the Default main checkout", async () => {
+test("a session done after this one launched still shares the execution checkout", async () => {
   const {
     checkout,
     records: { earlier, session },
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("earlier", { launched: 70, done: 15 })
-    .withDefaultMainLaunch("session", { launched: 60, done: 10 })
+    .withCheckoutLaunch("earlier", { launched: 70, done: 15 })
+    .withCheckoutLaunch("session", { launched: 60, done: 10 })
     .please();
 
   expect(sharedAtDone(checkout, session, [earlier])).toBe(true);
 });
 
-test("a session open meanwhile in an isolated workspace of the project does not share the Default main checkout", async () => {
+test("a session open meanwhile in an isolated workspace of the project does not share the execution checkout", async () => {
   const {
     checkout,
     records: { session },
     at,
   } = await aDoneCaptureCase()
     .withWorkspace("isolated")
-    .withDefaultMainLaunch("session", { launched: 60, done: 10 })
+    .withCheckoutLaunch("session", { launched: 60, done: 10 })
     .please();
   const workspace = checkout.execution;
   if (workspace === undefined) throw new Error("Missing isolated worktree");
@@ -81,13 +81,13 @@ test("a session open meanwhile in an isolated workspace of the project does not 
   expect(sharedAtDone(checkout, session, [isolated])).toBe(false);
 });
 
-test("a session done in the Default main checkout before this one launched does not share it", async () => {
+test("a session done in the execution checkout before this one launched does not share it", async () => {
   const {
     checkout,
     records: { earlier, session },
   } = await aDoneCaptureCase()
     .withEstablishedSession("earlier", { launched: 90, done: 70 })
-    .withDefaultMainLaunch("session", { launched: 60, done: 10 })
+    .withCheckoutLaunch("session", { launched: 60, done: 10 })
     .please();
 
   expect(sharedAtDone(checkout, session, [earlier])).toBe(false);

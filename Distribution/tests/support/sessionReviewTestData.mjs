@@ -51,7 +51,7 @@ export class SessionReviewReadBuilder {
   }
 
   /**
-   * The project keeps one Done ad hoc session of its Default main checkout at
+   * The project keeps one Done ad hoc session of its execution checkout at
    * `repository` whose kept commits are this one run.
    * @param {string} session the reviewed `claude` session's ID
    * @param {{ repository: string, run: { base: string, revision: string } }} kept

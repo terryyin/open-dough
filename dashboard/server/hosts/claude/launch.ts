@@ -25,7 +25,7 @@ import {
 } from "../../../src/hostDescription.ts";
 import type { PublishedSource } from "../../../src/publishedSource.ts";
 import { claudeSessions, startClaudeInBackground } from "./runtime.ts";
-import type { ProjectFolder } from "../../projectFolders.ts";
+import type { LocalFolder } from "../../localFolder.ts";
 import { developerPart } from "../../../src/launchAttachments.ts";
 import { unattachedInput } from "../../unattachedInput.ts";
 import type {
@@ -97,7 +97,7 @@ function unconfirmed(): HostLaunch {
 function failedLaunch(
   error: ExecException,
   stderr: string,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   model: RecordedLaunchRequest["model"],
 ): HostLaunch {
   if (error.code === "ENOENT") {
@@ -135,13 +135,13 @@ function expired(signal: AbortSignal): boolean {
 }
 
 // Starts one background session and confirms it in Claude Code's own listing.
-// It starts in the project's folder, or in the established start's workspace
+// It starts in the project's execution checkout, or in the established start's workspace
 // when the launch has one. An abort (the launch wait expiring) leaves it
 // uncertain whether a session started.
 export async function launchClaude(
   source: PublishedSource,
   request: RecordedLaunchRequest,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   signal: AbortSignal,
   established?: EstablishedLaunch,
 ): Promise<HostLaunch> {

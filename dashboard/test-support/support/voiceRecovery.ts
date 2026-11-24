@@ -19,7 +19,7 @@ export const originalDraft = "Keep this work local";
 // worker-scoped option, so literal copies would be worker populations that
 // never share a worker (./pageTest.ts says why). A frontend journey takes
 // the browser's microphone alone; a journey against dashboardServer also
-// names the project folder it serves.
+// names the execution checkout it serves.
 export const microphoneBrowserOptions = {
   permissions: ["microphone"],
   launchOptions: {

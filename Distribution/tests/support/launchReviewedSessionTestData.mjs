@@ -14,7 +14,7 @@ import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { minutesAgo } from "./testDataDefaults.mjs";
 
 /**
- * A materialized checkout: its Default main workspace, base revision, and Git
+ * A materialized checkout: its execution checkout workspace, base revision, and Git
  * directory as Git resolves it.
  * @typedef {{ integration: string, base: string, gitDirectory: string }} CheckoutFacts
  */
@@ -98,14 +98,14 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   }
 
   /**
-   * The project keeps one Done ad hoc session of its Default main checkout at
+   * The project keeps one Done ad hoc session of its execution checkout at
    * `repository` whose kept commits are this one run.
    * @param {string} session the reviewed `claude` session's ID
    * @param {{ repository: string, run: { base: string, revision: string } }} kept
    */
   ofAdHocSessionWithKeptRun(session, { repository, run }) {
     return this.adHoc({ title: "Session with a kept run" })
-      .inDefaultCheckout({
+      .inExecutionCheckout({
         workspace: repository,
         landing: "review",
         revision: run.base,
@@ -116,7 +116,7 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   }
 
   /**
-   * A Default main launch in the `claude` session `session` that identified
+   * An execution checkout launch in the `claude` session `session` that identified
    * the worktree `workspace` on `branch`, then holding the checkout's base
    * `tree`, as its own branch, witnessing trunk and its default branch at
    * that base.
@@ -124,7 +124,11 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
    * @param {{ integration: string, base: string, gitDirectory: string }} checkout
    * @param {{ workspace: string, branch: string, tree: string }} worktree
    */
-  ofDeclaringDefaultMainLaunch(session, checkout, { workspace, branch, tree }) {
+  ofDeclaringExecutionCheckoutLaunch(
+    session,
+    checkout,
+    { workspace, branch, tree },
+  ) {
     const { base, gitDirectory } = checkout;
     return this.startedOnMainOf(checkout)
       .inClaudeSession({ sessionId: session })
@@ -171,7 +175,7 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
    */
   startedOnMainOf({ integration, base, gitDirectory }) {
     return this.adHoc({ title: "Fix the typo" })
-      .startingInDefaultCheckout({
+      .startingInExecutionCheckout({
         workspace: integration,
         startingRevision: base,
         repository: gitDirectory,
@@ -183,13 +187,13 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
 
   /**
    * Stereotype: a session launched an hour ago and established for review in
-   * the checkout's Default main at `revision` (its base unless stated).
+   * the execution checkout at `revision` (its base unless stated).
    * @param {CheckoutFacts} checkout
    * @param {string} [revision]
    */
   establishedOnMainOf({ integration, base }, revision = base) {
-    return this.adHoc({ title: "Established in Default main" })
-      .inDefaultCheckout({
+    return this.adHoc({ title: "Established in execution checkout" })
+      .inExecutionCheckout({
         workspace: integration,
         landing: "review",
         revision,

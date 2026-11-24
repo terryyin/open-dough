@@ -36,7 +36,7 @@ import {
   type ListedRun,
   unread,
 } from "./baseCiNearest.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 export type { BaseCiJudgment } from "./baseCiNearest.ts";
 
@@ -46,7 +46,7 @@ type CiConfiguration = {
   readonly rebuild: readonly string[] | undefined;
 };
 
-// The project folder's CI settings: its configured ciAdapter command, if
+// The execution checkout's CI settings: its configured ciAdapter command, if
 // any, and its GitHub Actions workflow.
 export function ciConfiguration(folder: string): CiConfiguration {
   return readCiConfiguration(folder);
@@ -112,14 +112,14 @@ export async function judgeCommandAdapter(
   }
 }
 
-// Judges `branch` of `source` from the project folder's CI settings, at the
+// Judges `branch` of `source` from the execution checkout's CI settings, at the
 // head its own commit listing resolves, read once for either CI. Bound by the authenticated read wait,
 // and ended early by `signal` when given. A nonempty `ciAdapter` uses
-// discover attempts from the project folder; otherwise GitHub Actions. A name
+// discover attempts from the execution checkout; otherwise GitHub Actions. A name
 // the safe-branch rule refuses is never asked about.
 export async function judgeBranchCi(
   source: PublishedSource,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   branch: string,
   signal?: AbortSignal,
 ): Promise<BaseCiJudgment> {

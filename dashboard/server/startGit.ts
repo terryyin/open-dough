@@ -7,11 +7,11 @@ import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { worktreesFolder } from "./launchWorkspace.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 // What git printed, or "" when the call failed.
 export async function git(
-  project: Pick<ProjectFolder, "path">,
+  project: Pick<LocalFolder, "path">,
   args: readonly string[],
 ): Promise<string> {
   try {
@@ -34,7 +34,7 @@ export function repositoryOf(url: string): string | undefined {
 
 // Slugs a new workspace must not reuse: the folders under `.worktrees/` and
 // the branches for every supported host, whichever exists.
-export async function takenSlugs(project: ProjectFolder): Promise<Set<string>> {
+export async function takenSlugs(project: LocalFolder): Promise<Set<string>> {
   const folders = await readdir(path.join(project.path, worktreesFolder)).catch(
     (): string[] => [],
   );
@@ -59,7 +59,7 @@ export async function takenSlugs(project: ProjectFolder): Promise<Set<string>> {
 // The Agent whose profile on origin's trunk names the story, once the start
 // has fetched it.
 export async function ownerOf(
-  project: ProjectFolder,
+  project: LocalFolder,
   ref: string,
   identity: string,
 ): Promise<string | undefined> {

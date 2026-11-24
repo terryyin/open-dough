@@ -100,7 +100,7 @@ test("commits either side of merged trunk work are two runs without the merge or
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
-    .withDefaultMainLaunch("launch", { launched: 60 })
+    .withCheckoutLaunch("launch", { launched: 60 })
     .please();
   const { base, integration } = checkout;
   const { first, merge, second } = await performWork(
@@ -130,7 +130,7 @@ test("commits either side of an amended merge stay separate without the merge's 
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
-    .withDefaultMainLaunch("launch", { launched: 60 })
+    .withCheckoutLaunch("launch", { launched: 60 })
     .please();
   const { base, integration } = checkout;
   const { first, amended, second } = await performWork(
