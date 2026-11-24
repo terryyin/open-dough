@@ -144,7 +144,7 @@ production Done write. Commands and observations are in `slice2-return.md`.
 
 ### 3. Raise alerts for composed sessions
 Type: Behavior
-Status: planned
+Status: done
 Proof: `session-alerts`, `-activation`, `-delivery`, `-input-continuity` and
 `-refused` pass plainly and with the scratch wiring. `session-alerts` still
 raises exactly one notification per reading that needs the developer.
@@ -153,6 +153,9 @@ A composed session not marked done enters a reading other than Working →
 the server raises one notification, not repeated after restart. Classify
 the "launched after the server started" case: the session appears in the
 listing after start, which composition states without a launch.
+
+Slice 3 proof: 13 cases passed in each setup, including one alert after the
+new session blocks and no launch call. See `slice3-return.md`.
 
 ### 4. Show composed sessions on cards and in Recently done in E2E
 Type: Behavior
