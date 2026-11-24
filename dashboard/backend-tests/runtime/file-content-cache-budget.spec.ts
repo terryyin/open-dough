@@ -4,7 +4,7 @@
 // size plateaus for a fixed working set (post-GC when available).
 import { setFlagsFromString } from "node:v8";
 import { runInNewContext } from "node:vm";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { beforeEach, expect, test } from "vitest";
 import {
   cachedFile,
   fileContentCacheBudgetBytes,
@@ -42,9 +42,7 @@ function heapUsed(): number {
   return process.memoryUsage().heapUsed;
 }
 
-test.describe.configure({ mode: "serial" });
-
-test.beforeEach(() => {
+beforeEach(() => {
   forgetCachedFiles();
 });
 

@@ -119,14 +119,26 @@ restoration. See `slice2-final-run.proof.json` and
 ### 3. The remaining direct specs run on Vitest
 
 Type: Behavior
-Status: planned
-Proof: the runner lists the 17 `configuration/`, `observation/`, `review/`, `runtime/` and `terminals/` files under the Node engine and their cases pass
+Status: done
+Proof: the runner lists the qualifying `configuration/`, `observation/`, `review/`, `runtime/` and `terminals/` files under the Node engine and all 17 original files' cases pass
 
 Apply the script to the rest. Run `notifier-setup` three times; if a case
 exceeds the default timeout, return that file to Playwright and record it
 for the later families.
 Check that the platform skip in `notifier-setup.spec.ts` also works under
 Vitest with the prescribed rewrite before including it in the migration.
+
+Accepted proof: all 55 cases passed with exact baseline file and expanded
+title parity. Node Vitest ran 50 cases across 16 specs. Playwright ran the
+five notifier cases. The three `file-content-cache-budget.spec.ts` cases
+ran in the same order after the serial directive was removed. The final
+candidate passed focused lint and Dashboard typecheck.
+
+The notifier's existing `test.skip(condition, description)` declaration
+failed Dashboard typecheck under Vitest with TS2769. Restoring the original
+spec preserved the macOS skip and made the timeout repetitions unnecessary
+for the eligibility decision. See `slice3-candidate-typecheck.log` and
+`slice3-run.proof.json` in the execution evidence directory.
 
 ### 4. The group reports the moved cohort and its times
 
@@ -153,6 +165,15 @@ split by folder only to keep each within its active-time limit and to
 isolate a failing group. No remaining slice-specific concern was
 identified.
 
+The [landed CI attempt story](../../done/SEED-413_renovate-landed-ci-attempt-evidence.json)
+integrated at `0e22b4b58` before slice 3 was published. It had already moved
+`ci-proof-extraction.spec.ts`, `ci-time-without-adapter-runner-waits.spec.ts`,
+and `ci-time-without-runner-waits.spec.ts` to Vitest and revised their setup.
+The story-branch merge kept the exact landed versions. The focused runner
+passed all 23 cases under Vitest in `slice3-sibling-proofs.proof.json`.
+Those three files count toward the final cohort and the sibling owns their
+test revisions.
+
 ## Story obligations
 
 ### G1. Two Intent specs require assertion edits to satisfy lint on Vitest
@@ -172,6 +193,12 @@ Disposition: excluded "Cases, assertions, arrangement and the production entry s
 Reported: slice 2 — "`runner-ownership.spec.ts` exercises direct Playwright with `agent-launch-options-rules.spec.ts`. Rewriting it made the direct selection empty. Restoring it preserved the runner-ownership proof."
 Story clause: "Move, by one scripted rewrite, every Playwright-selected backend spec outside `usage-history/` that meets all of these at execution"
 Disposition: excluded "with only the engine import changed"
+
+### G4. The notifier's Playwright platform-skip overload does not typecheck on Vitest
+
+Reported: slice 3 — "Dashboard typecheck rejects `test.skip(condition, description)` in `notifier-setup.spec.ts` under Vitest with TS2769. The original Playwright spec passed all five macOS cases after restoration."
+Story clause: "its cases pass on Vitest under the default timeout with only the engine import changed."
+Disposition: excluded "Cases, assertions, arrangement and the production entry stay as they are."
 
 ## Verification and delivery
 
