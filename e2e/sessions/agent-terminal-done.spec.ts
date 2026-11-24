@@ -17,8 +17,11 @@
 // never reached.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
+  expectTerminalText,
   openTerminalControl,
+  openTerminalFromEntry,
   terminalPanel,
   terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
@@ -32,6 +35,7 @@ import {
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
@@ -68,8 +72,15 @@ test.describe("marking a session done from its terminal", () => {
     page,
     dashboard,
   }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryColumnsJourney(
+    const { sessionId, shortId } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: readyIdentity,
+        title: readyStory,
+      },
+    );
+    const { card, settled } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
@@ -82,15 +93,13 @@ test.describe("marking a session done from its terminal", () => {
     };
     await expectMembership(page, queued);
     await settled();
-    await launch(readyStory, "Execution");
     await expect(listed).toHaveAccessibleName(
       storyCardSessionName("Execution"),
     );
-    await openTerminalControl(listed).click();
-    await expect(terminalScreenParts(panel).rows).toContainText("attached");
+    await openTerminalFromEntry(listed);
+    await expectTerminalText(panel, `attached ${shortId}`);
     await expectSelected(story, true);
-    const [session] = dashboard.claudeListing();
-    const doneName = `done-${String(session?.["name"])}`;
+    const doneName = `done-Open Dough · Execution · ${readyStory}`;
     const { rows } = terminalScreenParts(panel);
     for (const answer of ["Keep open", "Escape"] as const) {
       const question = await expectAsked(panel, stillWorking);
@@ -108,7 +117,7 @@ test.describe("marking a session done from its terminal", () => {
       await expect(listed).toHaveCount(1);
     }
     const release = await holdDoneRequests(page);
-    idleBetweenSteps(dashboard, String(session?.["sessionId"]));
+    idleBetweenSteps(dashboard, sessionId);
 
     await sendDoneMarkAnyway(panel);
 

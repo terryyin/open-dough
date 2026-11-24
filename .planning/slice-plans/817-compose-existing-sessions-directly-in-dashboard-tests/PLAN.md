@@ -176,7 +176,7 @@ cases also passed after fixture reuse. See `slice4-return.md` and
 
 ### 5. Act on composed sessions from the terminal and on retired workspaces in E2E
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-terminal-delete`, `-done`, `-done-pending`, `-done-reopen`,
 `session-workspace-retirement-claude`, `-claude-done` and `-cursor` pass
 plainly and with the scratch wiring.
@@ -184,6 +184,8 @@ plainly and with the scratch wiring.
 A composed session opened in the page's terminal, or a composed record whose
 workspace is retired → Done, Delete record, reopen and the retired-workspace
 handling read as today.
+
+Slice 5 proof: 16 cases passed in each setup. See `slice5-return.md`.
 
 ### 6. Alert and toggle the sidebar over composed sessions in E2E
 Type: Behavior
@@ -226,7 +228,7 @@ does not affect this plan's sizing.
 ### G1. The terminal delete journey still starts a session on the board
 Reported: slice 1 — "The E2E terminal delete case keeps its direct Start precondition for this file's plan 817 receiving slice 5."
 Story clause: "Consumers whose observation starts after a session exists stop launching through the launch endpoint or Start."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: `slice5-return.md` records Delete through the terminal after two attaches to the same composed session, with zero launches, in both setups.
 
 ## Verification and delivery
 

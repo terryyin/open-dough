@@ -8,14 +8,16 @@
 import { markDoneUnresolved } from "../../dashboard/src/pageSessions.ts";
 import { markDoneWaitMs } from "../../dashboard/src/sessionRecordRequests.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
-  openTerminalControl,
+  expectTerminalText,
+  openTerminalFromEntry,
   terminalPanel,
-  terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
@@ -44,19 +46,24 @@ test.describe("pending Mark as done from the terminal", () => {
     dashboard,
   }) => {
     await page.clock.install();
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryColumnsJourney(
+    const { sessionId, shortId } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: readyIdentity,
+        title: readyStory,
+      },
+    );
+    const { card, settled } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
     const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     await settled();
-    await launch(readyStory, "Execution");
-    await openTerminalControl(listed).click();
-    await expect(terminalScreenParts(panel).rows).toContainText("attached");
-    const [session] = dashboard.claudeListing();
-    idleBetweenSteps(dashboard, String(session?.["sessionId"]));
+    await openTerminalFromEntry(listed);
+    await expectTerminalText(panel, `attached ${shortId}`);
+    idleBetweenSteps(dashboard, sessionId);
     const { release, held } = await holdDoneRequestRoute(page);
     await sendDoneMarkAnyway(panel);
     await expect(panel.getByRole("status")).toHaveText("Marking as done…");
