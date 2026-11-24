@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "sessionId": "c609a25e-3b63-4f03-b0f0-171bf051c193",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T23:41:33.793Z",
+  "story": "SEED-413#renovate-later-dashboard-backend-unit-test-families",
+  "ranges": [
+    {
+      "base": "f4bd0d8c5d57f22de27d721b8501b1c1c589a170",
+      "candidate": "6d1ea9be8941fd7862346841ba10f16313b33efe"
+    },
+    {
+      "base": "6d1ea9be8941fd7862346841ba10f16313b33efe",
+      "candidate": "05d3c39844908d23a08e009ef74720f5812b73ef"
+    },
+    {
+      "base": "05d3c39844908d23a08e009ef74720f5812b73ef",
+      "candidate": "74214c4aa33bd2268a0c92be803cdec4c7b99df9"
+    },
+    {
+      "base": "74214c4aa33bd2268a0c92be803cdec4c7b99df9",
+      "candidate": "e185acefc33e5f9decaf939c6b129cd7d2f31298"
+    },
+    {
+      "base": "e185acefc33e5f9decaf939c6b129cd7d2f31298",
+      "candidate": "1d3bf7f93072fd3d6c0cbfd26cd452d1edd28a6d"
+    }
+  ]
+}
