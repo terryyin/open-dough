@@ -1,156 +1,250 @@
-// Exact passed attempts retain their own unavailable proof and recover through
-// background collection, without reopening a final landing resolution.
-import path from "node:path";
-import {
-  collectedScopeHistory,
-  retainedHistory,
-} from "../../test-support/support/collectedScopeHistory.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import {
-  landedRecord,
-  minutesAgo,
-  restartAsLandedCiReader,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-import {
-  passedFrom,
-  publishedLanding,
-  trunkRun,
-} from "../../test-support/support/landedCiTrunk.ts";
-import {
-  serveCollectedTrunkRuns,
-  type CollectedTrunkProofs,
-} from "../../test-support/support/landedCiScopeProofs.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { collectedScopeFileSummary } from "../../test-support/support/scopeHistoryProofs.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { githubApi } from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { readCiAdapterProof } from "../../server/ciAdapterProof.ts";
+import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import { readIntentCiProof } from "../../server/intentCiProofRead.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { collectLandedCiPass } from "../../server/landedCiPass.ts";
+import { passRead } from "../../server/landedCiPassRead.ts";
+import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifacts.ts";
+import { archiveOf, listedArtifact } from "../support/ciProofMemory.ts";
 
-test.use({ serverMode: "boundary" });
-const readers: DashboardServer[] = [];
-test.afterEach(async () => {
-  await Promise.all(readers.splice(0).map((reader) => reader.close()));
+const source = makeMe.aPublishedSource.openDough.please();
+const scope = "dashboard/tests";
+const folder = `${scope}/intent`;
+const measuredFile = `${folder}/a.spec.ts`;
+const zeroFile = `${folder}/zero.spec.ts`;
+const otherFile = `${scope}/other/b.spec.ts`;
+const description = makeMe.aRepository
+  .withBaseBeforeEveryLaunch()
+  .withRevision("revision")
+  .please();
+
+async function anExactAttempt(firstListing: unknown) {
+  const checkout = await materializeLocalCheckout(undefined, description, {
+    gitTemplates: false,
+  });
+  const repository = checkout.integration;
+  vi.stubEnv("HOME", checkout.fixture);
+  onTestFinished(async () => {
+    vi.unstubAllEnvs();
+    await checkout.cleanup();
+  });
+
+  const landing = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing(checkout.revisions)
+    .please();
+  const { revision } = landing;
+  const run = makeMe.aCiRun
+    .with({
+      headSha: revision,
+      id: 91,
+      attempt: 2,
+      startedAt: "2026-11-09T00:00:00Z",
+      completedAt: "2026-11-09T00:00:01Z",
+    })
+    .please();
+  const subject = makeMe.aCiProofRun
+    .with({ runId: 91, runAttempt: 2, revision })
+    .please();
+  const key = "run/91/2";
+  const summary = proofSummaryForEntry(
+    {
+      repository: source.repository,
+      runId: subject.runId,
+      attempt: subject.runAttempt,
+      revision,
+    },
+    makeMe.aCiProofEntry
+      .at(scope)
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .brokenDown(
+            { path: measuredFile, passed: 1, durationMs: 1200 },
+            { path: zeroFile, passed: 1, durationMs: 0 },
+            { path: otherFile, passed: 1, durationMs: 600 },
+          )
+          .please(),
+        makeMe.aCiProofEvidence
+          .inUnit("file")
+          .brokenDown(
+            { path: measuredFile, passed: 1, durationMs: 80 },
+            { path: zeroFile, passed: 1, durationMs: 0 },
+            { path: otherFile, passed: 1, durationMs: 50 },
+          )
+          .please(),
+      )
+      .please(),
+  );
+  const gh = vi.fn(
+    githubApi(({ commit }: { commit?: string }) =>
+      commit === revision ? [run] : [],
+    ),
+  );
+  const list = vi
+    .fn<(args: readonly string[]) => Promise<unknown>>()
+    .mockResolvedValueOnce(firstListing)
+    .mockResolvedValue({ artifacts: [listedArtifact(subject, 910)] });
+  const archive = vi.fn().mockResolvedValue(archiveOf(summary));
+  const openCollector = () => {
+    const stopped = new AbortController();
+    const artifact = ciProofArtifactReader({ listing: list, archive });
+    onTestFinished(() => {
+      stopped.abort();
+    });
+    return {
+      close: () => {
+        stopped.abort();
+      },
+      pass: async (receipts: readonly (typeof landing)[]) => {
+        await collectLandedCiPass({
+          source,
+          receipts,
+          history: await keptLandedCiHistory(source.id),
+          repository,
+          stopped: stopped.signal,
+          read: passRead(source, repository, stopped.signal, {
+            providers: { github: gh },
+            readArtifact: artifact,
+          }),
+          readProof: (project, attempt, signal) =>
+            readIntentCiProof(project, attempt, signal, () => repository, {
+              artifact,
+              adapter: readCiAdapterProof,
+            }),
+        });
+      },
+    };
+  };
+  return { landing, key, gh, list, archive, openCollector };
+}
+
+test("the same collector retries a missing artifact for its exact attempt", async () => {
+  const { landing, key, list, openCollector } = await anExactAttempt({
+    artifacts: [],
+  });
+  const { revision, receivedAt } = landing;
+  const collector = openCollector();
+
+  await collector.pass([landing]);
+  expect((await keptLandedCiHistory(source.id)).builds[key]).toMatchObject({
+    proof: { kind: "unavailable", reason: "none" },
+    proofPending: true,
+  });
+
+  await collector.pass([landing]);
+  expect(
+    await performIntentCiHistoryRead(source, {
+      kind: "intent-ci-history",
+      scope,
+      revision,
+      through: receivedAt,
+    }),
+  ).toMatchObject({
+    kind: "answered",
+    answer: {
+      entries: [
+        {
+          kind: "point",
+          key,
+          readings: [
+            { kind: "point", unit: "case", ms: 1800 },
+            { kind: "point", unit: "file", ms: 130 },
+          ],
+        },
+      ],
+    },
+  });
+  expect(list).toHaveBeenCalledTimes(2);
 });
 
-for (const [initial, restart] of [
-  ["none", false],
-  ["unanswered", true],
-] as const) {
-  test(`an exact passed attempt resumes ${initial} proof ${restart ? "after collector restart" : "in the same collector"}`, async ({
-    origin,
-    github,
-    startServer,
-  }) => {
-    const home = path.join(origin.machine, "home");
-    const landing = await publishedLanding(origin, {
-      title: "recover-scope-proof",
-      receipt: "eeeeeeee-0000-4000-8000-000000000091",
-      at: minutesAgo(5),
-    });
-    const run = trunkRun(landing.revision, 91, passedFrom(landing.at, 1000));
-    const text = collectedScopeFileSummary(
-      {
-        repository: "terryyin/open-dough",
-        runId: 91,
-        attempt: 1,
-        revision: landing.revision,
-      },
-      [
-        ["intent/a.spec.ts", 1200, 80],
-        ["intent/zero.spec.ts", 0, 0],
-      ],
-    );
-    let proofs: CollectedTrunkProofs =
-      initial === "none" ? {} : { 91: { kind: "unanswered" } };
-    serveCollectedTrunkRuns(
-      github,
-      origin,
-      () => [run],
-      () => proofs,
-    );
-    keepLaunchRecords(home, [landedRecord(landing)]);
-    let server = await startServer();
-    await expect
-      .poll(() => retainedHistory(home)?.builds["run/91/1"]?.proof)
-      .toMatchObject({
-        kind: "unavailable",
-        reason: initial === "none" ? "none" : "unreadable",
-      });
-    const resolution =
-      retainedHistory(home)?.landings[landing.receipt]?.observed;
-    expect(resolution).toMatchObject({
-      kind: "build",
-      build: "run/91/1",
-      selection: "exact",
-    });
-    if (restart) await server.close();
-    proofs = { 91: { kind: "collected", artifactId: 910, text } };
-    if (restart) server = await startServer();
+test("an unanswered artifact listing recovers the exact attempt after collector restart", async () => {
+  const { landing, key, gh, list, archive, openCollector } =
+    await anExactAttempt({ artifacts: "unavailable" });
+  const { revision, receivedAt } = landing;
+  const original = openCollector();
+  await original.pass([landing]);
 
-    // This fails before retained unavailable proof is eligible for collection.
-    await expect
-      .poll(() => retainedHistory(home)?.builds["run/91/1"]?.proof?.kind)
-      .toBe("summary");
-    const history = retainedHistory(home);
-    expect(Object.keys(history?.builds ?? {})).toEqual(["run/91/1"]);
-    expect(history?.landings[landing.receipt]?.observed).toEqual(resolution);
-    expect(history?.builds["run/91/1"]?.proof).toMatchObject({
-      kind: "summary",
-      summary: {
-        schemaVersion: 2,
-        revision: landing.revision,
+  const gapRead = await performIntentCiHistoryRead(source, {
+    kind: "intent-ci-history",
+    scope,
+    revision,
+    through: receivedAt,
+  });
+  expect(gapRead).toMatchObject({
+    kind: "answered",
+    answer: {
+      entries: [
+        {
+          kind: "gap",
+          key,
+          reason: "Unreadable CI proof summary",
+          build: { revision, runId: 91, runAttempt: 2 },
+        },
+      ],
+    },
+  });
+  const initial = await keptLandedCiHistory(source.id);
+  expect(initial.builds[key]).toMatchObject({
+    proof: { kind: "unavailable", reason: "unreadable" },
+    proofPending: true,
+  });
+
+  // A new pass and proof reader resume from the same store with no live receipt.
+  original.close();
+  const reopened = openCollector();
+  await reopened.pass([]);
+
+  const recovered = await keptLandedCiHistory(source.id);
+  expect(Object.keys(recovered.builds)).toEqual([key]);
+  expect(recovered.landings[landing.receipt]?.observed).toEqual({
+    kind: "build",
+    build: key,
+    selection: "exact",
+  });
+  expect(recovered.builds[key]).toMatchObject({ proof: { kind: "summary" } });
+  const discoveryCount = gh.mock.calls.length;
+  for (const [path, caseMs, fileMs] of [
+    [scope, 1800, 130],
+    [folder, 1200, 80],
+    [measuredFile, 1200, 80],
+    [zeroFile, 0, 0],
+  ] as const) {
+    expect(
+      await performIntentCiHistoryRead(source, {
+        kind: "intent-ci-history",
+        scope: path,
+        revision,
+        through: receivedAt,
+      }),
+    ).toMatchObject({
+      kind: "answered",
+      answer: {
+        path,
         entries: [
           {
-            path: "dashboard/tests",
-            evidence: [
-              {
-                unit: "case",
-                durationMs: 1200,
-                files: [
-                  {
-                    path: "dashboard/tests/intent/a.spec.ts",
-                    durationMs: 1200,
-                  },
-                  {
-                    path: "dashboard/tests/intent/zero.spec.ts",
-                    durationMs: 0,
-                  },
-                ],
-              },
-              { unit: "file", durationMs: 80 },
+            kind: "point",
+            key,
+            selected: true,
+            readings: [
+              { kind: "point", unit: "case", ms: caseMs },
+              { kind: "point", unit: "file", ms: fileMs },
             ],
           },
         ],
       },
     });
-    const reader = await restartAsLandedCiReader(server, origin, "boundary");
-    readers.push(reader);
-    const asked = github.calls.length;
-    for (const [scope, caseMs, fileMs] of [
-      ["dashboard/tests", 1200, 80],
-      ["dashboard/tests/intent", 1200, 80],
-      ["dashboard/tests/intent/a.spec.ts", 1200, 80],
-      ["dashboard/tests/intent/zero.spec.ts", 0, 0],
-    ] as const) {
-      const reading = await collectedScopeHistory(
-        reader.origin,
-        scope,
-        landing.revision,
-        landing.at,
-      );
-      expect(reading.status).toBe(200);
-      expect(reading.body.entries).toHaveLength(1);
-      expect(reading.body.entries[0]).toMatchObject({
-        kind: "point",
-        key: "run/91/1",
-        selected: true,
-        readings: [
-          { kind: "point", unit: "case", ms: caseMs },
-          { kind: "point", unit: "file", ms: fileMs },
-        ],
-      });
-    }
-    expect(github.calls).toHaveLength(asked);
-  });
-}
+  }
+  expect(gh).toHaveBeenCalledTimes(discoveryCount);
+  expect(list).toHaveBeenCalledTimes(2);
+  expect(list.mock.calls.map(([args]) => args[1])).toEqual([
+    expect.stringContaining("/91/artifacts?name=ci-proof-summary-attempt-2"),
+    expect.stringContaining("/91/artifacts?name=ci-proof-summary-attempt-2"),
+  ]);
+  expect(archive).toHaveBeenCalledTimes(1);
+});

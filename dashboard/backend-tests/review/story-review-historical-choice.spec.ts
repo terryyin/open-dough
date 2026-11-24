@@ -1,81 +1,68 @@
-// Historical Intent bypasses a retained readable workspace, including when a
-// captured landing is unusable; explicit run selection keeps that run's gap.
+import path from "node:path";
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
-import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
-  storyReviewEndpoint,
-  storyReviewSchema,
-} from "../../src/storyReviewContract.ts";
-import { keepUnusableCompletedCapture } from "../../test-support/support/completedStoryVisibleActions.ts";
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { storyReview } from "../../server/storyReview.ts";
 import { ordinaryTrunkModeCompletedHistory } from "../../test-support/support/completedStoryHistory.ts";
-import { agentWorktree } from "../../test-support/support/agentAuthoredWorktree.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { storyALaunchRecord } from "../../test-support/support/storyLaunchRecord.ts";
 import {
-  completedReviewQuery,
-  getReview,
-} from "../../test-support/support/completedReviewRequests.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
+  branch,
+  git,
+  writeAt,
+} from "../../test-support/support/storyReviewWorktree.ts";
 
-test.use({
-  serverMode: "boundary",
-  originRepository: ordinaryTrunkModeCompletedHistory(),
-});
-
-test("historical review recovers published completion instead of a readable workspace when its capture is unusable", async ({
-  request,
-  dashboard,
-  origin,
+test("a Done story opens its published completion while its workspace has local edits", async ({
+  onTestFinished,
 }) => {
-  const completion = origin.revision("completion");
-  const baseline = origin.revision("interleaving");
-  const workspace = await agentWorktree(
-    origin,
-    agentIdentity("Yui").agent,
-    "retained",
-    completion,
+  const repository = await materializeRepository(
+    ordinaryTrunkModeCompletedHistory(),
   );
-  const local = makeMe.aRepository
-    .withRevision("local", {
-      backlog: null,
-      files: { "local-only.txt": "after completion\n" },
+  const { completion } = repository.revisions;
+  vi.stubEnv("HOME", repository.fixture);
+  const unmount = mountProjectConfiguration("development");
+  onTestFinished(async () => {
+    unmount();
+    vi.unstubAllEnvs();
+    await repository.cleanup();
+  });
+  const project = makeMe.aConfiguredProject
+    .with({
+      id: "open-dough",
+      label: "Open Dough",
+      repository: "terryyin/open-dough",
+      localPath: repository.integration,
     })
-    .please().revisions[0];
-  writeRevisionFiles(workspace, local);
-  keepUnusableCompletedCapture(dashboard, origin, {
+    .please();
+  appendConfiguredProject(project);
+  const workspace = path.join(repository.fixture, "retained");
+  git(
+    repository.integration,
+    "worktree",
+    "add",
+    "--quiet",
+    "-b",
+    branch,
     workspace,
     completion,
-    baseline,
-  });
-  const ordinary = storyReviewSchema.parse(
-    await (
-      await getReview(
-        request,
-        dashboard,
-        storyReviewEndpoint,
-        completedReviewQuery,
-      )
-    ).json(),
   );
-  expect(ordinary.kind).toBe("snapshot");
-  expect(ordinary.selectedRun).toBeUndefined();
-  const historical = { ...completedReviewQuery, historical: "true" };
-  const review = storyReviewSchema.parse(
-    await (
-      await getReview(request, dashboard, storyReviewEndpoint, historical)
-    ).json(),
+  writeAt(workspace, "local-only.txt", "after completion\n");
+  keepLaunchRecords(repository.fixture, [storyALaunchRecord(workspace)]);
+
+  const review = await storyReview(
+    {
+      read: {
+        subject: { source: project.id, identity: queuedIdentity },
+        completed: true,
+      },
+    },
+    new AbortController().signal,
   );
-  expect(review).toMatchObject({
-    kind: "published",
-    completion,
-  });
-  expect(review.selectedRun).toBeUndefined();
-  expect(review.runs).toHaveLength(1);
-  const explicit = await getReview(request, dashboard, storyReviewEndpoint, {
-    ...historical,
-    run: review.runs?.[0]?.key ?? "",
-  });
-  expect(await explicit.json()).toMatchObject({
-    kind: "landing-unavailable",
-    explanation: "The captured landing repository is missing or unreadable.",
-  });
+
+  expect(review).toMatchObject({ kind: "published", completion });
 });

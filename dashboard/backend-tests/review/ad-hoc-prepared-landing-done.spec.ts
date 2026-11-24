@@ -17,7 +17,6 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
   const branch = "prepared-draft";
   const {
     checkout,
-    baseTree: entryTree,
     worktrees,
     work: { draft: revision },
     records: { "default-launch": record },
@@ -35,8 +34,7 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
       "default-launch",
       { launched: 60 },
       branch,
-      ({ baseTree, checkout }) => ({
-        tree: baseTree,
+      ({ checkout }) => ({
         trunkRevision: checkout.base,
         reference: submissionReference,
       }),
@@ -59,7 +57,7 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
   const saved = await keptSession(source, record.session);
   expect(saved).toMatchObject({
     doneAt,
-    branchResult: { base: entryTree, revision },
+    branchResult: { committedTip: revision },
     landingReporting: {
       preparations: [
         {

@@ -163,9 +163,11 @@ export class IntentReviewFiles {
     );
   }
 
-  async choose(file: string, using: "mouse" | "keyboard" = "mouse") {
+  async choose(file: string, using: "mouse" | "keyboard" | "touch" = "mouse") {
     const control = intentFile(this.#intent, file);
-    await (using === "keyboard" ? control.press("Enter") : control.click());
+    if (using === "touch") await control.tap();
+    else
+      await (using === "keyboard" ? control.press("Enter") : control.click());
     return this;
   }
 }

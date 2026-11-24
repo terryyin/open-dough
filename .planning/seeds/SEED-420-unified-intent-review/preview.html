@@ -57,14 +57,14 @@
 <div class="toolbar" aria-label="Review toolbar">
 <button class="iconbtn" type="button" data-key="files" aria-label="Hide files" data-tooltip="Files"><i data-lucide="panel-left" aria-hidden="true"></i><span data-fallback>☰</span></button>
 <details data-key="sessions"><summary data-key="session-title">Sessions · All ▾</summary><div class="menu" data-key="session-list"></div></details>
-<label class="inline" data-key="source-wrap">Compare <select data-key="source"><option value="all">All changes</option><option value="landed">Landed runs</option></select></label>
+<label class="inline" data-key="source-wrap">Compare <select data-key="source"><option value="all">Published changes</option><option value="landed">Landed runs</option></select></label>
 <label class="inline" data-key="merges-wrap"><input type="checkbox" data-key="merges">Include merged changes</label>
 </div>
 <div class="layout" data-key="layout"><nav data-key="sidebar" aria-label="Files">
 <div class="filters"><button class="iconbtn" type="button" data-key="home" aria-label="Overview" data-tooltip="Overview"><i data-lucide="house" aria-hidden="true"></i><span data-fallback>⌂</span></button><label><input data-key="intent" type="checkbox"> Intent only</label><label><input data-key="changes" type="checkbox" checked> Changes only</label></div>
 <div data-key="tree"></div>
 </nav><main aria-live="polite"><small data-key="context"></small><h3 data-key="title"></h3><div class="tabs"><button type="button" data-key="source-tab"></button><button type="button" data-key="proof-tab">Proof</button></div><p data-key="intro"></p><p class="value" data-key="result"></p><p class="rev" data-key="basis"></p></main></div>
-<footer><small>Design example · session and run selections are illustrative.</small></footer>
+<footer><small>Design example · sessions use published ranges and accepted landing pairs.</small></footer>
 </section>
 <script>
 (() => {
@@ -147,7 +147,7 @@ function render(){
  const storyWhole=!project&&selected===null&&mode==="all";
  const focused=!project&&(!storyWhole||Object.keys(chosenRuns).length>0);
  const home=place==="home", proof=read==="proof";
- put("context",project?"Project snapshot · main at daf6997":labels[scope]+" · "+(mode==="landed"?"Landed runs":"All changes")+" · "+(merged?"Includes merges":"Selected contribution"));
+ put("context",project?"Published project · main at daf6997":labels[scope]+" · "+(mode==="landed"?"Landed runs":"Published changes")+" · "+(merged?"Includes merged changes":"Published contribution"));
  put("title",home?(project?"Project overview":"Story overview"):files[place][1]);
  el("source-tab").textContent=home?(project?"Project":"Changes"):(project||!inScope.has(place)?"Source":"Diff");
  el("source-tab").setAttribute("aria-pressed",String(!proof));el("proof-tab").setAttribute("aria-pressed",String(proof));
@@ -157,7 +157,7 @@ function render(){
   else if(focused){intro=chosen.map(s=>s[1]+(mode==="landed"?" · "+runsOf(s).map(i=>s[3][i]).join(", "):"")).join(" / ");result=chosen.length?"No matching CI pair for this selection":"No landed run for the selected sessions";basis="A session choice can cover several separate comparisons.";}
   else{intro="CI comparison";result=merged?"Observed builds include other work landed during the story.":"Completion proof is available. The story-only baseline has no measured run.";basis=(merged?"Observed baseline 8ecbf43 → ":"Completion build · ")+storyEnd;}
  } else if(home){intro=project?"Browse the project at the displayed revision.":chosen.map(s=>s[1]).join(" / ");result=project?"Purpose and supporting tests":[...inScope].length+" changed files in this excerpt";basis=mode==="landed"?chosen.flatMap(s=>runsOf(s).map(i=>s[3][i])).join(" · "):"";}
- else if(!proof){intro=files[place][3];result=project?"Source at the project snapshot":inScope.has(place)?"Changed in the selected comparison":"Source at the selected revision";basis=focused?"Illustrative session selection":storyEnd;}
+ else if(!proof){intro=files[place][3];result=project?"Source at the published project revision":inScope.has(place)?"Changed in the selected comparison":"Source at the selected revision";basis=focused?"Illustrative session selection":storyEnd;}
  else if(!files[place][2]){intro="CI reports outcomes by test file.";result="No direct file result";}
  else if(focused){intro="Selected sessions · "+chosen.map(s=>s[1]).join(" / ");result="No matching CI pair for this selection";}
  else if(place==="other"&&merged&&!project){result="1 → 9 test cases (+8)";basis="Observed builds · 8ecbf43 → "+storyEnd;}

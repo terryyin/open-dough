@@ -30,11 +30,11 @@ const anOpenDraft = aDoneCaptureCase()
     { in: branch },
   );
 
-test("an open launch proposes its draft's working tree, Execution checkout tip and trunk", async () => {
+test("an open launch proposes its registered draft, committed tip and trunk", async () => {
   const {
     worktrees: { [branch]: workspace },
     records: { first: record },
-    work: { onMain, entered },
+    work: { entered },
   } = await anOpenDraft.please();
 
   const { kept, entry } = await proposeBranchEntry(trunkRef, record, {
@@ -48,13 +48,9 @@ test("an open launch proposes its draft's working tree, Execution checkout tip a
     workspace,
     branch,
     committedTip: entered,
-    defaultTip: onMain,
     trunk: { remote: "origin", target: trunkRef },
   });
-  const files = await git(workspace, "ls-tree", "--name-only", entry.tree);
-  expect(files.stdout.split("\n")).toEqual(
-    expect.arrayContaining(["dirty.txt", "entered.txt"]),
-  );
+  expect(entry).not.toHaveProperty("tree");
 });
 
 test("a proposal refuses a foreign clone, a wrong branch and a second place", async () => {

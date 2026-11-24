@@ -111,7 +111,6 @@ export async function mountProjectVisit() {
   };
   const review: ReviewSource = {
     review: () => Promise.resolve(storyReview),
-    range: () => Promise.reject(new Error("Unexpected review range")),
     fileDiff: (query) => {
       if (query.path === deepPath) return Promise.resolve(longDiff);
       if (query.path === candidatePath)

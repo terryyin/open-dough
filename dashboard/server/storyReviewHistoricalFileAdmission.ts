@@ -7,6 +7,7 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ReviewedPairFile } from "../src/reviewedFileRead.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
+import type { StoryReview } from "../src/storyReviewContract.ts";
 import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { executionCheckout } from "./executionCheckout.ts";
@@ -19,11 +20,12 @@ import {
   type LandingReviewSource,
 } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
+import { recordedLandingReview } from "./storyReviewPublishedLanding.ts";
 
 export type HistoricalReviewedFileFields = ReviewedPairFile;
 
 // One admitted comparison identity for printed diff or revision file text,
-// covering workspace, historical, and kept-session file reads.
+// covering historical and kept-session file reads.
 export interface AdmittedReviewedFile extends HistoricalReviewedFileFields {
   readonly repository: string;
 }
@@ -62,6 +64,20 @@ function belongsOnPublished(
     (file) =>
       matchesHistoricalPath(file, fields) &&
       (file.includesTrunkFrom ?? reviewBaseline) === fields.baseline,
+  );
+}
+
+export function belongsOnPublishedStory(
+  review: Extract<StoryReview, { kind: "published" | "published-taken" }>,
+  file: HistoricalReviewedFileFields,
+): boolean {
+  const { withMerged } = review;
+  return (
+    file.tree === review.tree &&
+    (belongsOnPublished(review.files, review.baseline, file) ||
+      (withMerged !== undefined &&
+        file.baseline === withMerged.from &&
+        belongsOnRetainedPair(withMerged.files, file)))
   );
 }
 
@@ -113,13 +129,10 @@ async function admitPublishedCompletion(
         ? review.explanation
         : "Published comparison unavailable.",
     );
-  const withMerged = review.withMerged;
-  const listed =
-    belongsOnPublished(review.files, review.baseline, file) ||
-    (withMerged !== undefined &&
-      file.baseline === withMerged.from &&
-      belongsOnRetainedPair(withMerged.files, file));
-  if (completion !== review.completion || file.tree !== review.tree || !listed)
+  if (
+    completion !== review.completion ||
+    !belongsOnPublishedStory(review, file)
+  )
     throw new RefusedRequest(
       409,
       "The file or comparison does not belong to this published completion.",
@@ -127,30 +140,37 @@ async function admitPublishedCompletion(
   return { repository: executionCheckout(source).path, ...file };
 }
 
-// Admit a file against a landed run's exact retained pair and file list.
-export async function admitLandedRun(
-  run: LandingReviewSource,
+function requireLandingFile(
+  review: Extract<StoryReview, { kind: "landed" }>,
   file: HistoricalReviewedFileFields,
-  signal?: AbortSignal,
-): Promise<AdmittedReviewedFile> {
-  const review = await landedStoryReview(run, admissionBound(signal));
-  throwIfRequestAborted(signal);
-  const landing = run.record.landing;
-  if (review.kind !== "landed" || landing === undefined)
-    throw new RefusedRequest(
-      409,
-      review.kind === "landing-unavailable"
-        ? review.explanation
-        : "The captured comparison is unavailable.",
-    );
+): void {
   if (
     file.baseline !== review.baseline ||
     file.tree !== review.tree ||
     !belongsOnRetainedPair(review.files, file)
   )
     throw notOnCapturedRun();
+}
+
+// Admit a file against a landed run's exact retained pair and file list.
+export async function admitLandedRun(
+  run: LandingReviewSource,
+  file: HistoricalReviewedFileFields,
+  signal: AbortSignal | undefined,
+  source: PublishedSource,
+): Promise<AdmittedReviewedFile> {
+  const review = await landedStoryReview(run, admissionBound(signal), source);
+  throwIfRequestAborted(signal);
+  if (review.kind !== "landed")
+    throw new RefusedRequest(
+      409,
+      review.kind === "landing-unavailable"
+        ? review.explanation
+        : "The captured comparison is unavailable.",
+    );
+  requireLandingFile(review, file);
   return {
-    repository: landing.repository,
+    repository: executionCheckout(source).path,
     ...file,
   };
 }
@@ -175,10 +195,24 @@ export async function admitHistoricalReviewedFile(
       file,
       signal,
     );
+  const recorded = await recordedLandingReview(
+    source,
+    named.identity,
+    named.reference,
+    admissionBound(signal),
+  );
+  throwIfRequestAborted(signal);
+  if (recorded !== undefined) {
+    if (recorded.kind === "landing-unavailable")
+      throw new RefusedRequest(409, recorded.explanation);
+    requireLandingFile(recorded, file);
+    return { repository: executionCheckout(source).path, ...file };
+  }
   const { runs } = await reviewedLandedRuns(source, named.identity);
   return admitLandedRun(
     reviewedLandedRunByReference(runs, named.reference),
     file,
     signal,
+    source,
   );
 }

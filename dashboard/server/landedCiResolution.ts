@@ -1,5 +1,5 @@
 // What one recorded trunk landing resolves to now, as landed CI collection
-// (`./landedCiCollection.ts`) asks in each pass: the CI timing comparison's
+// (`./landedCiPass.ts`) asks in each pass: the CI timing comparison's
 // Landed rule (`lookupResultBuild` with `storyBranchLandedExactLookup`,
 // `./baseCiRevisionLookup.ts`) over the project's own CI read
 // (`./intentCiComparisonSlots.ts`) -- the execution checkout's Git with its
@@ -13,26 +13,19 @@
 // unanswered, and, for a bounded wait, while the Landed rule found no build
 // for it that CI may still make.
 
-import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { newestRunFor, type ListedRun } from "./baseCiNearest.ts";
+import { newestRunFor } from "./baseCiNearest.ts";
 import {
   lookupResultBuild,
   type RevisionBuildSlot,
 } from "./baseCiRevisionLookup.ts";
-import type {
-  RevisionCiBuild,
-  RevisionCiLookup,
-} from "./baseCiRevisionNearest.ts";
+import type { RevisionCiBuild } from "./baseCiRevisionNearest.ts";
 import {
   baselineAncestorLimit,
   storyBranchLandedExactLookup,
 } from "./exactSkippedEquivalent.ts";
-import {
-  comparisonBuildSource,
-  type ComparisonBuildSource,
-} from "./comparisonBuildSource.ts";
-import { lookupContext, workflowOf } from "./intentCiComparisonSlots.ts";
+import type { ComparisonBuildSource } from "./comparisonBuildSource.ts";
+import type { PassRead } from "./landedCiPassRead.ts";
 import type { LandingReference } from "./landedCiHistoryStore.ts";
 import {
   keptRunOf,
@@ -45,63 +38,6 @@ import {
   nearestAncestorBuild,
   type FinalSlot,
 } from "./revisionBuildSlot.ts";
-
-// One project's CI as a pass reads it: the Landed rule's lookup over the
-// project's own CI read, with each revision's runs listed once in the pass,
-// or that the CI could not be read.
-type PassRead =
-  | { readonly kind: "unread" }
-  | {
-      readonly kind: "read";
-      readonly builds: ComparisonBuildSource;
-    };
-
-// The lookup with each revision's runs listed once.
-function listingOnce(lookup: RevisionCiLookup): RevisionCiLookup {
-  const listed = new Map<string, Promise<readonly ListedRun[]>>();
-  return {
-    ...lookup,
-    listRunsAt: (sha) => {
-      const known = listed.get(sha);
-      if (known !== undefined) return known;
-      const runs = lookup.listRunsAt(sha);
-      listed.set(sha, runs);
-      return runs;
-    },
-  };
-}
-
-// The project's CI read for one pass, made when first asked for, so a pass
-// that resolves no landing of the project asks its CI nothing.
-export function passRead(
-  source: PublishedSource,
-  stopped: AbortSignal,
-): () => Promise<PassRead> {
-  let made: Promise<PassRead> | undefined;
-  const make = async (): Promise<PassRead> => {
-    const signal = AbortSignal.any([
-      stopped,
-      AbortSignal.timeout(readWaitLimitMs),
-    ]);
-    const context = await lookupContext(source, signal, undefined);
-    if ("unavailable" in context) return { kind: "unread" };
-    const { call, lookupOrGap } = context;
-    if ("state" in lookupOrGap) return { kind: "unread" };
-    return {
-      kind: "read",
-      builds: comparisonBuildSource(
-        listingOnce(lookupOrGap),
-        call,
-        workflowOf(call),
-        { repository: source.repository, signal },
-      ),
-    };
-  };
-  return () => {
-    made ??= make();
-    return made;
-  };
-}
 
 const unread: PendingResolution = { kind: "pending", waitsFor: "read" };
 

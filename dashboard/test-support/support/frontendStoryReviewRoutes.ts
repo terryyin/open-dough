@@ -4,7 +4,6 @@ import type { Page } from "@playwright/test";
 import {
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
-  reviewRangeSchema,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 import type { ReviewBuckets } from "./frontendStoryReviewAnswers.ts";
@@ -14,12 +13,7 @@ import {
 } from "./frontendStoryReviewRule.ts";
 import { answerHeld, fulfillJson } from "./frontendSubstituteAnswers.ts";
 
-export {
-  reviewedFileDiffSchema,
-  reviewedFileTextSchema,
-  reviewRangeSchema,
-  storyReviewSchema,
-};
+export { reviewedFileDiffSchema, reviewedFileTextSchema, storyReviewSchema };
 
 export async function installReviewRoutes(page: Page, state: ReviewBuckets) {
   await page.route(

@@ -67,7 +67,7 @@ export async function mountWidthReview(
   backlog: readonly WorkEntry[] = [],
 ) {
   const comparison = makeMe.aStoryReview
-    .sessionCommits()
+    .publishedSession()
     .adding("story.txt")
     .modifying("unstaged.txt")
     .please();

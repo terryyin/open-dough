@@ -11,9 +11,8 @@ import {
   selectedComparisonOf,
 } from "./intentCiEvidenceModel.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
-import { ComparedRange, type StoryCompare } from "./IntentStoryCompare.tsx";
+import type { StoryCompare } from "./IntentStoryCompare.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
-import { EmptyWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
 import {
   ComparedContext,
   EmptyHistoricalContext,
@@ -32,9 +31,7 @@ export type LensComparison =
   | {
       readonly state: "unavailable";
       readonly explanation?: string;
-      readonly ambiguousWorktrees?: true;
       readonly unavailableLanding?: true;
-      readonly workspace?: string;
       readonly compare?: StoryCompare | undefined;
     }
   | {
@@ -104,14 +101,13 @@ export function WholeStoryNote({
 }
 
 const unavailableWords =
-  "No comparison is available for this story: no workspace on this machine holds it.";
+  "No comparison is available for this story: no published changes are recorded.";
 
 export const hasUnavailableComparisonSource = (
   comparison: LensComparison | undefined,
 ) =>
   (comparison?.state === "unavailable" &&
-    (comparison.ambiguousWorktrees === true ||
-      comparison.unavailableLanding === true)) ||
+    comparison.unavailableLanding === true) ||
   ((comparison?.state === "unreadable" || comparison?.state === "failed") &&
     comparison.compare?.shown === "landed");
 
@@ -167,7 +163,6 @@ export function CompactComparisonState({
     <RefreshedComparison
       review={comparison.review}
       count={comparison.shown.comparison.files.length}
-      commitsReview={comparison.compare?.shown === "commits"}
     />
   ) : null;
 }
@@ -185,12 +180,6 @@ export function ComparisonDetail({
     return (
       <p className="intent-story-problem">
         {comparison.explanation ?? unavailableWords}
-        {comparison.workspace !== undefined && (
-          <>
-            {" "}
-            Worktree <code>{comparison.workspace}</code>.
-          </>
-        )}
         {!hasUnavailableComparisonSource(comparison) &&
           (completed
             ? " The story's historical test source is unavailable."
@@ -210,9 +199,6 @@ export function ComparisonDetail({
   if (comparison.state === "unreadable")
     return (
       <>
-        {comparison.compare.shown === "commits" && (
-          <ComparedRange compare={comparison.compare} />
-        )}
         <p className="intent-story-problem">
           {comparison.unreadable.explanation}
           {!hasUnavailableComparisonSource(comparison) &&
@@ -220,29 +206,13 @@ export function ComparisonDetail({
         </p>
       </>
     );
-  const { compare, review, shown } = comparison;
-  const commitsReview = compare?.shown === "commits";
+  const { review, shown } = comparison;
   return (
     <>
-      {commitsReview ? (
-        <ComparedRange compare={compare} shown={shown} />
-      ) : (
-        <ComparedContext
-          shown={shown}
-          review={review}
-          uncommittedLeftOut={compare?.includeUncommitted === false}
-        />
+      <ComparedContext shown={shown} review={review} />
+      {shown.comparison.files.length === 0 && (
+        <EmptyHistoricalContext review={review} />
       )}
-      {shown.comparison.files.length === 0 &&
-        (review?.kind === "snapshot" ? (
-          <EmptyWorkspaceComparison
-            snapshot={review}
-            commitsReview={commitsReview}
-            committedOnly={compare?.includeUncommitted === false}
-          />
-        ) : (
-          <EmptyHistoricalContext review={review} />
-        ))}
     </>
   );
 }

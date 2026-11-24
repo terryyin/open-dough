@@ -60,7 +60,7 @@ to each family. For example, the Recently done paging view should render
 from its typed page data and paging actions without setting up host discovery.
 
 Refresh the Recently done review roster after
-[Review published changes](SEED-427-review-published-changes.md#review-published-changes),
+[Review published changes](https://github.com/terryyin/open-dough/blob/d0489607774ee6a3dd2c69b3fd5e0409288e68ab/.planning/seeds/SEED-427-review-published-changes.md#review-published-changes),
 then simplify the surviving review proof alongside the other session cases.
 
 Use the [Project Intent revision family](SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)

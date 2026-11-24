@@ -23,7 +23,7 @@ import {
   nestedRepository,
   storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { keepPublishedStoryReview } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 // The nested worktree's files in the browser's order.
 const nestedOrder = [
@@ -43,14 +43,17 @@ async function expectSelected(review: IntentReviewChanges, name: string) {
 }
 
 test.describe("from nested changes", () => {
-  test.use({ originRepository: nestedRepository });
+  test.use({
+    originRepository: nestedRepository,
+    viewport: { width: 1280, height: 900 },
+  });
   test("Previous file and Next file move through the browser's order", async ({
     page,
     dashboard,
     origin,
   }) => {
     const { workspace } = storyWorktree(origin);
-    keepLaunchRecord(dashboard, workspace);
+    keepPublishedStoryReview(dashboard, origin, workspace);
     const card = await openBacklog(page, origin);
     const review = await openIntentReviewChanges(page, card);
     const { files } = review;
@@ -127,7 +130,7 @@ test.describe("from a large comparison", () => {
     origin,
   }) => {
     const { workspace } = storyWorktree(origin);
-    keepLaunchRecord(dashboard, workspace);
+    keepPublishedStoryReview(dashboard, origin, workspace);
     const review = await openIntentReviewChanges(
       page,
       await openBacklog(page, origin),

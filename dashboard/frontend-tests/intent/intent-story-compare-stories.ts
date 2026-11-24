@@ -23,7 +23,6 @@ import {
 type ReviewAnswers = Pick<ReviewSource, "review"> & Partial<ReviewSource>;
 
 const answering = (answers: ReviewAnswers): ReviewSource => ({
-  range: unanswered,
   fileDiff: unanswered,
   fileText: unanswered,
   ...answers,

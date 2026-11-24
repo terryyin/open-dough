@@ -1,14 +1,8 @@
 // Session review progress, refresh and failures, beside the shared unread explanations.
 import { RefreshedHistoricalComparison } from "./StoryReviewHistoricalOutcome.tsx";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
-import {
-  type ReviewRange,
-  type StoryReview,
-  type TakenStoryReview,
-} from "./storyReviewContract.ts";
+import type { StoryReview } from "./storyReviewContract.ts";
 import type { ReviewReadState } from "./useReviewRead.ts";
-
-type RangeRead = ReviewReadState<ReviewRange>;
 
 // Why a settled read holds no comparison, as this region says it: a failed
 // read, which reading again may mend, or an answer explaining what is missing.
@@ -32,35 +26,6 @@ export function unreadReview(
     : undefined;
 }
 
-// What a settled read of the chosen commits leaves unread.
-export function unreadRange(range: RangeRead): UnreadComparison | undefined {
-  if (range.reading) return undefined;
-  if (range.problem !== undefined)
-    return {
-      failed: true,
-      explanation: `The chosen commits could not be read: ${range.problem}`,
-    };
-  return range.answer?.kind === "unavailable"
-    ? { failed: false, explanation: range.answer.explanation }
-    : undefined;
-}
-
-export function KeptPublishedCommits({
-  snapshot,
-}: {
-  readonly snapshot: TakenStoryReview | undefined;
-}) {
-  const published = snapshot?.published;
-  if (published?.kept === undefined) return null;
-  return (
-    <p>
-      This machine&apos;s Git cannot take the story&apos;s {published.commits}{" "}
-      published {published.commits === 1 ? "commit" : "commits"} out of trunk,
-      so All changes shows only what is not yet published.
-    </p>
-  );
-}
-
 export function ReviewFeedback({
   review,
   reading,
@@ -74,10 +39,7 @@ export function ReviewFeedback({
 }) {
   // A review already showing changes stays shown while it is read again.
   const showsChanges =
-    review?.kind === "landed" ||
-    review?.kind === "session-commits" ||
-    review?.kind === "published-session" ||
-    review?.kind === "branch-result";
+    review?.kind === "landed" || review?.kind === "published-session";
   return (
     <div role="status">
       {reading && !showsChanges && <p>Reading the story&apos;s changes…</p>}
@@ -93,26 +55,13 @@ export function ReviewFeedback({
           count={review.files.length}
         />
       )}
-      {!reading && round > 0 && review?.kind === "session-commits" && (
-        <p>
-          Review refreshed: {changedFiles(review.files.length)} in the kept
-          session commits.
-        </p>
-      )}
       {!reading && round > 0 && review?.kind === "published-session" && (
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the published
           changes.
         </p>
       )}
-      {!reading && round > 0 && review?.kind === "branch-result" && (
-        <p>
-          Review refreshed: {changedFiles(review.files.length)} in the branch
-          result at Done.
-        </p>
-      )}
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
-      {review?.deliveryGap !== undefined && <p>{review.deliveryGap}</p>}
       {problem !== undefined && <p>{reviewReadFailure(problem)}</p>}
       {review?.kind === "unavailable" && <p>{review.explanation}</p>}
     </div>

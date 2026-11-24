@@ -31,13 +31,10 @@ test("a long story title shows once in full above the story's views, whichever i
   await expect
     .element(story.header.getByText("SEED-A#a", { exact: true }))
     .toBeVisible();
-  if (comparison.kind !== "snapshot")
-    throw new Error("Expected a worktree comparison");
-  await expect
-    .element(story.workspaceContext)
-    .toHaveAccessibleName(
-      `Branch ${comparison.branch} Baseline ${comparison.baseline} where ${comparison.branch} meets origin/main Worktree ${comparison.workspace}`,
-    );
+  if (comparison.kind !== "published-taken")
+    throw new Error("Expected a published Taken comparison");
+  await expect.poll(story.revisions).toContain("Published story branch");
+  await expect.poll(story.revisions).toContain(comparison.baseline);
 
   for (const view of ["CI comparison", "Intent coverage", "Changes"] as const) {
     await story.chooseTab(view);

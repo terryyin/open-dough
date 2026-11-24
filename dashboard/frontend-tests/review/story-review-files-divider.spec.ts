@@ -18,7 +18,7 @@ import {
 const oneFile = reviewSourceAnswering({
   review: () =>
     Promise.resolve(
-      makeMe.aStoryReview.sessionCommits().adding("first.txt").please(),
+      makeMe.aStoryReview.publishedSession().adding("first.txt").please(),
     ),
   fileDiff: () =>
     Promise.resolve(

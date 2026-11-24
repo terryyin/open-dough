@@ -5,7 +5,7 @@
 // location stays plain.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { storyReviewIds } from "../../../Distribution/tests/support/storyReviewSnapshotTestData.mjs";
+import { storyReviewIds } from "../../../Distribution/tests/support/storyReviewCompletedTestData.mjs";
 import { syntaxHintOfRepositoryPath } from "../../src/intentSelectionCoverage.ts";
 import { reviewIntentSettingsRevision } from "../../src/reviewDiffSyntaxHint.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
@@ -21,16 +21,14 @@ const shellLocation = makeMe.anIntentLocation
   .selecting(hintedPath, "scripts/setup-renamed.test")
   .please();
 
-test("a live review reads Intent settings at its snapshot tree, and a published Done review at its completion", () => {
-  const tree = "1111111111111111111111111111111111111111";
+test("a live review reads Intent settings at its published head, and a published Done review at its completion", () => {
   const completion = "2222222222222222222222222222222222222222";
-  expect(reviewIntentSettingsRevision(makeMe.aStoryReview.please(), tree)).toBe(
-    tree,
+  expect(reviewIntentSettingsRevision(makeMe.aStoryReview.please())).toBe(
+    storyReviewIds.head,
   );
   expect(
     reviewIntentSettingsRevision(
       makeMe.aStoryReview.published(completion).please(),
-      storyReviewIds.tree,
     ),
   ).toBe(completion);
 });

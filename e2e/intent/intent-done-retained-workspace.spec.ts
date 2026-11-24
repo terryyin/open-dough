@@ -146,7 +146,7 @@ test("a readable Done workspace cannot replace published locations, inventory, u
   await expectReviewed(card, true);
   const review = await openIntentReviewChanges(page, card);
   expect(review.answer).toMatchObject({ kind: "published", completion });
-  await review.comparison.expectChosen("Published completion");
+  await review.comparison.expectNoSwitch();
   await expandIntentGroup(intent, "dashboard/tests");
   const openedFromCard = await intentDiff(intent, modified);
   expect(openedFromCard).toBe(original);

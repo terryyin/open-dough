@@ -7,8 +7,6 @@
 import { diffHeading } from "../../dashboard/test-support/support/reviewPanes.ts";
 
 import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
-import { mkdirSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import {
   expect,
   test,
@@ -19,7 +17,7 @@ import {
   nestedRepository,
   storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { keepPublishedStoryReview } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test.use({ originRepository: nestedRepository });
 
@@ -29,7 +27,7 @@ test("a story's review folders collapse and expand", async ({
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  keepLaunchRecord(dashboard, workspace);
+  keepPublishedStoryReview(dashboard, origin, workspace);
   const card = await openBacklog(page, origin);
   const review = await openIntentReviewChanges(page, card);
   const { files, diffs } = review;
@@ -111,10 +109,8 @@ test("a story's review folders collapse and expand", async ({
     );
   });
 
-  await test.step("Refresh keeps the collapsed folder and adds the new folder", async () => {
+  await test.step("Refresh keeps the collapsed folder in the published pair", async () => {
     await files.folder("server").click();
-    mkdirSync(path.join(workspace, "scripts"));
-    writeFileSync(path.join(workspace, "scripts", "x.mjs"), "x\n");
     await review.refresh();
     await files.expectOutsideRows([
       "dashboard",
@@ -126,15 +122,12 @@ test("a story's review folders collapse and expand", async ({
       "  0009-tree.md",
       "new",
       "  a.ts",
-      "scripts 1 file",
       "README.md",
     ]);
     await expect(files.folder("server")).toHaveAttribute(
       "aria-expanded",
       "false",
     );
-    await files.folder("scripts").press("Enter");
-    await expect(files.row("Added scripts/x.mjs")).toBeVisible();
   });
 
   await test.step("returning to Intent restores the kept expansion and diff", async () => {
@@ -144,7 +137,6 @@ test("a story's review folders collapse and expand", async ({
       "aria-expanded",
       "false",
     );
-    await expect(reopened.files.row("Added scripts/x.mjs")).toBeVisible();
     await reopened.files.expectSelected("Modified dashboard/src/b.ts");
     await reopened.diffs.expectShows("Modified dashboard/src/b.ts", "+more");
   });

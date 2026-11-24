@@ -1,8 +1,4 @@
-// Story A's Trunk Mode review setup (own-changes, flagged, older-git specs)
-// off a real bare origin (./startOrigin.ts): declared published attribution
-// via `trunkModeStory`, rewrite-after-open via `publishRewrittenLine`, and
-// the kept launch record (./storyLaunchRecord.ts). Claim-only and
-// multi-workspace ambiguity live in ./storyReviewTrunkAmbiguity.ts.
+// Story A's published Trunk changes, mixed attribution, and dirty writer fixture.
 
 import type { Page } from "@playwright/test";
 import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
@@ -16,14 +12,8 @@ import {
   byYui,
   trunkModeClaimBuilder,
 } from "./storyReviewTrunkAmbiguity.ts";
-import {
-  commitAllAs,
-  pull,
-  push,
-  rebaseOntoTrunk,
-  yui,
-} from "./storyReviewTrunkCommits.ts";
-import { branch, git, lines, writeAt } from "./storyReviewWorktree.ts";
+import { yui } from "./storyReviewTrunkCommits.ts";
+import { branch, lines } from "./storyReviewWorktree.ts";
 
 const aAfterS1 = lines("a").replace("a 0\n", "a one\n");
 const aAfterO2 = aAfterS1.replace("a 11\n", "a last\n");
@@ -38,9 +28,6 @@ const cWith = (changed: Readonly<Record<number, string>>) =>
 const cNine = { 9: "c nine" } as const;
 const cStory = { ...cNine, 3: "c story" } as const;
 const cTrunk = { ...cNine, 3: "c trunk" } as const;
-
-// The worktree as the review's context line shows it.
-export const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
 
 // Declared published history and Yui-chan's worktree; `unpublished` adds `u1`.
 const notesUntracked = { untracked: { "notes.md": "notes\n" } } as const;
@@ -98,7 +85,7 @@ const throughO2 = () =>
 export function trunkModeStory(
   options:
     | {
-        readonly published: 0 | 1 | 2;
+        readonly published: 2;
         readonly unpublished?: boolean;
       }
     | {
@@ -129,23 +116,6 @@ export function trunkModeStory(
       unpublished,
     );
 
-  const { published } = options;
-
-  if (published === 0)
-    return withNotes(
-      trunkModeClaimBuilder().withWorkspace(branch, {
-        from: "take Story A",
-        agent: yui.agent,
-      }),
-      unpublished,
-    );
-
-  if (published === 1)
-    return withNotes(
-      throughO2().withWorkspace(branch, { from: "o2", agent: yui.agent }),
-      unpublished,
-    );
-
   return withNotes(
     throughO2()
       .withRevision("s2", {
@@ -155,31 +125,6 @@ export function trunkModeStory(
       .withWorkspace(branch, { from: "s2", agent: yui.agent }),
     unpublished,
   );
-}
-
-// Yui-chan publishes `s2`, which here also changes a line of `src/c.ts`, and
-// another developer's `o3` then rewrites that very line; the worktree is
-// rebased onto fetched trunk. Returns trunk after the rewrite.
-export function publishRewrittenLine(origin: StartOrigin, workspace: string) {
-  writeAt(workspace, "src/c.ts", cWith({ 3: "c story" }));
-  writeAt(workspace, "d.md", "story document\n");
-  git(workspace, "add", "d.md", "src/c.ts");
-  git(workspace, "commit", "--quiet", "-m", "s2");
-  push(workspace);
-  git(workspace, "fetch", "--quiet", "origin", "main");
-  pull(origin.project);
-  writeAt(origin.project, "src/c.ts", cWith({ 3: "c trunk" }));
-  commitAllAs(origin.project, "o3");
-  push(origin.project);
-  return rebaseOntoTrunk(workspace);
-}
-
-// Yui-chan's unpublished commit `u1`, adding `src/g.ts` and leaving the
-// worktree's untracked file as it is.
-export function commitUnpublished(workspace: string) {
-  writeAt(workspace, "src/g.ts", "g\n");
-  git(workspace, "add", "src/g.ts");
-  git(workspace, "commit", "--quiet", "-m", "u1");
 }
 
 // Story A's card in Taken, on a page reading the real bare origin as GitHub

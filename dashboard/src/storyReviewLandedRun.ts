@@ -45,6 +45,17 @@ export function reviewLandedRunsOf(
         Date.parse(b.record.launchedAt) - Date.parse(a.record.launchedAt),
     );
 }
+export function storyReviewOffered(
+  records: readonly LaunchRecord[] | undefined,
+  source: string,
+  identity: string,
+  published: boolean,
+): boolean | undefined {
+  if (published) return true;
+  if (records === undefined) return undefined;
+  return reviewLandedRunsOf(records, source, identity, () => false).length > 0;
+}
+
 // Runs are newest first. Opening, switching to history, and replacing a
 // vanished choice all prefer the newest captured comparison, then its gap.
 export function preferredReviewRun<Run>(
@@ -67,7 +78,7 @@ export const reviewLandedWorkflowSchema = z.enum([
 export const reviewRunChoiceSchema = z.object({
   key: z.string().min(1),
   workflow: reviewLandedWorkflowSchema,
-  launchedAt: z.iso.datetime(),
+  launchedAt: z.iso.datetime().optional(),
   remote: z.string().min(1),
   target: z.string().min(1),
   comparison: launchLandingSchema
@@ -94,9 +105,10 @@ export function reviewRunChoice(run: ReviewLandedRun): ReviewRunChoice {
 }
 // Review exposes comparison identity and context, never the saved repository path.
 export const landedReviewContextSchema = launchLandingSchema
-  .omit({ repository: true })
+  .omit({ repository: true, delivery: true, receipt: true })
   .extend({
     workflow: reviewLandedWorkflowSchema,
-    launchedAt: z.iso.datetime(),
+    launchedAt: z.iso.datetime().optional(),
+    receivedAt: z.iso.datetime().optional(),
   });
 export type LandedReviewContext = z.infer<typeof landedReviewContextSchema>;

@@ -74,7 +74,6 @@ async function readStoryChanges() {
             makeMe.aStoryReview.modifying(browsed).please(),
           );
         },
-        range: unanswered,
         fileDiff: unanswered,
         fileText: unanswered,
       },

@@ -60,20 +60,11 @@ export function StoryReview({
       if (focusEye) eye.current?.focus();
     },
   };
-  const {
-    review,
-    problem,
-    reading,
-    sessionRuns,
-    sessionComparisonKeys,
-    runKey,
-    onRun,
-  } = useStoryReviewSelection({ subject, round });
-  const holdsDetails = reviewHoldsDetails({
-    review,
-    sessionRuns,
-    sessionComparisonKeys,
+  const { review, problem, reading, runKey, onRun } = useStoryReviewSelection({
+    subject,
+    round,
   });
+  const holdsDetails = reviewHoldsDetails(review);
   useEffect(() => {
     body.current?.focus();
   }, [request]);
@@ -113,10 +104,7 @@ export function StoryReview({
         {reviewDescription(review)}
       </p>
       <ReviewToolbar
-        name={toolbarComparisonName(
-          review,
-          sessionComparisonKeys === undefined ? undefined : runKey,
-        )}
+        name={toolbarComparisonName(review)}
         browser={reviewListsFiles(review) ? browser : undefined}
         onShowBrowser={setBrowserShown}
         details={holdsDetails ? details : undefined}
@@ -125,8 +113,6 @@ export function StoryReview({
         <StoryReviewDetailsSection
           details={details}
           review={review}
-          sessionRuns={sessionRuns}
-          sessionComparisonKeys={sessionComparisonKeys}
           runKey={runKey}
           onRun={onRun}
         />

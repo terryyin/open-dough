@@ -46,6 +46,7 @@ function reviewedFileRead(
   const subject = reviewedWorkSubjectQuery(url);
   const reference = url.searchParams.get("reference");
   const completion = url.searchParams.get("completion");
+  const publishedHead = url.searchParams.get("publishedHead");
   requireExactQuery(
     url,
     [
@@ -55,6 +56,7 @@ function reviewedFileRead(
       "path",
       ...(reference === null ? [] : ["reference"]),
       ...(completion === null ? [] : ["completion"]),
+      ...(publishedHead === null ? [] : ["publishedHead"]),
       ...(url.searchParams.has("oldPath") ? ["oldPath"] : []),
     ],
     label,
@@ -74,6 +76,14 @@ function reviewedFileRead(
     path,
     ...(oldPath === undefined ? {} : { oldPath }),
   };
+  if (
+    publishedHead !== null &&
+    (subject.kind !== "story" ||
+      reference !== null ||
+      completion !== null ||
+      !objectIdSchema.safeParse(publishedHead).success)
+  )
+    throw new RefusedRequest(400, "The published branch head is malformed.");
   // A published session names its pair alone, never a run or completion.
   if (subject.kind === "published") {
     if (reference !== null || completion !== null)
@@ -88,12 +98,23 @@ function reviewedFileRead(
       400,
       "The published comparison identity is malformed.",
     );
+  if (
+    subject.kind === "story" &&
+    completion === null &&
+    reference === null &&
+    publishedHead === null
+  )
+    throw new RefusedRequest(
+      400,
+      `The ${label} must name a published comparison.`,
+    );
   // A Published completion names a story, whichever subject keys came with it.
   if (completion !== null || subject.kind === "story")
     return {
       subject: queriedStorySubject(url),
       ...(reference === null ? {} : { reference }),
       ...(completion === null ? {} : { completion }),
+      ...(publishedHead === null ? {} : { publishedHead }),
       ...file,
     };
   const session = queriedSessionSubject(url);

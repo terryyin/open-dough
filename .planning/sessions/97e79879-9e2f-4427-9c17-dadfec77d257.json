@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "97e79879-9e2f-4427-9c17-dadfec77d257",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-24T06:42:08.620Z",
+  "story": "SEED-423#derive-the-install-payload-from-the-shipped-directory",
+  "ranges": [
+    {
+      "base": "9107722185c715b514b69107df7982e131cd0cc8",
+      "candidate": "cd152e62508c0102d9603a86f2ea459378df7dc9"
+    }
+  ]
+}

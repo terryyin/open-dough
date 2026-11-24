@@ -21,24 +21,16 @@
     min-height: var(--control-size);
   }
 
-  .story-review-context-values,
   .story-review-files button,
   .story-review-comparison label,
-  .story-review-inclusion label,
-  .story-review-commits button {
+  .story-review-inclusion label {
     min-height: var(--control-size);
   }
 
-  .story-review-context-values,
   .story-review-files button,
   .story-review-comparison label,
   .story-review-inclusion label {
     min-width: var(--control-size);
-  }
-
-  .story-review-context-values[aria-expanded="true"] {
-    max-height: min(18dvh, calc(var(--story-review-above-height) - 1rem));
-    overflow-y: auto;
   }
 
   .story-review-comparison label,

@@ -1,6 +1,6 @@
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
-// A default comparison is not a remembered run choice. Switching from one
-// story's valid captured fallback to another story must use its server default.
+// Switching from an explicitly selected landing to another story opens the
+// second story's published default.
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { storyB } from "../../Distribution/tests/support/queued-repository.mjs";
@@ -16,6 +16,7 @@ import {
   purposeRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { recentlyDoneParts } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
+import { ReviewLandedRun } from "../../dashboard/test-support/reviewChangesLandedRun.ts";
 import { openSessionsSidebar } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   expect,
@@ -49,7 +50,7 @@ test.beforeAll(({ queuedCodexOriginReady }) =>
   Promise.resolve(queuedCodexOriginReady),
 );
 
-test("selecting another Done story follows its published default instead of retaining an automatic captured run", async ({
+test("selecting another Done story opens its published default after reading the first story's accepted landing", async ({
   page,
   dashboard,
   origin,
@@ -127,7 +128,6 @@ test("selecting another Done story follows its published default instead of reta
     .markedDone()
     .please();
   keepLaunchRecords(dashboard, [...stored(dashboard.home), legacy]);
-  git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: current,
@@ -145,14 +145,31 @@ test("selecting another Done story follows its published default instead of reta
   const { intent } = await selectDoneStoryInIntent(page);
   expect(storyReviewSchema.parse(await (await firstRead).json())).toMatchObject(
     {
-      kind: "landed",
-      tree: firstCapture.revision,
-      selectedRun: first.reporting.reference,
+      kind: "published",
+      landingRevision: firstCapture.revision,
     },
   );
+  const landedRead = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      url.pathname === storyReviewEndpoint &&
+      url.searchParams.get("run") === first.reporting.reference
+    );
+  });
+  const landing = new ReviewLandedRun(storySummary(intent), () =>
+    expect(storySummary(intent)).toBeVisible(),
+  );
+  await landing.choose(first.reporting.reference);
+  expect(
+    storyReviewSchema.parse(await (await landedRead).json()),
+  ).toMatchObject({
+    kind: "landed",
+    tree: firstCapture.revision,
+    selectedRun: first.reporting.reference,
+  });
+  await landing.expectShown(firstCapture.revision);
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
 
-  git(origin.project, "fetch", "--quiet", "--unshallow", "origin", "main");
   const runRequests: string[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url());

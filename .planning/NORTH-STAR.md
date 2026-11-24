@@ -6,7 +6,7 @@ authoritative.
 
 ## Read published comparisons from the Review repository
 
-After [Review published changes](seeds/SEED-427-review-published-changes.md#review-published-changes),
+After [Review published changes](https://github.com/terryyin/open-dough/blob/d0489607774ee6a3dd2c69b3fd5e0409288e68ab/.planning/seeds/SEED-427-review-published-changes.md#review-published-changes),
 move every published code review read to one dashboard-managed bare Review
 repository per project. Origin supplies the published history. Share bounded
 fetches per project and serve file lists, diffs, and source from local Git. Resolve
@@ -20,6 +20,18 @@ this topic at wrap-up of
 [Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
 once the new path and its proof are in place. The durable repository roles are
 defined in [ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships).
+
+## Share one refresh for published Dashboard Git reads
+
+Extend the Review repository and shared fetch from SEED-428 so every
+published Dashboard Git read uses one repository and refresh coordinator per
+project. Origin remains authoritative. Open, Refresh, and live observation
+share checks of trunk and relevant story branches. Advance the displayed refs
+only when their commits are locally readable, and keep detail reads pinned.
+When refresh fails, retain the last readable view with its confirmation time
+and sync status. Actions that need current state require a successful fresh
+check. Retire this topic at wrap-up of
+[Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git).
 
 ## Make production code directly testable instead of growing test support
 

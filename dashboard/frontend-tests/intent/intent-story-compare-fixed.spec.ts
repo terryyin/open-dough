@@ -101,7 +101,7 @@ test("a captured landed run reads its own diff pair after a branch comparison in
   await story.chooseTab("Changes");
   await activateComparisonControl(story.includeMerged);
   await comparisonRead(story.revisions).toContain(`Baseline ${widenedFrom}.`);
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await activateComparisonControl(story.outsideFile(`Added ${capturePath}`));
 
   await comparisonRead(requestedDiff).toMatchObject({

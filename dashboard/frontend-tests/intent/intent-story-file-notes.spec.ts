@@ -5,7 +5,7 @@
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { storyReviewIds as ids } from "../../../Distribution/tests/support/storyReviewSnapshotTestData.mjs";
+import { storyReviewIds as ids } from "../../../Distribution/tests/support/storyReviewCompletedTestData.mjs";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
 import { storyNotesNames as names } from "../../test-support/storyNotesNames.ts";
 import { printedDiff } from "../review/styledDiffCases.ts";

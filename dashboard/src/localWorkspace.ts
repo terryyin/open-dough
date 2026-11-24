@@ -1,8 +1,3 @@
-// A linked worktree of a project's execution checkout that holds a story's claim
-// on this machine (`../server/localWorkspaces.ts`): the story review reads it
-// when no kept launch record names a workspace (`./storyReviewWorkspace.ts`
-// `reviewWorkspaceOf`). It is this machine's Git evidence, never a launch.
-
 import { z } from "zod";
 
 export const localWorkspaceSchema = z.object({

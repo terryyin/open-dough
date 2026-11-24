@@ -42,7 +42,7 @@ async function inspectDelivered(
   await review.expectText(
     "The published completion record names no execution agent",
   );
-  await review.comparison.expectOffered("Landed runs");
+  await review.landedRun.expectOffered();
   const run = page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (
@@ -50,7 +50,7 @@ async function inspectDelivered(
       url.searchParams.get("run") === receipt.reference
     );
   });
-  await review.comparison.choose("Landed runs");
+  await review.landedRun.chooseLatest();
   const answer = storyReviewSchema.parse(await (await run).json());
   expect(answer).toMatchObject({
     kind: "landed",

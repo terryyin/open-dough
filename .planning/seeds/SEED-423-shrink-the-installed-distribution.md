@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-22
 planted_during: Terry Yin requested a dead-code and simplification audit of the Distribution scripts
 trigger_when: selected from the product backlog
-scope: eleven stories
+scope: Distribution simplification stories
 ---
 
 # SEED-423 — Shrink the installed distribution to code that serves a purpose
@@ -36,31 +36,6 @@ script areas or changes guidance agents follow. L changes a mechanism the
 Dashboard and installed scripts share.
 
 ## Story decomposition
-
-<a id="notify-claude-code-of-ci-through-one-path"></a>
-
-### Notify Claude Code of CI results through one path
-
-**Identity:** SEED-423#notify-claude-code-of-ci-through-one-path
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-- **For / why.** A developer running an execution in Claude Code gets CI
-  results through the path every host shares, and the installation carries no
-  third notification mechanism.
-- **Evaluation.** The background handoff scripts (`ci-background-handoff`,
-  `-hook`, `-waiter`, `-state`, `-session`, 478 lines), its Stop hook entry
-  and `ci-background-handoff.md` are gone. A Claude Code execution still
-  learns of a CI failure after its turn ends.
-- **Value / learning.** Guidance calls the handoff an explicit alternative
-  to `complete-revision`, limited to ten minutes, with delivery reported as
-  uncertain.
-- **Effort hypothesis.** M, medium confidence. The risk is a Claude Code
-  session that ends before CI finishes.
-- **Depends on.** None.
-- **Safe stopping point.** Complete on its own.
 
 <a id="trim-the-product-backlog-command-to-guided-operations"></a>
 
@@ -206,36 +181,6 @@ Dashboard and installed scripts share.
 - **Depends on.** None.
 - **Safe stopping point.** Keeping only the integrated-state rule.
 
-<a id="observe-the-cancelled-listing-discover"></a>
-
-### Observe that a failed listing discover cancels the other branch
-
-**Identity:** SEED-423#observe-the-cancelled-listing-discover
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/799-observe-the-cancelled-listing-discover/PLAN.md"}
-```
-
-**Goal:** The Dashboard CI status test shows that when one branch's custom CI
-discover fails, the other branch's adapter request is stopped, not merely
-abandoned while it keeps running.
-
-**Scope:** Strengthen the observing assertion of "a ciAdapter story branch
-whose main discover fails is unread with its reason, never passed, without
-waiting for its own" in
-`Distribution/tests/support/dashboard-story-branch-ci-adapter.test.mjs` so it
-observes the other branch's adapter process after the rejection: wait past
-that adapter's delay, with its log kept outside the removed root, and assert
-the process never finished. Product behavior in
-`dashboard/server/baseCiAdapterAttempts.ts` is unchanged.
-
-**Origin:** Dough Intent Coverage at `c8c3aa62a` for
-SEED-423#install-without-the-custom-ci-adapter. With `ended.abort()` removed
-from `discoverAdapterAttempts`, the focused suite still passed 121 of 121,
-because the case reads its log immediately after rejection and then deletes
-the root the orphaned adapter writes to. A scratch witness showed the
-restored code killing the story-branch discover and the faulted code letting
-it finish.
-
 <a id="check-shipped-script-imports"></a>
 
 ### Catch imports missing from the shipped skills
@@ -258,6 +203,35 @@ it finish.
   an installed checkout.
 - **Effort hypothesis.** S. The native evaluation tool already walks literal
   relative imports for evidence hashing.
+
+<a id="use-one-managed-install-layout"></a>
+
+### Use one managed install layout
+
+**Identity:** SEED-423#use-one-managed-install-layout
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** Maintainers can deliver and verify one Open Dough installation
+  layout across supported clients. Each host can run the same released version
+  from a fresh checkout.
+- **Start after.** Donut has both physical managed skill roots on trunk and
+  proves the ordinary updater and Claude skill discovery from a fresh
+  worktree. Before removing compatibility, check the maintained client trunks
+  for any remaining symlinks at Open Dough-managed skill paths.
+- **Evaluation.** Retire runtime fallbacks, guidance, and proof used solely for
+  symlinked Open Dough installations. Fresh install, ordinary upgrade, and
+  execution use the standard Claude and shared Codex/Cursor roots. Keep the
+  installer's unsafe-destination checks and any path handling still needed for
+  checkout identity or platform aliases. Project-owned skill links still coexist.
+- **Host differences.** Look for duplicate setup, observation, and completion
+  logic across the three hosts. Share behavior where it has the same contract.
+  Keep the native notification entry points and prove delivery on each host
+  whose behavior or integration changes.
+- **Architecture.** Follow [ADR 0004 — Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md)
+  and [ADR 0005 — Native validation and A/B testing](../../docs/adrs/0005-cross-tool-validation-accepted.md).
 
 ## Ordering and scope reduction
 

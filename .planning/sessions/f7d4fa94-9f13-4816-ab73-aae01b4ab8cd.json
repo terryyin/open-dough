@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "f7d4fa94-9f13-4816-ab73-aae01b4ab8cd",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T09:38:46.521Z",
+  "story": "SEED-428#read-reviews-from-the-review-repository",
+  "ranges": [
+    {
+      "base": "828fb0b21b0bede12fe908b2c8901ba2770b8176",
+      "candidate": "909eb03ceaf423cbd74aa489fd5e0c5629e7d3c7"
+    }
+  ]
+}

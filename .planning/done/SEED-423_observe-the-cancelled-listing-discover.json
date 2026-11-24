@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-423#observe-the-cancelled-listing-discover",
+  "title": "Observe that a failed listing discover cancels the other branch",
+  "completedAt": "2026-11-24T09:16:02.298Z",
+  "developer": "Terry Yin",
+  "agent": "Rio-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "# Dough Intent Coverage\n\n**Verdict. Caught.**\n\nStory `SEED-423#observe-the-cancelled-listing-discover`, plan 799, was checked at `52dc82736890a4c261ab03b76e02e1166cba1f93`. When main's adapter discover fails while the story-branch discover is already running, the judgment returns early with the main failure and the story-branch subprocess stops.\n\nI removed only `ended.abort();` inside the rejection handler in `dashboard/server/baseCiAdapterAttempts.ts`. The maintained fixture in `Distribution/tests/support/dashboard-story-branch-ci-adapter.test.mjs` waits for the sibling start marker before failing main and retains its event log outside the removed adapter root. A separate watcher read that live log and recorded it gain `end codex/x` about five seconds after `start codex/x`. The faulted test reached its post-delay `assert.doesNotMatch` after the unread, main failure reason, and early-return assertions passed. That assertion rejected the observed end marker at line 169.\n\nThe same maintained command ran in all three phases on macOS with Node 24.21.0 and Bash 5.\n\n```sh\nenv PATH=\"/opt/homebrew/bin:$PATH\" caffeinate -s -i npm test -- Distribution/tests/support/dashboard-story-branch-ci-adapter.test.mjs\n```\n\nThe clean baseline passed all six cases. With the fault, the cancellation case alone failed, with five passes and exit 1. Reversing the patch restored the original production blob and clean Git status. The restored run passed all six cases, and the detached scratch worktree was removed.\n\n**Next proof action.** Keep the strengthened assertion for this path. The probe confirms the fault discrimination planned in slice 1.\n\n- **Test runtime.** 22.3 seconds total, measured by the repository runner across the baseline (7.4 seconds), fault (7.5 seconds), and restored (7.4 seconds) runs.\n- **Human effort.** Unavailable. The session contains no separately timed human activity.\n- **Agent effort.** Unavailable. The host did not expose a separate active-effort measure.\n\n\n- **Invocation-to-report elapsed.** 120174 ms (measured), from 1795511619000 to 1795511739174 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\n## Wrap-up disposition\n\nChecked revision 52dc82736890a4c261ab03b76e02e1166cba1f93. Caught. No follow-up.\n"
+  }
+}

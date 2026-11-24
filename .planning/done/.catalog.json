@@ -2,6 +2,42 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_observe-the-cancelled-listing-discover.json",
+      "identity": "SEED-423#observe-the-cancelled-listing-discover",
+      "completedAt": "2026-11-24T09:16:02.298Z",
+      "blob": "ef65a22ec94bc53e02f3624a2a38e4425937276a"
+    },
+    {
+      "fileName": "SEED-427_review-published-changes.json",
+      "identity": "SEED-427#review-published-changes",
+      "completedAt": "2026-11-24T09:15:33.077Z",
+      "blob": "e708894a349edbe385dd2ad1144a4e3d960d5f02"
+    },
+    {
+      "fileName": "SEED-413_renovate-landed-ci-scope-proof.json",
+      "identity": "SEED-413#renovate-landed-ci-scope-proof",
+      "completedAt": "2026-11-24T09:00:51.185Z",
+      "blob": "c72d0b0a7bea9996cc5839d6cd263871ead3be8c"
+    },
+    {
+      "fileName": "SEED-423_notify-claude-code-of-ci-through-one-path.json",
+      "identity": "SEED-423#notify-claude-code-of-ci-through-one-path",
+      "completedAt": "2026-11-24T08:24:46.868Z",
+      "blob": "f84eace60004c5e03ed2d6343ac01c792b15d363"
+    },
+    {
+      "fileName": "SEED-389_verify-silent-supplier-wait-in-use.json",
+      "identity": "SEED-389#verify-silent-supplier-wait-in-use",
+      "completedAt": "2026-11-24T08:23:47.907Z",
+      "blob": "a71dc2046fe41b59a306769d30f6b7b4beb030d5"
+    },
+    {
+      "fileName": "SEED-429_skip-empty-instruction-recordings.json",
+      "identity": "SEED-429#skip-empty-instruction-recordings",
+      "completedAt": "2026-11-24T07:26:43.713Z",
+      "blob": "ea3c5e0cb0791e6fd5fa8b1d5171044be27d4608"
+    },
+    {
       "fileName": "SEED-413_speed-dashboard-done-session-review-proof.json",
       "identity": "SEED-413#speed-dashboard-done-session-review-proof",
       "completedAt": "2026-11-24T04:24:40.300Z",

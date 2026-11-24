@@ -84,12 +84,6 @@ cmp "${source_dir}/Distribution/src/skills/dough-update/SKILL.md" \
   "${selected_root}/dough-update/SKILL.md"
 cmp "${source_dir}/Distribution/src/skills/dough-adr-awareness/SKILL.md" \
   "${selected_root}/dough-adr-awareness/SKILL.md"
-cmp "${source_dir}/Distribution/src/skills/dough-product-backlog/SKILL.md" \
-  "${selected_root}/dough-product-backlog/SKILL.md"
-cmp "${source_dir}/Distribution/src/skills/dough-execution-retrospective/SKILL.md" \
-  "${selected_root}/dough-execution-retrospective/SKILL.md"
-cmp "${source_dir}/Distribution/src/skills/dough-story-wrap-up/SKILL.md" \
-  "${selected_root}/dough-story-wrap-up/SKILL.md"
 expected_version=$(cat "${source_dir}/VERSION")
 assert_contents "${selected_root}/dough-update/VERSION" "${expected_version}"
 expected_source=$(cd -- "${source_dir}" && pwd -P)
@@ -104,12 +98,6 @@ cmp "${source_dir}/Distribution/src/skills/dough-update/SKILL.md" \
   "${claude_root}/dough-update/SKILL.md"
 cmp "${source_dir}/Distribution/src/skills/dough-adr-awareness/SKILL.md" \
   "${claude_root}/dough-adr-awareness/SKILL.md"
-cmp "${source_dir}/Distribution/src/skills/dough-product-backlog/SKILL.md" \
-  "${claude_root}/dough-product-backlog/SKILL.md"
-cmp "${source_dir}/Distribution/src/skills/dough-execution-retrospective/SKILL.md" \
-  "${claude_root}/dough-execution-retrospective/SKILL.md"
-cmp "${source_dir}/Distribution/src/skills/dough-story-wrap-up/SKILL.md" \
-  "${claude_root}/dough-story-wrap-up/SKILL.md"
 
 after_selected_sidecars=$(shasum -a 256 \
   "${selected_root}/dough-update/LOCAL.md" \

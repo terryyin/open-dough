@@ -1,33 +1,12 @@
 // The session comparison choices, run pickers and context in review details.
 import type { ReactNode } from "react";
 import { ReviewContext } from "./StoryReviewContext.tsx";
-import {
-  SessionComparisonSwitch,
-  PublishedRangeSwitch,
-  SessionRunSwitch,
-} from "./StoryReviewSessionRuns.tsx";
-import type { SessionComparisonKey } from "./sessionReviewComparisons.ts";
-import type { SessionRunChoice } from "./sessionCommits.ts";
+import { PublishedRangeSwitch } from "./StoryReviewSessionRuns.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
 import type { ReviewDetailsPlace } from "./StoryReviewToolbar.tsx";
 
-export function reviewHoldsDetails({
-  review,
-  sessionRuns,
-  sessionComparisonKeys,
-}: {
-  readonly review: StoryReview | undefined;
-  readonly sessionRuns: readonly SessionRunChoice[];
-  readonly sessionComparisonKeys: readonly SessionComparisonKey[] | undefined;
-}) {
-  if (sessionRuns.length > 1 || sessionComparisonKeys !== undefined)
-    return true;
-  return (
-    review?.kind === "landed" ||
-    review?.kind === "session-commits" ||
-    review?.kind === "published-session" ||
-    review?.kind === "branch-result"
-  );
+export function reviewHoldsDetails(review: StoryReview | undefined) {
+  return review?.kind === "landed" || review?.kind === "published-session";
 }
 
 // The details the eye reveals: the comparison choices and context. Escape from
@@ -61,44 +40,18 @@ function ReviewDetails({
 export function StoryReviewDetailsSection({
   details,
   review,
-  sessionRuns,
-  sessionComparisonKeys,
   runKey,
   onRun,
 }: {
   readonly details: ReviewDetailsPlace;
   readonly review: StoryReview | undefined;
-  readonly sessionRuns: readonly SessionRunChoice[];
-  readonly sessionComparisonKeys: readonly SessionComparisonKey[] | undefined;
   readonly runKey: string | undefined;
   readonly onRun: (run: string) => void;
 }) {
-  if (!reviewHoldsDetails({ review, sessionRuns, sessionComparisonKeys }))
-    return undefined;
+  if (!reviewHoldsDetails(review)) return undefined;
   return (
     <ReviewDetails details={details}>
-      {sessionComparisonKeys !== undefined && (
-        <SessionComparisonSwitch
-          keys={sessionComparisonKeys}
-          selected={runKey}
-          onSelect={onRun}
-        />
-      )}
-      {sessionRuns.length > 1 &&
-        (sessionComparisonKeys === undefined ||
-          review?.kind === "session-commits") && (
-          <SessionRunSwitch
-            label={
-              sessionComparisonKeys === undefined
-                ? undefined
-                : "Execution checkout runs"
-            }
-            runs={sessionRuns}
-            selected={runKey}
-            onSelect={onRun}
-          />
-        )}
-      {review?.kind === "published-session" && review.ranges !== undefined && (
+      {review.kind === "published-session" && review.ranges !== undefined && (
         <PublishedRangeSwitch
           ranges={review.ranges}
           selected={runKey}

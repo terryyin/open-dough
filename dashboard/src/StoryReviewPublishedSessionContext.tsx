@@ -1,7 +1,9 @@
 // Published-session context names the recorded pair and when the session
-// closed. Kept-session launch/done wording stays on session-commits only.
-import { sharedCheckoutWarning } from "./StoryReviewSessionCommitsContext.tsx";
+// closed.
 import type { StoryReview } from "./storyReviewContract.ts";
+
+const sharedCheckoutWarning =
+  "Another session was open in the same checkout during that time, so the comparison may include that session's work.";
 
 export type PublishedSessionReview = Extract<
   StoryReview,

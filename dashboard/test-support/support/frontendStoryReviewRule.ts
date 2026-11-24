@@ -9,16 +9,11 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewFileTextEndpoint,
-  storyReviewRangeEndpoint,
   type ReviewedFileDiff,
   type ReviewedFileText,
-  type ReviewRange,
   type StoryReview,
 } from "../../src/storyReviewContract.ts";
-import {
-  frontendFileDiff,
-  frontendReviewIds,
-} from "./frontendStoryReviewFixtures.ts";
+import { frontendFileDiff } from "./frontendStoryReviewFixtures.ts";
 
 export type Bucket<T, Hold> = {
   readonly next: Map<string, T>;
@@ -48,7 +43,6 @@ export type ReviewBuckets<Hold> = {
   readonly historicalSnapshots: Map<string, StoryReview>;
   // The answer for an ask naming `run`, by that run.
   readonly runSnapshots: Map<string, StoryReview>;
-  readonly ranges: Bucket<ReviewRange, Hold>;
   readonly files: Bucket<ReviewedFileDiff, Hold>;
   readonly texts: Bucket<ReviewedFileText, Hold>;
   readonly fileByPath: Map<string, ReviewedFileDiff>;
@@ -84,22 +78,6 @@ export function createReviewBuckets<Hold>(
     snapshots: emptyBucket(() => snapshot),
     historicalSnapshots: new Map(),
     runSnapshots: new Map(),
-    ranges: emptyBucket(() => ({
-      kind: "comparison" as const,
-      from: frontendReviewIds.baseline,
-      tree: frontendReviewIds.tree,
-      files:
-        snapshot.kind === "snapshot"
-          ? snapshot.files
-          : [
-              {
-                kind: "added" as const,
-                path: "story.txt",
-                lines: { added: 1, removed: 0 },
-              },
-            ],
-      trunkIntegrated: false,
-    })),
     files: emptyBucket(() => frontendFileDiff("story.txt", ["+story"])),
     texts: emptyBucket(defaultFileText),
     fileByPath: new Map(),
@@ -141,7 +119,6 @@ const endpointAnswers = new Map<string, EndpointAnswer>([
       );
     },
   ],
-  [storyReviewRangeEndpoint, (state) => answerFrom(state.ranges, "*")],
   [
     storyReviewFileEndpoint,
     (state, params) => {

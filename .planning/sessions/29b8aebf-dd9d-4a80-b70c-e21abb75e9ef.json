@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "29b8aebf-dd9d-4a80-b70c-e21abb75e9ef",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T08:13:47.954Z",
+  "story": "SEED-423#observe-the-cancelled-listing-discover",
+  "ranges": [
+    {
+      "base": "c88f1cdf532f8be5f27d93a8d4fb7fcd73403d8b",
+      "candidate": "d4817ea88dba3fbd56b6d2dd3e07db3c8c1b244e"
+    }
+  ]
+}

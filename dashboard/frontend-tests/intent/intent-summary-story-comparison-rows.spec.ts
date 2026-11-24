@@ -127,8 +127,8 @@ test("folder Summary keeps unchanged and below-threshold cue reasons", async () 
 });
 
 test("a nested Summary marks a file changed only by its owning merge while keeping its precise comparison", async () => {
-  const owningMerge = makeMe.aStoryReview.modifying(nestedFile).pleaseRange();
-  if (owningMerge.kind !== "comparison")
+  const owningMerge = makeMe.aStoryReview.modifying(nestedFile).please();
+  if (owningMerge.kind !== "published-taken")
     throw new Error("Arrange the owning merge");
   const summary = await openNestedSummary(
     makeMe.aComparedStory

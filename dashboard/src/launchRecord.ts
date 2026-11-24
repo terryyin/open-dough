@@ -16,7 +16,6 @@ import {
   type EstablishedSession,
 } from "./unattachedSession.ts";
 import { defaultLaunchStartSchema } from "./defaultLaunchStart.ts";
-import { sessionCommitsSchema } from "./sessionCommits.ts";
 import { sessionBranchEvidenceSchema } from "./sessionBranchResult.ts";
 import { hostSessionSchema } from "./hostSession.ts";
 export {
@@ -155,8 +154,8 @@ export const launchRecordSchema = z.object({
   returnedToBacklog: z.uuid().optional(),
   landing: launchLandingSchema.optional(),
   landingReporting: landingReportingSchema.optional(),
-  sessionCommits: sessionCommitsSchema.optional(),
-  sessionCommitsFailedAt: z.iso.datetime().optional(),
+  // Old records may still own internal refs in their saved repository.
+  sessionCommits: z.object({ repository: z.string().min(1) }).optional(),
   ...sessionBranchEvidenceSchema.shape,
   // The receipt of the report the developer marked read (`./readMark.ts`);
   // a report with any other receipt is unread while the session is not done.

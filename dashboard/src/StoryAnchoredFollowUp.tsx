@@ -1,6 +1,6 @@
 // Follow up from a Done story's file header or line-number menu on a
-// Published completion or landed run (`./FollowUp.tsx` session dialog): never
-// a workspace snapshot. The file path offers a visible trigger; a line menu
+// Published completion or landed run (`./FollowUp.tsx` session dialog).
+// The file path offers a visible trigger and a line menu
 // auto-opens the same dialog for one line and side.
 
 import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
@@ -18,7 +18,7 @@ import {
 } from "./reviewedFileContext.ts";
 
 // Request anchor and dialog facts for one reviewed file on a Published
-// completion or landed run; undefined on a workspace snapshot.
+// completion or landed run.
 export function fileFollowUpParts(
   reviewed: ReviewedWork,
   from: string,

@@ -27,6 +27,7 @@ export const instructionProblems = {
     "No usable microphone is available. Check your microphone, retry explicitly, or type the instruction.",
   capture:
     "Microphone recording could not begin. Check your microphone, retry explicitly, or type the instruction.",
+  noAudio: "No audio was captured. Record again or type the instruction.",
   network:
     "Transcription could not reach the service. Check your connection, retry explicitly, or type the instruction.",
   timeout:

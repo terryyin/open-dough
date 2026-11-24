@@ -46,7 +46,7 @@ test("permission refusal makes no transcription request and an explicit retry wo
   capture.getUserMedia.mockRejectedValueOnce(captureError("NotAllowedError"));
   await failsToRecord(voice, capture, "permission");
   expect(voice.transcribe).not.toHaveBeenCalled();
-  await voice.recordClip();
+  await voice.recordClip(capture);
   await expect
     .element(voice.field)
     .toHaveValue(`${originalDraft}\n\nDo not implement yet`);
@@ -65,4 +65,29 @@ test("an unavailable device and an unsupported recording format make no transcri
   await failsToRecord(voice, capture, "format");
   await startsTyped(voice);
   expect(voice.transcribe).not.toHaveBeenCalled();
+});
+
+test("stopping an empty recording keeps the typed draft and lets the user record again", async () => {
+  const capture = audioInput();
+  const restoreAudio = capture.captureNoAudio();
+  const voice = await mountInstructionVoice();
+  await voice.field.fill(originalDraft);
+  await voice.begin();
+  await voice.stop.click();
+  await voice.ready();
+  expect(voice.transcribe).not.toHaveBeenCalled();
+  await expect
+    .element(voice.problem)
+    .toHaveTextContent(
+      "No audio was captured. Record again or type the instruction.",
+    );
+  await expect.element(voice.field).toHaveValue(originalDraft);
+
+  restoreAudio();
+  await voice.recordClip(capture);
+  await expect
+    .element(voice.field)
+    .toHaveValue(`${originalDraft}\n\nDo not implement yet`);
+  expect(voice.transcribe).toHaveBeenCalledTimes(1);
+  await expect.element(voice.problem).not.toBeInTheDocument();
 });

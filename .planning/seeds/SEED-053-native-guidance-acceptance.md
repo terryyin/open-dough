@@ -250,4 +250,3 @@ Earlier release exceptions document the proof that was pending at the time.
 - Maintainer request on 2026-09-28: one existing acceptance story per host;
   preserve scope and approximately preserve priority.
 - [Product backlog](../PRODUCT-BACKLOG.md).
-- [Maintained CI background-delivery behavior and native acceptance](../../docs/maintainer/ci-background-delivery.md).

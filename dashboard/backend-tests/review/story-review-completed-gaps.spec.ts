@@ -28,11 +28,15 @@ import { agentIdentity } from "../../../Distribution/src/skills/dough-product-ba
 test.use({ serverMode: "boundary" });
 
 const agent = agentIdentity("Yui").agent;
+const noPublishedComparison = {
+  kind: "unavailable",
+  explanation: "No published comparison is available for this story.",
+};
 
 test.describe("ordinary trunk", () => {
   test.use({ originRepository: ordinaryTrunkModeCompletedHistory() });
 
-  test("a published completion remains reviewable while local workspaces are ambiguous", async ({
+  test("a published completion stays fixed with competing dirty worktrees", async ({
     request,
     dashboard,
     origin,
@@ -64,12 +68,7 @@ test.describe("ordinary trunk", () => {
     writeAt(second, "local-b.txt", "second workspace only\n");
     const active = await get(request, dashboard, storyReviewEndpoint, named);
     expect(active.status()).toBe(200);
-    const ambiguity = {
-      kind: "unavailable",
-      ambiguousWorktrees: true,
-      explanation: `Several worktrees on this machine hold this story's claim for ${agent}: ~/git/open-dough/.worktrees/ambiguous-a, ~/git/open-dough/.worktrees/ambiguous-b. The review cannot choose one.`,
-    };
-    expect(await active.json()).toEqual(ambiguity);
+    expect(await active.json()).toEqual(noPublishedComparison);
     const historical = await get(
       request,
       dashboard,
@@ -90,12 +89,9 @@ test.describe("ordinary trunk", () => {
       kind: "diff",
       printed: expect.stringContaining("+delivered on another machine"),
     });
-    expect(
-      await (await get(request, dashboard, storyReviewEndpoint, named)).json(),
-    ).toEqual(ambiguity);
   });
 
-  test("an unusable local captured run falls back to published completion while its explicit choice retains its gap", async ({
+  test("a missing capture repository leaves the published completion and exact landing readable", async ({
     request,
     dashboard,
     origin,
@@ -123,8 +119,9 @@ test.describe("ordinary trunk", () => {
       run: review.runs?.[0]?.key ?? "",
     });
     expect(await explicit.json()).toMatchObject({
-      kind: "landing-unavailable",
-      explanation: "The captured landing repository is missing or unreadable.",
+      kind: "landed",
+      baseline,
+      tree: completion,
     });
   });
 
@@ -155,7 +152,7 @@ test.describe("ordinary trunk", () => {
 test.describe("missing-agent trunk", () => {
   test.use({ originRepository: missingAgentTrunkCompletedHistory() });
 
-  test("an unreadable workspace preserves active captured gaps and completed review recovers the published owner", async ({
+  test("a retired workspace preserves a published prior landing and completion recovers its published owner", async ({
     request,
     dashboard,
     origin,
@@ -171,8 +168,9 @@ test.describe("missing-agent trunk", () => {
       await (await get(request, dashboard, storyReviewEndpoint, named)).json(),
     );
     expect(active).toMatchObject({
-      kind: "landing-unavailable",
-      explanation: "The captured landing repository is missing or unreadable.",
+      kind: "landed",
+      baseline,
+      tree: completion,
     });
     expect(active.selectedRun).toBe(active.runs?.[0]?.key);
     const historical = await get(
@@ -189,9 +187,14 @@ test.describe("missing-agent trunk", () => {
     expect(await historical.json()).not.toHaveProperty("selectedRun");
     expect(await historical.json()).toHaveProperty("files");
     const absent = { source: "open-dough", identity: "SEED-B#b" };
-    expect(
-      (await get(request, dashboard, storyReviewEndpoint, absent)).status(),
-    ).toBe(404);
+    const missingComparison = await get(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      absent,
+    );
+    expect(missingComparison.status()).toBe(200);
+    expect(await missingComparison.json()).toEqual(noPublishedComparison);
     const missingRecord = await get(request, dashboard, storyReviewEndpoint, {
       ...absent,
       completed: "true",

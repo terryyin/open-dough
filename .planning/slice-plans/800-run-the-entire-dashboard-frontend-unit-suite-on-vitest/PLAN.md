@@ -25,7 +25,8 @@ removing the remaining standalone legacy frontend cases from trunk.
 ## Current decisions
 
 - Follow [Plain Vitest for unit tests; Playwright only for E2E](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e)
-  and [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support).
+  and [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
+  under [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
   The cutover only removes from `dashboard/test-support/`. Apply
   [Dough MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) and
   [Dough Page Objects](../../../.agents/skills/dough-page-objects/SKILL.md)
@@ -36,26 +37,27 @@ removing the remaining standalone legacy frontend cases from trunk.
   from `browserTestGroups.mjs`. The group run then treats a group without a
   config as Vitest-only. It must not delegate an empty or non-Vitest
   selection to Playwright. The backend path keeps working unchanged.
-- At `24ae92074` the run hands a selection without Vitest files to
-  `retainedPlaywright` (`dashboard-group-run.mjs`, `!files.some(...)`
-  branch). That covers an empty filter. With no config, an empty selection
-  reports `No tests found` and exits 1, or exits 0 under `allowEmpty`. This
-  is the same as the Vitest-only empty branch that exists today.
+- Route an empty frontend selection through the existing group-run policy:
+  `No tests found` and exit 1, or exit 0 with `--pass-with-no-tests`.
 - Backend specs that assert the frontend preparation keep their behavior
   for the preparation that remains. These include
   `runtime/test-preparation-frontend`, `runtime/dashboard-artifact-demand`,
   `runtime/runner-ownership` and `observation/run-processes`. They lose only
   the frontend Playwright expectations.
+- The comparison renderer and static app server have backend specs for those
+  harnesses themselves. Retire those assertions with their harness and retain
+  artifact-demand and teardown proof for the runners that still build and
+  serve the app. The backend and E2E still use the shared `pageTest.ts` base.
 
 ## Decisive premises
 
 | Consuming operation | Observation and result |
 | --- | --- |
-| Legacy specs this story moves | At `24ae92074`, a search for specs without a `from "vitest"` import, matching `isVitestFile`, found 30 frontend specs outside the Vitest set. Of these, `test-harness/` holds 3 `pageTest.ts` specs: observation measurements (2 cases), control reachability (7) and touch reading (2). The other 27 are outside retirement's scope. Slice 1 repeats the search after SEED-426 removes the 21 standalone cases across ten specs. |
-| Consumers of the retired modules | At `24ae92074`, `git grep` outside `dashboard/frontend-tests/` named these consumers: the four backend specs above; `Distribution/tests/support/local-test-suite-checkout.mjs`, `local-test-suite-focused-runners.test.mjs` and `local-test-resources.md`; `runLifecycle.ts`, `runnerConfig.mjs`, `testFiles.mjs` and `groupRunnerExamples.ts`; `tsconfig.node.json`; `eslint.ignores.mjs`; and `scripts/retained-playwright.mjs`, which backend still uses. This is presence only. Slice 1 settles it by a scratch application and the consuming suites. |
-| CI shard partition | `.github/workflows/ci.yml` `dashboard-frontend` declares shards `[1, 2]`. Shard 1 takes `intent/**`, `navigation/**` and `review/**`, and the other shard takes the rest, through `browser-test-group.yml`. Slice 5 observes the partition on branch CI. |
-| Typed readers reach mounted consumers | At `f5f354ab3`, published details already supply the Done catalog, profile list and addition readers. Done link lookup supplies the catalog, and Intent locations and diff syntax hints supply the locations reader. `SessionAssignment` still relies on both profile defaults. This source trace leaves the mounted session-details observation with supplied profile readers open. |
-| Full local suite route | Run the full group with Homebrew Bash 5 under `caffeinate -s -i` on AC power, per the [machine sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos). A Playwright listing in this preparation worktree failed: `node_modules/playwright/cli.js` was missing after a partial install. The execution workspace needs a complete `npm ci` on the pinned `.node-version` before any proof. |
+| Legacy specs this story moves | At `910772218` on macOS AC power, `caffeinate -s -i npm run --silent test:dashboard:frontend -- --list` succeeded. Its 32 Playwright rows comprise the 21 standalone cases across ten specs and 11 harness cases: observation measurements (4), control reachability (6) and touch reading (1). Slice 1 repeats the actual listing after SEED-426. |
+| Consumers of the retired modules | The source trace at `910772218` reaches the backend preparation/ownership specs, Distribution runner fixtures and tests, shared `pageTest.ts`, and the mounted Intent comparison scope. The backend static app server and comparison renderer specs exercise their respective retiring harnesses. Slice 1 verifies the post-supplier consumer set through a scratch removal and the consuming commands. |
+| CI shard partition | At `910772218`, the runner's `groupFiles(frontendGroup, split)` for unsplit, `1/2` and `2/2` selected 332, 205 and 127 files. The split sets had no overlap, missing or extra files. Slice 5 checks the updated file partition and publication on branch CI. Slice 7 compares executed case identities. |
+| Typed readers reach mounted consumers | At `910772218`, a cold scratch case in `launches/launch-record-details` opened Session details on a saved allocation and refused `/__authenticated-read`. It failed on that request with default readers. With both existing `PageReads.observation` readers wired and the five private defaults removed, it displayed the supplied credit, asked the supplied readers exactly once at the saved revision and made zero authenticated requests. `caffeinate -s -i npm run --silent test:dashboard:frontend -- launches/launch-record-details sessions/compact-session-entry-cursor --workers=2` passed 5 cases with the direct mounts supplying the page context. `caffeinate -s -i npm run --silent typecheck:dashboard` identified the shared Intent read spec as the remaining caller before its reader was supplied. Typecheck then passed, and `caffeinate -s -i npm run --silent test:dashboard:backend -- intent/intent-shared-reads --workers=2 --reporter=line` passed all 7 cases. Scratch edits were reverted. |
+| Local proof route | In this preparation worktree, `caffeinate -s -i npm ci` on AC power succeeded with pinned Node 24.21.0. The full listing and the focused Chromium and backend runs above reached their consumers. Repeat the pinned dependency setup in execution. Slice 7 owns the complete timed run. |
 
 ## Slices
 
@@ -64,12 +66,13 @@ removing the remaining standalone legacy frontend cases from trunk.
 Type: Structure
 Status: planned
 
-At fetched trunk, after all recorded prerequisites are satisfied, repeat the
-legacy-spec search. In a scratch edit, remove `frontend.playwright.config.ts`
-and the frontend group's `config`, then run `npm run typecheck:dashboard`,
-the lint command, `npm run test:dashboard:frontend -- --list`, the four
-backend specs, and the Distribution local-test-suite support tests. Record
-each consumer that fails. Then revert.
+At fetched trunk, after the supplier has landed, list the frontend group
+and record the legacy cases by file. In scratch, remove the frontend
+Playwright registration and legacy-only support slated for slices 3–5.
+Trace the resulting callers with the installed consumer trace, then run
+`npm run typecheck:dashboard`, `npm run lint`, the frontend listing, the
+backend preparation/ownership specs and the Distribution local-test-suite
+support tests. Record which commands and consumers fail, then revert.
 
 **Proof.** The plan's premise rows record the remaining legacy specs and the
 failing consumers, with their revision. If any legacy spec outside
@@ -106,8 +109,9 @@ backend specs and the Distribution local-test-suite tests to the remaining
 preparation. Then the next slice can delete the built-app support without
 breaking any runner.
 
-**Proof.** `--list` names only Vitest projects. A file filter, a title
-filter and an empty filter (exit 1, and exit 0 with `--pass-with-no-tests`) behave as before.
+**Proof.** `--list` names only the Vitest runner. Check file and title
+selection through the command and an empty selection both with and without
+`--pass-with-no-tests` (exit 0 and 1 respectively).
 One file under `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`
 writes a record with the same labels. The four backend specs pass through
 `npm run test:dashboard:backend --`, and a backend listing still includes
@@ -119,17 +123,21 @@ both engines. The Distribution support tests pass through
 Type: Structure
 Status: planned
 
-Delete `frontendApp.ts`, `frontendAppServer.ts`, the comparison bundle and
-mount, `pageTest.ts`, `frontendServiceSubstitutes.ts`,
+Delete `frontendApp.ts`, `frontendAppServer.ts`, the static comparison
+bundle and renderer, the comparison-only extensions in `pageTest.ts`,
+`frontendServiceSubstitutes.ts`,
 `frontendSubstituteAnswers.ts`, and the spent `frontend*` substitute, rule
-and route-state modules. Follow their transitive imports until nothing
-loses a live consumer. Keep any utility that E2E or backend imports, and
-remove only its frontend legacy path.
+and route-state modules. Keep the shared Playwright fixture base for E2E
+and backend. Move `ComparisonMountScope` and its input type out of the
+static comparison mount to the existing mounted Intent scope fixture
+owner. Drop the harness-only backend specs and preserve generic app
+artifact and process ownership checks through the surviving runners.
 
-**Proof.** `npm run typecheck:dashboard` and lint pass. A `git grep` of
-`dashboard/` and `scripts/` finds no frontend import of `@playwright/test`
-and no retired module name outside `.planning/`. `npm run test:e2e -- --list`
-and `npm run test:dashboard:backend -- --list` still list their cases.
+**Proof.** Typecheck and lint pass. Search `dashboard/` and `scripts/` for
+retired modules and frontend `@playwright/test` imports, including imports
+through shared helpers. Run the mounted Intent scope cases through the
+frontend group. List E2E and backend, and run a representative shared
+`pageTest.ts` case in each plus the retained artifact-demand checks.
 
 ### 5. Documentation, CI and output settings name only the Vitest frontend runner
 
@@ -143,9 +151,11 @@ runner, and generated-output ignores. Keep the npm command, shards, timings,
 proof label and publication.
 
 **Proof.** Branch CI on the published candidate runs both
-`dashboard-frontend` shards green. The proof artifact's case union equals a
-local `--list` with no omission or duplicate, and `ci-proof` reads the
-frontend proof.
+`dashboard-frontend` shards green. Confirm their selected file sets
+partition the unsharded listing and their Vitest timing files and proof
+fragments feed `ci-shard-balance` and `ci-proof` respectively. Keep the CI
+browser install and cache for mounted Chromium and the shared upload
+contract for E2E and backend.
 
 ### 6. Mounted Dashboard reads use their supplied readers
 
@@ -157,15 +167,18 @@ Require an explicit reader for `cataloguedAt`, `readDoneStories`,
 existing typed `PageReads` sources for their page callers. Give
 `SessionAssignment` the observation's profile list and addition readers;
 keep authenticated implementations at production composition. Preserve read
-results, gaps, retries and cancellation. Limit the change to the five reader
-contracts and their direct callers and leave broader Board frame wiring to
-its own work.
+results, gaps, retries and cancellation. Supply the page context in the
+two direct Session entry mounts. Supply `requestIntentLocationsAt` to the
+shared Intent read spec to keep its authenticated memoization and Retry
+check. Limit the change to the five reader contracts and their direct callers.
 
 **Proof.** Typecheck the required readers at every call site. Run focused
 mounted proof for Done catalog selection, Intent locations and review syntax,
 and the session assignment shown from supplied profile and addition replies.
 Use cold reads and make an unexpected authenticated read fail the case.
-Keep the focused checks before the final suite measurement.
+Check the focused session mounts and the backend shared-read spec before the
+final suite measurement. Preserve the existing E2E session-attribution
+journey through authenticated composition.
 
 ### 7. The complete frontend group is measured against the campaign baseline
 
@@ -179,17 +192,23 @@ Record the case-count and behavior ledger across every frontend campaign
 story in the seed's [frontend renovation evidence](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#frontend-renovation-evidence).
 
 **Proof.** Run `caffeinate -s -i npm run --silent test:dashboard:frontend -- --workers=2`
-on AC power, recording load at start and finish. Every case passes on the
-first attempt. Report the actual time and any remaining cost, including
-proof promoted to E2E.
+on AC power with a fresh absolute `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`
+path, recording load at start and finish. Compare the union of both CI shards'
+executed case identities to the unsharded execution record at the same
+revision. Compare execution to execution because discovery can report
+parameterized case declarations without expanding their rows. Every case
+passes on the first attempt. Report the actual time and any remaining cost,
+including proof promoted to E2E.
 
 ## Concern evidence
 
-The seven slices follow consumer removal, then close the typed read boundary
-before measuring the whole suite. The first slice is the authorized early
-probe. The suppliers will change the paths that the consumer premises
-inspected, so those premises reopen at start, and slice 1 settles them
-before any deletion. Slice 1 also bounds the sizing of slices 3 and 4.
+Slice-plan refinement ran and retained seven slices. It assigned shared
+fixture and mounted Intent proof to slice 4 and the executed-case comparison
+to slice 7. The prerequisite changes the runner's consumers. Slice 1
+rechecks that dependency-sensitive boundary and the sizing of slices 3 and
+4 before any deletion. The cold mounted observation and the required-reader
+typecheck settled the previous slice 6 concern. The review found no other
+slice-specific concern.
 
 ## Verification and delivery
 

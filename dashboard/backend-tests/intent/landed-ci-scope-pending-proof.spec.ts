@@ -1,198 +1,121 @@
-// A recorded landing whose exact CI attempt is still queued. Collection runs
-// with Intent closed; the public scoped read must retain the known attempt as
-// pending evidence, with its link and no invented execution-time measurement.
+// Collection keeps the link and local order even before CI answers.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { githubApi } from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import {
-  collectingLandedCi,
-  restartAsLandedCiReader,
-  resultToLand,
-  serveTrunkRuns,
-} from "../../test-support/support/landedCiHistory.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { land } from "../../test-support/support/startSessionLandingContext.ts";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { GitHubAcquisitionFailed } from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { collectLandedCiPass } from "../../server/landedCiPass.ts";
+import { passRead } from "../../server/landedCiPassRead.ts";
 
-test.use({
-  serverMode: "boundary",
-  extraEnv: collectingLandedCi,
-  liveServer: "synchronous delivery child blocks the mounted receiver",
-});
+const source = makeMe.aPublishedSource.openDough.please();
+const description = makeMe.aRepository
+  .withBaseBeforeEveryLaunch()
+  .withRevision("revision")
+  .please();
 
-const readers: DashboardServer[] = [];
-test.afterEach(async () => {
-  await Promise.all(readers.splice(0).map((reader) => reader.close()));
-});
-
-function retainedState(home: string): {
-  readonly trunkOrder?: readonly string[];
-  readonly landings?: Readonly<
-    Record<
-      string,
-      {
-        readonly observed: {
-          readonly kind: string;
-          readonly waitsFor?: string;
-        };
-      }
-    >
-  >;
-} {
-  try {
-    return (
-      (
-        JSON.parse(
-          readFileSync(
-            path.join(home, ".open-dough/dashboard/landed-ci-history.json"),
-            "utf8",
-          ),
-        ) as Record<string, ReturnType<typeof retainedState>>
-      )["open-dough"] ?? {}
-    );
-  } catch {
-    return {};
-  }
+async function acceptedLanding() {
+  const checkout = await materializeLocalCheckout(undefined, description, {
+    gitTemplates: false,
+  });
+  vi.stubEnv("HOME", checkout.fixture);
+  onTestFinished(async () => {
+    vi.unstubAllEnvs();
+    await checkout.cleanup();
+  });
+  const landing = makeMe.aLaunchLanding
+    .capturedFrom({ repository: checkout.integration })
+    .comparing(checkout.revisions)
+    .please();
+  return { landing, repository: checkout.integration };
 }
 
-test("a pending landed attempt keeps its known run identity and link in the local scope gap", async ({
-  dashboard,
-  origin,
-  github,
-}) => {
-  // Installed land()/prepare under contested shard CPU exhausted the 10s
-  // reporting delivery bound (run 42804393525); with the 30s delivery budget
-  // the whole publication+collection journey still needs headroom beyond the
-  // 30s default. SEED-287#fit-dashboard-journeys-in-default-timeout.
-  test.setTimeout(90_000);
-  const { record, revision } = await resultToLand(
-    dashboard,
-    "pending-proof.txt",
-  );
+test("a queued exact attempt is a linked scope gap before any proof is requested", async () => {
+  const { landing, repository } = await acceptedLanding();
+  const { revision, receivedAt } = landing;
   const runUrl = "https://ci.invalid/runs/51/attempts/2";
-  serveTrunkRuns(github, origin, (main) => [
-    makeMe.aCiRun
-      .with({
-        headSha: main,
-        id: 51,
-        attempt: 2,
-        status: "queued",
-        url: runUrl,
-        createdAt: "2026-11-09T06:00:00Z",
-      })
-      .please(),
-  ]);
+  const run = makeMe.aCiRun
+    .with({
+      headSha: revision,
+      id: 51,
+      attempt: 2,
+      status: "queued",
+      url: runUrl,
+    })
+    .please();
+  const gh = githubApi(({ commit }: { commit?: string }) =>
+    commit === revision ? [run] : [],
+  );
+  const stopped = new AbortController();
+  const readProof = vi.fn();
+  await collectLandedCiPass({
+    source,
+    receipts: [landing],
+    history: await keptLandedCiHistory(source.id),
+    repository,
+    stopped: stopped.signal,
+    read: passRead(source, repository, stopped.signal, {
+      providers: { github: gh },
+    }),
+    readProof,
+  });
+  stopped.abort();
 
-  // The installed publication submits an accepted landing; no page is open.
-  const receipt = land(record, origin, dashboard.home).result.landing.receipt;
-  expect(receipt.revision).toBe(revision);
-  await expect
-    .poll(
-      () =>
-        github.calls.filter(
-          ({ request }) =>
-            request.kind === "actions-runs" && request.headSha === revision,
-        ).length,
-    )
-    .toBeGreaterThan(0);
-
-  const query = new URLSearchParams({
-    source: "open-dough",
-    intent: "ci-history",
+  const reading = await performIntentCiHistoryRead(source, {
+    kind: "intent-ci-history",
     scope: "dashboard/tests",
     revision,
-    through: receipt.receivedAt,
+    through: receivedAt,
   });
-  const readScope = async (address = dashboard.origin) => {
-    const response = await rawRequest({
-      url: `${address}/__authenticated-read?${query}`,
-      headers: { Origin: address },
-    });
-    return {
-      status: response.status,
-      body: JSON.parse(response.body) as unknown,
-    };
-  };
-  const pending = {
-    status: 200,
-    body: {
+  expect(reading).toMatchObject({
+    kind: "answered",
+    answer: {
       path: "dashboard/tests",
       selectedRevision: revision,
       entries: [
         {
           kind: "gap",
           selected: true,
-          reason: expect.stringMatching(/pending/i),
+          reason: expect.stringMatching(/pending/i) as unknown,
           landings: [{ revision, selected: true }],
-          // An observed queued run is not a measured build. Its identity/link
-          // belongs to the pending gap's own run evidence.
           run: { runId: 51, runAttempt: 2, runUrl },
+          readings: [],
         },
       ],
     },
-  };
-  await expect.poll(readScope).toMatchObject(pending);
-  const reader = await restartAsLandedCiReader(
-    dashboard,
-    origin,
-    "boundary",
-    "the preceding live server retains the machine's Cursor runner",
-  );
-  readers.push(reader);
-  const observed = await readScope(reader.origin);
-  expect(observed).toMatchObject(pending);
-  const entries = (observed.body as { entries: Record<string, unknown>[] })
-    .entries;
-  expect(entries).toHaveLength(1);
-  expect(entries[0]).toHaveProperty("readings", []);
-  expect(entries[0]).not.toHaveProperty("build");
-
-  const asked = github.calls.length;
-  expect(await readScope(reader.origin)).toMatchObject(pending);
-  expect(github.calls).toHaveLength(asked);
-  expect(
-    github.calls.filter(
-      ({ request }) => request.kind === "actions-run-artifacts",
-    ),
-  ).toEqual([]);
+  });
+  if (reading.kind !== "answered" || !("entries" in reading.answer))
+    throw new Error("Missing scoped history");
+  expect(reading.answer.entries[0]).not.toHaveProperty("build");
+  expect(readProof).not.toHaveBeenCalled();
 });
 
-test("an unread CI landing still retains independently evidenced local trunk order", async ({
-  dashboard,
-  origin,
-  github,
-}) => {
-  // Same contested-land publication headroom as the pending-proof case above.
-  // SEED-287#fit-dashboard-journeys-in-default-timeout.
-  test.setTimeout(90_000);
-  const { record, revision } = await resultToLand(
-    dashboard,
-    "unread-ci-order.txt",
-  );
-  serveTrunkRuns(
-    github,
-    origin,
-    () => [],
-    () => false,
-  );
-  const receipt = land(record, origin, dashboard.home).result.landing.receipt;
-  await expect
-    .poll(() => retainedState(dashboard.home))
-    .toMatchObject({
-      landings: {
-        [receipt.receipt]: { observed: { kind: "pending", waitsFor: "read" } },
+test("an unread CI landing keeps independent local trunk order in the file store", async () => {
+  const { landing, repository } = await acceptedLanding();
+  const stopped = new AbortController();
+  await collectLandedCiPass({
+    source,
+    receipts: [landing],
+    history: await keptLandedCiHistory(source.id),
+    repository,
+    stopped: stopped.signal,
+    read: passRead(source, repository, stopped.signal, {
+      providers: {
+        github: (args: readonly string[]) =>
+          Promise.reject(
+            new GitHubAcquisitionFailed(args[1], { kind: "http", status: 503 }),
+          ),
       },
-    });
-  await expect
-    .poll(() => retainedState(dashboard.home).trunkOrder)
-    .toEqual([revision]);
-  const reader = await restartAsLandedCiReader(
-    dashboard,
-    origin,
-    "boundary",
-    "the preceding live server retains the machine's Cursor runner",
-  );
-  readers.push(reader);
-  expect(retainedState(dashboard.home).trunkOrder).toEqual([revision]);
+    }),
+    readProof: vi.fn(),
+  });
+  stopped.abort();
+
+  expect(await keptLandedCiHistory(source.id)).toMatchObject({
+    landings: {
+      [landing.receipt]: { observed: { kind: "pending", waitsFor: "read" } },
+    },
+    trunkOrder: [landing.revision],
+  });
 });

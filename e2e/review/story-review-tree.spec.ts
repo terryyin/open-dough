@@ -28,7 +28,7 @@ import {
   storyWorktree,
   writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { keepPublishedStoryReview } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test.use({ originRepository: nestedRepository });
 
@@ -39,7 +39,7 @@ test("a story's changed files show by name under their folders", async ({
 }) => {
   const { workspace } = storyWorktree(origin);
   writeAt(workspace, "dashboard/src/a.tsx", "added\nconst example = 1;\n");
-  keepLaunchRecord(dashboard, workspace);
+  keepPublishedStoryReview(dashboard, origin, workspace);
   const card = await openBacklog(page, origin);
   const { files, diffs } = await openIntentReviewChanges(page, card);
   await files.expectOutsideCount(6);

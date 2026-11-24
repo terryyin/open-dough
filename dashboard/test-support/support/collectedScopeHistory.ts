@@ -1,5 +1,4 @@
 // Machine-local evidence and public scoped reads after actual collection.
-import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
@@ -76,29 +75,4 @@ export function expectUnreadableHistoryAnswer(
     error:
       "The collected CI history could not be read. Retry the local history read.",
   });
-}
-
-// Exercise the real atomic writer with an isolated machine's HOME.
-export function writeCollectedHistoryOrder(
-  home: string,
-  order: readonly string[],
-) {
-  const storeModule = new URL(
-    "../../server/landedCiHistoryStore.ts",
-    import.meta.url,
-  ).href;
-  execFileSync(
-    process.execPath,
-    [
-      "--experimental-transform-types",
-      "--input-type=module",
-      "-e",
-      `import {keepLandedCiOrder} from ${JSON.stringify(storeModule)}; await keepLandedCiOrder('open-dough',JSON.parse(process.argv[1]));`,
-      JSON.stringify(order),
-    ],
-    {
-      encoding: "utf8",
-      env: { ...process.env, HOME: home, NODE_NO_WARNINGS: "1" },
-    },
-  );
 }

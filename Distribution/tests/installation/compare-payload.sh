@@ -117,6 +117,22 @@ mkdir -p -- "${agents_root}/dough-adr-awareness"
 cp -- "${checkout}/Distribution/src/skills/dough-adr-awareness/SKILL.md" "${agents_root}/dough-adr-awareness/"
 assert_compare_payload_mismatch "${agents_dest}" "${agents_root}" 'dough-adr-awareness/SKILL.md'
 
+# A missing or malformed list-era declaration must not turn all paths into
+# apparently unmanaged files when verifying an empty root.
+empty_dest="${temporary_dir}/empty/dough-update"
+mkdir -p -- "${empty_dest}"
+rm -- "${checkout}/install.sh"
+for declaration in missing malformed; do
+  if [[ "${declaration}" == malformed ]]; then
+    printf '%s\n' 'managed_files=(' '  dough-update/SKILL.md' > "${checkout}/install.sh"
+  fi
+  if output=$(bash "${helper}" compare-payload "${empty_dest}" "${checkout}" 2>&1); then
+    echo "FAIL: accepted ${declaration} list-era payload declaration." >&2
+    exit 1
+  fi
+  [[ "${output}" == *'Cannot read managed payload declaration:'* ]]
+done
+
 # A marked directory-format tag lists nothing: each current managed file is a
 # member, delivered with the tag's bytes, by its directory entry alone.
 node "${source_dir}/Distribution/tests/support/release-source.mjs" "${temporary_dir}/directory.git" << 'JSON'

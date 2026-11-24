@@ -1,0 +1,244 @@
+# Prove landed CI wall-time history through typed backend handlers
+
+**Identity:** SEED-413#renovate-landed-ci-backend-proof
+**Source:** [Wall-time history story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof)
+
+## Goal and scope
+
+Give Dashboard maintainers fast Node Vitest feedback on the 14 wall-time
+history specs. Preserve how accepted landings become timed builds or gaps,
+how the history and selected comparison agree, how the retained window is
+read, and how time without runner waits is derived. Keep the production
+request and persistence contracts. Scoped test proof, standalone proof
+collection, reader restart, automatic-repeat correction and backend runner
+retirement have separate owners.
+
+Apply the [campaign's speed and coverage criteria](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families).
+Aim for about 100 ms per unit case or faster. Use the smallest set of cases
+that still catches the distinct regressions in these 14 source files.
+
+## Current decisions
+
+- Follow the North Star for [directly testable production code](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
+  and [plain Vitest for unit tests](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).
+  Apply [ADR 0002 on direct domain mapping and fast feedback](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+  [ADR 0008 on Dashboard authority and repository roles](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+  and [ADR 0010 on comparative evidence](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+  Keep the existing published-source, refresh and exact-revision ownership
+  described in the North Star topics on the [Review repository](../../NORTH-STAR.md#read-published-comparisons-from-the-review-repository)
+  and [shared refresh](../../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads).
+  Use the published source already resolved for the requesting operation.
+- Reuse `collectLandingResolution`, `landingResolution`, the collection
+  order/window logic and `performIntentCiHistoryRead`. The current collector
+  reads ambient configuration and machine files. Give its existing pass
+  explicit project, launch/receipt and history inputs plus the collaborators
+  it uses for clock, CI and writes. Keep scheduling and abort ownership with
+  `LandedCiCollection` and bind the file store, Git and providers in
+  production. Reuse `ciComparisonReader` for comparison. Keep each pass's CI
+  reads and comparison memo under their respective owners.
+- Follow [Dough MakeMe](../../../.agents/skills/dough-makeme/SKILL.md).
+  Reuse `makeMe.aLandedCiHistory`, launch records and checkout builders.
+  Compose a kept landing to arrange a read. In collection cases, supply the
+  accepted input and observe a pass creating the saved result. Keep real Git
+  where ancestry is asserted and real temporary documents where reopening
+  or malformed persisted state matters. Supply answers at the existing
+  typed GitHub and adapter lookup boundaries. The first slice owns making
+  the pass callable without changing its scheduler or duplicating its logic.
+- The current collector, resolution and history read/store files fit the
+  [250-line check](../../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#file-size).
+  If the binding pushes one over, keep collector scheduling with the
+  lifecycle owner and move the existing ordered pass as a unit, or move
+  only the existing history projection from adapter composition. Keep
+  reads, selection and pruning on their existing production path. Check all
+  call sites and affected scoped-history specs before accepting the change.
+- The [scoped proof story](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/slice-plans/806-renovate-landed-ci-scope-proof/PLAN.md) may
+  also change these entries. Each story starts from the current composition
+  and can deliver independently. The [automatic-repeat correction](../607-close-landed-ci-repeat-check-gaps/PLAN.md)
+  keeps its distinct process, natural-load and fault obligations.
+
+## Decisive premises and baseline
+
+At `a75673b31` on awake AC macOS (Node 24.21.0, Homebrew Bash on PATH),
+the maintained backend command selected both cohorts and exited 0. The
+finished proof record showed 22 first-attempt passes across 14 wall-time
+files. Their summed case duration was 71.333 s in this combined run. All
+38 selected cases passed. This observed the existing mount-based results,
+including pending-to-final and restart. Slice 1 measures standalone elapsed
+time for the before-and-after comparison.
+
+```sh
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR \
+  OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD=/tmp/dough-backend-renovation.mBpXIm/proof.json \
+  npm run --silent test:dashboard:backend -- landed-ci-history- landed-ci-scope- --workers=2
+```
+
+The shared pass and read functions point to one kept history document.
+Collection writes keyed receipts and attempt evidence via
+`keepLandedCiResolution` and reads the latest persisted state again on the
+next pass. The read applies local or retained trunk order and projects the
+window without triggering collection. The baseline reaches these behavior
+paths through production composition. Slice 1 proves the same wiring with
+explicit inputs before subsequent cases adopt it.
+
+A scratch change from 20 to 19 in `measuredWindow` made
+`landed-ci-history-read-window.spec.ts` fail its exact history assertion.
+The same run of `npm run --silent test:dashboard:backend --
+landed-ci-history-read-window.spec.ts landed-ci-scope-retained-window.spec.ts
+--workers=2` passed both cases after restoring the source. Slice 5 retains
+this discrimination at the typed reader.
+
+## Slices and outside-in proof
+
+Each file stem below denotes `dashboard/backend-tests/intent/landed-ci-history-<stem>.spec.ts`.
+For each slice, map the original behavioral purposes to their surviving cases,
+including any moved proof. Give each case one observable purpose. Use MakeMe
+to compose prerequisites, and exercise Git, persistence or the collector when
+its real behavior is part of the assertion. Compare related cases across the
+cohort and existing owners. Remove repeated assertions and setup, varying one
+independent behavior per case and retaining combinations that affect the result.
+Check the focused run's case durations during each migration slice so it can
+simplify costly setup while it still owns that case.
+
+### 1. Accepted landings are collected with the production lifecycle
+
+Type: Behavior
+Status: planned
+
+Before migrating the first case, time the baseline command above with only
+the `landed-ci-history-` selector. Use the proof record for each case duration,
+case and file counts and summed case time. Record shell elapsed separately.
+Use `collection` and `lifecycle`. Make the existing ordered collection pass
+callable with typed project, records, history store, Git
+order, CI and stop inputs. Keep production's auto-collection enablement,
+receipt-triggered scheduling and stopped-pass behavior in the owner that
+starts it. A landing recorded before collection starts becomes readable
+without any page. A disabled collector leaves a read passive. A pending
+landing survives closing and reopening the collector and becomes one point.
+
+**Proof.** Invoke production start or its typed lifecycle entry, observe
+the public history after each pass and the saved document after reopening
+it. Control the CI state transition at the typed lookup. Observe no
+collection in disabled mode and no late write when a held read is aborted.
+Keep the existing process-level lifetime cases with the correction.
+Run the scoped lifecycle consumers if the shared composition changes.
+
+### 2. Exact pending runs agree between history and comparison
+
+Type: Behavior
+Status: planned
+
+Convert `pending` and `comparison-run`. Give the pass an accepted receipt,
+retained state, controlled clock and exact-run answers for absent, queued,
+completed and unread CI. Give the comparison its existing admitted
+revision endpoints and the same Git/CI evidence. Keep the saved receipt
+and target after its launch record disappears.
+
+**Proof.** Read the pending gap before completion and trace the same
+exact run/attempt and duration through both typed readers after completion.
+Confirm repeat delivery yields one observation and the original receipt time
+controls the no-build horizon. Compare `pending` with `comparison-run` so
+one representative case owns reader agreement. Prove repeated delivery,
+the no-build horizon and receipt retention where each has a distinguishing
+result. Check the selected comparison contract wherever the binding changes.
+
+### 3. Equivalent and later builds resolve from pending evidence
+
+Type: Behavior
+Status: planned
+
+Convert `pending-proof` and `pending-sources`. Give `landingResolution`
+and the collection pass Git ancestry, a skipped or cancelled landing or
+adapter attempt, and controlled CI plus proof responses over successive
+passes. Keep the window open to other landings when one proof is unanswered.
+
+**Proof.** Assert the waiting reason and run identity while a build or proof
+is pending, continued collection of unrelated evidence, and the eventual
+equivalent, later or exact point with its original provenance. Prove
+answered and unanswered outcomes through the same production rules.
+
+### 4. Final gaps keep their reasons and valid late recovery
+
+Type: Behavior
+Status: planned
+
+Convert `gaps`, `comparison-gap` and `no-proof-recovery`. Exercise
+`landingResolution`, the retained-gap reopen rule and the history/comparison
+readers with published landings, recorded gaps and CI answers for missing
+proof, unusable timing or an invalid run URL. Run actual collection when
+recovery is the trigger.
+
+**Proof.** Check the exact build and link only where valid, and the existing
+reason at each relevant reader. Differentiate an invalid duration from zero.
+An eligible old no-proof equivalent gap reopens on collection. Other final
+gaps stay final, and reading alone leaves saved state untouched.
+
+### 5. History returns the newest measured window in trunk order
+
+Type: Behavior
+Status: planned
+
+Convert `window` and `read-window` with real ancestry for the collecting
+window and composed retained history for the read. Use the production
+window functions through the pass and `performIntentCiHistoryRead`.
+
+**Proof.** Assert pruning of older measurements and stale pending landings
+during a pass. Read a pre-seeded 35-build history and verify exact newest
+20, gaps among and after them and exclusion of an older gap. Keep storage
+pruning and read projection independently observed.
+
+### 6. Time without runner waits preserves wall time and explains gaps
+
+Type: Behavior
+Status: planned
+
+Convert `time-without-runner-waits`, `measure-gaps` and
+`adapter-measure-gaps`. Supply typed GitHub jobs or adapter job graphs for a
+retained attempt to the production measure path and typed reader. Keep
+the job evidence tied to the original attempt.
+
+**Proof.** Observe one retained timing answer, the measure with the waits
+removed, and unchanged wall time. An unanswered jobs read is pending and is
+retried. An answered missing graph is final and names its build. Assert
+read and write behavior through the same store the pass uses.
+
+### 7. The wall-time cohort gives faster feedback
+
+Type: Behavior
+Status: planned
+
+Run the maintained selection at two workers under conditions comparable to
+slice 1. Compare shell elapsed, summed case time and file and case counts.
+List individual case durations against the ~100 ms target. Investigate slower
+cases for avoidable setup, waiting and repeated proof, and document any retained
+cost and the behavior that needs it. Include the cost of any proof moved to
+another suite. Retire setup and support imports whose consumers are gone.
+
+**Proof.** The runner proof record shows passing Node Vitest cases and the
+comparable run is faster. The purpose map names surviving coverage for each
+removed or consolidated case and the focused proof shows that the surviving
+case rejects a representative regression. Inspect for direct typed entry and
+verify the cohort is free of server mounts, browser setup and new wrappers.
+
+## Concern evidence
+
+Refinement retained seven slices and assigned overlap review to each migration
+slice, with measurement in slices 1 and 7. The model is a receipt resolved to
+attempt evidence which a read projects. The runner-wait measure derives from
+that same attempt. The slice map covers all 14 source files, with separate
+observations for expiry, recovery and passive reads. No remaining slice-specific
+concern was identified.
+
+## Verification and delivery
+
+- Local gate: use the maintained [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
+  with `caffeinate -s -i` on AC power for measured runs. Keep the default
+  timeout and follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+- Run focused files through `npm run test:dashboard:backend -- <files>`.
+  Run the Dashboard typecheck and lint for changed contracts. Use the
+  [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
+  for changed binding, read and storage consumers. Where ownership moves,
+  check that the new assertion rejects a representative wrong result before
+  retiring the old assertion. Keep the affected app or end-to-end proof
+  if a shared adapter effect reaches it.
+- Use the normal post-change refactor, delivery and hosted CI gates. Keep
+  timing and coverage evidence in this plan for wrap-up.

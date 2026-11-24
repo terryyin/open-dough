@@ -16,10 +16,8 @@ import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody } from "./support/reviewContextLine.ts";
 import {
   expectLandedContext,
-  expectSessionCommitsContext,
   expectSharedCheckoutNote,
   type LandedContextFacts,
-  type SessionCommitsContextFacts,
 } from "./support/reviewComparisonContext.ts";
 import { reviewRegion } from "./support/reviewControls.ts";
 import { assumeReviewChanges } from "./reviewChangesPage.ts";
@@ -61,12 +59,6 @@ export class StoryReview extends PageObject {
   expectLandedContext(facts: LandedContextFacts) {
     return this.cueHere("Story review: shows the landed context", () =>
       expectLandedContext(this.#review, facts),
-    );
-  }
-
-  expectSessionCommitsContext(facts: SessionCommitsContextFacts) {
-    return this.cueHere("Session review: shows session commits", () =>
-      expectSessionCommitsContext(this.#review, facts),
     );
   }
 

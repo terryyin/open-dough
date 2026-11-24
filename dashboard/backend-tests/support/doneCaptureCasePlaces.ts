@@ -1,5 +1,5 @@
 // Where a Done capture case's launches start and its work happens: the
-// materialized checkout, its base's tree, and its named worktrees by the
+// materialized checkout and its named worktrees by the
 // canonical paths Git registers. Lives beside ./doneCaptureCaseBuilder.ts.
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
@@ -7,7 +7,6 @@ import { type WorkCheckout, minutesAgo, work } from "./doneCaptureCase.ts";
 
 export type Places<Worktree extends string = string> = {
   checkout: WorkCheckout & { base: string; gitDirectory: string };
-  baseTree: string;
   worktrees: Record<Worktree, string>;
   // The declared worktree on `branch`, rejecting any other by its name.
   worktree: (branch: string) => string;
@@ -24,10 +23,12 @@ export async function placesOf<Worktree extends string>(
   checkout: Places["checkout"],
   declared: readonly string[],
 ): Promise<Places<Worktree>> {
-  const [{ stdout: listed }, { stdout: tree }] = await Promise.all([
-    git(checkout.integration, "worktree", "list", "--porcelain"),
-    git(checkout.integration, "rev-parse", `${checkout.base}^{tree}`),
-  ]);
+  const { stdout: listed } = await git(
+    checkout.integration,
+    "worktree",
+    "list",
+    "--porcelain",
+  );
   const worktrees: Record<string, string> = {};
   for (const entry of listed.split("\n\n")) {
     const at = /^worktree (.+)$/m.exec(entry)?.[1];
@@ -41,7 +42,7 @@ export async function placesOf<Worktree extends string>(
       throw new Error(`Undeclared or unmaterialized worktree: ${branch}`);
     return at;
   };
-  return { checkout, baseTree: tree.trim(), worktrees, worktree };
+  return { checkout, worktrees, worktree };
 }
 
 // Performs dated work on main, or `in` a named worktree, answering its

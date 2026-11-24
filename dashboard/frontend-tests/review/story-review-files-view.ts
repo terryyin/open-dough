@@ -1,8 +1,6 @@
 // The Review changes panel's changed files as a reader meets them
 // (./story-review-panel-page.ts): the list naming how many files changed, a
-// file's row with its line counts, and the check that leaves uncommitted
-// changes in or out of All changes; and a file's diff and the selected
-// file's code, scrolled to a reading place.
+// file's row with its line counts, and the selected file's diff and code.
 import { expect } from "vitest";
 import { userEvent, type Locator } from "vitest/browser";
 
@@ -19,10 +17,6 @@ export function reviewFiles(region: Locator) {
     if (!pane) throw new Error(`No code shown for ${file}.`);
     return pane;
   };
-  const uncommitted = region.getByRole("checkbox", {
-    name: "Include uncommitted changes",
-  });
-
   const files = {
     async expectListed(name: string) {
       await expect.element(list(name)).toBeVisible();
@@ -96,19 +90,6 @@ export function reviewFiles(region: Locator) {
             ?.innerText.trim(),
         )
         .toBe(counts);
-      return files;
-    },
-
-    async includeUncommitted(include: boolean) {
-      if ((uncommitted.element() as HTMLInputElement).checked !== include)
-        await uncommitted.click();
-      return files;
-    },
-
-    async expectUncommittedIncluded(included: boolean) {
-      await (included
-        ? expect.element(uncommitted).toBeChecked()
-        : expect.element(uncommitted).not.toBeChecked());
       return files;
     },
   };

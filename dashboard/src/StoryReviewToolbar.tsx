@@ -13,42 +13,28 @@ import {
 import {
   reviewsLanding,
   reviewsPublishedSession,
-  reviewsSessionCommits,
   type StoryReview,
 } from "./storyReviewContract.ts";
 import { comparisonName } from "./StoryReviewComparison.tsx";
-import { sessionCommitsName } from "./StoryReviewSessionCommitsContext.tsx";
 import { publishedSessionName } from "./StoryReviewPublishedSessionContext.tsx";
-import { branchResultName } from "./sessionReviewComparisons.ts";
-import { sessionComparisonName } from "./StoryReviewSessionRuns.tsx";
 import "./story-review-toolbar.css";
 
 // Whether the comparison actually shown lists files for the sidebar.
 export function reviewListsFiles(review: StoryReview | undefined) {
   return (
-    (review?.kind === "landed" ||
-      review?.kind === "branch-result" ||
-      review?.kind === "session-commits" ||
-      review?.kind === "published-session") &&
+    (review?.kind === "landed" || review?.kind === "published-session") &&
     review.files.length > 0
   );
 }
 
 // The toolbar's name for the comparison shown: empty until a review answer
-// supplies one, a session's commits by their context's heading, every landing
-// (including a selected evidence gap) as Landed runs, else the switch's words.
-export const toolbarComparisonName = (
-  review: StoryReview | undefined,
-  sessionComparison?: string,
-) => {
-  const name = sessionComparisonName(sessionComparison);
-  if (name !== undefined) return name;
+// supplies one. A published session or accepted landing uses its context’s
+// heading, including an evidence gap for that comparison.
+export const toolbarComparisonName = (review: StoryReview | undefined) => {
   // An opening request alone supplies no name; an unavailable read that
   // never answered likewise. A returned gap still names its comparison.
   if (review === undefined || review.kind === "unavailable") return "";
-  if (review.kind === "branch-result") return branchResultName;
   if (reviewsPublishedSession(review)) return publishedSessionName;
-  if (reviewsSessionCommits(review)) return sessionCommitsName;
   return reviewsLanding(review) ? comparisonName("landed") : "";
 };
 
