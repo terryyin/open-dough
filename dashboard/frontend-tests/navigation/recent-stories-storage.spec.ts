@@ -2,6 +2,7 @@ import { expect, onTestFinished, test, vi } from "vitest";
 import { recentStoriesKey } from "../../src/recentStories.ts";
 import { withFramePreference } from "../../test-support/component-mount/framePreferences.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
+import { boardReading, storyCard } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 import {
   activate,
@@ -66,7 +67,10 @@ test("refused browser storage leaves history usable for one frame with no persis
   await showsEmptyHistory();
   await dismissWithEscape();
   await selectCard(queued.title);
-  await selectCard(taken.title);
+  // The bookmark opens the list when the selected story is already readable.
+  const latestCard = storyCard(taken.title);
+  await latestCard.getByRole("heading", { level: 3 }).first().click();
+  await boardReading.expectStorySelection(latestCard, true);
   await activate(recent);
   await showsHistory([
     [openDough, taken.identity, true],

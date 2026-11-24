@@ -385,6 +385,14 @@ paint and expiry across Recent stories, story URLs and references. The
 nine affected cases passed in 4.74 s and typecheck passed. The reference
 spec kept its distinct fade/restart proof and dropped from 254 to 227 lines.
 
+**CI repair.** A direct activation could select a card below the Board's
+reading edge. The first bookmark press then revealed the card, leaving the
+list closed. A native click brings the second story into view before testing
+the storage fallback. The forced witness and all five final Recent stories
+cases passed. The repair stays within the storage case traced in the accepted
+slice 6 refactor and adds no helper or representation. See
+[the diagnosis](diagnosis-recent-storage.md) for the failed attempt and proof.
+
 ### 7. Intent outside and no-locations Changes stay truthful on Vitest
 
 Type: Behavior
