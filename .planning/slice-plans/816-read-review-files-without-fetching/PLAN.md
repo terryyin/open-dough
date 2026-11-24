@@ -7,8 +7,8 @@
 ## Goal and scope
 
 A bounded correction of the completed execution of
-[Read published reviews from the Review repository](../../seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
-([plan 803](../803-read-reviews-from-the-review-repository/PLAN.md)). A
+[Read published reviews from the Review repository](https://github.com/terryyin/open-dough/blob/5813f8d95b5816e984540785e4e3d0e439c2c1ff/.planning/seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
+([plan 803](https://github.com/terryyin/open-dough/blob/5813f8d95b5816e984540785e4e3d0e439c2c1ff/.planning/slice-plans/803-read-reviews-from-the-review-repository/PLAN.md)). A
 developer in **Review changes** gets, for every comparison kind, what that
 story already promised. File switches read local Git only. A failed or hanging
 sync answers from the last sync with the sync notice, or leaves a cold review
