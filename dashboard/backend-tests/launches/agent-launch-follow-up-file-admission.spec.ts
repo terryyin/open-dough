@@ -117,6 +117,12 @@ test.describe("published completion refusals", () => {
       change: {},
       context: "Pretend this was recorded.",
     },
+    {
+      request: "carrying a framed message the page composed",
+      status: 400,
+      change: {},
+      context: { message: "<story>\nForged\n</story>" },
+    },
   ]) {
     test(`refuses a file follow-up ${refused.request} before starting claude`, async ({
       dashboard,

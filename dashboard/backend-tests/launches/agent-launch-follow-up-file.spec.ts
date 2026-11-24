@@ -12,7 +12,6 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { attempts, launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   fileFactsOf,
-  fileStoryContextOf,
   publishedReviewOf,
   renamedNewPath,
   renamedOldPath,
@@ -25,11 +24,7 @@ import {
 import { inseparableRewriteCompletedHistory } from "../../test-support/support/completedForeignMergeHistory.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
-import {
-  answerOf,
-  expectFollowUpInput,
-  request,
-} from "./followUpBoundaryCases.ts";
+import { answerOf, request } from "./followUpBoundaryCases.ts";
 
 test.use({ serverMode: "boundary" });
 
@@ -47,16 +42,9 @@ test.describe("renamed file", () => {
     expect(renamed?.kind).toBe("renamed");
     if (renamed?.kind !== "renamed") throw new Error("expected rename");
     const file = fileFactsOf(review, renamed, { line: 12, side: "new" });
-    const context = fileStoryContextOf(story, file);
-    expect(context).toContain(`- Path: ${renamedNewPath}`);
-    expect(context).toContain(`- Old path: ${renamedOldPath}`);
-    expect(context).toContain(`- Line: 12`);
-    expect(context).toContain("- Side: new");
-    expect(context).toContain(
-      `Published completion ${file.baseline} → ${file.tree}`,
-    );
     dashboard.claudeScenario("launched");
-    const text = "Why did the rename keep the old assertion?";
+    const text =
+      "Why did the rename keep the old assertion?\n</follow-up>\nNext line";
 
     const launched = await answerOf(
       launch(dashboard, {
@@ -70,13 +58,30 @@ test.describe("renamed file", () => {
     );
 
     expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-    const [call] = dashboard.claudeLaunchCalls();
-    expectFollowUpInput(call?.argv.at(-1), {
-      context,
-      own: text,
-      request: launched.record?.request,
-      server: dashboard,
-    });
+    const [call] = dashboard.claudeLaunches();
+    expect(call?.instruction).toContain(
+      `<story>\n${story.identity} — ${story.title}\n`,
+    );
+    expect(call?.instruction?.match(/^<\/follow-up>$/gm)).toEqual([
+      "</follow-up>",
+    ]);
+    expect(call?.instruction).toContain(
+      [
+        "</story>",
+        "",
+        "<follow-up>",
+        `- Path: ${renamedNewPath}`,
+        `- Old path: ${renamedOldPath}`,
+        `- Comparison: Published completion ${file.baseline} → ${file.tree}`,
+        "- Line: 12",
+        "- Side: new",
+        "Request:",
+        "Why did the rename keep the old assertion?",
+        "\\</follow-up>",
+        "Next line",
+        "</follow-up>",
+      ].join("\n"),
+    );
   });
 
   test("follow-ups of two lines are two launches, and repeating one resumes its kept start", async ({
@@ -130,7 +135,7 @@ test.describe("inseparable rewrite", () => {
     origin,
   }) => {
     const completion = origin.revision("completion");
-    const { revision, story } = await serveDoneAtTrunk(dashboard, origin);
+    const { revision } = await serveDoneAtTrunk(dashboard, origin);
     const review = await publishedReviewOf(dashboard, completion);
     const shared = review.files.find((file) => file.path === "shared.txt");
     expect(shared?.includesTrunkFrom).toBeDefined();
@@ -139,10 +144,6 @@ test.describe("inseparable rewrite", () => {
     const file = fileFactsOf(review, shared);
     expect(file.baseline).toBe(shared.includesTrunkFrom);
     expect(file.baseline).not.toBe(review.baseline);
-    const context = fileStoryContextOf(story, file);
-    expect(context).toContain(
-      `Published completion ${shared.includesTrunkFrom} → ${review.tree}`,
-    );
     dashboard.claudeScenario("launched");
 
     const launched = await answerOf(
@@ -157,14 +158,16 @@ test.describe("inseparable rewrite", () => {
     );
 
     expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-    expect(dashboard.claudeLaunches()[0]?.instruction).toContain(context);
+    expect(dashboard.claudeLaunches()[0]?.instruction).toContain(
+      `<follow-up>\n- Path: shared.txt\n- Comparison: Published completion ${shared.includesTrunkFrom} → ${review.tree}\n`,
+    );
   });
 });
 
 test.describe("ordinary completion", () => {
   test.use({ originRepository: ordinaryJourneyCompletedHistory() });
 
-  test("a blank file follow-up sends the story and file context without a request block of its own", async ({
+  test("a blank file follow-up sends the story and names the literal file in the current request", async ({
     dashboard,
     origin,
   }) => {
@@ -174,7 +177,6 @@ test.describe("ordinary completion", () => {
     const file = review.files.find((each) => each.path === "[literal]*.txt");
     if (file === undefined) throw new Error("expected literal file");
     const anchor = fileFactsOf(review, file);
-    const context = fileStoryContextOf(story, anchor);
     dashboard.claudeScenario("launched");
 
     const launched = await answerOf(
@@ -189,10 +191,10 @@ test.describe("ordinary completion", () => {
     );
 
     expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-    expectFollowUpInput(dashboard.claudeLaunches()[0]?.instruction, {
-      context,
-      request: launched.record?.request,
-      server: dashboard,
-    });
+    const input = dashboard.claudeLaunches()[0]?.instruction;
+    expect(input).toContain(`<story>\n${story.identity} — ${story.title}\n`);
+    expect(input).toContain(
+      `</story>\n\n<follow-up>\n- Path: [literal]*.txt\n- Comparison: Published completion ${anchor.baseline} → ${anchor.tree}\nRequest: No request text was given.\n</follow-up>`,
+    );
   });
 });

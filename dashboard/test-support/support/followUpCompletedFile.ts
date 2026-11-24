@@ -6,10 +6,6 @@ import { describedFiles } from "../describedRevisions.ts";
 import { doneRecordOf, type DoneStory } from "../../src/doneRecord.ts";
 import type { FollowUpFileFacts } from "../../src/followUpContext.ts";
 import {
-  followUpContextText,
-  storyContext,
-} from "../../src/followUpContext.ts";
-import {
   storyReviewEndpoint,
   storyReviewSchema,
   type ReviewedFile,
@@ -122,8 +118,4 @@ export function fileFactsOf(
     completion: review.completion,
     ...(line === undefined ? {} : line),
   };
-}
-
-export function fileStoryContextOf(story: DoneStory, file: FollowUpFileFacts) {
-  return followUpContextText(storyContext(story, [], file));
 }

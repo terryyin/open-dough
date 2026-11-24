@@ -20,6 +20,19 @@ export const fileFollowUpDialog = (page: Page, project = "Open Dough") =>
 
 export { startSessionField };
 
+export function fileFollowUpComposer(dialog: Locator) {
+  return {
+    async start(instruction?: string) {
+      if (instruction !== undefined)
+        await startSessionField(dialog).fill(instruction);
+      await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    },
+    async cancel() {
+      await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    },
+  };
+}
+
 // The existing Start session dialog after file Follow up: subject, file
 // context lines, blank instruction, and the same Workspace / After checks
 // defaults.

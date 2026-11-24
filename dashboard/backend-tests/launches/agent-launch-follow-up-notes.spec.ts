@@ -22,20 +22,25 @@ import { storyNotesEndpoint, storyNoteVersion } from "../../src/storyNote.ts";
 import {
   answerOf,
   expectFollowUpInput,
-  partsOf,
   request,
 } from "./followUpBoundaryCases.ts";
 import {
   completedAt,
-  notesContextOf,
   publishRecoverStory,
   seedNotes,
   sentNote,
   waitingGeneral,
+  waitingGeneralLine,
   waitingLine,
+  waitingLineAndAnchor,
 } from "./followUpNotesCases.ts";
 
 test.use({ serverMode: "boundary" });
+
+const notesSection = (...body: string[]) =>
+  ["<line-notes>", "Developer's story notes", ...body, "</line-notes>"].join(
+    "\n",
+  );
 
 test("a story follow-up with notes: true sends only waiting notes with text and context after the story context", async ({
   dashboard,
@@ -48,9 +53,10 @@ test("a story follow-up with notes: true sends only waiting notes with text and 
   });
   dashboard.claudeScenario("launched");
   const text = "Investigate the paste drop.";
-  const storyContext = storyContextOf(recoverStory, completedAt, "no session");
-  const notesContext = notesContextOf([waitingGeneral, waitingLine]);
-  const context = `${storyContext}\n${notesContext}`;
+  const message = [
+    storyContextOf(recoverStory, completedAt, "no session", text),
+    notesSection(waitingGeneralLine, waitingLineAndAnchor),
+  ].join("\n\n");
 
   const launched = await answerOf(
     launch(dashboard, {
@@ -66,8 +72,7 @@ test("a story follow-up with notes: true sends only waiting notes with text and 
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
   const [call] = dashboard.claudeLaunchCalls();
   expectFollowUpInput(call?.argv.at(-1), {
-    context,
-    own: text,
+    context: message,
     request: launched.record?.request,
     server: dashboard,
   });
@@ -76,7 +81,7 @@ test("a story follow-up with notes: true sends only waiting notes with text and 
     instruction: text,
     followUp: {
       story: { identity: recoverStory.identity, notes: true },
-      context,
+      context: { message },
       notes: [
         {
           id: waitingGeneral.id,
@@ -103,12 +108,12 @@ test("a story follow-up without notes: true sends none of the story's notes", as
     [recoverStory.identity]: [waitingGeneral, waitingLine, sentNote],
   });
   dashboard.claudeScenario("launched");
-  const context = storyContextOf(recoverStory, completedAt, "no session");
+  const text = "Continue without notes";
 
   const launched = await answerOf(
     launch(dashboard, {
       ...request,
-      instruction: "Continue without notes",
+      instruction: text,
       followUp: makeMe.aFollowUp.ofStory(recoverStory, revision).please(),
     }),
   );
@@ -116,8 +121,7 @@ test("a story follow-up without notes: true sends none of the story's notes", as
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
   const [call] = dashboard.claudeLaunchCalls();
   expectFollowUpInput(call?.argv.at(-1), {
-    context,
-    own: "Continue without notes",
+    context: storyContextOf(recoverStory, completedAt, "no session", text),
     request: launched.record?.request,
     server: dashboard,
   });
@@ -147,7 +151,15 @@ test("a retried start with notes: true resends the saved notes after an in-fligh
       .attachingNotes()
       .please(),
   };
-  const admitted = `${storyContextOf(recoverStory, completedAt, "no session")}\n${notesContextOf([waitingGeneral])}`;
+  const message = [
+    storyContextOf(
+      recoverStory,
+      completedAt,
+      "no session",
+      followUpStart.instruction,
+    ),
+    notesSection(waitingGeneralLine),
+  ].join("\n\n");
   dashboard.claudeScenario("refused");
   const refused = await answerOf(launch(dashboard, followUpStart));
   expect(refused).toMatchObject({ kind: "failed", reason: "refused" });
@@ -178,13 +190,10 @@ test("a retried start with notes: true resends the saved notes after an in-fligh
   expect(call?.argv.at(-1)).not.toContain(
     "Edited after admission; session must not see this.",
   );
-  // Isolated resume: [established, reporting, context, own].
-  expect(partsOf(call?.argv.at(-1), admitted).after).toEqual([
-    followUpStart.instruction,
-  ]);
+  expect(call?.argv.at(-1)?.endsWith(message)).toBe(true);
   expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     followUp: {
-      context: admitted,
+      context: { message },
       notes: [
         { id: waitingGeneral.id, version: storyNoteVersion(waitingGeneral) },
       ],

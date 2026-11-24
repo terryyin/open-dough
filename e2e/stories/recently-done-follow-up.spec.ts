@@ -151,9 +151,7 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
     const [started, ...others] = dashboard.claudeLaunches();
     expect(others).toEqual([]);
     expect(started?.instruction).toBe(
-      [storyContextOf(recoverStory, completedAt, "quiet sessions"), text].join(
-        "\n\n",
-      ),
+      storyContextOf(recoverStory, completedAt, "quiet sessions", text),
     );
   });
 

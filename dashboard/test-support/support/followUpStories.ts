@@ -8,7 +8,6 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { describedFiles } from "../describedRevisions.ts";
-import { followUpPreamble } from "./followUpSources.ts";
 
 type Story = { readonly identity: string; readonly title: string };
 
@@ -127,32 +126,37 @@ export function storyItems(
   ];
 }
 
-// The context block a session receives for a story completed at
-// `completedAt`, as `storyItems` lists it.
+// The first-input sections for a story whose sessions completed quietly.
 export function storyContextOf(
   story: Story,
   completedAt: string,
   held: "quiet sessions" | "no session",
+  instruction: string,
 ): string {
   const [completed = "", status = "", ...rest] = storyItems(
     story,
     completedAt,
     held,
   ).map((item) => `- ${item}`);
-  const sessions =
+  const extras =
     held === "no session"
-      ? rest
+      ? []
       : [
-          `Session “${story.title}”:`,
-          ...rest.slice(0, 4),
-          `Session “${story.title}”:`,
-          ...rest.slice(4),
+          ["<session>", story.title, ...rest.slice(0, 4), "</session>"].join(
+            "\n",
+          ),
+          ["<session>", story.title, ...rest.slice(4), "</session>"].join("\n"),
         ];
   return [
-    followUpPreamble,
-    `Done story “${storyNameOf(story)}”:`,
-    completed,
-    status,
-    ...sessions,
-  ].join("\n");
+    [
+      "<story>",
+      storyNameOf(story),
+      completed,
+      status,
+      ...(held === "no session" ? rest : []),
+      "</story>",
+    ].join("\n"),
+    `<follow-up>\nRequest:\n${instruction}\n</follow-up>`,
+    ...extras,
+  ].join("\n\n");
 }

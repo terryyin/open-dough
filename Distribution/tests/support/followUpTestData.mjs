@@ -33,7 +33,7 @@ export class FollowUpBuilder {
   #file;
   /** @type {boolean} */
   #attachNotes = false;
-  /** @type {string | undefined} */
+  /** @type {FollowUp["context"]} */
   #context;
   /** @type {AttachedStoryNote[] | undefined} */
   #attached;
@@ -92,7 +92,7 @@ export class FollowUpBuilder {
 
   /**
    * Context resolved from the source at admission, kept on the recorded request.
-   * @param {string} context
+   * @param {NonNullable<FollowUp["context"]>} context
    */
   withContext(context) {
     this.#context = context;
@@ -110,6 +110,8 @@ export class FollowUpBuilder {
 
   /** @returns {FollowUp} */
   please() {
+    const context =
+      typeof this.#context === "object" ? { ...this.#context } : this.#context;
     if (this.#kind === "session") {
       if (this.#session === undefined) throw new Error("state .ofSession(...)");
       if (
@@ -120,7 +122,7 @@ export class FollowUpBuilder {
         throw new Error("a session follow-up names only its session");
       return {
         session: { ...this.#session },
-        ...(this.#context === undefined ? {} : { context: this.#context }),
+        ...(context === undefined ? {} : { context }),
       };
     }
     if (
@@ -136,7 +138,7 @@ export class FollowUpBuilder {
         ...(this.#file === undefined ? {} : { file: { ...this.#file } }),
         ...(this.#attachNotes ? { notes: true } : {}),
       },
-      ...(this.#context === undefined ? {} : { context: this.#context }),
+      ...(context === undefined ? {} : { context }),
       ...(this.#attached === undefined
         ? {}
         : { notes: this.#attached.map((note) => ({ ...note })) }),

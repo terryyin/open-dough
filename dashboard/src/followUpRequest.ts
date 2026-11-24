@@ -57,9 +57,11 @@ const followUpStorySchema = z.strictObject({
   notes: z.literal(true).optional(),
 });
 
-// The context resolved from the records at Start, kept so a retry, a
-// recovery or a rebuilt input resends it without reading again.
-const resolvedContext = z.string().min(1).optional();
+// A story follow-up keeps the framed message, including its current request.
+// A string is context that precedes the separately assembled instruction.
+const resolvedContext = z
+  .union([z.string().min(1), z.strictObject({ message: z.string().min(1) })])
+  .optional();
 
 // Versions admission attached, kept so delivery can mark those versions sent.
 const attachedNotes = z

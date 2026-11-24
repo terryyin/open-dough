@@ -3,6 +3,17 @@
 **Identity:** SEED-415#choose-clear-follow-up-context
 **Source:** [Choose clear follow-up context](../../seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context)
 
+## Execution context
+
+Kaoru-chan is executing in Story Branch Mode on
+`codex/choose-clear-follow-up-context`. The launch publisher is
+`dashboard-territory.local-open-dough`. The starting revision is
+`ddfaa6c71e86a74bcfd3f2d918bc086654bbbe46` and the Take
+`0648365e4e61dd56946fb5fe95dd3bb33edb01d0` was accepted on `origin/main`
+and the execution branch. The checkout uses Node 24.21.0 and passed
+`npm ci --offline --no-audit --no-fund` and `npm run typecheck:dashboard`.
+The story branch uses the `ci.yml` workflow for push verification.
+
 ## Goal and scope
 
 From a published whole-story comparison or one recorded session range in
@@ -73,7 +84,7 @@ the baseline. The slices supply proof for the new behavior.
 ### 1. The receiving session can identify the current request and its target
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: From a Done story's published file or line, start a Follow up with a
 typed request containing a literal closing tag, or with a blank request. The
@@ -90,6 +101,18 @@ blank start and terminal focus. Check the Codex, Claude and Cursor first-input
 readers, including the accepted-attempt retry and image-path assembly where the
 changed output reaches them. Keep the boundary assertion shared among the host
 variants that use the same input envelope.
+
+**Accepted proof.** After the framing refactor, the Intent file and old-line
+journey observed exact targets and the quoted tag in native first input, with
+terminal focus on blank Start. The HTTP fixtures checked the exact renamed paths
+and endpoints, wrong-anchor refusals, the retained input on Cursor Continue,
+and Codex image paths. The 25 backend and six E2E tests and typecheck passed.
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend -- dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts dashboard/backend-tests/launches/agent-launch-follow-up-file-admission.spec.ts dashboard/backend-tests/launches/agent-launch-follow-up-story.spec.ts dashboard/backend-tests/launches/agent-launch-follow-up-codex.spec.ts dashboard/backend-tests/launches/agent-launch-follow-up-cursor.spec.ts dashboard/backend-tests/launches/agent-launch-follow-up-notes.spec.ts --workers=1 --reporter=dot
+env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/intent/intent-story-follow-up.spec.ts e2e/review/story-review-follow-up.spec.ts e2e/stories/recently-done-follow-up.spec.ts --workers=1 --reporter=dot
+env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent typecheck:dashboard
+```
 
 ### 2. A developer chooses individual retained sessions
 
@@ -162,6 +185,8 @@ have advanced and the machine need not hold the originating launch. The first
 input names the source story, session UUID, range, literal path and line side.
 Checking the session adds its optional context separately. If the required
 comparison is unavailable, the developer sees why and can return to review.
+Apply the same required-source rule to Follow up from Intent's whole-story
+comparison without a file or line target.
 
 **Proof.** Extend the second-machine published-range review journey or share
 its fixture in a focused Follow up spec. Use the active second range in the
@@ -177,6 +202,26 @@ Slice-plan refinement was unnecessary. Each slice owns an observable change
 and proof through the same follow-up model. The current automatic context
 choices are interim through slices 2 and 3. This review found no remaining
 slice-specific concern.
+
+## Story obligations
+
+### G1. Retained sessions are included automatically
+
+Reported: slice 1 — "Retained extras already sent by the composer get their own sections pending their explicit choices in slices 2 and 3."
+Story clause: "Give each session a separately labeled checkbox and show its available details on demand."
+Disposition: interim until slices 2
+
+### G2. Waiting notes can start checked
+
+Reported: slice 1 — "Current waiting notes become checked when they load."
+Story clause: "Optional selections start unchecked and details start collapsed."
+Disposition: interim until slices 3
+
+### G3. The story-level request needs the reviewed comparison
+
+Reported: slice 1 — "Whole-story review without a file anchor has no comparison field today"
+Story clause: "Carry the source story and the exact published comparison from Intent."
+Disposition: receiving slice 5
 
 ## Verification and delivery
 

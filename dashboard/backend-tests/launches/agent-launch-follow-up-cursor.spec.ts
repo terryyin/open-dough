@@ -9,6 +9,7 @@
 
 import { realpathSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepMoreAttemptsBesideServer } from "../../test-support/acceptedAttempts.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   attempts,
@@ -20,6 +21,12 @@ import { stored } from "../../test-support/support/codexLaunch.ts";
 import { expect, test } from "../../test-support/support/cursorStart.ts";
 import type { FakeCursor } from "../../test-support/support/fakeCursor.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
+import {
+  doneStoryFiles,
+  recoverStory,
+  storyContextOf,
+} from "../../test-support/support/followUpStories.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
 import { isolatedSession } from "../../test-support/support/startSessionLanding.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
@@ -27,8 +34,6 @@ import {
   expectFollowUpInput,
   quiet,
   quietContext,
-  reported,
-  reportedContext,
   request,
 } from "./followUpBoundaryCases.ts";
 
@@ -83,16 +88,22 @@ test("a blank follow-up with a chosen model on the execution checkout starts on 
   });
 });
 
-test("with Isolated workspace, a start continued after the source record is gone prompts its block, the reporting context, the recorded context and the request", async ({
+test("with Isolated workspace, Continue sends the saved story follow-up message after the source record is gone", async ({
   dashboard,
   origin,
   cursor,
 }) => {
-  const source = reported(dashboard.home);
-  keepLaunchRecords(dashboard, [source]);
   const text = "Check the nightly build too";
   const slug = "check-the-nightly-build-too";
   const trunk = await originMain(origin);
+  const completedAt = "2026-11-08T09:05:00.000Z";
+  dashboard.github.serve(
+    "terryyin/open-dough",
+    publishes({
+      revision: trunk,
+      files: doneStoryFiles([recoverStory], completedAt),
+    }),
+  );
   // The first create-chat prints no usable id, so nothing is prompted.
   cursor.queueCreateChatId("not-a-session-id");
   const unconfirmed = await answerOf(
@@ -100,13 +111,17 @@ test("with Isolated workspace, a start continued after the source record is gone
       ...cursorRequest,
       instruction: text,
       policy: isolated,
-      followUp: makeMe.aFollowUp.ofSession(source).please(),
+      followUp: makeMe.aFollowUp.ofStory(recoverStory, trunk).please(),
     }),
   );
   expect(unconfirmed.kind, JSON.stringify(unconfirmed)).toBe("uncertain");
   expect(cursor.attaches()).toEqual([]);
   const [attempt] = await attempts(dashboard);
-  keepLaunchRecords(dashboard, []);
+  const message = storyContextOf(recoverStory, completedAt, "no session", text);
+  dashboard.github.serve(
+    "terryyin/open-dough",
+    publishes({ revision: trunk, files: {} }),
+  );
 
   const launched = await answerOf(continued(dashboard, attempt?.id ?? ""));
 
@@ -122,13 +137,43 @@ test("with Isolated workspace, a start continued after the source record is gone
   expect(record?.establishedSession).toEqual(session);
   expect(cursor.calls().at(-1)?.cwd).toBe(realpathSync(session.workspace));
   expectFollowUpInput((await promptOf(cursor)).prompt, {
-    context: reportedContext,
-    own: text,
+    context: message,
     session,
     request: record?.request,
     server: dashboard,
   });
   expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
-    followUp: { context: reportedContext },
+    followUp: { context: { message } },
+  });
+});
+
+test("Continue reads a legacy story follow-up attempt and preserves its separate instruction", async ({
+  dashboard,
+  cursor,
+}) => {
+  const context =
+    "Done story “SEED-269#recover-terminal-insert”: prior context";
+  const text = "Continue the previous start";
+  const kept = makeMe.anAcceptedAttempt
+    .adHoc({
+      host: "cursor",
+      instruction: text,
+      followUp: makeMe.aFollowUp
+        .ofStory(recoverStory, "a".repeat(40))
+        .withContext(context)
+        .please(),
+    })
+    .reportingTo(dashboard.origin)
+    .please();
+  await keepMoreAttemptsBesideServer(dashboard, [kept]);
+
+  const launched = await answerOf(continued(dashboard, kept.id));
+
+  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
+  expectFollowUpInput((await promptOf(cursor)).prompt, {
+    context,
+    own: text,
+    request: launched.record?.request,
+    server: dashboard,
   });
 });

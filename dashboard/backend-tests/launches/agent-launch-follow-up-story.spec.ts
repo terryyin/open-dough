@@ -36,7 +36,6 @@ import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,
-  partsOf,
   request,
 } from "./followUpBoundaryCases.ts";
 
@@ -63,7 +62,7 @@ async function publishDoneStories(
   return revision;
 }
 
-test("a done story's follow-up sends its published facts and each Done session it holds, then the request, and leaves the records unchanged", async ({
+test("a done story's follow-up sends sections for the story, current request and each Done session it holds", async ({
   dashboard,
   origin,
 }) => {
@@ -81,7 +80,12 @@ test("a done story's follow-up sends its published facts and each Done session i
   keepLaunchRecords(dashboard, kept);
   dashboard.claudeScenario("launched");
   const text = "Paste still drops the last line on iPad; investigate.";
-  const context = storyContextOf(recoverStory, completedAt, "quiet sessions");
+  const message = storyContextOf(
+    recoverStory,
+    completedAt,
+    "quiet sessions",
+    text,
+  );
 
   const launched = await answerOf(
     launch(dashboard, {
@@ -95,8 +99,7 @@ test("a done story's follow-up sends its published facts and each Done session i
   const [call, ...others] = dashboard.claudeLaunchCalls();
   expect(others).toEqual([]);
   expectFollowUpInput(call?.argv.at(-1), {
-    context,
-    own: text,
+    context: message,
     request: launched.record?.request,
     server: dashboard,
   });
@@ -104,7 +107,7 @@ test("a done story's follow-up sends its published facts and each Done session i
     instruction: text,
     followUp: makeMe.aFollowUp
       .ofStory(recoverStory, revision)
-      .withContext(context)
+      .withContext({ message })
       .please(),
   });
   // Its facts are the done record published at the revision shown.
@@ -136,11 +139,11 @@ test("a done story with no session kept sends its facts and that no session cont
 
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
   const [call] = dashboard.claudeLaunchCalls();
-  const { after } = partsOf(
-    call?.argv.at(-1),
-    storyContextOf(otherStory, completedAt, "no session"),
-  );
-  expect(after[0]).toBe("Continue");
+  expectFollowUpInput(call?.argv.at(-1), {
+    context: storyContextOf(otherStory, completedAt, "no session", "Continue"),
+    request: launched.record?.request,
+    server: dashboard,
+  });
 });
 
 test("follow-ups of two stories with the same words and choices are two launches, and repeating one resumes its kept start", async ({
@@ -180,10 +183,10 @@ test("follow-ups of two stories with the same words and choices are two launches
   const calls = dashboard.claudeLaunchCalls();
   expect(calls).toHaveLength(3);
   expect(calls[1]?.argv.at(-1)).toContain(
-    storyContextOf(otherStory, completedAt, "no session"),
+    storyContextOf(otherStory, completedAt, "no session", "Continue"),
   );
   expect(calls[2]?.argv.at(-1)).toContain(
-    storyContextOf(recoverStory, completedAt, "no session"),
+    storyContextOf(recoverStory, completedAt, "no session", "Continue"),
   );
 });
 
