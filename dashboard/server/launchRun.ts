@@ -102,12 +102,17 @@ async function startedRun(
           attempt.id,
           noteSlow,
           (pid) => noteWorker(attemptWorker("start", pid)),
+          began,
         )
       : ({ kind: "none" } as const);
   let endWait: (() => void) | undefined;
   try {
     try {
-      await notePublication(publicationOf(start, pending));
+      await notePublication(
+        pending !== undefined && attempt.publication.kind === "published"
+          ? attempt.publication
+          : publicationOf(start, pending),
+      );
     } catch (error) {
       if (start.kind !== "established") throw error;
       return {
@@ -121,7 +126,15 @@ async function startedRun(
       pending?.request ??
       (start.kind === "established"
         ? withStartPolicy(requested, start.policy)
-        : requested);
+        : start.kind === "session" &&
+            start.publication.kind === "published" &&
+            requested.workflow === "ad-hoc"
+          ? {
+              ...requested,
+              storyIdentity: start.publication.identity,
+              title: start.storyTitle ?? requested.title,
+            }
+          : requested);
     const kept = pending?.request.reporting ?? attempt.reporting;
     const preparedReporting = await prepareAttemptReporting(
       attempt,

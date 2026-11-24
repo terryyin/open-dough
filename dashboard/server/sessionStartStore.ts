@@ -33,6 +33,13 @@ import type { MachineJsonStore } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import { record } from "./startRecording.ts";
 
+export const sessionDraftSchema = z.object({
+  identity: z.string().min(1),
+  link: z.string().min(1),
+  title: z.string().min(1),
+  ownedDraft: z.object({ basis: z.string().min(1), goal: z.string().min(1) }),
+});
+
 const sessionStartSchema = z.object({
   host: sessionHostSchema,
   workspace: z.string().min(1),
@@ -40,6 +47,12 @@ const sessionStartSchema = z.object({
   startedAt: z.iso.datetime(),
   // What the script established, once it reported.
   session: establishedSessionSchema.optional(),
+  claim: z
+    .object({
+      draft: sessionDraftSchema,
+      publishedSha: z.string().min(1).optional(),
+    })
+    .optional(),
 });
 
 export type SessionStart = z.infer<typeof sessionStartSchema>;
@@ -90,7 +103,7 @@ export async function settleSessionStart(
   if (result.kind === "uncertain") return undefined;
   if (result.kind === "failed") {
     const kept = await keptSessionStart(sourceId, attempt);
-    if (kept?.session !== undefined) return kept;
+    if (kept?.session !== undefined || kept?.claim !== undefined) return kept;
   }
   await record(() => removeSessionStart(sourceId, attempt));
   return undefined;

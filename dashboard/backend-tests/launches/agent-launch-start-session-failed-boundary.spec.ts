@@ -3,6 +3,7 @@
 // with its landing choice and handoff. It drives a real installed start and
 // bare origin, with a synthetic host. The page's recovery and an identical
 // Start: ../../../e2e/launches/agent-launch-start-session-failed.spec.ts.
+import { isolatedAdmissionFlags } from "../../test-support/support/isolatedSessionAdmissionProof.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { realpathSync } from "node:fs";
 import type { LaunchWithState } from "../../src/launchRecord.ts";
@@ -17,10 +18,7 @@ import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
-  isolatedStart,
-  originHeads,
   recordStarts,
-  sessionBlock,
   worktree,
   worktrees,
 } from "../../test-support/support/startSessionLanding.ts";
@@ -41,14 +39,7 @@ test("a native refusal keeps the established session, and Continue resumes its w
 }) => {
   const starts = recordStarts(origin);
   const before = await originMain(origin);
-  const heads = await originHeads(origin);
   const policy = { workspace: "isolated", landing: "auto-land" };
-  const session = isolatedSession(
-    origin.project,
-    "session",
-    "auto-land",
-    before,
-  );
   dashboard.claudeScenario("refused");
   const refused = await answerOf(launch(dashboard, { ...request, policy }));
   expect(refused).toMatchObject({
@@ -57,11 +48,20 @@ test("a native refusal keeps the established session, and Continue resumes its w
     sessionStartKept: true,
   });
   expect(refused.explanation).toContain(
-    "Nothing was published. The established start was kept in workspace ~/git/open-dough/.worktrees/session on branch claude/session, where Continue or the same Start request can resume it.",
+    "The Taken story was published. The established start was kept in workspace ~/git/open-dough/.worktrees/session on branch claude/session, where Continue or the same Start request can resume it.",
   );
   const [failed] = await attempts(dashboard);
   const id = failed?.id ?? "";
-  expect(failed?.publication).toEqual({ kind: "none" });
+  const revision = await originMain(origin);
+  expect(revision).not.toBe(before);
+  expect(failed?.publication).toMatchObject({ kind: "published", revision });
+  const session = isolatedSession(
+    origin.project,
+    "session",
+    "auto-land",
+    revision,
+  );
+
   expect(keptSessionStarts(origin)[id]?.["session"]).toEqual(session);
   expect(await recordsOf(dashboard, "open-dough")).toEqual([]);
 
@@ -73,17 +73,15 @@ test("a native refusal keeps the established session, and Continue resumes its w
   expect(calls).toHaveLength(2);
   for (const call of calls) {
     expect(call.cwd).toBe(realpathSync(worktree(origin.project, "session")));
-    expect((call.argv.at(-1) ?? "").split("\n\n")[0]).toBe(
-      sessionBlock(session),
-    );
+    expect(call.argv.at(-1)).not.toContain("Established session");
   }
   expect(starts().map(({ argv }) => argv)).toEqual([
-    isolatedStart(origin.project, "session", "auto-land"),
+    expect.arrayContaining(isolatedAdmissionFlags(origin.project, "session")),
   ]);
   expect(worktrees(origin.project)).toEqual(["session"]);
   expect(keptSessionStarts(origin)).toEqual({});
   expect(await attempts(dashboard)).toEqual([
     expect.objectContaining({ id, acceptedAt: failed?.acceptedAt }),
   ]);
-  expect(await originHeads(origin)).toBe(heads);
+  expect(await originMain(origin)).toBe(revision);
 });

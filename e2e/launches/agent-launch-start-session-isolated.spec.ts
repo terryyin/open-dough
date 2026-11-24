@@ -1,24 +1,16 @@
+import {
+  admittedStory,
+  isolatedAdmissionFlags,
+} from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
 import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
 import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-// The project row's Start session offers where the session runs (Workspace)
-// beside After checks, with the story dialogs' words and no Tracking. With a
-// real bare origin (../../dashboard/test-support/support/startOrigin.ts), the installed start recorded
-// as it runs (../../dashboard/test-support/support/startSessionLanding.ts), and the synthetic `claude`:
-// Isolated workspace has the installed one-shot start, with no identity,
-// create one worktree under `.worktrees/` at fetched trunk on the host's
-// branch namespace; the session opens there with its "Established session"
-// block, the reporting context, then the developer's text; nothing is
-// published, taken, or assigned; and the sidebar names the worktree. Existing
-// changes in the execution checkout are not asked about and stay untouched, and a
-// session with no text works in `.worktrees/session`. Raw requests, slug
-// numbering, an installation that cannot establish a session, and Codex are
-// in ./agent-launch-start-session-isolated-boundary.spec.ts.
-
+// Independent isolated launches admit a Taken story and open the native
+// session in the owned worktree. The bare origin and synthetic host expose
+// publication, handoff and working-directory evidence.
 import { realpathSync, rmSync } from "node:fs";
 import type { LaunchWithState } from "../../dashboard/src/launchRecord.ts";
 import {
   attempts,
-  keptStarts,
   recordsOf,
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
@@ -52,8 +44,6 @@ import {
   established,
   git,
   isolatedSession,
-  isolatedStart,
-  originHeads,
   recordStarts,
   sessionBlock,
   worktree,
@@ -63,7 +53,7 @@ import { startedSessionTerminal } from "../../dashboard/test-support/support/sta
 
 const inNew = "The session runs in a new workspace under .worktrees/";
 const carries =
-  "Its first message carries the established session: workspace, workspace role, branch, remote, target, landing, and the starting revision on fetched trunk.";
+  "Its first message carries the established session: workspace, workspace role, branch, remote, target, landing, and the starting revision after admission.";
 const text = "Tidy the README wording";
 const slug = "tidy-the-readme-wording";
 
@@ -76,15 +66,14 @@ async function records(dashboard: DashboardServer, count: number) {
   return (await recordsOf(dashboard, "open-dough")) as LaunchWithState[];
 }
 
-test("Isolated workspace creates one worktree at fetched trunk on the host's namespace, opens the session there with its block, and publishes nothing", async ({
+test("Isolated workspace creates one worktree at fetched trunk on the host's namespace, publishes a Taken story, then opens the session there with its block", async ({
   page,
   dashboard,
   origin,
 }) => {
   const starts = recordStarts(origin);
-  await openBacklog(page, origin);
+  await openBacklog(page, origin, true);
   const before = await originMain(origin);
-  const heads = await originHeads(origin);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
 
@@ -100,10 +89,10 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   const start = dialog.getByRole("button", { name: "Start", exact: true });
   await radio(dialog, "Workspace", "Isolated workspace").check();
   await expect(start).toHaveAccessibleDescription(
-    `Isolated workspace · Wait for review ${inNew}; nothing is published.`,
+    `Isolated workspace · Wait for review Start publishes a Taken story before the session opens. ${inNew}; the work waits for review.`,
   );
   await expect(dialog).toContainText(
-    "Claude Code starts a background session on this machine, in a new workspace of this project, with no story or skill.",
+    "Claude Code starts a background session on this machine, in a new workspace of this project, under its new Taken story.",
   );
   await dialog.locator("summary", { hasText: "Command details" }).click();
   await expect(
@@ -119,25 +108,32 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   const [record] = await records(dashboard, 1);
   if (record === undefined) throw new Error("Missing launch record.");
 
-  // The installed start ran once, from the execution checkout, with the project
-  // as its integration checkout and no identity or publisher; it created the
-  // one worktree, at fetched trunk, on the host's branch.
+  const admitted = await admittedStory(origin, text);
+  expect(admitted.revision).not.toBe(before);
   expect(starts()).toEqual([
     {
-      argv: isolatedStart(origin.project, slug, "review"),
+      argv: expect.arrayContaining(
+        isolatedAdmissionFlags(origin.project, slug),
+      ),
       cwd: realpathSync(origin.project),
     },
   ]);
   expect(worktrees(origin.project)).toEqual([slug]);
   expect(established(origin.project, slug)).toEqual({
     branch: `claude/${slug}`,
-    revision: before,
+    revision: admitted.revision,
   });
-  const session = isolatedSession(origin.project, slug, "review", before);
+  const session = isolatedSession(
+    origin.project,
+    slug,
+    "review",
+    admitted.revision,
+  );
   expect(record.establishedSession).toEqual(session);
   expect(record.request).toMatchObject({
     workflow: "ad-hoc",
     instruction: text,
+    storyIdentity: admitted.identity,
     policy: { workspace: "isolated", landing: "review" },
   });
   for (const absent of ["start", "preparation"])
@@ -153,7 +149,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   );
   expect(block).toBe(sessionBlock(session));
   expectReportingBlock(reporting, record.request, dashboard);
-  expect(developer).toEqual([text]);
+  expect(developer).toEqual([`Taken story: ${admitted.identity}`, text]);
 
   // The sidebar and the terminal's saved workspace name the worktree.
   await expect(entry).toContainText(
@@ -162,14 +158,20 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   expect(record.shownWorkspace).toBe(`~/git/open-dough/.worktrees/${slug}`);
   expect(record.workspaceState).toEqual({ kind: "available" });
 
-  // Nothing was published, taken, assigned, or kept as a start, and the
-  // execution checkout holds no change.
-  expect(await originHeads(origin)).toBe(heads);
-  expect(await origin.takenProfiles()).toEqual([]);
-  expect(await keptStarts(dashboard)).toEqual([]);
+  expect(
+    (await origin.takenProfiles()).filter(
+      ({ identity }) => identity === admitted.identity,
+    ),
+  ).toHaveLength(1);
   expect(
     (await attempts(dashboard)).map(({ publication }) => publication),
-  ).toEqual([{ kind: "none" }]);
+  ).toEqual([
+    {
+      kind: "published",
+      revision: admitted.revision,
+      identity: admitted.identity,
+    },
+  ]);
   expect(git(origin.project, "branch", "--show-current")).toBe("main");
   expect(status(origin.project)).toBe("");
 
@@ -195,9 +197,8 @@ test("with existing changes in the execution checkout, Isolated workspace · Aut
   origin,
 }) => {
   const starts = recordStarts(origin);
-  await openBacklog(page, origin);
+  await openBacklog(page, origin, true);
   const before = await originMain(origin);
-  const heads = await originHeads(origin);
   dirty(origin.project);
   const changes = status(origin.project);
   await startSession(page, "Open Dough").click();
@@ -206,10 +207,9 @@ test("with existing changes in the execution checkout, Isolated workspace · Aut
   await radio(dialog, "After checks", "Automatically land").check();
   const start = dialog.getByRole("button", { name: "Start", exact: true });
   await expect(start).toHaveAccessibleDescription(
-    `Isolated workspace · Automatically land ${inNew}; verified results land on origin without another review. Pressing Start authorizes that push.`,
+    `Isolated workspace · Automatically land Start publishes a Taken story before the session opens. ${inNew}; verified results land on origin without another review. Pressing Start authorizes that push.`,
   );
 
-  // No confirmation: the session does not run in the execution checkout.
   dashboard.claudeScenario("launched");
   await start.click();
   await expect(dialog).toBeHidden();
@@ -217,18 +217,21 @@ test("with existing changes in the execution checkout, Isolated workspace · Aut
   const [record] = await records(dashboard, 1);
   if (record === undefined) throw new Error("Missing launch record.");
 
+  const admitted = await admittedStory(origin, record.request.title);
+  expect(record.request.title).toMatch(/^Ad hoc work — /);
+  expect(admitted.revision).not.toBe(before);
   expect(starts().map(({ argv }) => argv)).toEqual([
-    isolatedStart(origin.project, "session", "auto-land"),
+    expect.arrayContaining(isolatedAdmissionFlags(origin.project, "session")),
   ]);
   expect(established(origin.project, "session")).toEqual({
     branch: "claude/session",
-    revision: before,
+    revision: admitted.revision,
   });
   const session = isolatedSession(
     origin.project,
     "session",
     "auto-land",
-    before,
+    admitted.revision,
   );
   expect(record.establishedSession).toEqual(session);
   expect(record.request).toMatchObject({
@@ -237,14 +240,10 @@ test("with existing changes in the execution checkout, Isolated workspace · Aut
   expect(record.request).not.toHaveProperty("instruction");
   const [call] = dashboard.claudeLaunchCalls();
   expect(call?.cwd).toBe(realpathSync(worktree(origin.project, "session")));
-  const [block, reporting, ...extra] = (call?.argv.at(-1) ?? "").split("\n\n");
-  expect(block).toBe(sessionBlock(session));
-  expect(extra).toEqual([]);
-  expectReportingBlock(reporting, record.request, dashboard);
+  expect(call?.argv.at(-1)).not.toContain("Established session");
+  expect(record.request).toMatchObject({ storyIdentity: admitted.identity });
 
-  // The execution checkout's changes are as they were; nothing was published.
   expect(status(origin.project)).toBe(changes);
   expect(status(worktree(origin.project, "session"))).toBe("");
-  expect(await originHeads(origin)).toBe(heads);
-  expect(await origin.takenProfiles()).toEqual([]);
+  expect(await originMain(origin)).toBe(admitted.revision);
 });

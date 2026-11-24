@@ -1,3 +1,7 @@
+import {
+  admittedStory,
+  isolatedAdmissionFlags,
+} from "../../test-support/support/isolatedSessionAdmissionProof.ts";
 // The launch boundary honors an unattached Codex request's isolated
 // workspace, with a real bare origin (../../test-support/support/startOrigin.ts) and
 // the installed start recorded as it runs
@@ -16,8 +20,6 @@ import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   established,
   isolatedSession,
-  isolatedStart,
-  originHeads,
   recordStarts,
   sessionBlock,
   worktree,
@@ -50,28 +52,34 @@ test.describe("Codex", () => {
     if (native === undefined) throw new Error("Missing native fixture.");
     const starts = recordStarts(origin, "codex");
     const before = await originMain(origin);
-    const heads = await originHeads(origin);
     const answer = await launched(dashboard, {
       ...request,
       host: "codex",
       instruction: text,
       policy: isolated("review"),
     });
-    expect(answer.kind).toBe("launched");
+    expect(answer.kind, JSON.stringify(answer)).toBe("launched");
+    const admitted = await admittedStory(origin, text);
+    expect(admitted.revision).not.toBe(before);
+    expect(answer.record?.request).toMatchObject({
+      storyIdentity: admitted.identity,
+    });
     const session = isolatedSession(
       origin.project,
       slug,
       "review",
-      before,
+      admitted.revision,
       "codex",
     );
     expect(answer.record?.establishedSession).toEqual(session);
     expect(starts().map(({ argv }) => argv)).toEqual([
-      isolatedStart(origin.project, slug, "review", "codex"),
+      expect.arrayContaining(
+        isolatedAdmissionFlags(origin.project, slug, "codex"),
+      ),
     ]);
     expect(established(origin.project, slug)).toEqual({
       branch: `codex/${slug}`,
-      revision: before,
+      revision: admitted.revision,
     });
     expect(
       native.calls.find((call) => call.method === "thread/start")?.params,
@@ -84,7 +92,7 @@ test.describe("Codex", () => {
     );
     expect(block).toBe(sessionBlock(session));
     expectReportingBlock(reporting, answer.record?.request, dashboard);
-    expect(developer).toEqual([text]);
-    expect(await originHeads(origin)).toBe(heads);
+    expect(developer).toEqual([`Taken story: ${admitted.identity}`, text]);
+    expect(await originMain(origin)).toBe(admitted.revision);
   });
 });

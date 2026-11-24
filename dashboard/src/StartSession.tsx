@@ -1,39 +1,13 @@
-// The project actions row's Start session: the developer asks the selected host
-// to start a session on this machine in the selected project's execution checkout,
-// with no story or skill and an optional first message of their own. The
-// session is listed in Recently done and the Sessions sidebar, like any
-// launched session; no card lists it. Its Session group chooses where the
-// session runs and what follows the checks of what it later verifies; the
-// line beside Start names the choices and what Start authorizes. A session on
-// execution checkout has existing changes there confirmed in the dialog before
-// anything starts (`LaunchExistingChanges`). The dialog closes once the local
-// service accepted the launch, leaving the keyboard on what says, beside the
-// button, that the startup goes on while the button waits for it. A session
-// started with nothing typed waits for the developer, so it opens in the
-// page's terminal, with the keyboard in it unless the developer moved it
-// meanwhile (`keyboardRestsOn`), and Close returns the keyboard to the
-// button. A session whose terminal the developer already opened themselves
-// during the startup is left as they left it: closed stays closed, open
-// stays open (`presentTerminal`). A session started with a typed message
-// presents nothing: the Side panel stays as it is, the session's entry
-// offers Open terminal, and the button takes the keyboard back if it still
-// rests on the startup's progress (`startAdHoc` decides which, attached
-// images and a follow-up's context not counting as typed). The dialog's
-// mechanics, including the keyboard's return to the button when nothing was
-// accepted, belong to `LaunchDialog`. A launch that did not start, or may
-// not have, says so beside the button, which stays enabled to start again.
-//
-// An entry in Recently done that no longer offers Open terminal opens the
-// same dialog from its Follow up (`followUp`), with the same choices and
-// defaults: it also names the entry it follows up and lists, read-only, the
-// context the server will send with the request (`./followUpContext.ts`).
-// Its launch is the entry's own beside its button (`./launchAttempts.ts`).
+// The Start session and Follow up dialog and the launch answer beside its
+// trigger. A blank start opens the terminal for the first input. A typed
+// start leaves the Side panel as it is. LaunchDialog owns dialog focus return.
 
 import { hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   adHocName,
+  admitsIsolatedStory,
   establishesSession,
   unattachedPolicyOf,
 } from "./agentLaunch.ts";
@@ -87,9 +61,7 @@ export function StartSession({
   readonly presentTerminal: OpenTerminal;
   // Set where an entry's Follow up opens the dialog.
   readonly followUp?: FollowUpShown | undefined;
-  // Called as the dialog opens.
   readonly onOpen?: () => void;
-  // Open once on mount (line-number Follow up).
   readonly autoOpen?: boolean;
   // When false, keep a visually hidden launcher for focus return and
   // terminal handoff without a second Follow up control in the heading.
@@ -106,6 +78,7 @@ export function StartSession({
     followUpSourceAttachingNotes(followUp?.source, attachNotes),
   );
   const starting = attempt?.kind === "starting";
+  const admitting = admitsIsolatedStory({ policy, followUp });
   const answerId = useId();
   const progress = useRef<HTMLParagraphElement>(null);
   const { launcher, opening, openDialog, closeDialog } =
@@ -141,6 +114,7 @@ export function StartSession({
         disabled={starting}
         tabIndex={showTrigger ? undefined : -1}
         {...openDialogFromActivation(() => {
+          setPolicy(unattachedPolicyOf({}));
           onOpen?.();
           openDialog();
         }, starting)}
@@ -161,7 +135,8 @@ export function StartSession({
           tabIndex={-1}
           className="launch-answer quiet start-session-answer"
         >
-          Starting a session in {project}… Local startup in progress.
+          Starting a session in {project}…{" "}
+          {admitting ? "Admitting a story." : "Local startup in progress."}
         </p>
       )}
       {attempt !== undefined && attempt.kind !== "starting" && (
@@ -189,7 +164,7 @@ export function StartSession({
               <FollowUpSubject followUp={followUp} />
             )
           }
-          description={`${hostName(host)} starts a background session on this machine, in ${policy.workspace === "isolated" ? "a new workspace of this project" : "this project's execution checkout"}, with no story or skill${followUp === undefined ? "" : ", sending this context with your request"}. It is listed as ${project} · ${adHocName}.`}
+          description={`${hostName(host)} starts a background session on this machine, in ${policy.workspace === "isolated" ? "a new workspace of this project" : "this project's execution checkout"}, ${admitting ? "under its new Taken story" : "with no story or skill"}${followUp === undefined ? "" : ", sending this context with your request"}. It is listed as ${project} · ${admitting ? "its story title" : adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
           session={sessionAttachingStoryNotes(
             unattachedSession({
@@ -206,11 +181,17 @@ export function StartSession({
               <strong className="launch-dialog-summary">
                 {unattachedSummary(policy)}
               </strong>{" "}
-              {unattachedEffect(policy)}
+              {unattachedEffect(policy, admitting)}
             </>
           }
           details={
-            <p>{unattachedWhere(policy, establishesSession({ policy }))}</p>
+            <p>
+              {unattachedWhere(
+                policy,
+                establishesSession({ policy }),
+                admitting,
+              )}
+            </p>
           }
           onStart={(choices) =>
             launches.startAdHoc(
@@ -234,7 +215,6 @@ export function StartSession({
           }
           onClose={(accepted) => {
             if (!closeDialog(opening, accepted)) return;
-            setPolicy(unattachedPolicyOf({}));
             // Keep the launcher mounted through an accepted start so the
             // blank follow-up can present its terminal; Cancel clears a
             // line-menu host and drops an unchecked attach choice.

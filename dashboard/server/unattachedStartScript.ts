@@ -3,6 +3,7 @@
 // its launch attempt (`./sessionStartStore.ts`) before it runs, and followed
 // to its result however long the launch waited for it.
 
+import { admitsIsolatedStory } from "../src/launchRequest.ts";
 import { realpath } from "node:fs/promises";
 import { unattachedStartPolicy } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import {
@@ -16,12 +17,17 @@ import type { WorkspaceChoice } from "./launchWorkspace.ts";
 import type { LocalFolder } from "./localFolder.ts";
 import {
   keepEstablishedSession,
+  keptSessionStart,
   keepSessionStart,
   removeSessionStart,
 } from "./sessionStartStore.ts";
 import { policyArguments } from "./startPolicy.ts";
 import { record } from "./startRecording.ts";
 import type { StartResult } from "./startResult.ts";
+import {
+  admitIsolatedSession,
+  type IsolatedAdmissionRefusal,
+} from "./isolatedSessionAdmission.ts";
 
 export type UnattachedRequest = Extract<
   AgentLaunchRequest,
@@ -54,7 +60,13 @@ export async function scriptSession(
   attempt: string,
   chosen: WorkspaceChoice,
   again: boolean,
-): Promise<EstablishedSession | Exclude<StartResult, { kind: "prepared" }>> {
+  began: Date,
+  noteWorker: (pid: number) => Promise<void>,
+): Promise<
+  | EstablishedSession
+  | IsolatedAdmissionRefusal
+  | Exclude<StartResult, { kind: "prepared" }>
+> {
   const policy = unattachedPolicyOf(request);
   const where = {
     workspace: chosen.workspace.path,
@@ -64,12 +76,34 @@ export async function scriptSession(
   } as const;
   running.add(attempt);
   try {
-    await keepSessionStart(source.id, attempt, {
+    const placement = (again
+      ? await keptSessionStart(source.id, attempt)
+      : undefined) ?? {
       host: request.host,
       workspace: where.workspace,
       branch: where.branch,
-      startedAt: new Date().toISOString(),
-    });
+      startedAt: began.toISOString(),
+    };
+    await keepSessionStart(source.id, attempt, placement);
+    if (admitsIsolatedStory(request)) {
+      const admission = await admitIsolatedSession(
+        source,
+        request,
+        project,
+        attempt,
+        placement,
+        noteWorker,
+      );
+      if (admission.kind === "refused") return admission;
+      const session: EstablishedSession = {
+        ...where,
+        role: "isolated",
+        landing: policy.landing,
+        startingRevision: admission.revision,
+      };
+      await keepEstablishedSession(source.id, attempt, session);
+      return session;
+    }
     const result = await runStartScript(
       [
         ...policyArguments(unattachedStartPolicy(policy), project),

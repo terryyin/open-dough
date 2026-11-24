@@ -18,13 +18,20 @@ export function unattachedInput(
   const own = developerPart(request);
   const context =
     request.workflow === "ad-hoc" ? request.followUp?.context : undefined;
-  if (block === undefined && own === undefined && context === undefined)
+  const identity =
+    request.workflow === "ad-hoc" ? request.storyIdentity : undefined;
+  if (
+    (block === undefined || identity !== undefined) &&
+    own === undefined &&
+    context === undefined
+  )
     return undefined;
+  const story = identity === undefined ? undefined : `Taken story: ${identity}`;
   const reporting = reportingInstruction(request);
   return (
     block === undefined
       ? [context, own, reporting]
-      : [block, reporting, context, own]
+      : [block, reporting, story, context, own]
   )
     .filter((part) => part !== undefined && part !== "")
     .join("\n\n");

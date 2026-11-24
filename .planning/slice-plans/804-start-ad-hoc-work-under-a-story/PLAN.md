@@ -92,6 +92,8 @@ legacy runner retirement.
   for this execution after two diagnosis rounds. The published cleanup
   revision is `aabca7d1947eba45cfa6a6b600d784834daed002`. The managed
   stash restored Slice 3's edits. [CI diagnosis](diagnosis-frontend-browser-connection.md)
+- The first-story admission repair and revised launch boundaries published as
+  `e4586ebd97caf82d5970f9d26abe29d0b040c3f0` on the execution branch.
 - Codex CI observer `sola-chan-804`, GitHub Actions `ci.yml` (CI),
   `/tmp/dough-ci-501/watch-aNGFlu`, PID 20728, session 71797, cell `g66:4`.
 
@@ -220,7 +222,7 @@ trace are recorded in `open-dough/evidence/first-story-admission-repair-return.m
 
 ### 3. Open an isolated session under its admitted story
 Type: Behavior
-Status: planned
+Status: done
 Proof: An isolated launch publishes the story and Taken entry before native
 start. Continue reuses the retained attempt and opens one Session entry.
 
@@ -232,6 +234,26 @@ observe the held publication, refusal or interruption, exact remote story
 and Taken entry, one native call, and the card. Change the affected isolated
 startup, kept-start and native refusal assertions with this increment. Show
 pending and retry with accurate publication facts for the isolated choice.
+
+The selected isolated worktree carries both the installed admission and the
+native session. The accepted Take SHA establishes its comparison start,
+and the retained attempt records the bound story before native dispatch.
+The held-reply browser journey observed the actual remote seed and Taken
+entry before any native call. Continue reused the same branch, worktree,
+identity and SHA, then opened one native session and one entry on the
+Taken card. The browser and backend selections also verified existing
+review and automatic landing choices, blank first input, failed and
+interrupted startup, and installed landing capture. Dashboard typecheck
+and mounted compatibility passed. The independent refactor shared the
+attempt's story lookup across Board reconciliation and native recovery,
+then passed its focused backend, mounted and held-reply checks.
+
+The isolated competing-candidate and receipt-write branches are safe to
+refuse before native startup. Slice 4 owns their retry and feedback gaps.
+The established-session landing keeps its observed exact comparison until
+slice 6 binds the authority to the admitted story. Literal commands and
+consumer dispositions are in `open-dough/evidence/slice-3-isolated-return.md`
+and `slice-3-isolated-refactor-return.md` in the worktree Git directory.
 
 ### 4. Open a session in the default checkout under its admitted story
 Type: Behavior
@@ -251,6 +273,14 @@ boundary and observe blank, pending, refusal, accepted and Retry. Revise
 all affected existing default-launch callers and assertions with this increment.
 Use the published identity and existing Session entry so Board behavior
 continues through the same card and launch record used by slice 3.
+Settle retry of a definitively competing owned candidate through the common
+admission boundary. Reuse the same attempt and selected workspace, preserving
+the losing candidate and any developer changes. Prove a losing attempt opens
+no session and that safe reallocation on Retry cannot adopt the winning
+claim or duplicate an already accepted start.
+When admission succeeds but the attempt receipt cannot be written, preserve
+the confirmed claim, show that recording failed, and keep native startup
+waiting until Continue can record it. Observe the retained accepted SHA.
 
 ### 5. Follow up under the source story
 Type: Behavior
@@ -279,6 +309,9 @@ target and revision against the real validation boundary and observe no push
 on refusal. Recreate the v0.3.113 shape in the fixture, and check the retained
 record route after attempt expiry. Preserve the closed production incident's
 Git evidence without treating it as an accepted Dashboard report.
+The same landing authority must match the bound story on newly admitted
+independent launches. Preserve the exact observed range and retained retry
+that the isolated session path already exercises.
 
 ### 7. Return to completed ad hoc work through ordinary review
 Type: Behavior
@@ -380,4 +413,19 @@ Disposition: proved by slice 2: `workspace-publication-startup-admission-recover
 ### G5. Default-checkout launches remain on their current path during isolated rollout
 Reported: slice 3 — "The in-progress launch slice separated isolated and default-checkout startup because their supported workspace ownership and affected proof differ."
 Story clause: "Every Open Dough project session has a story identity from startup."
+Disposition: receiving slice 4
+
+### G6. Retry after a competing claim leaves a local candidate
+Reported: slice 3 — "A definitive different-owner refusal after local candidate creation currently repeats the same refusal on Continue because the losing candidate still occupies the retained workspace."
+Story clause: "On refusal, show the reason and let the developer retry that start."
+Disposition: receiving slice 4
+
+### G7. Isolated launch landing still uses legacy established-session authority
+Reported: slice 3 — "The isolated session record binds a Taken story. Its retained landing still uses the legacy established-session authority to preserve the current exact comparison."
+Story clause: "Use the ordinary story lifecycle and recorded membership for Land, completion, follow-ups and review, including after checkout retirement and from another clone."
+Disposition: receiving slice 6
+
+### G8. Admission receipt write failure obscures a confirmed publication
+Reported: slice 3 — "The accepted isolated claim is retained and native startup is blocked if saving the attempt receipt fails, but the resulting generic uncertainty omits the known publication and failed write."
+Story clause: "On refusal, show the reason and let the developer retry that start."
 Disposition: receiving slice 4

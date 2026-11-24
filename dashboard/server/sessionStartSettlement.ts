@@ -25,10 +25,19 @@ export async function settleSessionResult(
   return {
     ...result,
     sessionStartKept: true,
-    explanation: `${result.explanation} ${unattachedStartWords.retained({
-      workspace: startWorkspaceFolder(executionCheckout(source), kept.workspace)
-        .shown,
-      branch: kept.branch,
-    })}`,
+    explanation: `${result.explanation} ${unattachedStartWords.retained(
+      {
+        workspace: startWorkspaceFolder(
+          executionCheckout(source),
+          kept.workspace,
+        ).shown,
+        branch: kept.branch,
+      },
+      kept.claim?.publishedSha !== undefined
+        ? "The Taken story was published."
+        : kept.claim !== undefined
+          ? "The story admission can be retried."
+          : undefined,
+    )}`,
   };
 }
