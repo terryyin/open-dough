@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-427#review-published-changes",
+  "mode": "story-branch",
+  "branch": "codex/review-published-changes",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
