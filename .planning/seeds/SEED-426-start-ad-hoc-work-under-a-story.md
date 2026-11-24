@@ -51,8 +51,8 @@ already provides the per-session identity and comparison.
   paths. Inventory existing unassociated records and work in flight before
   cutover, and decide their disposition during refinement. Keep published Git
   history recoverable without carrying a parallel standalone workflow.
-- Preserve the existing story and per-session comparison behavior through
-  the common path. Session selection within Intent, follow-up context
+- Preserve published story and per-session comparisons through the common
+  path. Session selection within Intent, follow-up context
   composition, and open follow-up card cues have their own stories.
 
 **Key examples.**

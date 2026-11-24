@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-415#choose-clear-follow-up-context
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-415#choose-clear-follow-up-context","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session UUID and attributable changes","rationale":"The receiving follow-up needs a published UUID to resolve a selected session’s commits on another machine.","condition":"The repository contains a JSON record with the stable UUID and attributable published changes for a session that published work.","state":"waiting","resolution":{"revision":"2d82175d5ba4b7cdaba48cfa8312cfa261de4816","path":".planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes","summary":"Still waiting. No repository holds a published session record from a real session yet: the delivered Land route is unusable until SEED-418#correct-published-session-review (plan 746) slice 2 lands. Next action: re-judge after that correction is delivered and a real Land has published a record.\nCondition remains unresolved: The repository contains a JSON record with the stable UUID and attributable published changes for a session that published work.\nAccepted integration: 8be1d19835f1448ceb5a70342bf35fe122739408 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"identity":"SEED-415#choose-clear-follow-up-context","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session UUID and attributable changes","rationale":"The receiving follow-up needs a published UUID to resolve a selected session’s commits on another machine.","condition":"The repository contains a JSON record with the stable UUID and attributable published changes for a session that published work.","state":"satisfied","resolution":{"revision":"2d82175d5ba4b7cdaba48cfa8312cfa261de4816","path":".planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes","summary":"Verified .planning/sessions/b68c8a3e-617d-4277-8da6-5ad5952a9b43.json on origin/main, published by 6c69e07c320fc2c1f8fd08f6d14da0c98732e632. The Dashboard record parser accepts it at its UUID path. The record names the completed SEED-413 frame and navigation proof session. All 13 attributable ranges are reachable from origin/main with each base an ancestor of its candidate.\nCondition satisfied: The repository contains a JSON record with the stable UUID and attributable published changes for a session that published work.\nAccepted integration: 8be1d19835f1448ceb5a70342bf35fe122739408 on origin/refs/heads/main."}}]}
 ```
 
 ```json dough-story-state
@@ -35,7 +35,7 @@ associate with the comment or note they describe.
 **Examples.**
 
 - Starting Follow up from the shared Intent review carries the story or
-  session and the exact reviewed comparison as the source. The dialog uses
+  session and the exact published comparison as the source. The dialog uses
   the review's selected sessions to identify relevant context. The developer
   still makes a separate choice about which optional material to send.
 - The developer clears every optional checkbox and sends the follow-up. The
@@ -51,11 +51,9 @@ associate with the comment or note they describe.
   current follow-up, each selected session, and the line notes. The content
   inside each section is plain text. The current request and each note identify
   their own file, line, and diff side.
-- When the published session JSON records a selected session's UUID, include the
-  UUID in that session's section so the receiving session can find the related
-  commits. Include the commit list or range there when it can be resolved from
-  that UUID. Older sessions without a published UUID still contribute their retained
-  context.
+- For a selected published session, include its UUID and any commit list or
+  range resolved from the published session record. Optional session context
+  can include retained requests and final reports.
 
 **Design reference.** The [interactive Follow up mockup](../evidence/SEED-415-follow-up-context.html)
 opens on a diff-line request with all optional items unchecked. Select

@@ -10,34 +10,27 @@ runs, and what each case runs comes from the same per-viewport declaration as
 its title, so no case can skip beats its title claims. The seed owns the scope,
 scope limits and key examples.
 
-Excluded: renaming `largeReviewRevision`, `largeWorktree`, the `large changes`
-commit or `chooseLargeChangesCommitByTouch` (shared with the desktop 63-file
-review and already parameterized by each consumer's facts); the stroke-count
-comment, which no longer exists; any change to assertions, strokes, comparison
-facts, native touch input, timeouts or product code. Historical title text in
-`.planning/done/` and `.planning/evidence/SEED-303-*` records what ran then and
-stays unchanged.
+Use published comparisons for the phone and tablet. Preserve the four journeys,
+their reading and panel assertions within those comparisons, and native touch
+input. Product code, timeouts, and shared helper renames are outside this plan.
 
 ## Existing solution and direction
 
-PFE: [story-review-touch.spec.ts](../../../dashboard/tests/review/story-review-touch.spec.ts)
+PFE: [story-review-touch.spec.ts](../../../e2e/review/story-review-touch.spec.ts)
 loops over `launchTouchViewports` with shared titles.
-[storyReviewTouchJourney.ts](../../../dashboard/tests/support/storyReviewTouchJourney.ts)
+[storyReviewTouchJourney.ts](../../../dashboard/test-support/support/storyReviewTouchJourney.ts)
 exports `ownsSharedObservations(page)`, which compares the page's current width
 with the phone's portrait width; it is consumed there and in
-[storyReviewTouchContext.ts](../../../dashboard/tests/support/storyReviewTouchContext.ts)
+[storyReviewTouchContext.ts](../../../dashboard/test-support/support/storyReviewTouchContext.ts)
 after the rotation loop. The phone-only beats are already cohesive functions:
 `observeSharedControlsByTouch` and `keepReviewContextThroughPanelControls`.
 The review, side panel and control owners [Express review and Side panel test intent through page objects](https://github.com/terryyin/open-dough/blob/26bcdab755a81875c698cb51eb941037646bcb7f/.planning/seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) left in place stay as they
 are; no new helper family.
 
-Direction: the spec declares, per touch viewport, each case's title and whether
-that case runs the phone-only beats (a field on a spec-local viewport entry, or
-distinct journey entry points the spec names; execution chooses the simpler
-form). The journeys take that declaration as a parameter instead of reading
-page size, and `ownsSharedObservations` is deleted. Support comments that say
-"each case title describes the phone's journey" are updated to say each
-viewport's title describes its own. Proposed titles, refinable in wording:
+The spec declares each case's title and beats for its viewport and drives
+those beats through the existing page objects. The phone explicitly chooses
+between published comparisons. Delete `ownsSharedObservations` and the two
+journey wrappers. Proposed titles:
 
 | Viewport | Reading case | Context case |
 | --- | --- | --- |
@@ -63,7 +56,7 @@ from the checkout root. Every scratch edit was reverted by `git checkout` and
 
 | Premise / consuming operation | Observation and result | Remainder |
 | --- | --- | --- |
-| The four cases pass in this checkout and route | Baseline: 4 passed (28.9 s), exit 0. | None. |
+| The four cases pass through the current E2E entry point with published comparison fixtures | Earlier baseline: 4 passed (28.9 s), exit 0, through the runner above. | Rerun the four cases with the current fixtures after the published-review cutover. |
 | A scratch throw at the start of both phone-only beats discriminates which viewport runs them | Throws in `observeSharedControlsByTouch` and `keepReviewContextThroughPanelControls`: both phone cases failed with the scratch errors, both tablet cases passed (16.9 s). | Re-run after the change as the slice's discrimination proof. |
 | Page-width ownership lets a phone case skip beats its title claims | Scratch `await page.setViewportSize(landscape)` before the ownership check plus the panel-controls throw, `-g keeps`: both cases passed (10.4 s); the phone context case skipped every panel control. | The slice must turn this phone case into a failure under the same scratch. |
 | Changing the phone's width breaks ownership (initial seed example) | False. Phone portrait width scratch-set to 391 with both throws: phone cases still failed with the scratch errors, tablet passed (18.1 s), because the check compares with the phone constant. The seed example was replaced by the orientation case above. | None. |
@@ -76,7 +69,7 @@ from the checkout root. Every scratch edit was reverted by `git checkout` and
 | --- | --- | --- |
 | Each viewport's titles name what it runs; tablet titles claim neither comparison choice nor panel controls; phone titles keep both | 1 | `--reporter=list` output of the focused command lists the four per-viewport titles. |
 | A case runs exactly the beats its declaration names, independent of page size at the moment | 1 | Scratch throws in both phone-only beats: phone cases fail with the scratch errors, tablet cases pass. Adding the scratch landscape resize before the former ownership point: the phone context case now fails with the panel-controls scratch error. Revert and confirm a clean diff. |
-| Every reading, context and panel assertion, the four cases and native touch input are preserved | 1 | Focused command: 4 passed; the diff changes no assertion, stroke or comparison fact. |
+| All four published-review journeys preserve their reading, context, panel and native touch proof | 1 | Focused E2E command: 4 passed. Match each surviving observation to its published comparison and viewport. |
 
 ## Ordered slices
 
@@ -92,12 +85,14 @@ size the page has when they are reached.
 
 ## Verification and delivery
 
-- Follow [the failing/flaky-test policy](../../../AGENTS.md#failing-and-flaky-tests)
+- Follow [the shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   as written; a base failure is attribution, never an exemption.
 - Before test edits, run installed `test-entry-rules.mjs` for actual paths and
   apply [dough-makeme](../../../.agents/skills/dough-makeme/SKILL.md) and
   [dough-page-objects](../../../.agents/skills/dough-page-objects/SKILL.md) as
   resolved. No sleeps, `test.slow()` or timeout overrides.
+- Focused command: `npm run test:e2e -- e2e/review/story-review-touch.spec.ts
+  --workers=1 --reporter=list`.
 - Local gate: the focused command and scratch probes above, `npm run
   typecheck:dashboard`, post-change refactoring, staged lint and ordinary
   delivery. Run `consumer-trace.mjs --checkout <workspace> --base HEAD` with
@@ -111,9 +106,5 @@ size the page has when they are reached.
 
 ## Current decisions and plan review
 
-One slice owns one outcome and one proof loop; titles and ownership are the
-same declaration, so splitting them would ship titles whose beats still come
-from page size. No Structure slice, numeric slice target, trunk-only step or
-human checkpoint is needed. Slice-plan refinement was not needed: no boundary,
-cumulative design, sizing or proof-ownership concern was identified. This review
-identified no remaining slice-specific concern.
+One slice owns the titles and the viewport-specific beats they describe.
+Refresh the E2E baseline and proof roster after the published-review cutover.

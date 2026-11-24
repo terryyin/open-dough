@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-427#review-published-changes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/802-review-published-changes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1bc39dfc1ff2d1e6fda8f77b1b267a795784c23ed95aa801b91da35717d076cf","plan":"8cf103b13468514189546a6476837a06675aaf0a2a1d6ab69415883cf3a66e79"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/802-review-published-changes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f99f75cf2e08ffdf9821a6676f9c6503649298d441d1494547d33c487ff9eb3f","plan":"816d4891a47b65aa8e2454f6eedf5f27991689d4efd9bf80582dd76aee088552"}}
 ```
 
 **Goal.** A developer reviewing a story or session can open its published
@@ -78,12 +78,10 @@ workflow owners.
   has no attributable published comparison, show the reason without reading its
   former checkout.
 
-**Related work.** The [Execution checkout follow-up](SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-deferred-default-main-session-changes)
-loses its local review premise. Its published landing case belongs here, and any
-net comparison across separated ranges stays with future
+**Related work.** This story owns review of verified published landings. A net
+comparison across separated ranges stays with future
 [combined session review](SEED-418-review-published-session-changes.md#review-selected-sessions-together).
 The [touch review follow-up](SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage)
-still owns matching titles and steps to each viewport's retained journeys. Its
-explicit worktree-commit and uncommitted beats are obsolete under this story.
+owns matching titles and steps to each viewport's published comparison journey.
 Future session selection and combination within a story, bookmark and file
 filter redesign, and expired-session history recovery remain in their own work.

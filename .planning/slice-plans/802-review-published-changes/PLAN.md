@@ -175,8 +175,8 @@ needed by the publication and manual landing workflows. Existing launch records
 still load and their independently used fields still work. Use the existing
 cleanup owner for old internal review refs when it owns them. Preserve local
 branches and worktrees. Delete obsolete review docs, examples and remaining
-fixtures with their owners. Reconcile the named SEED-379, SEED-321 and plan 611
-claims with the delivered proof, and scrub retired assumptions in the SEED-420
+fixtures with their owners. Recheck the published comparison proof in SEED-321
+and plan 611, and scrub retired assumptions in the SEED-420
 example. Preserve outstanding published promises and useful historical evidence.
 
 ## Verification and delivery

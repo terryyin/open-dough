@@ -59,6 +59,10 @@ a few representative end-to-end journeys. Apply the
 to each family. For example, the Recently done paging view should render
 from its typed page data and paging actions without setting up host discovery.
 
+Refresh the Recently done review roster after
+[Review published changes](SEED-427-review-published-changes.md#review-published-changes),
+then simplify the surviving review proof alongside the other session cases.
+
 Use the [Project Intent revision family](SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)
 as the frontend example. Mount the session view with the real state owner when
 reopening or switching scopes is the behavior. Keep integrated navigation in
