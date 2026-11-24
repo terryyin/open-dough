@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "sessionId": "cfecea94-aa3b-4b9c-a443-db5a95fe769f",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T10:46:47.789Z",
+  "story": "SEED-426#start-ad-hoc-work-under-a-story",
+  "ranges": [
+    {
+      "base": "46dd56241b745df00d8459cd36483d8732187261",
+      "candidate": "d1271312797dc8394764efea4b74c969fd2c5d77"
+    },
+    {
+      "base": "d1271312797dc8394764efea4b74c969fd2c5d77",
+      "candidate": "efca0e5a9ecd3686eaa38abe0ab359f81f26a7fb"
+    },
+    {
+      "base": "efca0e5a9ecd3686eaa38abe0ab359f81f26a7fb",
+      "candidate": "908b7ad987361706bfaf34087b23fc078225b450"
+    },
+    {
+      "base": "908b7ad987361706bfaf34087b23fc078225b450",
+      "candidate": "aabca7d1947eba45cfa6a6b600d784834daed002"
+    },
+    {
+      "base": "aabca7d1947eba45cfa6a6b600d784834daed002",
+      "candidate": "e4586ebd97caf82d5970f9d26abe29d0b040c3f0"
+    },
+    {
+      "base": "e4586ebd97caf82d5970f9d26abe29d0b040c3f0",
+      "candidate": "6b7a205ca9afeba9f7a607826238c779a3c6d9bc"
+    },
+    {
+      "base": "6b7a205ca9afeba9f7a607826238c779a3c6d9bc",
+      "candidate": "d321e9960dbbf454bd38b635221f965c8ab63f77"
+    },
+    {
+      "base": "d321e9960dbbf454bd38b635221f965c8ab63f77",
+      "candidate": "121b9158b0249e88f8d8979efe175970346d2380"
+    },
+    {
+      "base": "121b9158b0249e88f8d8979efe175970346d2380",
+      "candidate": "cf3972a4efeeff8a3ca8a00e1ef74146d06d5fe9"
+    },
+    {
+      "base": "cf3972a4efeeff8a3ca8a00e1ef74146d06d5fe9",
+      "candidate": "a20b0fbcd119a96d726095a3c1d013bde5077586"
+    },
+    {
+      "base": "a20b0fbcd119a96d726095a3c1d013bde5077586",
+      "candidate": "f5396f92c15036b7f1e4af81a824692414792ebd"
+    },
+    {
+      "base": "f5396f92c15036b7f1e4af81a824692414792ebd",
+      "candidate": "5e0d5b9041fc4db7f62dfbbc104c461f439a345a"
+    },
+    {
+      "base": "96feeac0c68d517fc1e4432c5b750550bce92cb2",
+      "candidate": "ed4bcb7bb72618fa46643f90a48f3d0e8cbee876"
+    }
+  ]
+}
