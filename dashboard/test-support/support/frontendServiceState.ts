@@ -14,12 +14,10 @@ import { describedRevisions } from "../describedRevisions.ts";
 import {
   defaultFrontendPublishedFiles,
   doughnutSource,
-  frontendPublishedWith,
   frontendRevision,
   openDoughSource,
   pygardonSource,
   takenBacklogMarkdown,
-  type FrontendStories,
 } from "./frontendPublishedFixtures.ts";
 
 export {
@@ -149,21 +147,6 @@ export function putFrontendDoneRecords(
     bodies[fileName] = body;
   }
   putFrontendDonePublication(services, sourceId, { catalog, bodies });
-}
-
-// The project as published with its stories listed as `stories` says, at
-// `revision`.
-export function putFrontendStories(
-  services: FrontendServiceState,
-  stories: FrontendStories,
-  revision = services.revision,
-): void {
-  const published = frontendPublishedWith(stories);
-  putFrontendPublished(services, {
-    revision,
-    backlog: published.backlog,
-    files: published.files,
-  });
 }
 
 // Arranges one published revision's backlog and files as substitute answers.

@@ -192,7 +192,7 @@ Persist across actual reload and restart through the existing
 ### 6. Open the review in its production reading surface
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster.** `review/story-review-action.spec.ts`.
 `sessions/recently-done-ad-hoc-review.spec.ts` stays legacy for SEED-426.
@@ -435,3 +435,17 @@ distinguishes the old regression by the same observation.
 | `sessions/recently-done-sessions-review-cue-races.spec.ts` — "an obsolete association cannot warn the row after its project/association changes" (kept) | Ad hoc association context change | Legacy for SEED-426. |
 | `stories/recently-done-review-cue.spec.ts` — "an outstanding review is a readable red action beside quiet Reviewed in light/dark appearance" (deleted, both cases) | Exact red fill/foreground and quiet colours per scheme, 4.5:1 text and 3:1 control contrast, focus ring ≥2px at 3:1, keyboard mark/unreview keeps focus | `stories/recently-done-review-appearance-mount.spec.ts`, same titles (scheme via CDP emulated media). Spent helpers `expectReviewWarning`/`expectQuietReviewed` removed from `test-support/doneStoryReviewPage.ts`. |
 | Persistence across reload/restart | — | `e2e/stories/recently-done-review-state-persistence.spec.ts` (unchanged owner). |
+
+Slice 6. Replacement `review/story-review-action-mount.spec.ts` ("action
+spec") over `mountBoardFrame` (`ConfiguredDashboard`, typed machine answer;
+no production change). The eligibility rule is the production
+`storyComparisonOffered`/`reviewWorkspaceOf`, already proven in plain form by
+`backend-tests/review/story-review-workspace.spec.ts`; the column does not
+enter it (`StoryCard` passes the same launches for Backlog and Taken). Spent
+support removed: `expectActionGlyph`, `putFrontendStories`,
+`expectOnOneLineWhenRoom`/`groupLineHasRoom`.
+
+| Old case | Distinct observations | Replacement or equivalent |
+| --- | --- | --- |
+| `review/story-review-action.spec.ts` — "the inspection group sits below the launch group, wraps in reading order, and the keyboard reaches Review changes from Inspect story" (deleted) | Starts above the inspection group; Inspect, Notes, Review on one line when roomy, in reading order when wrapped (1920, 1440, narrow, 2x zoom); leading git-compare and trailing arrow glyphs; Enter on Inspect → Hide detail focused, detail shown; Tab → Notes → Review; Enter → Intent Changes selected and focused | Action spec "at 1920 px …" and "at 320 px … the keyboard reaches Review changes from Inspect story and opens Changes focused" (one-line at 1920, reading order at 320; glyph placement, each glyph aria-hidden at 3:1 contrast with the accessible name kept "Review changes"; same keyboard path and Changes focus). Each distinguishes a reordered group, a lost glyph or a broken focus handoff. 1440 and 2x zoom are between the two proven widths. |
+| `review/story-review-action.spec.ts` — "`<column>` card Review changes eligibility and route with `<source>`" (8 cases, deleted) | launch/preparation/claim offer Review in Backlog and Taken, open Changes with `data-selected-story` and focused tab; none offers nothing | Rule: `backend-tests/review/story-review-workspace.spec.ts` (preparation counts like a start; found worktree; none). Rendered: action spec "a Backlog card offered Review changes by a claim / a Taken card … by a preparation / a Backlog card … by a launch opens its Changes with the tab focused" and "a Backlog/Taken card with no workspace offers no Review changes". |
