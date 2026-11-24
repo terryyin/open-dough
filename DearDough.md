@@ -7,9 +7,10 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 636. Removed numbers are never reused.
+- Highest allocated local number: 637. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158. `488645e95fe49110418f94953944bea1beb3afec:DearDough.md` retains the exact removed pointers to ODF-154, ODF-205, ODF-169 and ODF-338. `c8c3aa62af81c1cf1bb13eeb6eb79dc0b67b8c7b:DearDough.md` retains the removed empty DD-613 and DD-608 Occurrences headings and the ODF-532 source-recovery pointer. `af192fc772f2a1fd18e0a9870365991e849fe56a:DearDough.md` preserves the removed redundant plan 792 occurrence under ODF-368. `80087ac3086625e928680a3d495d2526a3fd144f:DearDough.md` retains the removed ODF-456 catalog pointer and ODF-368's plan 777 occurrence.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
+- Recovery: `71e820478b6a0fb8854a6cb5f428b59b44d31225:DearDough.md` retains ODF-329 and ODF-368, removed for the line ceiling; their accounts stay in the finding catalog.
 - Occurrence history is partial.
 - Recovery: `273d9687ed365db7e56ffa4291e4ef78763f855c:DearDough.md` retains the removed redundant recovery pointers. The same earlier log remains linked above.
 
@@ -42,29 +43,6 @@ A story promising parity with an existing view proved only settled states; every
 ### Occurrences
 
 - Execution: SEED-345#catch-delegated-lint-before-delivery (plan 786, first implementation `ffed8fb1b`). Timestamp: unknown (startup on 2026-11-23 +08:00). Tool: Codex. Open Dough release: 0.3.111 (installed guidance at Take `67f8d37bf`). Evidence: the initial parallel read of skill-authoring guidance, ODF-329 and execution references returned 28,521 tokens before truncation. Targeted follow-up reads recovered the delegation, source-review and obligation passages. Observed effect: the combined return hid required context and was followed by narrower reads. Inference: retrieving only the relevant finding section and the passages needed at each boundary would reduce that rereading. Token and time savings were unmeasured.
-
-## ODF-329 — Delegation omits read-only lint before coordinator formatting <a id="odf-329"></a>
-
-- SEED-413#speed-intent-timing-history-proof (plan 759; first implementation `40408c07c`)
-- SEED-413#speed-intent-timing-history-on-vitest (plan 772; first implementation `4e4e753a2`)
-- SEED-413#mount-system-settings-sections-and-usage-charts (plan 749, first implementation `657c7e2a8fd8e2eb284e30f12cae999735e3166f`)
-- SEED-413#repair-refinement-touch-tap-hang (plan 770; first implementation `5aee5b463`)
-- SEED-413#speed-intent-scope-timing-history (plan 774; first implementation `e19c1a4c0`)
-
-### Occurrences
-
-- Execution: SEED-413#speed-dashboard-frame-and-navigation-proof (plan 802, first implementation `fbfc48c26`). Timestamp: unknown (2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `f733216e1`). Evidence: focused proof and independent refactor passed before the selective formatter refused slices 3, 4, 5 and 6 for fixture, locator or unused-parameter lint. Slice 5's preparation rerun exposed a separate ordering defect after the syntax fix. Observed effect: four delivery retries and focused regressions before the same slices could publish. Inference: owner-side scoped read-only checks could find the lint while the author is still in context.
-- Execution: SEED-413#speed-dashboard-live-session-and-terminal-proof (plan 800, first implementation `f9c12f8a0`). Timestamp: unknown (2026-11-24 slice delivery). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `f41e39c2`). Evidence: slice returns supplied focused proof and the installed delegation reference at Take assigned selective formatting and hook-owned lint to the coordinator. Guarded formatting exposed unused fixture arguments, unbound methods and other type-aware lint errors after the returns. Observed effect: coordinator edits were needed before accepting the affected slices. Inference: the installed guidance still hands the first lint feedback to the coordinator.
-- Execution: SEED-420#compare-story-contributions (plan 790, first implementation `b159f51e1`). Timestamp: unknown (2026-11-23 +08:00, delivery of slices 1, 2 and 4). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `f3c0fe94a`). Evidence: each slice returned passing focused tests and independent refactor before guarded formatting caught unsafe matcher or fixture types, an unnecessary optional chain, unused parameters or an unbound method. Observed effect: three formatting refusals and three focused reruns after mechanical repairs. Inference: reading lint while the author still holds the fixture context would have exposed these issues before delivery.
-- Execution: SEED-424#poll-open-codex-sessions (plan 784, first implementation `b5b4a3ed8`). Timestamp: 2026-11-23T13:19:34+08:00 (initial formatting refusal). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION). Evidence: the passing focused test return and independent refactor preceded guarded delivery's errors on require-await and an unused index callback argument in the new Vitest case. The coordinator's first repair also exposed an unsafe spread. An explicit fixture array type cleared it. Observed effect: two preparation refusals before the slice could commit, plus one renewed targeted test. Inference: the existing delegated lint follow-up covers finding the initial errors while the author still has the fixture context.
-- Execution: SEED-423#install-without-the-custom-ci-adapter (plan 793; first implementation `05d51ec1b`). Timestamp: unknown (2026-11-23, between the 18:56 refactor typecheck and the 18:59 rerun, +08:00). Tool: Claude Code. Open Dough release: 0.3.112 (installed `.claude/skills/dough-update/VERSION` at Take `29b578602`). Evidence: the slice 1 refactor pass replaced a try/catch in `dashboard/server/baseCiAdapterAttempts.ts` with `.catch(...)` on the `.mjs` adapter call (`slice-1-refactor-report.md` item 1). Its node and typecheck proof passed; guarded formatting then refused `@typescript-eslint/no-unsafe-assignment` on the untyped result. An `as` cast fixed it and `s1-lintfix-support` passed. Observed effect: one formatting refusal and a focused rerun. Inference: the delegated refactor pass, like an implementer, returns without the read-only lint that would show the error while it still holds the context.
-
-- Execution: SEED-413#drive-published-observation-through-page-entry (plan 789, first implementation `a99bc3797`). Timestamp: 2026-11-23T16:18:15+08:00 (first Slice 1 format refusal). Tool: Cursor. Open Dough release: 0.3.112 (installed `.agents/skills/dough-update/VERSION` at Take `8a41b269fa`). Evidence: after focused frontend proof, guarded format failed on `@typescript-eslint/no-unused-expressions` and `no-unnecessary-condition` in the new observation fixtures (`slice1-format-retry.log`); repair then delivered `a99bc3797`. Installed `.claude`/`.agents` delegation still banned independent hook-owned lint while Distribution already had SEED-345's scoped-lint edit. Slice 2 repeated it (`slice2-preflight-format.log`). Observed effect: two coordinator format repairs before Slices 1–2 could commit. Inference: installed 0.3.112 still withheld the SEED-345 remedy from implementers.
-- Execution: SEED-423#derive-the-install-payload-from-the-shipped-directory (plan 796; first implementation `f3c94837b`). Timestamp: unknown (2026-11-23 to 2026-11-24 +08:00, refusals before `14f7aa413`, `86fba84d8` and `581a1296f`). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.112 (installed `.claude/skills/dough-update/VERSION` at Take `28785ac04`). Evidence: guarded fresh delivery stopped at `operation: formatting` on shellcheck four times: slice 3 SC1091 in `open-dough-payload-inventory.sh`, slice 4 SC2034/SC2312 in `update-removes-dropped-files.sh`, the timing repair's SC2154 in `self-installation-source-records.sh`, plus an earlier directive a refactor pass dropped. Implementation and refactor briefs forbade hook-owned lint; a "keep shellcheck-clean" line added to the common brief after slice 4 reduced but did not end the refusals. Observed effect: four formatting refusals with coordinator repairs and reruns. Inference: installed 0.3.112 still withholds read-only lint from delegates, and shell scripts repeat the TypeScript pattern above.
-- Execution: SEED-413#hold-adapter-proof-reasons-in-default-timeout (plan 798, first implementation `f742e02fb`). Timestamp: 2026-11-24T08:51:41+08:00 (first recorded slice 2 formatting refusal). Tool: Codex. Open Dough release: 0.3.112 (installed version at Take `91610ce0d`). Evidence: slice 2's focused Vitest tests and independent refactor passed. Guarded formatting rejected a working-directory repository root and an unsafe return from command call capture, then the typecheck rejected incomplete MakeMe published-source facts. Observed effect: a formatting refusal and a commit refusal, followed by coordinator fixture corrections and two focused backend reruns before `87eb8d1e4`. Inference: read-only lint and typechecking on the authored specs would have found those errors while the implementer still had the setup context.
-
-[Account and evidence at ODF-329](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-329.md#evidence-2026-11-23-open-dough-odf-329).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-519 — Story Branch start reports a reused remote branch published without advancing it
 
@@ -451,29 +429,6 @@ A test-conversion slice wrote, in its assertion map, that an interim "no call of
   - Observed effect: one correction slice before the execution-complete record; no protection shipped lost.
   - Inference: related to DD-569 and DD-563. Requiring a reason for every narrowing in the map, checked at acceptance, would have caught it.
 
-## ODF-368 — A plan's slices sit under a heading the obligations and delivery reader refuses <a id="odf-368"></a>
-
-- SEED-401#pilot-new-retrospective-findings (plan 706; first implementation `d6190e523`)
-
-[Account and evidence at ODF-368](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-368.md#evidence-2026-11-23-open-dough-odf-368). Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
-
-### Occurrences
-
-- Execution: SEED-420#compare-story-contributions (plan 790, first implementation `b159f51e1`). Timestamp: unknown (2026-11-23 +08:00, before the slice 1 publication at 16:47). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `f3c0fe94a`). Evidence: the Ready plan used `## Slices and outside-in proof` at `f3c0fe94a`. The empty obligation listing passed. Guarded delivery then refused the status mutation. The coordinator verified all four slices through the actual reader, corrected the heading and proof labels and published the same product slice in `b159f51e1`. Observed effect: one refused delivery and a repeated formatter pass. Inference: validating the plan with the status reader when selecting the first slice would have exposed the format before implementation.
-- Execution: SEED-420#read-proof-for-the-comparison (plan 797, first implementation `29cd3167d`). Timestamp: unknown (2026-11-23 +08:00, before Slice 1 publication). Tool: Codex. Open Dough release: 0.3.112 (installed guidance at Take `4402f50fd`). Evidence: `4402f50fd:.planning/slice-plans/797-read-ci-proof-for-the-selected-comparison/PLAN.md` used lettered slice headings. The empty obligation listing passed. An explicit `check --planned-completion` before delivery refused the heading format. Numbering the same eight slices and references made the reader identify every pending slice. Observed effect: one working-plan correction before delivery. Inference: using the delivery reader at readiness would have caught the mismatch earlier.
-- Execution: SEED-413#speed-intent-revision-and-detour-reading (plan 778; first implementation `ea316f671`)
-  - Timestamp: 2026-11-23T08:40:41+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision `702d1a213`; base 0.3.110
-  - Evidence: a Ready plan headed `## Slices and outside-in proof`. The first `story-obligations.mjs list --slice 1` refused `unreadable-slices`; after renaming to `## Slices` in the working plan, guarded fresh delivery refused "slice 7 is done … but not in its committed plan", because the committed heading was still unreadable. Repaired by the separate records commit `f5c5f876c`.
-  - Observed effect: one refused listing, one refused delivery and one extra commit before slice 1 published.
-  - Inference: the working-tree rename alone does not satisfy delivery, which also reads `HEAD`; planning or readiness rejecting the heading would avoid both stops.
-- Execution: SEED-423#install-without-the-custom-ci-adapter (plan 793; first implementation `05d51ec1b`). Timestamp: unknown (2026-11-23, before the `05d51ec1b` commit at 19:00:36+08:00). Tool: Claude Code. Open Dough release: 0.3.112 (installed `.claude/skills/dough-update/VERSION` at Take `29b578602`). Evidence: the Ready plan at `29b578602` sat under `## Slices and outside-in proof`; guarded fresh delivery refused it for want of `## Slices`, and `05d51ec1b` carries the rename. Observed effect: one refused delivery and a retry before slice 1 published. Inference: this is the second SEED-423 plan in one day with the same heading, after plan 792's row above, so the recorded occurrence did not change how the next plan was written.
-- Execution: SEED-423#retire-finished-migrations-and-legacy-formats (plan 794, first implementation `bfc9baea1`). Timestamp: unknown (2026-11-23 +08:00, before publication at 19:46). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `c11059cb4`). Evidence: the ready plan used `## Slices and outside-in proof`. Obligations listing returned no entries, but guarded delivery refused the plan-status mutation because the section was neither `## Ordered slices` nor `## Slices`. Renaming the heading let the same slice publish in `bfc9baea1`. Observed effect: one refused status mutation and one repeated formatter pass. Inference: early validation against the delivery reader would expose the mismatch.
-- Execution: SEED-423#require-declared-units-in-ci-proof (plan 795, first implementation `1d78c4b91`). Timestamp: unknown (2026-11-23 +08:00, before slice 1 publication). Tool: Codex. Open Dough release: 0.3.112 at Take `cc18578a6`. Evidence: the Ready plan used lettered slice headings. The empty obligation listing passed, then the first nonempty delivery check returned `unreadable-slices` and `unknown-slice`. Numbering the same seven slices and references allowed the check and publication. Observed effect: one refused precommit check and one plan correction. Inference: readiness validation could use the delivery reader before implementation.
-- Execution: SEED-423#derive-the-install-payload-from-the-shipped-directory (plan 796; first implementation `f3c94837b`). Timestamp: unknown (2026-11-23 +08:00, before the `f3c94837b` commit at 21:26:33+08:00). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.112 (installed `.claude/skills/dough-update/VERSION` at Take `28785ac04`). Evidence: the Ready plan headed its slices `### A.`–`### G.`; `story-obligations list --slice A` was refused and `locatePlanSliceStatuses` returned "An ordered-slices heading is not in the established “### N. name” form." Preparation and readiness had not caught it; the coordinator renumbered the slices 1–7 and every cross-reference inside delivery commit `f3c94837b`. Observed effect: one refused listing and a plan correction before slice 1 published. Inference: the second lettered-heading plan in a row after plan 795's row; readiness still does not run the delivery reader.
-
 ## ODF-528 — A plan puts slices that wait for a week of post-landing ordinary work inside one Story Branch execution <a id="dd-580"></a>
 
 <a id="dd-580--a-plan-puts-slices-that-wait-for-a-week-of-post-landing-ordinary-work-inside-one-story-branch-execution"></a>
@@ -584,6 +539,17 @@ Slice acceptance recorded source-review commitment 3.1 ("a handler's typed contr
 - Execution: SEED-413#split-done-mark-decision-from-store (plan 734, `f5e3a956d`..`0d1560004`). Timestamp: 2026-11-21 (slices 4–7 accepted between about 22:55 +08:00 on 11-20 and 00:45 +08:00). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: unknown (checkout-bound guidance at Take `fd05ea2d2`). Evidence: every brief carried the cited topic, yet refactor passes added `aDoneSession`, `aDoneBranch`, `keptAsDone`, `keptAsDoneAfterRetirement` and a `pinned` switch to `doneCaptureReview.ts`/`doneBranchObservation.ts`; the coordinator noted the conflict at slice 4 and accepted it as "a later story folds it". Only the retrospective's independent review tied two of them to lost adapter proof (correction SEED-413#restore-done-capture-proof-after-composed-reviews, plan 743). Inference: carrying the topic in the brief is not enough; acceptance needs a check that new test support composes through MakeMe and writes no production state by hand.
 
 ## DD-608 — Implementers return a slice partly done with most of its clock left <a id="dd-608"></a>
+
+### Occurrences
+
+- Execution: SEED-413#speed-dashboard-done-session-review-proof (plan 801; first implementation `a42a333c3`)
+  - Timestamp: unknown (2026-11-24 +08:00, slices 1, 2 and 8)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.113 (installed guidance at Take `4c0b4a9cb`)
+  - Evidence: slice 1 returned at 5.3 and 9.3 of 15 active minutes calling a test-support change a blocker; slice 2 returned at 11.5 and 12.7; slice 8 reported its budget exhausted after about 68 s of wall time while `slice-clock.mjs status` showed 1.3 minutes used. Each was resumed by the coordinator and finished within the slice.
+  - Observed effect: six extra coordinator round trips; slice 8 nearly split on a false overrun before the coordinator read the clock.
+  - Inference: implementers estimate elapsed time instead of reading the clock; requiring the quoted `status` JSON at return stopped the false claims for slices 8–10.
 
 ## DD-596 — Moves to composed state are accepted on assertion counts while the setup skips the step they proved <a id="dd-596"></a>
 
@@ -718,6 +684,14 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
   - Evidence: slice 3 dropped the scope's own figures row from `expectComparisonScopeRows` (returned, restored in `ebe6c545f`). Slice 4 kept three legacy short-SHA exclusions that could not fail because the answer never held the SHA (returned: one made discriminating, two removed in `6bb025623`). Slice 6 left six drawing checks without a Done owner (story obligation G1, proved by slice 7 in `8d288cd06`). Slice 5 replaced the legacy-only case's no-timing check with a unit-name check, and acceptance took it (`758ca0df1`, `intent-scope-timing-history-units.spec.ts:103`); only the retrospective's independent outcome review found it, now [plan 783](.planning/slice-plans/783-correct-scope-timing-chart-proof-residue/PLAN.md) finding 2.
   - Observed effect: three acceptance returns and one loss shipped on the story branch.
   - Inference: legacy assertions that could not fail were copied as owners, a related failure the brief's preserve rule does not name.
+
+- Execution: SEED-413#speed-dashboard-done-session-review-proof (plan 801; first implementation `a42a333c3`)
+  - Timestamp: unknown (2026-11-24 +08:00, slices 3, 6, 8 and 10 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.113 (installed guidance at Take `4c0b4a9cb`)
+  - Evidence: slice 3 dropped the in-card text colour; slice 6 dropped the review glyphs' aria-hidden and 3:1 contrast; slice 8 deleted the legacy syntax-hint spec while its Intent locations read stayed unproven (legacy restored until slice 9); slice 10 weakened short-window reachability to any-part-visible and read a Terminal where the legacy case read a final report. Each was listed as a gap in the return and closed on a coordinator send-back.
+  - Observed effect: five acceptance returns; no loss shipped.
 
 ## ODF-537 — Plan-status absorb marks trunk-delivered Behavior done while the story-branch tip still holds the defect <a id="dd-607"></a>
 
@@ -998,3 +972,19 @@ Plan 796 slice 6 rerouted `Distribution/tests/helpers/public-payload-fixture.bas
 ### Occurrences
 
 - Execution: SEED-423#derive-the-install-payload-from-the-shipped-directory (plan 796; first implementation `f3c94837b`). Timestamp: 2026-11-23T22:52:32+08:00 (slice 6 commit `1bfd44d3d`). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.112 (installed `.claude/skills/dough-update/VERSION` at Take `28785ac04`). Evidence: `1bfd44d3d` adds `current_payload=$(read_release_payload "${fixture_repo_root}")` to the fixture helper. Wrap-up Intent Coverage at `80087ac30` planted an enumeration fault omitting `references/`: `install-public-payload.sh` still passed and only `update-list-to-directory-release.sh` failed (`open-dough/evidence/intent-coverage-report.md` under the worktree's Git directory). Observed effect: the selection-owning install test cannot detect an enumeration defect it shares with the installer; the assertion gap remained at wrap-up. Inference: no matching issue in this log or the finding catalog; acceptance that checks where a test's expected values come from would catch it.
+
+## DD-637 — Guarded delivery of a repair requires the plan while the plan holds parked slice edits <a id="dd-637"></a>
+
+A planned CI or flake repair delivered through `execution-increment-delivery.mjs fresh` must name the plan in `ownedPaths`, which stages the whole file. When an unfinished slice's uncommitted assertion-map edits sit in that plan, the coordinator has to set them aside by hand to keep them out of the repair commit.
+
+### Occurrences
+
+- Execution: SEED-413#speed-dashboard-done-session-review-proof (plan 801; first implementation `a42a333c3`)
+  - Timestamp: unknown (2026-11-24 +08:00, launcher reopen repair `422abd0f7`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.113 (installed guidance at Take `4c0b4a9cb`)
+  - Evidence: the first attempt refused with `preparation-refused`, "the plan must be included in ownedPaths"; the coordinator copied PLAN.md to the job temp directory, reset it to HEAD plus a repair note, delivered, then restored the parked copy with the same note.
+  - Observed effect: one refused delivery and a manual park and restore of an owned record outside the CI repair stash.
+  - Inference: `stagedPaths` for a partially staged plan, or a repair mode that accepts an unchanged plan, would avoid the hand-managed copy.
+
