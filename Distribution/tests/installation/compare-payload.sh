@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # compare-payload verifies an installation against a supplied local tagged
 # checkout, names the native root and path of each mismatch, writes nothing,
-# and treats candidate-only collisions as mismatches.
+# and treats candidate-only collisions as mismatches. It reads each tag's own
+# payload format: a grouped or inline list, or a marked shipped directory.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
@@ -38,7 +39,10 @@ assert_compare_payload_match() {
   local before after output
 
   before=$(snapshot_path_state "${target}")
-  output=$(bash "${helper}" compare-payload "${dest}" "${checkout}" 2>&1)
+  output=$(bash "${helper}" compare-payload "${dest}" "${checkout}" 2>&1) || {
+    printf 'FAIL: compare-payload refused %s against %s\n%s\n' "${dest}" "${checkout}" "${output}" >&2
+    exit 1
+  }
   after=$(snapshot_path_state "${target}")
   [[ -z "${output}" ]]
   [[ "${after}" == "${before}" ]]
@@ -88,3 +92,60 @@ assert_compare_payload_mismatch "${agents_dest}" "${agents_root}" \
 
 rm -- "${agents_root}/dough-slice-planning/SKILL.md"
 assert_compare_payload_match "${agents_dest}"
+
+# An inline list-era tag withholds dough-adr-awareness from its payload while
+# its source still holds it: the path is new to an installation of that tag,
+# so it must be absent, and present bytes are a collision.
+node "${source_dir}/Distribution/tests/support/release-source.mjs" "${temporary_dir}/inline.git" << 'JSON'
+{"revisions": [{"name": "inline 0.2.0", "release": {"version": "0.2.0",
+  "taggedAt": "2026-10-01T00:00:00", "marker": "payload-0.2.0",
+  "declaration": "inline", "withheld": ["dough-adr-awareness/"]}}]}
+JSON
+checkout="${temporary_dir}/release-0.2.0"
+checkout_tagged_release "${temporary_dir}/inline.git" "${checkout}" 0.2.0
+[[ -f "${checkout}/Distribution/src/skills/dough-adr-awareness/SKILL.md" ]]
+rm -rf -- "${target}"
+prepare_target "${target}"
+bash "${checkout}/install.sh" --target "${target}" --source "${temporary_dir}/inline.git" \
+  --platform cursor --force > /dev/null
+[[ ! -e "${agents_root}/dough-adr-awareness/SKILL.md" ]]
+assert_compare_payload_match "${agents_dest}"
+printf '%s\n' 'local managed edit' >> "${agents_dest}/SKILL.md"
+assert_compare_payload_mismatch "${agents_dest}" "${agents_root}" 'dough-update/SKILL.md'
+cp -- "${checkout}/Distribution/src/skills/dough-update/SKILL.md" "${agents_dest}/SKILL.md"
+mkdir -p -- "${agents_root}/dough-adr-awareness"
+cp -- "${checkout}/Distribution/src/skills/dough-adr-awareness/SKILL.md" "${agents_root}/dough-adr-awareness/"
+assert_compare_payload_mismatch "${agents_dest}" "${agents_root}" 'dough-adr-awareness/SKILL.md'
+
+# A marked directory-format tag lists nothing: each current managed file is a
+# member, delivered with the tag's bytes, by its directory entry alone.
+node "${source_dir}/Distribution/tests/support/release-source.mjs" "${temporary_dir}/directory.git" << 'JSON'
+{"revisions": [{"name": "directory 0.3.0", "release": {"version": "0.3.0",
+  "taggedAt": "2026-11-01T00:00:00", "marker": "payload-0.3.0",
+  "declaration": "directory"}}]}
+JSON
+checkout="${temporary_dir}/release-0.3.0"
+checkout_tagged_release "${temporary_dir}/directory.git" "${checkout}" 0.3.0
+if grep -q 'managed_files' "${checkout}/install.sh"; then
+  echo "FAIL: a directory-format installer must list no files." >&2
+  exit 1
+fi
+for root in "${agents_root}" "${claude_root}"; do
+  rm -rf -- "${root}"
+  mkdir -p -- "${root}"
+  cp -R -- "${checkout}/Distribution/src/skills/." "${root}/"
+done
+assert_compare_payload_match "${agents_dest}"
+assert_compare_payload_match "${claude_dest}"
+printf '%s\n' 'local managed edit' >> "${claude_root}/dough-adr-awareness/SKILL.md"
+assert_compare_payload_mismatch "${claude_dest}" "${claude_root}" 'dough-adr-awareness/SKILL.md'
+cp -- "${checkout}/Distribution/src/skills/dough-adr-awareness/SKILL.md" "${claude_root}/dough-adr-awareness/SKILL.md"
+assert_compare_payload_match "${claude_dest}"
+
+# An invalid directory-format source fails verification with its path.
+ln -s SKILL.md "${checkout}/Distribution/src/skills/dough-update/linked.md"
+if output=$(bash "${helper}" compare-payload "${claude_dest}" "${checkout}" 2>&1) \
+  || [[ "${output}" != *'Unsafe shipped entry (symlink): dough-update/linked.md'* ]]; then
+  printf 'FAIL: an unsafe directory-format source must fail verification.\n%s\n' "${output}" >&2
+  exit 1
+fi

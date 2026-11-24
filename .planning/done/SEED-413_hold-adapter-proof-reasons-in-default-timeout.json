@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#hold-adapter-proof-reasons-in-default-timeout",
+  "title": "Prove each adapter proof reason below the E2E journey",
+  "completedAt": "2026-11-24T01:14:45.893Z",
+  "developer": "Terry Yin",
+  "agent": "Maki-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

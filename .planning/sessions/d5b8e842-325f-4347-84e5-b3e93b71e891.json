@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sessionId": "d5b8e842-325f-4347-84e5-b3e93b71e891",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T01:25:16.884Z",
+  "story": "SEED-413#hold-adapter-proof-reasons-in-default-timeout",
+  "ranges": [
+    {
+      "base": "91610ce0dc8c11e5296cd16a03d8ab30f96c4ece",
+      "candidate": "f742e02fbbffc4a2d263694f284880b3ea0d9afb"
+    },
+    {
+      "base": "f742e02fbbffc4a2d263694f284880b3ea0d9afb",
+      "candidate": "58a596796738df2e96cf327efc2d501342dd0a14"
+    },
+    {
+      "base": "58a596796738df2e96cf327efc2d501342dd0a14",
+      "candidate": "87eb8d1e4aef59f2abec1f4ef7b28a99544c816d"
+    },
+    {
+      "base": "87eb8d1e4aef59f2abec1f4ef7b28a99544c816d",
+      "candidate": "b9b2a18680eb7924db5ac0e42e884822499bc3d0"
+    },
+    {
+      "base": "b9b2a18680eb7924db5ac0e42e884822499bc3d0",
+      "candidate": "6ed726ff1d007cea8387c38f3ede9615e7f4628f"
+    },
+    {
+      "base": "6ed726ff1d007cea8387c38f3ede9615e7f4628f",
+      "candidate": "1bb39e5629d18237d22d3970c908ffa38c65e043"
+    }
+  ]
+}

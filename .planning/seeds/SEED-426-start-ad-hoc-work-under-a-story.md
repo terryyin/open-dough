@@ -61,11 +61,28 @@ already provides the per-session identity and comparison.
   Taken with that session attached. The queued backlog keeps its order. A
   lost startup response and a retry use the same story.
 - Starting a follow-up of a Taken or Done story opens a new session with the
-  same story identity. The source story retains its status and the sessions
-  retain their own IDs and attributable changes.
+  same story identity. Land accepts the follow-up's declared branch and saves
+  the exact comparison under its own session ID. A retry uses the same
+  session and comparison. The source story retains its status.
 - Completing the new story and fetching it in a second clone lets a developer
   find its sessions and open the recorded changes through the same Done and
   Intent paths used by other stories.
+
+**Landing regression and cutover.** In v0.3.113, declaring a branch from a
+story follow-up saved its story identity in the Dashboard landing context.
+The Dashboard's retained-landing check refused a declared branch with that
+field set, before any Git push. The rollback at `0bdef6cb2` removed the
+field from newly created contexts. A retry of a context already saved by
+the earlier version still returned `This is not the session's authorized
+branch landing.` The rollback itself landed directly through Git, so this
+session's Dashboard comparison was never recorded. Its exact Git comparison
+is `fe21e4639..0bdef6cb2`.
+
+Include those retained contexts in the cutover inventory. During refinement,
+determine how an affected open session can complete under its existing
+identity with a verified comparison. Cover both the new follow-up path and
+the disposition of any affected retained contexts with the existing landing
+proof. Preserve repository, workspace, branch, target, and revision checks.
 
 **Size and proof.** Use the post-revert product as the baseline. Record before
 and after source and shipped guidance size for Distribution and Dashboard,

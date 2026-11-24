@@ -17,7 +17,6 @@ import { usePageVisibility } from "./pageVisibility.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import type { ReadSessions } from "./readSessions.ts";
 import { useRetainedHistory } from "./retainedHistory.ts";
-import { awaitAttemptChange } from "./attemptChangeWaits.ts";
 
 export type MachineSessions = ReadSessions &
   LaunchOffers &
@@ -92,7 +91,6 @@ export function useAgentLaunches(
     },
     [],
   );
-  // How many reads were asked so far.
   const asks = useRef(0);
   const [readsSettled, setReadsSettled] = useState(0);
   // The project list under which the latest ended read was asked.
@@ -106,11 +104,12 @@ export function useAgentLaunches(
   const reread = useCallback(() => {
     setRequested((value) => value + 1);
   }, []);
-  const retained = useRetainedHistory(known, historyRevision);
+  const { readHistorySince } = machine;
+  const retained = useRetainedHistory(known, historyRevision, readHistorySince);
   const attempts = useLaunchAttempts({
     source: {
       accept: machine.requestAcceptance,
-      waitForChange: awaitAttemptChange,
+      waitForChange: machine.waitForAttemptChange,
     },
     observed,
     resolved: retained.attempts,
@@ -205,6 +204,7 @@ export function useAgentLaunches(
     setSessions((current) => ({ ...current, ...facts }));
   }, []);
   const recordActions = useLaunchRecordActions({
+    requests: machine,
     setRecords,
     setFacts,
     deletedAt,

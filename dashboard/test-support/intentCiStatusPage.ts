@@ -62,6 +62,10 @@ export async function expectCiAnswer(
   await expect(ciStatusReading(panel).state, message).toHaveText(state);
 }
 
+export async function checkCiAgain(panel: Locator) {
+  await panel.getByRole("button", { name: "Check again", exact: true }).click();
+}
+
 export async function expectCiScope(panel: Locator, scope: string) {
   await expect(
     panel.getByRole("heading", { name: `CI status of ${scope}`, exact: true }),

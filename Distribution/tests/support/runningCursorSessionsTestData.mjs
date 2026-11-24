@@ -50,3 +50,15 @@ export class RunningCursorSessionsBuilder {
     };
   }
 }
+
+/** @returns {PropertyDescriptorMap} */
+export function runningCursorSessionsMakeMeProperties() {
+  return {
+    aRunningCursorSessions: {
+      enumerable: true,
+      get() {
+        return new RunningCursorSessionsBuilder();
+      },
+    },
+  };
+}

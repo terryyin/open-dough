@@ -2,8 +2,9 @@
 // adapter's `proof` answer, asked with the summary read limit as its answer
 // limit and used only when the check (./ci-proof-check.test.mjs) finds it
 // the asked attempt's. A GitHub Actions run attempt's read:
-// ./ci-proof-read.test.mjs. How Intent words each refusal:
-// ../../../../../e2e/intent/intent-ci-proof-adapter-reasons.spec.ts.
+// ./ci-proof-read.test.mjs. Intent's adapter refusal wording:
+// ../../support/dashboard-ci-adapter-proof.test.mjs and
+// ../../../../dashboard/backend-tests/intent/ci-proof-memory-adapter-gaps.spec.ts.
 import assert from "node:assert/strict";
 import { tmpdir } from "node:os";
 import { test } from "node:test";

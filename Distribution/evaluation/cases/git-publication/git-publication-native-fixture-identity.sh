@@ -107,8 +107,7 @@ git_publication_fixture_family_identity() {
 # One input-hash line per input a fresh `install.sh --source source_dir` run
 # reads from that working tree: the entry and the install, release-check and
 # hook-registration helpers it sources or runs, VERSION and CHANGELOG.md, and
-# every payload file its managed_files declaration names, hook fragments
-# included.
+# every payload file its payload inventory delivers, hook fragments included.
 git_publication_installer_input_hash_lines() {
   local declared tracked
   local -a payload installer_shells
@@ -116,7 +115,7 @@ git_publication_installer_input_hash_lines() {
     # shellcheck source=Distribution/src/install/open-dough-release-version.sh
     # shellcheck disable=SC1091
     source "${source_dir}/Distribution/src/install/open-dough-release-version.sh" \
-      && read_managed_files_declaration "${source_dir}/install.sh"
+      && read_release_payload "${source_dir}"
   ) || return
   mapfile -t payload <<< "${declared}"
   tracked=$(git -C "${source_dir}" ls-files -- 'Distribution/src/install/*.sh') || return

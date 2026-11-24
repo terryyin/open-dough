@@ -6,8 +6,8 @@ description: Publishes an Open Dough release and updates, commits, and pushes it
 # Release Open Dough and update dashboard projects
 
 This is an internal Open Dough maintainer skill. Keep its source here, with only
-a Claude Code discovery pointer under `.claude/skills/`. Do not add it to
-`Distribution/src/skills/` or `install.sh`'s released payload. Follow the
+a Claude Code discovery pointer under `.claude/skills/`. Do not place it under
+`Distribution/src/skills/`, the released payload. Follow the
 [maintainer skill guidance](../author-open-dough-skills/SKILL.md) when changing or reviewing it.
 
 Invocation requests the complete workflow: compose release notes, finalize and
@@ -58,9 +58,11 @@ Do not choose a new patch or recommit current installations merely to resume.
    Do not derive the prior release from prepared `VERSION` or changelog entries.
 2. Inspect the commits and aggregate diff since that tag. Compose concise notes
    describing resulting behavior, fixes, and material limitations. Distinguish
-   changed source from the Promoted payload declared by `install.sh`; do not
-   promote Proposed guidance incidentally. Resolve incomplete or contradictory
-   release evidence before publishing. Follow
+   changed source from the Promoted payload: every file under
+   `Distribution/src/skills/`, whose contents maintainer review decides.
+   Proposed guidance stays outside that directory; do not promote it
+   incidentally. Resolve incomplete or contradictory release evidence before
+   publishing. Follow
    [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md).
 3. Follow the applicable behavior, delivery, and native acceptance requirements
    of [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md).
@@ -69,10 +71,11 @@ Do not choose a new patch or recommit current installations merely to resume.
    A previous release's exception does not authorize another skip. Never
    describe payload checks or an earlier CI result as fresh native acceptance.
 4. Invoke release-version with the selected numeric version, composed notes,
-   and finalization intent. Its self-installation check must pass before release
-   metadata, staging, commit, or tag writes. The intended payload must already
-   be committed. Preserve previous changelog entries and immutable release tags;
-   stage only the intended release metadata.
+   and finalization intent. Its release-source and self-installation checks
+   must pass before release metadata, staging, commit, or tag writes. The
+   intended payload must already be committed. Preserve previous changelog
+   entries and immutable release tags; stage only the intended release
+   metadata.
 5. Publish `main` and the annotated tag to `origin`, preferably with one atomic
    push. Never force-push or move a tag. If publication is rejected or uncertain,
    inspect remote facts before retrying and preserve the local commit and tag.
@@ -117,7 +120,7 @@ Keep each target separate from the fetched Open Dough source.
    hooks. Recheck payload bytes after any formatter; do not alter installed
    guidance to satisfy a project's formatting preferences. A repeat ordinary
    update should report current and leave installed files and settings unwritten.
-5. Review the diff against the initial state. Stage only update-owned declared
+5. Review the diff against the initial state. Stage only update-owned released
    payload paths, installation records, retired payload deletions, and managed
    settings changes. Honor ignore rules; do not force-add ignored installations
    or include local skills and concurrent product edits. Commit a real update

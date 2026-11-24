@@ -3,9 +3,8 @@
 // its one file extracted within the read limit (./ci-proof-archive.test.mjs)
 // and used only when the check (./ci-proof-check.test.mjs) finds it the asked
 // attempt's. A CI adapter attempt's read: ./ci-proof-read-adapter.test.mjs.
-// How Intent words each refusal: the Intent CI proof journeys
-// (../../../../../e2e/intent/intent-ci-proof-reasons.spec.ts,
-// intent-ci-proof-adapter-reasons.spec.ts).
+// Intent's GitHub Actions refusal wording:
+// ../../../../e2e/intent/intent-ci-proof-reasons.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { zipOf } from "../../../../dashboard/test-support/support/ciProofArtifacts.ts";

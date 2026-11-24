@@ -1,181 +1,144 @@
-// The accepted Compact card hierarchy, against a controlled machine read,
-// done boundary (../../test-support/support/frontendSessionActions.ts) and attached
-// terminal: status and main access stay visible, routine facts and lifecycle
-// controls disclose independently, keyboard and narrow reading keep both
-// reachable. A Cursor entry's resume command is
-// ./compact-session-entry-cursor.spec.ts.
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import {
+  mountSessionCards,
+  readyStory,
+  revealPage,
+  sessionsReading,
+  workingSession,
+} from "./session-card-mount.ts";
+import { card, cardSession, recentExecution } from "./session-card-page.ts";
+import { terminal, terminalClose } from "./session-terminal-page.ts";
+import { terminalSocket } from "./session-terminal-socket.ts";
 
-import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
-import {
-  frontendStoryLaunch,
-  type FrontendServiceState,
-} from "../../test-support/support/frontendServiceState.ts";
-import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
-import {
-  doneQuestion,
-  keepOpen,
-  markAsDone,
-  markDoneAnyway,
-} from "../../test-support/support/markDone.ts";
-import {
-  sessionActionsControl,
-  sessionDetailsControl,
-} from "../../test-support/support/sessionEntryDisclosure.ts";
-import { setPageVisibility } from "../../test-support/autoRefreshJourney.ts";
-import {
-  parts,
-  sessionEntriesIn,
-  sessionIdLineOf,
-  sessionStateOf,
-  storyCardSessions,
-} from "../../test-support/dashboardPage.ts";
-import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
-import { readyStory } from "../../test-support/launchJourney.ts";
-import { reloadUntilRead } from "../../test-support/pageRequestNotes.ts";
-import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
-import {
-  openTerminalControl,
-  terminalPanel,
-  terminalScreenParts,
-} from "../../test-support/terminalScreenPage.ts";
-import type { LaunchRecord, SessionState } from "../../src/launchRecord.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-
-// The machine observes `record`'s session in `state`.
-function observe(
-  services: FrontendServiceState,
-  record: LaunchRecord,
-  state: SessionState,
-) {
-  services.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch.of(record).withSessionState(state).please(),
-      )
-      .please(),
-  );
-}
-
-test("a compact session discloses technical details and secondary actions without hiding attention or terminal access", async ({
-  page,
-  frontendServices,
-}) => {
-  const record = frontendStoryLaunch("executing", readyStory)
+test("a compact session discloses technical details and secondary actions without hiding attention or terminal access", async () => {
+  const launch = makeMe.aLaunchRecord
+    .executing(readyStory)
     .requestingModel("sonnet")
-    .requestingEffort("medium")
+    .requestingEffort("medium");
+  const record = launch.please();
+  const done = makeMe.anObservedLaunch
+    .of(launch.markedDone().please())
+    .withSessionState(makeMe.aSessionState.retained("review").please())
     .please();
-  const id = record.session.sessionId;
-  frontendServices.answerMachine(makeMe.aMachineAnswer.please());
-  await installFrontendSessionActions(page, frontendServices);
-  await installAttachedTerminalSubstitute(page);
-  await openFrontendTakenBacklog(page);
-  const { card } = backlogLaunchers(page);
-  await expect(
-    card(readyStory).getByText("Ready for execution", { exact: true }),
-  ).toBeVisible();
-  // The story's execution session starts, and the page reads it again.
-  observe(
-    frontendServices,
-    record,
-    makeMe.aSessionState.loaded("working").please(),
-  );
-  await setPageVisibility(page, "hidden");
-  await setPageVisibility(page, "visible");
-  const entry = storyCardSessions(card(readyStory));
-  await expect(sessionStateOf(entry)).toHaveText("Working");
-  const details = sessionDetailsControl(entry);
-  await expect(details).toHaveAttribute("aria-expanded", "false");
-  await expect(sessionIdLineOf(entry, id)).toBeHidden();
-  const effort = entry.getByText("Effort: medium (requested)", { exact: true });
-  await expect(effort).toBeHidden();
-  await expect(
-    entry.getByText("Model: Sonnet (requested)", { exact: true }),
-  ).toBeVisible();
-  await expect(entry.getByText("Claude Code", { exact: true })).toBeVisible();
-  await expect(
-    card(readyStory).getByText("Ready for execution", { exact: true }),
-  ).toBeHidden();
-  await card(readyStory)
-    .getByRole("button", { name: "Inspect story", exact: true })
-    .click();
-  await expect(card(readyStory).getByText(/^Assessment: Ready/)).toBeVisible();
-  await card(readyStory)
-    .getByRole("button", { name: "Hide detail", exact: true })
-    .click();
-  const open = openTerminalControl(entry);
-  await expect(open).toBeVisible();
-  await expect(markAsDone(entry)).toBeHidden();
-
-  await details.focus();
-  await page.keyboard.press("Enter");
-  await expect(details).toHaveAttribute("aria-expanded", "true");
-  await expect(sessionIdLineOf(entry, id)).toBeVisible();
-  await expect(effort).toBeVisible();
-  await page.keyboard.press("Space");
-  await expect(details).toHaveAttribute("aria-expanded", "false");
-  await expect(details).toBeFocused();
-
-  await open.click();
-  const terminal = terminalPanel(page);
-  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
-  await closeSidePanel(terminal);
-  await expect(open).toBeFocused();
-
-  const actions = sessionActionsControl(entry);
-  await actions.focus();
-  await page.keyboard.press("Enter");
-  await expect(actions).toHaveAttribute("aria-expanded", "true");
-  await page.keyboard.press("Escape");
-  await expect(actions).toHaveAttribute("aria-expanded", "false");
-  await expect(actions).toBeFocused();
-  await page.keyboard.press("Space");
-  await markAsDone(entry).click();
-  await expect(keepOpen(doneQuestion(entry))).toBeFocused();
-  await page.keyboard.press("Escape");
-  await expect(markAsDone(entry)).toBeFocused();
-  await page.keyboard.press("Escape");
-  await expect(actions).toHaveAttribute("aria-expanded", "false");
-  await expect(actions).toBeFocused();
-
-  observe(
-    frontendServices,
-    record,
-    makeMe.aSessionState
-      .loaded("waiting")
-      .waitingFor("Review the migration before continuing.")
-      .please(),
-  );
-  await reloadUntilRead(page);
-  await expect(sessionStateOf(entry)).toHaveText(
-    "Needs input: Review the migration before continuing.",
-  );
-  await expect(details).toHaveAttribute("aria-expanded", "false");
-  await expect(open).toBeVisible();
-  await page.setViewportSize({ width: 360, height: 800 });
-  await details.click();
-  await expect(sessionIdLineOf(entry, id)).toBeVisible();
-  const bounds = await entry.boundingBox();
-  if (bounds === null) throw new Error("The session entry is not laid out.");
-  expect(bounds.width).toBeLessThanOrEqual(360);
-  expect(
-    await page.evaluate(() => document.documentElement.scrollWidth),
-  ).toBeLessThanOrEqual(360);
-  await expect(sessionEntriesIn(parts(page).recentlyDone)).toHaveCount(0);
-  await markDoneAnyway(entry);
-  await expect(entry).toHaveCount(0);
-  await expect(
-    card(readyStory).getByText("Ready for execution", { exact: true }),
-  ).toBeVisible();
-  const inspect = card(readyStory).getByRole("button", {
+  const machine = await mountSessionCards({
+    reading: sessionsReading("empty"),
+    markDone: () => Promise.resolve({ kind: "marked", record: done }),
+    openTerminal: () => terminalSocket("attached to execution").socket,
+  });
+  const ready = card.getByText("Ready for execution", { exact: true });
+  const inspect = card.getByRole("button", {
     name: "Inspect story",
     exact: true,
   });
-  await inspect.focus();
-  await inspect.click();
-  await expect(card(readyStory).getByText(/^Assessment: Ready/)).toBeVisible();
+  const assessment = card.getByText(/^Assessment: Ready/);
+  await expect.element(ready).toBeVisible();
+  const revealWork = revealPage();
+  machine.answerWith(sessionsReading("working", workingSession(record)));
+  revealWork();
+
+  const session = cardSession();
+  const id = session.entry.getByText(record.session.sessionId, { exact: true });
+  const effort = session.entry.getByText("Effort: medium (requested)", {
+    exact: true,
+  });
+  await expect.element(session.state).toHaveTextContent("Working");
+  await expect
+    .element(session.details)
+    .toHaveAttribute("aria-expanded", "false");
+  await expect.element(id).not.toBeVisible();
+  await expect.element(effort).not.toBeVisible();
+  await expect
+    .element(
+      session.entry.getByText("Model: Sonnet (requested)", { exact: true }),
+    )
+    .toBeVisible();
+  await expect
+    .element(session.entry.getByText("Claude Code", { exact: true }))
+    .toBeVisible();
+  await expect.element(ready).not.toBeInTheDocument();
+  await userEvent.click(inspect);
+  await expect.element(assessment).toBeVisible();
+  await userEvent.click(card.getByRole("button", { name: "Hide detail" }));
+  await expect.element(session.open).toBeVisible();
+  await expect.element(session.done).not.toBeInTheDocument();
+
+  session.details.element().focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(session.details)
+    .toHaveAttribute("aria-expanded", "true");
+  await expect.element(id).toBeVisible();
+  await expect.element(effort).toBeVisible();
+  await userEvent.keyboard(" ");
+  await expect
+    .element(session.details)
+    .toHaveAttribute("aria-expanded", "false");
+  await expect.element(session.details).toHaveFocus();
+
+  await userEvent.click(session.open);
+  await expect
+    .element(terminal.getByText("attached to execution", { exact: true }))
+    .toBeVisible();
+  await userEvent.click(terminalClose);
+  await expect.element(session.open).toHaveFocus();
+
+  session.actions.element().focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(session.actions)
+    .toHaveAttribute("aria-expanded", "true");
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(session.actions)
+    .toHaveAttribute("aria-expanded", "false");
+  await expect.element(session.actions).toHaveFocus();
+  await userEvent.keyboard(" ");
+  await session.askToMarkDone();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(session.done).toHaveFocus();
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(session.actions)
+    .toHaveAttribute("aria-expanded", "false");
+  await expect.element(session.actions).toHaveFocus();
+
+  const waiting = makeMe.anObservedLaunch
+    .of(record)
+    .withSessionState(
+      makeMe.aSessionState
+        .loaded("waiting")
+        .waitingFor("Review the migration before continuing.")
+        .please(),
+    )
+    .please();
+  const revealWaiting = revealPage();
+  machine.answerWith(sessionsReading("waiting", waiting));
+  revealWaiting();
+  await expect
+    .element(session.state)
+    .toHaveTextContent("Needs input: Review the migration before continuing.");
+  await expect
+    .element(session.details)
+    .toHaveAttribute("aria-expanded", "false");
+  await expect.element(session.open).toBeVisible();
+  await page.viewport(360, 800);
+  await userEvent.click(session.details);
+  await expect.element(id).toBeVisible();
+  expect(
+    session.entry.element().getBoundingClientRect().width,
+  ).toBeLessThanOrEqual(360);
+  expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(360);
+
+  await expect.element(recentExecution).not.toBeInTheDocument();
+  const confirmDone = await session.askToMarkDone();
+  await userEvent.click(confirmDone);
+  await expect
+    .poll(() => card.element().querySelector(".story-card-sessions"))
+    .toBeNull();
+  await expect.element(ready).toBeVisible();
+  inspect.element().focus();
+  await userEvent.click(inspect);
+  await expect.element(assessment).toBeVisible();
 });

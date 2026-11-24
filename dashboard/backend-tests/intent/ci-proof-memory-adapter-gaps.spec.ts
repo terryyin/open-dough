@@ -1,7 +1,9 @@
-// A failed schema or asked-attempt identity check cannot poison proof memory.
+// An adapter's unusable proof has a specific reader-facing reason and cannot
+// poison proof memory.
+import { assert, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciAdapterProofReader } from "../../server/ciAdapterProof.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { adapterUnavailableLine } from "../../src/ciProofAbsenceWording.ts";
 import {
   configuredAdapter,
   repository,
@@ -18,21 +20,42 @@ const attempt = makeMe.aCiAdapterProofAttempt
   })
   .please();
 
-for (const [reason, changed] of [
-  ["invalid", { schemaVersion: 1 }],
-  ["mismatched", { repository: "example/other" }],
-  ["mismatched", { attemptId: "retry:1" }],
-  ["mismatched", { revision: "b".repeat(40) }],
+const proof = makeMe.aCiProof.summaryForAdapter(attempt).please();
+const otherRevision = "b".repeat(40);
+
+for (const [gap, answer, line] of [
+  [
+    "an explicit absence",
+    { unavailable: "no summary retained" },
+    "This attempt's CI adapter gave no CI proof summary: no summary retained.",
+  ],
+  [
+    "an unsupported schema",
+    { summary: { ...proof.summary, schemaVersion: 3 } },
+    "This attempt's CI proof summary is not a valid summary: schemaVersion is not 2.",
+  ],
+  [
+    "another repository",
+    { summary: { ...proof.summary, repository: "someone/else" } },
+    "This attempt's CI proof summary is for another repository, attempt or revision: it names repository someone/else.",
+  ],
+  [
+    "another attempt",
+    { summary: { ...proof.summary, attemptId: "retry:1" } },
+    "This attempt's CI proof summary is for another repository, attempt or revision: it names attempt retry:1.",
+  ],
+  [
+    "another revision",
+    { summary: { ...proof.summary, revision: otherRevision } },
+    `This attempt's CI proof summary is for another repository, attempt or revision: it names revision ${otherRevision}.`,
+  ],
 ] as const) {
-  test(`adapter ${JSON.stringify(changed)} is ${reason}, reacquired and checked before memory`, async () => {
+  test(`adapter proof with ${gap} explains why and is acquired again before memory`, async () => {
     const project = configuredAdapter();
-    const proof = makeMe.aCiProof.summaryForAdapter(attempt).please();
     let calls = 0;
     const reader = ciAdapterProofReader(() => {
       calls += 1;
-      return Promise.resolve({
-        summary: calls === 1 ? { ...proof.summary, ...changed } : proof.summary,
-      });
+      return Promise.resolve(calls === 1 ? answer : { summary: proof.summary });
     });
     try {
       const rejected = await reader(
@@ -41,11 +64,8 @@ for (const [reason, changed] of [
         attempt,
         signal(),
       );
-      expect(rejected).toMatchObject({ kind: "unavailable", reason });
-      if (reason === "invalid")
-        expect(rejected).toMatchObject({
-          detail: "schemaVersion is not 2",
-        });
+      assert(rejected.kind === "unavailable");
+      expect(adapterUnavailableLine(rejected)).toBe(line);
       expect(
         await reader(repository, project.folder, attempt, signal()),
       ).toEqual(proof);
@@ -69,12 +89,20 @@ test("an oversized adapter command answer becomes the shared one MiB proof gap",
     ),
   );
   try {
-    expect(await reader(repository, project.folder, attempt, signal())).toEqual(
-      {
-        kind: "unavailable",
-        reason: "too-large",
-        limitBytes: 1_048_576,
-      },
+    const rejected = await reader(
+      repository,
+      project.folder,
+      attempt,
+      signal(),
+    );
+    expect(rejected).toEqual({
+      kind: "unavailable",
+      reason: "too-large",
+      limitBytes: 1_048_576,
+    });
+    assert(rejected.kind === "unavailable");
+    expect(adapterUnavailableLine(rejected)).toBe(
+      "This attempt's CI proof is larger than the 1 MiB proof limit.",
     );
   } finally {
     project.cleanup();

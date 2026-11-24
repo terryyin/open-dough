@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "a60b3696-dab4-45ff-bea2-9299b60734e5",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T23:30:25.442Z",
+  "story": "SEED-413#hold-adapter-proof-reasons-in-default-timeout",
+  "ranges": [
+    {
+      "base": "0bdef6cb24e3b9eec0a3f4df8cddb16343ae0561",
+      "candidate": "87ee486a66d0ec44ba5576b5496c606dd47869fd"
+    }
+  ]
+}

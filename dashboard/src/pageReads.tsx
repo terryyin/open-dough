@@ -1,6 +1,7 @@
 // The page's reads of Intent, its CI, the story review, done records, story
 // notes, CI follow-up, story review states, the published observation, and the
-// machine's sessions and agent acceptance; its calls for a shown session; and
+// machine's sessions and agent acceptance; its calls for a shown session and
+// instruction transcription; and
 // its source highlighter. The app (`./App.tsx`) gives
 // `./ConfiguredDashboard.tsx` the authenticated implementations. The dashboard
 // hands the published observation and launch owner their reads; Recently
@@ -21,6 +22,10 @@ import {
   authenticatedIntentReads,
   type IntentReadSource,
 } from "./intentReadSource.ts";
+import {
+  instructionTranscription,
+  type InstructionTranscriptionSource,
+} from "./instructionTranscriptionSource.ts";
 import {
   authenticatedPublishedObservationReads,
   type PublishedObservationReadSource,
@@ -57,6 +62,7 @@ export type PageReads = {
   readonly ci: IntentCiReadSource;
   readonly review: ReviewSource;
   readonly sessions: SessionServices;
+  readonly transcription: InstructionTranscriptionSource;
   readonly done: DoneRecordReadSource;
   readonly storyNotes: StoryNotesReadSource;
   readonly ciFollowUp: CiFollowUpReadSource;
@@ -71,6 +77,7 @@ export const authenticatedPageReads: PageReads = {
   ci: authenticatedIntentCiReads,
   review: pageReviewSource,
   sessions: authenticatedSessionServices,
+  transcription: instructionTranscription,
   done: authenticatedDoneRecordReads,
   storyNotes: authenticatedStoryNotesReads,
   ciFollowUp: authenticatedCiFollowUpReads,
@@ -152,6 +159,8 @@ export const useIntentCiReads = (): IntentCiReadSource => usePageReads().ci;
 export const useReviewReads = (): ReviewSource => usePageReads().review;
 export const useSessionServices = (): SessionServices =>
   usePageReads().sessions;
+export const useInstructionTranscription = (): InstructionTranscriptionSource =>
+  usePageReads().transcription;
 export const useDoneRecordReads = (): DoneRecordReadSource =>
   usePageReads().done;
 export const useDoneLinkReads = (): DoneLinkReads => {

@@ -100,7 +100,7 @@ exists; their helper calls are not a pattern for new checks.
 | [Baselines](baselines.md) | Frozen evidence and justified reuse |
 | [Combined shares](../tests/runner-settings.md) | One discovery; `Distribution/evaluation/**` is CI's share 2 |
 
-Installation remains governed by the declared payload under
+Installation remains governed by the shipped payload under
 [ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md).
 The implementation, cases, retained streams and tool checks here are source
 maintenance material and do not become installed runtime content.

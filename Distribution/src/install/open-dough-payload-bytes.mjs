@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Compare or copy declared payload files in one process.
+// Compare or copy managed payload files in one process.
 // match: exit 0 when every listed file has identical bytes at the destination,
 // exit 1 when any file is missing or differs, exit 2 on usage or unexpected reads.
 // copy-then-match: replace files in listed order, keeping existing destination

@@ -1,8 +1,8 @@
 // The adapter command is external; configuration, validation and memory are real.
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciAdapterProofReader } from "../../server/ciAdapterProof.ts";
 import type { CiAdapterProofAttempt } from "../../src/ciProof.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   configuredAdapter,
   repository,
@@ -110,6 +110,52 @@ test("an unreadable command answer is retried rather than retained as the attemp
       proof,
     );
     expect(calls).toBe(2);
+  } finally {
+    project.cleanup();
+  }
+});
+
+test("a retry's proof is remembered separately from the previous attempt of its pipeline", async () => {
+  const previous = makeMe.aCiAdapterProofAttempt
+    .with({ ...attempt, attemptId: "1" })
+    .please();
+  const previousProof = makeMe.aCiProof
+    .summaryForAdapter(previous, [
+      makeMe.aCiProofEntry.at("tests").counting(3).please(),
+    ])
+    .please();
+  const retryProof = makeMe.aCiProof
+    .summaryForAdapter(attempt, [
+      makeMe.aCiProofEntry.at("tests").counting(5).please(),
+    ])
+    .please();
+  const readCommand = vi
+    .fn<NonNullable<Parameters<typeof ciAdapterProofReader>[0]>>()
+    .mockResolvedValueOnce({ summary: previousProof.summary })
+    .mockResolvedValueOnce({ summary: retryProof.summary })
+    .mockResolvedValue({ summary: previousProof.summary });
+  const reader = ciAdapterProofReader(readCommand);
+  const project = configuredAdapter();
+  try {
+    expect(
+      await reader(repository, project.folder, previous, signal()),
+    ).toEqual(previousProof);
+    expect(await reader(repository, project.folder, attempt, signal())).toEqual(
+      retryProof,
+    );
+    expect(
+      await reader(repository, project.folder, previous, signal()),
+    ).toEqual(previousProof);
+    expect(await reader(repository, project.folder, attempt, signal())).toEqual(
+      retryProof,
+    );
+    const requestedSubjects = readCommand.mock.calls.map(
+      ([, , subject]): unknown => subject,
+    );
+    expect(requestedSubjects).toEqual([
+      { runId: "pipeline#1", attemptId: "1", sha: revision },
+      { runId: "pipeline#1", attemptId: "2", sha: revision },
+    ]);
   } finally {
     project.cleanup();
   }

@@ -24,7 +24,7 @@ import {
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { ClaudeListingRowBuilder } from "./claudeListingTestData.mjs";
 import { CursorCliConfigBuilder } from "./cursorCliConfigTestData.mjs";
-import { RunningCursorSessionsBuilder } from "./runningCursorSessionsTestData.mjs";
+import { runningCursorSessionsMakeMeProperties } from "./runningCursorSessionsTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { SessionReviewReadBuilder } from "./sessionReviewTestData.mjs";
 
@@ -152,12 +152,7 @@ export function launchMakeMeProperties() {
         return { with: copyFacts };
       },
     },
-    aRunningCursorSessions: {
-      enumerable: true,
-      get() {
-        return new RunningCursorSessionsBuilder();
-      },
-    },
+    ...runningCursorSessionsMakeMeProperties(),
     aCursorCliConfig: {
       enumerable: true,
       get() {

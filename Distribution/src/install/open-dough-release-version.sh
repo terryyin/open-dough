@@ -5,8 +5,8 @@ report_managed_payload_mismatch() {
   printf 'Managed payload mismatch: %s %s\n' "${skill_root}" "${managed_file}" >&2
 }
 # shellcheck disable=SC1091 # The selective check does not follow companion modules.
-# shellcheck source=Distribution/src/install/open-dough-payload-declaration.sh
-source "$(dirname -- "${BASH_SOURCE[0]}")/open-dough-payload-declaration.sh"
+# shellcheck source=Distribution/src/install/open-dough-payload-inventory.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/open-dough-payload-inventory.sh"
 # Read-only dest vs tagged checkout. dest is the dough-update destination;
 # skill_root is its native root. No fetches or writes. Callers with a tagged
 # tree pass it as checkout; ordinary update fetches first.
@@ -14,21 +14,20 @@ managed_payload_unchanged() {
   local dest=$1
   local checkout=$2
   local skill_root managed_file historical_files
-  local self_root source current_declaration mismatch=''
+  local self_root source current_payload mismatch=''
   local -a files=() delivered=()
 
-  # This file's own repository always ships install.sh's managed_files
-  # declaration alongside it in the same commit, so the current side of the
-  # comparison is read from that sibling rather than duplicated here by hand.
+  # The current side of the comparison is the payload inventory of this
+  # file's own source checkout, which ships in the same commit.
   self_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-  if ! current_declaration=$(read_managed_files_declaration "${self_root}/install.sh"); then
+  if ! current_payload=$(read_release_payload "${self_root}"); then
     return 1
   fi
   while IFS= read -r managed_file; do
     files+=("${managed_file}")
-  done <<< "${current_declaration}"
+  done <<< "${current_payload}"
 
-  if ! historical_files=$(read_managed_files_declaration "${checkout}/install.sh"); then
+  if ! historical_files=$(read_release_payload "${checkout}"); then
     return 1
   fi
   source=$(release_source_dir "${checkout}")

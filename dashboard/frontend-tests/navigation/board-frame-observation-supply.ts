@@ -187,6 +187,9 @@ export function boardFrameObservationSupplying(
   });
 
   const machine: MachineReadSource = {
+    ...pageReadsSupplying({}).machine,
+    readHistorySince: () => Promise.resolve(undefined),
+    waitForAttemptChange: () => Promise.resolve(undefined),
     readSessionsSince:
       machineRead ??
       ((...[held, , options]) => {

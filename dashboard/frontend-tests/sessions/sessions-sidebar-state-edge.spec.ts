@@ -3,15 +3,14 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { SessionState } from "../../src/launchRecord.ts";
-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { mountOpenSessions, observe } from "./sessions-sidebar-open-mount.ts";
 import {
   entries,
   entryOf,
-  observe,
+  hiddenStateLabelOf,
   openControlOf,
-  openReading,
   present,
-} from "./sessions-sidebar-open-mount.ts";
+} from "./sessions-sidebar-page.ts";
 
 // Independent edge expectations: style, thickness and colour each distinguish
 // the state; rgb matches the page's light --problem/--ready/--accent/--edge.
@@ -63,13 +62,6 @@ function edgeOf(entry: HTMLElement) {
   };
 }
 
-function hiddenLabelOf(entry: HTMLElement) {
-  return present(
-    entry.querySelector<HTMLElement>(":scope > .visually-hidden"),
-    "hidden state label",
-  );
-}
-
 test("each state has its own border style, thickness, and colour, and its hidden label", async () => {
   const titles: string[] = [];
   for (let index = 0; index < states.length; index += 1) {
@@ -91,9 +83,7 @@ test("each state has its own border style, thickness, and colour, and its hidden
       };
     }),
   );
-  await mountComponent(openReading(observed, { sidebarWidth: "18rem" }), {
-    viewport: { width: 1280, height: 800 },
-  });
+  await mountOpenSessions(observed);
 
   await expect.poll(() => entries().length).toBe(states.length);
 
@@ -104,7 +94,7 @@ test("each state has its own border style, thickness, and colour, and its hidden
     const tooltip = openControlOf(entry).getAttribute("title") ?? "";
     expect(tooltip.split("\n")).toContain(words);
     expect(edgeOf(entry)).toEqual(expected);
-    const hidden = hiddenLabelOf(entry);
+    const hidden = hiddenStateLabelOf(entry);
     expect(hidden.textContent).toBe(words.split(":")[0] ?? "");
     const box = hidden.getBoundingClientRect();
     expect(box.width).toBeLessThanOrEqual(1);

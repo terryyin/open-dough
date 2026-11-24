@@ -112,33 +112,31 @@ expected_files=$(
 actual_files=$(list_files "${target}")
 [[ "${actual_files}" == "${expected_files}" ]]
 
-incomplete_source="${temporary_dir}/incomplete source"
-missing_index=$((${#managed_files[@]} - 1))
-missing_managed_file=${managed_files[missing_index]}
-mkdir -p -- "${incomplete_source}/Distribution/src/skills"
-cp -- "${source_dir}/install.sh" "${incomplete_source}/install.sh"
-cp -- "${source_dir}/VERSION" "${incomplete_source}/VERSION"
-cp -- "${source_dir}/CHANGELOG.md" "${incomplete_source}/CHANGELOG.md"
-cp -R -- "${source_dir}/Distribution/src/install" "${incomplete_source}/Distribution/src/install"
-(
-  managed_files=("${managed_files[@]:0:missing_index}")
-  copy_declared_payload "${source_dir}/Distribution/src/skills" "${incomplete_source}/Distribution/src/skills"
-)
+# A source whose shipped directory holds an unsafe entry is refused whole.
+invalid_source="${temporary_dir}/invalid source"
+unsafe_entry=dough-update/linked-guidance.md
+mkdir -p -- "${invalid_source}/Distribution/src/skills"
+cp -- "${source_dir}/install.sh" "${invalid_source}/install.sh"
+cp -- "${source_dir}/VERSION" "${invalid_source}/VERSION"
+cp -- "${source_dir}/CHANGELOG.md" "${invalid_source}/CHANGELOG.md"
+cp -R -- "${source_dir}/Distribution/src/install" "${invalid_source}/Distribution/src/install"
+copy_managed_payload "${source_dir}/Distribution/src/skills" "${invalid_source}/Distribution/src/skills"
+ln -s SKILL.md "${invalid_source}/Distribution/src/skills/${unsafe_entry}"
 
-incomplete_target="${temporary_dir}/incomplete target"
-mkdir -p -- "${incomplete_target}"
-printf '%s\n' 'Do not change me.' > "${incomplete_target}/sentinel.txt"
-before=$(list_files "${incomplete_target}")
-if output=$(bash "${incomplete_source}/install.sh" \
-  --target "${incomplete_target}" --source "${incomplete_source}" \
+invalid_target="${temporary_dir}/invalid target"
+mkdir -p -- "${invalid_target}"
+printf '%s\n' 'Do not change me.' > "${invalid_target}/sentinel.txt"
+before=$(list_files "${invalid_target}")
+if output=$(bash "${invalid_source}/install.sh" \
+  --target "${invalid_target}" --source "${invalid_source}" \
   --platform "${platform}" 2>&1); then
-  echo "FAIL: an incomplete client payload must be rejected." >&2
+  echo "FAIL: a client payload with an unsafe entry must be rejected." >&2
   exit 1
 fi
-[[ "${output}" == *'Client payload is incomplete:'* ]]
-[[ "${output}" == *"${missing_managed_file}"* ]]
-after=$(list_files "${incomplete_target}")
+[[ "${output}" == *"Unsafe shipped entry (symlink): ${unsafe_entry}"* ]]
+[[ "${output}" == *'Client payload is unreadable:'* ]]
+after=$(list_files "${invalid_target}")
 [[ "${after}" == "${before}" ]]
-[[ ! -e "${incomplete_target}/${relative_skill_root%%/*}" ]]
-sentinel_contents=$(cat "${incomplete_target}/sentinel.txt")
+[[ ! -e "${invalid_target}/${relative_skill_root%%/*}" ]]
+sentinel_contents=$(cat "${invalid_target}/sentinel.txt")
 [[ "${sentinel_contents}" == 'Do not change me.' ]]

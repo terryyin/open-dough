@@ -1,118 +1,111 @@
-// A working Cursor entry, compact like any session
-// (./compact-session-entry.spec.ts), keeps its resume command in Session
-// details, selectable, and its copy reports the clipboard's answer
-// truthfully: copied, refused, or unavailable. Against a controlled machine
-// read and Cursor runner sessions read.
+import { createElement } from "react";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { SessionEntry } from "../../src/SessionEntry.tsx";
+import { ProjectsOnPage } from "../../src/projectList.tsx";
+import { SessionsOnPage } from "../../src/pageSessions.ts";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { inertPageSessions } from "./inert-page-sessions.ts";
+import { sessionEntry } from "./session-card-page.ts";
 
-import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
-import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
-import { sessionDetailsControl } from "../../test-support/support/sessionEntryDisclosure.ts";
-import {
-  parts,
-  sessionStateOf,
-  storyCardSessions,
-} from "../../test-support/dashboardPage.ts";
-import { takenStory } from "../../test-support/launchJourney.ts";
-import { openTerminalControl } from "../../test-support/terminalScreenPage.ts";
-import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-
-test("a working Cursor entry keeps its resume command selectable and reports copied, refused and unavailable clipboard access truthfully", async ({
-  page,
-  frontendServices,
-}) => {
+test("a working Cursor entry keeps its resume command selectable and reports copied, refused and unavailable clipboard access truthfully", async () => {
   const sessionId = "12345678-1234-4123-8123-123456789abc";
-  const record = frontendStoryLaunch("executing", takenStory)
+  const launch = makeMe.aLaunchRecord
+    .executing({ identity: "SEED-3", title: "Improve the dashboard" })
     .inCursorSession({
       sessionId,
       continuation: { workspace: "/work/open-dough" },
     })
     .requestingModel("auto")
     .please();
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer.observingOpen(record).please(),
-  );
-  // The Cursor runner holds the session, working.
-  await page.route(
-    (url) => url.pathname === cursorRunnerSessionsEndpoint,
-    (route) =>
-      fulfillJson(
-        route,
-        makeMe.aRunningCursorSessions
-          .holding({ record, label: "working" })
-          .please(),
-      ),
-  );
-  await openFrontendTakenBacklog(page);
-  const entry = storyCardSessions(
-    parts(page).taken.getByRole("article", { name: takenStory, exact: true }),
-  );
-  await expect(sessionStateOf(entry)).toHaveText("Working");
-  await expect(entry.getByText("Cursor", { exact: true })).toBeVisible();
-  await expect(
-    entry.getByText("Model: auto (requested)", { exact: true }),
-  ).toBeVisible();
-  const details = sessionDetailsControl(entry);
-  await expect(details).toHaveAttribute("aria-expanded", "false");
-  await expect(
-    entry.locator("p", { hasText: /^Continue in Cursor:/ }),
-  ).toBeHidden();
-  await details.click();
-  const commandLine = entry.locator("p", { hasText: /^Continue in Cursor:/ });
-  // The command quotes each argument for the shell.
-  const command = `'cursor-agent' '--workspace' '/work/open-dough' '--resume' '${sessionId}'`;
-  await expect(commandLine).toBeVisible();
-  await expect(commandLine.locator("code")).toHaveText(command);
-  await expect(entry.locator("p", { hasText: /^Workspace / })).toHaveCount(1);
-  await page.evaluate(() =>
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: (text: string) => {
-          document.documentElement.dataset["copiedCommand"] = text;
-          return Promise.resolve();
-        },
-      },
+  const machine = makeMe.aMachineAnswer.please();
+  const record = makeMe.anObservedLaunch
+    .of(launch)
+    .withSessionState(makeMe.aSessionState.loaded("working").please())
+    .please();
+  await mountComponent(
+    createElement(ProjectsOnPage, {
+      projects: [],
+      replaceProjects: () => undefined,
+      children: createElement(SessionsOnPage, {
+        value: { ...inertPageSessions, hostOperations: machine.hostOperations },
+        children: createElement(SessionEntry, { record, onStoryCard: true }),
+      }),
     }),
   );
-  const copy = entry.getByRole("button", {
+  const session = sessionEntry(
+    page.getByRole("article", { name: "Execution session" }),
+  );
+  await expect.element(session.state).toHaveTextContent("Working");
+  await expect
+    .element(session.entry.getByText("Cursor", { exact: true }))
+    .toBeVisible();
+  await expect
+    .element(
+      session.entry.getByText("Model: auto (requested)", { exact: true }),
+    )
+    .toBeVisible();
+  await expect
+    .element(session.details)
+    .toHaveAttribute("aria-expanded", "false");
+  const commandLine = session.entry.getByText(/^Continue in Cursor:/);
+  await expect.element(commandLine).not.toBeVisible();
+  await userEvent.click(session.details);
+
+  const command = `'cursor-agent' '--workspace' '/work/open-dough' '--resume' '${sessionId}'`;
+  const code = commandLine.getByText(command, { exact: true });
+  await expect.element(code).toHaveTextContent(command);
+  expect(getComputedStyle(code.element()).userSelect).not.toBe("none");
+  await expect.element(session.entry.getByText(/^Workspace /)).toBeVisible();
+  expect(session.entry.getByText(/^Workspace /).elements()).toHaveLength(1);
+
+  const keptClipboard = Object.getOwnPropertyDescriptor(navigator, "clipboard");
+  const supplyClipboard = (
+    clipboard: Pick<Clipboard, "writeText"> | undefined,
+  ) => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: clipboard,
+    });
+  };
+  onTestFinished(() => {
+    if (keptClipboard === undefined) {
+      Reflect.deleteProperty(navigator, "clipboard");
+    } else {
+      Object.defineProperty(navigator, "clipboard", keptClipboard);
+    }
+  });
+  const writeText = vi
+    .fn<Clipboard["writeText"]>()
+    .mockResolvedValueOnce(undefined)
+    .mockRejectedValueOnce(new Error("Clipboard access denied"))
+    .mockResolvedValueOnce(undefined);
+  supplyClipboard({ writeText });
+  const copy = session.entry.getByRole("button", {
     name: "Copy resume command",
     exact: true,
   });
-  await copy.click();
-  await expect(entry.getByRole("status")).toHaveText("Resume command copied.");
-  expect(
-    await page.evaluate(
-      () => document.documentElement.dataset["copiedCommand"],
-    ),
-  ).toBe(command);
+  await userEvent.click(copy);
+  await expect
+    .element(session.status)
+    .toHaveTextContent("Resume command copied.");
+  expect(writeText).toHaveBeenCalledExactlyOnceWith(command);
+
   const refusal =
     "The resume command could not be copied. Select it in Session details.";
-  await page.evaluate(() =>
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: {
-        writeText: () => Promise.reject(new Error("Clipboard access denied")),
-      },
-    }),
-  );
-  await copy.click();
-  await expect(entry.getByRole("status")).toHaveText(refusal);
-  await page.evaluate(() =>
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: undefined,
-    }),
-  );
-  await copy.click();
-  await expect(entry.getByRole("status")).toHaveText(refusal);
-  await expect(commandLine.locator("code")).toHaveText(command);
-  await details.click();
-  await expect(entry.getByRole("status")).toBeVisible();
-  await expect(openTerminalControl(entry)).toBeVisible();
+  await userEvent.click(copy);
+  await expect.element(session.status).toHaveTextContent(refusal);
+  await userEvent.click(copy);
+  await expect
+    .element(session.status)
+    .toHaveTextContent("Resume command copied.");
+  supplyClipboard(undefined);
+  await userEvent.click(copy);
+  await expect.element(session.status).toHaveTextContent(refusal);
+  expect(writeText).toHaveBeenCalledTimes(3);
+  await expect.element(code).toHaveTextContent(command);
+  await userEvent.click(session.details);
+  await expect.element(session.status).toBeVisible();
+  await expect.element(session.open).toBeVisible();
 });

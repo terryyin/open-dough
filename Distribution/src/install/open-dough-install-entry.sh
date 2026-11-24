@@ -5,4 +5,4 @@ original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/src/install/open-dough-install-payload.sh"
 source "${source_dir}/Distribution/src/install/open-dough-install-request.sh"
-install_declared_payload
+install_payload

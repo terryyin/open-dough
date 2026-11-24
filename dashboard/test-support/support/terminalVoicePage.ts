@@ -14,33 +14,12 @@ import {
 import {
   expectTerminalIdentity,
   expectTerminalText,
-  activateTerminalControl,
-  focusTerminalDictation,
-  type TerminalInteraction,
   terminalPanel,
   terminalPromptsControl,
   terminalStatus,
 } from "../terminalScreenPage.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stoppedTracks } from "./voicePage.ts";
-
-// Safari buttons do not take pointer focus. Model that native default after
-// the page handles mousedown, while respecting cancellation of that default.
-export async function unfocusedPromptButtons(page: Page) {
-  await page.addInitScript(() => {
-    document.addEventListener("mousedown", (event) => {
-      if (
-        !event.defaultPrevented &&
-        event.target instanceof Element &&
-        event.target.closest('[role="menuitem"]') &&
-        document.activeElement instanceof HTMLElement
-      ) {
-        event.preventDefault();
-        document.activeElement.blur();
-      }
-    });
-  });
-}
 
 export async function openTerminalVoice(
   page: Page,
@@ -129,35 +108,6 @@ export async function discardRetainedTranscript(panel: Locator) {
 
 export async function chooseTerminalDictation(panel: Locator) {
   await dictateIntoTerminalControl(panel).click();
-}
-
-// These actions wait only for capture progress. Scenarios own status, toolbar,
-// transcript, and sent-byte observations when those are their subject.
-export async function startTerminalDictation(
-  panel: Locator,
-  { using = "mouse" }: { using?: TerminalInteraction } = {},
-) {
-  const page = panel.page();
-  const before = await page.evaluate(
-    () =>
-      (window as unknown as { voiceObservation: { bytes: number } })
-        .voiceObservation.bytes,
-  );
-  if (using === "keyboard") await focusTerminalDictation(panel);
-  await activateTerminalControl(dictateIntoTerminalControl(panel), using);
-  await expect(stopRecordingControl(panel)).toBeVisible();
-  await awaitRecordingBytes(page, before);
-}
-
-export async function finishTerminalDictation(
-  panel: Locator,
-  { using = "mouse" }: { using?: TerminalInteraction } = {},
-) {
-  if (using === "keyboard") await focusTerminalDictation(panel);
-  const stop = stopRecordingControl(panel);
-  if (using === "keyboard") await stop.press("Space");
-  else await activateTerminalControl(stop, using);
-  await expect.poll(() => stoppedTracks(panel.page())).toBe(true);
 }
 
 export async function expectTerminalDictationAvailable(

@@ -108,10 +108,6 @@ DD-243 remains the same finding; its later occurrences are
 
 <a id="dd-275"></a> [DD-275 — Acceptance runs recorded machine load only at their start and end, so a failure could not be placed against the story's load bound](docs/maintainer/project-test-findings.md#dd-275).
 
-## Installer declarations sit at the line limit beside a single-entry anchor convention (open, unqueued)
-
-<a id="dd-303"></a> [DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors](docs/maintainer/project-test-findings.md#dd-303).
-
 ## Corpus drafts mis-place the cut after repeated commands (open, unqueued)
 
 <a id="dd-343"></a>

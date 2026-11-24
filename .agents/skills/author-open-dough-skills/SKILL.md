@@ -41,8 +41,9 @@ payload. Internal maintainer skills remain authored in `.agents/skills/`.
 Do not invent a separate behavior copy per tool.
 
 Follow [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md) for
-Proposed, Promoted, and Released guidance. Promotion changes payload
-declarations, not source locations. Installed describes a client project copy.
+Proposed, Promoted, and Released guidance. Every file under
+`Distribution/src/skills/` is the payload, so promotion places selected content
+there and Proposed content stays outside it. Installed describes a client project copy.
 
 ## Runtime audience
 

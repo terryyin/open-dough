@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Leftovers: installed files at paths some release up to the new one declared
+# Leftovers: installed files at paths some release up to the new one delivered
 # and the new release does not. Release tags at the recorded source supply each
-# release's declaration and blob ids, so no installed record is kept.
+# release's payload and blob ids, so no installed record is kept.
 # Sourced by open-dough-release.sh after platform, version, and resolve modules.
 # Predicate functions are used in if/! conditions by design.
 # shellcheck disable=SC2310,SC2312
@@ -24,21 +24,46 @@ ${listing}
 EOF
 }
 
+# Fetch the blob ids read from stdin into history in one request. If it fails,
+# later reads still fetch lazily.
+fetch_history_blobs() {
+  git -C "$1" -c fetch.negotiationAlgorithm=noop fetch --quiet --no-tags \
+    --no-write-fetch-head --recurse-submodules=no --filter=blob:none \
+    --stdin origin > /dev/null 2>&1 || true
+}
+
+# A list-format release's data fragments, sourced by its install.sh.
+list_declaration_fragment_pattern='^(Distribution/)?src/install/[a-z0-9-]+-payload[.]sh$'
+
+# Print the blob ids of the installer files under the given tags' trees whose
+# path matches pattern.
+tagged_installer_blobs() {
+  local history=$1 pattern=$2 tag
+  shift 2
+  for tag in "$@"; do
+    git -C "${history}" ls-tree -r "${tag}" -- install.sh src/install Distribution/src/install \
+      | awk -F'\t' -v pattern="${pattern}" '$2 ~ pattern { split($1, meta, " "); print meta[3] }'
+  done
+}
+
 # Fetch the trees of every release tag up to version into history, without
 # file contents, and record "<path>\t<blob>" in history.declared for each path
-# a tag declared. A tag whose declaration cannot be read contributes nothing.
+# a tag delivered: from its tree for a directory-format tag, else from its
+# list declaration. A tag whose declaration cannot be read contributes nothing.
 # Fetch noise (for example a local source ignoring the blob filter) stays out
 # of the update output.
 prepare_release_history() {
   local url=$1 history=$2 version=$3
-  local tags tag install_blobs declaration_root path declaration_available
-  local -a refspecs=()
+  local listing tag declaration_root path declaration_available
+  local -a tags=() refspecs=() list_tags=()
 
-  tags=$(release_tags_up_to "${url}" "${version}") || return 1
+  listing=$(release_tags_up_to "${url}" "${version}") || return 1
   while IFS= read -r tag; do
-    [[ -n "${tag}" ]] && refspecs+=("refs/tags/${tag}:refs/tags/${tag}")
+    [[ -n "${tag}" ]] || continue
+    tags+=("${tag}")
+    refspecs+=("refs/tags/${tag}:refs/tags/${tag}")
   done << EOF
-${tags}
+${listing}
 EOF
   if ((${#refspecs[@]} == 0)); then
     echo "No release history up to ${version} in ${url}" >&2
@@ -51,23 +76,26 @@ EOF
     echo "Failed to fetch release history from ${url}" >&2
     return 1
   fi
-  # Batch installers and data fragments from each same-tag tree. If this
-  # request fails, the reads below still fetch lazily.
-  install_blobs=$(printf '%s\n' "${tags}" | while IFS= read -r tag; do
-    git -C "${history}" ls-tree -r "${tag}" -- install.sh src/install Distribution/src/install | awk -F'\t' '
-      $2 == "install.sh" || $2 ~ /^(Distribution\/)?src\/install\/[a-z0-9-]+-payload[.]sh$/ {
-        split($1, meta, " "); print meta[3]
-      }
-    '
-  done)
-  printf '%s\n' "${install_blobs}" | git -C "${history}" \
-    -c fetch.negotiationAlgorithm=noop fetch --quiet --no-tags \
-    --no-write-fetch-head --recurse-submodules=no --filter=blob:none \
-    --stdin origin > /dev/null 2>&1 || true
+  # Each tag's installer names its format; only list-format tags need their
+  # data fragments.
+  tagged_installer_blobs "${history}" '^install[.]sh$' "${tags[@]}" | fetch_history_blobs "${history}"
 
   : > "${history}.declared"
-  while IFS= read -r tag; do
-    [[ -n "${tag}" ]] || continue
+  for tag in "${tags[@]}"; do
+    declaration_root="${history}.declarations/${tag}"
+    mkdir -p -- "${declaration_root}"
+    git -C "${history}" show "${tag}:install.sh" > "${declaration_root}/install.sh" 2> /dev/null || continue
+    if directory_format_installer "${declaration_root}/install.sh"; then
+      read_release_tree_payload "${history}" "${tag}" >> "${history}.declared"
+    else
+      list_tags+=("${tag}")
+    fi
+  done
+  ((${#list_tags[@]} > 0)) || return 0
+  tagged_installer_blobs "${history}" "${list_declaration_fragment_pattern}" "${list_tags[@]}" \
+    | fetch_history_blobs "${history}"
+
+  for tag in "${list_tags[@]}"; do
     declaration_root="${history}.declarations/${tag}"
     declaration_available=1
     while IFS= read -r path; do
@@ -77,30 +105,26 @@ EOF
         break
       fi
     done < <(git -C "${history}" ls-tree -r --name-only "${tag}" -- src/install Distribution/src/install \
-      | awk '/^(Distribution\/)?src\/install\/[a-z0-9-]+-payload[.]sh$/')
+      | awk -v pattern="${list_declaration_fragment_pattern}" '$0 ~ pattern')
     ((declaration_available)) || continue
-    if ! git -C "${history}" show "${tag}:install.sh" > "${declaration_root}/install.sh" 2> /dev/null \
-      || ! read_managed_files_declaration "${declaration_root}/install.sh" > "${history}.paths" 2> /dev/null; then
-      continue
-    fi
+    read_managed_files_declaration "${declaration_root}/install.sh" > "${history}.paths" 2> /dev/null || continue
     git -C "${history}" ls-tree -r "${tag}" -- src/skills Distribution/src/skills | awk -F'\t' '
       NR == FNR { declared[$0] = 1; next }
       { sub(/^(Distribution\/)?src\/skills\//, "", $2) }
       ($2 in declared) { split($1, meta, " "); print $2 "\t" meta[3] }
     ' "${history}.paths" - >> "${history}.declared"
-  done << EOF
-${tags}
-EOF
+  done
 }
 
 # Print "unedited\t<path>" or "edited\t<path>" for each leftover present under
-# root: declared by a release in history, not declared by new_install.
-# Unedited means the file's blob equals one a declaring release held there.
+# root: delivered by a release in history, not delivered by the incoming
+# release at checkout. Unedited means the file's blob equals one a delivering
+# release held there.
 release_leftovers() {
-  local history=$1 new_install=$2 root=$3
+  local history=$1 checkout=$2 root=$3
   local path blob
 
-  read_managed_files_declaration "${new_install}" > "${history}.current" || return 1
+  read_release_payload "${checkout}" > "${history}.current" || return 1
   awk -F'\t' '
     NR == FNR { current[$0] = 1; next }
     !($1 in current) && !seen[$1]++ { print $1 }
@@ -144,7 +168,7 @@ find_release_leftovers() {
   prepare_release_history "${url}" "${history}" "${version}" || return 1
   while IFS=$'\t' read -r current_platform current_dest; do
     [[ -d "${current_dest}" ]] || continue
-    release_leftovers "${history}" "${checkout}/install.sh" "$(dirname -- "${current_dest}")" \
+    release_leftovers "${history}" "${checkout}" "$(dirname -- "${current_dest}")" \
       > "${work_root}/leftovers-${current_platform}" || return 1
   done < <(all_destinations_for "${target}")
 }
@@ -169,7 +193,7 @@ edited_leftovers_absent() {
     [[ -s "${work_root}/leftovers-${current_platform}" ]] || continue
     edited=$(awk -F'\t' '$1 == "edited" { print "  " $2 }' "${work_root}/leftovers-${current_platform}")
     [[ -z "${edited}" ]] && continue
-    printf '%s: edited files at paths %s no longer declares in %s:\n%s\n' \
+    printf '%s: edited files at paths %s no longer delivers in %s:\n%s\n' \
       "${current_platform}" "${version}" "$(dirname -- "${current_dest}")" "${edited}" >&2
     found=1
   done < <(all_destinations_for "${target}")
@@ -189,7 +213,7 @@ remove_found_leftovers() {
     root=$(dirname -- "${current_dest}")
     removed=$(remove_listed_leftovers "${root}" "${work_root}/leftovers-${current_platform}" "${statuses}")
     [[ -n "${removed}" ]] || continue
-    printf '%s: removed files %s no longer declares from %s:\n' "${current_platform}" "${version}" "${root}"
+    printf '%s: removed files %s no longer delivers from %s:\n' "${current_platform}" "${version}" "${root}"
     printf '%s\n' "${removed}" | sed 's/^/  /'
   done < <(all_destinations_for "${target}")
 }

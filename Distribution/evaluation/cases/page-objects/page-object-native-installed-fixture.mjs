@@ -36,6 +36,7 @@ export async function createPageObjectInstalledProject(
             version: "0.1.1",
             taggedAt: "2026-09-01T00:00:00",
             marker: "before-page-objects",
+            declaration: "grouped",
             withheld: ["dough-page-objects/", "dough-makeme/"],
             removed: ["dough-page-objects", "dough-makeme"],
           })

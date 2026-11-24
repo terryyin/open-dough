@@ -80,6 +80,7 @@ test("a release ships and declares the payload it adds, and a later release whos
             version: "0.1.0",
             taggedAt: "2026-08-31T00:00:00",
             marker: "payload-0.1.0",
+            declaration: "grouped",
             added: { "dough-retired/a.md": "a from 0.1.0\n" },
           })
           .please(),
