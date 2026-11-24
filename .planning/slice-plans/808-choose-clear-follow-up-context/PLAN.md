@@ -22,7 +22,7 @@ story's Follow up.
   by starting a distinct session for the source story and preserving the
   launch recovery path. Fit the existing source and admission owners as
   [SEED-427](../../seeds/SEED-427-review-published-changes.md#review-published-changes)
-  and [SEED-426](../../seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
+  and [SEED-432](../../seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions)
   land their changes. The existing whole-story and published-session reads
   give each a testable source before the within-story picker ships.
 - One follow-up carries a required source and the developer's explicit

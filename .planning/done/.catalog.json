@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-426_start-ad-hoc-work-under-a-story.json",
+      "identity": "SEED-426#start-ad-hoc-work-under-a-story",
+      "completedAt": "2026-11-24T10:29:28.491Z",
+      "blob": "b9403e6e56cd521ac01fa4ce27e19831dddaf438"
+    },
+    {
       "fileName": "SEED-431_reduce-codex-wakes-during-supplier-watches.json",
       "identity": "SEED-431#reduce-codex-wakes-during-supplier-watches",
       "completedAt": "2026-11-24T10:11:32.127Z",

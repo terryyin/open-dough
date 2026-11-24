@@ -1,27 +1,31 @@
 ---
-id: SEED-426
+id: SEED-432
 status: active
-planted: 2026-11-23
-planted_during: Developer decision to replace completion-time ad hoc story creation
+planted: 2026-11-24
+planted_during: Execution split of SEED-426
 trigger_when: selected from the product backlog
 scope: one story
 ---
 
-# SEED-426 — Start ad hoc work under a story
+# SEED-432 — Finish story-linked ad hoc sessions in the Dashboard
 
-<a id="start-ad-hoc-work-under-a-story"></a>
+<a id="finish-story-linked-ad-hoc-sessions"></a>
 
-### Start ad hoc work under a story
+### Finish story-linked ad hoc sessions in the Dashboard
 
-**Identity:** SEED-426#start-ad-hoc-work-under-a-story
+**Identity:** SEED-432#finish-story-linked-ad-hoc-sessions
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-432#finish-story-linked-ad-hoc-sessions","dependencies":[{"supplier":{"identity":"SEED-426#start-ad-hoc-work-under-a-story","href":"seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story"},"implementation":"Use the installed owned draft and stopped-claim recovery through the Dashboard launch boundary.","rationale":"The mapped Dashboard launch routes call the installed operation and need its authoritative behavior available on the shared integration base.","condition":"The installed owned-draft admission and retained-candidate retry are integrated on trunk with their bare-remote proof.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/804-start-ad-hoc-work-under-a-story/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"97a38d9951b8cfba54fcc703008ffbd100ade625697739094d142b21ecee07b1","plan":"8dd3f9f61f00122ffdee616a969977286a2f3ad6c9586baf2d86530e652260c5"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md","assessment":"not-ready","reasons":["Reconcile mapped slices with the current Dashboard and Review repository, including the observed default-launch compatibility failures.","Recheck live native bindings and the migrated-store rehearsal against the candidate deployment."],"basis":{"document":"ca4d1b89485e08f378823c5f3ec2b6bea185c131468a4571662c96107049993a","plan":"d25988fbaa16383749bc0271cbbded672c5a50985f42b472d350acf10cc52259"}}
 ```
 
-**Goal.** A developer can start work ad hoc and return to it through the same
-story on the Board, in Recently done and in Intent. Every Open Dough project
-session has a story identity from startup. Use that single lifecycle to
-substantially simplify Distribution and Dashboard code, guidance, and tests.
+**Goal.** A developer can start ad hoc Dashboard work and come back to the same
+story on the Board, in Recently done and in Intent. Complete the launch and
+session lifecycle using the installed owned-draft admission and retry from
+`SEED-426#start-ad-hoc-work-under-a-story`. Keep the production change as one
+cutover and simplify the obsolete standalone behavior.
 
 **Developer decision.** Establish an ordinary story as part of admitting new
 ad hoc work directly to **Taken**. Use the existing product backlog admission
@@ -130,6 +134,18 @@ same discovery commands for both revisions. Both product areas should shrink
 and the combined case count should decrease. Keep focused coverage of
 startup, retry, membership and ordinary completion and review. Delete obsolete
 standalone cases and support.
+
+**Resume evidence.** Scope moved here from SEED-426. Its published
+`121b9158b0249e88f8d8979efe175970346d2380` retains the working isolated
+Dashboard path and both Dashboard retry cases before the split. The default
+checkout candidate passed focused admission, host, blank, attachment and
+scheduled-maintenance proof. The compatibility sweep found 17 failures in
+existing backend duplicate-launch and browser scenes. The unpublished candidate
+is preserved locally at `refs/dough/resplit/SEED-426-dashboard-admission`
+(`2ebb057d06e4326a8791971c49469e86c14d29ce`). The common Git directory retains
+private proof and the production snapshot in
+`open-dough/evidence/SEED-426-ad-hoc-cutover-handoff`. Recheck current deployment,
+configuration and ownership facts before using the production snapshot.
 
 **Previous approach.** SEED-420#review-standalone-done-work introduced
 session-derived Done identities, local and published completion reconciliation,

@@ -13,7 +13,7 @@ A developer should be able to find what a session contributed from any machine w
 
 The [unified Intent review seed](SEED-420-unified-intent-review.md) owns
 the review destination and the Recent stories regression.
-[Ad hoc story admission](SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
+[Ad hoc story admission](SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions)
 owns story association at startup. This seed owns session attribution and
 selection.
 
