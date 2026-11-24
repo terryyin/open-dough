@@ -201,7 +201,7 @@ Slice 6 proof: 14 cases passed in each setup. See `slice6-return.md`.
 
 ### 7. Drive the desktop terminal and voice over composed sessions in E2E
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-terminal-close-shortcut`, `-keyboard`, `-lifetime`,
 `-maximize`, `-submit-and-close`, `session-terminal-voice-lifecycle` and
 `-recovery` pass plainly and with the scratch wiring. Then the full backend
@@ -216,14 +216,16 @@ lifetime across a project switch and server restart, maximize, submit and
 voice behave as today. Full suites are the local gate for this slice
 because slice 1 changed a helper that many consumers and page objects share.
 
+Slice 7 proof: plain backend passed 1,954 Playwright and 609 Vitest cases
+with one opt-in skip. Plain E2E passed 776. Installed proof passed 144
+backend and 88 E2E cases. See `slice7-return.md` for exact selections and
+the paused terminal's readiness proof.
+
 ## Concern evidence
 
-Refinement was not needed. Each slice owns one surface and its consumers,
-and slice 1 carries the one shared seam. Scratch runs settled the seam's
-reach. Slices 2–7 apply one rule: compose when the launch is a
-precondition. The open question is how many E2E files are launch consumers
-after all. Execution answers it by moving those files to plan 816, so it
-does not affect this plan's sizing.
+The combined installed probe passed across the migrated scope. The initial
+probe's launch-only failures and the two mixed-file Start cases remain in
+plan 816. There were no additional launch consumers in slice 7.
 
 ## Story obligations
 

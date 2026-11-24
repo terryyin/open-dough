@@ -9,10 +9,11 @@ import {
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
-  closeTerminal,
   openTerminalControl,
-  terminalPanel,
+  openTerminalFromEntry,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { terminalScreen } from "../../dashboard/test-support/terminalScreen.ts";
+import { isTerminalSocket } from "../../dashboard/test-support/support/terminalSockets.ts";
 import {
   expectMembership,
   sessionNamedBy,
@@ -128,15 +129,25 @@ test("attention stays through the terminal, and once marked done no host change 
     await passOnePace();
     await expectSessionShown(entry, needsInput, true);
 
-    await openTerminalControl(entry).click();
-    // Page time stands still, so the attach and the answer are read from the
-    // synthetic `claude` itself.
+    // The attach record precedes native input readiness. Page time stays
+    // paused, so wait for the prompt on the socket before typing.
+    dashboard.claudeAttachPromptDelay(400);
+    const prompt = page
+      .waitForEvent("websocket", isTerminalSocket)
+      .then((socket) => {
+        let output = "";
+        return socket.waitForEvent("framereceived", ({ payload }) => {
+          if (typeof payload === "string") output += payload;
+          return output.includes("Claude Code");
+        });
+      });
+    await Promise.all([prompt, openTerminalFromEntry(entry)]);
     const attach = () => dashboard.claudeAttaches()[0];
     await expect.poll(() => attach()?.id).toBe(session.slice(0, 8));
-    await page.keyboard.type("red");
-    await page.keyboard.press("Enter");
+    const terminal = terminalScreen(page);
+    await (await terminal.focusInput()).typeLine("red");
     await expect.poll(() => attach()?.lines).toEqual(["red"]);
-    await closeTerminal(terminalPanel(page));
+    await terminal.close();
     await expect.poll(() => attach()?.endedBy).toBeDefined();
     await passOnePace();
     await expectSessionShown(entry, needsInput, true);
