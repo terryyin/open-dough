@@ -353,7 +353,17 @@ Carry the cutoff, watch facts and any shortfall into a later take.
   The story branch accepted slice 1 at `1905a4a1cd7a081fa5b4c7da25361c88bc9fea23`.
 - Slice 2 delivery is records-only. The recount confirms every wake-bar
   miss after excluding mixed requests and locates each continuation in the
-  original rollout.
+  original rollout. The story branch accepted slice 2 at
+  `563d87eac574c046ab1634e315bb1582f9da313a`.
+
+## Execution complete
+
+Product advice: Queue the Codex wait revision as a separate story. The
+observed short host returns yielded at least 94 wait-only requests across
+five intervals with an allowance of 19. Preserve the command's publication
+handling and the original deadline on rerun. The recommendation applies to
+the observed versions and workstream. Natural deadline handling and realized
+savings remain unmeasured.
 
 ## Story obligations
 
