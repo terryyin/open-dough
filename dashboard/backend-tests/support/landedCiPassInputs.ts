@@ -10,8 +10,14 @@ import { repositoryHistoryReads } from "../../../Distribution/tests/support/repo
 import type { ListedRun } from "../../server/baseCiNearest.ts";
 import { timeWithoutAdapterRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import type { ComparisonBuildSource } from "../../server/comparisonBuildSource.ts";
-import type { LandedCiPassInputs } from "../../server/landedCiPass.ts";
+import {
+  collectLandedCiPass,
+  type LandedCiPassInputs,
+} from "../../server/landedCiPass.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
+import type { PublishedSource } from "../../src/publishedSource.ts";
+import { landedCiHistorySchema } from "../../src/landedCiHistory.ts";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
 import { workflow } from "./comparisonRead.ts";
 
 export const passProject = makeMe.aPublishedSource
@@ -27,12 +33,73 @@ export function machineHome(): string {
   return home;
 }
 
+// The pass over a project's CI builds: the trunk order of its recorded
+// landings, its launch records, whether its CI can be read and the clock.
+export function landedCiPass(answers: {
+  readonly builds: ComparisonBuildSource;
+  readonly trunk: readonly string[];
+  readonly records: () => readonly LaunchRecord[];
+  readonly project?: PublishedSource;
+  readonly readable?: () => boolean;
+  readonly now?: () => number;
+  readonly home?: string;
+  // The revision the project's remote trunk ref names; the last landing's.
+  readonly trunkHead?: string;
+}) {
+  const project = answers.project ?? passProject;
+  const remoteTrunk = `origin/${project.ref}`;
+  const head = answers.trunkHead ?? answers.trunk.at(-1) ?? "";
+  const { history } = answers.builds;
+  const builds: ComparisonBuildSource = {
+    ...answers.builds,
+    history: {
+      ...history,
+      laterTrunk: (landing, at, limit) =>
+        history.laterTrunk(landing, at === remoteTrunk ? head : at, limit),
+    },
+  };
+  const home = answers.home ?? machineHome();
+  const asked = { proofs: 0 };
+  const inputs = (stopped: AbortSignal): LandedCiPassInputs => ({
+    projects: [project],
+    records: new Map([[project.id, answers.records()]]),
+    landingOrder: () => Promise.resolve(answers.trunk),
+    read: () => () =>
+      Promise.resolve(
+        answers.readable?.() === false
+          ? { kind: "unread" }
+          : { kind: "read", builds },
+      ),
+    readProof: () => {
+      asked.proofs += 1;
+      return Promise.resolve(makeMe.aCiProof.unavailable("none").please());
+    },
+    now: answers.now ?? Date.now,
+    home,
+    followUps: () => Promise.resolve(),
+    stopped,
+  });
+  // One whole pass, as the collection runs it.
+  const collect = () =>
+    collectLandedCiPass(inputs(new AbortController().signal));
+  return { inputs, collect, asked, home };
+}
+
+// The history read's entries from the kept history alone.
+export async function historyEntries(home: string, project = passProject) {
+  const read = await performIntentCiHistoryRead(project, undefined, { home });
+  if (read.kind !== "answered") throw new Error("No history answer");
+  return landedCiHistorySchema.parse(read.answer).entries;
+}
+
 // Trunk revisions in order, oldest first, each building the project.
 export function landedCiPassInputs(
   trunk: readonly string[],
   answers: {
     readonly runs: () => readonly ListedRun[];
     readonly records: () => readonly LaunchRecord[];
+    readonly readable?: () => boolean;
+    readonly now?: () => number;
   },
   home = machineHome(),
 ) {
@@ -44,13 +111,13 @@ export function landedCiPassInputs(
       files: { "src/app.ts": `${revision}\n` },
     });
   const git = repositoryHistoryReads(repository.please());
-  const asked = { runsAt: [] as string[], proofs: 0 };
+  const runsAt: string[] = [];
   const builds: ComparisonBuildSource = {
     history: git.history,
     workflow: "ci.yml",
     lookup: {
       listRunsAt: (revision) => {
-        asked.runsAt.push(revision);
+        runsAt.push(revision);
         return Promise.resolve(
           answers.runs().filter((run) => run.headSha === revision),
         );
@@ -62,18 +129,16 @@ export function landedCiPassInputs(
     proofOf: () =>
       Promise.resolve(makeMe.aCiProof.unavailable("none").please()),
   };
-  const inputs = (stopped: AbortSignal): LandedCiPassInputs => ({
-    projects: [passProject],
-    records: new Map([[passProject.id, answers.records()]]),
-    landingOrder: () => Promise.resolve(trunk),
-    read: () => () => Promise.resolve({ kind: "read", builds }),
-    readProof: () => {
-      asked.proofs += 1;
-      return Promise.resolve(makeMe.aCiProof.unavailable("none").please());
+  const pass = landedCiPass({ ...answers, builds, trunk, home });
+  return {
+    ...pass,
+    asked: {
+      get runsAt() {
+        return runsAt;
+      },
+      get proofs() {
+        return pass.asked.proofs;
+      },
     },
-    home,
-    followUps: () => Promise.resolve(),
-    stopped,
-  });
-  return { inputs, asked, home };
+  };
 }

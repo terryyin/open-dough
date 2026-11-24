@@ -139,7 +139,7 @@ and the No build gap moves to slices 2 and 4.
 ### 2. Exact pending runs agree between history and comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `pending` and `comparison-run`. Give the pass an accepted receipt,
 retained state, controlled clock and exact-run answers for absent, queued,
@@ -154,6 +154,16 @@ controls the no-build horizon. Compare `pending` with `comparison-run` so
 one representative case owns reader agreement. Prove repeated delivery,
 the no-build horizon and receipt retention where each has a distinguishing
 result. Check the selected comparison contract wherever the binding changes.
+
+**Slice 2 evidence.** `pending` and `comparison-run` went from 5 server cases
+taking 24,910 ms to 3 typed cases taking about 82 ms. The pass now takes its
+clock as `now`, and production binds `observationNow`. The resolution
+functions require `now`. `landedCiPass({ builds, trunk, records, readable?, now?, … })`
+and `historyEntries()` in the support builder compose a pass and read it.
+One `comparison-run` case owns reader agreement and repeat delivery. The No
+build horizon and receipt retention live in `pending`. The comparison's
+receipt-hour matching and memory reuse stay with the `ci-comparison-finality-*`
+specs.
 
 ### 3. Equivalent and later builds resolve from pending evidence
 
@@ -248,6 +258,11 @@ concern was identified.
 Reported: slice 1 — "no unit case for the receipt-triggered nudge"
 Story clause: "Cover initial collection and restart"
 Disposition: proved by slice 1: `dashboard/backend-tests/intent/landed-ci-proof-collection.spec.ts` lands through the installed publication and polls the retained proof with a two-minute recheck, so only the landing endpoint's nudge (`dashboard/server/launchBoundaryAnswer.ts`) collects it in time; it passed in slice 1's consumer run. A conversion of that standalone owner must keep this observation.
+
+### G2. Repeat landing report's same receipt has no typed case
+Reported: slice 2 — "The typed cases only cover repeated delivery at the collection level."
+Story clause: "Give expiry, repeated delivery and receipt retention their own observations"
+Disposition: proved by slice 2: `dashboard/backend-tests/review/story-branch-landing-capture.spec.ts` "records the fetched trunk tip and the accepted merge …" integrates again with an explicit landing context and observes `landing: { state: "recorded", receipt }`, the same receipt, while the record stays unchanged; collection-level repeat delivery is owned by `landed-ci-history-comparison-run.spec.ts`.
 
 ## Verification and delivery
 

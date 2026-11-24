@@ -47,6 +47,8 @@ export async function collectLandingResolution(args: {
   // The machine whose history this pass keeps; absent, this one.
   home?: string;
   readProof?: ProofRead;
+  // The clock bounding the wait for a landing's own run.
+  now: () => number;
 }): Promise<CollectLandingOutcome> {
   const { source, landing, order, read, proofSignal, ended, home, readProof } =
     args;
@@ -69,7 +71,7 @@ export async function collectLandingResolution(args: {
       );
       return { kind: "continue", history };
     }
-    const resolved = await landingResolution(source, landing, read);
+    const resolved = await landingResolution(source, landing, read, args.now);
     // A read the end of collection cut short says nothing of its CI.
     if (ended()) return { kind: "ended", history };
     const collected = await proofRetainedWith(

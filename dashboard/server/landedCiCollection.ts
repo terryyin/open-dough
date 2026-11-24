@@ -43,6 +43,7 @@ import { providerProof } from "./landedCiCollectedProof.ts";
 import { homedir } from "node:os";
 import { readLandingOrder } from "./launchLandingGit.ts";
 import { passRead } from "./landedCiResolution.ts";
+import { observationNow } from "./observationClock.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import {
   projectEnvironment,
@@ -96,6 +97,7 @@ async function machinePass(stopped: AbortSignal): Promise<void> {
     landingOrder: localLandingOrder,
     read: passRead,
     readProof: providerProof,
+    now: observationNow,
     home: homedir(),
     followUps: collectCiFollowUps,
     stopped,

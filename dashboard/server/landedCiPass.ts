@@ -6,8 +6,9 @@
 // is not final yet over the project's CI read for the pass
 // (`./landedCiResolution.ts`, `./landedCiCollectionLanding.ts`). The pass
 // takes the projects, their launch records, the Git landing order, the CI
-// read, the proof read, the machine whose history it keeps and the follow-up
-// collection it uses as inputs; production binds them to this machine's
+// read, the proof read, the clock bounding a landing's wait for its own run,
+// the machine whose history it keeps and the follow-up collection it uses as
+// inputs; production binds them to this machine's
 // configuration, records, checkouts and providers.
 
 import type { LaunchRecord } from "../src/launchRecord.ts";
@@ -41,6 +42,8 @@ export type LandedCiPassInputs = {
   ) => Promise<readonly string[] | undefined>;
   read: typeof passRead;
   readProof: ProofRead;
+  // The clock bounding a landing's wait for its own run.
+  now: () => number;
   // The machine home whose landed CI history the pass reads and keeps.
   home: string;
   followUps: (
@@ -114,6 +117,7 @@ async function collectProject(
       ended,
       home,
       readProof,
+      now: inputs.now,
     });
     history = outcome.history;
     if (outcome.kind === "ended") return;
