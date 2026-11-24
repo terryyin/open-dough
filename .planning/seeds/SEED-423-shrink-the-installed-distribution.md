@@ -44,7 +44,7 @@ Dashboard and installed scripts share.
 **Identity:** SEED-423#trim-the-product-backlog-command-to-guided-operations
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/820-trim-the-product-backlog-command-to-guided-operations/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f324a950b3d74f0b1a648677f826fd056354244d55a371d1fde7bedc2d41632b","plan":"fcb0814bcb49d6168b85d28bda81762250d76320a10688075c86ba1261b0a963"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/820-trim-the-product-backlog-command-to-guided-operations/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"86cbf7c5752a95aafb1bd7cb441595527a8f52515f7b3d378dce59f56bdc99d8","plan":"4f32f39e18fb803f42fd5c885c19d568ae1bda248620dc9dc0262cf4c6b9ca9e"}}
 ```
 
 **Goal.** An agent maintaining a backlog can find the installed operation for
@@ -70,6 +70,13 @@ records consistently.
   file access in one adapter. Preserve version 1 records, legacy absence,
   digest and readiness meaning, and current accepted inputs and receipts
   outside the help text.
+- Keep the result simple and cohesive. Integrate guidance changes into the
+  existing sections as concise, direct instructions, replacing text rather
+  than adding beside it, so the installed skill stays consistent and easy
+  for an agent to follow. In the scripts, prefer the simplest design that
+  keeps the safeguards above. Remove code, tests, instructions and guidance
+  that the change leaves without a caller or reader completely, in the same
+  change.
 - Git reconciliation and publication have their own stories. Changes to
   backlog priorities, dependency policy, Dashboard presentation and record
   format are outside this increment.
@@ -92,6 +99,10 @@ records consistently.
   unchanged since review. After an edit to its own section they show Ready
   with changed-since-review evidence, and a write using the old digest
   refuses without changing the record.
+- The terminal help no longer carries the multi-paragraph procedures. The
+  same change deletes that prose, the tests that only asserted it and any
+  installed text that pointed to it, so no reader or check still reaches
+  the removed help.
 
 **Architecture.** Share the story-state schema and interpretation with the
 Dashboard's browser reader, and use the Node adapter for plan and home I/O and

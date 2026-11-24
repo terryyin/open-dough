@@ -10,7 +10,11 @@ procedure from the command synopsis and backlog skill. Keep the checked
 reference and direction updates available. Reduce the shipped command
 surface by removing repeated explanation, placing operation-specific inputs
 and receipts with their handlers, and simplifying the shared story-state
-implementation. Preserve published format and interpretation, public
+implementation. Keep the result simple and cohesive: guidance changes are
+concise instructions integrated into existing sections, scripts take the
+simplest design that keeps the safeguards, and code, tests, instructions and
+guidance the change leaves unreached are removed completely in the same
+slice. Preserve published format and interpretation, public
 operation forms and receipts outside usage, and existing write safeguards.
 Git adapters, publication, installer behavior, backlog policy, and Dashboard
 presentation are covered by their own work.
@@ -49,6 +53,14 @@ presentation are covered by their own work.
   Exercise the maintained CLI and reader directly with existing fixtures.
   Keep the published-record browser proof at E2E and keep any added
   assertions at their owning boundary with the existing runner.
+- Simplicity is an acceptance condition of every slice. Edit the existing
+  section that owns a topic instead of adding a parallel one, and state each
+  instruction once in direct terms. When a slice removes or relocates a
+  responsibility, delete what only it reached in the same slice: functions,
+  exports, modules, payload entries, tests and test support that only
+  exercised them, and guidance or links that described them. Delete removed
+  behavior without adding prohibitions about it. A special case that exists
+  only to serve a removed path goes with it.
 
 ## Baseline and decisive premises
 
@@ -76,6 +88,12 @@ All four selected Chromium cases passed.
 | CLI and startup read persisted facts | The six `story-state*.test.mjs` files, `story-dependencies-review-and-eligibility.test.mjs` and `workspace-publication-startup-readiness.test.mjs` observed round trips, stale refusal, sibling scoping, version handling, dependency eligibility and startup. Forcing `changedSinceReview` to false failed the CLI case that keeps Ready and reports a content change. Restored source passed. |
 | Dashboard reads published CLI-produced records | The readiness and gaps specs exercise Git-revision bytes in Chromium and inspect the Board and story detail. The same scratch assessment change failed at the Board's missing “Changed since readiness review” text. Restoring the source passed all three cases selected in the gaps spec. |
 | Installed guidance resolves its links | `Distribution/tests/installation/payload-declaration-links.sh` passed. The installed baseline shows why a representative procedure also needs to be followed to the real command. |
+
+At `6210a17c5`, every non-Git `product-backlog*.mjs` export had a caller
+outside tests, and each of the 15 dispatched verbs is named in installed
+guidance. Dead code in this area is therefore what the slices themselves
+create: the help prose, superseded handler plumbing and duplicate
+story-state validation.
 
 The scratch changes were reverted and `git diff --exit-code HEAD --
 Distribution/src` passed.
@@ -109,8 +127,10 @@ Put move instructions with identity guidance and direction instructions with
 the existing direction section. Reuse the current operation flags. Check
 the representative use under the [skill authoring behavior review](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review)
 and keep the 249-line entry skill within the 250-line check by replacing
-duplicated procedure. The existing preparation and supplier references already
-name their operations. Estimated active effort 8–12 minutes.
+duplicated procedure. Fold the new routes into the existing sections and
+delete any text they supersede. Record the guidance line count against the
+1,091-line baseline of the skill and its four references. The existing
+preparation and supplier references already name their operations. Estimated active effort 8–12 minutes.
 
 ### 2. Keep the command adapters with the operations they describe
 
@@ -128,7 +148,8 @@ and take, completion and catalog, and checked edit responsibilities.
 Keep Node adapters outside the browser-shared modules. Keep the shared
 placement reader for add and place and the existing write locks. This leaves
 the entry point that slice 3 uses for the synopsis with dispatch and common
-arguments in one place. Estimated active effort 10–15 minutes.
+arguments in one place. Delete forwarding code, exports and tests that the
+move leaves without a non-test caller. Estimated active effort 10–15 minutes.
 
 ### 3. Get a short synopsis from the terminal
 
@@ -144,7 +165,9 @@ procedures are gone from terminal output and record the published help size
 against the 194-line baseline.
 
 Use one synopsis for both outcomes with enough syntax to identify the
-operation. Existing references own the procedural detail. Estimated active
+operation. Existing references own the procedural detail. Delete the old
+usage prose, the assertions that only checked it, and any guidance that
+points readers to the terminal for procedure. Estimated active
 effort 6–10 minutes.
 
 ### 4. Ship a smaller story-state implementation with one schema
@@ -167,7 +190,9 @@ validation and the existing file adapter for loading and writing. Keep the
 pure basis and fence helpers where the other readers use them, preserving
 their import boundary. Replace the internal filename assertions in
 `story-state.test.mjs` if they obstruct consolidation, retaining the
-browser-safety and reader contract assertions. Estimated active effort
+browser-safety and reader contract assertions. Delete each validator,
+module and test the single schema supersedes, and check with a search that
+no shipped script, Dashboard source or test imports a removed name. Estimated active effort
 10–15 minutes.
 
 ## Preparation assessment
