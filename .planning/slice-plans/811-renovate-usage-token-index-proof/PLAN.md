@@ -215,7 +215,7 @@ fell from 12,079 ms to 400.80 ms. Checkout evidence uses the
 ### 6. Claude reply evidence is attributed once to its launch
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `token-index-developer-reply` and
 `token-index-refresh-developer-reply` through the same import and refresh
@@ -224,6 +224,15 @@ completion remain tied to their launch. Keep the distinct handoffs where
 a later workflow marker or reporting context owns subsequent turns.
 Use stable response IDs to observe that repeated imports do not count
 the same response twice.
+
+The two original Claude reply specs pass eight cases on Vitest. Typed
+import and refresh keep root and worker replies attributed after
+completion and preserve both workflow-marker forms and the distinct
+reporting-context handoff. Repeated typed reads of stable response IDs
+preserve exact owners and totals, including an older root reached by its
+late worker. The remaining shared fixture supplies only launch and
+transcript data. Summed case time fell from 17,638 ms to 1,193.02 ms.
+Checkout evidence uses the `slice-6-` prefix.
 
 ### 7. Refresh updates contributions and preserves the last answer on failure
 
