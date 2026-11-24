@@ -237,7 +237,7 @@ Checkout evidence uses the `slice-6-` prefix.
 ### 7. Refresh updates contributions and preserves the last answer on failure
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `token-index-refresh` and `token-index-refresh-claude`.
 Use isolated original and changed transcripts with
@@ -247,6 +247,17 @@ unrelated sessions excluded, older worker data imported, and running data
 replaced once the transcript grows. An unreadable store returns a failed
 refresh and preserves the prior summary and check time. Observe the actual
 bytes and the next read instead of assuming an exception preserved them.
+
+Both original specs use typed import, refresh and chart reads. The five
+Vitest cases preserve the older-worker and unrelated-session checks,
+unchanged bytes on repeat, and replacement of a running launch's
+contribution. The concurrent and unreadable cases enter through
+`refreshUsage` and retain real child and cache composition. Bypassing
+single-flight failed the promise identity assertion. The original code
+was restored, and all five cases passed. The failure case checks the
+malformed store and prior summary and check bytes, then rereads the
+restored healthy store. Summed case time fell from 10,778 ms for four
+cases to 881.05 ms for five. Checkout evidence uses the `slice-7-` prefix.
 
 ### 8. Refresh clears the evidence gaps it resolves and the cohort runs on Vitest
 
