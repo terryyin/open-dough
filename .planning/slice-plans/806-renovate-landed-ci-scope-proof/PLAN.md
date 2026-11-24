@@ -131,16 +131,15 @@ evidence for exact commands, observations and timings.
 ### 2. A reopened collector keeps final evidence and advances pending builds
 
 Type: Behavior
-Status: planned
+Status: done
 
-Convert `proof-lifecycle` and `proof-finality`. Supply a retained exact
-attempt and a held or running attempt with independent outputs. Close the
-first collection owner and reopen using the same real temporary store.
-
-**Proof.** Observe the pending attempt become a point and other recorded
-evidence stay unchanged. A final unreadable proof is never requested
-again even if its provider would now answer. Count actual proof asks,
-assert the previously saved gap, and prove the other attempt's progress.
+**Proof.** `proof-lifecycle` backfills both a missing and a legacy unreadable
+proof for the saved exact attempt without a live launch or fresh discovery.
+`proof-finality` reopens the real store and reads the saved unreadable gap
+unchanged while the pending attempt becomes a 200 ms point. Actual proof
+requests show the final attempt was asked once despite a newly valid reply.
+All three Node cases passed in 0.544 s summed and 1.20 s elapsed versus
+5.383 s summed before conversion. Typecheck passed. See `slice2-return.md`.
 
 ### 3. Contextual adapter identity controls which scope points can be shared
 
