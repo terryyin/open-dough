@@ -114,6 +114,8 @@ and installed E2E passed 47 and 41. See `slice1-return.md` in execution
 evidence for the retained commands, observations and exclusions. The
 mounted-boundary launch wait and the second sidebar-reading case remain
 launch consumers for plan 816. Terminal delete's Start moves in slice 5.
+Branch CI's [connection-logo failure](diagnosis-connection-logo.md) reproduced
+before the test synchronization repair and passed afterward.
 
 A consumer asks for an existing session → it gets a listed, recorded
 session without a launch, named as the launch names it. Add the MakeMe step
