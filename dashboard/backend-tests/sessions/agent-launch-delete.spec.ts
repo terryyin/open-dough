@@ -24,7 +24,7 @@ import {
   recordsOf,
 } from "../../test-support/agentLaunchBoundary.ts";
 import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -60,8 +60,8 @@ test.describe("deleting a recorded session's record", () => {
   });
 
   test("deletes only the record of a session whose listing cannot be read, stopping and renaming nothing", async () => {
-    const kept = await launched(server);
-    const session = await launched(server, "open-dough", {
+    const kept = await composeSession(server);
+    const session = await composeSession(server, "open-dough", {
       identity: "SEED-other#delete-target",
       title: "Another story",
     });
@@ -101,8 +101,8 @@ test.describe("deleting a recorded session's record", () => {
   });
 
   test("deletes only the record of a session Claude Code no longer lists and that is not marked done, stopping nothing", async () => {
-    const kept = await launched(server);
-    const session = await launched(server, "open-dough", {
+    const kept = await composeSession(server);
+    const session = await composeSession(server, "open-dough", {
       identity: "SEED-other#delete-forgotten",
       title: "Forgotten story",
     });
@@ -130,7 +130,7 @@ test.describe("deleting a recorded session's record", () => {
 
   for (const known of ["working", "unlisted and marked done"] as const) {
     test(`keeps the record of a session that is ${known} and answers its state`, async () => {
-      const session = await launched(server);
+      const session = await composeSession(server);
       if (known === "working") {
         server.claudeSessionBecomes(session.sessionId, "working");
       } else {
@@ -170,7 +170,7 @@ test.describe("deleting a recorded session's record", () => {
   }
 
   test("refuses a session this dashboard did not record, or another project's, before running claude", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     for (const body of [
       {
         source: "open-dough",
@@ -190,7 +190,7 @@ test.describe("deleting a recorded session's record", () => {
   });
 
   test("refuses a request from another site before running claude", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     const callsBefore = server.claudeCalls().length;
 
     const response = await deleteRecord(
@@ -205,7 +205,7 @@ test.describe("deleting a recorded session's record", () => {
   });
 
   test("answers a record file that cannot be written with why, keeping the record", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     const before = keptLaunchRecords(server);
     const directory = path.dirname(launchStoreFile(server));
     server.claudeListingFails(true);

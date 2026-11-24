@@ -2,17 +2,16 @@
 // session while active story cards hold their open sessions, on a
 // committed origin from ../../dashboard/test-support/launchJourney.ts: an
 // retained entry names its story, workflow, launch time, and session with Open
-// terminal; two launches of one story remain distinct in their current homes;
-// and another project's launches are not listed, through
+// terminal; two sessions of one story remain distinct in their current homes;
+// and another project's sessions are not listed, through
 // reloads and project switches; until the page first reads them, it says it
 // is reading them. That entries stay through Preparing, the
 // Take, and completion is ./agent-launch-story-card-sessions.spec.ts, and each
 // entry's state is
-// ../../dashboard/backend-tests/sessions/session-reading-rule.spec.ts. The page's own dashboard
-// server launches the synthetic `claude` (./fixtures/fake-claude); the real
-// one is never reached.
+// ../../dashboard/backend-tests/sessions/session-reading-rule.spec.ts.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   chooseProject,
   storyCardSessions,
@@ -23,11 +22,15 @@ import {
   sessionNamedBy,
   shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
+import {
+  doughnutSharedTitle,
+  sharedStoryIdentity,
+} from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
@@ -62,30 +65,21 @@ test.describe("retained launches in their current column homes", () => {
     page,
     dashboard,
   }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryColumnsJourney(
+    const { card, settled } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const entries = recent.getByRole("article");
-    const sessionIds: string[] = [];
-    // Launches the workflow and remembers its session, as the new entry
-    // names it.
-    const launchListed = async (title: string, workflow: Workflow) => {
-      const before = await storyCardSessions(card(title)).count();
-      await launch(title, workflow);
-      const own = storyCardSessionOf(card(title), workflow);
-      await expect(storyCardSessions(card(title))).toHaveCount(before + 1);
-      await expect(own).toHaveAccessibleName(storyCardSessionName(workflow));
-      sessionIds.unshift(await sessionNamedBy(own));
-    };
-    // Each launch's current entry names that launch's session.
     const expectEntries = async (
-      launches: readonly (readonly [title: string, workflow: Workflow])[],
+      sessions: readonly (readonly [
+        title: string,
+        workflow: Workflow,
+        sessionId: string,
+      ])[],
     ) => {
       await expect(entries).toHaveCount(0);
-      for (const [index, [title, workflow]] of launches.entries()) {
+      for (const [title, workflow, sessionId] of sessions) {
         const closed = title === readyStory && workflow === "Refinement";
         const entry = closed
           ? await shownDoneSessionEntriesOf(page, title)
@@ -94,9 +88,7 @@ test.describe("retained launches in their current column homes", () => {
           storyCardSessionName(workflow),
         );
         await expect(entry).toContainText(`${workflow} started in Claude Code`);
-        await expect(entry).toContainText(
-          `Session ${sessionIds[index] ?? "?"}`,
-        );
+        await expect(entry).toContainText(`Session ${sessionId}`);
         await expect(openTerminalControl(entry)).toBeVisible();
       }
     };
@@ -113,20 +105,53 @@ test.describe("retained launches in their current column homes", () => {
       "No sessions launched from this dashboard are kept.",
     );
 
-    const before = Date.now();
-    await launchListed(readyStory, "Refinement");
-    idleBetweenSteps(dashboard, sessionIds[0] ?? "");
+    const { sessionId: refinement } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: readyIdentity,
+        title: readyStory,
+        workflow: "refinement",
+      },
+    );
+    await page.reload();
+    await settled();
+    await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
+    const refinementEntry = storyCardSessionOf(card(readyStory), "Refinement");
+    expect(await sessionNamedBy(refinementEntry)).toBe(refinement);
+    idleBetweenSteps(dashboard, refinement);
     await markDoneAnyway(storyCardSessions(card(readyStory)));
     await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
-    await launchListed(readyStory, "Execution");
-    await launchListed(notRefinedStory, "Execution");
-    const launched = [
-      [notRefinedStory, "Execution"],
-      [readyStory, "Execution"],
-      [readyStory, "Refinement"],
+    const startedAt = Date.now();
+    const { sessionId: execution } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: readyIdentity,
+        title: readyStory,
+        startedAt: startedAt - 1_000,
+      },
+    );
+    const { sessionId: newestExecution } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: notRefinedIdentity,
+        title: notRefinedStory,
+        startedAt,
+      },
+    );
+    await page.reload();
+    await settled();
+    const sessions = [
+      [notRefinedStory, "Execution", newestExecution],
+      [readyStory, "Execution", execution],
+      [readyStory, "Refinement", refinement],
     ] as const;
-    await expectEntries(launched);
-    expect(new Set(sessionIds).size).toBe(3);
+    await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
+    await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(1);
+    await expectEntries(sessions);
+    expect(new Set(sessions.map(([, , id]) => id)).size).toBe(3);
     await expectMembership(page, { taken: [], backlog: queued });
 
     await test.step("an entry names its story, launch time, and local evidence", async () => {
@@ -141,8 +166,7 @@ test.describe("retained launches in their current column homes", () => {
       const launchedAt = Date.parse(
         (await newest.locator("time").getAttribute("datetime")) ?? "",
       );
-      expect(launchedAt).toBeGreaterThanOrEqual(before - 1_000);
-      expect(launchedAt).toBeLessThanOrEqual(Date.now());
+      expect(launchedAt).toBe(startedAt);
     });
 
     await test.step("another project lists only its own launches, and reloading or returning lists these again", async () => {
@@ -152,18 +176,28 @@ test.describe("retained launches in their current column homes", () => {
         backlog: [doughnutSharedTitle],
       });
       await expect(entries).toHaveCount(0);
-      await launch(doughnutSharedTitle, "Execution");
+      const { sessionId } = await composeSession(dashboard, "doughnut", {
+        identity: sharedStoryIdentity,
+        title: doughnutSharedTitle,
+      });
+      await page.reload();
+      await settled();
       await expect(entries).toHaveCount(0);
-      await expect(
-        storyCardSessionOf(card(doughnutSharedTitle), "Execution"),
-      ).toHaveAccessibleName(storyCardSessionName("Execution"));
+      const doughnutSession = storyCardSessionOf(
+        card(doughnutSharedTitle),
+        "Execution",
+      );
+      await expect(doughnutSession).toHaveAccessibleName(
+        storyCardSessionName("Execution"),
+      );
+      expect(await sessionNamedBy(doughnutSession)).toBe(sessionId);
 
       await chooseProject(page, "Open Dough");
       await expectMembership(page, { taken: [], backlog: queued });
-      await expectEntries(launched);
+      await expectEntries(sessions);
       await page.reload();
       await expectMembership(page, { taken: [], backlog: queued });
-      await expectEntries(launched);
+      await expectEntries(sessions);
       await expect(recent).not.toContainText(doughnutSharedTitle);
     });
 
@@ -175,11 +209,10 @@ test.describe("retained launches in their current column homes", () => {
       await expect(recent).not.toContainText("No sessions launched");
       await expect(entries).toHaveCount(0);
       answer();
-      await expectEntries(launched);
+      await expectEntries(sessions);
       await expect(recent).not.toContainText("Reading sessions…");
     });
 
-    // Listing never launched anything: four launches, one of them Doughnut's.
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(4);
+    expect(dashboard.claudeLaunchCalls()).toEqual([]);
   });
 });

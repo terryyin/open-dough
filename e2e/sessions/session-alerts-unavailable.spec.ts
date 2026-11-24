@@ -17,16 +17,17 @@ import {
 } from "../../dashboard/test-support/support/pageTest.ts";
 import {
   alertsAnswered,
-  launch,
   launchRequest,
   machineSessions,
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
 import type { FakeClaudeOptions } from "../../dashboard/test-support/support/fakeClaude.ts";
+import { afterFurtherListings } from "../../dashboard/test-support/support/sessionAlerts.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 
 const test = base.extend<{
@@ -80,7 +81,7 @@ test.describe("no Open Dough sender set up, only terminal-notifier on PATH", () 
     server,
     page,
   }) => {
-    await launch(server, launchRequest);
+    await composeSession(server);
     await expect
       .poll(() => alertsAnswered(server))
       .toEqual({ available: false, reason: notFound });
@@ -126,13 +127,9 @@ test.describe("a notifier that refuses", () => {
     ).toBeVisible();
 
     server.notifierBecomes("working");
-    const response = await launch(server, launchRequest);
-    const session = (
-      JSON.parse(response.body) as {
-        record: { session: { sessionId: string } };
-      }
-    ).record.session.sessionId;
+    const { sessionId: session } = await composeSession(server);
     expect(await machineSessions(server)).toHaveLength(1);
+    await afterFurtherListings(server);
     server.claudeSessionBecomes(session, "blocked", "Which database?");
     await expect.poll(() => server.notifierCalls().length).toBe(1);
     expect(await alertsAnswered(server)).toEqual({ available: true });

@@ -11,22 +11,23 @@
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
-  openTerminalControl,
+  expectTerminalText,
+  openTerminalFromEntry,
   terminalPanel,
-  terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   doneSessionEntriesOf,
   shownDoneSessionEntriesOf,
   storyCardSessions,
   expectMembership,
-  sessionNamedBy,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
@@ -52,8 +53,12 @@ test.describe("reopening a session marked done from its card's Done history", ()
     page,
     dashboard,
   }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryColumnsJourney(
+    const { sessionId: session, shortId } = await composeSession(
+      dashboard,
+      "open-dough",
+      { identity: readyIdentity, title: readyStory },
+    );
+    const { card, settled } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
@@ -66,9 +71,8 @@ test.describe("reopening a session marked done from its card's Done history", ()
       backlog: [takenStory, readyStory, notRefinedStory],
     };
     await settled();
-    await launch(readyStory, "Execution");
-    const session = await sessionNamedBy(listed);
-    const key = await listed.getAttribute("data-shows-session");
+    const key = `claude:${session}`;
+    await expect(listed).toHaveAttribute("data-shows-session", key);
     const doneName = `done-Open Dough · Execution · ${readyStory}`;
     idleBetweenSteps(dashboard, session);
     const marked = await markDone(dashboard, {
@@ -81,7 +85,7 @@ test.describe("reopening a session marked done from its card's Done history", ()
     await expect(listed).toHaveCount(0);
     const entry = await shownDoneSessionEntriesOf(page, readyStory);
     await expect(sessionStateOf(entry)).toHaveText("Done");
-    await expect(entry).toHaveAttribute("data-shows-session", key ?? "?");
+    await expect(entry).toHaveAttribute("data-shows-session", key);
     await expect(entry).toContainText(`Named ${doneName}`);
     await expect(entry).not.toContainText("rename failed");
     // With no terminal open, the rename ran through one private attachment
@@ -97,10 +101,10 @@ test.describe("reopening a session marked done from its card's Done history", ()
 
     // Opening its terminal again reopens it, without waiting for the next
     // read of the records.
-    await openTerminalControl(entry).click();
-    await expect(terminalScreenParts(panel).rows).toContainText("attached");
+    await openTerminalFromEntry(entry);
+    await expectTerminalText(panel, `attached ${shortId}`);
     await expect(listed).toHaveCount(1);
-    await expect(listed).toHaveAttribute("data-shows-session", key ?? "?");
+    await expect(listed).toHaveAttribute("data-shows-session", key);
     await expect(sessionStateOf(listed)).not.toHaveText("Done");
     await expect(doneOnCard).toHaveCount(0);
     await expectMembership(page, queued);
@@ -108,14 +112,14 @@ test.describe("reopening a session marked done from its card's Done history", ()
     await page.reload();
     await settled();
     await expect(listed).toHaveCount(1);
-    await expect(listed).toHaveAttribute("data-shows-session", key ?? "?");
+    await expect(listed).toHaveAttribute("data-shows-session", key);
     await expect(sessionStateOf(listed)).not.toHaveText("Done");
     await expect(doneOnCard).toHaveCount(0);
 
     // Reload closed the attachment. With a terminal open again, this mark
     // types the rename into it rather than opening another.
-    await openTerminalControl(listed).click();
-    await expect(terminalScreenParts(panel).rows).toContainText("attached");
+    await openTerminalFromEntry(listed);
+    await expectTerminalText(panel, `attached ${shortId}`);
     const opened = dashboard.claudeAttaches().length;
     // Attached, it runs again.
     idleBetweenSteps(dashboard, session);

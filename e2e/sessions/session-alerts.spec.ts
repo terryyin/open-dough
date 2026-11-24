@@ -11,13 +11,13 @@
 
 import { expect } from "@playwright/test";
 import { launchRequest } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   afterFurtherListings,
   becomes,
   messages,
   notices,
   notificationUrls,
-  start,
   test,
 } from "../../dashboard/test-support/support/sessionAlerts.ts";
 
@@ -26,7 +26,11 @@ test.describe("a session that starts needing the developer raises one macOS noti
     server,
     page,
   }) => {
-    const session = await start(server);
+    const { sessionId: session } = await composeSession(
+      server,
+      "open-dough",
+      launchRequest,
+    );
     await afterFurtherListings(server);
     expect(server.notifierCalls()).toEqual([]);
 

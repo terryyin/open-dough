@@ -7,7 +7,7 @@ import {
   pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { expectReadableContrast } from "../../dashboard/test-support/accessibleReading.ts";
 import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { givePageItsTurns } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -35,7 +35,11 @@ test.describe("the Sessions sidebar's title row status", () => {
     for (const [index, change] of (
       ["working", "blocked", "done-live"] as const
     ).entries()) {
-      const { sessionId } = await launched(dashboard, "doughnut", story(index));
+      const { sessionId } = await composeSession(
+        dashboard,
+        "doughnut",
+        story(index),
+      );
       dashboard.claudeSessionBecomes(sessionId, change);
       sessions.push(sessionId);
     }
@@ -59,7 +63,7 @@ test.describe("the Sessions sidebar's title row status", () => {
       await expectFigure(waiting, 3, "3 sessions need attention");
     });
     await test.step("a new working session adds to active at the next reading", async () => {
-      await launched(dashboard, "doughnut", story(3));
+      await composeSession(dashboard, "doughnut", story(3));
       await passOnePace();
       await expect(entries).toHaveCount(4);
       await expectFigure(active, 1, "1 active session");
@@ -73,7 +77,11 @@ test.describe("the Sessions sidebar's title row status", () => {
   }) => {
     await pausePageClockAt(page, new Date());
     for (const index of [4, 5]) {
-      const { sessionId } = await launched(dashboard, "doughnut", story(index));
+      const { sessionId } = await composeSession(
+        dashboard,
+        "doughnut",
+        story(index),
+      );
       dashboard.claudeSessionBecomes(sessionId, "working");
     }
     const { button, entries, figures, active, waiting, shownAnywhere } =
@@ -100,7 +108,7 @@ test.describe("the Sessions sidebar's title row status", () => {
     dashboard,
   }) => {
     await pausePageClockAt(page, new Date());
-    const { sessionId } = await launched(dashboard, "doughnut", story(6));
+    const { sessionId } = await composeSession(dashboard, "doughnut", story(6));
     dashboard.claudeSessionBecomes(sessionId, "working");
     const reads = noteHostReads(page);
     const { button, entries, figures, active, cpu, disk } =
@@ -149,7 +157,7 @@ test.describe("the Sessions sidebar's title row status", () => {
     dashboard,
   }) => {
     await pausePageClockAt(page, new Date());
-    const { sessionId } = await launched(dashboard, "doughnut", story(8));
+    const { sessionId } = await composeSession(dashboard, "doughnut", story(8));
     dashboard.claudeSessionBecomes(sessionId, "working");
     const reads = noteHostReads(page);
     const { button, cpu } = await readStatusView(page, columnsJourney());

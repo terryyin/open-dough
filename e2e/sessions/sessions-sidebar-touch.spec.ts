@@ -1,12 +1,8 @@
 // Touch discovery reads the same session facts before choosing a session.
-// Launches and attachments use the real local boundary and synthetic Claude.
+// Attachments use the real local boundary and synthetic Claude.
 import type { LaunchRecord } from "../../dashboard/src/agentLaunch.ts";
-import {
-  launch,
-  launchRequest,
-  recordsOf,
-} from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   terminalPanel,
@@ -58,24 +54,18 @@ test.describe(`${name} session discovery`, () => {
     page,
     dashboard,
   }) => {
-    await launched(dashboard, "open-dough", {
+    const startedAt = Date.now();
+    await composeSession(dashboard, "open-dough", {
       identity: "SEED-901#ordinary",
       title: "An ordinary session in another project",
+      startedAt: startedAt - 1_000,
     });
-    dashboard.claudeScenario("launched");
-    await launch(dashboard, {
-      ...launchRequest,
+    const { sessionId, shortId } = await composeSession(dashboard, "doughnut", {
       ...intended,
-      source: "doughnut",
+      startedAt,
       model: "opus",
     });
-    const [record] = (await recordsOf(dashboard, "doughnut")) as LaunchRecord[];
-    if (record === undefined) throw new Error("Missing intended session");
-    dashboard.claudeSessionBecomes(
-      record.session.sessionId,
-      "blocked",
-      inputNote,
-    );
+    dashboard.claudeSessionBecomes(sessionId, "blocked", inputNote);
     const opened = await openStoryColumnsJourney(page, journey);
     await opened.settled();
     const { sidebar, button, badge, entries, entry, row } =
@@ -143,7 +133,7 @@ test.describe(`${name} session discovery`, () => {
     await expect(sidePanelNamesOf(panel).sessionName).toHaveText(/ session$/);
     await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
     await expect(terminalScreenParts(panel).rows).toContainText(
-      `attached ${record.session.sessionId.slice(0, 8)}`,
+      `attached ${shortId}`,
     );
     // Covering (landscape with sidebar open) aria-hides the page column.
     await expect.poll(() => pageColumnProjectValue(page)).toBe("doughnut");
@@ -154,9 +144,7 @@ test.describe(`${name} session discovery`, () => {
     await expect(sidePanelNamesOf(panel).sessionName).toHaveText(/ session$/);
     await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
     expect(
-      dashboard
-        .claudeAttaches()
-        .filter(({ id }) => id === record.session.sessionId.slice(0, 8)),
+      dashboard.claudeAttaches().filter(({ id }) => id === shortId),
     ).toHaveLength(1);
     expect(dashboard.claudeStopCalls()).toEqual([]);
     expect(

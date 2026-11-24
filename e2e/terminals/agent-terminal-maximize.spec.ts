@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
-  openTerminalControl,
+  openTerminalFromEntry,
   terminalPanel,
   terminalScreenParts,
   typeLine,
@@ -10,17 +10,19 @@ import {
   storyCardSessions,
   expectMembership,
   parts,
-  sessionNamedBy,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
+  notRefinedIdentity,
   notRefinedStory,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   expectSessionsSidebar,
@@ -43,8 +45,6 @@ import { expectFrameIconControl } from "../../dashboard/test-support/frameIconCo
 
 test.use({ projectFolders: ["open-dough"] });
 
-const shortId = (sessionId: string) => sessionId.slice(0, 8);
-
 const windowOf = (page: Page) =>
   page.evaluate(() => ({
     width: document.documentElement.clientWidth,
@@ -64,8 +64,15 @@ test.describe("maximizing the terminal", () => {
     page,
     dashboard,
   }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryColumnsJourney(
+    const first = await composeSession(dashboard, "open-dough", {
+      identity: notRefinedIdentity,
+      title: notRefinedStory,
+    });
+    const second = await composeSession(dashboard, "open-dough", {
+      identity: readyIdentity,
+      title: readyStory,
+    });
+    const { card, settled } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
@@ -81,16 +88,10 @@ test.describe("maximizing the terminal", () => {
     };
     await expectMembership(page, queued);
     await settled();
-    await launch(notRefinedStory, "Execution");
-    await launch(readyStory, "Execution");
-    const first = await sessionNamedBy(
-      storyCardSessions(card(notRefinedStory)),
-    );
-    const second = await sessionNamedBy(storyCardSessions(card(readyStory)));
     const attachCount = () => dashboard.claudeAttaches().length;
 
-    await openTerminalControl(storyCardSessions(card(notRefinedStory))).click();
-    await expect(rows).toContainText(`attached ${shortId(first)}`);
+    await openTerminalFromEntry(storyCardSessions(card(notRefinedStory)));
+    await expect(rows).toContainText(`attached ${first.shortId}`);
     await typeLine(page, "keep this line");
     await expect(rows).toContainText("echo keep this line");
 
@@ -131,7 +132,7 @@ test.describe("maximizing the terminal", () => {
       });
       await expect(banner).toBeHidden();
       await expect(board).toBeHidden();
-      dashboard.claudeSessionBecomes(second, "blocked");
+      dashboard.claudeSessionBecomes(second.sessionId, "blocked");
       await setPageVisibility(page, "hidden");
       await setPageVisibility(page, "visible");
       await expectClosedToggleCounts(page, 1, 1);
@@ -141,7 +142,7 @@ test.describe("maximizing the terminal", () => {
       await expect(sidebar.badge).toHaveText("1");
       await sidebar.button.click();
       await expectSessionsSidebar(page, "closed");
-      await expect(rows).toContainText(`attached ${shortId(first)}`);
+      await expect(rows).toContainText(`attached ${first.shortId}`);
       await expect(rows).toContainText("echo keep this line");
       expect(attachCount()).toBe(attachedBefore);
     });
@@ -192,7 +193,7 @@ test.describe("maximizing the terminal", () => {
       await expect(heading).toHaveAccessibleName(readyStory);
       await page.keyboard.press("Enter");
       await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
-      await expect(rows).toContainText(`attached ${shortId(second)}`);
+      await expect(rows).toContainText(`attached ${second.shortId}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(control("Restore")).toHaveCount(0);
       await expect(banner).toBeVisible();
@@ -212,15 +213,15 @@ test.describe("maximizing the terminal", () => {
       const record = (await recordsOf(dashboard, "open-dough")).find(
         (kept) =>
           (kept as { session: { sessionId: string } }).session.sessionId ===
-          second,
+          second.sessionId,
       ) as { doneAt?: string } | undefined;
       expect(record).toMatchObject({ sessionState: { kind: "available" } });
       expect(record?.doneAt).toBeUndefined();
       await sidebar.button.click();
       await expect(sidebar.sidebar).toBeHidden();
 
-      await openTerminalControl(storyCardSessions(card(readyStory))).click();
-      await expect(rows).toContainText(`attached ${shortId(second)}`);
+      await openTerminalFromEntry(storyCardSessions(card(readyStory)));
+      await expect(rows).toContainText(`attached ${second.shortId}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
       expect((await box(panel)).x).toBeGreaterThanOrEqual(
@@ -240,7 +241,7 @@ test.describe("maximizing the terminal", () => {
         width: room.width,
         height: room.height,
       });
-      await expect(rows).toContainText(`attached ${shortId(second)}`);
+      await expect(rows).toContainText(`attached ${second.shortId}`);
     });
   });
 });

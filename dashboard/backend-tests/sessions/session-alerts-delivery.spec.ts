@@ -1,12 +1,14 @@
 // Notification content remains literal, and an ad hoc session has only a
 // project destination. The real alert owner reaches the isolated executable.
-import { launchRequest } from "../../test-support/agentLaunchBoundary.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { openDoughFolder } from "../../test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
+import { keepMoreLaunchRecordsBesideServer } from "../../test-support/support/launchStore.ts";
 import {
   afterFurtherListings,
   messages,
   notices,
   notificationUrls,
-  start,
   test,
 } from "../../test-support/support/sessionAlerts.ts";
 import { expect } from "../../test-support/support/pageTest.ts";
@@ -15,7 +17,9 @@ test("passes a title with quotes and a backslash unchanged", async ({
   server,
 }) => {
   const oddTitle = "Say \"hi\" to a \\ back\\slash and 'quotes'";
-  const session = await start(server, { ...launchRequest, title: oddTitle });
+  const { sessionId: session } = await composeSession(server, "open-dough", {
+    title: oddTitle,
+  });
   await afterFurtherListings(server);
   server.claudeSessionBecomes(session, "blocked", 'Use "this" \\ that?');
   await expect.poll(() => server.notifierCalls().length).toBe(1);
@@ -37,14 +41,22 @@ test("passes a title with quotes and a backslash unchanged", async ({
 test("an ad hoc session keeps its alert and opens its project without inventing a story", async ({
   server,
 }) => {
-  const session = await start(server, {
-    source: "open-dough",
-    workflow: "ad-hoc",
-    host: "claude",
-    instruction: "[ad hoc] with 'quotes' and \\ text",
+  const instruction = "[ad hoc] with 'quotes' and \\ text";
+  const name = `Open Dough · Ad hoc · ${instruction}`;
+  const startedAt = Date.now();
+  const sessionId = server.claudeListsSession({
+    cwd: openDoughFolder(server),
+    name,
+    startedAt,
   });
+  const record = makeMe.aLaunchRecord
+    .adHoc({ instruction, title: instruction })
+    .inClaudeSession({ sessionId, name })
+    .launchedAt(new Date(startedAt).toISOString())
+    .please();
+  await keepMoreLaunchRecordsBesideServer(server, [record]);
   await afterFurtherListings(server);
-  server.claudeSessionBecomes(session, "blocked", "Choose an option");
+  server.claudeSessionBecomes(sessionId, "blocked", "Choose an option");
   await expect.poll(() => server.notifierCalls().length).toBe(1);
   expect(messages(server)).toEqual(["Needs input: Choose an option"]);
   expect(notificationUrls(server)).toEqual([

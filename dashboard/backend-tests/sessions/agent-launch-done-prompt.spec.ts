@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { markDone, title } from "../../test-support/agentLaunchBoundary.ts";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   startDashboardServer,
@@ -61,7 +61,7 @@ test.describe("manual Done with a private Claude composer", () => {
       "separate process",
     );
     try {
-      const session = await launched(patient);
+      const session = await composeSession(patient);
       patient.claudeSessionBecomes(session.sessionId, "working-idle");
       patient.claudeAttachPromptDelay(800);
       const response = await markSessionDone(patient, session);
@@ -90,7 +90,7 @@ test.describe("manual Done with a private Claude composer", () => {
   });
 
   test("hangs up without typing when the private composer arrives after the rename wait", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "working-idle");
     const attachesBefore = server.claudeAttaches().length;
     server.claudeAttachPromptDelay(10_000);
@@ -123,7 +123,7 @@ test.describe("manual Done with a private Claude composer", () => {
   });
 
   test("does not type when the private client exits before its composer", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "working-idle");
     const attachesBefore = server.claudeAttaches().length;
     server.claudeAttachPromptDelay(10_000);
@@ -151,7 +151,7 @@ test.describe("manual Done with a private Claude composer", () => {
   });
 
   test("hangs up a private attachment that never opens once the wait ends", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "working-idle");
     const attachesBefore = server.claudeAttaches().length;
     server.claudeAttachesSilent(true);

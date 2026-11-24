@@ -1,31 +1,19 @@
-// The machine's sessions as the local launch boundary
-// (../../server/launchBoundary.ts) answers them over raw HTTP: every catalog
-// project's kept launch records, each naming its project, joined by session id
-// with normalized native activity from one Claude Code listing, `claude agents --json --all` in the machine's
-// home folder. A listed session answers available with loaded/retained
-// availability and semantic activity; a confirmed omission is unavailable;
-// listing that fails answers `unknown`. Nothing of it is stored, and with no
-// records kept no `claude` runs. The synthetic `claude`
-// (../../test-support/fixtures/fake-claude) lists what it launched as the real one does, and
-// its controls end or forget a session or fail the listing; the real one is
-// never reached. What a launch answers and keeps is
-// ../launches/agent-launch-boundary.spec.ts.
-
+// The launch boundary joins stored sessions from every project with a
+// single native listing. Reading activity changes no stored record, and an
+// empty store requires no native listing.
 import { readFileSync } from "node:fs";
-import { launchStoreFile } from "../../test-support/support/launchStore.ts";
+import {
+  keptLaunchRecords,
+  launchStoreFile,
+} from "../../test-support/support/launchStore.ts";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
-  launch,
-  launchRequest,
   machineFolder,
   machineSessions,
   projectRecords,
   recordsOf,
 } from "../../test-support/agentLaunchBoundary.ts";
-import {
-  closeOpenSessions,
-  distinctStoryRequest,
-} from "../../test-support/openStorySessionSetup.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -37,6 +25,12 @@ type WithState = {
   sessionState: unknown;
 };
 
+const working = {
+  kind: "available",
+  availability: "loaded",
+  activity: "working",
+};
+
 test.describe("the machine's sessions, each joined with its state", () => {
   test.describe.configure({ mode: "serial" });
   let server: DashboardServer;
@@ -45,7 +39,6 @@ test.describe("the machine's sessions, each joined with its state", () => {
     server = await startDashboardServer({
       mode: "boundary",
       projectFolders: ["open-dough", "pygardon"],
-      doneRenameWaitMs: 100,
     });
   });
 
@@ -66,7 +59,6 @@ test.describe("the machine's sessions, each joined with its state", () => {
   });
 
   test("answers each session as Claude Code lists it: working busy or idle, blocked with what it waits for when it says, done running or exited, failed, stopped, or no longer listed, keeping none of it", async () => {
-    server.claudeScenario("launched");
     // Each session's change and the reason a blocked one gives, if any.
     const changes = [
       ["working"],
@@ -81,21 +73,12 @@ test.describe("the machine's sessions, each joined with its state", () => {
     ] as const satisfies readonly (readonly [ClaudeSessionChange, string?])[];
     const sessions: string[] = [];
     while (sessions.length < changes.length) {
-      const { record } = JSON.parse(
-        (
-          await launch(
-            server,
-            distinctStoryRequest(`listing-${sessions.length}`),
-          )
-        ).body,
-      ) as { record: WithState };
-      expect(record.sessionState).toEqual({
-        kind: "available",
-        availability: "loaded",
-        activity: "working",
-      });
-      sessions.push(record.session.sessionId);
+      sessions.push((await composeSession(server)).sessionId);
     }
+    const initial = await statesOf();
+    expect(sessions.map((id) => initial.get(id))).toEqual(
+      changes.map(() => working),
+    );
     const stored = readFileSync(launchStoreFile(server), "utf8");
     for (const [index, [change, waitingFor]] of changes.entries()) {
       server.claudeSessionBecomes(sessions[index] ?? "?", change, waitingFor);
@@ -104,8 +87,8 @@ test.describe("the machine's sessions, each joined with its state", () => {
 
     const states = await statesOf();
     expect(sessions.map((id) => states.get(id))).toEqual([
-      { kind: "available", availability: "loaded", activity: "working" },
-      { kind: "available", availability: "loaded", activity: "working" },
+      working,
+      working,
       { kind: "available", availability: "loaded", activity: "waiting" },
       {
         kind: "available",
@@ -126,79 +109,56 @@ test.describe("the machine's sessions, each joined with its state", () => {
     expect(readFileSync(launchStoreFile(server), "utf8")).toBe(stored);
   });
 
-  test.describe("after earlier launches leave open sessions", () => {
-    test.beforeEach(async () => {
-      await closeOpenSessions(server);
+  test.describe("with an existing working session", () => {
+    let sessionId: string;
+
+    test.beforeAll(async () => {
+      ({ sessionId } = await composeSession(server));
     });
 
     test("answers a resumed session without the reason it waited for", async () => {
-      const { record } = JSON.parse(
-        (await launch(server, launchRequest)).body,
-      ) as { record: WithState };
-      const id = record.session.sessionId;
-      server.claudeSessionBecomes(id, "blocked", "input needed");
-      expect((await statesOf()).get(id)).toEqual({
+      server.claudeSessionBecomes(sessionId, "blocked", "input needed");
+      expect((await statesOf()).get(sessionId)).toEqual({
         kind: "available",
         availability: "loaded",
         activity: "waiting",
         waitingFor: "input needed",
       });
 
-      server.claudeSessionBecomes(id, "working");
-      expect((await statesOf()).get(id)).toEqual({
-        kind: "available",
-        availability: "loaded",
-        activity: "working",
-      });
+      server.claudeSessionBecomes(sessionId, "working");
+      expect((await statesOf()).get(sessionId)).toEqual(working);
     });
 
     test("answers every session unknown while the listing fails, and as listed once it answers again", async () => {
-      const { record } = JSON.parse(
-        (await launch(server, launchRequest)).body,
-      ) as {
-        record: WithState;
-      };
-
       server.claudeListingFails(true);
-      const unknown = await statesOf();
-      expect(unknown.has(record.session.sessionId)).toBe(true);
-      for (const state of unknown.values()) {
-        expect(state).toEqual({ kind: "unknown" });
+      try {
+        const unknown = await statesOf();
+        expect(unknown.has(sessionId)).toBe(true);
+        for (const state of unknown.values()) {
+          expect(state).toEqual({ kind: "unknown" });
+        }
+      } finally {
+        server.claudeListingFails(false);
       }
 
-      server.claudeListingFails(false);
-      expect((await statesOf()).get(record.session.sessionId)).toEqual({
-        kind: "available",
-        availability: "loaded",
-        activity: "working",
-      });
+      expect((await statesOf()).get(sessionId)).toEqual(working);
     });
 
     test("answers each session as listed while Claude Code also lists an interactive session", async () => {
-      const { record } = JSON.parse(
-        (await launch(server, launchRequest)).body,
-      ) as { record: WithState };
-
       server.claudeListsInteractiveSession();
 
-      expect((await statesOf()).get(record.session.sessionId)).toEqual({
-        kind: "available",
-        availability: "loaded",
-        activity: "working",
-      });
+      expect((await statesOf()).get(sessionId)).toEqual(working);
     });
 
     test("answers every project's records, each naming its project, from one listing", async () => {
-      server.claudeScenario("launched");
-      const response = await launch(server, {
-        ...launchRequest,
-        source: "pygardon",
-      });
-      const { record } = JSON.parse(response.body) as { record: unknown };
+      await composeSession(server, "pygardon");
+      const [pygardon] = keptLaunchRecords(server, "pygardon");
       const callsBefore = server.claudeCalls().length;
 
       const sessions = await machineSessions(server);
-      expect(projectRecords(sessions, "pygardon")).toEqual([record]);
+      expect(projectRecords(sessions, "pygardon")).toEqual([
+        { ...pygardon, sessionState: working },
+      ]);
       const openDough = projectRecords(sessions, "open-dough");
       expect(openDough.length).toBeGreaterThan(0);
       expect(sessions).toHaveLength(openDough.length + 1);

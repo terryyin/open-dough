@@ -18,7 +18,7 @@ import {
   expect,
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
-  openTerminalControl,
+  openTerminalFromEntry,
   expectTerminalIdentity,
   terminalPanel,
   terminalScreenParts,
@@ -31,12 +31,14 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import {
+  notRefinedIdentity,
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import { terminalScreen } from "../../dashboard/test-support/terminalScreen.ts";
 import { storyNotesPage } from "../../dashboard/test-support/support/storyNotesPage.ts";
@@ -86,11 +88,11 @@ test.describe("the terminal's lifetime", () => {
     github,
     machine,
   }) => {
-    dashboard.claudeScenario("launched");
-    const { card, launch } = await openStoryColumnsJourney(
-      page,
-      columnsJourney,
-    );
+    const { shortId } = await composeSession(dashboard, "open-dough", {
+      identity: notRefinedIdentity,
+      title: notRefinedStory,
+    });
+    const { card } = await openStoryColumnsJourney(page, columnsJourney);
     const panel = terminalPanel(page);
     const { rows } = terminalScreenParts(panel);
     const status = panel.getByRole("status");
@@ -101,12 +103,9 @@ test.describe("the terminal's lifetime", () => {
     };
     await expectShownMembership(page, queued);
 
-    await launch(notRefinedStory, "Execution");
     const listed = storyCardSessions(card(notRefinedStory));
-    await openTerminalControl(listed).click();
-    await expect(rows).toContainText("attached ");
-    const [attach] = dashboard.claudeAttaches();
-    const shortId = attach?.id ?? "";
+    await openTerminalFromEntry(listed);
+    await expect(rows).toContainText(`attached ${shortId}`);
     // Each attach the page made, to the one session it opened.
     const attaches = () =>
       dashboard.claudeAttaches().map((each) => each.id === shortId);

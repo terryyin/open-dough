@@ -1,13 +1,9 @@
 // The sessions a developer goes to from the Sessions sidebar, across three
 // catalog projects: Open Dough's story-columns journey (./launchJourney.ts),
 // Doughnut's one story (./doughnutProject.ts), and a Pygardon backlog whose
-// story with a session is listed last (./pygardonProject.ts). Sessions are
-// launched through the real launch boundary before the page opens, for
-// Pygardon's story, Open Dough's Story B, an Open Dough story in no list, and
-// Doughnut's story, whose session Claude Code then no longer lists; the
-// page's own dashboard server launches and attaches the synthetic `claude`
-// (./fixtures/fake-claude). The page records what it brings into view
-// (`revealsOf`).
+// story with a session is listed last (./pygardonProject.ts). Kept sessions
+// are composed before the page opens. The page records what it brings into
+// view (`revealsOf`).
 
 import type { Locator, Page } from "@playwright/test";
 import { identityB } from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
@@ -19,7 +15,7 @@ import {
   takenStory,
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { launched } from "./agentTerminalBoundary.ts";
+import { composeSession } from "./agentTerminalBoundary.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
   pygardonBacklog,
@@ -134,7 +130,7 @@ export async function expectRevealsSince(
   }
 }
 
-// Launches the sessions, publishes Pygardon, records reveals, and opens the
+// Composes the sessions, publishes Pygardon, records reveals, and opens the
 // page on Open Dough's stories.
 export async function openNavigationJourney(
   page: Page,
@@ -143,20 +139,21 @@ export async function openNavigationJourney(
 ) {
   const sessions: NavigationSessions = {
     doughnut: (
-      await launched(dashboard, "doughnut", {
+      await composeSession(dashboard, "doughnut", {
         identity: sharedStoryIdentity,
         title: doughnutSharedTitle,
       })
     ).sessionId,
-    removed: (await launched(dashboard, "open-dough", removedStory)).sessionId,
+    removed: (await composeSession(dashboard, "open-dough", removedStory))
+      .sessionId,
     storyB: (
-      await launched(dashboard, "open-dough", {
+      await composeSession(dashboard, "open-dough", {
         identity: identityB,
         title: readyStory,
       })
     ).sessionId,
     pygardon: (
-      await launched(dashboard, "pygardon", {
+      await composeSession(dashboard, "pygardon", {
         ...pygardonStory,
         workflow: "refinement",
       })

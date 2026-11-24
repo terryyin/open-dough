@@ -9,10 +9,11 @@ import {
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
-  closeTerminal,
   openTerminalControl,
-  terminalPanel,
+  openTerminalFromEntry,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { terminalScreen } from "../../dashboard/test-support/terminalScreen.ts";
+import { isTerminalSocket } from "../../dashboard/test-support/support/terminalSockets.ts";
 import {
   expectMembership,
   sessionNamedBy,
@@ -24,6 +25,7 @@ import {
   takenBacklogStories,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
+  readyIdentity,
   readyStory,
   type LaunchJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
@@ -34,32 +36,32 @@ import {
   watchRecordReads,
 } from "../../dashboard/test-support/sessionStatePace.ts";
 import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
-import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-// Starts the ready story's execution on a paused page. Its entry reads
-// Working once the start's published read has landed, before page time
-// passes.
-async function startReadyStory(
+// Opens the ready story's working execution with page time paused.
+async function openWorkingStory(
   page: Page,
   dashboard: DashboardServer,
   launchJourney: LaunchJourney,
 ) {
+  const { sessionId: session } = await composeSession(dashboard, "open-dough", {
+    identity: readyIdentity,
+    title: readyStory,
+  });
   await pausePageClockAt(page, new Date());
   const reads = await watchRecordReads(page);
-  dashboard.claudeScenario("launched");
-  const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
-  await start(readyStory).click();
-  await dialog.getByRole("button", { name: "Start" }).click();
+  const { card } = await openTakenBacklog(page, launchJourney);
   const entry = storyCardSessionOf(card(readyStory), "Execution");
   await expectSessionShown(entry, "Working", false);
   await expect(
     card(readyStory).getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
   await markNotReloaded(page);
-  return { ...reads, entry, session: await sessionNamedBy(entry) };
+  expect(await sessionNamedBy(entry)).toBe(session);
+  return { ...reads, entry, session };
 }
 
 test("a host change shows on its entry within one pace, without a reload", async ({
@@ -67,17 +69,10 @@ test("a host change shows on its entry within one pace, without a reload", async
   dashboard,
   launchJourney,
 }) => {
-  const { entry, session, passOnePace, answeredDuring } = await startReadyStory(
-    page,
-    dashboard,
-    launchJourney,
-  );
+  const { entry, session, passOnePace, answeredDuring } =
+    await openWorkingStory(page, dashboard, launchJourney);
 
   await test.step("a pace with nothing changed is answered unchanged", async () => {
-    const reconciled = async () =>
-      (await attempts(dashboard)).every(({ reconciledAt }) => reconciledAt);
-    await expect.poll(reconciled).toBe(true);
-    await passOnePace();
     expect(await answeredDuring()).toEqual({ held: true, unchanged: true });
     await expectSessionShown(entry, "Working", false);
   });
@@ -122,7 +117,7 @@ test("attention stays through the terminal, and once marked done no host change 
   dashboard,
   launchJourney,
 }) => {
-  const { entry, session, passOnePace } = await startReadyStory(
+  const { entry, session, passOnePace } = await openWorkingStory(
     page,
     dashboard,
     launchJourney,
@@ -134,15 +129,25 @@ test("attention stays through the terminal, and once marked done no host change 
     await passOnePace();
     await expectSessionShown(entry, needsInput, true);
 
-    await openTerminalControl(entry).click();
-    // Page time stands still, so the attach and the answer are read from the
-    // synthetic `claude` itself.
+    // The attach record precedes native input readiness. Page time stays
+    // paused, so wait for the prompt on the socket before typing.
+    dashboard.claudeAttachPromptDelay(400);
+    const prompt = page
+      .waitForEvent("websocket", isTerminalSocket)
+      .then((socket) => {
+        let output = "";
+        return socket.waitForEvent("framereceived", ({ payload }) => {
+          if (typeof payload === "string") output += payload;
+          return output.includes("Claude Code");
+        });
+      });
+    await Promise.all([prompt, openTerminalFromEntry(entry)]);
     const attach = () => dashboard.claudeAttaches()[0];
     await expect.poll(() => attach()?.id).toBe(session.slice(0, 8));
-    await page.keyboard.type("red");
-    await page.keyboard.press("Enter");
+    const terminal = terminalScreen(page);
+    await (await terminal.focusInput()).typeLine("red");
     await expect.poll(() => attach()?.lines).toEqual(["red"]);
-    await closeTerminal(terminalPanel(page));
+    await terminal.close();
     await expect.poll(() => attach()?.endedBy).toBeDefined();
     await passOnePace();
     await expectSessionShown(entry, needsInput, true);

@@ -23,6 +23,7 @@ import {
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
@@ -33,6 +34,7 @@ import { openTerminalControl } from "../../dashboard/test-support/terminalScreen
 import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import { backlogLaunchers } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -49,8 +51,15 @@ test.describe("marking a card's session done", () => {
     page,
     dashboard,
   }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryColumnsJourney(
+    const { sessionId: unavailable } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: readyIdentity,
+        title: readyStory,
+      },
+    );
+    const { card, settled } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
@@ -68,8 +77,7 @@ test.describe("marking a card's session done", () => {
     };
     await expectMembership(page, queued);
     await settled();
-    await launch(readyStory, "Execution");
-    const unavailable = await sessionNamedBy(onStoryCard("Execution"));
+    expect(await sessionNamedBy(onStoryCard("Execution"))).toBe(unavailable);
     await expect(inRecent("Execution")).toHaveCount(0);
     await test.step("an unavailable session leaves current work and the card's Done disclosure shows it Done", async () => {
       dashboard.claudeSessionBecomes(unavailable, "forgotten");

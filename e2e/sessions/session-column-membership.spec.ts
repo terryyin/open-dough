@@ -7,7 +7,7 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   openTerminalControl,
   terminalPanel,
@@ -80,7 +80,7 @@ test("one Taken story with two sessions and one local session means two entries;
     story,
     local,
   ]);
-  await launched(dashboard, "doughnut");
+  await composeSession(dashboard, "doughnut");
   await publishMembership(page, { backlog: queuedStoryTaken });
   await page.setViewportSize({ width: 40 * rem, height: 900 });
   await page.goto("/");

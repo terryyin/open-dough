@@ -1,9 +1,9 @@
 // Native API calls are mocked, while the actual emitted command/source runs.
 // Browser UI and Notification Center clicks remain separate native acceptance.
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import { expect } from "../../test-support/support/pageTest.ts";
 import {
   afterFurtherListings,
-  start,
   test,
 } from "../../test-support/support/sessionAlerts.ts";
 import { notificationActivation } from "../../test-support/support/notificationActivation.ts";
@@ -13,7 +13,7 @@ for (const bundle of ["com.apple.Safari", "com.google.Chrome"] as const) {
   test(`${bundle} notification reuses its existing dashboard tab and foregrounds its window`, async ({
     server,
   }) => {
-    const session = await start(server);
+    const { sessionId: session } = await composeSession(server);
     await afterFurtherListings(server);
     server.claudeSessionBecomes(session, "blocked", "Review this story");
     await expect.poll(() => server.notifierCalls().length).toBe(1);

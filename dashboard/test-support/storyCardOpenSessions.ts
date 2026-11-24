@@ -7,20 +7,18 @@
 // (../../e2e/sessions/agent-launch-story-card-session-states.spec.ts). The production
 // records reader joins the two, so listing failure and recovery stay real.
 
-import path from "node:path";
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   agentAcceptEndpoint,
   agentContinueEndpoint,
   agentReconciledEndpoint,
   agentVerifyEndpoint,
 } from "../src/launchOutcome.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
   identityA,
   identityB,
 } from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
+import { composeSession } from "./agentTerminalBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { parts, sessionNamedBy, storyCardSessionOf } from "./dashboardPage.ts";
@@ -38,7 +36,6 @@ import {
   queuedStories,
 } from "./storyCardSessionListing.ts";
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
-import { keepLaunchStore } from "./support/launchStore.ts";
 
 // A Claude session already open and working on a story's card when the page
 // opens: the project that keeps it, the story it works on, and its workflow.
@@ -82,37 +79,25 @@ const startEndpoints = new Set([
   agentReconciledEndpoint,
 ]);
 
-// Keeps each session's launch record, every project's in one store write, and
-// lists it in the synthetic `claude` under the same native ID, in the order
-// given, before the page reads the machine.
-function keepOpenSessions(
+// Composes the working sessions in order before the page reads the machine.
+async function keepOpenSessions(
   dashboard: DashboardServer,
   sessions: readonly OpenSession[],
 ) {
   const now = Date.now();
-  const byProject: Record<string, LaunchRecord[]> = {};
   const sessionOf = new Map<string, string>();
-  sessions.forEach(({ project, identity, title, workflow }, index) => {
-    const startedAt = now - (sessions.length - index) * 1_000;
-    const sessionId = dashboard.claudeListsSession({
-      name: title,
-      cwd: path.join(dashboard.home, "git", project),
-      startedAt,
+  for (const [
+    index,
+    { project, identity, title, workflow },
+  ] of sessions.entries()) {
+    const { sessionId } = await composeSession(dashboard, project, {
+      identity,
+      title,
+      workflow: workflow === "Execution" ? "execution" : "refinement",
+      startedAt: now - (sessions.length - index) * 1_000,
     });
-    const story = { identity, title, source: project };
-    const launch =
-      workflow === "Execution"
-        ? makeMe.aLaunchRecord.executing(story)
-        : makeMe.aLaunchRecord.refining(story);
-    (byProject[project] ??= []).push(
-      launch
-        .inClaudeSession({ sessionId, shortId: sessionId.slice(0, 8) })
-        .launchedAt(new Date(startedAt).toISOString())
-        .please(),
-    );
     sessionOf.set(`${title} ${workflow}`, sessionId);
-  });
-  keepLaunchStore(dashboard, byProject);
+  }
   return sessionOf;
 }
 
@@ -125,7 +110,7 @@ export async function openWithOpenSessions(
   columnsJourney: StoryColumnsJourney,
   sessions: readonly OpenSession[] = openDoughWorkingSessions,
 ) {
-  const sessionOf = keepOpenSessions(dashboard, sessions);
+  const sessionOf = await keepOpenSessions(dashboard, sessions);
   const startsAsked: string[] = [];
   page.on("request", (request) => {
     if (
@@ -138,7 +123,6 @@ export async function openWithOpenSessions(
   const { passOnePace } = await watchRecordReads(page);
   const { settled, show, card, action } = await openQueuedStoryCards(
     page,
-    dashboard,
     columnsJourney,
   );
   const { board, taken } = parts(page);

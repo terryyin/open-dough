@@ -23,7 +23,7 @@ import {
   recordsOf,
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import { retainedDoneAt } from "../../test-support/machineLaunchRecords.ts";
 import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
@@ -57,7 +57,7 @@ test.describe("marking a session done by what Claude Code lists", () => {
     markDone(server, { source: "open-dough", session: session.sessionId });
 
   test("marks a session Claude Code no longer lists without stopping it", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "forgotten");
     const attachesBefore = server.claudeAttaches().length;
     const stopsBefore = server.claudeStopCalls().length;
@@ -81,7 +81,7 @@ test.describe("marking a session done by what Claude Code lists", () => {
   });
 
   test("removes an exited session's job with claude rm, neither renaming nor stopping it", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "done-exited");
     const stopsBefore = server.claudeStopCalls().length;
     const removalsBefore = server.claudeRemovalCalls().length;
@@ -111,7 +111,7 @@ test.describe("marking a session done by what Claude Code lists", () => {
   });
 
   test("keeps Done with the removal's cause when claude rm fails, and a later Mark as done retries it", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "done-exited");
     const removalsBefore = server.claudeRemovalCalls().length;
     server.claudeRemovalFails(true);
@@ -195,7 +195,7 @@ test.describe("marking a session done by what Claude Code lists", () => {
   });
 
   test("still stops a session whose listing cannot be read", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     const stopsBefore = server.claudeStopCalls().length;
     const removalsBefore = server.claudeRemovalCalls().length;
     server.claudeListingFails(true);

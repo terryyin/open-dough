@@ -3,13 +3,14 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // open, it stays open across project switches, the agent roster and back, the
 // terminal opening and closing, and reloads, since this browser keeps the
 // choice; when browser storage cannot be used it starts closed, without
-// error, and still toggles. The page's own dashboard server launches and
-// attaches the synthetic `claude` (./fixtures/fake-claude); the real one is
-// never reached.
+// error, and still toggles. The page's own dashboard server attaches the
+// synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
-  openTerminalControl,
+  expectTerminalText,
+  openTerminalFromEntry,
   terminalPanel,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
@@ -18,12 +19,12 @@ import {
   expectMembership,
   parts,
   rosterParts,
-  sessionNamedBy,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
@@ -54,9 +55,14 @@ test.describe("the Sessions sidebar as left", () => {
 
   test("starts closed, and once open stays open across a project switch, the roster and back, the terminal, and reloads", async ({
     page,
+    dashboard,
   }) => {
     const errors = watchPageErrors(page);
-    const { settled, card, launch, show } = await openStoryColumnsJourney(
+    const { shortId } = await composeSession(dashboard, "open-dough", {
+      identity: readyIdentity,
+      title: readyStory,
+    });
+    const { settled, card, show } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
@@ -84,11 +90,9 @@ test.describe("the Sessions sidebar as left", () => {
 
     await test.step("opening and closing the terminal", async () => {
       await settled();
-      await launch(readyStory, "Execution");
       const entry = storyCardSessionOf(card(readyStory), "Execution");
-      await sessionNamedBy(entry);
-      await openTerminalControl(entry).click();
-      await expect(panel).toBeVisible();
+      await openTerminalFromEntry(entry);
+      await expectTerminalText(panel, `attached ${shortId}`);
       await expectOpen();
       await closeSidePanel(panel, { using: "mouse" });
       await expect(panel).toHaveCount(0);

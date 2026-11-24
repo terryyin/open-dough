@@ -12,9 +12,8 @@ import { expect, test as base } from "../../test-support/support/pageTest.ts";
 import {
   alertsAnswered,
   alertsSettled,
-  launch,
-  launchRequest,
 } from "../../test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -53,12 +52,7 @@ test.describe("a notification refused after successful diagnostics", () => {
     server,
   }) => {
     await alertsSettled(server);
-    const response = await launch(server, launchRequest);
-    const session = (
-      JSON.parse(response.body) as {
-        record: { session: { sessionId: string } };
-      }
-    ).record.session.sessionId;
+    const { sessionId: session } = await composeSession(server);
     // Let the working baseline settle before the attention transition.
     await afterFurtherListings(server);
     server.claudeSessionBecomes(session, "blocked");

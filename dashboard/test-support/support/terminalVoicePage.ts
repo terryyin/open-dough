@@ -4,7 +4,7 @@
 // caller facts; helpers never submit Enter or complete a held provider read.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
-import { launched } from "../agentTerminalBoundary.ts";
+import { composeSession } from "../agentTerminalBoundary.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import {
@@ -26,10 +26,10 @@ export async function openTerminalVoice(
   dashboard: DashboardServer,
   journey: LaunchJourney,
 ) {
-  const first = await launched(dashboard, "open-dough", {
+  const first = await composeSession(dashboard, "open-dough", {
     title: "Voice session A",
   });
-  const second = await launched(dashboard, "open-dough", {
+  const second = await composeSession(dashboard, "open-dough", {
     title: "Voice session B",
   });
   await openTakenBacklog(page, journey);

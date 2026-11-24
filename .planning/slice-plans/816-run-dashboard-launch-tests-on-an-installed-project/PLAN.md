@@ -14,7 +14,7 @@ observation, and production code is unchanged. The result lets SEED-432's
 default-choice admission change only story-dependent expectations.
 
 Excluded: consumers that launch only to obtain a session. The supplier story
-[compose existing sessions directly](../../seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly)
+[compose existing sessions directly](https://github.com/terryyin/open-dough/blob/db57040f8fbeb93cf8db44538d3ac4d2ec55e8da/.planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly)
 moves them first, and the recorded dependency holds this story until that
 supplier is on trunk.
 
@@ -147,6 +147,19 @@ consumer the full run reaches onto the slice 2–4 patterns. A consumer that
 launches only to obtain a session is a supplier gap: report it to the
 developer instead of moving it here. Full suites are the local gate for this
 slice because every server fixture changes.
+
+## Installed probe handoff from plan 817
+
+The composed-session selection passed 144 backend cases and 88 E2E cases.
+The original remaining launch failures span 11 backend launch specs, 17
+E2E launch specs, and `e2e/terminals/agent-terminal.spec.ts`. Two other
+launch cases remain in mixed files: ending a pending launch wait in
+`mounted-boundary-server.spec.ts` and withholding Start until the first
+read in `sessions-sidebar-reading.spec.ts`.
+
+Two servers starting on the same machine reproduced `EACCES` while
+copying one catalog origin. The probe passed after serializing the
+per-project existence check and bare-origin initialization.
 
 ## Concern evidence
 

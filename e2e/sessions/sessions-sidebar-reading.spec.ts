@@ -21,7 +21,7 @@ import {
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
 import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { holdSessionReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import {
   expectSessionsSidebar,
@@ -98,7 +98,7 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(badge).toHaveCount(0);
 
     // Kept, but all marked done: none is open.
-    const { sessionId } = await launched(dashboard, "doughnut");
+    const { sessionId } = await composeSession(dashboard, "doughnut");
     await markDone(dashboard, { source: "doughnut", session: sessionId });
     await page.reload();
     // Open as it was left.
@@ -114,7 +114,7 @@ test.describe("the Sessions sidebar's reading", () => {
     dashboard,
   }) => {
     // Kept before the page opens, so the first read answers it too.
-    await launched(dashboard, "doughnut");
+    await composeSession(dashboard, "doughnut");
     dashboard.claudeScenario("launched");
     const { answer } = await holdSessionReads(page);
     const { settled, card, launch } = await openStoryColumnsJourney(

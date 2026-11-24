@@ -35,7 +35,7 @@ changes only the expectations that depend on its story.
 - On 2026-11-24 the developer set two criteria. Tests use the distribution
   cohesively, not in diverging ways. Most cases stay fast, and slow behavior
   gets its own focused, fast tests. The developer accepted the recommended
-  split: [compose existing sessions directly](#compose-existing-sessions-directly)
+  split: [compose existing sessions directly](https://github.com/terryyin/open-dough/blob/db57040f8fbeb93cf8db44538d3ac4d2ec55e8da/.planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly)
   lands first, and this story then moves only the launch-behavior consumers.
 
 **Scope.**
@@ -78,46 +78,6 @@ harness. It is parked privately as `slice-3/attempt-4.patch` in SEED-432's
 execution evidence, and
 [plan 813](../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md) on
 its story branch records the finding.
-
-<a id="compose-existing-sessions-directly"></a>
-
-### Compose existing sessions directly in Dashboard tests
-
-**Identity:** SEED-433#compose-existing-sessions-directly
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/817-compose-existing-sessions-directly-in-dashboard-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6822fe38f47fc656bb16126e4873f8f08d514060ab01838dea5fd67f2c17b416","plan":"2195e556bd6905f33944aa9784368a6b7069e85c1b8e76dab09d750cf72badba"}}
-```
-
-**Goal:** A maintainer gets fast backend and E2E feedback on what the Dashboard
-does with an existing session. Those tests compose the session as data
-instead of launching one, so neither the installed project nor SEED-432's
-admission slows them or changes what they observe.
-
-**Scope.**
-
-- Consumers whose observation starts after a session exists stop launching
-  through the launch endpoint or Start. Examples are sessions, terminals,
-  alerts, Done, delete, history and sidebar journeys. Each composes the
-  launch record through `makeMe.aLaunchRecord` in the launch store
-  (`dashboard/test-support/support/launchStore.ts`), together with the native
-  listing the fake host reads.
-- Keep each consumer's observation unchanged. A consumer whose observation
-  depends on the launch itself stays a launch consumer for
-  [the installed-project story](#run-dashboard-launch-tests-on-an-installed-project).
-- Add no wrapper to test support. Extend MakeMe builder steps where a composed
-  session needs a fact the builders lack.
-- Production behavior does not change.
-
-**Key examples.**
-
-- `agent-terminal-boundary` attaches to a composed Claude session and passes
-  output, input and size as it does today.
-- `session-alerts` raises one notification for each reading of a composed
-  session that needs the developer.
-- The E2E `sessions-sidebar-navigation-cases` journeys navigate composed
-  sessions without pressing Start.
-- With the scratch installed catalog project from the baseline below, these
-  consumers pass unchanged.
 
 ## Shared context
 

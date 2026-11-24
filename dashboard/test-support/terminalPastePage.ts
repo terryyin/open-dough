@@ -4,7 +4,7 @@
 // not submit, reconnect, or retry on their own.
 import type { Locator, Page } from "@playwright/test";
 import { test } from "./dashboardTest.ts";
-import { launched } from "./agentTerminalBoundary.ts";
+import { composeSession } from "./agentTerminalBoundary.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -103,7 +103,7 @@ export function phonePasteJourney() {
     dashboard: DashboardServer,
   ) {
     const title = "Phone clipboard session";
-    const native = await launched(dashboard, "open-dough", {
+    const native = await composeSession(dashboard, "open-dough", {
       identity: "SEED-901#phone-terminal-paste",
       title,
     });
