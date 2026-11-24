@@ -17,10 +17,8 @@ import {
   publishFileAsAnotherWriter,
   revParse,
 } from "./publication-test-fixtures.mjs";
-import {
-  createCheckCommands,
-  ignoreInstalledSkills,
-} from "./ci-check-command-test-fixtures.mjs";
+import { createCheckCommands } from "./ci-check-command-test-fixtures.mjs";
+import { ignoreInstalledSkills } from "./ci-installed-checkouts-test-fixtures.mjs";
 import { githubProvider } from "./ci-integrated-state-github-test-fixtures.mjs";
 import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 import { readRevisionCoverage } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
@@ -48,7 +46,7 @@ export async function createIntegratedStateJourney(
 ) {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
-  await ignoreInstalledSkills(fixture);
+  await ignoreInstalledSkills(fixture.execution);
   const source = await provider(t, fixture, declared);
   if (source.env) fixture.env = source.env;
   const commands = createCheckCommands(fixture);

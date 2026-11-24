@@ -3,7 +3,7 @@
 // quiet sibling stays coherent and both clients remain kept (not stopped).
 import type { IPty } from "@lydell/node-pty";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { KeptClientScreen } from "../../server/keptClientScreen.ts";
 import { TerminalAttachments } from "../../server/terminalAttachments.ts";
 

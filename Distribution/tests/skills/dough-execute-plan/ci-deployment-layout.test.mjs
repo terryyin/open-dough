@@ -13,7 +13,10 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { requireSelectedRuntimeEntrypoint } from "../../../src/skills/dough-execute-plan/scripts/ci-checkout-runtime.mjs";
+import {
+  requireSelectedRuntimeEntrypoint,
+  resolveCheckoutRuntime,
+} from "../../../src/skills/dough-execute-plan/scripts/ci-checkout-runtime.mjs";
 import { deployRuntime } from "./ci-installed-checkouts-test-fixtures.mjs";
 
 const exec = promisify(execFile);
@@ -33,7 +36,7 @@ for (const [host, platform, event] of [
   ["cursor", ".agents", "postToolUse"],
   ["claude", ".claude", "PostToolUse"],
 ]) {
-  test(`${host}: deployed hook fragment finds the relocated runtime in a path with spaces`, async (t) => {
+  test(`${host}: deployed hook fragment finds the runtime in a checkout path with spaces`, async (t) => {
     const root = realpathSync(mkdtempSync(join(tmpdir(), "dough client ")));
     t.after(() => rmSync(root, { recursive: true, force: true }));
     const skill = deployRuntime(root, platform);
@@ -115,22 +118,33 @@ test("selected execution checkout supplies both the CI runtime and working direc
   assert.notEqual(realpathSync(request.root), realpathSync(origin));
 });
 
-test("missing selected-checkout runtime refuses setup before creating a mailbox", (t) => {
-  const fixture = realpathSync(mkdtempSync(join(tmpdir(), "dough checkout ")));
-  t.after(() => rmSync(fixture, { recursive: true, force: true }));
-  const execution = join(fixture, "execution");
-  const missingSkill = join(
-    execution,
-    ".agents",
-    "skills",
-    "dough-execute-plan",
-  );
-  const storage = join(fixture, "mailboxes");
-  mkdirSync(execution);
+test("each host resolves its runtime when both roots are installed", (t) => {
+  const checkout = realpathSync(mkdtempSync(join(tmpdir(), "dough checkout ")));
+  t.after(() => rmSync(checkout, { recursive: true, force: true }));
+  const claude = deployRuntime(checkout, ".claude");
+  const agents = deployRuntime(checkout, ".agents");
 
-  assert.throws(
-    () => requireSelectedRuntimeEntrypoint(execution, missingSkill),
-    /runtime is missing from selected checkout/,
+  for (const [host, root, skill] of [
+    ["claude", ".claude", claude],
+    ["codex", ".agents", agents],
+    ["cursor", ".agents", agents],
+  ]) {
+    const runtime = resolveCheckoutRuntime(checkout, { host });
+    assert.equal(runtime.root, root);
+    assert.equal(runtime.entrypoint, join(skill, "scripts", "ci-mailbox.mjs"));
+  }
+});
+
+test("a missing host runtime names its entry point and refuses setup", (t) => {
+  const checkout = realpathSync(mkdtempSync(join(tmpdir(), "dough checkout ")));
+  t.after(() => rmSync(checkout, { recursive: true, force: true }));
+  deployRuntime(checkout, ".agents");
+  const entrypoint = join(
+    checkout,
+    ".claude/skills/dough-execute-plan/scripts/ci-mailbox.mjs",
   );
-  assert.equal(existsSync(storage), false);
+
+  assert.throws(() => resolveCheckoutRuntime(checkout, { host: "claude" }), {
+    message: `CI runtime is missing from selected checkout: ${entrypoint}`,
+  });
 });

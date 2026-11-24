@@ -1,5 +1,5 @@
 // Slots are selected by the real three-endpoint owner before authenticated reads.
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";
 

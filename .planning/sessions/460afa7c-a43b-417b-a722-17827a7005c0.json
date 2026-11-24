@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "sessionId": "460afa7c-a43b-417b-a722-17827a7005c0",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T13:11:05.062Z",
+  "story": "SEED-423#use-one-managed-install-layout",
+  "ranges": [
+    {
+      "base": "1317e54a8d0ddc25285ad06b33af4817b0357902",
+      "candidate": "d83686b7a51da460c16aaff9fd3241bd7baf9da3"
+    },
+    {
+      "base": "d83686b7a51da460c16aaff9fd3241bd7baf9da3",
+      "candidate": "534470b8d1f9ebebfd4bbd6ebbe0f561919a9a5e"
+    },
+    {
+      "base": "534470b8d1f9ebebfd4bbd6ebbe0f561919a9a5e",
+      "candidate": "8d3306fd9bc98246daa01a0a2e1d496b31ed3ce3"
+    },
+    {
+      "base": "8d3306fd9bc98246daa01a0a2e1d496b31ed3ce3",
+      "candidate": "bc4eb59c7229c1dbc105c4a935e7b1d45587a15e"
+    },
+    {
+      "base": "bc4eb59c7229c1dbc105c4a935e7b1d45587a15e",
+      "candidate": "cd341d7391362b02662acada67cca8048a9018e1"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-423#use-one-managed-install-layout",
+  "title": "Use one managed install layout",
+  "completedAt": "2026-11-24T13:01:17.021Z",
+  "developer": "Terry Yin",
+  "agent": "Anri-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "## Dough Intent Coverage\n\n**Verdict. Caught.**\n\n**Story and revision.** SEED-423#use-one-managed-install-layout at `8d3306fd9bc98246daa01a0a2e1d496b31ed3ce3`. The checked promise is that Claude runtime resolution refuses with the expected `.claude` entry point when that file is missing and the `.agents` entry point is available.\n\n**Fault and witness.** In an isolated checkout, I changed `resolveCheckoutRuntime` in `Distribution/src/skills/dough-execute-plan/scripts/ci-checkout-runtime.mjs` to fall back to `.agents` when Claude's entry point was missing. A separate witness copied the mailbox entry point into a temporary `.agents` root, verified the absence of the `.claude` entry point, and observed Claude resolution returning the installed `.agents` entry point.\n\n**Maintained check.** I ran `caffeinate -s -i /opt/homebrew/bin/bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/ci-deployment-layout.test.mjs` with Homebrew Bash on PATH and one worker. The baseline passed. On the faulted run, the `assert.throws` at line 147 in “a missing host runtime names its entry point and refuses setup” failed with “Missing expected exception.” The test fixture installs `.agents` only and expects the exact missing `.claude` path. The restored run passed. The runtime file matched its original bytes, Git status matched the clean baseline, and I removed the scratch worktree. The runner outcomes, fault, and witness are in `/tmp/dough-intent-coverage-seed-423.ctz5WNir/`.\n\n**Next proof action.** Retain the current assertion for this path. This probe identified no need for stronger proof on the tested refusal.\n\n- **Test runtime.** 14.9 seconds measured by the test runner across the baseline (5.2 s), faulted (4.4 s), and restored (5.3 s) runs.\n- **Human effort.** Unavailable. No separate human-effort measurement was recorded for the probe.\n- **Agent effort.** Unavailable. No separate active-effort measurement was recorded.\n\n\n- **Invocation-to-report elapsed.** 142160 ms (measured), from 1795522295924 to 1795522438084 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition. Checked 8d3306fd9bc98246daa01a0a2e1d496b31ed3ce3. Caught. No follow-up.\n"
+  }
+}

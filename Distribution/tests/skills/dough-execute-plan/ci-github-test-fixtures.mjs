@@ -9,6 +9,7 @@ import {
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { deployMailboxEntrypoint } from "./ci-installed-checkouts-test-fixtures.mjs";
 import {
   deferChildExit,
   enterEnvironment,
@@ -17,7 +18,6 @@ import {
 import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 import { instrumentedGithub } from "./instrumented-github-test-fixtures.mjs";
 import { settledProbe } from "./process-lifetime-test-fixtures.mjs";
-import { installLinkedSkills } from "./symlinked-skill-test-fixtures.mjs";
 
 export {
   completedJob,
@@ -152,12 +152,10 @@ function startScript(github, entry, args, env) {
 
 export function startInstalledMailboxStream(github, repo, branch) {
   const project = github.env.CI_GH_FIXTURE;
-  const { real } = installLinkedSkills(project)(
-    "dough-execute-plan/scripts/ci-mailbox.mjs",
-  );
+  const entry = deployMailboxEntrypoint(project);
   const child = startScript(
     github,
-    real,
+    entry,
     ["stream", "--execution", repo, branch],
     {
       ...github.env,

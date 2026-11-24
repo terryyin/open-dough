@@ -3,7 +3,7 @@
 import { cpSync, mkdirSync, mkdtempSync, rmSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
   IncompleteReportingSupport,
   reportingContext,
@@ -16,12 +16,12 @@ import {
   scriptsOf,
 } from "../../test-support/support/incompleteReportingInstall.ts";
 
-test.describe("reporting preparation from a launch-workspace install", () => {
+describe("reporting preparation from a launch-workspace install", () => {
   let home: string;
   let previousHome: string | undefined;
   let workspace: string;
 
-  test.beforeEach(() => {
+  beforeEach(() => {
     home = mkdtempSync(path.join(tmpdir(), "dough-reporting-support-"));
     previousHome = process.env["HOME"];
     process.env["HOME"] = path.join(home, "home");
@@ -48,7 +48,7 @@ test.describe("reporting preparation from a launch-workspace install", () => {
       );
   });
 
-  test.afterEach(() => {
+  afterEach(() => {
     if (previousHome === undefined) delete process.env["HOME"];
     else process.env["HOME"] = previousHome;
     rmSync(home, { recursive: true, force: true });

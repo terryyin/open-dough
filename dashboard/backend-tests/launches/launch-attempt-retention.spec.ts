@@ -14,7 +14,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type {
   LaunchAttemptRecord,
@@ -44,7 +44,7 @@ const session: EstablishedSession = {
 };
 let start: SessionStart;
 
-test.beforeEach(() => {
+beforeEach(() => {
   previousHome = process.env["HOME"];
   home = mkdtempSync(path.join(tmpdir(), "dough-attempt-retention-"));
   process.env["HOME"] = home;
@@ -79,7 +79,7 @@ test.beforeEach(() => {
   );
 });
 
-test.afterEach(() => {
+afterEach(() => {
   if (previousHome === undefined) delete process.env["HOME"];
   else process.env["HOME"] = previousHome;
   rmSync(home, { recursive: true, force: true });

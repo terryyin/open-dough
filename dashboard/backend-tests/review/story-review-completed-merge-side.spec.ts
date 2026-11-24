@@ -5,7 +5,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { mergeTreeOutput } from "../../server/mergeTreeOutput.ts";
 import { owningMergeEdits } from "../../server/storyCompletedMergeEdits.ts";
 import { writeAt } from "../../test-support/support/storyReviewWorktree.ts";

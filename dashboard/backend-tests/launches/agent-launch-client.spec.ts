@@ -1,7 +1,7 @@
 // The public request client keeps the selected host's recovery advice when
 // no server answer can be trusted. This observes client behavior, not a native
 // launch; the fetch substitute supplies only the failed HTTP precondition.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { requestAgentAcceptance } from "../../src/agentLaunchClient.ts";
 
 for (const [host, hint] of [

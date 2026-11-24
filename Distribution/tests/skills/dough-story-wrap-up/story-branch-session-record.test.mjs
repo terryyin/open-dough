@@ -5,13 +5,7 @@
 // intervening trunk work or the enclosing merge pair.
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import {
-  appendFileSync,
-  cpSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,6 +16,7 @@ import { reportingReference } from "../../support/launchLandingTestData.mjs";
 import { beginNativeSession } from "../../../src/skills/dough-execute-plan/scripts/execution-session-evidence.mjs";
 import { publishHistoryPreservingCandidate } from "../../../src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs";
 import { sessionRecordPathBeside } from "../../../src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { ignoreInstalledSkills } from "../dough-execute-plan/ci-installed-checkouts-test-fixtures.mjs";
 import {
   landingContextFile,
   landingReceiver,
@@ -64,11 +59,7 @@ async function integrateStoryBranch(t, { landingContext } = {}) {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
-  // The installed skills are no story work.
-  appendFileSync(
-    join(fixture.integration, ".git/info/exclude"),
-    ".agents/\n.planning/open-dough.json\n",
-  );
+  await ignoreInstalledSkills(execution);
   cpSync(wrapUpSource, join(execution, ".agents/skills/dough-story-wrap-up"), {
     recursive: true,
   });

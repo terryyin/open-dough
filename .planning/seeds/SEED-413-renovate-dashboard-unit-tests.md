@@ -197,53 +197,6 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
 
-<a id="run-direct-backend-specs-on-vitest"></a>
-
-### Run the backend specs that already call production code directly on Vitest
-
-**Identity:** SEED-413#run-direct-backend-specs-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/814-run-direct-backend-specs-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3cf17257273a24fa50cf0d795e4245f223ff3a738c21fe0c5f719a291c4d96c","plan":"c175ea187009d99765eef49cb71f746e7e5ecf0e07d2e7c83508a11665e37573"}}
-```
-
-Extracted from the [later backend families](#renovate-later-dashboard-backend-unit-test-families)
-on 24 November 2026, when Terry asked for a systematic way to shrink that
-campaign instead of renovating one small family after another.
-
-**Goal.** Developers changing `dashboard/server/` get the backend cases
-that already enter production code directly from the Node Vitest engine,
-and the campaign's count of Playwright-selected backend specs drops by
-about a sixth in one mechanical change.
-
-**Scope.** Move, by one scripted rewrite, every Playwright-selected backend
-spec outside `usage-history/` that meets all of these at execution:
-
-- it takes no Playwright fixture and starts or mounts no server;
-- none of its runtime imports reaches `@playwright/test`; and
-- its cases pass on Vitest under the default timeout with only the engine
-  import changed.
-
-Cases, assertions, arrangement and the production entry stay as they
-are. The usage family moves with the
-[typed importer story](#prove-usage-import-through-typed-importer), where
-its command-bound cases stop running close to the default timeout. A spec that fails any condition stays with the later families,
-including one that needs more than the default timeout. Record each
-moved case's time before and after. Reducing case count, slow survivors
-and typed-entry changes stay with the later families' criteria.
-
-**Key examples.**
-
-- A spec imports `expect` and `test` from the shared page test module,
-  calls a server module with MakeMe state and uses no fixture. After the
-  rewrite it imports them from Vitest, the backend runner lists it under
-  the Node engine and its cases pass unchanged.
-- A spec groups cases with `test.describe` and prepares them in
-  `test.beforeAll`. After the rewrite it uses Vitest's `describe` and
-  `beforeAll`, and the same cases run in the same order.
-- A spec whose case exceeds the default Vitest timeout, or whose support
-  module asserts through Playwright's `expect`, stays on Playwright and
-  remains counted in the later families' inventory.
-
 <a id="prove-usage-import-through-typed-importer"></a>
 
 ### Prove usage import through the typed importer instead of its command
@@ -316,7 +269,7 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
   [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete. Two
   systematic extractions come first and leave it their remainder: the
-  [direct specs moved to Vitest by one rewrite](#run-direct-backend-specs-on-vitest)
+  [direct specs moved to Vitest by one rewrite](https://github.com/terryyin/open-dough/blob/34bb5e074f8613671d687d434192dad84e4a60e4/.planning/slice-plans/814-run-direct-backend-specs-on-vitest/PLAN.md)
   and the [usage import cases on the typed importer](#prove-usage-import-through-typed-importer).
   It also owns final runner retirement and the Story Notes store follow-up
   below. Keep the automatic-repeat correction's separately assigned coverage
@@ -423,7 +376,7 @@ smaller unit selection does not hide its cost or a lost regression check.
     only their engine import ran them on Vitest at four workers: 164 files
     and 596 of 667 cases passed. 122 of the passing files reach no
     Playwright import at all: 76 outside `usage-history/` form the
-    [direct cohort](#run-direct-backend-specs-on-vitest), and the 46 usage
+    [direct cohort](https://github.com/terryyin/open-dough/blob/34bb5e074f8613671d687d434192dad84e4a60e4/.planning/slice-plans/814-run-direct-backend-specs-on-vitest/PLAN.md), and the 46 usage
     files move with the
     [typed importer](#prove-usage-import-through-typed-importer), since
     their command-bound cases ran up to 4.9 s against the 5 s default. Of the 43 failing
@@ -440,6 +393,26 @@ smaller unit selection does not hide its cost or a lost regression check.
     and `machineSessions`, and
     [one converted case](../../dashboard/backend-tests/sessions/agent-launch-codex-open-polling.spec.ts)
     calls it in this process.
+- **Inventory after the direct cohort** (`38c6f4057`, 24 November 2026).
+  The maintained backend runner selects 421 of 580 specs for Playwright and
+  159 for Node Vitest. Playwright selection fell by 77 specs from the earlier
+  recount. The direct rewrite accounts for 67. Landed attempt evidence moved
+  ten more, including three on the original direct cohort list.
+  The subsequent Token Index landing at `bdb810ba0` moved 19 disjoint specs.
+  The maintained selector reports 402 Playwright and 178 Vitest on that
+  trunk snapshot with the direct rewrite applied.
+  [Per-case timing measurements](https://github.com/terryyin/open-dough/blob/34bb5e074f8613671d687d434192dad84e4a60e4/.planning/slice-plans/814-run-direct-backend-specs-on-vitest/case-times.tsv).
+  The six original cohort specs still selected by Playwright belong to the
+  later families:
+  - `intent/ci-comparison-client-identity.spec.ts`,
+    `intent/ci-proof-memory-github-gaps.spec.ts`,
+    `launches/launch-attempt-admission-close.spec.ts`, and
+    `launches/settled-attempt-reconciliation.spec.ts` need assertion changes
+    because assigning Vitest's asymmetric matcher result fails lint.
+  - `launches/agent-launch-options-rules.spec.ts` is the direct Playwright
+    specimen used by `runner-ownership.spec.ts`.
+  - `configuration/notifier-setup.spec.ts` uses Playwright's platform skip
+    overload, which fails Dashboard typecheck under Vitest.
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,
   2,519 s; entry kinds counted from each spec's text, so approximate).
 

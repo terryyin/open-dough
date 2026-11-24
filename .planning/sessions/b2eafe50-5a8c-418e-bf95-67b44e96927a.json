@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sessionId": "b2eafe50-5a8c-418e-bf95-67b44e96927a",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T12:51:51.166Z",
+  "story": "SEED-413#run-direct-backend-specs-on-vitest",
+  "ranges": [
+    {
+      "base": "228ad321390efff29dd145228fe0a50bcfc6e69c",
+      "candidate": "b9663ef4216e29594284c3e70f8c3bd864a85f47"
+    },
+    {
+      "base": "b9663ef4216e29594284c3e70f8c3bd864a85f47",
+      "candidate": "380ebf304977d98a073a2859e367d09883a6d99e"
+    },
+    {
+      "base": "380ebf304977d98a073a2859e367d09883a6d99e",
+      "candidate": "38c6f405741067c1333e79928ed5e77fb0c45e7f"
+    },
+    {
+      "base": "38c6f405741067c1333e79928ed5e77fb0c45e7f",
+      "candidate": "a930f8d39779a7e5e55747a1fb1376524d07099f"
+    },
+    {
+      "base": "a930f8d39779a7e5e55747a1fb1376524d07099f",
+      "candidate": "5bb6bcc5940a438fbfb525bbeb081cd66764f219"
+    },
+    {
+      "base": "5bb6bcc5940a438fbfb525bbeb081cd66764f219",
+      "candidate": "d1df94ddbb427d6939705fd6afdb42ec389f899f"
+    }
+  ]
+}

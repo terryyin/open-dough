@@ -5,7 +5,7 @@
 // plain text. The integrated journey:
 // ../../../e2e/intent/intent-code-browse-sources.spec.ts.
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { sourceEntryOfRepositoryPath } from "../../src/intentLocationSelection.ts";
 import { sourceLanguage } from "../../src/sourceHighlight.ts";
 import type { DeclaredLocation } from "../../server/intentLocationsSettings.ts";
