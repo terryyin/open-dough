@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-22
 planted_during: Terry Yin requested a dead-code and simplification audit of the Distribution scripts
 trigger_when: selected from the product backlog
-scope: eleven stories
+scope: Distribution simplification stories
 ---
 
 # SEED-423 — Shrink the installed distribution to code that serves a purpose
@@ -203,6 +203,35 @@ Dashboard and installed scripts share.
   an installed checkout.
 - **Effort hypothesis.** S. The native evaluation tool already walks literal
   relative imports for evidence hashing.
+
+<a id="use-one-managed-install-layout"></a>
+
+### Use one managed install layout
+
+**Identity:** SEED-423#use-one-managed-install-layout
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** Maintainers can deliver and verify one Open Dough installation
+  layout across supported clients. Each host can run the same released version
+  from a fresh checkout.
+- **Start after.** Donut has both physical managed skill roots on trunk and
+  proves the ordinary updater and Claude skill discovery from a fresh
+  worktree. Before removing compatibility, check the maintained client trunks
+  for any remaining symlinks at Open Dough-managed skill paths.
+- **Evaluation.** Retire runtime fallbacks, guidance, and proof used solely for
+  symlinked Open Dough installations. Fresh install, ordinary upgrade, and
+  execution use the standard Claude and shared Codex/Cursor roots. Keep the
+  installer's unsafe-destination checks and any path handling still needed for
+  checkout identity or platform aliases. Project-owned skill links still coexist.
+- **Host differences.** Look for duplicate setup, observation, and completion
+  logic across the three hosts. Share behavior where it has the same contract.
+  Keep the native notification entry points and prove delivery on each host
+  whose behavior or integration changes.
+- **Architecture.** Follow [ADR 0004 — Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md)
+  and [ADR 0005 — Native validation and A/B testing](../../docs/adrs/0005-cross-tool-validation-accepted.md).
 
 ## Ordering and scope reduction
 
