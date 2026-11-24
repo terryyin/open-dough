@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "7680c7f3-7c82-49f8-9178-416561e9d009",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-24T03:40:05.992Z",
+  "story": "SEED-345#start-implementers-from-a-role-sized-tool-set",
+  "ranges": [
+    {
+      "base": "83105c709f858a550b7c6d184dd0ffb26c4565ad",
+      "candidate": "481a5579bebcfd0ba1d727a33bac165c0836d6ab"
+    }
+  ]
+}
