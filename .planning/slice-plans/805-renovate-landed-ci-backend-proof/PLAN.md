@@ -191,7 +191,7 @@ rather than porting `storyLandingRecord` or `capturedComparisonLanding`.
 ### 4. Final gaps keep their reasons and valid late recovery
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `gaps`, `comparison-gap` and `no-proof-recovery`. Exercise
 `landingResolution`, the retained-gap reopen rule and the history/comparison
@@ -203,6 +203,13 @@ recovery is the trigger.
 reason at each relevant reader. Differentiate an invalid duration from zero.
 An eligible old no-proof equivalent gap reopens on collection. Other final
 gaps stay final, and reading alone leaves saved state untouched.
+
+**Slice 4 evidence.** `gaps`, `comparison-gap` and `no-proof-recovery` went
+from 4 server cases taking 11,321 ms to 4 typed cases taking about 0.6 s in
+total. `comparison-gap` keeps its `asComparisonSlot` mapping case, and
+`comparison-run` still owns agreement through `ciComparisonReader`. The
+support builder's `keepHistory(home, history)` seeds retained history
+through production's store. Slice 5 seeds its retained history with it.
 
 ### 5. History returns the newest measured window in trunk order
 

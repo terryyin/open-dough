@@ -18,6 +18,11 @@ import {
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import { landedCiHistorySchema } from "../../src/landedCiHistory.ts";
+import {
+  historyStore,
+  type ProjectHistory,
+} from "../../server/landedCiHistoryStore.ts";
+import { replaceMachineJson } from "../../server/machineJsonStore.ts";
 import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
 import { workflow } from "./comparisonRead.ts";
 
@@ -84,6 +89,21 @@ export function landedCiPass(answers: {
   const collect = () =>
     collectLandedCiPass(inputs(new AbortController().signal));
   return { inputs, collect, asked, home };
+}
+
+// The machine's kept landed CI history for `project` is `history`; answers
+// the document's file.
+export async function keepHistory(
+  home: string,
+  history: ProjectHistory,
+  project = passProject,
+): Promise<string> {
+  const store = historyStore(home);
+  await replaceMachineJson(store, (stored) => ({
+    ...stored,
+    [project.id]: history,
+  }));
+  return store.file;
 }
 
 // The history read's entries from the kept history alone.
