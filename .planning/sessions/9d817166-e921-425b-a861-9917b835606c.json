@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "sessionId": "9d817166-e921-425b-a861-9917b835606c",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T04:38:47.268Z",
+  "story": "SEED-413#speed-dashboard-done-session-review-proof",
+  "ranges": [
+    {
+      "base": "4c0b4a9cb940d533b65f40ab450001d473224e05",
+      "candidate": "a42a333c30d9e602b8e21e8dac4a329d82683f05"
+    },
+    {
+      "base": "a42a333c30d9e602b8e21e8dac4a329d82683f05",
+      "candidate": "1f50e333f0613ffd24e2aa2fbee7b7871d08b5eb"
+    },
+    {
+      "base": "1f50e333f0613ffd24e2aa2fbee7b7871d08b5eb",
+      "candidate": "422abd0f73713638d33d048bf0ee0d663a3d251a"
+    },
+    {
+      "base": "422abd0f73713638d33d048bf0ee0d663a3d251a",
+      "candidate": "a49313babdf979e36e9bae4f6d46786cdfc454a9"
+    },
+    {
+      "base": "a49313babdf979e36e9bae4f6d46786cdfc454a9",
+      "candidate": "b3a0ce8a9d7ec52613605488a096ce50e80eaa8a"
+    },
+    {
+      "base": "b3a0ce8a9d7ec52613605488a096ce50e80eaa8a",
+      "candidate": "7c5d5a2d29b3399c1a8f8b920d9deeff1e494a2b"
+    },
+    {
+      "base": "7c5d5a2d29b3399c1a8f8b920d9deeff1e494a2b",
+      "candidate": "6bc0589a16febb5f8c51a727b4a0070600533a31"
+    },
+    {
+      "base": "6bc0589a16febb5f8c51a727b4a0070600533a31",
+      "candidate": "81695bfbbf7a9d422cd035dd99df8db91e4fee94"
+    },
+    {
+      "base": "81695bfbbf7a9d422cd035dd99df8db91e4fee94",
+      "candidate": "28407491faf579a14072b10eb29fdf39e52d6a5f"
+    },
+    {
+      "base": "28407491faf579a14072b10eb29fdf39e52d6a5f",
+      "candidate": "143ad3f2321a07463b50c748a0d0a12d0983ff0c"
+    },
+    {
+      "base": "143ad3f2321a07463b50c748a0d0a12d0983ff0c",
+      "candidate": "0c1017fe3852a3a952689f166b804b07d452e35d"
+    },
+    {
+      "base": "0c1017fe3852a3a952689f166b804b07d452e35d",
+      "candidate": "6db32f606e31a0d26c251fc29bef2ca91b806185"
+    },
+    {
+      "base": "6db32f606e31a0d26c251fc29bef2ca91b806185",
+      "candidate": "99688f996eedf43a5d701ed97baa4e60c4ca85b8"
+    },
+    {
+      "base": "99688f996eedf43a5d701ed97baa4e60c4ca85b8",
+      "candidate": "bc255e625be9b0334e918166f2e3638f4df8ed89"
+    },
+    {
+      "base": "bc255e625be9b0334e918166f2e3638f4df8ed89",
+      "candidate": "a55e21b5ef87ff44a165392ec265025511315978"
+    },
+    {
+      "base": "a55e21b5ef87ff44a165392ec265025511315978",
+      "candidate": "68332c0f2a55af00866249a5280642e9918f4b7e"
+    },
+    {
+      "base": "68332c0f2a55af00866249a5280642e9918f4b7e",
+      "candidate": "8b8a4ea20fddb6fb674da6ae9ddced8831e1ab33"
+    },
+    {
+      "base": "8b8a4ea20fddb6fb674da6ae9ddced8831e1ab33",
+      "candidate": "44d81dfac2447cecbd5bae3a4d2ab8e150d87297"
+    },
+    {
+      "base": "44d81dfac2447cecbd5bae3a4d2ab8e150d87297",
+      "candidate": "6d39389d1c74e30750d1ea3ed771487e2cb2dae3"
+    },
+    {
+      "base": "6d39389d1c74e30750d1ea3ed771487e2cb2dae3",
+      "candidate": "71e820478b6a0fb8854a6cb5f428b59b44d31225"
+    },
+    {
+      "base": "71e820478b6a0fb8854a6cb5f428b59b44d31225",
+      "candidate": "9c1689126fe5bf5d43f8ca453f70275459afcef6"
+    },
+    {
+      "base": "2c300bd10f18a7978d112b82d877d6bb707a0931",
+      "candidate": "0810133359cf746ea48bcca3b4ea3fd4de218081"
+    }
+  ]
+}
