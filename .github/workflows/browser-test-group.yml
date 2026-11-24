@@ -129,6 +129,13 @@ jobs:
           SPLIT: ${{ matrix.shard }}/${{ strategy.job-total }}
           TIMES: ${{ runner.temp }}/browser-times.txt
           PROOF_RECORD: ${{ runner.temp }}/browser-proof.json
+          DEBUG: >-
+            ${{ github.event_name == 'push'
+            && github.ref == 'refs/heads/codex/start-ad-hoc-work-under-a-story'
+            && startsWith(github.event.head_commit.message, 'Diagnose the hosted frontend browser disconnect')
+            && inputs.group == 'dashboard-frontend' && matrix.shard == 1
+            && 'vitest:browser:pool,vitest:browser:api,vitest:browser:playwright,vitest:browser:gc,pw:browser'
+            || env.DEBUG }}
         run: |
           export "${SETTINGS}_SPLIT=${SPLIT}" "${SETTINGS}_TIMES=${TIMES}" "${SETTINGS}_PROOF_RECORD=${PROOF_RECORD}"
           exec npm run "${COMMAND}"
