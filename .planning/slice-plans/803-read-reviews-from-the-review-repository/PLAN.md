@@ -4,7 +4,7 @@
 
 **Identity:** SEED-428#read-reviews-from-the-review-repository
 
-**Status:** Awaiting story refinement. This is a provisional map from plan 802.
+**Status:** Awaiting story refinement. This is a provisional map from [delivered plan 802](https://github.com/terryyin/open-dough/blob/d0489607774ee6a3dd2c69b3fd5e0409288e68ab/.planning/slice-plans/802-review-published-changes/PLAN.md#ordered-slices).
 Refine and validate it against the published-only readers delivered by SEED-427
 before making it executable.
 
@@ -18,7 +18,7 @@ before making it executable.
    plan 802 slices 2–3. Verify the same attributable comparison, including
    interleaved trunk work, and preserve file selection when Refresh advances it.
 3. **Move accepted landings and recorded session ranges.** Carry the Git source
-   changes from plan 802 slices 4–5. Verify exact ranges and corresponding diff,
+   changes from plan 802 slices 5–6. Verify exact ranges and corresponding diff,
    source, and Proof context after trunk advances or a worktree is retired.
 4. **Reuse a resolved comparison for local navigation.** Reopen previously synced
    reviews with origin unavailable. Verify exact file diffs and zero remote
@@ -28,8 +28,8 @@ before making it executable.
    [North Star topic](../../NORTH-STAR.md#read-published-comparisons-from-the-review-repository)
    at wrap-up.
 
-Plan 802 retains all behavior removal and review-only capture cleanup. Its
-first five slices own the published comparison behavior used by this plan.
+Plan 802 delivered the published comparisons and removed local-only review and
+capture. This plan changes the Git source for the surviving readers.
 
 ## Preparation evidence to carry forward
 
