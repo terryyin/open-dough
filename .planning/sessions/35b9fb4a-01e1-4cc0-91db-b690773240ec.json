@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "35b9fb4a-01e1-4cc0-91db-b690773240ec",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T22:53:30.230Z",
+  "story": "SEED-413#prove-renamed-diff-grammar-from-new-path",
+  "ranges": [
+    {
+      "base": "c50e1eceb7727ecfa022d3a7ca5867d258c420b1",
+      "candidate": "b0e05304086ad1008d0aa81b45a75bccf295e0bb"
+    }
+  ]
+}
