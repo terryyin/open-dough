@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof ([plan](slice-plans/801-speed-dashboard-done-session-review-proof/PLAN.md))
-- [Get fast proof of the dashboard frame, navigation and settings](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof) — SEED-413#speed-dashboard-frame-and-navigation-proof ([plan](slice-plans/802-speed-dashboard-frame-and-navigation-proof/PLAN.md))
 - [Verify the silent supplier wait in Claude Code](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code) — SEED-389#verify-silent-supplier-wait-in-claude-code ([plan](slice-plans/694-verify-silent-supplier-wait-in-claude-code/PLAN.md))
 
 ## Backlog list

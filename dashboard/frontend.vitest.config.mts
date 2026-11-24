@@ -1,6 +1,8 @@
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
+import { brandAssetPlugin } from "./server/brandAssetPlugin.ts";
 import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
 import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
 import { isVitestFile } from "./test-support/support/groupSelection.mjs";
@@ -18,7 +20,8 @@ const desktopSpecs = [
 ];
 
 export default defineConfig({
-  plugins: [react()],
+  publicDir: fileURLToPath(new URL("./public", import.meta.url)),
+  plugins: [react(), brandAssetPlugin()],
   test: {
     // The frontend specs that import Vitest, beside the group's Playwright
     // specs (../scripts/test-frontend.mjs).

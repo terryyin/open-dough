@@ -1,247 +1,223 @@
-// Recent stories banner control (../../src/recentStoriesControl.tsx).
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { recentStoriesKey } from "../../src/recentStories.ts";
+import { withFramePreference } from "../../test-support/component-mount/framePreferences.ts";
+import { mountBoardFrame } from "./board-frame-mount.ts";
+import { boardReading, storyCard } from "./board-reading-page.ts";
 import {
-  openFrontendTakenBacklog,
-  takenStoryCard,
-} from "../../test-support/support/frontendApp.ts";
-import { takenStoryWorkingSession } from "../../test-support/support/frontendCardSessions.ts";
-import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
+  answerTerminal,
+  closeTerminal,
+  openRecord,
+  readingTop,
+  scroller,
+  terminal,
+} from "./board-session-view.ts";
+import { boardWork, longBacklog, story } from "./board-work.ts";
 import {
-  readyIdentity,
-  readyStory,
-  takenIdentity,
-} from "../../test-support/launchJourney.ts";
+  banner,
+  expectBannerRow,
+  projectChoices,
+} from "./dashboard-header-reading.ts";
+import { projectRadio, route } from "./project-navigation-frame.ts";
 import {
-  emptyArea,
-  expectSelected,
-} from "../../test-support/storyCardSelection.ts";
-import { storyCard } from "../../test-support/storyCardControls.ts";
-import {
-  dismissRecentStoriesByBannerClick,
-  dismissRecentStoriesWithEscape,
-  expectRecentStoriesButton,
-  expectRecentStoriesEmpty,
-  expectRecentStoriesList,
-  openRecentStories,
-  selectStoriesInTurn,
-} from "../../test-support/recentStoriesPage.ts";
-import {
-  beyondCapHistoryStories,
-  putRecentHistoryStories,
-} from "../../test-support/recentStoriesHistory.ts";
-import {
-  chooseDoughnutFromOpenDoughRoster,
-  chooseUnavailableRecentStory,
-  openOpenDoughWithDoughnutBoard,
-} from "../../test-support/recentStoriesChoosePage.ts";
-import {
-  lengthenCardPastFold,
-  listWhileStartReadable,
-  openTallReturnBoard,
-  returnFollowsOtherProject,
-  returnOutOfViewThenList,
-  returnTargetIdentity,
-  selectDoughnutWhileShowingOpenDough,
-  selectReturnTargetThenScrollAway,
-} from "../../test-support/recentStoriesReturnPage.ts";
-import { expectBannerRow } from "../../test-support/bannerReading.ts";
-import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
-import { settings } from "../../test-support/support/systemSettingsPage.ts";
-import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
-import { reloadUntilRead } from "../../test-support/pageRequestNotes.ts";
-import { watchPageErrors } from "../../test-support/pageErrors.ts";
-import { recentStoriesLimit } from "../../src/recentStories.ts";
+  activate,
+  chooseRecent,
+  dismissWithEscape,
+  popover,
+  recent,
+  roster,
+  selectCard,
+  showsBookmark,
+  showsEmptyHistory,
+  showsHistory,
+  showsRevealed,
+} from "./recent-stories-frame.ts";
+import { withWidthStorage } from "./side-panel-width-view.ts";
+import { controlDestinationCueTime } from "./story-destination-cue.ts";
 
-test("the banner Recent stories control shows selection state and lists recent stories from card and Side panel selection", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  const { openTerminal } = await takenStoryWorkingSession(
-    page,
-    frontendServices,
+const viewport = { width: 1280, height: 800 };
+const openDough = "Open Dough";
+const queued = story("Read the queued execution", 901);
+const taken = story("Inspect the running execution", 902);
+const doughnutTaken = story("Read Doughnut's running story", 903);
+const doughnut = boardWork([], {
+  id: "doughnut",
+  label: "Doughnut",
+  taken: [doughnutTaken],
+});
+
+test("the Recent stories bookmark tracks card and Side panel selections, order, clearing and dismissal", async () => {
+  withFramePreference(recentStoriesKey, null);
+  withWidthStorage();
+  answerTerminal();
+  const answer = makeMe.aMachineAnswer
+    .observingOpen(openRecord(taken))
+    .please();
+  await mountBoardFrame(
+    boardWork([queued], { taken: [taken] }),
+    viewport,
+    "stories",
+    { answer },
   );
-  await openFrontendTakenBacklog(page);
-  const { backlog, perspective, project, recentStories } = parts(page);
-  const sessions = sessionsSidebarParts(page).button;
-  const gear = settings(page);
-  const storyA = storyCard(backlog, readyStory);
-  const storyB = takenStoryCard(page);
+  await showsBookmark();
+  await expectBannerRow(projectChoices);
+  await activate(recent);
+  await showsEmptyHistory();
+  await dismissWithEscape();
 
-  await test.step("with no selection the outline bookmark opens an empty Recent stories popover", async () => {
-    await expectRecentStoriesButton(page, {
-      selected: undefined,
-      filled: false,
-    });
-    await expectBannerRow([
-      sessions,
-      perspective,
-      recentStories,
-      project,
-      gear,
-    ]);
-    await expectRecentStoriesEmpty(page);
-    await dismissRecentStoriesWithEscape(page);
-  });
+  await selectCard(queued.title);
+  const running = storyCard(taken.title);
+  await running
+    .getByRole("button", { name: "Open terminal", exact: true })
+    .click();
+  await expect
+    .element(terminal.getByRole("heading", { name: taken.title, exact: true }))
+    .toBeVisible();
+  await boardReading.expectStoryHighlight(running);
+  await closeTerminal();
+  await selectCard(queued.title);
+  await showsBookmark(queued.identity);
+  await activate(recent);
+  await showsHistory([
+    [openDough, queued.identity, true],
+    [openDough, taken.identity, false],
+  ]);
+  await dismissWithEscape();
 
-  await test.step("selecting A then B then A fills the bookmark and lists A checked, then B, each with its project", async () => {
-    await emptyArea(storyA).click();
-    await expectSelected(storyA, true);
-    const panel = await openTerminal();
-    await expectSelected(storyB, true);
-    await closeSidePanel(panel);
-    await emptyArea(storyA).click();
-    await expectSelected(storyA, true);
-    await expectRecentStoriesButton(page, {
-      selected: readyIdentity,
-      filled: true,
-    });
-    await expectRecentStoriesList(page, [
-      { project: "Open Dough", identity: readyIdentity, checked: true },
-      { project: "Open Dough", identity: takenIdentity, checked: false },
-    ]);
-    await dismissRecentStoriesWithEscape(page);
-  });
-
-  await test.step("clearing A leaves the outline bookmark and lists A unchecked", async () => {
-    await emptyArea(storyA).click();
-    await expectSelected(storyA, false);
-    await expectRecentStoriesButton(page, {
-      selected: undefined,
-      filled: false,
-    });
-    await expectRecentStoriesList(page, [
-      { project: "Open Dough", identity: readyIdentity, checked: false },
-      { project: "Open Dough", identity: takenIdentity, checked: false },
-    ]);
-  });
-
-  await test.step("Escape and an outside click close the popover without changing the selection", async () => {
-    await dismissRecentStoriesWithEscape(page);
-    await emptyArea(storyA).click();
-    await expectSelected(storyA, true);
-    await openRecentStories(page);
-    await dismissRecentStoriesWithEscape(page);
-    await expectSelected(storyA, true);
-    await expectRecentStoriesButton(page, {
-      selected: readyIdentity,
-      filled: true,
-    });
-    await openRecentStories(page);
-    await dismissRecentStoriesByBannerClick(page);
-    await expectSelected(storyA, true);
-  });
+  await selectCard(queued.title, false);
+  await showsBookmark();
+  await activate(recent);
+  await showsHistory([
+    [openDough, queued.identity, false],
+    [openDough, taken.identity, false],
+  ]);
+  await dismissWithEscape();
+  await selectCard(queued.title);
+  await activate(recent);
+  await dismissWithEscape();
+  await boardReading.expectStoryHighlight(storyCard(queued.title));
+  await showsBookmark(queued.identity);
+  await activate(recent);
+  await banner.click({ position: { x: 4, y: 4 } });
+  await expect.element(popover).not.toBeInTheDocument();
+  await boardReading.expectStoryHighlight(storyCard(queued.title));
 });
 
-test("recent stories survive a reload, capped at the 10 most recent, and last only for the page when storage throws", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  putRecentHistoryStories(frontendServices, beyondCapHistoryStories);
-  await page.goto("/");
-  await expectSettledPage(page, {
-    taken: [],
-    backlog: beyondCapHistoryStories.map(({ title }) => title),
-  });
+test("choosing Recent stories rows returns from the roster to another project's story and reports an unavailable identity", async () => {
+  const gone = "GONE-1#nope";
+  withFramePreference(recentStoriesKey, null);
+  controlDestinationCueTime();
+  const frame = await mountBoardFrame(
+    boardWork([queued], { taken: [taken] }),
+    viewport,
+    "stories",
+    {},
+    { otherWork: [doughnut] },
+  );
+  await selectCard(taken.title);
+  await activate(projectRadio("Doughnut"));
+  await selectCard(doughnutTaken.title);
+  await selectCard(doughnutTaken.title, false);
+  await activate(projectRadio(openDough));
 
-  await test.step("after eleven distinct selections and a reload, no story is selected and the popover lists the last 10 newest first", async () => {
-    await selectStoriesInTurn(
-      page,
-      beyondCapHistoryStories.map(({ title }) => title),
-    );
-    await expectRecentStoriesButton(page, {
-      selected: beyondCapHistoryStories[recentStoriesLimit]?.identity,
-      filled: true,
-    });
-    await reloadUntilRead(page);
-    await expectSettledPage(page, {
-      taken: [],
-      backlog: beyondCapHistoryStories.map(({ title }) => title),
-    });
-    await expectRecentStoriesButton(page, {
-      selected: undefined,
-      filled: false,
-    });
-    await expectRecentStoriesList(
-      page,
-      beyondCapHistoryStories
-        .slice(-recentStoriesLimit)
-        .reverse()
-        .map(({ identity }) => ({
-          project: "Open Dough",
-          identity,
-          checked: false,
-        })),
-    );
-    await dismissRecentStoriesWithEscape(page);
-  });
+  const address = new URL(location.href);
+  address.searchParams.set("project", "open-dough");
+  address.searchParams.set("view", "roster");
+  history.pushState(null, "", address);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+  await expect.element(roster).toBeVisible();
+  await expect.element(projectRadio(openDough)).toBeChecked();
+  expect(route().get("project")).toBe("open-dough");
+  expect(route().get("view")).toBe("roster");
 
-  await test.step("when storage throws, the history lasts for the page", async () => {
-    await page.addInitScript(() => {
-      const refused = () => {
-        throw new DOMException("Storage is refused.", "SecurityError");
-      };
-      Object.defineProperty(window, "localStorage", {
-        configurable: true,
-        get: refused,
-      });
-    });
-    const errors = watchPageErrors(page);
-    const first = beyondCapHistoryStories[0];
-    const second = beyondCapHistoryStories[1];
-    if (first === undefined || second === undefined) {
-      throw new Error("Expected beyond-cap history stories.");
-    }
-    await reloadUntilRead(page);
-    await expectSettledPage(page, {
-      taken: [],
-      backlog: beyondCapHistoryStories.map(({ title }) => title),
-    });
-    await expectRecentStoriesEmpty(page);
-    await dismissRecentStoriesWithEscape(page);
-    await selectStoriesInTurn(page, [first.title, second.title]);
-    await expectRecentStoriesList(page, [
-      { project: "Open Dough", identity: second.identity, checked: true },
-      { project: "Open Dough", identity: first.identity, checked: false },
-    ]);
-    await reloadUntilRead(page);
-    await expectRecentStoriesEmpty(page);
-    expect(errors).toEqual([]);
+  await activate(recent);
+  await chooseRecent("Doughnut", doughnutTaken.identity);
+  await expect.element(roster).not.toBeInTheDocument();
+  await expect.element(projectRadio("Doughnut")).toBeChecked();
+  expect(route().get("project")).toBe("doughnut");
+  expect(route().get("view")).toBeNull();
+  await showsRevealed(storyCard(doughnutTaken.title));
+  await showsBookmark(doughnutTaken.identity);
+  await activate(recent);
+  await showsHistory([
+    ["Doughnut", doughnutTaken.identity, true],
+    [openDough, taken.identity, false],
+  ]);
+  await dismissWithEscape();
+
+  localStorage.setItem(
+    recentStoriesKey,
+    JSON.stringify([
+      { project: "doughnut", identity: gone },
+      { project: "doughnut", identity: doughnutTaken.identity },
+      { project: "open-dough", identity: taken.identity },
+    ]),
+  );
+  frame.remount();
+  await showsBookmark();
+  await expect.element(projectRadio("Doughnut")).toBeChecked();
+  await activate(recent);
+  await chooseRecent("Doughnut", gone);
+  const referenceNotice = page.getByRole("status", {
+    name: "Story reference navigation",
   });
+  await expect
+    .element(
+      referenceNotice.getByText(
+        `${gone} is unavailable in Doughnut's dashboard.`,
+        { exact: true },
+      ),
+    )
+    .toBeVisible();
+  await showsBookmark(gone);
 });
 
-test("choosing a Recent stories row selects and reveals that story in Development, including across projects and when unavailable", async ({
-  page,
-  frontendServices,
-}) => {
-  const board = await openOpenDoughWithDoughnutBoard(page, frontendServices);
-  await test.step("from Open Dough's Roster, choosing Doughnut's taken story closes the popover, switches project, and reveals the card focused and cued", async () => {
-    await chooseDoughnutFromOpenDoughRoster(page, board);
-  });
-  await test.step("choosing a row whose story is no longer on the Board shows the story-reference unavailable notice", async () => {
-    await chooseUnavailableRecentStory(page, "GONE-1#nope");
-  });
-});
+test("the bookmark reveals a selected card before opening the list and returns across projects", async () => {
+  withFramePreference(recentStoriesKey, null);
+  controlDestinationCueTime();
+  const target = story("Return target story", 850);
+  await mountBoardFrame(
+    boardWork([...longBacklog, target], { taken: [taken] }),
+    viewport,
+    "stories",
+    {},
+    { otherWork: [doughnut] },
+  );
+  const card = storyCard(target.title);
+  await selectCard(target.title);
+  await showsBookmark(target.identity);
+  const scroll = scroller(card.element());
+  scroll.scrollTop = 0;
+  await expect
+    .poll(() => card.element().getBoundingClientRect().top)
+    .toBeGreaterThan(boardReading.room().bottom);
+  await activate(recent);
+  await expect.element(popover).not.toBeInTheDocument();
+  await showsRevealed(card);
+  await activate(recent);
+  await showsHistory([[openDough, target.identity, true]]);
+  await dismissWithEscape();
 
-test("the Recent stories button returns to the selected story before listing", async ({
-  page,
-  frontendServices,
-}) => {
-  const cards = await openTallReturnBoard(page, frontendServices);
-  const row = { project: "Open Dough", identity: returnTargetIdentity };
-  await test.step("selected card out of view → first click reveals it, popover stays closed; second click opens the list", async () => {
-    await selectReturnTargetThenScrollAway(page, cards.returnTarget);
-    await returnOutOfViewThenList(page, cards.returnTarget, row);
-    await dismissRecentStoriesWithEscape(page);
-  });
-  await test.step("tall card start visible → first click opens the popover", async () => {
-    await lengthenCardPastFold(cards.returnTarget);
-    await listWhileStartReadable(page, row);
-    await dismissRecentStoriesWithEscape(page);
-  });
-  await test.step("selected story in another project → first click follows it there", async () => {
-    await selectDoughnutWhileShowingOpenDough(page, cards);
-    await returnFollowsOtherProject(page, cards.doughnutTaken);
-  });
+  const longCard = card.element();
+  if (!(longCard instanceof HTMLElement))
+    throw new Error("Expected a story card.");
+  longCard.style.minHeight = "200vh";
+  await readingTop(longCard);
+  expect(longCard.getBoundingClientRect().bottom).toBeGreaterThan(
+    boardReading.room().bottom,
+  );
+  await activate(recent);
+  await showsHistory([[openDough, target.identity, true]]);
+  await dismissWithEscape();
+
+  await selectCard(taken.title);
+  await activate(projectRadio("Doughnut"));
+  await selectCard(doughnutTaken.title);
+  await activate(projectRadio(openDough));
+  await showsBookmark(doughnutTaken.identity);
+  await activate(recent);
+  await expect.element(projectRadio("Doughnut")).toBeChecked();
+  await showsRevealed(storyCard(doughnutTaken.title));
+  await expect.element(popover).not.toBeInTheDocument();
 });

@@ -1,7 +1,7 @@
 // Project Intent's view tabs (../../src/IntentTabs.tsx): arrow keys, Home and
 // End only choose the view and reach the page already handled, so project
 // navigation skips them
-// (../navigation/project-keyboard-navigation-eligibility.spec.ts); a file read
+// (../navigation/project-keyboard-navigation.spec.ts); a file read
 // before Optimization Candidates is still selected and read until CI status
 // itself is activated (../../src/IntentPage.tsx). Activation within a story's
 // or the project's scope: ./intent-home-activation-scope.spec.ts.

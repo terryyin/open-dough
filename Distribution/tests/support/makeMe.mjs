@@ -1,5 +1,4 @@
 // @ts-check
-import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { FileFollowUpBuilder } from "./followUpFileTestData.mjs";
 import { FollowUpBuilder } from "./followUpTestData.mjs";
@@ -14,7 +13,6 @@ import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { CheckoutWorkBuilder } from "./repositoryCheckoutWorkTestData.mjs";
 import { projectRevisionMakeMeProperties } from "./projectRevisionTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
-import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTestData.mjs";
 import { storyReviewMakeMeProperties } from "./storyReviewMakeMe.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
@@ -28,7 +26,8 @@ import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
 import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
-/** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
+
+/** @typedef {import("./publishedReadingMakeMe.mjs").BacklogEntry} BacklogEntry */
 /** @typedef {import("../../../dashboard/test-support/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
@@ -54,12 +53,9 @@ import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
  * @property {NativeEvidenceRecordBuilder} aNativeEvidenceRecord
  * @property {RepositoryBuilder} aRepository
  * @property {CheckoutWorkBuilder} aCheckoutWork
- * @property {AgentProfileBuilder} anAgentProfile
- * @property {FactBuilder<BacklogEntry>} aBacklogEntry
  * @property {ConfiguredProjectBuilder} aConfiguredProject
  * @property {FactBuilder<PublishedRevision>} aPublishedRevision
  * @property {StoryPreparationBuilder} aStoryPreparation
- * @property {typeof supplierAgreementBuilder} aSupplierAgreement
  * @property {ReleaseBuilder} aRelease
  * @property {DoneRecordBuilder} aDoneRecord
  * @property {FileFollowUpBuilder} aFileFollowUp
@@ -105,18 +101,6 @@ export const makeMe = Object.defineProperties(
         return new CheckoutWorkBuilder();
       },
     },
-    anAgentProfile: {
-      enumerable: true,
-      get() {
-        return new AgentProfileBuilder();
-      },
-    },
-    aBacklogEntry: {
-      enumerable: true,
-      get() {
-        return { with: copyFacts };
-      },
-    },
     aConfiguredProject: {
       enumerable: true,
       get() {
@@ -133,12 +117,6 @@ export const makeMe = Object.defineProperties(
       enumerable: true,
       get() {
         return new StoryPreparationBuilder();
-      },
-    },
-    aSupplierAgreement: {
-      enumerable: true,
-      get() {
-        return supplierAgreementBuilder;
       },
     },
     aRelease: {

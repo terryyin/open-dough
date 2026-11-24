@@ -1,155 +1,90 @@
-// Compact title select on a phone-width column (../../src/banner.css):
-// one-line banner with mark-as-Sessions toggle, labelled perspective, Recent
-// stories, compact project select (may truncate), and settings; touch and
-// keyboard choose a project, Escape leaves the selection, resize keeps it
-// across tab radios and compact control, and page-wide arrow cycling focuses
-// the shown compact title control. No separate panel icon or level-1 project
-// title.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { storyCard } from "./board-reading-page.ts";
+import { portrait, tapWhereShown, useTouchScreen } from "./board-touch-page.ts";
 import {
+  compactProject,
   expectBannerRow,
-  expectPinnedShortBanner,
-} from "../../test-support/bannerReading.ts";
+  expectFrameTextWhole,
+  expectOnlyBannerControls,
+  projectChoices,
+  sessions,
+} from "./dashboard-header-reading.ts";
 import {
-  chooseProject,
-  expectCompactProjectSelect,
-  expectProjectChoice,
-  parts,
-  pressProjectListKeys,
-  projectTab,
-} from "../../test-support/dashboardPage.ts";
-import { expectFrameIconControl } from "../../test-support/frameIconControl.ts";
-import {
-  compactProjectSelectCut,
-  expectNoSidewaysScrollAndWholeText,
-  expectSideBySideInOrder,
-} from "../../test-support/pageLayout.ts";
-import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
-import { settings } from "../../test-support/support/systemSettingsPage.ts";
-import { focusCanonicalRecord } from "../../test-support/storyCardControls.ts";
-import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
-import {
-  doughnutProject,
-  expectCatalogStories,
-  openDoughProject,
-  pygardonProject,
-} from "../../test-support/projectKeyboardNavigationJourney.ts";
+  doughnut,
+  focus,
+  mountProjectCatalog,
+  openDough,
+  projectRadio,
+  pygardon,
+  readsProjectBoard,
+} from "./project-navigation-frame.ts";
 
-test.describe("compact project title select on a phone-width column", () => {
-  const { portrait } = phoneLaunchTouchViewport;
+const list = page.getByRole("listbox", { name: "Project", exact: true });
+const openDoughCard = storyCard("Open Dough's own queued story");
 
-  test.describe("touch", () => {
-    test.use({ viewport: portrait, hasTouch: true });
+test("the phone banner keeps one row as touch picks a project and resizing keeps that choice", async () => {
+  await useTouchScreen();
+  await mountProjectCatalog("stories", portrait);
+  await expect.element(compactProject).toHaveTextContent("Open Dough");
+  await readsProjectBoard(openDough);
+  expectOnlyBannerControls();
+  await expect.element(sessions).toHaveAccessibleName("Sessions");
+  expect(
+    sessions
+      .element()
+      .querySelector("img.product-mark")
+      ?.getAttribute("aria-hidden"),
+  ).toBe("true");
+  await expectBannerRow(compactProject);
+  expectFrameTextWhole();
 
-    test("one-line banner: mark-as-Sessions, perspective, Recent stories, project select, settings", async ({
-      page,
-      frontendServices,
-    }) => {
-      await answerCatalogProjects(page, frontendServices);
-      await page.goto("/");
-      const { banner, projectCompact, perspective, recentStories } =
-        parts(page);
-      const sessions = sessionsSidebarParts(page).button;
-      await expectCompactProjectSelect(page, "Open Dough");
-      await expectCatalogStories(page, openDoughProject);
-      await expect(banner.getByRole("heading", { level: 1 })).toHaveCount(0);
-      await expect(banner.locator("svg.lucide-panel-left")).toHaveCount(0);
-      await expect(
-        banner.getByRole("img", { name: "Open Dough", exact: true }),
-      ).toHaveCount(0);
-      await expectFrameIconControl(sessions, "Sessions", "Sessions (⌘B)");
-      const gear = settings(page);
-      const inOrder = [
-        sessions,
-        perspective,
-        recentStories,
-        projectCompact,
-        gear,
-      ];
-      await expectBannerRow(inOrder);
-      await expectPinnedShortBanner(page, portrait.height);
-      await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
+  await tapWhereShown(compactProject.element());
+  const option = list.getByRole("option", { name: "Doughnut", exact: true });
+  await expect.element(option).toBeInViewport({ ratio: 1 });
+  await tapWhereShown(option.element());
+  await expect.element(compactProject).toHaveTextContent("Doughnut");
+  await readsProjectBoard(doughnut);
+  expect(projectChoices.query()).toBeNull();
+  await expectBannerRow(compactProject);
+  expectFrameTextWhole();
 
-      await chooseProject(page, "Doughnut");
-      await expect(projectCompact).toHaveText("Doughnut");
-      await expectCatalogStories(page, doughnutProject);
-      await expect(parts(page).project).toHaveCount(0);
-      await expectSideBySideInOrder(inOrder);
-      await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
-    });
-  });
+  await page.viewport(1280, 800);
+  await expect.element(projectRadio("Doughnut")).toBeChecked();
+  expect(compactProject.query()).toBeNull();
+  expectOnlyBannerControls();
+  await page.viewport(portrait.width, portrait.height);
+  await expect.element(compactProject).toHaveTextContent("Doughnut");
+  await expectBannerRow(compactProject);
+});
 
-  test.describe("keyboard and resize", () => {
-    test.use({ viewport: portrait });
+test("compact project keyboard Escape keeps the choice and Enter accepts the active option", async () => {
+  await mountProjectCatalog("stories", portrait);
+  await expect.element(compactProject).toHaveTextContent("Open Dough");
+  focus(compactProject);
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}{Escape}");
+  await expect.element(compactProject).toHaveFocus();
+  await expect.element(compactProject).toHaveTextContent("Open Dough");
+  expect(list.query()).toBeNull();
+  await readsProjectBoard(openDough);
 
-    test("keyboard reaches Pygardon or Escape leaves Open Dough on the title control", async ({
-      page,
-      frontendServices,
-    }) => {
-      await answerCatalogProjects(page, frontendServices);
-      await page.goto("/");
-      const { projectCompact } = parts(page);
-      await expect(projectCompact).toHaveText("Open Dough");
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}{Enter}");
+  await expect.element(compactProject).toHaveTextContent("Pygardon");
+  await expect.element(compactProject).toHaveFocus();
+  await readsProjectBoard(pygardon);
+});
 
-      await test.step("Escape leaves the project and focus on the title control", async () => {
-        await pressProjectListKeys(page, ["ArrowDown", "ArrowDown", "Escape"]);
-        await expect(projectCompact).toHaveText("Open Dough");
-        await expectCatalogStories(page, openDoughProject);
-      });
-
-      await test.step("keyboard selection chooses Pygardon", async () => {
-        await pressProjectListKeys(page, [
-          "ArrowDown",
-          "ArrowDown",
-          "ArrowDown",
-          "Enter",
-        ]);
-        await expect(projectCompact).toHaveText("Pygardon");
-        await expectCatalogStories(page, pygardonProject);
-      });
-    });
-
-    test("resizing keeps Doughnut across tab radios and compact select", async ({
-      page,
-      frontendServices,
-    }) => {
-      await answerCatalogProjects(page, frontendServices);
-      await page.goto("/");
-      const { projectCompact, banner } = parts(page);
-      await expect(projectCompact).toHaveText("Open Dough");
-      await chooseProject(page, "Doughnut");
-      await expect(projectCompact).toHaveText("Doughnut");
-      await expectCatalogStories(page, doughnutProject);
-
-      await page.setViewportSize({ width: 1280, height: 800 });
-      await expect(projectCompact).toHaveCount(0);
-      await expectProjectChoice(page, "Doughnut");
-      await expect(projectTab(page, "Doughnut")).toBeChecked();
-      await expect(banner.getByRole("heading", { level: 1 })).toHaveCount(0);
-
-      await page.setViewportSize(portrait);
-      await expectCompactProjectSelect(page, "Doughnut");
-      await expect(projectCompact).toBeVisible();
-    });
-
-    test("page-wide Right Arrow selects Doughnut and focuses the compact title control", async ({
-      page,
-      frontendServices,
-    }) => {
-      await answerCatalogProjects(page, frontendServices);
-      await page.goto("/");
-      await expect(parts(page).projectCompact).toHaveText("Open Dough");
-      const { backlog, projectCompact } = parts(page);
-      const card = backlog.getByRole("article", {
-        name: openDoughProject.queued,
-      });
-      await focusCanonicalRecord(card);
-      await page.keyboard.press("ArrowRight");
-      await expect(projectCompact).toBeFocused();
-      await expect(projectCompact).toHaveText("Doughnut");
-      await expectCatalogStories(page, doughnutProject);
-    });
-  });
+test("page-wide Right Arrow moves Board focus to the compact title of the next project", async () => {
+  await mountProjectCatalog("stories", portrait);
+  await expect.element(compactProject).toHaveTextContent("Open Dough");
+  await openDoughCard
+    .getByRole("button", { name: "Inspect story", exact: true })
+    .click();
+  const record = openDoughCard.getByRole("link", { name: /^Canonical record/ });
+  await expect.element(record).toBeVisible();
+  focus(record);
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.element(compactProject).toHaveFocus();
+  await expect.element(compactProject).toHaveTextContent("Doughnut");
+  await readsProjectBoard(doughnut);
 });

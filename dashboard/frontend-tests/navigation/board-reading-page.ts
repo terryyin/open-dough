@@ -81,6 +81,9 @@ export function pointInBrowser({ x, y }: { x: number; y: number }) {
   return { x: x + (frame?.left ?? 0), y: y + (frame?.top ?? 0) };
 }
 
+export const storyCard = (title: string) =>
+  page.getByRole("article", { name: title, exact: true });
+
 export function center(element: Element) {
   const bounds = rect(element);
   return {

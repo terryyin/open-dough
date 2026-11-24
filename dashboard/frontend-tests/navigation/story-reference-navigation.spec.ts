@@ -1,194 +1,227 @@
-// Story A waits on Story B and needs a decision about Story C. Following
-// Story A's reference opens Story B's detail at its reading top with the
-// keyboard on the card and a cue that does not select it; the canonical
-// record opens GitHub at the published revision; a later revision leaves the
-// keyboard where the developer put it. While Story B's accepted start runs,
-// following the reference reveals it with its protected detail closed. Nothing
-// here launches or attaches an agent; a real Take is
-// ../../../e2e/launches/agent-launch-story-card.spec.ts.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { parts, shortRevision } from "../../test-support/dashboardPage.ts";
-import { pausePageClock } from "../../test-support/autoRefreshJourney.ts";
-import { advanceFrontendDoneProject } from "../../test-support/support/frontendDoneProjectRefresh.ts";
-import { recordHostRequests } from "../../test-support/support/frontendHostRequests.ts";
-import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
-import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
-import { backlogLaunchers } from "../../test-support/launchStoryCardPage.ts";
-import { agentAcceptEndpoint } from "../../src/agentLaunch.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
+import { expect, test, vi } from "vitest";
+import { page, type Locator } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
+import { ReadProblem } from "../../src/readProblem.ts";
+import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
+import { boardReading, storyCard } from "./board-reading-page.ts";
+import { longBacklog } from "./board-work.ts";
+import { focus } from "./project-navigation-frame.ts";
 import {
-  failFrontendSupplierSeed,
-  putFrontendActiveReference,
-} from "../../test-support/support/frontendStoryReferences.ts";
-import { putFrontendDependencies } from "../../test-support/support/frontendStoryDependencies.ts";
-import { twoDependencies } from "../../test-support/storyDependencyFixture.ts";
-import { expectReadingTop } from "../../test-support/readingPlace.ts";
-import {
-  emptyArea,
-  expectInspected,
-  expectSelected,
-  storyDetail,
-} from "../../test-support/storyCardSelection.ts";
+  controlDestinationCueTime,
+  destinationCueAnimationName,
+  finishCue,
+  showsMovingCue,
+} from "./story-destination-cue.ts";
 import {
   canonicalRecord,
-  hideDetail,
-  inspectionToggle,
-  storyCard,
-} from "../../test-support/storyCardControls.ts";
-import {
-  dependencySummary,
+  detail,
   followReference,
+  inspection,
+  mountReferences,
   openDependencies,
   referenceNotice,
-} from "../../test-support/storyReference.ts";
+  showsReached,
+} from "./story-reference-frame.ts";
 import {
-  expectCueEnds,
-  expectDestinationCue,
-  expectDestinationCueRestarted,
-  holdDestinationCueWhileFading,
-  passPartOfCue,
-} from "../../test-support/destinationCue.ts";
+  canonicalTexts,
+  consumer,
+  filesAt,
+  referenceWork,
+  supplier,
+} from "./story-reference-publication.ts";
 
-test.use({ hasTouch: true });
+const supplierFile = ".planning/seeds/B.md";
+const supplierCard = storyCard(supplier.title);
+const supplierDetail = detail(supplier.title);
 
-test("a dependency opens its active story, keeping the dashboard and inspection on repeated activation", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 500 });
-  const canonicalUrl = await putFrontendActiveReference(page, frontendServices);
-  // The case passes cue time and revision-check time itself.
-  await pausePageClock(page);
-  await preholdRevisionStreamSlots(page);
-  const hostRequests = recordHostRequests(page);
-  await page.goto("/");
-  const consumer = storyCard(parts(page).backlog, "Story A");
-  const supplier = storyCard(parts(page).backlog, "Story B");
+async function showsReadingTop(card: Locator) {
+  await expect
+    .poll(() => {
+      const element = card.element();
+      const scroll = element.closest(".board-scroll");
+      const heading = element
+        .closest(".column")
+        ?.querySelector(".column-header");
+      if (!scroll || !heading)
+        throw new Error("Expected a Board column with a sticky heading.");
+      const top = element.getBoundingClientRect().top;
+      const readingEdge =
+        scroll.getBoundingClientRect().top +
+        Number.parseFloat(getComputedStyle(scroll).scrollPaddingTop) +
+        Number.parseFloat(getComputedStyle(element).scrollMarginTop);
+      return (
+        Math.abs(top - readingEdge) <= 1 &&
+        top >= heading.getBoundingClientRect().bottom
+      );
+    })
+    .toBe(true);
+}
 
-  await test.step("following the reference opens Story B's detail at its reading top, focused and cued without selecting it", async () => {
-    await openDependencies(consumer);
-    await followReference(consumer, "Story B");
-    await expect(storyDetail(supplier)).toBeVisible();
-    await expect(supplier).toBeFocused();
-    expect(
-      await supplier.evaluate((card) => card.getBoundingClientRect().height),
-    ).toBeGreaterThan(await page.evaluate(() => innerHeight));
-    await expectReadingTop(supplier);
-    await expectDestinationCue(page, supplier, { motion: true });
-    await expect(page.locator(".story-card-selected")).toHaveCount(0);
-    await expectCueEnds(page, supplier);
-    await expectSelected(supplier, false);
-    expect(new URL(page.url()).hostname).toBe("127.0.0.1");
-  });
-
-  await test.step("following again keeps the developer's selection and detail at the reading top", async () => {
-    await emptyArea(supplier).click();
-    await expectSelected(supplier, true);
-    await followReference(consumer, "Story B");
-    await expectDestinationCue(page, supplier, { motion: true });
-    await expectSelected(supplier, true);
-    await expectInspected(supplier, true);
-    await expectReadingTop(supplier);
-  });
-
-  await test.step("following while the cue fades restarts it and keeps selection, detail and focus", async () => {
-    await passPartOfCue(page, 1000);
-    const fadingTime = await holdDestinationCueWhileFading(supplier, 1000);
-    await followReference(consumer, "Story B");
-    await expectDestinationCue(page, supplier, { motion: true });
-    await expectDestinationCueRestarted(supplier, fadingTime);
-    await expectSelected(supplier, true);
-    await expectInspected(supplier, true);
-    await expect(supplier).toBeFocused();
-    await passPartOfCue(page, 1000);
-    await expectDestinationCue(page, supplier, { motion: true });
-    await expectCueEnds(page, supplier);
-    await expectSelected(supplier, true);
-    await expectInspected(supplier, true);
-    await expect(supplier).toBeFocused();
-  });
-
-  await test.step("the canonical record opens GitHub's blob of the published revision", async () => {
-    const popup = page.waitForEvent("popup");
-    await canonicalRecord(supplier).click();
-    const evidence = await popup;
-    await expect(
-      evidence.getByRole("heading", { name: "Source evidence" }),
-    ).toBeVisible();
-    expect(evidence.url()).toBe(canonicalUrl);
-    await evidence.close();
-  });
-
-  await test.step("a later revision leaves the keyboard on Story A's Inspect", async () => {
-    await hideDetail(supplier);
-    const inspect = inspectionToggle(consumer);
-    await inspect.focus();
-    const refreshed = await advanceFrontendDoneProject(page, frontendServices);
-    await expect(parts(page).readRevision).toContainText(
-      shortRevision(refreshed),
+function cueAnimation() {
+  const animation = supplierCard
+    .element()
+    .getAnimations({ subtree: true })
+    .find(
+      (candidate) =>
+        candidate instanceof CSSAnimation &&
+        candidate.animationName === destinationCueAnimationName,
     );
-    await expectInspected(supplier, false);
-    await expect(inspect).toBeFocused();
-  });
-  expect(hostRequests()).toEqual([]);
-});
+  if (!animation || typeof animation.currentTime !== "number")
+    throw new Error("Expected the card's CSS destination cue.");
+  return animation;
+}
 
-test("a reference reveals a starting story without opening its protected inspection or starting another host action", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendDependencies(frontendServices, twoDependencies());
-  const attempt = frontendAttempt(frontendServices);
-  const boundary = await installFrontendLaunchBoundary(page, {
-    accept: attempt.accept,
-  });
-  const hostRequests = recordHostRequests(page);
-  await page.goto("/");
-  const { start, dialog } = backlogLaunchers(page);
-  const consumer = storyCard(parts(page).backlog, "Story A");
-  const supplier = storyCard(parts(page).board, "Story B");
-  await start("Story B").click();
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(dialog).toBeHidden();
-  await expect(inspectionToggle(supplier)).toBeDisabled();
-
-  await openDependencies(consumer);
-  await followReference(consumer, "Story B");
-  await expect(supplier).toBeFocused();
-  await expect(storyDetail(supplier)).toHaveCount(0);
-  await expect(canonicalRecord(supplier)).toBeVisible();
-  expect(hostRequests()).toEqual([`POST ${agentAcceptEndpoint}`]);
-
-  attempt.launch(
-    makeMe.aLaunchRecord
-      .executing({ identity: "SEED-B#b", title: "Story B" })
-      .please(),
+test("a dependency opens its active story at the reading edge and restarts the cue without changing inspection or Highlight", async () => {
+  controlDestinationCueTime();
+  const initial = referenceWork({ revision: "b3".repeat(20) });
+  const work = makeMe.aPublishedWork
+    .with({ ...initial, backlog: [...initial.backlog, ...longBacklog] })
+    .please();
+  const files = canonicalTexts();
+  files.set(
+    supplierFile,
+    renderStorySection(supplier, {
+      goal: "Publish the detailed and reviewed endpoint contract for client readers. "
+        .repeat(24)
+        .trim(),
+    }),
   );
-  await boundary.tellChanged();
-  await expect(inspectionToggle(supplier)).toBeEnabled();
-  expect(boundary.acceptances).toHaveLength(1);
+  const frame = await mountReferences(work, {
+    viewport: { width: 1280, height: 500 },
+    detailFile: filesAt(files),
+  });
+  const address = location.href;
+  await openDependencies();
+  await followReference(supplier.title);
+  await expect.element(supplierDetail).toBeVisible();
+  await expect.element(supplierCard).toHaveFocus();
+  expect(supplierCard.element().getBoundingClientRect().height).toBeGreaterThan(
+    innerHeight,
+  );
+  await showsReadingTop(supplierCard);
+  await showsMovingCue(supplierCard);
+  expect(document.querySelector(".story-card-selected")).toBeNull();
+  await finishCue(supplierCard);
+  await boardReading.expectStorySelection(supplierCard, false);
+  expect(location.href).toBe(address);
+
+  await supplierCard.getByRole("heading", { name: supplier.title }).click();
+  await boardReading.expectStoryHighlight(supplierCard);
+  await followReference(supplier.title);
+  await showsMovingCue(supplierCard);
+  await showsReadingTop(supplierCard);
+  await expect.element(supplierDetail).toBeVisible();
+
+  vi.advanceTimersByTime(1000);
+  const fading = cueAnimation();
+  fading.pause();
+  fading.currentTime = 1000;
+  await fading.ready;
+  const fadingOpacity = Number(
+    getComputedStyle(supplierCard.element(), "::after").opacity,
+  );
+  expect(fadingOpacity).toBeGreaterThan(0);
+  expect(fadingOpacity).toBeLessThan(1);
+  await followReference(supplier.title);
+  await showsMovingCue(supplierCard);
+  const restarted = cueAnimation();
+  expect(restarted).not.toBe(fading);
+  expect(restarted.currentTime).toBeLessThan(1000);
+  expect(
+    Number(getComputedStyle(supplierCard.element(), "::after").opacity),
+  ).toBe(1);
+  vi.advanceTimersByTime(1000);
+  await showsMovingCue(supplierCard);
+  await finishCue(supplierCard);
+  await boardReading.expectStoryHighlight(supplierCard);
+  await expect.element(supplierDetail).toBeVisible();
+  await expect.element(supplierCard).toHaveFocus();
+
+  await expect
+    .element(canonicalRecord(supplierCard))
+    .toHaveAttribute(
+      "href",
+      `https://github.com/example/open-dough/blob/${work.revision}/${supplierFile}#b`,
+    );
+  await expect
+    .element(canonicalRecord(supplierCard))
+    .toHaveAttribute("target", "_blank");
+  await inspection(supplierCard).click();
+  const consumerInspect = inspection(storyCard(consumer.title));
+  focus(consumerInspect);
+  const revision = "c4".repeat(20);
+  await expect.poll(frame.subscriptionCount).toBe(1);
+  frame.queueSnapshot(
+    makeMe.aPublishedWork.with({ ...work, revision }).please(),
+  );
+  frame.revisionChanged(revision);
+  await expect
+    .element(page.getByText(/Published work read at revision c4c4c4c/))
+    .toBeVisible();
+  await expect.element(supplierDetail).not.toBeInTheDocument();
+  await expect.element(consumerInspect).toHaveFocus();
+  frame.expectNoHostAction();
 });
 
-test("an identified active block with unreadable detail still opens with its existing read gap", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendDependencies(frontendServices, twoDependencies());
-  await failFrontendSupplierSeed(page);
-  const hostRequests = recordHostRequests(page);
-  await page.goto("/");
-  const consumer = storyCard(parts(page).backlog, "Story A");
-  await expect(dependencySummary(consumer)).toBeVisible();
-  await openDependencies(consumer);
-  await followReference(consumer, "Story B");
-  const supplier = storyCard(parts(page).backlog, "Story B");
-  await expect(
-    storyDetail(supplier).locator(".preparation-problem").first(),
-  ).toBeVisible();
-  await expect(supplier).toBeFocused();
-  await expect(supplier).toBeInViewport({ ratio: 0.5 });
-  await expect(referenceNotice(page)).toBeEmpty();
-  expect(hostRequests()).toEqual([]);
+test("a reference reveals a story with a running accepted start while its protected inspection remains closed", async () => {
+  controlDestinationCueTime();
+  const work = referenceWork();
+  const accepted = makeMe.anAcceptedAttempt.executing(supplier).please();
+  const attempt = makeMe.anAttemptObservation
+    .of(accepted)
+    .owned(true)
+    .running(true)
+    .please();
+  const answer = {
+    ...makeMe.aMachineAnswer.answeringAttempts(attempt).please(),
+    revision: "m".repeat(40),
+  };
+  const frame = await mountReferences(work, {
+    detailFile: filesAt(canonicalTexts()),
+    machine: { answer },
+  });
+  await expect.element(inspection(supplierCard)).toBeDisabled();
+
+  await openDependencies();
+  await followReference(supplier.title);
+  await expect.element(supplierCard).toHaveFocus();
+  await expect.element(supplierDetail).not.toBeInTheDocument();
+  await expect.element(canonicalRecord(supplierCard)).toBeVisible();
+
+  const record = makeMe.aLaunchRecord.executing(supplier).please();
+  Object.assign(answer, {
+    ...makeMe.aMachineAnswer.observingOpen(record).please(),
+    revision: "e".repeat(40),
+  });
+  vi.advanceTimersByTime(checkIntervalMs);
+  await expect.element(inspection(supplierCard)).toBeEnabled();
+  frame.expectNoHostAction();
+});
+
+test("an identified active block with unreadable detail still opens with its existing read gap", async () => {
+  const read = filesAt(canonicalTexts());
+  const frame = await mountReferences(
+    referenceWork({ revision: "b4".repeat(20) }),
+    {
+      detailFile: (...args) =>
+        args[1] === supplierFile
+          ? Promise.reject(
+              new ReadProblem(`GitHub could not find ${supplierFile}.`),
+            )
+          : read(...args),
+    },
+  );
+  await openDependencies();
+  await followReference(supplier.title);
+  const gap = supplierDetail
+    .getByText(
+      "The canonical record could not be read for preparation facts.",
+      { exact: true },
+    )
+    .first();
+  await expect.element(gap).toBeVisible();
+  await showsReached(supplierCard);
+  await expect.element(referenceNotice).toBeEmptyDOMElement();
+  frame.expectNoHostAction();
 });

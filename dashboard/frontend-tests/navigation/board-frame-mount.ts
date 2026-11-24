@@ -1,17 +1,27 @@
-import { createElement } from "react";
+import { createElement, Fragment, useState } from "react";
 import { expect, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { AcceptanceAnswer } from "../../src/agentLaunchClient.ts";
+import {
+  DashboardApplication,
+  type DashboardSettingsSources,
+} from "../../src/App.tsx";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import type { PageReads } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
+import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
+import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
-import { authenticatedSessionServices } from "../../src/sessionServices.ts";
+import {
+  authenticatedSessionServices,
+  type SessionServices,
+} from "../../src/sessionServices.ts";
 import { withPagePreferences } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
@@ -28,6 +38,23 @@ export type BoardFrameMachine = {
   ) => Promise<AcceptanceAnswer>;
 };
 
+function DashboardWithSettings({
+  projects: initialProjects,
+  reads,
+  settingsSources,
+}: {
+  readonly projects: readonly PublishedSource[];
+  readonly reads: PageReads;
+  readonly settingsSources: DashboardSettingsSources;
+}) {
+  const [projects, replaceProjects] = useState(initialProjects);
+  return createElement(DashboardApplication, {
+    configuration: { projects, problem: undefined, replaceProjects },
+    reads,
+    settingsSources,
+  });
+}
+
 export async function mountBoardFrame(
   work: PublishedWork,
   viewport: { width: number; height: number },
@@ -35,22 +62,32 @@ export async function mountBoardFrame(
   machine: BoardFrameMachine = {},
   {
     otherWork = [],
-    initialReadError,
+    initialSnapshot,
+    detailFile,
+    readProfiles,
+    revisionCheck,
     intentReads,
     done,
     ci,
     review,
+    sessions = authenticatedSessionServices,
+    settingsSources,
   }: {
     otherWork?: readonly PublishedWork[];
-    initialReadError?: Error;
+    initialSnapshot?: Error | Promise<PublishedWork>;
+    detailFile?: PublishedObservationReadSource["readDetailFile"];
+    readProfiles?: PublishedObservationReadSource["readProfiles"];
+    revisionCheck?: PublishedObservationReadSource["checkRevision"];
     intentReads?: IntentReadSource;
     done?: DoneRecordReadSource;
     ci?: IntentCiReadSource;
     review?: ReviewSource;
+    sessions?: SessionServices;
+    settingsSources?: DashboardSettingsSources;
   } = {},
 ) {
   withPagePreferences();
-  forceRevisionStreamDelivery();
+  if (revisionCheck === undefined) forceRevisionStreamDelivery();
   const originalUrl = location.href;
   const originalState: unknown = history.state;
   if (view === "roster") {
@@ -64,29 +101,45 @@ export async function mountBoardFrame(
   });
   const snapshots = [work, ...otherWork];
   const supply = boardFrameObservationSupplying(snapshots, {
-    ...(initialReadError === undefined ? {} : { initialReadError }),
+    ...(initialSnapshot === undefined ? {} : { initialSnapshot }),
+    ...(detailFile === undefined ? {} : { detailFile }),
+    ...(readProfiles === undefined ? {} : { readProfiles }),
+    ...(revisionCheck === undefined ? {} : { checkRevision: revisionCheck }),
     machineAnswer: machine.answer ?? emptyMachineAnswer(),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),
   });
-  const dashboard = createElement(ProjectsOnPage, {
-    projects: snapshots.map(({ source }) => source),
-    replaceProjects: () => {},
-    children: createElement(ConfiguredDashboard, {
-      reads: pageReadsSupplying({
-        sessions: authenticatedSessionServices,
-        observation: supply.observation,
-        machine: supply.machine,
-        ...(intentReads === undefined ? {} : { intent: intentReads }),
-        ...(done === undefined ? {} : { done }),
-        ...(ci === undefined ? {} : { ci }),
-        ...(review === undefined ? {} : { review }),
-      }),
-      settingsOpen: false,
-      onOpenSettings: () => {},
-      onDashboardReady: () => {},
-    }),
+  const projects = snapshots.map(({ source }) => source);
+  const reads = pageReadsSupplying({
+    sessions,
+    observation: supply.observation,
+    machine: supply.machine,
+    ...(intentReads === undefined ? {} : { intent: intentReads }),
+    ...(done === undefined ? {} : { done }),
+    ...(ci === undefined ? {} : { ci }),
+    ...(review === undefined ? {} : { review }),
   });
-  await mountComponent(dashboard, { viewport, fillsViewport: true });
+  const dashboard =
+    settingsSources === undefined
+      ? createElement(ProjectsOnPage, {
+          projects,
+          replaceProjects: () => {},
+          children: createElement(ConfiguredDashboard, {
+            reads,
+            settingsOpen: false,
+            onOpenSettings: () => {},
+            onDashboardReady: () => {},
+          }),
+        })
+      : createElement(DashboardWithSettings, {
+          projects,
+          reads,
+          settingsSources,
+        });
+  let pageInstance = 0;
+  const mounted = await mountComponent(dashboard, {
+    viewport,
+    fillsViewport: true,
+  });
   // Production launches settle through typed machine reads; wait out the first
   // answer before cases interact so Cancel→Enter reopen is not racing that
   // Board/Recently done update (Slice 4 removed the sync useAgentLaunches mock).
@@ -110,6 +163,12 @@ export async function mountBoardFrame(
       .toBe(true);
   }
   return {
+    remount: () => {
+      pageInstance += 1;
+      mounted.rerender(
+        createElement(Fragment, { key: pageInstance }, dashboard),
+      );
+    },
     revisionChanged: supply.revisionChanged,
     revisionCheckFailed: supply.revisionCheckFailed,
     queueSnapshot: supply.queueSnapshot,

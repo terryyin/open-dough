@@ -337,7 +337,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
 | 7 | Get fast proof of live sessions and terminal work (completed; recoverable at `290706bb1557f5437eb54df4d97da62cc1648457:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof`) | 77 | 31 |
-| 8a | [Get fast proof of the dashboard frame, navigation and settings](#speed-dashboard-frame-and-navigation-proof) | ≈67 | 22 |
+| 8a | Get fast proof of the dashboard frame, navigation and settings (completed; recoverable at `ad76d2ebbb88abe998fa1300963627dd10ac6551:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof`) | ≈67 | 22 |
 | 8b | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | ≈11 | 3 |
 | | **Total** | **594** | **249** |
 
@@ -458,60 +458,6 @@ The separate renamed-path grammar correction keeps its own acceptance example.
 - A comparison's diff is visible before its source text arrives. Retry or
   arrival preserves the readable diff and uses the selected snapshot's grammar
   and text. A file note records the exact comparison and paths it came from.
-
-<a id="speed-dashboard-frame-and-navigation-proof"></a>
-
-### Get fast proof of the dashboard frame, navigation and settings
-
-**Identity:** SEED-413#speed-dashboard-frame-and-navigation-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/802-speed-dashboard-frame-and-navigation-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c46f707d1969d56afaed5686c4bf37d0c24ab225491d86d5f0a3fd42381bfe79","plan":"2378907cf5c79b4519d8d0067bf51b0c3b57f817ca973990991fa453fe6e6a2d"}}
-```
-
-**Goal:** Developers get fast Vitest proof that the dashboard frame,
-project switching, recent stories, story references and settings behave
-correctly. This removes the last frontend legacy cases outside Done review,
-live sessions and the harness. The runner retirement then waits only on
-those stories.
-
-**Scope:**
-
-- Move the 22 legacy specs (about 67 cases) at `24ae92074` onto plain Vitest
-  under the [shared acceptance](#acceptance-shared-by-the-frontend-stories):
-  - `navigation/`: header, compact header and connection logo; project
-    selection and project keyboard navigation with its focus and
-    eligibility; recent stories; story reference navigation, identity and
-    recovery; story URL destination with its unavailable and repeat-cue
-    cases.
-  - `configuration/`: system appearance, system settings look and
-    navigation, and project hide selection.
-  - `stories/agent-roster-collection`.
-  - The three Intent story-changes specs that still mount the built app:
-    `intent-story-outside-proof`, `intent-story-outside-locations` and
-    `intent-story-changes-no-locations`.
-- Prove real deep links, reload and Back/Forward through a named E2E journey
-  only where a mounted owner cannot observe them. Reuse an existing journey
-  when it already proves the behavior.
-- Remove support that loses its last consumer here. The built-app runner
-  itself stays for stories 6, 7 and 8b.
-- Scope limit: the cases owned by
-  [Done review](#speed-dashboard-done-session-review-proof),
-  live sessions and terminal work and
-  `test-harness/`.
-
-**Key examples:**
-
-- A story URL opened directly selects the project and opens the story. When
-  the story is unavailable, the page shows the unavailable result. The
-  mounted page frame proves both through its required page-reads entry.
-  Only a reload or Back/Forward check that needs a real page load goes to
-  E2E.
-- A keyboard shortcut moves through eligible projects and keeps focus. The
-  three legacy keyboard specs collapse into fewer cases when they share
-  setup and each failure still names its distinct rule.
-- Choosing System appearance in settings changes the dashboard look in the
-  same mounted frame. The legacy built-app spec retires once every assertion
-  it made has a new owner.
 
 <a id="retire-legacy-dashboard-frontend-runner"></a>
 

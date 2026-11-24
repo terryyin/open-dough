@@ -2,8 +2,8 @@
 // banner of the production page: from Project Intent the button returns to
 // the selected story's view at its start, a remembered row selects another
 // story while Intent stays, and a remembered story no longer on the Board is
-// selected with no story reference notice added. The history kept across
-// reloads: ../navigation/recent-stories.spec.ts.
+// selected with no story reference notice added. Browser history persistence
+// across fresh dashboard frames: ../navigation/recent-stories-storage.spec.ts.
 
 import { expect, test } from "vitest";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";

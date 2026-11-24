@@ -1,102 +1,115 @@
-// Project selection around hidden projects, against controlled settings
-// answers: hiding the selected project moves selection, hiding every project
-// leaves settings usable without a Board or Intent, and links or history to a
-// hidden project do not present it. Saving the hidden flag per mode is
-// ../../../e2e/configuration/project-hide.spec.ts.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
 import {
-  installFrontendSettingsSubstitutes,
-  productionSeedProjects,
-} from "../../test-support/support/frontendSettingsSubstitutes.ts";
+  backToDashboard,
+  openSystemSettings,
+  settingsButton,
+  settingsRegion,
+} from "./system-settings-controls.ts";
 import {
-  chooseProject,
-  expectProjectChoice,
-} from "../../test-support/dashboardPage.ts";
-import {
-  openUntilRead,
-  untilPublishedWorkRead,
-} from "../../test-support/pageRequestNotes.ts";
-import {
-  back,
-  hideButton,
-  settings,
-  showButton,
-} from "../../test-support/support/systemSettingsPage.ts";
+  changePageAddress,
+  projectChoice,
+  projectFacts,
+  settingsWork,
+} from "./system-settings-frame.ts";
+import { settingsReplies } from "./system-settings-reads.ts";
 
-const visibleWithoutDoughnut = ["Open Dough", "Pygardon", "Terry Talks"];
-
-test("hiding the selected project selects another visible project, hiding all projects shows no Board or Intent while keeping settings usable, and deep links or prior history to a hidden project do not present it", async ({
-  page,
-  frontendServices,
-  baseURL,
-}) => {
-  await installFrontendSettingsSubstitutes(page, frontendServices, {
-    projects: productionSeedProjects,
+test("hiding the chosen project selects its next neighbour and hidden history or links cannot open it", async () => {
+  const [openDough, ...otherWork] = settingsWork;
+  let projects = settingsWork.map(({ source }) => source);
+  const setHidden = vi.fn((id: string, hidden: boolean) => {
+    projects = projects.map((project) =>
+      project.id === id ? { ...project, hidden } : project,
+    );
+    return Promise.resolve(projects);
   });
+  await mountBoardFrame(
+    openDough,
+    { width: 1440, height: 900 },
+    "stories",
+    {},
+    {
+      otherWork,
+      settingsSources: settingsReplies({
+        read: () =>
+          Promise.resolve(settingsWork.map((work) => projectFacts(work))),
+        setHidden,
+      }),
+    },
+  );
+  const visibility = (action: "Hide" | "Show", name: string) =>
+    page.getByRole("button", {
+      name: `${action} project ${name}`,
+      exact: true,
+    });
+  const taken = page.getByRole("region", { name: "Taken", exact: true });
   const allHidden = page.getByRole("heading", {
     name: "All projects are hidden",
     exact: true,
   });
-  const taken = page.getByRole("region", { name: "Taken", exact: true });
-  await openUntilRead(page, baseURL);
-  await chooseProject(page, "Open Dough");
-  await chooseProject(page, "Doughnut");
+  const address = () => location.search;
 
-  await settings(page).click();
-  await hideButton(page, "Doughnut").click();
-  await back(page).click();
-  await untilPublishedWorkRead(page);
-  await expectProjectChoice(page, "Pygardon");
-  await expect(page).toHaveURL(`${baseURL}/?project=pygardon`);
+  await userEvent.click(projectChoice("Doughnut"));
+  await expect.element(projectChoice("Doughnut")).toBeChecked();
+  await openSystemSettings();
+  await userEvent.click(visibility("Hide", "Doughnut"));
+  await expect.element(visibility("Show", "Doughnut")).toBeVisible();
+  expect(setHidden).toHaveBeenCalledWith("doughnut", true);
+  await userEvent.click(backToDashboard);
+  await expect.element(projectChoice("Pygardon")).toBeChecked();
+  expect(address()).toBe("?project=pygardon");
 
-  await page.goBack();
-  await untilPublishedWorkRead(page);
-  await expectProjectChoice(page, "Open Dough");
-  await expect(page.getByRole("radio", { name: "Doughnut" })).toHaveCount(0);
-
-  await openUntilRead(page, `${baseURL}/?project=doughnut`);
-  await expectProjectChoice(page, "Open Dough");
-  await expect(page).toHaveURL(`${baseURL}/`);
-
-  await openUntilRead(page, `${baseURL}/?project=doughnut&perspective=intent`);
-  await expectProjectChoice(page, "Open Dough");
-  await expect(page).toHaveURL(`${baseURL}/?perspective=intent`);
-
-  await settings(page).click();
-  for (const label of visibleWithoutDoughnut) {
-    await hideButton(page, label).click();
-    await expect(showButton(page, label)).toBeVisible();
+  history.back();
+  await expect.element(projectChoice("Open Dough")).toBeChecked();
+  await expect.element(projectChoice("Doughnut")).not.toBeInTheDocument();
+  for (const perspective of ["", "&perspective=intent"]) {
+    changePageAddress(`project=doughnut${perspective}`);
+    await expect
+      .poll(address)
+      .toBe(perspective === "" ? "" : "?perspective=intent");
+    await expect.element(projectChoice("Open Dough")).toBeChecked();
   }
-  await expect(
-    page.getByText("No projects configured. Add a project to get started."),
-  ).toHaveCount(0);
-  await expect(
-    page
-      .getByRole("region", { name: "Projects", exact: true })
-      .getByRole("listitem"),
-  ).toHaveCount(4);
 
-  await back(page).click();
-  await expect(allHidden).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "No projects configured" }),
-  ).toHaveCount(0);
-  await expect(page.getByRole("radio")).toHaveCount(0);
-  await expect(taken).toHaveCount(0);
-  await expect(
-    page.getByRole("region", { name: "Backlog list", exact: true }),
-  ).toHaveCount(0);
-  await expect(settings(page)).toBeFocused();
+  await openSystemSettings();
+  for (const name of ["Open Dough", "Pygardon", "Terry Talks"]) {
+    await userEvent.click(visibility("Hide", name));
+    await expect.element(visibility("Show", name)).toBeVisible();
+  }
+  await expect
+    .poll(() => settingsRegion("Projects").getByRole("listitem").elements())
+    .toHaveLength(4);
+  await expect
+    .element(
+      page.getByText("No projects configured. Add a project to get started."),
+    )
+    .not.toBeInTheDocument();
+  await userEvent.click(backToDashboard);
+  await expect.element(allHidden).toBeVisible();
+  await expect
+    .element(page.getByRole("heading", { name: "No projects configured" }))
+    .not.toBeInTheDocument();
+  expect(page.getByRole("radio").elements()).toHaveLength(0);
+  await expect.element(taken).not.toBeInTheDocument();
+  await expect
+    .element(page.getByRole("main", { name: "Intent", exact: true }))
+    .not.toBeInTheDocument();
+  await expect
+    .element(page.getByRole("region", { name: "Backlog list", exact: true }))
+    .not.toBeInTheDocument();
+  await expect.element(settingsButton).toHaveFocus();
 
-  await page.goto(`${baseURL}/?project=open-dough&perspective=intent`);
-  await expect(allHidden).toBeVisible();
-  await expect(page).toHaveURL(`${baseURL}/`);
-  await expect(taken).toHaveCount(0);
-
-  await settings(page).click();
-  await showButton(page, "Pygardon").click();
-  await back(page).click();
-  await untilPublishedWorkRead(page);
-  await expectProjectChoice(page, "Pygardon");
-  await expect(taken).toBeVisible();
+  changePageAddress("project=open-dough&perspective=intent");
+  await expect.poll(address).toBe("");
+  await expect.element(allHidden).toBeVisible();
+  await expect.element(taken).not.toBeInTheDocument();
+  await expect
+    .element(page.getByRole("main", { name: "Intent", exact: true }))
+    .not.toBeInTheDocument();
+  await openSystemSettings();
+  await userEvent.click(visibility("Show", "Pygardon"));
+  await expect.element(visibility("Hide", "Pygardon")).toBeVisible();
+  await userEvent.click(backToDashboard);
+  await expect.element(projectChoice("Pygardon")).toBeChecked();
+  await expect.element(taken).toBeVisible();
 });

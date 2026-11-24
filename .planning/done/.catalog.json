@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_speed-dashboard-frame-and-navigation-proof.json",
+      "identity": "SEED-413#speed-dashboard-frame-and-navigation-proof",
+      "completedAt": "2026-11-24T01:52:48.627Z",
+      "blob": "a00effde01ac154598891a777f1ef1c996e973c0"
+    },
+    {
       "fileName": "SEED-413_speed-dashboard-live-session-and-terminal-proof.json",
       "identity": "SEED-413#speed-dashboard-live-session-and-terminal-proof",
       "completedAt": "2026-11-24T01:18:18.894Z",

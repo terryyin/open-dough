@@ -86,6 +86,7 @@ export function intentStoryCompare() {
     run,
     chooseRun: (key: string) => userEvent.selectOptions(run, key),
     // The story's changed files outside every location.
+    outsideGroup,
     outside: () => textOf(outsideGroup.query()),
     onlyChangedFiles: intent.getByRole("checkbox", {
       name: "Selected story only",
