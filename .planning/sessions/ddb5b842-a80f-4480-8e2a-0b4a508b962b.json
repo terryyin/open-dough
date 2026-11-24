@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "ddb5b842-a80f-4480-8e2a-0b4a508b962b",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T06:47:53.370Z",
+  "story": "SEED-429#skip-empty-instruction-recordings",
+  "ranges": [
+    {
+      "base": "a6bc8e0c37f35c56b9d4487f78f01f971f415e57",
+      "candidate": "16f40fd020e1ff258cbfab8acfad1c0072a60cf8"
+    }
+  ]
+}
