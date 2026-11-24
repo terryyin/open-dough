@@ -10,11 +10,15 @@ import {
   sharedCheckoutUncertainty,
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
-import type { StoryReview } from "../src/storyReviewContract.ts";
+import type {
+  ReviewSyncFailure,
+  StoryReview,
+} from "../src/storyReviewContract.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { publishedRecordFromText } from "./publishedSessionRecordText.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
+import { failedSyncExplanation } from "./reviewRepository.ts";
 import {
   admissionBound,
   belongsOnRetainedPair,
@@ -31,8 +35,17 @@ export interface PublishedSessionSource {
   readonly backlogPath: string;
 }
 
-const unknownSession = () =>
+export const unknownSession = () =>
   new RefusedRequest(404, "This project published no such session.");
+
+// A session open whose sync failed before its record reached the last sync.
+export const unsyncedSessionReview = (
+  failure: ReviewSyncFailure,
+): StoryReview => ({
+  kind: "landing-unavailable",
+  comparison: "published-session",
+  explanation: failedSyncExplanation(failure),
+});
 
 // The record a published file holds, undefined unless it is valid and sits at
 // its own UUID's path.

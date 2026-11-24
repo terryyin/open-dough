@@ -110,14 +110,15 @@ export const readFile = (
     new AbortController().signal,
   );
 
-// A configured project, mounted for the test, whose Review repository last
-// synced origin/main at a session record, while origin has since advanced past it with an unrelated
-// file and a later session's record, and the execution checkout is retired.
-export async function aSyncedPublishedSession() {
+// A configured project, mounted for the test, whose origin trunk published a
+// session record, before its Review repository first syncs.
+async function aConfiguredPublishedSession() {
   const { checkout } = await aDoneCaptureCase().withOrigin().please();
   const integration = checkout.integration;
-  const origin = await git(integration, "remote", "get-url", "origin");
-  stubFixtureHome(checkout.fixture, origin.stdout.trim());
+  const origin = (
+    await git(integration, "remote", "get-url", "origin")
+  ).stdout.trim();
+  stubFixtureHome(checkout.fixture, origin);
   const unmount = mountProjectConfiguration("development");
   onTestFinished(() => {
     unmount();
@@ -141,12 +142,39 @@ export async function aSyncedPublishedSession() {
       })
       .please(),
   );
-  const source = knownSource("open-dough");
+  return {
+    fixture: checkout.fixture,
+    integration,
+    origin,
+    recordedAt,
+    sessionId: record.sessionId,
+    source: knownSource("open-dough"),
+    ...recorded,
+  };
+}
+
+// A configured project whose published session this machine never synced,
+// with its execution checkout retired and its origin unreachable.
+export async function aNeverSyncedPublishedSessionOffline() {
+  const { integration, origin, sessionId } =
+    await aConfiguredPublishedSession();
+  renameSync(integration, `${integration}-retired`);
+  renameSync(origin, `${origin}-unreachable`);
+  return { sessionId };
+}
+
+// A configured project, mounted for the test, whose Review repository last
+// synced origin/main at a session record, while origin has since advanced
+// past it with an unrelated file and a later session's record, and the
+// execution checkout is retired.
+export async function aSyncedPublishedSession() {
+  const { integration, ...configured } = await aConfiguredPublishedSession();
   const repository = await syncedReviewRepository(
-    source,
+    configured.source,
     new AbortController().signal,
   );
-  const unsynced = makeMe.aSessionRecord.closing(recorded).please();
+  const { base, candidate } = configured;
+  const unsynced = makeMe.aSessionRecord.closing({ base, candidate }).please();
   await recordPublished(integration, unsynced);
   const advanced = await commitDeclaredRevision(integration, {
     files: { "later.md": "later\n" },
@@ -154,14 +182,10 @@ export async function aSyncedPublishedSession() {
   await git(integration, "push", "--quiet", "origin", "main");
   renameSync(integration, `${integration}-retired`);
   return {
-    fixture: checkout.fixture,
+    ...configured,
     repository,
-    recordedAt,
     advanced,
-    sessionId: record.sessionId,
     unsyncedSessionId: unsynced.sessionId,
-    source,
-    ...recorded,
   };
 }
 

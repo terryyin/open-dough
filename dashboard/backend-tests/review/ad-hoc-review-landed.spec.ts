@@ -1,3 +1,4 @@
+import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, test, onTestFinished, vi } from "vitest";
 import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
@@ -19,7 +20,9 @@ import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 const reference = "60000000-0000-4000-8000-000000000001";
 const file = "delivered[1].txt";
 
-test("a Done session reads a legacy accepted pair through origin without its capture repository", async () => {
+// A Done ad hoc session whose launch reports through a published session
+// reference and kept the accepted pair of a configured project's history.
+async function aDoneSessionReportingThroughReference() {
   const repository = await materializeRepository(
     makeMe.aRepository
       .withRevision("base")
@@ -63,12 +66,18 @@ test("a Done session reads a legacy accepted pair through origin without its cap
     )
     .please();
   keepLaunchRecords(repository.fixture, [record]);
-  const signal = new AbortController().signal;
   const subject = {
     source: record.request.source,
     host: record.session.host,
     session: record.session.sessionId,
   };
+  return { repository, subject, base, accepted };
+}
+
+test("a Done session reads a legacy accepted pair through origin without its capture repository", async () => {
+  const { repository, subject, base, accepted } =
+    await aDoneSessionReportingThroughReference();
+  const signal = new AbortController().signal;
   const snapshot = async () =>
     storyReview(await reviewInput({ subject }, signal), signal);
   await expect(snapshot()).resolves.toMatchObject({
@@ -102,4 +111,19 @@ test("a Done session reads a legacy accepted pair through origin without its cap
     kind: "landing-unavailable",
   });
   await expect(text()).rejects.toMatchObject({ status: 409 });
+});
+
+test("a Done session whose reference never synced, opened while origin is unreachable, names the failed sync", async () => {
+  const { repository, subject } = await aDoneSessionReportingThroughReference();
+  renameSync(repository.origin, `${repository.origin}-unreachable`);
+  const signal = new AbortController().signal;
+
+  const review = storyReview(await reviewInput({ subject }, signal), signal);
+
+  await expect(review).resolves.toMatchObject({
+    kind: "landing-unavailable",
+    explanation: expect.stringContaining(
+      "The review could not sync from origin",
+    ) as unknown,
+  });
 });

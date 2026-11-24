@@ -232,7 +232,7 @@ consumers and 9 E2E specs pass.
 
 ### 3. Name a failed sync in published session reviews
 Type: Behavior
-Status: planned
+Status: done
 Proof: backend `dashboard/backend-tests/review/published-session-review-request.spec.ts` and `dashboard/backend-tests/review/published-session-review.spec.ts`; E2E `e2e/sessions/recently-done-published-sessions.spec.ts` stays green.
 
 Behavior:
@@ -245,6 +245,17 @@ Behavior:
 - A session absent after a successful sync is still refused as unknown.
 
 Change: implement the "A failed session sync is named" decision above.
+
+Accepted proof: `published-session-review-request.spec.ts` covers three opens
+that answer session-unavailable with the failed-sync explanation: a project
+that never synced, opened offline; an absent record opened while origin
+refuses; and an absent record whose fetch hangs, observed at
+`fetchedPublishedSessionSource`. A record absent after a successful sync is
+still refused as unknown. A kept ad hoc session reporting through a published
+UUID now also falls back to its launch record on a failed sync
+(`ad-hoc-review-landed.spec.ts`). A file read on a project that never synced
+gets "This project published no such session.". The product reaches file reads
+only after an open, so that case has no dedicated test.
 
 ### 4. Answer from the last sync when origin hangs
 Type: Behavior
@@ -273,6 +284,13 @@ comparison specs. It moves the execution checkout's `.git` to its parent and
 expects "The execution checkout no longer points to this project's Git root.".
 It follows the deleted case's setup at `bd0acbfd^`, without the
 parent-publication steps. Product code is unchanged.
+
+## Story obligations
+
+### G1. A hung session sync names the abort, not the timeout, and is observed only below storyReview
+Reported: slice 3 — "For a hang, the problem text is the abort message. Slice 4 should fold sessionSyncFailure's abort handling into reviewSyncFailure and its timeout wording."
+Story clause: "names the failed sync when nothing synced earlier can answer"
+Disposition: receiving slice 4
 
 ## Concern evidence
 

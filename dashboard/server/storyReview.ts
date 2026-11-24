@@ -20,7 +20,10 @@ import {
 } from "./storyReviewRecordAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { legacySessionReview } from "./storyReviewSessionAdmission.ts";
-import { publishedSessionReview } from "./publishedSessionReview.ts";
+import {
+  publishedSessionReview,
+  unsyncedSessionReview,
+} from "./publishedSessionReview.ts";
 import { publishedTakenReview } from "./storyReviewPublishedTaken.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 import {
@@ -42,11 +45,13 @@ export async function storyReviewResponse(
 
 // Answer one review read for a story or an ad hoc session. A local session
 // uses its admitted launch record. A published session uses its fetched
-// project source. Refusals carry their status in `RefusedRequest`.
+// project source, or names the sync that failed to bring its record.
+// Refusals carry their status in `RefusedRequest`.
 export async function storyReview(
   input: StoryReviewInput,
   signal: AbortSignal,
 ): Promise<StoryReview> {
+  if ("syncFailed" in input) return unsyncedSessionReview(input.syncFailed);
   if ("published" in input)
     return publishedSessionReview(
       input.published,

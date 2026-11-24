@@ -22,6 +22,7 @@ import type {
   StoryReviewRead,
 } from "../src/storyReviewRead.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
+import type { ReviewSyncFailure } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
   publishedSessionRecord,
@@ -31,6 +32,7 @@ import {
   fetchedPublishedSessionSource,
   lastSyncedPublishedSessionSource,
 } from "./publishedSessionSource.ts";
+import { ReviewSyncFailed } from "./reviewRepository.ts";
 import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
 import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
 
@@ -61,8 +63,16 @@ export type KeptStoryReviewInput = ReviewInput<
   StoryReviewRead & { readonly subject: ReviewedStorySubject },
   SessionReviewRead
 >;
+// A published session open whose sync failed before its record was synced.
+export interface UnsyncedPublishedSessionInput {
+  readonly read: PublishedSessionReviewRead;
+  readonly syncFailed: ReviewSyncFailure;
+}
+
 export type StoryReviewInput =
-  KeptStoryReviewInput | PublishedSessionInput<PublishedSessionReviewRead>;
+  | KeptStoryReviewInput
+  | PublishedSessionInput<PublishedSessionReviewRead>
+  | UnsyncedPublishedSessionInput;
 
 export type ReviewedFileInput =
   | ReviewInput<
@@ -117,16 +127,21 @@ export async function reviewInput(
   const now = new Date();
   if (isPublishedRead(read)) {
     const source = knownSource(read.subject.source);
-    return {
-      read,
-      published: await publishedSource(
-        source,
-        read.subject.published,
+    try {
+      return {
         read,
-        signal,
-      ),
-      now,
-    };
+        published: await publishedSource(
+          source,
+          read.subject.published,
+          read,
+          signal,
+        ),
+        now,
+      };
+    } catch (error) {
+      if (!(error instanceof ReviewSyncFailed) || isFileRead(read)) throw error;
+      return { read, syncFailed: error.failure };
+    }
   }
   const { subject } = read;
   if (isReviewedSessionSubject(subject)) {
@@ -146,8 +161,10 @@ export async function reviewInput(
         };
       } catch (error) {
         signal.throwIfAborted();
-        if (!(error instanceof RefusedRequest) || error.status !== 404)
-          throw error;
+        const unpublished =
+          error instanceof ReviewSyncFailed ||
+          (error instanceof RefusedRequest && error.status === 404);
+        if (!unpublished) throw error;
       }
     }
     if (isFileRead(read)) {

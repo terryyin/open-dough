@@ -3,19 +3,25 @@
 // project this dashboard does not configure before any Git read. The handlers
 // decide the rest (./published-session-review.spec.ts). The Review repository
 // syncs only when its last synced trunk lacks the ref or the UUID's record,
-// with the execution checkout retired.
+// with the execution checkout retired, and a failed sync that leaves the
+// record absent is named.
 import { randomUUID } from "node:crypto";
+import { renameSync } from "node:fs";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { launchExactReads } from "../../server/launchExactReads.ts";
-import { publishedSessionReview } from "../../server/publishedSessionReview.ts";
 import { fetchedPublishedSessionSource } from "../../server/publishedSessionSource.ts";
+import { storyReview } from "../../server/storyReview.ts";
 import { reviewInput } from "../../server/storyReviewInput.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
+  storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
-import { aSyncedPublishedSession } from "../support/publishedSessionCase.ts";
+import {
+  aNeverSyncedPublishedSessionOffline,
+  aSyncedPublishedSession,
+} from "../support/publishedSessionCase.ts";
 
 const published = { source: "open-dough", published: randomUUID() };
 const file = { baseline: "a".repeat(40), tree: "b".repeat(40), path: "a.txt" };
@@ -115,9 +121,46 @@ test("an absent UUID starts one fetch and resolves the advanced origin/main", as
   expect(fetches).toBe(1);
 });
 
-test("a hung fetch lets the review answer from the last synced trunk", async () => {
-  const { repository, recordedAt, source } = await aSyncedPublishedSession();
-  const missing = randomUUID();
+const failedSync = {
+  kind: "landing-unavailable",
+  comparison: "published-session",
+  explanation: expect.stringMatching(
+    /^The review could not sync from origin, .*: \S/,
+  ) as unknown,
+};
+
+const reviewed = async (session: string) => {
+  const signal = newSignal();
+  const subject = { source: "open-dough", published: session };
+  return storyReviewSchema.parse(
+    await storyReview(await reviewInput({ subject }, signal), signal),
+  );
+};
+
+test("a project never synced, opened while origin is unreachable, names the failed sync", async () => {
+  const { sessionId } = await aNeverSyncedPublishedSessionOffline();
+
+  expect(await reviewed(sessionId)).toMatchObject(failedSync);
+});
+
+test("a session absent from the last sync, opened while origin refuses, names the failed sync", async () => {
+  const { origin, unsyncedSessionId } = await aSyncedPublishedSession();
+  renameSync(origin, `${origin}-unreachable`);
+
+  expect(await reviewed(unsyncedSessionId)).toMatchObject(failedSync);
+});
+
+test("a session absent after a successful sync is refused as unknown", async () => {
+  await aSyncedPublishedSession();
+
+  await expect(reviewed(randomUUID())).rejects.toMatchObject({
+    status: 404,
+    message: "This project published no such session.",
+  });
+});
+
+test("a hung fetch for a session absent from the last sync names the failed sync", async () => {
+  const { repository, source } = await aSyncedPublishedSession();
   const boundMs = 500;
   await git(
     repository,
@@ -129,27 +172,18 @@ test("a hung fetch lets the review answer from the last synced trunk", async () 
   await git(repository, "config", "core.sshCommand", "sh -c 'sleep 2'");
 
   let fetchSignal: AbortSignal | undefined;
-  const review = async () => {
-    const resolved = await fetchedPublishedSessionSource(source, missing, {
-      admission: () => AbortSignal.timeout(boundMs),
-      fetch: () => {
-        fetchSignal = AbortSignal.timeout(boundMs);
-        return fetchSignal;
-      },
-    });
-    expect(resolved.revision).toBe(recordedAt);
-    return publishedSessionReview(
-      resolved,
-      missing,
-      undefined,
-      new Date(),
-      newSignal(),
-    );
-  };
+  const opened = fetchedPublishedSessionSource(source, randomUUID(), {
+    admission: () => AbortSignal.timeout(boundMs),
+    fetch: () => {
+      fetchSignal = AbortSignal.timeout(boundMs);
+      return fetchSignal;
+    },
+  });
 
-  await expect(review()).rejects.toMatchObject({
-    status: 404,
-    message: "This project published no such session.",
+  await expect(opened).rejects.toMatchObject({
+    message: expect.stringContaining(
+      "The review could not sync from origin",
+    ) as unknown,
   });
   expect(fetchSignal?.aborted).toBe(true);
 });
