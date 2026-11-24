@@ -1,8 +1,13 @@
-import { selectAdapterComparisonEndpoint } from "../../../Distribution/tests/support/dashboardCiAdapterComparisonEndpoint.mjs";
+// Adapter job graphs and comparison-slot deadline → time without runner waits.
+import { expect, test } from "vitest";
+import { answeredCommandAttempts } from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-attempts.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { adapterRevisionLookup } from "../../server/baseCiAdapterRevisionLookup.ts";
+import { nearestRevisionBuild } from "../../server/baseCiRevisionNearest.ts";
 import { timeWithoutAdapterRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { asComparisonSlot } from "../../server/intentCiComparisonSlots.ts";
+import { asSlot } from "../../server/revisionBuildSlot.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 test("the adapter graph counts the longest chain regardless of job order", () => {
   const jobs = [
@@ -115,12 +120,56 @@ test("the comparison deadline during a job graph read keeps the selected build a
       completedAt: "2026-11-05T09:04:00Z",
     })
     .please();
+  const source = makeMe.aPublishedSource
+    .with({
+      id: "owner-repo",
+      label: "Owner Repo",
+      repository: "owner/repo",
+      ref: attempt.branch,
+    })
+    .please();
   const controller = new AbortController();
-  const { slot, lookup } = await selectAdapterComparisonEndpoint(
-    attempt,
-    "hold",
-    controller.signal,
+  const { signal } = controller;
+  const abortAsError = (reason: unknown) =>
+    reason instanceof Error ? reason : new Error("aborted");
+  const lookup = await adapterRevisionLookup(
+    source,
+    undefined,
+    repoRoot,
+    ["adapter"],
+    { signal, maxBuffer: 1024 * 1024 },
+    signal,
+    {
+      discover: ({ branch }: { branch: string }) =>
+        Promise.resolve({
+          attempts: answeredCommandAttempts([attempt], branch) as unknown[],
+          queue: undefined,
+        }),
+      jobs: async (
+        ...[, , , { signal: wait }]: [
+          unknown,
+          unknown,
+          unknown,
+          { readonly signal: AbortSignal },
+        ]
+      ) => {
+        if (wait.aborted) throw abortAsError(wait.reason);
+        await new Promise<void>((resolve) => {
+          wait.addEventListener(
+            "abort",
+            () => {
+              resolve();
+            },
+            { once: true },
+          );
+        });
+        throw abortAsError(wait.reason);
+      },
+    },
   );
+  const build = await nearestRevisionBuild([sha], lookup);
+  const slot = asSlot(build, "No build");
+  expect(slot.kind).toBe("build");
 
   const pending = asComparisonSlot(slot, lookup);
   controller.abort(new DOMException("comparison deadline", "TimeoutError"));

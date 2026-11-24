@@ -157,7 +157,7 @@ submission in their existing proof owners.
 ### 6. Runner-wait timing uses the same attempt and graph semantics
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `ci-time-without-runner-waits` and
 `ci-time-without-adapter-runner-waits` directly through
@@ -207,6 +207,8 @@ only after its consumers have gone.
 - Slice 5: wall-time samples need retained validated CI proof on builds;
   follow-up case inputs live in `landedCiFollowUpReadingCase.ts` (subject at
   250 lines).
+- Slice 6: deadline case uses typed `adapterRevisionLookup` + hanging `jobs`
+  until `TimeoutError` (no subprocess comparison harness).
 
 ## Accepted proof (slice 1)
 
@@ -247,6 +249,16 @@ delivery lint/size repair), `slice5-return-report.md`.
 Refactor disposition: skipped — subject Intent + case-input helper on existing
 `answerCiFollowUp` / `retainedFollowUpOf` / `withOriginalFollowUpSamples`; no
 production change; subject held under 250 via support extraction.
+
+## Accepted proof (slice 6)
+
+Focused: `npm run test:dashboard:backend -- ci-time-without-runner-waits ci-time-without-adapter-runner-waits --workers=2` (exit 0; 2 files / 22 tests);
+`npm run typecheck:dashboard` (exit 0).
+Evidence: `open-dough/evidence/slice6-proof-lint2.log.run.json` (renewed after
+delivery formatting lint repair), `slice6-return-report.md`.
+Refactor disposition: skipped — subject specs only on existing
+`timeWithoutRunnerWaits` / `timeWithoutAdapterRunnerWaits` / `asComparisonSlot`;
+no production change; files ≤245 lines.
 
 ## Concern evidence
 
