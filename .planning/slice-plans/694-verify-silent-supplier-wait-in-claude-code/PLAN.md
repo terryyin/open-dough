@@ -45,7 +45,7 @@ timestamps bounding its interval while the transcript is retained.
 
 ### 1. Find the real Claude Code watches
 Type: Behavior
-Status: planned
+Status: done
 Proof: `## Watches` in this plan lists every watch found, each with
 transcript path, project, installed release, Claude Code version, request
 timestamp, route (`command` or `missed`), and each unchanged interval's
@@ -81,6 +81,64 @@ observed, a comparable historical wait and the token difference when one
 supports it, and the host step that woke the model or let the cache expire
 when the recommendation is revise.
 
+## Watches
+
+The search found **0 eligible Claude Code watches** and **0 missed
+routes**. Three independent watches are missing, each with an unchanged
+interval longer than five minutes on an installed release of Open Dough
+0.3.102 or later. There are no per-watch facts or intervals to record.
+
+### Search on 2026-11-24
+
+The window ran from 2026-11-16 00:00 SGT to 2026-11-24 09:50 SGT. It
+covered the 329 transcripts `~/.claude/projects/<project>/<session>.jsonl`
+last written in that window, from every project on this machine, read with
+`python3 -I` on Claude Code 2.1.331. The earliest retained transcript was
+last written on 2026-10-25. Open Dough 0.3.102 reached open-dough,
+pygardon, doughnut, and lizard between 15:51 and 15:53 SGT on 2026-11-16;
+each ran 0.3.101 before.
+
+For a repeat, read records without `isSidechain` whose `timestamp` falls in
+the window:
+
+- Select `user` records whose `message.content` is text or holds `text`
+  blocks. Drop `system-reminder`, `command-message`, `command-name`, and
+  `task-notification` envelopes and skill bodies, and judge only
+  `command-args` when present. Match watch, monitor, poll, keep an eye,
+  check back, and notification requests, plus wait, hold, pause,
+  dependency, supplier, and publication language. Use the surrounding turn
+  to identify what is being waited for.
+- Select `assistant` `tool_use` blocks whose input mentions
+  `wait-for-publication`. Inspect them for an actual `node …
+  wait-for-publication.mjs` launch.
+
+The scan returned 388 message matches in 282 transcripts and 34 command
+references in 8 transcripts. The message matches were established-start
+and preparation arguments, CI observer and agent hand-back messages, and
+ordinary developer instructions. Two asked a session to wait for other
+work, and neither is a watch:
+
+| Transcript | Request (UTC) | Installed release | Why it is not a watch |
+| --- | --- | --- | --- |
+| `-Users-terryyin-git-open-dough--worktrees-speed-up-the-slowest-dashboard-frontend-unit-tes` | 2026-11-16T02:36:28Z, "wait for SEED-381 to land, then resume wrap-up" | 0.3.101 | Before 0.3.102 was installed |
+| `-Users-terryyin-git-lizard` | 2026-11-16T01:39:59Z, wait until the PR is merged, then land | 0.3.101 | Before 0.3.102; waits for its own pull request, not a paused supplier |
+
+The command references were source reads, searches, development and tests
+of the command, and the planning of this story and its Codex sibling. None
+launched the command.
+
+This result covers the retained transcripts through the cutoff and the
+requests the query and surrounding turns could identify.
+
+### Deferral and resume
+
+Return this story to the backlog immediately after
+[Start ad hoc work under a story](../../seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story),
+the next eligible entry at deferral. On the next take, repeat the search
+from 2026-11-16 and refresh this record before starting slice 2. Begin
+measurement once the evidence includes three qualifying executions. If the
+shortfall remains, record the updated evidence and defer again.
+
 ## Current decisions
 
 - Bars and recommendation rule are fixed in the seed before any watch is
@@ -94,12 +152,12 @@ when the recommendation is revise.
 - 2026-11-18: no transcript runs the command for a real watch, so slice 1
   is expected to end at "missing" until developers ask Claude Code to
   watch.
+- 2026-11-24: eight days after 0.3.102 reached the projects, no developer
+  had asked a Claude Code execution to watch a paused supplier.
 - 2026-11-18: a watch that reaches the default 60-minute deadline is
   expected to resume under 90% cached, which gives revise.
 
 ## Story obligations
-
-**Source:** [Verify the silent supplier wait in Claude Code](../../seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code)
 
 ## Plan review
 
