@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maki-chan",
+  "email": "maki-chan@example.org",
+  "identity": "SEED-413#hold-adapter-proof-reasons-in-default-timeout",
+  "mode": "story-branch",
+  "branch": "codex/prove-each-adapter-proof-reason-below-the-e2e-jo",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
