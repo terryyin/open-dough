@@ -47,10 +47,13 @@ export const terryTalks = projectWork(
   "a4".repeat(20),
 );
 
-export function mountProjectCatalog(view: "stories" | "roster" = "stories") {
+export function mountProjectCatalog(
+  view: "stories" | "roster" = "stories",
+  viewport = projectViewport,
+) {
   return mountBoardFrame(
     openDough,
-    projectViewport,
+    viewport,
     view,
     {},
     {
@@ -79,6 +82,10 @@ export function focus(control: Locator) {
 
 export async function showsProjectBoard(work: PublishedWork) {
   await expect.element(projectRadio(work.source.label)).toBeChecked();
+  await readsProjectBoard(work);
+}
+
+export async function readsProjectBoard(work: PublishedWork) {
   await expect
     .element(
       page.getByRole("button", {

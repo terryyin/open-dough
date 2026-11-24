@@ -1,6 +1,7 @@
 import { expect, onTestFinished, test } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { boardWork } from "../navigation/board-work.ts";
+import { expectServedBrandAsset } from "../navigation/frame-brand-asset.ts";
 import {
   controlContrast,
   readsWhole,
@@ -85,21 +86,7 @@ async function expectProductMark(proveBytes = false) {
   expect(
     image.closest("a, button, summary, label, [role], [tabindex]"),
   ).toBeNull();
-  if (proveBytes) {
-    const expected = new URL(
-      "../../../assets/brand/favicon/icon-64.png",
-      import.meta.url,
-    );
-    const [served, supplied] = await Promise.all([
-      fetch(image.currentSrc),
-      fetch(expected),
-    ]);
-    expect(served.status).toBe(200);
-    expect(served.headers.get("content-type")).toBe("image/png");
-    expect(new Uint8Array(await served.arrayBuffer())).toEqual(
-      new Uint8Array(await supplied.arrayBuffer()),
-    );
-  }
+  if (proveBytes) await expectServedBrandAsset(image.currentSrc, "productMark");
 }
 
 test("headed settings share one readable column and their project dialogs fit the narrow window", async () => {

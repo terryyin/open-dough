@@ -62,10 +62,12 @@ export function boardFrameObservationSupplying(
   snapshots: readonly PublishedWork[],
   {
     initialSnapshot,
+    checkRevision,
     machineAnswer = emptyMachineAnswer(),
     accept,
   }: {
     initialSnapshot?: Error | Promise<PublishedWork>;
+    checkRevision?: PublishedObservationReadSource["checkRevision"];
     machineAnswer?: MachineAnswer & { readonly revision?: string };
     accept?: (
       ...args: Parameters<MachineReadSource["requestAcceptance"]>
@@ -173,11 +175,13 @@ export function boardFrameObservationSupplying(
       }
       return Promise.resolve([]);
     },
-    checkRevision: () =>
-      Promise.resolve({
-        changed: false,
-        heads: new Map(),
-      } satisfies RevisionCheck),
+    checkRevision:
+      checkRevision ??
+      (() =>
+        Promise.resolve({
+          changed: false,
+          heads: new Map(),
+        } satisfies RevisionCheck)),
     subscribeRevision: (...[, , , handlers]) => {
       streamHandlers.push(handlers);
       return {

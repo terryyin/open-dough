@@ -248,9 +248,9 @@ the comparison and the later run for functional confirmation.
 ### 4. Dashboard header chrome and connection logo stay reachable
 
 Type: Behavior
-Status: planned
+Status: done
 
-**Roster (7 runtime cases).** `navigation/dashboard-header`,
+**Roster (10 runtime cases).** `navigation/dashboard-header`,
 `navigation/dashboard-header-compact`,
 `navigation/dashboard-connection-logo`.
 
@@ -263,6 +263,27 @@ updates. Consolidate equivalent banner viewport cases when setup and risk match.
 **Proof.** Mounted frame header and logo observations stay green; compact
 phone and keyboard paths use native input. Built-app header specs in this
 roster are gone.
+
+**Accepted assertion map.**
+
+| Retired case | Replacement observation |
+| --- | --- |
+| Banner at 1280, 700, 520 and 320 CSS px | One `dashboard-header` case checks the same four rendered widths, including Verdana at 320 px. It observes pinned one-row layout, readable and reachable controls, radio or compact mode, Sessions/Settings paint and accessible names, and ten reverse Tabs below the banner per width. Typed read counts stay stable. |
+| Banner project selection | `dashboard-header` checks both exact Boards and revisions when selecting another project, with the Sessions mark and name kept and no extra source read. |
+| Compact one-row layout, phone touch and resize | One `dashboard-header-compact` case checks native touch project choice, one-row layout and exact new Board, then retains that choice through wide and narrow layouts. |
+| Compact Escape and Enter | `dashboard-header-compact` observes native input, unchanged choice on Escape, accepted choice on Enter and focus returned to the title after both. |
+| Page arrow and compact focus | `dashboard-header-compact` presses Right Arrow from a departing story's canonical link and checks focus on the new project's compact control. |
+| Logo waiting, receiving updates and returning | `dashboard-connection-logo` holds both real stream locks and the typed fallback check. It observes a waiting PNG, the canonical kneading SVG and its expiry, no replay on a steady answer, and exactly one new SVG load on the later return. |
+
+**Result.** Six mounted cases took 9.34 s including preparation versus
+11.71 s for ten selected legacy registrations at two workers. The banner
+widths were four generated legacy cases. Compact touch and resize now share
+their setup. No E2E cost was added. Ten affected mounts and typecheck passed.
+Unused exports left four shared Playwright helpers. Exact observations and
+commands are in Git evidence `slice4-return.md`. The refactor shared the
+served asset check across the header, logo and Settings mark. All six cases
+from the three affected files passed with typecheck. That selection differs
+from the measured header/compact/logo pair.
 
 ### 5. Story references navigate, identify and recover without late theft
 

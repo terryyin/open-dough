@@ -14,6 +14,7 @@ import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
+import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
@@ -62,6 +63,7 @@ export async function mountBoardFrame(
   {
     otherWork = [],
     initialSnapshot,
+    revisionCheck,
     intentReads,
     done,
     ci,
@@ -71,6 +73,7 @@ export async function mountBoardFrame(
   }: {
     otherWork?: readonly PublishedWork[];
     initialSnapshot?: Error | Promise<PublishedWork>;
+    revisionCheck?: PublishedObservationReadSource["checkRevision"];
     intentReads?: IntentReadSource;
     done?: DoneRecordReadSource;
     ci?: IntentCiReadSource;
@@ -80,7 +83,7 @@ export async function mountBoardFrame(
   } = {},
 ) {
   withPagePreferences();
-  forceRevisionStreamDelivery();
+  if (revisionCheck === undefined) forceRevisionStreamDelivery();
   const originalUrl = location.href;
   const originalState: unknown = history.state;
   if (view === "roster") {
@@ -95,6 +98,7 @@ export async function mountBoardFrame(
   const snapshots = [work, ...otherWork];
   const supply = boardFrameObservationSupplying(snapshots, {
     ...(initialSnapshot === undefined ? {} : { initialSnapshot }),
+    ...(revisionCheck === undefined ? {} : { checkRevision: revisionCheck }),
     machineAnswer: machine.answer ?? emptyMachineAnswer(),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),
   });

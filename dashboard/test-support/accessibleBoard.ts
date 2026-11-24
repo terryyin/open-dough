@@ -2,14 +2,9 @@
 // and a backlog too long for one screen. Publishing supplies only source
 // preconditions; what the page shows is for each test to observe.
 
-import {
-  backlogApart,
-  describedBacklog,
-  describedRevision,
-} from "./describedRevisions.ts";
+import { describedBacklog } from "./describedRevisions.ts";
 import {
   putFrontendBacklog,
-  putFrontendPublished,
   type FrontendServiceState,
 } from "./support/frontendServiceState.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -118,21 +113,4 @@ export const largeBacklog = describedBacklog(largeBacklogRepository());
 // The substitute project publishes the backlog too long for one screen.
 export function publishLargeBacklog(services: FrontendServiceState) {
   putFrontendBacklog(services, { revision, backlog: largeBacklog });
-}
-
-// The same backlog with each listed story's record published, so every read
-// of the project's work is answered and none is asked again later.
-export function publishLargeBacklogWithRecords(services: FrontendServiceState) {
-  const records = [...largeEntries.taken, ...largeEntries.queued].map(
-    ({ href }): [string, string] => [`.planning/${href.split("#")[0]}`, ""],
-  );
-  putFrontendPublished(
-    services,
-    backlogApart(
-      describedRevision(
-        largeBacklogRepository(Object.fromEntries(records)),
-        revision,
-      ),
-    ),
-  );
 }
