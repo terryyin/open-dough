@@ -18,7 +18,7 @@ scope: two stories
 {"schemaVersion":1,"identity":"SEED-433#run-dashboard-launch-tests-on-an-installed-project","dependencies":[{"supplier":{"identity":"SEED-433#compose-existing-sessions-directly","href":"seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly"},"implementation":"Install every catalog project and update only the launch-behavior consumers, relying on the session consumers already composing their sessions as data.","rationale":"Installing every catalog project makes story launches run the real start. At cde557acd that failed about 95 spec files, roughly two thirds of them consumers that launch only to obtain a session. The developer chose to move those consumers first, so this story stays within its launch-behavior consumers and keeps every catalog project installed with no opt-out.","condition":"The Dashboard backend and E2E consumers that need only an existing session compose it as data on trunk, without launching.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md","assessment":"not-ready","reasons":["Slice 3: the real start's workspace may change E2E card observations beyond the launch. The baseline left 24 E2E files' toHaveCount/toBeEnabled failures unattributed, so slice 3's sizing is unsettled until they are attributed against the supplier's result.","Slice 5: the remaining consumer set is known only after the supplier story lands. Rerun the scratch full suites on that trunk, then refine slices 3–5 from the failures."],"basis":{"document":"73a0af52cd23d9eb77feb5228c05fd940b51142db9934e7c92eb1f33d79346d6","plan":"a0eecd935673c68c824620ea8602f7008f82564c2e7c51e14f9a3ece550fab73"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md","assessment":"not-ready","reasons":["Slice 3: the real start's workspace may change E2E card observations beyond the launch. The baseline left 24 E2E files' toHaveCount/toBeEnabled failures unattributed, so slice 3's sizing is unsettled until they are attributed against the supplier's result.","Slice 5: the remaining consumer set is known only after the supplier story lands. Rerun the scratch full suites on that trunk, then refine slices 3–5 from the failures."],"basis":{"document":"d639f1bdb1fc3e1e7f290b0388c29340f82a6ee906e4b63beb8ce436bbd6d964","plan":"9e1ceaf14f8ae2377f2c516b972b62deec0915a64b12ce43db3e7a3f15fe7375"}}
 ```
 
 **Goal:** A maintainer changing the Dashboard launch path gets backend and E2E
@@ -142,8 +142,8 @@ Consumers launch arbitrary story identities, such as
 `SEED-052#launch-claude-planned-execution`, so seeding them changes each
 consumer's origin description. Once seeded, the real start Takes the story,
 which changes its workspace and handoff. None of the consumers has observed
-that change yet. Logs and the wiring are kept privately in this preparation's
-Git directory, under `open-dough/evidence/installed-catalog-probe`.
+that change yet. Logs and the wiring are kept privately in the repository's common Git
+directory, under `open-dough/evidence/SEED-433-installed-catalog-probe`.
 
 **Cost of the installed project (2026-11-24, `cde557acd`).** A temporary timing
 spec ran under the backend runner, four rounds at load about 12 on 16 cores.
