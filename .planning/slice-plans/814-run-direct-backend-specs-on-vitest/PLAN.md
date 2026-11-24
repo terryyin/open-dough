@@ -77,7 +77,7 @@ Write the rewrite script and apply it to the `intent/` entries. Run those
 files through the runner. Behavior: a listed `intent/` spec on Playwright →
 rewrite → the same cases pass under Vitest with unchanged assertions.
 
-Accepted proof: at `228ad3213`, the pre-edit runner passed all 296 cases
+At `228ad3213`, the pre-edit runner passed all 296 cases
 in the 76-file Playwright cohort in 23.095 s elapsed and 27.230 s summed
 case time. The first Node Vitest run passed all 105 cases in the 29 Intent
 files in 13.636 s, with matching file paths and expanded case titles.
@@ -102,7 +102,7 @@ Proof: the runner lists qualifying `launches/` and `sessions/` files under the N
 Apply the script to those entries and run them. Check each file that used
 `test.describe.configure` still passes when its cases run in file order.
 
-Accepted proof: the maintained runner passed all 136 cases with exact
+The maintained runner passed all 136 cases with exact
 baseline file and expanded-title parity. In the final selection, 27 files
 and 115 cases ran on Node Vitest, and three files and 21 cases ran on
 Playwright. Focused lint and Dashboard typecheck passed. None of these
@@ -128,7 +128,7 @@ for the later families.
 Check that the platform skip in `notifier-setup.spec.ts` also works under
 Vitest with the prescribed rewrite before including it in the migration.
 
-Accepted proof: all 55 cases passed with exact baseline file and expanded
+All 55 cases passed with exact baseline file and expanded
 title parity. Node Vitest ran 50 cases across 16 specs. Playwright ran the
 five notifier cases. The three `file-content-cache-budget.spec.ts` cases
 ran in the same order after the serial directive was removed. The final
@@ -143,7 +143,7 @@ for the eligibility decision. See `slice3-candidate-typecheck.log` and
 ### 4. The group reports the moved cohort and its times
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: one full-list run through the runner on the baseline's conditions, with typecheck and lint green
 
 Run the whole list again with a proof record and compare with slice 1:
@@ -156,6 +156,24 @@ with the runner's Playwright-selected count and any file returned to
 Playwright. After publication, read the `dashboard-backend` shards' times
 from CI; if one shard lost most of its share, use
 [rebalance-ci-shards](../../../.claude/skills/rebalance-ci-shards/SKILL.md).
+
+All 296 cases across the original 76 paths passed with
+exact expanded file and title parity. Vitest ran 262 cases across 70
+files and Playwright ran 34 cases across six byte-identical retained
+files. The direct rewrite accounts for 67 specs and the sibling accounts
+for the other three migrated cohort specs. The migrated paths contain no
+Playwright import or `pageTest` reference. Dashboard typecheck and full
+lint passed. [Per-case timing measurements](case-times.tsv).
+
+At two workers with the macOS sleep guard and one-minute loads of 23–27,
+paired command elapsed was 36.842 s on Playwright and 40.582 s after the
+migration. Summed case time went from 37.308 s to 31.758 s, and cases over
+100 ms went from 41 to 34. The original load-10 run took 23.633 s elapsed.
+The paired baseline used a clean checkout of that same pre-edit revision.
+
+The published product revision's backend shards ran in 191, 226 and 191 s.
+Recent main medians were 188, 241 and 198 s, so each shard kept a similar
+share. [Branch CI](https://github.com/terryyin/open-dough/actions/runs/45391759092).
 
 ## Concern evidence
 

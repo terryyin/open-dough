@@ -1,0 +1,297 @@
+spec	case	pre_edit_ms	paired_pre_edit_ms	final_ms	final_engine	final_above_100_ms
+backend-tests/configuration/notifier-setup.spec.ts	on macOS › a refused permission names the sender's own settings entry	4144.000	5262.000	3878.000	playwright	yes
+backend-tests/configuration/notifier-setup.spec.ts	on macOS › an explicit test posts one labelled notification and a refresh keeps the same sender	4940.000	4409.000	4516.000	playwright	yes
+backend-tests/configuration/notifier-setup.spec.ts	on macOS › setup prepares the branded sender from the installed helper and only diagnoses it	3846.000	4170.000	3384.000	playwright	yes
+backend-tests/configuration/notifier-setup.spec.ts	setup refuses an unsupported helper before copying it	613.000	1458.000	752.000	playwright	yes
+backend-tests/configuration/notifier-setup.spec.ts	setup without an installed helper names its installation and prepares nothing	144.000	226.000	266.000	playwright	yes
+backend-tests/configuration/project-input.spec.ts	normalizes repository identity from git@github.com:Example/Sample-App.git	0.000	1.000	0.115	vitest	no
+backend-tests/configuration/project-input.spec.ts	normalizes repository identity from https://github.com/Example/Sample-App	1.000	3.000	2.567	vitest	no
+backend-tests/configuration/project-input.spec.ts	normalizes repository identity from https://github.com/Example/Sample-App.git	0.000	1.000	0.260	vitest	no
+backend-tests/configuration/project-input.spec.ts	repository punctuation yields a readable name and retains a stable id	0.000	0.000	0.078	vitest	no
+backend-tests/configuration/project-input.spec.ts	workspace display follows the execution checkout without changing actual established facts	0.000	0.000	0.186	vitest	no
+backend-tests/intent/ci-comparison-cancelled-awaiting.spec.ts	a cancelled tip at the read head says no later build has finished and stays refreshable	2.000	1.000	0.520	vitest	no
+backend-tests/intent/ci-comparison-cancelled-awaiting.spec.ts	a running later build stops before farther usable proof and keeps the answer refreshable	2.000	4.000	16.532	vitest	no
+backend-tests/intent/ci-comparison-cancelled-awaiting.spec.ts	an ended search names the nearest unusable proof rather than a farther failure or no finished build	2.000	0.000	0.697	vitest	no
+backend-tests/intent/ci-comparison-cancelled-awaiting.spec.ts	the nearest unusable proof remains the explanation before a stopped running build	2.000	1.000	1.212	vitest	no
+backend-tests/intent/ci-comparison-cancelled.spec.ts	a cancelled fast-forward tip may use a failed later build with usable proof	1.000	1.000	22.728	vitest	no
+backend-tests/intent/ci-comparison-cancelled.spec.ts	a cancelled landing includes usable proof at the fixed 30-revision bound	2.000	2.000	32.054	vitest	no
+backend-tests/intent/ci-comparison-cancelled.spec.ts	a cancelled landing stops before usable proof beyond the fixed 30-revision bound	1.000	1.000	2.125	vitest	no
+backend-tests/intent/ci-comparison-cancelled.spec.ts	a cancelled merge passes cancelled, unbuilt and unusable-proof revisions to the nearest usable later build	2.000	1.000	14.571	vitest	no
+backend-tests/intent/ci-comparison-client-baseline-retry.spec.ts	two answered Baseline failures retain their query and refresh only the readable proofs	19.000	9.000	38.512	vitest	no
+backend-tests/intent/ci-comparison-client-eligibility.spec.ts	only the unambiguous Baseline adapter attempt is read and its invalid proof remains its own	3.000	3.000	15.575	vitest	no
+backend-tests/intent/ci-comparison-client-eligibility.spec.ts	unavailable discovery suppresses every endpoint proof: The CI adapter did not answer discovery within 2 seconds.	1.000	1.000	1.619	vitest	no
+backend-tests/intent/ci-comparison-client-eligibility.spec.ts	unavailable discovery suppresses every endpoint proof: adapter CI service has no discovery access	1.000	3.000	64.925	vitest	no
+backend-tests/intent/ci-comparison-client-head.spec.ts	a Taken Trunk comparison ignores the same head and rereads only its changed provisional proof	21.000	15.000	166.896	vitest	yes
+backend-tests/intent/ci-comparison-client-head.spec.ts	first or absent heads only record while a new source object rereads and departure ignores a late failure	5.000	2.000	3.009	vitest	no
+backend-tests/intent/ci-comparison-client-identity.spec.ts	equal slot subjects stay independent while attempt and source-object changes refresh their actual reads	1.000	22.000	25.000	playwright	no
+backend-tests/intent/ci-comparison-client-proof-refresh.spec.ts	only an answered comparison retry advances the three endpoint proof reads	2.000	19.000	94.768	vitest	no
+backend-tests/intent/ci-comparison-client-reading.spec.ts	a changed selection aborts its held comparison and ignores its late answer	4.000	3.000	26.483	vitest	no
+backend-tests/intent/ci-comparison-client-reading.spec.ts	an old endpoint proof is aborted and cannot replace a new selection after release	1.000	3.000	1.436	vitest	no
+backend-tests/intent/ci-comparison-client-retry.spec.ts	a held HTTP-failed comparison retries without counting its failure as an answered round	3.000	2.000	156.117	vitest	yes
+backend-tests/intent/ci-comparison-client-retry.spec.ts	an answered unavailable comparison is replaced and advances the successful retry round	2.000	2.000	3.195	vitest	no
+backend-tests/intent/ci-comparison-client-scopes.spec.ts	Taken Story Branch targets its live branch and reads only two provisional comparison proofs	2.000	1.000	1.372	vitest	no
+backend-tests/intent/ci-comparison-client-scopes.spec.ts	a queued target leaves the prior selection and acquires no comparison or proofs	2.000	1.000	1.245	vitest	no
+backend-tests/intent/ci-comparison-client-scopes.spec.ts	running Landed reads only Baseline and Branch and keeps their one shared proof selection	3.000	1.000	34.039	vitest	no
+backend-tests/intent/ci-comparison-endpoints.spec.ts	Done Story Branch uses its start ancestor, branch side and landing with the selected attempt's jobs	3.000	1.000	5.482	vitest	no
+backend-tests/intent/ci-comparison-endpoints.spec.ts	Done Trunk reads a completion ancestor within the story bound and has no Branch	0.000	0.000	0.541	vitest	no
+backend-tests/intent/ci-comparison-endpoints.spec.ts	a fast-forward landing uses its exact branch tip instead of a later trunk build	0.000	0.000	0.425	vitest	no
+backend-tests/intent/ci-comparison-equivalent-wall.spec.ts	a confirmed skipped landing reuses only its timed proofless equivalent wall time	2.000	1.000	5.033	vitest	no
+backend-tests/intent/ci-comparison-exact-landing.spec.ts	a cancelled latest attempt keeps its own earlier completed attempt instead of later trunk proof	1.000	1.000	0.455	vitest	no
+backend-tests/intent/ci-comparison-exact-landing.spec.ts	a timed-out landing stays exact even when older and later usable builds exist	1.000	8.000	3.707	vitest	no
+backend-tests/intent/ci-comparison-exact-landing.spec.ts	an unexplained code landing uses neither ancestor proof nor a later trunk build	1.000	7.000	1.214	vitest	no
+backend-tests/intent/ci-comparison-finality-later-judgment.spec.ts	later malformed listing past the walk and the landing hour waits for proof of the represented run, then is its later build	3.000	2.000	7.689	vitest	no
+backend-tests/intent/ci-comparison-history-integration.spec.ts	Git history acquisition supplies author, profile, parent and ancestry facts to comparison derivation	992.000	1747.000	2348.729	vitest	yes
+backend-tests/intent/ci-comparison-proof-gaps.spec.ts	Baseline excludes a usable build at position 31 in its fixed history bound	1.000	0.000	0.257	vitest	no
+backend-tests/intent/ci-comparison-proof-gaps.spec.ts	Baseline includes a usable build at position 30 in its fixed history bound	1.000	0.000	0.351	vitest	no
+backend-tests/intent/ci-comparison-proof-gaps.spec.ts	a branch proof walk passes unusable proof and an unbuilt tip to its nearest usable story-side build	1.000	2.000	0.745	vitest	no
+backend-tests/intent/ci-comparison-proof-gaps.spec.ts	a cancelled Baseline keeps its requested status beside the older usable build	1.000	6.000	5.229	vitest	no
+backend-tests/intent/ci-comparison-proof-gaps.spec.ts	an all-proofless branch names its nearest timed build and never borrows the usable start build	0.000	3.000	0.312	vitest	no
+backend-tests/intent/ci-comparison-published-endpoints.spec.ts	a later story-first merge keeps the original completion	0.000	16.000	0.528	vitest	no
+backend-tests/intent/ci-comparison-published-endpoints.spec.ts	a story-first fast-forward uses its own merge tip and excludes the trunk-side parent	0.000	1.000	0.274	vitest	no
+backend-tests/intent/ci-comparison-published-endpoints.spec.ts	only this story's execution profile starts its attributed work	0.000	4.000	0.353	vitest	no
+backend-tests/intent/ci-comparison-published-endpoints.spec.ts	the comparison selects its own landing through first-parent claims and excludes a later foreign merge	2.000	1.000	3.608	vitest	no
+backend-tests/intent/ci-comparison-selection.spec.ts	Baseline passes a nearer proofless build and names the older usable ancestor	0.000	0.000	1.235	vitest	no
+backend-tests/intent/ci-comparison-selection.spec.ts	a confirmed skipped landing uses only its nearest equivalent build	0.000	2.000	0.595	vitest	no
+backend-tests/intent/ci-comparison-selection.spec.ts	a result never borrows the start build when the story has no result build	0.000	0.000	20.280	vitest	no
+backend-tests/intent/ci-comparison-selection.spec.ts	provider-reported skipped status preserves its own provenance beside Baseline	0.000	1.000	0.302	vitest	no
+backend-tests/intent/ci-comparison-selection.spec.ts	without any ancestor build each requested endpoint names why a skip cannot be confirmed	0.000	0.000	0.190	vitest	no
+backend-tests/intent/ci-comparison-taken.spec.ts	Taken Trunk shows a provisional completed result and keeps Landed unavailable	0.000	1.000	15.160	vitest	no
+backend-tests/intent/ci-comparison-taken.spec.ts	a running adapter tip shows its completed story-side ancestor as provisional	0.000	0.000	1.027	vitest	no
+backend-tests/intent/ci-comparison-taken.spec.ts	an adapter result keeps opaque attempt identity and reads that selected attempt's graph	1.000	0.000	11.430	vitest	no
+backend-tests/intent/ci-comparison-timing-gaps.spec.ts	a completed endpoint keeps missing wall times distinct from an unavailable job-chain estimate	0.000	5.000	5.418	vitest	no
+backend-tests/intent/ci-comparison-timing-gaps.spec.ts	an adapter endpoint without artifact identity keeps its own opaque attempt and missing timing reasons	0.000	2.000	0.495	vitest	no
+backend-tests/intent/ci-proof-extraction.spec.ts	collected summary bytes keep a missing part and an untimed result through the artifact ZIP	109.000	230.000	129.989	vitest	yes
+backend-tests/intent/ci-proof-memory-github-gaps.spec.ts	a missing artifact is listed afresh, then its valid summary is remembered	3.000	2.000	3.000	playwright	no
+backend-tests/intent/ci-proof-memory-github-gaps.spec.ts	a version 1 artifact is refused and never remembered	0.000	0.000	1.000	playwright	no
+backend-tests/intent/ci-proof-memory-github-gaps.spec.ts	{"repository":"example/other"} is mismatched, retried and never remembered instead of the asked attempt	0.000	1.000	1.000	playwright	no
+backend-tests/intent/ci-proof-memory-github-gaps.spec.ts	{"revision":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"} is mismatched, retried and never remembered instead of the asked attempt	0.000	0.000	1.000	playwright	no
+backend-tests/intent/ci-proof-memory-github-gaps.spec.ts	{"runAttempt":2} is mismatched, retried and never remembered instead of the asked attempt	0.000	16.000	1.000	playwright	no
+backend-tests/intent/ci-proof-memory-github-gaps.spec.ts	{"runId":2} is mismatched, retried and never remembered instead of the asked attempt	0.000	66.000	1.000	playwright	no
+backend-tests/intent/ci-proof-memory-github-gaps.spec.ts	{"schemaVersion":0} is invalid, retried and never remembered instead of the asked attempt	2.000	1.000	2.000	playwright	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with a cycle explains why timing is unavailable	0.000	0.000	0.057	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with a duplicate ID explains why timing is unavailable	0.000	0.000	0.158	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with a malformed job explains why timing is unavailable	0.000	0.000	0.143	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with a missing duration explains why timing is unavailable	0.000	1.000	0.127	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with a negative duration explains why timing is unavailable	0.000	1.000	0.126	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with a non-finite duration explains why timing is unavailable	0.000	0.000	0.163	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with an empty ID explains why timing is unavailable	0.000	0.000	0.148	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with an invalid needs list explains why timing is unavailable	0.000	0.000	0.094	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with an overflowing chain duration explains why timing is unavailable	0.000	0.000	0.044	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with an unknown dependency explains why timing is unavailable	0.000	0.000	0.105	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	an adapter graph with no jobs explains why timing is unavailable	0.000	0.000	0.196	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	the adapter graph counts the longest chain regardless of job order	0.000	0.000	1.634	vitest	no
+backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts	the comparison deadline during a job graph read keeps the selected build and its proof identity	59.000	107.000	20.005	vitest	no
+backend-tests/intent/ci-time-without-runner-waits.spec.ts	a job calling a reusable workflow owns every called job GitHub reports under its label	1.000	1.000	0.401	vitest	no
+backend-tests/intent/ci-time-without-runner-waits.spec.ts	a job with missing timing bounds leaves the estimate unavailable	0.000	0.000	0.220	vitest	no
+backend-tests/intent/ci-time-without-runner-waits.spec.ts	a re-run retains the durations of carried-over jobs even when they started before their reported creation	1.000	4.000	1.023	vitest	no
+backend-tests/intent/ci-time-without-runner-waits.spec.ts	a reported job must match exactly one workflow definition	0.000	1.000	0.258	vitest	no
+backend-tests/intent/ci-time-without-runner-waits.spec.ts	a static-named matrix instance contributes its duration to the chain	0.000	10.000	6.315	vitest	no
+backend-tests/intent/ci-time-without-runner-waits.spec.ts	a uniquely truncated static-named matrix label keeps the longest shard on the chain	0.000	0.000	0.341	vitest	no
+backend-tests/intent/ci-time-without-runner-waits.spec.ts	an expression-named matrix job still picks the longest shard on the chain	0.000	0.000	0.276	vitest	no
+backend-tests/intent/ci-time-without-runner-waits.spec.ts	the observed builds count the longest dependency chain despite different runner waits	3.000	1.000	16.797	vitest	no
+backend-tests/intent/ci-time-without-runner-waits.spec.ts	this repository's own workflow keeps every job it reports readable	1.000	2.000	0.953	vitest	no
+backend-tests/intent/intent-location-syntax.spec.ts	a hint with no grammar, or no hint, selects the file as plain text	0.000	3.000	0.197	vitest	no
+backend-tests/intent/intent-location-syntax.spec.ts	each kind name is a hint, with .tsx still highlighted as TSX	3.000	1.000	0.932	vitest	no
+backend-tests/intent/intent-location-syntax.spec.ts	the first matching entry in declaration order gives a file its hint	4.000	3.000	2.307	vitest	no
+backend-tests/intent/intent-shared-reads.spec.ts	a departing reader stops waiting while the shared read continues, which ends once nobody waits	2.000	14.000	11.073	vitest	no
+backend-tests/intent/intent-shared-reads.spec.ts	a failed file read is not kept and is asked again	1.000	25.000	1.089	vitest	no
+backend-tests/intent/intent-shared-reads.spec.ts	a reader leaving and another arriving in the same turn keep one read	1.000	1.000	0.621	vitest	no
+backend-tests/intent/intent-shared-reads.spec.ts	an answer is kept only when its reader calls it fixed; a failure is asked again	2.000	2.000	0.613	vitest	no
+backend-tests/intent/intent-shared-reads.spec.ts	kept answers stay within the budget, the least recently used out first	10.000	11.000	95.170	vitest	no
+backend-tests/intent/intent-shared-reads.spec.ts	the locations of a revision are asked once, while unreadable settings are asked again	1.000	1.000	1.943	vitest	no
+backend-tests/intent/intent-shared-reads.spec.ts	two readers of one file at once ask once, and a later reader asks nothing	1.000	3.000	11.703	vitest	no
+backend-tests/intent/intent-story-overlay.spec.ts	Java changes use configured membership for placement, including unpublished additions and deletions	0.000	0.000	0.228	vitest	no
+backend-tests/intent/intent-story-overlay.spec.ts	Selected story only keeps the changed entries, deletions and renames included	0.000	12.000	0.366	vitest	no
+backend-tests/intent/intent-story-overlay.spec.ts	a sources location places a story's added matching file as added, and a non-matching neighbor is listed once outside	0.000	0.000	0.243	vitest	no
+backend-tests/intent/intent-story-overlay.spec.ts	each change sits where a location admits its path, else a rename's old path; the rest are listed once outside	1.000	1.000	5.653	vitest	no
+backend-tests/intent/intent-story-overlay.spec.ts	the story opens the first changed location and the folders holding changes, restricted or not	1.000	1.000	0.577	vitest	no
+backend-tests/intent/intent-story-overlay.spec.ts	the tree's files by repository path hold the outside files beside the located ones	0.000	0.000	0.240	vitest	no
+backend-tests/intent/intent-story-overlay.spec.ts	without a story the trees are the published files alone	0.000	1.000	0.123	vitest	no
+backend-tests/intent/published-story-history-semantics.spec.ts	a history reader observes later mutable refs and current worktree identity	634.000	1322.000	1396.686	vitest	yes
+backend-tests/intent/published-story-history-semantics.spec.ts	a negative ancestry answer observes history deepened past a shallow boundary	59.000	192.000	123.068	vitest	yes
+backend-tests/intent/published-story-history-semantics.spec.ts	an aborted reader cannot return a warm immutable answer and retains ancestry's false-on-error contract	67.000	182.000	184.229	vitest	yes
+backend-tests/intent/published-story-history-semantics.spec.ts	failed immutable reads and ancestry errors do not hide restored Git history	609.000	1275.000	265.619	vitest	yes
+backend-tests/intent/published-story-history-semantics.spec.ts	successful graph walks observe history deepened past their shallow boundary	120.000	333.000	299.703	vitest	yes
+backend-tests/intent/published-story-history.spec.ts	one completion recovery reuses immutable claim history and ancestry without changing endpoint facts	345.000	907.000	1710.232	vitest	yes
+backend-tests/intent/published-story-history.spec.ts	profile batches distinguish their revision input and path while concurrent fixed reads share their native work	109.000	436.000	241.050	vitest	yes
+backend-tests/launches/agent-launch-client.spec.ts	claude keeps its uncertainty hint after fetch rejection	0.000	5.000	6.220	vitest	no
+backend-tests/launches/agent-launch-client.spec.ts	claude keeps its uncertainty hint after malformed answer	5.000	1.000	22.665	vitest	no
+backend-tests/launches/agent-launch-client.spec.ts	codex keeps its uncertainty hint after fetch rejection	1.000	0.000	0.295	vitest	no
+backend-tests/launches/agent-launch-client.spec.ts	codex keeps its uncertainty hint after malformed answer	1.000	0.000	0.432	vitest	no
+backend-tests/launches/agent-launch-creation-recovery.spec.ts	Codex derives its predecessor picker from saved facts without a session ID or stored recovery	0.000	0.000	0.143	vitest	no
+backend-tests/launches/agent-launch-creation-recovery.spec.ts	a declared evidence requirement with no inspection arguments still refuses saved creation with unavailable recovery	1.000	0.000	0.327	vitest	no
+backend-tests/launches/agent-launch-creation-recovery.spec.ts	an absent evidence operation neither gates unreadable records nor borrows Codex recovery	1.000	0.000	0.187	vitest	no
+backend-tests/launches/agent-launch-creation-recovery.spec.ts	declared stand-in evidence gates and projects its own safely quoted recovery through GET parsing	38.000	147.000	55.299	vitest	no
+backend-tests/launches/agent-launch-matching-rules.spec.ts	ad hoc follow-up matching includes a story's file, line and side	3.000	4.000	0.320	vitest	no
+backend-tests/launches/agent-launch-matching-rules.spec.ts	ad hoc matching includes attached image content digests	2.000	0.000	0.171	vitest	no
+backend-tests/launches/agent-launch-matching-rules.spec.ts	ad hoc matching includes the Workspace and After checks choices, the default ones when none are named	9.000	3.000	0.428	vitest	no
+backend-tests/launches/agent-launch-matching-rules.spec.ts	ad hoc matching retains exact instruction including omitted and empty text	7.000	45.000	0.385	vitest	no
+backend-tests/launches/agent-launch-matching-rules.spec.ts	story choices preserve identity while project, host, workflow and subject distinguish launches	0.000	0.000	0.923	vitest	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	a launch request's options › may be absent, empty, or up to the limit of one-line flags	5.000	1.000	2.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	a launch request's options › refuses anything but a list of non-empty strings, or too many	18.000	3.000	1.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	a selection in the definition's order, across options and focuses, each once	0.000	7.000	1.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	choosing in a dialog › choosing a flag replaces the selected flag of its group, and leaves free flags and other groups	2.000	0.000	0.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	choosing in a dialog › clearing a flag removes only that flag	2.000	0.000	0.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	choosing in a dialog › clearing a group removes only that group's flags	2.000	0.000	1.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	options definition schema › accepts a definition with or without groups and focuses	1.000	2.000	12.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	options definition schema › rejects a duplicate flag, though the selection rules alone would allow the selection	1.000	2.000	8.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	options definition schema › rejects a flag in both options and focuses, though the selection rules alone would allow the selection	0.000	0.000	0.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	options definition schema › rejects a flag in two groups, though the selection rules alone would allow the selection	0.000	0.000	0.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	options definition schema › rejects a group member the definition does not define, though the selection rules alone would allow the selection	0.000	0.000	0.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	options definition schema › rejects a group whose selection is not exclusive, though the selection rules alone would allow the selection	0.000	0.000	0.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	options definition schema › rejects an entry without an instruction, though the selection rules alone would allow the selection	1.000	1.000	0.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	selection problems › names the group's label and its selected flags in the group's order	0.000	1.000	0.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	selection problems › names unknown flags as given, before exclusive conflicts	0.000	0.000	0.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	selection problems › reports two groups on their own, and allows one flag of each	0.000	0.000	2.000	playwright	no
+backend-tests/launches/agent-launch-options-rules.spec.ts	selection problems › treats an option and a focus of one group as a conflict	0.000	1.000	1.000	playwright	no
+backend-tests/launches/agent-launch-workspace-reporting-support.spec.ts	reporting preparation from a launch-workspace install › a compatible older install without landing still prepares reporting	4.000	9.000	54.284	vitest	no
+backend-tests/launches/agent-launch-workspace-reporting-support.spec.ts	reporting preparation from a launch-workspace install › landing present without its sibling helper is incomplete and refuses preparation	10.000	8.000	11.680	vitest	no
+backend-tests/launches/developer-part.spec.ts	developerPart appends a numbered Attached images list after exact text	0.000	11.000	0.193	vitest	no
+backend-tests/launches/developer-part.spec.ts	developerPart is undefined when there is no text and no attachments	0.000	11.000	1.178	vitest	no
+backend-tests/launches/developer-part.spec.ts	developerPart keeps exact typed bytes alone when there are no attachments	0.000	0.000	0.266	vitest	no
+backend-tests/launches/developer-part.spec.ts	developerPart returns the list alone when text is blank	0.000	0.000	0.172	vitest	no
+backend-tests/launches/execution-start-result.spec.ts	change indication survives result reading, durable records and retained existing starts	3.000	1.000	3.298	vitest	no
+backend-tests/launches/execution-start-result.spec.ts	reads a stop's status, error, and recovery	3.000	1.000	1.335	vitest	no
+backend-tests/launches/execution-start-result.spec.ts	reads an accepted start's published facts	0.000	2.000	3.264	vitest	no
+backend-tests/launches/execution-start-result.spec.ts	reads output that is not a result as unreadable	1.000	1.000	0.225	vitest	no
+backend-tests/launches/execution-start-result.spec.ts	the arguments that resume a start lost with the server › a workspace on another branch, or a missing one, yields none	146.000	473.000	522.648	vitest	yes
+backend-tests/launches/execution-start-result.spec.ts	the arguments that resume a start lost with the server › the candidate is the workspace HEAD and the starting revision its parent	148.000	310.000	301.946	vitest	yes
+backend-tests/launches/execution-start-result.spec.ts	words every stop status the start command reports, keeping a stop's workspace	2.000	1.000	0.449	vitest	no
+backend-tests/launches/launch-attempt-admission-close.spec.ts	a closed owner keeps admission evidence but runs nothing after the write finishes	562.000	1044.000	828.000	playwright	yes
+backend-tests/launches/launch-attempt-attention.spec.ts	every page reader reads the same from the attempts still needing attention as from all	1779.000	3264.000	841.510	vitest	yes
+backend-tests/launches/launch-attempt-retention.spec.ts	a failed attempt-file replacement leaves the expired attempt, its start, and its attachment folder unchanged	393.000	637.000	660.096	vitest	yes
+backend-tests/launches/launch-attempt-retention.spec.ts	reads an older kept session start without retaining its unread creation fact	5.000	4.000	8.332	vitest	no
+backend-tests/launches/launch-attempt-retention.spec.ts	refusal and an expired attempt restored by the write keep its start and attachment folder until an actual pruning replacement	13.000	147.000	126.845	vitest	yes
+backend-tests/launches/launch-attempt-worker.spec.ts	signal zero observes alive, dead and permission-denied workers	41.000	78.000	41.093	vitest	no
+backend-tests/launches/launch-attempt-worker.spec.ts	unowned live workers run; settled outcomes never run; concurrent notes retain both facts and settlement clears them	4.000	2.000	15.063	vitest	no
+backend-tests/launches/launch-instruction-observation.spec.ts	after first-screen instruction entry, further chunks do not evaluate launch readiness	9.000	41.000	8.940	vitest	no
+backend-tests/launches/launch-instruction-observation.spec.ts	handoff hold survives observation end until releaseHandoff	2.000	4.000	8.328	vitest	no
+backend-tests/launches/launch-record-session-rules.spec.ts	a parsed Claude session carries no Codex continuation	1.000	1.000	0.150	vitest	no
+backend-tests/launches/launch-record-session-rules.spec.ts	a parsed Codex session carries no Claude alias	1.000	1.000	0.148	vitest	no
+backend-tests/launches/launch-record-session-rules.spec.ts	accepts a Claude session with its native alias	1.000	4.000	3.693	vitest	no
+backend-tests/launches/launch-record-session-rules.spec.ts	accepts a Codex continuation with its endpoint and workspace	3.000	1.000	0.593	vitest	no
+backend-tests/launches/launch-record-session-rules.spec.ts	accepts a predecessor Codex session without a continuation	1.000	1.000	0.133	vitest	no
+backend-tests/launches/launch-record-session-rules.spec.ts	accepts an older launch record's established session without retaining its unread creation fact	2.000	2.000	1.128	vitest	no
+backend-tests/launches/launch-record-session-rules.spec.ts	refuses a Claude session without its native alias	1.000	1.000	0.425	vitest	no
+backend-tests/launches/launch-record-session-rules.spec.ts	refuses a Codex continuation without its endpoint	0.000	1.000	0.132	vitest	no
+backend-tests/launches/launch-workspace.spec.ts	Codex shares collisions across host branches and workspace folders	121.000	204.000	427.000	vitest	yes
+backend-tests/launches/launch-workspace.spec.ts	makes a plain, bounded slug from any title	1.000	3.000	0.971	vitest	no
+backend-tests/launches/launch-workspace.spec.ts	numbers the slug when another workspace or branch already has it	1.000	14.000	0.595	vitest	no
+backend-tests/launches/launch-workspace.spec.ts	puts the workspace under .worktrees on a claude/ branch named for the title	0.000	6.000	3.491	vitest	no
+backend-tests/launches/preparation-start-result.spec.ts	carries printed failure text only on an unreadable result	1.000	0.000	0.521	vitest	no
+backend-tests/launches/preparation-start-result.spec.ts	continuation detail prefers printed failure or stop error over the generic sentence	3.000	1.000	0.866	vitest	no
+backend-tests/launches/preparation-start-result.spec.ts	reads a stop's status and error, and the agents holding every name	1.000	2.000	29.835	vitest	no
+backend-tests/launches/preparation-start-result.spec.ts	reads an announced start's agent and published commit, and a continued one without	0.000	1.000	18.589	vitest	no
+backend-tests/launches/preparation-start-result.spec.ts	reads output that is not a result as unreadable	0.000	0.000	0.662	vitest	no
+backend-tests/launches/preparation-start-result.spec.ts	words every stop status the start command reports	2.000	1.000	14.125	vitest	no
+backend-tests/launches/settled-attempt-reconciliation.spec.ts	an attempt settles by its outcome, else by its session's completed report, at when either was told	1.000	3.000	7.000	playwright	no
+backend-tests/launches/settled-attempt-reconciliation.spec.ts	an attempt that published nothing and whose session completed is reconciled only by a read asked after the report was received	0.000	1.000	2.000	playwright	no
+backend-tests/launches/settled-attempt-reconciliation.spec.ts	noting an attempt reconciled on this machine › accepts an attempt settled by its session's completed report and refuses one that never settled or needs reconciliation	7.000	11.000	37.000	playwright	no
+backend-tests/launches/start-store-exit-lock.spec.ts	a writer ending at the first turn after lock creation leaves its start update retryable	303.000	384.000	239.746	vitest	yes
+backend-tests/launches/start-store-exit-lock.spec.ts	a writer ending during abandoned lock removal leaves its start update retryable	337.000	353.000	265.166	vitest	yes
+backend-tests/launches/start-store-exit-lock.spec.ts	a writer ending during owned lock removal leaves its start update retryable	340.000	472.000	334.673	vitest	yes
+backend-tests/launches/worktree-release-apply.spec.ts	ordinary apply targets the worktree, never forces, and installs both skill roots	12.000	12.000	15.086	vitest	no
+backend-tests/observation/run-process-observation.spec.ts	a failed process observation fails visibly and removes private resources without exposing its output	1340.000	782.000	518.761	vitest	yes
+backend-tests/observation/run-process-observation.spec.ts	a listing beyond the default pipe buffer still finds and ends only its own process, removing its observation files	2015.000	2252.000	2253.186	vitest	yes
+backend-tests/observation/shared-observation.spec.ts	a demand under other inputs waits for the running observation and starts its own	3.000	3.000	1.845	vitest	no
+backend-tests/observation/shared-observation.spec.ts	a failed observation rejects its waiters and the next demand observes afresh	1.000	3.000	20.626	vitest	no
+backend-tests/observation/shared-observation.spec.ts	a settled observation inside the reuse window does not answer a fresh demand	2.000	1.000	1.450	vitest	no
+backend-tests/observation/shared-observation.spec.ts	a waiter past its bound is unanswered while the observation goes on	105.000	114.000	117.536	vitest	yes
+backend-tests/observation/shared-observation.spec.ts	an observation running before a fresh demand cannot complete it; no overlap	1.000	0.000	2.052	vitest	no
+backend-tests/observation/shared-observation.spec.ts	concurrent fresh demands share one suitable observation; ordinary demands keep sharing	1.000	2.000	0.696	vitest	no
+backend-tests/review/git-target-fetch.spec.ts	a failed Git fetch does not keep a failed answer or block a different repository	0.000	1.000	1.499	vitest	no
+backend-tests/review/git-target-fetch.spec.ts	a new target fetch waits for the aborted Git process to actually settle	10.000	0.000	14.500	vitest	no
+backend-tests/review/git-target-fetch.spec.ts	concurrent readers of one Git target share the fetch independently of caller cancellation	2.000	1.000	16.605	vitest	no
+backend-tests/review/story-review-completed-merge-side.spec.ts	an owning merge with story commits on both parents keeps a directory-rename conflict mixed	612.000	1352.000	1459.297	vitest	yes
+backend-tests/review/story-review-diff.spec.ts	Git's no-newline note marks the line it follows	0.000	0.000	0.166	vitest	no
+backend-tests/review/story-review-diff.spec.ts	a binary or mode-only change has no hunks, and only a binary one says so	0.000	1.000	0.143	vitest	no
+backend-tests/review/story-review-diff.spec.ts	each line carries its old and new numbers from its hunk's header	0.000	0.000	0.171	vitest	no
+backend-tests/review/story-review-diff.spec.ts	hunks keep their headers and lines with additions, removals, and unchanged lines	0.000	1.000	1.546	vitest	no
+backend-tests/review/story-review-folders.spec.ts	a chain compacts only while each folder holds just one folder	1.000	0.000	0.121	vitest	no
+backend-tests/review/story-review-folders.spec.ts	a file node keeps its snapshot file	0.000	0.000	0.148	vitest	no
+backend-tests/review/story-review-folders.spec.ts	a path-only item arranges like a reviewed file at the same path	0.000	0.000	0.127	vitest	no
+backend-tests/review/story-review-folders.spec.ts	each folder knows whether it contains a changed item at any depth	6.000	0.000	0.186	vitest	no
+backend-tests/review/story-review-folders.spec.ts	files nest under their folders with root files at the top level	0.000	1.000	1.113	vitest	no
+backend-tests/review/story-review-folders.spec.ts	the same files arrange the same way in any order	1.000	0.000	0.183	vitest	no
+backend-tests/runtime/chosen-port.spec.ts	a named port that is already in use fails at once	0.000	17.000	0.335	vitest	no
+backend-tests/runtime/chosen-port.spec.ts	a start on any port that lost Vite's choice starts again after ending that launch	0.000	0.000	1.186	vitest	no
+backend-tests/runtime/chosen-port.spec.ts	a third lost choice fails with that attempt's error	0.000	7.000	0.122	vitest	no
+backend-tests/runtime/chosen-port.spec.ts	any other failure on any port fails at once	0.000	5.000	0.106	vitest	no
+backend-tests/runtime/file-content-cache-budget.spec.ts	retained size plateaus for a fixed working set after over-budget churn	58.000	111.000	66.657	vitest	no
+backend-tests/runtime/file-content-cache-budget.spec.ts	the current pinned snapshot stays revision-correct under eviction pressure	151.000	183.000	76.169	vitest	no
+backend-tests/runtime/file-content-cache-budget.spec.ts	writes past the 16 MiB budget evict older entries that reread correctly	9.000	18.000	19.601	vitest	no
+backend-tests/runtime/production-process.spec.ts	stopping a production process whose group keeps only an unreaped member succeeds	172.000	172.000	173.819	vitest	yes
+backend-tests/sessions/cursor-recover-split-paint.spec.ts	Recover types nothing into a working paint split at its line break, and reads it as working	10.000	8.000	14.364	vitest	no
+backend-tests/sessions/cursor-recover-submitted-chip.spec.ts	Recover's keep settles only once the submitted paste chip is repainted, and reads the follow-up prompt	212.000	226.000	135.889	vitest	yes
+backend-tests/sessions/cursor-recovery-frame.spec.ts	a fragmented working paint never receives the recovery continuation, then an idle paint receives it once	13.000	7.000	23.545	vitest	no
+backend-tests/sessions/cursor-recovery-frame.spec.ts	a multiline continuation left in the composer is submitted once	5.000	5.000	23.823	vitest	no
+backend-tests/sessions/cursor-recovery-frame.spec.ts	a multiline continuation stays unsent when the next frame is not that draft	4.000	10.000	12.036	vitest	no
+backend-tests/sessions/cursor-recovery-frame.spec.ts	a status footer that repeats the worktree does not submit before the paste chip	6.000	16.000	24.477	vitest	no
+backend-tests/sessions/cursor-recovery-frame.spec.ts	an unframed composer draft of a multiline continuation is submitted once	5.000	41.000	17.468	vitest	no
+backend-tests/sessions/cursor-recovery-frame.spec.ts	an unframed idle composer receives one recovery continuation	9.000	3.000	6.428	vitest	no
+backend-tests/sessions/cursor-session-belonging-subagents.spec.ts	a live stop-hint label observes working without needing transcripts	1.000	4.000	0.105	vitest	no
+backend-tests/sessions/cursor-session-belonging-subagents.spec.ts	follow-up with belonging subagent transcripts › an unfinished belonging subagent observes working	2.000	19.000	3.496	vitest	no
+backend-tests/sessions/cursor-session-belonging-subagents.spec.ts	follow-up with belonging subagent transcripts › an unreadable subagents tree keeps review	43.000	82.000	55.293	vitest	no
+backend-tests/sessions/cursor-session-belonging-subagents.spec.ts	follow-up with belonging subagent transcripts › empty subagents directory keep review	32.000	82.000	73.442	vitest	no
+backend-tests/sessions/cursor-session-belonging-subagents.spec.ts	follow-up with belonging subagent transcripts › no subagents directory keep review	27.000	61.000	37.475	vitest	no
+backend-tests/sessions/cursor-session-belonging-subagents.spec.ts	follow-up with belonging subagent transcripts › only turn_ended siblings keep review	27.000	63.000	166.108	vitest	yes
+backend-tests/sessions/cursor-session-belonging-subagents.spec.ts	follow-up with belonging subagent transcripts › unconfirmed first instruction stays awaiting-instruction despite unfinished subagents	7.000	3.000	1.379	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	a finished screen whose history mentions Running is at the follow-up prompt, not working	2.000	0.000	19.278	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	a footer under an idle composer stays at the follow-up prompt	0.000	0.000	0.164	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	a native question line with trailing padding and box border yields clean question text	1.000	0.000	0.655	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	a screen whose current status region shows the live stop hint is working, whatever its history says	0.000	0.000	0.188	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	an earlier composer line that carried the stop hint does not prove work once the current composer is idle	0.000	0.000	0.182	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	cancelled and failed history above the follow-up prompt is at the follow-up prompt, not failed or stopped	0.000	0.000	0.754	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	cancelled history without a follow-up prompt, live stop hint, or structural question proves no failure or interruption	1.000	0.000	0.273	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	screens without the structural question shape yield no question text	0.000	0.000	0.337	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	the Add a follow-up composer line carrying the live stop hint is working when a footer sits below it	0.000	0.000	0.256	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	the Plan, search, build anything composer line carrying the live stop hint is working when a footer sits below it	0.000	0.000	0.144	vitest	no
+backend-tests/sessions/cursor-session-classification.spec.ts	the native question screen yields its numbered question and is never the composer	0.000	0.000	22.346	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › a live stop-hint label observes working without reading the mailbox	2.000	9.000	2.746	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › another conversation's pending mailbox observes review	12.000	3.000	4.533	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › child-owned pending mailbox observes review	9.000	24.000	5.106	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › live worker identity with terminal owned revisions observes review	2.000	13.000	5.730	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › missing mailbox storage observes review	5.000	0.000	1.228	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › owned revision failure observes review	2.000	3.000	4.864	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › owned revision success observes review	2.000	6.000	4.643	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › owner-matched fresh pending revision observes working	2.000	5.000	6.606	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › pending observation older than freshness window observes review	2.000	3.000	4.164	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › unfinished belonging subagents still observe working	2.000	10.000	2.648	vitest	no
+backend-tests/sessions/cursor-session-owned-pending-ci.spec.ts	follow-up with owned pending CI mailbox › unreadable mailbox storage observes review	3.000	18.000	5.859	vitest	no
+backend-tests/sessions/final-report-codex.spec.ts	does not substitute older reports for missing, unrecognized, or unfinished latest reports	110.000	116.000	78.451	vitest	no
+backend-tests/sessions/final-report-codex.spec.ts	reads the retained completed final report without native control or workspace creation	111.000	132.000	75.822	vitest	no
+backend-tests/sessions/final-report-codex.spec.ts	refusal, lost connection, or caller cancellation leaves final report availability unconfirmed	111.000	114.000	62.766	vitest	no
+backend-tests/sessions/final-report-codex.spec.ts	rejects wrong native identity or workspace without changing the recorded session	115.000	125.000	72.165	vitest	no
+backend-tests/sessions/session-alerts-activation-command.spec.ts	the durable inline command carries quotes and substitution syntax as literal destination data	109.000	243.000	241.882	vitest	yes
+backend-tests/sessions/session-reading-rule.spec.ts	a card counts the sessions that need attention, never an unavailable or unknown one	1.000	6.000	0.138	vitest	no
+backend-tests/sessions/session-reading-rule.spec.ts	a reported Done session reads Returned to backlog only while its kept outcome names that report	1.000	0.000	0.124	vitest	no
+backend-tests/sessions/session-reading-rule.spec.ts	an activity the host words but the dashboard does not know reads not recognized, with the host's words	0.000	0.000	0.089	vitest	no
+backend-tests/sessions/session-reading-rule.spec.ts	an unavailable session reads unavailable, or Done once marked done, and offers no terminal	1.000	0.000	0.224	vitest	no
+backend-tests/sessions/session-reading-rule.spec.ts	an unreadable listing reads in the host's words, without attention, still offering the terminal	0.000	1.000	0.127	vitest	no
+backend-tests/sessions/session-reading-rule.spec.ts	marked done reads Done whatever the host later lists, except while it works again	0.000	0.000	0.080	vitest	no
+backend-tests/sessions/session-reading-rule.spec.ts	waiting, review, failure and interruption need attention	0.000	0.000	0.441	vitest	no
+backend-tests/sessions/session-reading-rule.spec.ts	working and awaiting a first instruction need no attention	0.000	0.000	1.250	vitest	no
+backend-tests/sessions/session-unread-rule.spec.ts	a newer report after a read one is unread again	1.000	0.000	0.448	vitest	no
+backend-tests/sessions/session-unread-rule.spec.ts	a quiet completion retained for wrap-up has no unread message or alert	0.000	0.000	0.278	vitest	no
+backend-tests/sessions/session-unread-rule.spec.ts	a report marked read is no longer unread, and the native reading stays	1.000	0.000	1.195	vitest	no
+backend-tests/sessions/session-unread-rule.spec.ts	a reported session marked done has no unread report, whether or not it was read	1.000	0.000	50.483	vitest	no
+backend-tests/sessions/session-unread-rule.spec.ts	only explicitly completed refinements with missing preparation workspaces replace waiting	2.000	2.000	1.947	vitest	no
+backend-tests/sessions/session-working-count-rule.spec.ts	Cursor held working counts; held waiting does not; done while still working natively does not	0.000	0.000	0.129	vitest	no
+backend-tests/sessions/session-working-count-rule.spec.ts	an unread report on a working session still counts, and one is singular	0.000	3.000	0.194	vitest	no
+backend-tests/sessions/session-working-count-rule.spec.ts	awaiting first instruction is excluded; only native Working counts among unsettled peers	1.000	0.000	1.017	vitest	no
+backend-tests/sessions/session-workspace-retirement-boundary.spec.ts	saved directory observation distinguishes absent path from ELOOP without changing workspace or conversation	2.000	3.000	9.152	vitest	no
+backend-tests/terminals/claude-prompt.spec.ts	a composer whose top border starts with the session name is ready	11.000	3.000	6.536	vitest	no
+backend-tests/terminals/claude-prompt.spec.ts	the native composer needs a visible cursor and borders, not an attach banner or transcript prompt	9.000	8.000	23.053	vitest	no
+backend-tests/terminals/joined-sockets-replay.spec.ts	a joining socket receives its replay before queued live output while the admitted socket receives only live output	105.000	103.000	1.679	vitest	no
+backend-tests/terminals/joined-sockets-replay.spec.ts	admission from another socket does not let live output overtake a pending join replay	209.000	212.000	59.608	vitest	no
+backend-tests/terminals/kept-client-screen-replay.spec.ts	a replay captures queued output before later writes and keeps an unfinished paint open	7.000	7.000	5.228	vitest	no
+backend-tests/terminals/kept-client-screen-replay.spec.ts	replay preserves alternate screen rendition, pending wrap and later output	7.000	25.000	6.156	vitest	no
+backend-tests/terminals/kept-client-screen-replay.spec.ts	replay preserves alternate screen rendition, positioned cursor and later output	8.000	8.000	7.164	vitest	no
+backend-tests/terminals/kept-client-screen-replay.spec.ts	replay preserves normal screen rendition, pending wrap and later output	8.000	9.000	62.602	vitest	no
+backend-tests/terminals/kept-client-screen-replay.spec.ts	replay preserves normal screen rendition, positioned cursor and later output	8.000	21.000	8.081	vitest	no
+backend-tests/terminals/kept-client-screen-replay.spec.ts	the replay contains the current resized screen without erased earlier output	4.000	7.000	4.345	vitest	no
+backend-tests/terminals/kept-client-screen-write-queue.spec.ts	a 64 KiB / 2,048-chunk burst settles with the marker on the modeled screen	21.000	6.000	15.839	vitest	no
+backend-tests/terminals/kept-client-screen-write-queue.spec.ts	one busy kept client's burst leaves held() within 500 ms with a coherent quiet sibling still kept	21.000	8.000	8.813	vitest	no
+backend-tests/terminals/live-terminal-diagnostic-capture.spec.ts	a successful keep releases diagnostic capture so later output does not accumulate	4.000	24.000	19.613	vitest	no
+backend-tests/terminals/live-terminal-diagnostic-capture.spec.ts	output above the diagnostic budget keeps only a useful tail for processExit	5.000	1.000	24.700	vitest	no
+backend-tests/terminals/terminal-dictation.spec.ts	transcripts preserve words and punctuation while excluding terminal commands and line endings	0.000	9.000	0.961	vitest	no

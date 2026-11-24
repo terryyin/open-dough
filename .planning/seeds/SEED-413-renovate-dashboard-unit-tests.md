@@ -440,6 +440,25 @@ smaller unit selection does not hide its cost or a lost regression check.
     and `machineSessions`, and
     [one converted case](../../dashboard/backend-tests/sessions/agent-launch-codex-open-polling.spec.ts)
     calls it in this process.
+- **Inventory after the direct cohort** (`38c6f4057`, 24 November 2026).
+  The maintained backend runner selects 421 of 580 specs for Playwright and
+  159 for Node Vitest. Playwright selection fell by 77 specs from the earlier
+  recount. The direct rewrite accounts for 67. Landed attempt evidence moved
+  ten more, including three on the original direct cohort list.
+  The subsequent Token Index landing at `bdb810ba0` moved 19 disjoint specs.
+  The maintained selector reports 402 Playwright and 178 Vitest on that
+  trunk snapshot with the direct rewrite applied.
+  The six original cohort specs still selected by Playwright belong to the
+  later families:
+  - `intent/ci-comparison-client-identity.spec.ts`,
+    `intent/ci-proof-memory-github-gaps.spec.ts`,
+    `launches/launch-attempt-admission-close.spec.ts`, and
+    `launches/settled-attempt-reconciliation.spec.ts` need assertion changes
+    because assigning Vitest's asymmetric matcher result fails lint.
+  - `launches/agent-launch-options-rules.spec.ts` is the direct Playwright
+    specimen used by `runner-ownership.spec.ts`.
+  - `configuration/notifier-setup.spec.ts` uses Playwright's platform skip
+    overload, which fails Dashboard typecheck under Vitest.
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,
   2,519 s; entry kinds counted from each spec's text, so approximate).
 
