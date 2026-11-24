@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "sessionId": "2b1d7b25-2049-4487-9f5f-d4ce44383c87",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T10:23:21.119Z",
+  "story": "SEED-413#renovate-landed-ci-backend-proof",
+  "ranges": [
+    {
+      "base": "920286793cb13d1e75f637b37e928411b24b812a",
+      "candidate": "eeed549d16a8e0cdfd2bf036ba6617b4bfbc4ff6"
+    },
+    {
+      "base": "eeed549d16a8e0cdfd2bf036ba6617b4bfbc4ff6",
+      "candidate": "c17728e84643152892ec42f3a7f9c75fdedbd5df"
+    },
+    {
+      "base": "c17728e84643152892ec42f3a7f9c75fdedbd5df",
+      "candidate": "f3c2548e92ca56c106152732163dffcc7d365f69"
+    },
+    {
+      "base": "f3c2548e92ca56c106152732163dffcc7d365f69",
+      "candidate": "d608d145f0bea8c5721cc7da29f7ed02cfaf860c"
+    },
+    {
+      "base": "d608d145f0bea8c5721cc7da29f7ed02cfaf860c",
+      "candidate": "ef43e100580e696e2a284ce7b392a7b57ee4311a"
+    },
+    {
+      "base": "ef43e100580e696e2a284ce7b392a7b57ee4311a",
+      "candidate": "77b7ab4ed5f653340caea70876ca2f9e68c30c6f"
+    },
+    {
+      "base": "77b7ab4ed5f653340caea70876ca2f9e68c30c6f",
+      "candidate": "08c0243ef6c66837f24dd29280bdd42f472a7a77"
+    },
+    {
+      "base": "08c0243ef6c66837f24dd29280bdd42f472a7a77",
+      "candidate": "d3dd9415df2569fcdb0d8707ed204b2eea9b4ff6"
+    },
+    {
+      "base": "d3dd9415df2569fcdb0d8707ed204b2eea9b4ff6",
+      "candidate": "4131e3951a1c51bd32230e843867130bd1dce92c"
+    }
+  ]
+}
