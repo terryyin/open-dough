@@ -3,7 +3,8 @@
 // which asks before undoing review. A saved change keeps the card, the order,
 // the count, the selection and the card's sessions, keeps the keyboard on the
 // card and is announced once. A card whose record failed or is still being
-// read offers the action from its catalogued identity. Persistence across
+// read offers the action from its catalogued identity. On a phone's touch
+// screen each review control offers the shared 44px height. Persistence across
 // reload and restart: ../../../e2e/stories/recently-done-review-state-persistence.spec.ts.
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
@@ -22,6 +23,13 @@ import {
   storyB,
   storyC,
 } from "./recently-done-review-state-mount-page.ts";
+import { reducedBoardMotion } from "../navigation/board-mount.ts";
+import { boardReading } from "../navigation/board-reading-page.ts";
+import {
+  portrait,
+  tapWhereShown,
+  useTouchScreen,
+} from "../navigation/board-touch-page.ts";
 
 type Card = ReturnType<typeof reviewCard>;
 
@@ -152,4 +160,45 @@ test("a card whose record is still being read offers Mark as reviewed and keeps 
   const read = reviewCard(storyB.title);
   await expect.element(read.article.getByText(storyB.identity)).toBeVisible();
   await expect.element(read.reviewedButton).toBeVisible();
+});
+
+// Taps `control` once its centre shows it.
+async function tapOnceShown(control: Card["markAsReviewed"]) {
+  const shownAtItsCenter = () => {
+    const element = control.query();
+    if (element === null) return false;
+    const { x, y, width, height } = element.getBoundingClientRect();
+    return element.contains(
+      document.elementFromPoint(x + width / 2, y + height / 2),
+    );
+  };
+  await expect.poll(shownAtItsCenter).toBe(true);
+  await tapWhereShown(control.element());
+}
+
+test("on a phone's touch screen Review actions and both confirmation choices offer the shared 44px control height", async () => {
+  await useTouchScreen();
+  // Columns switch without sliding, so a tap lands where the control rests.
+  await reducedBoardMotion();
+  await reviewBoard({ viewport: portrait }).mount();
+  // The phone Board shows one column; its column controls step to the next.
+  for (const column of ["Taken", "Recently done"] as const)
+    await tapOnceShown(boardReading.control(column));
+  const card = reviewCard(storyA.title);
+  const tapAtTouchSize = async (control: Card["markAsReviewed"]) => {
+    await expect.element(control).toBeVisible();
+    control.element().scrollIntoView({ block: "center", behavior: "instant" });
+    expect(
+      control.element().getBoundingClientRect().height,
+    ).toBeGreaterThanOrEqual(44);
+    await tapOnceShown(control);
+  };
+  await tapAtTouchSize(card.markAsReviewed);
+  await tapAtTouchSize(card.reviewedButton);
+  await expect.element(card.question).toBeVisible();
+  expect(
+    card.confirm.element().getBoundingClientRect().height,
+  ).toBeGreaterThanOrEqual(44);
+  await tapAtTouchSize(card.cancel);
+  await expect.element(card.reviewedButton).toBeVisible();
 });

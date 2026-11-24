@@ -64,6 +64,16 @@ const pygardonDone = makeMe.aDoneCatalog
       .please(),
   ])
   .please();
+// A built done catalog as the page's done catalog read answers it.
+export const catalogued = ({
+  done,
+}: ReturnType<typeof makeMe.aDoneCatalog.please>): DoneCatalog => ({
+  status: "catalogued",
+  records: [...done.records],
+  unreadable: [...done.unreadable],
+});
+// Pygardon's published done catalog naming the linked story.
+export const pygardonLinkedCatalog = catalogued(pygardonDone);
 const pygardonListsLinked: DoneCatalogs = { pygardon: pygardonDone.done };
 
 export const projectShown = () =>
@@ -147,6 +157,26 @@ export function pygardonCatalog() {
     asked: () => asked,
     hold: () => {
       next = () => new Promise<DoneCatalog>(() => {});
+    },
+    // Holds the reads after the next `passing` until the returned release
+    // answers them as before.
+    holdUntilReleased: (passing = 0) => {
+      const held = next;
+      const waiting: (() => void)[] = [];
+      let passed = 0;
+      next = () => {
+        passed += 1;
+        if (passed <= passing) return held();
+        return new Promise<DoneCatalog>((resolve) => {
+          waiting.push(() => {
+            resolve(held());
+          });
+        });
+      };
+      return () => {
+        next = held;
+        for (const release of waiting) release();
+      };
     },
     fail: (problem: string) => {
       next = () => Promise.reject(new Error(problem));

@@ -3,12 +3,14 @@
 // identities stay apart by project, successful card changes reach every
 // matching row, failed or pending evidence warns nothing until a later
 // successful read, and an answer asked before a save cannot restore a cleared
-// cue. Ad hoc rows' association evidence:
+// cue. At narrow touch width a long title leaves the cue and separate
+// touch-sized Select and Open usable. Ad hoc rows' association evidence:
 // ./recently-done-sessions-review-cue-{evidence,races}.spec.ts (SEED-426).
 import { expect, onTestFinished, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { reviewCard } from "../stories/recently-done-review-state-mount-page.ts";
 import {
+  cueIn,
   cueOf,
   cueSession,
   duplicateTitle,
@@ -23,6 +25,14 @@ import {
   takenTitle,
 } from "./recently-done-selection-mount-page.ts";
 import { pollNow } from "./recently-done-sidebar-mount-page.ts";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
+import { authenticatedSessionServices } from "../../src/sessionServices.ts";
+import {
+  portrait,
+  tapWhereShown,
+  useTouchScreen,
+} from "../navigation/board-touch-page.ts";
 
 // Operates the Board's cards with the Sessions sidebar closed, then reopens it.
 async function onTheBoard(act: () => Promise<void>) {
@@ -172,4 +182,61 @@ test("pending local review evidence stays unknown and its pre-save answer cannot
   await expect.element(card.reviewedButton).toBeVisible();
   expect(cueOf(shown.row(linked.title))).toBe(false);
   expect(cueOf(shown.row(duplicateTitle))).toBe(false);
+});
+
+test("at narrow touch width a long title leaves Needs review and separate Select and Open usable", async () => {
+  const longTitle =
+    "A very long completed story session title that must leave Needs review visible at narrow touch width without hiding Select or Open";
+  const reportText = `Report for ${longTitle}.`;
+  await useTouchScreen();
+  const shown = await openReviewCue({
+    reported: [
+      makeMe.aLaunchRecord
+        .executing({
+          identity: linked.identity,
+          title: longTitle,
+          source: "pygardon",
+        })
+        .inClaudeSession({ sessionId: "cue-long-title" })
+        .completedWith({ message: reportText })
+        .launchedAt(minutesAgo(30))
+        .markedDoneAt(minutesAgo(0.5))
+        .please(),
+    ],
+    sessions: {
+      ...authenticatedSessionServices,
+      readFinalReport: () =>
+        Promise.resolve({
+          kind: "available",
+          turnId: "long",
+          text: reportText,
+        }),
+    },
+  }).mount();
+  await page.viewport(portrait.width, portrait.height);
+  await expect.poll(() => cueOf(shown.row(longTitle))).toBe(true);
+  const row = shown.row(longTitle);
+  if (row === undefined) throw new Error("No long-title row.");
+  row.scrollIntoView({ block: "center", behavior: "instant" });
+  const bounds = row.getBoundingClientRect();
+  const warning = cueIn(row)?.getBoundingClientRect();
+  expect(warning?.left).toBeGreaterThanOrEqual(bounds.left);
+  expect(warning?.right).toBeLessThanOrEqual(bounds.right);
+  for (const control of [shown.select(longTitle), shown.open(longTitle)])
+    expect(
+      control.element().getBoundingClientRect().height,
+    ).toBeGreaterThanOrEqual(44);
+
+  await tapWhereShown(shown.select(longTitle).element());
+  await expect
+    .element(shown.select(longTitle))
+    .toHaveAttribute("aria-pressed", "true");
+  expect(cueOf(shown.row(longTitle))).toBe(true);
+  const reportPanel = page.getByRole("region", { name: "Final report" });
+  expect(reportPanel.query()).toBeNull();
+  await expect
+    .element(shown.open(longTitle))
+    .toHaveAccessibleName("Read final report");
+  await tapWhereShown(shown.open(longTitle).element());
+  await expect.element(reportPanel.getByText(reportText)).toBeVisible();
 });

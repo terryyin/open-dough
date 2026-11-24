@@ -1,9 +1,10 @@
 // The open list, Recently done and Running Cursor sessions share the Sessions
 // sidebar's room, each keeping its floor; the Recently done divider drags and
-// keys within it with native Chromium input, and a short window keeps every
-// header reachable.
+// keys within it with native Chromium input, wheeling one list to its end
+// leaves the others where they were, and a short window keeps every control
+// reachable.
 import { expect, onTestFinished, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page, userEvent, type Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { browserSession } from "../review/browser-session.ts";
@@ -39,27 +40,34 @@ const runningHeader = page.getByRole("button", {
   exact: true,
 });
 
-const heightOf = (selector: string) => {
+const listOf = (selector: string) => {
   const element = document.querySelector(selector);
   if (element === null) throw new Error(`No ${selector}.`);
-  return element.getBoundingClientRect().height;
+  return element;
 };
+const heightOf = (selector: string) =>
+  listOf(selector).getBoundingClientRect().height;
 const listHeights = () => ({
   open: heightOf(".sessions-sidebar-sessions"),
   done: heightOf(".recently-done-sessions-body"),
   running: heightOf(".running-cursor-body"),
 });
 
+// Maps a point inside the Vitest frame to the page that holds it.
+function pagePoint(insideX: number, insideY: number) {
+  const frame = window.frameElement?.getBoundingClientRect();
+  const scale = frame ? frame.width / window.innerWidth : 1;
+  return {
+    x: (frame?.left ?? 0) + insideX * scale,
+    y: (frame?.top ?? 0) + insideY * scale,
+  };
+}
+
 // Drags `divider` down by `by` pixels with the pointer of the page that holds
 // the Vitest frame.
 async function dragDown(divider: Element, by: number) {
-  const frame = window.frameElement?.getBoundingClientRect();
-  const scale = frame ? frame.width / window.innerWidth : 1;
   const { x, y, width, height } = divider.getBoundingClientRect();
-  const at = (insideY: number) => ({
-    x: (frame?.left ?? 0) + (x + width / 2) * scale,
-    y: (frame?.top ?? 0) + insideY * scale,
-  });
+  const at = (insideY: number) => pagePoint(x + width / 2, insideY);
   const start = y + height / 2;
   const mouse = (type: string, point: { x: number; y: number }) =>
     browserSession().send("Input.dispatchMouseEvent", {
@@ -75,7 +83,59 @@ async function dragDown(divider: Element, by: number) {
   await mouse("mouseReleased", at(start + by));
 }
 
-test("the three lists share the sidebar's room above their floors, and the Recently done divider drags to its floor and keys by its step", async () => {
+// Wheels over `area` with native Chromium input until it rests at its end.
+async function wheelToEnd(area: Element) {
+  const { x, y, width, height } = area.getBoundingClientRect();
+  const atEnd = () =>
+    area.scrollTop + area.clientHeight >= area.scrollHeight - 1;
+  await expect
+    .poll(async () => {
+      if (!atEnd())
+        await browserSession().send("Input.dispatchMouseEvent", {
+          type: "mouseWheel",
+          ...pagePoint(x + width / 2, y + height / 2),
+          deltaX: 0,
+          deltaY: 2000,
+        });
+      return atEnd();
+    })
+    .toBe(true);
+}
+
+// Each of `area`'s buttons, scrolled into view, that does not show whole
+// inside the window and every scrolling or clipping area holding it.
+function controlsOutOfReach(area: Locator) {
+  const inside = (shown: DOMRect, room: DOMRect) =>
+    shown.top >= room.top - 0.5 &&
+    shown.bottom <= room.bottom + 0.5 &&
+    shown.left >= room.left - 0.5 &&
+    shown.right <= room.right + 0.5;
+  const clipsIt = (holder: Element) => {
+    const { overflowX, overflowY } = getComputedStyle(holder);
+    return /(auto|scroll|hidden|clip)/.test(overflowX + overflowY);
+  };
+  return area
+    .getByRole("button")
+    .elements()
+    .filter((control) => {
+      control.scrollIntoView({ block: "nearest", behavior: "instant" });
+      const shown = control.getBoundingClientRect();
+      if (!inside(shown, new DOMRect(0, 0, innerWidth, innerHeight)))
+        return true;
+      for (let at = control.parentElement; at !== null; at = at.parentElement)
+        if (clipsIt(at) && !inside(shown, at.getBoundingClientRect()))
+          return true;
+      return false;
+    })
+    .map((control) => {
+      const { top, bottom } = control.getBoundingClientRect();
+      return `${control.getAttribute("aria-label") ?? control.textContent} ${String(Math.round(top))}-${String(Math.round(bottom))}`;
+    });
+}
+
+// A crowd in each of the three lists, all expanded, Recently done at its
+// newest 20.
+async function crowdedSidebar() {
   onTestFinished(() => {
     window.localStorage.clear();
   });
@@ -110,7 +170,11 @@ test("the three lists share the sidebar's room above their floors, and the Recen
     )
     .toBe(crowd);
   await expect.poll(shown.titles).toHaveLength(20);
+  return shown;
+}
 
+test("the three lists share the sidebar's room above their floors, and the Recently done divider drags to its floor and keys by its step", async () => {
+  await crowdedSidebar();
   const start = listHeights();
   for (const height of Object.values(start))
     expect(height).toBeGreaterThanOrEqual(floor - 0.5);
@@ -133,7 +197,25 @@ test("the three lists share the sidebar's room above their floors, and the Recen
   expect(
     Math.abs(resized.open + resized.done + resized.running - room),
   ).toBeLessThanOrEqual(2);
+});
 
+test("wheeling Recently done to its end reaches every row and leaves the open and Running lists where they were", async () => {
+  const shown = await crowdedSidebar();
+  const openList = listOf(".sessions-sidebar-sessions");
+  const runningBody = listOf(".running-cursor-body");
+  const doneBody = listOf(".recently-done-sessions-body");
+  openList.scrollTop = 40;
+  runningBody.scrollTop = 24;
+  await wheelToEnd(doneBody);
+  await expect.poll(shown.titles).toHaveLength(crowd);
+  await wheelToEnd(doneBody);
+  expect(doneBody.scrollTop).toBeGreaterThan(0);
+  expect(openList.scrollTop).toBe(40);
+  expect(runningBody.scrollTop).toBe(24);
+});
+
+test("a short window keeps every header and control of the sidebar reachable without sideways scrolling", async () => {
+  const shown = await crowdedSidebar();
   await page.viewport(320, 256);
   const sideways = shown.sidebar.element();
   expect(sideways.scrollWidth).toBeLessThanOrEqual(sideways.clientWidth);
@@ -141,4 +223,6 @@ test("the three lists share the sidebar's room above their floors, and the Recen
     header.element().scrollIntoView();
     await expect.element(header).toBeInViewport();
   }
+  await expect.element(shown.sidebar.getByRole("button").first()).toBeVisible();
+  expect(controlsOutOfReach(shown.sidebar)).toEqual([]);
 });

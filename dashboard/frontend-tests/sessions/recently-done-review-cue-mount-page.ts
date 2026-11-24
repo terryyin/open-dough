@@ -7,11 +7,13 @@ import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
 import type { DoneCatalog } from "../../src/authenticatedDoneRead.ts";
+import type { SessionServices } from "../../src/sessionServices.ts";
 import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
 import { reviewStateStore } from "../stories/recently-done-review-state-mount-page.ts";
 import {
   adHocRecord,
   adHocTitle,
+  catalogued,
   linked,
   takenRecord,
 } from "./recently-done-selection-mount-page.ts";
@@ -60,12 +62,6 @@ const catalogOf = (title: string) =>
 const pygardon = catalogOf(linked.title);
 const openDough = catalogOf(localTitle);
 
-const catalogued = ({ done }: typeof pygardon): DoneCatalog => ({
-  status: "catalogued",
-  records: [...done.records],
-  unreadable: [...done.unreadable],
-});
-
 type Next<T> = () => Promise<T>;
 // A read the case answers, holds until released, or fails, per call.
 function steered<T>(answered: Next<T>) {
@@ -109,8 +105,14 @@ function steered<T>(answered: Next<T>) {
 
 export function openReviewCue({
   extra = [],
+  reported = [],
+  sessions,
 }: {
   extra?: ReturnType<typeof cueSession>[];
+  // Retained sessions whose Open reads their final report.
+  reported?: ReturnType<typeof cueSession>[];
+  // The shown session's final report, host status and terminal.
+  sessions?: SessionServices;
 } = {}) {
   const store = reviewStateStore({ "open-dough": [linked.identity] });
   const pygardonReview = steered(() => store.read("pygardon"));
@@ -133,9 +135,22 @@ export function openReviewCue({
   };
   const mount = async () => {
     const shown = await mountSessions(
-      makeMe.aMachineAnswer
-        .observingDone(...rows, ...extra)
-        .observingUnavailable(adHocRecord)
+      reported
+        .reduce(
+          (answer, record) =>
+            answer.observing(
+              makeMe.anObservedLaunch
+                .of(record)
+                .withSessionState(
+                  makeMe.aSessionState.retained("review").please(),
+                )
+                .withWorkspace("missing")
+                .please(),
+            ),
+          makeMe.aMachineAnswer
+            .observingDone(...rows, ...extra)
+            .observingUnavailable(adHocRecord),
+        )
         .please(),
       {
         doneCatalog,
@@ -147,6 +162,7 @@ export function openReviewCue({
             ).doneReads.readBodies(source, ...rest),
         },
         reviewStates,
+        ...(sessions === undefined ? {} : { sessions }),
       },
     );
     await shown.header.click();
@@ -162,9 +178,12 @@ export function openReviewCue({
   };
 }
 
-// Whether a shown row carries its Needs review cue.
-export const cueOf = (row: HTMLElement | undefined) =>
-  [...(row?.querySelectorAll("*") ?? [])].some(
+// A shown row's Needs review cue, if it carries one.
+export const cueIn = (row: HTMLElement | undefined) =>
+  [...(row?.querySelectorAll("*") ?? [])].find(
     (element) =>
       element.childElementCount === 0 && element.textContent === "Needs review",
   );
+
+// Whether a shown row carries its Needs review cue.
+export const cueOf = (row: HTMLElement | undefined) => cueIn(row) !== undefined;
