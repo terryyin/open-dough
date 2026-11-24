@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "sessionId": "9d0a86a3-e231-482b-a27c-6c007ea14649",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T09:33:28.353Z",
+  "story": "SEED-413#renovate-landed-ci-scope-proof",
+  "ranges": [
+    {
+      "base": "344e50f9378d72388111b10904de3d47af5721cc",
+      "candidate": "6993c9661d05b709f0e9fa2aee9326c59a99025c"
+    },
+    {
+      "base": "6993c9661d05b709f0e9fa2aee9326c59a99025c",
+      "candidate": "19b4145f980b486c5973f84637811f019bad9b04"
+    },
+    {
+      "base": "19b4145f980b486c5973f84637811f019bad9b04",
+      "candidate": "a07b7b40572aa21f3168f0f7f16b07ff013a83c8"
+    },
+    {
+      "base": "a07b7b40572aa21f3168f0f7f16b07ff013a83c8",
+      "candidate": "6e971472555cd25c7a4554499a3eb6acabdfc3c1"
+    },
+    {
+      "base": "6e971472555cd25c7a4554499a3eb6acabdfc3c1",
+      "candidate": "c87425ef59aace5d07e95b7d202363addb6c9fe5"
+    },
+    {
+      "base": "c87425ef59aace5d07e95b7d202363addb6c9fe5",
+      "candidate": "c359ab214ce39327e498385b74f5a0e54785e3ea"
+    },
+    {
+      "base": "c359ab214ce39327e498385b74f5a0e54785e3ea",
+      "candidate": "fec5889e53be32035a1a03b9316a733d42082fca"
+    },
+    {
+      "base": "fec5889e53be32035a1a03b9316a733d42082fca",
+      "candidate": "abf6c37065c74d90137ced044b8c28da5805b770"
+    },
+    {
+      "base": "abf6c37065c74d90137ced044b8c28da5805b770",
+      "candidate": "b678e34eb28dc1b087b8e2d3e6df2ce44b94f692"
+    },
+    {
+      "base": "b678e34eb28dc1b087b8e2d3e6df2ce44b94f692",
+      "candidate": "6c62ed7d2b35d3253bdc4555e198589dd3e3dda8"
+    }
+  ]
+}
