@@ -78,7 +78,7 @@ The historical count is a lower bound and remains labeled as such.
 
 ### 1. Observe the effective Codex wait
 Type: Behavior
-Status: planned
+Status: done
 Proof: In the target native Codex profile, a bounded unchanged watch on a
 local bare remote reaches its original deadline. Show literal calls, tool
 return timestamps and the saved rollout. Record the effective outer wait,
@@ -104,6 +104,24 @@ can satisfy the wake bound or if the real route or saved attribution is
 unavailable. Retain the observed cap or refusal and replan from that evidence.
 Keep experiments and any transient profile overrides in the isolated proof
 setup.
+
+Observed at `f68d86de6` in Codex CLI 0.171.0, `gpt-6.2-sol` high with code
+mode enabled. Rollout `01a20cd5-46a5-7853-85f1-f5e2c0c73d35`, lines 16–27,
+shows a single `node .agents/skills/dough-execute-plan/scripts/wait-for-publication.mjs
+--remote origin --ref main --duration-minutes 5.25` invocation. The cell took
+empty 300,000 ms shell polls. Its first outer 300,000 ms wait returned the
+live cell after 300.954 s. The second recovered the original deadline receipt
+and shell exit 0. The terminal shell poll took 13.937 s, consistent with an
+earlier internal return. The rollout records the loop and shell's final poll
+but omits intermediate shell poll timestamps.
+
+From 09:14:02.547 to 09:19:17.968 UTC, 315.421 s elapsed. The two attributable
+requests at lines 21 and 25 used 40,960 of 41,331 cached input tokens (99.10%)
+with zero ambiguous requests. The allowance was two. The coordinator reported
+the original deadline and named a publication to `origin/main` as the resume
+condition. The CLI exited 0. The launcher spent 137.077 s before the native
+thread record. Allow that startup separately when supervising the comparisons.
+Delivery disposition: records-only.
 
 ### 2. Keep the Codex supplier watch active through its result
 Type: Behavior
