@@ -71,12 +71,12 @@ The scratch edits were reverted. These observations settle the proof route
 and justify sizing. Measure the finished cases independently before claiming
 a delivered improvement.
 
-## Slices and outside-in proof
+## Ordered slices
 
 ### 1. Keep recoverable evidence when the owner closes during admission
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `launch-attempt-admission-close.spec.ts` runs on Node Vitest. A
 MakeMe ad hoc request reaches the real attempt-file replacement. Hold that
 rename, close the same owner and release the actual rename. Check that
@@ -87,6 +87,18 @@ disposable home. The assertion fails if the post-write close guard is
 removed.
 
 Estimated active work 8–12 minutes.
+
+Accepted proof: the focused backend runner selected one Node Vitest case and
+passed in 9 ms. The case holds the actual rename, closes the owner, then
+checks the refusal, zero callback calls, a nonblank attempt ID, the exact
+request and no outcome in `keptAttempts()`. Removing only the post-write
+close guard in a detached checkout produced `accepted` and failed the
+refusal assertion. Dashboard typecheck passed. The checkout's
+`open-dough/evidence` holds the `slice-1-*` records and `slice-1-return.md`.
+After the formatter flagged the callback and asymmetric matcher, the
+equivalent typed callback and refusal assertions passed in 13 ms.
+The change is confined to the subject spec and the two promise gates follow
+the existing in-case synchronization convention. No refactor candidate arose.
 
 ### 2. Enforce story-specific admission across independent writers
 
@@ -144,3 +156,18 @@ No remaining slice-specific concerns were identified.
   reuse the [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
   if a shared effect changes. A slice that reaches a shared production or
   fixture boundary reruns the proof for that boundary before delivery.
+
+## Execution context
+
+- Story Branch Mode. Julia-chan owns the established worktree
+  `.worktrees/prove-durable-launch-admission-through-the-typed` on
+  `codex/prove-durable-launch-admission-through-the-typed`. The integration
+  checkout is `/Users/terryyin/git/open-dough` and the trunk target is `origin/main`.
+- Publisher `dashboard-territory.local-open-dough`. The starting revision is
+  `698cbd33cead3c23ff51f211896a26d48f609d32`. The accepted claim and first
+  published story-branch base are `f4bd0d8c5d57f22de27d721b8501b1c1c589a170`.
+- Locked `npm ci` and `npm run typecheck:dashboard` succeeded in the execution
+  checkout on Node 24.21.0. Retain the existing planning authority for overruns.
+- GitHub Actions `ci.yml` (`CI`) on the remote story branch. Codex observer
+  `julia-chan-c609a25e`, directory `/tmp/dough-ci-501/watch-KlkXuy`, PID `98709`,
+  shell session `6241`, cell `g209:13`.
