@@ -412,3 +412,11 @@ events. The same coordinator resumed in `/tmp/dough-ci-501/watch-2lDLUR`
   slices 1 and 6; no duplicated domain rule or unmapped key example remains.
 - **Remaining concerns.** None identified beyond the early-probe-bounded
   remount and `openTerminal` premises above.
+
+## Execution complete
+
+Product advice: no change. The mounted proof now covers the scoped live-session
+and terminal behavior, with native process, clipboard, microphone and host
+transport proof still exercised at their existing boundaries. The recorded
+focused wall time fell from 114.379 s to 56.811 s. Done review, frame navigation
+and legacy-runner retirement retain their existing campaign scope and order.
