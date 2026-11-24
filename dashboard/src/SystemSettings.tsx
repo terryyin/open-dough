@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { FeedbackMaintenanceSettings } from "./FeedbackMaintenanceSettings.tsx";
 import { Icon } from "./Icon.tsx";
-import { pageOpenAIConfigurationSource } from "./openAIConfigurationSource.ts";
+import type { OpenAIConfigurationSource } from "./openAIConfigurationSource.ts";
 import { OpenAISettings } from "./OpenAISettings.tsx";
 import { ProductMark } from "./ProductMark.tsx";
 import { ProjectsSettings } from "./ProjectsSettings.tsx";
@@ -24,11 +24,13 @@ type SettingsView = (typeof views)[number][0];
 
 export function SystemSettings({
   projectSettings,
+  openAISettings,
   selectedId,
   onSelect,
   onBack,
 }: {
   readonly projectSettings: ProjectSettingsSource;
+  readonly openAISettings: OpenAIConfigurationSource;
   readonly selectedId: string | undefined;
   readonly onSelect: (source: PublishedSource | undefined) => void;
   readonly onBack: () => void;
@@ -73,7 +75,7 @@ export function SystemSettings({
             selectedId={selectedId}
             onSelect={onSelect}
           />
-          <OpenAISettings source={pageOpenAIConfigurationSource} />
+          <OpenAISettings source={openAISettings} />
           <TerminalThemeSettings />
           <FeedbackMaintenanceSettings />
         </>

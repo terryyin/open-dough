@@ -1,6 +1,11 @@
 import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import type { ProjectSettingsSource } from "../../src/projectSettingsSource.ts";
+import {
+  backToDashboard,
+  settingsButton,
+} from "../configuration/system-settings-controls.ts";
+import { settingsReplies } from "../configuration/system-settings-reads.ts";
 import { storyCard } from "./board-reading-page.ts";
 import { holdPublishedSnapshot } from "./board-frame-observation-supply.ts";
 import {
@@ -106,25 +111,17 @@ test("removing the selected project in System settings clears its story target b
     .mockResolvedValue([openDough.source]);
   const frame = await mountStoryUrl(wide, {
     otherWork: [doughnut],
-    projectSettings: {
-      read: () => Promise.resolve([]),
-      add: () => Promise.reject(new Error("The case does not add a project.")),
-      setHidden: () =>
-        Promise.reject(new Error("The case does not hide a project.")),
-      remove,
-    },
+    settingsSources: settingsReplies({ remove }),
   });
   await expect.element(storyCard(doughnutStory.title)).toHaveFocus();
-  await page
-    .getByRole("button", { name: "System settings", exact: true })
-    .click();
+  await settingsButton.click();
   await page.getByRole("button", { name: "Remove project Doughnut" }).click();
   const dialog = page.getByRole("dialog", { name: "Remove Doughnut?" });
   await dialog.getByRole("button", { name: "Remove", exact: true }).click();
   await expect.element(dialog).not.toBeInTheDocument();
   expect(remove).toHaveBeenCalledWith(doughnut.source.id);
   expect(storyInAddress()).toBeNull();
-  await page.getByRole("button", { name: "Back to dashboard" }).click();
+  await backToDashboard.click();
   await expect.element(projectChoice("Open Dough")).toBeChecked();
   await expect.element(destination).not.toBeInTheDocument();
   expect(storyInAddress()).toBeNull();

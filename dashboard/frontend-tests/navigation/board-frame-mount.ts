@@ -3,7 +3,10 @@ import { expect, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { AcceptanceAnswer } from "../../src/agentLaunchClient.ts";
-import { DashboardApplication } from "../../src/App.tsx";
+import {
+  DashboardApplication,
+  type DashboardSettingsSources,
+} from "../../src/App.tsx";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
@@ -11,7 +14,6 @@ import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
-import type { ProjectSettingsSource } from "../../src/projectSettingsSource.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
@@ -35,20 +37,20 @@ export type BoardFrameMachine = {
   ) => Promise<AcceptanceAnswer>;
 };
 
-function DashboardWithProjectSettings({
+function DashboardWithSettings({
   projects: initialProjects,
   reads,
-  projectSettings,
+  settingsSources,
 }: {
   readonly projects: readonly PublishedSource[];
   readonly reads: PageReads;
-  readonly projectSettings: ProjectSettingsSource;
+  readonly settingsSources: DashboardSettingsSources;
 }) {
   const [projects, replaceProjects] = useState(initialProjects);
   return createElement(DashboardApplication, {
     configuration: { projects, problem: undefined, replaceProjects },
     reads,
-    projectSettings,
+    settingsSources,
   });
 }
 
@@ -65,7 +67,7 @@ export async function mountBoardFrame(
     ci,
     review,
     sessions = authenticatedSessionServices,
-    projectSettings,
+    settingsSources,
   }: {
     otherWork?: readonly PublishedWork[];
     initialSnapshot?: Error | Promise<PublishedWork>;
@@ -74,7 +76,7 @@ export async function mountBoardFrame(
     ci?: IntentCiReadSource;
     review?: ReviewSource;
     sessions?: SessionServices;
-    projectSettings?: ProjectSettingsSource;
+    settingsSources?: DashboardSettingsSources;
   } = {},
 ) {
   withPagePreferences();
@@ -107,7 +109,7 @@ export async function mountBoardFrame(
     ...(review === undefined ? {} : { review }),
   });
   const dashboard =
-    projectSettings === undefined
+    settingsSources === undefined
       ? createElement(ProjectsOnPage, {
           projects,
           replaceProjects: () => {},
@@ -118,10 +120,10 @@ export async function mountBoardFrame(
             onDashboardReady: () => {},
           }),
         })
-      : createElement(DashboardWithProjectSettings, {
+      : createElement(DashboardWithSettings, {
           projects,
           reads,
-          projectSettings,
+          settingsSources,
         });
   await mountComponent(dashboard, { viewport, fillsViewport: true });
   // Production launches settle through typed machine reads; wait out the first

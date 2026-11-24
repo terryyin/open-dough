@@ -8,7 +8,6 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { expectSuppliedIcon } from "./support/brandIcons.ts";
-import { expectInside } from "./pageLayout.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 
 export function sessionsProductMark(page: Page) {
@@ -42,28 +41,6 @@ async function expectProductMarkImage(mark: Locator) {
   expect(shown.width).toBeGreaterThanOrEqual(16);
   expect(shown.width * 2).toBeLessThanOrEqual(shown.naturalWidth);
   return shown;
-}
-
-export async function expectProductMark(area: Locator) {
-  const mark = area.getByRole("img", { name: "Open Dough", exact: true });
-  await expect(mark).toHaveCount(1);
-  await expect(mark).toBeVisible();
-  await expect(mark).toBeInViewport({ ratio: 1 });
-  await expectInside(mark, area);
-  const placement = await mark.evaluate((element) => {
-    const image = element as HTMLImageElement;
-    const { x, y, width, height } = image.getBoundingClientRect();
-    return {
-      onTop: document.elementFromPoint(x + width / 2, y + height / 2) === image,
-      tabIndex: image.tabIndex,
-      insideControl:
-        image.closest("a, button, summary, label, [role], [tabindex]") !== null,
-    };
-  });
-  await expectProductMarkImage(mark);
-  expect(placement.onTop, "nothing covers the mark").toBe(true);
-  expect(placement.tabIndex, "the mark is no keyboard stop").toBe(-1);
-  expect(placement.insideControl, "the mark is no control or link").toBe(false);
 }
 
 // The Sessions toggle's decorative product mark: same supplied icon and

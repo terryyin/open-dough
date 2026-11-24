@@ -199,7 +199,7 @@ including preparation, and nine affected Story URL cases and typecheck passed.
 ### 3. System appearance and settings chrome follow through the frame
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (7 cases).** `configuration/dashboard-system-appearance`,
 `configuration/system-settings-look`,
@@ -218,6 +218,32 @@ keeps settings usable and refuses deep links to hidden projects.
 path. Look variants that only need the settings owner reuse the existing
 colocated mounts. Legacy built-app settings specs in this roster retire once
 every assertion has a new owner.
+
+**Accepted assertion map.**
+
+| Retired case | Replacement observation |
+| --- | --- |
+| System appearance across the dashboard and Intent | `dashboard-system-appearance` changes Chromium's scheme, checks readable Board, Sessions, launch dialog, legend, settings and Intent source, and preserves source selection and the attached Side panel. |
+| Headed and recognisable groups | `system-settings-look` checks headings, column alignment, text/control contrast, the passive mark's visible size, unobscured bounds and canonical image bytes. |
+| Settings and project dialogs at 420 px | The same case resizes the frame and checks complete text, no horizontal scrolling, readable dialogs, expected entry focus and cancellation. |
+| Long facts and 200% zoom | `system-settings-look` checks the full local facts at 360 px and 200% zoom and keyboard restoration of the Settings opener. |
+| Touch reading after rotation | `system-settings-look` uses native touch at phone width, checks local facts and settings groups through rotation, and returns to the same roster with the opener focused. |
+| Global settings and roster return | `system-settings-navigation` checks each project's local facts, no project switch while settings owns focus, and roster/focus on Back and Forward. Existing configuration and perspective-history E2E prove gear affordances and real reload. |
+| Hidden selection and links | `project-hide-selection` drives real settings actions, selection and showing projects through typed reads, then verifies hidden addresses and the all-hidden fallback. Existing `e2e/configuration/project-hide.spec.ts` now also opens fresh hidden addresses through persisted settings in a separate tab. |
+
+**Result.** Six mounted cases took 7.88 s including preparation versus 15.14 s
+for seven legacy cases at two workers. Adding 0.86 s for the measured cold-link
+steps in the two existing E2E cases gives 8.73 s of comparable proof. No new
+E2E case was registered. Appearance (3.85 s) and project visibility (2.72 s)
+were the slowest mounts in the first passing run. Eleven unchanged E2E
+consumers and 12 affected mounted cases also passed with dashboard typecheck.
+Production App supplies the required typed settings reads. Vitest serves brand
+assets through the same plugin as the built dashboard. Exact commands,
+assertions and timing are in Git evidence `slice3-return.md`. The independent
+refactor passed all 12 affected mounts, both visibility E2Es and typecheck.
+The later E2E rerun took 29.01 s versus 8.50 s for the same two E2Es earlier,
+with 4.36 s in the new steps including tab lifecycle. Use the earlier pair for
+the comparison and the later run for functional confirmation.
 
 ### 4. Dashboard header chrome and connection logo stay reachable
 

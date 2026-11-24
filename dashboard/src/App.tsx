@@ -15,7 +15,20 @@ import {
 import { SettingsNavigation } from "./settingsNavigation.ts";
 import { SavedTerminalThemeProvider } from "./savedTerminalTheme.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { pageTerminalThemeSource } from "./terminalThemeSource.ts";
+import {
+  pageTerminalThemeSource,
+  type TerminalThemeSource,
+} from "./terminalThemeSource.ts";
+import {
+  pageOpenAIConfigurationSource,
+  type OpenAIConfigurationSource,
+} from "./openAIConfigurationSource.ts";
+
+export type DashboardSettingsSources = {
+  readonly projects: ProjectSettingsSource;
+  readonly openAI: OpenAIConfigurationSource;
+  readonly terminalTheme: TerminalThemeSource;
+};
 
 export function App() {
   const configuration = useProjectConfiguration();
@@ -23,7 +36,11 @@ export function App() {
     <DashboardApplication
       configuration={configuration}
       reads={authenticatedPageReads}
-      projectSettings={pageProjectSettingsSource}
+      settingsSources={{
+        projects: pageProjectSettingsSource,
+        openAI: pageOpenAIConfigurationSource,
+        terminalTheme: pageTerminalThemeSource,
+      }}
     />
   );
 }
@@ -31,7 +48,7 @@ export function App() {
 export function DashboardApplication({
   configuration: { projects, problem, replaceProjects },
   reads,
-  projectSettings,
+  settingsSources,
 }: {
   readonly configuration: {
     readonly projects: readonly PublishedSource[] | undefined;
@@ -39,7 +56,7 @@ export function DashboardApplication({
     readonly replaceProjects: (projects: readonly PublishedSource[]) => void;
   };
   readonly reads: PageReads;
-  readonly projectSettings: ProjectSettingsSource;
+  readonly settingsSources: DashboardSettingsSources;
 }) {
   const [settings, setSettings] = useState(
     () =>
@@ -118,7 +135,7 @@ export function DashboardApplication({
       </p>
     );
   return (
-    <SavedTerminalThemeProvider source={pageTerminalThemeSource}>
+    <SavedTerminalThemeProvider source={settingsSources.terminalTheme}>
       <ProjectsOnPage projects={projects} replaceProjects={replaceProjects}>
         <SettingsNavigation.Provider
           value={(onReturn) => {
@@ -156,7 +173,8 @@ export function DashboardApplication({
           </div>
           {settings && (
             <SystemSettings
-              projectSettings={projectSettings}
+              projectSettings={settingsSources.projects}
+              openAISettings={settingsSources.openAI}
               selectedId={selected ?? dashboard.current?.source?.id}
               onSelect={(source) => {
                 dashboard.current?.select(source);

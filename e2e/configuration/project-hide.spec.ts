@@ -24,6 +24,7 @@ import {
   settings,
   showButton,
 } from "../../dashboard/test-support/support/systemSettingsPage.ts";
+import { projectVisibilityPage } from "./project-hide-page.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
@@ -103,6 +104,22 @@ test("hiding a project removes it from tabs, compact selector and cycling while 
   server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
   await expectVisibleProjectLabels(page, visibleWithoutDoughnut);
+  const links =
+    await test.step("Given I have a separate tab for fresh links", () =>
+      projectVisibilityPage(page).openSeparateTab());
+  const development =
+    await test.step("When I follow a Development link to the hidden project", () =>
+      links.openProjectLink(`${server.baseURL}/?project=doughnut`));
+  await test.step("Then Open Dough opens in Development", () =>
+    development.showsProject("Open Dough", `${server.baseURL}/`));
+  const intent =
+    await test.step("When I follow an Intent link to the hidden project", () =>
+      links.openProjectLink(
+        `${server.baseURL}/?project=doughnut&perspective=intent`,
+      ));
+  await test.step("Then Open Dough opens in Intent", () =>
+    intent.showsProject("Open Dough", `${server.baseURL}/?perspective=intent`));
+  await test.step("And I close the separate tab", () => links.close());
 
   await settings(page).click();
   await showButton(page, "Doughnut").click();
@@ -143,6 +160,13 @@ test("development visibility stays separate from production configuration", asyn
   await expect(
     page.getByRole("heading", { name: "All projects are hidden", exact: true }),
   ).toBeVisible();
+  const visibility =
+    await test.step("When I follow an Intent link with every project hidden", () =>
+      projectVisibilityPage(page).openLink(
+        `${devServer.baseURL}/?project=sample-app&perspective=intent`,
+      ));
+  await test.step("Then the dashboard shows that all projects are hidden", () =>
+    visibility.showsAllHidden(`${devServer.baseURL}/`));
   expect(readSaved("dev")).toMatchObject([{ id: "sample-app", hidden: true }]);
   await fixture.stop(devServer);
 

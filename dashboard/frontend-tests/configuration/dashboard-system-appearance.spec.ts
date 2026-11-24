@@ -1,233 +1,273 @@
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+import { contrastRatio } from "../../test-support/composedColours.ts";
 import {
-  fileSource,
-  sourceLineNumbers,
-  sourceLineText,
-  sourceFile,
-} from "../../test-support/intentCodeBrowsePage.ts";
-// System colour-scheme appearance for the dashboard frame and Intent source:
-// dark Board/card/badge, Sessions, Side panel chrome, dialog, settings, focus,
-// and recovery text stay readable; highlighted and plain source follow the
-// preference without re-tokenization, with tokens readable in both; light
-// restores the light frame; reading state survives the change. No dashboard appearance switch.
+  controlContrast,
+  focusedAndVisible,
+  paintedBackground,
+  textContrast,
+} from "../navigation/board-accessibility.ts";
+import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
+import { boardReading as board } from "../navigation/board-reading-page.ts";
+import {
+  closeTerminal,
+  openRecord,
+  openSidebarSession,
+  sessions,
+  sidebar,
+  terminal,
+} from "../navigation/board-session-view.ts";
+import { boardWork, story } from "../navigation/board-work.ts";
+import { withWidthStorage } from "../navigation/side-panel-width-view.ts";
+import {
+  intent,
+  openHighlightedSource,
+  openPlainSource,
+  plainText,
+  sourceReads,
+} from "./system-appearance-source.ts";
+import { settingsColourScheme } from "./system-settings-browser.ts";
+import {
+  backToDashboard,
+  openSystemSettings,
+  settingsHeading,
+} from "./system-settings-controls.ts";
+import { tokenColour } from "./system-settings-reading.ts";
+import { settingsReplies } from "./system-settings-reads.ts";
 
-import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import {
-  expectControlContrast,
-  expectReadableContrast,
-} from "../../test-support/accessibleReading.ts";
-import {
-  expectDarkSurface,
-  expectFocusReadable,
-  expectLightSurface,
-  expectNoAppearanceSwitch,
-  expectPrimaryControlReadable,
-  setColorScheme,
-} from "../../test-support/systemAppearanceReading.ts";
-import { colourOf, sourceToken } from "../../test-support/pageColours.ts";
-import { expectProjectChoice } from "../../test-support/projectChoice.ts";
-import { settings } from "../../test-support/support/systemSettingsPage.ts";
-import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
-import {
-  readyStory,
-  notRefinedStory,
-} from "../../test-support/launchJourney.ts";
-import {
-  expandIntentFolders,
-  expandIntentGroup,
-} from "../../test-support/intentPerspectivePage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { frontendRevision } from "../../test-support/support/frontendServiceState.ts";
+const queued = [
+  story("Run the ready work", 71),
+  story("Refine the next work", 72),
+];
+const running = story("Read the active session", 73);
 
-const highlightedPath = "dashboard/tests/example.spec.ts";
-const plainPath = "dashboard/checks/notes.check";
-const highlightedSource =
-  '// greets the reader\nexport const message = "hello";\n';
-const plainSource = "plain recovery note\n";
+function expectSurface(scheme: "dark" | "light") {
+  const root = document.documentElement;
+  const surface = tokenColour(root, "--surface");
+  const text = tokenColour(root, "--text");
+  expect(getComputedStyle(root).backgroundColor).toBe(surface);
+  expect(getComputedStyle(root).color).toBe(text);
+  expect(contrastRatio(text, surface)).toBeGreaterThanOrEqual(4.5);
+  if (scheme === "light") {
+    expect(surface).toBe("rgb(246, 246, 243)");
+    expect(text).toBe("rgb(29, 29, 27)");
+  } else {
+    expect(surface).not.toBe("rgb(246, 246, 243)");
+  }
+}
 
-test("the dashboard frame and Intent source follow the system appearance together", async ({
-  page,
-  frontendServices,
-}) => {
-  Object.assign(frontendServices, {
-    files: {
-      ...frontendServices.files,
-      [highlightedPath]: highlightedSource,
-      [plainPath]: plainSource,
+function expectNoAppearanceSwitch() {
+  for (const role of ["button", "combobox", "switch"] as const) {
+    expect(
+      page
+        .getByRole(role, {
+          name: /^(dark mode|light mode|appearance|color scheme|dashboard theme)$/i,
+        })
+        .elements(),
+    ).toHaveLength(0);
+  }
+}
+
+test("system appearance changes frame chrome and Intent source without losing the reading place", async () => {
+  withWidthStorage();
+  const setScheme = settingsColourScheme();
+  const reads: string[] = [];
+  await setScheme("dark");
+  const answer = makeMe.aMachineAnswer
+    .observingOpen(openRecord(running))
+    .please();
+  await mountBoardFrame(
+    boardWork(queued, { taken: [running] }),
+    { width: 2400, height: 900 },
+    "stories",
+    { answer },
+    {
+      intentReads: sourceReads(reads),
+      settingsSources: settingsReplies(),
+      sessions: {
+        ...pageReadsSupplying({}).sessions,
+        readHostStatus: () =>
+          Promise.resolve(
+            makeMe.aHostStatus
+              .with({ cpuPercent: null, freeBytes: null })
+              .please(),
+          ),
+        openTerminal: () => ({
+          binaryType: "arraybuffer",
+          readyState: WebSocket.CONNECTING,
+          send() {},
+          close() {},
+          addEventListener() {},
+        }),
+      },
     },
-    locations: {
-      revision: frontendRevision,
-      locations: [
-        makeMe.anIntentLocation
-          .at("dashboard/tests")
-          .ofKind("typescript", ["**/*.spec.ts"])
-          .selecting(highlightedPath)
-          .please(),
-        makeMe.anIntentLocation
-          .at("dashboard/checks")
-          .withSources({ include: ["**/*.check"] })
-          .selecting(plainPath)
-          .please(),
-      ],
-      recovery: undefined,
-    },
+  );
+
+  expectSurface("dark");
+  for (const column of ["Backlog", "Taken"] as const) {
+    const heading = board
+      .column(column)
+      .getByRole("heading", { name: column, exact: true });
+    await expect.element(heading).toBeVisible();
+    textContrast(heading.element());
+  }
+  for (const { title } of queued) {
+    const heading = board
+      .column("Backlog")
+      .getByRole("article", { name: title })
+      .getByRole("heading");
+    await expect.element(heading).toBeVisible();
+    textContrast(heading.element());
+  }
+  const start = page.getByRole("button", {
+    name: "Start session in Open Dough",
   });
+  textContrast(start.element());
+  controlContrast(start.element());
+  (start.element() as HTMLElement).focus();
+  focusedAndVisible(start.element());
+  expect(
+    contrastRatio(
+      getComputedStyle(start.element()).outlineColor,
+      paintedBackground(start.element().parentElement),
+    ),
+  ).toBeGreaterThanOrEqual(3);
+  await userEvent.click(start);
+  const dialog = page.getByRole("dialog");
+  await expect.element(dialog).toBeVisible();
+  textContrast(dialog.getByRole("heading").element());
+  controlContrast(
+    dialog.getByRole("button", { name: "Start", exact: true }).element(),
+  );
+  await userEvent.keyboard("{Escape}");
+  await expect.element(dialog).not.toBeInTheDocument();
 
-  await setColorScheme(page, "dark");
-  await openFrontendTakenBacklog(page);
-  const {
-    board,
-    backlog,
-    taken,
-    intentChoice,
-    development,
-    intent,
-    preparationHelp,
-  } = parts(page);
+  await page.getByRole("button", { name: "Preparation badge legend" }).click();
+  await expect
+    .element(dialog.getByRole("heading", { name: "Preparation badges" }))
+    .toBeVisible();
+  for (const label of ["Not refined", "Ready for execution", "Slice planned"]) {
+    textContrast(dialog.getByText(label, { exact: true }).element());
+  }
+  await userEvent.keyboard("{Escape}");
+  await openSystemSettings();
+  textContrast(settingsHeading.element());
+  expectNoAppearanceSwitch();
+  await userEvent.click(backToDashboard);
+  await expect.element(settingsHeading).not.toBeInTheDocument();
 
-  await test.step("dark Board, cards, badges, and primary controls stay readable", async () => {
-    await expectDarkSurface(page);
-    await expectReadableContrast(
-      board.getByRole("heading", { name: "Backlog", exact: true }),
-    );
-    await expectReadableContrast(
-      taken.getByRole("heading", { name: "Taken", exact: true }),
-    );
-    await expectReadableContrast(
-      backlog
-        .getByRole("article", { name: readyStory, exact: true })
-        .getByRole("heading"),
-    );
-    await expectReadableContrast(
-      backlog
-        .getByRole("article", { name: notRefinedStory, exact: true })
-        .getByRole("heading"),
-    );
-    const start = page.getByRole("button", {
-      name: "Start session in Open Dough",
-    });
-    await expectPrimaryControlReadable(start);
-    await expectFocusReadable(page, start);
+  await userEvent.click(sessions);
+  const sessionsHeading = sidebar.getByRole("heading", {
+    name: "Sessions",
+    exact: true,
   });
+  await expect.element(sessionsHeading).toBeVisible();
+  textContrast(sessionsHeading.element());
+  await userEvent.click(sessions);
+  await expect.element(sidebar).not.toBeInTheDocument();
 
-  await test.step("Sessions sidebar and a launch dialog read on dark chrome", async () => {
-    await page.getByRole("button", { name: "Sessions", exact: true }).click();
-    const { sidebar } = sessionsSidebarParts(page);
-    await expect(sidebar).toBeVisible();
-    await expectReadableContrast(
-      sidebar.getByRole("heading", { name: "Sessions", exact: true }),
-    );
-    await page.getByRole("button", { name: "Sessions", exact: true }).click();
-    await expect(sidebar).toBeHidden();
-
-    await page
-      .getByRole("button", { name: "Start session in Open Dough" })
-      .click();
-    const dialog = page.getByRole("dialog");
-    await expect(dialog).toBeVisible();
-    await expectReadableContrast(dialog.getByRole("heading").first());
-    await expectControlContrast(
-      dialog.getByRole("button", { name: "Start", exact: true }),
-    );
-    await page.keyboard.press("Escape");
-    await expect(dialog).toHaveCount(0);
+  await userEvent.click(sessions);
+  await openSidebarSession(running.title);
+  const panelHeading = terminal.getByRole("heading", {
+    name: running.title,
+    exact: true,
   });
+  if (!sidebar.query()?.checkVisibility()) await userEvent.click(sessions);
+  await expect.element(sessionsHeading).toBeVisible();
 
-  await test.step("preparation legend and System settings stay readable", async () => {
-    await preparationHelp.click();
-    const legend = page.getByRole("dialog");
-    await expect(
-      legend.getByRole("heading", { name: "Preparation badges" }),
-    ).toBeVisible();
-    for (const label of [
-      "Not refined",
-      "Ready for execution",
-      "Slice planned",
-    ]) {
-      await expectReadableContrast(legend.getByText(label, { exact: true }));
-    }
-    await page.keyboard.press("Escape");
-
-    await settings(page).click();
-    await expect(
-      page.getByRole("heading", { name: "System settings", exact: true }),
-    ).toBeVisible();
-    await expectReadableContrast(
-      page.getByRole("heading", { name: "System settings", exact: true }),
-    );
-    await expectNoAppearanceSwitch(page);
-    await page.getByRole("button", { name: "Back to dashboard" }).click();
+  const intentChoice = page.getByRole("radio", { name: "Intent", exact: true });
+  const development = page.getByRole("radio", {
+    name: "Development",
+    exact: true,
   });
-
-  await test.step("Intent source highlights and plain text follow the scheme without losing place", async () => {
-    await intentChoice.click();
-    await expect(intent).toBeVisible();
-    await expandIntentGroup(intent, "dashboard/tests");
-    await expandIntentFolders(intent, "dashboard/tests");
-    await sourceFile(intent, highlightedPath).click();
-    const source = fileSource(intent, highlightedPath);
-    await expect(source).toContainText('export const message = "hello";');
-    const exportToken = sourceToken(source, /^export$/);
-    const commentToken = sourceToken(source, /greets the reader/);
-    await expect(exportToken).toBeVisible();
-    await expectReadableContrast(exportToken);
-    await expectReadableContrast(commentToken);
-    await expectReadableContrast(sourceLineNumbers(source).first());
-    const darkExport = await colourOf(exportToken);
-
-    await expandIntentGroup(intent, "dashboard/checks");
-    await expandIntentFolders(intent, "dashboard/checks");
-    await sourceFile(intent, plainPath).click();
-    const plain = fileSource(intent, plainPath);
-    await expect(sourceLineText(plain)).toHaveText(plainSource.split("\n"));
-    await expect(sourceLineText(plain).locator("span")).toHaveCount(0);
-    await expectReadableContrast(sourceLineText(plain).first());
-
-    await expandIntentGroup(intent, "dashboard/tests");
-    await expandIntentFolders(intent, "dashboard/tests");
-    await sourceFile(intent, highlightedPath).click();
-    await expect(exportToken).toBeVisible();
-
-    // Open Sessions (side panel) while Intent keeps the selected file, then
-    // flip appearance both ways without losing project, perspective, or panel.
-    await page.getByRole("button", { name: "Sessions", exact: true }).click();
-    const { sidebar } = sessionsSidebarParts(page);
-    await expect(sidebar).toBeVisible();
-    await expect(intentChoice).toBeChecked();
-    await expectProjectChoice(page, "Open Dough");
-
-    await setColorScheme(page, "light");
-    await expectLightSurface(page);
-    const lightExport = await colourOf(exportToken);
-    expect(lightExport).not.toBe(darkExport);
-    await expectReadableContrast(exportToken);
-    await expectReadableContrast(commentToken);
-    await expectProjectChoice(page, "Open Dough");
-    await expect(intentChoice).toBeChecked();
-    await expect(development).not.toBeChecked();
-    await expect(intent).toBeVisible();
-    await expect(sidebar).toBeVisible();
-    await expectReadableContrast(
-      sidebar.getByRole("heading", { name: "Sessions", exact: true }),
+  await userEvent.click(intentChoice);
+  await intent
+    .getByRole("button", { name: "Project Intent", exact: true })
+    .click();
+  const source = await openHighlightedSource();
+  const tokenMatching = (pattern: RegExp) =>
+    [...source.element().querySelectorAll(".source-token")].find((span) =>
+      pattern.test(span.textContent),
     );
-    await expect(source).toContainText('export const message = "hello";');
-
-    await setColorScheme(page, "dark");
-    await expectDarkSurface(page);
-    expect(await colourOf(exportToken)).toBe(darkExport);
-    await expectProjectChoice(page, "Open Dough");
-    await expect(intentChoice).toBeChecked();
-    await expect(development).not.toBeChecked();
-    await expect(intent).toBeVisible();
-    await expect(sidebar).toBeVisible();
-    await expectReadableContrast(
-      sidebar.getByRole("heading", { name: "Sessions", exact: true }),
+  const keyword = () => tokenMatching(/^export$/);
+  const comment = () => tokenMatching(/greets the reader/);
+  await expect
+    .poll(() => source.query()?.textContent)
+    .toContain('export const message = "hello";');
+  await expect.poll(() => keyword()?.checkVisibility()).toBe(true);
+  const darkToken = keyword();
+  const darkComment = comment();
+  const lineNumber = source.element().querySelector(".source-line-number");
+  if (!darkToken || !darkComment || !lineNumber) {
+    throw new Error(
+      "The highlighted source is missing its tokens or line numbers.",
     );
-    await expect(source).toContainText('export const message = "hello";');
-    await expectNoAppearanceSwitch(page);
-  });
+  }
+  textContrast(darkToken);
+  textContrast(darkComment);
+  textContrast(lineNumber);
+  const darkKeyword = getComputedStyle(darkToken).color;
+
+  const unhighlighted = await openPlainSource();
+  const lines = [
+    ...unhighlighted.element().querySelectorAll(".source-line-text"),
+  ];
+  expect(lines.map((line) => line.textContent)).toEqual(plainText.split("\n"));
+  expect(
+    unhighlighted.element().querySelectorAll(".source-line-text span"),
+  ).toHaveLength(0);
+  const first = lines[0];
+  if (!first) throw new Error("The plain source has no line to read.");
+  textContrast(first);
+
+  await openHighlightedSource();
+  await expect.poll(() => keyword()?.checkVisibility()).toBe(true);
+  const token = keyword();
+  const commentToken = comment();
+  if (!token || !commentToken)
+    throw new Error("The selected source has no highlight tokens.");
+  const fileReadsBefore = [...reads];
+  for (const scheme of ["light", "dark"] as const) {
+    await setScheme(scheme);
+    await expect
+      .poll(() => matchMedia(`(prefers-color-scheme: ${scheme})`).matches)
+      .toBe(true);
+    expectSurface(scheme);
+    await expect
+      .poll(() => {
+        const radio = page
+          .getByRole("radio", { name: "Open Dough", exact: true })
+          .query();
+        const compact = page
+          .getByRole("button", { name: "Project", exact: true })
+          .query();
+        return (
+          (radio instanceof HTMLInputElement && radio.checked) ||
+          compact?.textContent.trim() === "Open Dough"
+        );
+      })
+      .toBe(true);
+    await expect.element(intentChoice).toBeChecked();
+    await expect.element(development).not.toBeChecked();
+    await expect.element(intent).toBeVisible();
+    await expect.element(panelHeading).toBeVisible();
+    textContrast(panelHeading.element());
+
+    await expect.element(sessionsHeading).toBeVisible();
+    textContrast(sessionsHeading.element());
+    await expect
+      .poll(() => source.query()?.textContent)
+      .toContain('export const message = "hello";');
+    expect(keyword()).toBe(token);
+    const actual = getComputedStyle(token).color;
+    if (scheme === "light") expect(actual).not.toBe(darkKeyword);
+    else expect(actual).toBe(darkKeyword);
+    textContrast(token);
+    textContrast(commentToken);
+    expect(reads).toEqual(fileReadsBefore);
+  }
+  expectNoAppearanceSwitch();
+  await closeTerminal();
 });

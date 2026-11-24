@@ -1,58 +1,55 @@
-// System settings as a view of the dashboard frame, against controlled
-// settings answers: it shows each configured project's local facts, returns
-// to the view it was opened from with focus, and browser history keeps the
-// selected project. The settings facts endpoint's own answer and refusals are
-// ../../../e2e/configuration/system-settings-client-configuration.spec.ts.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
 import {
-  installFrontendSettingsSubstitutes,
-  productionSeedProjects,
-} from "../../test-support/support/frontendSettingsSubstitutes.ts";
+  backToDashboard,
+  openSystemSettings,
+  settingsButton,
+  settingsHeading,
+  settingsRegion,
+} from "./system-settings-controls.ts";
 import {
-  back,
-  projectRow,
-  settings,
-} from "../../test-support/support/systemSettingsPage.ts";
-import { expectFrameIconControl } from "../../test-support/frameIconControl.ts";
+  mountSettingsFrame,
+  projectChoice,
+  projectFacts,
+  settingsWork,
+} from "./system-settings-frame.ts";
 
-test("global settings has narrow local facts, returns to roster with focus, and browser back/forward keeps project selection", async ({
-  page,
-  frontendServices,
-}) => {
-  await installFrontendSettingsSubstitutes(page, frontendServices, {
-    projects: productionSeedProjects,
+test("global settings reads machine-local facts and returns focus to the chosen roster through browser history", async () => {
+  const [openDough, doughnut, ...others] = settingsWork;
+  const work = [doughnut, openDough, ...others] as const;
+  const roster = page.getByRole("heading", {
+    name: "Agent roster",
+    exact: true,
   });
-  await page.goto("/?project=doughnut&view=roster");
-  await expect(
-    page.getByRole("heading", { name: "Agent roster", exact: true }),
-  ).toBeVisible();
-  await expectFrameIconControl(settings(page), "System settings");
-  await settings(page).click();
-  await expect(
-    page.getByRole("heading", { name: "System settings", exact: true }),
-  ).toBeFocused();
-  for (const project of productionSeedProjects) {
-    const row = projectRow(page, project.label);
-    await expect(row).toContainText(project.repository);
-    await expect(row).toContainText(project.localPath);
+  await mountSettingsFrame({ width: 1440, height: 900 }, work, {
+    view: "roster",
+  });
+  await expect.element(roster).toBeVisible();
+  await openSystemSettings();
+  for (const project of work) {
+    const row = settingsRegion("Projects")
+      .getByRole("listitem")
+      .filter({
+        has: page.getByRole("heading", {
+          name: project.source.label,
+          exact: true,
+        }),
+      });
+    await expect
+      .element(row.getByText(project.source.repository, { exact: true }))
+      .toBeVisible();
+    await expect
+      .element(row.getByText(projectFacts(project).localPath, { exact: true }))
+      .toBeVisible();
   }
-  await page.keyboard.press("ArrowRight");
-  await page.keyboard.press("ArrowLeft");
-  await back(page).click();
-  await expect(
-    page.getByRole("radio", { name: "Doughnut", exact: true }),
-  ).toBeChecked();
-  await expect(
-    page.getByRole("heading", { name: "Agent roster", exact: true }),
-  ).toBeVisible();
-  await expect(settings(page)).toBeFocused();
-  await page.goForward();
-  await expect(
-    page.getByRole("heading", { name: "System settings", exact: true }),
-  ).toBeVisible();
-  await page.goBack();
-  await expect(settings(page)).toBeFocused();
-  await expect(
-    page.getByRole("radio", { name: "Doughnut", exact: true }),
-  ).toBeChecked();
+  await userEvent.keyboard("{ArrowRight}{ArrowLeft}");
+  await userEvent.click(backToDashboard);
+  await expect.element(projectChoice("Doughnut")).toBeChecked();
+  await expect.element(roster).toBeVisible();
+  await expect.element(settingsButton).toHaveFocus();
+  history.forward();
+  await expect.element(settingsHeading).toBeVisible();
+  history.back();
+  await expect.element(settingsButton).toHaveFocus();
+  await expect.element(projectChoice("Doughnut")).toBeChecked();
 });

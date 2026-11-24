@@ -181,34 +181,6 @@ export async function expectChartMarkContrast(
   expect(best, "chart mark contrast").toBeGreaterThanOrEqual(minimum);
 }
 
-// Every piece of text a reader reads in an area, and every control in it, as
-// the caller names them: shown text is readable, and a shown control is
-// readable and, while it can be used, recognisable (WCAG 1.4.11 exempts an
-// inactive control). A password field shows no readable text of its own, so
-// it is exempt from text contrast only. An area the caller says has controls
-// fails when none is shown.
-export async function expectReadableAndRecognisable(
-  area: Locator,
-  {
-    texts,
-    controls,
-    hasControls,
-  }: { texts: string; controls: string; hasControls: boolean },
-) {
-  for (const text of await area.locator(texts).all())
-    if (await text.isVisible()) await expectReadableContrast(text);
-  let checkedControls = 0;
-  for (const control of await area.locator(controls).all()) {
-    if (!(await control.isVisible())) continue;
-    checkedControls += 1;
-    if ((await control.getAttribute("type")) !== "password")
-      await expectReadableContrast(control);
-    if (await control.isEnabled()) await expectControlContrast(control);
-  }
-  if (hasControls)
-    expect(checkedControls, "controls shown in the area").toBeGreaterThan(0);
-}
-
 // Detail and cards must settle immediately under reduced motion: no authored
 // transition or animation that would delay placement or focus.
 export async function expectImmediateMotion(locator: Locator) {
