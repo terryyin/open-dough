@@ -83,7 +83,7 @@ entries` assertion.
 ### 2. Claude Code completes CI through the shared operation only
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A Claude Code Story Branch execution at its final handoff runs
 `complete-revision` and handles its receipt; when it reports `pending`, the
@@ -102,6 +102,13 @@ outside the excluded records returns nothing. Run the guidance and payload
 inventory checks that read the changed references (the
 `Distribution/tests/skills/dough-execute-plan` and installation payload
 scenarios that the consumer trace reaches).
+
+**Accepted proof.** `ci-claude-lifecycle`, `ci-claude-worker-loss-lifecycle`
+and the five `ci-host-hook-*` tests pass; consumers `payload-declaration-links`,
+`dough-update-guidance-payload`, `pin-and-inspect`, `install-all-tools`,
+`install-ci-host-hooks`, `install-retires-ci-background-hook`,
+`update-skip-verified` and the execute-plan guidance readers pass. The consumer
+search leaves only slice 1's retirement data and its scenario helpers.
 
 ## Concern evidence
 
