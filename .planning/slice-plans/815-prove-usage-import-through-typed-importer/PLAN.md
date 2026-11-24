@@ -292,6 +292,33 @@ Dashboard typecheck passed. Guarded delivery runs the full lint gate after
 selective formatting. Git evidence keeps the exact commands and results
 in `slice-7-implementation.md`, `slice-7-refactor.md` and the run records.
 
+## Execution complete
+
+Product advice: no change to the later-family priority. The 54 selected
+backend specs now exercise the typed entries through Node Vitest, and the
+maintained backend runner finished this sample in 36.389 s against
+88.701 s originally. The lower candidate load limits exact speed attribution.
+The 288-to-six count independently measures the removed usage-command starts.
+The full lint gate, Dashboard typecheck and five cases across all four Usage
+E2E specs passed. The E2E cases confirm cross-service behavior after the proof
+migration and did not drive development of the typed calls. Representative
+browser observations cover the selected chart cohort, details, Refresh,
+tariff substitution and period. Recovery, store bytes and command diagnostics
+remain at their typed or command boundary. The slower surviving cases and
+remaining family inventory are recorded for the existing campaign.
+
+The delivered change follows [ADR 0002, Software development lifecycle
+principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+by using the existing production operations and keeping fast independent
+test seams, and [ADR 0010, Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
+by recording the timing baseline, changed case count and comparison limits.
+The accepted Dashboard architecture in [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+continues to distinguish executable proof from observations of a particular
+revision. The manifest is the seven branch increments from `704894652` through
+`c1f637d8a`. All code and local proof belong to those commits. Branch CI at
+the review boundary is pending. Process review remains selected for wrap-up
+after its automatic Intent Coverage check on the rewritten Refresh proof.
+
 ## Concern evidence
 
 Refinement was not needed: slices 1–5 apply one change, the typed entry,
