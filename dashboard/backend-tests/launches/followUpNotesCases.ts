@@ -4,9 +4,6 @@
 // agent-launch-follow-up-notes-delivery.spec.ts (confirmation marks sent).
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { followUpNotesSectionText } from "../../src/followUpContext.ts";
-import { storyNotesContext } from "../../src/followUpStoryNotes.ts";
-import type { StoryNote } from "../../src/storyNote.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   doneStoryFiles,
@@ -60,12 +57,18 @@ export const sentNote = makeMe.aStoryNote
   .deliveredAs("2026-11-17T08:00:00.000Z")
   .please();
 
-// Expected notes block from the same section composition the session receives.
-export function notesContextOf(notes: readonly StoryNote[]): string {
-  const section = storyNotesContext(notes);
-  if (section === undefined) return "";
-  return followUpNotesSectionText(section);
-}
+export const waitingGeneralLine = `- Note: ${waitingGeneral.text}`;
+
+export const waitingLineAndAnchor = [
+  `- Note: ${waitingLine.text}`,
+  "- Context:",
+  "what the dashboard showed when the note was taken",
+  "Review changes",
+  "dashboard/src/FollowUp.tsx",
+  `Published completion ${lineContext.comparison.baseline} → ${lineContext.comparison.tree}`,
+  "Line 42 · new",
+  "  const followUp = source;",
+].join("\n");
 
 export async function publishRecoverStory(
   dashboard: DashboardServer,

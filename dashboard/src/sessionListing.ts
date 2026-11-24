@@ -77,8 +77,9 @@ export function sessionListing(record: LaunchWithState): LaunchWithState {
 
 // The reporting reference of a session as either its listing or a full answer
 // (a mark-done, read, stop, delete or recovery answer) gives it.
-export const reportingReferenceOf = (session: LaunchWithState) =>
-  session.reportingReference ?? session.request.reporting?.reference;
+export const reportingReferenceOf = (
+  session: Pick<LaunchWithState, "request" | "reportingReference">,
+) => session.reportingReference ?? session.request.reporting?.reference;
 
 // A retained session as the history read gives it in full, kept current by
 // the overview's later `listing` of it: the listing's facts stand, and the

@@ -28,14 +28,14 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Start ad hoc work under a story](seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story) — SEED-426#start-ad-hoc-work-under-a-story ([plan](slice-plans/804-start-ad-hoc-work-under-a-story/PLAN.md))
-- [Prove landed CI wall-time history through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof) — SEED-413#renovate-landed-ci-backend-proof ([plan](slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md))
-- [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context ([plan](slice-plans/808-choose-clear-follow-up-context/PLAN.md))
-- [Reduce Codex wakes during supplier watches](seeds/SEED-431-reduce-codex-wakes-during-supplier-watches.md#reduce-codex-wakes-during-supplier-watches) — SEED-431#reduce-codex-wakes-during-supplier-watches ([plan](slice-plans/809-reduce-codex-wakes-during-supplier-watches/PLAN.md))
 - [Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository) — SEED-428#read-reviews-from-the-review-repository ([plan](slice-plans/803-read-reviews-from-the-review-repository/PLAN.md))
+- [Prove landed CI attempt evidence through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence) — SEED-413#renovate-landed-ci-attempt-evidence ([plan](slice-plans/810-renovate-landed-ci-attempt-evidence/PLAN.md))
+- [Prove Token Index reads and refreshes through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) — SEED-413#renovate-usage-token-index-proof ([plan](slice-plans/811-renovate-usage-token-index-proof/PLAN.md))
+- [Use one managed install layout](seeds/SEED-423-shrink-the-installed-distribution.md#use-one-managed-install-layout) — SEED-423#use-one-managed-install-layout ([plan](slice-plans/812-use-one-managed-install-layout/PLAN.md))
 
 ## Backlog list
 
+- [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions
 - [Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner

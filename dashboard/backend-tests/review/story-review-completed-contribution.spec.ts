@@ -6,7 +6,6 @@ import {
   appendConfiguredProject,
   mountProjectConfiguration,
 } from "../../server/projectConfiguration.ts";
-import { admitFollowUpFile } from "../../server/followUpFileAdmission.ts";
 import { knownSource } from "../../server/sessionAdmission.ts";
 import {
   reviewedFileDiff,
@@ -109,26 +108,4 @@ test("a widened branch diff requires the listed rename's original path", async (
   ]);
   if (diff.kind !== "diff") throw new Error("No widened rename diff");
   expect(diff.printed).toContain("rename from guides/before.txt");
-});
-
-test("an incoming line's follow-up retains the widened historical pair", async () => {
-  const source = knownSource(subject.source);
-  const { baseline, tree, completion } = pair;
-  await expect(
-    admitFollowUpFile(source, subject.identity, {
-      path: "guides/incoming.txt",
-      completion,
-      baseline,
-      tree,
-      side: "new",
-      line: 1,
-    }),
-  ).resolves.toEqual({
-    kind: "published",
-    path: "guides/incoming.txt",
-    baseline,
-    tree,
-    side: "new",
-    line: 1,
-  });
 });

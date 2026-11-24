@@ -4,11 +4,7 @@
 // journey histories: ./completedFollowUpHistory.ts.
 import { describedFiles } from "../describedRevisions.ts";
 import { doneRecordOf, type DoneStory } from "../../src/doneRecord.ts";
-import type { FollowUpFileFacts } from "../../src/followUpContext.ts";
-import {
-  followUpContextText,
-  storyContext,
-} from "../../src/followUpContext.ts";
+import type { FollowUpFile } from "../../src/followUpRequest.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -112,18 +108,13 @@ export function fileFactsOf(
   review: PublishedReview,
   file: ReviewedFile,
   line?: { line: number; side: "old" | "new" },
-): FollowUpFileFacts & { completion: string } {
+): FollowUpFile & { completion: string } {
   return {
     path: file.path,
     ...(file.kind === "renamed" ? { oldPath: file.oldPath } : {}),
-    kind: "published",
     baseline: fromOf(review, file),
     tree: review.tree,
     completion: review.completion,
     ...(line === undefined ? {} : line),
   };
-}
-
-export function fileStoryContextOf(story: DoneStory, file: FollowUpFileFacts) {
-  return followUpContextText(storyContext(story, [], file));
 }

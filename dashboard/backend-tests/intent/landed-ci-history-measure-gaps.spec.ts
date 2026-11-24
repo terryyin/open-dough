@@ -1,202 +1,118 @@
 // Retained builds without a kept measure are supplied from their same recorded
-// attempt; a measure-naming read answers a kept time as a point, a kept reason
-// as a final gap, and an unanswered or not-yet-asked build as a pending gap
-// (SEED-364#chart-ci-time-without-runner-waits).
-
-import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
+// attempt by a landed CI collection pass (../../server/landedCiPass.ts); a
+// measure-naming history read (../../server/intentCiHistoryRead.ts) answers
+// a kept time as a point, a kept reason as a final gap naming its build, and
+// an unanswered or not-yet-asked build as a pending gap that the next pass
+// asks again (SEED-364#chart-ci-time-without-runner-waits). The adapter's
+// job-graph reasons are in
+// ../../../Distribution/tests/support/dashboard-ci-adapter-revision-lookup.test.mjs.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { timeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
+import { unansweredTimeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaitsAnswer.ts";
 import { gapReasonWords } from "../../src/ciHistoryGapWords.ts";
+import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
 import {
-  landedCiHistorySchema,
-  measuredHistoryOf,
-  type FinalGap,
-} from "../../src/landedCiHistory.ts";
-import type { GhCall } from "../../test-support/support/fakeGitHub.ts";
-import {
-  landedCiHistory,
-  restartAsLandedCiReader,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  keepRetainedMeasureGapHistory,
-  retainedMeasureGapCases,
-} from "../../test-support/support/landedCiRetainedMeasureGapSetup.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-import { listedAttemptJobPages } from "../../test-support/support/storyCiComparisonRequests.ts";
+  historyEntries,
+  keepWallTimeBuilds,
+  landedCiPassInputs,
+  machineHome,
+  measuredHistoryEntries,
+} from "../support/landedCiPassInputs.ts";
 
-test.use({ serverMode: "boundary" });
+const checkWorkflow = "on: push\njobs:\n  check:\n    runs-on: ubuntu-latest\n";
+const start = "2026-11-05T10:00:00.000Z";
+const end = "2026-11-05T10:02:00.000Z";
+const check = (times: { started_at?: string; completed_at?: string }) =>
+  makeMe.aGitHubJob.withFacts({ name: "check", ...times }).please();
 
-const jobsReads = (calls: readonly GhCall[]) => listedAttemptJobPages(calls);
-
-test("retained builds are supplied; answered reasons are final gaps; unanswered reads stay pending and are asked again", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  const { landings, control } = await keepRetainedMeasureGapHistory(
-    origin,
-    github,
+test("an answered reason is a final gap naming its build; an unanswered jobs read stays pending and is asked again", async () => {
+  const [supplied, invalid, unread] = [
+    "1".repeat(40),
+    "2".repeat(40),
+    "3".repeat(40),
+  ] as const;
+  const home = machineHome();
+  const records = await keepWallTimeBuilds(
+    home,
+    [supplied, invalid, unread].map((revision, index) => ({
+      revision,
+      runId: 41 + index,
+      runAttempt: 1,
+      startedAt: start,
+      completedAt: end,
+    })),
   );
+  const read = () => measuredHistoryEntries(home);
 
-  const beforeCollection = await startServer({ environment: "development" });
-  const pendingBefore = landedCiHistorySchema.parse(
-    (await landedCiHistory(beforeCollection, undefined, historyMeasure.value))
-      .body,
-  );
-  expect(pendingBefore.entries).toEqual(
-    retainedMeasureGapCases.map((entry) =>
-      expect.objectContaining({
-        kind: "gap",
-        reason: "pending",
-        waitsFor: historyMeasure.value,
-        revision: landings[entry.name].revision,
-        runId: entry.runId,
-        ...(entry.runId === 41 ? { runAttempt: 1 } : {}),
-      }),
-    ),
-  );
-  for (const entry of pendingBefore.entries) {
-    if (entry.kind === "gap")
-      expect(gapReasonWords(entry)).toBe(
-        "Pending · CI time without runner waits not read yet",
-      );
-  }
+  const beforeCollection = await read();
   expect(
-    measuredHistoryOf(pendingBefore)?.entries.every(
-      (entry) => entry.kind === "gap",
+    beforeCollection.map((entry) =>
+      entry.kind === "gap" ? gapReasonWords(entry) : entry,
     ),
-  ).toBe(true);
-  expect(
-    measuredHistoryOf(
-      landedCiHistorySchema.parse(
-        (await landedCiHistory(beforeCollection)).body,
-      ),
-    )?.entries.filter((entry) => entry.kind === "point"),
   ).toEqual(
-    retainedMeasureGapCases.map((entry) =>
-      expect.objectContaining({
-        revision: landings[entry.name].revision,
-        timeMs: 120_000,
-      }),
-    ),
+    Array(3).fill("Pending · CI time without runner waits not read yet"),
   );
-  await beforeCollection.close();
+  expect((await historyEntries(home)).map((entry) => entry.kind)).toEqual([
+    "point",
+    "point",
+    "point",
+  ]);
 
-  const server = await startServer();
-  await expect
-    .poll(async () => {
-      const answer = await landedCiHistory(
-        server,
-        undefined,
-        historyMeasure.value,
-      );
-      return landedCiHistorySchema.parse(answer.body).entries;
-    })
-    .toEqual([
-      expect.objectContaining({
-        kind: "point",
-        revision: landings.supplied.revision,
-        runId: 41,
+  let jobsReadable = false;
+  const asked: (number | undefined)[] = [];
+  const pass = landedCiPassInputs(
+    [supplied, invalid, unread],
+    {
+      runs: () => [],
+      records: () => records,
+      measureOf: ({ runId }) => {
+        asked.push(runId);
+        if (runId === 43 && !jobsReadable)
+          return unansweredTimeWithoutRunnerWaits(
+            "The build's attempt jobs could not be read.",
+          );
+        return timeWithoutRunnerWaits(
+          checkWorkflow,
+          [check(runId === 42 ? {} : { started_at: start, completed_at: end })],
+          false,
+        );
+      },
+    },
+    home,
+  );
+
+  await pass.collect();
+  await pass.collect();
+  expect(asked.toSorted()).toEqual([41, 42, 43, 43]);
+  expect(await read()).toMatchObject([
+    { kind: "point", runId: 41, timeMs: 120_000 },
+    {
+      kind: "gap",
+      reason: historyMeasure.value,
+      revision: invalid,
+      explanation: "Job “check” has no valid start and completion times.",
+      build: {
+        revision: invalid,
+        provenance: "exact",
+        runId: 42,
         runAttempt: 1,
-        timeMs: 120_000,
-      }),
-      expect.objectContaining({
-        kind: "gap",
-        reason: historyMeasure.value,
-        revision: landings.invalid.revision,
-        explanation: "Job “check” has no valid start and completion times.",
-        build: expect.objectContaining({
-          revision: landings.invalid.revision,
-          provenance: "exact",
-          runId: 42,
-          runAttempt: 1,
-        }),
-      }),
-      expect.objectContaining({
-        kind: "gap",
-        reason: "pending",
-        waitsFor: historyMeasure.value,
-        revision: landings.unread.revision,
-        runId: 43,
-      }),
-    ]);
-  expect([...new Set(jobsReads(github.calls))].sort()).toEqual([
-    "41/1/1",
-    "42/1/1",
-    "43/1/1",
+      },
+    },
+    {
+      kind: "gap",
+      reason: "pending",
+      waitsFor: historyMeasure.value,
+      revision: unread,
+      runId: 43,
+    },
   ]);
-  expect(jobsReads(github.calls).filter((read) => read === "41/1/1")).toEqual([
-    "41/1/1",
-  ]);
-  expect(jobsReads(github.calls).filter((read) => read === "42/1/1")).toEqual([
-    "42/1/1",
-  ]);
-  const afterFirst = github.calls.length;
-  await expect
-    .poll(() => jobsReads(github.calls.slice(afterFirst)))
-    .toContain("43/1/1");
-  expect(
-    jobsReads(github.calls.slice(afterFirst)).every(
-      (read) => read === "43/1/1",
-    ),
-  ).toBe(true);
 
-  control.jobsReadable = true;
-  await expect
-    .poll(async () => {
-      const answer = await landedCiHistory(
-        server,
-        undefined,
-        historyMeasure.value,
-      );
-      return landedCiHistorySchema.parse(answer.body).entries;
-    })
-    .toEqual([
-      expect.objectContaining({
-        kind: "point",
-        revision: landings.supplied.revision,
-        timeMs: 120_000,
-      }),
-      expect.objectContaining({
-        kind: "gap",
-        reason: historyMeasure.value,
-        revision: landings.invalid.revision,
-        explanation: "Job “check” has no valid start and completion times.",
-      }),
-      expect.objectContaining({
-        kind: "point",
-        revision: landings.unread.revision,
-        timeMs: 120_000,
-      }),
-    ]);
-
-  const reader = await restartAsLandedCiReader(server, origin, "boundary");
-  try {
-    const asked = github.calls.length;
-    const finalGaps = landedCiHistorySchema
-      .parse(
-        (await landedCiHistory(reader, undefined, historyMeasure.value)).body,
-      )
-      .entries.filter(
-        (entry): entry is FinalGap =>
-          entry.kind === "gap" && entry.reason === historyMeasure.value,
-      );
-    expect(finalGaps).toEqual([
-      expect.objectContaining({
-        revision: landings.invalid.revision,
-        explanation: "Job “check” has no valid start and completion times.",
-        build: expect.objectContaining({ runId: 42, provenance: "exact" }),
-      }),
-    ]);
-    const finalGap = finalGaps[0];
-    expect(finalGap).toBeDefined();
-    if (finalGap === undefined) throw new Error("Missing final measure gap");
-    expect(gapReasonWords(finalGap)).toBe(
-      "Job “check” has no valid start and completion times.",
-    );
-    expect(github.calls.length).toBe(asked);
-  } finally {
-    await reader.close();
-  }
+  jobsReadable = true;
+  await pass.collect();
+  expect((await read()).map((entry) => entry.kind)).toEqual([
+    "point",
+    "gap",
+    "point",
+  ]);
 });

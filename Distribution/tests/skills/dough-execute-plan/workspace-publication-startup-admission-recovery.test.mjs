@@ -5,15 +5,24 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { test } from "node:test";
+import { makeMe } from "../../support/makeMe.mjs";
 import { queuedReadyRepository } from "../../support/queued-repository.mjs";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
-import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import {
+  exec,
+  git,
+  lsRemoteSha,
+  revParse,
+} from "./publication-test-fixtures.mjs";
 import {
   appendSiblingElsewhere,
   assertAdmittedOnce,
   draftLateStory,
+  listed,
   pushFromElsewhere,
+  remoteText,
   storySection,
   writeDraft,
 } from "./workspace-publication-admission-fixtures.mjs";
@@ -25,6 +34,58 @@ import {
   resumeArgs,
   startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
+
+test("the first owned admission publishes its canonical story directly to Taken", async (t) => {
+  const trunk = await materializeRepository(makeMe.aRepository.please());
+  t.after(trunk.cleanup);
+  const base = await lsRemoteSha(trunk.origin, "refs/heads/main");
+  assert.equal(await remoteText(trunk, base, ".planning/seeds"), null);
+  const cli = fileURLToPath(
+    new URL(
+      "../../../src/skills/dough-execute-plan/scripts/execution-start.mjs",
+      import.meta.url,
+    ),
+  );
+  const title = "Establish project conventions";
+  const { stdout } = await exec(process.execPath, [
+    cli,
+    "draft",
+    "--repository",
+    trunk.integration,
+    "--target",
+    "main",
+    "--title",
+    title,
+    "--goal",
+    "Explain how to work in the project.",
+  ]);
+  const { identity, link, ownedDraft } = JSON.parse(stdout);
+  assert.equal(identity, "SEED-001#ad-hoc-work");
+  const { receipt } = await startProcess(trunk, "a", identity, [
+    "--admit",
+    "--link",
+    link,
+    "--title",
+    title,
+    "--owned-draft",
+    JSON.stringify(ownedDraft),
+  ]).result;
+  const tip = await lsRemoteSha(trunk.origin, "refs/heads/main");
+  assert.equal(tip, receipt.publishedSha, JSON.stringify(receipt));
+  assert.match(
+    await remoteText(trunk, tip, ".planning/seeds/SEED-001-ad-hoc-work.md"),
+    /^\*\*Identity:\*\* SEED-001#ad-hoc-work$/m,
+  );
+  assert.deepEqual(
+    (await listed(trunk, tip)).map(({ list, identity, title, href }) => [
+      list,
+      identity,
+      title,
+      href,
+    ]),
+    [["Taken", identity, title, link]],
+  );
+});
 
 test("an interrupted admission resumes its preserved candidate onto trunk that gained a sibling story", async (t) => {
   const trunk = await materializeRepository(queuedReadyRepository().please());

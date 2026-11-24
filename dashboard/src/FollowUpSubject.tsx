@@ -1,24 +1,41 @@
-// What a Follow up's Start session dialog shows besides its choices: the entry
-// it follows up, as the entry reads, and, read-only and one line per item, the
-// context the server will send with the request (`./followUpContext.ts`):
-// a done story's first, then each session's.
-
+import { StoryNotesAttachment } from "./AttachStoryNotes.tsx";
 import { followUpItems, type FollowUpContext } from "./followUpContext.ts";
-import type { FollowUpSource } from "./followUpRequest.ts";
+import { FollowUpDetails } from "./FollowUpDetails.tsx";
+import {
+  followUpSessionKey,
+  type FollowUpSessionChoice,
+  type FollowUpSource,
+} from "./followUpRequest.ts";
+import {
+  followUpSessionContext,
+  followUpSessionName,
+  type FollowUpSession,
+} from "./followUpSessions.ts";
+import { LaunchDisclosure } from "./LaunchDisclosure.tsx";
 import "./follow-up.css";
 
-// What a Follow up names and lists: its source, the entry as it reads, and
-// the context it supplies.
+// The required source context and any sessions the developer can attach.
 export type FollowUpShown = {
   readonly source: FollowUpSource;
   readonly name: string;
   readonly context: FollowUpContext;
+  readonly sessions?: readonly FollowUpSession[];
 };
 
 export function FollowUpSubject({
   followUp,
+  sourceId,
+  selected,
+  onSessions,
+  attachNotes,
+  onNotes,
 }: {
   readonly followUp: FollowUpShown;
+  readonly sourceId: string;
+  readonly selected: readonly FollowUpSessionChoice[];
+  readonly onSessions: (sessions: readonly FollowUpSessionChoice[]) => void;
+  readonly attachNotes: boolean;
+  readonly onNotes: (attach: boolean) => void;
 }) {
   return (
     <div className="follow-up-subject">
@@ -32,6 +49,57 @@ export function FollowUpSubject({
           </li>
         ))}
       </ul>
+      {followUp.sessions !== undefined && followUp.sessions.length > 0 && (
+        <fieldset className="follow-up-sessions">
+          <legend>Attach sessions</legend>
+          {followUp.sessions.map((session) => {
+            const { choice } = session;
+            const key = followUpSessionKey(choice);
+            const context = followUpSessionContext(session);
+            const name = followUpSessionName(session, context.label);
+            return (
+              <div className="follow-up-session" key={key}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={selected.some(
+                      (each) => followUpSessionKey(each) === key,
+                    )}
+                    onChange={(event) => {
+                      onSessions(
+                        event.currentTarget.checked
+                          ? [...selected, choice]
+                          : selected.filter(
+                              (each) => followUpSessionKey(each) !== key,
+                            ),
+                      );
+                    }}
+                  />
+                  {name}
+                </label>
+                <LaunchDisclosure
+                  summary={
+                    <>
+                      Details
+                      <span className="visually-hidden"> for {name}</span>
+                    </>
+                  }
+                >
+                  <FollowUpDetails items={context.items} />
+                </LaunchDisclosure>
+              </div>
+            );
+          })}
+        </fieldset>
+      )}
+      {"story" in followUp.source && (
+        <StoryNotesAttachment
+          sourceId={sourceId}
+          identity={followUp.source.story.identity}
+          checked={attachNotes}
+          onAttach={onNotes}
+        />
+      )}
     </div>
   );
 }

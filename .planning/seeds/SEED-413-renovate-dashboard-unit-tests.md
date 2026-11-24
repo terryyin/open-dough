@@ -203,7 +203,7 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
 
 **Identity:** SEED-413#renovate-later-dashboard-backend-unit-test-families
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["The remaining campaign spans several test families. Select and bound the next family before executable slice planning."],"basis":{"document":"41e13310730b328d3b05a4dd67f9fa01e0ada815fea846d2ce0738d49b1252ab"}}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["The residual campaign spans several test families. After the extracted stories, recount and select the next bounded cohort before executable slice planning."],"basis":{"document":"ecc82a686c1418315497a59ed3173787446deffe181742fa8e85c943b1ce83c6"}}
 ```
 
 Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
@@ -218,6 +218,15 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   collaborators where their behavior matters. The campaign ends when
   `dashboard/backend.playwright.config.ts` and the backend request and server
   wrappers in `dashboard/test-support/` are deleted.
+- **Remaining work.** This story keeps the campaign criteria below and owns
+  the backend specs outside the completed wall-time history (recoverable at
+  `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`) and the two bounded migrations already
+  selected: [landed attempt evidence](#renovate-landed-ci-attempt-evidence)
+  and [Token Index](#renovate-usage-token-index-proof).
+  It also owns final runner retirement and the Story Notes store follow-up
+  below. Keep the automatic-repeat correction's separately assigned coverage
+  and load obligations with its plan. Count any legacy files it leaves for
+  migration once when reconciling the runner inventory.
 - **Family planning.** Split by a verifiable outcome and size each story to one
   plan. Group closely related families when they use the same typed inputs
   and arrangement. Recount the review families after
@@ -292,18 +301,25 @@ smaller unit selection does not hide its cost or a lost regression check.
      retired the last two users of `adHocReview.ts` and moved the branch-entry
      command case. The other converted cases already use typed entry points.
      Remaining native Done cases belong to `sessions/`.
-  2. `intent/` landed CI starts with
-     [wall-time history](#renovate-landed-ci-backend-proof) and the completed
-     [scoped test history](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof).
-     The remaining campaign includes attempt-start,
-     standalone proof collection and reader restart, and the remaining
-     lifecycle and follow-up seams. Keep the distinct coverage and load
-     commitments of the [automatic-repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
-     with its own plan. Preserve freshness, invalidation, and close behavior
-     as reads move to typed inputs. Keep cache state with its production
-     lifetime owner. The earlier analysis includes `LandedCiCollection.close()`
-     (recoverable at `6c628be4a:.planning/slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md`).
-  3. The remaining families by CI seconds.
+  2. Landed CI [scoped test history](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof)
+     is complete. Wall-time history is complete too (recoverable at
+     `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`). Next come [attempt evidence](#renovate-landed-ci-attempt-evidence)
+     and [Token Index](#renovate-usage-token-index-proof).
+  3. Recount the remaining files against the available seams and CI cost.
+     Intent still includes comparison, follow-up and lifecycle proof outside
+     the extracted spec list, together with other Intent readers and proof
+     recording. Keep freshness, invalidation and closing with the production
+     lifetime owner. Keep the [automatic-repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
+     distinct. The earlier [collector close analysis](https://github.com/terryyin/open-dough/blob/6c628be4a/.planning/slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md)
+     remains relevant when that lifecycle is selected.
+- **Current inventory.** The backend runner's engine classification at
+  `177084da6` reports 509 Playwright-selected specs of 577, with 68 on Vitest.
+  The completed wall-time cohort accounts for 14. The two new cohorts account
+  for 29 combined. Once all three ship, their disjoint inventory leaves 466
+  legacy specs at this baseline: launches 103, sessions 76, Intent 69,
+  observation 56, usage history 54, runtime 43, Review 33, terminals 18 and
+  configuration 14. The number counts source specs subject to disposition.
+  Coverage can move or consolidate, and active stories may change the inventory.
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,
   2,519 s; entry kinds counted from each spec's text, so approximate).
 
@@ -319,8 +335,9 @@ smaller unit selection does not hide its cost or a lost regression check.
   | `terminals/` | 18 | 48 | 11 | 0 | 7 | 0 |
   | `configuration/` | 14 | 18 | 9 | 0 | 5 | 0 |
 
-  - `usage-history/` already calls server modules directly; its work is the
-    engine change and its 349 s is spent below any wire.
+  - The original inventory undercounted transport in `usage-history/`.
+    The Token Index harness includes both direct cohort calls and mounted HTTP.
+    Reclassify each remaining usage cohort before sizing it.
   - `runtime/` proves the test runtime itself, including the Playwright
     runners. Those cases retire with the runner they prove; the rest change
     engine.
@@ -338,61 +355,93 @@ smaller unit selection does not hide its cost or a lost regression check.
   worker fixtures as new test support, gains no speed and touches the suite
   twice. Calling handlers from the Playwright specs first keeps Playwright in
   the group and also touches the suite twice.
-- **Effort hypothesis.** L across the suite, as family-sized stories.
+- **Effort hypothesis.** Roughly 22–42 active hours for the backend
+  campaign from the current inventory, including wall-time and the two
+  extracted stories. Allow 3–6 hours for their 22 planned slices. Of the
+  residual 466 specs, 337 sit in launches, sessions, Intent, observation
+  and Review, where typed seams and some new proof owners are likely.
+  Allow 2.5–4.5 active minutes per spec on average across those cohorts.
+  Allow 1.5–3 minutes on average for the other 129, which include direct
+  calls, runner proof and some process-dependent cases. Allow another 2–4
+  hours for cutover and final proof ownership checks. These are batch
+  planning rates, not measured implementation times. Reestimate after the
+  next two migrations. CI and command wait, contention, and unrelated
+  product work sit outside active effort.
 - **Safe stopping point.** Every completed family stands on its own with
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="renovate-landed-ci-backend-proof"></a>
+<a id="renovate-landed-ci-attempt-evidence"></a>
 
-### Prove landed CI wall-time history through typed backend handlers
+### Prove landed CI attempt evidence through typed backend handlers
 
-**Identity:** SEED-413#renovate-landed-ci-backend-proof
+**Identity:** SEED-413#renovate-landed-ci-attempt-evidence
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3427ea0fc7fc9f3aab2d2a2b396557ccfd6ea9503d72184e942c27648a643572","plan":"db79c033b85bd4cfdc5622832acdd49793e671aaa28d4bad58e6527b15583412"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/810-renovate-landed-ci-attempt-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fc810e20ed3fc6e9e4f185c09fef5de07286aa4c471df79816b55273cccacf6a","plan":"299852305bd07a8687f2a6681b446059e66a056eed171c9565f8bf631c529bf0"}}
 ```
 
-**Goal.** Dashboard maintainers get faster, directly runnable feedback on how
-Landed collection resolves a build and how Intent reads its wall-time history.
-The checks keep the existing distinctions between a measurement, a pending
-answer, and a final gap. Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families)
-to the wall-time cohort, aiming for about 100 ms per unit case or faster.
+**Goal.** Dashboard maintainers get fast feedback on whether a landed
+attempt retains its original timing, its matching proof, and the evidence
+used by later follow-up advice.
 
-**Scope.** Convert the 14 `dashboard/backend-tests/intent/landed-ci-history-*.spec.ts`
-files to typed production entries on Node Vitest. Cover initial collection and
-restart, retained order and the measured window, exact and reused builds,
-agreement with the selected Landed comparison, and CI time without runner
-waits. Compose landing receipts, Git history and saved records with MakeMe.
-Exercise actual collection when collection is the assertion. Preserve shared
-request admission and process lifetime proof at their existing owners. Scoped
-test history, automatic repeat, standalone proof collection and backend
-runner retirement stay in their own work. Reduce repeated setup and keep the
-smallest set of cases that detects the same regressions.
+**Scope.** Resolve ten existing Intent specs covering original attempt
+timing and runner-wait calculations, standalone proof collection and
+admission, artifact extraction, reader restart, and retained follow-up
+inputs. Use typed Node Vitest checks for service behavior and preserve
+the old-address restart assertion in one E2E journey if it has no
+equivalent owner. Keep wall-time and scoped history cohorts and the
+automatic-repeat correction with their current owners. Apply the
+[campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families).
+The existing typed collection pass makes it practical to cover this
+whole evidence path in one story.
 
 **Key examples.**
 
-- Given an accepted landing with a queued exact run, collecting before and
-  after completion shows a pending gap and then one measured exact build.
-  History and the selected comparison identify the same build. Prove their
-  agreement once. Give expiry, repeated delivery and receipt retention their
-  own observations without repeating both reads wherever they add no signal.
-- Given a skipped landing whose equivalent build's proof read stays
-  unanswered, another collection can resolve it when proof becomes readable.
-  An answered final gap retains its reason and run identity.
-- Given 35 saved measurements with out-of-window gaps and a pending landing
-  after the newest measurement, the history read returns the newest 20
-  measured builds in trunk order and retains the relevant gaps.
-- Given a completed attempt with runner waits, asking for the derived
-  measure yields time without those waits. Wall time remains available.
-  An unanswered jobs read can recover while an answered missing graph stays
-  a final gap for that build.
+- Given timing evidence for the original attempt and a newer, faster
+  attempt, refreshing retained timing keeps the original attempt and uses
+  its start when known. Incomplete timing keeps its existing explanation.
+- Given a validated landed attempt whose proof is recorded while Intent
+  is closed, a newly opened reader can return that attempt's case and file
+  evidence from retained state. An omitted attempt is refused before
+  asking the provider.
+- Given a later landing and an older original measurement, the follow-up
+  reader retains the original sample and its exclusions after history
+  eviction. A repeat request's measurement does not replace that sample.
 
-**Sizing and learning.** The 14-file roster is twice the seven-file source
-roster of the earlier [Default main Done capture migration](https://github.com/terryyin/open-dough/blob/8f4cc9480ccb0b736e3b29c787ab49a6ac80d366/.planning/slice-plans/723-prove-done-capture-in-process/PLAN.md).
-It tests whether the composed-state approach also works across a collection
-pass and its read model. The estimate compares source files, with separate
-slices for the distinct transition and read promises. The wall-time proof and
-its measured feedback stand on their own if scope history is deferred.
+<a id="renovate-usage-token-index-proof"></a>
+
+### Prove Token Index reads and refreshes through typed backend handlers
+
+**Identity:** SEED-413#renovate-usage-token-index-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/811-renovate-usage-token-index-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5026a333100f058612353387b3198eea3b68e08be429c213417569a02ef48f54","plan":"0efa864976b2a2183a5a02ca9cd817cddefe53f9c4d26600f801fa68f3d800aa"}}
+```
+
+**Goal.** Dashboard maintainers get fast feedback on whether the Token
+Index reports the right usage for completed work and reflects manual
+refresh, including partial and unpriced evidence.
+
+**Scope.** Convert all 19 backend `usage-history/token-index*.spec.ts`
+files as one family on Node Vitest. Read the typed Token Index service
+with explicit project, retained launch, tariff, check time and summary
+inputs. Drive the real usage refresh against isolated native transcript
+and usage files where importing, replacing or preserving evidence is the
+behavior. Keep the production HTTP, child-process and cache composition.
+Other usage history and effort reports remain in the original story.
+Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families).
+
+**Key examples.**
+
+- Given configured launches with measured, estimated, or partial usage,
+  reading a cohort returns the appropriate points and excludes tasks
+  ineligible for its rolling median. A malformed period is refused
+  before reading the usage store.
+- Given a reply and worker evidence that arrives after the last check,
+  Refresh attributes each response once to the correct launch. A later
+  launch gets its own turns. Refreshing again leaves the same totals.
+- Given a missing worker, a refresh retains the partial result until
+  that evidence can be read. An unreadable store preserves the last
+  saved summary and check time and reports failure.
 
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
@@ -508,7 +557,7 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#retire-legacy-dashboard-frontend-runner
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#retire-legacy-dashboard-frontend-runner","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-done-session-review-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof"},"implementation":"The supplier moves its story-linked Done review cases onto mounted Vitest and removes the support only those cases used.","rationale":"Runner retirement cannot remove the legacy runner while story-linked Done review proof still depends on it.","condition":"No legacy frontend case in the supplier’s story-linked Done review scope remains on trunk.","state":"satisfied","resolution":{"revision":"9eacf1dd1ef87a3a52ab40f14ac22ff6f11dc13c","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof","summary":"Integrated at 2c300bd10f18a7978d112b82d877d6bb707a0931: every legacy frontend case in the supplier's amended boundary moved to mounted Vitest (scoped selection 92 legacy Playwright to 21), and the support only those cases used is removed. The 21 remaining legacy cases are the standalone cases the developer assigned to SEED-426, so the runner still carries them and the recorded condition is not met as written. Next action: the developer decides whether to settle this agreement and record SEED-426 as runner retirement's supplier.\nCondition remains unresolved: No legacy frontend spec in the supplier’s Done review boundary remains on trunk.\nAccepted integration: 2c300bd10f18a7978d112b82d877d6bb707a0931 on origin/refs/heads/main.\nAgreement correction using 9eacf1dd1ef87a3a52ab40f14ac22ff6f11dc13c:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof:\nThe Done review cutover integrated at 2c300bd10. Mounted Vitest carries the amended scope, and the scoped legacy Playwright selection fell from 92 to 21 standalone cases. The developer assigned those 21 cases across ten specs to SEED-426 as part of standalone-session removal, so that work is tracked as a separate prerequisite.\nCondition satisfied: No legacy frontend case in the supplier’s story-linked Done review scope remains on trunk.\nAccepted integration: 2c300bd10f18a7978d112b82d877d6bb707a0931 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-dashboard-live-session-and-terminal-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a live session and terminal spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s live session and terminal boundary remains on trunk.","state":"satisfied","resolution":{"revision":"290706bb1557f5437eb54df4d97da62cc1648457","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof","summary":"All 31 formerly legacy specs in this supplier boundary select Vitest with the same contents as the tested campaign at integrated revision 92ab15e07689d189d5484d1c89fe472d0cf547eb. The focused mounted selection passed 80 cases in 37 files, including the five already-mounted sidebar files. Plan 800 records the migration inventory, unchanged native E2E boundaries and focused run.\nCondition satisfied: No legacy frontend spec in the supplier’s live session and terminal boundary remains on trunk.\nAccepted integration: 92ab15e07689d189d5484d1c89fe472d0cf547eb on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-dashboard-frame-and-navigation-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a frame, navigation and settings spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s frame, navigation and settings boundary remains on trunk.","state":"satisfied","resolution":{"revision":"ad76d2ebbb88abe998fa1300963627dd10ac6551","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof","summary":"At integrated revision 2b5ad6affc3613c048318f12d23f5d09433fce1d, all 22 originally scoped frontend spec paths either select Vitest or were retired with their observations reassigned. Plan 802 at the before-cleanup revision records the exact assertion map, 52 mounted passes, the real-history and Retry E2E, and the no-legacy audit. The integrated live-session overlap passed typecheck and 18 targeted cases in eight specs.\nCondition satisfied: No legacy frontend spec in the supplier’s frame, navigation and settings boundary remains on trunk.\nAccepted integration: 2b5ad6affc3613c048318f12d23f5d09433fce1d on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-426#start-ad-hoc-work-under-a-story","href":"seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story"},"implementation":"Remove the standalone session workflow and its 21 legacy frontend cases across ten specs, preserving applicable story-linked coverage.","rationale":"The legacy runner still executes those standalone cases. Its retirement would remove their proof before the standalone product paths are removed. SEED-426 owns that cutover.","condition":"No standalone legacy frontend spec or case remains on trunk.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-413#retire-legacy-dashboard-frontend-runner","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-done-session-review-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof"},"implementation":"The supplier moves its story-linked Done review cases onto mounted Vitest and removes the support only those cases used.","rationale":"Runner retirement cannot remove the legacy runner while story-linked Done review proof still depends on it.","condition":"No legacy frontend case in the supplier’s story-linked Done review scope remains on trunk.","state":"satisfied","resolution":{"revision":"9eacf1dd1ef87a3a52ab40f14ac22ff6f11dc13c","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof","summary":"Integrated at 2c300bd10f18a7978d112b82d877d6bb707a0931: every legacy frontend case in the supplier's amended boundary moved to mounted Vitest (scoped selection 92 legacy Playwright to 21), and the support only those cases used is removed. The 21 remaining legacy cases are the standalone cases the developer assigned to SEED-426, so the runner still carries them and the recorded condition is not met as written. Next action: the developer decides whether to settle this agreement and record SEED-426 as runner retirement's supplier.\nCondition remains unresolved: No legacy frontend spec in the supplier’s Done review boundary remains on trunk.\nAccepted integration: 2c300bd10f18a7978d112b82d877d6bb707a0931 on origin/refs/heads/main.\nAgreement correction using 9eacf1dd1ef87a3a52ab40f14ac22ff6f11dc13c:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof:\nThe Done review cutover integrated at 2c300bd10. Mounted Vitest carries the amended scope, and the scoped legacy Playwright selection fell from 92 to 21 standalone cases. The developer assigned those 21 cases across ten specs to SEED-426 as part of standalone-session removal, so that work is tracked as a separate prerequisite.\nCondition satisfied: No legacy frontend case in the supplier’s story-linked Done review scope remains on trunk.\nAccepted integration: 2c300bd10f18a7978d112b82d877d6bb707a0931 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-dashboard-live-session-and-terminal-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a live session and terminal spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s live session and terminal boundary remains on trunk.","state":"satisfied","resolution":{"revision":"290706bb1557f5437eb54df4d97da62cc1648457","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof","summary":"All 31 formerly legacy specs in this supplier boundary select Vitest with the same contents as the tested campaign at integrated revision 92ab15e07689d189d5484d1c89fe472d0cf547eb. The focused mounted selection passed 80 cases in 37 files, including the five already-mounted sidebar files. Plan 800 records the migration inventory, unchanged native E2E boundaries and focused run.\nCondition satisfied: No legacy frontend spec in the supplier’s live session and terminal boundary remains on trunk.\nAccepted integration: 92ab15e07689d189d5484d1c89fe472d0cf547eb on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-dashboard-frame-and-navigation-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a frame, navigation and settings spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s frame, navigation and settings boundary remains on trunk.","state":"satisfied","resolution":{"revision":"ad76d2ebbb88abe998fa1300963627dd10ac6551","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof","summary":"At integrated revision 2b5ad6affc3613c048318f12d23f5d09433fce1d, all 22 originally scoped frontend spec paths either select Vitest or were retired with their observations reassigned. Plan 802 at the before-cleanup revision records the exact assertion map, 52 mounted passes, the real-history and Retry E2E, and the no-legacy audit. The integrated live-session overlap passed typecheck and 18 targeted cases in eight specs.\nCondition satisfied: No legacy frontend spec in the supplier’s frame, navigation and settings boundary remains on trunk.\nAccepted integration: 2b5ad6affc3613c048318f12d23f5d09433fce1d on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-432#finish-story-linked-ad-hoc-sessions","href":"seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions"},"implementation":"Remove the standalone session workflow and its 21 legacy frontend cases across ten specs, preserving applicable story-linked coverage.","rationale":"The legacy runner still executes those standalone cases. Its retirement would remove their proof before the standalone product paths are removed. SEED-432 owns that cutover after the SEED-426 execution split.","condition":"No standalone legacy frontend spec or case remains on trunk.","state":"waiting"}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/800-run-the-entire-dashboard-frontend-unit-suite-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"722096d91a8b60a918e6f01293f00bf25d1f95a724cfbc945bded9e24e9b2595","plan":"4a055bed82c2afb21db538421b80dbc7ee01ec6749eb34daee0324ca2e00ba43"}}

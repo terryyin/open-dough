@@ -32,7 +32,6 @@ import {
   type LandedResolution,
   type PendingResolution,
 } from "./landedCiObservation.ts";
-import { observationNow } from "./observationClock.ts";
 import {
   finalSlot,
   nearestAncestorBuild,
@@ -135,7 +134,7 @@ export async function landedSlotResolution(
   landing: { readonly revision: string; readonly receivedAt?: string },
   trunkHead: string,
   builds: ComparisonBuildSource,
-  now: () => number = observationNow,
+  now: () => number,
 ): Promise<LandedResolution> {
   const final = finalSlot(slot);
   if (final === undefined) return pendingOf(slot);
@@ -156,6 +155,7 @@ export async function landingResolution(
   source: PublishedSource,
   landing: LandingReference,
   read: () => Promise<PassRead>,
+  now: () => number,
 ): Promise<LandedResolution> {
   try {
     const ci = await read();
@@ -169,7 +169,7 @@ export async function landingResolution(
       "No completed CI build was found at the landed revision.",
       storyBranchLandedExactLookup(true, trunkHead),
     );
-    return await landedSlotResolution(slot, landing, trunkHead, builds);
+    return await landedSlotResolution(slot, landing, trunkHead, builds, now);
   } catch {
     return unread;
   }

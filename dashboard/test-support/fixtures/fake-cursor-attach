@@ -156,6 +156,7 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
   process.stdin.on("error", () => {});
   process.stdout.on("error", () => {});
   if (process.stdin.isTTY) process.stdin.setRawMode(true);
+  process.stdin.setEncoding("utf8");
   process.stdin.resume();
   // A long multiline chunk is an unsent paste chip. A later Enter submits
   // that chip, including when the terminal delivers it joined to the paste's
@@ -164,8 +165,7 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
   // unless FAKE_CURSOR_HOLD_AFTER_PASTE holds keep open with no answering paint.
   const submitPaintMs = Number(process.env.FAKE_CURSOR_SUBMIT_PAINT_MS || 0);
   let pendingPaste = "";
-  process.stdin.on("data", (chunk) => {
-    const text = chunk.toString("utf8");
+  process.stdin.on("data", (text) => {
     if (pendingPaste !== "" && !/[\r\n]$/.test(text)) {
       pendingPaste += text;
       return;
@@ -190,7 +190,7 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
       emit("\x1b[?25l\x1b[2J\x1b[H", `→ [Pasted text #1 +${lines} lines]\r\n`);
       return;
     }
-    if (dir) fs.appendFileSync(path.join(dir, `${pid}.input`), chunk);
+    if (dir) fs.appendFileSync(path.join(dir, `${pid}.input`), text);
     if ((mode === "trust" || mode === "trust-unframed") && text === "a") {
       mode = "composer";
       paint();

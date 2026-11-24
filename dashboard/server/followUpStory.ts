@@ -11,15 +11,22 @@
 
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { doneRecordOf, type DoneStory } from "../src/doneRecord.ts";
-import { isOpen, storySessionsOf } from "../src/agentLaunch.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
+import { mapPool } from "../src/boundedPool.ts";
+import type { FollowUpSessionChoice } from "../src/followUpRequest.ts";
+import { storyFollowUpSessions } from "../src/followUpSessions.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { keptRecords } from "./launchRecordStore.ts";
+import { listedReadConcurrency } from "./listedRecordsRead.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { PinnedTexts } from "./pinnedTexts.ts";
+import { publishedSessionRecord } from "./publishedSessionReview.ts";
+import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
 import { RetainedAnswers } from "./retainedAnswers.ts";
 import { RevisionMemo } from "./revisionMemo.ts";
+import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
 
 // Answers at resolved commits, kept as the read boundary keeps them; made at
 // the first follow-up of a story.
@@ -65,14 +72,50 @@ export async function publishedDoneStory(
   return read.story;
 }
 
-// The sessions this machine keeps for the story and marked done, oldest
-// first, by the rule its card's sessions follow (`storySessionsOf`).
-export async function doneStorySessions(
+// The published facts for the UUIDs selected, from this project's Git.
+// A missing optional record leaves any matching local evidence available.
+async function readSelectedPublications(
+  source: PublishedSource,
+  selected: readonly FollowUpSessionChoice[],
+): Promise<PublishedSessionRecord[]> {
+  const ids = [
+    ...new Set(
+      selected.flatMap((choice) =>
+        "published" in choice ? [choice.published] : [],
+      ),
+    ),
+  ];
+  if (ids.length === 0) return [];
+  const repository = executionCheckout(source).path;
+  const now = new Date();
+  const signal = admissionBound();
+  const records = await mapPool(ids, listedReadConcurrency, async (id) => {
+    try {
+      const published = await fetchedPublishedSessionSource(
+        repository,
+        source,
+        id,
+        {
+          admission: () => signal,
+          fetch: () => signal,
+        },
+      );
+      return await publishedSessionRecord(published, id, now, signal);
+    } catch {
+      return undefined;
+    }
+  });
+  return records.filter((record) => record !== undefined);
+}
+
+export async function followUpStorySessions(
   source: PublishedSource,
   identity: string,
-): Promise<readonly LaunchRecord[]> {
-  const kept = await keptRecords(source.id);
-  return storySessionsOf(kept, source.id, identity).filter(
-    (record) => !isOpen(record),
-  );
+  selected: readonly FollowUpSessionChoice[],
+) {
+  const [kept, published] = await Promise.all([
+    keptRecords(source.id),
+    readSelectedPublications(source, selected),
+  ]);
+  return storyFollowUpSessions(kept, published, source.id, identity);
 }

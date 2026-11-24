@@ -30,8 +30,9 @@ export async function updateRepeat(
 export async function withOriginalFollowUpSamples(
   project: string,
   history: ProjectHistory,
+  home?: string,
 ): Promise<ProjectHistory> {
-  const read = await readFollowUps();
+  const read = await readFollowUps(home);
   if (read.kind !== "document") return history;
   const landings = { ...history.landings },
     builds = { ...history.builds };
@@ -87,6 +88,7 @@ export async function originalSelectionWhenReadable(
     observed: import("./landedCiObservation.ts").Observation;
     build?: readonly [string, import("./landedCiObservation.ts").KeptBuild];
   },
+  home?: string,
 ) {
   const build = kept.build?.[1];
   if (
@@ -95,7 +97,7 @@ export async function originalSelectionWhenReadable(
     (build.runAttempt ?? 1) <= 1
   )
     return kept;
-  const read = await readFollowUps();
+  const read = await readFollowUps(home);
   if (
     read.kind === "document" ||
     Object.values(history.landings).some(

@@ -13,11 +13,11 @@ export function attachStoryNotes(dialog: Locator) {
     name: attachStoryNotesLabel,
     exact: true,
   });
+  const summary = dialog.getByText("Waiting note details", { exact: true });
   return {
-    control,
-    expectChecked: async (waiting: number, total: number) => {
+    expectChoice: async (checked: boolean, waiting: number, total: number) => {
       await expect(control).toBeEnabled();
-      await expect(control).toBeChecked();
+      await expect(control).toBeChecked({ checked });
       await expect(control).toHaveAccessibleDescription(
         attachStoryNotesDetail(waiting, total),
       );
@@ -32,9 +32,16 @@ export function attachStoryNotes(dialog: Locator) {
       await expect(control).not.toBeChecked();
       await expect(control).toHaveAccessibleDescription(storyNotesUnreadable);
     },
-    uncheck: async () => {
-      await control.uncheck();
-      await expect(control).not.toBeChecked();
+    async select() {
+      await control.check();
+    },
+    async toggleDetailsByKeyboard() {
+      await summary.press("Enter");
+    },
+    async expectDetails(text: string, visible: boolean) {
+      const note = dialog.getByText(text, { exact: true });
+      if (visible) await expect(note).toBeVisible();
+      else await expect(note).toBeHidden();
     },
   };
 }

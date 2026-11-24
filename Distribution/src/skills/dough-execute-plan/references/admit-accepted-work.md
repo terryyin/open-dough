@@ -119,3 +119,26 @@ with no findings, completes the mission; close it through ordinary
 [story wrap-up](../../dough-story-wrap-up/SKILL.md). Uncertainty alone is not
 completion: unfinished or inconclusive work stays Taken until it completes or
 an explicit disposition returns or abandons it.
+
+## Supply a draft from a launch attempt
+
+A launch that owns its draft can run \`execution-start.mjs draft\` with
+\`--repository\`, \`--remote\`, \`--target\`, \`--title\`, and \`--goal\`. The last
+two flags each take one line. It reads published identity evidence at fetched
+trunk and returns the proposed identity, link, title, and \`ownedDraft\` JSON.
+Keep that response with the launch attempt. It reserves nothing on trunk.
+
+For the ordinary \`start --admit\`, supply the returned identity, link and title,
+and pass the returned \`ownedDraft\` object as a JSON value with \`--owned-draft\`.
+Use the launch attempt's stable publisher ID. The workflow writes the canonical
+seed and unselected preparation in the same commit as Taken and the agent
+assignment. Use a clean owned claim checkout. A launch that will run in the
+existing default checkout can pass it as \`--repository\` and use a separate
+owned claim checkout in Trunk Mode. Its existing session files, index and HEAD
+are independent of that publication.
+
+Resume an interrupted claim with the original request, starting revision, and
+candidate SHA. A different claim or publication that already used the selected
+seed number causes a refusal. Choose a fresh allocation only after that refusal
+establishes the current attempt did not publish. An uncertain response keeps
+its proposed identity and candidate until publication is settled.

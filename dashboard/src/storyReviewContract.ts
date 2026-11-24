@@ -91,6 +91,7 @@ export const storyReviewSchema = z
       kind: z.literal("published-session"),
       session: z.object({
         closedAt: z.iso.datetime(),
+        story: z.string().min(1).optional(),
         // Set when the selected range is marked shared-checkout.
         ...sharedCheckout,
       }),

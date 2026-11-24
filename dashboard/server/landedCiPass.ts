@@ -1,5 +1,14 @@
-// One project's ordered collection pass. The caller owns scheduling,
-// launch-store reads, and the CI providers used for this pass.
+// One project's ordered collection pass of the landed CI history
+// (`./landedCiCollection.ts` schedules it, owns its stop, reads the launch
+// store and binds the CI providers). It walks the landings onto the
+// project's configured ref, newest first, until the history holds
+// `measuredWindow` measured builds for it (`./landedCiMeasuredBuilds.ts`),
+// and resolves each landing whose resolution is not final yet over the
+// project's CI read for the pass (`./landedCiResolution.ts`,
+// `./landedCiCollectionLanding.ts`). The trunk order comes from Git in the
+// project's checkout and the landings' own, unless the caller answers it;
+// the clock bounding a landing's wait for its own run and the machine home
+// whose history the pass keeps default to this machine's.
 import type { LaunchLanding } from "../src/launchLanding.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
@@ -16,6 +25,26 @@ import {
 } from "./landedCiMeasuredBuilds.ts";
 import { readLandingOrder } from "./launchLandingGit.ts";
 import { landedCiReadSignal } from "./landedCiPassRead.ts";
+import { observationNow } from "./observationClock.ts";
+
+// The trunk order of the candidates' revisions the project's local
+// checkouts know.
+export type LandingOrderRead = (
+  candidates: readonly LandingReference[],
+  stopped: AbortSignal,
+) => Promise<readonly string[] | undefined>;
+
+export type LandedCiPassInputs = {
+  source: PublishedSource;
+  receipts: readonly LaunchLanding[];
+  history: ProjectHistory;
+  stopped: AbortSignal;
+  // The clock bounding a landing's wait for its own run.
+  now?: () => number;
+  // The machine home whose landed CI history the pass keeps.
+  home?: string;
+} & ({ repository: string } | { landingOrder: LandingOrderRead }) &
+  Pick<Parameters<typeof collectLandingResolution>[0], "read" | "readProof">;
 
 function trunkLandings(
   source: PublishedSource,
@@ -31,32 +60,33 @@ function trunkLandings(
   return [...byReceipt.values()];
 }
 
+// Git's order in the project's checkout and each landing's own.
+function gitLandingOrder(repository: string): LandingOrderRead {
+  return (candidates, stopped) =>
+    readLandingOrder(
+      [
+        ...candidates.flatMap((landing) =>
+          landing.repository === undefined ? [] : [landing.repository],
+        ),
+        repository,
+      ],
+      candidates.map((landing) => landing.revision),
+      undefined,
+      stopped,
+    );
+}
+
 export async function collectLandedCiPass(
-  args: {
-    source: PublishedSource;
-    receipts: readonly LaunchLanding[];
-    history: ProjectHistory;
-    repository: string;
-    stopped: AbortSignal;
-  } & Pick<
-    Parameters<typeof collectLandingResolution>[0],
-    "read" | "readProof"
-  >,
+  args: LandedCiPassInputs,
 ): Promise<void> {
-  const { source, receipts, repository, stopped, read, readProof } = args;
+  const { source, receipts, stopped, read, readProof, home } = args;
   let { history } = args;
   const candidates = trunkLandings(source, receipts, history);
-  const localOrder = await readLandingOrder(
-    [
-      ...candidates.flatMap((landing) =>
-        landing.repository === undefined ? [] : [landing.repository],
-      ),
-      repository,
-    ],
-    candidates.map((landing) => landing.revision),
-    undefined,
-    stopped,
-  );
+  const landingOrder =
+    "landingOrder" in args
+      ? args.landingOrder
+      : gitLandingOrder(args.repository);
+  const localOrder = await landingOrder(candidates, stopped);
   const order = mostCompleteLandingOrder(candidates, [
     history.trunkOrder,
     localOrder,
@@ -75,6 +105,8 @@ export async function collectLandedCiPass(
       readProof,
       proofSignal: landedCiReadSignal(stopped),
       ended: () => stopped.aborted,
+      ...(home === undefined ? {} : { home }),
+      now: args.now ?? observationNow,
     });
     history = outcome.history;
     if (outcome.kind === "ended") return;
@@ -82,5 +114,5 @@ export async function collectLandedCiPass(
     if (outcome.measuredBuild !== undefined)
       measured.add(outcome.measuredBuild);
   }
-  if (order !== undefined) await keepLandedCiOrder(source.id, order);
+  if (order !== undefined) await keepLandedCiOrder(source.id, order, home);
 }

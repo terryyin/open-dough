@@ -6,20 +6,11 @@
 // kept on the recorded request.
 
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUp} FollowUp */
+/** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpSessionChoice} FollowUpSessionChoice */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpFile} FollowUpFile */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").AttachedStoryNote} AttachedStoryNote */
-/** @typedef {import("../../../dashboard/src/followUpContext.ts").FollowUpFileFacts} FollowUpFileFacts */
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {import("../../../dashboard/src/sessionReference.ts").SessionReference} SessionReference */
-/**
- * A file anchor as the page names it, or the comparison facts a review or a
- * landed run supplies (`kind` stays off the request).
- * @typedef {FollowUpFile | (FollowUpFileFacts & {
- *   readonly completion?: string,
- *   readonly reference?: string,
- * })} FileAnchor
- */
-
 export class FollowUpBuilder {
   /** @type {"session" | "story" | undefined} */
   #kind;
@@ -33,7 +24,9 @@ export class FollowUpBuilder {
   #file;
   /** @type {boolean} */
   #attachNotes = false;
-  /** @type {string | undefined} */
+  /** @type {FollowUpSessionChoice[] | undefined} */
+  #sessions;
+  /** @type {FollowUp["context"]} */
   #context;
   /** @type {AttachedStoryNote[] | undefined} */
   #attached;
@@ -67,9 +60,27 @@ export class FollowUpBuilder {
     return this;
   }
 
+  /** @param {readonly (LaunchRecord | SessionReference)[]} sources */
+  attachingSessions(sources) {
+    this.#sessions = sources.map((source) => {
+      const { host, sessionId } = "request" in source ? source.session : source;
+      return { host, sessionId };
+    });
+    return this;
+  }
+
+  /** @param {readonly { readonly sessionId: string }[]} sources */
+  attachingPublishedSessions(sources) {
+    this.#sessions = [
+      ...(this.#sessions ?? []),
+      ...sources.map(({ sessionId }) => ({ published: sessionId })),
+    ];
+    return this;
+  }
+
   /**
    * Anchor on this file of the story's comparison.
-   * @param {FileAnchor} file
+   * @param {FollowUpFile} file
    */
   anchoredAt(file) {
     this.#file = {
@@ -77,12 +88,9 @@ export class FollowUpBuilder {
       baseline: file.baseline,
       tree: file.tree,
       ...(file.oldPath === undefined ? {} : { oldPath: file.oldPath }),
-      ...("completion" in file && file.completion !== undefined
-        ? { completion: file.completion }
-        : {}),
-      ...("reference" in file && file.reference !== undefined
-        ? { reference: file.reference }
-        : {}),
+      ...(file.completion !== undefined ? { completion: file.completion } : {}),
+      ...(file.reference === undefined ? {} : { reference: file.reference }),
+      ...(file.published === undefined ? {} : { published: file.published }),
       ...(file.line === undefined || file.side === undefined
         ? {}
         : { line: file.line, side: file.side }),
@@ -92,7 +100,7 @@ export class FollowUpBuilder {
 
   /**
    * Context resolved from the source at admission, kept on the recorded request.
-   * @param {string} context
+   * @param {NonNullable<FollowUp["context"]>} context
    */
   withContext(context) {
     this.#context = context;
@@ -110,17 +118,20 @@ export class FollowUpBuilder {
 
   /** @returns {FollowUp} */
   please() {
+    const context =
+      typeof this.#context === "object" ? { ...this.#context } : this.#context;
     if (this.#kind === "session") {
       if (this.#session === undefined) throw new Error("state .ofSession(...)");
       if (
         this.#attachNotes ||
+        this.#sessions !== undefined ||
         this.#attached !== undefined ||
         this.#file !== undefined
       )
         throw new Error("a session follow-up names only its session");
       return {
         session: { ...this.#session },
-        ...(this.#context === undefined ? {} : { context: this.#context }),
+        ...(context === undefined ? {} : { context }),
       };
     }
     if (
@@ -135,8 +146,11 @@ export class FollowUpBuilder {
         revision: this.#revision,
         ...(this.#file === undefined ? {} : { file: { ...this.#file } }),
         ...(this.#attachNotes ? { notes: true } : {}),
+        ...(this.#sessions === undefined
+          ? {}
+          : { sessions: this.#sessions.map((session) => ({ ...session })) }),
       },
-      ...(this.#context === undefined ? {} : { context: this.#context }),
+      ...(context === undefined ? {} : { context }),
       ...(this.#attached === undefined
         ? {}
         : { notes: this.#attached.map((note) => ({ ...note })) }),

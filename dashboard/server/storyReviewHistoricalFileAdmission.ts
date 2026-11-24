@@ -4,6 +4,7 @@
 // story identity and a completion or a reference — never a repository path.
 // A done session's kept result follows the same pair rule in
 // `./storyReviewSessionFileAdmission.ts`.
+import type { FollowUpComparison } from "../src/followUpRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ReviewedPairFile } from "../src/reviewedFileRead.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
@@ -109,13 +110,12 @@ export function throwIfRequestAborted(request?: AbortSignal): void {
   if (request?.aborted) throw request.reason;
 }
 
-async function admitPublishedCompletion(
+async function requirePublishedCompletion(
   source: PublishedSource,
   identity: string,
   completion: string,
-  file: HistoricalReviewedFileFields,
   signal?: AbortSignal,
-): Promise<AdmittedReviewedFile> {
+) {
   const review = await publishedStoryReview(
     source,
     identity,
@@ -130,10 +130,40 @@ async function admitPublishedCompletion(
         ? review.explanation
         : "Published comparison unavailable.",
     );
+  // The named review has already verified the completion identity.
+  return review;
+}
+
+export async function admitPublishedStoryComparison(
+  source: PublishedSource,
+  identity: string,
+  { completion, baseline, tree }: FollowUpComparison,
+): Promise<void> {
+  const review = await requirePublishedCompletion(source, identity, completion);
   if (
-    completion !== review.completion ||
-    !belongsOnPublishedStory(review, file)
+    tree !== review.tree ||
+    (baseline !== review.baseline && baseline !== review.withMerged?.from)
   )
+    throw new RefusedRequest(
+      409,
+      "The comparison does not belong to this published completion.",
+    );
+}
+
+async function admitPublishedCompletion(
+  source: PublishedSource,
+  identity: string,
+  completion: string,
+  file: HistoricalReviewedFileFields,
+  signal?: AbortSignal,
+): Promise<AdmittedReviewedFile> {
+  const review = await requirePublishedCompletion(
+    source,
+    identity,
+    completion,
+    signal,
+  );
+  if (!belongsOnPublishedStory(review, file))
     throw new RefusedRequest(
       409,
       "The file or comparison does not belong to this published completion.",

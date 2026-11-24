@@ -21,7 +21,7 @@ uses illustrative sessions. Narrow the window to see the icon-only bookmark.
 Keep the existing owners for [published session records and session selection](SEED-418-review-published-session-changes.md),
 [sidebar behavior](SEED-417-use-sidebars-consistently-across-the-dashboard.md),
 [Board actions](SEED-416-put-story-actions-in-the-comment-toolbar.md) and
-[outgoing follow-up context](SEED-415-choose-clear-follow-up-context.md).
+[outgoing follow-up context](https://github.com/terryyin/open-dough/blob/9d70e5741139db0443e0cf37f16c0881c7b1b55f/.planning/seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context).
 The effort bands below are relative hypotheses. Each section delivers a
 usable change, independently of the later polish.
 

@@ -7,10 +7,8 @@ import { readCiAdapterProof } from "../../server/ciAdapterProof.ts";
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
 import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
 import { readIntentCiProof } from "../../server/intentCiProofRead.ts";
-import {
-  keptLandedCiHistory,
-  updateProjectHistory,
-} from "../../server/landedCiHistoryStore.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { updateProjectHistory } from "../../server/landedCiKeepEvidence.ts";
 import { collectLandedCiPass } from "../../server/landedCiPass.ts";
 import { passRead } from "../../server/landedCiPassRead.ts";
 import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifacts.ts";

@@ -94,7 +94,7 @@ test("a closed follow-up whose source card is not listed stays standalone", asyn
   expect(heldSessions(source.title).all()).toHaveLength(0);
 });
 
-test("a card holding a closed follow-up still names only the story's own sessions in its Follow up context", async () => {
+test("a card holding a closed follow-up offers only the story's own sessions as attachments", async () => {
   const followTitle = "Nested follow-up must not enter context";
   const own = makeMe.aLaunchRecord
     .executing(source)
@@ -116,15 +116,18 @@ test("a card holding a closed follow-up still names only the story's own session
   await expect.poll(() => heldSessions(source.title).all()).toHaveLength(2);
   // The open Sessions sidebar leaves Recently done beyond the Board's room.
   await page.getByRole("button", { name: /^Sessions/ }).click();
-  await doneCard(source.title)
-    .getByRole("button", {
-      name: `Follow up ${source.identity} — ${source.title}`,
-      exact: true,
-    })
-    .click();
-  const context = page
-    .getByRole("dialog")
-    .getByRole("list", { name: "Follow-up context" });
+  const card = doneCard(source.title);
+  const nested = card.getByRole("article", {
+    name: standaloneName(followTitle),
+  });
+  await expect.element(nested).toBeVisible();
+  const launcher = card.getByRole("button", {
+    name: `Follow up ${source.identity} — ${source.title}`,
+    exact: true,
+  });
+  await launcher.click();
+  const dialog = page.getByRole("dialog");
+  const context = dialog.getByRole("list", { name: "Follow-up context" });
   await expect.element(context).toBeVisible();
   const items = context
     .getByRole("listitem")
@@ -133,14 +136,39 @@ test("a card holding a closed follow-up still names only the story's own session
   expect(items[0]).toMatch(/^Completed: /);
   expect(items.slice(1)).toEqual([
     `Status: Done. Its seed and plan may have been removed; its records remain in the project's history under ${source.identity}.`,
-    "Workflow: Execution",
-    `Story: ${source.identity}`,
-    "Original request: No request text was given.",
-    "Final report: No final report was submitted.",
   ]);
-  expect(page.getByRole("dialog").element().textContent).not.toContain(
-    followTitle,
-  );
+
+  const chooser = dialog.getByRole("group", { name: "Attach sessions" });
+  const choiceName = `${source.title} · Claude Code · ${own.session.sessionId}`;
+  const choice = chooser.getByRole("checkbox", {
+    name: choiceName,
+    exact: true,
+  });
+  await expect.element(choice).toBeVisible();
+  expect(chooser.getByRole("checkbox").all()).toHaveLength(1);
+  await expect.element(choice).not.toBeChecked();
+  await chooser.getByText(`Details for ${choiceName}`, { exact: true }).click();
+  await expect.element(chooser.getByRole("definition").first()).toBeVisible();
+  expect(
+    chooser
+      .getByRole("term")
+      .all()
+      .map((term) => [
+        term.element().textContent,
+        term.element().nextElementSibling?.textContent,
+      ]),
+  ).toEqual([
+    ["Workflow", "Execution"],
+    ["Story", source.identity],
+    ["Original request", "No request text was given."],
+    ["Final report", "No final report was submitted."],
+  ]);
+  await expect.element(choice).not.toBeChecked();
+
+  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect.element(dialog).not.toBeInTheDocument();
+  await expect.element(launcher).toHaveFocus();
+  await expect.element(nested).toBeVisible();
 });
 
 test("a follow-up published from another machine while its kept counterpart is Done here shows one entry, on its source card", async () => {

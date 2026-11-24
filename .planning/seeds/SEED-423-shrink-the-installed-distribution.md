@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-22
 planted_during: Terry Yin requested a dead-code and simplification audit of the Distribution scripts
 trigger_when: selected from the product backlog
-scope: eleven stories
+scope: Distribution simplification stories
 ---
 
 # SEED-423 — Shrink the installed distribution to code that serves a purpose
@@ -203,6 +203,88 @@ Dashboard and installed scripts share.
   an installed checkout.
 - **Effort hypothesis.** S. The native evaluation tool already walks literal
   relative imports for evidence hashing.
+
+<a id="use-one-managed-install-layout"></a>
+
+### Use one managed install layout
+
+**Identity:** SEED-423#use-one-managed-install-layout
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/812-use-one-managed-install-layout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7b796c222126b3dd4d49e0a7f361b7da6bdb49493f1d959480da97218bd7d652","plan":"702c4913426dbd1ac66f5663a6f85ede2b35c0de78fbaab9b6720d517393de8a"}}
+```
+
+**Goal.** Maintainers deliver and verify one Open Dough installation layout:
+physical managed skill directories in the Claude root (`.claude/skills/`) and
+the shared Codex/Cursor root (`.agents/skills/`). Code, guidance and tests
+that exist only for symlinked Open Dough skill directories, or for a project
+holding only one of the two roots, are deleted. The structure that served two
+layouts collapses to the one that remains, so the Distribution is smaller and
+easier to read.
+
+**Starting state (observed 2026-11-24).** Every production-dashboard client
+trunk (Open Dough, Doughnut, Pygardon, Terry Talks, Lizard, Clipboard) holds
+both roots as physical directories, and none has a symlink at an Open
+Dough-managed skill path. Doughnut reached this in `707637a976`. The installer
+already writes both roots and refuses a symlinked skill root or managed
+directory as an unsafe destination.
+
+**Scope.**
+
+- Delete the symlinked-skill test layout and every test that runs a script
+  through a symlinked skill directory: the entry-point sweep, its fixture, the
+  linked-path cases in the guided-commit and CI command adapter tests, and
+  the test-only parameters that pass a linked path. Tests that installed
+  skills through that fixture install them with a plain copy.
+- The checkout-bound CI runtime resolves the invoking host's own root:
+  `.claude` for Claude, `.agents` for Codex and Cursor. The ordered fallback
+  across roots goes, with names that described a root as an alias.
+- Comments, guidance, docs and update outcome text describe the one layout
+  directly. Wording that contrasts with a linked layout, such as "both
+  physical roots", says "both roots".
+- No text records the removed layout or says it is unsupported.
+
+**Required restrictions kept.**
+
+- The installer's unsafe-destination and payload-safety checks, with their
+  tests. They protect installed files from being written through a link.
+- Realpath handling for checkout and worktree identity, and for platform path
+  aliases such as macOS `/tmp` and `/private/tmp`. Scripts invoked through
+  such a path still run their command. The realpath-equivalent direct-entry
+  check stays for that reason, and its unit and process-level tests stay.
+- Project-owned skill links, such as Pygardon's own `.claude/skills/release`,
+  keep coexisting with the managed directories.
+- Generic handling of symlinks in a project's changed files, and the rule
+  against linking `node_modules` from another checkout.
+
+**Scope limits.**
+
+- Installed copies under this repository's `.claude/`, `.agents/` and
+  `.cursor/` change through the next release and update, not by hand.
+- The pinned Doughnut revision in the `doughnut-title-precedence` evaluation
+  case stays. Re-pinning needs a paid native run.
+- Deferred: sharing duplicate setup, observation and completion logic across
+  the three hosts. It is independent of the install layout and remains a
+  candidate for its own story.
+
+**Key examples.**
+
+1. A Claude-hosted delivery in a checkout with both roots runs the CI runtime
+   from `.claude/skills/dough-execute-plan`. A Codex or Cursor delivery runs it
+   from `.agents/skills/dough-execute-plan`.
+2. A checkout without the invoking host's root gets a refusal that names the
+   path it tried. It does not run the other root's copy.
+3. A guided commit, run as `node <script>` through a macOS `/tmp` path that
+   resolves to `/private/tmp`, performs its command.
+4. Installing into a project whose `.claude/skills` is a symlink is refused
+   as an unsafe destination, as it is today.
+5. An ordinary update that finds both roots current reports "Outcome: both
+   installations are current; …".
+6. Searching `Distribution/` for symlinked skill directories finds no fixture,
+   test, comment or guidance.
+
+**Architecture.** Follows [ADR 0004 — Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md),
+which already populates every supported native layout.
 
 ## Ordering and scope reduction
 

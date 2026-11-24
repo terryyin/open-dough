@@ -6,6 +6,7 @@ import {
 import { shortRevision } from "./publishedWork.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
+import { StoryComparisonFollowUp } from "./StoryAnchoredFollowUp.tsx";
 import { publishedTakenScope, ReviewContext } from "./StoryReviewContext.tsx";
 
 // The facts of the comparison Intent is currently showing.
@@ -22,6 +23,7 @@ export function ComparedContext({
   return (
     <div className="intent-story-revisions intent-story-comparison-context">
       <ReviewContext review={review} shown={shown} />
+      <StoryComparisonFollowUp shown={shown} />
       {review?.kind !== "published" &&
         review?.kind !== "published-taken" &&
         review?.kind !== "landed" && (

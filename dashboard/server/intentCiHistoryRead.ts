@@ -172,10 +172,14 @@ export function doneWallTimeHistoryOf(
 export async function performIntentCiHistoryRead(
   source: PublishedSource,
   read?: IntentCiHistoryRead,
-  signal?: AbortSignal,
-  localRepository?: string,
+  // The requesting checkout and the machine home whose history is read.
+  reading: {
+    readonly signal?: AbortSignal | undefined;
+    readonly localRepository?: string | undefined;
+    readonly home?: string | undefined;
+  } = {},
 ): Promise<Outcome> {
-  const stored = await readLandedCiHistory(source.id);
+  const stored = await readLandedCiHistory(source.id, reading.home);
   if (stored === undefined)
     return {
       kind: "failed",
@@ -190,14 +194,16 @@ export async function performIntentCiHistoryRead(
       ...retained.flatMap((landing) =>
         landing.repository === undefined ? [] : [landing.repository],
       ),
-      ...(localRepository === undefined ? [] : [localRepository]),
+      ...(reading.localRepository === undefined
+        ? []
+        : [reading.localRepository]),
     ],
     [
       ...retained.map((landing) => landing.revision),
       ...Object.values(stored.builds).map((build) => build.revision),
     ],
     read?.revision,
-    signal,
+    reading.signal,
   );
   const order =
     mostCompleteLandingOrder(

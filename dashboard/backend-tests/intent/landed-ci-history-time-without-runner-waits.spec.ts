@@ -1,69 +1,45 @@
-// Landed CI history collection keeps CI time without runner waits with each
-// retained passed build (../../server/landedCiCollectionLanding.ts), and a
-// project history read that names the measure answers that time
-// (../../server/intentCiHistoryRead.ts), asking CI nothing to read it
+// A landed CI collection pass (../../server/landedCiPass.ts) keeps CI time
+// without runner waits with each retained passed build, asking its recorded
+// attempt's jobs once (../../server/landedCiRetainedMeasure.ts); a history
+// read naming the measure answers that time and one that does not keeps
+// wall time (../../server/intentCiHistoryRead.ts)
 // (SEED-364#chart-ci-time-without-runner-waits example 1).
-
-import path from "node:path";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
+import type { RevisionCiBuild } from "../../server/baseCiRevisionNearest.ts";
+import { timeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import {
-  measuredHistoryOf,
-  landedCiHistorySchema,
-} from "../../src/landedCiHistory.ts";
-import type { GhCall } from "../../test-support/support/fakeGitHub.ts";
-import {
-  landedCiHistory,
-  minutesAgo,
-  restartAsLandedCiReader,
-  storyLandingRecord,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  passedBetween,
-  serveTrunkRuns,
-  timeAfter,
-  trunkRun,
-} from "../../test-support/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-import { listedAttemptJobPages } from "../../test-support/support/storyCiComparisonRequests.ts";
-
-test.use({ serverMode: "boundary" });
+  historyEntries,
+  keepWallTimeBuilds,
+  landedCiPassInputs,
+  machineHome,
+  measuredHistoryEntries,
+} from "../support/landedCiPassInputs.ts";
 
 const dependentJobsWorkflow = [
-  "name: CI",
-  "",
-  "on:",
-  "  push:",
-  "",
+  "on: push",
   "jobs:",
   "  first:",
   "    name: First",
   "    runs-on: ubuntu-24.04",
-  "    steps:",
-  "      - run: echo first",
   "  second:",
   "    name: Second",
   "    needs: first",
   "    runs-on: ubuntu-24.04",
-  "    steps:",
-  "      - run: echo second",
-  "",
 ].join("\n");
 
-const jobsAt = (
-  firstWaitMs: number,
-  secondWaitMs: number,
-  runStart: string,
-) => {
-  const firstStart = timeAfter(runStart, firstWaitMs);
-  const firstEnd = timeAfter(firstStart, 2 * 60_000);
-  const secondStart = timeAfter(firstEnd, secondWaitMs);
-  const secondEnd = timeAfter(secondStart, 3 * 60_000);
+const after = (at: string, ms: number) =>
+  new Date(Date.parse(at) + ms).toISOString();
+
+// A 2 min job then a 3 min one, each after its runner wait.
+const attempt = (start: string, firstWaitMs: number, secondWaitMs: number) => {
+  const firstStart = after(start, firstWaitMs);
+  const firstEnd = after(firstStart, 2 * 60_000);
+  const secondStart = after(firstEnd, secondWaitMs);
+  const secondEnd = after(secondStart, 3 * 60_000);
   return {
+    start,
+    end: secondEnd,
     jobs: [
       makeMe.aGitHubJob
         .withFacts({
@@ -80,141 +56,73 @@ const jobsAt = (
         })
         .please(),
     ],
-    wallCompletedAt: secondEnd,
   };
 };
 
-const jobsReads = (calls: readonly GhCall[]) => listedAttemptJobPages(calls);
-
-test("keeps CI time without runner waits with a collected build once, answers 5 min for two waits when named, and leaves wall time for readers that do not name it", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  await origin.publishRevision({
-    message: "Land ci",
-    files: { ".github/workflows/ci.yml": dependentJobsWorkflow },
-  });
-  const shortRevision = await origin.publishRevision({
-    message: "Land short-waits",
-    files: { "short.txt": "short\n" },
-  });
-  const longRevision = await origin.publishRevision({
-    message: "Land long-waits",
-    files: { "long.txt": "long\n" },
-  });
-  const shortLanding = {
-    title: "short-waits",
-    revision: shortRevision,
-    receipt: "bbbbbbbb-0000-4000-8000-000000000001",
-    at: minutesAgo(2),
+test("a retained build's own attempt jobs give 5 min without two runner waits, asked once; the wall-time read keeps wall time", async () => {
+  const [short, long] = ["1".repeat(40), "2".repeat(40)] as const;
+  const attempts: Record<number, ReturnType<typeof attempt>> = {
+    41: attempt("2026-11-05T10:00:00.000Z", 30_000, 60_000),
+    42: attempt("2026-11-05T11:00:00.000Z", 2 * 60_000, 3 * 60_000),
   };
-  const longLanding = {
-    title: "long-waits",
-    revision: longRevision,
-    receipt: "bbbbbbbb-0000-4000-8000-000000000002",
-    at: minutesAgo(1),
-  };
-  const shortStart = "2026-11-05T10:00:00Z";
-  const longStart = "2026-11-05T11:00:00Z";
-  const short = jobsAt(30_000, 60_000, shortStart);
-  const long = jobsAt(2 * 60_000, 3 * 60_000, longStart);
-  serveTrunkRuns(
-    github,
-    origin,
-    () => [
-      trunkRun(
-        shortRevision,
-        41,
-        passedBetween(shortStart, short.wallCompletedAt),
-      ),
-      trunkRun(
-        longRevision,
-        42,
-        passedBetween(longStart, long.wallCompletedAt),
-      ),
-    ],
+  const kept = (revision: string, runId: 41 | 42) => ({
+    revision,
+    runId,
+    runAttempt: 1,
+    startedAt: attempts[runId]?.start,
+    completedAt: attempts[runId]?.end,
+  });
+  const home = machineHome();
+  const records = await keepWallTimeBuilds(home, [
+    kept(short, 41),
+    kept(long, 42),
+  ]);
+  const asked: Pick<RevisionCiBuild, "revision" | "runId" | "runAttempt">[] =
+    [];
+  const pass = landedCiPassInputs(
+    [short, long],
     {
-      jobs: () => ({
-        "41/1": short.jobs,
-        "42/1": long.jobs,
-      }),
-    },
-  );
-  keepLaunchRecords(path.join(origin.machine, "home"), [
-    storyLandingRecord(shortLanding, "execution"),
-    storyLandingRecord(longLanding, "execution"),
-  ]);
-
-  const dashboard = await startServer();
-  await expect
-    .poll(async () => {
-      const answer = await landedCiHistory(
-        dashboard,
-        undefined,
-        historyMeasure.value,
-      );
-      const measured = measuredHistoryOf(
-        landedCiHistorySchema.parse(answer.body),
-      );
-      return measured?.entries.flatMap((entry) =>
-        entry.kind === "point"
-          ? [{ revision: entry.revision, timeMs: entry.timeMs }]
-          : [],
-      );
-    })
-    .toEqual([
-      { revision: shortRevision, timeMs: 5 * 60_000 },
-      { revision: longRevision, timeMs: 5 * 60_000 },
-    ]);
-  expect(jobsReads(github.calls).sort()).toEqual(["41/1/1", "42/1/1"]);
-
-  const afterFirst = github.calls.length;
-  await expect.poll(() => github.calls.length > afterFirst).toBe(true);
-  expect(jobsReads(github.calls.slice(afterFirst))).toEqual([]);
-
-  const wall = await landedCiHistory(dashboard);
-  expect(
-    measuredHistoryOf(landedCiHistorySchema.parse(wall.body))?.entries.filter(
-      (entry) => entry.kind === "point",
-    ),
-  ).toEqual([
-    expect.objectContaining({
-      revision: shortRevision,
-      timeMs: 6.5 * 60_000,
-    }),
-    expect.objectContaining({
-      revision: longRevision,
-      timeMs: 10 * 60_000,
-    }),
-  ]);
-  for (const entry of landedCiHistorySchema.parse(wall.body).entries) {
-    if (entry.kind === "point") expect(entry).not.toHaveProperty("timeMs");
-  }
-
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
-  try {
-    const asked = github.calls.length;
-    expect(
-      await landedCiHistory(reader, undefined, historyMeasure.value),
-    ).toMatchObject({
-      status: 200,
-      body: {
-        entries: [
-          expect.objectContaining({
-            revision: shortRevision,
-            timeMs: 5 * 60_000,
-          }),
-          expect.objectContaining({
-            revision: longRevision,
-            timeMs: 5 * 60_000,
-          }),
-        ],
+      runs: () => [],
+      records: () => records,
+      measureOf: ({ revision, runId, runAttempt }) => {
+        asked.push({ revision, runId, runAttempt });
+        return timeWithoutRunnerWaits(
+          dependentJobsWorkflow,
+          attempts[runId ?? 0]?.jobs ?? [],
+          false,
+        );
       },
-    });
-    expect(github.calls.slice(asked)).toEqual([]);
-    expect(jobsReads(github.calls).sort()).toEqual(["41/1/1", "42/1/1"]);
-  } finally {
-    await reader.close();
-  }
+    },
+    home,
+  );
+
+  await pass.collect();
+  await pass.collect();
+
+  // Each attempt once, newest first, across both passes.
+  expect(asked).toEqual([
+    { revision: long, runId: 42, runAttempt: 1 },
+    { revision: short, runId: 41, runAttempt: 1 },
+  ]);
+  const timeOf = (entries: Awaited<ReturnType<typeof historyEntries>>) =>
+    entries.map((entry) => (entry.kind === "point" ? entry.timeMs : entry));
+  expect(timeOf(await measuredHistoryEntries(home))).toEqual([
+    5 * 60_000,
+    5 * 60_000,
+  ]);
+  // The wall-time read names no measure; its points keep their attempt's
+  // bounds, 6.5 and 10 min apart.
+  expect(
+    (await historyEntries(home)).map((entry) =>
+      entry.kind === "point"
+        ? [entry.timeMs, entry.startedAt, entry.completedAt]
+        : entry,
+    ),
+  ).toEqual(
+    [attempts[41], attempts[42]].map((timed) => [
+      undefined,
+      timed?.start,
+      timed?.end,
+    ]),
+  );
 });

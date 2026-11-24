@@ -1,249 +1,182 @@
-// Landed CI wall-time history collection (../../server/landedCiCollection.ts)
-// of landings no build measures, with no page open, a real bare origin
-// (../../test-support/support/startOrigin.ts) and the synthetic `claude`, each
-// collecting server checking at a test's pace: a final gap names the build
-// the CI timing comparison's Landed rule named for its landing, with that
-// build's run -- a confirmed skip's equivalent build whose CI proof expired
-// or cannot be opened, a landing's own build that timed out, and the later
-// trunk build that failed after a cancelled landing; a timed successful
-// equivalent with no proof summary becomes that build's reused-equivalent
-// point instead; a build whose attempt completed before it started names no
-// CI wall time, so it is a gap and never a zero; and a run link that is not a
-// web address is left out of a point and a pending gap alike, keeping their
-// run words (SEED-285#see-landed-ci-wall-time-history;
-// SEED-288#reuse-adapter-equivalent-timing). The CI timing comparison
-// answers the same Landed gap without the build or the proof read the
-// history keeps (../../server/intentCiComparisonSlots.ts). Run times follow
-// when their landings were recorded, so history answers in trunk order.
-// Missing proof: ./landed-ci-history-pending-proof.spec.ts. Never built:
-// ./landed-ci-history-pending.spec.ts. The Project Intent view is proved in
-// ../../frontend-tests/intent/intent-ci-wall-time-history-gaps.spec.ts.
-
-import path from "node:path";
-import { collectedScopeHistory } from "../../test-support/support/collectedScopeHistory.ts";
+// Landed CI collection passes (../../server/landedCiPass.ts) and the history
+// read (../../server/intentCiHistoryRead.ts), with no page, of landings no
+// build measures: a final gap names the build the Landed rule named for its
+// landing, with that build's run -- a confirmed skip's equivalent build whose
+// CI proof expired or cannot be opened, a landing's own build that timed out,
+// and the later trunk build that failed after a cancelled landing; a timed
+// successful equivalent with no proof summary becomes that build's
+// reused-equivalent point instead; a build whose attempt completed before it
+// started names no CI wall time, so it is a gap and never a zero; and a run
+// link that is not a web address is left out of a point and a pending gap
+// alike, keeping their run words (SEED-285#see-landed-ci-wall-time-history;
+// SEED-288#reuse-adapter-equivalent-timing). The comparison's answer for the
+// same gap is in ./landed-ci-history-comparison-gap.spec.ts; scoped history
+// is in the landed-ci-scope specs.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  answeredLanding,
-  landedCiHistory,
-  restartAsLandedCiReader,
-  untilKept,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-import {
-  answeredRun,
-  landingMinutesAgo,
-  passedBetween,
-  passedFrom,
-  publishCiWorkflow,
-  publishedChange,
-  recordedOnTrunk,
-  runningFrom,
-  timeAfter,
-  trunkRun,
-  usableProofOf,
-} from "../../test-support/support/landedCiTrunk.ts";
+  historyEntries,
+  landedCiPassInputs,
+} from "../support/landedCiPassInputs.ts";
 
-// No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+const landing = (revision: string, title: string, at: string) =>
+  makeMe.aLaunchRecord
+    .executing({ identity: `SEED-9#${title}`, title })
+    .launchedAt(at)
+    .landedAt(revision, { receipt: `receipt-${title}` })
+    .please();
 
-const minuteMs = 60_000;
+const run = (headSha: string, databaseId: number, more = {}) =>
+  makeMe.aRevisionCiRun
+    .with({
+      headSha,
+      databaseId,
+      startedAt: "2026-11-05T09:00:00Z",
+      completedAt: "2026-11-05T09:05:00Z",
+      ...more,
+    })
+    .please();
 
-// A final gap as the history read answers it: its landing, why, and the
-// build the Landed rule named for it, at `revision`, standing for it as
-// `provenance`, with that build's run `runId` (`answeredRun`).
-const gapNaming = (
-  reason: string,
-  landed: Parameters<typeof answeredLanding>[0],
-  revision: string,
-  provenance: string,
-  runId: number,
-) => ({
-  kind: "gap",
-  reason,
-  ...answeredLanding(landed),
-  build: { revision, provenance, ...answeredRun(runId) },
-});
-
-test("a final gap names the build the Landed rule named for its landing and links its run: a skip's equivalent build whose CI proof expired or cannot be opened, a landing's own build that timed out, and the later trunk build that failed after a cancelled landing; a timed equivalent with no proof summary is that build's reused-equivalent point", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  await publishCiWorkflow(origin);
-  // Oldest first: two skips whose equivalent proof expired or cannot be
-  // opened; a skip whose equivalent passed with timing but no proof
-  // summary; a landing whose own build timed out; and one whose build the
-  // push of d6 cancelled, and d6's build failed, publishing its CI proof.
-  const b1 = await publishedChange(origin, { title: "b1", kind: "code" });
-  const expired = await landingMinutesAgo(origin, "expired", 6, true);
-  const b2 = await publishedChange(origin, { title: "b2", kind: "code" });
-  const unopenable = await landingMinutesAgo(origin, "unopenable", 5, true);
-  const b3 = await publishedChange(origin, { title: "b3", kind: "code" });
-  const proofless = await landingMinutesAgo(origin, "proofless", 4, true);
-  const timedOut = await landingMinutesAgo(origin, "timed-out", 3);
-  const cancelled = await landingMinutesAgo(origin, "cancelled", 2);
-  const d6 = await publishedChange(origin, { title: "d6", kind: "code" });
-  // Each stand-in build ran for 5 min, ending a minute before the landing
-  // that rests on it was recorded; d6's failed a minute after it started,
-  // half a minute after the cancelled landing was recorded.
-  const before = (each: { readonly at: string }) =>
-    passedFrom(timeAfter(each.at, -6 * minuteMs), 5 * minuteMs);
-  const b3Run = trunkRun(b3, 63, before(proofless));
-  const d6Run = trunkRun(d6, 66, {
-    ...passedFrom(timeAfter(cancelled.at, minuteMs / 2), minuteMs),
-    conclusion: "failure",
-  });
-  const runs = [
-    trunkRun(b1, 61, before(expired)),
-    trunkRun(b2, 62, before(unopenable)),
-    b3Run,
-    trunkRun(timedOut.revision, 64, {
-      ...passedFrom(timedOut.at, minuteMs),
-      conclusion: "timed_out",
-    }),
-    trunkRun(cancelled.revision, 65, {
-      ...passedFrom(cancelled.at, minuteMs / 2),
-      conclusion: "cancelled",
-    }),
-    d6Run,
-  ];
-  const landings = [expired, unopenable, proofless, timedOut, cancelled];
-  recordedOnTrunk(
-    origin,
-    github,
-    landings,
-    () => runs,
-    () => ({
-      61: { kind: "expired", artifactId: 610 },
-      62: { kind: "unopenable", artifactId: 620 },
-      66: usableProofOf(d6Run),
-    }),
-  );
-  const server = await startServer();
-  await untilKept(path.join(origin.machine, "home"), landings);
-
-  await expect
-    .poll(() => landedCiHistory(server))
-    .toEqual({
-      status: 200,
-      body: expect.objectContaining({
-        entries: [
-          gapNaming("expired", expired, b1, "equivalent", 61),
-          gapNaming("unreadable", unopenable, b2, "equivalent", 62),
-          {
-            kind: "point",
-            revision: b3,
-            ...answeredRun(63),
-            startedAt: b3Run.startedAt,
-            completedAt: b3Run.completedAt,
-            landings: [
-              { ...answeredLanding(proofless), provenance: "equivalent" },
-            ],
-          },
-          gapNaming("cancelled", timedOut, timedOut.revision, "exact", 64),
-          gapNaming("failed", cancelled, d6, "later", 66),
-        ],
-      }),
-    });
-  // Stop collection before the scope re-read: settled missing summaries stay
-  // collectable for later recovery, so a still-rechecking server would ask
-  // GitHub again for the proofless equivalent and race this quiescence check.
-  const reader = await restartAsLandedCiReader(server, origin, "boundary");
-  try {
-    const asked = github.calls.length;
-    const scope = await collectedScopeHistory(
-      reader.origin,
-      "dashboard/tests",
-      cancelled.revision,
-      cancelled.at,
-    );
-    expect(scope.status).toBe(200);
-    expect(scope.body.entries).toHaveLength(5);
-    // Scope timing still needs proof; wall-time reuse without proof stays a
-    // scope gap naming the equivalent build, with no invented readings.
-    expect(scope.body.entries[2]).toMatchObject({
-      kind: "gap",
-      build: { revision: b3, provenance: "equivalent", ...answeredRun(63) },
-      landings: [
-        {
-          revision: proofless.revision,
-          receivedAt: proofless.at,
-          provenance: "equivalent",
-        },
+test("a final gap names the Landed rule's build and run for an expired or unopenable equivalent proof, a timed-out own build and a failed later build; a timed equivalent with no proof summary is that build's point", async () => {
+  const commit = (digit: string) => digit.repeat(40);
+  const expiredProofBuild = commit("1");
+  const expired = commit("2");
+  const unopenableProofBuild = commit("3");
+  const unopenable = commit("4");
+  const prooflessBuild = commit("5");
+  const proofless = commit("6");
+  const timedOut = commit("7");
+  const cancelled = commit("8");
+  const laterFailed = commit("9");
+  // The equivalent builds' CI proofs that cannot be used, by run.
+  const unusableProofs: Partial<Record<number, "expired" | "unreadable">> = {
+    61: "expired",
+    62: "unreadable",
+  };
+  const pass = landedCiPassInputs(
+    [
+      expiredProofBuild,
+      expired,
+      unopenableProofBuild,
+      unopenable,
+      prooflessBuild,
+      proofless,
+      timedOut,
+      cancelled,
+      laterFailed,
+    ],
+    {
+      runs: () => [
+        run(expiredProofBuild, 61),
+        run(unopenableProofBuild, 62),
+        run(prooflessBuild, 63),
+        run(timedOut, 64, { conclusion: "timed_out" }),
+        run(cancelled, 65, { conclusion: "cancelled" }),
+        run(laterFailed, 66, { conclusion: "failure" }),
       ],
-      readings: [],
-    });
-    for (const [index, [revision, provenance, runId]] of [
-      [b1, "equivalent", 61],
-      [b2, "equivalent", 62],
-      [timedOut.revision, "exact", 64],
-      [d6, "later", 66],
-    ].entries()) {
-      const at = index < 2 ? index : index + 1;
-      expect(scope.body.entries[at]).toMatchObject({
-        kind: "gap",
-        build: { revision, provenance, runId, runAttempt: 1 },
-        readings: [],
-      });
-    }
-    expect(github.calls.slice(asked)).toEqual([]);
-  } finally {
-    await reader.close();
-  }
+      records: () => [
+        landing(expired, "expired", "2026-11-05T09:54:00.000Z"),
+        landing(unopenable, "unopenable", "2026-11-05T09:55:00.000Z"),
+        landing(proofless, "proofless", "2026-11-05T09:56:00.000Z"),
+        landing(timedOut, "timed-out", "2026-11-05T09:57:00.000Z"),
+        landing(cancelled, "cancelled", "2026-11-05T09:58:00.000Z"),
+      ],
+      skips: [expired, unopenable, proofless],
+      proofOf: (proven) =>
+        proven.runId === 66
+          ? makeMe.aCiProof.summaryFor(proven).please()
+          : makeMe.aCiProof
+              .unavailable(unusableProofs[proven.runId] ?? "none")
+              .please(),
+    },
+  );
+  const named = (revision: string, provenance: string, runId: number) => ({
+    build: { revision, provenance, runId, runAttempt: 1 },
+  });
+
+  await pass.collect();
+  expect(await historyEntries(pass.home)).toMatchObject([
+    {
+      kind: "gap",
+      reason: "expired",
+      revision: expired,
+      ...named(expiredProofBuild, "equivalent", 61),
+    },
+    {
+      kind: "gap",
+      reason: "unreadable",
+      revision: unopenable,
+      ...named(unopenableProofBuild, "equivalent", 62),
+    },
+    {
+      kind: "point",
+      revision: prooflessBuild,
+      runId: 63,
+      completedAt: "2026-11-05T09:05:00Z",
+      landings: [{ revision: proofless, provenance: "equivalent" }],
+    },
+    {
+      kind: "gap",
+      reason: "cancelled",
+      revision: timedOut,
+      ...named(timedOut, "exact", 64),
+    },
+    {
+      kind: "gap",
+      reason: "failed",
+      revision: cancelled,
+      ...named(laterFailed, "later", 66),
+    },
+  ]);
 });
 
-test("a build that completed before it started is a gap naming no CI wall time, never a zero, and a run link that is not a web address is left out of a point and a pending gap, keeping their run words", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  const backwards = await landingMinutesAgo(origin, "backwards", 30);
-  const linked = await landingMinutesAgo(origin, "linked", 20);
-  const running = await landingMinutesAgo(origin, "running", 10);
-  recordedOnTrunk(origin, github, [backwards, linked, running], () => [
-    trunkRun(
-      backwards.revision,
-      64,
-      passedBetween(backwards.at, timeAfter(backwards.at, -5 * minuteMs)),
-    ),
-    trunkRun(linked.revision, 65, {
-      ...passedFrom(linked.at, 365_000),
-      url: "javascript:alert(65)",
-    }),
-    trunkRun(running.revision, 66, {
-      ...runningFrom(running.at),
-      url: "javascript:alert(66)",
-    }),
-  ]);
-  const server = await startServer({ observationClock: true });
-
-  await expect
-    .poll(() => landedCiHistory(server))
-    .toEqual({
-      status: 200,
-      body: expect.objectContaining({
-        entries: [
-          gapNaming("not-recorded", backwards, backwards.revision, "exact", 64),
-          {
-            kind: "point",
-            revision: linked.revision,
-            runId: 65,
-            runAttempt: 1,
-            startedAt: linked.at,
-            completedAt: timeAfter(linked.at, 365_000),
-            landings: [{ ...answeredLanding(linked), provenance: "exact" }],
-          },
-          {
-            kind: "gap",
-            reason: "pending",
-            waitsFor: "build",
-            ...answeredLanding(running),
-            runId: 66,
-            runAttempt: 1,
-          },
-        ],
+test("a build that completed before it started is a gap naming no wall time, never a zero point, and a run link that is not a web address is left out of a point and a pending gap", async () => {
+  const [backwards, zero, linked, running] = [
+    "a".repeat(40),
+    "b".repeat(40),
+    "c".repeat(40),
+    "d".repeat(40),
+  ] as const;
+  const pass = landedCiPassInputs([backwards, zero, linked, running], {
+    runs: () => [
+      run(backwards, 64, {
+        startedAt: "2026-11-05T09:05:00Z",
+        completedAt: "2026-11-05T09:00:00Z",
       }),
-    });
+      run(zero, 67, { completedAt: "2026-11-05T09:00:00Z" }),
+      run(linked, 65, { url: "javascript:alert(65)" }),
+      run(running, 66, {
+        status: "in_progress",
+        conclusion: null,
+        url: "javascript:alert(66)",
+      }),
+    ],
+    records: () => [
+      landing(backwards, "backwards", "2026-11-05T09:50:00.000Z"),
+      landing(zero, "zero", "2026-11-05T09:51:00.000Z"),
+      landing(linked, "linked", "2026-11-05T09:52:00.000Z"),
+      landing(running, "running", "2026-11-05T09:53:00.000Z"),
+    ],
+  });
+
+  await pass.collect();
+  const entries = await historyEntries(pass.home);
+  expect(entries).toMatchObject([
+    {
+      kind: "gap",
+      reason: "not-recorded",
+      revision: backwards,
+      build: { revision: backwards, provenance: "exact", runId: 64 },
+    },
+    {
+      kind: "point",
+      revision: zero,
+      startedAt: "2026-11-05T09:00:00Z",
+      completedAt: "2026-11-05T09:00:00Z",
+    },
+    { kind: "point", revision: linked, runId: 65, runAttempt: 1 },
+    { kind: "gap", reason: "pending", waitsFor: "build", runId: 66 },
+  ]);
+  expect(entries[2]).not.toHaveProperty("runUrl");
+  expect(entries[3]).not.toHaveProperty("runUrl");
 });

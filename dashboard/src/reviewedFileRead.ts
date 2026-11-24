@@ -20,6 +20,8 @@ export interface ReviewedWork {
   readonly completion?: string;
   // A Taken story branch head pinned by its published comparison.
   readonly publishedHead?: string;
+  // Owning story from a published session record, for Follow up.
+  readonly publishedStory?: string;
 }
 
 // One file within a retained pair: the trees the comparison reads between.

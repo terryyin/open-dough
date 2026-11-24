@@ -21,12 +21,8 @@ import {
 /** @typedef {import("./launchRequestTestData.mjs").StoryFacts} StoryFacts */
 /** @typedef {import("./launchRequestTestData.mjs").AdHocFacts} AdHocFacts */
 
-// The kept launch of one story's execution or refinement, or of an ad hoc
-// session: its request (`./launchRequestTestData.mjs`), its host session
-// (`./hostSessionTestData.mjs`), and the workspace its start established
-// (`./launchWorkspaceTestData.mjs`). The default session is a `claude` session
-// named after the title. Reporting and landing come from
-// `LaunchReportingBuilder`, subsequent outcomes from `LaunchOutcomeBuilder`.
+// A kept launch's request, native session and workspace. The default Claude
+// session takes its name from the title. Reporting and outcomes are inherited.
 export class LaunchRecordBuilder extends LaunchReportingBuilder {
   /** @type {import("./launchRequestTestData.mjs").Requested | undefined} */
   #requested;
@@ -48,14 +44,16 @@ export class LaunchRecordBuilder extends LaunchReportingBuilder {
   /** @type {LaunchRecord["request"]["options"]} */
   #options;
 
-  /**
-   * A launch of the story by this workflow, in the `open-dough` project
-   * unless stated.
-   * @param {"execution" | "refinement"} workflow
-   * @param {StoryFacts} facts
-   */
-  ofWorkflow(workflow, { identity, title, source = "open-dough" }) {
-    this.#requested = { identity, title, source, workflow };
+  /** @param {"execution" | "refinement"} workflow @param {StoryFacts} facts */
+  ofWorkflow(workflow, facts) {
+    const { identity, title, instruction, source = "open-dough" } = facts;
+    this.#requested = {
+      identity,
+      title,
+      source,
+      workflow,
+      ...(instruction === undefined ? {} : { instruction }),
+    };
     return this;
   }
 

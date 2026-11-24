@@ -104,7 +104,11 @@ function reportedHighest(highest) {
  */
 export async function readIdentityEvidence(
   file,
-  { seedDirectory = join(dirname(file), defaultSeedDirectory), identity },
+  {
+    seedDirectory = join(dirname(file), defaultSeedDirectory),
+    identity,
+    includeSeedUse = false,
+  },
 ) {
   const backlogDirectory = dirname(file);
   const doneFiles = readDoneRecordFiles(backlogDirectory);
@@ -119,6 +123,7 @@ export async function readIdentityEvidence(
     doneCatalogSource(backlogDirectory, doneFiles),
     history,
   ];
+  const seed = includeSeedUse && identity ? seedNumberOf(identity) : undefined;
   const overall = highestOf(
     sources.flatMap(({ source, named }) =>
       named.map((entry) => ({ ...entry, source })),
@@ -143,6 +148,15 @@ export async function readIdentityEvidence(
     gaps: sources.flatMap(({ source, gaps }) =>
       gaps.map((gap) => ({ source, ...gap })),
     ),
+    ...(seed === undefined
+      ? {}
+      : {
+          seedInUse: sources.some(({ named }) =>
+            named.some(
+              (entry) => seedNumberOf(entry.identity)?.number === seed.number,
+            ),
+          ),
+        }),
     ...(identity === undefined
       ? {}
       : {

@@ -16,6 +16,10 @@ import {
   launch,
 } from "../../test-support/agentLaunchBoundary.ts";
 import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+import {
+  launchAttachmentEndpoint,
+  launchAttachmentNameHeader,
+} from "../../src/launchAttachments.ts";
 import { expect, stored, test } from "../../test-support/support/codexStart.ts";
 import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
@@ -31,6 +35,10 @@ import {
   isolatedSession,
 } from "../../test-support/support/startSessionLanding.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import {
+  expectCopiedAttachmentPath,
+  pngA,
+} from "../../test-support/support/launchAttachmentFixtures.ts";
 import {
   answerOf,
   expectFollowUpInput,
@@ -78,12 +86,27 @@ test("a done story followed up with Codex on Isolated workspace · Wait for revi
   const kept = quietStorySessions(dashboard.home, recoverStory, new Date());
   keepLaunchRecords(dashboard, kept);
   const text = "Paste still drops the last line on iPad; investigate.";
-  const context = storyContextOf(recoverStory, completedAt, "quiet sessions");
+  const message = storyContextOf(recoverStory, completedAt, "unselected", text);
+  const uploaded = await fetch(
+    new URL(launchAttachmentEndpoint, dashboard.baseURL),
+    {
+      method: "POST",
+      headers: {
+        Origin: dashboard.origin,
+        "Content-Type": "image/png",
+        [launchAttachmentNameHeader]: "evidence.png",
+      },
+      body: Uint8Array.from(pngA),
+    },
+  );
+  expect(uploaded.status).toBe(200);
+  const { claim } = (await uploaded.json()) as { claim: string };
 
   const launched = await answerOf(
     launch(dashboard, {
       ...codex,
       instruction: text,
+      attachmentClaims: [claim],
       policy: isolated,
       followUp: makeMe.aFollowUp.ofStory(recoverStory, trunk).please(),
     }),
@@ -105,9 +128,11 @@ test("a done story followed up with Codex on Isolated workspace · Wait for revi
   expect(git(session.workspace, "rev-parse", "HEAD")).toBe(trunk);
   const [input, ...others] = inputsOf(native);
   expect(others).toEqual([]);
+  const [image] = launched.record?.request.attachments ?? [];
+  expectCopiedAttachmentPath(image ?? "", dashboard.home, "1-evidence.png");
   expectFollowUpInput(input, {
-    context,
-    own: text,
+    context: message,
+    own: `Attached images:\n1. ${image}`,
     session,
     request: launched.record?.request,
     server: dashboard,
@@ -116,7 +141,7 @@ test("a done story followed up with Codex on Isolated workspace · Wait for revi
     instruction: text,
     followUp: makeMe.aFollowUp
       .ofStory(recoverStory, trunk)
-      .withContext(context)
+      .withContext({ message })
       .please(),
   });
   // The story's sessions stay Done and unchanged.

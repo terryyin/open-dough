@@ -147,12 +147,10 @@ export async function perform(
             case "intent-ci-comparison":
               return await performIntentCiComparisonRead(source, read, signal);
             case "intent-ci-history":
-              return await performIntentCiHistoryRead(
-                source,
-                read,
+              return await performIntentCiHistoryRead(source, read, {
                 signal,
-                executionCheckout(source).path,
-              );
+                localRepository: executionCheckout(source).path,
+              });
             case "published-sessions-at":
               return await performPublishedSessionsRead(
                 source,

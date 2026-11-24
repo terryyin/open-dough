@@ -13,11 +13,10 @@
 // A pass reads this machine's launch records (`./launchRecordStore.ts`), so
 // it finds the landings every dashboard process on this machine recorded,
 // with the landings the history itself keeps, whose records may have expired.
-// For each configured project it walks the landings onto its configured ref,
-// newest first, until the history holds `measuredWindow` measured builds for
-// it (`./landedCiMeasuredBuilds.ts`), and resolves each landing whose
-// resolution is not final yet over the project's CI read for the pass
-// (`./landedCiResolution.ts`, `./landedCiCollectionLanding.ts`). A final
+// For each configured project the ordered pass (`./landedCiPass.ts`) walks
+// the landings onto its configured ref, newest first, until the history
+// holds `measuredWindow` measured builds for it, and resolves each landing
+// whose resolution is not final yet over the project's CI read. A final
 // resolution is kept and never resolved again, except a retained equivalent
 // `No CI proof summary` gap that timed wall-time reuse without proof would
 // now measure (`reopenableRetainedNoProofSkip`, `./landedCiNoProofReopen.ts`);
@@ -36,14 +35,12 @@
 // `DOUGH_TEST_LANDED_CI_COLLECTION=off`.
 
 import { collectCiFollowUps } from "./ciFollowUpCollection.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { configuredLimit } from "./configuredLimit.ts";
-
+import type { LaunchRecord } from "../src/launchRecord.ts";
 import { keptLandedCiHistory } from "./landedCiHistoryStore.ts";
 import { collectLandedCiPass } from "./landedCiPass.ts";
 import { readLandedProof } from "./landedCiCollectedProof.ts";
-
 import { landedCiReadSignal, passRead } from "./landedCiPassRead.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import {
@@ -66,6 +63,67 @@ function collects(): boolean {
   );
 }
 
+// The CI providers a machine pass reads each project's builds and proofs
+// through.
+export type LandedCiReads = {
+  readonly read: typeof passRead;
+  readonly readProof: Parameters<typeof collectLandedCiPass>[0]["readProof"];
+};
+
+// One project's pass over its launch records' landings, then its CI
+// follow-ups, in this machine's home.
+async function collectProject(
+  source: PublishedSource,
+  records: readonly LaunchRecord[],
+  ci: LandedCiReads,
+  stopped: AbortSignal,
+): Promise<void> {
+  const repository = executionCheckout(source).path;
+  await collectLandedCiPass({
+    source,
+    history: await keptLandedCiHistory(source.id),
+    receipts: records.flatMap(({ landing }) =>
+      landing === undefined ? [] : [landing],
+    ),
+    repository,
+    stopped,
+    read: ci.read(source, repository, stopped),
+    readProof: ci.readProof,
+  });
+  if (!stopped.aborted)
+    await collectCiFollowUps(
+      source,
+      await keptLandedCiHistory(source.id),
+      landedCiReadSignal(stopped),
+    );
+}
+
+// Whether a server collects, how often it collects again, and its pass.
+export type LandedCiLifecycle = {
+  readonly collects: () => boolean;
+  readonly recheckMs: () => number;
+  readonly pass: (stopped: AbortSignal) => Promise<void>;
+};
+
+// This machine's lifecycle: its environment decides whether it collects, and
+// each pass reads its launch records and configured projects through `ci`.
+export function machineLifecycle(
+  ci: LandedCiReads = { read: passRead, readProof: readLandedProof },
+): LandedCiLifecycle {
+  return {
+    collects,
+    recheckMs,
+    pass: async (stopped) => {
+      const records = await readableRecordsByProject();
+      if (records === undefined) return;
+      for (const source of publishedProjects()) {
+        if (stopped.aborted) return;
+        await collectProject(source, records.get(source.id) ?? [], ci, stopped);
+      }
+    },
+  };
+}
+
 export class LandedCiCollection {
   private readonly stopped = new AbortController();
   // The pass under way, or the last one.
@@ -73,20 +131,22 @@ export class LandedCiCollection {
   // The pass asked for once the one under way ends.
   private next: Promise<void> | undefined;
 
-  constructor(
-    private readonly ci = { read: passRead, readProof: readLandedProof },
-  ) {
-    if (!collects()) return;
-    void repeatUntilStopped(this.stopped.signal, recheckMs, async () => {
-      await this.collected();
-      return undefined;
-    });
+  constructor(private readonly lifecycle = machineLifecycle()) {
+    if (!lifecycle.collects()) return;
+    void repeatUntilStopped(
+      this.stopped.signal,
+      lifecycle.recheckMs,
+      async () => {
+        await this.collected();
+        return undefined;
+      },
+    );
   }
 
   // Collects the recorded landings not yet final, now, or once the pass
   // under way ends; nothing where this server does not collect.
   nudge(): Promise<void> | undefined {
-    if (this.ended() || !collects()) return;
+    if (this.ended() || !this.lifecycle.collects()) return;
     return this.collected();
   }
 
@@ -98,7 +158,7 @@ export class LandedCiCollection {
       this.next = undefined;
       if (this.ended()) return;
       try {
-        await this.pass();
+        await this.lifecycle.pass(this.stopped.signal);
       } catch {
         // Collected again at the next pass.
       }
@@ -111,40 +171,6 @@ export class LandedCiCollection {
   // Whether collection has ended, as it may have during any read.
   private ended(): boolean {
     return this.stopped.signal.aborted;
-  }
-
-  private async pass(): Promise<void> {
-    const records = await readableRecordsByProject();
-    if (records === undefined) return;
-    for (const source of publishedProjects()) {
-      if (this.ended()) return;
-      await this.collect(source, records.get(source.id) ?? []);
-    }
-  }
-
-  private async collect(
-    source: PublishedSource,
-    records: readonly LaunchRecord[],
-  ): Promise<void> {
-    const history = await keptLandedCiHistory(source.id);
-    const repository = executionCheckout(source).path;
-    await collectLandedCiPass({
-      source,
-      history,
-      receipts: records.flatMap(({ landing }) =>
-        landing === undefined ? [] : [landing],
-      ),
-      repository,
-      stopped: this.stopped.signal,
-      read: this.ci.read(source, repository, this.stopped.signal),
-      readProof: this.ci.readProof,
-    });
-    if (!this.ended())
-      await collectCiFollowUps(
-        source,
-        await keptLandedCiHistory(source.id),
-        landedCiReadSignal(this.stopped.signal),
-      );
   }
 
   // Ends collection and any read it waits on.

@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 638. Removed numbers are never reused.
-- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158. `488645e95fe49110418f94953944bea1beb3afec:DearDough.md` retains the exact removed pointers to ODF-154, ODF-205, ODF-169 and ODF-338. `c8c3aa62af81c1cf1bb13eeb6eb79dc0b67b8c7b:DearDough.md` retains the removed empty DD-613 and DD-608 Occurrences headings and the ODF-532 source-recovery pointer. `af192fc772f2a1fd18e0a9870365991e849fe56a:DearDough.md` preserves the removed redundant plan 792 occurrence under ODF-368. `80087ac3086625e928680a3d495d2526a3fd144f:DearDough.md` retains the removed ODF-456 catalog pointer and ODF-368's plan 777 occurrence. [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes. Recovery: `71e820478b6a0fb8854a6cb5f428b59b44d31225:DearDough.md` retains ODF-329 and ODF-368, removed for the line ceiling; their accounts stay in the finding catalog. Recovery: `563d87eac574c046ab1634e315bb1582f9da313a:DearDough.md` retains the removed ODF-519 pointer. Its reconciled occurrence remains in the finding catalog. Occurrence history is partial. Recovery: `273d9687ed365db7e56ffa4291e4ef78763f855c:DearDough.md` retains the removed redundant recovery pointers. The same earlier log remains linked above. The original line layout is at `cd7c95f9360409e4cd9644f424d140fda330aa73:DearDough.md`. Two section-local recovery pointers duplicated above remain in `77afb096e0f5c2c40a970a83c52e50fe7d633157:DearDough.md`.
+- Highest allocated local number: 639. Removed numbers are never reused.
+- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158. `488645e95fe49110418f94953944bea1beb3afec:DearDough.md` retains the exact removed pointers to ODF-154, ODF-205, ODF-169 and ODF-338. `c8c3aa62af81c1cf1bb13eeb6eb79dc0b67b8c7b:DearDough.md` retains the removed empty DD-613 and DD-608 Occurrences headings and the ODF-532 source-recovery pointer. `af192fc772f2a1fd18e0a9870365991e849fe56a:DearDough.md` preserves the removed redundant plan 792 occurrence under ODF-368. `80087ac3086625e928680a3d495d2526a3fd144f:DearDough.md` retains the removed ODF-456 catalog pointer and ODF-368's plan 777 occurrence. [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes. Recovery: `71e820478b6a0fb8854a6cb5f428b59b44d31225:DearDough.md` retains ODF-329 and ODF-368, removed for the line ceiling; their accounts stay in the finding catalog. Recovery: `563d87eac574c046ab1634e315bb1582f9da313a:DearDough.md` retains the removed ODF-519 pointer. Its reconciled occurrence remains in the finding catalog. Occurrence history is partial. Recovery: `273d9687ed365db7e56ffa4291e4ef78763f855c:DearDough.md` retains the removed redundant recovery pointers. The same earlier log remains linked above. The original line layout is at `cd7c95f9360409e4cd9644f424d140fda330aa73:DearDough.md`. Two section-local recovery pointers duplicated above remain in `77afb096e0f5c2c40a970a83c52e50fe7d633157:DearDough.md`. The redundant DD-546 source-recovery pointer is recoverable at `cf3972a4efeeff8a3ca8a00e1ef74146d06d5fe9:DearDough.md`. Recovery: `421a5b994c151ec95ab31aef6c1687cf190eecee:DearDough.md` keeps the section-local recovery pointers consolidated here.
 
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 
@@ -27,6 +27,7 @@ Former local code: DD-259.
 - Execution: SEED-423#install-without-the-custom-ci-adapter (plan 793; first implementation `05d51ec1b`). Timestamp: 2026-11-23T18:50:48+08:00 (coordinator's slice 1 E2E run) and 19:26:04+08:00 (slice 4). Tool: Claude Code. Open Dough release: 0.3.112 (installed `.claude/skills/dough-update/VERSION` at Take `29b578602`). Evidence: slice 1's return listed `e2e/intent/intent-ci-proof-adapter.spec.ts` as "excluded … (not run)" because a node test proved the same contract; slice 4's return excluded `e2e/intent/intent-ci-proof-adapter-reasons.spec.ts` the same way (`slice-1-report.md`, `slice-4-report.md`). The coordinator ran both before acceptance (`s1-e2e-intent`, `s4-e2e*` run records). Observed effect: no CI failure from these consumers; the slice 4 runs exposed the reasons case's fixed 30 s bound at load about 50, now correction plan 798. Inference: the trace named the consumers but the implementers' dispositions still left them unrun; acceptance's unrun-consumer rule caught both.
 - Execution: SEED-423#derive-the-install-payload-from-the-shipped-directory (plan 796; first implementation `f3c94837b`). Timestamp: unknown (CI run 45207498839 on slice 7 `19977e983`, committed 2026-11-23T23:37:13+08:00, before repair `3a3ab710c` at 2026-11-24T00:22:45+08:00). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.112 (installed `.claude/skills/dough-update/VERSION` at Take `28785ac04`). Evidence: slice 7 changed what `read_release_payload` returns, but its consumer trace used text-match terms rather than that function's callers and missed `Distribution/evaluation/tests/git-publication/git-publication-fixture-identity.sh`; CI run 45207498839 shard 2/3 failed and `3a3ab710c` repaired it. Observed effect: one failed branch CI shard and a separate repair. Inference: tracing callers of a function whose return changes reaches consumers that text terms miss; DD-560 is the related phrase-search variant.
 - Execution: SEED-427#review-published-changes (plan 802, first implementation `a3093e76f`). Timestamp: unknown (2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `f5f354ab3`). Evidence: published runs 45338298609 and 45347218739 exposed unchanged Board keyboard/snapshot expectations and a Side panel route fixture that still needed an unpublished checkout. Repairs `b265461cb` and `0e187842d` reached those paths and kept their assertions on published comparisons. Observed effect: two CI repair rounds. Inference: trace through the actual Board and Side panel openers when retiring a review source.
+- Execution: SEED-415#choose-clear-follow-up-context (plan 808, first implementation `33533a6ff`). Timestamp: 2026-11-24T08:16:54Z. Tool: Codex. Model: gpt-6.2-sol (execution profile). Open Dough release: 0.3.112 (installed at Take `0648365e4`). Evidence: Slice 2 rendered optional sessions through a chooser, while `recently-done-card-membership-mount.spec.ts` still expected the previous flat list. CI run 45353396533, attempt 1, job 138305133649 reproduced locally. Repair `1458a4001` retained the rules for membership and focus and read the session facts through the disclosure. Observed effect: one failed frontend shard and a separate repair. Inference: follow the actual composer openers and the "Follow-up context" list assertions when replacing the rendered attachment model.
 
 ## DD-613 — Parity proof answers every read at once <a id="dd-613"></a>
 
@@ -62,7 +63,6 @@ E2E specs and the contract document in 15 active minutes.
 - SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing (plan 656; first implementation 3ee71a8b9)
 
 [Account and evidence at ODF-516](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-516.md#open-dough--dd-546).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-547 — A sibling story landed first on files this story's seed says it rewrites first
 
@@ -112,6 +112,7 @@ and the slice deleting the deal and correcting about 30 documents and records.
   - Evidence: plan 664's premise row ran its scratch default only over backend `launches/` (9 failures) and listed those nine consumers. Slice 1 also had to update about 20 more exact-argv or kept-start assertions in backend `sessions/`, shared test support and `e2e/`; a serial-mode spec hid a second failure behind the first. Slice 1 return reports about 21 minutes; plan 664 slice 1 Learning at `535898511`.
   - Observed effect: no discarded work; the slice delivered with accepted proof (374 + 256 + 54 passed).
   - Inference: same sizing gap as above, here seeded by a premise observation scoped to one test directory; a default that changes exact command-line output reaches every suite that pins that output, and serial-mode files undercount failures.
+- Execution: SEED-426#start-ad-hoc-work-under-a-story (plan 804, first implementation `efca0e5a9`). Timestamp: unknown (slice 5 return on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed guidance at Take `46dd56241`). Evidence: after 14.7 active minutes, the default-admission slice had edits across 47 paths and 17 reached compatibility failures, including duplicate-start and direct-browser fixtures. Observed effect: the maintainer asked to close the independently proved installed workflow and queue the Dashboard work. The exact unfinished candidate remains at `refs/dough/resplit/SEED-426-dashboard-admission`. Inference: inventorying fixtures across the consuming suites before sizing a default-path change would expose compatibility work earlier.
 
 ## ODF-521 — Agents' own active-time estimates ran two to five times the measured time
 
@@ -657,7 +658,6 @@ Former local code: DD-605.
 - SEED-413#mount-story-review-changes-panel (plan 748; first implementation `277d5717c67aed5babc1806881797d52a0ec8235`)
 
 [Account and evidence at ODF-535](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-535.md#evidence-2026-11-23-open-dough-dd-605).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ### Occurrences
 
@@ -686,7 +686,6 @@ Former local code: DD-607.
 - SEED-418#correct-published-session-review (plan 746; first related `126fabd26`; final candidate `576150249`)
 
 [Account and evidence at ODF-537](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-537.md#evidence-2026-11-23-open-dough-dd-607).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-538 — Topic-grouped slices in an 8-slice migration exhaust the 10-slice cap and force a mid-execution story split <a id="dd-609"></a>
 
@@ -698,7 +697,6 @@ Former local code: DD-609.
 - SEED-413#speed-intent-ci-status-frame-and-timing-history (plan 764; first implementation `ed26bbd04`)
 
 [Account and evidence at ODF-538](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-538.md#evidence-2026-11-23-open-dough-dd-609).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-612 — Board proof used the wrong width at layout breakpoints <a id="dd-612"></a>
 
@@ -716,7 +714,6 @@ Former local code: DD-614.
 - SEED-418#attribute-every-workflow-session-record (plan 747; first implementation `e8231e9af`)
 
 [Account and evidence at ODF-539](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-539.md#evidence-2026-11-23-open-dough-dd-614).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-540 — The coordinator waited overnight on a slice agent whose run had ended, until the developer asked <a id="dd-615"></a>
 
@@ -726,7 +723,6 @@ Former local code: DD-615.
 - SEED-418#attribute-every-workflow-session-record (plan 747; first implementation `e8231e9af`)
 
 [Account and evidence at ODF-540](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-540.md#evidence-2026-11-23-open-dough-dd-615).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-541 — A decision about queued work was asked without rechecking trunk, after that story had closed <a id="dd-616"></a>
 
@@ -736,7 +732,6 @@ Former local code: DD-616.
 - SEED-418#attribute-every-workflow-session-record (plan 747; first implementation `e8231e9af`)
 
 [Account and evidence at ODF-541](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-541.md#evidence-2026-11-23-open-dough-dd-616).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-542 — A coordinator loosens its plan's no-outside-call decision on a failed premise without asking, and the Decisions text keeps the old rule <a id="dd-619"></a>
 
@@ -746,7 +741,6 @@ Former local code: DD-619.
 - SEED-420#test-compare-on-mounted-intent (plan 765; first implementation `1240413986b`)
 
 [Account and evidence at ODF-542](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-542.md#evidence-2026-11-23-open-dough-dd-619).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-543 — A Git-replay premise is settled on scratch files unlike the product's near-identical records <a id="dd-620"></a>
 
@@ -756,7 +750,6 @@ Former local code: DD-620.
 - SEED-418#expire-published-session-records (plan 767; first implementation `c86dd3425`)
 
 [Account and evidence at ODF-543](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-543.md#evidence-2026-11-23-open-dough-dd-620).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-544 — A reshaped case dropped the retired case's focus wait, and CI failed on the published slice <a id="dd-622"></a>
 
@@ -767,7 +760,6 @@ Former local code: DD-622.
 - SEED-413#speed-intent-scope-timing-history (plan 774; first implementation `e19c1a4c0`)
 
 [Account and evidence at ODF-544](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-544.md#evidence-2026-11-23-open-dough-dd-622).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-545 — A coordinator's acceptance brief let passing cases decide that production layout ancestors could be left out of a page mount <a id="dd-623"></a>
 
@@ -998,3 +990,11 @@ The deferred story returned to the backlog with its original agent profile. A la
 
 - Execution: SEED-413#renovate-landed-ci-scope-proof (plan 806, first implementation `6993c9661`). Timestamp: unknown (before slice 1 publication on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `344e50f93`). Evidence: the Ready plan at `344e50f93` used `## Slices and outside-in proof`. The empty obligations listing succeeded, but guarded preparation refused the plan-status mutation. Renaming the heading to `## Slices` restored delivery in `6993c9661`. Observed effect: an additional preparation attempt after implementation and review. Earlier occurrences are in [ODF-368](docs/maintainer/findings/ODF-368.md).
 - Execution: SEED-427#review-published-changes (plan 802, first implementation `a3093e76f`). Timestamp: unknown (2026-11-24 +08:00, before slice 1 publication). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `f5f354ab3`). Evidence: the ready plan at `f5f354ab3` used `## Outside-in proof and ordered slices`. Guarded delivery refused the slice status mutation. `a3093e76f` uses `## Ordered slices` and publishes the same product change. Observed effect: one refused preparation and a heading edit. Inference: readiness could check the section with the same reader used to deliver it.
+
+## DD-639 — New launch tests used the legacy backend runner despite the typed-test direction
+
+The proof plan named HTTP launch cases and delegation followed the existing suite without checking the repository North Star’s typed-test direction.
+
+### Occurrences
+
+- Execution: SEED-415#choose-clear-follow-up-context (plan 808, first implementation `33533a6ff`). Timestamp: unknown (execution on 2026-11-24). Tool: Codex. Model: gpt-6.2-sol (execution profile). Open Dough release: 0.3.112 (installed at Take `0648365e4`). Evidence: the new follow-up selection, published-session, and published-range admission specs at `e7aa42bed` use the Playwright backend runner. The North Star already reserved Playwright for E2E at the Take. The outcome record `421a5b99` retains the assertions and assigns their placement to the existing typed backend renovation under SEED-413. Observed effect: the legacy runner gained three spec files. The widened-pair scratch check caught an incorrect baseline at the native first input and passed after restoration. Runtime saving from typed placement is unmeasured.

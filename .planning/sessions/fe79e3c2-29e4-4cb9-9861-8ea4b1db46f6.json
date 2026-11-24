@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "fe79e3c2-29e4-4cb9-9861-8ea4b1db46f6",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T10:22:44.580Z",
+  "story": "SEED-423#use-one-managed-install-layout",
+  "ranges": [
+    {
+      "base": "f5cb1831a80f7450ef489123774c51745be71fb8",
+      "candidate": "ae6932fe17912e18d34bd6ed845f012eea67d572"
+    }
+  ]
+}

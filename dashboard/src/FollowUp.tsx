@@ -7,16 +7,19 @@
 // offers Follow up for the whole file or a line
 // (`./StoryAnchoredFollowUp.tsx`).
 
+import { useContext } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
+import type { MachineSessions } from "./agentLaunches.ts";
 import type { DoneStory } from "./doneRecord.ts";
+import { sessionContext, storyContext, storyName } from "./followUpContext.ts";
+import type { FollowUpSource, FollowUpTarget } from "./followUpRequest.ts";
 import {
-  sessionContext,
-  storyContext,
-  storyName,
-  type FollowUpFileFacts,
-} from "./followUpContext.ts";
-import type { FollowUpFile, FollowUpSource } from "./followUpRequest.ts";
+  retainedFollowUpReference,
+  storyFollowUpSessions,
+} from "./followUpSessions.ts";
 import { usePageSessions } from "./pageSessions.ts";
+import { currentPublishedSessions } from "./recentlyDoneListing.ts";
+import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { offersFollowUp } from "./sessionAccess.ts";
 import { StartSession, type AdHocLaunches } from "./StartSession.tsx";
@@ -30,40 +33,51 @@ type Launching = {
 
 type StoryLaunch = Launching & {
   readonly story: DoneStory;
+  readonly launches: AdHocLaunches & Pick<MachineSessions, "records">;
   // The revision the story's done record was read at.
   readonly revision: string;
   // The sessions its card holds, oldest first.
   readonly sessions: readonly LaunchWithState[];
 };
 
-// The Start session dialog for a done story, with an optional file anchor.
+// The Start session dialog for a done story, with an optional reviewed target.
 export function StoryFollowUpSession({
   story,
   revision,
-  sessions,
   project,
   sourceId,
   launches,
-  file,
+  target,
   autoOpen = false,
   showTrigger = true,
   onClosed,
 }: StoryLaunch & {
-  readonly file?: {
-    readonly anchor: FollowUpFile;
-    readonly facts: FollowUpFileFacts;
-  };
+  readonly target?: FollowUpTarget;
   readonly autoOpen?: boolean;
   readonly showTrigger?: boolean;
   readonly onClosed?: () => void;
 }) {
   const readHistory = useReadRetainedHistory();
   const { presentTerminal } = usePageSessions();
+  const { work } = useContext(RecentlyDoneLinkSources);
+  const candidates = storyFollowUpSessions(
+    launches.records,
+    currentPublishedSessions(
+      work?.source.id === sourceId ? work.publishedSessions : undefined,
+      new Date(),
+    ),
+    sourceId,
+    story.identity,
+  );
   const source: FollowUpSource = {
     story: {
       identity: story.identity,
       revision,
-      ...(file === undefined ? {} : { file: file.anchor }),
+      ...(target === undefined
+        ? {}
+        : "path" in target
+          ? { file: target }
+          : { comparison: target }),
     },
   };
   return (
@@ -79,7 +93,13 @@ export function StoryFollowUpSession({
       followUp={{
         source,
         name: storyName(story),
-        context: storyContext(story, sessions, file?.facts),
+        context: storyContext(
+          story,
+          [],
+          target,
+          candidates.some(({ retained }) => retained !== undefined),
+        ),
+        sessions: candidates,
       }}
     />
   );
@@ -93,9 +113,7 @@ export function SessionFollowUp({
 }: Launching & { readonly record: LaunchWithState }) {
   const { hostOperations, presentTerminal } = usePageSessions();
   if (!offersFollowUp([record], hostOperations)) return null;
-  const source: FollowUpSource = {
-    session: { host: record.session.host, sessionId: record.session.sessionId },
-  };
+  const source: FollowUpSource = { session: retainedFollowUpReference(record) };
   const context = sessionContext(record);
   return (
     <StartSession

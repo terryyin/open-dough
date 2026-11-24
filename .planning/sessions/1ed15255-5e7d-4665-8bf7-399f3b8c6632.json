@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "1ed15255-5e7d-4665-8bf7-399f3b8c6632",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T10:00:09.693Z",
+  "story": "SEED-413#renovate-later-dashboard-backend-unit-test-families",
+  "ranges": [
+    {
+      "base": "177084da64c65d3e389e9e29d59bb757e92eec4d",
+      "candidate": "6e1c245dabb07f05f5f9be8cce78421a42983ec3"
+    }
+  ]
+}
