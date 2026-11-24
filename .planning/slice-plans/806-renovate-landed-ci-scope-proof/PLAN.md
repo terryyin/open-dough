@@ -170,17 +170,15 @@ conversion. See `slice4-return.md` for source and proof mappings.
 ### 5. The retained window advances in trunk order and reads old evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
-Convert `pending-order`, `retained-window` and `legacy-gap`. Use the
-production store and branch order reader with 20 retained scoped
-measurements, one unpositioned receipt and a recoverable local Git order.
-Use the existing versioned document and compatibility reader for old proof.
-
-**Proof.** See all 20 existing proofs while the new receipt is unordered.
-Restore order, collect the new attempt and see the oldest trunk
-measurement removed even when receipt dates disagree. Observe the
-preserved legacy proof and explanation-only gap after a real store write.
+**Proof.** `retained-window` now also owns `pending-order` coverage. It
+checks that all 20 measurements and their proofs survive an unordered
+receipt. Restoring real Git order lets collection evict the oldest trunk
+build despite reverse receipt dates. `legacy-gap` checks that a real atomic
+write preserves version 1 attempt provenance, the explanation-only gap and
+current proof. Both Node cases and typecheck passed. Summed case time was
+0.912 s versus 8.039 s for the original three. See `slice5-return.md`.
 
 ### 6. A completion retry retains one scoped measurement
 
