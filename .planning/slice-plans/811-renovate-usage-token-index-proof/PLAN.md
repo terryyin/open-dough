@@ -148,7 +148,7 @@ Vitest case took 62.12 ms. Checkout evidence uses the `slice-2-` prefix.
 ### 3. Claude and Codex pricing retains task and model distinctions
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `token-index-claude`, `token-index-claude-population` and
 `token-index-estimate-family`. Pass typed task evidence, retained launch
@@ -157,6 +157,15 @@ classes and speed, independent worker rates, current and estimated families,
 reweighing without changing counters, and the eligibility of completed,
 recovered and running launches. Keep a single representative cross-tool
 read so Claude evidence cannot leak into Codex's answer.
+
+The three specs retain all 15 cases on Vitest. Typed reads check model
+family substitution before and after a tariff update, the tenth task's
+median admission, model filters and cross-tool pricing. The cache-write
+lifetime case still derives counters from stored responses, and the
+population case reads archived and operational launch state to distinguish
+Done-marked, recovered and running launches. The before and after
+selections both passed. Summed case time fell from 3,497 ms to 249 ms.
+Checkout evidence uses the `slice-3-` prefix.
 
 ### 4. Retained launch evidence determines measured and provisional detail
 
