@@ -19,8 +19,10 @@ import { publishedRecordAt } from "./publishedSessionReview.ts";
 import { sessionRecordDirectoryOf } from "./recordsBesideBacklog.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 import {
+  lastSyncedReviewRepository,
   reviewRepositoryPath,
   reviewRepositoryRead,
+  type ReviewRepositoryReader,
   ReviewSyncFailed,
   withSyncFailure,
 } from "./reviewRepository.ts";
@@ -140,14 +142,15 @@ export async function recordedLandingReview(
   identity: string,
   reference: string,
   signal: AbortSignal,
+  reader: ReviewRepositoryReader = reviewRepositoryRead,
 ): Promise<
   Extract<StoryReview, { kind: "landed" | "landing-unavailable" }> | undefined
 > {
   if (!isSessionId(reference)) return undefined;
   // Named reads can arrive before the Done view has fetched the close record.
-  let synced: Awaited<ReturnType<typeof reviewRepositoryRead>>;
+  let synced: Awaited<ReturnType<ReviewRepositoryReader>>;
   try {
-    synced = await reviewRepositoryRead(source, signal);
+    synced = await reader(source, signal);
   } catch (error) {
     if (!(error instanceof ReviewSyncFailed)) throw error;
     return {
@@ -201,3 +204,19 @@ export async function recordedLandingReview(
     ...withSyncFailure(syncFailure),
   };
 }
+
+// A recorded landing's pair from what the last sync left: file reads make no
+// remote request, since the open that showed the file has already synced.
+export const recordedLandingFileReview = (
+  source: PublishedSource,
+  identity: string,
+  reference: string,
+  signal: AbortSignal,
+) =>
+  recordedLandingReview(
+    source,
+    identity,
+    reference,
+    signal,
+    lastSyncedReviewRepository,
+  );

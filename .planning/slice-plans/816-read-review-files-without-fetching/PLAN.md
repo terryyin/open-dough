@@ -160,7 +160,7 @@ about 10.
 
 ### 1. Read landed-run and recorded-landing files without a remote request
 Type: Behavior
-Status: planned
+Status: done
 Proof: backend `dashboard/backend-tests/review/story-review-published-landing.spec.ts` with the recording wrapper; E2E `e2e/review/story-review-story-branch-landed.spec.ts` with the recording wrapper for the recorded landing; `e2e/sessions/recently-done-published-sessions.spec.ts` stays green.
 
 Behavior: a landed run or recorded landing was opened, then origin moves away
@@ -171,6 +171,18 @@ Change: `admitLandedRun` and the recorded-landing admission build the pair from
 the Review repository's last synced refs without calling `reviewRepositoryRead`.
 Opens keep their sync. Kept-session file reads gain the fix through
 `admitLandedRun`.
+
+Accepted proof: backend case "an opened landed run reads its files without a
+remote request after origin moves away" (fails with 2 Review repository
+fetches on the old reader). The recorded-landing journey moved out of the
+oversized `story-review-story-branch-landed.spec.ts` into
+`e2e/review/story-review-recorded-landing.spec.ts`, whose Review repository
+request count stays unchanged across file switches (4 → 8 on the old reader).
+The 13 review backend specs and 14 E2E consumer specs pass. Slices 2–3 reuse
+the seam: `ReviewRepositoryReader` and `lastSyncedReviewRepository` in
+`reviewRepository.ts`. Refactor follow-up for wrap-up: the two Story Branch
+landed-review E2E bodies keep the pre-split layout without Given/When/Then
+steps and parse network reads inline.
 
 ### 2. Read Done completion and published-session files from the last sync only
 Type: Behavior

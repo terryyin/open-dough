@@ -17,11 +17,11 @@ import {
   reviewedLandedRuns,
 } from "./storyReviewRunAdmission.ts";
 import {
-  landedStoryReview,
+  landedFileReview,
   type LandingReviewSource,
 } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
-import { recordedLandingReview } from "./storyReviewPublishedLanding.ts";
+import { recordedLandingFileReview } from "./storyReviewPublishedLanding.ts";
 
 export type HistoricalReviewedFileFields = ReviewedPairFile;
 
@@ -189,7 +189,7 @@ export async function admitLandedRun(
   signal: AbortSignal | undefined,
   source: PublishedSource,
 ): Promise<AdmittedReviewedFile> {
-  const review = await landedStoryReview(run, admissionBound(signal), source);
+  const review = await landedFileReview(run, admissionBound(signal), source);
   throwIfRequestAborted(signal);
   if (review.kind !== "landed")
     throw new RefusedRequest(
@@ -225,7 +225,7 @@ export async function admitHistoricalReviewedFile(
       file,
       signal,
     );
-  const recorded = await recordedLandingReview(
+  const recorded = await recordedLandingFileReview(
     source,
     named.identity,
     named.reference,

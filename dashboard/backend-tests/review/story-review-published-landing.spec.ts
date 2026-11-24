@@ -1,5 +1,5 @@
 import { renameSync } from "node:fs";
-import path from "node:path";
+import path, { delimiter } from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -11,6 +11,7 @@ import {
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReview.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { remoteRequestRecordingGit } from "../../test-support/support/remoteRequestRecordingGit.ts";
 import { reviewLaunch } from "../../test-support/support/reviewRunRecords.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
@@ -103,6 +104,30 @@ test("a legacy receipt reads the exact accepted origin pair with the execution c
   await expect(reviewedFileDiff({ read: file }, signal)).rejects.toMatchObject({
     status: 409,
   });
+});
+
+test("an opened landed run reads its files without a remote request after origin moves away", async () => {
+  const { repository, base, accepted, subject, review, moveOrigin } =
+    await retiredLandedRun();
+  const signal = new AbortController().signal;
+  await expect(storyReview(review, signal)).resolves.toMatchObject({
+    kind: "landed",
+  });
+  const recording = remoteRequestRecordingGit(repository.fixture);
+  vi.stubEnv("PATH", `${recording.bin}${delimiter}${process.env.PATH ?? ""}`);
+  moveOrigin();
+  const file = { subject, reference, baseline: base, tree: accepted };
+
+  const diff = await reviewedFileDiff(
+    { read: { ...file, path: literal } },
+    signal,
+  );
+  if (diff.kind !== "diff") throw new Error("The accepted file is unreadable.");
+  expect(diff.printed).toContain("+accepted file");
+  await expect(
+    reviewedFileDiff({ read: { ...file, path: "*.txt" } }, signal),
+  ).rejects.toMatchObject({ status: 409 });
+  expect(recording.requests()).toEqual([]);
 });
 
 test("a synced landed run reopens offline with the same pair and files and the sync notice", async () => {

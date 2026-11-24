@@ -21,7 +21,9 @@ import {
   gitProblem,
 } from "./gitRunner.ts";
 import {
+  lastSyncedReviewRepository,
   reviewRepositoryRead,
+  type ReviewRepositoryReader,
   ReviewSyncFailed,
   withSyncFailure,
 } from "./reviewRepository.ts";
@@ -35,6 +37,7 @@ export async function landedStoryReview(
   run: LandingReviewSource,
   signal: AbortSignal,
   source: PublishedSource,
+  reader: ReviewRepositoryReader = reviewRepositoryRead,
 ): Promise<StoryReview> {
   const { record } = run;
   const reference = landingReportingReference(record);
@@ -61,7 +64,7 @@ export async function landedStoryReview(
   let repository: string;
   let syncFailure: ReviewSyncFailure | undefined;
   try {
-    ({ repository, syncFailure } = await reviewRepositoryRead(source, signal));
+    ({ repository, syncFailure } = await reader(source, signal));
     const call = { cwd: repository, signal, maxBuffer: defaultGitOutputLimit };
     if (!(await checkAncestry(landing.revision, `origin/${source.ref}`, call)))
       return unavailable(
@@ -102,3 +105,11 @@ export async function landedStoryReview(
     ...withSyncFailure(syncFailure),
   };
 }
+
+// A landed run's pair from what the last sync left: file reads make no remote
+// request, since the open that showed the file has already synced.
+export const landedFileReview = (
+  run: LandingReviewSource,
+  signal: AbortSignal,
+  source: PublishedSource,
+) => landedStoryReview(run, signal, source, lastSyncedReviewRepository);

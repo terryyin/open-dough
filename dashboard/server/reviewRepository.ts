@@ -147,12 +147,18 @@ export async function reviewSyncFailure(
 export const withSyncFailure = (syncFailure: ReviewSyncFailure | undefined) =>
   syncFailure === undefined ? {} : { syncFailure };
 
-// Sync the target, or read what the last successful sync left with the
-// failure as a notice. Throws ReviewSyncFailed when the project never synced.
-export async function reviewRepositoryRead(
+// How a review reader reaches the Review repository it reads.
+export type ReviewRepositoryReader = (
   source: PublishedSource,
   signal: AbortSignal,
-): Promise<{ repository: string; syncFailure?: ReviewSyncFailure }> {
+) => Promise<{ repository: string; syncFailure?: ReviewSyncFailure }>;
+
+// Sync the target, or read what the last successful sync left with the
+// failure as a notice. Throws ReviewSyncFailed when the project never synced.
+export const reviewRepositoryRead: ReviewRepositoryReader = async (
+  source,
+  signal,
+) => {
   const syncFailure = await reviewSyncFailure(source, signal);
   if (syncFailure !== undefined && syncFailure.lastSyncedAt === undefined)
     throw new ReviewSyncFailed(syncFailure);
@@ -160,7 +166,12 @@ export async function reviewRepositoryRead(
     repository: reviewRepositoryPath(source),
     ...withSyncFailure(syncFailure),
   };
-}
+};
+
+// What the last sync left, without a remote request: file reads admit against
+// the comparison the open that showed them has already synced.
+export const lastSyncedReviewRepository: ReviewRepositoryReader = (source) =>
+  Promise.resolve({ repository: reviewRepositoryPath(source) });
 
 // The Review repository holding `revision`, syncing only when it lacks it.
 export async function reviewRepositoryHolding(
