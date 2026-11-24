@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Julia-chan",
+  "email": "julia-chan@example.org",
+  "identity": "SEED-413#renovate-landed-ci-scope-proof",
+  "mode": "story-branch",
+  "branch": "codex/prove-landed-ci-scoped-test-history-through-type",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
