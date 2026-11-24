@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "identity": "SEED-433#compose-existing-sessions-directly",
+  "mode": "story-branch",
+  "branch": "codex/compose-existing-sessions-directly-in-dashboard",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
