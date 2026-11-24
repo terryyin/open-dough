@@ -26,6 +26,15 @@ export const fixtureReviewRepository = (machine: string) =>
 const git = (cwd: string, env: NodeJS.ProcessEnv, ...args: string[]) =>
   execFileSync("git", args, { cwd, env, encoding: "utf8" }).trim();
 
+// The Review repository runs Git under the machine's HOME, whose config routes
+// the configured project's GitHub URL to the fixture origin.
+const reviewGit = (machine: string, ...args: string[]) =>
+  git(
+    fixtureReviewRepository(machine),
+    { ...process.env, HOME: path.join(machine, "home") },
+    ...args,
+  );
+
 // Published history reaches both the execution checkout and the Review
 // repository only one commit deep; later syncs keep that depth.
 export function shallowPublishedHistory(origin: FixtureOrigin): void {
@@ -38,23 +47,40 @@ export function shallowPublishedHistory(origin: FixtureOrigin): void {
     "origin",
     "main",
   );
-  const review = fixtureReviewRepository(origin.machine);
-  const env = { ...process.env, HOME: path.join(origin.machine, "home") };
-  mkdirSync(review, { recursive: true });
-  git(review, env, "init", "--quiet", "--bare");
-  git(
-    review,
-    env,
+  mkdirSync(fixtureReviewRepository(origin.machine), { recursive: true });
+  reviewGit(origin.machine, "init", "--quiet", "--bare");
+  reviewGit(
+    origin.machine,
     "config",
     "remote.origin.url",
     "https://github.com/terryyin/open-dough.git",
   );
-  git(
-    review,
-    env,
+  reviewGit(
+    origin.machine,
     "fetch",
     "--quiet",
     "--depth=1",
+    "origin",
+    "+refs/heads/main:refs/remotes/origin/main",
+  );
+}
+
+// Both stores regain the published history `shallowPublishedHistory` cut.
+export function completePublishedHistory(origin: FixtureOrigin): void {
+  git(
+    origin.project,
+    process.env,
+    "fetch",
+    "--quiet",
+    "--unshallow",
+    "origin",
+    "main",
+  );
+  reviewGit(
+    origin.machine,
+    "fetch",
+    "--quiet",
+    "--unshallow",
     "origin",
     "+refs/heads/main:refs/remotes/origin/main",
   );

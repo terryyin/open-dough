@@ -168,6 +168,19 @@ Learnings for later slices:
   case, in which the checkout stays in place while origin advances. A
   checkout-fetch mutation broke only that case. A renamed checkout cannot
   observe it.
+- CI repair (run 45377940516, attempt 1): six E2E journeys broke because
+  they cut history only in the checkout, or configured a project with no
+  routed origin. The configured project was the seeded Doughnut project,
+  which fetched from real GitHub until the 60s read bound. History-cutting
+  setups now use `shallowPublishedHistory` or `completePublishedHistory`.
+  `dashboardServer` start routes every other GitHub URL to a missing local
+  path through `routeUnroutedGitHubAway`. Later slices that move a reader
+  search E2E for journeys expecting an unavailable historical review and for
+  inline `--depth`/`--unshallow` cuts.
+- A first sync now fetches the full trunk history of the configured
+  repository. On GitHub, terryyin/open-dough is about 150 MB and
+  nerds-odd-e/doughnut about 175 MB. A first open on a slow link could reach
+  the 60s review bound. Slice 5's sync-failure notice must name that outcome.
 - Slice 4: `reviewRepositoryHolding` repeats `fetchUnlessCommitPresent`
   (`gitTargetFetch.ts`, used by `sessionBranchAttribution.ts`). Merge them
   when session ranges move. They differ in the recheck after fetch and in the
