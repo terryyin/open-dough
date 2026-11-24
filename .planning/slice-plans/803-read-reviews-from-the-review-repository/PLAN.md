@@ -4,42 +4,183 @@
 
 **Identity:** SEED-428#read-reviews-from-the-review-repository
 
-**Status:** Awaiting story refinement. This is a provisional map from [delivered plan 802](https://github.com/terryyin/open-dough/blob/d0489607774ee6a3dd2c69b3fd5e0409288e68ab/.planning/slice-plans/802-review-published-changes/PLAN.md#ordered-slices).
-Refine and validate it against the published-only readers delivered by SEED-427
-before making it executable.
+## Goal and scope
 
-## Mapped outcomes and proof
+A developer reviewing published work in Intent's **Review changes** gets the same
+published comparison from a dashboard-managed Review repository. The execution
+checkout can be missing, moved, or on another branch, and origin can be
+unreachable for a comparison synced earlier. File switching reads local Git only.
 
-1. **Open a completed story from the Review repository.** Carry the storage
-   boundary from plan 802 slice 1. Open a comparison and literal file diff on a
-   reader with no execution checkout. Share bounded first fetches and report
-   cold sync failures. Reuse the existing Git target fetch and process handling.
-2. **Move Taken branch and trunk reviews.** Carry the Git source changes from
-   plan 802 slices 2–3. Verify the same attributable comparison, including
-   interleaved trunk work, and preserve file selection when Refresh advances it.
-3. **Move accepted landings and recorded session ranges.** Carry the Git source
-   changes from plan 802 slices 5–6. Verify exact ranges and corresponding diff,
-   source, and Proof context after trunk advances or a worktree is retired.
-4. **Reuse a resolved comparison for local navigation.** Reopen previously synced
-   reviews with origin unavailable. Verify exact file diffs and zero remote
-   requests as the reader switches files. Keep the last readable comparison and
-   show sync status on refresh failure. Remove superseded review access paths
-   and their support after all readers move. Retire the temporary
-   [North Star topic](../../NORTH-STAR.md#read-published-comparisons-from-the-review-repository)
-   at wrap-up.
+Included: Done story completions, Taken story branch and trunk comparisons,
+accepted landing pairs, and recorded published session ranges, with their file
+lists, diffs, file text, and source, Proof, notes, and follow-up context. Concurrent
+opens share one fetch. File admission uses fixed endpoints. A sync notice appears
+when a sync fails. Replaced checkout review access is retired.
 
-Plan 802 delivered the published comparisons and removed local-only review and
-capture. This plan changes the Git source for the surviving readers.
+Excluded (seed scope limits): CI comparisons, Board and Side panel reads, Intent
+location trees, the repository inventory shown when **Changes only** is off, and a
+shared refresh coordinator all stay with
+[SEED-430](../../seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git).
+Review repository clean-up on project removal is also excluded, as is any expiry of
+a synced comparison.
 
-## Preparation evidence to carry forward
+Assumption: only fetches from the configured project's authorized origin write
+to the Review repository.
 
-The [original plan 802 preparation](https://github.com/terryyin/open-dough/blob/78dea441a/.planning/slice-plans/802-review-published-changes/PLAN.md#decisive-premises-and-preparation-observations)
-verified that authenticated Git could fetch this project's trunk into a fresh
-bare repository and read a diff there. Reuse that observation for the transport
-boundary. Establish fixture-based proof for the dashboard path, concurrent
-readers, and offline cases after SEED-427 lands.
+## Direction
 
-Follow the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+- [North Star: Read published comparisons from the Review repository](../../NORTH-STAR.md#read-published-comparisons-from-the-review-repository).
+  Slices 2–5 implement it as written. Wrap-up removes the topic.
+- [North Star: Share one refresh for published Dashboard Git reads](../../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads)
+  names this story's repository and fetch as its base. Slice 2's module owns the
+  fetch and the sync record that SEED-430 grows into the coordinator. No
+  coordinator, observer, or cross-reader status is built here.
+- [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
+  defines the Review repository. Its durable-state section says a published
+  reader must not need a developer's clone, and that fetching or caching remote
+  Git data is compatible. No conflict.
+- PFE: reuse `GitTargetFetches` in `dashboard/server/gitTargetFetch.ts` for
+  shared fetches, keyed by the Review repository. Reuse the existing comparison
+  builders (`storyCompletionEndpoints`, `publishedStoryComparison`,
+  `retainedCommitPairFiles`, `publishedSessionReview`). They change only the
+  repository they read. Change existing helpers instead of copying them. Helpers
+  shared with CI (`publishedStoryEndpoints`, `takenStoryClaim`,
+  `publishedTakenBranchTip`) take the repository as a parameter, and CI passes
+  its execution checkout until SEED-430.
+
+## Current decisions
+
+- One bare Review repository per configured project, under the machine dashboard
+  home through `machineDashboardPath`. One module owns its creation, origin URL
+  `https://github.com/<repository>.git`, fetch, and sync record. The sync record
+  holds the last successful sync time and the last failure. Readers receive its
+  path as a typed input. They never call `executionCheckout(source)` or check a
+  Git root.
+- Fetch transport: `GIT_TERMINAL_PROMPT=0` with the credential helper set to
+  `!gh auth git-credential`, as observed in the premise table. The repository
+  has no object alternates.
+- Fetch into `refs/remotes/origin/*`. Fetch Taken story branches by their exact
+  ref. Live endpoints resolve from those refs after the attempted sync. File
+  reads never fetch: they validate the named endpoints against the last synced
+  refs and the comparison's file list.
+- Fixtures substitute origin through `url.<local origin>.insteadOf` in the
+  fixture HOME's `.gitconfig` (slice 1).
+- Trunk Mode or Story Branch Mode is the developer's choice at Take. No slice
+  acts from trunk.
+
+## Decisive premises and preparation observations
+
+Observed on 2026-11-24 at `39b11aeaa17f54de649b9dbc4e1d5e7caad2ca5f` in the owned
+preparation workspace. Node 24.21.0, Git 2.50.1 (Apple Git-155), load average
+about 22.
+
+| Consuming operation | Observation and result | Remainder |
+| --- | --- | --- |
+| A bare repository fetches the configured `https://github.com/<repository>.git` from a fixture origin through the fixture HOME | In job scratch: fixture `origin.git` with one commit; `home/.gitconfig` held `url.<origin>.insteadOf=https://github.com/terryyin/open-dough.git`; `HOME=<home> GIT_CONFIG_NOSYSTEM=1 GIT_TERMINAL_PROMPT=0 git -C review.git -c credential.helper= -c 'credential.helper=!gh auth git-credential' fetch --quiet --no-tags https://github.com/terryyin/open-dough.git '+refs/heads/main:refs/remotes/origin/main'` fetched the origin commit `075e9187…`, and no credential prompt appeared. The dashboard calls the same `git` binary through `execFile`. `runGit` inherits `process.env`, and the backend specs stub `HOME` with `vi.stubEnv`, so config resolution is identical. The E2E fixtures already own a per-test HOME (`startOrigin`, `publishedMainFixture`). | None |
+| The real GitHub origin fetches into a fresh bare repository through `gh auth git-credential` | Retained: [plan 802 preparation, 2026-11-24 at 785e2da6](https://github.com/terryyin/open-dough/blob/78dea441a/.planning/slice-plans/802-review-published-changes/PLAN.md#decisive-premises-and-preparation-observations) fetched `main` of this project into a fresh bare repository with that helper and read a diff there. The transport is unchanged since. | None |
+| Existing review readers resolve in the execution checkout, fetch into it, and turn a failed fetch into an unavailable review | Read at this revision: `storyPublishedEndpoints.ts:27-76`, `storyReviewPublishedTaken.ts:37-47`, `storyReviewPublishedLanding.ts:30-35`, `publishedSessionReview.ts:44-118`, and `storyReviewHistoricalFileAdmission.ts:140-209`. Each Taken file admission calls `publishedTakenReview`, which runs `takenStoryClaim` → `fetchGitTarget` and `publishedTakenBranchTip` → `ls-remote` and fetch (`storyReviewAdmission.ts:51`). | Each slice's proof makes origin unreachable or renames the checkout. A test against today's readers would fail, so the new proofs discriminate by construction. |
+| The proof routes run in this workspace | `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend -- dashboard/backend-tests/review/story-review-published-taken.spec.ts dashboard/backend-tests/review/story-review-published-landing.spec.ts dashboard/backend-tests/review/published-session-review.spec.ts dashboard/backend-tests/review/story-review-completed-file-admission.spec.ts dashboard/backend-tests/review/git-target-fetch.spec.ts` exited 0 with 12 Vitest cases passing. `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/review/story-review-completed.spec.ts e2e/sessions/recently-done-published-sessions.spec.ts e2e/review/story-review-trunk-own-changes.spec.ts --workers=2` exited 0. | None |
+
+## Outside-in proof map
+
+| Promise (seed example) | Owning slice | Observation |
+| --- | --- | --- |
+| Checkout gone: same Done endpoints, paths, diff, and Proof context; checkout refs untouched | 2 | E2E `story-review-completed.spec.ts` case with the execution checkout renamed before opening; backend completion and file-admission case asserting the checkout's `origin/main` did not advance |
+| Concurrent opens share one fetch | 2 | Backend: two concurrent review opens for one project with a counting `git` wrapper on `PATH` record one `fetch` into the Review repository |
+| Taken branch and trunk comparisons, with and without **Include merged changes** | 3 | Backend `story-review-published-taken.spec.ts` cases rerun with the checkout absent; E2E `story-review-trunk-own-changes.spec.ts` |
+| File reads make no remote request; a path or head outside the comparison is refused without a fetch | 3 | Backend: after one open, origin is moved away. Three admitted file diffs read correctly. A path outside the list and a head beyond the last synced branch are refused, and the wrapper counts no `fetch` or `ls-remote`. |
+| Accepted landing pairs and recorded session ranges after trunk advances and the worktree is retired | 4 | Backend `story-review-published-landing.spec.ts` and `published-session-review.spec.ts` with the checkout absent; E2E `recently-done-published-sessions.spec.ts` and `story-review-story-branch-landed.spec.ts` |
+| Offline reopen with sync notice; cold offline unavailable; Refresh keeps comparison and selection on failure and advances after recovery | 5 | New E2E `e2e/review/story-review-offline.spec.ts` through `reviewChangesPage.ts`; backend sync-record cases |
+| Replaced checkout review access retired | 2–4 | Each slice's consumer trace finds no review caller of `executionCheckout` or the Git-root explanation. CI callers stay. |
+
+## Ordered slices
+
+### 1. Route fixture origins through the fixture HOME's Git config
+Type: Structure
+Status: planned
+Proof: The review backend specs and E2E journeys named in the premise table stay green.
+
+Change: `startOrigin`, `publishedMainFixture`, and the backend review reader
+setups write `url.<fixture origin>.insteadOf=https://github.com/<repository>.git`
+to their fixture HOME. One test-support step does this for each fixture, not one
+inline per spec. Clones stop carrying their own `insteadOf`. Enables slice 2,
+whose Review repository fetches the configured repository URL.
+
+### 2. Open a Done story's review from the Review repository
+Type: Behavior
+Status: planned
+Proof: E2E `e2e/review/story-review-completed.spec.ts` with the checkout renamed; backend completion and file-admission cases; concurrent-open fetch count; `dashboard/backend-tests/intent/ci-comparison-taken.spec.ts` and the story CI comparison specs stay green.
+
+Behavior: a Done story's completion is published and the configured execution
+checkout is renamed → the developer opens **Review changes** → the same
+completion endpoints, changed paths, literal diff, and Proof context appear.
+The checkout's refs are unchanged. Two concurrent opens share one fetch.
+
+Adds the Review repository module and moves Done completion resolution and its
+historical file admission onto it. `publishedStoryEndpoints` takes its
+repository, and CI keeps passing the checkout. Removes the review-only Git-root
+check from this path.
+
+### 3. Move Taken story comparisons and fix file reads to their endpoints
+Type: Behavior
+Status: planned
+Proof: backend `dashboard/backend-tests/review/story-review-published-taken.spec.ts` with the checkout absent, plus the origin-moved file-read case; E2E `e2e/review/story-review-trunk-own-changes.spec.ts`; `dashboard/backend-tests/intent/ci-comparison-taken.spec.ts` stays green.
+
+Behavior: a Story Branch Mode or Trunk Mode story is Taken with published work,
+including merged trunk → the developer opens it with **Include merged changes**
+off and on → the same attributed comparisons appear. File reads admit only
+paths in the comparison at the named head within the last synced published
+branch or trunk. They make no remote request, so they keep working after origin
+becomes unreachable.
+
+### 4. Move accepted landing pairs and recorded session ranges
+Type: Behavior
+Status: planned
+Proof: backend `dashboard/backend-tests/review/story-review-published-landing.spec.ts` and `dashboard/backend-tests/review/published-session-review.spec.ts` with the checkout absent; E2E `e2e/sessions/recently-done-published-sessions.spec.ts` and `e2e/review/story-review-story-branch-landed.spec.ts`.
+
+Behavior: trunk has advanced and the worktree is retired → the developer opens a
+landed run or a Recently done published session → its exact recorded pair,
+notes, and file diffs appear from the Review repository. After this slice no
+review reader calls `executionCheckout`. Remove the remaining review Git-root
+explanations and any support code left without a caller.
+
+### 5. Keep a synced review readable when origin is unreachable
+Type: Behavior
+Status: planned
+Proof: new E2E `e2e/review/story-review-offline.spec.ts` through `dashboard/test-support/reviewChangesPage.ts`, which alone knows where the notice and Refresh live; backend sync-record cases.
+
+Behavior:
+- A Taken story was opened earlier and origin is moved away → reopen → the last
+  synced comparison appears with a notice naming the problem and the last sync
+  time. Switching files shows exact diffs.
+- A story never synced is opened offline → the review is unavailable and names
+  the failed sync.
+- With `src/a.ts` selected, a failed Refresh keeps the comparison and the
+  selection, and shows the notice.
+- After origin returns and the agent publishes again, Refresh advances the
+  comparison and keeps `src/a.ts` selected.
+
+The notice wording stays consistent with the existing "Refreshing the review…"
+and "Review refreshed" lines in `StoryReviewFeedback.tsx`.
+
+## Concern evidence
+
+Slice-plan refinement was not needed. The slices follow one model: each moves
+one reader family to the same repository input, and the slice 1 Structure
+precedes the first Behavior it enables. Five slices are within the limit. Slice 2
+carries the new module plus the first reader, which is the largest of the five.
+It may need a split at the module/reader boundary if it overruns, and the
+execution overrun rule covers that. This review found no other slice-specific
+concern.
+
+## Local gate
+
+Run focused proof through
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend -- <spec paths>`
+and `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- <spec paths>`
+with the default strict reporter. Before landing, run the dashboard backend,
+dashboard frontend, and E2E suites that read the moved review paths. Follow the
+[shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 For long local checks on macOS, start awake on AC power under `caffeinate -s -i`.
 Follow the [machine sleep guidance](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 for battery runs.
