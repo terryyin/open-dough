@@ -3,9 +3,9 @@
 // developer's part (typed text and any attached-images path list). A launch
 // that established none sends the developer's part first and its reporting
 // context after, as it always did, and nothing at all when that part is blank.
-// A follow-up's context (`../src/followUpContext.ts`), resolved at admission
-// and kept on the request, is its own block just before the developer's part:
-// `[context, own, reporting]`, or `[block, reporting, context, own]`.
+// A new story follow-up's saved message includes its developer instruction.
+// Older story follow-ups and standalone session follow-ups save only context,
+// so they keep their separate instruction block.
 
 import type { RecordedLaunchRequest } from "../src/agentLaunch.ts";
 import { developerPart } from "../src/launchAttachments.ts";
@@ -15,9 +15,12 @@ export function unattachedInput(
   request: RecordedLaunchRequest,
   block: string | undefined,
 ): string | undefined {
-  const own = developerPart(request);
-  const context =
+  const saved =
     request.workflow === "ad-hoc" ? request.followUp?.context : undefined;
+  const context = typeof saved === "string" ? saved : saved?.message;
+  const own = developerPart(
+    typeof saved === "object" ? { attachments: request.attachments } : request,
+  );
   if (block === undefined && own === undefined && context === undefined)
     return undefined;
   const reporting = reportingInstruction(request);

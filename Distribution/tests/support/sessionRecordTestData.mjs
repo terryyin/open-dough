@@ -15,6 +15,7 @@ import {
  *   sessionId: string,
  *   workflow: string,
  *   closedAt: string,
+ *   story?: string,
  *   ranges: { base: string, candidate: string, uncertainty?: string }[],
  * }} SessionRecord
  */
@@ -29,6 +30,14 @@ export class SessionRecordBuilder {
   #ranges = [{ base: "a".repeat(40), candidate: "b".repeat(40) }];
   /** @type {string | undefined} */
   #closedAt;
+  /** @type {string | undefined} */
+  #story;
+
+  /** @param {string} identity */
+  forStory(identity) {
+    this.#story = identity;
+    return this;
+  }
 
   /** @param {string} closedAt the ISO time the session closed; now unless set */
   closedAt(closedAt) {
@@ -67,6 +76,7 @@ export class SessionRecordBuilder {
       sessionId: globalThis.crypto.randomUUID(),
       workflow: "ad-hoc",
       closedAt: this.#closedAt ?? new Date().toISOString(),
+      ...(this.#story === undefined ? {} : { story: this.#story }),
       ranges: this.#ranges,
     };
   }

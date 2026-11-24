@@ -1,15 +1,3 @@
-// Follow up on a done story in Recently done whose sessions can no longer be
-// reopened: its card's Story actions offer Follow up, which opens the
-// project's Start session dialog naming the story by identity and title and
-// listing, one line each, its completion facts and each Done session's
-// context, or that no session context is retained. Start sends that context,
-// read by the server from the story's published done record at the revision
-// shown, with the request to the synthetic `claude` (./fixtures/fake-claude);
-// the new session reads in Taken labelled by its request, and the card and
-// its records stay as they were. A card holding a session that still opens
-// its terminal offers no Follow up. The first input's order, identity and
-// refusals: ../../dashboard/backend-tests/launches/agent-launch-follow-up-story.spec.ts.
-
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
@@ -45,6 +33,7 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { readFinalReportControl } from "../../dashboard/test-support/finalReportPages.ts";
 import { attachStoryNotes } from "../../dashboard/test-support/support/attachStoryNotesPage.ts";
+import { followUpComposer } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
 import { storyNotesPage } from "../../dashboard/test-support/support/storyNotesPage.ts";
 import { seedStoryNotes } from "../../dashboard/test-support/support/storyNotesStore.ts";
 import { storyNoteSentToFollowUp } from "../../dashboard/src/storyNote.ts";
@@ -60,14 +49,25 @@ const followUp = (card: Locator, story: typeof recoverStory) =>
 const contextList = (dialog: Locator) =>
   dialog.getByRole("list", { name: "Follow-up context" }).getByRole("listitem");
 
-test("a done story whose sessions cannot be reopened, or that holds none, offers Follow up; Start sends its published facts and sessions with the request and leaves the card as it was", async ({
+test("a done story's Follow up sends only the retained session selected through the composer", async ({
   page,
   dashboard,
 }) => {
   const now = Date.now();
   const completedAt = new Date(now - 60 * 60_000).toISOString();
   const doneAt = new Date(now - 30 * 60_000);
-  const quiet = quietStorySessions(dashboard.home, recoverStory, doneAt);
+  const refinement = {
+    instruction: "Compare the paste toolbar to mobile.",
+    report: "Only the iPad path loses a line.",
+  };
+  const execution = {
+    instruction: "Retain the terminal focus after paste.",
+    report: "Implemented keyboard recovery.",
+  };
+  const quiet = quietStorySessions(dashboard.home, recoverStory, doneAt, {
+    refinement,
+    execution,
+  });
   const reopenable = makeMe.aLaunchRecord
     .refining(reopenableStory)
     .inClaudeSession({
@@ -92,6 +92,7 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
   await page.goto("/");
   const card = cardOf(page, recoverStory.title);
   const dialog = startSessionDialog(page, "Open Dough");
+  const composer = followUpComposer(dialog);
 
   await test.step("a card holding a session that opens its terminal offers no Follow up", async () => {
     const held = cardOf(page, reopenableStory.title);
@@ -126,7 +127,7 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
       `Follows up ${storyNameOf(recoverStory)}`,
     );
     await expect(contextList(dialog)).toHaveText(
-      storyItems(recoverStory, completedAt, "quiet sessions"),
+      storyItems(recoverStory, completedAt, "unselected"),
     );
     await expect(startSessionField(dialog)).toHaveValue("");
     for (const [group, name] of [
@@ -137,9 +138,30 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
   });
 
   const text = "Paste drops the last line on iPad";
-  await test.step("Start sends the context with the request; the session reads in Taken by its request and names the source story", async () => {
-    await startSessionField(dialog).fill(text);
-    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  const refined = composer.session(/-refined$/);
+  const executed = composer.session(/-executed$/);
+  await test.step("Then both session choices start clear and closed", async () => {
+    await composer.expectSessionChoices(2);
+    await refined.expectChoiceState({ checked: false, detailsOpen: false });
+    await executed.expectChoiceState({ checked: false, detailsOpen: false });
+  });
+  await test.step("When I open the refinement details by keyboard", async () => {
+    await refined.toggleDetailsByKeyboard();
+  });
+  await test.step("Then the details appear and the choice stays clear", async () => {
+    await refined.expectDetails(refinement.instruction, refinement.report);
+    await refined.expectSelection(false);
+  });
+  await test.step("When I select and close the details by keyboard", async () => {
+    await refined.toggleSelectionByKeyboard();
+    await refined.toggleDetailsByKeyboard();
+  });
+  await test.step("Then only the refinement stays selected", async () => {
+    await refined.expectChoiceState({ checked: true, detailsOpen: false });
+    await executed.expectSelection(false);
+  });
+  await test.step("Start sends the selection and the new session names the source story", async () => {
+    await composer.start(text);
     const taken = parts(page).taken.getByRole("article", {
       name: standaloneSessionName("Ad hoc", text),
     });
@@ -150,11 +172,14 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
     await expect(dialog).toBeHidden();
     const [started, ...others] = dashboard.claudeLaunches();
     expect(others).toEqual([]);
-    expect(started?.instruction).toBe(
-      [storyContextOf(recoverStory, completedAt, "quiet sessions"), text].join(
-        "\n\n",
-      ),
+    expect(started?.instruction).toContain(
+      storyContextOf(recoverStory, completedAt, "unselected", text),
     );
+    expect(started?.instruction?.match(/^<session>$/gm)).toEqual(["<session>"]);
+    expect(started?.instruction).toContain(refinement.instruction);
+    expect(started?.instruction).toContain(refinement.report);
+    expect(started?.instruction).not.toContain(execution.instruction);
+    expect(started?.instruction).not.toContain(execution.report);
   });
 
   await test.step("the card stays in Recently done as it was, and its sessions as kept", async () => {
@@ -195,7 +220,8 @@ test("starting a follow-up with attached notes marks them sent on the card and i
 
   await notes.expectWaiting(card, 1);
   await followUp(card, recoverStory).click();
-  await attach.expectChecked(1, 1);
+  await attach.expectChoice(false, 1, 1);
+  await attach.select();
   const text = "Follow up with the waiting note";
   await startSessionField(dialog).fill(text);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();

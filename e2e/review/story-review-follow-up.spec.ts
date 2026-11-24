@@ -90,9 +90,7 @@ test.describe("published file Follow up", () => {
     });
 
     await test.step("the file follow-up offers the waiting note and lets me leave it out", async () => {
-      const attach = attachStoryNotes(dialog);
-      await attach.expectChecked(1, 1);
-      await attach.uncheck();
+      await attachStoryNotes(dialog).expectChoice(false, 1, 1);
     });
 
     await test.step("Start sends the file context and the typed instruction", async () => {
@@ -111,6 +109,8 @@ test.describe("published file Follow up", () => {
       expect(firstInput).toContain("- Path: shared.txt");
       expect(firstInput).toContain(comparison);
       expect(firstInput).toContain(instruction);
+      expect(firstInput).not.toContain("<line-notes>");
+      expect(firstInput).not.toContain(waiting.text);
     });
   });
 });

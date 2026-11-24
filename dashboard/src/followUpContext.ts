@@ -1,20 +1,8 @@
-// The one rule for what a follow-up supplies (`./followUpRequest.ts`): the
-// context the dashboard still holds of the entry it follows up, as the
-// dialog lists it (`./FollowUpSubject.tsx`) and as the server sends it as its
-// own first input block (`../server/unattachedInput.ts`), so the two cannot
-// disagree. For a done story, first, under its identity and title: when it was
-// completed, by which developer with which agent, and that it is done, so its
-// seed and plan may be gone while its history keeps the identity; or that no
-// session context is retained when its card holds no session. A file-anchored
-// follow-up then lists the path, rename's old path, comparison endpoints, and
-// optional line and side after those story items. For each retained session:
-// its workflow and story identity when it had one, its original request, its
-// final report when one was submitted, and the revision its work landed at
-// when that was recorded. It states only what the records hold: a Done mark
-// is not evidence that work landed, so it is never mentioned.
+// Follow-up facts shared by the composer and the first-input renderer.
 
 import { completionLabel } from "./completionReport.ts";
 import type { DoneStory } from "./doneRecord.ts";
+import type { FollowUpTarget } from "./followUpRequest.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
 import { launchSubject } from "./launchWorkflow.ts";
 
@@ -38,8 +26,13 @@ export type FollowUpSection = {
 // (`./followUpStoryNotes.ts`).
 export type FollowUpContext = {
   readonly story?: FollowUpSection | undefined;
+  readonly target?: FollowUpTarget | undefined;
   readonly sessions: readonly FollowUpSection[];
   readonly notes?: FollowUpSection | undefined;
+};
+
+export type StoryFollowUpContext = FollowUpContext & {
+  readonly story: FollowUpSection;
 };
 
 // What the context reads of a done story's published record.
@@ -68,36 +61,30 @@ const completionTime = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
-// What a file-anchored follow-up adds after the story's own items: the path,
-// rename's old path, the comparison that file's diff shows, and an optional
-// line and side. Baseline is that file's own from, including when the file
-// includes trunk's changes.
-export type FollowUpFileFacts = {
-  readonly path: string;
-  readonly oldPath?: string;
-  readonly kind: "published" | "landed";
-  readonly baseline: string;
-  readonly tree: string;
-  readonly line?: number;
-  readonly side?: "old" | "new";
-};
-
-export const fileComparisonName = (kind: FollowUpFileFacts["kind"]) =>
+export const fileComparisonName = (kind: "published" | "landed") =>
   kind === "published" ? "Published completion" : "Landed run";
 
-export function fileContextItems(
-  file: FollowUpFileFacts,
+export function followUpTargetItems(
+  target: FollowUpTarget,
 ): readonly FollowUpItem[] {
+  const file = "path" in target ? target : undefined;
+  const published = file?.published;
+  const comparison =
+    published === undefined
+      ? fileComparisonName(
+          target.completion === undefined ? "landed" : "published",
+        )
+      : `Published session ${published}`;
   return [
-    { label: "Path", value: file.path },
-    ...(file.oldPath === undefined
+    ...(file === undefined ? [] : [{ label: "Path", value: file.path }]),
+    ...(file?.oldPath === undefined
       ? []
       : [{ label: "Old path", value: file.oldPath }]),
     {
       label: "Comparison",
-      value: `${fileComparisonName(file.kind)} ${file.baseline} → ${file.tree}`,
+      value: `${comparison} ${target.baseline} → ${target.tree}`,
     },
-    ...(file.line === undefined || file.side === undefined
+    ...(file?.line === undefined || file.side === undefined
       ? []
       : [
           { label: "Line", value: String(file.line) },
@@ -106,13 +93,13 @@ export function fileContextItems(
   ];
 }
 
-// The context a done story supplies, holding `sessions`, with optional file
-// anchor items after the story's own.
+// The context a done story supplies, with its reviewed comparison or file when present.
 export function storyContext(
   story: FollowUpStoryFacts,
-  sessions: readonly FollowUpSessionFacts[],
-  file?: FollowUpFileFacts,
-): FollowUpContext {
+  sessions: readonly FollowUpSection[],
+  target?: FollowUpTarget,
+  hasRetainedSessions = sessions.length > 0,
+): StoryFollowUpContext {
   const completed = [
     `${completionTime.format(new Date(story.completedAt))} UTC`,
     ...(story.developer === undefined ? [] : [`by ${story.developer}`]),
@@ -127,13 +114,13 @@ export function storyContext(
           label: "Status",
           value: `Done. Its seed and plan may have been removed; its records remain in the project's history under ${story.identity}.`,
         },
-        ...(sessions.length === 0
-          ? [{ label: "Sessions", value: noSessionRetained }]
-          : []),
-        ...(file === undefined ? [] : fileContextItems(file)),
+        ...(hasRetainedSessions
+          ? []
+          : [{ label: "Sessions", value: noSessionRetained }]),
       ],
     },
-    sessions: sessions.map(sessionContext),
+    target,
+    sessions,
   };
 }
 
@@ -174,39 +161,29 @@ export function sessionContext(record: FollowUpSessionFacts): FollowUpSection {
 const preamble =
   "Follow-up context: this session follows up earlier work in this project whose conversation can no longer be continued. These are the records the dashboard still holds of it; they state nothing beyond what was recorded.";
 
-function itemText({ label, value }: FollowUpItem): string {
+export function itemText({ label, value }: FollowUpItem): string {
   return value.includes("\n")
     ? `- ${label}:\n${value}`
     : `- ${label}: ${value}`;
-}
-
-// Attached notes section as one first-input block (no "Done story"/"Session" kind).
-export function followUpNotesSectionText(notes: FollowUpSection): string {
-  return [`${notes.label}:`, ...notes.items.map(itemText)].join("\n");
 }
 
 // Every item of the context, one line each: the story's, then each
 // session's, then attached notes.
 export function followUpItems({
   story,
+  target,
   sessions,
   notes,
 }: FollowUpContext): readonly FollowUpItem[] {
-  return [story, ...sessions, notes].flatMap((section) => section?.items ?? []);
+  return [
+    ...(story?.items ?? []),
+    ...(target === undefined ? [] : followUpTargetItems(target)),
+    ...sessions.flatMap((section) => section.items),
+    ...(notes?.items ?? []),
+  ];
 }
 
-// The context as the session receives it, its own first input block.
-export function followUpContextText({
-  story,
-  sessions,
-  notes,
-}: FollowUpContext): string {
-  const section = (kind: string) => (each: FollowUpSection) =>
-    [`${kind} “${each.label}”:`, ...each.items.map(itemText)].join("\n");
-  return [
-    preamble,
-    ...(story === undefined ? [] : [section("Done story")(story)]),
-    ...sessions.map(section("Session")),
-    ...(notes === undefined ? [] : [followUpNotesSectionText(notes)]),
-  ].join("\n");
+// A standalone session keeps its existing first-input context block.
+export function followUpContextText({ label, items }: FollowUpSection): string {
+  return [preamble, `Session “${label}”:`, ...items.map(itemText)].join("\n");
 }

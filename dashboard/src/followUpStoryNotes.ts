@@ -26,7 +26,7 @@ function noteContextValue(context: StoryNoteContext): string {
   );
 }
 
-function noteItems(note: StoryNote): readonly FollowUpItem[] {
+export function storyNoteItems(note: StoryNote): readonly FollowUpItem[] {
   return [
     { label: "Note", value: note.text },
     ...(note.context === undefined
@@ -42,6 +42,6 @@ export function storyNotesContext(
   if (notes.length === 0) return undefined;
   return {
     label: developerStoryNotesLabel,
-    items: notes.flatMap(noteItems),
+    items: notes.flatMap(storyNoteItems),
   };
 }

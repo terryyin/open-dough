@@ -6,6 +6,7 @@
 // only" filter, and the selected file's diff in the reading pane.
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
+import "../page-objects/cssLocator.ts";
 import {
   intentReadingPane as readingPane,
   scrollReadingHalfway,
@@ -45,13 +46,8 @@ export function intentStoryCompare() {
   const compare = header.getByRole("group", { name: "Compare" });
   const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
   const landingChoices = compare.getByRole("radio", { name: / — / });
-  const runChoice = (key: string) => {
-    const choice = landingChoices
-      .elements()
-      .find((element) => element.getAttribute("value") === key);
-    if (choice === undefined) throw new Error(`No landing choice ${key}`);
-    return page.elementLocator(choice);
-  };
+  const runChoice = (key: string) =>
+    landingChoices.and(page.getByCSS(`[value="${CSS.escape(key)}"]`));
   type View = "Changes" | "CI comparison" | "Intent coverage";
   const storyViews = intent.getByRole("tablist", {
     name: "Selected story views",

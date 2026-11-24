@@ -1,12 +1,17 @@
-// Admit a done story's optional file anchor for follow-up: the historical
-// comparison review file reads already check, then that a named line exists
+// Admit a story follow-up file using the historical or published-session
+// comparison file read, then check that a named line exists
 // on its side in that comparison's file text.
 import { textLines } from "../src/diffContextExpansion.ts";
 import type { FollowUpFile } from "../src/followUpRequest.ts";
-import type { FollowUpFileFacts } from "../src/followUpContext.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { admitHistoricalReviewedFile } from "./storyReviewHistoricalFileAdmission.ts";
+import { executionCheckout } from "./executionCheckout.ts";
+import { admitPublishedSessionFile } from "./publishedSessionReview.ts";
+import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
+import {
+  admissionBound,
+  admitHistoricalReviewedFile,
+} from "./storyReviewHistoricalFileAdmission.ts";
 import { textAtTree } from "./storyReviewFileText.ts";
 
 const lineMissing = () =>
@@ -38,46 +43,50 @@ async function admitLineOnSide(
   if (file.line > textLines(side.text).length) throw lineMissing();
 }
 
-// Validate the file against the Done story's comparison and optional line.
+// Validate the file against the pinned comparison and optional line.
 export async function admitFollowUpFile(
   source: PublishedSource,
   identity: string,
   file: FollowUpFile,
-): Promise<FollowUpFileFacts> {
+): Promise<void> {
+  const { completion, reference, published, baseline, tree, path, oldPath } =
+    file;
   const fields = {
+    baseline,
+    tree,
+    path,
+    ...(oldPath === undefined ? {} : { oldPath }),
+  };
+  if (published !== undefined) {
+    const project = await fetchedPublishedSessionSource(
+      executionCheckout(source).path,
+      source,
+      published,
+      { admission: admissionBound, fetch: admissionBound },
+    );
+    const admitted = await admitPublishedSessionFile(
+      project,
+      published,
+      fields,
+      new Date(),
+      admissionBound(),
+      identity,
+    );
+    return admitLineOnSide(admitted.repository, file);
+  }
+  const comparison =
+    completion !== undefined
+      ? { completion }
+      : reference !== undefined
+        ? { reference }
+        : undefined;
+  if (comparison === undefined)
+    throw new RefusedRequest(400, "The follow-up file anchor is malformed.");
+  const admitted = await admitHistoricalReviewedFile({
+    ...fields,
+    ...comparison,
     source,
     identity,
-    baseline: file.baseline,
-    tree: file.tree,
-    path: file.path,
-    ...(file.oldPath === undefined ? {} : { oldPath: file.oldPath }),
-  };
-  const admitted =
-    file.completion !== undefined
-      ? await admitHistoricalReviewedFile({
-          ...fields,
-          completion: file.completion,
-        })
-      : file.reference !== undefined
-        ? await admitHistoricalReviewedFile({
-            ...fields,
-            reference: file.reference,
-          })
-        : (() => {
-            throw new RefusedRequest(
-              400,
-              "The follow-up file anchor is malformed.",
-            );
-          })();
-  await admitLineOnSide(admitted.repository, file);
-  return {
-    path: file.path,
-    ...(file.oldPath === undefined ? {} : { oldPath: file.oldPath }),
-    kind: file.completion !== undefined ? "published" : "landed",
-    baseline: file.baseline,
-    tree: file.tree,
-    ...(file.line === undefined || file.side === undefined
-      ? {}
-      : { line: file.line, side: file.side }),
-  };
+  });
+  return admitLineOnSide(admitted.repository, file);
 }

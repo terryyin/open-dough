@@ -18,6 +18,7 @@ import { expect, type Locator } from "@playwright/test";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
+import { fileFollowUpDialog, followUpComposer } from "./fileFollowUpPage.ts";
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -175,6 +176,17 @@ export function intentStory(intent: Locator) {
     panel: (name: Parameters<typeof storyTabPanel>[1]) =>
       storyTabPanel(intent, name),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
+    async followUpComparison(storyName: string) {
+      await storySummary(intent)
+        .getByRole("button", {
+          name: `Follow up on comparison ${storyName}`,
+          exact: true,
+        })
+        .click();
+      const dialog = fileFollowUpDialog(intent.page());
+      await expect(dialog).toBeVisible();
+      return followUpComposer(dialog);
+    },
     diff: (name: string) => intentDiff(intent, name),
     outsideDiff: (name: string) =>
       selectedDiff(intent, outsideFile(intent, name), name),

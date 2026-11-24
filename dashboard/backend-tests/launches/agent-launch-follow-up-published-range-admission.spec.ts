@@ -1,0 +1,112 @@
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { accept } from "../../test-support/agentLaunchBoundary.ts";
+import {
+  doneStoryFiles,
+  otherStory,
+  recoverStory,
+} from "../../test-support/support/followUpStories.ts";
+import { ordinaryJourneyCompletedHistory } from "../../test-support/support/completedFollowUpHistory.ts";
+import {
+  publishedReviewOf,
+  serveDoneAtTrunk,
+} from "../../test-support/support/followUpCompletedFile.ts";
+import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { publishes } from "../../test-support/support/publishedRepository.ts";
+import { publishStorySession } from "../../test-support/support/storySessionPublication.ts";
+import { request } from "./followUpBoundaryCases.ts";
+
+test.use({ serverMode: "boundary" });
+
+test("a published file Follow up requires the exact recorded range, literal path and owning story", async ({
+  dashboard,
+  origin,
+}) => {
+  const path = "[literal]*.txt";
+  const otherPath = "first-range.txt";
+  const { record, first, second, revision } = publishStorySession(
+    origin,
+    recoverStory.identity,
+    otherPath,
+    "unrelated.txt",
+    path,
+  );
+  dashboard.github.serve(
+    "terryyin/open-dough",
+    publishes({
+      revision,
+      files: doneStoryFiles(
+        [recoverStory, otherStory],
+        "2026-11-08T09:05:00.000Z",
+      ),
+    }),
+  );
+  dashboard.claudeScenario("launched");
+  const file = {
+    published: record.sessionId,
+    path,
+    baseline: second.base,
+    tree: second.candidate,
+  };
+  for (const invalid of [
+    {
+      story: recoverStory,
+      file: { ...file, baseline: first.base },
+      reason:
+        "The file or comparison does not belong to this session's published changes.",
+    },
+    {
+      story: recoverStory,
+      file: { ...file, path: otherPath },
+      reason:
+        "The file or comparison does not belong to this session's published changes.",
+    },
+    {
+      story: otherStory,
+      file,
+      reason: "The published session does not belong to this story.",
+    },
+  ]) {
+    const response = await accept(dashboard, {
+      ...request,
+      followUp: makeMe.aFollowUp
+        .ofStory(invalid.story, revision)
+        .anchoredAt(invalid.file)
+        .please(),
+    });
+    expect(response.status, response.body).toBe(409);
+    expect(response.body).toContain(invalid.reason);
+  }
+  expect(dashboard.claudeCalls()).toEqual([]);
+});
+
+test.describe("a published whole-story comparison", () => {
+  test.use({ originRepository: ordinaryJourneyCompletedHistory() });
+
+  test("refuses a different tree before starting a host", async ({
+    dashboard,
+    origin,
+  }) => {
+    const { revision, story } = await serveDoneAtTrunk(dashboard, origin);
+    const completion = origin.revision("completion");
+    const { baseline } = await publishedReviewOf(dashboard, completion);
+    const followUp = makeMe.aFollowUp.ofStory(story, revision).please();
+    if (!("story" in followUp)) throw new Error("Expected a story follow-up");
+    dashboard.claudeScenario("launched");
+
+    const response = await accept(dashboard, {
+      ...request,
+      followUp: {
+        story: {
+          ...followUp.story,
+          comparison: { completion, baseline, tree: completion },
+        },
+      },
+    });
+
+    expect(response.status, response.body).toBe(409);
+    expect(response.body).toContain(
+      "The comparison does not belong to this published completion.",
+    );
+    expect(dashboard.claudeCalls()).toEqual([]);
+  });
+});

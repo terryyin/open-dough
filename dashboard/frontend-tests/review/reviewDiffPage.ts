@@ -1,19 +1,10 @@
-import { locators, page, type Locator } from "vitest/browser";
+import { page, type Locator } from "vitest/browser";
 import {
   composeBackgrounds,
   contrastRatio,
 } from "../../test-support/composedColours.ts";
 import { activateButton } from "../page-objects/activateButton.ts";
-
-declare module "vitest/browser" {
-  interface LocatorSelectors {
-    getByCSS(selector: string): Locator;
-  }
-}
-
-locators.extend({
-  getByCSS: (selector) => `css=${selector}`,
-});
+import "../page-objects/cssLocator.ts";
 
 function markWords(marks: Locator) {
   return marks.elements().map((mark) => mark.textContent);

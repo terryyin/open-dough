@@ -92,7 +92,8 @@ export async function followUpFromLine(
   const label = lineNumberLabel(side, line);
   const control = lineNumberControl(diff, side, line);
   await openLineMenu(control, using);
-  const menu = await expectLineMenuOpen(page, label);
+  const menu = lineNumberMenu(page, label);
+  await expect(menu).toBeVisible();
   const follow = menu.getByRole("menuitem", { name: "Follow up", exact: true });
   await expect(follow).toBeFocused();
   await follow.press("Enter");
@@ -102,4 +103,4 @@ export async function followUpFromLine(
   return dialog;
 }
 
-export { diffLines, codePane };
+export { diffLines, codePane, type DiffLineSide };

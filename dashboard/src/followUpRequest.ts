@@ -1,7 +1,7 @@
 // What a Start session request names when it follows up an entry in Recently
 // done (`./followUpContext.ts` composes the context): the source it follows
 // up, a retained session or a done story at the revision the page showed it,
-// optionally a file and line on that story's comparison, and, once the server
+// optionally a reviewed comparison or its file and line, and, once the server
 // resolved it at admission, the context text it sends
 // (`../server/followUpAdmission.ts`). A page names only the source; one
 // carrying context text or attached note versions is refused. The source,
@@ -11,6 +11,7 @@
 
 import { z } from "zod";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
+import { publishedSessionIdSchema } from "./publishedSessionRecord.ts";
 import { objectIdSchema, reviewedPathSchema } from "./storyReviewFiles.ts";
 import { sessionHostSchema, sessionKey } from "./sessionReference.ts";
 
@@ -19,25 +20,48 @@ const followUpSessionSchema = z.strictObject({
   sessionId: z.string().min(1).max(200),
 });
 
+const followUpSessionChoiceSchema = z.union([
+  followUpSessionSchema,
+  z.strictObject({ published: publishedSessionIdSchema }),
+]);
+
+export type FollowUpSessionChoice = z.infer<typeof followUpSessionChoiceSchema>;
+
+export const followUpSessionKey = (choice: FollowUpSessionChoice) =>
+  "published" in choice ? `published:${choice.published}` : sessionKey(choice);
+
 // Optional file anchor on a done story: the comparison the diff shows and,
-// when given, one line and its side. Exactly one of completion or reference
-// names the comparison; baseline and tree are that file's own endpoints.
+// when given, one line and its side. Exactly one identifier names the
+// comparison. Baseline and tree are the file's own endpoints.
+const pairFields = {
+  baseline: objectIdSchema,
+  tree: objectIdSchema,
+};
+
+const followUpComparisonSchema = z.strictObject({
+  ...pairFields,
+  completion: objectIdSchema,
+});
 const followUpFileSchema = z
   .strictObject({
     path: reviewedPathSchema,
     oldPath: reviewedPathSchema.optional(),
-    baseline: objectIdSchema,
-    tree: objectIdSchema,
+    ...pairFields,
     completion: objectIdSchema.optional(),
     reference: z.uuid().optional(),
+    published: publishedSessionIdSchema.optional(),
     line: z.number().int().positive().optional(),
     side: z.enum(["old", "new"]).optional(),
   })
   .superRefine((file, ctx) => {
-    if ((file.completion === undefined) === (file.reference === undefined))
+    if (
+      [file.completion, file.reference, file.published].filter(Boolean)
+        .length !== 1
+    )
       ctx.addIssue({
         code: "custom",
-        message: "A file anchor names a published completion or a landed run.",
+        message:
+          "A file anchor names a published completion, landed run or published session.",
         path: ["completion"],
       });
     if ((file.line === undefined) !== (file.side === undefined))
@@ -48,18 +72,30 @@ const followUpFileSchema = z
       });
   });
 
-const followUpStorySchema = z.strictObject({
-  identity: z.string().min(1).max(200),
-  // The published revision whose done record the page showed.
-  revision: z.string().regex(commitShaPattern),
-  file: followUpFileSchema.optional(),
-  // Attach waiting notes from the machine store at admission.
-  notes: z.literal(true).optional(),
-});
+const followUpStorySchema = z
+  .strictObject({
+    identity: z.string().min(1).max(200),
+    // The published revision whose done record the page showed.
+    revision: z.string().regex(commitShaPattern),
+    file: followUpFileSchema.optional(),
+    comparison: followUpComparisonSchema.optional(),
+    // Optional sessions, resolved against the story at admission.
+    sessions: z.array(followUpSessionChoiceSchema).optional(),
+    // Attach waiting notes from the machine store at admission.
+    notes: z.literal(true).optional(),
+  })
+  .refine(
+    ({ file, comparison }) => file === undefined || comparison === undefined,
+    {
+      message: "A follow-up names the whole comparison or one of its files.",
+    },
+  );
 
-// The context resolved from the records at Start, kept so a retry, a
-// recovery or a rebuilt input resends it without reading again.
-const resolvedContext = z.string().min(1).optional();
+// A story follow-up keeps the framed message, including its current request.
+// A string is context that precedes the separately assembled instruction.
+const resolvedContext = z
+  .union([z.string().min(1), z.strictObject({ message: z.string().min(1) })])
+  .optional();
 
 // Versions admission attached, kept so delivery can mark those versions sent.
 const attachedNotes = z
@@ -86,6 +122,8 @@ export type FollowUp = z.infer<typeof followUpSchema>;
 export type FollowUpFile = NonNullable<
   z.infer<typeof followUpStorySchema>["file"]
 >;
+export type FollowUpComparison = z.infer<typeof followUpComparisonSchema>;
+export type FollowUpTarget = FollowUpFile | FollowUpComparison;
 export type AttachedStoryNote = NonNullable<
   Extract<FollowUp, { story: unknown }>["notes"]
 >[number];
@@ -95,25 +133,34 @@ export type FollowUpSource =
   | { readonly session: z.infer<typeof followUpSessionSchema> }
   | { readonly story: z.infer<typeof followUpStorySchema> };
 
-function followUpFileKey(file: FollowUpFile): string {
-  const comparison =
-    file.completion !== undefined
-      ? `completion ${file.completion}`
-      : `reference ${file.reference}`;
-  const rename = file.oldPath === undefined ? "" : ` old ${file.oldPath}`;
-  const line =
-    file.line === undefined || file.side === undefined
-      ? ""
-      : ` ${file.side} ${file.line}`;
-  return ` file ${file.path}${rename} ${file.baseline} ${file.tree} ${comparison}${line}`;
-}
-
-// The one spelling of a follow-up's source, for identity and attempt keys.
+// The source and attachment choices identify a Start. A set of sessions
+// has the same identity in any order or with duplicate references.
 export function followUpSourceKey(followUp: FollowUpSource): string {
   if ("session" in followUp) return `session ${sessionKey(followUp.session)}`;
-  const file = followUp.story.file;
-  const notes = followUp.story.notes === true ? " notes" : "";
-  return `story ${followUp.story.identity}${file === undefined ? "" : followUpFileKey(file)}${notes}`;
+  const { identity, file, comparison, notes, sessions } = followUp.story;
+  const anchor = file && [
+    file.path,
+    file.oldPath,
+    file.baseline,
+    file.tree,
+    file.completion,
+    file.reference,
+    file.published,
+    file.line,
+    file.side,
+  ];
+  return JSON.stringify([
+    "story",
+    identity,
+    anchor ??
+      (comparison && [
+        comparison.completion,
+        comparison.baseline,
+        comparison.tree,
+      ]),
+    notes === true,
+    [...new Set(sessions?.map(followUpSessionKey))].sort(),
+  ]);
 }
 
 // Whether two requests follow up the same source, or neither follows up.
@@ -125,11 +172,17 @@ export function sameFollowUpSource(
   return followUpSourceKey(a) === followUpSourceKey(b);
 }
 
-// Names `notes: true` on a story source when the dialog asks to attach notes.
-export function followUpSourceAttachingNotes(
+export function followUpSourceAttaching(
   source: FollowUpSource | undefined,
-  attach: boolean,
+  sessions: readonly FollowUpSessionChoice[],
+  notes: boolean,
 ): FollowUpSource | undefined {
-  if (source === undefined || !attach || !("story" in source)) return source;
-  return { story: { ...source.story, notes: true } };
+  if (source === undefined || !("story" in source)) return source;
+  return {
+    story: {
+      ...source.story,
+      ...(sessions.length === 0 ? {} : { sessions: [...sessions] }),
+      ...(notes ? { notes: true } : {}),
+    },
+  };
 }

@@ -35,7 +35,7 @@ prevented):
 - the source card saying that follow-ups are still open in Taken;
 - a standalone Done follow-up naming its source;
 - the card's route to earlier follow-ups. The [follow-up context
-  story](SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context)
+  story](https://github.com/terryyin/open-dough/blob/9d70e5741139db0443e0cf37f16c0881c7b1b55f/.planning/seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context)
   owns the receiving message and its optional session selection.
 
 Keep the one-home Board rule and source-versus-completion distinction

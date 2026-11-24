@@ -13,59 +13,79 @@ import {
   followUpContextText,
   sessionContext,
   storyContext,
-  type FollowUpContext,
+  type StoryFollowUpContext,
 } from "../src/followUpContext.ts";
-import type {
-  AttachedStoryNote,
-  FollowUpSource,
+import {
+  followUpSessionKey,
+  type AttachedStoryNote,
+  type FollowUp,
 } from "../src/followUpRequest.ts";
+import {
+  followUpSessionContext,
+  followUpSessionSelected,
+} from "../src/followUpSessions.ts";
 import { storyNotesContext } from "../src/followUpStoryNotes.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { storyNoteVersion } from "../src/storyNote.ts";
 import { admitFollowUpFile } from "./followUpFileAdmission.ts";
-import { doneStorySessions, publishedDoneStory } from "./followUpStory.ts";
+import { followUpStorySessions, publishedDoneStory } from "./followUpStory.ts";
 import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { storyFollowUpMessage } from "./storyFollowUpMessage.ts";
+import { admitPublishedStoryComparison } from "./storyReviewHistoricalFileAdmission.ts";
 import { waitingStoryNotes } from "./storyNotes.ts";
 
-async function resolveFollowUp(
-  followUp: FollowUpSource,
+async function resolveStoryFollowUp(
+  followUp: Extract<FollowUp, { story: unknown }>["story"],
   source: PublishedSource,
 ): Promise<{
-  context: FollowUpContext;
+  context: StoryFollowUpContext;
   notes?: AttachedStoryNote[];
 }> {
-  if ("story" in followUp) {
-    const story = await publishedDoneStory(source, followUp.story);
-    const sessions = await doneStorySessions(source, followUp.story.identity);
-    const file =
-      followUp.story.file === undefined
-        ? undefined
-        : await admitFollowUpFile(
-            source,
-            followUp.story.identity,
-            followUp.story.file,
-          );
-    const base = storyContext(story, sessions, file);
-    if (followUp.story.notes !== true) return { context: base };
-    const waiting = await waitingStoryNotes(source.id, followUp.story.identity);
-    if (waiting === "unreadable")
-      throw new RefusedRequest(502, "The notes could not be read.");
-    return {
-      context: { ...base, notes: storyNotesContext(waiting) },
-      notes: waiting.map((note) => ({
-        id: note.id,
-        version: storyNoteVersion(note),
-      })),
-    };
-  }
+  const story = await publishedDoneStory(source, followUp);
+  const { file, comparison } = followUp;
+  if (file !== undefined)
+    await admitFollowUpFile(source, followUp.identity, file);
+  if (comparison !== undefined)
+    await admitPublishedStoryComparison(source, followUp.identity, comparison);
+  const sessions = await followUpStorySessions(
+    source,
+    followUp.identity,
+    followUp.sessions ?? [],
+  );
+  const selected = new Set(followUp.sessions?.map(followUpSessionKey));
+  const base = storyContext(
+    story,
+    sessions
+      .filter((session) => followUpSessionSelected(session, selected))
+      .map(followUpSessionContext),
+    file ?? comparison,
+    sessions.some(({ retained }) => retained !== undefined),
+  );
+  if (followUp.notes !== true) return { context: base };
+  const waiting = await waitingStoryNotes(source.id, followUp.identity);
+  if (waiting === "unreadable" || waiting.length === 0)
+    return { context: base };
+  return {
+    context: { ...base, notes: storyNotesContext(waiting) },
+    notes: waiting.map((note) => ({
+      id: note.id,
+      version: storyNoteVersion(note),
+    })),
+  };
+}
+
+async function resolveSessionFollowUp(
+  followUp: Extract<FollowUp, { session: unknown }>,
+  source: PublishedSource,
+): Promise<FollowUp> {
   const record = await keptSession(source.id, followUp.session);
   if (record === undefined)
     throw new RefusedRequest(
       404,
       "The session this follows up is no longer kept on this machine.",
     );
-  return { context: { sessions: [sessionContext(record)] } };
+  return { ...followUp, context: followUpContextText(sessionContext(record)) };
 }
 
 export async function withFollowUpContext(
@@ -77,12 +97,19 @@ export async function withFollowUpContext(
   const pending = (await pendingInputOf(source.id, request))?.request;
   const saved = pending?.workflow === "ad-hoc" ? pending.followUp : undefined;
   if (saved?.context !== undefined) return { ...request, followUp: saved };
-  const resolved = await resolveFollowUp(request.followUp, source);
+  if ("session" in request.followUp)
+    return {
+      ...request,
+      followUp: await resolveSessionFollowUp(request.followUp, source),
+    };
+  const resolved = await resolveStoryFollowUp(request.followUp.story, source);
   return {
     ...request,
     followUp: {
       ...request.followUp,
-      context: followUpContextText(resolved.context),
+      context: {
+        message: storyFollowUpMessage(resolved.context, request.instruction),
+      },
       ...(resolved.notes === undefined ? {} : { notes: resolved.notes }),
     },
   };

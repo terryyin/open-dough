@@ -9,7 +9,7 @@
 /**
  * What a story launch's request states: the project, the story, and its
  * title as the card shows it.
- * @typedef {{ identity: string, title: string, source?: string }} StoryFacts
+ * @typedef {{ identity: string, title: string, source?: string, instruction?: string }} StoryFacts
  */
 /**
  * What an ad hoc launch's request states: the project, the instruction it
@@ -19,7 +19,7 @@
 /**
  * What the launch asked for: a story by its workflow, or an ad hoc session
  * with the instruction it started with (none for a blank session).
- * @typedef {{ workflow: "execution" | "refinement", identity: string, title: string, source: string } | (AdHocFacts & { workflow: "ad-hoc", source: string })} Requested
+ * @typedef {(StoryFacts & { workflow: "execution" | "refinement", source: string }) | (AdHocFacts & { workflow: "ad-hoc", source: string })} Requested
  */
 /**
  * What the request also states: the session's host, the model and reporting
@@ -83,6 +83,9 @@ function keptRequest(
     title: requested.title,
     workflow: requested.workflow,
     host,
+    ...(requested.instruction !== undefined && {
+      instruction: requested.instruction,
+    }),
     ...asked,
     ...(policy?.tracking !== undefined && {
       policy: { ...policy, tracking: policy.tracking },

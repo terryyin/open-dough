@@ -40,6 +40,10 @@ import { ReviewDetails } from "./reviewChangesDetails.ts";
 import { ReviewCode } from "./reviewChangesCode.ts";
 import { ReviewDiffs } from "./reviewChangesDiffs.ts";
 import { ReviewFiles } from "./reviewChangesFiles.ts";
+import {
+  followUpFromLine,
+  type DiffLineSide,
+} from "./support/diffLineFollowUpPage.ts";
 import { ReviewFrame } from "./reviewChangesFrame.ts";
 
 export type { Using };
@@ -88,7 +92,26 @@ class ReviewChanges {
     return reviewRegion(this.page);
   }
 
-  // The snapshot the opening read answered.
+  // Open the composer from one line of the shown file.
+  async followUpFromLine(
+    file: string,
+    side: DiffLineSide,
+    line: number,
+    story: string,
+    context: readonly string[],
+  ) {
+    return followUpFromLine(
+      this.page,
+      this.diffs.toRead(file),
+      side,
+      line,
+      story,
+      context,
+      "keyboard",
+    );
+  }
+
+  // Every read the review has asked is answered.
   async expectRead() {
     await expectReviewRead(this.#region);
     return this;

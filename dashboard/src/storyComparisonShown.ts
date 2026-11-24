@@ -55,9 +55,8 @@ export function storyComparisonShown({
   return undefined;
 }
 
-// What names a fixed comparison beside its subject: a published completion,
-// or a landed run's reference. A session's published range is named by its pair
-// alone.
+// Fixed comparison facts beside the subject, including the story associated
+// with a published session when its Git record names one.
 function fixedComparisonName(
   review: Extract<
     StoryReview,
@@ -69,6 +68,8 @@ function fixedComparisonName(
   if (review.kind === "published") return { completion: review.completion };
   if (review.kind === "published-taken") return { publishedHead: review.head };
   if (review.kind === "landed") return { reference: review.landing.reference };
+  if (review.session.story !== undefined)
+    return { publishedStory: review.session.story };
   return {};
 }
 

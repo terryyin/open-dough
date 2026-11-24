@@ -7,10 +7,9 @@
 // its landed run.
 
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
-/** @typedef {import("../../../dashboard/src/followUpContext.ts").FollowUpFileFacts} FollowUpFileFacts */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpFile} FollowUpFile */
-/** @typedef {Pick<FollowUpFileFacts, "path" | "line" | "side">} FileAnchor */
-/** @typedef {FollowUpFileFacts & { readonly reference: NonNullable<FollowUpFile["reference"]> }} LandedFileFacts */
+/** @typedef {Pick<FollowUpFile, "path" | "line" | "side">} FileAnchor */
+/** @typedef {FollowUpFile & { readonly reference: NonNullable<FollowUpFile["reference"]> }} LandedFileFacts */
 
 export class FileFollowUpBuilder {
   /** @type {LaunchRecord | undefined} */
@@ -44,7 +43,6 @@ export class FileFollowUpBuilder {
       throw new Error("state .onLandedRunOf(a launch reporting its landing)");
     return {
       ...anchor,
-      kind: "landed",
       baseline: landing.base,
       tree: landing.revision,
       reference,
