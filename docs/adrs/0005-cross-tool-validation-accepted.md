@@ -61,3 +61,12 @@ project environment, or expected duration.
 Record the candidate, host, required outcome, decisive evidence, and
 judgment. Retain reusable examples and lasting findings. Remove spent run
 artifacts at wrap-up and use Git for recovery of tracked evidence.
+
+### 6. Recheck tool-specific workarounds
+
+Keep Distribution workarounds for observed tool limitations narrowly scoped.
+Record each in the [tool workaround register](../maintainer/tool-workarounds.md)
+with the affected revision, patch location, reproduction, and retirement criteria.
+Review relevant upstream releases and batch other checks during periodic
+maintenance. Simplify or remove a workaround when native evidence shows the
+simpler path meets those criteria across the affected supported versions.
