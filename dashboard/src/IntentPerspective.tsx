@@ -200,7 +200,6 @@ export function IntentPerspective({
   source,
   work,
   records,
-  workspaces,
   selection,
   project,
 }: ProjectIntentProps & {
@@ -216,7 +215,6 @@ export function IntentPerspective({
     work,
     selectedIdentity,
     records,
-    workspaces,
   });
   const storySummary = useStorySummary(story, comparison, retry);
   return (

@@ -17,8 +17,8 @@ export const publishedSessionRecordSchema = z.object({
   version: z.literal(sessionRecordVersion),
   sessionId: publishedSessionIdSchema,
   workflow: z.string().min(1),
-  closedAt: z.iso.datetime(),
   story: z.string().min(1).optional(),
+  closedAt: z.iso.datetime(),
   // The session's ordered recorded pairs; the review selects one by position.
   ranges: z
     .array(

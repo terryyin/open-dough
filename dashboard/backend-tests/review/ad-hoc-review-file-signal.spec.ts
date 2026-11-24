@@ -1,32 +1,7 @@
-// A departed reader's file diff or text stops admission Git; an expired
-// admission deadline with an active caller keeps today's refusal.
+// Admission cancellation and its independent deadline at a published file.
 import { expect, test } from "vitest";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import { RefusedRequest } from "../../server/localOrigin.ts";
-import {
-  reviewedFileDiff,
-  reviewedFileText,
-} from "../../server/storyReviewFileResponse.ts";
-
-const signal = () => new AbortController().signal;
-const kept = [...Array(12).keys()].map((line) => `kept ${line}\n`).join("");
-const renamedFile = { path: "new.txt", oldPath: "old.txt" };
-const reference = "11111111-1111-4111-8111-111111111111";
-
-async function renameRevisionRepo() {
-  return materializeLocalCheckout(
-    undefined,
-    makeMe.aRepository
-      .withRevision("base", { backlog: null, files: { "old.txt": kept } })
-      .withRevision("result", {
-        backlog: null,
-        remove: ["old.txt"],
-        files: { "new.txt": `${kept}renamed\n` },
-      })
-      .please(),
-  );
-}
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
+import { aPublishedSession } from "../support/publishedSessionCase.ts";
 
 async function withImmediateAdmissionDeadline<T>(
   observe: (waits: number[]) => Promise<T>,
@@ -47,95 +22,33 @@ async function withImmediateAdmissionDeadline<T>(
   }
 }
 
-// Diff and text share one admission, so one read per admission path proves it.
-test("Given a session with one kept run, when a cancelled file text request reaches admission, then it rejects with the abort", async () => {
-  const repository = await renameRevisionRepo();
-  try {
-    const { base, result } = repository.revisions;
-    const read = makeMe.aSessionReviewRead
-      .ofAdHocSessionWithKeptRun("session-abort-kept", {
-        repository: repository.integration,
-        run: { base, revision: result },
-      })
-      .readingFile({ baseline: base, tree: result, ...renamedFile })
-      .please();
+async function publishedFile() {
+  const published = await aPublishedSession();
+  return {
+    read: {
+      subject: { source: "open-dough", published: published.sessionId },
+      baseline: published.base,
+      tree: published.candidate,
+      path: "notes.md",
+    },
+    published: published.source,
+    now: new Date(),
+  };
+}
+
+test("a cancelled published session file read rejects with the caller's abort", async () => {
+  const file = await publishedFile();
+  await expect(
+    reviewedFileText(file, AbortSignal.abort()),
+  ).rejects.toMatchObject({ name: "AbortError" });
+});
+
+test("an active reader receives the published pair refusal when admission expires", async () => {
+  const file = await publishedFile();
+  await withImmediateAdmissionDeadline(async (waits) => {
     await expect(
-      reviewedFileText(read, AbortSignal.abort()),
-    ).rejects.toMatchObject({ name: "AbortError" });
-  } finally {
-    await repository.cleanup();
-  }
-});
-
-test("Given a kept landed session, when a cancelled file diff request reaches admission, then it rejects with the abort", async () => {
-  const repository = await renameRevisionRepo();
-  try {
-    const { base, result } = repository.revisions;
-    const read = makeMe.aSessionReviewRead
-      .ofLandedAdHocSession("ad-hoc-file-abort-landed", {
-        repository: repository.integration,
-        comparing: { base, revision: result },
-        reference,
-      })
-      .readingFile({ reference, baseline: base, tree: result, ...renamedFile })
-      .please();
-    await expect(
-      reviewedFileDiff(read, AbortSignal.abort()),
-    ).rejects.toMatchObject({ name: "AbortError" });
-  } finally {
-    await repository.cleanup();
-  }
-});
-
-test("Given a session with one kept run, when admission's 30-second deadline expires while the caller stays, then file text keeps the kept-commits refusal", async () => {
-  const repository = await renameRevisionRepo();
-  try {
-    const { base, result } = repository.revisions;
-    const read = makeMe.aSessionReviewRead
-      .ofAdHocSessionWithKeptRun("session-deadline-kept", {
-        repository: repository.integration,
-        run: { base, revision: result },
-      })
-      .readingFile({ baseline: base, tree: result, ...renamedFile })
-      .please();
-    await withImmediateAdmissionDeadline(async (waits) => {
-      const refused = reviewedFileText(read, signal());
-      await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
-      await expect(refused).rejects.toMatchObject({
-        status: 409,
-        message:
-          "The file or comparison does not belong to this session's kept commits.",
-      });
-      expect(waits).toEqual([30_000]);
-    });
-  } finally {
-    await repository.cleanup();
-  }
-});
-
-test("Given a kept landed session, when admission's 30-second deadline expires while the caller stays, then file diff keeps the missing-objects refusal", async () => {
-  const repository = await renameRevisionRepo();
-  try {
-    const { base, result } = repository.revisions;
-    const read = makeMe.aSessionReviewRead
-      .ofLandedAdHocSession("ad-hoc-file-deadline-landed", {
-        repository: repository.integration,
-        comparing: { base, revision: result },
-        reference,
-      })
-      .readingFile({ reference, baseline: base, tree: result, ...renamedFile })
-      .please();
-    await withImmediateAdmissionDeadline(async (waits) => {
-      const refused = reviewedFileDiff(read, signal());
-      await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
-      await expect(refused).rejects.toMatchObject({
-        status: 409,
-        message:
-          "The captured landing comparison objects are missing or unreadable.",
-      });
-      expect(waits).toEqual([30_000]);
-    });
-  } finally {
-    await repository.cleanup();
-  }
+      reviewedFileText(file, new AbortController().signal),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(waits).toEqual([30_000]);
+  });
 });

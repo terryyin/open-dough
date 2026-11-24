@@ -1,250 +1,217 @@
-// Actual adapter acquisition keeps contextual attempts distinct and true repeats shared.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { answeredCommandAttempts } from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-attempts.mjs";
+import type { readCommandProof } from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { adapterProject } from "../../test-support/intentCiAdapterProofProject.ts";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { ciAdapterProofReader } from "../../server/ciAdapterProof.ts";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import { readIntentCiProof } from "../../server/intentCiProofRead.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { collectLandedCiPass } from "../../server/landedCiPass.ts";
+import { passRead } from "../../server/landedCiPassRead.ts";
 import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifacts.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import {
-  collectingLandedCi,
-  restartAsLandedCiReader,
-  resultToLand,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  retainedHistory as retained,
-  collectedScopeHistory,
-} from "../../test-support/support/collectedScopeHistory.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
-test.use({
-  serverMode: "boundary",
-  extraEnv: collectingLandedCi,
-  liveServer: "synchronous delivery child blocks the mounted receiver",
-});
-const readers: DashboardServer[] = [];
-test.afterEach(async () => {
-  await Promise.all(readers.splice(0).map((reader) => reader.close()));
-});
-const scopedHistory = (origin: string, revision: string, through: string) =>
-  collectedScopeHistory(origin, "tests", revision, through);
+const source = makeMe.aPublishedSource.openDough.please();
+const command = ["adapter"];
+const description = makeMe.aRepository
+  .withBaseBeforeEveryLaunch({
+    ".planning/open-dough.json": JSON.stringify(
+      makeMe.projectCiSettings.with({ ciAdapter: command }).please(),
+    ),
+  })
+  .withRevision("first")
+  .withRevision("second")
+  .please();
 
-test("different adapter runs reusing an opaque attempt ID retain their own collected proof and exact scope points", async ({
-  dashboard,
-  origin,
-  github,
-}) => {
-  const first = await resultToLand(dashboard, "first-adapter-identity.txt");
-  const adapter = adapterProject(dashboard.home);
+test("different adapter runs reusing an opaque attempt ID keep their own scoped file measurements", async () => {
+  const checkout = await materializeLocalCheckout(undefined, description, {
+    gitTemplates: false,
+  });
+  const repository = checkout.integration;
+  const { base, first, second } = checkout.revisions;
+  const stopped = new AbortController();
+  vi.stubEnv("HOME", checkout.fixture);
+  onTestFinished(async () => {
+    stopped.abort();
+    vi.unstubAllEnvs();
+    await checkout.cleanup();
+  });
+
+  const firstLanding = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing({ base, revision: first })
+    .deliveredAs({
+      delivery: "40000000-0000-4000-8000-000000000001",
+      receipt: "40000000-0000-4000-8000-000000000002",
+    })
+    .please();
+  const secondLanding = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing({ base: first, revision: second })
+    .please();
   const attemptId = "opaque-attempt+#";
-  const firstAttempt = makeMe.aCiAdapterAttempt
-    .passed({
+  const scope = "tests";
+  const file = "tests/intent/a.spec.ts";
+  const runs = [
+    {
       runId: "run-a",
-      attemptId,
-      sha: first.revision,
-      branch: "main",
+      sha: first,
       startedAt: "2026-11-05T10:00:00Z",
       completedAt: "2026-11-05T10:01:00Z",
-    })
-    .please();
-  const firstEntry = makeMe.aCiProofEntry
-    .at("tests")
-    .counting(3, "case")
-    .timed(1200)
-    .please();
-  const firstSummary = proofSummaryForEntry(
-    { repository: "terryyin/open-dough", attemptId, revision: first.revision },
-    firstEntry,
-  );
-  adapter.answer({
-    discover: { main: [firstAttempt] },
-    proof: { summary: firstSummary },
-  });
-  const firstReceipt = land(first.record, origin, dashboard.home).result.landing
-    .receipt;
-  expect(firstReceipt.revision).toBe(first.revision);
-  await expect
-    .poll(() => Object.values(retained(dashboard.home)?.builds ?? {}))
-    .toEqual([
-      expect.objectContaining({
-        revision: first.revision,
-        adapterAttempt: { runId: "run-a", attemptId },
-        proof: {
-          kind: "summary",
-          summary: expect.objectContaining({
-            revision: first.revision,
-            attemptId,
-            entries: [
-              expect.objectContaining({
-                path: "tests",
-                evidence: [
-                  expect.objectContaining({ unit: "case", durationMs: 1200 }),
-                ],
-              }),
-            ],
-          }),
-        },
-      }),
-    ]);
-  const firstRequests = adapter.proofRequests();
-  expect(firstRequests).toEqual([
-    {
-      operation: "proof",
-      check: { repo: "terryyin/open-dough", branch: "main" },
-      attempt: { runId: "run-a", attemptId, sha: first.revision },
+      durationMs: 1200,
     },
-  ]);
-
-  // A second run and revision reuse the attempt ID after the first is acquired.
-  const second = await resultToLand(dashboard, "second-adapter-identity.txt");
-  const secondAttempt = makeMe.aCiAdapterAttempt
-    .passed({
+    {
       runId: "run-b",
-      attemptId,
-      sha: second.revision,
-      branch: "main",
+      sha: second,
       startedAt: "2026-11-06T10:00:00Z",
       completedAt: "2026-11-06T10:01:00Z",
-    })
-    .please();
-  const secondEntry = makeMe.aCiProofEntry
-    .at("tests")
-    .counting(4, "case")
-    .timed(3400)
-    .please();
-  const secondSummary = proofSummaryForEntry(
-    { repository: "terryyin/open-dough", attemptId, revision: second.revision },
-    secondEntry,
+      durationMs: 3400,
+    },
+  ] as const;
+  const attempts = runs.map(({ runId, sha, startedAt, completedAt }) =>
+    makeMe.aCiAdapterAttempt
+      .passed({
+        runId,
+        attemptId,
+        sha,
+        branch: source.ref,
+        startedAt,
+        completedAt,
+      })
+      .please(),
   );
-  adapter.answer({
-    discover: { main: [secondAttempt, firstAttempt] },
-    proof: { summary: secondSummary },
-  });
-  const secondReceipt = land(second.record, origin, dashboard.home).result
-    .landing.receipt;
-  expect(secondReceipt.revision).toBe(second.revision);
-  await expect
-    .poll(
-      () =>
-        retained(dashboard.home)?.landings[secondReceipt.receipt]?.observed
-          .kind,
-    )
-    .toBe("build");
-  await expect
-    .poll(() => adapter.proofRequests())
-    .toEqual([
-      ...firstRequests,
-      {
-        operation: "proof",
-        check: { repo: "terryyin/open-dough", branch: "main" },
-        attempt: { runId: "run-b", attemptId, sha: second.revision },
-      },
-    ]);
-  await expect
-    .poll(() => Object.values(retained(dashboard.home)?.builds ?? {}))
-    .toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          revision: first.revision,
-          adapterAttempt: { runId: "run-a", attemptId },
-          proof: {
-            kind: "summary",
-            summary: expect.objectContaining({
-              revision: first.revision,
-              entries: [
-                expect.objectContaining({
-                  path: "tests",
-                  evidence: [
-                    expect.objectContaining({ unit: "case", durationMs: 1200 }),
-                  ],
-                }),
-              ],
-            }),
-          },
-        }),
-        expect.objectContaining({
-          revision: second.revision,
-          adapterAttempt: { runId: "run-b", attemptId },
-          proof: {
-            kind: "summary",
-            summary: expect.objectContaining({
-              revision: second.revision,
-              entries: [
-                expect.objectContaining({
-                  path: "tests",
-                  evidence: [
-                    expect.objectContaining({ unit: "case", durationMs: 3400 }),
-                  ],
-                }),
-              ],
-            }),
-          },
-        }),
-      ]),
-    );
-  expect(Object.values(retained(dashboard.home)?.builds ?? {})).toHaveLength(2);
-  const reader = await restartAsLandedCiReader(
-    dashboard,
-    origin,
-    "boundary",
-    "the preceding live server retains the machine's Cursor runner",
+  const summaries = new Map(
+    runs.map(({ sha, durationMs }) => [
+      sha,
+      proofSummaryForEntry(
+        { repository: source.repository, attemptId, revision: sha },
+        makeMe.aCiProofEntry
+          .at(scope)
+          .holding(
+            makeMe.aCiProofEvidence
+              .inUnit("case")
+              .brokenDown({ path: file, passed: 1, durationMs })
+              .please(),
+          )
+          .please(),
+      ),
+    ]),
   );
-  readers.push(reader);
+  let discovered = attempts.slice(0, 1);
+  const discover = vi.fn(({ branch }: { branch: string }) =>
+    Promise.resolve({
+      attempts: answeredCommandAttempts(discovered, branch) as unknown[],
+      queue: undefined,
+    }),
+  );
+  const proof = vi.fn(
+    (...[, , attempt]: [readonly string[], unknown, { sha: string }]) =>
+      Promise.resolve({ summary: summaries.get(attempt.sha) }),
+  );
+  const adapter = ciAdapterProofReader(proof satisfies typeof readCommandProof);
+  const artifact = vi.fn();
+  const collect = async (landing: typeof firstLanding) =>
+    collectLandedCiPass({
+      source,
+      receipts: [landing],
+      history: await keptLandedCiHistory(source.id),
+      repository,
+      stopped: stopped.signal,
+      read: passRead(source, repository, stopped.signal, {
+        providers: {
+          adapter: {
+            discover,
+            jobs: () => Promise.resolve({ unavailable: "No job graph" }),
+          },
+        },
+        readArtifact: artifact,
+      }),
+      readProof: (project, subject, signal) =>
+        readIntentCiProof(project, subject, signal, () => repository, {
+          adapter,
+          artifact,
+        }),
+    });
 
-  const proofRequests = adapter.proofRequests();
-  const discoverRequests = adapter.discoverRequests();
-  const githubCalls = github.calls.length;
-  const answer = await scopedHistory(
-    reader.origin,
-    second.revision,
-    secondReceipt.receivedAt,
-  );
-  expect(answer).toMatchObject({
-    status: 200,
-    body: {
-      selectedRevision: second.revision,
+  await collect(firstLanding);
+  expect(proof).toHaveBeenCalledTimes(1);
+  discovered = [...attempts].reverse();
+  await collect(secondLanding);
+
+  const firstKey = `adapter/${JSON.stringify(["run-a", attemptId, first])}`;
+  const secondKey = `adapter/${JSON.stringify(["run-b", attemptId, second])}`;
+  const kept = await keptLandedCiHistory(source.id);
+  expect(Object.keys(kept.builds).sort()).toEqual([firstKey, secondKey]);
+  expect(kept.landings[firstLanding.receipt]?.observed).toEqual({
+    kind: "build",
+    build: firstKey,
+    selection: "exact",
+  });
+  expect(kept.landings[secondLanding.receipt]?.observed).toEqual({
+    kind: "build",
+    build: secondKey,
+    selection: "exact",
+  });
+  const discoveryCount = discover.mock.calls.length;
+  expect(
+    await performIntentCiHistoryRead(source, {
+      kind: "intent-ci-history",
+      scope: file,
+      revision: second,
+      through: secondLanding.receivedAt,
+    }),
+  ).toMatchObject({
+    kind: "answered",
+    answer: {
+      path: file,
+      selectedRevision: second,
       availability: "retained",
       entries: [
         {
           kind: "point",
-          readings: [{ kind: "point", unit: "case", ms: 1200 }],
+          key: firstKey,
           selected: false,
           date: "2026-11-05T10:00:00Z",
           build: {
-            revision: first.revision,
+            revision: first,
             adapterAttempt: { runId: "run-a", attemptId },
             provenance: "exact",
           },
-          landings: [
-            { revision: first.revision, selected: false, provenance: "exact" },
-          ],
+          readings: [{ kind: "point", unit: "case", ms: 1200 }],
         },
         {
           kind: "point",
-          readings: [{ kind: "point", unit: "case", ms: 3400 }],
+          key: secondKey,
           selected: true,
           date: "2026-11-06T10:00:00Z",
           build: {
-            revision: second.revision,
+            revision: second,
             adapterAttempt: { runId: "run-b", attemptId },
             provenance: "exact",
           },
-          landings: [
-            { revision: second.revision, selected: true, provenance: "exact" },
-          ],
+          readings: [{ kind: "point", unit: "case", ms: 3400 }],
         },
       ],
     },
   });
-  const entries = (answer.body as { entries: { key: string }[] }).entries;
-  expect(entries).toHaveLength(2);
-  expect(new Set(entries.map(({ key }) => key)).size).toBe(2);
   expect(
-    await scopedHistory(
-      reader.origin,
-      second.revision,
-      secondReceipt.receivedAt,
-    ),
-  ).toEqual(answer);
-  expect(adapter.proofRequests()).toEqual(proofRequests);
-  expect(adapter.discoverRequests()).toEqual(discoverRequests);
-  expect(github.calls).toHaveLength(githubCalls);
+    proof.mock.calls.map(([provider, check, subject]) => [
+      provider,
+      check,
+      subject,
+    ]),
+  ).toEqual([
+    [
+      command,
+      { repo: source.repository, branch: source.ref },
+      { runId: "run-a", attemptId, sha: first },
+    ],
+    [
+      command,
+      { repo: source.repository, branch: source.ref },
+      { runId: "run-b", attemptId, sha: second },
+    ],
+  ]);
+  expect(discover).toHaveBeenCalledTimes(discoveryCount);
+  expect(artifact).not.toHaveBeenCalled();
 });

@@ -63,7 +63,6 @@ async function aSessionWithHeldRename() {
     await marks.close();
   });
   return {
-    checkout,
     record,
     folder,
     marks,
@@ -76,9 +75,8 @@ async function aSessionWithHeldRename() {
   };
 }
 
-test("a quiet report during an earlier rename wait refreshes the commits", async () => {
+test("a quiet report during an earlier rename wait keeps the later Done mark", async () => {
   const {
-    checkout,
     record,
     folder,
     marks,
@@ -90,9 +88,7 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
     at,
   } = await aSessionWithHeldRename();
   const reported = vi.spyOn(marks, "reported");
-  const { first } = await performWork(
-    makeMe.aCheckoutWork.committing("first", { at: at(40) }),
-  );
+  await performWork(makeMe.aCheckoutWork.committing("first", { at: at(40) }));
   vi.setSystemTime(at(30));
   const earlier = await deliverCompletion(
     submission,
@@ -103,12 +99,9 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
   expect(reported).toHaveBeenCalledExactlyOnceWith(source, earlier);
   expect(await keptSession(source, record.session)).toMatchObject({
     doneAt: earlier.receivedAt,
-    sessionCommits: { runs: [{ base: checkout.base, revision: first }] },
   });
 
-  const { second } = await performWork(
-    makeMe.aCheckoutWork.committing("second", { at: at(20) }),
-  );
+  await performWork(makeMe.aCheckoutWork.committing("second", { at: at(20) }));
   vi.setSystemTime(at(10));
   const later = await deliverCompletion(
     submission,
@@ -130,23 +123,13 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
   await expect(reported.mock.results[0]?.value).resolves.toBeUndefined();
   expect(await keptSession(source, record.session)).toMatchObject({
     doneAt: later.receivedAt,
-    sessionCommits: { runs: [{ base: checkout.base, revision: second }] },
   });
 });
 
-test("closing an in-flight reported rename aborts it and keeps the Done commits", async () => {
-  const {
-    checkout,
-    record,
-    marks,
-    renameEntered,
-    submission,
-    performWork,
-    at,
-  } = await aSessionWithHeldRename();
-  const { typo } = await performWork(
-    makeMe.aCheckoutWork.committing("typo", { at: at(30) }),
-  );
+test("closing an in-flight reported rename aborts it and keeps the Done mark", async () => {
+  const { record, marks, renameEntered, submission, performWork, at } =
+    await aSessionWithHeldRename();
+  await performWork(makeMe.aCheckoutWork.committing("typo", { at: at(30) }));
   const receipt = await deliverCompletion(
     submission,
     dashboardReporting.origin,
@@ -159,13 +142,11 @@ test("closing an in-flight reported rename aborts it and keeps the Done commits"
   expect(stopped.aborted).toBe(true);
   expect(await keptSession(source, record.session)).toMatchObject({
     doneAt: receipt.receivedAt,
-    sessionCommits: { runs: [{ base: checkout.base, revision: typo }] },
   });
 });
 
-test("reopening keeps the earlier commit run until the next Done", async () => {
+test("reopening allows a new Done while preserving the launch time", async () => {
   const {
-    checkout,
     records: { "default-launch": record },
     performWork,
     at,
@@ -173,23 +154,16 @@ test("reopening keeps the earlier commit run until the next Done", async () => {
     .withCheckoutLaunch("default-launch", { launched: 60 })
     .kept()
     .please();
-  const { first } = await performWork(
-    makeMe.aCheckoutWork.committing("first", { at: at(40) }),
-  );
+  await performWork(makeMe.aCheckoutWork.committing("first", { at: at(40) }));
   const earlierDone = at(30);
   vi.setSystemTime(earlierDone);
   await markDone(record, earlierDone);
   vi.setSystemTime(at(25));
   await undoDone(record);
-  const { second } = await performWork(
-    makeMe.aCheckoutWork.committing("second", { at: at(20) }),
-  );
+  await performWork(makeMe.aCheckoutWork.committing("second", { at: at(20) }));
 
   const reopened = await keptSession(source, record.session);
   expect(reopened?.doneAt).toBeUndefined();
-  expect(reopened?.sessionCommits?.runs).toEqual([
-    { base: checkout.base, revision: first },
-  ]);
 
   const doneAt = at(10);
   vi.setSystemTime(doneAt);
@@ -197,6 +171,5 @@ test("reopening keeps the earlier commit run until the next Done", async () => {
   expect(await keptSession(source, record.session)).toMatchObject({
     launchedAt: record.launchedAt,
     doneAt,
-    sessionCommits: { runs: [{ base: checkout.base, revision: second }] },
   });
 });

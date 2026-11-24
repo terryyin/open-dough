@@ -128,14 +128,13 @@ export class DoneCaptureCaseBuilder<
     return this.#with(
       session,
       times,
-      ({ checkout, baseTree, worktree: at }) =>
+      ({ checkout, worktree: at }) =>
         makeMe.aLaunchRecord.ofDeclaringExecutionCheckoutLaunch(
           session,
           checkout,
           {
             workspace: at(worktree),
             branch: worktree,
-            tree: baseTree,
           },
         ),
       refine,

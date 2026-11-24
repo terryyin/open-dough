@@ -14,7 +14,7 @@ import {
   observed,
   storyWorktree,
 } from "../../test-support/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../test-support/support/storyLaunchRecord.ts";
+import { keepPublishedStoryReview } from "../../test-support/support/storyLaunchRecord.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
@@ -23,7 +23,7 @@ import {
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
   type ReviewedFile,
-  type TakenStoryReview,
+  type StoryReview,
 } from "../../src/storyReviewContract.ts";
 
 // No page: the local boundaries alone answer these requests.
@@ -35,13 +35,20 @@ const story = { source: "open-dough", identity: queuedIdentity };
 const show = (cwd: string, tree: string, path: string) =>
   execFileSync("git", ["show", `${tree}:${path}`], { cwd, encoding: "utf8" });
 
-function fromOf(review: TakenStoryReview, file: ReviewedFile) {
+function fromOf(
+  review: Extract<StoryReview, { kind: "landed" }>,
+  file: ReviewedFile,
+) {
   return file.includesTrunkFrom ?? review.baseline;
 }
 
-function fileQuery(review: TakenStoryReview, file: ReviewedFile) {
+function fileQuery(
+  review: Extract<StoryReview, { kind: "landed" }>,
+  file: ReviewedFile,
+) {
   return {
     ...story,
+    reference: review.landing.reference,
     baseline: fromOf(review, file),
     tree: review.tree,
     path: file.path,
@@ -55,7 +62,7 @@ test("the same admitted comparison returns file text at its trees without changi
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  keepLaunchRecord(dashboard, workspace);
+  keepPublishedStoryReview(dashboard, origin, workspace);
   const before = observed(workspace);
 
   const snapshot = await getReview(
@@ -66,8 +73,8 @@ test("the same admitted comparison returns file text at its trees without changi
   );
   expect(snapshot.status()).toBe(200);
   const review = storyReviewSchema.parse(await snapshot.json());
-  expect(review.kind).toBe("snapshot");
-  if (review.kind !== "snapshot") throw new Error("expected snapshot");
+  expect(review.kind).toBe("landed");
+  if (review.kind !== "landed") throw new Error("expected published landing");
 
   const byPath = Object.fromEntries(
     review.files.map((file) => [file.path, file]),

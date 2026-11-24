@@ -4,7 +4,6 @@ import type { CompletionReport } from "../src/completionReport.ts";
 import { doneAutomatically } from "../src/completionReport.ts";
 import { nativeDoneMarkPending } from "../src/doneMark.ts";
 import { setRecordDoneAt } from "./launchRecordStore.ts";
-import { doneCapturePending } from "./doneCapture.ts";
 
 // Both reporting and explicit Done use this durable intent. Reporting keeps
 // the receipt's time and leaves later explicit Done/reopen intent independent.
@@ -58,16 +57,4 @@ export function reportedNativeDonePending(
   receipt: CompletionReport,
 ): record is LaunchRecord {
   return reportedDone(record, receipt) && record.doneProblem !== undefined;
-}
-
-// A receipt with both a settled capture and confirmed native Done can be
-// acknowledged without a write. The capture is independent of native Done.
-export function reportedDoneNeedsContinuation(
-  record: LaunchRecord | undefined,
-  receipt: CompletionReport,
-): record is LaunchRecord {
-  return (
-    reportedDone(record, receipt) &&
-    (record.doneProblem !== undefined || doneCapturePending(record))
-  );
 }

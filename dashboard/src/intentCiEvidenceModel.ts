@@ -11,14 +11,13 @@ import type { ComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts
 import type { JudgedReading } from "./useIntentCiJudgment.ts";
 import type { HistoryReading } from "./useIntentCiHistory.ts";
 import type { ShownProof } from "./useIntentCiShownProof.ts";
-import type { UncommittedCiEvidence } from "./useUncommittedCiEvidence.ts";
 
 export type SelectedComparisonEvidence = {
   readonly comparison: ComparisonReading<SelectedCiComparisonAnswer>;
   readonly endpointProofs: SelectedComparisonEndpointProofs | undefined;
 };
 
-export type CiEvidence = (
+export type CiEvidence =
   | { readonly kind: "inactive" }
   | {
       readonly kind: "retained";
@@ -58,8 +57,7 @@ export type CiEvidence = (
       readonly comparisonStory?: string;
       readonly endpointProofs?: ComparisonEndpointProofs;
       readonly selectedComparison?: SelectedComparisonEvidence;
-    }
-) & { readonly uncommittedCi?: UncommittedCiEvidence };
+    };
 
 export function selectedComparisonOf(
   evidence: CiEvidence,

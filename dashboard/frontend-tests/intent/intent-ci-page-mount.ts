@@ -34,7 +34,6 @@ const unavailableReviewSource: ReviewSource = {
       kind: "unavailable",
       explanation: "No local review workspace is available.",
     }),
-  range: () => Promise.reject(new Error("Unexpected review range read")),
   fileDiff: () => Promise.reject(new Error("Unexpected review file diff read")),
   fileText: () => Promise.reject(new Error("Unexpected review file text read")),
 };

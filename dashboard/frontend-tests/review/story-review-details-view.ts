@@ -124,24 +124,6 @@ export function reviewDetails(region: Locator, toolbar: Locator) {
       return details;
     },
 
-    // Commits shows its commit list and the range it reads.
-    async expectCommitsAndRangeShown() {
-      const commits = region.getByRole("list", {
-        name: "Story commits",
-        exact: true,
-      });
-      await expect.element(commits.getByRole("button").first()).toBeVisible();
-      await expect
-        .poll(() =>
-          region
-            .element()
-            .querySelector(".story-review-range-heading")
-            ?.checkVisibility(),
-        )
-        .toBe(true);
-      return details;
-    },
-
     async expectLandedRunChosen(key: string) {
       await expect.element(picker).toHaveValue(key);
       return details;

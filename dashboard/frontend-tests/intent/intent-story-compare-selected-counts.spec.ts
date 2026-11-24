@@ -150,7 +150,7 @@ test("Changes, Summary and file Proof share the captured attempts and restore th
   const { file, story, observedAttempts } = await openCapturedRun();
   await expect.element(file).toHaveAccessibleName(/4 test cases \(no change\)/);
 
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   const counts = /1 → 9 test cases \(\+8\)/;
   await expect.element(file).toHaveAccessibleName(counts);
   expect(file.element().getAttribute("title")).toMatch(counts);
@@ -166,7 +166,7 @@ test("Changes, Summary and file Proof share the captured attempts and restore th
   await story.choosePurpose();
   await comparisonRead(story.diffName).toContain("a.spec.ts");
   await expect.element(file).toHaveAttribute("aria-pressed", "true");
-  await expect.element(story.run).toHaveValue(run.key);
+  await expect.element(story.runChoice(run.key)).toBeChecked();
 
   await story.choose("Published completion");
   await expect.element(file).toHaveAccessibleName(/4 test cases \(no change\)/);
@@ -185,7 +185,7 @@ async function expectOneSidedProof(
 
 test("The selected count stays visible in Changes, Summary and file Proof when there is no baseline build", async () => {
   const { file, story } = await openCapturedRun({ noBuild: "baseline" });
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await expect.element(file).toHaveAccessibleName(/9 test cases at Selection/);
   const title = file.element().getAttribute("title");
   expect(title).toContain(missingBaseline);
@@ -198,7 +198,7 @@ test("The selected count stays visible in Changes, Summary and file Proof when t
 
 test("The baseline count stays visible in Changes, Summary and file Proof when no build includes the selected work", async () => {
   const { file, story } = await openCapturedRun({ noBuild: "selection" });
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await expect.element(file).toHaveAccessibleName(/1 test case at Baseline/);
   const title = file.element().getAttribute("title");
   expect(title).toContain(missingSelection);
@@ -216,7 +216,7 @@ test("Changes keeps a measured count with its missing-part explanation", async (
     .inParts(2, { missing: [2] })
     .please();
   const { file, story } = await openCapturedRun({ selection });
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await expect
     .element(file)
     .toHaveAccessibleName(
@@ -229,7 +229,7 @@ test("Changes keeps different declared units apart", async () => {
   const { file, story } = await openCapturedRun({
     baseline: entryFor(1, "file"),
   });
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await expect
     .element(file)
     .toHaveAccessibleName(

@@ -2,6 +2,7 @@
 
 import { completionLabel } from "./completionReport.ts";
 import type { DoneStory } from "./doneRecord.ts";
+import type { FollowUpTarget } from "./followUpRequest.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
 import { launchSubject } from "./launchWorkflow.ts";
 
@@ -25,7 +26,7 @@ export type FollowUpSection = {
 // (`./followUpStoryNotes.ts`).
 export type FollowUpContext = {
   readonly story?: FollowUpSection | undefined;
-  readonly file?: FollowUpFileFacts | undefined;
+  readonly target?: FollowUpTarget | undefined;
   readonly sessions: readonly FollowUpSection[];
   readonly notes?: FollowUpSection | undefined;
 };
@@ -60,36 +61,30 @@ const completionTime = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
-// What a file-anchored follow-up adds after the story's own items: the path,
-// rename's old path, the comparison that file's diff shows, and an optional
-// line and side. Baseline is that file's own from, including when the file
-// includes trunk's changes.
-export type FollowUpFileFacts = {
-  readonly path: string;
-  readonly oldPath?: string;
-  readonly kind: "published" | "landed";
-  readonly baseline: string;
-  readonly tree: string;
-  readonly line?: number;
-  readonly side?: "old" | "new";
-};
-
-export const fileComparisonName = (kind: FollowUpFileFacts["kind"]) =>
+export const fileComparisonName = (kind: "published" | "landed") =>
   kind === "published" ? "Published completion" : "Landed run";
 
-export function fileContextItems(
-  file: FollowUpFileFacts,
+export function followUpTargetItems(
+  target: FollowUpTarget,
 ): readonly FollowUpItem[] {
+  const file = "path" in target ? target : undefined;
+  const published = file?.published;
+  const comparison =
+    published === undefined
+      ? fileComparisonName(
+          target.completion === undefined ? "landed" : "published",
+        )
+      : `Published session ${published}`;
   return [
-    { label: "Path", value: file.path },
-    ...(file.oldPath === undefined
+    ...(file === undefined ? [] : [{ label: "Path", value: file.path }]),
+    ...(file?.oldPath === undefined
       ? []
       : [{ label: "Old path", value: file.oldPath }]),
     {
       label: "Comparison",
-      value: `${fileComparisonName(file.kind)} ${file.baseline} → ${file.tree}`,
+      value: `${comparison} ${target.baseline} → ${target.tree}`,
     },
-    ...(file.line === undefined || file.side === undefined
+    ...(file?.line === undefined || file.side === undefined
       ? []
       : [
           { label: "Line", value: String(file.line) },
@@ -98,11 +93,11 @@ export function fileContextItems(
   ];
 }
 
-// The context a done story supplies, with its reviewed file when present.
+// The context a done story supplies, with its reviewed comparison or file when present.
 export function storyContext(
   story: FollowUpStoryFacts,
   sessions: readonly FollowUpSection[],
-  file?: FollowUpFileFacts,
+  target?: FollowUpTarget,
   hasRetainedSessions = sessions.length > 0,
 ): StoryFollowUpContext {
   const completed = [
@@ -124,7 +119,7 @@ export function storyContext(
           : [{ label: "Sessions", value: noSessionRetained }]),
       ],
     },
-    file,
+    target,
     sessions,
   };
 }
@@ -176,13 +171,13 @@ export function itemText({ label, value }: FollowUpItem): string {
 // session's, then attached notes.
 export function followUpItems({
   story,
-  file,
+  target,
   sessions,
   notes,
 }: FollowUpContext): readonly FollowUpItem[] {
   return [
     ...(story?.items ?? []),
-    ...(file === undefined ? [] : fileContextItems(file)),
+    ...(target === undefined ? [] : followUpTargetItems(target)),
     ...sessions.flatMap((section) => section.items),
     ...(notes?.items ?? []),
   ];

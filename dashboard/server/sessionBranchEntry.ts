@@ -1,5 +1,4 @@
-// An explicit entry identifies an existing checkout and keeps, with its pins,
-// the entry state proposed for the launch.
+// An explicit entry identifies an existing checkout and keeps its branch facts.
 import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
 import path from "node:path";
@@ -8,7 +7,6 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import {
-  branchPinOwner,
   sessionBranchEntryEndpoint,
   type SessionBranchEntry,
 } from "../src/sessionBranchResult.ts";
@@ -24,10 +22,6 @@ import {
 } from "./branchLandingContext.ts";
 import { isReportingRecord } from "./completionAdmission.ts";
 import { textBody } from "./jsonRequestBody.ts";
-import {
-  keepBranchEntryRefs,
-  releaseBranchEntryRefs,
-} from "./launchRecordPins.ts";
 import { changeSessionRecord, keptRecords } from "./launchRecordStore.ts";
 import {
   RefusedRequest,
@@ -120,8 +114,7 @@ async function namedLaunch(
   return record;
 }
 
-// Records the checkout the kept launch `record` names as its own branch,
-// pinning the entry state, and answers the entry kept.
+// Records the checkout the kept launch `record` names as its own branch.
 export async function recordSessionBranchEntry(
   source: Pick<PublishedSource, "id" | "ref">,
   record: LaunchRecord,
@@ -133,32 +126,22 @@ export async function recordSessionBranchEntry(
     request,
   );
   if (kept) return proposed;
-  const owner = branchPinOwner(record);
-  const evidence = { pinning: false };
-  try {
-    const written = await changeSessionRecord(
-      source.id,
-      record.session,
-      async (current) => {
-        if (current.launchedAt !== record.launchedAt) throw noSuchSession();
-        if (existingEntry(current, proposed) !== undefined) return current;
-        if (entryRepository(current) !== proposed.repository)
-          throw new RefusedRequest(
-            409,
-            "This launch no longer names that repository.",
-          );
-        evidence.pinning = true;
-        await keepBranchEntryRefs(owner, proposed);
-        return { ...current, branchEntry: proposed };
-      },
-    );
-    if (written?.branchEntry === undefined) throw noSuchSession();
-    return written.branchEntry;
-  } catch (error) {
-    if (evidence.pinning)
-      await releaseBranchEntryRefs(owner, proposed).catch(() => undefined);
-    throw error;
-  }
+  const written = await changeSessionRecord(
+    source.id,
+    record.session,
+    (current) => {
+      if (current.launchedAt !== record.launchedAt) throw noSuchSession();
+      if (existingEntry(current, proposed) !== undefined) return current;
+      if (entryRepository(current) !== proposed.repository)
+        throw new RefusedRequest(
+          409,
+          "This launch no longer names that repository.",
+        );
+      return { ...current, branchEntry: proposed };
+    },
+  );
+  if (written?.branchEntry === undefined) throw noSuchSession();
+  return written.branchEntry;
 }
 
 export async function handleSessionBranchEntry(

@@ -88,9 +88,16 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
         card.getByRole("button", { name: "Inspect story" }).element(),
         card.getByRole("button", { name: "Notes" }).element(),
       );
+      if (name === "Taken") {
+        stops.push(
+          card
+            .getByRole("button", { name: "Review changes", exact: true })
+            .element(),
+        );
+      }
     }
   }
-  expect(stops).toHaveLength(18);
+  expect(stops).toHaveLength(20);
   await expectTabOrder(stops);
   expect(
     document.querySelectorAll(".board[tabindex='-1'], .board [tabindex='-1']"),

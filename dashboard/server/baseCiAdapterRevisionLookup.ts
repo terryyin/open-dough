@@ -1,4 +1,5 @@
 import { readCommandJobs } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
+import { discoverCommandAttempts } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import { isSafeBranchName } from "../src/authenticatedReadRules.ts";
 import { shortSha } from "../src/baseCiWording.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -38,6 +39,7 @@ export async function adapterRevisionLookup(
   command: readonly string[],
   call: GitCall,
   signal: AbortSignal,
+  { discover = discoverCommandAttempts, jobs = readCommandJobs } = {},
 ): Promise<RevisionCiLookup> {
   const branch =
     storyBranch !== undefined && isSafeBranchName(storyBranch)
@@ -49,7 +51,7 @@ export async function adapterRevisionLookup(
     root,
     command,
     signal,
-    { comparison: true },
+    { comparison: true, discover },
   );
   const runsByRevision = new Map<string, AdapterRun[]>();
   for (const run of runs) {
@@ -107,7 +109,7 @@ export async function adapterRevisionLookup(
       const timeoutMs = ciAdapterTimeoutMs();
       let answer: Awaited<ReturnType<typeof readCommandJobs>>;
       try {
-        answer = await readCommandJobs(
+        answer = await jobs(
           command,
           { repo: source.repository, branch: runBranch },
           { runId: String(adapterAttempt.runId), attemptId, sha: revision },

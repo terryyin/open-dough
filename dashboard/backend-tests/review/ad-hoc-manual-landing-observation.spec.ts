@@ -87,7 +87,7 @@ test.each([
       const result = branchResultAtDone(record);
       if (result === undefined)
         throw new Error("Missing the Done branch result.");
-      return { ...record, branchResult: { ...result, revision: observed } };
+      return { ...record, branchResult: { ...result, committedTip: observed } };
     },
   },
 ])(

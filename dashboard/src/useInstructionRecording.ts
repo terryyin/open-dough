@@ -135,6 +135,10 @@ export function useInstructionRecording(
           );
           return;
         }
+        if (bytes === 0) {
+          failed(instructionProblems.noAudio);
+          return;
+        }
         void (async () => {
           try {
             const audio = new Blob(chunks, { type: recorder.mimeType });

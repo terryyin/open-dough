@@ -29,14 +29,13 @@ import { minutesAgo } from "./testDataDefaults.mjs";
 export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   /**
    * The session declared a branch and received its storyless landing context.
-   * @param {{ repository?: string, workspace?: string, branch?: string, committedTip?: string, tree?: string, trunkRevision?: string, origin?: string, reference?: string, deletedAt?: string }} [facts]
+   * @param {{ repository?: string, workspace?: string, branch?: string, committedTip?: string, trunkRevision?: string, origin?: string, reference?: string, deletedAt?: string }} [facts]
    */
   withDeclaredLanding({
     repository = "/repo",
     workspace = "/work",
     branch = "dough/decision",
     committedTip = "a1".repeat(20),
-    tree = committedTip,
     trunkRevision,
     origin = "http://127.0.0.1:4173",
     reference = reportingReference,
@@ -51,7 +50,6 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
       workspace,
       branch,
       committedTip,
-      tree,
       trunk: {
         remote: authority.remote,
         target: authority.target,
@@ -98,37 +96,14 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   }
 
   /**
-   * The project keeps one Done ad hoc session of its execution checkout at
-   * `repository` whose kept commits are this one run.
-   * @param {string} session the reviewed `claude` session's ID
-   * @param {{ repository: string, run: { base: string, revision: string } }} kept
-   */
-  ofAdHocSessionWithKeptRun(session, { repository, run }) {
-    return this.adHoc({ title: "Session with a kept run" })
-      .inExecutionCheckout({
-        workspace: repository,
-        landing: "review",
-        revision: run.base,
-      })
-      .inClaudeSession({ sessionId: session })
-      .keptSessionCommits({ repository, runs: [run] })
-      .markedDone();
-  }
-
-  /**
    * An execution checkout launch in the `claude` session `session` that identified
-   * the worktree `workspace` on `branch`, then holding the checkout's base
-   * `tree`, as its own branch, witnessing trunk and its default branch at
-   * that base.
+   * the worktree `workspace` on `branch` as its own branch and witnessed
+   * trunk at the checkout’s base.
    * @param {string} session
    * @param {{ integration: string, base: string, gitDirectory: string }} checkout
-   * @param {{ workspace: string, branch: string, tree: string }} worktree
+   * @param {{ workspace: string, branch: string }} worktree
    */
-  ofDeclaringExecutionCheckoutLaunch(
-    session,
-    checkout,
-    { workspace, branch, tree },
-  ) {
+  ofDeclaringExecutionCheckoutLaunch(session, checkout, { workspace, branch }) {
     const { base, gitDirectory } = checkout;
     return this.startedOnMainOf(checkout)
       .inClaudeSession({ sessionId: session })
@@ -137,8 +112,6 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
         workspace,
         branch,
         committedTip: base,
-        tree,
-        defaultTip: base,
         trunk: { remote: "origin", target: "refs/heads/main", revision: base },
       });
   }
@@ -170,16 +143,14 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
 
   /**
    * Stereotype: the blank launch "Fix the typo", launched an hour ago, whose
-   * start found the checkout on `main` at its base.
+   * start kept the execution checkout and its repository.
    * @param {CheckoutFacts} checkout
    */
-  startedOnMainOf({ integration, base, gitDirectory }) {
+  startedOnMainOf({ integration, gitDirectory }) {
     return this.adHoc({ title: "Fix the typo" })
       .startingInExecutionCheckout({
         workspace: integration,
-        startingRevision: base,
         repository: gitDirectory,
-        branch: "refs/heads/main",
       })
       .inClaudeSession({ sessionId: "default-launch" })
       .launchedAt(minutesAgo(60));

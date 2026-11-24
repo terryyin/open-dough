@@ -9,13 +9,6 @@ export interface LandedContextFacts {
   readonly revision: string;
 }
 
-export interface SessionCommitsContextFacts {
-  readonly launchedAt: string;
-  readonly doneAt: string;
-  readonly base: string;
-  readonly revision: string;
-}
-
 export async function expectLandedContext(
   review: Locator,
   facts: LandedContextFacts,
@@ -32,27 +25,6 @@ export async function expectLandedContext(
   ).toBeVisible();
   await expect(review.getByText(facts.base, { exact: true })).toBeVisible();
   await expect(review.getByText(facts.revision, { exact: true })).toBeVisible();
-}
-
-export async function expectSessionCommitsContext(
-  review: Locator,
-  facts: SessionCommitsContextFacts,
-) {
-  await showReviewDetails(review);
-  const context = review
-    .getByRole("heading", { name: "Session commits", exact: true })
-    .locator("..");
-  await expect(context).toContainText(
-    "Commits made in the execution checkout while the session was open",
-  );
-  for (const at of [facts.launchedAt, facts.doneAt])
-    await expect(context.locator(`time[datetime="${at}"]`)).toBeVisible();
-  await expect(context).toContainText(
-    `From ${facts.base} to ${facts.revision}.`,
-  );
-  await expect(
-    review.getByRole("heading", { name: "Landed run", exact: true }),
-  ).toHaveCount(0);
 }
 
 export async function expectSharedCheckoutNote(

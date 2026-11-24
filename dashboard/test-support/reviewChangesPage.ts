@@ -3,10 +3,9 @@
 // group. It owns where each of the review's controls lives, so a change to
 // the review's layout edits these objects, not the journeys. The review
 // itself holds the toolbar: the comparison's name and the file sidebar
-// toggle. Its parts are reached from it: `comparison` (choices and Include
-// uncommitted changes), `landedRun` (the run picker and the run's facts),
+// toggle. Its parts are reached from it: `comparison` (recorded choices), `landedRun` (the run picker and the run's facts),
 // `details` (the toolbar's eye and what it reveals), `context`, `status`
-// (feedback, body and Refresh), `files`, `diffs`, `code`, `commits` and
+// (feedback, body and Refresh), `files`, `diffs`, `code` and
 // `frame`. An operation that needs a control the details hold reveals them
 // first, so a scenario names what it chooses, never where the choice sits.
 //
@@ -19,7 +18,6 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
   type StoryReview,
-  type TakenStoryReview,
 } from "../src/storyReviewContract.ts";
 import { closeSidePanel } from "./sidePanelFrame.ts";
 import { reviewChanges as reviewChangesAction } from "./storyCardControls.ts";
@@ -37,12 +35,15 @@ import { tapWhereShown } from "./pageLayout.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
 import { ReviewStatus } from "./reviewChangesStatus.ts";
 import { ReviewComparison, type Using } from "./reviewChangesComparison.ts";
-import { ReviewCommits } from "./reviewChangesCommits.ts";
 import { ReviewContext } from "./reviewChangesContext.ts";
 import { ReviewDetails } from "./reviewChangesDetails.ts";
 import { ReviewCode } from "./reviewChangesCode.ts";
 import { ReviewDiffs } from "./reviewChangesDiffs.ts";
 import { ReviewFiles } from "./reviewChangesFiles.ts";
+import {
+  followUpFromLine,
+  type DiffLineSide,
+} from "./support/diffLineFollowUpPage.ts";
 import { ReviewFrame } from "./reviewChangesFrame.ts";
 
 export type { Using };
@@ -64,7 +65,6 @@ class ReviewChanges {
   readonly answer: StoryReview | undefined;
   readonly comparison: ReviewComparison;
   readonly files: ReviewFiles;
-  readonly commits: ReviewCommits;
   readonly context: ReviewContext;
   readonly landedRun: ReviewLandedRun;
   readonly status: ReviewStatus;
@@ -79,10 +79,9 @@ class ReviewChanges {
     const reach = () => this.details.show();
     this.comparison = new ReviewComparison(this.#region, reach);
     this.files = new ReviewFiles(this.#region);
-    this.commits = new ReviewCommits(this.#region);
     this.context = new ReviewContext(this.#region, reach);
     this.landedRun = new ReviewLandedRun(this.#region, reach);
-    this.status = new ReviewStatus(this.#region, reach);
+    this.status = new ReviewStatus(this.#region);
     this.details = new ReviewDetails(this.#region);
     this.diffs = new ReviewDiffs(this.#region);
     this.frame = new ReviewFrame(page);
@@ -93,11 +92,23 @@ class ReviewChanges {
     return reviewRegion(this.page);
   }
 
-  // The snapshot the opening read answered.
-  get snapshot(): TakenStoryReview {
-    if (this.answer?.kind !== "snapshot")
-      throw new Error("The review's opening took no snapshot.");
-    return this.answer;
+  // Open the composer from one line of the shown file.
+  async followUpFromLine(
+    file: string,
+    side: DiffLineSide,
+    line: number,
+    story: string,
+    context: readonly string[],
+  ) {
+    return followUpFromLine(
+      this.page,
+      this.diffs.toRead(file),
+      side,
+      line,
+      story,
+      context,
+      "keyboard",
+    );
   }
 
   // Every read the review has asked is answered.

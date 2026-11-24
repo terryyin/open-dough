@@ -14,12 +14,7 @@ import {
   doneCompletion,
   doneIdentity,
   openDoneStoryComparison,
-  openStoryAComparison,
 } from "./intent-story-compare-stories.ts";
-
-const wholeStory = "Describes the whole story, not the chosen comparison.";
-const views = ["CI comparison", "Proof", "Intent coverage"] as const;
-type View = (typeof views)[number];
 
 async function openProof(
   story: ReturnType<typeof intentStoryCompare>,
@@ -29,72 +24,6 @@ async function openProof(
   await activateComparisonControl(file);
   await story.chooseProof();
 }
-
-const [first, second] = [
-  makeMe.aReviewCommit.numbered(1, "first change").please(),
-  makeMe.aReviewCommit.numbered(2, "second change").please(),
-];
-const modified = "Modified dashboard/tests/a.spec.ts";
-
-test("CI comparison, Proof and Intent coverage say they describe the whole story only while a commit range is chosen, reading the same evidence either way", async () => {
-  await openStoryAComparison({
-    review: () =>
-      Promise.resolve(
-        makeMe.aStoryReview
-          .modifying("dashboard/tests/a.spec.ts")
-          .onCommits(second, first)
-          .please(),
-      ),
-    range: () =>
-      Promise.resolve(
-        makeMe.aStoryReview
-          .modifying("dashboard/tests/a.spec.ts")
-          .pleaseRange(first),
-      ),
-  });
-  const story = intentStoryCompare();
-  const read: Partial<Record<View, string>> = {};
-
-  await openProof(story, story.file(modified));
-  for (const view of views) {
-    await comparisonRead(() => story.viewText(view)).not.toBe("");
-    expect(story.noteIn(view), view).toBeNull();
-    read[view] = story.viewText(view);
-  }
-
-  await story.choose("Commits");
-  await story.chooseAlone("first change");
-  await comparisonRead(story.range).toContain("first change");
-
-  for (const view of views) {
-    await comparisonRead(() => story.noteIn(view)).toBe(wholeStory);
-    expect(story.viewText(view).replace(wholeStory, ""), view).toBe(read[view]);
-  }
-});
-
-test("a Taken branch range names the build of its already shown provisional CI comparison", async () => {
-  const measured = "f".repeat(40);
-  const provisional = makeMe.aComparedStory
-    .takenOnStoryBranch()
-    .withBranch({ revision: measured })
-    .please().answer;
-  await openStoryAComparison(
-    {
-      review: () =>
-        Promise.resolve(makeMe.aStoryReview.onCommits(first).please()),
-      range: () => Promise.resolve(makeMe.aStoryReview.pleaseRange(first)),
-    },
-    {
-      readComparison: (...[, identity]) =>
-        Promise.resolve({ ...provisional, identity }),
-    },
-  );
-  const story = intentStoryCompare();
-  await story.choose("Commits");
-  const short = measured.slice(0, 7);
-  await comparisonRead(() => story.noteBuild("CI comparison")).toBe(short);
-  expect(story.viewText("CI comparison")).toMatch(/provisional/i);
-});
 
 const landing = "dashboard/tests/folder/a.spec.ts";
 const start = "1".repeat(40);
@@ -170,7 +99,7 @@ test("a Done story's CI comparison switches to the captured run's measured build
   await comparisonRead(story.landedEndpoint).not.toBe("");
   const measured = story.landedEndpoint();
 
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   const endpoints = page.getByRole("table", {
     name: "Baseline and selection CI builds with timing",
   });
@@ -220,8 +149,8 @@ test("a captured run without recorded revisions keeps the whole-story CI compari
   await comparisonRead(story.landedEndpoint).not.toBe("");
   const measured = story.landedEndpoint();
 
-  await story.choose("Landed runs");
-  await expect.element(story.run).toHaveValue(legacy.key);
+  await story.chooseLatestLanding();
+  await expect.element(story.runChoice(legacy.key)).toBeChecked();
   await comparisonRead(story.revisions).toContain("From");
   await comparisonRead(() => story.noteBuild("CI comparison")).toBe(
     doneCompletion.slice(0, 7),

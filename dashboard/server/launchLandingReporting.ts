@@ -31,6 +31,7 @@ import { leaveMachineJson } from "./machineJsonStore.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { textBody } from "./jsonRequestBody.ts";
 import { knownSource } from "./sessionAdmission.ts";
+import type { LandedCiCollection } from "./landedCiCollection.ts";
 
 // Attempt read/replace and record read/replace the adapter persists through.
 // Optional on `handleLanding`; defaults to this machine's stores.
@@ -62,6 +63,7 @@ async function saveLandingRecordChange(
 
 export async function submitLanding(
   req: IncomingMessage,
+  collection?: Pick<LandedCiCollection, "nudge">,
 ): Promise<LandingReceipt> {
   verifyLocalOrigin(req);
   const origin = `http://${req.headers.host}`;
@@ -71,7 +73,19 @@ export async function submitLanding(
     await textBody(req, undefined, 128 * 1024),
   );
   knownSource(submission.source);
-  return handleLanding(submission, origin, operation);
+  return deliverLanding(submission, origin, operation, collection);
+}
+
+export async function deliverLanding(
+  submission: LandingSubmission,
+  origin: string,
+  operation: LandingOperation,
+  collection?: Pick<LandedCiCollection, "nudge">,
+): Promise<LandingReceipt> {
+  const receipt = await handleLanding(submission, origin, operation);
+  // The recorded landing's CI is collected whether or not a page is open.
+  if (operation === "record") void collection?.nudge();
+  return receipt;
 }
 
 async function pinNewLanding(

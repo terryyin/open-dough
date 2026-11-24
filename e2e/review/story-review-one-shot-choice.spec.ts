@@ -4,13 +4,10 @@ import {
   expect,
   stored,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import {
-  reviewChoices,
-  addLiveEdit,
-} from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
+import { reviewChoices } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
 import { openCapturedReview } from "../../dashboard/test-support/support/oneShotReview.ts";
 
-test("keyboard choices show each retained captured or legacy run beside the live workspace comparison", async ({
+test("keyboard choices show each retained captured or legacy run from their recorded landing comparisons", async ({
   page,
   dashboard,
   origin,
@@ -22,30 +19,18 @@ test("keyboard choices show each retained captured or legacy run beside the live
   const choices = await reviewChoices(dashboard, origin, codexProtocol);
   const review = await openCapturedReview(page, origin);
   const { answer } = review;
-  expect(answer.kind).toBe("snapshot");
+  expect(answer.kind).toBe("landed");
   expect(answer.runs?.map((run) => run.key)).toEqual([
     choices.second.key,
     choices.first.key,
     choices.legacy.key,
   ]);
-  const { files, landedRun, commits, diffs } = review;
-  addLiveEdit(choices.workspace);
-  await review.refresh();
-  await review.expectRead();
-  await review.expectFeedback(
-    "Review refreshed: 2 changed files against baseline",
-  );
-  await review.comparison.expectChosen("All changes");
-  await review.comparison.choose("Landed runs", "keyboard");
+  const { files, landedRun, diffs } = review;
   await review.landedRun.expectChosen(choices.second.key);
-  for (const [index, run] of [choices.second, choices.first].entries()) {
-    await review.landedRun.press(
-      "Home",
-      ...(index > 0 ? ["ArrowDown"] : []),
-      "Enter",
-    );
+  for (const run of [choices.second, choices.first]) {
+    await review.landedRun.choose(run.key, "keyboard");
     await review.landedRun.expectChosen(run.key);
-    await review.comparison.expectChosen("Landed runs");
+
     await files.expectOutsideFiles(1, [`Added ${run.name}.txt`]);
     await files.choose(`Added ${run.name}.txt`);
     await diffs.expectLines("added", [`+${run.name}.txt`]);
@@ -57,7 +42,7 @@ test("keyboard choices show each retained captured or legacy run beside the live
     );
     await landedRun.expectLaunchedAt(run.record.launchedAt);
   }
-  await review.landedRun.press("End", "Enter");
+  await review.landedRun.choose(choices.legacy.key, "keyboard");
   await review.landedRun.expectChosen(choices.legacy.key);
   await review.expectText("no captured landing comparison");
   await review.expectText("cannot be reconstructed from today's trunk");
@@ -69,22 +54,5 @@ test("keyboard choices show each retained captured or legacy run beside the live
       (record) => record.session.sessionId === choices.legacy.session.sessionId,
     )?.request.reporting,
   ).toBeUndefined();
-  await review.comparison.choose("All changes", "keyboard");
-  await review.landedRun.expectNoPicker();
-  await files.expectOutsideFiles(2, ["Added live-edit.txt"]);
-  await review.comparison.choose("Commits");
-  await commits.expectRowCount(2);
-  await commits.chooseAlone(1);
-  await commits.expectChosen(1);
-  await commits.expectChosen(0, false);
-  await files.choose("Added live.txt");
-  await diffs.expectLines("added", ["+live.txt"]);
-  await review.comparison.choose("Landed runs");
-  await review.landedRun.expectChosen(choices.second.key);
-  await review.comparison.choose("Commits");
-  await commits.expectChosen(1);
-  await commits.expectChosen(0, false);
-  await files.choose("Added live.txt");
-  await diffs.expectLines("added", ["+live.txt"]);
   await review.returnToDevelopment();
 });

@@ -65,6 +65,7 @@ export async function publishedSessionRecord(
   try {
     record = await publishedRecordAt(source, file, signal);
   } catch {
+    signal.throwIfAborted();
     throw unknownSession();
   }
   if (record === undefined || !isCurrentSessionRecord(record, now))
@@ -124,6 +125,7 @@ export async function publishedSessionReview(
     kind: "published-session",
     session: {
       closedAt: record.closedAt,
+      ...(record.story === undefined ? {} : { story: record.story }),
       ...(range.uncertainty === sharedCheckoutUncertainty && { shared: true }),
     },
     ...(record.ranges.length === 1
@@ -146,8 +148,14 @@ export async function admitPublishedSessionFile(
   file: HistoricalReviewedFileFields,
   now: Date,
   signal: AbortSignal,
+  expectedStory?: string,
 ): Promise<AdmittedReviewedFile> {
   const record = await publishedSessionRecord(source, session, now, signal);
+  if (expectedStory !== undefined && record.story !== expectedStory)
+    throw new RefusedRequest(
+      409,
+      "The published session does not belong to this story.",
+    );
   const range = record.ranges.find(
     ({ base, candidate }) => base === file.baseline && candidate === file.tree,
   );

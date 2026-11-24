@@ -9,18 +9,8 @@
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpSessionChoice} FollowUpSessionChoice */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpFile} FollowUpFile */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").AttachedStoryNote} AttachedStoryNote */
-/** @typedef {import("../../../dashboard/src/followUpContext.ts").FollowUpFileFacts} FollowUpFileFacts */
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {import("../../../dashboard/src/sessionReference.ts").SessionReference} SessionReference */
-/**
- * A file anchor as the page names it, or the comparison facts a review or a
- * landed run supplies (`kind` stays off the request).
- * @typedef {FollowUpFile | (FollowUpFileFacts & {
- *   readonly completion?: string,
- *   readonly reference?: string,
- * })} FileAnchor
- */
-
 export class FollowUpBuilder {
   /** @type {"session" | "story" | undefined} */
   #kind;
@@ -90,7 +80,7 @@ export class FollowUpBuilder {
 
   /**
    * Anchor on this file of the story's comparison.
-   * @param {FileAnchor} file
+   * @param {FollowUpFile} file
    */
   anchoredAt(file) {
     this.#file = {
@@ -98,12 +88,9 @@ export class FollowUpBuilder {
       baseline: file.baseline,
       tree: file.tree,
       ...(file.oldPath === undefined ? {} : { oldPath: file.oldPath }),
-      ...("completion" in file && file.completion !== undefined
-        ? { completion: file.completion }
-        : {}),
-      ...("reference" in file && file.reference !== undefined
-        ? { reference: file.reference }
-        : {}),
+      ...(file.completion !== undefined ? { completion: file.completion } : {}),
+      ...(file.reference === undefined ? {} : { reference: file.reference }),
+      ...(file.published === undefined ? {} : { published: file.published }),
       ...(file.line === undefined || file.side === undefined
         ? {}
         : { line: file.line, side: file.side }),

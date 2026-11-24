@@ -1,5 +1,5 @@
 // A quiet completion received while a manual Done is still capturing an
-// earlier branch revision keeps the later revision, pins only the baseline and
+// earlier branch revision keeps the later revision, pins only the
 // later commit, and runs no native stop when the stale manual mark resumes.
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -10,7 +10,6 @@ import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/localFolder.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
@@ -36,7 +35,6 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
     )
     .kept()
     .please();
-  const baseline = checkout.base;
   await keepAttempt(
     makeMe.anAcceptedAttempt
       .reportingFor(record)
@@ -89,7 +87,7 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
     reportingFolder: () => folder,
     capture: async (candidate, doneAt) => {
       const read = await captureBranchResult(candidate, doneAt);
-      heldRevision = read.result.revision;
+      heldRevision = read.result.committedTip;
       reached();
       await held;
       return read;
@@ -121,17 +119,9 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
 
   const kept = await keptSession(source, record.session);
   if (kept === undefined) throw new Error("Missing the kept launch.");
-  const reviewed = await storyReview(
-    makeMe.aSessionReviewRead.ofRecord(kept).please(),
-    new AbortController().signal,
-  );
-  expect(reviewed).toMatchObject({
-    kind: "branch-result",
-    baseline,
-    tree: later,
-  });
+  expect(kept.branchResult).toMatchObject({ committedTip: later });
   const pinned = await sessionBranchPins(checkout.integration, record.session);
-  expect(pinned).toMatchObject([{ objectId: baseline }, { objectId: later }]);
+  expect(pinned).toMatchObject([{ objectId: later }]);
   expect(pinned).not.toContainEqual(
     expect.objectContaining({ objectId: earlier }),
   );

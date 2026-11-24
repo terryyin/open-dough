@@ -59,10 +59,12 @@ export function githubRevisionLookup(
   workflow: string,
   call: GitCall,
   signal: AbortSignal,
+  gh = readGitHubActions,
 ): RevisionCiLookup {
   const github = createGitHubActions({
     repo: source.repository,
     workflow,
+    gh,
   });
   // Slots in one comparison can name the same attempt and share its signal.
   const pendingAttemptJobs = new Map<
@@ -99,7 +101,7 @@ export function githubRevisionLookup(
       per_page: "10",
       page: "1",
     });
-    const { workflow_runs: runs = [] } = (await readGitHubActions(
+    const { workflow_runs: runs = [] } = (await gh(
       [
         "api",
         `repos/${source.repository}/actions/workflows/${id}/runs?${query}`,
@@ -142,7 +144,7 @@ export function githubRevisionLookup(
     runId: number,
     attempt: number,
   ): Promise<ListedRun> {
-    const body = (await readGitHubActions(
+    const body = (await gh(
       [
         "api",
         `repos/${source.repository}/actions/runs/${String(runId)}/attempts/${String(attempt)}`,

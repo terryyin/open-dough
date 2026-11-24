@@ -6,9 +6,9 @@
 import { useDiffStoryNote } from "./StoryDiffNote.tsx";
 import { useState, type RefObject } from "react";
 import type { DiffLineSide } from "./DiffLineNumber.tsx";
-import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import {
-  fileFollowUpParts,
+  fileFollowUpTarget,
+  useReviewedStoryFollowUp,
   StoryLineFollowUp,
 } from "./StoryAnchoredFollowUp.tsx";
 import { StyledFileDiff } from "./StyledFileDiff.tsx";
@@ -17,7 +17,6 @@ import {
   type ReviewedFileDiff,
   type ReviewedFileText,
 } from "./storyReviewContract.ts";
-import { reviewedStoryIdentity } from "./reviewedWorkSubject.ts";
 import { reviewedFileQuery, type ReviewedWork } from "./reviewedFileRead.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 import { reviewedFilePaths } from "./reviewedFileContext.ts";
@@ -66,11 +65,12 @@ export function FileDiff({
   const [lineFollow, setLineFollow] = useState<{
     readonly line: number;
     readonly side: DiffLineSide;
+    readonly opening: number;
   }>();
-  const done = useDoneStoryFollowUp(reviewedStoryIdentity(reviewed.subject));
+  const done = useReviewedStoryFollowUp(reviewed);
   const canLineFollow =
     done !== undefined &&
-    fileFollowUpParts(reviewed, from, tree, file) !== undefined;
+    fileFollowUpTarget(reviewed, from, tree, file) !== undefined;
   const textEnabled = answer?.kind === "diff";
   const textRead = useReviewRead("fileText", query, {
     round: textRound,
@@ -119,7 +119,11 @@ export function FileDiff({
           {...(canLineFollow
             ? {
                 onLineFollowUp: (side: DiffLineSide, line: number) => {
-                  setLineFollow({ line, side });
+                  setLineFollow((previous) => ({
+                    line,
+                    side,
+                    opening: (previous?.opening ?? 0) + 1,
+                  }));
                 },
               }
             : {})}
@@ -128,6 +132,7 @@ export function FileDiff({
       {note.content}
       {lineFollow !== undefined && (
         <StoryLineFollowUp
+          key={lineFollow.opening}
           reviewed={reviewed}
           from={from}
           tree={tree}

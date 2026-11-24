@@ -1,93 +1,64 @@
-// What the selected story's Intent compares, chosen beside the compared
-// revisions through Review changes' own selection (`./useStoryComparison.ts`):
-// all changes, uncommitted changes included or left out, or a contiguous range
-// of the story's commits chosen by its two ends, named as the Side panel
-// review names it; a Done story's published completion or one of its captured
-// landed runs. Refresh reads the worktree again and keeps the choice.
-
+// A story opens its published comparison with available landing choices.
 import {
+  ComparisonChoices,
   ComparisonInclusion,
-  ComparisonSwitch,
+  comparisonName,
   type ComparisonChoice,
 } from "./StoryReviewComparison.tsx";
-import { CommitList, CommitRangeHeading } from "./StoryReviewCommits.tsx";
-import { RunChoice } from "./StoryReviewRunChoice.tsx";
-import type { ReviewItem } from "./storyReviewContract.ts";
+import { launchKindName } from "./launchWorkflow.ts";
 import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
-import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 
 export type StoryCompare = {
-  readonly shown: ComparisonChoice;
-  // Whether the story's default comparison is the one chosen.
+  readonly shown: ComparisonChoice | undefined;
   readonly isDefault: boolean;
-  // Whether the story has a workspace to compare.
-  readonly workspace: boolean;
-  // Whether the story's published completion is offered.
   readonly published: boolean;
   readonly runs: readonly ReviewRunChoice[];
   readonly selectedRun: ReviewRunChoice | undefined;
   readonly onRun: (run: string) => void;
-  readonly items: readonly ReviewItem[];
-  readonly selectedItems: readonly ReviewItem[];
-  readonly trunkIntegrated: boolean;
   readonly onChoose: (choice: ComparisonChoice) => void;
-  readonly onSelect: (id: string) => void;
-  // Whether all changes include uncommitted changes, offered only while
-  // all changes are shown of a worktree holding some.
-  readonly includeUncommitted: boolean | undefined;
-  readonly onIncludeUncommitted: (include: boolean) => void;
   readonly includeMergedChanges: boolean | undefined;
   readonly onIncludeMergedChanges: (include: boolean) => void;
   readonly onRefresh: () => void;
-  // A range, run, or refresh still in flight. Refresh stays focusable.
   readonly reading: boolean;
 };
-
-// The chosen commit range's name in place of the compared revisions.
-export function ComparedRange({
-  compare,
-  shown,
-}: {
-  readonly compare: StoryCompare;
-  readonly shown?: ShownStoryComparison;
-}) {
-  const settled =
-    !compare.reading && compare.includeMergedChanges !== undefined;
-  const pair =
-    settled && shown !== undefined
-      ? { from: shown.comparison.from, tree: shown.tree }
-      : undefined;
-  return (
-    <div className="intent-story-revisions">
-      <CommitRangeHeading
-        selected={compare.selectedItems}
-        trunkIntegrated={compare.trunkIntegrated}
-        includesMergedChanges={shown?.includesMergedChanges === true}
-        pair={pair}
-      />
-    </div>
-  );
-}
 
 export function IntentStoryCompare({
   compare,
 }: {
   readonly compare: StoryCompare;
 }) {
+  const choices = [
+    ...(compare.published
+      ? [{ key: "published", label: comparisonName("published") }]
+      : []),
+    ...compare.runs.map((run) => ({
+      key: run.key,
+      label: [
+        launchKindName(run.workflow),
+        ...(run.launchedAt === undefined
+          ? []
+          : [new Date(run.launchedAt).toLocaleString()]),
+        run.comparison?.revision.slice(0, 8) ?? "No published comparison",
+      ].join(" — "),
+    })),
+  ];
   return (
     <div className="intent-story-compare" aria-label="Compare" role="group">
-      <ComparisonSwitch
-        shown={compare.shown}
-        onSwitch={compare.onChoose}
-        workspace={compare.workspace}
-        commits={compare.items.length > 0}
-        landed={compare.runs.length > 0}
-        published={compare.published}
-      />
-      {/* Unavailable while reading, yet still focusable, so the
-          keyboard stays on it. */}
+      {choices.length > 1 && (
+        <ComparisonChoices
+          choices={choices}
+          shown={compare.selectedRun?.key ?? compare.shown}
+          onReselect={(key) => {
+            if (key !== "published") compare.onRun(key);
+          }}
+          onChoose={(key) => {
+            if (key === "published") compare.onChoose(key);
+            else compare.onRun(key);
+          }}
+        />
+      )}
       <IconButton
         label="Refresh"
         icon={RefreshCw}
@@ -96,33 +67,22 @@ export function IntentStoryCompare({
           if (!compare.reading) compare.onRefresh();
         }}
       />
-      {compare.selectedRun !== undefined && (
-        <RunChoice
-          runs={compare.runs}
-          selected={compare.selectedRun}
-          onSelect={compare.onRun}
-        />
-      )}
-      {compare.includeUncommitted !== undefined && (
-        <ComparisonInclusion
-          label="Include uncommitted changes"
-          included={compare.includeUncommitted}
-          onInclude={compare.onIncludeUncommitted}
-        />
-      )}
+      {compare.selectedRun?.comparison === undefined &&
+        compare.selectedRun?.launchedAt !== undefined && (
+          <p>
+            {launchKindName(compare.selectedRun.workflow)} launched{" "}
+            <time dateTime={compare.selectedRun.launchedAt}>
+              {new Date(compare.selectedRun.launchedAt).toLocaleString()}
+            </time>
+            .
+          </p>
+        )}
       {compare.includeMergedChanges !== undefined && (
         <ComparisonInclusion
           label="Include merged changes"
           included={compare.includeMergedChanges}
           disabled={compare.reading}
           onInclude={compare.onIncludeMergedChanges}
-        />
-      )}
-      {compare.shown === "commits" && (
-        <CommitList
-          items={compare.items}
-          selected={compare.selectedItems}
-          onSelect={compare.onSelect}
         />
       )}
     </div>

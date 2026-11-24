@@ -32,6 +32,7 @@ import { followUpStorySessions, publishedDoneStory } from "./followUpStory.ts";
 import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { storyFollowUpMessage } from "./storyFollowUpMessage.ts";
+import { admitPublishedStoryComparison } from "./storyReviewHistoricalFileAdmission.ts";
 import { waitingStoryNotes } from "./storyNotes.ts";
 
 async function resolveStoryFollowUp(
@@ -42,22 +43,23 @@ async function resolveStoryFollowUp(
   notes?: AttachedStoryNote[];
 }> {
   const story = await publishedDoneStory(source, followUp);
+  const { file, comparison } = followUp;
+  if (file !== undefined)
+    await admitFollowUpFile(source, followUp.identity, file);
+  if (comparison !== undefined)
+    await admitPublishedStoryComparison(source, followUp.identity, comparison);
   const sessions = await followUpStorySessions(
     source,
     followUp.identity,
     followUp.sessions ?? [],
   );
   const selected = new Set(followUp.sessions?.map(followUpSessionKey));
-  const file =
-    followUp.file === undefined
-      ? undefined
-      : await admitFollowUpFile(source, followUp.identity, followUp.file);
   const base = storyContext(
     story,
     sessions
       .filter((session) => followUpSessionSelected(session, selected))
       .map(followUpSessionContext),
-    file,
+    file ?? comparison,
     sessions.some(({ retained }) => retained !== undefined),
   );
   if (followUp.notes !== true) return { context: base };

@@ -1,5 +1,5 @@
-// A retained automatic run from active Intent must yield to the completed
-// result when published work marks the same selected identity Done.
+// A selected Taken story's published comparison gives way to its permanent
+// completion when the project advances, even with an unreadable old capture.
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -12,6 +12,7 @@ import {
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { intentGroupToggle } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { keepUnusableCompletedCapture } from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
 import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import {
@@ -29,7 +30,7 @@ import { publishDeclaredTrunk } from "../../dashboard/test-support/support/story
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 
-test("a selected active story's obsolete automatic run cannot mask its recovered published comparison when it becomes Done", async ({
+test("a selected Taken story moves from published trunk to its published completion despite an unreadable legacy capture", async ({
   page,
   dashboard,
   origin,
@@ -56,6 +57,12 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
   });
   // Show the actual earlier claim first, then advance that same publication
   // to its actual completed result without navigating or reselecting.
+  await origin.originGit(
+    "update-ref",
+    "refs/heads/main",
+    story.claim,
+    story.completion,
+  );
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: story.claim,
@@ -72,14 +79,13 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
     (response) => new URL(response.url()).pathname === storyReviewEndpoint,
   );
   await intentChoice.click();
-  const unavailable = storyReviewSchema.parse(await (await first).json());
-  expect(unavailable).toMatchObject({
-    kind: "landing-unavailable",
-    selectedRun: expect.any(String),
+  const active = storyReviewSchema.parse(await (await first).json());
+  expect(active).toMatchObject({
+    kind: "published-taken",
+    mode: "trunk",
+    head: story.claim,
   });
-  await expect(storySummary(intent)).toContainText(
-    "The captured landing repository is missing or unreadable.",
-  );
+  await expect(storySummary(intent)).toContainText("Published trunk");
   const explicitRuns: string[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url());
@@ -93,6 +99,12 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
       url.searchParams.get("historical") === "true"
     );
   });
+  await origin.originGit(
+    "update-ref",
+    "refs/heads/main",
+    story.completion,
+    story.claim,
+  );
   published.advanceTo(story.completion);
   await passTimeUntilChecked(page);
   expect(storyReviewSchema.parse(await (await completed).json())).toMatchObject(
@@ -102,6 +114,7 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
   await expect(storyHeaderReading(intent).done).toHaveText("Done");
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
   await chooseStoryTab(intent, "Changes");
+  await intentGroupToggle(intent, "dashboard/tests").click();
   expect(await intentDiff(intent, modified)).toContain(
     "published completion after active selection",
   );

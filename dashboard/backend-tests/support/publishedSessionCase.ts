@@ -8,7 +8,7 @@ import { backlogPath } from "../../../Distribution/tests/support/repositoryTestD
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sessionRecordPathBeside } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { storyReview } from "../../server/storyReview.ts";
 import { aDoneCaptureCase } from "./doneCaptureCaseBuilder.ts";
 
 type Pair = { readonly base: string; readonly candidate: string };

@@ -34,7 +34,7 @@ test("a completed story's integration edits open with their diffs beside its mix
     kind: "published",
     completion,
   });
-  await review.comparison.expectChosen("Published completion");
+  await review.comparison.expectNoSwitch();
   await review.files.expectNotShown("Added other.json");
   const shared = "Modified shared.txt, includes trunk's changes";
   await review.files.choose(shared);

@@ -85,7 +85,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   await files.choose("Modified text.txt");
   await diffs.expectShows("Modified text.txt", "-before", "+extra");
   // The toolbar names the comparison, never the selected run.
-  await review.comparison.expectChosen("Landed runs");
+
   await review.hideFiles();
   await review.setFilesShown(true);
   expect(repositoryObservation(origin.project)).toEqual(before);

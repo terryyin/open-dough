@@ -24,11 +24,16 @@ for (const [asked, choices] of [
   ["with an instruction", { instruction: "Explain how launch records work" }],
   ["with no instruction", {}],
 ] as const) {
-  test(`a default launch ${asked} keeps the execution checkout and its starting revision`, async ({
+  test(`a default launch ${asked} keeps the execution checkout and its common repository`, async ({
     dashboard,
     origin,
   }) => {
-    const startingRevision = git(origin.project, "rev-parse", "HEAD");
+    const repository = git(
+      origin.project,
+      "rev-parse",
+      "--path-format=absolute",
+      "--git-common-dir",
+    ).trim();
     dashboard.claudeScenario("launched");
 
     const response = await launch(
@@ -43,7 +48,7 @@ for (const [asked, choices] of [
     };
     expect(answer.kind).toBe("launched");
     const started = answer.record?.defaultStart;
-    expect(started?.startingRevision).toBe(startingRevision);
+    expect(started?.repository).toBe(realpathSync(repository));
     const [call] = dashboard.claudeLaunchCalls();
     expect(realpathSync(started?.workspace ?? "")).toBe(call?.cwd);
     expect(await machineSessions(dashboard)).toContainEqual(

@@ -7,12 +7,12 @@ import {
 } from "./instruction-voice-page.ts";
 
 test("an over-limit recording blocks Start and Record until its review is added, and Start sends the final edit", async () => {
-  audioInput();
+  const capture = audioInput();
   const voice = await mountInstructionVoice();
   await voice.field.fill(originalDraft);
   const transcript = "x".repeat(4_001 - originalDraft.length - 2);
   voice.transcribe.mockResolvedValueOnce({ text: transcript });
-  await voice.recordClip();
+  await voice.recordClip(capture);
   await expect.element(voice.candidate).toHaveValue(transcript);
   await expect.element(voice.field).toHaveValue(originalDraft);
   await expect.element(voice.field).toHaveAttribute("readonly");
@@ -41,12 +41,12 @@ test("an over-limit recording blocks Start and Record until its review is added,
 });
 
 test("Discard in review keeps the draft focused, and Escape in review leaves the reopened dialog empty", async () => {
-  audioInput();
+  const capture = audioInput();
   const voice = await mountInstructionVoice();
   const transcript = "x".repeat(4_100);
   await voice.field.fill(originalDraft);
   voice.transcribe.mockResolvedValueOnce({ text: transcript });
-  await voice.recordClip();
+  await voice.recordClip(capture);
   await expect.element(voice.candidate).toHaveValue(transcript);
   await expect.element(voice.candidate).toHaveFocus();
   await expect.element(voice.field).toHaveValue(originalDraft);
@@ -65,7 +65,7 @@ test("Discard in review keeps the draft focused, and Escape in review leaves the
   await expect.element(voice.field).toHaveFocus();
 
   voice.transcribe.mockResolvedValueOnce({ text: transcript });
-  await voice.recordClip();
+  await voice.recordClip(capture);
   await expect.element(voice.candidate).toHaveValue(transcript);
   await userEvent.keyboard("{Escape}");
   await expect.element(voice.dialog).not.toBeInTheDocument();

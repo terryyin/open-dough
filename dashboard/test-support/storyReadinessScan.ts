@@ -20,6 +20,7 @@ import {
   detailToggle,
   inspectionGroup,
   launchGroup,
+  reviewChanges,
   storyNotesControl,
 } from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
@@ -85,10 +86,11 @@ export async function expectScanToDetailAt420AndTwiceZoom(
     await expect(detail).toContainText(plannedReady.identity);
     const canonical = canonicalRecord(detail);
     const notes = storyNotesControl(readyCard);
-    await expectTabOrder(page, [notes, canonical]);
+    const review = reviewChanges(readyCard);
+    await expectTabOrder(page, [notes, review, canonical]);
     await expect(canonical).toBeInViewport({ ratio: 1 });
     await expectNoSidewaysScrollAndWholeText(page);
-    await expectTabOrder(page, [notes, hide], "Shift+Tab");
+    await expectTabOrder(page, [review, notes, hide], "Shift+Tab");
     await page.keyboard.press("Enter");
     await expect(detail).toHaveCount(0);
     await expectFocusedAndIndicated(page, readyCard);

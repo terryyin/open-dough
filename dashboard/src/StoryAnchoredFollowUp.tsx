@@ -1,87 +1,90 @@
-// Follow up from a Done story's file header or line-number menu on a
-// Published completion or landed run (`./FollowUp.tsx` session dialog): never
-// a workspace snapshot. The file path offers a visible trigger; a line menu
-// auto-opens the same dialog for one line and side.
+// A published story comparison and the file and line actions use the same
+// Follow up dialog and carry the target from the review it opened on.
 
+import { useContext } from "react";
 import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import type { DiffLineSide } from "./DiffLineNumber.tsx";
-import type { FollowUpFileFacts } from "./followUpContext.ts";
-import type { FollowUpFile } from "./followUpRequest.ts";
+import type { FollowUpFile, FollowUpTarget } from "./followUpRequest.ts";
 import { StoryFollowUpSession } from "./FollowUp.tsx";
-import { usePageLaunches } from "./pageLaunches.ts";
+import { LaunchesOnPage, usePageLaunches } from "./pageLaunches.ts";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
 import type { ReviewedWork } from "./reviewedFileRead.ts";
-import { reviewedStoryIdentity } from "./reviewedWorkSubject.ts";
 import {
-  reviewedComparison,
-  reviewedFilePaths,
-} from "./reviewedFileContext.ts";
+  isReviewedPublishedSessionSubject,
+  reviewedStoryIdentity,
+} from "./reviewedWorkSubject.ts";
+import { reviewedFilePaths } from "./reviewedFileContext.ts";
+import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 
-// Request anchor and dialog facts for one reviewed file on a Published
-// completion or landed run; undefined on a workspace snapshot.
-export function fileFollowUpParts(
-  reviewed: ReviewedWork,
-  from: string,
+export function useReviewedStoryFollowUp(reviewed: ReviewedWork) {
+  const story = useDoneStoryFollowUp(
+    reviewedStoryIdentity(reviewed.subject) ?? reviewed.publishedStory,
+  );
+  return story?.sourceId === reviewed.subject.source ? story : undefined;
+}
+
+// A file names its literal path and the exact pair shown by its review.
+export function fileFollowUpTarget(
+  { subject, completion, reference }: ReviewedWork,
+  baseline: string,
   tree: string,
   file: ReviewedFile,
   line?: { readonly line: number; readonly side: DiffLineSide },
-):
-  | { readonly anchor: FollowUpFile; readonly facts: FollowUpFileFacts }
-  | undefined {
-  const comparison = reviewedComparison(reviewed);
+): FollowUpFile | undefined {
+  const comparison = isReviewedPublishedSessionSubject(subject)
+    ? { published: subject.published }
+    : completion !== undefined
+      ? { completion }
+      : reference !== undefined
+        ? { reference }
+        : undefined;
   if (comparison === undefined) return undefined;
-  const paths = reviewedFilePaths(file);
-  const range = { baseline: from, tree };
-  const lineAnchor =
-    line === undefined ? {} : { line: line.line, side: line.side };
-  return {
-    anchor: {
-      ...paths,
-      ...range,
-      ...lineAnchor,
-      ...(comparison.kind === "published"
-        ? { completion: comparison.id }
-        : { reference: comparison.id }),
-    },
-    facts: { ...paths, ...range, kind: comparison.kind, ...lineAnchor },
-  };
+  return { ...reviewedFilePaths(file), baseline, tree, ...comparison, ...line };
 }
 
 function DoneStoryAnchoredFollowUp({
   reviewed,
-  from,
-  tree,
-  file,
-  line,
+  target,
   autoOpen = false,
   showTrigger = true,
   onClosed,
 }: {
   readonly reviewed: ReviewedWork;
-  readonly from: string;
-  readonly tree: string;
-  readonly file: ReviewedFile;
-  readonly line?: { readonly line: number; readonly side: DiffLineSide };
+  readonly target: FollowUpTarget | undefined;
   readonly autoOpen?: boolean;
   readonly showTrigger?: boolean;
   readonly onClosed?: () => void;
 }) {
   const launches = usePageLaunches();
-  const target = useDoneStoryFollowUp(reviewedStoryIdentity(reviewed.subject));
-  const parts = fileFollowUpParts(reviewed, from, tree, file, line);
-  if (target === undefined || parts === undefined) return null;
+  const story = useReviewedStoryFollowUp(reviewed);
+  if (story === undefined || target === undefined) return null;
   return (
     <StoryFollowUpSession
-      story={target.story}
-      revision={target.revision}
-      sessions={target.sessions}
-      project={target.project}
-      sourceId={target.sourceId}
+      {...story}
       launches={launches}
-      file={parts}
+      target={target}
       autoOpen={autoOpen}
       showTrigger={showTrigger}
       {...(onClosed === undefined ? {} : { onClosed })}
+    />
+  );
+}
+
+export function StoryComparisonFollowUp({
+  shown: { reviewed, comparison, tree },
+}: {
+  readonly shown: ShownStoryComparison;
+}) {
+  const launches = useContext(LaunchesOnPage);
+  if (reviewed.completion === undefined || launches === undefined) return null;
+  return (
+    <DoneStoryAnchoredFollowUp
+      reviewed={reviewed}
+      target={{
+        completion: reviewed.completion,
+        baseline: comparison.from,
+        tree,
+      }}
     />
   );
 }
@@ -101,9 +104,7 @@ export function StoryFileFollowUp({
   return (
     <DoneStoryAnchoredFollowUp
       reviewed={reviewed}
-      from={from}
-      tree={tree}
-      file={file}
+      target={fileFollowUpTarget(reviewed, from, tree, file)}
     />
   );
 }
@@ -130,10 +131,7 @@ export function StoryLineFollowUp({
   return (
     <DoneStoryAnchoredFollowUp
       reviewed={reviewed}
-      from={from}
-      tree={tree}
-      file={file}
-      line={{ line, side }}
+      target={fileFollowUpTarget(reviewed, from, tree, file, { line, side })}
       autoOpen
       showTrigger={false}
       onClosed={onClosed}

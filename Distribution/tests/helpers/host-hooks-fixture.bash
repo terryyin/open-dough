@@ -34,6 +34,10 @@ seed_edited_managed_timeout() {
   node "${source_dir}/Distribution/tests/helpers/host-hook-scenarios.mjs" editedTimeout "$1" "${2:-${source_dir}}"
 }
 
+seed_former_wake_entry() {
+  node "${source_dir}/Distribution/tests/helpers/host-hook-scenarios.mjs" formerWake "$1" "$2"
+}
+
 seed_managed_command_with_local_argument() {
   seed_managed_command_with_suffix "$1" cursor ' --local' "${2-}"
 }

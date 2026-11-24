@@ -1,5 +1,5 @@
 import {
-  fileContextItems,
+  followUpTargetItems,
   itemText,
   noRequestGiven,
   type FollowUpSection,
@@ -37,16 +37,17 @@ function contextSection(
 }
 
 export function storyFollowUpMessage(
-  { story, file, sessions, notes }: StoryFollowUpContext,
+  { story, target, sessions, notes }: StoryFollowUpContext,
   instruction: string | undefined,
 ): string {
-  const target = file === undefined ? [] : fileContextItems(file).map(itemText);
+  const comparison =
+    target === undefined ? [] : followUpTargetItems(target).map(itemText);
   const request = instruction?.trim()
     ? ["Request:", instruction]
     : [`Request: ${noRequestGiven}`];
   return [
     contextSection("story", story),
-    section("request", [...target, ...request]),
+    section("request", [...comparison, ...request]),
     ...sessions.map((session) => contextSection("session", session)),
     ...(notes === undefined ? [] : [contextSection("notes", notes)]),
   ].join("\n\n");

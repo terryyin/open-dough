@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { storyReviewIds } from "../../../Distribution/tests/support/storyReviewSnapshotTestData.mjs";
+import { storyReviewIds } from "../../../Distribution/tests/support/storyReviewCompletedTestData.mjs";
 import type { PageReads } from "../../src/pageReads.tsx";
 import { storyNotesNames as names } from "../../test-support/storyNotesNames.ts";
 import { printedDiff } from "../review/styledDiffCases.ts";

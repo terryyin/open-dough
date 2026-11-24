@@ -38,25 +38,13 @@
 import { collectCiFollowUps } from "./ciFollowUpCollection.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 
-import {
-  keepLandedCiOrder,
-  keptLandedCiHistory,
-  keptLandingReferences,
-  type LandingReference,
-  type ProjectHistory,
-} from "./landedCiHistoryStore.ts";
-import { collectLandingResolution } from "./landedCiCollectionLanding.ts";
-import {
-  measuredWindow,
-  newestFirst,
-  mostCompleteLandingOrder,
-} from "./landedCiMeasuredBuilds.ts";
-import { readLandingOrder } from "./launchLandingGit.ts";
+import { keptLandedCiHistory } from "./landedCiHistoryStore.ts";
+import { collectLandedCiPass } from "./landedCiPass.ts";
+import { readLandedProof } from "./landedCiCollectedProof.ts";
 
-import { passRead } from "./landedCiResolution.ts";
+import { landedCiReadSignal, passRead } from "./landedCiPassRead.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import {
   projectEnvironment,
@@ -78,27 +66,6 @@ function collects(): boolean {
   );
 }
 
-function proofSignal(stopped: AbortSignal): AbortSignal {
-  return AbortSignal.any([stopped, AbortSignal.timeout(readWaitLimitMs)]);
-}
-
-// The landings onto the project's configured ref that its records name, with
-// those the history keeps, each once by receipt. Local and retained ancestry
-// order them before collection can select or prune measurements.
-function trunkLandings(
-  source: PublishedSource,
-  records: readonly LaunchRecord[],
-  history: ProjectHistory,
-): LandingReference[] {
-  const target = `refs/heads/${source.ref}`;
-  const byReceipt = new Map<string, LandingReference>();
-  for (const landing of keptLandingReferences(history))
-    byReceipt.set(landing.receipt, landing);
-  for (const { landing } of records)
-    if (landing?.target === target) byReceipt.set(landing.receipt, landing);
-  return [...byReceipt.values()];
-}
-
 export class LandedCiCollection {
   private readonly stopped = new AbortController();
   // The pass under way, or the last one.
@@ -106,7 +73,9 @@ export class LandedCiCollection {
   // The pass asked for once the one under way ends.
   private next: Promise<void> | undefined;
 
-  constructor() {
+  constructor(
+    private readonly ci = { read: passRead, readProof: readLandedProof },
+  ) {
     if (!collects()) return;
     void repeatUntilStopped(this.stopped.signal, recheckMs, async () => {
       await this.collected();
@@ -116,9 +85,9 @@ export class LandedCiCollection {
 
   // Collects the recorded landings not yet final, now, or once the pass
   // under way ends; nothing where this server does not collect.
-  nudge(): void {
+  nudge(): Promise<void> | undefined {
     if (this.ended() || !collects()) return;
-    void this.collected();
+    return this.collected();
   }
 
   // A pass that starts once the one under way ends, joined by every ask
@@ -157,50 +126,24 @@ export class LandedCiCollection {
     source: PublishedSource,
     records: readonly LaunchRecord[],
   ): Promise<void> {
-    let history = await keptLandedCiHistory(source.id);
-    const candidates = trunkLandings(source, records, history);
-    const localOrder = await readLandingOrder(
-      [
-        ...candidates.flatMap((landing) =>
-          landing.repository === undefined ? [] : [landing.repository],
-        ),
-        executionCheckout(source).path,
-      ],
-      candidates.map((landing) => landing.revision),
-      undefined,
-      this.stopped.signal,
-    );
-    const order = mostCompleteLandingOrder(candidates, [
-      history.trunkOrder,
-      localOrder,
-    ]);
-    const landings = candidates.sort(newestFirst(order));
-    const read = passRead(source, this.stopped.signal);
-    const measured = new Set<string>();
-    for (const landing of landings) {
-      if (this.ended()) return;
-      if (measured.size >= measuredWindow) break;
-      const outcome = await collectLandingResolution({
-        source,
-        landing,
-        history,
-        order,
-        read,
-        proofSignal: proofSignal(this.stopped.signal),
-        ended: () => this.ended(),
-      });
-      history = outcome.history;
-      if (outcome.kind === "ended") return;
-      if (outcome.kind === "stop-project") break;
-      if (outcome.measuredBuild !== undefined)
-        measured.add(outcome.measuredBuild);
-    }
-    if (order !== undefined) await keepLandedCiOrder(source.id, order);
+    const history = await keptLandedCiHistory(source.id);
+    const repository = executionCheckout(source).path;
+    await collectLandedCiPass({
+      source,
+      history,
+      receipts: records.flatMap(({ landing }) =>
+        landing === undefined ? [] : [landing],
+      ),
+      repository,
+      stopped: this.stopped.signal,
+      read: this.ci.read(source, repository, this.stopped.signal),
+      readProof: this.ci.readProof,
+    });
     if (!this.ended())
       await collectCiFollowUps(
         source,
         await keptLandedCiHistory(source.id),
-        proofSignal(this.stopped.signal),
+        landedCiReadSignal(this.stopped.signal),
       );
   }
 

@@ -1,117 +1,187 @@
-// An answered corrupt archive stays a proof gap across collector restart;
-// another attempt supplies an observable barrier after the skipped attempt.
-import path from "node:path";
-import type { CiRunAnswer } from "../../test-support/support/baseCiActions.ts";
-import { retainedHistory } from "../../test-support/support/collectedScopeHistory.ts";
-import {
-  landedRecord,
-  minutesAgo,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-import {
-  passedFrom,
-  publishedLanding,
-  runningFrom,
-  trunkRun,
-} from "../../test-support/support/landedCiTrunk.ts";
-import {
-  serveCollectedTrunkRuns,
-  type CollectedTrunkProofs,
-} from "../../test-support/support/landedCiScopeProofs.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { collectedScopeFileSummary } from "../../test-support/support/scopeHistoryProofs.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { githubApi } from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { readCiAdapterProof } from "../../server/ciAdapterProof.ts";
+import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import { readIntentCiProof } from "../../server/intentCiProofRead.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { collectLandedCiPass } from "../../server/landedCiPass.ts";
+import { passRead } from "../../server/landedCiPassRead.ts";
+import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifacts.ts";
+import { archiveOf, listedArtifact } from "../support/ciProofMemory.ts";
 
-test.use({ serverMode: "boundary" });
+const source = makeMe.aPublishedSource.openDough.please();
+const description = makeMe.aRepository
+  .withBaseBeforeEveryLaunch()
+  .withRevision("running")
+  .withRevision("corrupt")
+  .please();
 
-test("a final corrupt exact proof is not reacquired when another pending attempt completes after restart", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  const home = path.join(origin.machine, "home");
-  const older = await publishedLanding(origin, {
-    title: "pending-barrier",
-    receipt: "eeeeeeee-0000-4000-8000-000000000092",
-    at: minutesAgo(10),
+test("a reopened collector keeps an answered corrupt proof while a pending run finishes", async () => {
+  const checkout = await materializeLocalCheckout(undefined, description, {
+    gitTemplates: false,
   });
-  const corrupt = await publishedLanding(origin, {
-    title: "corrupt-final",
-    receipt: "eeeeeeee-0000-4000-8000-000000000093",
-    at: minutesAgo(5),
+  const repository = checkout.integration;
+  const { base, running, corrupt } = checkout.revisions;
+  vi.stubEnv("HOME", checkout.fixture);
+  onTestFinished(async () => {
+    vi.unstubAllEnvs();
+    await checkout.cleanup();
   });
-  const corruptRun = trunkRun(
-    corrupt.revision,
-    93,
-    passedFrom(corrupt.at, 1000),
+  const pending = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing({ base, revision: running })
+    .deliveredAs({
+      delivery: "92000000-0000-4000-8000-000000000001",
+      receipt: "92000000-0000-4000-8000-000000000002",
+    })
+    .please();
+  const final = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing({ base: running, revision: corrupt })
+    .please();
+
+  const startedAt = "2026-11-09T10:00:00Z";
+  const completedAt = "2026-11-09T10:00:01Z";
+  const pendingSubject = makeMe.aCiProofRun
+    .with({ runId: 92, runAttempt: 1, revision: running })
+    .please();
+  const finalSubject = makeMe.aCiProofRun
+    .with({ runId: 93, runAttempt: 1, revision: corrupt })
+    .please();
+  let runningRun = makeMe.aCiRun
+    .with({
+      id: pendingSubject.runId,
+      headSha: running,
+      status: "in_progress",
+      startedAt,
+    })
+    .please();
+  const corruptRun = makeMe.aCiRun
+    .with({ id: finalSubject.runId, headSha: corrupt, startedAt, completedAt })
+    .please();
+  const github = githubApi(({ commit }: { commit?: string }) =>
+    commit === running ? [runningRun] : commit === corrupt ? [corruptRun] : [],
   );
-  let runs: readonly CiRunAnswer[] = [
-    trunkRun(older.revision, 92, runningFrom(older.at)),
-    corruptRun,
-  ];
-  let proofs: CollectedTrunkProofs = {
-    93: { kind: "unopenable", artifactId: 930 },
-  };
-  serveCollectedTrunkRuns(
-    github,
-    origin,
-    () => runs,
-    () => proofs,
+  const listing = vi.fn((args: readonly string[]) =>
+    Promise.resolve({
+      artifacts: args[1]?.includes("/92/artifacts?")
+        ? [listedArtifact(pendingSubject, 920)]
+        : [listedArtifact(finalSubject, 930)],
+    }),
   );
-  keepLaunchRecords(home, [landedRecord(older), landedRecord(corrupt)]);
-  const first = await startServer();
-  await expect
-    .poll(() => retainedHistory(home)?.builds["run/93/1"]?.proof)
-    .toMatchObject({ kind: "unavailable", reason: "unreadable" });
-  await expect
-    .poll(() => retainedHistory(home)?.landings[older.receipt]?.observed.kind)
-    .toBe("pending");
-  const held = retainedHistory(home)?.builds["run/93/1"];
-  await first.close();
-  const corruptRequests = () =>
-    github.calls.filter(
-      ({ request }) =>
-        request.kind === "actions-run-artifacts" && request.runId === 93,
-    ).length;
-  expect(corruptRequests()).toBe(1);
-  runs = [trunkRun(older.revision, 92, passedFrom(older.at, 2000)), corruptRun];
-  proofs = {
-    92: {
-      kind: "collected",
-      artifactId: 920,
-      text: collectedScopeFileSummary(
+  const scope = "dashboard/tests";
+  const file = `${scope}/finished.spec.ts`;
+  const proofArchive = (subject: typeof pendingSubject, ms: number) =>
+    archiveOf(
+      proofSummaryForEntry(
         {
-          repository: "terryyin/open-dough",
-          runId: 92,
-          attempt: 1,
-          revision: older.revision,
+          repository: source.repository,
+          runId: subject.runId,
+          attempt: subject.runAttempt,
+          revision: subject.revision,
         },
-        [["a.spec.ts", 200, 20]],
+        makeMe.aCiProofEntry
+          .at(scope)
+          .holding(
+            makeMe.aCiProofEvidence
+              .inUnit("case")
+              .brokenDown({ path: file, passed: 1, durationMs: ms })
+              .please(),
+          )
+          .please(),
       ),
-    },
-    // If the final attempt were asked again this would incorrectly replace its gap.
-    93: {
-      kind: "collected",
-      artifactId: 930,
-      text: collectedScopeFileSummary(
-        {
-          repository: "terryyin/open-dough",
-          runId: 93,
-          attempt: 1,
-          revision: corrupt.revision,
-        },
-        [["a.spec.ts", 9900, 990]],
-      ),
-    },
+    );
+  let corruptArchive: Buffer = Buffer.from("this archive has no zip directory");
+  const archive = vi.fn((args: readonly string[]) =>
+    Promise.resolve(
+      args[1]?.endsWith("/920/zip")
+        ? proofArchive(pendingSubject, 200)
+        : corruptArchive,
+    ),
+  );
+
+  const collect = async (receipts: readonly (typeof final)[]) => {
+    const stopped = new AbortController();
+    const artifact = ciProofArtifactReader({ listing, archive });
+    try {
+      await collectLandedCiPass({
+        source,
+        receipts,
+        history: await keptLandedCiHistory(source.id),
+        repository,
+        stopped: stopped.signal,
+        read: passRead(source, repository, stopped.signal, {
+          providers: { github },
+          readArtifact: artifact,
+        }),
+        readProof: (project, attempt, signal) =>
+          readIntentCiProof(project, attempt, signal, () => repository, {
+            artifact,
+            adapter: readCiAdapterProof,
+          }),
+      });
+    } finally {
+      stopped.abort();
+    }
   };
-  await startServer();
-  // Recorded order is older/corrupt. The newest-first pass encounters corrupt
-  // before this pending older attempt, so its summary is a completed-pass barrier.
-  await expect
-    .poll(() => retainedHistory(home)?.builds["run/92/1"]?.proof?.kind)
-    .toBe("summary");
-  expect(retainedHistory(home)?.builds["run/93/1"]).toEqual(held);
-  expect(corruptRequests()).toBe(1);
+
+  await collect([pending, final]);
+
+  const before = await keptLandedCiHistory(source.id);
+  const held = before.builds["run/93/1"];
+  expect(held).toMatchObject({
+    proof: { kind: "unavailable", reason: "unreadable" },
+    proofPending: false,
+  });
+  expect(before.landings[pending.receipt]?.observed).toMatchObject({
+    kind: "pending",
+    waitsFor: "build",
+    run: { runId: 92, runAttempt: 1 },
+  });
+
+  runningRun = makeMe.aCiRun
+    .with({
+      id: pendingSubject.runId,
+      headSha: running,
+      startedAt,
+      completedAt,
+    })
+    .please();
+  corruptArchive = proofArchive(finalSubject, 9900);
+
+  await collect([]);
+
+  const kept = await keptLandedCiHistory(source.id);
+  expect(kept.builds["run/93/1"]).toEqual(held);
+  expect(
+    await performIntentCiHistoryRead(source, {
+      kind: "intent-ci-history",
+      scope: file,
+      revision: corrupt,
+      through: final.receivedAt,
+    }),
+  ).toMatchObject({
+    kind: "answered",
+    answer: {
+      entries: [
+        {
+          key: "run/92/1",
+          kind: "point",
+          readings: [{ unit: "case", kind: "point", ms: 200 }],
+        },
+        {
+          key: "run/93/1",
+          kind: "gap",
+          reason: "Unreadable CI proof summary",
+        },
+      ],
+    },
+  });
+  expect(listing.mock.calls.map(([args]) => args[1])).toEqual([
+    expect.stringContaining("/93/artifacts?name=ci-proof-summary-attempt-1"),
+    expect.stringContaining("/92/artifacts?name=ci-proof-summary-attempt-1"),
+  ]);
 });

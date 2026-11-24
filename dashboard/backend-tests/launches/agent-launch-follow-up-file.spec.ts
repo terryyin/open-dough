@@ -22,8 +22,10 @@ import {
   renamedFileCompletedHistory,
 } from "../../test-support/support/completedFollowUpHistory.ts";
 import { inseparableRewriteCompletedHistory } from "../../test-support/support/completedForeignMergeHistory.ts";
+import { completedStoryContributionHistory } from "../../test-support/support/completedStoryHistory.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { answerOf, request } from "./followUpBoundaryCases.ts";
 
 test.use({ serverMode: "boundary" });
@@ -160,6 +162,44 @@ test.describe("inseparable rewrite", () => {
     expect(launched.kind, JSON.stringify(launched)).toBe("launched");
     expect(dashboard.claudeLaunches()[0]?.instruction).toContain(
       `<follow-up>\n- Path: shared.txt\n- Comparison: Published completion ${shared.includesTrunkFrom} → ${review.tree}\n`,
+    );
+  });
+});
+
+test.describe("widened comparison", () => {
+  test.use({ originRepository: completedStoryContributionHistory() });
+
+  test("an incoming line's follow-up retains the widened historical pair", async ({
+    dashboard,
+    origin,
+  }) => {
+    const completion = origin.revision("completion");
+    const baseline = origin.revision("story start");
+    const tree = git(origin.project, "rev-parse", `${completion}^{tree}`);
+    const { revision, story } = await serveDoneAtTrunk(dashboard, origin);
+    dashboard.claudeScenario("launched");
+
+    const launched = await answerOf(
+      launch(dashboard, {
+        ...request,
+        instruction: "Review the incoming line",
+        followUp: makeMe.aFollowUp
+          .ofStory(story, revision)
+          .anchoredAt({
+            path: "guides/incoming.txt",
+            completion,
+            baseline,
+            tree,
+            side: "new",
+            line: 1,
+          })
+          .please(),
+      }),
+    );
+
+    expect(launched.kind, JSON.stringify(launched)).toBe("launched");
+    expect(dashboard.claudeLaunches()[0]?.instruction).toContain(
+      `<follow-up>\n- Path: guides/incoming.txt\n- Comparison: Published completion ${baseline} → ${tree}\n- Line: 1\n- Side: new\n`,
     );
   });
 });

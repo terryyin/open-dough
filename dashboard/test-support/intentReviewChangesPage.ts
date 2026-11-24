@@ -13,9 +13,7 @@ import {
   storySummary,
   storyTabPanel,
 } from "./intentModePage.ts";
-import { ReviewCommits } from "./reviewChangesCommits.ts";
 import { ReviewComparison } from "./reviewChangesComparison.ts";
-import { ReviewContext } from "./reviewChangesContext.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
 import { ReviewDiffs } from "./reviewChangesDiffs.ts";
 import { reviewChanges } from "./storyCardControls.ts";
@@ -28,8 +26,6 @@ class IntentReviewChanges {
   readonly #intent: Locator;
   readonly #header: Locator;
   readonly comparison: ReviewComparison;
-  readonly commits: ReviewCommits;
-  readonly context: ReviewContext;
   readonly files: IntentReviewFiles;
   readonly diffs: ReviewDiffs;
   readonly landedRun: ReviewLandedRun;
@@ -42,10 +38,6 @@ class IntentReviewChanges {
     this.#header = storySummary(this.#intent);
     const reach = () => expect(this.#header).toBeVisible();
     this.comparison = new ReviewComparison(this.#header, reach);
-    this.commits = new ReviewCommits(this.#header, async () => {
-      await this.expectRead();
-    });
-    this.context = new ReviewContext(this.#header, reach);
     this.landedRun = new ReviewLandedRun(this.#header, reach);
     this.files = new IntentReviewFiles(this.#intent);
     const diff = intentDiffReading(this.#intent);
@@ -56,12 +48,6 @@ class IntentReviewChanges {
             has: page.getByRole("heading", { name: file, exact: true }),
           }),
     );
-  }
-
-  get snapshot() {
-    if (this.answer.kind !== "snapshot")
-      throw new Error("The review's opening took no snapshot.");
-    return this.answer;
   }
 
   async expectRead() {
@@ -140,8 +126,8 @@ class IntentReviewChanges {
   }
 
   // Preserve the real snapshot response for assertions about Git's inputs.
-  async refreshAndAnswer() {
-    const answer = await reviewAfter(this.page, this.#refresh);
+  async refreshAndAnswer(using: "mouse" | "keyboard" = "mouse") {
+    const answer = await reviewAfter(this.page, this.#refresh, using);
     return new IntentReviewChanges(this.page, answer);
   }
 }

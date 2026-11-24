@@ -74,14 +74,13 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(story.storyOnly(column)).not.toBeChecked();
   });
 
-  await test.step("the persistent header names the story and its workspace comparison", async () => {
+  await test.step("the persistent header names the story and its published comparison", async () => {
     await story.headerDetail();
     await expect(header.identity).toHaveText("SEED-A#a");
-    await expect(header.workspaceContext).toHaveAccessibleName(
-      new RegExp(`Baseline ${baseline} .* Worktree .*another-agent-workspace`),
-    );
+    await expect(header.revisions).toContainText("Published story branch");
+    await expect(header.revisions).toContainText(`Baseline ${baseline}.`);
     await expect(header.revisions).toContainText(
-      `Head ${shortRevision(head)}, uncommitted changes included.`,
+      `Head ${shortRevision(head)}.`,
     );
   });
 

@@ -64,14 +64,14 @@ export async function discoverAdapterAttempts(
   root: string,
   command: readonly string[],
   signal: AbortSignal,
-  { comparison = false } = {},
+  { comparison = false, discover = discoverCommandAttempts } = {},
 ): Promise<AdapterRun[]> {
   const branches = branch === source.ref ? [branch] : [source.ref, branch];
   const ended = new AbortController();
   const asked = AbortSignal.any([signal, ended.signal]);
   const listed = await Promise.all(
     branches.map(async (listedBranch) => {
-      const discovered = (await discoverCommandAttempts(
+      const discovered = (await discover(
         {
           command,
           repo: source.repository,

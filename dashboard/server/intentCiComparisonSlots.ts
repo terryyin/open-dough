@@ -7,7 +7,10 @@ import {
 } from "../src/storyCiComparison.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { RevisionBuildSlot } from "./baseCiRevisionLookup.ts";
-import { revisionLookupOrGap } from "./baseCiRevisionLookupSource.ts";
+import {
+  revisionLookupOrGap,
+  type RevisionCiProviders,
+} from "./baseCiRevisionLookupSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import type { BaseCiJudgment } from "./baseCiNearest.ts";
@@ -106,6 +109,7 @@ export async function lookupContext(
   source: PublishedSource,
   signal: AbortSignal,
   storyBranch: string | undefined,
+  options: { checkout?: string; providers?: RevisionCiProviders } = {},
 ): Promise<
   | {
       readonly call: GitCall;
@@ -113,9 +117,9 @@ export async function lookupContext(
     }
   | { readonly unavailable: string }
 > {
-  let folder: ReturnType<typeof executionCheckout>;
+  let checkout: string;
   try {
-    folder = executionCheckout(source);
+    checkout = options.checkout ?? executionCheckout(source).path;
   } catch (error) {
     return {
       unavailable:
@@ -123,7 +127,7 @@ export async function lookupContext(
     };
   }
   const call: GitCall = {
-    cwd: folder.path,
+    cwd: checkout,
     signal,
     maxBuffer: 64 * 1024 * 1024,
   };
@@ -131,10 +135,11 @@ export async function lookupContext(
     call,
     lookupOrGap: await revisionLookupOrGap(
       source,
-      folder.path,
+      checkout,
       call,
       signal,
       storyBranch,
+      options.providers,
     ),
   };
 }

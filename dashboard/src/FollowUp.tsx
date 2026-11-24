@@ -11,13 +11,8 @@ import { useContext } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import type { DoneStory } from "./doneRecord.ts";
-import {
-  sessionContext,
-  storyContext,
-  storyName,
-  type FollowUpFileFacts,
-} from "./followUpContext.ts";
-import type { FollowUpFile, FollowUpSource } from "./followUpRequest.ts";
+import { sessionContext, storyContext, storyName } from "./followUpContext.ts";
+import type { FollowUpSource, FollowUpTarget } from "./followUpRequest.ts";
 import {
   retainedFollowUpReference,
   storyFollowUpSessions,
@@ -45,22 +40,19 @@ type StoryLaunch = Launching & {
   readonly sessions: readonly LaunchWithState[];
 };
 
-// The Start session dialog for a done story, with an optional file anchor.
+// The Start session dialog for a done story, with an optional reviewed target.
 export function StoryFollowUpSession({
   story,
   revision,
   project,
   sourceId,
   launches,
-  file,
+  target,
   autoOpen = false,
   showTrigger = true,
   onClosed,
 }: StoryLaunch & {
-  readonly file?: {
-    readonly anchor: FollowUpFile;
-    readonly facts: FollowUpFileFacts;
-  };
+  readonly target?: FollowUpTarget;
   readonly autoOpen?: boolean;
   readonly showTrigger?: boolean;
   readonly onClosed?: () => void;
@@ -81,7 +73,11 @@ export function StoryFollowUpSession({
     story: {
       identity: story.identity,
       revision,
-      ...(file === undefined ? {} : { file: file.anchor }),
+      ...(target === undefined
+        ? {}
+        : "path" in target
+          ? { file: target }
+          : { comparison: target }),
     },
   };
   return (
@@ -100,7 +96,7 @@ export function StoryFollowUpSession({
         context: storyContext(
           story,
           [],
-          file?.facts,
+          target,
           candidates.some(({ retained }) => retained !== undefined),
         ),
         sessions: candidates,

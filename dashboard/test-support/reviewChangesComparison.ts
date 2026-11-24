@@ -1,6 +1,6 @@
 // The comparison Review changes (./reviewChangesPage.ts) shows, as the reader
-// chooses it: the Comparison switch, an execution checkout session's runs, and
-// Include uncommitted changes for All changes. Wherever these controls sit,
+// chooses it: the Comparison switch and an execution checkout session's runs.
+// Wherever these controls sit,
 // each operation first makes them reachable (they live in the details behind
 // the toolbar's eye today), so a scenario names the comparison it chooses,
 // never where the choice sits. Choosing waits for no read it starts.
@@ -12,8 +12,6 @@ import {
   comparisonChoice,
   comparisonLabel,
   expectShown,
-  uncommittedCheck,
-  uncommittedLabel,
 } from "./support/reviewControls.ts";
 
 export type Using = "mouse" | "keyboard" | "touch";
@@ -107,29 +105,6 @@ export class ReviewComparison {
     return this;
   }
 
-  async touchTargetsToMeasure(...choices: string[]) {
-    await this.#reach();
-    return [
-      ...choices.map((choice) => comparisonLabel(this.#review, choice)),
-      uncommittedLabel(this.#review),
-    ];
-  }
-
-  // Sets Include uncommitted changes, without waiting for any read.
-  async includeUncommitted(include: boolean, using: Using = "mouse") {
-    await this.#reach();
-    const check = uncommittedCheck(this.#review);
-    if (using === "touch") {
-      const label = uncommittedLabel(this.#review);
-      await label.scrollIntoViewIfNeeded();
-      await tapWhereShown(label);
-    } else if (using === "keyboard") await check.press("Space");
-    else await check.setChecked(include);
-    if (using !== "mouse")
-      await expect(check).toBeChecked({ checked: include });
-    return this;
-  }
-
   #mergedCheck() {
     return this.#review.getByRole("checkbox", {
       name: "Include merged changes",
@@ -148,16 +123,6 @@ export class ReviewComparison {
     await (included === "not offered"
       ? expect(this.#mergedCheck()).toHaveCount(0)
       : expect(this.#mergedCheck()).toBeChecked({ checked: included }));
-    return this;
-  }
-
-  // Whether Include uncommitted changes is offered, and if so checked.
-  async expectUncommittedIncluded(included: boolean | "not offered") {
-    await this.#reach();
-    const check = uncommittedCheck(this.#review);
-    await (included === "not offered"
-      ? expect(check).toHaveCount(0)
-      : expect(check).toBeChecked({ checked: included }));
     return this;
   }
 }

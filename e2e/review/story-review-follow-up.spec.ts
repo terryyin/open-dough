@@ -189,7 +189,7 @@ test.describe("retained Done workspace", () => {
           url.searchParams.has("run")
         );
       });
-      await review.comparison.choose("Landed runs");
+      await review.landedRun.chooseLatest();
       const landedReview = (await (await landed).json()) as {
         kind: string;
         baseline: string;

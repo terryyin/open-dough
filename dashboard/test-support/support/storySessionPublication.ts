@@ -40,10 +40,14 @@ export function publishStorySession(
   firstFile: string,
   interveningFile: string,
   secondFile: string,
+  secondText?: string,
 ) {
   const first = publishedPairAdding(origin, firstFile);
-  trunkAdvancedWith(origin, interveningFile);
-  const second = publishedPairAdding(origin, secondFile);
+  const secondBase = trunkAdvancedWith(origin, interveningFile);
+  const second = {
+    base: secondBase,
+    candidate: trunkAdvancedWith(origin, secondFile, secondText),
+  };
   const record = makeMe.aSessionRecord
     .forStory(identity)
     .closing(first)

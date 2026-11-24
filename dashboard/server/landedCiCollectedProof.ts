@@ -21,6 +21,12 @@ export type CollectedProof = {
   readonly pending: boolean;
 };
 
+export type LandedProofRead = (
+  source: PublishedSource,
+  subject: CiProofSubject,
+  signal: AbortSignal,
+) => Promise<CiProof>;
+
 // Missing summaries (`none`) and unreadable gaps stay collectable while
 // pending; other unavailable reasons are final once written.
 function collectableUnavailable(proof: CiProof): proof is CiProofUnavailable & {
@@ -51,11 +57,12 @@ export async function proofRetainedWith(
   source: PublishedSource,
   resolution: LandedResolution,
   signal: AbortSignal,
+  readProof: LandedProofRead,
 ): Promise<CollectedProof | undefined> {
   if (resolution.kind !== "build") return undefined;
   const { build } = keptResolution(resolution);
   if (build === undefined || !needsCollectedProof(build[1])) return undefined;
-  return collectedProofOf(source, build[1], signal);
+  return collectedProofOf(source, build[1], signal, readProof);
 }
 
 // Judge the original read before JSON persistence loses native unanswered
@@ -64,15 +71,11 @@ export async function collectedProofOf(
   source: PublishedSource,
   build: KeptBuild,
   signal: AbortSignal,
+  readProof: LandedProofRead = readLandedProof,
 ): Promise<CollectedProof> {
   const subject = collectedProofSubjectOf(source, build);
   if ("kind" in subject) return { proof: subject, pending: false };
-  const proof = await readIntentCiProof(
-    source,
-    subject,
-    signal,
-    (asked) => executionCheckout(asked).path,
-  );
+  const proof = await readProof(source, subject, signal);
   const pending =
     collectableUnavailable(proof) &&
     (proof.reason === "none" ||
@@ -80,6 +83,14 @@ export async function collectedProofOf(
       isUnansweredProof(proof));
   return { proof, pending };
 }
+
+export const readLandedProof: LandedProofRead = (source, subject, signal) =>
+  readIntentCiProof(
+    source,
+    subject,
+    signal,
+    (asked) => executionCheckout(asked).path,
+  );
 
 // One retained build names its own attempt; a missing or ambiguous identity
 // remains an explicit proof gap rather than borrowing another attempt.

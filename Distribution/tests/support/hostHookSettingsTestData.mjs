@@ -4,7 +4,7 @@
 // flat Cursor entries and command-wrapper Codex/Claude entries.
 import { HOSTS } from "../../src/install/open-dough-register-hooks-fragments.mjs";
 
-/** @typedef {{ command: string, timeout?: number, matcher?: string }} HostHandler */
+/** @typedef {{ command: string, timeout?: number, matcher?: string, asyncRewake?: boolean }} HostHandler */
 /** @typedef {{ hooks: Record<string, object[]>, version?: number } & Record<string, unknown>} HostSettings */
 /** @typedef {{ hooks: Record<string, object[]>, version?: number }} HookFragment */
 

@@ -4,15 +4,23 @@
 // ad hoc landing's or a captured run's landed comparison, and a execution checkout
 // session's commits. Node-free, for ./storyReviewTestData.mjs.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").StoryReview} StoryReview */
-/** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
-/** @typedef {TakenStoryReview["files"][number]} ReviewedFile */
+
+/** @typedef {import("../../../dashboard/src/storyReviewContract.ts").ReviewedFile[][number]} ReviewedFile */
 /** @typedef {import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice} ReviewRunChoice */
 /** @typedef {{ baseline: string, tree: string, files: ReviewedFile[] }} Compared */
-import { storyReviewIds } from "./storyReviewSnapshotTestData.mjs";
+
+/** @param {number} digit */
+const oid = (digit) => String(digit).repeat(40);
+
+export const storyReviewIds = Object.freeze({
+  baseline: oid(1),
+  tree: oid(2),
+  head: oid(3),
+  completion: oid(7),
+});
 
 /**
- * A story's published comparison; a given `completion` also names the trunk
- * landing it represents.
+ * A completed story's published comparison and represented landing.
  * @param {Compared & { completion: string | undefined, storyStart?: string | undefined, widened?: ReviewedFile[] | undefined }} compared
  * @returns {StoryReview}
  */
@@ -51,8 +59,6 @@ export function landedComparison({ baseline, tree, files, run }) {
     kind: "landed",
     landing: {
       reference: "74800000-0000-4000-8000-000000000001",
-      delivery: "74800000-0000-4000-8000-000000000002",
-      receipt: "74800000-0000-4000-8000-000000000003",
       base: baseline,
       revision: tree,
       receivedAt: "2026-01-02T13:00:00.000Z",
@@ -68,27 +74,14 @@ export function landedComparison({ baseline, tree, files, run }) {
 }
 
 /**
- * An execution checkout session's commits: one kept run.
+ * One comparison from a session's published close record.
  * @param {Compared} compared
  * @returns {StoryReview}
  */
-export function sessionCommits({ baseline, tree, files }) {
+export function publishedSessionComparison({ baseline, tree, files }) {
   return {
-    kind: "session-commits",
-    session: {
-      launchedAt: "2026-01-02T12:00:00.000Z",
-      doneAt: "2026-01-02T13:00:00.000Z",
-    },
-    commitRuns: [
-      {
-        commits: 1,
-        subject: "session commit",
-        committedAt: "2026-01-02T12:30:00.000Z",
-        baseline,
-        tree,
-      },
-    ],
-    commitRun: 0,
+    kind: "published-session",
+    session: { closedAt: "2026-01-02T13:00:00.000Z" },
     baseline,
     tree,
     files,

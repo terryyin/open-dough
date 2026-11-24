@@ -158,7 +158,11 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
     );
     await expectEarlierSnapshotKept(page, retrievedA);
     await expect(canonicalOfDashboardStory).toBeFocused();
-    await expectSnapshotButtons(page, { backlogCards: 3, cards: 4 });
+    await expectSnapshotButtons(page, {
+      backlogCards: 3,
+      takenCards: 1,
+      cards: 4,
+    });
     await expect(parts(page).reading).toHaveCount(0);
   });
 
@@ -196,6 +200,10 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
       `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/slice-plans/061-published-story-dashboard/PLAN.md`,
     );
     await expect(problem).toHaveCount(0);
-    await expectSnapshotButtons(page, { backlogCards: 2, cards: 4 });
+    await expectSnapshotButtons(page, {
+      backlogCards: 2,
+      takenCards: 2,
+      cards: 4,
+    });
   });
 });

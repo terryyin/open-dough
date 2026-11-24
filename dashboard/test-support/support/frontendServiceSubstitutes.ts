@@ -14,7 +14,6 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewFileTextEndpoint,
-  storyReviewRangeEndpoint,
 } from "../../src/storyReviewContract.ts";
 import { storyNotesEndpoint } from "../../src/storyNote.ts";
 import { installFrontendStoryNotes } from "./frontendStoryNotes.ts";
@@ -119,7 +118,6 @@ export async function installFrontendServiceSubstitutes(
     storyReviewStateEndpoint,
     storyNotesEndpoint,
     storyReviewEndpoint,
-    storyReviewRangeEndpoint,
     storyReviewFileEndpoint,
     storyReviewFileTextEndpoint,
     hostStatusEndpoint,

@@ -19,8 +19,6 @@ function sameBranchEntry(
     current.workspace === answered.workspace &&
     current.branch === answered.branch &&
     current.committedTip === answered.committedTip &&
-    current.tree === answered.tree &&
-    current.defaultTip === answered.defaultTip &&
     current.trunk?.remote === answered.trunk?.remote &&
     current.trunk?.target === answered.trunk?.target &&
     current.trunk?.revision === answered.trunk?.revision

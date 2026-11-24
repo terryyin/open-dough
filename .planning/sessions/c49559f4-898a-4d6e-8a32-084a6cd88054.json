@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "c49559f4-898a-4d6e-8a32-084a6cd88054",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T08:59:44.898Z",
+  "story": "SEED-423#notify-claude-code-of-ci-through-one-path",
+  "ranges": [
+    {
+      "base": "b45f38dcfa4d65e443f18c0f43f8f0ae25e57f55",
+      "candidate": "075e33ee51a7d148f5b5fcb48b607d7e019b1c4c"
+    },
+    {
+      "base": "075e33ee51a7d148f5b5fcb48b607d7e019b1c4c",
+      "candidate": "033ec81bae0a7ca99d92e1759a1203f2f6bdf87c"
+    },
+    {
+      "base": "033ec81bae0a7ca99d92e1759a1203f2f6bdf87c",
+      "candidate": "66e36036c16c4d9f3d52ac3d3105c48045910395"
+    },
+    {
+      "base": "66e36036c16c4d9f3d52ac3d3105c48045910395",
+      "candidate": "39a9fc8e43d59be74edc9492a393c49090cc3c56"
+    }
+  ]
+}

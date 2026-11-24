@@ -137,9 +137,6 @@ test("a standalone ad hoc Done entry opens its review from Review changes", asyn
     },
   );
 
-  // One landing: its revealed details offer no run picker.
-  await opened.landedRun.expectNoPicker();
-
   await journey.phase(
     "reviewing the session clears the selected story",
     (pages) => {

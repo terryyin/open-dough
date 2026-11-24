@@ -43,13 +43,7 @@ function HistoricalPage({
 type Props = Parameters<typeof IntentOnPage>[0] & {
   readonly destination: FollowUpDestination;
 };
-function RetainedStory({
-  source,
-  work,
-  records,
-  workspaces,
-  destination,
-}: Props) {
+function RetainedStory({ source, work, records, destination }: Props) {
   const [reading, setReading] = useState<CiFollowUpReading>();
   const [problem, setProblem] = useState<string>();
   const [round, setRound] = useState(0);
@@ -63,7 +57,6 @@ function RetainedStory({
     source,
     work,
     records,
-    workspaces,
     selectedIdentity: destination.identity,
   });
   const summary = useStorySummary(lens.story, lens.comparison, lens.retry);

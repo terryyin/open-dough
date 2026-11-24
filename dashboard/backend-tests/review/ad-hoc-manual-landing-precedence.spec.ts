@@ -10,7 +10,6 @@ import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { bindRecord } from "../../server/launchRecordBinding.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/localFolder.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
@@ -90,13 +89,5 @@ test("an early quiet Done keeps its verified manual pair when the native session
 
   const kept = await keptSession(source, record.session);
   if (kept === undefined) throw new Error("Missing the kept launch.");
-  const reviewed = await storyReview(
-    makeMe.aSessionReviewRead.ofRecord(kept).please(),
-    new AbortController().signal,
-  );
-  expect(reviewed).toMatchObject({
-    kind: "landed",
-    baseline,
-    tree: early,
-  });
+  expect(kept.landing).toMatchObject({ base: baseline, revision: early });
 });

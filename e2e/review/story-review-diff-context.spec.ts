@@ -27,7 +27,7 @@ import {
   expandContextRepository,
   storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { keepPublishedStoryReview } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test.describe("diff context expansion", () => {
   test.use({ originRepository: expandContextRepository });
@@ -40,7 +40,7 @@ test.describe("diff context expansion", () => {
     origin,
   }) => {
     const { workspace } = storyWorktree(origin);
-    keepLaunchRecord(dashboard, workspace);
+    keepPublishedStoryReview(dashboard, origin, workspace);
     const card = await openBacklog(page, origin);
     const {
       review,

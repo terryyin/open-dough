@@ -18,7 +18,7 @@ import { expect, type Locator } from "@playwright/test";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
-import { contextValues } from "./reviewContextLine.ts";
+import { fileFollowUpDialog, followUpComposer } from "./fileFollowUpPage.ts";
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -48,7 +48,6 @@ export function storyHeaderReading(intent: Locator) {
     leadingControl: region.locator(":scope > *").first().getByRole("button"),
     identity: region.locator(".record-identity"),
     revisions,
-    workspaceContext: contextValues(revisions),
     publishedBaseline: revisions.getByText(/^Baseline /).locator("code"),
     publishedCompletion: revisions.getByText(/^Completion /).locator("code"),
     status: region.getByRole("status"),
@@ -61,8 +60,7 @@ export const storyTitle = (intent: Locator) =>
   storySummary(intent).getByRole("heading", { level: 2 });
 
 // What the header says beyond the title: the identity, and the revisions or
-// full explanation of the comparison. The workspace detail can expand, and
-// the header itself stays open.
+// full explanation of the comparison.
 export async function storyHeaderDetail(intent: Locator) {
   const header = storySummary(intent);
   await expect(header).toBeVisible();
@@ -178,6 +176,17 @@ export function intentStory(intent: Locator) {
     panel: (name: Parameters<typeof storyTabPanel>[1]) =>
       storyTabPanel(intent, name),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
+    async followUpComparison(storyName: string) {
+      await storySummary(intent)
+        .getByRole("button", {
+          name: `Follow up on comparison ${storyName}`,
+          exact: true,
+        })
+        .click();
+      const dialog = fileFollowUpDialog(intent.page());
+      await expect(dialog).toBeVisible();
+      return followUpComposer(dialog);
+    },
     diff: (name: string) => intentDiff(intent, name),
     outsideDiff: (name: string) =>
       selectedDiff(intent, outsideFile(intent, name), name),

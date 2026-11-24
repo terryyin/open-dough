@@ -1,6 +1,7 @@
 // Host-hook merge policy for Open Dough CI registration.
 // Identifies managed entries by native event and the known fragment command,
 // including locally argument-extended variants that require conflict review.
+// Removes unchanged retired managed entries before merging current fragments.
 // Preserves unrelated handlers and matcher siblings; refuses named conflicts.
 
 import {
@@ -12,7 +13,31 @@ import {
   mergeClaudeEvent,
 } from "./open-dough-register-hook-events.mjs";
 
-function mergeHooksMap(existingHooks, fragmentHooks, hostId, relativePath) {
+function withoutRetiredEntries(hooks, retiredEntries) {
+  const remaining = { ...hooks };
+  for (const [event, retired] of Object.entries(retiredEntries)) {
+    if (!Array.isArray(remaining[event])) {
+      continue;
+    }
+    const kept = remaining[event].filter(
+      (entry) => !retired.some((former) => jsonValuesEqual(entry, former)),
+    );
+    if (kept.length === 0) {
+      delete remaining[event];
+    } else {
+      remaining[event] = kept;
+    }
+  }
+  return remaining;
+}
+
+function mergeHooksMap(
+  existingHooks,
+  fragmentHooks,
+  retiredEntries,
+  hostId,
+  relativePath,
+) {
   if (existingHooks !== undefined) {
     if (!isPlainObject(existingHooks)) {
       return conflict(
@@ -21,15 +46,15 @@ function mergeHooksMap(existingHooks, fragmentHooks, hostId, relativePath) {
       );
     }
   }
-  const result =
-    existingHooks === undefined
-      ? {}
-      : Object.fromEntries(
-          Object.entries(existingHooks).map(([event, value]) => [
-            event,
-            Array.isArray(value) ? cloneEntries(value) : structuredClone(value),
-          ]),
-        );
+  const result = withoutRetiredEntries(
+    Object.fromEntries(
+      Object.entries(existingHooks ?? {}).map(([event, value]) => [
+        event,
+        Array.isArray(value) ? cloneEntries(value) : structuredClone(value),
+      ]),
+    ),
+    retiredEntries,
+  );
 
   for (const [event, fragmentEntries] of Object.entries(fragmentHooks)) {
     if (!Array.isArray(fragmentEntries) || fragmentEntries.length === 0) {
@@ -51,7 +76,13 @@ function mergeHooksMap(existingHooks, fragmentHooks, hostId, relativePath) {
   return { hooks: result };
 }
 
-export function mergeDocument(existingDoc, fragment, hostId, relativePath) {
+export function mergeDocument(
+  existingDoc,
+  fragment,
+  hostId,
+  relativePath,
+  retiredEntries = {},
+) {
   if (
     existingDoc !== null &&
     existingDoc !== undefined &&
@@ -66,6 +97,7 @@ export function mergeDocument(existingDoc, fragment, hostId, relativePath) {
   const mergedHooks = mergeHooksMap(
     base.hooks,
     fragment.hooks,
+    retiredEntries,
     hostId,
     relativePath,
   );

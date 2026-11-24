@@ -1,46 +1,28 @@
 // @ts-check
-// Builder of the story review's answers (dashboard/src/storyReviewContract.ts):
-// a taken story's snapshot (./storyReviewSnapshotTestData.mjs), a completed
-// comparison (./storyReviewCompletedTestData.mjs), a review gap and a commit
-// range. Node-free; ./storyReviewMakeMe.mjs registers it.
+// Shared builder for published comparisons, sessions and evidence gaps.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").StoryReview} StoryReview */
 /** @typedef {Pick<Extract<StoryReview, { kind: "landing-unavailable" }>, "explanation" | "comparison">} ReviewGap */
-/** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
-/** @typedef {TakenStoryReview["files"][number]} ReviewedFile */
+/** @typedef {import("../../../dashboard/src/storyReviewContract.ts").ReviewedFile} ReviewedFile */
 /** @typedef {import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice} ReviewRunChoice */
 import {
   landedComparison,
   publishedComparison,
-  sessionCommits,
-} from "./storyReviewCompletedTestData.mjs";
-import {
-  commitRange,
+  publishedSessionComparison,
   storyReviewIds,
-  takenSnapshot,
-} from "./storyReviewSnapshotTestData.mjs";
-/** @typedef {import("./reviewCommitTestData.mjs").ReviewCommit} ReviewCommit */
-
+} from "./storyReviewCompletedTestData.mjs";
 export class StoryReviewBuilder {
   /** @type {ReviewedFile[]} */
   #files = [];
-  /** @type {"snapshot" | "published" | "landed" | "session-commits" | "landing-unavailable" | "unavailable"} */
-  #kind = "snapshot";
+  /** @type {"published-taken" | "published" | "landed" | "published-session" | "landing-unavailable" | "unavailable"} */
+  #kind = "published-taken";
   /** @type {ReviewGap} */
   #gap = { explanation: "" };
   /** @type {ReviewRunChoice[] | undefined} */
   #runs;
   /** @type {ReviewRunChoice | undefined} */
   #selected;
-  /** @type {ReviewedFile[] | undefined} */
-  #committed;
-  /** @type {import("./storyReviewSnapshotTestData.mjs").SnapshotParts["published"]} */
-  #published;
   /** @type {string | undefined} */
   #completion;
-  /** @type {ReviewCommit[] | undefined} */
-  #commits;
-  #uncommitted = false;
-
   /**
    * @param {string} path a file the comparison adds
    * @param {number} lines how many lines long
@@ -54,35 +36,6 @@ export class StoryReviewBuilder {
     return this;
   }
 
-  /**
-   * A snapshot whose committed part, `committed`'s files, can be told from
-   * its uncommitted changes, so the uncommitted check is offered.
-   * @param {StoryReviewBuilder} committed
-   */
-  committedAs(committed) {
-    this.#committed = committed.#files;
-    return this;
-  }
-
-  /**
-   * A Trunk Mode snapshot whose agent published `commits` on trunk that this
-   * machine's Git could not take out of its baseline.
-   * @param {number} commits
-   */
-  keepingPublishedCommits(commits) {
-    this.#published = { commits, kept: "not-restated" };
-    return this;
-  }
-
-  /**
-   * @param {number} commits the story's published commits taken out of the baseline
-   * @param {string} trunk the trunk revision before the subtraction
-   */
-  subtractingPublishedCommits(commits, trunk) {
-    this.#published = { commits, trunk };
-    return this;
-  }
-
   /** @param {string} path a file the comparison deletes */
   deleting(path) {
     this.#files.push({
@@ -90,24 +43,6 @@ export class StoryReviewBuilder {
       path,
       lines: { added: 0, removed: 1 },
     });
-    return this;
-  }
-
-  /**
-   * A snapshot of a worktree holding `commits`, newest first
-   * (`makeMe.aReviewCommit`); with `committedAs`, its committed part runs
-   * from the oldest's parent tree to the newest's tree.
-   * @param {...ReviewCommit} commits
-   */
-  onCommits(...commits) {
-    this.#commits = commits;
-    return this;
-  }
-
-  // Uncommitted changes over the snapshot's newest commit, whose committed
-  // part cannot be told apart, so no uncommitted check is offered.
-  withUncommittedChanges() {
-    this.#uncommitted = true;
     return this;
   }
 
@@ -150,9 +85,9 @@ export class StoryReviewBuilder {
     return this;
   }
 
-  // An execution checkout session's commits: one kept run.
-  sessionCommits() {
-    this.#kind = "session-commits";
+  // A session's published comparison.
+  publishedSession() {
+    this.#kind = "published-session";
     return this;
   }
 
@@ -188,17 +123,6 @@ export class StoryReviewBuilder {
     return this;
   }
 
-  /**
-   * The range read holding this review's files: from `oldest`'s parent tree
-   * to `newest`'s tree, or without them, of the snapshot's one commit.
-   * @param {ReviewCommit} [oldest]
-   * @param {ReviewCommit} [newest]
-   * @returns {import("../../../dashboard/src/storyReviewContract.ts").ReviewRange}
-   */
-  pleaseRange(oldest, newest = oldest) {
-    return commitRange(this.#files, oldest, newest);
-  }
-
   /** @param {{ from: string, changes: StoryReviewBuilder }} [withMerged] @returns {StoryReview} */
   please(withMerged) {
     const review = this.#comparison(
@@ -223,8 +147,8 @@ export class StoryReviewBuilder {
       return { kind: "landing-unavailable", ...this.#gap };
     if (this.#kind === "unavailable")
       return { kind: "unavailable", explanation: this.#gap.explanation };
-    if (this.#kind === "session-commits")
-      return sessionCommits({ baseline, tree, files });
+    if (this.#kind === "published-session")
+      return publishedSessionComparison({ baseline, tree, files });
     if (this.#kind === "published")
       return publishedComparison({
         baseline,
@@ -236,14 +160,19 @@ export class StoryReviewBuilder {
       });
     if (this.#kind === "landed")
       return landedComparison({ baseline, tree, files, run });
-    return takenSnapshot({
+    return {
+      kind: "published-taken",
+      mode: "story-branch",
+      head: storyReviewIds.head,
+      agent: "claude",
+      remote: "origin",
+      target: "claude/taken",
       baseline,
       tree,
       files,
-      committed: this.#committed,
-      commits: this.#commits,
-      uncommitted: this.#uncommitted,
-      published: this.#published,
-    });
+      ...(storyStart !== undefined && widened !== undefined
+        ? { withMerged: { from: storyStart, files: widened } }
+        : {}),
+    };
   }
 }

@@ -17,7 +17,7 @@ test("Cancel and Escape each abandon a held transcription and a late reply leave
     const held = hold<{ text: string }>();
     voice.transcribe.mockReturnValueOnce(held.answer);
     await voice.field.fill("Discard this draft");
-    await voice.recordClip();
+    await voice.recordClip(capture);
     await expect
       .poll(() => voice.transcribe.mock.calls)
       .toHaveLength(round + 1);

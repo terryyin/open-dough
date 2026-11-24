@@ -67,17 +67,11 @@ const keepingRun =
   };
 
 // Pins the record's session and landing pairs the way its Done left them.
-async function pinsOf(record: LaunchRecord) {
+async function pinsOf(record: LaunchRecord, base: string, revision: string) {
   const { session, sessionCommits, landing } = record;
-  const run = sessionCommits?.runs[0];
-  if (
-    sessionCommits === undefined ||
-    run === undefined ||
-    landing === undefined
-  )
+  if (sessionCommits === undefined || landing === undefined)
     throw new Error("Missing the kept comparison or captured landing.");
   const { repository } = sessionCommits;
-  const { base, revision } = run;
   const prefixes = [
     `refs/open-dough/session-commits/${session.host}/${session.sessionId}/0/`,
     `refs/open-dough/one-shot/${landing.reference}/${landing.delivery}/`,
@@ -115,6 +109,7 @@ for (const [reason, { done, remove }] of Object.entries(removals)) {
     const {
       checkout,
       records: { leaving, staying },
+      work: { first, second },
     } = await aDoneCaptureCase()
       .withWork(
         makeMe.aCheckoutWork
@@ -134,9 +129,15 @@ for (const [reason, { done, remove }] of Object.entries(removals)) {
       .please();
     const repository = path.join(checkout.integration, ".git");
     const beforePins = await refs(repository);
-    const leavingPins = await pinsOf(leaving);
-    const stayingPins = await pinsOf(staying);
-    keep(leaving, staying);
+    const leavingPins = await pinsOf(leaving, checkout.base, first);
+    const stayingPins = await pinsOf(staying, checkout.base, second);
+    // A failed legacy capture can leave refs without a kept comparison.
+    const failedCapture = {
+      ...leaving,
+      sessionCommitsFailedAt: leaving.doneAt,
+    };
+    delete failedCapture.sessionCommits;
+    keep(reason === "deletion" ? failedCapture : leaving, staying);
     expect(await storedSessionIds()).toEqual(["leaving", "staying"]);
     expect(await refs(repository)).toEqual(
       [...beforePins, ...leavingPins, ...stayingPins].sort(),

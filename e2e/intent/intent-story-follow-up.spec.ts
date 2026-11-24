@@ -28,9 +28,11 @@ import {
   startSessionField,
 } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
 import { followUpFromLine } from "../../dashboard/test-support/support/diffLineFollowUpPage.ts";
+import { publishedReviewOf } from "../../dashboard/test-support/support/followUpCompletedFile.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   commitAll,
+  git,
   lines,
   writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
@@ -158,4 +160,52 @@ test("Intent Changes old line 85 Follow up starts blank and opens the terminal w
   expect(firstInput).toMatch(
     /<\/story>\n\n<follow-up>\n- Path: dashboard\/tests\/a\.spec\.ts\n- Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}\n- Line: 85\n- Side: old\nRequest: No request text was given\.\n<\/follow-up>/,
   );
+});
+
+test("Intent Follow up on a whole comparison sends the reviewed pair without a file", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const { review, completion } =
+    await test.step("Given a completed story in Intent", async () => {
+      dashboard.claudeScenario("launched");
+      const { intent, completion } = await selectCompletedStoryInIntent(
+        page,
+        origin,
+      );
+      return { review: intentStory(intent), completion };
+    });
+  const { baseline, tree } =
+    await test.step("Given the published comparison and its Git tree", async () => {
+      const { baseline } = await publishedReviewOf(dashboard, completion);
+      return {
+        baseline,
+        tree: git(origin.project, "rev-parse", `${completion}^{tree}`),
+      };
+    });
+  await test.step("When I open Changes", () => review.chooseTab("Changes"));
+  await test.step("Then the review shows the published baseline", () =>
+    expect(review.header.publishedBaseline).toHaveText(baseline));
+  await test.step("When I follow up on the whole comparison", async () => {
+    const composer = await review.followUpComparison(storyName);
+    await composer.start("Review the whole comparison");
+  });
+  const input =
+    await test.step("Then Claude receives one follow-up", async () => {
+      await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
+      return dashboard.claudeLaunches()[0]?.instruction ?? "";
+    });
+  await test.step("And its required request names the exact story and whole pair", () => {
+    expect(input).toContain(`<story>\n${storyName}\n`);
+    expect(input).toContain(`<follow-up>
+- Comparison: Published completion ${baseline} → ${tree}
+Request:
+Review the whole comparison
+</follow-up>`);
+  });
+  await test.step("And it carries no optional attachments", () => {
+    expect(input).not.toContain("<session>");
+    expect(input).not.toContain("<line-notes>");
+  });
 });

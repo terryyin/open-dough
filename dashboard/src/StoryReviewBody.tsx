@@ -20,11 +20,9 @@ export function ReviewBody({
   const shown = storyComparisonShown({
     subject,
     review,
-    comparison: undefined,
-    tree: undefined,
   });
   if (shown === undefined) return null;
-  const settingsRevision = reviewIntentSettingsRevision(review, shown.tree);
+  const settingsRevision = reviewIntentSettingsRevision(review);
   return (
     <SnapshotView
       key={shown.reviewed.reference ?? shown.tree}
@@ -33,7 +31,6 @@ export function ReviewBody({
       tree={shown.tree}
       headingId={headingId}
       browser={browser}
-      branchResult={review?.kind === "branch-result"}
       {...(settingsRevision === undefined ? {} : { settingsRevision })}
     />
   );

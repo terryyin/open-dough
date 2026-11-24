@@ -2,7 +2,6 @@
 // Live workspaces use their configured author; completed stories use recorded
 // owners. Both comparisons subtract those commits through the same restatement
 // rule, retaining an explicit baseline for inseparable paths.
-import type { TakenStoryReview } from "../src/storyReviewContract.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import { restatedPoint } from "./storyReviewComparison.ts";
 import type { PublishedCommit } from "./storyPublishedEvidence.ts";
@@ -23,17 +22,6 @@ export interface TrunkLess {
 // What a snapshot answers of the published commits: taken out of `trunk`,
 // kept in it when this machine's Git could not take them out, or nothing
 // when the story has none.
-export function publishedAnswer(
-  published: readonly PublishedCommit[],
-  trunk: string,
-  less: TrunkLess | undefined,
-): Pick<TakenStoryReview, "published"> {
-  if (published.length === 0) return {};
-  const taken = { trunk, commits: published.length };
-  return {
-    published: less === undefined ? { ...taken, kept: "not-restated" } : taken,
-  };
-}
 
 // The tree of `trunk` with the published commits, newest first, taken out;
 // undefined when this machine's Git cannot restate a tree.

@@ -78,8 +78,6 @@ async function keepObservedDelivery(
             sessionKey(branchPinOwner(record)) ||
           live?.doneAt !== result.doneAt ||
           live.repository !== result.repository ||
-          live.base !== result.base ||
-          live.revision !== result.revision ||
           live.committedTip !== result.committedTip
         )
           return current;

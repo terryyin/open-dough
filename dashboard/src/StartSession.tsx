@@ -61,6 +61,13 @@ export function StartSession({
     source: FollowUpSource | undefined;
   }>();
   const subject = followUp?.source;
+  const followUpAction =
+    subject !== undefined &&
+    "story" in subject &&
+    subject.story.comparison !== undefined
+      ? "Follow up on comparison"
+      : "Follow up";
+  const refusedOpening = useRef<number>(undefined);
   const attempt = launches.adHocAttemptOf(
     sourceId,
     submitted !== undefined && sameFollowUpSource(submitted.subject, subject)
@@ -113,7 +120,7 @@ export function StartSession({
         aria-label={
           followUp === undefined
             ? `Start session in ${project}`
-            : `Follow up ${followUp.name}`
+            : `${followUpAction} ${followUp.name}`
         }
         aria-describedby={attempt !== undefined ? answerId : undefined}
         disabled={starting}
@@ -128,7 +135,7 @@ export function StartSession({
             <Icon
               icon={followUp === undefined ? SquareTerminal : MessageSquarePlus}
             />
-            {followUp === undefined ? "Start session" : "Follow up"}
+            {followUp === undefined ? "Start session" : followUpAction}
           </>
         )}
       </button>
@@ -159,8 +166,16 @@ export function StartSession({
           launches={launches}
           onHost={setHost}
           onStart={start}
+          onRefused={() => {
+            refusedOpening.current = opening;
+          }}
           onClose={(accepted) => {
-            if (closeDialog(opening, accepted) && !accepted) onClosed?.();
+            if (
+              closeDialog(opening, accepted) &&
+              !accepted &&
+              refusedOpening.current !== opening
+            )
+              onClosed?.();
           }}
         />
       )}

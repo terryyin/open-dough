@@ -8,7 +8,7 @@
 - Kaoru-chan executes in Story Branch Mode on `codex/choose-clear-follow-up-context` for `dashboard-territory.local-open-dough`.
 - The starting revision is `ddfaa6c71e86a74bcfd3f2d918bc086654bbbe46`. Take `0648365e4e61dd56946fb5fe95dd3bb33edb01d0` was accepted on `origin/main` and the execution branch.
 - Node 24.21.0 passed `npm ci --offline --no-audit --no-fund` and `npm run typecheck:dashboard`. The story branch uses `ci.yml`.
-- The story branch accepted slice 1 at `33533a6fff17635ac64769b53e135bcc5704c20f`, slice 2 at `a3bd4204093b203ea9e21c96f65f96b8791c6eba`, its test repair at `1458a400129f67c6fb0983f89340b025b2cc3770`, and slice 3 at `6b72361da2aad23f33cdf973694d379cdabb2713`.
+- The story branch accepted slice 1 at `33533a6fff17635ac64769b53e135bcc5704c20f`, slice 2 at `a3bd4204093b203ea9e21c96f65f96b8791c6eba`, its test repair at `1458a400129f67c6fb0983f89340b025b2cc3770`, slice 3 at `6b72361da2aad23f33cdf973694d379cdabb2713`, and slice 4 at `307ada54ebb35b391ccd2e77f12efd8b13f33fa3`.
 
 ## Goal and scope
 
@@ -23,15 +23,8 @@ story's Follow up.
 
 ## Current decisions
 
-- Follow the Dashboard North Star's [Review in Intent](../../../docs/dashboard-ux-ui-north-star.md#review-in-intent)
-  by carrying the comparison, session scope and literal file or line from
-  the current review. Follow [Start ad hoc work under a story](../../../docs/dashboard-ux-ui-north-star.md#start-ad-hoc-work-under-a-story)
-  by starting a distinct session for the source story and preserving the
-  launch recovery path. Fit the existing source and admission owners as
-  [SEED-427](../../seeds/SEED-427-review-published-changes.md#review-published-changes)
-  and [SEED-426](../../seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
-  land their changes. The existing whole-story and published-session reads
-  give each a testable source before the within-story picker ships.
+- Follow [Review in Intent](../../../docs/dashboard-ux-ui-north-star.md#review-in-intent) by carrying its shown comparison, session scope and literal target. Follow [Start ad hoc work under a story](../../../docs/dashboard-ux-ui-north-star.md#start-ad-hoc-work-under-a-story) by starting a distinct session for the source story and preserving recovery.
+- Slice 5 adopted [SEED-427](../../done/SEED-427_review-published-changes.json) when it landed at `590083ad044b2ba750a9be7840c2b12e2119affe`. Follow up reuses its published review model, exact file test and range reader. The whole-story button checks the shown default or widened pair through the same pinned completion reader. The shared review entry supplies the session-range journey until the within-story picker ships. [SEED-426](../../seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story) owns story-linked admission.
 - One follow-up carries a required source and the developer's explicit
   attachment choices. Use the same eligible-context rule in the composer
   and admission. Admit by stable identity against the configured project
@@ -193,7 +186,7 @@ missing record, story scope, and byte-identical Continue after local removal.
 ### 5. Follow up from an individual range preserves that exact source
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: On a published session's second recorded range, start Follow up
 from its file or old-side line and leave optional attachments clear. Git can
@@ -211,6 +204,13 @@ section, and exercise re-opening with the extra session context selected.
 At the typed launch boundary, try a mismatched range or path of the same
 session. The server refuses before invoking a native host. Keep the story
 status and source attribution proof of ordinary Follow up.
+
+**Accepted proof.** The reconciled review and Intent journeys observed the exact
+required pair, file and old line, optional session context on a separate Start,
+and the unavailable-source reason beside the reviewed file. Intent also proved
+the exact whole-story target. HTTP refused forged pairs and preserved the
+widened incoming line in native input.
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/intent/intent-published-range-source.spec.ts e2e/intent/intent-story-follow-up.spec.ts e2e/sessions/recently-done-published-sessions.spec.ts e2e/intent/intent-published-session-follow-up.spec.ts e2e/intent/intent-follow-up-notes.spec.ts e2e/intent/intent-story-completed.spec.ts e2e/intent/intent-story-completed-source.spec.ts e2e/review/story-review-diff-line-follow-up.spec.ts e2e/review/story-review-follow-up.spec.ts e2e/stories/recently-done-follow-up.spec.ts e2e/launches/agent-launch-follow-up-session.spec.ts --workers=1 --reporter=dot` passed all 21 cases.
 
 ## Story obligations
 
@@ -230,7 +230,7 @@ Disposition: proved by slice 3: `follow-up-note-handoff.spec.ts` observes the di
 
 Reported: slice 1 — "Whole-story review without a file anchor has no comparison field today"
 Story clause: "Carry the source story and the exact published comparison from Intent."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: The Intent whole-comparison native input in `e2e/intent/intent-story-follow-up.spec.ts` observes the Git-derived requested pair, and `agent-launch-follow-up-published-range-admission.spec.ts` observes refusal of an altered whole tree before launch.
 
 ## Verification and delivery
 

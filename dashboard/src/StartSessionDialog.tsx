@@ -35,6 +35,7 @@ export function StartSessionDialog({
   launches,
   onHost,
   onStart,
+  onRefused,
   onClose,
 }: {
   readonly project: string;
@@ -47,6 +48,7 @@ export function StartSessionDialog({
     choices: LaunchChoices,
     source: FollowUpSource | undefined,
   ) => ReturnType<AdHocLaunches["startAdHoc"]>;
+  readonly onRefused: () => void;
   readonly onClose: (accepted: boolean) => void;
 }) {
   const [policy, setPolicy] = useState(unattachedPolicyOf({}));
@@ -107,6 +109,7 @@ export function StartSessionDialog({
           followUpSourceAttaching(followUp?.source, sessions, attachNotes),
         )
       }
+      onRefused={onRefused}
       onClose={onClose}
     />
   );
