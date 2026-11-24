@@ -1,142 +1,245 @@
-// Incremental import, coalescing and failure preservation at the Refresh HTTP boundary.
+// Refresh persists changed Codex evidence and keeps the last usable chart.
 import {
-  appendFileSync,
-  cpSync,
-  readFileSync,
-  statSync,
-  utimesSync,
-  writeFileSync,
-} from "node:fs";
+  appendFile,
+  mkdtemp,
+  readFile,
+  rm,
+  stat,
+  utimes,
+  writeFile,
+} from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageCheckFile } from "../../server/usageCheck.ts";
+import { retainedLaunchEnds } from "../../server/retainedUsageTasks.ts";
+import { tokenIndexAnswer } from "../../server/tokenIndexRead.ts";
+import {
+  lastUsageCheck,
+  recordUsageCheck,
+  usageCheckFile,
+} from "../../server/usageCheck.ts";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
-import { usageTaskSummaryFile } from "../../server/usageTaskSummary.ts";
-import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+  importUsageHistory,
+  usageHistorySince,
+} from "../../server/usageImport.ts";
+import { refreshUsageHistory } from "../../server/usageRefresh.ts";
+import { refreshUsage } from "../../server/usageRefreshRun.ts";
 import {
-  counters,
-  expect,
-  finished,
-  rootRollout,
-  storedUsage,
-  test,
-  usageServer,
-  workerRollout,
-} from "../../test-support/usage-history/tokenIndexHarness.ts";
+  deriveUsageTaskSummary,
+  usageTaskSummaryFile,
+} from "../../server/usageTaskSummary.ts";
+import { currentUsageTaskSummary } from "../../server/usageTaskSummaryCache.ts";
+import { usageTariffs } from "../../server/usageTariffs.ts";
+import { defaultCohort } from "../../src/usageTokenIndex.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 
-const longAgo = new Date("2026-11-01T00:00:00.000Z");
+const project = makeMe.aPublishedSource.openDough.please();
+const priorCheck = "2026-11-15T12:00:00.000Z";
+const old = new Date("2026-11-14T12:00:00.000Z");
+const changed = new Date("2026-11-16T12:00:00.000Z");
+const nextCheck = new Date("2026-11-17T12:00:00.000Z");
+const repeatCheck = new Date("2026-11-18T12:00:00.000Z");
+const sol = "gpt-6.1-sol";
 
-test("Refresh reads changed roots and their older workers like a full import; repeats coalesce without rewriting or double-counting", async ({
-  machine,
-}) => {
-  const { home } = machine;
-  const sessions = path.join(home, ".codex/sessions"),
-    rollouts = path.join(sessions, "2026/11/14");
-  keepLaunchStore(home, { "open-dough": [finished("first")] });
-  const first = writeCodexSession(rollouts, rootRollout("first", 100).please());
-  runImport(home, sessions);
+const identity = (session: string) => `SEED-7#${session}`;
+const finished = (session: string) =>
+  makeMe.aLaunchRecord
+    .executing({ identity: identity(session), title: `Story ${session}` })
+    .inCodexSession({ sessionId: session })
+    .launchedAt("2026-11-14T09:00:00.000Z")
+    .withFirstInput({ state: "confirmed", turnId: `${session}-turn` })
+    .completedWith({ message: "", receivedAt: old.toISOString() })
+    .please();
+const counters = (output: number) => ({
+  input_tokens: 10_000,
+  cached_input_tokens: 8_000,
+  cache_write_input_tokens: 0,
+  output_tokens: output,
+});
+const rootRollout = (session: string, output: number) =>
+  makeMe.aCodexRollout
+    .forSession(session)
+    .withTurnContext(`${session}-turn`, sol, "xhigh")
+    .withResponse(`${session}-turn`, `${session}-answer`, counters(output));
+
+async function firstImport() {
+  const home = await mkdtemp(path.join(tmpdir(), "token-index-codex-refresh-"));
+  onTestFinished(() => rm(home, { recursive: true, force: true }));
+  onTestFinished(() => {
+    vi.useRealTimers();
+  });
+  const sessions = path.join(home, ".codex", "sessions");
+  const rollouts = path.join(sessions, "2026", "11", "14");
   const store = usageHistoryFile(home);
-  const usage = await usageServer(machine);
-  const lastCheck = await usage.refresh();
+  const sources = { home, store, codexRoots: [sessions], claudeRoots: [] };
+  keepLaunchRecords(home, [finished("first")]);
+  const first = writeCodexSession(rollouts, rootRollout("first", 100).please());
+  await utimes(first, old, old);
+  await importUsageHistory({ ...sources, since: usageHistorySince });
+  await recordUsageCheck(store, priorCheck);
+  return { sources, first, rollouts };
+}
 
-  // Changed bytes whose mtime predates the check are deliberately not reread.
+async function chartContext({ home, store }: { home: string; store: string }) {
+  return {
+    projects: [project],
+    launches: await retainedLaunchEnds(home),
+    tariff: usageTariffs.codex,
+    checkedAt: await lastUsageCheck(store),
+  };
+}
+
+test("Refresh reads changed Codex roots and their older workers without double-counting", async () => {
+  const { sources, first, rollouts } = await firstImport();
+  const { home, store } = sources;
   const [late] = makeMe.aCodexRollout
     .forSession("first")
     .withResponse("first-turn", "first-late", counters(5))
     .rows();
-  appendFileSync(first, `${JSON.stringify(late)}\n`);
-  utimesSync(first, longAgo, longAgo);
-  keepLaunchStore(home, {
-    "open-dough": [finished("first"), finished("second")],
-  });
-  writeCodexSession(
+  await appendFile(first, `${JSON.stringify(late)}\n`);
+  await utimes(first, old, old);
+  keepLaunchRecords(home, [finished("first"), finished("second")]);
+  const second = writeCodexSession(
     rollouts,
     rootRollout("second", 200).withSpawnedAgent("second-worker").please(),
   );
-  const worker = writeCodexSession(rollouts, workerRollout("second").please());
-  utimesSync(worker, longAgo, longAgo);
-  const checkedAt = await usage.refresh();
+  await utimes(second, changed, changed);
+  const worker = writeCodexSession(
+    rollouts,
+    makeMe.aCodexRollout
+      .forSession("second-worker")
+      .withParent("second")
+      .withTurnContext("worker-turn", sol, "xhigh")
+      .withResponse("worker-turn", "worker-own", counters(70), {
+        rootTurnId: "second-turn",
+      })
+      .please(),
+  );
+  await utimes(worker, old, old);
+  vi.setSystemTime(nextCheck);
 
-  expect(Date.parse(checkedAt)).toBeGreaterThan(Date.parse(lastCheck));
-  const chart = await usage.chart();
-  expect(chart.checkedAt).toBe(checkedAt);
-  expect(
-    chart.tasks.map(({ identity, coverage }) => [identity, coverage.kind]),
-  ).toEqual([
-    ["SEED-7#first", "measured"],
-    ["SEED-7#second", "measured"],
-  ]);
-  // The late response stays unread; the worker's is the second task's.
-  const refreshed = await storedUsage(home);
-  expect(Object.fromEntries(refreshed)).toMatchObject({
-    "SEED-7#first": [{ root: true, responses: 1, tokens: { output: 100 } }],
-    "SEED-7#second": [
-      { root: true, responses: 1, tokens: { output: 200 } },
-      { root: false, responses: 1, tokens: { output: 70 } },
-    ],
+  expect(await refreshUsageHistory(sources)).toEqual({
+    checkedAt: nextCheck.toISOString(),
   });
-
-  const imported = path.join(machine.machine, "imported-home");
-  cpSync(home, imported, {
-    recursive: true,
-    filter: (source) => !path.basename(source).startsWith("usage"),
-  });
-  runImport(imported, path.join(imported, ".codex/sessions"));
-  expect((await storedUsage(imported)).get("SEED-7#second")).toEqual(
-    refreshed.get("SEED-7#second"),
+  const summary = await deriveUsageTaskSummary(store);
+  const chart = tokenIndexAnswer(
+    { ...(await chartContext(sources)), summary },
+    defaultCohort,
   );
 
-  const history = readFileSync(store),
-    summary = readFileSync(usageTaskSummaryFile(store));
-  const [again, alongside] = await Promise.all([
-    usage.refresh(),
-    usage.refresh(),
+  expect(chart.checkedAt).toBe(nextCheck.toISOString());
+  expect(
+    chart.tasks.map(({ identity, coverage, index }) => [
+      identity,
+      coverage.kind,
+      index,
+    ]),
+  ).toEqual([
+    ["SEED-7#first", "measured", 2_900],
+    ["SEED-7#second", "measured", 6_150],
   ]);
-  expect(alongside).toBe(again);
-  expect(Date.parse(again)).toBeGreaterThan(Date.parse(checkedAt));
-  expect(await usage.chart()).toEqual({ ...chart, checkedAt: again });
-  expect(readFileSync(store)).toEqual(history);
-  expect(readFileSync(usageTaskSummaryFile(store))).toEqual(summary);
-  runImport(home, sessions);
-  expect((await usage.chart()).tasks[1]?.index).toBe(chart.tasks[1]?.index);
+  // The late response stays unread. The older worker belongs to the new root.
+  const refreshed = new Map(
+    summary.tasks.map(({ identity, usage }) => [identity, usage]),
+  );
+  expect(refreshed.get("SEED-7#first")).toMatchObject([
+    { root: true, responses: 1, tokens: { output: 100 } },
+  ]);
+  expect(refreshed.get("SEED-7#second")).toMatchObject([
+    { root: true, responses: 1, tokens: { output: 200 } },
+    { root: false, responses: 1, tokens: { output: 70 } },
+  ]);
+
+  const fullStore = path.join(home, "full-usage.json");
+  await importUsageHistory({
+    ...sources,
+    store: fullStore,
+    since: usageHistorySince,
+  });
+  const full = await deriveUsageTaskSummary(fullStore);
+  expect(
+    full.tasks.find((task) => task.identity === "SEED-7#second")?.usage,
+  ).toEqual(refreshed.get("SEED-7#second"));
+
+  const history = await readFile(store);
+  // Force a reread of the same bytes and response IDs.
+  await utimes(second, repeatCheck, repeatCheck);
+  vi.setSystemTime(repeatCheck);
+  expect(await refreshUsageHistory(sources)).toEqual({
+    checkedAt: repeatCheck.toISOString(),
+  });
+  const repeated = await deriveUsageTaskSummary(store);
+  expect(
+    tokenIndexAnswer(
+      { ...(await chartContext(sources)), summary: repeated },
+      defaultCohort,
+    ),
+  ).toEqual({ ...chart, checkedAt: repeatCheck.toISOString() });
+  expect(await readFile(store)).toEqual(history);
 });
 
-test("an unreadable store fails Refresh without replacing its summary or check time", async ({
-  machine,
-}) => {
-  const { home } = machine;
-  const sessions = path.join(home, ".codex/sessions");
-  keepLaunchStore(home, { "open-dough": [finished("first")] });
-  writeCodexSession(
-    path.join(sessions, "2026/11/14"),
-    rootRollout("first", 9).please(),
+async function keptSummary(store: string) {
+  const file = usageTaskSummaryFile(store);
+  const bytes = Buffer.from(
+    `${JSON.stringify(await deriveUsageTaskSummary(store))}\n`,
   );
-  runImport(home, sessions);
-  const store = usageHistoryFile(home);
-  const usage = await usageServer(machine);
-  const checkedAt = await usage.refresh(),
-    chart = await usage.chart();
-  const history = readFileSync(store),
-    summary = readFileSync(usageTaskSummaryFile(store));
-  const originalTimes = statSync(store);
-  const checkRecord = readFileSync(usageCheckFile(store));
+  await writeFile(file, bytes);
+  return { file, bytes };
+}
 
-  writeFileSync(store, "{ not a usage store");
-  const failed = await usage.request("POST", "/__usage/refresh");
-  expect(failed).toEqual({
-    status: 503,
-    body: {
-      error: `Usage could not be refreshed: Usage history is unreadable: ${store}`,
+async function cachedChart(sources: { home: string; store: string }) {
+  return tokenIndexAnswer(
+    {
+      ...(await chartContext(sources)),
+      summary: await currentUsageTaskSummary(sources.store),
     },
-  });
-  expect(readFileSync(usageTaskSummaryFile(store))).toEqual(summary);
-  expect(readFileSync(usageCheckFile(store))).toEqual(checkRecord);
-  writeFileSync(store, history);
+    defaultCohort,
+  );
+}
+
+test("concurrent refresh presses share the same run and leave the store and cache bytes intact", async () => {
+  const { sources } = await firstImport();
+  const { home, store } = sources;
+  const history = await readFile(store);
+  const cached = await keptSummary(store);
+  const before = await cachedChart(sources);
+
+  const first = refreshUsage(home, store);
+  const alongside = refreshUsage(home, store);
+  const [checkedAt, alsoCheckedAt] = await Promise.all([first, alongside]);
+
+  expect(alongside).toBe(first);
+  expect(alsoCheckedAt).toBe(checkedAt);
+  expect(await cachedChart(sources)).toEqual({ ...before, checkedAt });
+  expect(await readFile(store)).toEqual(history);
+  expect(await readFile(cached.file)).toEqual(cached.bytes);
+});
+
+test("an unreadable store fails Refresh without replacing its summary or check time", async () => {
+  const { sources } = await firstImport();
+  const { home, store } = sources;
+  const history = await readFile(store);
+  const { atime, mtime } = await stat(store);
+  const cached = await keptSummary(store);
+  const checkFile = usageCheckFile(store);
+  const checkRecord = await readFile(checkFile);
+  const before = await cachedChart(sources);
+  const malformed = Buffer.from("{ not a usage store");
+  await writeFile(store, malformed);
+
+  await expect(refreshUsage(home, store)).rejects.toThrow(
+    `Usage could not be refreshed: Usage history is unreadable: ${store}`,
+  );
+  expect(await readFile(store)).toEqual(malformed);
+  expect(await readFile(cached.file)).toEqual(cached.bytes);
+  expect(await readFile(checkFile)).toEqual(checkRecord);
+
+  await writeFile(store, history);
   // Restoring the fixture is not a new import publishing evidence.
-  utimesSync(store, originalTimes.atime, originalTimes.mtime);
-  expect(await usage.chart()).toEqual({ ...chart, checkedAt });
+  await utimes(store, atime, mtime);
+  expect(await lastUsageCheck(store)).toBe(priorCheck);
+  expect(await cachedChart(sources)).toEqual(before);
 });

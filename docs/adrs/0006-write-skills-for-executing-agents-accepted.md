@@ -43,6 +43,7 @@ preserving across Open Dough skills.
 3. Give each behavioral rule one authoritative home. Link to it instead of
    repeating procedural rules across `SKILL.md` and references. Keep one shared
    behavioral source across tools, with only necessary host adaptation.
+   Follow [ADR 0005 for tool-specific workarounds](./0005-cross-tool-validation-accepted.md#6-recheck-tool-specific-workarounds).
 4. Keep `SKILL.md` concise: discovery-relevant purpose, essential constraints,
    workflow boundaries, required context, and links. Put conditional or detailed
    behavior in focused references; specify when to load them. Do not add reference

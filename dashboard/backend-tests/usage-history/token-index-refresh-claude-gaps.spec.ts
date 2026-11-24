@@ -1,35 +1,49 @@
-// Refresh keeps a launch's coverage gaps current: a session read again
-// replaces the gaps it recorded, so usage missing at one Refresh stops marking
-// the launch partial once a later one finds it. Each Claude response is the
-// transcript builder's counted Opus response with 100 output tokens, weighing
-// 1,950 input tokens.
+import { mkdtemp, rm, utimes } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { retainedLaunchEnds } from "../../server/retainedUsageTasks.ts";
+import { tokenIndexAnswer } from "../../server/tokenIndexRead.ts";
+import { lastUsageCheck, recordUsageCheck } from "../../server/usageCheck.ts";
+import {
+  readUsageHistory,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  importUsageHistory,
+  usageHistorySince,
+} from "../../server/usageImport.ts";
+import {
+  refreshUsageHistory,
+  type UsageRefreshOptions,
+} from "../../server/usageRefresh.ts";
+import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
+import { usageTariffs } from "../../server/usageTariffs.ts";
+import {
+  defaultCohort,
+  type TokenIndexAnswer,
+  type TokenIndexCohort,
+} from "../../src/usageTokenIndex.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   nativeFile,
-  readImported,
-  runImport,
   writeClaudeSession,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
-import {
-  day,
-  expect,
-  finished as codexLaunch,
-  rootRollout,
-  sol,
-  test,
-  usageServer,
-} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
+const project = makeMe.aPublishedSource.openDough.please();
+const claude = { ...defaultCohort, tool: "claude" as const };
+const day = (date: number) =>
+  `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
 const reference = (at: number) =>
   `ca7430bd-0d52-499d-a1bd-${String(at).padStart(12, "0")}`;
-// Launch `at` of a Claude story in session `claude-<at>`.
+const claudeSession = (at: number) => `claude-${at}`;
+const identity = (session: string) => `SEED-7#${session}`;
 const launch = (at: number) =>
   makeMe.aLaunchRecord
-    .executing({ identity: `SEED-7#claude-${at}`, title: `Story ${at}` })
-    .inClaudeSession({ sessionId: `claude-${at}` })
+    .executing({ identity: identity(claudeSession(at)), title: `Story ${at}` })
+    .inClaudeSession({ sessionId: claudeSession(at) })
     .reportingThrough({
       origin: "http://localhost:4318",
       reference: reference(at),
@@ -41,172 +55,196 @@ const finished = (at: number) =>
     .please();
 const rootTranscript = (at: number) =>
   makeMe.aClaudeTranscript
-    .forSession(`claude-${at}`)
+    .forSession(claudeSession(at))
     .withLaunchInput({ reference: reference(at), command: "report" });
 const answered = (at: number) =>
-  rootTranscript(at)
-    .withCountedOpusResponse({ uuid: `root-${at}`, outputTokens: 100 })
-    .please();
+  rootTranscript(at).withCountedOpusResponse({
+    uuid: `root-${at}`,
+    outputTokens: 100,
+  });
 
-// The home's Claude projects root, imported with launches `1…count`, each
-// answered once; refreshed once so later Refreshes read only what changes.
-async function importedLaunches(
-  machine: Parameters<typeof usageServer>[0],
-  count: number,
-) {
-  const { home } = machine;
-  const projects = path.join(home, ".claude/projects"),
-    transcripts = path.join(projects, "open-dough");
-  const imported = [...Array<number>(count).keys()].map((at) => at + 1);
-  keepLaunchStore(home, { "open-dough": imported.map(finished) });
-  for (const at of imported) writeClaudeSession(transcripts, answered(at));
-  runImport(home, path.join(home, ".codex/sessions"), [
-    "--claude-root",
-    projects,
-  ]);
-  const usage = await usageServer(machine);
-  await usage.refresh();
-  const coverage = async (identity: string) =>
-    (await usage.chart("?tool=claude")).tasks.find(
-      (task) => task.identity === identity,
-    )?.coverage;
-  return { imported, transcripts, usage, coverage };
+async function privateHome() {
+  const home = await mkdtemp(path.join(tmpdir(), "token-index-refresh-gaps-"));
+  onTestFinished(async () => {
+    vi.useRealTimers();
+    await rm(home, { recursive: true, force: true });
+  });
+  return { home, store: usageHistoryFile(home) };
 }
 
-test("a Claude launch refreshed before its first response is partial until a later Refresh finds its response, then joins the rolling median", async ({
-  machine,
-}) => {
-  const { imported, transcripts, usage, coverage } = await importedLaunches(
-    machine,
-    9,
+async function importedClaudeLaunches(count: number) {
+  const { home, store } = await privateHome();
+  const transcripts = path.join(home, "claude");
+  const sources = { home, store, codexRoots: [], claudeRoots: [transcripts] };
+  const kept = [...Array<number>(count).keys()].map((at) => at + 1);
+  keepLaunchRecords(home, kept.map(finished));
+  const importedAt = new Date(day(11));
+  for (const at of kept) {
+    const file = writeClaudeSession(transcripts, answered(at).please());
+    await utimes(file, importedAt, importedAt);
+  }
+  await importUsageHistory({ ...sources, since: usageHistorySince });
+  await recordUsageCheck(store, day(12));
+  return { kept, transcripts, sources };
+}
+
+async function refreshAt(
+  sources: UsageRefreshOptions,
+  checkedAt: string,
+  ...files: string[]
+) {
+  const at = new Date(checkedAt);
+  for (const file of files) await utimes(file, at, at);
+  vi.setSystemTime(at);
+  await refreshUsageHistory(sources);
+}
+
+async function chart(
+  { home, store }: { home: string; store: string },
+  cohort: TokenIndexCohort,
+) {
+  return tokenIndexAnswer(
+    {
+      projects: [project],
+      launches: await retainedLaunchEnds(home),
+      tariff: usageTariffs[cohort.tool],
+      summary: await deriveUsageTaskSummary(store),
+      checkedAt: await lastUsageCheck(store),
+    },
+    cohort,
   );
-  // Launch 10 runs; its transcript holds only its launch input.
-  keepLaunchStore(machine.home, {
-    "open-dough": [...imported.map(finished), launch(10).please()],
-  });
-  writeClaudeSession(transcripts, rootTranscript(10).please());
-  await usage.refresh();
-  const rootGaps = () =>
-    readImported(machine.home)
-      .gaps.filter(({ sessionId }) => sessionId === "claude-10")
-      .map(({ code }) => code);
-  // A running launch is not charted; the store records its missing usage.
-  expect(rootGaps()).toEqual([
+}
+
+const point = (answer: TokenIndexAnswer, session: string) =>
+  answer.tasks.find((task) => task.identity === identity(session));
+async function gapCodes(store: string, session: string) {
+  const { gaps } = await readUsageHistory(store);
+  return gaps
+    .filter(({ sessionId }) => sessionId === session)
+    .map(({ code }) => code);
+}
+const sidechain = (session: string, agentId: string) =>
+  makeMe.aClaudeTranscript
+    .forSession(session)
+    .asSidechain({ agentId })
+    .withUser({ uuid: `${agentId}-input`, parentUuid: null, content: "work" });
+
+test("a Claude launch joins the rolling median after Refresh finds its first response", async () => {
+  const { kept, transcripts, sources } = await importedClaudeLaunches(9);
+  const session = claudeSession(10);
+  keepLaunchRecords(sources.home, [...kept.map(finished), launch(10).please()]);
+  const unanswered = writeClaudeSession(
+    transcripts,
+    rootTranscript(10).please(),
+  );
+  await refreshAt(sources, day(13), unanswered);
+  expect(await gapCodes(sources.store, session)).toEqual([
     "auxiliary-usage-not-covered",
     "missing-root-transcript-usage",
   ]);
 
-  writeClaudeSession(transcripts, answered(10));
-  keepLaunchStore(machine.home, {
-    "open-dough": [...imported, 10].map(finished),
-  });
-  await usage.refresh();
-  expect(rootGaps()).toEqual(["auxiliary-usage-not-covered"]);
-  expect(await coverage("SEED-7#claude-10")).toEqual({ kind: "measured" });
-  // Ten measured launches of 1,950 each: the one median point, at and
-  // anchored on the tenth.
-  const refreshed = await usage.chart("?tool=claude");
-  const tenth = refreshed.tasks.find(
-    ({ identity }) => identity === "SEED-7#claude-10",
-  );
-  expect(refreshed.average).toEqual([
+  keepLaunchRecords(sources.home, [...kept, 10].map(finished));
+  const updated = writeClaudeSession(transcripts, answered(10).please());
+  await refreshAt(sources, day(14), updated);
+  expect(await gapCodes(sources.store, session)).toEqual([
+    "auxiliary-usage-not-covered",
+  ]);
+  const afterChart = await chart(sources, claude);
+  const tenth = point(afterChart, session);
+  expect(afterChart.checkedAt).toBe(day(14));
+  expect(tenth).toMatchObject({ coverage: { kind: "measured" }, index: 1_950 });
+  expect(afterChart.average).toEqual([
     { at: day(10), task: tenth?.id, value: 1_950 },
   ]);
 });
 
-test("a Claude worker that answers after a Refresh clears its gap, while a worker it spawned whose transcript stays missing keeps the launch partial", async ({
-  machine,
-}) => {
-  const { imported, transcripts, usage, coverage } = await importedLaunches(
-    machine,
-    1,
-  );
-  keepLaunchStore(machine.home, {
-    "open-dough": [...imported, 2].map(finished),
-  });
-  writeClaudeSession(
+test("a Claude worker's answer replaces its incomplete gap, and its missing descendant keeps the launch partial", async () => {
+  const { kept, transcripts, sources } = await importedClaudeLaunches(1);
+  const session = claudeSession(2);
+  keepLaunchRecords(sources.home, [...kept, 2].map(finished));
+  const root = writeClaudeSession(
     transcripts,
-    rootTranscript(2)
-      .withCountedOpusResponse({ uuid: "root-2", outputTokens: 100 })
-      .withWorkerResult({ agentId: "worker" })
-      .please(),
+    answered(2).withWorkerResult({ agentId: "worker" }).please(),
   );
-  const workerTranscript = makeMe.aClaudeTranscript
-    .forSession("claude-2")
-    .asSidechain({ agentId: "worker" })
-    .withUser({ uuid: "worker-input", parentUuid: null, content: "work" });
-  const subagents = path.join(transcripts, "claude-2", "subagents");
-  nativeFile(subagents, "agent-worker", workerTranscript.please());
-  await usage.refresh();
-  expect(await coverage("SEED-7#claude-2")).toEqual({
-    kind: "partial",
-    gaps: ["incomplete-worker-evidence"],
+  const subagents = path.join(transcripts, session, "subagents");
+  const worker = sidechain(session, "worker");
+  const incomplete = nativeFile(subagents, "agent-worker", worker.please());
+  await refreshAt(sources, day(13), root, incomplete);
+  const before = await chart(sources, claude);
+  expect(point(before, session)).toMatchObject({
+    coverage: { kind: "partial", gaps: ["incomplete-worker-evidence"] },
+    index: 1_950,
   });
 
-  // The worker answers and spawns a worker of its own, whose transcript is
-  // gone: its gap lies in the worker's transcript under `subagents/`.
-  nativeFile(
+  const available = nativeFile(
     subagents,
     "agent-worker",
-    workerTranscript
+    worker
       .withCountedOpusResponse({ uuid: "worker", outputTokens: 100 })
       .withWorkerResult({ agentId: "nested" })
       .please(),
   );
-  await usage.refresh();
-  expect(await coverage("SEED-7#claude-2")).toEqual({
-    kind: "partial",
-    gaps: ["missing-worker-evidence"],
+  await refreshAt(sources, day(14), available);
+  const partial = await chart(sources, claude);
+  expect(point(partial, session)).toMatchObject({
+    coverage: { kind: "partial", gaps: ["missing-worker-evidence"] },
+    index: 3_900,
   });
 
-  // The nested worker's transcript arrives with its response.
-  nativeFile(
+  const descendant = nativeFile(
     subagents,
     "agent-nested",
-    makeMe.aClaudeTranscript
-      .forSession("claude-2")
-      .asSidechain({ agentId: "nested" })
-      .withUser({ uuid: "nested-input", parentUuid: null, content: "work" })
+    sidechain(session, "nested")
       .withCountedOpusResponse({ uuid: "nested", outputTokens: 100 })
       .please(),
   );
-  await usage.refresh();
-  expect(await coverage("SEED-7#claude-2")).toEqual({ kind: "measured" });
+  await refreshAt(sources, day(15), descendant);
+  const measured = await chart(sources, claude);
+  expect(point(measured, session)).toMatchObject({
+    coverage: { kind: "measured" },
+    index: 5_850,
+  });
 });
 
-test("a Codex session refreshed before its first response loses its no-response gap once a later Refresh reads its response", async ({
-  machine,
-}) => {
-  const { home } = machine;
-  const sessions = path.join(home, ".codex/sessions"),
-    rollouts = path.join(sessions, "2026/11/14");
-  keepLaunchStore(home, { "open-dough": [codexLaunch("first")] });
-  writeCodexSession(rollouts, rootRollout("first", 100).please());
-  runImport(home, sessions);
-  const usage = await usageServer(machine);
-  await usage.refresh();
-
-  keepLaunchStore(home, {
-    "open-dough": [codexLaunch("first"), codexLaunch("second")],
-  });
-  writeCodexSession(
-    rollouts,
-    makeMe.aCodexRollout
-      .forSession("second")
-      .withTurnContext("second-turn", sol, "xhigh")
+test("a Codex session loses its no-response gap when a later Refresh reads its response", async () => {
+  const { home, store } = await privateHome();
+  const rollouts = path.join(home, "codex");
+  const session = "second";
+  const sources = { home, store, codexRoots: [rollouts], claudeRoots: [] };
+  await importUsageHistory({ ...sources, since: usageHistorySince });
+  await recordUsageCheck(store, day(12));
+  keepLaunchRecords(home, [
+    makeMe.aLaunchRecord
+      .executing({ identity: identity(session), title: "Story second" })
+      .inCodexSession({ sessionId: session })
+      .launchedAt(day(11))
+      .withFirstInput({ state: "confirmed", turnId: "second-turn" })
+      .completedWith({ message: "", receivedAt: day(12) })
       .please(),
-  );
-  await usage.refresh();
-  const second = async () =>
-    (await usage.chart()).tasks.find(
-      ({ identity }) => identity === "SEED-7#second",
-    )?.coverage;
-  expect(await second()).toEqual({
+  ]);
+  const rollout = makeMe.aCodexRollout
+    .forSession(session)
+    .withTurnContext("second-turn", "gpt-6.1-sol", "xhigh");
+  const unanswered = writeCodexSession(rollouts, rollout.please());
+  await refreshAt(sources, day(13), unanswered);
+  const before = await chart(sources, defaultCohort);
+  expect(point(before, session)?.coverage).toEqual({
     kind: "partial",
     gaps: ["no-response-usage-evidence", "no-attributable-response-usage"],
   });
 
-  writeCodexSession(rollouts, rootRollout("second", 200).please());
-  await usage.refresh();
-  expect(await second()).toEqual({ kind: "measured" });
+  const updated = writeCodexSession(
+    rollouts,
+    rollout
+      .withResponse("second-turn", "second-answer", {
+        input_tokens: 10_000,
+        cached_input_tokens: 8_000,
+        cache_write_input_tokens: 0,
+        output_tokens: 200,
+      })
+      .please(),
+  );
+  await refreshAt(sources, day(14), updated);
+  const after = await chart(sources, defaultCohort);
+  expect(point(after, session)?.coverage).toEqual({ kind: "measured" });
 });

@@ -14,6 +14,25 @@ export async function revParse(cwd, ref) {
   return (await git(cwd, "rev-parse", ref)).stdout.trim();
 }
 
+// Verify a ref, even if its object is missing. Extra options can request
+// output before the verified name. Only an unresolved ref returns false.
+export async function verifyRef(checkout, ref, ...extra) {
+  try {
+    const { stdout } = await git(
+      checkout,
+      "rev-parse",
+      ...extra,
+      "-q",
+      "--verify",
+      ref,
+    );
+    return { verified: true, stdout };
+  } catch (error) {
+    if (error.code !== 1) throw error;
+    return { verified: false, stdout: error.stdout };
+  }
+}
+
 // The full commit ID a hexadecimal object ID, full or uniquely abbreviated,
 // names in `cwd` as `{ commit }`, or `{ problem }` when it names none:
 // `not-an-object-id` (such as a ref name), `unknown`, `ambiguous` (more than
@@ -87,10 +106,11 @@ export async function pushExactRef(workspace, sha, remote, targetRef) {
 // Full index and patch snapshots stay in test fixtures, which prove
 // preservation independently of this production inspection. A caller that
 // already read HEAD passes it as `head`.
-export async function inspectCheckout(checkout, head) {
+export async function inspectCheckout(checkout, head, statusOptions = []) {
   return {
     head: head ?? (await revParse(checkout, "HEAD")),
-    status: (await git(checkout, "status", "--porcelain")).stdout,
+    status: (await git(checkout, "status", "--porcelain", ...statusOptions))
+      .stdout,
   };
 }
 

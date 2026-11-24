@@ -10,59 +10,40 @@
 import type { IncomingMessage } from "node:http";
 import { homedir } from "node:os";
 import {
-  requestedCohort,
   usageRefreshEndpoint,
   usageTokenIndexEndpoint,
   type TokenIndexAnswer,
   type UsageRefreshAnswer,
 } from "../src/usageTokenIndex.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { requestedUsagePeriod } from "../src/usagePeriod.ts";
 import { localJsonEndpoints } from "./localJsonEndpoints.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
 import { retainedLaunchEnds } from "./retainedUsageTasks.ts";
-import { tokenIndexCohort } from "./tokenIndexCohort.ts";
+import { readTokenIndex } from "./tokenIndexRead.ts";
 import { lastUsageCheck } from "./usageCheck.ts";
 import { usageHistoryFile } from "./usageHistory.ts";
 import { refreshUsage } from "./usageRefreshRun.ts";
 import { currentUsageTaskSummary } from "./usageTaskSummaryCache.ts";
 import { usageTariffs } from "./usageTariffs.ts";
 
-async function tokenIndex(req: IncomingMessage): Promise<TokenIndexAnswer> {
-  if (req.method !== "GET")
-    throw new RefusedRequest(405, "Only GET is accepted.");
+function tokenIndex(req: IncomingMessage): Promise<TokenIndexAnswer> {
   const query = new URL(req.url ?? "", "http://local").searchParams;
-  const cohort = requestedCohort(query);
-  if (cohort === undefined)
-    throw new RefusedRequest(400, "Choose a known tool and launch workflow.");
-  const period = requestedUsagePeriod(query);
-  if (period === null)
-    throw new RefusedRequest(
-      400,
-      "Choose a valid Usage period with both from and until instants.",
-    );
-  const store = usageHistoryFile();
-  const [summary, launches, checkedAt] = await Promise.all([
-    currentUsageTaskSummary(store),
-    retainedLaunchEnds(homedir()),
-    lastUsageCheck(store),
-  ]);
-  return {
-    ...tokenIndexCohort(
+  return readTokenIndex(req.method, query, async (tool) => {
+    const home = homedir();
+    const store = usageHistoryFile(home);
+    const [summary, launches, checkedAt] = await Promise.all([
+      currentUsageTaskSummary(store),
+      retainedLaunchEnds(home),
+      lastUsageCheck(store),
+    ]);
+    return {
       summary,
-      {
-        projects: new Map(
-          configuredProjects().map(({ id, label }) => [id, label]),
-        ),
-        launches,
-        tariff: usageTariffs[cohort.tool],
-        checkedAt,
-      },
-      cohort,
-      period,
-    ),
-    checkedAt,
-  };
+      projects: configuredProjects(),
+      launches,
+      tariff: usageTariffs[tool],
+      checkedAt,
+    };
+  });
 }
 
 async function refresh(req: IncomingMessage): Promise<UsageRefreshAnswer> {

@@ -122,7 +122,7 @@ When your session holds this story's Preparing workspace with unlanded preparati
 [hand off to execution in the same session](../dough-story-refinement/references/preparation-journey.md#hand-off-to-execution-in-the-same-session) before that command.
 When your session's first message carried an established session, give that command the workspace and branch [established session](references/established-session.md) decides.
 
-For authorized queued Story Branch or Trunk Mode work, invoke the installed
+To take or admit work in Story Branch or Trunk Mode, invoke the installed
 `scripts/execution-start.mjs start` once with the originating integration
 checkout as `--integration` when one exists. Without one, an existing owned
 workspace supplies repository access; to create a new workspace, supply an

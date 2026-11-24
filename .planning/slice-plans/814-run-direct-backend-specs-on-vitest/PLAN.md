@@ -1,0 +1,132 @@
+# Run the backend specs that already call production code directly on Vitest
+
+**Identity:** SEED-413#run-direct-backend-specs-on-vitest
+**Source:** [direct specs story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#run-direct-backend-specs-on-vitest)
+
+## Goal and scope
+
+Move the Playwright-selected backend specs that already enter production
+code directly to the Node Vitest engine by one scripted rewrite of their
+engine import. A spec qualifies when it sits outside `usage-history/`,
+takes no Playwright fixture, starts or mounts no server, reaches no
+`@playwright/test` import at runtime, and passes on Vitest under the
+default timeout with only that rewrite. Cases, assertions, arrangement
+and production entries stay unchanged. Specs that fail a condition stay
+with the [later families](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families);
+the usage family moves with the
+[typed importer story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-usage-import-through-typed-importer).
+
+## Current decisions
+
+- Follow the North Star for [plain Vitest for unit tests](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e)
+  and [directly testable production code](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support):
+  the rewrite adds nothing to `dashboard/test-support/`.
+- The rewrite is one disposable script, kept outside the repository. For
+  each file in [`direct-cohort.txt`](direct-cohort.txt) (paths under
+  `dashboard/backend-tests/`) it replaces the `expect` and `test` import
+  from `test-support/support/pageTest.ts` with one from `vitest`, turns
+  `test.describe(` into `describe(` and `test.beforeAll`, `test.afterAll`,
+  `test.beforeEach` and `test.afterEach` into Vitest's hooks, and removes
+  `test.describe.configure(...)` lines. Vitest already runs a file's
+  cases in order.
+- The cohort list is the trial's result at `4283cb8d4`. Regenerate
+  membership at execution: drop a listed spec that changed entry since,
+  and add no spec the conditions do not cover.
+- A spec that fails on Vitest after the rewrite returns to Playwright
+  unchanged and stays in the later families' inventory. Apply the
+  [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+  to a case that passes on one engine and fails on the other for a reason
+  other than the timeout: it is a defect to explain, not a spec to skip.
+- Keep the default Vitest timeout. A case near it is listed under
+  premises; one that exceeds it locally or in CI leaves the cohort.
+
+## Decisive premises and baseline
+
+| Premise | Consuming operation | Observation | Result |
+| --- | --- | --- | --- |
+| The listed specs pass on Vitest with only the engine import changed | Slices 1–3 run them through `backend.vitest.config.mts` | At `4283cb8d4`, 24 November 2026, Node 24.21.0, macOS, load average about 27: scratch rewrite of 207 fixture-free specs, `npx vitest run` with a scratch config of the same `environment: "node"` and disposable home, `--maxWorkers 4` | 164 files and 596 of 667 cases passed in 4 min 40 s; all 76 listed files passed, none reaching Playwright or server-starting support through imports |
+| The maintained runner selects a rewritten spec for Vitest and runs it | Every slice's `npm run test:dashboard:backend -- <files>` | Same revision: scratch rewrite of `configuration/notifier-setup` and `configuration/project-input`, `npm run test:dashboard:backend -- notifier-setup project-input --workers=2` | Both listed under Vitest; 9 cases passed, 1 platform skip |
+| No listed case needs more than the default timeout | Slices 1–3 under the 5 s default | The trial's case times | Three `configuration/notifier-setup` cases ran 3.5–4.3 s under that load; every other listed case ran under 2.5 s |
+
+The scratch config differed from the maintained one only in its include
+list, so the first row needs no rerun before execution. The trial ran
+under unusual load; slice 1 measures the baseline on comparable
+conditions.
+
+Trial failures outside the list, for the later families: 29 files
+exceeded the default timeout, 6 call `test.beforeAll` inside support that
+still imports Playwright, and the rest reach a server through
+`sharedReads.ts`, `acceptedAttempts.ts`, `serverTimeControls.ts`,
+`launchLanding.ts` or `proofRecordRun.ts`.
+
+## Slices and outside-in proof
+
+### 1. Intent's direct specs run on Vitest
+
+Type: Behavior
+Status: planned
+Proof: the backend runner lists the 29 `intent/` files under the Node engine and their cases pass
+
+Before editing, run the whole list on Playwright with a proof record and
+keep per-case times as the baseline:
+`npm run test:dashboard:backend -- $(sed 's|^|backend-tests/|' direct-cohort.txt) --workers=2`.
+Write the rewrite script and apply it to the `intent/` entries. Run those
+files through the runner. Behavior: a listed `intent/` spec on Playwright →
+rewrite → the same cases pass under Vitest with unchanged assertions.
+
+### 2. Launch and session direct specs run on Vitest
+
+Type: Behavior
+Status: planned
+Proof: the runner lists the 18 `launches/` and 12 `sessions/` files under the Node engine and their cases pass
+
+Apply the script to those entries and run them. Check each file that used
+`test.describe.configure` still passes when its cases run in file order.
+
+### 3. The remaining direct specs run on Vitest
+
+Type: Behavior
+Status: planned
+Proof: the runner lists the 17 `configuration/`, `observation/`, `review/`, `runtime/` and `terminals/` files under the Node engine and their cases pass
+
+Apply the script to the rest. Run `notifier-setup` three times; if a case
+exceeds the default timeout, return that file to Playwright and record it
+for the later families.
+
+### 4. The group reports the moved cohort and its times
+
+Type: Behavior
+Status: planned
+Proof: one full-list run through the runner on the baseline's conditions, with typecheck and lint green
+
+Run the whole list again with a proof record and compare with slice 1:
+file and case counts, summed case time, elapsed time, and every case
+against the campaign's ~100 ms aim. Run Dashboard typecheck and lint.
+Check `rg -l "@playwright/test|pageTest" $(sed 's|^|dashboard/backend-tests/|' direct-cohort.txt)`
+returns nothing. Update the
+[later families' recount](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families)
+with the runner's Playwright-selected count and any file returned to
+Playwright. After publication, read the `dashboard-backend` shards' times
+from CI; if one shard lost most of its share, use
+[rebalance-ci-shards](../../../.claude/skills/rebalance-ci-shards/SKILL.md).
+
+## Concern evidence
+
+Refinement was not needed: the four slices apply one rewrite rule to
+disjoint file sets and each has its own runner proof. The slices are
+split by folder only to keep each within its active-time limit and to
+isolate a failing group. No remaining slice-specific concern was
+identified.
+
+## Verification and delivery
+
+- Local gate: use the maintained [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
+  with `caffeinate -s -i` on AC power for the measured runs in slices 1
+  and 4. Keep the default timeout and apply the
+  [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+- Run each slice's files with
+  `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:dashboard:backend -- <files> --workers=2`
+  and capture `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`. The full
+  backend group is not a local gate for this change: only the listed
+  files change, and no support module or production code does. Hosted CI
+  runs the group after publication.

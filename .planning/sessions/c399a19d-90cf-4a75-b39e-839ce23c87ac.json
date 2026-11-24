@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "c399a19d-90cf-4a75-b39e-839ce23c87ac",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T12:16:10.459Z",
+  "story": "SEED-413#trim-follow-up-context-e2e-journeys",
+  "ranges": [
+    {
+      "base": "cb5920592e59052b3f7374d3423e7c2b658d3cef",
+      "candidate": "9a7ab0410f567c7a878d34cb9e77191f83cfde4d"
+    },
+    {
+      "base": "9a7ab0410f567c7a878d34cb9e77191f83cfde4d",
+      "candidate": "40ab6abca059f7a64d072698eb62608979617737"
+    },
+    {
+      "base": "40ab6abca059f7a64d072698eb62608979617737",
+      "candidate": "6332d6c53b4b9c6f6507177ea9f97e8cdae0f86c"
+    }
+  ]
+}

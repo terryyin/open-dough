@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-usage-token-index-proof.json",
+      "identity": "SEED-413#renovate-usage-token-index-proof",
+      "completedAt": "2026-11-24T12:11:28.303Z",
+      "blob": "1cb8a819dab42a6346e50d6eb3ee73f7c1be0100"
+    },
+    {
+      "fileName": "SEED-413_renovate-landed-ci-attempt-evidence.json",
+      "identity": "SEED-413#renovate-landed-ci-attempt-evidence",
+      "completedAt": "2026-11-24T12:01:30.197Z",
+      "blob": "547bf5d6bc62c6042a6a8f4db71b3da29a9a30e4"
+    },
+    {
+      "fileName": "SEED-413_trim-follow-up-context-e2e-journeys.json",
+      "identity": "SEED-413#trim-follow-up-context-e2e-journeys",
+      "completedAt": "2026-11-24T11:59:35.911Z",
+      "blob": "841fcf4b222f90a67a370fc60f02dcf8f6dc4fd5"
+    },
+    {
       "fileName": "SEED-426_start-ad-hoc-work-under-a-story.json",
       "identity": "SEED-426#start-ad-hoc-work-under-a-story",
       "completedAt": "2026-11-24T10:29:28.491Z",

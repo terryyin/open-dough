@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "01a20d2f-9272-7033-a4e5-7af8d6ac517d",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-24T11:24:34.522Z",
+  "story": "SEED-431#reduce-codex-wakes-during-supplier-watches",
+  "ranges": [
+    {
+      "base": "c9b0f149adf831327ce556f5c65189ad9f4d562e",
+      "candidate": "4200310147b26c2fc48ebe7f611e857f01f5a9a4"
+    }
+  ]
+}

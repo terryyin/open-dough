@@ -197,13 +197,104 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
 
+<a id="run-direct-backend-specs-on-vitest"></a>
+
+### Run the backend specs that already call production code directly on Vitest
+
+**Identity:** SEED-413#run-direct-backend-specs-on-vitest
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/814-run-direct-backend-specs-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3cf17257273a24fa50cf0d795e4245f223ff3a738c21fe0c5f719a291c4d96c","plan":"c175ea187009d99765eef49cb71f746e7e5ecf0e07d2e7c83508a11665e37573"}}
+```
+
+Extracted from the [later backend families](#renovate-later-dashboard-backend-unit-test-families)
+on 24 November 2026, when Terry asked for a systematic way to shrink that
+campaign instead of renovating one small family after another.
+
+**Goal.** Developers changing `dashboard/server/` get the backend cases
+that already enter production code directly from the Node Vitest engine,
+and the campaign's count of Playwright-selected backend specs drops by
+about a sixth in one mechanical change.
+
+**Scope.** Move, by one scripted rewrite, every Playwright-selected backend
+spec outside `usage-history/` that meets all of these at execution:
+
+- it takes no Playwright fixture and starts or mounts no server;
+- none of its runtime imports reaches `@playwright/test`; and
+- its cases pass on Vitest under the default timeout with only the engine
+  import changed.
+
+Cases, assertions, arrangement and the production entry stay as they
+are. The usage family moves with the
+[typed importer story](#prove-usage-import-through-typed-importer), where
+its command-bound cases stop running close to the default timeout. A spec that fails any condition stays with the later families,
+including one that needs more than the default timeout. Record each
+moved case's time before and after. Reducing case count, slow survivors
+and typed-entry changes stay with the later families' criteria.
+
+**Key examples.**
+
+- A spec imports `expect` and `test` from the shared page test module,
+  calls a server module with MakeMe state and uses no fixture. After the
+  rewrite it imports them from Vitest, the backend runner lists it under
+  the Node engine and its cases pass unchanged.
+- A spec groups cases with `test.describe` and prepares them in
+  `test.beforeAll`. After the rewrite it uses Vitest's `describe` and
+  `beforeAll`, and the same cases run in the same order.
+- A spec whose case exceeds the default Vitest timeout, or whose support
+  module asserts through Playwright's `expect`, stays on Playwright and
+  remains counted in the later families' inventory.
+
+<a id="prove-usage-import-through-typed-importer"></a>
+
+### Prove usage import through the typed importer instead of its command
+
+**Identity:** SEED-413#prove-usage-import-through-typed-importer
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/815-prove-usage-import-through-typed-importer/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2b6c12b8c9069f761c8f9cefaac96830ce9954ae0329e4ce29242e729210d315","plan":"f6867ab52e890ea4f4344c4baf1050badbbcea82c71fc6f748692c55c246191e"}}
+```
+
+Extracted from the [later backend families](#renovate-later-dashboard-backend-unit-test-families)
+on 24 November 2026 with the story above.
+
+**Goal.** Dashboard maintainers get faster feedback on usage import and
+recovery, from cases that call the typed importer and read the stored
+history in this process instead of starting a Node command for each
+import and each read.
+
+**Scope.** The 54 backend `usage-history/` specs outside the
+[Token Index family](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) that share the
+usage `home` and `root` fixture module or the usage-import command
+wrapper; 45 of them import or read through the wrapper. Call
+`importUsageHistory` with explicit home, store, since, response file and
+native roots, and read the store with `readUsageHistory`. Move the
+fixture module and all 54 specs to Node Vitest in the same story. Keep a
+few command cases for what only the command owns: argument defaults, printed output, exit status and
+failures injected into its process. Remove the wrapper's import and read
+entries once no backend spec uses them; the E2E usage journeys keep what
+they need. Measure the family before and after under the
+[campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families).
+Reducing case count beyond the command duplicates stays with the later
+families.
+
+**Key examples.**
+
+- Given Codex rollouts and Claude transcripts written under a private
+  native root, calling the importer with that root and a private store
+  returns the import result, and reading the store returns the same
+  tasks, contributions and gaps the command printed.
+- Given a second import of unchanged transcripts, the stored totals stay
+  the same, observed through the typed read.
+- Given a failure injected into the command's own file removal or rename,
+  the command case still reports the exit status and error text, and the
+  store keeps its earlier bytes.
+
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
 
 **Identity:** SEED-413#renovate-later-dashboard-backend-unit-test-families
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["The residual campaign spans several test families. After the extracted stories, recount and select the next bounded cohort before executable slice planning."],"basis":{"document":"ecc82a686c1418315497a59ed3173787446deffe181742fa8e85c943b1ce83c6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["The residual campaign spans about 290 server-bound specs across several boundaries. After the two extracted systematic stories, recount and select the next bounded cohort by boundary, launch boundary first, before executable slice planning."],"basis":{"document":"143ec851d6096784628956cac19b66a20413aea68af730c0c7e6390553863bec"}}
 ```
 
 Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
@@ -220,9 +311,13 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   wrappers in `dashboard/test-support/` are deleted.
 - **Remaining work.** This story keeps the campaign criteria below and owns
   the backend specs outside the completed wall-time history (recoverable at
-  `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`) and the two bounded migrations already
-  selected: [landed attempt evidence](#renovate-landed-ci-attempt-evidence)
-  and [Token Index](#renovate-usage-token-index-proof).
+  `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`)
+  and completed landed attempt evidence (recoverable at
+  `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
+  [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete. Two
+  systematic extractions come first and leave it their remainder: the
+  [direct specs moved to Vitest by one rewrite](#run-direct-backend-specs-on-vitest)
+  and the [usage import cases on the typed importer](#prove-usage-import-through-typed-importer).
   It also owns final runner retirement and the Story Notes store follow-up
   below. Keep the automatic-repeat correction's separately assigned coverage
   and load obligations with its plan. Count any legacy files it leaves for
@@ -303,8 +398,10 @@ smaller unit selection does not hide its cost or a lost regression check.
      Remaining native Done cases belong to `sessions/`.
   2. Landed CI [scoped test history](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof)
      is complete. Wall-time history is complete too (recoverable at
-     `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`). Next come [attempt evidence](#renovate-landed-ci-attempt-evidence)
-     and [Token Index](#renovate-usage-token-index-proof).
+     `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`).
+     Attempt evidence is complete (recoverable at
+     `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
+     [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete.
   3. Recount the remaining files against the available seams and CI cost.
      Intent still includes comparison, follow-up and lifecycle proof outside
      the extracted spec list, together with other Intent readers and proof
@@ -320,6 +417,29 @@ smaller unit selection does not hide its cost or a lost regression check.
   observation 56, usage history 54, runtime 43, Review 33, terminals 18 and
   configuration 14. The number counts source specs subject to disposition.
   Coverage can move or consolidate, and active stories may change the inventory.
+- **Recount by entry** (`4283cb8d4`, 24 November 2026). 498 of 580 backend
+  specs are Playwright-selected. Counted from each spec's text and imports:
+  - 207 take no Playwright fixture and start no server. A trial rewrite of
+    only their engine import ran them on Vitest at four workers: 164 files
+    and 596 of 667 cases passed. 122 of the passing files reach no
+    Playwright import at all: 76 outside `usage-history/` form the
+    [direct cohort](#run-direct-backend-specs-on-vitest), and the 46 usage
+    files move with the
+    [typed importer](#prove-usage-import-through-typed-importer), since
+    their command-bound cases ran up to 4.9 s against the 5 s default. Of the 43 failing
+    files, 29 exceeded the default timeout.
+  - 291 start or mount a server, or reach one through support. They enter
+    through few boundaries: 122 import the launch boundary helpers, and 101
+    of those drive a launch; about 40 read through the authenticated read
+    boundary; 21 are Token Index and 16 landed CI history, both already
+    selected. 54 name a live server and 187 take Playwright fixtures.
+  - Plan the server-bound remainder by boundary instead of by folder: one
+    story leads each boundary with its typed entry, and its specs follow
+    with that entry already shown. The launch boundary is the largest.
+    `AgentLaunches` already offers typed `accept`, `changed`, `attempts`
+    and `machineSessions`, and
+    [one converted case](../../dashboard/backend-tests/sessions/agent-launch-codex-open-polling.spec.ts)
+    calls it in this process.
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,
   2,519 s; entry kinds counted from each spec's text, so approximate).
 
@@ -370,78 +490,6 @@ smaller unit selection does not hide its cost or a lost regression check.
 - **Safe stopping point.** Every completed family stands on its own with
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
-
-<a id="renovate-landed-ci-attempt-evidence"></a>
-
-### Prove landed CI attempt evidence through typed backend handlers
-
-**Identity:** SEED-413#renovate-landed-ci-attempt-evidence
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/810-renovate-landed-ci-attempt-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fc810e20ed3fc6e9e4f185c09fef5de07286aa4c471df79816b55273cccacf6a","plan":"299852305bd07a8687f2a6681b446059e66a056eed171c9565f8bf631c529bf0"}}
-```
-
-**Goal.** Dashboard maintainers get fast feedback on whether a landed
-attempt retains its original timing, its matching proof, and the evidence
-used by later follow-up advice.
-
-**Scope.** Resolve ten existing Intent specs covering original attempt
-timing and runner-wait calculations, standalone proof collection and
-admission, artifact extraction, reader restart, and retained follow-up
-inputs. Use typed Node Vitest checks for service behavior and preserve
-the old-address restart assertion in one E2E journey if it has no
-equivalent owner. Keep wall-time and scoped history cohorts and the
-automatic-repeat correction with their current owners. Apply the
-[campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families).
-The existing typed collection pass makes it practical to cover this
-whole evidence path in one story.
-
-**Key examples.**
-
-- Given timing evidence for the original attempt and a newer, faster
-  attempt, refreshing retained timing keeps the original attempt and uses
-  its start when known. Incomplete timing keeps its existing explanation.
-- Given a validated landed attempt whose proof is recorded while Intent
-  is closed, a newly opened reader can return that attempt's case and file
-  evidence from retained state. An omitted attempt is refused before
-  asking the provider.
-- Given a later landing and an older original measurement, the follow-up
-  reader retains the original sample and its exclusions after history
-  eviction. A repeat request's measurement does not replace that sample.
-
-<a id="renovate-usage-token-index-proof"></a>
-
-### Prove Token Index reads and refreshes through typed backend handlers
-
-**Identity:** SEED-413#renovate-usage-token-index-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/811-renovate-usage-token-index-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5026a333100f058612353387b3198eea3b68e08be429c213417569a02ef48f54","plan":"0efa864976b2a2183a5a02ca9cd817cddefe53f9c4d26600f801fa68f3d800aa"}}
-```
-
-**Goal.** Dashboard maintainers get fast feedback on whether the Token
-Index reports the right usage for completed work and reflects manual
-refresh, including partial and unpriced evidence.
-
-**Scope.** Convert all 19 backend `usage-history/token-index*.spec.ts`
-files as one family on Node Vitest. Read the typed Token Index service
-with explicit project, retained launch, tariff, check time and summary
-inputs. Drive the real usage refresh against isolated native transcript
-and usage files where importing, replacing or preserving evidence is the
-behavior. Keep the production HTTP, child-process and cache composition.
-Other usage history and effort reports remain in the original story.
-Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families).
-
-**Key examples.**
-
-- Given configured launches with measured, estimated, or partial usage,
-  reading a cohort returns the appropriate points and excludes tasks
-  ineligible for its rolling median. A malformed period is refused
-  before reading the usage store.
-- Given a reply and worker evidence that arrives after the last check,
-  Refresh attributes each response once to the correct launch. A later
-  launch gets its own turns. Refreshing again leaves the same totals.
-- Given a missing worker, a refresh retains the partial result until
-  that evidence can be read. An unreadable store preserves the last
-  saved summary and check time and reports failure.
 
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 

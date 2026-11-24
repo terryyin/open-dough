@@ -1,236 +1,209 @@
-// Collection/classification is observed before reading fixtures or restart.
-import { writeFileSync } from "node:fs";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
+// Follow-up reading retains the original sample and exclusions after later
+// history changes. Request admission and actual repeat submission stay with
+// their existing proof owners.
+import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { answerCiFollowUp } from "../../server/ciFollowUpBoundary.ts";
+import { changeFollowUps, followUpKey } from "../../server/ciFollowUpStore.ts";
+import { wallTimeReferenceOf } from "../../server/ciWallTimeReference.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { updateProjectHistory } from "../../server/landedCiKeepEvidence.ts";
+import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
-  followUpCards,
-  followUpFile,
-  prepareRepeatScenario,
-  readFollowUpLedger,
-} from "../../test-support/support/ciFollowUpScenario.ts";
-import {
-  landedCiHistory,
-  restartAsLandedCiReader,
-  keepLandedCiHistory,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  passedFrom,
-  trunkRun,
-  trunkActions,
-  usableProofOf,
-} from "../../test-support/support/landedCiTrunk.ts";
-import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { pull } from "../../test-support/support/storyReviewTrunkCommits.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+  buildAt,
+  endpointIdentity,
+  exclusion,
+  followUpGet,
+  openFollowUpCheckout,
+  outlierFollowUpLandings,
+  outlierReason,
+  recoveredRequest,
+  source,
+  target,
+} from "../support/landedCiFollowUpReadingCase.ts";
 
-test.use({ serverMode: "boundary" });
-
-async function retained(
-  server: DashboardServer,
-  identity: string,
-  revision: string,
-) {
-  const params = new URLSearchParams({ id: "open-dough", identity, revision });
-  const response = await rawRequest({
-    url: `${server.origin}/__project-configuration/ci-follow-up?${params}`,
-    headers: { Origin: server.origin },
+test("later landing keeps original 120s once as slow outlier; never samples the 100s repeat", async () => {
+  const checkout = await openFollowUpCheckout();
+  const { landing: completion, later, trunk } = checkout.revisions;
+  const stopped = new AbortController();
+  onTestFinished(() => {
+    stopped.abort();
   });
-  return {
-    status: response.status,
-    body: JSON.parse(response.body) as unknown,
-  };
-}
-
-test("a subsequent landing considers original 120 seconds once, excludes that actual slow outlier, and never samples the 100-second repeat", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  const scenario = await prepareRepeatScenario(origin, github, 120);
-  const server = await startServer();
-  await scenario.ingest(server);
-  await expect.poll(() => scenario.repeatCalls.length).toBe(1);
-  scenario.setRepeat({ seconds: 100 });
-  await expect
-    .poll(() => followUpCards(server))
-    .toMatchObject([{ kind: "recovered" }]);
-  pull(origin.project);
-  const next = await origin.publishRevision({
-    message: "A newer publication for the same story",
-    files: { "next.txt": "new work\n" },
-  });
-  const run = trunkRun(
-    next,
-    80,
-    passedFrom("2026-11-10T08:00:00.000Z", 110000),
+  const seeded = outlierFollowUpLandings(
+    checkout.integration,
+    completion,
+    later,
+    trunk,
   );
-  const answer = trunkActions([run], { 80: usableProofOf(run) });
-  const prior = github.serve(
-    "terryyin/open-dough",
-    async (call) =>
-      answer(call.argv) ??
-      prior?.(call) ?? {
-        status: 404,
-        contentType: "text/plain",
-        body: "Not found",
-      },
-  );
-  keepMoreLaunchRecords(server, [
-    makeMe.aLaunchRecord
-      .executing({ identity: scenario.identity, title: "Story A" })
-      .launchedAt("2026-11-10T08:00:00.000Z")
-      .landedAt(next, { receipt: "88888888-0000-4000-8000-000000000080" })
-      .please(),
-  ]);
-  await expect
-    .poll(() => landedCiHistory(server))
-    .toMatchObject({
-      body: {
-        reference: {
-          endpoint: next,
-          selected: { key: "run/80/1", ms: 110000 },
-          averageMs: 100000,
-          evidence: expect.arrayContaining([
-            {
-              key: "run/71/1",
-              date: scenario.original.startedAt,
-              ms: 120000,
-              status: "excluded",
-              reason: "Slow outlier: more than 15% above the median",
-            },
-          ]),
-        },
-      },
-    });
-  const history = JSON.stringify((await landedCiHistory(server)).body);
-  expect(history).not.toContain("run/71/2");
-  const summary = await followUpCards(server);
-  expect(summary).toHaveLength(1);
-  expect(summary[0]).toMatchObject({
-    revision: scenario.story.completion,
-    originalMs: 120000,
-    repeatMs: 100000,
+  await changeFollowUps(() => ({
+    landings: {
+      [followUpKey(source.id, { target, revision: completion })]:
+        makeMe.aCiFollowUpEntry
+          .with({
+            project: source.id,
+            identity: endpointIdentity,
+            revision: completion,
+            target,
+            eligible: true,
+            receipts: [seeded.storyLanding.receipt],
+            request: seeded.request,
+          })
+          .please(),
+    },
+  }));
+  await updateProjectHistory(source.id, () => seeded.history);
+
+  const history = await keptLandedCiHistory(source.id);
+  expect(history.landings[seeded.storyLanding.receipt]?.observed).toEqual({
+    kind: "build",
+    build: "run/71/1",
+    selection: "exact",
   });
-  expect(summary[0]).not.toHaveProperty("repeat");
-  expect(scenario.repeatCalls).toEqual([71]);
+  expect(history.builds["run/71/1"]).toMatchObject({
+    runId: 71,
+    runAttempt: 1,
+    startedAt: seeded.originalStarted,
+  });
+  expect(
+    Object.values(history.landings).some(
+      (entry) =>
+        entry.observed.kind === "build" && entry.observed.build === "run/71/2",
+    ),
+  ).toBe(false);
+  const reference = wallTimeReferenceOf(history, later);
+  expect(reference).toMatchObject({
+    endpoint: later,
+    selected: { key: "run/80/1", ms: 110_000 },
+    averageMs: 100_000,
+  });
+  const originalSamples = reference.evidence.filter(
+    (sample) => sample.key === "run/71/1",
+  );
+  expect(originalSamples).toHaveLength(1);
+  expect(originalSamples[0]).toMatchObject({
+    date: seeded.originalStarted,
+    ms: 120_000,
+    status: "excluded",
+    reason: outlierReason,
+  });
+  expect(
+    await answerCiFollowUp(followUpGet(`id=${source.id}`), stopped.signal),
+  ).toMatchObject({
+    cards: [
+      {
+        revision: completion,
+        identity: endpointIdentity,
+        originalMs: 120_000,
+        repeatMs: 100_000,
+        averageMs: 100_000,
+        kind: "recovered",
+      },
+    ],
+  });
 });
 
-test("saved samples, exclusions and workflow survive window eviction and a newer same-identity record", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  const scenario = await prepareRepeatScenario(
-    origin,
-    github,
-    120,
-    [100, 100, 100, 100, 100, 116],
-  );
-  const server = await startServer();
-  await scenario.ingest(server);
-  await expect.poll(() => scenario.repeatCalls.length).toBe(1);
-  scenario.setRepeat({ seconds: 100 });
-  await expect
-    .poll(() => followUpCards(server))
-    .toMatchObject([{ kind: "recovered" }]);
-  const before = await retained(
-    server,
-    scenario.identity,
-    scenario.story.completion,
-  );
-  pull(origin.project);
-  const newer = await origin.publishRevision({
-    message: "Later publication",
-    files: { "later.txt": "same story identity, different landing\n" },
+test("saved samples, exclusions and workflow survive window eviction and a newer same-identity record", async () => {
+  const checkout = await openFollowUpCheckout();
+  const { landing: completion, later } = checkout.revisions;
+  const stopped = new AbortController();
+  onTestFinished(() => {
+    stopped.abort();
   });
-  await server.close();
-  const ledger = readFollowUpLedger(server);
-  const original = Object.values(ledger.landings).find(
-    (landing) => landing.request !== undefined,
+  const original = buildAt(completion, 71, "2026-11-10T07:00:00.000Z", 120_000);
+  const repeat = buildAt(
+    completion,
+    71,
+    "2026-11-10T07:05:00.000Z",
+    100_000,
+    2,
   );
-  if (original?.request === undefined)
-    throw new Error("Collected repeat request missing");
-  const request = original.request;
-  if (request.provider !== "github")
-    throw new Error("Expected a GitHub reading input");
-  // These canonical snapshots are reading inputs, not collection/classification proof.
-  ledger.landings["newer-reading-input"] = makeMe.aCiFollowUpEntry
+  const request = recoveredRequest(completion, original, repeat, [
+    {
+      key: "run/5/1",
+      date: "2026-11-10T05:00:00.000Z",
+      ms: 100_000,
+      status: "included",
+    },
+    exclusion,
+  ]);
+  const originalEntry = makeMe.aCiFollowUpEntry
     .with({
-      ...original,
-      revision: newer,
-      request: makeMe.aCiRepeatRequest
-        .with({
-          ...request,
-          workflow: "other.yml",
-          workflowId: 9000,
-          original: { ...request.original, revision: newer },
-          reference: {
-            ...request.reference,
-            endpoint: newer,
-            averageMs: 300000,
-          },
-        })
-        .please(),
+      project: source.id,
+      identity: endpointIdentity,
+      revision: completion,
+      target,
+      eligible: true,
+      receipts: ["71000000-0000-4000-8000-000000000071"],
+      request,
     })
     .please();
-  ledger.landings = Object.fromEntries(
-    Object.entries(ledger.landings).reverse(),
-  );
-  writeFileSync(followUpFile(server), JSON.stringify(ledger));
-  await keepLandedCiHistory(server.home, makeMe.aLandedCiHistory.please());
-  const reader = await restartAsLandedCiReader(server, origin, "boundary");
-  try {
-    const calls = github.calls.filter(({ request }) =>
-      request.kind.startsWith("actions-"),
-    ).length;
-    expect(await followUpCards(reader)).toEqual([
-      expect.objectContaining({
-        revision: scenario.story.completion,
-        averageMs: 100000,
-        originalMs: 120000,
-        repeatMs: 100000,
+  await changeFollowUps(() => ({
+    landings: {
+      [followUpKey(source.id, { target, revision: later })]:
+        makeMe.aCiFollowUpEntry
+          .with({
+            ...originalEntry,
+            revision: later,
+            request: recoveredRequest(
+              later,
+              { ...original, revision: later },
+              { ...repeat, revision: later },
+              request.reference.evidence,
+              { name: "other.yml", id: 9000, averageMs: 300_000 },
+            ),
+          })
+          .please(),
+      [followUpKey(source.id, { target, revision: completion })]: originalEntry,
+    },
+  }));
+  await updateProjectHistory(source.id, () => makeMe.aLandedCiHistory.please());
+
+  expect(
+    await answerCiFollowUp(followUpGet(`id=${source.id}`), stopped.signal),
+  ).toMatchObject({
+    cards: [
+      {
+        revision: completion,
+        identity: endpointIdentity,
+        averageMs: 100_000,
+        originalMs: 120_000,
+        repeatMs: 100_000,
         kind: "recovered",
-      }),
-    ]);
-    const reading = await retained(
-      reader,
-      scenario.identity,
-      scenario.story.completion,
-    );
-    expect(reading).toMatchObject({
-      status: 200,
-      body: {
-        workflow: "ci.yml",
-        workflowId: 7001,
-        original: { runId: 71, runAttempt: 1, ms: 120000 },
-        repeat: { runId: 71, runAttempt: 2, ms: 100000 },
-        reference: {
-          averageMs: 100000,
-          evidence: expect.arrayContaining([
-            {
-              key: "run/6/1",
-              date: "2026-11-10T05:00:00.000Z",
-              ms: 116000,
-              status: "excluded",
-              reason: "Slow outlier: more than 15% above the median",
-            },
-          ]),
-        },
       },
-    });
-    expect(before).toMatchObject({
-      status: 200,
-      body: { kind: "recovered", reference: { averageMs: 100000 } },
-    });
-    expect((await retained(reader, scenario.identity, newer)).status).toBe(404);
-    expect(
-      github.calls.filter(({ request }) => request.kind.startsWith("actions-")),
-    ).toHaveLength(calls);
-  } finally {
-    await reader.close();
-  }
+    ],
+  });
+  expect(
+    await answerCiFollowUp(
+      followUpGet(
+        `id=${source.id}&identity=${encodeURIComponent(endpointIdentity)}&revision=${completion}`,
+      ),
+      stopped.signal,
+    ),
+  ).toMatchObject({
+    workflow: "ci.yml",
+    workflowId: 7001,
+    kind: "recovered",
+    original: { runId: 71, runAttempt: 1, ms: 120_000 },
+    repeat: { runId: 71, runAttempt: 2, ms: 100_000 },
+    reference: {
+      averageMs: 100_000,
+      evidence: [
+        {
+          key: "run/5/1",
+          date: "2026-11-10T05:00:00.000Z",
+          ms: 100_000,
+          status: "included",
+        },
+        exclusion,
+      ],
+    },
+  });
+  await expect(
+    answerCiFollowUp(
+      followUpGet(
+        `id=${source.id}&identity=${encodeURIComponent(endpointIdentity)}&revision=${later}`,
+      ),
+      stopped.signal,
+    ),
+  ).rejects.toMatchObject({ status: 404 } satisfies Partial<RefusedRequest>);
 });

@@ -140,24 +140,9 @@ test("a done story's Follow up sends only the retained session selected through 
   const text = "Paste drops the last line on iPad";
   const refined = composer.session(/-refined$/);
   const executed = composer.session(/-executed$/);
-  await test.step("Then both session choices start clear and closed", async () => {
+  await test.step("When I attach only the refinement", async () => {
     await composer.expectSessionChoices(2);
-    await refined.expectChoiceState({ checked: false, detailsOpen: false });
-    await executed.expectChoiceState({ checked: false, detailsOpen: false });
-  });
-  await test.step("When I open the refinement details by keyboard", async () => {
-    await refined.toggleDetailsByKeyboard();
-  });
-  await test.step("Then the details appear and the choice stays clear", async () => {
-    await refined.expectDetails(refinement.instruction, refinement.report);
-    await refined.expectSelection(false);
-  });
-  await test.step("When I select and close the details by keyboard", async () => {
     await refined.toggleSelectionByKeyboard();
-    await refined.toggleDetailsByKeyboard();
-  });
-  await test.step("Then only the refinement stays selected", async () => {
-    await refined.expectChoiceState({ checked: true, detailsOpen: false });
     await executed.expectSelection(false);
   });
   await test.step("Start sends the selection and the new session names the source story", async () => {
