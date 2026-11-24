@@ -171,7 +171,7 @@ observe the selected attempt and proof identity in the comparison answer.
 ### 7. The attempt evidence cohort gives faster feedback
 
 Type: Behavior
-Status: planned
+Status: done
 
 Run the whole cohort at two workers before and after conversion, with a
 proof record and wall elapsed. Compare file and case counts, individual
@@ -209,6 +209,10 @@ only after its consumers have gone.
   250 lines).
 - Slice 6: deadline case uses typed `adapterRevisionLookup` + hanging `jobs`
   until `TimeoutError` (no subprocess comparison harness).
+- Slice 7 after-conversion cohort (AC, Node 24.21.0, `--workers=2`, ten Intent
+  stems, no token-index): 10 files / 35 cases / 7.827 s summed case / 8.43 s
+  real vs prep ten-Intent 34 cases / 61.738 s. No support deleted (consumers
+  remain). Relocated E2E restart cost stays outside the backend cohort.
 
 ## Accepted proof (slice 1)
 
@@ -259,6 +263,17 @@ delivery formatting lint repair), `slice6-return-report.md`.
 Refactor disposition: skipped — subject specs only on existing
 `timeWithoutRunnerWaits` / `timeWithoutAdapterRunnerWaits` / `asComparisonSlot`;
 no production change; files ≤245 lines.
+
+## Accepted proof (slice 7)
+
+After-conversion cohort: `caffeinate -s -i` + proof record + `/usr/bin/time -p`
+`npm run test:dashboard:backend -- landed-ci-attempt-start landed-ci-proof-
+landed-ci-reader-restart landed-ci-follow-up-reading intent-ci-proof-read
+ci-proof-extraction ci-time-without --workers=2` → exit 0; 10 files / 35 cases /
+7.827 s summed / 8.43 s real; Node Vitest.
+Evidence: `open-dough/evidence/slice7-cohort-20261124192647.log.run.json`,
+`slice7-cohort-numbers.json`, `slice7-return-report.md`.
+Refactor disposition: skipped — planning/measurement only; no product edit.
 
 ## Concern evidence
 
