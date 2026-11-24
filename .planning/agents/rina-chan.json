@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rina-chan",
+  "email": "rina-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-413#renovate-later-dashboard-backend-unit-test-families",
+  "host": "claude",
+  "model": "fable"
+}
