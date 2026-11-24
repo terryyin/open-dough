@@ -190,9 +190,12 @@ The implementation tip `8d3306fd9bc98246daa01a0a2e1d496b31ed3ce3` passed
 hosted CI in run `45386987704`. The first local full Distribution run passed
 647 checks and timed out in three native comparison baseline files at their
 180-second safety deadlines. An AC-powered two-job diagnostic on the same
-tip passed all three in 44.5 to 98.9 seconds. Repeat the full suite with two
-jobs through the maintained macOS guard before landing. Retain its outcomes
-under `full-distribution-two-jobs` in the worktree evidence directory.
+tip passed all three in 44.5 to 98.9 seconds. The full two-job rerun passed
+all 650 checks in 31 minutes and 20 seconds on clean revision
+`bc4eb59c7229c1dbc105c4a935e7b1d45587a15e`, with Homebrew Bash and the macOS
+guard on AC. The three baseline files passed in 60.6 to 109.1 seconds.
+The same revision's branch CI passed in run `45393890131`, and its observer
+shutdown was confirmed with zero unread events.
 
 Intent coverage restored the missing-Claude cross-root fallback in scratch.
 The maintained missing-root assertion caught it. The original bytes and
