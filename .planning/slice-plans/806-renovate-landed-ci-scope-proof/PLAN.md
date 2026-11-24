@@ -226,6 +226,12 @@ window to 19 in a disposable checkout failed on premature eviction of
 `run/100/1`. The scratch change was restored and the checkout retired.
 Typecheck passed. See `slice7-return.md` for the full purpose map and commands.
 
+## Execution complete
+
+Product advice: no backlog change. The scoped cohort is faster with all
+original purposes mapped to surviving typed proof, and the existing backend
+renovation campaign already owns the remaining families.
+
 ## Concern evidence
 
 Refinement retained seven slices and assigned overlap review to each migration
