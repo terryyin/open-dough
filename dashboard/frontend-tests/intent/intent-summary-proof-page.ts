@@ -1,10 +1,7 @@
 import { expect } from "vitest";
 import { page, type Locator } from "vitest/browser";
 import { ciReadingText } from "./intent-attempt-proof-page.ts";
-import {
-  locationNameControl,
-  locationNameDrawn,
-} from "./intent-ci-homepage-page.ts";
+import { pressLocationName } from "./intent-ci-homepage-page.ts";
 
 const columns = ["Scope", "Counts", "Test execution time"] as const;
 type ScopeRow = readonly [name: string, counts: string, executionTime: string];
@@ -22,11 +19,9 @@ export async function showsSummaryPath(summary: Locator, path: string) {
     .toBe(path);
 }
 
+// The Summary of the location at PATH, opened by pressing its name.
 export async function openSummary(path: string) {
-  await locationNameDrawn(path);
-  const location = locationNameControl(path);
-  await expect.element(location).toBeVisible();
-  (location.element() as HTMLElement).click();
+  await pressLocationName(path);
   const summary = summaryRegion();
   await showsSummaryPath(summary, path);
   return summary;

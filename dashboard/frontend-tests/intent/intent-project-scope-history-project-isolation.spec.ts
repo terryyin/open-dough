@@ -14,9 +14,9 @@ import {
 import {
   openFileProof,
   openScopeChild,
-  openScopeSummary,
   scopeHistoryIn,
 } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 
 const work = workOf(openDoughSource, "b2b2b2b");
 const endpoint = `Observed trunk endpoint ${shortSha(work.revision)}`;
@@ -38,7 +38,7 @@ test("late entry history cannot replace another file or project's history while 
       return Promise.resolve(caseTimingHistory(path, ms, at.revision));
     },
   });
-  await openScopeSummary("dashboard/tests");
+  await openSummary("dashboard/tests");
   await expect.poll(() => requests).toEqual(["open-dough:dashboard/tests"]);
   await openScopeChild("example.spec.ts");
   const file = await openFileProof();
@@ -49,7 +49,7 @@ test("late entry history cannot replace another file or project's history while 
   await expect.element(file.getByText("Live proof unavailable")).toBeVisible();
 
   await page.showWork(workOf(doughnutSource, "b2b2b2b"));
-  const current = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  const current = scopeHistoryIn(await openSummary("dashboard/tests"));
   await expect
     .poll(() => current.readout().selected)
     .toBe(`${endpoint} · 9.0 s`);
@@ -79,7 +79,7 @@ test("a failed new file read cannot retain the entry's answer at the same projec
         : Promise.reject(new Error("File local history unavailable"));
     },
   });
-  const entry = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  const entry = scopeHistoryIn(await openSummary("dashboard/tests"));
   await expect.poll(() => entry.readout().selected).toBe(`${endpoint} · 8.0 s`);
   await openScopeChild("example.spec.ts");
   const file = await openFileProof();

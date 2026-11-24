@@ -304,7 +304,13 @@ cases into two mounted spec files: at load about 4–5.7 its 10 legacy
 Playwright cases took 10.6 s and the 12 replacements 7.9 s, while the two
 files still owned by slice 9 take 6.9 s. Splitting mounted cases across
 files matters: one file runs serially (13.4 s for ten cases against 6.4 s
-split in two). Fit the 15 active-minute limit by keeping representative
+split in two).
+
+CI run 45296057233 failed on `a49313ba` in
+`intent/intent-scope-timing-history-units.spec.ts`: a late Done comparison
+renamed the location button that a name-resolved click was waiting for. The
+repair presses the button by its path; see
+[the diagnosis record](diagnosis-intent-scope-timing-click.md). Fit the 15 active-minute limit by keeping representative
 rendered scenarios and checking distinct variants at their smallest owner.
 
 ## Assertion map

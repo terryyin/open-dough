@@ -11,10 +11,8 @@ import {
   caseTimingHistory,
   mountUnprovenScopeHistory,
 } from "./intent-project-scope-history-fixtures.ts";
-import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
+import { scopeHistoryIn } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 
 const work = workOf(openDoughSource, "b2b2b2b");
 
@@ -34,7 +32,7 @@ for (const changed of ["repository", "ref"] as const) {
           : Promise.reject(new Error("New source history unavailable"));
       },
     });
-    const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+    const history = scopeHistoryIn(await openSummary("dashboard/tests"));
     const endpoint = `Observed trunk endpoint ${shortSha(work.revision)}`;
     await expect
       .poll(() => history.readout().selected)

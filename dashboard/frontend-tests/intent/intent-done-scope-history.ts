@@ -5,10 +5,8 @@ import { page, type Locator } from "vitest/browser";
 import type { ScopeHistoryGlance } from "../../src/ciScopeHistory.ts";
 import { comparisonIn } from "./intent-ci-scope-page.tsx";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
-import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
+import { scopeHistoryIn } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 import {
   doneEntryComparisonRows,
   doneEntryOwnFigures,
@@ -34,7 +32,7 @@ export async function openDoneScopeHistory(
   });
   if (phone) await page.viewport(390, 844);
   await intentStoryCompare().chooseTab("Changes");
-  const summary = await openScopeSummary("dashboard/tests");
+  const summary = await openSummary("dashboard/tests");
   return { summary, history: scopeHistoryIn(summary) };
 }
 

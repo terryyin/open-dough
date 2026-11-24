@@ -19,9 +19,9 @@ import {
 import {
   openFileProof,
   openScopeChild,
-  openScopeSummary,
   scopeHistoryIn,
 } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 
 const work = workOf(openDoughSource, "b2b2b2b");
 
@@ -65,7 +65,7 @@ test("Project Intent reads each scope's test execution time history before its t
     change: "vs. prior average · +17 ms (+17%)",
   };
 
-  const summary = await openScopeSummary("dashboard/tests");
+  const summary = await openSummary("dashboard/tests");
   const history = scopeHistoryIn(summary);
   await expect.poll(history.readout).toEqual(cases);
   await expect.element(history.unit("Test files")).toBeVisible();

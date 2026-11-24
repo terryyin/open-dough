@@ -18,9 +18,9 @@ import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   openFileProof,
   openScopeChild,
-  openScopeSummary,
   scopeHistoryIn,
 } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 import {
   doneCompletion,
   doneSource,
@@ -81,7 +81,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
   const landing = `Selected landing ${shortSha(doneCompletion)}`;
   const priors = "5 prior builds used";
 
-  const summary = await openScopeSummary("dashboard/tests");
+  const summary = await openSummary("dashboard/tests");
   const history = scopeHistoryIn(summary);
   await expect.poll(history.readout).toEqual({
     selected: `${landing} · 1.4 s`,
