@@ -197,28 +197,6 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
 
-<a id="trim-follow-up-context-e2e-journeys"></a>
-
-### Keep Follow up context E2E proof to integrated journeys
-
-**Identity:** SEED-413#trim-follow-up-context-e2e-journeys
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless"}
-```
-
-Follow-up of SEED-415#choose-clear-follow-up-context, which added several
-browser journeys for the Follow up composer.
-
-**Goal:** The Follow up context feature keeps a few E2E journeys that explain
-it and prove the integrated application, with the composer's detailed choices
-proved by mounted frontend and backend cases, in fewer tests with similar
-coverage.
-
-**Scope:** The E2E specs that story added or extended in `e2e/intent/` and
-`e2e/stories/`. Move detail that a frontend mount or backend launch case
-already proves, or can prove more cheaply, out of those journeys. Product
-behavior stays unchanged.
-
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers

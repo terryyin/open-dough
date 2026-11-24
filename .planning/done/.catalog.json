@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_trim-follow-up-context-e2e-journeys.json",
+      "identity": "SEED-413#trim-follow-up-context-e2e-journeys",
+      "completedAt": "2026-11-24T11:59:35.911Z",
+      "blob": "841fcf4b222f90a67a370fc60f02dcf8f6dc4fd5"
+    },
+    {
       "fileName": "SEED-426_start-ad-hoc-work-under-a-story.json",
       "identity": "SEED-426#start-ad-hoc-work-under-a-story",
       "completedAt": "2026-11-24T10:29:28.491Z",
