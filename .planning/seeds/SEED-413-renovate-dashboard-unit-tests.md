@@ -311,10 +311,11 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   wrappers in `dashboard/test-support/` are deleted.
 - **Remaining work.** This story keeps the campaign criteria below and owns
   the backend specs outside the completed wall-time history (recoverable at
-  `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`) and the two bounded migrations already
-  selected: [landed attempt evidence](#renovate-landed-ci-attempt-evidence)
-  and [Token Index](#renovate-usage-token-index-proof). Two systematic
-  extractions come first and leave it their remainder: the
+  `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`)
+  and completed landed attempt evidence (recoverable at
+  `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
+  [Token Index](#renovate-usage-token-index-proof) remains selected. Two
+  systematic extractions come first and leave it their remainder: the
   [direct specs moved to Vitest by one rewrite](#run-direct-backend-specs-on-vitest)
   and the [usage import cases on the typed importer](#prove-usage-import-through-typed-importer).
   It also owns final runner retirement and the Story Notes store follow-up
@@ -397,8 +398,10 @@ smaller unit selection does not hide its cost or a lost regression check.
      Remaining native Done cases belong to `sessions/`.
   2. Landed CI [scoped test history](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof)
      is complete. Wall-time history is complete too (recoverable at
-     `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`). Next come [attempt evidence](#renovate-landed-ci-attempt-evidence)
-     and [Token Index](#renovate-usage-token-index-proof).
+     `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`).
+     Attempt evidence is complete (recoverable at
+     `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
+     Next comes [Token Index](#renovate-usage-token-index-proof).
   3. Recount the remaining files against the available seams and CI cost.
      Intent still includes comparison, follow-up and lifecycle proof outside
      the extracted spec list, together with other Intent readers and proof
@@ -487,43 +490,6 @@ smaller unit selection does not hide its cost or a lost regression check.
 - **Safe stopping point.** Every completed family stands on its own with
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
-
-<a id="renovate-landed-ci-attempt-evidence"></a>
-
-### Prove landed CI attempt evidence through typed backend handlers
-
-**Identity:** SEED-413#renovate-landed-ci-attempt-evidence
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/810-renovate-landed-ci-attempt-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fc810e20ed3fc6e9e4f185c09fef5de07286aa4c471df79816b55273cccacf6a","plan":"299852305bd07a8687f2a6681b446059e66a056eed171c9565f8bf631c529bf0"}}
-```
-
-**Goal.** Dashboard maintainers get fast feedback on whether a landed
-attempt retains its original timing, its matching proof, and the evidence
-used by later follow-up advice.
-
-**Scope.** Resolve ten existing Intent specs covering original attempt
-timing and runner-wait calculations, standalone proof collection and
-admission, artifact extraction, reader restart, and retained follow-up
-inputs. Use typed Node Vitest checks for service behavior and preserve
-the old-address restart assertion in one E2E journey if it has no
-equivalent owner. Keep wall-time and scoped history cohorts and the
-automatic-repeat correction with their current owners. Apply the
-[campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families).
-The existing typed collection pass makes it practical to cover this
-whole evidence path in one story.
-
-**Key examples.**
-
-- Given timing evidence for the original attempt and a newer, faster
-  attempt, refreshing retained timing keeps the original attempt and uses
-  its start when known. Incomplete timing keeps its existing explanation.
-- Given a validated landed attempt whose proof is recorded while Intent
-  is closed, a newly opened reader can return that attempt's case and file
-  evidence from retained state. An omitted attempt is refused before
-  asking the provider.
-- Given a later landing and an older original measurement, the follow-up
-  reader retains the original sample and its exclusions after history
-  eviction. A repeat request's measurement does not replace that sample.
 
 <a id="renovate-usage-token-index-proof"></a>
 

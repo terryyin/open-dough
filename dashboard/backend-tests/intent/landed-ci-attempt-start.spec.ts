@@ -1,100 +1,112 @@
 // The actual collector repairs legacy bounds at their retained attempt while
 // a newer rerun is listed; local history reads never acquire that evidence.
-import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
+import {
+  apiRun,
+  githubApi,
+} from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-import {
-  keepLandedCiHistory,
-  landedCiHistory,
-  restartAsLandedCiReader,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  landedTrunk,
-  recordedOnTrunk,
-  trunkActions,
-  trunkRun,
-  usableProofOf,
-} from "../../test-support/support/landedCiTrunk.ts";
-import { actionsRunsAnswer } from "../../test-support/support/baseCiActions.ts";
-import { publishes } from "../../test-support/support/publishedRepository.ts";
-import { notFoundAnswer } from "../../test-support/originAnswers.ts";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { readCiAdapterProof } from "../../server/ciAdapterProof.ts";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import { readIntentCiProof } from "../../server/intentCiProofRead.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { updateProjectHistory } from "../../server/landedCiKeepEvidence.ts";
+import { collectLandedCiPass } from "../../server/landedCiPass.ts";
+import { passRead } from "../../server/landedCiPassRead.ts";
+import { unverifiedAttemptTiming } from "../../src/ciAttemptTiming.ts";
 
-// No page is opened during acquisition.
-test.use({ serverMode: "boundary" });
+const source = makeMe.aPublishedSource.openDough.please();
+const description = makeMe.aRepository
+  .withBaseBeforeEveryLaunch()
+  .withRevision("original")
+  .withRevision("newer")
+  .please();
 
 for (const bounds of ["available", "unavailable"] as const) {
-  test(`collection uses attempt start for new evidence; legacy original bounds ${bounds} are repaired or explained without selecting a faster rerun`, async ({
-    origin,
-    github,
-    startServer,
-  }) => {
-    const trunk = landedTrunk(
-      origin,
-      [
-        { title: "ci", kind: "ci-workflow" },
-        { title: "original", kind: "code" },
-        { title: "new", kind: "code" },
-      ],
-      ["original", "new"],
-    );
-    const originalLanding = trunk.landing("original");
-    const original = trunkRun(originalLanding.revision, 41, {
-      createdAt: "2026-11-05T10:00:00Z",
-      startedAt: "2026-11-05T10:01:00Z",
-      completedAt: "2026-11-05T10:03:00Z",
+  test(`collection uses attempt start for new evidence; legacy original bounds ${bounds} are repaired or explained without selecting a faster rerun`, async () => {
+    const checkout = await materializeLocalCheckout(undefined, description, {
+      gitTemplates: false,
     });
-    const rerun = trunkRun(originalLanding.revision, 41, {
-      attempt: 2,
-      createdAt: "2026-11-05T10:00:00Z",
-      startedAt: "2026-11-05T11:00:00Z",
-      completedAt: "2026-11-05T11:00:10Z",
+    const repository = checkout.integration;
+    const {
+      base,
+      original: originalRevision,
+      newer: newerRevision,
+    } = checkout.revisions;
+    const stopped = new AbortController();
+    vi.stubEnv("HOME", checkout.fixture);
+    onTestFinished(async () => {
+      stopped.abort();
+      vi.unstubAllEnvs();
+      await checkout.cleanup();
     });
-    const latest = trunkRun(trunk.revision("new"), 42, {
-      createdAt: "2026-11-05T12:00:00Z",
-      startedAt: "2026-11-05T12:02:00Z",
-      completedAt: "2026-11-05T12:04:00Z",
-    });
-    recordedOnTrunk(origin, github, trunk.landings, () => [rerun, latest]);
-    github.serve("terryyin/open-dough", async (call) => {
-      if (
-        call.request.kind === "actions-run-attempt" &&
-        call.request.runId === 41 &&
-        call.request.attempt === 1
-      ) {
-        if (bounds === "unavailable") return notFoundAnswer();
-        const answer = actionsRunsAnswer([original]);
-        if (!("body" in answer)) throw new Error("No synthetic Actions body");
-        const body = JSON.parse(answer.body) as { workflow_runs: unknown[] };
-        return { ...answer, body: JSON.stringify(body.workflow_runs[0]) };
-      }
-      return (
-        trunkActions([rerun, latest], { 42: usableProofOf(latest) })(
-          call.argv,
-        ) ?? publishes({ revision: trunk.revision("new") })(call)
-      );
-    });
-    const home = path.join(origin.machine, "home");
-    const landing = makeMe.aLaunchLanding
-      .comparing({
-        base: trunk.revision("ci"),
-        revision: originalLanding.revision,
+
+    const originalLanding = makeMe.aLaunchLanding
+      .capturedFrom({ repository })
+      .comparing({ base, revision: originalRevision })
+      .deliveredAs({
+        delivery: "legacy",
+        receipt: "41000000-0000-4000-8000-000000000001",
       })
-      .deliveredAs({ delivery: "legacy", receipt: originalLanding.receipt })
-      .receivedAt(originalLanding.at)
+      .receivedAt("2026-11-05T09:00:00.000Z")
       .please();
-    await keepLandedCiHistory(
-      home,
+    const newerLanding = makeMe.aLaunchLanding
+      .capturedFrom({ repository })
+      .comparing({ base: originalRevision, revision: newerRevision })
+      .deliveredAs({
+        delivery: "41000000-0000-4000-8000-000000000002",
+        receipt: "41000000-0000-4000-8000-000000000002",
+      })
+      .receivedAt("2026-11-05T12:00:00.000Z")
+      .please();
+    const original = makeMe.aCiRun
+      .with({
+        id: 41,
+        attempt: 1,
+        headSha: originalRevision,
+        createdAt: "2026-11-05T10:00:00Z",
+        startedAt: "2026-11-05T10:01:00Z",
+        completedAt: "2026-11-05T10:03:00Z",
+      })
+      .please();
+    const rerun = makeMe.aCiRun
+      .with({
+        id: 41,
+        attempt: 2,
+        headSha: originalRevision,
+        createdAt: "2026-11-05T10:00:00Z",
+        startedAt: "2026-11-05T11:00:00Z",
+        completedAt: "2026-11-05T11:00:10Z",
+      })
+      .please();
+    const latest = makeMe.aCiRun
+      .with({
+        id: 42,
+        attempt: 1,
+        headSha: newerRevision,
+        createdAt: "2026-11-05T12:00:00Z",
+        startedAt: "2026-11-05T12:02:00Z",
+        completedAt: "2026-11-05T12:04:00Z",
+      })
+      .please();
+    const proof = makeMe.aCiProof
+      .forRun({ revision: originalRevision, runId: 41 })
+      .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+      .please();
+    const latestProof = makeMe.aCiProof
+      .forRun({ revision: newerRevision, runId: 42 })
+      .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+      .please();
+    await updateProjectHistory(source.id, () =>
       makeMe.aLandedCiHistory
-        .inTrunkOrder([trunk.revision("ci"), originalLanding.revision])
+        .inTrunkOrder([originalRevision, newerRevision])
         .recording(
-          landing,
+          originalLanding,
           "run/41/1",
           makeMe.aKeptBuild
             .with({
-              revision: originalLanding.revision,
+              revision: originalRevision,
               state: "pass",
               runId: 41,
               runAttempt: 1,
@@ -102,111 +114,201 @@ for (const bounds of ["available", "unavailable"] as const) {
               startedAt: original.createdAt,
               completedAt: original.completedAt,
               timingBasis: undefined,
-              proof: makeMe.aCiProof
-                .forRun({ revision: originalLanding.revision, runId: 41 })
-                .entries([
-                  makeMe.aCiProofEntry.at("tests").counting(1).please(),
-                ])
-                .please(),
+              proof,
+            })
+            .please(),
+        )
+        .recording(
+          newerLanding,
+          "run/42/1",
+          makeMe.aKeptBuild
+            .with({
+              revision: newerRevision,
+              state: "pass",
+              runId: 42,
+              runAttempt: 1,
+              runUrl: "https://ci.invalid/runs/42",
+              startedAt: latest.startedAt,
+              completedAt: latest.completedAt,
+              proof: latestProof,
             })
             .please(),
         )
         .please(),
     );
-    const beforeCollection = await startServer({ environment: "development" });
-    const beforeRead = github.calls.length;
+
     expect(
-      await landedCiHistory(beforeCollection, "timing-basis"),
+      await performIntentCiHistoryRead(source, {
+        kind: "intent-ci-history",
+        gapReasons: "timing-basis",
+      }),
     ).toMatchObject({
-      body: {
+      kind: "answered",
+      answer: {
         entries: [
           {
             kind: "gap",
             reason: "timing-basis",
             build: { runId: 41, runAttempt: 1 },
           },
+          {
+            kind: "point",
+            runId: 42,
+            startedAt: latest.startedAt,
+            completedAt: latest.completedAt,
+          },
         ],
       },
     });
-    expect(github.calls.length).toBe(beforeRead);
-    await beforeCollection.close();
-    const server = await startServer();
-    await expect
-      .poll(() => landedCiHistory(server, "timing-basis"))
-      .toMatchObject({
-        body: {
-          entries: [
-            bounds === "available"
-              ? {
-                  kind: "point",
-                  runId: 41,
-                  runAttempt: 1,
-                  startedAt: original.startedAt,
-                  completedAt: original.completedAt,
-                }
-              : {
-                  kind: "gap",
-                  reason: "timing-basis",
-                  build: { runId: 41, runAttempt: 1 },
-                },
-            {
-              kind: "point",
-              runId: 42,
-              startedAt: latest.startedAt,
-              completedAt: latest.completedAt,
-            },
-          ],
-          reference: {
-            sampleCount: bounds === "available" ? 1 : 0,
-            selected: { key: "run/42/1", ms: 120000 },
-            evidence: [
-              bounds === "available"
-                ? { key: "run/41/1", status: "included", ms: 120000 }
-                : {
-                    key: "run/41/1",
-                    status: "excluded",
-                    reason: "Retained attempt-start timing basis is unverified",
-                  },
-              { key: "run/42/1", status: "selected", ms: 120000 },
-            ],
-          },
-        },
-      });
-    await expect
-      .poll(() =>
-        github.calls.some(
-          ({ request }) =>
-            request.kind === "actions-run-attempt" &&
+
+    const github = vi.fn(
+      githubApi(
+        (request: {
+          kind: string;
+          runId?: number;
+          attempt?: number;
+          commit?: string;
+        }) => {
+          if (
+            request.kind === "attempt" &&
             request.runId === 41 &&
-            request.attempt === 1,
-        ),
-      )
-      .toBe(true);
-    const reader = await restartAsLandedCiReader(server, origin, "boundary");
-    try {
-      const asked = github.calls.length;
-      expect(await landedCiHistory(reader, "timing-basis")).toMatchObject({
-        body: {
-          entries: [
+            request.attempt === 1
+          ) {
+            if (bounds === "unavailable")
+              throw new Error("Original attempt bounds unavailable");
+            return apiRun(original);
+          }
+          if (request.kind === "runs") {
+            if (request.commit === originalRevision) return [rerun];
+            if (request.commit === newerRevision) return [latest];
+            return [];
+          }
+          if (request.kind === "run") {
+            if (request.runId === 41) return rerun;
+            if (request.runId === 42) return latest;
+          }
+          throw new Error(`Unexpected GitHub request ${request.kind}`);
+        },
+      ),
+    );
+    const artifact = vi.fn();
+
+    await collectLandedCiPass({
+      source,
+      receipts: [originalLanding, newerLanding],
+      history: await keptLandedCiHistory(source.id),
+      repository,
+      stopped: stopped.signal,
+      read: passRead(source, repository, stopped.signal, {
+        providers: { github },
+        readArtifact: artifact,
+      }),
+      readProof: (project, subject, signal) =>
+        readIntentCiProof(project, subject, signal, () => repository, {
+          artifact,
+          adapter: readCiAdapterProof,
+        }),
+    });
+
+    const kept = await keptLandedCiHistory(source.id);
+    expect(kept.builds["run/41/1"]).toMatchObject(
+      bounds === "available"
+        ? {
+            runId: 41,
+            runAttempt: 1,
+            startedAt: original.startedAt,
+            completedAt: original.completedAt,
+            timingBasis: "attempt-start",
+          }
+        : {
+            runId: 41,
+            runAttempt: 1,
+            startedAt: original.createdAt,
+            completedAt: original.completedAt,
+          },
+    );
+    if (bounds === "unavailable")
+      expect(kept.builds["run/41/1"]?.timingBasis).toBeUndefined();
+    expect(kept.builds["run/42/1"]).toMatchObject({
+      runId: 42,
+      startedAt: latest.startedAt,
+    });
+    expect(JSON.stringify(github.mock.calls)).toContain("/runs/41/attempts/1");
+
+    expect(
+      await performIntentCiHistoryRead(source, {
+        kind: "intent-ci-history",
+        gapReasons: "timing-basis",
+      }),
+    ).toMatchObject({
+      kind: "answered",
+      answer: {
+        entries: [
+          bounds === "available"
+            ? {
+                kind: "point",
+                runId: 41,
+                runAttempt: 1,
+                startedAt: original.startedAt,
+                completedAt: original.completedAt,
+              }
+            : {
+                kind: "gap",
+                reason: "timing-basis",
+                build: { runId: 41, runAttempt: 1 },
+              },
+          {
+            kind: "point",
+            runId: 42,
+            startedAt: latest.startedAt,
+            completedAt: latest.completedAt,
+          },
+        ],
+        reference: {
+          sampleCount: bounds === "available" ? 1 : 0,
+          selected: { key: "run/42/1", ms: 120000 },
+          evidence: [
             bounds === "available"
-              ? {
-                  kind: "point",
-                  runId: 41,
-                  runAttempt: 1,
-                  startedAt: original.startedAt,
-                }
+              ? { key: "run/41/1", status: "included", ms: 120000 }
               : {
-                  kind: "gap",
-                  reason: "timing-basis",
-                  build: { runId: 41, runAttempt: 1 },
+                  key: "run/41/1",
+                  status: "excluded",
+                  reason: unverifiedAttemptTiming,
                 },
-            { kind: "point", runId: 42, startedAt: latest.startedAt },
+            { key: "run/42/1", status: "selected", ms: 120000 },
           ],
         },
-      });
-      expect(github.calls.length).toBe(asked);
-    } finally {
-      await reader.close();
-    }
+      },
+    });
+
+    // One representative restart: reopening the retained document asks CI nothing.
+    const asked = github.mock.calls.length;
+    expect(
+      await performIntentCiHistoryRead(source, {
+        kind: "intent-ci-history",
+        gapReasons: "timing-basis",
+      }),
+    ).toMatchObject({
+      kind: "answered",
+      answer: {
+        entries: [
+          bounds === "available"
+            ? {
+                kind: "point",
+                runId: 41,
+                runAttempt: 1,
+                startedAt: original.startedAt,
+              }
+            : {
+                kind: "gap",
+                reason: "timing-basis",
+                build: { runId: 41, runAttempt: 1 },
+              },
+          { kind: "point", runId: 42, startedAt: latest.startedAt },
+        ],
+      },
+    });
+    expect(github.mock.calls.length).toBe(asked);
+    expect(artifact).not.toHaveBeenCalled();
   });
 }
