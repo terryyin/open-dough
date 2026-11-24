@@ -83,12 +83,9 @@ Make published completion the default Done comparison. Reuse existing
 attribution and preserve published revision, paths, notes, and Proof context.
 Resolve the published input through the current configured Git source.
 
-Accepted proof: the typed `story-review-historical-choice.spec.ts` regression
-returned a workspace snapshot before the change and the published completion
-after it. The completed-review backend and Chromium gates passed for immutable
-literal diff, interleaved and mixed merge attribution, source, notes, Proof,
-and explicit landing choices. Dashboard typecheck passed. The independent
-refactor required no edits. Run records: `slice-1-report.md` in checkout evidence.
+Accepted proof: the typed default changed from snapshot to published completion.
+Backend and Chromium verified literal diffs, attribution, source, notes, Proof
+and landing choices. See checkout evidence `slice-1-report.md`.
 
 ### 2. Read a Taken story's published branch before landing
 
@@ -130,7 +127,7 @@ CI repair checked the Taken review action in keyboard order and control counts.
 ### 4. Retire the remaining workspace story comparison
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Published Taken and Done reviews still open their selected files, and
 the old workspace and range entry points offer no unpublished comparison.
 
@@ -139,6 +136,9 @@ uncommitted CI hints and related setup from route admission through rendering.
 Retire the dedicated specs. Move independent file and layout observations to
 existing published journeys. Preserve launch controls, existing explicit
 landing selection and the separate session review read until slices 5 and 6.
+
+Accepted proof: retired route absent, bare file pair refused and published
+comparison readers intact. See `slice-4-proof-repair.md` and the diagnosis record.
 
 ### 5. Choose an accepted landing in the published review
 

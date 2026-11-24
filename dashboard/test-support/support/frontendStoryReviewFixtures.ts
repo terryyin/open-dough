@@ -5,7 +5,7 @@ import {
   reviewedFileDiffSchema,
   type ReviewedFileDiff,
   type StoryReview,
-  type TakenStoryReview,
+  type ReviewedFile,
 } from "../../src/storyReviewContract.ts";
 
 const oid = (n: number) => n.toString(16).padStart(40, "0");
@@ -21,8 +21,8 @@ export const frontendReviewIds = {
 
 // A minimal snapshot: one added file and one commit unless overridden.
 export function frontendReviewSnapshot(
-  overrides: Partial<TakenStoryReview> = {},
-): TakenStoryReview {
+  overrides: Partial<Extract<StoryReview, { kind: "published-taken" }>> = {},
+): Extract<StoryReview, { kind: "published-taken" }> {
   const baseline = overrides.baseline ?? frontendReviewIds.baseline;
   const tree = overrides.tree ?? frontendReviewIds.tree;
   const head = overrides.head ?? frontendReviewIds.head;
@@ -34,32 +34,15 @@ export function frontendReviewSnapshot(
     },
   ];
   return {
-    kind: "snapshot",
-    workspace: "~/git/open-dough/.worktrees/story-review",
-    branch: "claude/taken",
+    kind: "published-taken",
+    mode: overrides.mode ?? "story-branch",
+    agent: "claude",
     remote: "origin",
-    target: "main",
+    target: overrides.target ?? "claude/taken",
     baseline,
     head,
     tree,
     files,
-    commits: overrides.commits ?? [
-      {
-        kind: "commit",
-        revision: frontendReviewIds.commit,
-        shortRevision: "aaaaaaa",
-        subject: "story file",
-        committedAt: "2026-01-01T00:00:00.000Z",
-        merge: false,
-        tree: frontendReviewIds.commitTree,
-        baseline,
-        fromTree: baseline,
-        fromBaseline: baseline,
-      },
-    ],
-    uncommitted: overrides.uncommitted,
-    committed: overrides.committed,
-    published: overrides.published,
     runs: overrides.runs,
     selectedRun: overrides.selectedRun,
   };
@@ -67,7 +50,7 @@ export function frontendReviewSnapshot(
 
 // A completed story's published comparison of `files`.
 export function frontendPublishedReview(
-  files: TakenStoryReview["files"],
+  files: ReviewedFile[],
 ): Extract<StoryReview, { kind: "published" }> {
   return {
     kind: "published",
@@ -94,7 +77,7 @@ export type FrontendSessionRunFacts = {
 // at Done unless given), and the capture's shared mark.
 export function frontendSessionCommitsReview(
   { launchedAt, doneAt, sessionCommits }: LaunchRecord,
-  files: TakenStoryReview["files"],
+  files: ReviewedFile[],
   position = 0,
   facts: readonly FrontendSessionRunFacts[] = [],
 ): StoryReview {

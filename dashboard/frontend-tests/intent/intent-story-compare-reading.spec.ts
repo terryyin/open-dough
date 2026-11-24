@@ -14,16 +14,8 @@ import {
 const unanswered = () => new Promise<never>(() => undefined);
 const reading = "Reading the story's changes";
 
-const [first, second] = [
-  makeMe.aReviewCommit.numbered(1, "first change").please(),
-  makeMe.aReviewCommit.numbered(2, "second change").please(),
-];
 const snapshot = () =>
-  makeMe.aStoryReview
-    .modifying("dashboard/tests/a.spec.ts")
-    .onCommits(second, first)
-    .withUncommittedChanges()
-    .please();
+  makeMe.aStoryReview.modifying("dashboard/tests/a.spec.ts").please();
 
 const oid = (digit: string) => digit.repeat(40);
 const older = makeMe.aReviewRun
@@ -37,29 +29,6 @@ const newer = makeMe.aReviewRun
   .comparing(oid("3"), oid("4"))
   .please();
 
-test("a pending commit range keeps Compare, the pressed choice, and a focusable Refresh", async () => {
-  await openStoryAComparison({
-    review: () => Promise.resolve(snapshot()),
-    range: unanswered,
-  });
-  const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-  await expect.poll(story.revisions).toContain("uncommitted changes included");
-
-  await story.choice("Commits").click();
-  await expect.poll(story.headerText).toContain(reading);
-  await expect
-    .element(story.file("Modified dashboard/tests/a.spec.ts"))
-    .toBeVisible();
-  await expect.element(story.choice("Commits")).toBeChecked();
-  await expect.element(story.choice("Commits")).toHaveFocus();
-  await expect
-    .element(story.refreshButton)
-    .toHaveAttribute("aria-disabled", "true");
-  story.refreshButton.element().focus();
-  await expect.element(story.refreshButton).toHaveFocus();
-});
-
 test("a pending Refresh keeps Compare and a second press does not read again", async () => {
   let calls = 0;
   await openStoryAComparison({
@@ -70,12 +39,11 @@ test("a pending Refresh keeps Compare and a second press does not read again", a
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
-  await expect.poll(story.revisions).toContain("uncommitted changes included");
+  await expect.poll(story.revisions).toContain("Published story branch");
 
   await story.refresh();
   await expect.poll(story.headerText).toContain(reading);
-  await expect.poll(story.revisions).toContain("uncommitted changes included");
-  await expect.element(story.choice("All changes")).toBeChecked();
+  await expect.poll(story.revisions).toContain("Published story branch");
   await expect.element(story.refreshButton).toHaveFocus();
   const readingCalls = calls;
   await expect

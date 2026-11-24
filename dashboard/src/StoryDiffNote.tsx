@@ -1,7 +1,6 @@
 // Notes keep the context shown by this diff; Follow up alone verifies anchors.
 import { createContext, useContext, useRef, useState } from "react";
 import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
-import { comparisonWords } from "./StoryReviewComparison.tsx";
 import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import { fileComparisonName } from "./followUpContext.ts";
 import { reviewedStoryIdentity } from "./reviewedWorkSubject.ts";
@@ -19,7 +18,7 @@ import type { ReviewedWork } from "./reviewedFileRead.ts";
 export const StoryNoteView =
   createContext<StoryNoteContext["view"]>("Review changes");
 
-export const StoryNoteComparison = createContext(comparisonWords.all);
+export const StoryNoteComparison = createContext("All changes");
 
 export function useDiffStoryNote(
   reviewed: ReviewedWork,

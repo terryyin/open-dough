@@ -1,11 +1,11 @@
 // A story's Review changes reads its path-silent file's Intent `syntax` hint
 // through the page's Intent reads (../../src/reviewDiffSyntaxHint.ts): a live
-// review at its snapshot tree, a Done review at its completion, and the
+// review at its published head, a Done review at its completion, and the
 // hinted diff is styled.
 import { createElement, type ReactElement } from "react";
 import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { storyReviewIds } from "../../../Distribution/tests/support/storyReviewSnapshotTestData.mjs";
+import { storyReviewIds } from "../../../Distribution/tests/support/storyReviewCompletedTestData.mjs";
 import type { PageReads } from "../../src/pageReads.tsx";
 import { reviewIntentSettingsRevision } from "../../src/reviewDiffSyntaxHint.ts";
 import type { ReviewedStorySubject } from "../../src/reviewedWorkSubject.ts";
@@ -77,14 +77,13 @@ const reviewOf = (review: StoryReview) =>
         { kind: "added", path: hintedPath, lines: { added: 1, removed: 0 } },
       ],
     },
-    tree: storyReviewIds.tree,
+    tree: storyReviewIds.head,
     headingId: "hinted",
     browser: { id: "hinted-files", shown: true },
-    settingsRevision:
-      reviewIntentSettingsRevision(review, storyReviewIds.tree) ?? "",
+    settingsRevision: reviewIntentSettingsRevision(review) ?? "",
   });
 
-test("a live story review reads the diff's Intent hint at its snapshot tree and styles it", async () => {
+test("a live story review reads the diff's Intent hint at its published head and styles it", async () => {
   const readLocations = shellLocations();
   await hintedReview(
     readLocations,
@@ -94,7 +93,7 @@ test("a live story review reads the diff's Intent hint at its snapshot tree and 
   await expect.element(reviewDiffPage().newLine(1).token(/^if$/)).toBeVisible();
   expect(readLocations).toHaveBeenCalledWith(
     expect.objectContaining({ id: adHocSession.source }),
-    storyReviewIds.tree,
+    storyReviewIds.head,
     expect.anything(),
   );
 });
@@ -119,7 +118,7 @@ test("a Done story review reads the diff's Intent hint at its completion and sty
   );
   expect(readLocations).not.toHaveBeenCalledWith(
     expect.objectContaining({ id: adHocSession.source }),
-    storyReviewIds.tree,
+    storyReviewIds.head,
     expect.anything(),
   );
 });

@@ -1,9 +1,4 @@
-// A story's default comparison follows the server's opening answer. The
-// chosen comparison is read through Review changes' selection, keyed by the
-// story and whether it is Done, so it equals the default until a choice is
-// made, and a story becoming Done opens on its completed result.
-// An active workspace shows all changes, including uncommitted work. Done
-// Intent reads the completed result even while that workspace remains.
+// Keep a story's displayed published comparison while refreshing its evidence.
 
 import { useRef, useState } from "react";
 import {
@@ -12,21 +7,11 @@ import {
 } from "./storyComparisonShown.ts";
 import { useStoryReviewOpening } from "./pageStoryReviewOpening.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
-import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
-import { shownChoice } from "./StoryReviewComparison.tsx";
-import { unreadRange, type UnreadComparison } from "./StoryReviewFeedback.tsx";
+import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
 import { useStateKeyedBy } from "./stateKeyedBy.ts";
-
-// The comparison such a view reads of a workspace: all changes, with its
-// uncommitted changes included as Review changes includes them at every
-// opening.
-const defaultStoryComparison = {
-  chosen: "all",
-  includeUncommitted: true,
-} as const;
 
 export function useStoryComparison({
   source,
@@ -49,13 +34,12 @@ export function useStoryComparison({
   readonly reading: boolean;
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
-  // The choice of what is compared, while the story has a workspace, a
-  // published completion or captured landed runs.
+  // The published comparison and available retained landing choices.
   readonly compare: StoryCompare | undefined;
   // Why the chosen comparison cannot be read, once settled.
   readonly unreadable?: UnreadComparison | undefined;
   readonly refreshed: boolean;
-  // Reads the worktree again, keeping the choice.
+  // Reread publication evidence, keeping the choice.
   readonly onRefresh: () => void;
 } {
   const subject: ReviewedStorySubject = { source, identity };
@@ -71,6 +55,7 @@ export function useStoryComparison({
     source,
     identity,
     completed,
+    taken,
     sequence ?? lastOpening,
   ]);
   const { value: round, set: setRound } = useStateKeyedBy(0, keyedBy);
@@ -93,18 +78,14 @@ export function useStoryComparison({
   const {
     defaultReview,
     review,
-    snapshot,
     reading,
     problem,
-    chosen,
     onChoose,
     onRun,
     runs,
     selectedRun,
     runUnread,
     published,
-    includeUncommitted,
-    setIncludeUncommitted,
   } = useStoryReviewSelection({
     subject,
     round,
@@ -114,26 +95,6 @@ export function useStoryComparison({
     historical: completed,
     keyedBy,
     followsDefault: true,
-  });
-  const {
-    comparison,
-    withMerged,
-    tree,
-    committed,
-    items,
-    selectedItems,
-    shown,
-    onSelect,
-    trunkIntegrated,
-    range,
-  } = useStoryReviewComparison({
-    subject,
-    snapshot,
-    chosen,
-    includeUncommitted,
-    keyedBy,
-    round,
-    active: enabled && !completed && review?.selectedRun === undefined,
   });
   if (!enabled)
     return {
@@ -149,11 +110,7 @@ export function useStoryComparison({
   const storyShown = storyComparisonShown({
     subject,
     review,
-    comparison,
-    withMerged,
-    tree,
     includeMergedChanges: includeMerged,
-    workspaceComparison: shown,
   });
   // A selection read keeps the previous answer until the new one arrives.
   // That answer belongs to this story only when this story already showed a
@@ -162,8 +119,7 @@ export function useStoryComparison({
   const carry = !reading || sameStory;
   if (storyShown !== undefined && !reading)
     shownMemory.current = { key: keyedBy, shown: storyShown, review };
-  const remembered =
-    sameStory && (reading || range.reading) ? shownMemory.current : undefined;
+  const remembered = sameStory && reading ? shownMemory.current : undefined;
   const shownKept = !carry
     ? undefined
     : reading
@@ -178,22 +134,14 @@ export function useStoryComparison({
       : storyShown !== undefined
         ? review
         : (remembered?.review ?? review);
-  const readingNow = reading || (carry && range.reading);
+  const readingNow = reading;
   const includesMerged = shownKept?.includesMergedChanges === true;
   const canIncludeMerged =
-    ((reviewKept?.kind === "published" ||
+    (reviewKept?.kind === "published" ||
       reviewKept?.kind === "published-taken") &&
-      reviewKept.withMerged !== undefined) ||
-    (reviewKept?.kind === "snapshot" &&
-      (readingNow && shown === "all"
-        ? reviewKept.withMerged !== undefined
-        : withMerged !== undefined));
-  // A chosen run other than the answer's own, or a chosen commit range, read
-  // as the Side panel review explains them.
+    reviewKept.withMerged !== undefined;
   const unreadable =
-    readingNow || shownKept !== undefined
-      ? undefined
-      : (runUnread ?? (shown === "commits" ? unreadRange(range) : undefined));
+    readingNow || shownKept !== undefined ? undefined : runUnread;
   return {
     review: reviewKept,
     defaultReview: carry ? defaultReview : undefined,
@@ -206,27 +154,18 @@ export function useStoryComparison({
     compare: !carry
       ? undefined
       : {
-          shown: shownChoice(shown, review, selectedRun),
-          isDefault:
-            review === defaultReview &&
-            !includesMerged &&
-            chosen === defaultStoryComparison.chosen &&
-            includeUncommitted === defaultStoryComparison.includeUncommitted,
-          workspace: snapshot !== undefined,
+          shown:
+            selectedRun !== undefined
+              ? "landed"
+              : published !== undefined
+                ? "published"
+                : undefined,
+          isDefault: review === defaultReview && !includesMerged,
           published: published !== undefined,
           runs,
           selectedRun,
           onRun,
-          items,
-          selectedItems,
-          trunkIntegrated,
           onChoose,
-          onSelect,
-          includeUncommitted:
-            committed === undefined || review?.kind !== "snapshot"
-              ? undefined
-              : includeUncommitted,
-          onIncludeUncommitted: setIncludeUncommitted,
           includeMergedChanges: canIncludeMerged ? includesMerged : undefined,
           onIncludeMergedChanges: setIncludeMerged,
           onRefresh,

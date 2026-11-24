@@ -9,7 +9,6 @@ import {
 } from "../src/storyReviewContract.ts";
 import { reviewRunChoice, reviewRunKey } from "../src/storyReviewLandedRun.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
-import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
@@ -23,7 +22,6 @@ import { landedStoryReview } from "./storyReviewLanded.ts";
 import { publishedSessionReview } from "./publishedSessionReview.ts";
 import { publishedTakenReview } from "./storyReviewPublishedTaken.ts";
 import { historicalStoryReview } from "./storyReviewHistorical.ts";
-import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
 
 export async function storyReviewResponse(
   { read }: AdmittedStoryReview,
@@ -84,31 +82,13 @@ async function answered(
   if ("explanation" in request)
     return {
       kind: "unavailable",
-      ambiguousWorktrees: true,
       explanation: request.explanation,
     };
   if ("readSession" in request) return request.readSession(signal);
-  if ("run" in request)
-    return {
-      ...(await landedStoryReview(request.run, signal)),
-      selectedRun: reviewRunKey(request.run.record),
-    };
-  const { sourceId, identity, established, shown, fallback } = request;
-  const workspace = await storyReviewSnapshot(
-    established,
-    {
-      identity,
-      profileDirectory: agentProfileDirectoryOf(knownSource(sourceId)),
-    },
-    shown,
-    signal,
-  );
-  return workspace.kind === "unavailable" && fallback !== undefined
-    ? {
-        ...(await landedStoryReview(fallback, signal)),
-        selectedRun: reviewRunKey(fallback.record),
-      }
-    : workspace;
+  return {
+    ...(await landedStoryReview(request.run, signal)),
+    selectedRun: reviewRunKey(request.run.record),
+  };
 }
 
 export {

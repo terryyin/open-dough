@@ -91,11 +91,6 @@
   min-width: 0;
 }
 
-.intent-story-comparison-context .story-review-context-line {
-  border: 0;
-  padding: 0;
-}
-
 .intent-story-comparison-context h3 {
   margin: 0;
   font-size: inherit;

@@ -85,25 +85,6 @@ export async function readCodePartByTouch(
   }
 }
 
-export async function readContextByTouch(values: Locator, workspace: string) {
-  await values.scrollIntoViewIfNeeded();
-  await tapWhereShown(values);
-  await expect(values).toHaveAttribute("aria-expanded", "true");
-  const workspaceValue = values.locator(
-    ".story-review-context-worktree > code",
-  );
-  await workspaceValue.scrollIntoViewIfNeeded();
-  await expect(workspaceValue).toHaveText(workspace);
-  expect(
-    await workspaceValue.evaluate(
-      (element) => element.scrollWidth <= element.clientWidth,
-    ),
-  ).toBe(true);
-  await values.scrollIntoViewIfNeeded();
-  await tapWhereShown(values);
-  await expect(values).toHaveAttribute("aria-expanded", "false");
-}
-
 // A scrolling review region may first reach a control beyond its fold.
 // Native scrolling keeps the Side panel and document stationary.
 export async function reachReviewControl(review: Locator, row: Locator) {

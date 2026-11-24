@@ -3,7 +3,7 @@ import {
   test as base,
   expect,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import { reviewChoices } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
+import { reviewChoicesNamed } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
 import { openCapturedReview } from "../../dashboard/test-support/support/oneShotReview.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
@@ -29,20 +29,27 @@ test("delayed run and file responses leave the later run selected through narrow
   codexProtocol,
 }) => {
   if (codexProtocol === undefined) throw new Error("No native fixture");
-  const { first, second } = await reviewChoices(
+  const { first, second, newest } = await reviewChoicesNamed(
     dashboard,
     origin,
     codexProtocol,
+    ["first", "second", "newest"],
   );
   const review = await openCapturedReview(page, origin);
   const { files, diffs } = review;
+  await review.landedRun.expectChosen(newest.key);
+  await review.landedRun.choose(first.key);
+  await files.choose("Added first.txt");
+  await diffs.expectLines("added", ["+first.txt"]);
+
   const heldRun = await holdNextReviewResponse(
     page,
     dashboard.origin,
     storyReviewEndpoint,
+    (query) => query.get("run") === second.key,
   );
   try {
-    await review.comparison.choose("Landed runs");
+    await review.landedRun.choose(second.key);
     expect(await (await heldRun.ready).json()).toMatchObject({
       selectedRun: second.key,
       tree: second.receipt.revision,
@@ -62,6 +69,7 @@ test("delayed run and file responses leave the later run selected through narrow
     page,
     dashboard.origin,
     storyReviewFileEndpoint,
+    (query) => query.get("path") === "second.txt",
   );
   try {
     await review.landedRun.choose(second.key);

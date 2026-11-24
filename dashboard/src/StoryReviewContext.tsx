@@ -10,7 +10,6 @@ import {
 import { shortRevision } from "./publishedWork.ts";
 import { LandedContext } from "./StoryReviewLandedContext.tsx";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
-import { ContextLine } from "./StoryReviewContextLine.tsx";
 import {
   SessionCommitsContext,
   sessionCommitsDescription,
@@ -33,7 +32,7 @@ export function reviewDescription(review: StoryReview | undefined) {
     return "Read-only: this session's kept commits.";
   return reviewsLanding(review)
     ? "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision."
-    : "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed.";
+    : "Read-only review of recorded changes.";
 }
 
 export function publishedTakenScope(
@@ -55,17 +54,6 @@ export function ReviewContext({
     return <PublishedSessionContext review={review} />;
   if (review?.kind === "session-commits")
     return <SessionCommitsContext review={review} />;
-  if (review?.kind === "snapshot")
-    return (
-      <ContextLine
-        snapshot={review}
-        storyStart={
-          shown?.includesMergedChanges === true
-            ? shown.comparison.from
-            : undefined
-        }
-      />
-    );
   if (review?.kind === "branch-result")
     return (
       <p>

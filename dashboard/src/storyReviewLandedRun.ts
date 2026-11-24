@@ -45,6 +45,17 @@ export function reviewLandedRunsOf(
         Date.parse(b.record.launchedAt) - Date.parse(a.record.launchedAt),
     );
 }
+export function storyReviewOffered(
+  records: readonly LaunchRecord[] | undefined,
+  source: string,
+  identity: string,
+  published: boolean,
+): boolean | undefined {
+  if (published) return true;
+  if (records === undefined) return undefined;
+  return reviewLandedRunsOf(records, source, identity, () => false).length > 0;
+}
+
 // Runs are newest first. Opening, switching to history, and replacing a
 // vanished choice all prefer the newest captured comparison, then its gap.
 export function preferredReviewRun<Run>(

@@ -43,9 +43,6 @@ export function intentStoryCompare() {
     exact: true,
   });
   const compare = header.getByRole("group", { name: "Compare" });
-  const commits = compare.getByRole("list", { name: "Story commits" });
-  const commit = (subject: string) =>
-    commits.getByRole("button").filter({ hasText: subject });
   const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
   const run = compare.getByRole("listbox", { name: "Landed run" });
   type View = "Changes" | "CI comparison" | "Intent coverage";
@@ -146,30 +143,17 @@ export function intentStoryCompare() {
       expanded: false,
       name: /^(?!Branch )/,
     }),
-    workspaceContext: header.getByRole("button", { name: /^Branch / }),
     revisions: () =>
       textOf(header.element().querySelector(".intent-story-revisions")),
     choice: (name: string) => compare.getByRole("radio", { name }),
     choose: (name: string) =>
       activateComparisonControl(compare.getByRole("radio", { name })),
-    includeUncommitted: compare.getByRole("checkbox", {
-      name: "Include uncommitted changes",
-    }),
     includeMerged: compare.getByRole("checkbox", {
       name: "Include merged changes",
     }),
     refreshButton: compare.getByRole("button", { name: "Refresh" }),
     refresh: () =>
       userEvent.click(compare.getByRole("button", { name: "Refresh" })),
-    commits,
-    commit,
-    // Chooses `subject` as both ends of the range.
-    async chooseAlone(subject: string) {
-      await activateComparisonControl(commit(subject));
-      await activateComparisonControl(commit(subject));
-    },
-    range: () =>
-      textOf(header.element().querySelector(".story-review-range-heading")),
     viewTab,
     chooseTab: (name: View) => activateComparisonControl(viewTab(name)),
     // A listed file's control, named by its kind and path.

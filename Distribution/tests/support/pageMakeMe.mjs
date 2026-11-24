@@ -12,13 +12,13 @@ import { RateLimitedIntentReplyBuilder } from "./rateLimitedIntentReplyTestData.
 import { UnreachableAuthenticatedReadBuilder } from "./unreachableAuthenticatedReadTestData.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
 import { storyReviewMakeMeProperties } from "./storyReviewMakeMe.mjs";
-import { reviewCommitMakeMeProperties } from "./reviewCommitTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { DoneCatalogBuilder } from "./doneCatalogTestData.mjs";
 import { FollowUpBuilder } from "./followUpTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
+import { LaunchLandingBuilder } from "./launchLandingEvidenceTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
@@ -45,11 +45,11 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe &
  *   import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe &
  *   import("./sessionRecordTestData.mjs").SessionRecordMakeMe &
- *   import("./storyReviewMakeMe.mjs").StoryReviewMakeMe &
- *   import("./reviewCommitTestData.mjs").ReviewCommitMakeMe & {
+ *   import("./storyReviewMakeMe.mjs").StoryReviewMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aRateLimitedIntentReply: RateLimitedIntentReplyBuilder;
  *     readonly anUnreachableAuthenticatedRead: UnreachableAuthenticatedReadBuilder;
+ *     readonly aLaunchLanding: LaunchLandingBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
  *     readonly aDoneCatalog: DoneCatalogBuilder;
  *     readonly aSlicePlan: SlicePlanBuilder;
@@ -92,7 +92,6 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...terminalThemeSettingMakeMeProperties(),
   ...sessionRecordMakeMeProperties(),
   ...storyReviewMakeMeProperties(),
-  ...reviewCommitMakeMeProperties(),
   aRateLimitedIntentReply: {
     enumerable: true,
     get() {
@@ -136,6 +135,11 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     },
   },
   // Node-free launch record; Node-only reviewed-session examples stay on makeMe.mjs.
+  aLaunchLanding: {
+    get() {
+      return new LaunchLandingBuilder();
+    },
+  },
   aLaunchRecord: {
     enumerable: true,
     get() {

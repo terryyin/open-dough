@@ -1,29 +1,18 @@
 // What Review changes (./reviewChangesPage.ts) says above its work area and
 // what the work area holds beneath it: the feedback status, the body that
 // holds the file browser and diff or stays empty, Refresh beside Close in its
-// header, and the details' context line kept in place while the body scrolls.
+// header.
 
-import { expect, type Locator, type Page } from "@playwright/test";
-import {
-  contextLine,
-  expectFixedWhileScrolled,
-  reviewBody,
-  reviewFeedback,
-} from "./support/reviewContextLine.ts";
+import { expect, type Locator } from "@playwright/test";
+import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
 import { reviewRefresh } from "./support/reviewControls.ts";
 import { expectReviewRead } from "./support/reviewRead.ts";
 
 export class ReviewStatus {
   readonly #review: Locator;
-  readonly #reveal: () => Promise<unknown>;
 
-  constructor(review: Locator, reveal: () => Promise<unknown>) {
+  constructor(review: Locator) {
     this.#review = review;
-    this.#reveal = reveal;
-  }
-
-  get #page(): Page {
-    return this.#review.page();
   }
 
   get #refresh() {
@@ -76,23 +65,6 @@ export class ReviewStatus {
 
   async expectBodyEmpty() {
     await expect(reviewBody(this.#review)).toBeEmpty();
-    return this;
-  }
-
-  // The body says exactly `text`, and keeps the revealed context line in
-  // place while it scrolls.
-  async expectBodyFixedContext(text: string) {
-    await this.#reveal();
-    const body = reviewBody(this.#review);
-    await expect(body).toHaveText(text);
-    await expectFixedWhileScrolled(this.#page, body, [
-      contextLine(this.#review),
-    ]);
-    return this;
-  }
-
-  async expectNoContextLine() {
-    await expect(contextLine(this.#review)).toHaveCount(0);
     return this;
   }
 

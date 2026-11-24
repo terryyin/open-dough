@@ -4,16 +4,12 @@ import { changedFilesList, treeFolder } from "./reviewTreeRows.ts";
 import { showColumn } from "../boardPage.ts";
 import { expectSettledPage, parts } from "../dashboardPage.ts";
 import { publishedSessionReviewChanges } from "../recentlyDoneColumn.ts";
-import {
-  assumeReviewChanges,
-  openIntentReviewChanges,
-} from "../reviewChangesPage.ts";
+import { assumeReviewChanges } from "../reviewChangesPage.ts";
 import { publishWorktreeReviewSession } from "./publishedReviewSession.ts";
 import type { Page } from "@playwright/test";
 import { box, tapWhereShown } from "../pageLayout.ts";
 import { scrollByTouch } from "../touchGestures.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-import type { DashboardServer } from "./dashboardServer.ts";
 import { largeReviewRevision, longA } from "./largeReviewFiles.ts";
 import { expect } from "./preparationPage.ts";
 import { fileBrowser } from "./reviewContextLine.ts";
@@ -29,7 +25,6 @@ import { expectOpenedWithKeyboard, expectReviewRead } from "./reviewRead.ts";
 import {
   codePartGeometry,
   readCodePartByTouch,
-  readContextByTouch,
   reachReviewControl,
   selectAddedFileByTouch,
   visibleShortCodeLine,
@@ -37,7 +32,6 @@ import {
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { reviewRegion } from "./reviewControls.ts";
-import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import {
   commitAll,
   largeRepository,
@@ -91,55 +85,6 @@ export async function openReviewByTouch(page: Page, origin: StartOrigin) {
     changedFilesList(browser, `${String(changedFiles)} changed files`),
   ).toBeVisible();
   return { action, review, browser, changedFiles };
-}
-
-// The story's formerly panel-bound touch controls work in Intent Changes.
-export async function readStoryComparisonsByTouch(
-  page: Page,
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-) {
-  const { workspace } = storyWorktree(origin);
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  const review = await openIntentReviewChanges(page, card);
-  const { values } = await review.context.toMeasure();
-  const labels = await review.comparison.touchTargetsToMeasure(
-    "All changes",
-    "Commits",
-  );
-  for (const target of [values, ...labels])
-    expect(
-      (await box(target)).height,
-      await target.innerText(),
-    ).toBeGreaterThanOrEqual(44);
-
-  await readContextByTouch(values, "~/git/open-dough/.worktrees/story-a");
-  await review.comparison.choose("Commits", "touch");
-  await review.comparison.expectChosen("Commits");
-  await review.commits.expectRowText(1, "large changes");
-  await review.commits.choose(1, async (row) => {
-    await row.scrollIntoViewIfNeeded();
-    await tapWhereShown(row);
-  });
-  await review.commits.expectChosen(1);
-  await review.expectText("Changes in 1 commit and Uncommitted changes");
-  await review.files.expectOutsideCount(filesInFolder + 3);
-
-  await review.comparison.choose("All changes", "touch");
-  await review.comparison.expectChosen("All changes");
-  await review.comparison.expectUncommittedIncluded(true);
-  await review.files.expectOutsideCount(filesInFolder + 3);
-  await review.comparison.includeUncommitted(false, "touch");
-  await review.files.expectOutsideCount(filesInFolder + 2);
-  for (const viewport of [
-    phoneLaunchTouchViewport.landscape,
-    phoneLaunchTouchViewport.portrait,
-  ]) {
-    await page.setViewportSize(viewport);
-    await review.comparison.expectUncommittedIncluded(false);
-    await review.files.expectOutsideCount(filesInFolder + 2);
-  }
 }
 
 export type TouchReview = Awaited<ReturnType<typeof openReviewByTouch>>;

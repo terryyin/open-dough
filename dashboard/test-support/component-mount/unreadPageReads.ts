@@ -41,7 +41,6 @@ export const unreadCiReads: IntentCiReadSource = {
 
 const unreadReviewReads: ReviewSource = {
   review: unread("review"),
-  range: unread("review range"),
   fileDiff: unread("review file diff"),
   fileText: unread("review file text"),
 };

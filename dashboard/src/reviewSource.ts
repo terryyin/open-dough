@@ -8,15 +8,12 @@ import type { z } from "zod";
 import {
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
-  reviewRangeSchema,
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewFileTextEndpoint,
-  storyReviewRangeEndpoint,
   storyReviewSchema,
   type ReviewedFileDiff,
   type ReviewedFileText,
-  type ReviewRange,
   type StoryReview,
 } from "./storyReviewContract.ts";
 
@@ -29,7 +26,6 @@ export type ReviewRead<Answer> = (
 
 export type ReviewSource = {
   readonly review: ReviewRead<StoryReview>;
-  readonly range: ReviewRead<ReviewRange>;
   readonly fileDiff: ReviewRead<ReviewedFileDiff>;
   readonly fileText: ReviewRead<ReviewedFileText>;
 };
@@ -56,7 +52,6 @@ function endpointRead<Answer>(
 
 export const pageReviewSource: ReviewSource = {
   review: endpointRead(storyReviewEndpoint, storyReviewSchema),
-  range: endpointRead(storyReviewRangeEndpoint, reviewRangeSchema),
   fileDiff: endpointRead(storyReviewFileEndpoint, reviewedFileDiffSchema),
   fileText: endpointRead(storyReviewFileTextEndpoint, reviewedFileTextSchema),
 };

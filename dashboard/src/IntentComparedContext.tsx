@@ -1,4 +1,3 @@
-import { RefreshedWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
 import {
   emptyLandedReview,
   emptyPublishedReview,
@@ -8,17 +7,14 @@ import { shortRevision } from "./publishedWork.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
 import { publishedTakenScope, ReviewContext } from "./StoryReviewContext.tsx";
-import { KeptPublishedCommits } from "./StoryReviewFeedback.tsx";
 
 // The facts of the comparison Intent is currently showing.
 export function ComparedContext({
   shown,
   review,
-  uncommittedLeftOut,
 }: {
   readonly shown: ShownStoryComparison;
   readonly review: StoryReview | undefined;
-  readonly uncommittedLeftOut: boolean;
 }) {
   const rev = (revision: string) => (
     <code title={revision}>{shortRevision(revision)}</code>
@@ -26,20 +22,7 @@ export function ComparedContext({
   return (
     <div className="intent-story-revisions intent-story-comparison-context">
       <ReviewContext review={review} shown={shown} />
-      {review?.kind === "snapshot" && (
-        <>
-          <p>
-            Head {rev(review.head)}
-            {!uncommittedLeftOut && <>, uncommitted changes included</>}.
-          </p>
-          <KeptPublishedCommits snapshot={review} />
-          {review.mergedChangesUnavailable !== undefined && (
-            <p>{review.mergedChangesUnavailable}</p>
-          )}
-        </>
-      )}
-      {review?.kind !== "snapshot" &&
-        review?.kind !== "published" &&
+      {review?.kind !== "published" &&
         review?.kind !== "published-taken" &&
         review?.kind !== "landed" && (
           <p>
@@ -69,20 +52,12 @@ export function EmptyHistoricalContext({
 export function RefreshedComparison({
   review,
   count,
-  commitsReview,
 }: {
   readonly review: StoryReview | undefined;
   readonly count: number;
-  readonly commitsReview: boolean;
 }) {
   const result =
-    review?.kind === "snapshot" ? (
-      <RefreshedWorkspaceComparison
-        snapshot={review}
-        count={count}
-        commitsReview={commitsReview}
-      />
-    ) : review?.kind === "published-taken" ? (
+    review?.kind === "published-taken" ? (
       <p>
         Review refreshed at published head{" "}
         <code>{shortRevision(review.head)}</code>.

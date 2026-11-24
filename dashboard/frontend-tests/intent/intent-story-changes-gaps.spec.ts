@@ -35,7 +35,7 @@ async function showsUsablePublishedTree() {
   ).toHaveLength(0);
 }
 
-test("an active story with no workspace explains that no comparison is available and leaves the tree usable", async () => {
+test("a story with no published changes explains that no comparison is available and leaves the tree usable", async () => {
   await openStoryChanges({ hasWorkspace: false });
   const story = intentStoryCompare();
   await expect
@@ -49,7 +49,7 @@ test("an active story with no workspace explains that no comparison is available
   await expect
     .poll(story.headerText)
     .toContain(
-      "No comparison is available for this story: no workspace on this machine holds it. Intent shows the published tree without the story's changes.",
+      "No comparison is available for this story: no published changes are recorded. Intent shows the published tree without the story's changes.",
     );
   await expect
     .element(story.header.getByRole("button", { name: "Retry" }))
@@ -65,7 +65,9 @@ test("a failed comparison read explains itself with a retry that then shows the 
     review: () => {
       attempts += 1;
       return attempts === 1
-        ? Promise.reject(new Error("The worktree could not be read."))
+        ? Promise.reject(
+            new Error("The published comparison could not be read."),
+          )
         : Promise.resolve(storyChanges());
     },
   });
@@ -77,13 +79,13 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await expect
     .poll(story.headerText)
     .toContain(
-      "The worktree could not be read. Intent shows the published tree without them.",
+      "The published comparison could not be read. Intent shows the published tree without them.",
     );
   expect(story.revisions()).toBe("");
   await showsUsablePublishedTree();
 
   await story.retry();
-  await expect.element(story.workspaceContext).toBeVisible();
+  await expect.poll(story.revisions).toContain("Published story branch");
   await expect.element(story.alert).not.toBeInTheDocument();
   await expect.element(story.onlyChangedFiles).not.toBeChecked();
   for (const name of [changed.product, changed.notes])

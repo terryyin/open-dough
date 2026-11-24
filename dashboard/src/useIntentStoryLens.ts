@@ -2,8 +2,8 @@
 // `./IntentStorySummary.tsx`): the story by its published entry, and what is
 // known of its Review changes comparison (`./useStoryComparison.ts`): the
 // default, and the chosen one that equals it until a choice is made.
-// Whether the story has a comparison is decided as Review changes offers it
-// (`storyComparisonOffered`), unknown while an active story's records are
+// Whether the story has a comparison is decided by published membership or
+// retained landing evidence, unknown while an active story's records are
 // unread; a story with none reads nothing. A completed story is named by its
 // published done record, read as Recently done reads it (`./doneDetails.ts`),
 // and by its identity until that record says more; what is known of that
@@ -19,10 +19,9 @@ import {
   type LensStory,
 } from "./IntentStorySummary.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
-import type { LocalWorkspace } from "./localWorkspace.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { storyComparisonOffered } from "./storyReviewWorkspace.ts";
+import { storyReviewOffered } from "./storyReviewLandedRun.ts";
 import { useStoryComparison } from "./useStoryComparison.ts";
 
 // The selected story as Intent names it: an active story by its published
@@ -95,13 +94,11 @@ export function useIntentStoryLens({
   work,
   selectedIdentity,
   records,
-  workspaces,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
   readonly selectedIdentity: string | undefined;
   readonly records: readonly LaunchRecord[] | undefined;
-  readonly workspaces: readonly LocalWorkspace[];
 }): {
   readonly story: LensStory | undefined;
   readonly comparison: LensComparison;
@@ -117,19 +114,15 @@ export function useIntentStoryLens({
   const taken = work?.taken.find(
     ({ identity }) => identity === selectedIdentity,
   );
-  const publishedReview = story?.completed === true || taken !== undefined;
   const offered =
     story === undefined
       ? false
-      : publishedReview || records !== undefined
-        ? storyComparisonOffered(
-            records,
-            workspaces,
-            source.id,
-            story.identity,
-            publishedReview,
-          )
-        : undefined;
+      : storyReviewOffered(
+          records,
+          source.id,
+          story.identity,
+          story.completed || taken !== undefined,
+        );
   const {
     review,
     defaultReview,
@@ -174,16 +167,9 @@ export function useIntentStoryLens({
                       state: "unavailable",
                       explanation: review.explanation,
                       compare,
-                      ...(review.kind !== "unavailable"
+                      ...(review.kind === "landing-unavailable"
                         ? { unavailableLanding: true }
-                        : {
-                            ...(review.ambiguousWorktrees === true
-                              ? { ambiguousWorktrees: true }
-                              : {}),
-                            ...(review.workspace === undefined
-                              ? {}
-                              : { workspace: review.workspace }),
-                          }),
+                        : {}),
                     }
                   : { state: "reading", defaultReview, compare };
   return {

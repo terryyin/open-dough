@@ -13,87 +13,10 @@ import {
 import {
   doneCompletion,
   openDoneStoryComparison,
-  openStoryAComparison,
   publishedCompletion,
 } from "./intent-story-compare-stories.ts";
 
-const [first, second] = [
-  makeMe.aReviewCommit.numbered(1, "first change").please(),
-  makeMe.aReviewCommit.numbered(2, "second change").please(),
-];
-const missing = "The story's commit objects are missing from this machine.";
 const unreadable = "The chosen changes could not be read.";
-const wholeStory = "Describes the whole story, not the chosen comparison.";
-const takenOnCommits = () =>
-  Promise.resolve(
-    makeMe.aStoryReview
-      .modifying("dashboard/tests/a.spec.ts")
-      .adding("dashboard/tests/boundary/b.spec.ts")
-      .onCommits(second, first)
-      .please(),
-  );
-
-test("an unavailable commit range is explained in the header, not as a story without changes, and All changes stays offered", async () => {
-  await openStoryAComparison({
-    review: takenOnCommits,
-    range: () => Promise.resolve({ kind: "unavailable", explanation: missing }),
-  });
-  const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-
-  // Commits is explained without Retry, not as a story without changes.
-  await story.choose("Commits");
-  await expect.poll(story.alertText).toBe(unreadable);
-  await expect.element(story.retryControl).not.toBeInTheDocument();
-  await expect.poll(story.headerText).toContain(missing);
-  await expect.element(story.filesToggle).toBeVisible();
-  expect(story.headerText()).not.toContain("No comparison is available");
-
-  // CI comparison and Intent coverage say they describe the whole story.
-  for (const name of ["CI comparison", "Intent coverage"] as const) {
-    await story.chooseTab(name);
-    await expect.poll(() => story.noteIn(name)).toBe(wholeStory);
-  }
-  await story.chooseTab("Changes");
-
-  // All changes again compares the story.
-  await story.choose("All changes");
-  await expect.element(story.alert).not.toBeInTheDocument();
-  await expect.element(story.workspaceContext).toBeVisible();
-});
-
-test("a failed read of a chosen commit range offers Retry, which reads it again", async () => {
-  let rangeAsks = 0;
-  await openStoryAComparison({
-    review: takenOnCommits,
-    range: () => {
-      rangeAsks += 1;
-      return rangeAsks === 1
-        ? Promise.reject(new Error("The range read was refused."))
-        : Promise.resolve(
-            makeMe.aStoryReview
-              .modifying("dashboard/tests/a.spec.ts")
-              .pleaseRange(first, second),
-          );
-    },
-  });
-  const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-
-  // Commits whose read fails explains the failure.
-  await story.choose("Commits");
-  await expect.poll(story.alertText).toContain(unreadable);
-  await expect
-    .poll(story.headerText)
-    .toContain("The chosen commits could not be read:");
-
-  // Retry reads the range again and shows it.
-  const asked = rangeAsks;
-  await story.retry();
-  await expect.poll(story.range).toContain("second change");
-  await expect.element(story.alert).not.toBeInTheDocument();
-  expect(rangeAsks).toBeGreaterThan(asked);
-});
 
 const run = makeMe.aReviewRun
   .keyed("capture-chosen-run")

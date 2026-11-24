@@ -192,7 +192,6 @@ export function StoryCard({
               ({ identity }) => identity === entry.identity,
             )}
             records={launches.records}
-            workspaces={launches.workspaces}
             sourceId={sourceId}
             work={entry}
           />

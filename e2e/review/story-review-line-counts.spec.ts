@@ -16,7 +16,7 @@ import { fileLineCounts } from "../../dashboard/test-support/support/reviewTreeR
 import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { storyWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { keepPublishedStoryReview } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 // The merged trunk file's mode changes alone against the baseline.
 test.use({
@@ -31,7 +31,7 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  keepLaunchRecord(dashboard, workspace);
+  keepPublishedStoryReview(dashboard, origin, workspace);
   const card = await openBacklog(page, origin);
   const { files } = await openIntentReviewChanges(page, card);
   await files.expectOutsideCount(8);

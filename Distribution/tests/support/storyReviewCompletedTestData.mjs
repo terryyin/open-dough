@@ -4,15 +4,23 @@
 // ad hoc landing's or a captured run's landed comparison, and a execution checkout
 // session's commits. Node-free, for ./storyReviewTestData.mjs.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").StoryReview} StoryReview */
-/** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
-/** @typedef {TakenStoryReview["files"][number]} ReviewedFile */
+
+/** @typedef {import("../../../dashboard/src/storyReviewContract.ts").ReviewedFile[][number]} ReviewedFile */
 /** @typedef {import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice} ReviewRunChoice */
 /** @typedef {{ baseline: string, tree: string, files: ReviewedFile[] }} Compared */
-import { storyReviewIds } from "./storyReviewSnapshotTestData.mjs";
+
+/** @param {number} digit */
+const oid = (digit) => String(digit).repeat(40);
+
+export const storyReviewIds = Object.freeze({
+  baseline: oid(1),
+  tree: oid(2),
+  head: oid(3),
+  completion: oid(7),
+});
 
 /**
- * A story's published comparison; a given `completion` also names the trunk
- * landing it represents.
+ * A completed story's published comparison and represented landing.
  * @param {Compared & { completion: string | undefined, storyStart?: string | undefined, widened?: ReviewedFile[] | undefined }} compared
  * @returns {StoryReview}
  */

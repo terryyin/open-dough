@@ -20,15 +20,9 @@
   flex: none;
 }
 
-.story-review-range-heading,
 .story-review-inclusion {
   padding: 0.4rem 1rem;
   border-bottom: 1px solid var(--line);
-}
-
-.story-review-range-heading h3 {
-  margin: 0 0 0.2rem;
-  font-size: 1rem;
 }
 
 .story-review-inclusion label {
@@ -40,29 +34,7 @@
   margin: 0;
 }
 
-/* The context line keeps to one line, each value shortened where it does
-   not fit, the worktree first; shown in full, each value takes its own
-   lines. */
-.story-review-context-line {
-  display: flex;
-  align-items: center;
-  padding: 0.4rem 1rem;
-  border-bottom: 1px solid var(--line);
-  font-size: var(--text-sm);
-}
-
-.story-review-context-values {
-  display: flex;
-  flex: 1;
-  gap: 0.75rem;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-/* The review's plain buttons: the context line's values and the file
-   browser's rows. */
-.story-review-context-values,
+/* The file browser's rows are plain buttons. */
 .story-review-files button {
   border: 1px solid transparent;
   border-radius: 0.25rem;
@@ -72,57 +44,6 @@
   color: inherit;
   background: none;
   cursor: pointer;
-}
-
-.story-review-context-values:hover {
-  border-color: var(--line);
-}
-
-/* Branch and worktree keep their labels whole and shorten their values,
-   the worktree first. */
-.story-review-context-value {
-  display: flex;
-  flex: 0 1 auto;
-  gap: 0.3em;
-  min-width: 0;
-}
-
-.story-review-context-value > code {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.story-review-context-baseline {
-  display: block;
-  flex: none;
-}
-
-.story-review-context-worktree {
-  flex-shrink: 100;
-}
-
-.story-review-context-worktree > code {
-  min-width: 8ch;
-}
-
-.story-review-context-label {
-  flex: none;
-  color: var(--quiet);
-}
-
-.story-review-context-values[aria-expanded="true"] {
-  flex-direction: column;
-  gap: 0.15rem;
-  white-space: normal;
-}
-
-.story-review-context-values[aria-expanded="true"] .story-review-context-value {
-  flex-wrap: wrap;
-}
-
-.story-review-context-values[aria-expanded="true"] code {
-  overflow-wrap: anywhere;
 }
 
 /* Feedback sits beneath any revealed details, taking no room while silent. */

@@ -1,6 +1,12 @@
 import path from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  queuedReadyRepository,
+  storyA,
+  storyB,
+  takeRevision,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
   appendConfiguredProject,
@@ -12,7 +18,10 @@ import {
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
-import type { StartRepository } from "../../test-support/support/startOriginPreparation.ts";
+import {
+  dashboardDeveloper,
+  type StartRepository,
+} from "../../test-support/support/startOriginPreparation.ts";
 import { yui } from "../../test-support/support/storyReviewTrunkCommits.ts";
 import { trunkModeStory } from "../../test-support/support/storyReviewTrunkMode.ts";
 import {
@@ -119,7 +128,20 @@ test("a Taken story's unpublished branch leaves a review gap", async () => {
 });
 
 test("a named published branch pair admits its literal file after origin advances", async () => {
-  const { subject, signal, writer } = await takenStoryReader();
+  const history = queuedReadyRepository()
+    .withRevision(
+      "take",
+      takeRevision({
+        story: storyA,
+        queued: [storyB],
+        agent: yui.name as string,
+        branch,
+        committer: dashboardDeveloper,
+      }),
+    )
+    .withWorkspace(branch, { from: "take", agent: yui.agent })
+    .please();
+  const { subject, signal, writer } = await takenStoryReader(history);
   const path = "guides/[literal]*.txt";
   const firstHead = commitStoryFile(writer, path, "first published text\n");
   publishBranch(writer);

@@ -98,6 +98,16 @@ function reviewedFileRead(
       400,
       "The published comparison identity is malformed.",
     );
+  if (
+    subject.kind === "story" &&
+    completion === null &&
+    reference === null &&
+    publishedHead === null
+  )
+    throw new RefusedRequest(
+      400,
+      `The ${label} must name a published comparison.`,
+    );
   // A Published completion names a story, whichever subject keys came with it.
   if (completion !== null || subject.kind === "story")
     return {

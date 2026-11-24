@@ -26,7 +26,6 @@ import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import { IntentScopeProofView } from "./IntentScopeProofView.tsx";
 import { IntentScopeTimingHistory } from "./IntentScopeTimingHistory.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
-import { UncommittedCiNote } from "./UncommittedCiNote.tsx";
 
 // The Summary table's sort choice, kept with Intent's reading place.
 function useSummarySorting(): CiProofSorting {
@@ -58,7 +57,6 @@ export function IntentScopeProof(
 ) {
   return (
     <>
-      <UncommittedCiNote />
       <IntentScopeTimingHistory path={props.path} />
       <ScopeProofContent {...props} />
     </>

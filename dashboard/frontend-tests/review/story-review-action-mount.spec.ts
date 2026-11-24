@@ -30,6 +30,11 @@ const sources = {
         makeMe.aLaunchRecord
           .executing(subject)
           .onStoryBranch(workspace)
+          .withLanding(
+            makeMe.aLaunchLanding
+              .comparing({ base: "1".repeat(40), revision: "2".repeat(40) })
+              .please(),
+          )
           .please(),
       )
       .please(),
@@ -152,11 +157,7 @@ test.each([
   },
 );
 
-test.each([
-  { column: "Backlog", source: "claim" },
-  { column: "Taken", source: "preparation" },
-  { column: "Backlog", source: "launch" },
-] as const)(
+test.each([{ column: "Taken", source: "preparation" }] as const)(
   "a $column card offered Review changes by a $source opens its Changes with the tab focused",
   async ({ column, source }) => {
     const card = await mountCard(column, sources[source]());
@@ -165,8 +166,8 @@ test.each([
   },
 );
 
-test("a Backlog card with no workspace offers no Review changes", async () => {
-  const card = await mountCard("Backlog", sources.none());
+test("a Backlog card with only an unpublished workspace offers no Review changes", async () => {
+  const card = await mountCard("Backlog", sources.claim());
   await expect.element(reviewChanges(card)).not.toBeInTheDocument();
 });
 
