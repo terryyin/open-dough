@@ -68,7 +68,7 @@ production data, native identifiers, and restore copies out of Git.
 
 ### 1. Verify the production cutover inputs
 Type: Structure
-Status: planned
+Status: done
 Proof: A private copy parses through the deployed reader, and every open or
 interrupted record has a disposition backed by native and published evidence.
 
@@ -85,6 +85,30 @@ keeps production writes outside this probe. A missing native or ownership
 observation, unavailable installed capability, or unverified writer hold
 stops the dependent work and changes the migration plan. Repeat the inventory
 against the final candidate and fresh inputs in slice 8.
+
+Result at `2b0356a1e` (private `slice-1/REPORT.md` and run records in this
+worktree's evidence location): the preview runs deployment `4283cb8d4`, and
+its reader parsed a copy whose per-store inventory matched production before
+and after copying (1,659 launch rows, 1,674 attempts). Seven records are open.
+Six carry a Taken story with matching native binding and owned worktree, and
+stay open and linked. One live Claude session has no story field. Its branch
+carries a trunk admission, so it continues as verified unbound and slice 8 may
+link it. The Cursor timeout has confirmed native absence and an untouched clean
+worktree, so it is archived. The Lizard record stays closed and unlinked
+because its association is unavailable. The `bb509114` context still returns
+the expected 409 and is archived as history. No open row is unsafe for slices 2–7.
+Writers are the unmanaged watcher process, which owns the preview and its
+in-server schedules, plus the Cursor and Claude launchd agents. The watcher
+plist is not loaded, and there is no crontab. A disposable-home rehearsal
+restored a tar backup to an identical 26,758-file manifest. Slice 8's owner
+still performs the live hold, which this probe did not exercise. That owner
+also chooses whether to restart the watcher as it runs today or through
+launchd, and budgets about three minutes for the manifest. Installed
+`execution-start.mjs --admit` published on a scratch bare origin only with a
+publisher ID, a linked worktree, the seed draft in the integration checkout,
+preparation recorded first, and a `**Goal:**` line. Slices 2–3 must meet those
+inputs. Native CLIs are present: claude 2.1.331, codex-cli 0.171.0 and
+cursor-agent 2026.11.22.
 
 ### 2. Open an isolated Dashboard session on its admitted story
 Type: Behavior
