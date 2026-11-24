@@ -63,29 +63,45 @@ export const quietStorySessions = (
   home: string,
   story: Story,
   doneAt: Date,
+  details?: {
+    readonly refinement: {
+      readonly instruction: string;
+      readonly report: string;
+    };
+    readonly execution: {
+      readonly instruction: string;
+      readonly report: string;
+    };
+  },
 ): LaunchRecord[] => {
   const slug = story.identity.split("#")[1] ?? "story";
   return [
     makeMe.aLaunchRecord
-      .refining(story)
+      .refining({
+        ...story,
+        ...(details && { instruction: details.refinement.instruction }),
+      })
       .inClaudeSession({ sessionId: `${slug}-refined`, shortId: "refined" })
       .onStoryBranch({
         workspace: path.join(home, "retired", `${slug}-refinement`),
         branch: `claude/${slug}-refinement`,
       })
       .launchedAt(new Date(doneAt.getTime() - 120_000).toISOString())
-      .completedWith({ message: "" })
+      .completedWith({ message: details?.refinement.report ?? "" })
       .markedDoneAt(doneAt.toISOString())
       .please(),
     makeMe.aLaunchRecord
-      .executing(story)
+      .executing({
+        ...story,
+        ...(details && { instruction: details.execution.instruction }),
+      })
       .inClaudeSession({ sessionId: `${slug}-executed`, shortId: "executed" })
       .onStoryBranch({
         workspace: path.join(home, "retired", slug),
         branch: `claude/${slug}`,
       })
       .launchedAt(new Date(doneAt.getTime() - 60_000).toISOString())
-      .completedWith({ message: "" })
+      .completedWith({ message: details?.execution.report ?? "" })
       .markedDoneAt(doneAt.toISOString())
       .please(),
   ];
@@ -103,26 +119,18 @@ export const completedWords = (completedAt: string) =>
     timeZone: "UTC",
   }).format(new Date(completedAt))} UTC by Terry Yin with viktor-chan`;
 
-// The context items of a story completed at `completedAt`, holding the
-// sessions of `quietStorySessions` or none, one line each as the dialog lists
-// them.
+// The required context items as the dialog lists them.
 export function storyItems(
   story: Story,
   completedAt: string,
-  held: "quiet sessions" | "no session",
+  held: "unselected" | "no session",
 ): string[] {
-  const quiet = (workflow: string) => [
-    `Workflow: ${workflow}`,
-    `Story: ${story.identity}`,
-    "Original request: No request text was given.",
-    "Final report: No final report was submitted.",
-  ];
   return [
     `Completed: ${completedWords(completedAt)}`,
     `Status: Done. Its seed and plan may have been removed; its records remain in the project's history under ${story.identity}.`,
     ...(held === "no session"
       ? ["Sessions: No session context is retained."]
-      : [...quiet("Refinement"), ...quiet("Execution")]),
+      : []),
   ];
 }
 
@@ -130,23 +138,28 @@ export function storyItems(
 export function storyContextOf(
   story: Story,
   completedAt: string,
-  held: "quiet sessions" | "no session",
+  held: "quiet sessions" | "no session" | "unselected",
   instruction: string,
 ): string {
   const [completed = "", status = "", ...rest] = storyItems(
     story,
     completedAt,
-    held,
+    held === "quiet sessions" ? "unselected" : held,
   ).map((item) => `- ${item}`);
   const extras =
-    held === "no session"
-      ? []
-      : [
-          ["<session>", story.title, ...rest.slice(0, 4), "</session>"].join(
-            "\n",
-          ),
-          ["<session>", story.title, ...rest.slice(4), "</session>"].join("\n"),
-        ];
+    held === "quiet sessions"
+      ? ["Refinement", "Execution"].map((workflow) =>
+          [
+            "<session>",
+            story.title,
+            `- Workflow: ${workflow}`,
+            `- Story: ${story.identity}`,
+            "- Original request: No request text was given.",
+            "- Final report: No final report was submitted.",
+            "</session>",
+          ].join("\n"),
+        )
+      : [];
   return [
     [
       "<story>",

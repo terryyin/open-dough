@@ -33,6 +33,8 @@ export class FollowUpBuilder {
   #file;
   /** @type {boolean} */
   #attachNotes = false;
+  /** @type {SessionReference[] | undefined} */
+  #sessions;
   /** @type {FollowUp["context"]} */
   #context;
   /** @type {AttachedStoryNote[] | undefined} */
@@ -64,6 +66,15 @@ export class FollowUpBuilder {
   /** Ask admission to attach the story's waiting notes. */
   attachingNotes() {
     this.#attachNotes = true;
+    return this;
+  }
+
+  /** @param {readonly (LaunchRecord | SessionReference)[]} sources */
+  attachingSessions(sources) {
+    this.#sessions = sources.map((source) => {
+      const { host, sessionId } = "request" in source ? source.session : source;
+      return { host, sessionId };
+    });
     return this;
   }
 
@@ -116,6 +127,7 @@ export class FollowUpBuilder {
       if (this.#session === undefined) throw new Error("state .ofSession(...)");
       if (
         this.#attachNotes ||
+        this.#sessions !== undefined ||
         this.#attached !== undefined ||
         this.#file !== undefined
       )
@@ -137,6 +149,9 @@ export class FollowUpBuilder {
         revision: this.#revision,
         ...(this.#file === undefined ? {} : { file: { ...this.#file } }),
         ...(this.#attachNotes ? { notes: true } : {}),
+        ...(this.#sessions === undefined
+          ? {}
+          : { sessions: this.#sessions.map((session) => ({ ...session })) }),
       },
       ...(context === undefined ? {} : { context }),
       ...(this.#attached === undefined

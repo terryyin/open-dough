@@ -86,12 +86,7 @@ test("a done story followed up with Codex on Isolated workspace · Wait for revi
   const kept = quietStorySessions(dashboard.home, recoverStory, new Date());
   keepLaunchRecords(dashboard, kept);
   const text = "Paste still drops the last line on iPad; investigate.";
-  const message = storyContextOf(
-    recoverStory,
-    completedAt,
-    "quiet sessions",
-    text,
-  );
+  const message = storyContextOf(recoverStory, completedAt, "unselected", text);
   const uploaded = await fetch(
     new URL(launchAttachmentEndpoint, dashboard.baseURL),
     {

@@ -12,7 +12,11 @@
 import { z } from "zod";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import { objectIdSchema, reviewedPathSchema } from "./storyReviewFiles.ts";
-import { sessionHostSchema, sessionKey } from "./sessionReference.ts";
+import {
+  sessionHostSchema,
+  sessionKey,
+  type SessionReference,
+} from "./sessionReference.ts";
 
 const followUpSessionSchema = z.strictObject({
   host: sessionHostSchema,
@@ -53,6 +57,8 @@ const followUpStorySchema = z.strictObject({
   // The published revision whose done record the page showed.
   revision: z.string().regex(commitShaPattern),
   file: followUpFileSchema.optional(),
+  // Optional retained sessions, resolved against the story at admission.
+  sessions: z.array(followUpSessionSchema).optional(),
   // Attach waiting notes from the machine store at admission.
   notes: z.literal(true).optional(),
 });
@@ -97,25 +103,28 @@ export type FollowUpSource =
   | { readonly session: z.infer<typeof followUpSessionSchema> }
   | { readonly story: z.infer<typeof followUpStorySchema> };
 
-function followUpFileKey(file: FollowUpFile): string {
-  const comparison =
-    file.completion !== undefined
-      ? `completion ${file.completion}`
-      : `reference ${file.reference}`;
-  const rename = file.oldPath === undefined ? "" : ` old ${file.oldPath}`;
-  const line =
-    file.line === undefined || file.side === undefined
-      ? ""
-      : ` ${file.side} ${file.line}`;
-  return ` file ${file.path}${rename} ${file.baseline} ${file.tree} ${comparison}${line}`;
-}
-
-// The one spelling of a follow-up's source, for identity and attempt keys.
+// The source and attachment choices identify a Start. A set of sessions
+// has the same identity in any order or with duplicate references.
 export function followUpSourceKey(followUp: FollowUpSource): string {
   if ("session" in followUp) return `session ${sessionKey(followUp.session)}`;
-  const file = followUp.story.file;
-  const notes = followUp.story.notes === true ? " notes" : "";
-  return `story ${followUp.story.identity}${file === undefined ? "" : followUpFileKey(file)}${notes}`;
+  const { identity, file, notes, sessions } = followUp.story;
+  const anchor = file && [
+    file.path,
+    file.oldPath,
+    file.baseline,
+    file.tree,
+    file.completion,
+    file.reference,
+    file.line,
+    file.side,
+  ];
+  return JSON.stringify([
+    "story",
+    identity,
+    anchor,
+    notes === true,
+    [...new Set(sessions?.map(sessionKey))].sort(),
+  ]);
 }
 
 // Whether two requests follow up the same source, or neither follows up.
@@ -127,11 +136,17 @@ export function sameFollowUpSource(
   return followUpSourceKey(a) === followUpSourceKey(b);
 }
 
-// Names `notes: true` on a story source when the dialog asks to attach notes.
-export function followUpSourceAttachingNotes(
+export function followUpSourceAttaching(
   source: FollowUpSource | undefined,
-  attach: boolean,
+  sessions: readonly SessionReference[],
+  notes: boolean,
 ): FollowUpSource | undefined {
-  if (source === undefined || !attach || !("story" in source)) return source;
-  return { story: { ...source.story, notes: true } };
+  if (source === undefined || !("story" in source)) return source;
+  return {
+    story: {
+      ...source.story,
+      ...(sessions.length === 0 ? {} : { sessions: [...sessions] }),
+      ...(notes ? { notes: true } : {}),
+    },
+  };
 }

@@ -26,6 +26,24 @@
   white-space: nowrap;
 }
 
+.follow-up-sessions {
+  margin-top: var(--space-2);
+}
+
+.follow-up-session {
+  padding: var(--space-1) 0;
+  overflow-wrap: anywhere;
+}
+
+.follow-up-session input {
+  margin-inline-end: var(--space-2);
+}
+
+.follow-up-session dd {
+  margin: 0 0 var(--space-2);
+  white-space: pre-wrap;
+}
+
 /* Attach waiting notes, below the instruction and above Start. */
 .attach-story-notes {
   display: flex;

@@ -68,8 +68,9 @@ test("a done story's follow-up sends sections for the story, current request and
 }) => {
   const revision = await publishDoneStories(dashboard, origin);
   const doneAt = new Date();
+  const selected = quietStorySessions(dashboard.home, recoverStory, doneAt);
   const kept = [
-    ...quietStorySessions(dashboard.home, recoverStory, doneAt),
+    ...selected,
     // Still open, so not on the done story's card.
     makeMe.aLaunchRecord
       .refining(recoverStory)
@@ -86,12 +87,15 @@ test("a done story's follow-up sends sections for the story, current request and
     "quiet sessions",
     text,
   );
+  const followUp = makeMe.aFollowUp
+    .ofStory(recoverStory, revision)
+    .attachingSessions(selected);
 
   const launched = await answerOf(
     launch(dashboard, {
       ...request,
       instruction: text,
-      followUp: makeMe.aFollowUp.ofStory(recoverStory, revision).please(),
+      followUp: followUp.please(),
     }),
   );
 
@@ -105,10 +109,7 @@ test("a done story's follow-up sends sections for the story, current request and
   });
   expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     instruction: text,
-    followUp: makeMe.aFollowUp
-      .ofStory(recoverStory, revision)
-      .withContext({ message })
-      .please(),
+    followUp: followUp.withContext({ message }).please(),
   });
   // Its facts are the done record published at the revision shown.
   expect(dashboard.github.calls.map(({ request }) => request)).toContainEqual(

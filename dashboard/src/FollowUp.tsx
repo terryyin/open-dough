@@ -16,6 +16,10 @@ import {
   type FollowUpFileFacts,
 } from "./followUpContext.ts";
 import type { FollowUpFile, FollowUpSource } from "./followUpRequest.ts";
+import {
+  retainedFollowUpReference,
+  retainedStoryFollowUpSessions,
+} from "./followUpSessions.ts";
 import { usePageSessions } from "./pageSessions.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { offersFollowUp } from "./sessionAccess.ts";
@@ -59,6 +63,11 @@ export function StoryFollowUpSession({
 }) {
   const readHistory = useReadRetainedHistory();
   const { presentTerminal } = usePageSessions();
+  const candidates = retainedStoryFollowUpSessions(
+    sessions,
+    sourceId,
+    story.identity,
+  );
   const source: FollowUpSource = {
     story: {
       identity: story.identity,
@@ -79,7 +88,8 @@ export function StoryFollowUpSession({
       followUp={{
         source,
         name: storyName(story),
-        context: storyContext(story, sessions, file?.facts),
+        context: storyContext(story, [], file?.facts, candidates.length > 0),
+        sessions: candidates,
       }}
     />
   );
@@ -93,9 +103,7 @@ export function SessionFollowUp({
 }: Launching & { readonly record: LaunchWithState }) {
   const { hostOperations, presentTerminal } = usePageSessions();
   if (!offersFollowUp([record], hostOperations)) return null;
-  const source: FollowUpSource = {
-    session: { host: record.session.host, sessionId: record.session.sessionId },
-  };
+  const source: FollowUpSource = { session: retainedFollowUpReference(record) };
   const context = sessionContext(record);
   return (
     <StartSession

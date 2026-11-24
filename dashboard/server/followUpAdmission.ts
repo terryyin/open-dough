@@ -16,8 +16,10 @@ import {
   type StoryFollowUpContext,
 } from "../src/followUpContext.ts";
 import type { AttachedStoryNote, FollowUp } from "../src/followUpRequest.ts";
+import { retainedFollowUpReference } from "../src/followUpSessions.ts";
 import { storyNotesContext } from "../src/followUpStoryNotes.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { sessionKey } from "../src/sessionReference.ts";
 import { storyNoteVersion } from "../src/storyNote.ts";
 import { admitFollowUpFile } from "./followUpFileAdmission.ts";
 import { doneStorySessions, publishedDoneStory } from "./followUpStory.ts";
@@ -35,11 +37,19 @@ async function resolveStoryFollowUp(
 }> {
   const story = await publishedDoneStory(source, followUp);
   const sessions = await doneStorySessions(source, followUp.identity);
+  const selected = new Set(followUp.sessions?.map(sessionKey));
   const file =
     followUp.file === undefined
       ? undefined
       : await admitFollowUpFile(source, followUp.identity, followUp.file);
-  const base = storyContext(story, sessions, file);
+  const base = storyContext(
+    story,
+    sessions.filter((record) =>
+      selected.has(sessionKey(retainedFollowUpReference(record))),
+    ),
+    file,
+    sessions.length > 0,
+  );
   if (followUp.notes !== true) return { context: base };
   const waiting = await waitingStoryNotes(source.id, followUp.identity);
   if (waiting === "unreadable")

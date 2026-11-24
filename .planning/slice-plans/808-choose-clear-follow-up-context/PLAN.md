@@ -13,6 +13,7 @@ Kaoru-chan is executing in Story Branch Mode on
 and the execution branch. The checkout uses Node 24.21.0 and passed
 `npm ci --offline --no-audit --no-fund` and `npm run typecheck:dashboard`.
 The story branch uses the `ci.yml` workflow for push verification.
+Slice 1 was accepted on that branch at `33533a6fff17635ac64769b53e135bcc5704c20f`.
 
 ## Goal and scope
 
@@ -117,7 +118,7 @@ env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --sil
 ### 2. A developer chooses individual retained sessions
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: From a whole-story comparison with two retained sessions, each box
 starts unchecked, each disclosure starts closed, and opening or closing one
@@ -133,6 +134,12 @@ that no foreign text is disclosed. Change the selection for a new Start and
 prove it cannot reuse the wrong attempt. A Continue uses the prior input.
 Use `FollowUpSubject` for the choice behavior and keep the `StartSession.tsx`
 launch shell within the file-size limit when wiring it up.
+
+**Accepted proof.** Same-title retained sessions used separate keyboard
+controls, and the chosen session reached the native first input. The HTTP
+selection case proved distinct Starts, the cleared selection, project/story
+eligibility and exact Continue. The refactor's receiving browser proof passed.
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/launches/agent-launch-follow-up-session.spec.ts e2e/stories/recently-done-follow-up.spec.ts --grep "Done session|retained session selected through the composer" --workers=1 --reporter=dot` and `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend -- dashboard/backend-tests/launches/agent-launch-follow-up-selection.spec.ts --workers=1 --reporter=dot` both passed.
 
 ### 3. A developer can inspect and attach the waiting notes together
 
@@ -209,7 +216,7 @@ slice-specific concern.
 
 Reported: slice 1 — "Retained extras already sent by the composer get their own sections pending their explicit choices in slices 2 and 3."
 Story clause: "Give each session a separately labeled checkbox and show its available details on demand."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: The same-title keyboard and native input assertions in `e2e/stories/recently-done-follow-up.spec.ts` and the Start and Continue observations in `dashboard/backend-tests/launches/agent-launch-follow-up-selection.spec.ts`.
 
 ### G2. Waiting notes can start checked
 

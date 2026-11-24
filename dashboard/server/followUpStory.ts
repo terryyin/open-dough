@@ -11,7 +11,7 @@
 
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { doneRecordOf, type DoneStory } from "../src/doneRecord.ts";
-import { isOpen, storySessionsOf } from "../src/agentLaunch.ts";
+import { retainedStoryFollowUpSessions } from "../src/followUpSessions.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
@@ -66,13 +66,11 @@ export async function publishedDoneStory(
 }
 
 // The sessions this machine keeps for the story and marked done, oldest
-// first, by the rule its card's sessions follow (`storySessionsOf`).
+// first, by the same rule the composer uses.
 export async function doneStorySessions(
   source: PublishedSource,
   identity: string,
 ): Promise<readonly LaunchRecord[]> {
   const kept = await keptRecords(source.id);
-  return storySessionsOf(kept, source.id, identity).filter(
-    (record) => !isOpen(record),
-  );
+  return retainedStoryFollowUpSessions(kept, source.id, identity);
 }

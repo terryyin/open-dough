@@ -23,7 +23,7 @@ import {
 import {
   expectFileFollowUpDialog,
   fileFollowUp,
-  fileFollowUpComposer,
+  followUpComposer,
   fileFollowUpDialog,
   startSessionField,
 } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
@@ -70,7 +70,7 @@ test("Intent file Follow up sends the reviewed target and text containing a sect
   await expect(follow).toBeVisible();
   await follow.click();
   const dialog = fileFollowUpDialog(page);
-  const composer = fileFollowUpComposer(dialog);
+  const composer = followUpComposer(dialog);
   await expectFileFollowUpDialog(dialog, storyName, [
     "Path: dashboard/tests/a.spec.ts",
     /Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}/,
@@ -144,7 +144,7 @@ test("Intent Changes old line 85 Follow up starts blank and opens the terminal w
     ],
   );
   await expect(startSessionField(dialog)).toHaveValue("");
-  await fileFollowUpComposer(dialog).start();
+  await followUpComposer(dialog).start();
   await expect(dialog).toBeHidden();
   // The context is not typed text: the terminal opens with the keyboard.
   await expect(terminalScreenParts(terminalPanel(page)).input).toBeFocused({
