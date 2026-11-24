@@ -1,6 +1,5 @@
 // After the installed publisher delivers a Done isolated session and its
-// branch is retired, both its delivered rename and its working-tree
-// comparison still hold their own file contents.
+// branch is retired, its published rename still holds the delivered file contents.
 import { mkdtempSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -27,7 +26,7 @@ const renamed = { path: "review.txt", oldPath: "draft.txt" };
 const committed = `${baseline}Delivered draft\n`;
 const working = `${baseline}Left for review\n`;
 
-test("the same Done session keeps its delivery and its different branch result after retirement", async () => {
+test("a Done session keeps the accepted rename after retirement", async () => {
   const branch = "rename-the-draft";
   const sessionId = "isolated-rename-the-draft";
   const directory = mkdtempSync(path.join(tmpdir(), "dough-reporting-"));
@@ -102,20 +101,11 @@ test("the same Done session keeps its delivery and its different branch result a
     base: landing.receipt.base,
     revision: landing.receipt.revision,
   });
-  if (saved?.branchResult === undefined)
-    throw new Error("Missing the retained comparisons.");
-  expect(saved.branchResult.revision).not.toBe(landing.receipt.revision);
   if (!("origin" in checkout)) throw new Error("Missing the fixture origin.");
   const delivered = await git(
     checkout.origin,
     "show",
     `${landing.receipt.revision}:${renamed.path}`,
   );
-  const snapshot = await git(
-    checkout.integration,
-    "show",
-    `${saved.branchResult.revision}:${renamed.path}`,
-  );
   expect(delivered.stdout).toBe(committed);
-  expect(snapshot.stdout).toBe(working);
 });

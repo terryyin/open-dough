@@ -180,14 +180,14 @@ test("a branch handoff declines context for an entry that changed while preparin
           throw new Error("No kept branch entry.");
         return {
           ...current,
-          branchEntry: { ...current.branchEntry, defaultTip: undefined },
+          branchEntry: { ...current.branchEntry, committedTip: "0".repeat(40) },
         };
       }),
     ),
   );
 
   const kept = await keptSession(source, record.session);
-  expect.soft(kept?.branchEntry?.defaultTip).toBeUndefined();
+  expect.soft(kept?.branchEntry?.committedTip).toBe("0".repeat(40));
   expect.soft(kept?.landingReporting).toBeUndefined();
   expect(answer).not.toHaveProperty("landingContext");
 });

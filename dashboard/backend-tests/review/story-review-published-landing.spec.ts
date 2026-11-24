@@ -7,7 +7,7 @@ import {
   mountProjectConfiguration,
 } from "../../server/projectConfiguration.ts";
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { storyReview } from "../../server/storyReview.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { reviewLaunch } from "../../test-support/support/reviewRunRecords.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";

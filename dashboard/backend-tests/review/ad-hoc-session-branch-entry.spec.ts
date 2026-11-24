@@ -1,5 +1,6 @@
-// An execution checkout launch identifies its own branch: the entry keeps the state
-// and Execution checkout tip it found, and Done keeps separate captured pairs.
+// A declared branch keeps its bound checkout and committed delivery candidate.
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -30,20 +31,31 @@ const aDraftBeforeEntry = aDoneCaptureCase()
     (at) =>
       makeMe.aCheckoutWork
         .committing("entered", { at: at(45) })
-        .editing("prior-draft", { at: at(44) }),
+        .editing("prior-draft", {
+          at: at(44),
+          files: { "prior-draft.txt": "unpublished draft\n" },
+        }),
     { in: branch },
   )
   .kept();
 
-test("a declared branch keeps its entry state and Execution checkout tip after main moves", async () => {
+test("a declared branch keeps its bound checkout and committed tip after main moves", async () => {
   const {
     published,
     at,
     worktrees: { [branch]: workspace },
     records: { declared: record },
-    work: { onMain, entered },
+    work: { entered },
     performWork,
   } = await aDraftBeforeEntry.please();
+  const { stdout: draftHash } = await git(
+    workspace,
+    "hash-object",
+    "prior-draft.txt",
+  );
+  await expect(
+    git(workspace, "cat-file", "-e", draftHash.trim()),
+  ).rejects.toThrow();
   const entry = await recordSessionBranchEntry(published, record, {
     workspace,
     branch,
@@ -53,36 +65,29 @@ test("a declared branch keeps its entry state and Execution checkout tip after m
     workspace,
     branch,
     committedTip: entered,
-    defaultTip: onMain,
   });
-  const pins = await sessionBranchPins(workspace, record.session);
-  expect(pins).toMatchObject([
-    { objectId: entered },
-    { objectId: onMain },
-    { objectId: entry.tree },
-  ]);
+  expect(await sessionBranchPins(workspace, record.session)).toEqual([]);
+  await expect(
+    git(workspace, "cat-file", "-e", draftHash.trim()),
+  ).rejects.toThrow();
   await performWork(
     makeMe.aCheckoutWork.committing("later-main", { at: at(20) }),
   );
   expect(
     await recordSessionBranchEntry(published, record, { workspace, branch }),
   ).toEqual(entry);
-  expect(await sessionBranchPins(workspace, record.session)).toEqual(pins);
+  expect(await sessionBranchPins(workspace, record.session)).toEqual([]);
 });
 
-test("Done saves the entry-time Execution checkout run and the declared branch's own pair", async () => {
+test("Done retains the declared branch tip for delivery", async () => {
   const {
     published,
     at,
-    checkout,
     worktrees: { [branch]: workspace },
     records: { declared: record },
     performWork,
   } = await aDraftBeforeEntry.please();
-  const entry = await recordSessionBranchEntry(published, record, {
-    workspace,
-    branch,
-  });
+  await recordSessionBranchEntry(published, record, { workspace, branch });
   const { result } = await performWork(
     makeMe.aCheckoutWork.committing("result", {
       at: at(30),
@@ -94,16 +99,35 @@ test("Done saves the entry-time Execution checkout run and the declared branch's
     makeMe.aCheckoutWork.committing("later-main", { at: at(20) }),
   );
 
+  const draft = "session.txt";
+  const draftText = "unpublished change after the branch commit\n";
+  await performWork(
+    makeMe.aCheckoutWork.editing("private-draft", {
+      at: at(15),
+      files: { [draft]: draftText },
+    }),
+    { in: branch },
+  );
+  const { stdout: draftHash } = await git(workspace, "hash-object", draft);
+  await expect(
+    git(workspace, "cat-file", "-e", draftHash.trim()),
+  ).rejects.toThrow();
+
   await setRecordDoneAt(published.id, record.session, at(10));
 
   const saved = await keptSession(published.id, record.session);
-  expect(saved?.sessionCommits?.runs).toEqual([
-    { base: checkout.base, revision: entry.defaultTip },
+  expect(saved?.branchResult).toMatchObject({ committedTip: result });
+  expect(saved?.sessionCommits).toBeUndefined();
+  expect(await readFile(path.join(workspace, draft), "utf8")).toBe(draftText);
+  expect((await git(workspace, "rev-parse", "HEAD")).stdout.trim()).toBe(
+    result,
+  );
+  await expect(
+    git(workspace, "cat-file", "-e", draftHash.trim()),
+  ).rejects.toThrow();
+  expect(await sessionBranchPins(workspace, record.session)).toMatchObject([
+    { objectId: result },
   ]);
-  expect(saved?.branchResult).toMatchObject({
-    base: entry.tree,
-    revision: result,
-  });
 });
 
 test("two declared sessions each capture their own branch", async () => {
@@ -129,7 +153,10 @@ test("two declared sessions each capture their own branch", async () => {
     captureBranchResult(first, at(10)),
     captureBranchResult(second, at(10)),
   ]);
-  expect([ownBranch.revision, otherBranch.revision]).toEqual([ours, theirs]);
+  expect([ownBranch.committedTip, otherBranch.committedTip]).toEqual([
+    ours,
+    theirs,
+  ]);
 });
 
 test("an undeclared checkout move records Done without attributing the new branch", async () => {

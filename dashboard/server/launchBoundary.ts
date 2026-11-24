@@ -17,9 +17,9 @@
 // names, or after a bounded wait. A same-origin GET of the final report
 // endpoint reads one kept session's final report through its host, bounded
 // and abandoned when the caller leaves. A same-origin GET of the story review
-// endpoint takes a snapshot of one story's launch workspace
-// (`./storyReviewSnapshot.ts`), bounded and abandoned the same way, and a GET
-// of its file endpoint reads one file's diff within that snapshot. A
+// endpoint reads one story's published comparison (`./storyReview.ts`),
+// bounded and abandoned the same way, and a GET of its file endpoint
+// reads one file's diff within that comparison. A
 // same-origin GET answers the machine's
 // sessions: every catalog project's launch records, each naming its project,
 // with each session's current state, and the launch attempts accepted with

@@ -16,7 +16,7 @@ import {
   reviewedFileDiff,
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { storyReview } from "../../server/storyReview.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   dashboardDeveloper,

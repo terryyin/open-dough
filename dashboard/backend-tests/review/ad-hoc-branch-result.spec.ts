@@ -36,8 +36,6 @@ test("Done's capture reads an empty branch and refuses a missing checkout", asyn
   const doneAt = at(10);
 
   expect((await captureBranchResult(empty, doneAt)).result).toMatchObject({
-    base: checkout.base,
-    revision: checkout.base,
     committedTip: checkout.base,
   });
   await expect(captureBranchResult(missing, doneAt)).rejects.toThrow();
@@ -103,7 +101,7 @@ for (const [reason, remove] of Object.entries(removals)) {
     expect(await pins(leaving)).toContainEqual(
       expect.objectContaining({ objectId: first }),
     );
-    expect(await pins(leaving)).toHaveLength(3);
+    expect(await pins(leaving)).toHaveLength(1);
     const stayingPins = await pins(staying);
     expect(stayingPins).toContainEqual(
       expect.objectContaining({ objectId: second }),

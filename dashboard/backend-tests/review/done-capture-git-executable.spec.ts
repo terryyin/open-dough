@@ -82,7 +82,7 @@ test("a Done capture behind Apple's launcher starts the developer-tool Git", asy
 
   const { result } = await capture();
 
-  expect(result).toMatchObject({ committedTip: tip, revision: tip });
+  expect(result).toMatchObject({ committedTip: tip });
   const starts = gitStarts(from);
   expect(starts.length).toBeGreaterThan(0);
   expect(new Set(starts.map(({ file }) => file))).toEqual(
@@ -110,7 +110,7 @@ test("a caller's Git earlier on PATH receives the Done capture's calls", async (
 
   const { result } = await capture();
 
-  expect(result).toMatchObject({ committedTip: tip, revision: tip });
+  expect(result).toMatchObject({ committedTip: tip });
   const starts = gitStarts(from);
   expect(new Set(starts.map(({ file }) => file))).toEqual(new Set(["git"]));
   // Independent reads run concurrently, so their order may differ.

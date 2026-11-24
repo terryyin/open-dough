@@ -97,7 +97,7 @@ test("a verified manual merge retains its accepted trunk parent and actual resol
 
 test("branch capture ignores a merge accepted on a different remote branch", async () => {
   const { checkout, record, onBranch, at } = await anIsolatedDraft();
-  const { integration, base } = checkout;
+  const { integration } = checkout;
   const { tip } = await onBranch(
     makeMe.aCheckoutWork.committing("tip", { at: at(30) }),
   );
@@ -108,26 +108,12 @@ test("branch capture ignores a merge accepted on a different remote branch", asy
 
   expect(delivery).toBeUndefined();
   expect(result).toMatchObject({
-    base,
     committedTip: tip,
-    revision: tip,
     manualDeliveryChecked: true,
   });
-  expect(result.attributionGap).toBeUndefined();
-  expect(
-    (
-      await git(
-        integration,
-        "diff",
-        "--name-only",
-        result.base,
-        result.revision,
-      )
-    ).stdout,
-  ).toBe("tip.txt\n");
 });
 
-test("an exact fast-forward proves the delivery and leaves the branch attributable", async () => {
+test("an exact fast-forward proves the delivery and retains the committed tip", async () => {
   const { checkout, record, repository, onBranch, inspect, at } =
     await anIsolatedDraft();
   const { tip } = await onBranch(
@@ -144,8 +130,7 @@ test("an exact fast-forward proves the delivery and leaves the branch attributab
     revision: tip,
   });
   const { result } = await captureBranchResult(record, at(10));
-  expect(result).toMatchObject({ base: checkout.base, revision: tip });
-  expect(result.attributionGap).toBeUndefined();
+  expect(result.committedTip).toBe(tip);
 });
 
 test("a fast-forward with an unwitnessed previous tip leaves delivery unverified", async () => {

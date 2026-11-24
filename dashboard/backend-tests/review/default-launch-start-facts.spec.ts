@@ -7,7 +7,7 @@ import { defaultLaunchStartFacts } from "../../server/defaultLaunchStart.ts";
 import { localFolder } from "../../server/localFolder.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
-test("a default launch records its start only while Git can read the checkout", async () => {
+test("a default launch records the common repository while Git can read the checkout", async () => {
   const { checkout } = await aDoneCaptureCase().please();
   const folder = localFolder(checkout.integration);
   const { request } = makeMe.aLaunchRecord.adHoc({ title: "Session" }).please();
@@ -16,9 +16,7 @@ test("a default launch records its start only while Git can read the checkout", 
   expect(await defaultLaunchStartFacts(request, folder)).toEqual({
     defaultStart: {
       workspace: folder.path,
-      startingRevision: checkout.base,
       repository: realpathSync(gitDirectory),
-      branch: "refs/heads/main",
     },
   });
 

@@ -180,7 +180,7 @@ Checkout evidence `slice-6-report.md` verifies both readers and native actions.
 ### 7. Finish a session without capturing unpublished review data
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Replay an actual Done or quiet-report journey and a real landing with
 its receipt and recovery. A completed session shows its normal Done state and
 native actions, and genuinely accepted changes stay reviewable. Keep the proof
@@ -197,7 +197,8 @@ cleanup owner for old internal review refs when it owns them. Preserve local
 branches and worktrees. Delete obsolete review docs, examples and remaining
 fixtures with their owners. Recheck the published comparison proof in SEED-321
 and plan 611, and scrub retired assumptions in the SEED-420
-example. Preserve outstanding published promises and useful historical evidence.
+example. Keep useful history. Checkout evidence `slice-7-report.md` records
+the verified Done, landing, and touch replays.
 
 ## Verification and delivery
 
@@ -229,8 +230,7 @@ The published pre-execution baseline is
 execution uses `codex/review-published-changes` in the owned
 `review-published-changes` worktree, publisher
 `dashboard-territory.local-open-dough`, with `origin/main` as the
-integration target. Both remote branches contained the accepted Take before
-slice 1. GitHub Actions `ci.yml` uses coordinator `yui-review-published-427`
+integration target. GitHub Actions `ci.yml` uses coordinator `yui-review-published-427`
 and stream `/tmp/dough-ci-501/watch-ou4lkf` (PID 64952, Codex cell `g20:10`,
 shell session 71952).
 

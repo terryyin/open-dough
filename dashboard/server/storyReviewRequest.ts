@@ -1,6 +1,6 @@
 // The review read's adapter: the query's exact shape becomes one typed read.
 // Refusals of that shape answer here; the kept records decide the rest in the
-// handler (`storyReview` in `./storyReviewSnapshot.ts`).
+// handler (`storyReview` in `./storyReview.ts`).
 import type {
   PublishedSessionReviewRead,
   SessionReviewRead,

@@ -27,12 +27,10 @@ Still ahead:
   defines when a click first reveals an offscreen selection.
 - **Sessions and Compare.** A story opens as a whole. Choose individual
   refinements, execution sessions or follow-ups, including several together.
-  **All changes** reads their net contribution. **Landed runs** uses captured
-  landings, grouped under the same sessions picker. Explain a missing or
-  inseparable comparison in place.
-  In Story Branch Mode, **Include merged changes** widens the comparison to
-  include incoming trunk changes. With it off, retain the branch's own merge
-  edits and flag mixed resolutions. Direct trunk work uses its recorded ranges.
+  Review the published story comparison or **Landed runs** from exact
+  accepted landing pairs. Where the published comparison supports it,
+  **Include merged changes** includes incoming trunk changes. Explain missing
+  published evidence or uncertain attribution in place.
 - **Files.** A toolbar button shows or hides the file sidebar. The first
   sidebar row holds the **Home** icon, **Intent only**, and **Changes only**,
   in that order, together on mobile. Intent only shows the configured Intent

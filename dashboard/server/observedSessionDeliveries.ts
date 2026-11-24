@@ -63,8 +63,6 @@ export async function* decideObservedDeliveries(
       sessionKey(record.session),
       record.launchedAt,
       result.doneAt,
-      result.base,
-      result.revision,
       result.committedTip,
     ]);
     if (checked.has(witness)) continue;

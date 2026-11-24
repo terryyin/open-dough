@@ -6,7 +6,7 @@ import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { launchExactReads } from "../../server/launchExactReads.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { storyReviewResponse } from "../../server/storyReviewSnapshot.ts";
+import { storyReviewResponse } from "../../server/storyReview.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import {
   storyReviewFileResponse,

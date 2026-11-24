@@ -6,7 +6,7 @@ import {
   appendConfiguredProject,
   mountProjectConfiguration,
 } from "../../server/projectConfiguration.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { storyReview } from "../../server/storyReview.ts";
 import { ordinaryTrunkModeCompletedHistory } from "../../test-support/support/completedStoryHistory.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";

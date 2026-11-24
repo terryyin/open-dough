@@ -7,7 +7,7 @@ import {
   reviewedFileDiff,
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { storyReview } from "../../server/storyReview.ts";
 import {
   appendConfiguredProject,
   mountProjectConfiguration,

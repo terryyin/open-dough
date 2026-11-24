@@ -27,7 +27,7 @@ import {
   storyReviewFileResponse,
   storyReviewFileTextResponse,
   storyReviewResponse,
-} from "./storyReviewSnapshot.ts";
+} from "./storyReview.ts";
 import { completedStoryAssociationResponse } from "./completedStoryAssociationAdmission.ts";
 import { withTerminalHandoff } from "./terminalHandoff.ts";
 import {

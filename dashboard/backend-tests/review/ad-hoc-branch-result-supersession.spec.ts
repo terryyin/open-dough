@@ -35,18 +35,15 @@ async function anIsolatedDraft() {
       )
     )[name];
   const pins = () => sessionBranchPins(checkout.integration, record.session);
-  return { baseline: checkout.base, record, commit, pins };
+  return { record, commit, pins };
 }
 
 test("reopening keeps the branch evidence and its pins", async () => {
-  const { baseline, record, commit, pins } = await anIsolatedDraft();
+  const { record, commit, pins } = await anIsolatedDraft();
   const first = await commit("first", 30);
   await markDone(record);
   const originalPins = await pins();
-  expect(originalPins).toMatchObject([
-    { objectId: baseline },
-    { objectId: first },
-  ]);
+  expect(originalPins).toMatchObject([{ objectId: first }]);
 
   await undoDone(record);
 
@@ -55,14 +52,13 @@ test("reopening keeps the branch evidence and its pins", async () => {
     throw new Error("The reopened session is missing.");
   expect(reopened.doneAt).toBeUndefined();
   expect(reopened.branchResult).toMatchObject({
-    base: baseline,
-    revision: first,
+    committedTip: first,
   });
   expect(await pins()).toEqual(originalPins);
 });
 
 test("a newer Done wins when an earlier Done waits after capture", async () => {
-  const { baseline, record, commit, pins } = await anIsolatedDraft();
+  const { record, commit, pins } = await anIsolatedDraft();
   await commit("stale", 30);
   const staleDone = aHeldDone(record);
   const newerDoneAt = minutesAgo(5);
@@ -82,12 +78,9 @@ test("a newer Done wins when an earlier Done waits after capture", async () => {
 
   expect(await keptSession(source, record.session)).toMatchObject({
     doneAt: newerDoneAt,
-    branchResult: { doneAt: newerDoneAt, base: baseline, revision: latest },
+    branchResult: { doneAt: newerDoneAt, committedTip: latest },
   });
-  expect(await pins()).toMatchObject([
-    { objectId: baseline },
-    { objectId: latest },
-  ]);
+  expect(await pins()).toMatchObject([{ objectId: latest }]);
 });
 
 test("deleting a record after branch capture leaves no session or pins when Done settles", async () => {

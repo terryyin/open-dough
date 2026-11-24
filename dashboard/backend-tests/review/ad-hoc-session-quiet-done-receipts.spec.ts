@@ -1,7 +1,7 @@
 // Quiet completions after a recorded receipt: the launch, its accepted
 // reporting attempt and receipt, and the Done sequence from one Done capture
 // case.
-import path from "node:path";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
@@ -63,13 +63,12 @@ async function keepRecordedAttempt(
   return receipt;
 }
 
-test("a quiet report after confirmed native Done keeps the additional commit", async () => {
+test("a quiet report after confirmed native Done keeps the Done mark without pinning unpublished commits", async () => {
   const times = { launched: 60, done: 30 };
   const completion = aReceivedCompletion(minutesAgo(times.done));
   const {
     checkout,
     records: { "default-launch": record },
-    work: { second },
     at,
   } = await aDoneCaptureCase()
     .withWork((at) =>
@@ -77,14 +76,8 @@ test("a quiet report after confirmed native Done keeps the additional commit", a
         .committing("first", { at: at(40) })
         .committing("second", { at: at(20) }),
     )
-    .withCheckoutLaunch("default-launch", times, (launch, { checkout, work }) =>
-      launch
-        .keptSessionCommits({
-          repository: path.join(checkout.integration, ".git"),
-          runs: [{ base: checkout.base, revision: work.first }],
-        })
-        .reportingThrough(dashboardReporting)
-        .completedWith(completion),
+    .withCheckoutLaunch("default-launch", times, (launch) =>
+      launch.reportingThrough(dashboardReporting).completedWith(completion),
     )
     .kept()
     .please();
@@ -106,11 +99,19 @@ test("a quiet report after confirmed native Done keeps the additional commit", a
   expect(rename).not.toHaveBeenCalled();
   expect(await keptSession(source, record.session)).toMatchObject({
     doneAt: received.receivedAt,
-    sessionCommits: { runs: [{ base: checkout.base, revision: second }] },
   });
+  expect(
+    (
+      await git(
+        checkout.integration,
+        "for-each-ref",
+        "refs/open-dough/session-commits",
+      )
+    ).stdout,
+  ).toBe("");
 });
 
-test("retrying the same quiet delivery resumes native Done without repeating its failed capture", async () => {
+test("retrying the same quiet delivery resumes native Done from the recorded receipt", async () => {
   const times = { launched: 60, done: 10 };
   const doneAt = minutesAgo(times.done);
   const completion = aReceivedCompletion(doneAt);
@@ -123,7 +124,6 @@ test("retrying the same quiet delivery resumes native Done without repeating its
     .withCheckoutLaunch("default-launch", times, (launch) =>
       launch
         .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
-        .sessionCommitsFailedAt(doneAt)
         .reportingThrough(dashboardReporting)
         .completedWith(completion),
     )
@@ -147,7 +147,7 @@ test("retrying the same quiet delivery resumes native Done without repeating its
 
   expect(rename).toHaveBeenCalledTimes(1);
   const kept = await keptSession(source, record.session);
-  expect(kept).toMatchObject({ doneAt, sessionCommitsFailedAt: doneAt });
+  expect(kept).toMatchObject({ doneAt });
   expect(kept?.doneProblem).toBeUndefined();
   expect(kept?.sessionCommits).toBeUndefined();
 });

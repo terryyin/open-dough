@@ -3,13 +3,12 @@
 // using only the original launch's repository. Nothing is kept or pinned.
 import path from "node:path";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { commitIdSchema } from "../src/launchLanding.ts";
 import type { SessionBranchEntry } from "../src/sessionBranchResult.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { readBranchWorkspace } from "./sessionBranchCapture.ts";
 import { branchTrunk, observeBranchTrunk } from "./sessionBranchAttribution.ts";
-import { resolvedCheckout } from "./sessionCommitsCapture.ts";
+import { resolvedCheckout } from "./sessionCheckout.ts";
 
 export type BranchPlace = { workspace: string; branch: string };
 
@@ -85,21 +84,8 @@ async function verifyRegisteredWorkspace(
     throw new Error("This branch and path are not a registered worktree pair.");
 }
 
-async function defaultTipOf(record: LaunchRecord, repository: string) {
-  const ref = record.defaultStart?.branch;
-  if (ref === undefined) return undefined;
-  const tip = await runGit(["rev-parse", "--verify", `${ref}^{commit}`], {
-    cwd: repository,
-    maxBuffer: defaultGitOutputLimit,
-    signal: AbortSignal.timeout(30_000),
-  }).catch(() => undefined);
-  const parsed = commitIdSchema.safeParse(tip?.stdout.trim());
-  return parsed.success ? parsed.data : undefined;
-}
-
-// Answers the entry `record` kept at the requested place, or captures the
-// registered worktree of its repository on a branch other than `trunkRef`.
-// The capture may write the working tree object to Git.
+// Returns a kept entry at the requested place, or reads the registered
+// branch worktree's committed tip and observes the repository's trunk.
 export async function proposeBranchEntry(
   trunkRef: string,
   record: LaunchRecord,
@@ -118,9 +104,8 @@ export async function proposeBranchEntry(
     await verifyRegisteredWorkspace(repository, place);
     const located = { repository, ...place };
     const trunk = branchTrunk("origin", trunkRef);
-    const [{ committedTip, tree }, defaultTip, observed] = await Promise.all([
+    const [committedTip, observed] = await Promise.all([
       readBranchWorkspace(located),
-      defaultTipOf(record, repository),
       observeBranchTrunk(trunk, {
         cwd: repository,
         maxBuffer: defaultGitOutputLimit,
@@ -129,12 +114,12 @@ export async function proposeBranchEntry(
     ]);
     return {
       kept: false,
-      entry: { ...located, committedTip, tree, defaultTip, trunk: observed },
+      entry: { ...located, committedTip, trunk: observed },
     };
   } catch {
     throw new RefusedRequest(
       409,
-      "This checkout does not hold the named branch in the launch's registered repository, or its entry state could not be captured.",
+      "This checkout does not hold the named branch in the launch's registered repository, or its committed tip could not be read.",
     );
   }
 }

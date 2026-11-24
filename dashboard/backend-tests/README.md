@@ -38,7 +38,7 @@ only MakeMe builders to `../test-support/`.
 
 The ad hoc review family is the second reference, and adds three rules.
 A handler takes the state it reads as typed input, and only its adapter
-reads process-wide stores: `storyReview` (`dashboard/server/storyReviewSnapshot.ts`)
+reads process-wide stores: `storyReview` (`dashboard/server/storyReview.ts`)
 and `reviewedFileDiff` and `reviewedFileText`
 (`dashboard/server/storyReviewFileResponse.ts`) take a `ReviewInput`
 (`dashboard/server/storyReviewInput.ts`) that carries the published source
@@ -51,14 +51,13 @@ configured Git. `review/ad-hoc-review-request.spec.ts` exercises standalone
 launch routes and their subject refusals with an isolated kept store.
 The branch result and its handoff are independent producer tests:
 `review/ad-hoc-branch-result-supersession.spec.ts`,
-`review/ad-hoc-branch-worktree-result.spec.ts`,
 `review/ad-hoc-session-branch-entry.spec.ts` and
 `review/ad-hoc-branch-cursor-recovery.spec.ts` call `setRecordDoneAt`,
 `recordSessionBranchEntry`, `replaceKeptSession`, `bindRecord` and
 `deleteRecord` in this process on MakeMe kept records and real Git. A
 declared branch is a MakeMe launch record composed with its entry at the
 case's base through `withDeclaringLaunch`; the rest of the arrangement comes
-from the Done capture helpers below.
+from the Done fixture below.
 [`branch-entry-proposal.spec.ts`](review/branch-entry-proposal.spec.ts)
 checks that composed entry against the full entry `proposeBranchEntry`
 proposes for an open launch on the same fresh worktree.
@@ -67,14 +66,14 @@ proposes for an open launch on the same fresh worktree.
 and
 [`ad-hoc-session-quiet-done-receipts.spec.ts`](review/ad-hoc-session-quiet-done-receipts.spec.ts)
 call typed completion delivery and Done marks and read the saved session.
-[`ad-hoc-session-commits-pending-done.spec.ts`](review/ad-hoc-session-commits-pending-done.spec.ts)
-checks stale review and capture at the resolved Git tip.
+[`done-kept-session-commits.spec.ts`](review/done-kept-session-commits.spec.ts)
+checks Done leaves the working tree and unpublished commit intact.
 [`kept-commits-release.spec.ts`](review/kept-commits-release.spec.ts) calls the
 kept-record store for deletion and expiry, and
 [`default-launch-start-facts.spec.ts`](review/default-launch-start-facts.spec.ts)
 reads the start from the execution checkout.
 
-The Done capture family states each case as one value from
+The Done family states each case as one value from
 [`aDoneCaptureCase()`](support/doneCaptureCaseBuilder.ts): a checkout whose
 history predates the case, its named launches with their times, and dated
 `makeMe.aCheckoutWork`, in minutes before the case's clock (`at`). Its
@@ -82,8 +81,8 @@ machine-store effects, such as `keep` and `markDone`, stay in
 [`doneCaptureCase.ts`](support/doneCaptureCase.ts).
 Compose an already-Done launch with `makeMe.aLaunchRecord` when the Done
 producer is outside the case. Mark Done through a private launch store and
-[`setRecordDoneAt`](../server/recordDoneAt.ts) when proving capture or
-settlement. Observe its saved record and Git pins.
+[`setRecordDoneAt`](../server/recordDoneAt.ts) when proving a delivery candidate or Done settlement. Observe the saved
+record, checkout and delivery refs.
 
 Delivery observation cases pass composed Done records to
 [`observedSessionDeliveries`](../server/observedSessionDeliveries.ts), with

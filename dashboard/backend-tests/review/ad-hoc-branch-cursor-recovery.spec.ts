@@ -94,8 +94,6 @@ for (const [reason, remove] of Object.entries(removals)) {
     await keepBranchResultRefs(other.session, {
       repository: checkout.integration,
       doneAt: at(30),
-      base: checkout.base,
-      revision: checkout.base,
       committedTip: checkout.base,
     });
     const otherPins = await sessionBranchPins(
@@ -134,7 +132,7 @@ for (const [reason, remove] of Object.entries(removals)) {
     const branch = saved && branchResultAtDone(saved);
     if (branch === undefined)
       throw new Error("Missing the kept branch result.");
-    expect(branch).toMatchObject({ base: checkout.base, revision: latest });
+    expect(branch).toMatchObject({ committedTip: latest });
     expect(
       await sessionBranchPins(checkout.integration, original.session),
     ).toContainEqual(expect.objectContaining({ objectId: latest }));
@@ -203,5 +201,5 @@ test("a stale native replacement retains a branch identified while it was pendin
   const branchResult = saved && branchResultAtDone(saved);
   if (branchResult === undefined)
     throw new Error("Missing the kept branch result.");
-  expect(branchResult.revision).toBe(entered);
+  expect(branchResult.committedTip).toBe(entered);
 });
