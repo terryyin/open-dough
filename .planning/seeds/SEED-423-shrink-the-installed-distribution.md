@@ -44,23 +44,54 @@ Dashboard and installed scripts share.
 **Identity:** SEED-423#notify-claude-code-of-ci-through-one-path
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/809-notify-claude-code-of-ci-through-one-path/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"dc43b09001bbdec3f1c08ad2578be298fc6ab2ed88845d9b605af0a9ce74fb9b","plan":"f8557b37cc41fe8f6d48bef3fcfb9f7b3be7129455bb812c8a0885d8b0e82569"}}
 ```
 
-- **For / why.** A developer running an execution in Claude Code gets CI
-  results through the path every host shares, and the installation carries no
-  third notification mechanism.
-- **Evaluation.** The background handoff scripts (`ci-background-handoff`,
-  `-hook`, `-waiter`, `-state`, `-session`, 478 lines), its Stop hook entry
-  and `ci-background-handoff.md` are gone. A Claude Code execution still
-  learns of a CI failure after its turn ends.
-- **Value / learning.** Guidance calls the handoff an explicit alternative
-  to `complete-revision`, limited to ten minutes, with delivery reported as
-  uncertain.
-- **Effort hypothesis.** M, medium confidence. The risk is a Claude Code
-  session that ends before CI finishes.
-- **Depends on.** None.
-- **Safe stopping point.** Complete on its own.
+**Goal.** A developer running an execution in Claude Code gets CI results
+through the same completion operation and hook bridge as Codex and Cursor, and
+an Open Dough installation no longer carries the live-Claude background
+handoff. This serves the seed's goal: installed code that guidance actually
+needs. The handoff is an opt-in alternative to `complete-revision`, bounded to
+ten minutes, whose own status reports delivery as uncertain.
+
+**Scope.**
+
+- Remove the background handoff: the `ci-background-handoff`, `-hook`,
+  `-waiter`, `-state` and `-session` scripts, the asyncRewake Stop entry in
+  the Claude hook asset, `ci-background-handoff.md`, the hook bridge's
+  deference to a pending handoff, and every guidance mention that offers it,
+  in `ci-completion-wait.md`, `ci-notify-hosts.md` and `finish-or-stop.md`.
+  The shared completion operation then applies to Claude Code as written.
+- An update of an existing installation removes the former, unchanged
+  asyncRewake Stop entry from `.claude/settings.json`, so no installed Stop
+  hook names a script that is gone. Every other handler and local setting
+  stays as it was.
+- Remove the tests and fixtures for the handoff and its hook installation,
+  and the maintainer page `docs/maintainer/ci-background-delivery.md`.
+  Historic finding evidence and recorded native streams that mention the
+  handoff stay as records.
+- Scope limit: no new wake-up mechanism. A Claude Code turn that ends with
+  CI still pending learns of a failure at its next interaction, as Codex and
+  Cursor do.
+
+**Key examples.**
+
+1. Claude Code execution, Story Branch Mode, final handoff, CI finishes
+   within the completion bound → the coordinator runs `complete-revision`
+   and handles its success or failure receipt in the same turn; no guidance
+   offers a background alternative.
+2. Same, but CI is still running at the bound → the receipt reports
+   `pending` with its resumable handoff, the observer stays, and the turn
+   ends without wrap-up. CI then fails → at the developer's next message to
+   that session, the ordinary PostToolUse or Stop hook adds the failure once
+   and the coordinator follows the repair procedure.
+3. A project installed with the asyncRewake Stop entry, unchanged, runs
+   Open Dough update → that entry is gone, the synchronous `ci-host-hook`
+   Stop and PostToolUse entries and unrelated handlers remain, and ending a
+   Claude turn produces no hook error.
+4. A fresh install for Claude Code → `.claude/settings.json` registers no
+   asyncRewake hook, and `Distribution/src` contains no `ci-background`
+   file.
 
 <a id="trim-the-product-backlog-command-to-guided-operations"></a>
 
