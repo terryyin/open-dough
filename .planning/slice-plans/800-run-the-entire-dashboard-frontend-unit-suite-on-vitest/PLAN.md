@@ -19,7 +19,7 @@ Excluded: the backend group's own Playwright runner, which belongs to
 the separately scheduled backend migration, and E2E. Evaluation case
 overlays that run against a pinned revision are also excluded. The story
 starts when all recorded prerequisites are satisfied, including
-[SEED-426](../../seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
+[SEED-432](../../seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions)
 removing the remaining standalone legacy frontend cases from trunk.
 
 ## Current decisions

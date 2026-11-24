@@ -95,7 +95,7 @@ field. Existing file Follow up accepts a story's published completion or a
 landed-run reference. The published-session review instead identifies a UUID
 and a recorded range. Reuse the published comparison and association work in
 [SEED-427](SEED-427-review-published-changes.md#review-published-changes) and
-[SEED-426](SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
+[SEED-432](SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions)
 for their respective review and launch responsibilities.
 
 #### Scope decision

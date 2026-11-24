@@ -28,7 +28,7 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Start ad hoc work under a story](seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story) — SEED-426#start-ad-hoc-work-under-a-story ([plan](slice-plans/804-start-ad-hoc-work-under-a-story/PLAN.md))
+- [Admit ad hoc work through the installed workflow](seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story) — SEED-426#start-ad-hoc-work-under-a-story ([plan](slice-plans/804-start-ad-hoc-work-under-a-story/PLAN.md))
 - [Prove landed CI wall-time history through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof) — SEED-413#renovate-landed-ci-backend-proof ([plan](slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md))
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context ([plan](slice-plans/808-choose-clear-follow-up-context/PLAN.md))
 - [Reduce Codex wakes during supplier watches](seeds/SEED-431-reduce-codex-wakes-during-supplier-watches.md#reduce-codex-wakes-during-supplier-watches) — SEED-431#reduce-codex-wakes-during-supplier-watches ([plan](slice-plans/809-reduce-codex-wakes-during-supplier-watches/PLAN.md))
@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions
 - [Use one managed install layout](seeds/SEED-423-shrink-the-installed-distribution.md#use-one-managed-install-layout) — SEED-423#use-one-managed-install-layout
 - [Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
