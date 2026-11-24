@@ -236,3 +236,10 @@ Disposition: excluded "Cases, assertions, arrangement and the production entry s
   backend group is not a local gate for this change: only the listed
   files change, and no support module or production code does. Hosted CI
   runs the group after publication.
+
+## Execution complete
+
+Product advice: Keep the existing backend renovation order. The later
+families already own the six retained specs. The paired timing shows
+less summed case time and a longer mixed-engine command. Preserve that
+measurement for the eventual Playwright backend runner retirement.
