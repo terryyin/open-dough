@@ -8,14 +8,10 @@
 Open published story and session comparisons directly from Review changes and
 Intent. The selected comparison supplies the file list, diff, source and Proof
 context. Switch comparisons only when there is a meaningful published choice.
-The seed owns the examples, removals and follow-up boundaries. Session startup,
-Done, workspace protection, authorized publication, landing and recovery retain
-their workflow owners. Session selection inside a story, combining ranges,
-expired-session recovery and new file or bookmark navigation belong to their
-existing follow-ups. Use the dashboard's existing Git access for these slices.
+The seed owns the examples and follow-up boundaries. Startup, Done, workspace
+protection, publication, landing and recovery keep their workflow owners.
 [SEED-428](../../seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
-owns the Review repository cutover, shared fetches, offline review, and reuse
-across file reads.
+owns the Review repository cutover, shared fetches, offline review, and reuse.
 
 ## Existing solution and direction
 
@@ -200,6 +196,24 @@ and plan 611, and scrub retired assumptions in the SEED-420
 example. Keep useful history. Checkout evidence `slice-7-report.md` records
 the verified Done, landing, and touch replays.
 
+## Execution complete
+
+Product advice: Keep the queued Review repository and touch-review follow-ups.
+The published comparison proof supports their current scope.
+
+## Delivered measurements
+
+The published candidate `d2761940` against the baseline below removes 10,626
+lines overall. Matching Playwright and Vitest collections give 359 → 227
+cases across the affected specs.
+
+| Area | Tracked files | Lines |
+| --- | ---: | ---: |
+| Product and configuration | 124 → 102 | 14,812 → 11,812 |
+| Specs | 135 → 95 | 19,783 → 13,232 |
+| Test support | 49 → 43 | 6,261 → 5,064 |
+| Documentation and temporary planning records | 5 → 6 | 744 → 866 |
+
 ## Verification and delivery
 
 - Follow the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
@@ -225,26 +239,11 @@ the verified Done, landing, and touch replays.
 
 ## Current decisions and plan review
 
-The published pre-execution baseline is
-`f5f354ab320dfea79b8c02b10125809e2e06fc2a`. This Story Branch Mode
-execution uses `codex/review-published-changes` in the owned
-`review-published-changes` worktree, publisher
-`dashboard-territory.local-open-dough`, with `origin/main` as the
-integration target. GitHub Actions `ci.yml` uses coordinator `yui-review-published-427`
-and stream `/tmp/dough-ci-501/watch-ou4lkf` (PID 64952, Codex cell `g20:10`,
-shell session 71952).
+Baseline `f5f354ab320dfea79b8c02b10125809e2e06fc2a`. Publisher
+`dashboard-territory.local-open-dough` owns `codex/review-published-changes`
+in the matching worktree. Story Branch Mode integrates to `origin/main`.
+GitHub Actions `ci.yml` coordinator `yui-review-published-427` uses
+`/tmp/dough-ci-501/watch-ou4lkf` (PID 64952, cell `g20:10`, session 71952).
 
-The ordered slices share one model: a configured project supplies attributable
-published endpoints and files for a story or session. Merge attribution and
-exact accepted landings account for different published facts. The temporary
-workspace reader ends in 4, and all local session review producers
-end in 7. Apply the file-size check before edits. The completion E2E and typed
-readers keep their existing boundaries; retire large local-only files as units
-when their consumers are gone. In any shared oversized view, keep Proof
-composition and comparison/file navigation in their existing owner modules,
-using the deletion to shed local variants rather than adding wrappers.
-
-After slice 2, the workspace route and controls trace reached 58 files. The
-Trunk publication read and retirement need independent proof, so slices 3 and
-4 now have separate delivery boundaries. The published comparison model and
-story scope are unchanged.
+The workspace route and controls trace reached 58 files after slice 2. Slices
+3 and 4 separate the published Trunk read from retiring the workspace reader.
