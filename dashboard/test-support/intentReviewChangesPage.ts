@@ -140,8 +140,8 @@ class IntentReviewChanges {
   }
 
   // Preserve the real snapshot response for assertions about Git's inputs.
-  async refreshAndAnswer() {
-    const answer = await reviewAfter(this.page, this.#refresh);
+  async refreshAndAnswer(using: "mouse" | "keyboard" = "mouse") {
+    const answer = await reviewAfter(this.page, this.#refresh, using);
     return new IntentReviewChanges(this.page, answer);
   }
 }

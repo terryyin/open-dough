@@ -188,6 +188,9 @@ export function StoryCard({
             title={entry.title}
           />
           <StoryReviewAction
+            taken={work.taken.some(
+              ({ identity }) => identity === entry.identity,
+            )}
             records={launches.records}
             workspaces={launches.workspaces}
             sourceId={sourceId}

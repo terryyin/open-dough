@@ -93,6 +93,7 @@ export const storyReviewSchema = z
     }),
     z.object({
       kind: z.literal("published-taken"),
+      mode: z.enum(["story-branch", "trunk"]),
       head: objectIdSchema,
       agent: z.string().min(1),
       remote: z.string().min(1),

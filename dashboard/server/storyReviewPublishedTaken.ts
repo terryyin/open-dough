@@ -25,14 +25,14 @@ const unavailable = (explanation: string): PublishedTakenReview => ({
   explanation,
 });
 
-// A named head is usable only while the recorded branch still contains it.
+// A named head is usable only while the published target still contains it.
 // Git may already hold the object locally, which does not establish publication.
 export async function publishedTakenReview(
   source: PublishedSource,
   identity: string,
   signal: AbortSignal,
   namedHead?: string,
-): Promise<PublishedTakenReview | undefined> {
+): Promise<PublishedTakenReview> {
   try {
     const directory = executionCheckout(source).path;
     const call = { cwd: directory, signal, maxBuffer: 64 * 1024 * 1024 };
@@ -46,16 +46,20 @@ export async function publishedTakenReview(
         "The execution checkout no longer points to this project's Git root.",
       );
     const taken = await takenStoryClaim(source, identity, call);
-    if (taken.kind === "absent") return undefined;
+    if (taken.kind === "absent")
+      return unavailable(
+        "Origin does not record an execution claim for this Taken story.",
+      );
     if (taken.kind === "unavailable") return taken;
     const { mode, branch, trunk, claim, storyStart, agent } = taken.facts;
-    if (mode !== "story-branch") return undefined;
-    if (branch === undefined)
+    const target = mode === "trunk" ? source.ref : branch;
+    if (target === undefined)
       return unavailable("The Taken story does not record a published branch.");
-    const tip = await publishedTakenBranchTip(branch, call);
+    const tip =
+      mode === "trunk" ? trunk : await publishedTakenBranchTip(target, call);
     if (tip === undefined)
       return unavailable(
-        `The recorded story branch ${branch} is not published on origin.`,
+        `The recorded story branch ${target} is not published on origin.`,
       );
 
     const history = publishedStoryHistory(call);
@@ -66,13 +70,15 @@ export async function publishedTakenReview(
         );
       if (!(await history.isAncestor(namedHead, tip)))
         return unavailable(
-          "The named comparison is not contained in the published story branch.",
+          mode === "trunk"
+            ? "The named comparison is not contained in published trunk."
+            : "The named comparison is not contained in the published story branch.",
         );
     }
     const head = namedHead ?? tip;
     if (!(await history.isAncestor(claim, head)))
       return unavailable(
-        "The published story branch does not contain its recorded Take.",
+        "The published target does not contain the story's recorded Take.",
       );
     const published = await publishedStoryEvidence(
       { identity, profileDirectory: agentProfileDirectoryOf(source) },
@@ -80,7 +86,9 @@ export async function publishedTakenReview(
       history,
       agent,
     );
-    const base = await git("merge-base", head, trunk);
+    const includesTrunk =
+      mode === "story-branch" &&
+      (await git("merge-base", head, trunk)) !== claim;
     const compared = await publishedStoryComparison(
       {
         storyStart,
@@ -88,16 +96,17 @@ export async function publishedTakenReview(
         owningMerges: new Set(published.merges),
       },
       head,
-      base === claim ? undefined : storyStart,
+      includesTrunk ? storyStart : undefined,
       call,
     );
     if ("explanation" in compared) return unavailable(compared.explanation);
     return {
       kind: "published-taken",
+      mode,
       agent,
       head,
       remote: "origin",
-      target: branch,
+      target,
       ...compared,
     };
   } catch (error) {

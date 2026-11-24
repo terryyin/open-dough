@@ -1,4 +1,10 @@
 import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
+import {
+  fileReadingTab,
+  proofRegion,
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { intentReviewFiles } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { chooseStoryTab } from "../../dashboard/test-support/intentModePage.ts";
 // Taken adapter stories show a completed provisional ancestor while a
 // newer attempt is running, without an Actions read or a branch-head API
 // request for the comparison itself.
@@ -28,7 +34,7 @@ import {
   writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
-for (const mode of ["story-branch"] as readonly ("story-branch" | "trunk")[]) {
+for (const mode of ["story-branch", "trunk"] as const) {
   test(`a Taken adapter ${mode} story compares the completed ancestor of its running tip`, async ({
     page,
     origin,
@@ -123,7 +129,7 @@ for (const mode of ["story-branch"] as readonly ("story-branch" | "trunk")[]) {
     ]);
 
     answer([ancestor, running]);
-    const { panel } = await selectTakenStoryForCiComparison(page);
+    const { intent, panel } = await selectTakenStoryForCiComparison(page);
     const row = panel.getByRole("row").filter({
       has: page.getByRole("rowheader", {
         name: mode === "trunk" ? "Provisional" : "Branch",
@@ -141,5 +147,18 @@ for (const mode of ["story-branch"] as readonly ("story-branch" | "trunk")[]) {
     await expect(comparisonReading(panel).identities.last()).toHaveText(
       notLandedYetExplanation,
     );
+    if (mode === "trunk") {
+      await test.step("When I open the published file's Proof", async () => {
+        await chooseStoryTab(intent, "Changes");
+        await intentReviewFiles(intent).choose("Added src/trunk-story.ts");
+        await fileReadingTab(intent, "Proof").click();
+      });
+      await test.step("Then its Proof names the measured ancestor and explains the file's gap", async () => {
+        await expect(proofRegion(intent)).toContainText(shortSha(completed));
+        await expect(proofRegion(intent)).toContainText(
+          "No file-level CI evidence for this file.",
+        );
+      });
+    }
   });
 }

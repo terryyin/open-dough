@@ -56,9 +56,9 @@ isolated Git origin and dashboard fixture.
 
 | Consuming operation | Observation and result | Execution coverage |
 | --- | --- | --- |
-| Done opens the attributed completion and literal file diff | `npm run --silent test:e2e -- e2e/review/story-review-completed.spec.ts e2e/sessions/recently-done-published-sessions.spec.ts --workers=1 --reporter=list` passed all four cases. The story reopened its original pair after trunk advanced. Session reads used recorded ranges, omitted interleaved work and showed recorded uncertainty. | Slices 1 and 5 make this published evidence the default for the corresponding reader. |
-| A first publication receipt retains the actual accepted landing pair | `npm run --silent test:e2e -- e2e/review/story-review-story-branch-landed.spec.ts --workers=1 --reporter=list` passed. Real integration and retirement left the earlier capture and execution landing selectable, including the actual resolution and fixed pair after further trunk movement. | Slice 4 keeps the accepted pair and drops review's dependency on the captured repository. |
-| The published UUID bounds subsequent file reads | `npm run --silent test:dashboard:backend -- dashboard/backend-tests/review/published-session-review.spec.ts --workers=1 --reporter=dot` passed all six cases, including a real recorded-pair diff and refusal of a different pair or file. | Slice 5 keeps this ownership through the normal published review and file handlers. |
+| Done opens the attributed completion and literal file diff | `npm run --silent test:e2e -- e2e/review/story-review-completed.spec.ts e2e/sessions/recently-done-published-sessions.spec.ts --workers=1 --reporter=list` passed all four cases. The story reopened its original pair after trunk advanced. Session reads used recorded ranges, omitted interleaved work and showed recorded uncertainty. | Slices 1 and 6 make this published evidence the default for the corresponding reader. |
+| A first publication receipt retains the actual accepted landing pair | `npm run --silent test:e2e -- e2e/review/story-review-story-branch-landed.spec.ts --workers=1 --reporter=list` passed. Real integration and retirement left the earlier capture and execution landing selectable, including the actual resolution and fixed pair after further trunk movement. | Slice 5 keeps the accepted pair and drops review's dependency on the captured repository. |
+| The published UUID bounds subsequent file reads | `npm run --silent test:dashboard:backend -- dashboard/backend-tests/review/published-session-review.spec.ts --workers=1 --reporter=dot` passed all six cases, including a real recorded-pair diff and refusal of a different pair or file. | Slice 6 keeps this ownership through the normal published review and file handlers. |
 | Taken claims reach published CI evidence | `npm run --silent test:dashboard:backend -- dashboard/backend-tests/intent/ci-comparison-taken.spec.ts --workers=1 --reporter=dot` passed all three cases. | Slices 2 and 3 establish the new review behavior with real Git origin and keep CI's separate measured-revision assertions. |
 
 Returning an empty `files` list from `publishedSessionReview` in a scratch edit
@@ -109,24 +109,37 @@ Accepted proof: isolated origin and Chromium verified the owned merge, wider
 comparison, push and Refresh. Typed reads pinned the prior published head and
 refused unrelated paths and unpublished objects. See `slice-2-report.md`.
 
-### 3. Read a Taken Trunk story and remove the workspace comparison
+### 3. Read a Taken Trunk story's published changes
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: A Taken Trunk story with interleaved foreign commits opens its own
 published diff. The Overview and file Proof identify the actual measured build
 or its gap. Exercise reading the published comparison at touch width through
 the existing journey and preserve file selection and focus on refresh.
 
 Reuse the published claim/attribution for trunk and use the same default review
-and file-reading flow as 2. Remove the workspace snapshot/range API, raw commit
-and worktree selection, uncommitted CI message and setup, from route admission
-through rendering. Retire their dedicated specs outright. Keep meaningful
-published choices in the shared chooser, including the landing from 4. Move
-any surviving layout or file proof onto a published comparison in existing
-specs, with each distinct assertion owned once.
+and file-reading flow as 2. Rehome surviving touch, refresh and file Proof
+observations into the published journey. Retire end-to-end assertions that
+depended on Taken default opening unpublished Trunk changes.
 
-### 4. Choose an accepted landing in the published review
+Accepted proof: published Trunk attribution, exact prior reads, touch Refresh,
+measured Proof and Done transition passed. See `slice-3-report.md`.
+
+### 4. Retire the remaining workspace story comparison
+
+Type: Behavior
+Status: planned
+Proof: Published Taken and Done reviews still open their selected files, and
+the old workspace and range entry points offer no unpublished comparison.
+
+Remove the workspace snapshot/range API, raw commit and worktree selection,
+uncommitted CI hints and related setup from route admission through rendering.
+Retire the dedicated specs. Move independent file and layout observations to
+existing published journeys. Preserve launch controls, existing explicit
+landing selection and the separate session review read until slices 5 and 6.
+
+### 5. Choose an accepted landing in the published review
 
 Type: Behavior
 Status: planned
@@ -143,7 +156,7 @@ existing prepare/accept/retry workflow and retain only the state it consumes.
 Consolidate Published completion and Landed runs selection into the shared
 chooser. Remove fallback readers whose only purpose was local captured review.
 
-### 5. Open a Done session's recorded published changes
+### 6. Open a Done session's recorded published changes
 
 Type: Behavior
 Status: planned
@@ -161,7 +174,7 @@ and their user-facing claims with the published outcome or its evidence gap.
 Remove local-only proof and comparison keys. No new session records or recovery
 methods are needed to read existing published evidence.
 
-### 6. Finish a session without capturing unpublished review data
+### 7. Finish a session without capturing unpublished review data
 
 Type: Behavior
 Status: planned
@@ -222,13 +235,14 @@ session 71952).
 The ordered slices share one model: a configured project supplies attributable
 published endpoints and files for a story or session. Merge attribution and
 exact accepted landings account for different published facts. The temporary
-workspace route for Trunk Mode ends in 3, and all local session review producers
-end in 6. Apply the file-size check before edits. The completion E2E and typed
+workspace reader ends in 4, and all local session review producers
+end in 7. Apply the file-size check before edits. The completion E2E and typed
 readers keep their existing boundaries; retire large local-only files as units
 when their consumers are gone. In any shared oversized view, keep Proof
 composition and comparison/file navigation in their existing owner modules,
 using the deletion to shed local variants rather than adding wrappers.
 
-Slice-plan refinement was not needed. Each slice migrates one reading or
-completion boundary and owns its proof and associated deletion. No remaining
-slice-specific concern was identified.
+After slice 2, the workspace route and controls trace reached 58 files. The
+Trunk publication read and retirement need independent proof, so slices 3 and
+4 now have separate delivery boundaries. The published comparison model and
+story scope are unchanged.

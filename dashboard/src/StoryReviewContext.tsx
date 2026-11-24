@@ -24,7 +24,7 @@ export function reviewDescription(review: StoryReview | undefined) {
   if (review?.kind === "published")
     return "Read-only: this completed story's fixed changes from published completion and execution history.";
   if (review?.kind === "published-taken")
-    return "Read-only: changes attributed to this story on its published branch.";
+    return `Read-only: changes attributed to this story on ${publishedTakenScope(review)}.`;
   if (reviewsPublishedSession(review)) return publishedSessionDescription;
   if (review?.kind === "session-commits") return sessionCommitsDescription;
   if (review?.kind === "branch-result")
@@ -34,6 +34,12 @@ export function reviewDescription(review: StoryReview | undefined) {
   return reviewsLanding(review)
     ? "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision."
     : "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed.";
+}
+
+export function publishedTakenScope(
+  review: Extract<StoryReview, { kind: "published-taken" }>,
+) {
+  return review.mode === "trunk" ? "published trunk" : "its published branch";
 }
 
 export function ReviewContext({
@@ -72,7 +78,11 @@ export function ReviewContext({
   if (review?.kind === "published-taken")
     return (
       <div>
-        <h3>Published story branch</h3>
+        <h3>
+          {review.mode === "trunk"
+            ? "Published trunk"
+            : "Published story branch"}
+        </h3>
         <p>
           {review.agent} · {reviewTargetName(review)}
         </p>

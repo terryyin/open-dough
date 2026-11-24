@@ -58,14 +58,14 @@ export async function admitReviewedFile(
       publishedHead,
     );
     if (
-      review?.kind !== "published-taken" ||
+      review.kind !== "published-taken" ||
       !belongsOnPublishedStory(review, file)
     )
       throw new RefusedRequest(
         409,
-        review?.kind === "unavailable"
+        review.kind === "unavailable"
           ? review.explanation
-          : "The file or comparison does not belong to this published branch head.",
+          : "The file or comparison does not belong to this published head.",
       );
     return { repository: executionCheckout(source).path, ...file };
   }

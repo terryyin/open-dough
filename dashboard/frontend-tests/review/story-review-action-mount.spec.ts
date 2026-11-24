@@ -165,13 +165,13 @@ test.each([
   },
 );
 
-test.each(["Backlog", "Taken"] as const)(
-  "a %s card with no workspace offers no Review changes",
-  async (column) => {
-    const card = await mountCard(column, sources.none());
-    await expect
-      .element(inspection(card).getByRole("button", { name: "Inspect story" }))
-      .toBeVisible();
-    await expect.element(reviewChanges(card)).not.toBeInTheDocument();
-  },
-);
+test("a Backlog card with no workspace offers no Review changes", async () => {
+  const card = await mountCard("Backlog", sources.none());
+  await expect.element(reviewChanges(card)).not.toBeInTheDocument();
+});
+
+test("a Taken card with no workspace opens its published Review changes", async () => {
+  const card = await mountCard("Taken", sources.none());
+  await reviewChanges(card).click();
+  await expectChangesOpened();
+});

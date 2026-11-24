@@ -7,7 +7,7 @@ import {
 import { shortRevision } from "./publishedWork.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
-import { ReviewContext } from "./StoryReviewContext.tsx";
+import { publishedTakenScope, ReviewContext } from "./StoryReviewContext.tsx";
 import { KeptPublishedCommits } from "./StoryReviewFeedback.tsx";
 
 // The facts of the comparison Intent is currently showing.
@@ -58,7 +58,11 @@ export function EmptyHistoricalContext({
   if (review?.kind === "landed") return <p>{emptyLandedReview}</p>;
   if (review?.kind === "published") return <p>{emptyPublishedReview}</p>;
   if (review?.kind === "published-taken")
-    return <p>No changes attributed to this story on its published branch.</p>;
+    return (
+      <p>
+        No changes attributed to this story on {publishedTakenScope(review)}.
+      </p>
+    );
   return null;
 }
 

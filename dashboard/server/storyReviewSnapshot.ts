@@ -60,12 +60,7 @@ export async function storyReview(
     )
       throw new RefusedRequest(400, "The Taken review request is malformed.");
     const { source, identity } = input.read.subject;
-    const published = await publishedTakenReview(
-      knownSource(source),
-      identity,
-      signal,
-    );
-    if (published !== undefined) return published;
+    return publishedTakenReview(knownSource(source), identity, signal);
   }
   const request = await keptStoryReview(input);
   const choices =

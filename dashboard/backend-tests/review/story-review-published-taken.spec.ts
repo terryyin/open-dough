@@ -12,7 +12,9 @@ import {
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import type { StartRepository } from "../../test-support/support/startOriginPreparation.ts";
 import { yui } from "../../test-support/support/storyReviewTrunkCommits.ts";
+import { trunkModeStory } from "../../test-support/support/storyReviewTrunkMode.ts";
 import {
   branch,
   git,
@@ -20,10 +22,10 @@ import {
 } from "../../test-support/support/storyReviewWorktree.ts";
 import { takenBranchContributionHistory } from "../../test-support/support/takenBranchContributionHistory.ts";
 
-async function takenBranchReader() {
-  const repository = await materializeRepository(
-    takenBranchContributionHistory(),
-  );
+async function takenStoryReader(
+  history: StartRepository = takenBranchContributionHistory(),
+) {
+  const repository = await materializeRepository(history);
   const reader = path.join(repository.fixture, "reader");
   git(
     repository.fixture,
@@ -82,7 +84,7 @@ function commitStoryFile(writer: string, file: string, text: string) {
 }
 
 test("a Taken story reads its published branch and attributable merge edit without a local launch or worktree", async () => {
-  const { subject, signal, writer, revisions } = await takenBranchReader();
+  const { subject, signal, writer, revisions } = await takenStoryReader();
   publishBranch(writer);
 
   const review = await storyReview({ read: { subject, taken: true } }, signal);
@@ -106,7 +108,7 @@ test("a Taken story reads its published branch and attributable merge edit witho
 });
 
 test("a Taken story's unpublished branch leaves a review gap", async () => {
-  const { subject, signal } = await takenBranchReader();
+  const { subject, signal } = await takenStoryReader();
 
   await expect(
     storyReview({ read: { subject, taken: true } }, signal),
@@ -117,7 +119,7 @@ test("a Taken story's unpublished branch leaves a review gap", async () => {
 });
 
 test("a named published branch pair admits its literal file after origin advances", async () => {
-  const { subject, signal, writer } = await takenBranchReader();
+  const { subject, signal, writer } = await takenStoryReader();
   const path = "guides/[literal]*.txt";
   const firstHead = commitStoryFile(writer, path, "first published text\n");
   publishBranch(writer);
@@ -150,7 +152,7 @@ test("a named published branch pair admits its literal file after origin advance
 });
 
 test("locally readable unpublished commits cannot name a published file comparison", async () => {
-  const { reader, subject, signal, writer } = await takenBranchReader();
+  const { reader, subject, signal, writer } = await takenStoryReader();
   publishBranch(writer);
   const path = "guides/undelivered.txt";
   const unpublished = commitStoryFile(writer, path, "only present locally\n");
@@ -168,4 +170,39 @@ test("locally readable unpublished commits cannot name a published file comparis
     message:
       "The named comparison is not contained in the published story branch.",
   });
+});
+
+test("a Taken Trunk story reads only its attributable changes from interleaved published history", async () => {
+  const { subject, signal, writer, revisions } = await takenStoryReader(
+    trunkModeStory({ published: 2, unpublished: true }),
+  );
+  const review = await storyReview({ read: { subject, taken: true } }, signal);
+
+  if (review.kind !== "published-taken")
+    throw new Error("No published Trunk comparison");
+  expect(review.head).toBe(revisions.s2);
+  expect(review.target).toBe("main");
+  expect(review.withMerged).toBeUndefined();
+  expect(review.files.map(({ path }) => path).sort()).toEqual([
+    "d.md",
+    "src/a.ts",
+  ]);
+
+  commitStoryFile(writer, "src/a.ts", "now published\n");
+  git(writer, "push", "--quiet", "origin", "HEAD:refs/heads/main");
+  const read = {
+    subject,
+    publishedHead: review.head,
+    baseline: review.baseline,
+    tree: review.tree,
+    path: "src/a.ts",
+  };
+  const diff = await reviewedFileDiff({ read }, signal);
+  if (diff.kind !== "diff") throw new Error("No published file diff");
+  expect(diff.printed).toContain("+a one");
+  expect(diff.printed).not.toContain("a last");
+  const source = await reviewedFileText({ read }, signal);
+  if (source.kind !== "text") throw new Error("No published file source");
+  expect(source.tree).toContain("a one\n");
+  expect(source.tree).not.toContain("now published");
 });

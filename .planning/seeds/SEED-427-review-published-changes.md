@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-427#review-published-changes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/802-review-published-changes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"35d10be5fa02800a1e8d6277169e69fc2571ddf4cd3f9f825d8b20b2a556d16b","plan":"df312e92316d051dea4d4f1c20b07f3f8579a5aca30ec36d2e0a8dbafb3fa143"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/802-review-published-changes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"35d10be5fa02800a1e8d6277169e69fc2571ddf4cd3f9f825d8b20b2a556d16b","plan":"cc51a2266fa1faeb38f1ac801b77e663e374487270c77c51c2328b18a88f4591"}}
 ```
 
 **Goal.** A developer reviewing a story or session can open its published

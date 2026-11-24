@@ -2,11 +2,7 @@
 
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
-import type { WorkEntry } from "./publishedWork.ts";
-import {
-  hasRecordedStoryBranch,
-  storyComparisonOffered,
-} from "./storyReviewWorkspace.ts";
+import { storyComparisonOffered } from "./storyReviewWorkspace.ts";
 import { useOpenStoryChanges } from "./pageStoryReviewOpening.tsx";
 import { ReviewChangesButton } from "./ReviewChangesButton.tsx";
 import "./story-review.css";
@@ -17,6 +13,7 @@ export function StoryReviewAction({
   sourceId,
   work,
   completed = false,
+  taken = false,
 }: {
   // This machine's kept launch records.
   readonly records: readonly LaunchRecord[] | undefined;
@@ -24,8 +21,9 @@ export function StoryReviewAction({
   // may hold one.
   readonly workspaces?: readonly LocalWorkspace[];
   readonly sourceId: string;
-  readonly work: Pick<WorkEntry, "identity" | "owner">;
+  readonly work: { readonly identity: string };
   readonly completed?: boolean;
+  readonly taken?: boolean;
 }) {
   const openStoryChanges = useOpenStoryChanges();
   if (
@@ -34,7 +32,7 @@ export function StoryReviewAction({
       workspaces,
       sourceId,
       work.identity,
-      completed || hasRecordedStoryBranch(work.owner),
+      completed || taken,
     )
   )
     return null;
