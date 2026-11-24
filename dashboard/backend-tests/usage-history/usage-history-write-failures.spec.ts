@@ -122,7 +122,9 @@ test("a failed replacement reports the injected command error, keeps the previou
       .withResponse("turn", "two", { output_tokens: 3 })
       .please(),
   );
-  expect(importFailure(home, root, failing("rename", "/usage.json"))).toEqual({
+  expect(
+    importFailure(options, root, failing("rename", "/usage.json")),
+  ).toEqual({
     status: 1,
     stderr: "injected rename failure\n",
   });

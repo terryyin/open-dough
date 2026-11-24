@@ -150,9 +150,13 @@ test("a page removal that fails leaves the complete document readable, and the n
   const store = usageHistoryFile(home);
   const before = await readUsageHistory(store);
 
-  expect(importFailure(home, gone, failing("rm", "/usage.json.pages"))).toEqual(
-    { status: 1, stderr: "injected rm failure\n" },
-  );
+  const options = importOptions(home, gone);
+  expect(
+    importFailure(options, gone, failing("rm", "/usage.json.pages")),
+  ).toEqual({
+    status: 1,
+    stderr: "injected rm failure\n",
+  });
 
   const document = fs.readFileSync(store, "utf8");
   const { format } = JSON.parse(document) as { format: string };

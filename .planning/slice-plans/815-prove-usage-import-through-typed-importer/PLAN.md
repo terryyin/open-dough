@@ -258,7 +258,7 @@ load was unrecorded. Slice 7 compares the completed family to the original
 ### 7. The family reports its times and the wrapper loses its unused entries
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: one full-family run on the baseline's conditions, with typecheck, lint and the two E2E usage journeys green
 
 Compare the family before and after: file and case counts, command
@@ -272,6 +272,25 @@ The consumer trace identified `system-settings-usage-tools.spec.ts` calling
 `runImport` with a Claude root to arrange the initial store. Account for
 that call before removing the export and verify the existing chart, detail
 and Refresh journey with the same evidence.
+
+Proof result: [measurements](MEASUREMENTS.md) pairs all 150 original cases
+with the completed candidate and records the extra consolidated CLI case.
+All 151 cases passed across the original 54 files on Node Vitest. Runner
+time fell from 88.701 s to 36.389 s and summed case time from 171.138 s to
+57.236 s. Candidate natural load was lower. Separate passing runs counted
+288 Usage CLI starts before and six after. Forty-six candidate cases ran
+at or below 100 ms. The table records the work retained by each slower
+case. The later-family recount leaves 348 Playwright backend specs and
+records all 73 Usage History specs on Node.
+
+The E2E setup now uses the typed importer, and all three cases across both
+Usage E2E specs passed. The generic `runImport`, `readImported` and
+`responsesFile` exports have no remaining source references. Independent
+refactoring gave the retained CLI fault adapter the same fixture response
+path and cutoff the fault checks use. Both fault cases passed again, and
+Dashboard typecheck passed. Guarded delivery runs the full lint gate after
+selective formatting. Git evidence keeps the exact commands and results
+in `slice-7-implementation.md`, `slice-7-refactor.md` and the run records.
 
 ## Concern evidence
 

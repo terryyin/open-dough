@@ -413,6 +413,12 @@ smaller unit selection does not hide its cost or a lost regression check.
     specimen used by `runner-ownership.spec.ts`.
   - `configuration/notifier-setup.spec.ts` uses Playwright's platform skip
     overload, which fails Dashboard typecheck under Vitest.
+- **Inventory after the Usage History cohort** (`52ad3cb65656`, 24 November
+  2026). The maintained backend selector reports 348 Playwright specs and
+  232 Node Vitest specs across 580 paths. All 73 Usage History specs select
+  Node Vitest, including the 54 that moved with the typed importer. The
+  remaining Playwright paths are launches 91, sessions 64, observation 54,
+  Intent 45, runtime 40, Review 29, configuration 13 and terminals 12.
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,
   2,519 s; entry kinds counted from each spec's text, so approximate).
 

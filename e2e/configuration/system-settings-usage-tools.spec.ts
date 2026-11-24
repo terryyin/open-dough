@@ -4,6 +4,8 @@
 // pricing variants belong to frontend and backend token-index tests.
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryFile } from "../../dashboard/server/usageHistory.ts";
+import { importUsageHistory } from "../../dashboard/server/usageImport.ts";
 import { codexTariff } from "../../dashboard/server/usageTariffs.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
@@ -13,7 +15,6 @@ import { visitUsage } from "../../dashboard/test-support/support/systemSettingsU
 import { usageChart } from "../../dashboard/test-support/support/usageChartPage.ts";
 import { usageSpacing } from "../../dashboard/test-support/support/usageSpacingPage.ts";
 import {
-  runImport,
   writeClaudeSession,
   writeCodexSession,
 } from "../../dashboard/test-support/usage-history/importHarness.ts";
@@ -99,15 +100,22 @@ test("both tools compare on one chart in their own units, follow a filter, open 
   const earlier = "5f0c6a52-6a1b-4c39-9f43-0d8b1c2e7a12",
     later = "5f0c6a52-6a1b-4c39-9f43-0d8b1c2e7a13";
   const claudeRoot = path.join(fixture.home, ".claude/projects/open-dough");
+  const codexRoot = path.join(fixture.home, ".codex/sessions");
   keepLaunchStore(fixture.home, {
     "open-dough": [codexLaunch, claudeLaunch("earlier", earlier, 6)],
   });
   writeClaudeLaunch(claudeRoot, "earlier", earlier);
-  writeCodexLaunch(path.join(fixture.home, ".codex/sessions/2026/11"));
-  runImport(fixture.home, path.join(fixture.home, ".codex/sessions"), [
-    "--claude-root",
-    claudeRoot,
-  ]);
+  writeCodexLaunch(path.join(codexRoot, "2026/11"));
+  await importUsageHistory(
+    makeMe.aUsageImportOptions
+      .with({
+        home: fixture.home,
+        store: usageHistoryFile(fixture.home),
+        codexRoots: [codexRoot],
+        claudeRoots: [claudeRoot],
+      })
+      .please(),
+  );
   keepLaunchStore(fixture.home, {
     "open-dough": [
       codexLaunch,
