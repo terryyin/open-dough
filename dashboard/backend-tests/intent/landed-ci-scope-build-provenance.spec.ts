@@ -1,220 +1,140 @@
-// Actual Landed resolution and artifact acquisition through a local scoped read.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { githubApi } from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  collectedSummary,
-  playwrightRecord,
-  summaryTextZipAnswer,
-} from "../../test-support/support/ciProofCollected.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import {
-  collectingLandedCi,
-  restartAsLandedCiReader,
-  resultToLand,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  retainedHistory,
-  collectedScopeHistory,
-} from "../../test-support/support/collectedScopeHistory.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { land } from "../../test-support/support/startSessionLandingContext.ts";
-import { commonGitDir } from "../../test-support/support/launchLanding.ts";
-import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { publishSkippedPlanningLanding } from "../../test-support/support/storyCiComparisonSkippedLandingFixture.ts";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { readCiAdapterProof } from "../../server/ciAdapterProof.ts";
+import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import { readIntentCiProof } from "../../server/intentCiProofRead.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { collectLandedCiPass } from "../../server/landedCiPass.ts";
+import { passRead } from "../../server/landedCiPassRead.ts";
+import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifacts.ts";
+import { comparisonCiWorkflow } from "../../test-support/support/storyCiComparisonWorkflows.ts";
+import { archiveOf, listedArtifact } from "../support/ciProofMemory.ts";
 
-test.use({
-  serverMode: "boundary",
-  extraEnv: collectingLandedCi,
-  liveServer: "synchronous delivery child blocks the mounted receiver",
-});
-const readers: DashboardServer[] = [];
-test.afterEach(async () => {
-  await Promise.all(readers.splice(0).map((reader) => reader.close()));
-});
-const retainedProof = (home: string, key: string) =>
-  retainedHistory(home)?.builds[key]?.proof;
-const scopedHistory = (origin: string, revision: string) =>
-  collectedScopeHistory(
-    origin,
-    "dashboard/tests",
-    revision,
-    "2026-11-05T14:00:00.000Z",
-  );
+const source = makeMe.aPublishedSource.openDough.please();
+const planning = { ".planning/landing-note.md": "Planning-only change\n" };
+const history = makeMe.aRepository
+  .withBaseBeforeEveryLaunch({
+    ".github/workflows/ci.yml": comparisonCiWorkflow,
+  })
+  .withRevision("trunk", {
+    files: { "src/built.ts": "export const built = true;\n" },
+  })
+  .withRevision("planning", { parents: ["base"], files: planning })
+  .withRevision("merge", { parents: ["trunk", "planning"], files: planning })
+  .please();
 
-test("an exact landing and a skipped landing share one collected attempt and retain each represented landing's role through the selected endpoint", async ({
-  page,
-  dashboard,
-  origin,
-  github,
-}) => {
-  const setup = await publishSkippedPlanningLanding(page, origin);
-  const recorded = [
-    {
-      revision: setup.trunkSide,
-      base: setup.claim,
-      receipt: "20000000-0000-4000-8000-000000000001",
-      at: "2026-11-05T13:35:00.000Z",
-    },
-    {
-      revision: setup.landingMerge,
-      base: setup.trunkSide,
+test("a skipped Planning landing and its exact predecessor share a scoped build with both roles", async () => {
+  const checkout = await materializeLocalCheckout(undefined, history, {
+    gitTemplates: false,
+  });
+  const repository = checkout.integration;
+  const { base, trunk, merge } = checkout.revisions;
+  vi.stubEnv("HOME", checkout.fixture);
+  const stopped = new AbortController();
+  onTestFinished(async () => {
+    stopped.abort();
+    vi.unstubAllEnvs();
+    await checkout.cleanup();
+  });
+
+  const exact = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing({ base, revision: trunk })
+    .deliveredAs({
+      delivery: "20000000-0000-4000-8000-000000000001",
       receipt: "20000000-0000-4000-8000-000000000002",
-      at: "2026-11-05T14:00:00.000Z",
-    },
-  ];
-  keepMoreLaunchRecords(
-    dashboard,
-    recorded.map(({ revision, base, receipt, at }) =>
-      makeMe.aLaunchRecord
-        .executing({ identity: setup.identity, title: "Story A" })
-        .inClaudeSession({ sessionId: receipt })
-        .launchedAt(at)
-        .completedWith({ message: "", receivedAt: at })
-        .markedDoneAt(at)
-        .withCapturedLanding(
-          makeMe.aLaunchLanding
-            .capturedFrom({
-              repository: commonGitDir(origin.project),
-              identity: setup.identity,
-            })
-            .forLaunch(receipt)
-            .deliveredAs({ delivery: receipt, receipt })
-            .comparing({
-              base,
-              revision,
-            })
-            .receivedAt(at)
-            .please(),
-        )
-        .please(),
-    ),
+    })
+    .receivedAt("2026-11-05T13:35:00.000Z")
+    .please();
+  const skipped = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing({ base: trunk, revision: merge })
+    .receivedAt("2026-11-05T14:00:00.000Z")
+    .please();
+  const startedAt = "2026-11-05T13:30:00Z";
+  const attempt = makeMe.aCiProofRun
+    .with({ runId: 201, runAttempt: 1, revision: trunk })
+    .please();
+  const run = makeMe.aCiRun
+    .with({
+      id: attempt.runId,
+      attempt: attempt.runAttempt,
+      headSha: trunk,
+      startedAt,
+      completedAt: exact.receivedAt,
+    })
+    .please();
+  const github = githubApi(({ commit }: { commit?: string }) =>
+    commit === trunk ? [run] : [],
   );
-  const trigger = await resultToLand(
-    dashboard,
-    "trigger-shared-scope-proof.txt",
+  const scope = "dashboard/tests";
+  const file = `${scope}/a.spec.ts`;
+  const summary = proofSummaryForEntry(
+    { repository: source.repository, runId: 201, attempt: 1, revision: trunk },
+    makeMe.aCiProofEntry
+      .at(scope)
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .brokenDown({ path: file, passed: 1, durationMs: 1200 })
+          .please(),
+      )
+      .please(),
   );
-  setup.serveRuns({
-    [setup.trunkSide]: [
-      makeMe.aCiRun
-        .with({
-          headSha: setup.trunkSide,
-          id: 201,
-          attempt: 1,
-          conclusion: "success",
-          url: "https://ci.invalid/runs/201",
-          createdAt: "2026-11-05T13:30:00Z",
-          startedAt: "2026-11-05T13:30:00Z",
-          completedAt: "2026-11-05T13:35:00Z",
-        })
-        .please(),
-    ],
-    [setup.landingMerge]: [],
-    [trigger.revision]: [],
+  const archive = vi.fn().mockResolvedValue(archiveOf(summary));
+  const artifact = ciProofArtifactReader({
+    listing: () =>
+      Promise.resolve({ artifacts: [listedArtifact(attempt, 1201)] }),
+    archive,
   });
-  const text = collectedSummary(
-    {
-      repository: "terryyin/open-dough",
-      runId: 201,
-      attempt: 1,
-      revision: setup.trunkSide,
-    },
-    [{ entry: "dashboard/tests", parts: 1, unit: "case" }],
-    [
-      {
-        entries: ["dashboard/tests"],
-        part: 1,
-        of: 1,
-        byFile: true,
-        record: playwrightRecord([
-          ["dashboard/tests/a.spec.ts", "expected", [1200]],
-        ]),
-      },
-    ],
-  );
-  setup.serveProofs({
-    201: {
-      kind: "summary",
-      artifactId: 1201,
-      summary: JSON.parse(text) as unknown,
+
+  await collectLandedCiPass({
+    source,
+    receipts: [exact, skipped],
+    history: await keptLandedCiHistory(source.id),
+    repository,
+    stopped: stopped.signal,
+    read: passRead(source, repository, stopped.signal, {
+      providers: { github },
+      readArtifact: artifact,
+    }),
+    readProof: (project, subject, signal) =>
+      readIntentCiProof(project, subject, signal, () => repository, {
+        artifact,
+        adapter: readCiAdapterProof,
+      }),
+  });
+
+  expect(
+    await performIntentCiHistoryRead(source, {
+      kind: "intent-ci-history",
+      scope: file,
+      revision: merge,
+      through: skipped.receivedAt,
+    }),
+  ).toMatchObject({
+    kind: "answered",
+    answer: {
+      selectedRevision: merge,
+      availability: "retained",
+      entries: [
+        {
+          key: "run/201/1",
+          kind: "point",
+          readings: [{ kind: "point", unit: "case", ms: 1200 }],
+          selected: true,
+          date: startedAt,
+          build: { ...attempt, provenance: "equivalent" },
+          landings: [
+            { revision: trunk, provenance: "exact", selected: false },
+            { revision: merge, provenance: "equivalent", selected: true },
+          ],
+        },
+      ],
     },
   });
-  setup.interceptActions((argv) =>
-    argv.some((argument) => argument.endsWith("/actions/artifacts/1201/zip"))
-      ? summaryTextZipAnswer(text)
-      : undefined,
-  );
-  expect(
-    land(trigger.record, origin, dashboard.home).result.landing.receipt
-      .revision,
-  ).toBe(trigger.revision);
-  await expect
-    .poll(() => retainedProof(dashboard.home, "run/201/1"))
-    .toMatchObject({
-      kind: "summary",
-      summary: {
-        revision: setup.trunkSide,
-        runId: 201,
-        runAttempt: 1,
-        entries: [
-          {
-            path: "dashboard/tests",
-            evidence: [{ unit: "case", durationMs: 1200 }],
-          },
-        ],
-      },
-    });
-  await expect
-    .poll(() => scopedHistory(dashboard.origin, setup.landingMerge))
-    .toMatchObject({
-      status: 200,
-      body: {
-        selectedRevision: setup.landingMerge,
-        availability: "retained",
-        entries: [
-          {
-            kind: "point",
-            readings: [{ kind: "point", unit: "case", ms: 1200 }],
-            selected: true,
-            date: "2026-11-05T13:30:00Z",
-            build: {
-              revision: setup.trunkSide,
-              runId: 201,
-              runAttempt: 1,
-              provenance: "equivalent",
-            },
-            landings: [
-              {
-                revision: setup.trunkSide,
-                provenance: "exact",
-                selected: false,
-              },
-              {
-                revision: setup.landingMerge,
-                provenance: "equivalent",
-                selected: true,
-              },
-            ],
-          },
-        ],
-      },
-    });
-  const reader = await restartAsLandedCiReader(
-    dashboard,
-    origin,
-    "boundary",
-    "the preceding live server retains the machine's Cursor runner",
-  );
-  readers.push(reader);
-  const answer = await scopedHistory(reader.origin, setup.landingMerge);
-  expect((answer.body as { entries: unknown[] }).entries).toHaveLength(1);
-  expect(
-    github.calls.filter(
-      ({ request }) =>
-        request.kind === "actions-artifact-zip" && request.artifactId === 1201,
-    ),
-  ).toHaveLength(1);
-  const asked = github.calls.length;
-  expect(await scopedHistory(reader.origin, setup.landingMerge)).toEqual(
-    answer,
-  );
-  expect(github.calls.slice(asked)).toEqual([]);
+  expect(archive).toHaveBeenCalledTimes(1);
 });

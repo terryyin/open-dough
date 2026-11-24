@@ -156,18 +156,16 @@ dated receipts. Both Node cases and typecheck passed. Summed case time was
 ### 4. Scoped reads preserve exact, equivalent and later build provenance
 
 Type: Behavior
-Status: planned
+Status: done
 
-Convert `build-provenance` and `later-build`. Compose the skipped Planning
-and prior/late landing inputs with real Git and typed accepted receipts.
-Run the collecting and selected scoped read operations with the actual
-endpoint, attempt evidence and order.
-
-**Proof.** Retain the exact and skipped roles on one shared build. Preserve
-the labelled later attempt for the cancelled landing. Assert the selected
-endpoint and prove unrelated later points are excluded. If an independent
-live publication assertion is found, map it to an existing or
-representative E2E check before deleting the old owner.
+**Proof.** `build-provenance` classifies a real Planning-only merge and
+shows one collected point with its exact and equivalent landing roles.
+`later-build` checks the labelled later attempt for a cancelled endpoint
+while an unrelated exact build is retained and omitted from the selection.
+Earlier browser actions arranged inputs. Existing Intent E2E cases own
+the live comparison, landing trigger and read behavior. Both Node cases
+and typecheck passed. Summed time was 0.846 s versus 12.198 s before
+conversion. See `slice4-return.md` for source and proof mappings.
 
 ### 5. The retained window advances in trunk order and reads old evidence
 
