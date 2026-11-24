@@ -262,7 +262,7 @@ cases to 881.05 ms for five. Checkout evidence uses the `slice-7-` prefix.
 ### 8. Refresh clears the evidence gaps it resolves and the cohort runs on Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `token-index-refresh-claude-gaps` and
 `token-index-refresh-line-separators`. Trigger successive imports with
@@ -272,6 +272,14 @@ descendant stays missing, and row parsing through embedded separators.
 Give each independent condition a distinguishing case, retaining the
 combined case when a remaining gap changes the final classification.
 
+The four original evidence-gap and separator cases passed on Vitest.
+Successive typed refreshes expose the root, worker and descendant
+transitions and preserve the linked Claude responses across native row
+separators. Summed case time fell from 21,679 ms to 741.20 ms in the
+focused run. Obsolete cohort and store setup exports were removed.
+The six remaining harness consumers passed all 18 cases on their
+existing runner. Checkout evidence uses the `slice-8-` prefix.
+
 Compare matched before/after runs of the full cohort. Record every case
 duration against the target, file and case counts, command elapsed and
 summed case time. Account for proof moved elsewhere. Inspect slow cases
@@ -279,6 +287,15 @@ for avoidable process and file work, and explain each retained material
 cost. Verify all 19 original files have a disposition, cases enter
 production through typed values, and the cohort needs neither Playwright
 nor a mounted server. Remove unused harness code after tracing consumers.
+
+The [matched timings](MEASUREMENTS.md) record every case across the
+same 19 original files. The elapsed command time fell from 58.70 s
+to 5.95 s, and summed case time fell from 107.479 s to 3.956 s.
+The selection grew from 58 to 61 cases by separating cache rebuilding
+and coalescing and adding the moved method-admission check. All 61 passed
+in Node Vitest. Every file retains its original path and has no
+HTTP harness or CLI import dependency. The existing browser and
+frontend cases still observe the production route and reader.
 
 ## Concern evidence
 
