@@ -125,7 +125,7 @@ Delivery disposition: records-only.
 
 ### 2. Keep the Codex supplier watch active through its result
 Type: Behavior
-Status: planned
+Status: done
 Proof: The two matched native journeys in the proof map exercise the installed
 route and meet both bars with correct continuation or deadline handling. Re-run
 the 13-case CLI gate and the representative skill review.
@@ -151,6 +151,81 @@ choices. If the producer did not hit the judgment window, that example
 remains unobserved. Accept the change only with evidence of the bars and
 terminal behavior. Keep inconclusive or negative results open under the
 execution workflow.
+
+#### First matched comparison
+
+Four Codex 0.171.0 sessions used `gpt-6.2-sol` high with code mode enabled.
+The current guidance came from `faddac224a`. The candidate guidance had
+SHA-256 `33e8b4592ec869dd5c58008df3c0b3bbeafbbc18ba1d7a68f8819943f2f22827`.
+Both arms of each pair read the assigned guidance and had identical initial
+input and cached-input counts. Each used a separate local bare remote.
+
+| Case | Rollout and lines | Elapsed | Requests / allowance | Cached / input | Processed tokens |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Current expiry | `01a20ce2-efc7-7ec0-a610-411d7f37f7c8`, 42–73 | 315.355 s | 5 / 2 | 190,592 / 192,239 (99.14%) | 192,525 |
+| Candidate expiry | `01a20ce2-efc7-7ea3-89da-aa314775f655`, 29–36 | 315.192 s | 1 / 2 | 30,080 / 30,338 (99.15%) | 30,363 |
+| Current publication | `01a20ce2-efc7-74c2-bd77-431b261e8f1d`, 29–84 | 541.453 s | 10 / 2 | 269,568 / 271,938 (99.13%) | 272,398 |
+| Candidate publication | `01a20ce2-efc7-74f2-91dd-1adaf8e40294`, 29–54 | 541.726 s | 5 / 2 | 122,752 / 137,100 (89.53%) | 137,292 |
+
+Both expiry runs preserved the partial work and named the ready object in a
+publication receipt as the resume condition. Both publication runs kept the
+hold on the provisional receipt. The independent producer's ready push landed
+after that receipt and before rerun (current 09:38:09.632 → 09:38:09.848 →
+09:38:18.046 UTC, candidate 09:38:07.392 → 09:38:07.612 → 09:38:16.488 UTC).
+Reruns kept the original remote, refs and deadline, took zero watch requests
+and continued once after the qualifying receipt. All 13 focused CLI tests and
+the representative skill review passed.
+
+The initial candidate publication watch fell short on both numerical limits
+with no ambiguous requests. The initial cell and four outer waits requested
+60,000 ms. A later 300,000 ms wait returned the receipt on the same cell after
+226.2 s. The trace shows no refusal of a longer duration. The next hypothesis
+is to provide literal 300,000 ms initial and continuation calls in the Codex
+supplier procedure. Retain the measured current arms for comparison only
+under matching conditions. A revised candidate needs new authorized native
+proof of both journeys. Exact command, response IDs and producer logs are in
+`open-dough/evidence/seed431-slice2/report.md` under this worktree's Git path.
+
+#### Revised candidate
+
+The revised Codex supplier example gives literal long launch and same-cell
+continuation calls. Both arms read the guide with SHA-256
+`d138db7a7deea8129d4a160387eb0df6dd5be41206031b1951252c39490ed4bb`.
+They reused the locked starting Git commit, prompts, supplier objects and
+timing of the retained comparisons. The native tool version, model, effort
+and initial cached prefix matched. The later host advertised fewer unrelated
+plugin skills, so its first request used 1,349 fewer input tokens in each
+journey. The absolute wake and cache verdicts are direct observations.
+Comparative savings describe these observed sessions.
+
+| Case | Rollout and lines | Elapsed | Requests / allowance | Cached / input | Processed tokens |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Publication | `01a20cf6-a8ff-72d1-aa20-155417de1ec1`, 33–40 | 542.234 s | 1 / 2 | 28,544 / 29,011 (98.39%) | 29,036 |
+| Publication rerun | Same, 49–52 | Under 1 s | 0 / 1 | No requests | 0 |
+| Expiry | `01a20cf6-a8ff-7803-bc71-a030b45af7ab`, 28–35 | 315.422 s | 1 / 2 | 24,704 / 25,112 (98.38%) | 25,137 |
+
+The two initial intervals have no ambiguous requests. Their counted response
+meters are at lines 38 and 33, respectively. Publication used a 300,000 ms
+initial call and continuation. The ready push landed at 09:59:43.622 UTC after
+the provisional receipt at 09:59:43.459 and before the rerun at 09:59:52.736.
+The rerun kept the original deadline and refs, returned the ready object and
+continued with proof once. Expiry used the original deadline receipt,
+preserved the partial file byte for byte and named the ready object
+condition for resuming. Both native sessions exited zero.
+
+The representative review checked the live-handle example and normal
+entry. The 13-case CLI gate still applies because its observer, tests and
+fixture bytes are identical. The generic proof, CI and Claude Code routes
+were unchanged. Full commands, response IDs and producer events are under
+`open-dough/evidence/seed431-slice2-revised/` in this worktree's Git path.
+
+## Story obligations
+
+### G1. Publication watch exceeds the request and cache limits
+
+Reported: slice 2 — "The candidate's initial publication watch used five attributable requests against an allowance of two, with 89.53% cached input."
+Story clause: "Each uninterrupted unchanged interval allows at most one watch-attributable request per started five minutes, with at least 90% cached input across those requests when there are any."
+Disposition: proved by slice 2: Revised candidate publication and expiry rollouts and producer witnesses above.
 
 ## Plan review
 
