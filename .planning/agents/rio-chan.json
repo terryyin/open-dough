@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rio-chan",
+  "email": "rio-chan@example.org",
+  "identity": "SEED-423#observe-the-cancelled-listing-discover",
+  "mode": "story-branch",
+  "branch": "codex/observe-that-a-failed-listing-discover-cancels-t",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
