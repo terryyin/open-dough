@@ -48,7 +48,7 @@ reader can recompute a row from its rollout locator and interval bounds.
 
 | Premise | Consuming operation | Observation | Result |
 | --- | --- | --- | --- |
-| A blocked outcome and watch can be linked in retained rollouts | Slices 1 and 2 search and result handling | On November 24, rollout `01a1f70e-656e-7d32-baf8-ee066c533a92` linked the held merge at lines 3049 and 3099 to launch 3069, publication 3147 and continuation decision 3159. The compressed original at line 2819 shows a developer-requested watch. In the controlled November 18 rollouts ending `eb2305d55dcb` and `eb5be690b336`, the respective publication and deadline outputs are at line 19. | Both initiation paths can be identified in context. The natural trace covers publication. The controlled deadline gives its receipt shape. |
+| A blocked outcome and watch can be linked in retained rollouts | Slices 1 and 2 search and result handling | Rollout `01a1f70e-656e-7d32-baf8-ee066c533a92` links the held merge at lines 3049 and 3099 to launch 3069, publication 3147 and continuation decision 3159. The pre-release developer request appears in the separate compressed rollout `01a1d22f-e0cd-7032-930d-5a9ff3011a64` at line 2819. In the controlled November 18 rollouts ending `eb2305d55dcb` and `eb5be690b336`, the respective publication and deadline outputs are at line 19. | Both initiation paths can be identified in context. The natural trace covers publication. The controlled deadline gives its receipt shape. |
 | Requests and cached input can be attributed once | Slice 2 measurement | On November 24, a `python3 -I` reread of the natural rollout ending `ee066c533a92`, lines 3069–3147, paired wait calls on cell `g2:262` with seven distinct response IDs and 2,885,504 cached of 2,890,075 input tokens. The historical rollout `01a1e7c4-7085-7903-83b8-bcfeec6241f9` has 15 distinct responses with 6,667,648 cached of 6,670,639 input tokens from 08:40:21 to 08:57:34 UTC on November 17. | The natural row can be recounted. Missing meters or ambiguous attribution remain unknown. |
 | The installed release can be attributed | Slice 1 eligibility | Reading `.agents/skills/dough-update/VERSION` at the three natural watches' launch revisions returned 0.3.109. Their session metadata records Codex 0.171.0. | Use the rollout's checkout and Git revision or direct version evidence. Mark the release unknown when it cannot be established. |
 | The retained rollouts can be searched as a bounded snapshot | Slice 1 search and repeatability | The two November 18 searches agreed on 767 request and 31 command-name matches. The expanded November 24 scan identified three natural watches by command and verified the surrounding dependency context. | Reuse the retained candidates and scan the period since the cutoff. A shortfall leads to deferral. |
@@ -57,7 +57,7 @@ reader can recompute a row from its rollout locator and interval bounds.
 
 ### 1. Confirm the Codex watch sample
 Type: Behavior
-Status: planned
+Status: done
 Proof: `## Watches` lists each watch's rollout, project, installed release,
 Codex version, blocking outcome, initiator, route (`command` or `missed`),
 and interval bounds and eligibility. A repeat search of the frozen window
@@ -192,6 +192,53 @@ and processed 41,559,949 tokens. The counts establish recurrence of the
 wake pattern and observed polling cost. They establish no realized saving
 or natural deadline result.
 
+### Confirmed sample and forward search on 2026-11-24
+
+All three retained watches qualify, with five unchanged intervals over
+five minutes. All are in Open Dough, on installed release 0.3.109 and
+Codex 0.171.0. In each rollout, line 1 supplies the project and Codex
+version. The checkout revision supplies the installed release from
+`.agents/skills/dough-update/VERSION`. Line 12 supplies the execution
+identity. The user messages preceding the watch consist of the initial
+instructions, execution launch and skill body at lines 8, 12 and 14.
+The coordinators initiated these watches.
+
+| Rollout suffix and checkout revision | Execution | Blocked outcome and supplier state | Route and eligibility |
+| --- | --- | --- | --- |
+| `ee066c533a92` at `d7bcd9af3` | `SEED-413#renovate-remaining-dashboard-backend-unit-tests` | The consumer held its reconciled merge until the sibling's story-launch file-admission repair reached `main`. The sibling was monitoring the failing revision and owned the active repair (3049, 3099). | `command`, eligible, 506.493 s (3069–3147). |
+| `4d89225b0f3c` at `44d066285` | `SEED-413#restore-done-capture-proof-after-composed-reviews` | The consumer could finish local proof but needed plan 742's accepted changes before migrating its two handoff readers. The supplier had published its final slice and was resolving a trunk merge conflict (2683, 2941, 3299). | `command`, eligible, 2,020.828 s (2658–3309). |
+| `2bc24d19d267` at `7ed7478c8` | `SEED-413#correct-landing-record-writes-and-tests` | The consumer needed plan 743's Done-helper cleanup on trunk for its combined check and closure. The supplier was reconciling trunk, publishing branch review and closure commits, and then integrating (3042, 3197, 3245, 3439, 3496). | `command`, eligible once for three intervals of 1,081.616 s, 1,008.777 s and 401.189 s (2970–3227, 3238–3413, 3424–3491). |
+
+The forward window ran from 10:58:16 SGT through 15:43:02 SGT
+(end exclusive). The scan froze paths and byte lengths for rollout JSONL
+and Zstandard files dated or modified into the window under
+`~/.codex/sessions` and `~/.codex/archived_sessions`. It selected 59 active
+paths, including 37 worker paths, and zero archived paths. Each of two
+reads covered the same 38,525 timestamped records. Their candidate indexes
+matched byte for byte, with 30 developer-language hits, one brief
+approval, 15 command or helper-name references, 217 remote or agent
+status reads, and 793 general watch-language tool inputs. These categories
+can overlap. Worker traces were checked in the context of their
+coordinators. The command or helper-name references were confined to
+this story's preparation and execution and showed search, source reads
+or plan editing.
+
+The tool and developer hits yielded no additional launch or substantiated
+bypass. For example, rollout `01a20b69-73b3-7af1-87bb-64c4009bcf0b`
+(773–848) coordinated resumption of a paused session and waited for
+message delivery. Rollout `01a20bc1-a2ad-7570-aea7-1f04d742960e`
+(247, 307–649) followed CI for its own fixes. Rollout
+`01a20bfd-efb9-7f12-ad85-4ddd3fc22db6` (173–278) recorded a remaining
+dependency and completed its preparation update without watching for
+publication. Rollout `01a20c5f-91a6-7cb1-9d10-b823f104d592` checked a
+sibling's branch for overlapping changes (357, 931) while independently
+publishing its first two slices (690, 893).
+
+No shortfall remains. This search covers the retained trace window and
+observable cues, with possible gaps from missing rollouts or unrecognized
+ad hoc monitoring. The eligible sample is still one workstream on one
+Codex and Open Dough version pair. It contains publication results only.
+
 ### Deferral and resume
 
 The November 18 execution deferred the story behind the Codex long-wait
@@ -217,6 +264,19 @@ Carry the cutoff, watch facts and any shortfall into a later take.
   eligibility criteria.
 - The revised first slice confirms the candidates under the broader scope
   and searches only the new period.
+- Maria-chan's current take `f7c7b9a346f65a8eb5a3e0af07dada1cadad862c`
+  was accepted on `origin/main` and on the story branch
+  `codex/verify-the-silent-supplier-wait-in-codex`. It started at
+  `c952ee3a10870f06a7ef76585820837c5fbfa238` in Story Branch Mode through
+  publisher `dashboard-territory.local-open-dough`. The source had changed
+  since readiness review. The November 18 search remains attributed to
+  Aino-chan, whose stale assignment was released on trunk in `23fb23548`.
+- The Codex CI observer tracks the remote story branch through GitHub Actions
+  `ci.yml`, coordinator `maria-chan-d6e8985d`, mailbox
+  `/tmp/dough-ci-501/watch-Qv6asu`, cell `g67:13`, shell session 9127 and PID
+  4477. The Take's trunk revision has no attached observation in this session.
+- Slice 1 delivery is records-only. The two forward search indexes matched
+  exactly, and the natural watches still meet the eligibility threshold.
 
 ## Story obligations
 
