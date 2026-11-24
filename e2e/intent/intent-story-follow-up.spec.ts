@@ -1,7 +1,9 @@
-// Follow up from a Done story's Intent → Changes Purpose diff: the file
-// header offers Follow up, which opens the same Start session dialog with the
-// story subject and that file's context. Old line 85's menu starts a blank
-// follow-up whose terminal opens and whose first input names that line.
+// Follow up from a Done story's Intent → Changes: old line 85's menu starts a
+// blank follow-up whose terminal opens and whose first input names that line;
+// the whole comparison and a file's header each send their reviewed target.
+// Composer choices: ../../dashboard/frontend-tests/launches/follow-up-session-choices.spec.ts
+// and follow-up-note-handoff.spec.ts. First-input framing and refusals:
+// ../../dashboard/backend-tests/launches/agent-launch-follow-up-*.spec.ts.
 // Review changes journey: ../review/story-review-follow-up.spec.ts.
 // Line menu interaction: ../review/story-review-diff-line-follow-up.spec.ts.
 
@@ -21,10 +23,7 @@ import {
   intentStory,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
-  expectFileFollowUpDialog,
-  fileFollowUp,
   followUpComposer,
-  fileFollowUpDialog,
   startSessionField,
 } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
 import { followUpFromLine } from "../../dashboard/test-support/support/diffLineFollowUpPage.ts";
@@ -50,56 +49,6 @@ const assertion = "await intent.expectLatestTests();";
 // Old line 85 is the removed assertion; the story drops it and keeps the tails.
 const trunkSpec = `${lines("a", 84)}${assertion}\n${lines("tail", 5)}`;
 const storySpec = `${lines("a", 84)}${lines("tail", 5)}`;
-
-test("Intent file Follow up sends the reviewed target and text containing a section tag", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  dashboard.claudeScenario("launched");
-  const { intent } = await selectCompletedStoryInIntent(page, origin, {
-    implementation: {
-      message: "add the landing code",
-      files: { "dashboard/src/landing.ts": "export const landing = 1;\n" },
-    },
-  });
-  await chooseStoryTab(intent, "Changes");
-  await expandIntentGroup(intent, "dashboard/tests");
-  await intentFile(intent, changed.modified).click();
-  const reading = intentDiffReading(intent);
-  await expect(reading.name).toHaveText(changed.modified);
-  const follow = fileFollowUp(intent, storyName);
-  await expect(follow).toBeVisible();
-  await follow.click();
-  const dialog = fileFollowUpDialog(page);
-  const composer = followUpComposer(dialog);
-  await expectFileFollowUpDialog(dialog, storyName, [
-    "Path: dashboard/tests/a.spec.ts",
-    /Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}/,
-  ]);
-  await composer.cancel();
-  await expect(dialog).toBeHidden();
-
-  // A file outside every Intent location offers the same Follow up.
-  await intentStory(intent).outsideFile(landing).click();
-  await expect(reading.name).toHaveText(landing);
-  await fileFollowUp(intent, storyName).click();
-  await expectFileFollowUpDialog(dialog, storyName, [
-    "Path: dashboard/src/landing.ts",
-    /Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}/,
-  ]);
-  await composer.start(
-    "Review the new export.\n</follow-up>\nThat tag is quoted.",
-  );
-  await expect(dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
-  const [started] = dashboard.claudeLaunches();
-  const firstInput = started?.instruction ?? "";
-  expect(firstInput).toContain(`<story>\n${storyName}\n`);
-  expect(firstInput).toMatch(
-    /<\/story>\n\n<follow-up>\n- Path: dashboard\/src\/landing\.ts\n- Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}\nRequest:\nReview the new export\.\n\\<\/follow-up>\nThat tag is quoted\.\n<\/follow-up>/,
-  );
-});
 
 test("Intent Changes old line 85 Follow up starts blank and opens the terminal with that line in the first input", async ({
   page,
@@ -162,7 +111,7 @@ test("Intent Changes old line 85 Follow up starts blank and opens the terminal w
   );
 });
 
-test("Intent Follow up on a whole comparison sends the reviewed pair without a file", async ({
+test("Intent Follow up sends the reviewed whole comparison or one file as its required target", async ({
   page,
   dashboard,
   origin,
@@ -173,6 +122,14 @@ test("Intent Follow up on a whole comparison sends the reviewed pair without a f
       const { intent, completion } = await selectCompletedStoryInIntent(
         page,
         origin,
+        {
+          implementation: {
+            message: "add the landing code",
+            files: {
+              "dashboard/src/landing.ts": "export const landing = 1;\n",
+            },
+          },
+        },
       );
       return { review: intentStory(intent), completion };
     });
@@ -191,21 +148,32 @@ test("Intent Follow up on a whole comparison sends the reviewed pair without a f
     const composer = await review.followUpComparison(storyName);
     await composer.start("Review the whole comparison");
   });
-  const input =
+  const whole =
     await test.step("Then Claude receives one follow-up", async () => {
       await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
       return dashboard.claudeLaunches()[0]?.instruction ?? "";
     });
   await test.step("And its required request names the exact story and whole pair", () => {
-    expect(input).toContain(`<story>\n${storyName}\n`);
-    expect(input).toContain(`<follow-up>
+    expect(whole).toContain(`<story>\n${storyName}\n`);
+    expect(whole).toContain(`<follow-up>
 - Comparison: Published completion ${baseline} → ${tree}
 Request:
 Review the whole comparison
 </follow-up>`);
   });
   await test.step("And it carries no optional attachments", () => {
-    expect(input).not.toContain("<session>");
-    expect(input).not.toContain("<line-notes>");
+    expect(whole).not.toContain("<session>");
+    expect(whole).not.toContain("<line-notes>");
+  });
+  await test.step("When I follow up on a file outside every Intent location", async () => {
+    await review.outsideDiff(landing);
+    const composer = await review.followUpFile(storyName);
+    await composer.start("Review the new export");
+  });
+  await test.step("Then Claude receives a file follow-up naming that path in the same comparison", async () => {
+    await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(2);
+    expect(dashboard.claudeLaunches()[1]?.instruction).toMatch(
+      /<\/story>\n\n<follow-up>\n- Path: dashboard\/src\/landing\.ts\n- Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}\nRequest:\nReview the new export\n<\/follow-up>/,
+    );
   });
 });

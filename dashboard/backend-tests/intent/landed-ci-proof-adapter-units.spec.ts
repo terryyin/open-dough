@@ -1,113 +1,169 @@
 // The adapter's two declared units stay separate on one collected attempt.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { answeredCommandAttempts } from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-attempts.mjs";
+import type { readCommandProof } from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { adapterProject } from "../../test-support/intentCiAdapterProofProject.ts";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { ciAdapterProofReader } from "../../server/ciAdapterProof.ts";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import {
+  performIntentCiProofRead,
+  readIntentCiProof,
+} from "../../server/intentCiProofRead.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { collectLandedCiPass } from "../../server/landedCiPass.ts";
+import { passRead } from "../../server/landedCiPassRead.ts";
+import { buildKeyOf } from "../../src/landedCiBuildKey.ts";
 import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifacts.ts";
-import {
-  collectedScopeHistory,
-  retainedHistory,
-} from "../../test-support/support/collectedScopeHistory.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import {
-  collectingLandedCi,
-  landedCiHistory,
-  restartAsLandedCiReader,
-  resultToLand,
-} from "../../test-support/support/landedCiHistory.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
-test.use({
-  serverMode: "boundary",
-  extraEnv: collectingLandedCi,
-  liveServer: "synchronous delivery child blocks the mounted receiver",
-});
-const readers: DashboardServer[] = [];
-test.afterEach(async () => {
-  await Promise.all(readers.splice(0).map((reader) => reader.close()));
-});
+const source = makeMe.aPublishedSource.openDough.please();
+const command = ["adapter"];
+const scope = "tests";
+const description = makeMe.aRepository
+  .withBaseBeforeEveryLaunch({
+    ".planning/open-dough.json": JSON.stringify(
+      makeMe.projectCiSettings.with({ ciAdapter: command }).please(),
+    ),
+  })
+  .withRevision("revision")
+  .please();
 
-test("retains and reads independent case and file timings from one validated adapter attempt with Intent closed", async ({
-  dashboard,
-  origin,
-  github,
-}) => {
-  const { record, revision } = await resultToLand(
-    dashboard,
-    "adapter-proof.txt",
-  );
-  const adapter = adapterProject(dashboard.home);
+test("retains and reads independent case and file timings from one validated adapter attempt with Intent closed", async () => {
+  const checkout = await materializeLocalCheckout(undefined, description, {
+    gitTemplates: false,
+  });
+  const repository = checkout.integration;
+  const stopped = new AbortController();
+  vi.stubEnv("HOME", checkout.fixture);
+  onTestFinished(async () => {
+    stopped.abort();
+    vi.unstubAllEnvs();
+    await checkout.cleanup();
+  });
+
+  const landing = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing(checkout.revisions)
+    .please();
+  const { revision, receivedAt } = landing;
   const attempt = makeMe.aCiAdapterAttempt
     .passed({
       runId: "run-a",
       attemptId: "attempt-a",
       sha: revision,
-      branch: "main",
+      branch: source.ref,
       startedAt: "2026-11-05T10:00:00Z",
       completedAt: "2026-11-05T10:02:00Z",
     })
     .please();
+  const adapterAttempt = {
+    runId: String(attempt.runId),
+    attemptId: String(attempt.attemptId),
+  };
+  const key = buildKeyOf({ revision, adapterAttempt });
   const entry = makeMe.aCiProofEntry
-    .at("tests")
+    .at(scope)
     .holding(
       makeMe.aCiProofEvidence.inUnit("case").counting(3).timed(1200).please(),
       makeMe.aCiProofEvidence.inUnit("file").counting(1).timed(80).please(),
     )
     .please();
   const summary = proofSummaryForEntry(
-    { repository: "terryyin/open-dough", attemptId: "attempt-a", revision },
+    {
+      repository: source.repository,
+      attemptId: adapterAttempt.attemptId,
+      revision,
+    },
     entry,
   );
-  adapter.answer({ discover: { main: [attempt] }, proof: { summary } });
-  const receipt = land(record, origin, dashboard.home).result.landing.receipt;
-  const key = `adapter/${JSON.stringify(["run-a", "attempt-a", revision])}`;
-  await expect
-    .poll(() => retainedHistory(dashboard.home)?.builds[key]?.proof)
-    .toEqual({
-      kind: "summary",
-      summary: expect.objectContaining({
-        schemaVersion: 2,
-        attemptId: "attempt-a",
-        revision,
-        entries: [
-          {
-            path: "tests",
-            evidence: [
-              expect.objectContaining({ unit: "case", durationMs: 1200 }),
-              expect.objectContaining({ unit: "file", durationMs: 80 }),
-            ],
-          },
-        ],
-      }),
-    });
-  expect(Object.keys(retainedHistory(dashboard.home)?.builds ?? {})).toEqual([
-    key,
-  ]);
-  expect(adapter.proofRequests()).toEqual([
+  const discover = vi.fn(({ branch }: { branch: string }) =>
+    Promise.resolve({
+      attempts: answeredCommandAttempts([attempt], branch) as unknown[],
+      queue: undefined,
+    }),
+  );
+  const proof = vi.fn<typeof readCommandProof>().mockResolvedValue({ summary });
+  const adapter = ciAdapterProofReader(proof);
+  const artifact = vi.fn();
+  const readers = { adapter, artifact };
+
+  await collectLandedCiPass({
+    source,
+    receipts: [landing],
+    history: await keptLandedCiHistory(source.id),
+    repository,
+    stopped: stopped.signal,
+    read: passRead(source, repository, stopped.signal, {
+      providers: {
+        adapter: {
+          discover,
+          jobs: () => Promise.resolve({ unavailable: "No job graph" }),
+        },
+        github: vi.fn().mockRejectedValue(new Error("unexpected GitHub")),
+      },
+      readArtifact: artifact,
+    }),
+    readProof: (project, subject, signal) =>
+      readIntentCiProof(project, subject, signal, () => repository, readers),
+  });
+
+  const kept = await keptLandedCiHistory(source.id);
+  expect(Object.keys(kept.builds)).toEqual([key]);
+  expect(kept.builds[key]?.proof).toEqual({ kind: "summary", summary });
+  expect(proof).toHaveBeenCalledTimes(1);
+  expect(proof.mock.calls[0]?.slice(1, 3)).toEqual([
+    { repo: source.repository, branch: source.ref },
     {
-      operation: "proof",
-      check: { repo: "terryyin/open-dough", branch: "main" },
-      attempt: { runId: "run-a", attemptId: "attempt-a", sha: revision },
+      runId: adapterAttempt.runId,
+      attemptId: adapterAttempt.attemptId,
+      sha: revision,
     },
   ]);
-  const reader = await restartAsLandedCiReader(
-    dashboard,
-    origin,
-    "boundary",
-    "the preceding live server retains the machine's Cursor runner",
-  );
-  readers.push(reader);
-  const asked = adapter.proofRequests();
-  const discovered = adapter.discoverRequests();
-  const ghCalls = github.calls.length;
-  const reading = await collectedScopeHistory(
-    reader.origin,
-    "tests",
-    revision,
-    receipt.receivedAt,
-  );
-  expect(reading).toMatchObject({
-    status: 200,
-    body: {
+
+  const proofRead = {
+    kind: "intent-ci-proof" as const,
+    ...makeMe.aCiAdapterProofAttempt
+      .with({
+        runId: adapterAttempt.runId,
+        attemptId: adapterAttempt.attemptId,
+        branch: source.ref,
+        revision,
+      })
+      .please(),
+  };
+  const proofCalls = proof.mock.calls.length;
+  const discoveries = discover.mock.calls.length;
+  expect(
+    await performIntentCiProofRead(
+      source,
+      proofRead,
+      stopped.signal,
+      () => repository,
+      readers,
+    ),
+  ).toMatchObject({
+    kind: "answered",
+    answer: {
+      runId: adapterAttempt.runId,
+      attemptId: adapterAttempt.attemptId,
+      branch: source.ref,
+      revision,
+      proof: { kind: "summary", summary },
+    },
+  });
+  // Remembered adapter summary answers the same attempt without another ask.
+  expect(proof).toHaveBeenCalledTimes(proofCalls);
+
+  expect(
+    await performIntentCiHistoryRead(source, {
+      kind: "intent-ci-history",
+      scope,
+      revision,
+      through: receivedAt,
+    }),
+  ).toMatchObject({
+    kind: "answered",
+    answer: {
       selectedRevision: revision,
       entries: [
         {
@@ -116,7 +172,7 @@ test("retains and reads independent case and file timings from one validated ada
           selected: true,
           build: {
             revision,
-            adapterAttempt: { runId: "run-a", attemptId: "attempt-a" },
+            adapterAttempt,
           },
           readings: [
             { kind: "point", unit: "case", ms: 1200 },
@@ -126,20 +182,17 @@ test("retains and reads independent case and file timings from one validated ada
       ],
     },
   });
-  expect(reading.body.entries).toHaveLength(1);
-  expect(reading.body.entries[0]?.readings).toHaveLength(2);
-  expect((await landedCiHistory(reader)).body).toMatchObject({
-    entries: [{ kind: "point", revision }],
-  });
+  expect(discover).toHaveBeenCalledTimes(discoveries);
+  expect(artifact).not.toHaveBeenCalled();
   expect(
-    await collectedScopeHistory(
-      reader.origin,
-      "tests",
-      revision,
-      receipt.receivedAt,
-    ),
-  ).toEqual(reading);
-  expect(adapter.proofRequests()).toEqual(asked);
-  expect(adapter.discoverRequests()).toEqual(discovered);
-  expect(github.calls).toHaveLength(ghCalls);
+    await performIntentCiHistoryRead(source, {
+      kind: "intent-ci-history",
+    }),
+  ).toMatchObject({
+    kind: "answered",
+    answer: {
+      entries: [{ kind: "point", revision }],
+    },
+  });
+  expect(discover).toHaveBeenCalledTimes(discoveries);
 });
