@@ -112,7 +112,7 @@ Pass typed invalid tool/workflow and incomplete or malformed period inputs
 to request admission and assert refusal with no store read. Check the GET
 adapter and frontend reader contract if the binding changes.
 
-Proof: the former chart and period cases now run in their original files
+The former chart and period cases now run in their original files
 through `readTokenIndex` and `tokenIndexAnswer`. The configured-project case
 reads a retained end for a hidden project's worker-bearing task and asserts
 default cohort, rates and check time. The real stale-cache case observes
@@ -127,7 +127,7 @@ evidence.
 ### 2. Cohorts and medians include only eligible tasks
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `token-index-cohort`, `token-index-eligibility` and
 `token-index-large-average` at `tokenIndexCohort` with MakeMe usage
@@ -135,6 +135,15 @@ summaries, tariff and requested cohort. Observe model and effort filtering,
 tie and unknown handling, measured zero, dated/tied ordering, estimated and
 unpriced exclusions and the large outlier's effect on median versus average.
 Retain production derivation only in proofs that need it.
+
+The original three specs now call `tokenIndexCohort` on Vitest. The
+selection and median assertions preserve root response counts, ties,
+recovered workflow options, estimated and unpriced exclusions, measured
+zero, date and ID ordering, and the 65-million outlier. The four partial
+conditions in the rolling-window case still arise from deriving the
+summary from a real usage document. All seven cases passed before and
+after, with summed case time falling from 887 ms to 90.05 ms. The slowest
+Vitest case took 62.12 ms. Checkout evidence uses the `slice-2-` prefix.
 
 ### 3. Claude and Codex pricing retains task and model distinctions
 
