@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-landed-ci-attempt-evidence.json",
+      "identity": "SEED-413#renovate-landed-ci-attempt-evidence",
+      "completedAt": "2026-11-24T12:01:30.197Z",
+      "blob": "547bf5d6bc62c6042a6a8f4db71b3da29a9a30e4"
+    },
+    {
       "fileName": "SEED-426_start-ad-hoc-work-under-a-story.json",
       "identity": "SEED-426#start-ad-hoc-work-under-a-story",
       "completedAt": "2026-11-24T10:29:28.491Z",

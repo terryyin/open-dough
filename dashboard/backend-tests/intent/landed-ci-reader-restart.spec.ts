@@ -1,88 +1,92 @@
-// A stopped server no longer owns its old address. A retained-history reader
-// starts on its own address even when another listener has claimed the old one.
-import http from "node:http";
-import path from "node:path";
+// A reopened retained history answers the saved point without asking the
+// provider. Old-address restart composition (new reader origin while another
+// listener claims the stopped server's port; zero reader traffic there) lives
+// in e2e/intent/landed-ci-reader-restart.spec.ts — a local-file read alone
+// cannot own that distinction.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { githubApi } from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { listenOnReleasedRunnerPort } from "../../test-support/support/cursorRunnerRecordedAddress.ts";
-import {
-  keepLandedCiHistory,
-  landedCiHistory,
-  restartAsLandedCiReader,
-} from "../../test-support/support/landedCiHistory.ts";
-import { publishedLanding } from "../../test-support/support/landedCiTrunk.ts";
-import { commonGitDir } from "../../test-support/support/launchLanding.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import { updateProjectHistory } from "../../server/landedCiKeepEvidence.ts";
 
-test.use({ serverMode: "boundary" });
+const source = makeMe.aPublishedSource.openDough.please();
+const description = makeMe.aRepository
+  .withBaseBeforeEveryLaunch()
+  .withRevision("retained")
+  .please();
 
-test("reader restart keeps local evidence when an unrelated listener takes the stopped server's port", async ({
-  dashboard,
-  origin,
-  github,
-}) => {
-  const landing = await publishedLanding(origin, {
-    title: "retained-port",
-    receipt: "62000000-0000-4000-8000-000000000001",
-    at: "2026-11-05T10:00:00Z",
+test("reopened retained history answers the saved point without provider calls", async () => {
+  const checkout = await materializeLocalCheckout(undefined, description, {
+    gitTemplates: false,
   });
-  await keepLandedCiHistory(
-    path.join(origin.machine, "home"),
+  const repository = checkout.integration;
+  const { retained: revision } = checkout.revisions;
+  const stopped = new AbortController();
+  vi.stubEnv("HOME", checkout.fixture);
+  onTestFinished(async () => {
+    stopped.abort();
+    vi.unstubAllEnvs();
+    await checkout.cleanup();
+  });
+
+  const receivedAt = "2026-11-05T10:00:00Z";
+  const completedAt = "2026-11-05T10:02:00Z";
+  const landing = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing({ base: checkout.revisions.base, revision })
+    .deliveredAs({
+      delivery: "62000000-0000-4000-8000-000000000001",
+      receipt: "62000000-0000-4000-8000-000000000001",
+    })
+    .receivedAt(receivedAt)
+    .please();
+
+  await updateProjectHistory(source.id, () =>
     makeMe.aLandedCiHistory
       .measuredLanding({
         receipt: landing.receipt,
-        revision: landing.revision,
-        receivedAt: landing.at,
-        repository: commonGitDir(origin.project),
+        revision,
+        receivedAt,
+        repository,
         runId: 62,
-        startedAt: landing.at,
-        completedAt: "2026-11-05T10:02:00Z",
+        startedAt: receivedAt,
+        completedAt,
       })
-      .inTrunkOrder([landing.revision])
+      .inTrunkOrder([revision])
       .please(),
   );
-  const before = await landedCiHistory(dashboard);
-  expect(before.body).toMatchObject({
-    entries: [{ kind: "point", runId: 62, revision: landing.revision }],
+
+  const github = vi.fn(
+    githubApi(() => {
+      throw new Error("Provider must not be asked for a retained history read");
+    }),
+  );
+
+  const retained = await performIntentCiHistoryRead(source, {
+    kind: "intent-ci-history",
   });
-  const oldPort = Number(new URL(dashboard.origin).port);
-  let unrelatedRequests = 0;
-  const occupant = http.createServer((request, response) => {
-    request.resume();
-    unrelatedRequests += 1;
-    response.end("unrelated listener");
-  });
-  let reader: DashboardServer | undefined;
-  try {
-    reader = await restartAsLandedCiReader(
-      {
-        ...dashboard,
-        async close() {
-          await dashboard.close();
-          await listenOnReleasedRunnerPort(occupant, oldPort);
+  expect(retained).toMatchObject({
+    kind: "answered",
+    answer: {
+      entries: [
+        {
+          kind: "point",
+          runId: 62,
+          revision,
+          startedAt: receivedAt,
+          completedAt,
         },
-      },
-      origin,
-      "boundary",
-    );
-    expect(reader.origin).not.toBe(dashboard.origin);
-    const asked = github.calls.length;
-    expect(await landedCiHistory(reader)).toEqual(before);
-    expect(github.calls).toHaveLength(asked);
-    expect(unrelatedRequests).toBe(0);
-    expect((await rawRequest({ url: dashboard.origin })).body).toBe(
-      "unrelated listener",
-    );
-    expect(unrelatedRequests).toBe(1);
-  } finally {
-    await reader?.close();
-    if (occupant.listening)
-      await new Promise<void>((resolve, reject) =>
-        occupant.close((error) => {
-          if (error) reject(error);
-          else resolve();
-        }),
-      );
-  }
+      ],
+    },
+  });
+
+  const asked = github.mock.calls.length;
+  expect(
+    await performIntentCiHistoryRead(source, {
+      kind: "intent-ci-history",
+    }),
+  ).toEqual(retained);
+  expect(github).toHaveBeenCalledTimes(asked);
+  expect(asked).toBe(0);
 });

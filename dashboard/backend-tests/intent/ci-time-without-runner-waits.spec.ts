@@ -1,7 +1,8 @@
+// GitHub attempt jobs + workflow definitions → longest chain without runner waits.
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
 import { timeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { readWorkflowJobs } from "../../server/ciWorkflowJobs.ts";
 import { comparisonWorkflow } from "../../test-support/support/storyCiComparisonFixture.ts";

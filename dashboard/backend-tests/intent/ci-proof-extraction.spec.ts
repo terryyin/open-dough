@@ -4,16 +4,17 @@
 // missing and a result without a duration stays untimed. Listing/download
 // counts and attempt memory: ./ci-proof-memory-github*.spec.ts.
 
+import { expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
 import { collectedSummary } from "../../test-support/support/ciProofCollected.ts";
 import { zipOf } from "../../test-support/support/ciProofArtifacts.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  listedArtifact,
-  repository,
-  run,
-  signal,
-} from "../support/ciProofMemory.ts";
+
+const repository = "example/project";
+const revision = "a".repeat(40);
+const run = makeMe.aCiProofRun
+  .with({ runId: 1, runAttempt: 1, revision })
+  .please();
 
 test("collected summary bytes keep a missing part and an untimed result through the artifact ZIP", async () => {
   const summary = collectedSummary(
@@ -36,12 +37,24 @@ test("collected summary bytes keep a missing part and an untimed result through 
       },
     ],
   );
-  const reader = ciProofArtifactReader({
-    listing: () => Promise.resolve({ artifacts: [listedArtifact(run)] }),
-    archive: () => Promise.resolve(zipOf("ci-proof-summary.json", summary)),
+  const listing = vi.fn().mockResolvedValue({
+    artifacts: [
+      makeMe.aCiProofArtifact
+        .with({
+          id: 41,
+          runId: run.runId,
+          runAttempt: run.runAttempt,
+          revision: run.revision,
+        })
+        .please(),
+    ],
   });
+  const archive = vi
+    .fn()
+    .mockResolvedValue(zipOf("ci-proof-summary.json", summary));
+  const reader = ciProofArtifactReader({ listing, archive });
 
-  const proof = await reader(repository, run, signal());
+  const proof = await reader(repository, run, new AbortController().signal);
 
   expect(proof).toMatchObject({
     kind: "summary",
