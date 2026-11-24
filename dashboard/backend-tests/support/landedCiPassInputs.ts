@@ -8,9 +8,11 @@ import { onTestFinished } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { repositoryHistoryReads } from "../../../Distribution/tests/support/repositoryHistoryReads.mjs";
 import type { ListedRun } from "../../server/baseCiNearest.ts";
+import type { RevisionCiBuild } from "../../server/baseCiRevisionNearest.ts";
 import { timeWithoutAdapterRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import type { ComparisonBuildSource } from "../../server/comparisonBuildSource.ts";
 import type { CiProof, CiProofRun } from "../../src/ciProof.ts";
+import type { CiTimeWithoutRunnerWaits } from "../../src/storyCiComparison.ts";
 import {
   collectLandedCiPass,
   type LandedCiPassInputs,
@@ -23,7 +25,13 @@ import {
   type ProjectHistory,
 } from "../../server/landedCiHistoryStore.ts";
 import { replaceMachineJson } from "../../server/machineJsonStore.ts";
-import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import {
+  performIntentCiHistoryRead,
+  type IntentCiHistoryRead,
+} from "../../server/intentCiHistoryRead.ts";
+import { buildKeyOf } from "../../src/landedCiBuildKey.ts";
+import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
+import type { KeptBuild } from "../../server/landedCiObservation.ts";
 import { workflow } from "./comparisonRead.ts";
 
 export const passProject = makeMe.aPublishedSource
@@ -106,16 +114,34 @@ export async function keepHistory(
   return store.file;
 }
 
-// The history read's entries from the kept history alone.
-export async function historyEntries(home: string, project = passProject) {
-  const read = await performIntentCiHistoryRead(project, undefined, { home });
+async function entriesRead(
+  home: string,
+  project: PublishedSource,
+  named: IntentCiHistoryRead | undefined,
+) {
+  const read = await performIntentCiHistoryRead(project, named, { home });
   if (read.kind !== "answered") throw new Error("No history answer");
   return landedCiHistorySchema.parse(read.answer).entries;
 }
 
+// The wall-time history read's entries from the kept history alone.
+export function historyEntries(home: string, project = passProject) {
+  return entriesRead(home, project, undefined);
+}
+
+// The entries of the history read naming CI time without runner waits, from
+// the kept history alone.
+export function measuredHistoryEntries(home: string, project = passProject) {
+  return entriesRead(home, project, {
+    kind: "intent-ci-history",
+    measure: historyMeasure.value,
+  });
+}
+
 // Trunk revisions in order, oldest first, each building the project but
 // the planning-only `skips` its CI workflow ignores. A run's CI proof is
-// `proofOf`'s answer, or none.
+// `proofOf`'s answer, or none. A selected attempt's CI time without runner
+// waits is `measureOf`'s answer, or the reason an empty job graph gives.
 export function landedCiPassInputs(
   trunk: readonly string[],
   answers: {
@@ -125,6 +151,7 @@ export function landedCiPassInputs(
     readonly now?: () => number;
     readonly skips?: readonly string[];
     readonly proofOf?: (run: CiProofRun) => CiProof;
+    readonly measureOf?: (build: RevisionCiBuild) => CiTimeWithoutRunnerWaits;
   },
   home = machineHome(),
 ) {
@@ -150,8 +177,10 @@ export function landedCiPassInputs(
         );
       },
       subjectOf: git.subjectOf,
-      timeWithoutRunnerWaitsOf: () =>
-        Promise.resolve(timeWithoutAdapterRunnerWaits([])),
+      timeWithoutRunnerWaitsOf: (build) =>
+        Promise.resolve(
+          answers.measureOf?.(build) ?? timeWithoutAdapterRunnerWaits([]),
+        ),
     },
     proofOf: (run) =>
       Promise.resolve(
@@ -170,4 +199,47 @@ export function landedCiPassInputs(
       },
     },
   };
+}
+
+// Kept passed builds of the stated attempts, measured with wall time alone,
+// each landing its own revision in trunk order under a receipt its launch
+// record repeats; answers those launch records.
+export async function keepWallTimeBuilds(
+  home: string,
+  attempts: readonly Omit<KeptBuild, "state" | "timeWithoutRunnerWaits">[],
+): Promise<readonly LaunchRecord[]> {
+  const builds = attempts.map((attempt) =>
+    makeMe.aKeptBuild
+      .with({
+        ...attempt,
+        state: "pass" as const,
+        timeWithoutRunnerWaits: undefined,
+      })
+      .please(),
+  );
+  const receiptOf = (build: KeptBuild) => `receipt-${build.revision}`;
+  const at = (index: number) =>
+    new Date(Date.parse("2026-11-05T09:00:00Z") + index * 60_000).toISOString();
+  let history = makeMe.aLandedCiHistory.inTrunkOrder(
+    builds.map((build) => build.revision),
+  );
+  builds.forEach((build, index) => {
+    history = history.recording(
+      makeMe.aLaunchLanding
+        .comparing({ base: "b".repeat(40), revision: build.revision })
+        .deliveredAs({ delivery: "landing", receipt: receiptOf(build) })
+        .receivedAt(at(index))
+        .please(),
+      buildKeyOf(build),
+      build,
+    );
+  });
+  await keepHistory(home, history.please());
+  return builds.map((build, index) =>
+    makeMe.aLaunchRecord
+      .executing({ identity: `SEED-9#${build.revision}`, title: "t" })
+      .launchedAt(at(index))
+      .landedAt(build.revision, { receipt: receiptOf(build) })
+      .please(),
+  );
 }

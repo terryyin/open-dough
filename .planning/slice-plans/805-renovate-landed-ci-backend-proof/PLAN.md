@@ -234,7 +234,7 @@ projection independently observed.
 ### 6. Time without runner waits preserves wall time and explains gaps
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `time-without-runner-waits`, `measure-gaps` and
 `adapter-measure-gaps`. Supply typed GitHub jobs or adapter job graphs for a
@@ -245,6 +245,15 @@ the job evidence tied to the original attempt.
 removed, and unchanged wall time. An unanswered jobs read is pending and is
 retried. An answered missing graph is final and names its build. Assert
 read and write behavior through the same store the pass uses.
+
+**Slice 6 evidence.** `time-without-runner-waits` went from 2546 ms to 29 ms,
+`measure-gaps` from 3922 ms to 40 ms, and `adapter-measure-gaps` from two
+cases taking 4075 ms to one taking 31 ms. The builder answers
+`timeWithoutRunnerWaitsOf` through `measureOf`. `measuredHistoryEntries`
+reads the measure, and `keepWallTimeBuilds` keeps passed wall-time-only
+builds. `landedCiRetainedMeasureGapSetup.ts` lost its last consumer and was
+deleted. Adapter reason wording stays with
+`Distribution/tests/support/dashboard-ci-adapter-revision-lookup.test.mjs`.
 
 ### 7. The wall-time cohort gives faster feedback
 
