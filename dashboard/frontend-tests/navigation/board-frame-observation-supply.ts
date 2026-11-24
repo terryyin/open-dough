@@ -6,7 +6,6 @@ import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
 import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import { ReadProblem } from "../../src/readProblem.ts";
 import type {
   RevisionCheck,
   RevisionStreamHandlers,
@@ -16,7 +15,7 @@ import { pageReadsSupplying } from "../../test-support/component-mount/unreadPag
 import {
   backlogMarkdownOf,
   emptyMachineAnswer,
-  entriesOf,
+  readBoardFixtureFile,
   rosterProfileTexts,
 } from "./board-frame-fixture-text.ts";
 
@@ -62,11 +61,13 @@ export function boardFrameObservationSupplying(
   snapshots: readonly PublishedWork[],
   {
     initialSnapshot,
+    detailFile,
     checkRevision,
     machineAnswer = emptyMachineAnswer(),
     accept,
   }: {
     initialSnapshot?: Error | Promise<PublishedWork>;
+    detailFile?: PublishedObservationReadSource["readDetailFile"];
     checkRevision?: PublishedObservationReadSource["checkRevision"];
     machineAnswer?: MachineAnswer & { readonly revision?: string };
     accept?: (
@@ -117,22 +118,11 @@ export function boardFrameObservationSupplying(
     ...unread,
     readSnapshot: (...[source, signal, knownRevision]) =>
       resolveSnapshot(source.id, signal, knownRevision),
-    readDetailFile: (...[, path]) => {
+    readDetailFile: (...args) => {
+      const [, path] = args;
       detailPaths.push(path);
-      for (const work of bySource.values()) {
-        const entry = entriesOf(work).find((each) => {
-          if (each.canonical.kind !== "snapshot") return false;
-          return (
-            each.canonical.recorded === path ||
-            each.canonical.recorded.endsWith(path) ||
-            path.endsWith(each.canonical.recorded.replace(/^\.\//, ""))
-          );
-        });
-        if (entry?.dependencies?.status === "unavailable") {
-          return Promise.reject(new ReadProblem(entry.dependencies.problem));
-        }
-      }
-      return Promise.resolve(`# Detail for ${path}\n`);
+      if (detailFile !== undefined) return detailFile(...args);
+      return readBoardFixtureFile(bySource.values(), path);
     },
     readProfiles: (...[source]) => {
       const work = bySource.get(source.id);

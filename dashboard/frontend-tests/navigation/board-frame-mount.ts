@@ -63,6 +63,7 @@ export async function mountBoardFrame(
   {
     otherWork = [],
     initialSnapshot,
+    detailFile,
     revisionCheck,
     intentReads,
     done,
@@ -73,6 +74,7 @@ export async function mountBoardFrame(
   }: {
     otherWork?: readonly PublishedWork[];
     initialSnapshot?: Error | Promise<PublishedWork>;
+    detailFile?: PublishedObservationReadSource["readDetailFile"];
     revisionCheck?: PublishedObservationReadSource["checkRevision"];
     intentReads?: IntentReadSource;
     done?: DoneRecordReadSource;
@@ -98,6 +100,7 @@ export async function mountBoardFrame(
   const snapshots = [work, ...otherWork];
   const supply = boardFrameObservationSupplying(snapshots, {
     ...(initialSnapshot === undefined ? {} : { initialSnapshot }),
+    ...(detailFile === undefined ? {} : { detailFile }),
     ...(revisionCheck === undefined ? {} : { checkRevision: revisionCheck }),
     machineAnswer: machine.answer ?? emptyMachineAnswer(),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),

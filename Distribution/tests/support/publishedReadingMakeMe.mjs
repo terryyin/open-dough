@@ -13,11 +13,15 @@ import {
 import { PublishedFilesBuilder } from "./publishedFilesTestData.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 import { ScopeHistoryGlanceBuilder } from "./scopeHistoryGlanceTestData.mjs";
+import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/publishedWork.ts").WorkEntry} WorkEntry */
+/** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 
 /**
  * @typedef {object} PublishedReadingMakeMe
+ * @property {import("./factBuilder.mjs").FactBuilder<BacklogEntry>} aBacklogEntry
+ * @property {typeof supplierAgreementBuilder} aSupplierAgreement
  * @property {PublishedSourceBuilder} aPublishedSource
  * @property {PublishedWorkBuilder} aPublishedWork
  * @property {WorkEntryBuilder} aWorkEntry
@@ -48,6 +52,18 @@ class WorkEntryBuilder {
 /** @returns {PropertyDescriptorMap} */
 export function publishedReadingMakeMeProperties() {
   return {
+    aBacklogEntry: {
+      enumerable: true,
+      get() {
+        return { with: copyFacts };
+      },
+    },
+    aSupplierAgreement: {
+      enumerable: true,
+      get() {
+        return supplierAgreementBuilder;
+      },
+    },
     aPublishedSource: {
       enumerable: true,
       get() {

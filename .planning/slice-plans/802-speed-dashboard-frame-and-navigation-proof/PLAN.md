@@ -296,7 +296,7 @@ as did the six focused macOS cases and typecheck. See
 ### 5. Story references navigate, identify and recover without late theft
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (8 cases).** `navigation/story-reference-navigation`,
 `navigation/story-reference-identity`,
@@ -313,6 +313,32 @@ prevents late focus or inspection theft.
 **Proof.** Mounted frame (reuse `story-reference-done*` composition patterns)
 covers navigation, identity and recovery. Built-app reference specs in this
 roster retire.
+
+**Accepted assertion map.**
+
+| Retired case | Replacement observation |
+| --- | --- |
+| Active dependency with repeated inspection | `story-reference-navigation` checks the reading edge of a tall card, its detail, exact pinned link and focus, fresh cue after fade, Highlight and detail after expiry, and no focus theft on revision delivery. Existing published-work E2E owns the native popup. |
+| Reference to a starting story | `story-reference-navigation` supplies an existing accepted start, then checks reveal, protected inspection, and no extra host call. Existing agent-launch E2E owns real start acceptance. |
+| Known story with unreadable detail | `story-reference-navigation` checks the exact preparation read gap, visible and focused card, and absence of a reference error. |
+| Same-title identities | `story-reference-identity` uses native keyboard and touch at phone width with reduced motion, checking the chosen anchors, their detail, focus and automatic scroll. |
+| Each project's own telling | `story-reference-identity` resolves the same identity at two distinct published commits, checking the project's exact link, focus, visible detail and absence of the other telling. |
+| Missing, pending, failed and recovered | `story-reference-recovery` checks each wording and the same live region through held reads, failure and Retry to a newly published block. |
+| Leaving during a held read | `story-reference-recovery` observes the real abort and verifies the current project keeps focus and remains free of the earlier target after release. |
+| Choosing another inspection | `story-reference-recovery` releases a held answer after another inspection and checks the new story membership without stealing detail or focus. |
+
+**Result.** Eight mounted cases took 5.78 s including preparation versus
+12.09 s for eight legacy cases at two workers. No E2E cost was added. Eleven
+affected mounts, 13 Node builder tests, three existing E2Es and typecheck
+passed. The browser entry shares the existing backlog and supplier agreement
+builders. Four legacy route substitutes and three unused cue helpers were
+retired. The final comparison selection took 5.96 s after separating published
+test data from browser operations. Exact observations and timing are in Git
+evidence `slice5-return.md` and `slice5-refactor-final-vitest.log.run.json`.
+Final preparation isolated the explicit reduced-motion scroll from the
+column-paging scroll, whose later call does not specify a motion setting.
+The two target identities still require automatic reveal and reject smooth
+reveal. All eight cases passed again in `slice5-motion-ownership.log.run.json`.
 
 ### 6. Recent stories and agent roster follow selection and collection settings
 
