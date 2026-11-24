@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 ## Backlog list
 
 - [Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository) — SEED-428#read-reviews-from-the-review-repository
+- [Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git
 - [Observe that a failed listing discover cancels the other branch](seeds/SEED-423-shrink-the-installed-distribution.md#observe-the-cancelled-listing-discover) — SEED-423#observe-the-cancelled-listing-discover
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner

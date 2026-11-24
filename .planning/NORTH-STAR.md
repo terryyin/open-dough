@@ -21,6 +21,18 @@ this topic at wrap-up of
 once the new path and its proof are in place. The durable repository roles are
 defined in [ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships).
 
+## Share one refresh for published Dashboard Git reads
+
+Extend the Review repository and shared fetch from SEED-428 so every
+published Dashboard Git read uses one repository and refresh coordinator per
+project. Origin remains authoritative. Open, Refresh, and live observation
+share checks of trunk and relevant story branches. Advance the displayed refs
+only when their commits are locally readable, and keep detail reads pinned.
+When refresh fails, retain the last readable view with its confirmation time
+and sync status. Actions that need current state require a successful fresh
+check. Retire this topic at wrap-up of
+[Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git).
+
 ## Make production code directly testable instead of growing test support
 
 Test support (`dashboard/test-support/` at ~790 files beside ~1,145 production
