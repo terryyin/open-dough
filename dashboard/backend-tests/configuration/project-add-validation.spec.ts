@@ -75,7 +75,7 @@ for (const kind of [
   "non-checkout",
   "nested checkout folder",
 ] as const) {
-  test(`${kind} is refused at the local path field before GitHub is read`, async () => {
+  test(`${kind} is refused at the execution checkout field before GitHub is read`, async () => {
     const localPath = path.join(
       kind === "nested checkout folder" ? fixture.checkout : fixture.home,
       "folder",
@@ -85,14 +85,14 @@ for (const kind of [
     }
     const message =
       kind === "missing"
-        ? `The local folder ${localPath} was not found.`
-        : `The local folder ${localPath} is not the root of a Git checkout with an origin repository.`;
+        ? `The execution checkout ${localPath} was not found.`
+        : `The execution checkout ${localPath} is not the root of a Git checkout with an origin repository.`;
     await refuses({ ...fixture.input, localPath }, "localPath", message);
     expect(fixture.github.calls).toEqual([]);
   });
 }
 
-test("a different origin names both repositories and refuses the local path", async () => {
+test("a different origin names both repositories and refuses the execution checkout", async () => {
   fixture.setOrigin("https://github.com/another/different.git");
   await refuses(
     fixture.input,

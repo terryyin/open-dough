@@ -1,6 +1,6 @@
 // An unattached Cursor session whose launch establishes its session, with
 // the real installed start (../../test-support/support/cursorStart.ts) and the fixture
-// `cursor-agent`: existing changes in default main are confirmed before
+// `cursor-agent`: existing changes in the execution checkout are confirmed before
 // create-chat, and the first prompt is the "Established session" block, then
 // the reporting context, with no skill line and nothing of the developer's;
 // an isolated session starts with its new worktree as Cursor's workspace.
@@ -22,10 +22,10 @@ import { expect, test } from "../../test-support/support/cursorStart.ts";
 import {
   dirty,
   status,
-} from "../../test-support/support/defaultCheckoutChanges.ts";
+} from "../../test-support/support/executionCheckoutChanges.ts";
 import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
 import {
-  defaultMainSession,
+  executionCheckoutSession,
   isolatedSession,
   sessionBlock,
 } from "../../test-support/support/startSessionLanding.ts";
@@ -66,7 +66,11 @@ test("existing changes are confirmed before Cursor creates anything, and an esta
     ),
   ).toMatchObject({ kind: "launched" });
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  const session = defaultMainSession(origin.project, "auto-land", revision);
+  const session = executionCheckoutSession(
+    origin.project,
+    "auto-land",
+    revision,
+  );
   expect(record?.establishedSession).toEqual(session);
   expect(record?.request).toMatchObject({ policy: asked.policy });
   expect(JSON.stringify(record)).not.toContain("existingChanges");
@@ -132,7 +136,9 @@ test("with no text and a chosen model, a session that lands automatically starts
   ]);
   await expect.poll(() => cursor.input(client.pid)).toMatch(/\r$/u);
   expect(cursor.input(client.pid).split("\n\n")[0]).toBe(
-    sessionBlock(defaultMainSession(origin.project, "auto-land", revision)),
+    sessionBlock(
+      executionCheckoutSession(origin.project, "auto-land", revision),
+    ),
   );
 });
 

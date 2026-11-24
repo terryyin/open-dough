@@ -9,7 +9,7 @@ import {
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import type { AgentLaunchRequest, SessionPolicy } from "../src/agentLaunch.ts";
 import { installedSkillPath } from "./launchHosts.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import { isFile, type Established, type PlannedStart } from "./startLaunch.ts";
 
 // The installed skill that ships the shared policy every start reads.
@@ -19,7 +19,7 @@ const policyScript = "session-policy.mjs";
 // Whether the selected host's installation in the project ships the shared
 // policy its starts read.
 export function shipsSessionPolicy(
-  project: ProjectFolder,
+  project: LocalFolder,
   host: AgentLaunchRequest["host"],
 ): Promise<boolean> {
   return isFile(
@@ -28,11 +28,11 @@ export function shipsSessionPolicy(
 }
 
 // The arguments a policy adds to a start command: the integration checkout
-// unless the default checkout is the workspace itself, publication authority
+// unless the execution checkout is the workspace itself, publication authority
 // only when the policy publishes, and the policy's own flags.
 export function policyArguments(
   policy: SessionPolicy,
-  project: ProjectFolder,
+  project: LocalFolder,
 ): string[] {
   return [
     ...(policy.workspace === "default-checkout"
@@ -48,7 +48,7 @@ export function policyArguments(
 // result.
 export function continuedStart(
   place: {
-    readonly workspace: ProjectFolder;
+    readonly workspace: LocalFolder;
     readonly branch: string;
     readonly policy: SessionPolicy;
   },

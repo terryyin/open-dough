@@ -11,7 +11,7 @@ import {
   type SessionState,
 } from "../src/agentLaunch.ts";
 import { feedbackMaintenanceLabel } from "../src/feedbackMaintenanceSetting.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import type { Established } from "./startLaunch.ts";
 import type { UnattachedRequest } from "./unattachedStartScript.ts";
 import type { DefaultLaunchStart } from "../src/defaultLaunchStart.ts";
@@ -146,5 +146,5 @@ export type EstablishedHandoff<Facts = Established | UnattachedEstablished> = {
 // A launch's established start with the workspace its session opens in.
 export type EstablishedLaunch<Facts = Established | UnattachedEstablished> = {
   readonly handoff: EstablishedHandoff<Facts>;
-  readonly workspace: ProjectFolder;
+  readonly workspace: LocalFolder;
 };

@@ -175,7 +175,7 @@ test.describe("execution start of a project whose installed skill cannot continu
     origin.cleanup();
   });
 
-  test("launches as before, in the project folder, with no Take and no workspace", async () => {
+  test("launches as before, in the execution checkout, with no Take and no workspace", async () => {
     // The folder that ships the formatter is a project that establishes a start.
     expect(await establishingProjects(server)).toEqual(["open-dough"]);
 

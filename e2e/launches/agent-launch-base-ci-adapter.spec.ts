@@ -1,5 +1,5 @@
 // A project with ciAdapter is judged from its adapter's discover attempts
-// run in the project folder: a failing nearest attempt asks before start;
+// run in the execution checkout: a failing nearest attempt asks before start;
 // an adapter exit failure is "could not be read". Same installed-start and
 // fake-GitHub history harness as agent-launch-base-ci.spec.ts.
 
@@ -48,7 +48,7 @@ test("a failing nearest adapter attempt asks; Back starts nothing", async ({
     "planning after adapter failure",
   );
   // Commit history still comes from fake GitHub; Actions answers are unused
-  // once ciAdapter is configured on disk in the project folder.
+  // once ciAdapter is configured on disk in the execution checkout.
   published.serveActions(() => undefined);
   const runUrl = "https://ci.invalid/adapter-failed";
   const failedAttempt = makeMe.aCiAdapterAttempt

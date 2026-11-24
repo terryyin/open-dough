@@ -3,8 +3,8 @@
 // the published source (`intent=ci-status`), the configured ref unless the
 // request names a `judged` branch the safe-branch rule accepts. It names no
 // revision: the judgment resolves the branch head from its own commit
-// listing (`./baseCiJudgment.ts`, the launch's rule). The project folder
-// supplies the CI settings (`./projectFolders.ts`). Anything else is
+// listing (`./baseCiJudgment.ts`, the launch's rule). The execution checkout
+// supplies the CI settings (`./executionCheckout.ts`). Anything else is
 // refused here before any `gh` call.
 //
 // A fresh read asks CI and keeps a keepable answer in this process
@@ -26,7 +26,7 @@ import {
   type StoredCiStatusAnswer,
 } from "./intentCiStatusAnswers.ts";
 import { intentReadMixedParameters } from "./intentReadParameters.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import { refused, type RefusedParameters } from "./refusedParameters.ts";
 
@@ -115,7 +115,7 @@ export async function performIntentCiStatusRead(
   signal: AbortSignal,
 ): Promise<Outcome> {
   const branch = judgedBranch(source, read);
-  const folder = projectFolder(source);
+  const folder = executionCheckout(source);
   const key = ciStatusAnswerKey(
     source.repository,
     branch,

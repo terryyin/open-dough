@@ -53,7 +53,7 @@ async function aReportedIsolatedLanding<Branch extends string>(branch: Branch) {
   return { checkout, workspace, record, reference, home, performWork };
 }
 
-// The case's Default main launch that declared its landing from `branch`,
+// The case's Execution checkout launch that declared its landing from `branch`,
 // kept alone in the store.
 async function aDeclaredLanding<Branch extends string>(branch: Branch) {
   const { checkout, worktrees, records, performWork } = await aDoneCaptureCase()

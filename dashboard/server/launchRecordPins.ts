@@ -20,7 +20,10 @@ import {
   removeLandingPins,
   removePins,
 } from "./launchLandingGit.ts";
-import { defaultMainStart, resolvedCheckout } from "./sessionCommitsCapture.ts";
+import {
+  recordedExecutionCheckoutStart,
+  resolvedCheckout,
+} from "./sessionCommitsCapture.ts";
 
 const sessionCommitsRefPrefix = (session: LaunchRecord["session"]) =>
   `refs/open-dough/session-commits/${session.host}/${session.sessionId}/`;
@@ -130,7 +133,7 @@ export async function keepSessionCommitRefs(
 }
 
 // Use the repository that actually held the refs when it is known. A record
-// with no capture can still have refs in its Default main checkout's repository.
+// with no capture can still have refs in its execution checkout.
 export async function releaseSessionCommitRefs(
   record: LaunchRecord,
   savedRepository = record.sessionCommits?.repository,
@@ -139,7 +142,7 @@ export async function releaseSessionCommitRefs(
   try {
     let repository = savedRepository;
     if (repository === undefined) {
-      const start = defaultMainStart(record);
+      const start = recordedExecutionCheckoutStart(record);
       if (start === undefined) return;
       repository = await canonicalRepository(start.workspace);
     }

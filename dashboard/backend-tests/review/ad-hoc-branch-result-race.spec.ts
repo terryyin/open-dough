@@ -8,7 +8,7 @@ import { NativeDoneMarks, type DoneLaunches } from "../../server/doneMarks.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
-import { localFolder } from "../../server/projectFolders.ts";
+import { localFolder } from "../../server/localFolder.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { source } from "../support/doneCaptureCase.ts";

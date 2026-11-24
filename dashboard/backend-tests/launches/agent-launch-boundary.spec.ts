@@ -1,6 +1,6 @@
 // The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
 // at the boundary server: a same-origin launch request starts one Claude Code
-// background session in the project's folder, on the requested workflow's
+// background session in the project's execution checkout, on the requested workflow's
 // skill and named for its workflow, and answers with the record it keeps;
 // each failure answers failed or uncertain and keeps no record. Refused
 // requests are ./agent-launch-refusal.spec.ts, how long and where records are
@@ -51,7 +51,7 @@ test.describe(`agent launch boundary`, () => {
     await closeOpenSessions(server);
   });
 
-  test("launches Claude Code in the project folder and keeps the confirmed record", async () => {
+  test("launches Claude Code in the execution checkout and keeps the confirmed record", async () => {
     server.claudeScenario("launched");
     const response = await launch(server, launchRequest);
 
@@ -128,7 +128,7 @@ test.describe(`agent launch boundary`, () => {
     });
   });
 
-  test("names the missing project folder and starts no claude", async () => {
+  test("names the missing execution checkout and starts no claude", async () => {
     const callsBefore = server.claudeCalls().length;
     const response = await launch(server, {
       ...launchRequest,

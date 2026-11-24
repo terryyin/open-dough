@@ -37,7 +37,7 @@ import { performIntentCiComparisonRead } from "./intentCiComparisonRead.ts";
 import { performIntentCiHistoryRead } from "./intentCiHistoryRead.ts";
 import { performIntentCiProofRead } from "./intentCiProofRead.ts";
 import { performIntentCiStatusRead } from "./intentCiStatusRead.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import { pathReachableFromRevision } from "./reachablePaths.ts";
 import { readingOf } from "./readingRequestedRead.ts";
@@ -142,7 +142,7 @@ export async function perform(
                 source,
                 read,
                 signal,
-                (asked) => projectFolder(asked).path,
+                (asked) => executionCheckout(asked).path,
               );
             case "intent-ci-comparison":
               return await performIntentCiComparisonRead(source, read, signal);
@@ -151,7 +151,7 @@ export async function perform(
                 source,
                 read,
                 signal,
-                projectFolder(source).path,
+                executionCheckout(source).path,
               );
             case "published-sessions-at":
               return await performPublishedSessionsRead(

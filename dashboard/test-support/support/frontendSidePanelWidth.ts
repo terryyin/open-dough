@@ -1,4 +1,4 @@
-// A retained Default main session's review for the file sidebar width journey.
+// A retained Execution checkout session's review for the file sidebar width journey.
 
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -18,7 +18,7 @@ export async function openSessionReviewForWidth(
   page: Page,
   services: FrontendServiceState,
 ) {
-  const title = "Default main session";
+  const title = "Execution checkout session";
   const file = "session.txt";
   const { baseline: base, tree: revision } = frontendReviewIds;
   const record = makeMe.aLaunchRecord

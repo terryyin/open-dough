@@ -5,7 +5,7 @@ import { launchDialog } from "./ad-hoc-launch-page.ts";
 import { mountStoryLaunches } from "./story-card-launch-page.ts";
 
 const establishingSentence =
-  "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.";
+  "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under .worktrees/ in the execution checkout; pressing Start authorizes that push.";
 
 async function inspectAndDismiss(
   action: Locator,

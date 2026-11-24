@@ -17,7 +17,7 @@ import { commitAll, git, writeAt } from "./support/storyReviewWorktree.ts";
 const workspaceOf = (origin: StartOrigin) =>
   path.join(origin.machine, "originating-machine");
 
-// The originating clone, with the project checkout's identity, fetched up to
+// The originating clone, with the execution checkout's identity, fetched up to
 // the origin.
 function originatingClone(origin: StartOrigin) {
   const workspace = workspaceOf(origin);

@@ -145,13 +145,13 @@ test("Projects shows its read fallback and links an endpoint refusal to the draf
   const githubUrl = "https://github.com/example/sample-app";
   const localPath = "~/git/sample-app";
   await userEvent.fill(dialog.getByLabelText("GitHub URL"), githubUrl);
-  await userEvent.fill(dialog.getByLabelText("Local path"), localPath);
+  await userEvent.fill(dialog.getByLabelText("Execution checkout"), localPath);
   await userEvent.click(
     dialog.getByRole("button", { name: "Add", exact: true }),
   );
   await showsRefusal("This checkout has a different origin.");
   await expect
-    .element(dialog.getByLabelText("Local path"))
+    .element(dialog.getByLabelText("Execution checkout"))
     .toHaveAccessibleDescription("This checkout has a different origin.");
 
   const [readEndpoint, readOptions] = requests.mock.calls[0] ?? [];

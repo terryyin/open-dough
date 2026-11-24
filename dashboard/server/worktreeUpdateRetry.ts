@@ -13,7 +13,7 @@ import {
   unreadableEvidence,
 } from "./launchAttemptConflicts.ts";
 import { keptAttempts } from "./launchAttemptStore.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { knownLaunchWorkspace } from "./knownLaunchWorkspace.ts";
 import { applyReleaseToWorktree } from "./worktreeReleaseApply.ts";
 
@@ -59,7 +59,7 @@ export async function prepareWorktreeUpdate(
   const workspace = await knownLaunchWorkspace(
     source,
     found.request,
-    projectFolder(source),
+    executionCheckout(source),
     found.id,
     undefined,
   );

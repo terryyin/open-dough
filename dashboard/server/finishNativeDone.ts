@@ -7,7 +7,7 @@ import type { AgentTerminals } from "./agentTerminals.ts";
 import { HostOperationFailure } from "./hostLaunch.ts";
 import type { LaunchHost } from "./launchHosts.ts";
 import { setRecordDoneAt } from "./launchRecordStore.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 // The wait before Done reports a native stop or removal unconfirmed.
 const nativeWaitMs = 10_000;
@@ -36,7 +36,7 @@ export type NativeDone = { readonly stopped: AbortSignal } & (
 export async function finishNativeDone(
   sourceId: string,
   record: LaunchRecord,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   terminals: DoneTerminals,
   host: DoneHost | undefined,
   done: NativeDone,

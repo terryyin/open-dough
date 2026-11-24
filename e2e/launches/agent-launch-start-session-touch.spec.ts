@@ -27,8 +27,8 @@ import {
 } from "../../dashboard/test-support/touchLaunchPage.ts";
 import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
 
-const defaultMainEffects =
-  "Default main · Automatically land The session runs in this project's folder on default main, with its existing changes; verified results land on origin without another review. Pressing Start authorizes that push.";
+const executionCheckoutEffects =
+  "Execution checkout · Automatically land The session runs in this project's execution checkout, with its existing changes; verified results land on origin without another review. Pressing Start authorizes that push.";
 
 const { name, portrait, landscape } = phoneLaunchTouchViewport;
 
@@ -51,7 +51,7 @@ test.describe(`${name} touch session editing`, () => {
     for (const choice of [
       "Isolated workspace",
       "Automatically land",
-      "Default main",
+      "Execution checkout",
     ]) {
       const radio = dialog.getByRole("radio", { name: choice, exact: true });
       const label = dialog.locator("label", {
@@ -71,7 +71,7 @@ test.describe(`${name} touch session editing`, () => {
       await page.setViewportSize(viewport);
       await expect(instruction).toHaveValue(draft);
       await expect(
-        dialog.getByRole("radio", { name: "Default main", exact: true }),
+        dialog.getByRole("radio", { name: "Execution checkout", exact: true }),
       ).toBeChecked();
       await expect(
         dialog.getByRole("radio", {
@@ -79,7 +79,7 @@ test.describe(`${name} touch session editing`, () => {
           exact: true,
         }),
       ).toBeChecked();
-      await expect(start).toHaveAccessibleDescription(defaultMainEffects);
+      await expect(start).toHaveAccessibleDescription(executionCheckoutEffects);
       for (const kept of [
         start,
         dialog.getByRole("button", { name: "Cancel" }),

@@ -19,7 +19,7 @@ import type { HostSession } from "../src/agentLaunch.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { TerminalAttachmentUnopened } from "./hostLaunch.ts";
 import { launchHost, type ScreenReadiness } from "./launchHosts.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import {
   LiveTerminalClient,
@@ -138,7 +138,7 @@ export class TerminalAttachments {
   // `use` settles.
   async withAttachment<T>(
     session: HostSession,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     use: (type: (input: string) => void) => Promise<T>,
     signal: AbortSignal,
     ready: ScreenReadiness,
@@ -172,7 +172,7 @@ export class TerminalAttachments {
   // once it has shown the host’s prompt before `signal` ends the wait.
   private async openPrivate(
     session: HostSession,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     signal: AbortSignal,
     ready: ScreenReadiness,
   ): Promise<LiveTerminalClient> {

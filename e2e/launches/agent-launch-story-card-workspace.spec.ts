@@ -22,7 +22,7 @@ test.use({ projectFolders: ["open-dough"] });
 // The kept records are written as ../../backend-tests/launches/agent-launch-start.spec.ts and
 // ../../backend-tests/launches/agent-launch-preparation-start.spec.ts show the real starts
 // leave them.
-test("a session whose start or preparation established a workspace says Workspace <folder> beneath the project folder, never the home directory, one without says none, and none is listed in Recently done", async ({
+test("a session whose start or preparation established a workspace says Workspace <folder> beneath the execution checkout, never the home directory, one without says none, and none is listed in Recently done", async ({
   page,
   dashboard,
   launchJourney,

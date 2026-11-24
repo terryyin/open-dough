@@ -94,7 +94,7 @@ test("unrecoverable published history shows the published-review explanation wit
     files: { "src/built.ts": "built\n" },
   });
   await publishDeclaredTrunk(origin, comparedStoryBranchCompletionOntoTip());
-  // Shallow project checkout: claim history cannot be recovered.
+  // Shallow execution checkout: claim history cannot be recovered.
   git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
   const published = git(origin.origin, "rev-parse", "main");
   await publishCommittedOrigin(page, {

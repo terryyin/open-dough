@@ -1,5 +1,5 @@
 // The comparison Review changes (./reviewChangesPage.ts) shows, as the reader
-// chooses it: the Comparison switch, a Default main session's runs, and
+// chooses it: the Comparison switch, an execution checkout session's runs, and
 // Include uncommitted changes for All changes. Wherever these controls sit,
 // each operation first makes them reachable (they live in the details behind
 // the toolbar's eye today), so a scenario names the comparison it chooses,
@@ -88,11 +88,11 @@ export class ReviewComparison {
     return this;
   }
 
-  // Chooses one of a Default main session's runs.
-  async chooseDefaultMainRun(label: string) {
+  // Chooses one of an execution checkout session's runs.
+  async chooseExecutionCheckoutRun(label: string) {
     await this.#reach();
     await this.#review
-      .getByRole("radiogroup", { name: "Default main runs" })
+      .getByRole("radiogroup", { name: "Execution checkout runs" })
       .getByRole("radio", { name: label, exact: true })
       .check();
     return this;

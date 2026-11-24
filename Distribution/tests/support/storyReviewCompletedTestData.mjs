@@ -1,7 +1,7 @@
 // @ts-check
 // A completed piece of work's comparisons as the story review answers them
 // (dashboard/src/storyReviewContract.ts): a story's published comparison, an
-// ad hoc landing's or a captured run's landed comparison, and a Default main
+// ad hoc landing's or a captured run's landed comparison, and a execution checkout
 // session's commits. Node-free, for ./storyReviewTestData.mjs.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").StoryReview} StoryReview */
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
@@ -68,7 +68,7 @@ export function landedComparison({ baseline, tree, files, run }) {
 }
 
 /**
- * A Default main session's commits: one kept run.
+ * An execution checkout session's commits: one kept run.
  * @param {Compared} compared
  * @returns {StoryReview}
  */

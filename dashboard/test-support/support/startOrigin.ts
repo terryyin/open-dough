@@ -1,4 +1,4 @@
-// A bare origin and project checkout with source skills installed for real
+// A bare origin and execution checkout with source skills installed for real
 // execution-start journeys. The caller names the repository description the
 // origin starts with; with none, it holds an empty valid backlog. Git
 // insteadOf routes catalog URLs to this local origin; machine holds the fake
@@ -71,7 +71,7 @@ export type StartOrigin = {
   // Holds every push to origin on its `pre-receive` hook until released;
   // cleanup refuses a push still held.
   holdPushes(): PushHold;
-  // Publishes a declared revision from the project checkout onto trunk and
+  // Publishes a declared revision from the execution checkout onto trunk and
   // returns the published revision.
   publishRevision(revision: RevisionFacts): Promise<string>;
   cleanup(): void;

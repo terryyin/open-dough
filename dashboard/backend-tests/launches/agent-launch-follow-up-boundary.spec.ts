@@ -31,7 +31,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-test("Default main · Wait for review sends the context, then the request, then the reporting context, keeps it on the request and leaves the source unchanged", async ({
+test("Execution checkout · Wait for review sends the context, then the request, then the reporting context, keeps it on the request and leaves the source unchanged", async ({
   dashboard,
   origin,
 }) => {
@@ -71,7 +71,7 @@ test("Default main · Wait for review sends the context, then the request, then 
   expect(stored(dashboard.home).slice(0, 2)).toEqual([source, quiet]);
 });
 
-test("a blank follow-up on Default main sends the context and the reporting context, labelled by its launch time", async ({
+test("a blank follow-up on the execution checkout sends the context and the reporting context, labelled by its launch time", async ({
   dashboard,
 }) => {
   keepLaunchRecords(dashboard, [quiet]);

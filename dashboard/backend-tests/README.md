@@ -74,7 +74,7 @@ checks stale review and capture at the resolved Git tip.
 [`kept-commits-release.spec.ts`](review/kept-commits-release.spec.ts) calls the
 kept-record store for deletion and expiry, and
 [`default-launch-start-facts.spec.ts`](review/default-launch-start-facts.spec.ts)
-reads the start from the Default main checkout.
+reads the start from the execution checkout.
 
 The Done capture family states each case as one value from
 [`aDoneCaptureCase()`](support/doneCaptureCaseBuilder.ts): a checkout whose

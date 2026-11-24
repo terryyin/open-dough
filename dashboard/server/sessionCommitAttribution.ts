@@ -1,4 +1,4 @@
-// Decides which entries of a Default main checkout's `HEAD` log are commits a
+// Decides which entries of an execution checkout's `HEAD` log are commits a
 // session made there, and groups them into runs. The entries are plain values
 // read from Git by `sessionCommitsCapture.ts`; this decision reads no Git.
 

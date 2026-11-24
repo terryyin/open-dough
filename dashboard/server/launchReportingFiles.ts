@@ -3,7 +3,7 @@ import { access, copyFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { LandingRepository } from "../src/launchLanding.ts";
 import type { AgentLaunchRequest } from "../src/launchRequest.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import {
   IncompleteReportingSupport,
   reportingSupport,
@@ -11,7 +11,7 @@ import {
 
 export async function copyReportingFiles(
   host: AgentLaunchRequest["host"],
-  folder: ProjectFolder,
+  folder: LocalFolder,
   directory: string,
 ) {
   const support = await reportingSupport(host, folder);

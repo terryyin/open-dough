@@ -1,4 +1,4 @@
-// A Default main session's kept runs of commits are the review's Comparison
+// An execution checkout session's kept runs of commits are the review's Comparison
 // switch, oldest first; a run whose commits leave no difference says so.
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
@@ -83,7 +83,7 @@ test("a session's two runs are switched between, oldest first", async ({
     pages.sessionRuns.expectRuns(labels);
     pages.sessionRuns.expectShown(firstLabel);
     pages.storyReview.expectDescription(
-      "Read-only: this session's kept commits made in the Default main checkout while the session was open, from the revision before them to their last commit.",
+      "Read-only: this session's kept commits made in the execution checkout while the session was open, from the revision before them to their last commit.",
     );
     pages.storyReview.expectSessionCommitsContext({ ...context, ...first });
     pages.storyReview.expectFileDiff("Modified first.txt", "one");

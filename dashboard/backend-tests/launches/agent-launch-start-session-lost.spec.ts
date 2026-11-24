@@ -4,7 +4,7 @@
 // as the case needs (../../test-support/support/keptSessionStart.ts), and the
 // synthetic `claude`: Continue on the restarted server runs the installed
 // start again for the kept workspace and branch, which makes it or takes it
-// as it is, opens the session there, and leaves default main's existing
+// as it is, opens the session there, and leaves execution checkout's existing
 // changes unasked. A start that outlasts its wait and Continue on the page:
 // ../../../e2e/launches/agent-launch-start-session-recovery.spec.ts.
 
@@ -23,7 +23,7 @@ import {
 import {
   dirty,
   status,
-} from "../../test-support/support/defaultCheckoutChanges.ts";
+} from "../../test-support/support/executionCheckoutChanges.ts";
 import {
   holdStarts,
   keptSessionStarts,
@@ -44,7 +44,7 @@ test.use({ startTimeoutMs: 500 });
 
 for (const when of ["before", "after"] as const) {
   const made = when === "after";
-  test(`a start lost with its server ${made ? "after" : "before"} it made its workspace is resumed by Continue in the kept workspace, existing changes in default main unasked`, async ({
+  test(`a start lost with its server ${made ? "after" : "before"} it made its workspace is resumed by Continue in the kept workspace, existing changes in the execution checkout unasked`, async ({
     dashboard,
     origin,
     github,
@@ -85,7 +85,7 @@ for (const when of ["before", "after"] as const) {
       const id = lost?.id ?? "";
       expect(lost).toMatchObject({ owned: false });
       expect(keptSessionStarts(origin)[id]).not.toHaveProperty("session");
-      // An isolated recovery is not asked about default main's changes.
+      // An isolated recovery is not asked about execution checkout's changes.
       dirty(origin.project);
       const changes = status(origin.project);
 

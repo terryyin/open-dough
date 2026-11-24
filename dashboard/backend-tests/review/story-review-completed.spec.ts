@@ -158,10 +158,10 @@ for (const [mode, history] of ordinaryCompletedReviewHistories()) {
   });
 }
 
-test.describe("configured folder", () => {
+test.describe("execution checkout", () => {
   test.use({ originRepository: ordinaryTrunkModeCompletedHistory() });
 
-  test("a configured project folder cannot borrow a parent checkout's published history or file diffs", async ({
+  test("an execution checkout cannot borrow a parent checkout's published history or file diffs", async ({
     request,
     dashboard,
     origin,
@@ -216,7 +216,7 @@ test.describe("configured folder", () => {
       expect(other.status()).toBe(200);
       expect(await other.json()).toMatchObject({
         kind: "unavailable",
-        explanation: expect.stringContaining("configured project folder"),
+        explanation: expect.stringContaining("execution checkout"),
       });
       expect(await other.json()).not.toHaveProperty("files");
       const file = await get(request, dashboard, storyReviewFileEndpoint, {
@@ -228,7 +228,7 @@ test.describe("configured folder", () => {
       });
       expect(file.status()).toBe(409);
       expect(await file.json()).toMatchObject({
-        error: expect.stringContaining("configured project folder"),
+        error: expect.stringContaining("execution checkout"),
       });
     } finally {
       renameSync(parentMetadata, metadata);

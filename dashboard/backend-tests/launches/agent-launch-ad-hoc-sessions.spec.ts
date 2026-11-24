@@ -1,5 +1,5 @@
 // What a default ad hoc launch keeps of where it started, over raw HTTP at
-// the boundary server: launched in the project's default checkout with the
+// the boundary server: launched in the project's execution checkout with the
 // default choices, with an instruction or blank, its kept record names that
 // checkout and the revision its `HEAD` named when the launch began. A real
 // bare origin (../../test-support/support/startOrigin.ts) and the synthetic
@@ -24,7 +24,7 @@ for (const [asked, choices] of [
   ["with an instruction", { instruction: "Explain how launch records work" }],
   ["with no instruction", {}],
 ] as const) {
-  test(`a default launch ${asked} keeps the default checkout and its starting revision`, async ({
+  test(`a default launch ${asked} keeps the execution checkout and its starting revision`, async ({
     dashboard,
     origin,
   }) => {

@@ -1,4 +1,4 @@
-// Why a Default main session's capture finds no readable run, how its review
+// Why an execution checkout session's capture finds no readable run, how its review
 // says so, and that Done keeps its timestamp when the capture fails.
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { renameSync, rmSync } from "node:fs";
@@ -25,13 +25,13 @@ const doneAt = minutesAgo(10);
 const captured = (checkout: Checkout, record: LaunchRecord) =>
   readSessionCommits(record, { workspace: checkout.integration });
 
-// A session established in Default main an hour before the case.
+// A session established in the execution checkout an hour before the case.
 const anEstablishedCase = () =>
   aDoneCaptureCase()
     .withEstablishedSession("session", { launched: 60 })
     .please();
 
-test("a blank default launch that edited files and committed nothing says it made no commits in the Default main checkout", async () => {
+test("a blank default launch that edited files and committed nothing says it made no commits in the execution checkout", async () => {
   const { checkout, performWork, at } = await aDoneCaptureCase().please();
   const launch = makeMe.aLaunchRecord
     .startedOnMainOf(checkout)

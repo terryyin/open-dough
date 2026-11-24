@@ -111,7 +111,9 @@ test("refused images explain why, keep the draft, and leave only accepted images
   await expect.element(attached.getByText("Image 1 · card.png")).toBeVisible();
   await expect.element(form.instruction).toHaveValue(draft);
   await expect.element(form.host).toHaveValue("claude");
-  const workspace = form.dialog.getByRole("radio", { name: "Default main" });
+  const workspace = form.dialog.getByRole("radio", {
+    name: "Execution checkout",
+  });
   await expect.element(workspace).toBeChecked();
   await expect
     .element(form.dialog.getByRole("radio", { name: "Wait for review" }))

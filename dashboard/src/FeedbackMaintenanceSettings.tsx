@@ -165,11 +165,11 @@ export function FeedbackMaintenanceSettings() {
       )}
       <p className="settings-note">
         When on, this dashboard starts the feedback maintenance cycle in Open
-        Dough's local folder on this machine once the due date the cycle
-        publishes in its watch list is reached, on the host and model chosen
-        here: one session per due date, listed in Sessions as Feedback
-        maintenance. A quiet completion marks it done without a notification; a
-        report that needs you notifies once and keeps it listed.
+        Dough's execution checkout once the due date the cycle publishes in its
+        watch list is reached, on the host and model chosen here: one session
+        per due date, listed in Sessions as Feedback maintenance. A quiet
+        completion marks it done without a notification; a report that needs you
+        notifies once and keeps it listed.
       </p>
       <form
         className="openai-settings-form"

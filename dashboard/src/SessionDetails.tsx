@@ -91,7 +91,7 @@ function LaunchSessionDetails({
   const established = establishedPlace(record);
   const workspace =
     record.shownWorkspace ?? continuation?.workspace ?? established?.workspace;
-  const defaultMain =
+  const inExecutionCheckout =
     established !== undefined &&
     "role" in established &&
     established.role === "default-checkout";
@@ -105,7 +105,7 @@ function LaunchSessionDetails({
       {workspace !== undefined && (
         <p>
           Workspace <code>{workspace}</code>
-          {defaultMain && " (default main)"}
+          {inExecutionCheckout && " (execution checkout)"}
         </p>
       )}
       {"continuation" in record.session &&

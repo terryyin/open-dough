@@ -1,4 +1,4 @@
-// Serializes Default main commit capture and settles it against the current Done.
+// Serializes execution checkout commit capture and settles it against the current Done.
 import { createHash } from "node:crypto";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import {
@@ -20,7 +20,7 @@ import { acquireWriteLock, releaseWriteLock } from "./machineJsonLock.ts";
 import { leaveMachineJson } from "./machineJsonStore.ts";
 import { checkoutSharedMeanwhile } from "./sessionCheckoutShared.ts";
 import {
-  defaultMainStart,
+  recordedExecutionCheckoutStart,
   readSessionCommits,
 } from "./sessionCommitsCapture.ts";
 
@@ -34,7 +34,7 @@ function sessionCommitsStartForDone(record: LaunchRecord) {
     sessionCommitsAtDone(record) !== undefined
   )
     return undefined;
-  return defaultMainStart(record);
+  return recordedExecutionCheckoutStart(record);
 }
 
 export function doneCapturePending(record: LaunchRecord): boolean {
@@ -105,7 +105,7 @@ async function keepCurrentSessionCommits(
   sourceId: string,
   key: string,
   doneAt: string,
-  start: NonNullable<ReturnType<typeof defaultMainStart>>,
+  start: NonNullable<ReturnType<typeof recordedExecutionCheckoutStart>>,
   read: SessionCommits | undefined,
   store: Pick<LaunchRecordStore, "replaceRecords">,
 ): Promise<LaunchRecord | undefined> {
@@ -136,7 +136,7 @@ async function settleSessionCommits(
   record: LaunchRecord,
   sessions: readonly LaunchRecord[],
   doneAt: string,
-  start: NonNullable<ReturnType<typeof defaultMainStart>>,
+  start: NonNullable<ReturnType<typeof recordedExecutionCheckoutStart>>,
   read: SessionCommits | undefined,
 ): Promise<LaunchRecord> {
   let captured: SessionCommits | undefined;

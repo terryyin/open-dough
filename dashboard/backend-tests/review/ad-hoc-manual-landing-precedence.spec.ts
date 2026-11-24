@@ -9,7 +9,7 @@ import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { bindRecord } from "../../server/launchRecordBinding.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
-import { localFolder } from "../../server/projectFolders.ts";
+import { localFolder } from "../../server/localFolder.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";

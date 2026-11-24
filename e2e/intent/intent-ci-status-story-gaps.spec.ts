@@ -72,7 +72,7 @@ test("a selected story without a published story branch is named and explained, 
       "CI timing changes",
     );
     // This synthetic board has no recoverable published completion in the
-    // local checkout, so the comparison explains that gap rather than
+    // execution checkout, so the comparison explains that gap rather than
     // inventing figures or judging another branch.
     await expect(comparisonReading(panel).gap).toBeVisible();
     await expectNoStatus(panel);

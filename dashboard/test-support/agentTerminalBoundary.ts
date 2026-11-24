@@ -6,7 +6,7 @@
 // shown project), and a raw WebSocket to
 // the terminal boundary for it, opened or refused, whose output and ending the
 // synthetic `claude` reports. A request can also be made while the session's
-// project folder is missing, which the terminal boundary and
+// execution checkout is missing, which the terminal boundary and
 // ../backend-tests/sessions/agent-launch-done-refusal.spec.ts both refuse.
 
 import { renameSync } from "node:fs";
@@ -55,7 +55,7 @@ export async function launched(
   return answer.record.session;
 }
 
-// Answers `request` while the project's folder on the dashboard's machine is
+// Answers `request` while the project's execution checkout on the dashboard's machine is
 // missing, and puts the folder back afterwards.
 export async function withoutProjectFolder<T>(
   server: DashboardServer,

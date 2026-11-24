@@ -6,7 +6,8 @@ import { effortBlocked } from "../src/launchEffort.ts";
 import { launchHost, type LaunchHost } from "./launchHosts.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { knownSource } from "./sessionAdmission.ts";
-import { projectFolder, folderExists } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
+import { folderExists } from "./localFolder.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { CursorModelLookupError } from "./hosts/cursor/options.ts";
 
@@ -102,16 +103,16 @@ export async function hostOptionsRequest(
   const host = identity.success ? launchHost(identity.data) : undefined;
   if (host?.options === undefined)
     throw new RefusedRequest(400, "This host cannot offer startup choices.");
-  if (!(await folderExists(projectFolder(source))))
+  if (!(await folderExists(executionCheckout(source))))
     throw new RefusedRequest(
       404,
-      "The project folder is not available on this machine.",
+      "The execution checkout is not available on this machine.",
     );
   return {
     kind: "host-options",
     host,
     ...(url.searchParams.get("context") === "project"
-      ? { cwd: projectFolder(source).path }
+      ? { cwd: executionCheckout(source).path }
       : {}),
   };
 }

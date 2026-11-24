@@ -63,7 +63,7 @@ import {
   publishedProjects,
 } from "./projectConfiguration.ts";
 import { repeatUntilStopped } from "./repeatingCheck.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 
 // How often recorded landings are collected again, so a pending one is
 // checked until it is final. A test may shorten it through the environment.
@@ -164,7 +164,7 @@ export class LandedCiCollection {
         ...candidates.flatMap((landing) =>
           landing.repository === undefined ? [] : [landing.repository],
         ),
-        projectFolder(source).path,
+        executionCheckout(source).path,
       ],
       candidates.map((landing) => landing.revision),
       undefined,

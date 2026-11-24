@@ -10,7 +10,7 @@ import { HostOperationFailure } from "../../server/hostLaunch.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import type { LaunchHost } from "../../server/launchHosts.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
-import { localFolder } from "../../server/projectFolders.ts";
+import { localFolder } from "../../server/localFolder.ts";
 import type { CompletionReceipt } from "../../src/completionReport.ts";
 import { nativeDoneMarkPending } from "../../src/doneMark.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -77,17 +77,14 @@ test("a quiet report after confirmed native Done keeps the additional commit", a
         .committing("first", { at: at(40) })
         .committing("second", { at: at(20) }),
     )
-    .withDefaultMainLaunch(
-      "default-launch",
-      times,
-      (launch, { checkout, work }) =>
-        launch
-          .keptSessionCommits({
-            repository: path.join(checkout.integration, ".git"),
-            runs: [{ base: checkout.base, revision: work.first }],
-          })
-          .reportingThrough(dashboardReporting)
-          .completedWith(completion),
+    .withCheckoutLaunch("default-launch", times, (launch, { checkout, work }) =>
+      launch
+        .keptSessionCommits({
+          repository: path.join(checkout.integration, ".git"),
+          runs: [{ base: checkout.base, revision: work.first }],
+        })
+        .reportingThrough(dashboardReporting)
+        .completedWith(completion),
     )
     .kept()
     .please();
@@ -123,7 +120,7 @@ test("retrying the same quiet delivery resumes native Done without repeating its
     performWork,
     at,
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("default-launch", times, (launch) =>
+    .withCheckoutLaunch("default-launch", times, (launch) =>
       launch
         .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
         .sessionCommitsFailedAt(doneAt)
@@ -163,7 +160,7 @@ test("a retry during a failing native Done resumes it once that Done settles", a
     checkout,
     records: { "default-launch": record },
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("default-launch", times, (launch) =>
+    .withCheckoutLaunch("default-launch", times, (launch) =>
       launch
         .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
         .reportingThrough(dashboardReporting)

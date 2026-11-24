@@ -28,7 +28,7 @@ test("Start session names the project and host, focuses an empty instruction, an
   await expect
     .poll(() => form.dialog.element().textContent)
     .toContain(
-      "Claude Code starts a background session on this machine, in this project's folder, with no story or skill.",
+      "Claude Code starts a background session on this machine, in this project's execution checkout, with no story or skill.",
     );
   await expect.element(form.instruction).toHaveFocus();
   await expect.element(form.instruction).toHaveValue("");

@@ -5,7 +5,7 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { completedStoryAttribution } from "./storyCompletedCommits.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
@@ -32,7 +32,7 @@ export async function publishedStoryReview(
     if (endpoints.kind === "unavailable")
       return unavailable(endpoints.explanation);
     const { facts, claim } = endpoints;
-    const directory = projectFolder(source).path;
+    const directory = executionCheckout(source).path;
     const call: GitCall = {
       cwd: directory,
       signal,

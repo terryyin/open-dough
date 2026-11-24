@@ -70,7 +70,7 @@ export type LaunchAttempts = StartupRecoveries & {
   storyStartupsOf(sourceId: string): readonly StoryStartup[];
   // Asks the local service to start the workflow on the project's work item
   // in the chosen host, with the developer's optional instruction, and
-  // answers whether it was accepted, or the default checkout's existing
+  // answers whether it was accepted, or the execution checkout's existing
   // changes the developer has yet to confirm, with nothing started.
   start(
     sourceId: string,

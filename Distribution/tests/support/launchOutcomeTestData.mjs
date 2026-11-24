@@ -128,7 +128,7 @@ export class LaunchOutcomeBuilder extends LaunchDoneCaptureBuilder {
 
   /**
    * The session identified this checkout as its own branch, entering it in
-   * the state and with the Default main tip the entry states.
+   * the state and with the execution checkout tip the entry states.
    * @param {NonNullable<LaunchOutcome["branchEntry"]>} entry
    */
   enteredBranch(entry) {

@@ -4,7 +4,7 @@ import "./project-client-configuration.css";
 const absentExplanation =
   "The Client configuration file (.planning/open-dough.json) is absent.";
 const unreadableExplanation =
-  "The Client configuration could not be read from this project's local checkout.";
+  "The Client configuration could not be read from this project's execution checkout.";
 
 export function ProjectClientConfiguration({
   inspection,

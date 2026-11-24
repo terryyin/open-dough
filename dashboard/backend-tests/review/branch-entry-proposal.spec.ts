@@ -1,4 +1,4 @@
-// An open Default main launch proposes the registered worktree it names as its
+// An open Execution checkout launch proposes the registered worktree it names as its
 // own branch from its typed record and real Git: the captured or already kept
 // entry, or a refusal of any other place. The declaring recipe's composed
 // entry agrees with that proposal on a fresh worktree.
@@ -17,7 +17,7 @@ const branch = "draft" as const;
 const anOpenDraft = aDoneCaptureCase()
   .withOrigin()
   .withWorkspace(branch)
-  .withDefaultMainLaunch("first", { launched: 60 })
+  .withCheckoutLaunch("first", { launched: 60 })
   .withWork((at) => makeMe.aCheckoutWork.committing("onMain", { at: at(50) }))
   .withWork(
     (at) =>
@@ -30,7 +30,7 @@ const anOpenDraft = aDoneCaptureCase()
     { in: branch },
   );
 
-test("an open launch proposes its draft's working tree, Default main tip and trunk", async () => {
+test("an open launch proposes its draft's working tree, Execution checkout tip and trunk", async () => {
   const {
     worktrees: { [branch]: workspace },
     records: { first: record },
@@ -64,7 +64,7 @@ test("a proposal refuses a foreign clone, a wrong branch and a second place", as
     records: { first: record, second },
   } = await anOpenDraft
     .withWorkspace("other")
-    .withDefaultMainLaunch("second", { launched: 60 })
+    .withCheckoutLaunch("second", { launched: 60 })
     .please();
   const foreign = path.join(checkout.fixture, "foreign");
   await git(checkout.integration, "clone", "--quiet", "--local", ".", foreign);
@@ -135,7 +135,7 @@ test("the declaring recipe's entry is the proposal for its fresh worktree", asyn
     .withOrigin()
     .withWorkspace(branch)
     .withDeclaringLaunch("declared", { launched: 60 }, branch)
-    .withDefaultMainLaunch("open", { launched: 60 })
+    .withCheckoutLaunch("open", { launched: 60 })
     .please();
 
   const { entry } = await proposeBranchEntry(trunkRef, open, {

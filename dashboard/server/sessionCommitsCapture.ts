@@ -1,4 +1,4 @@
-// Reads the commits a Default main session made in its checkout
+// Reads the commits an execution checkout session made in its checkout
 // (`../src/sessionCommits.ts`) from the checkout's `HEAD` log and keeps each
 // run's pair by references in the common repository. The log's entries say
 // what made a commit there; pulls, fast-forwards and merges made none.
@@ -23,9 +23,9 @@ const gitCall = (cwd: string) => ({
 const git = async (cwd: string, args: readonly string[]) =>
   (await runGit(args, gitCall(cwd))).stdout.trim();
 
-// The Default main checkout a session started in: a default launch's kept
-// start, or the start of a session established in the default checkout.
-export function defaultMainStart(
+// The Execution checkout a session started in: a default launch's kept
+// start, or the start of a session established in the execution checkout.
+export function recordedExecutionCheckoutStart(
   record: Pick<LaunchRecord, "defaultStart" | "establishedSession">,
 ): { readonly workspace: string } | undefined {
   if (record.defaultStart !== undefined) return record.defaultStart;
@@ -77,7 +77,7 @@ async function headLog(
   });
 }
 
-// Settle the Default main tip before reading the reflog. Use the tip saved at
+// Settle the execution checkout tip before reading the reflog. Use the tip saved at
 // branch entry when available. Otherwise a commit made while the log waits can
 // enter a later Done's comparison, after a new tip is settled.
 export async function readSessionCommits(
@@ -95,13 +95,15 @@ export async function readSessionCommits(
   const originalRef =
     entry !== undefined || branchEntryMissing ? startRef : "HEAD";
   if (originalRef === undefined)
-    throw new Error("The Default main branch was not recorded.");
+    throw new Error("The execution checkout branch was not recorded.");
   const head =
     entry === undefined
       ? await git(checkout, ["rev-parse", "--verify", originalRef])
       : entry.defaultTip;
   if (head === undefined)
-    throw new Error("There is no saved Default main tip at branch entry.");
+    throw new Error(
+      "There is no saved execution checkout tip at branch entry.",
+    );
   const capture = await readSessionCommitsAt({
     checkout,
     originalRef,

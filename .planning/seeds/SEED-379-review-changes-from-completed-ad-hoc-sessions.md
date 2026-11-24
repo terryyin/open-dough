@@ -23,12 +23,12 @@ maintainer's machine, across six projects:
 
 - 66 hold a retained landing, and every one of those pairs is still readable
   in its saved repository. Only the card's action is missing.
-- 52 are default launches (Default main · Wait for review). They hold no
+- 52 are default launches (Execution checkout · Wait for review). They hold no
   starting point and no landing context. Of the 33 started with Claude Code,
   about 15 delivered with a plain `git push`, about 11 through the installed
   publication command, and 7 delivered nothing.
 - 14 established a session and hold no landing; most of these pushed manually.
-- At most 16 of the 84 sessions that worked in a default checkout overlapped
+- At most 16 of the 84 sessions that worked in an execution checkout overlapped
   another such session of the same project, measured to their Done time.
 - A checkout's local Git log records the commits made in it apart from trunk
   work pulled or merged in.
@@ -36,7 +36,7 @@ maintainer's machine, across six projects:
 Terry decided on 2026-11-16:
 
 - **Three stories, in this order.** Show the evidence already retained; then
-  keep the changes of sessions working in the shared Default main checkout,
+  keep the changes of sessions working in the shared execution checkout,
   the largest group without evidence; then keep the results of sessions
   working on their own branch.
 - **Attribution in a shared checkout.** A session's commits are the commits
@@ -45,7 +45,7 @@ Terry decided on 2026-11-16:
   same time, the review still opens and says it may include that session's
   work.
 
-Terry decided on 2026-11-18, refining the Default main story:
+Terry decided on 2026-11-18, refining the execution checkout story:
 
 - **One comparison per run.** Where pulled trunk work interrupts a session's
   commits, each uninterrupted run is its own exact comparison. Replaying the
@@ -71,7 +71,7 @@ workspace path. A file read names the retained pair and one of its literal
 changed paths, including a rename's old path.
 
 A launch record's retained comparisons are its change evidence: its landing,
-or the runs of commits a Default main session made in its checkout. A later
+or the runs of commits an execution checkout session made in its checkout. A later
 story adds the own-branch result as a further retained comparison of the same
 record, read by the same landed-run reader and shown in
 the same panel; the Comparison switch returns when a session holds more than
@@ -84,7 +84,7 @@ evidence). Linked ad hoc rows still open their published Done story.
 
 <a id="review-deferred-default-main-session-changes"></a>
 
-### Review what Default main session reviews left deferred
+### Review what execution checkout session reviews left deferred
 
 **Identity:** SEED-379#review-deferred-default-main-session-changes
 ```json dough-story-state
@@ -93,8 +93,8 @@ evidence). Linked ad hoc rows still open their published Done story.
 
 #### Goal
 
-A developer reviewing a done ad hoc session that worked in the shared Default
-main checkout can also see what its review of session commits leaves out.
+A developer reviewing a done ad hoc session that worked in the shared execution
+checkout can also see what its review of session commits leaves out.
 
 #### Scope
 
@@ -112,10 +112,10 @@ decision recorded then:
 
 #### Open for refinement
 
-- In the unified reader, Default main keeps exact recorded runs and its
+- In the unified reader, Execution checkout keeps exact recorded runs and its
   shared-checkout warning. The branch-only merge choice requires branch
   evidence. [Combined session review](SEED-418-review-published-session-changes.md#review-selected-sessions-together)
   owns net changes across selected sessions where the evidence supports
-  them. This deferred story covers only the remaining Default main cases
+  them. This deferred story covers only the remaining Execution checkout cases
   above. Retain the earlier decisions until refinement finds a recoverable
   comparison for a case.

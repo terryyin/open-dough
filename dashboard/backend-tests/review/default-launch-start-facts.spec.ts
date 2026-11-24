@@ -4,7 +4,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { defaultLaunchStartFacts } from "../../server/defaultLaunchStart.ts";
-import { localFolder } from "../../server/projectFolders.ts";
+import { localFolder } from "../../server/localFolder.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 test("a default launch records its start only while Git can read the checkout", async () => {

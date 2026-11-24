@@ -7,7 +7,7 @@ import {
   hostSessionSchema,
   launchRecordSchema,
 } from "../../src/launchRecord.ts";
-import { defaultMainSession } from "../../test-support/support/startSessionLanding.ts";
+import { executionCheckoutSession } from "../../test-support/support/startSessionLanding.ts";
 
 const claude = makeMe.aHostSession
   .claude({ sessionId: "claude-conversation", shortId: "a1b2" })
@@ -86,11 +86,15 @@ test("accepts a predecessor Codex session without a continuation", () => {
 });
 
 test("accepts an older launch record's established session without retaining its unread creation fact", () => {
-  const established = defaultMainSession("/project", "auto-land", "revision");
+  const established = executionCheckoutSession(
+    "/project",
+    "auto-land",
+    "revision",
+  );
   const kept = makeMe.aLaunchRecord
     .adHoc({ title: "A session" })
     .inCodexSession(predecessorCodex)
-    .inDefaultCheckout({
+    .inExecutionCheckout({
       workspace: "/project",
       landing: "auto-land",
       revision: "revision",

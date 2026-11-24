@@ -1,6 +1,6 @@
 // Which done requests the local launch boundary (../../server/launchBoundary.ts)
 // refuses before it runs any `claude`, over raw HTTP: a session this dashboard
-// did not record, another project's session, a session whose project folder
+// did not record, another project's session, a session whose execution checkout
 // is missing, another site, an unknown project, and a malformed request. Each
 // refusal leaves the session unmarked and still busy. What an admitted done
 // request does is ./agent-launch-done.spec.ts. The synthetic `claude` (../../test-support/fixtures/fake-claude)
@@ -72,7 +72,7 @@ test.describe("refusing a done request", () => {
     await expectUnmarkedAndBusy(session);
   });
 
-  test("refuses a request for a session whose project folder is missing, without stopping or running claude", async () => {
+  test("refuses a request for a session whose execution checkout is missing, without stopping or running claude", async () => {
     const session = await launched(server);
     const callsBefore = server.claudeCalls().length;
 
@@ -83,7 +83,7 @@ test.describe("refusing a done request", () => {
     expect(response.status).toBe(404);
     expect(JSON.parse(response.body)).toEqual({
       error:
-        "The project folder ~/git/open-dough was not found on this machine.",
+        "The execution checkout ~/git/open-dough was not found on this machine.",
     });
     expect(server.claudeCalls()).toHaveLength(callsBefore);
     await expectUnmarkedAndBusy(session);

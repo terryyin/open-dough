@@ -26,22 +26,18 @@ import {
   pendingInputOf,
 } from "./launchRecordStore.ts";
 import { unconfirmedStart } from "./launchStart.ts";
-import {
-  folderExists,
-  localFolder,
-  projectFolder,
-  type ProjectFolder,
-} from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
+import { folderExists, localFolder, type LocalFolder } from "./localFolder.ts";
 import { keptStart } from "./startStore.ts";
 import { startOf } from "./startWorkflows.ts";
 
 // The workspace a new launch would write in, where that is known before
-// acceptance: the project's default checkout, or a kept start's workspace
+// acceptance: the project's execution checkout, or a kept start's workspace
 // it resumes. A fresh isolated workspace is new, so it names none here.
 async function replacementWorkspace(
   source: PublishedSource,
   request: AgentLaunchRequest,
-  folder: ProjectFolder,
+  folder: LocalFolder,
 ): Promise<string | undefined> {
   if (request.workflow === "ad-hoc") {
     return unattachedPolicyOf(request).workspace === "default-checkout"
@@ -69,7 +65,7 @@ export async function replacementWriterBlock(
   request: AgentLaunchRequest,
 ): Promise<StopUnconfirmedFound | undefined> {
   if (request.overrideStopUnconfirmed === true) return undefined;
-  const folder = projectFolder(source);
+  const folder = executionCheckout(source);
   const workspace = await replacementWorkspace(source, request, folder);
   if (workspace === undefined) return undefined;
   const blocked = (await keptRecords(source.id)).find((record) => {
@@ -92,12 +88,12 @@ export async function preAcceptanceAnswer(
   source: PublishedSource,
   request: AgentLaunchRequest,
 ): Promise<Unaccepted | undefined> {
-  const folder = projectFolder(source);
+  const folder = executionCheckout(source);
   if (!(await folderExists(folder))) {
     return {
       kind: "failed",
       reason: "folder-not-found",
-      explanation: `The project folder ${folder.shown} was not found on this machine. Nothing was launched.`,
+      explanation: `The execution checkout ${folder.shown} was not found on this machine. Nothing was launched.`,
     };
   }
   const boundary = launchHost(request.host);

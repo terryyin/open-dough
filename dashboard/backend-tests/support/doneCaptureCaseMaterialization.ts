@@ -21,7 +21,7 @@ import {
 
 export type Checkout = Awaited<ReturnType<typeof aCheckout>>;
 
-// The project's Default main checkout over `history`, with an origin when the
+// The project's execution checkout over `history`, with an origin when the
 // case's work takes in or publishes trunk, naming its Git directory as Git
 // resolves it so its worktrees report the same repository.
 async function aCheckout(

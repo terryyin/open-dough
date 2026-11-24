@@ -7,7 +7,7 @@
 // no start, no session, nothing published. Back returns to the choices and
 // text as they were; Continue with existing changes starts with the landing
 // still selected, whichever it is, and a change made after the warning was
-// shown asks again. A clean default checkout starts without a warning.
+// shown asks again. A clean execution checkout starts without a warning.
 
 import { appendFileSync, realpathSync } from "node:fs";
 import path from "node:path";
@@ -21,7 +21,7 @@ import {
   dirty,
   existingChangesHeading as heading,
   status,
-} from "../../dashboard/test-support/support/defaultCheckoutChanges.ts";
+} from "../../dashboard/test-support/support/executionCheckoutChanges.ts";
 import {
   expect,
   test,
@@ -71,11 +71,11 @@ for (const [workflow, landing, landingLine] of [
     await expect(
       radio(dialog, "After checks", "Wait for review"),
     ).toBeChecked();
-    await radio(dialog, "Workspace", "Default main").check();
+    await radio(dialog, "Workspace", "Execution checkout").check();
     await radio(dialog, "After checks", landing).check();
     const start = dialog.getByRole("button", { name: "Start", exact: true });
     await expect(start).toHaveAccessibleDescription(
-      `Default main · One-shot · ${landing} No assignment is published; the ${
+      `Execution checkout · One-shot · ${landing} No assignment is published; the ${
         workflow === "execution" ? "verified result" : "recorded refinement"
       } ${
         landing === "Automatically land"
@@ -85,7 +85,7 @@ for (const [workflow, landing, landingLine] of [
     );
     await expect(
       dialog.getByText(
-        "The session runs in this project's folder on default main, with its existing changes.",
+        "The session runs in this project's execution checkout, with its existing changes.",
       ),
     ).toBeAttached();
     await start.click();
@@ -116,7 +116,9 @@ for (const [workflow, landing, landingLine] of [
     await expect(start).toBeFocused();
     await expect(instruction).toHaveValue("Tidy the notes.");
     await expect(radio(dialog, "Tracking", "One-shot")).toBeChecked();
-    await expect(radio(dialog, "Workspace", "Default main")).toBeChecked();
+    await expect(
+      radio(dialog, "Workspace", "Execution checkout"),
+    ).toBeChecked();
     await expect(radio(dialog, "After checks", landing)).toBeChecked();
 
     // Changes made after the warning was shown are shown again.
@@ -128,7 +130,7 @@ for (const [workflow, landing, landingLine] of [
     });
     await proceed.click();
     await expect(dialog.getByRole("status")).toHaveText(
-      "The changes in default main changed after they were shown; review them again.",
+      "The changes in the execution checkout changed after they were shown; review them again.",
     );
     await expect(warning).toBeFocused();
     expect(dashboard.claudeLaunchCalls()).toEqual([]);
@@ -173,7 +175,7 @@ for (const [workflow, landing, landingLine] of [
   });
 }
 
-test("a clean default checkout starts without a warning", async ({
+test("a clean execution checkout starts without a warning", async ({
   page,
   dashboard,
   origin,
@@ -184,7 +186,7 @@ test("a clean default checkout starts without a warning", async ({
     name: "Start execution in Claude Code",
   });
   await radio(dialog, "Tracking", "One-shot").check();
-  await radio(dialog, "Workspace", "Default main").check();
+  await radio(dialog, "Workspace", "Execution checkout").check();
   dashboard.claudeScenario("launched");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(dialog).toBeHidden();

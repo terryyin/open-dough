@@ -1,4 +1,4 @@
-// A Default main session's kept commits (`../src/sessionCommits.ts`) answer
+// An execution checkout session's kept commits (`../src/sessionCommits.ts`) answer
 // as a landing's pair does: from the saved repository's objects alone.
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
@@ -29,9 +29,9 @@ export interface KeptSessionRun {
 export function unavailableSessionChanges(record: LaunchRecord): string {
   const capture = sessionCommitsAtDone(record);
   if (capture?.branchEntryMissing === true)
-    return "No branch was identified for this session, and no Default main commits were captured.";
+    return "No branch was identified for this session, and no execution checkout commits were captured.";
   return capture?.runs.length === 0
-    ? "This session made no commits in the Default main checkout."
+    ? "This session made no commits in the execution checkout."
     : "This session's changes were not captured.";
 }
 

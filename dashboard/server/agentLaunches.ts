@@ -43,7 +43,8 @@ import {
   keptStarts,
   sessionPolicies,
 } from "./launchCatalog.ts";
-import { machineFolder, projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
+import { machineFolder } from "./localFolder.ts";
 import {
   applyPreparedWorktreeUpdate,
   prepareWorktreeUpdate,
@@ -117,11 +118,11 @@ export class AgentLaunches {
     record: LaunchRecord,
   ): Promise<LaunchWithState> {
     await this.savedSessionServices.refresh();
-    const [joined] = await withStates(projectFolder(source), [record]);
+    const [joined] = await withStates(executionCheckout(source), [record]);
     return joined ?? { ...record, sessionState: { kind: "unknown" } };
   }
 
-  // A kept session and existing project folder; no native command is run.
+  // A kept session and existing execution checkout; no native command is run.
   async recorded(
     source: PublishedSource,
     session: SessionReference,

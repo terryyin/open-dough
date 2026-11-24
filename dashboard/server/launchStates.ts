@@ -1,7 +1,7 @@
 // Read each selected host once and join its normalized target observations.
 // A missing response is unknown. Only a host can confirm native absence.
 import { configuredProject } from "./projectConfiguration.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import { shownLaunchWorkspace } from "./launchWorkspace.ts";
 import { recordedWorkspaceStates } from "./sessionWorkspace.ts";
 import type {
@@ -12,7 +12,7 @@ import type {
 import { sessionKey } from "../src/sessionReference.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { SessionObservation } from "./hostLaunch.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 const observationWaitMs = 10_000;
 
@@ -20,7 +20,7 @@ const observationWaitMs = 10_000;
 // on abort. Rejection is isolated to this host's records, never other hosts.
 async function observed(
   records: readonly LaunchRecord[],
-  folder: ProjectFolder,
+  folder: LocalFolder,
 ): Promise<readonly SessionObservation[]> {
   const host = records[0]?.session.host;
   if (host === undefined) return [];
@@ -45,7 +45,7 @@ async function observed(
 
 // Each session's state by its key, as the first observation naming it says.
 async function observedStates(
-  folder: ProjectFolder,
+  folder: LocalFolder,
   records: readonly LaunchRecord[],
 ): Promise<ReadonlyMap<string, SessionState>> {
   const byHost = new Map<string, LaunchRecord[]>();
@@ -66,7 +66,7 @@ async function observedStates(
 }
 
 export async function withStates(
-  folder: ProjectFolder,
+  folder: LocalFolder,
   records: readonly LaunchRecord[],
   observation: "recurring" | "on-demand" = "on-demand",
 ): Promise<readonly LaunchWithState[]> {
@@ -78,13 +78,13 @@ export async function withStates(
     observedStates(folder, records.filter(observes)),
     recordedWorkspaceStates(records),
   ]);
-  const folders = new Map<string, ProjectFolder | undefined>();
+  const folders = new Map<string, LocalFolder | undefined>();
   const folderOf = (source: string) => {
     if (!folders.has(source)) {
       const project = configuredProject(source);
       folders.set(
         source,
-        project === undefined ? undefined : projectFolder(project),
+        project === undefined ? undefined : executionCheckout(project),
       );
     }
     return folders.get(source);

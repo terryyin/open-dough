@@ -13,7 +13,7 @@ import {
   configuredProjects,
   mountProjectConfiguration,
 } from "../../server/projectConfiguration.ts";
-import { machineFolder } from "../../server/projectFolders.ts";
+import { machineFolder } from "../../server/localFolder.ts";
 import { recordDeletable, type LaunchRecord } from "../../src/launchRecord.ts";
 import { offersFollowUp, sessionAccess } from "../../src/sessionAccess.ts";
 import { sessionShown } from "../../src/sessionShown.ts";

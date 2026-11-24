@@ -23,7 +23,7 @@ test("repository punctuation yields a readable name and retains a stable id", ()
   });
 });
 
-test("workspace display follows the configured folder without changing actual established facts", () => {
+test("workspace display follows the execution checkout without changing actual established facts", () => {
   const folder = {
     path: "/home/developer/work/custom",
     shown: "~/work/custom",

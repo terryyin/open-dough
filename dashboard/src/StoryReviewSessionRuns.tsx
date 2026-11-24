@@ -36,7 +36,7 @@ export const sessionRunsOf = (
 const sessionComparisonNames: Readonly<Record<string, string>> = {
   [sessionBranchRun]: branchResultName,
   [sessionDeliveryRun]: deliveredChangesName,
-  "0": "Default main commits",
+  "0": "Execution checkout commits",
 };
 
 const comparisonOfRun = (run: string) => (/^\d+$/.test(run) ? "0" : run);

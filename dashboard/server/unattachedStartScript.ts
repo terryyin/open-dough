@@ -13,7 +13,7 @@ import {
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { runStartScript } from "./executionStart.ts";
 import type { WorkspaceChoice } from "./launchWorkspace.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import {
   keepEstablishedSession,
   keepSessionStart,
@@ -50,7 +50,7 @@ const asGitNames = (workspace: string) =>
 export async function scriptSession(
   source: PublishedSource,
   request: UnattachedRequest,
-  project: ProjectFolder,
+  project: LocalFolder,
   attempt: string,
   chosen: WorkspaceChoice,
   again: boolean,

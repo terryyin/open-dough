@@ -51,7 +51,7 @@ export function StartEffects({
         ? `in workspace ${resumes.workspace}`
         : establishesStart
           ? "in a new workspace under .worktrees/"
-          : "in this project's folder"}
+          : "in this project's execution checkout"}
       .
       {resumes !== undefined
         ? ` ${establishes.published}`

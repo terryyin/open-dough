@@ -1,10 +1,11 @@
-// A default checkout holding existing changes, and how the launch dialogs
-// name them before a Default main start.
+// An execution checkout holding existing changes, and how the launch dialogs
+// name them before an execution checkout start.
 import { execFileSync } from "node:child_process";
 import { appendFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-export const existingChangesHeading = "Existing changes in default main";
+export const existingChangesHeading =
+  "Existing changes in the execution checkout";
 
 // In Git status order: tracked changes, then untracked files.
 export const changedPaths = [
@@ -17,7 +18,7 @@ export const changedPaths = [
 // What the new files hold, which the dialog never shows.
 export const changedContent = "private-file-content";
 
-// Leaves the default checkout with a changed, a deleted, a staged, and an
+// Leaves the execution checkout with a changed, a deleted, a staged, and an
 // untracked file.
 export function dirty(project: string) {
   appendFileSync(path.join(project, ".gitignore"), "tmp/\n");

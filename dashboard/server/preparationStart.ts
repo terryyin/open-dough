@@ -3,7 +3,7 @@
 // in `./preparationCommand.ts`); this module keeps the machine-local start
 // until launch or verified absence.
 // Retrying preserves the selected workspace, branch, policy, and announcement
-// evidence. A one-shot policy runs `start --one-shot`, in the default checkout
+// evidence. A one-shot policy runs `start --one-shot`, in the execution checkout
 // when selected, and publishes nothing; its kept established context is reused
 // as it is.
 
@@ -22,7 +22,7 @@ import {
   continuationDetail,
   continuationRefusal,
 } from "./preparationResult.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import {
   gatedStart,
   startChoice,
@@ -56,7 +56,7 @@ const workflow = "refinement";
 export async function beginPreparation(
   source: PublishedSource,
   request: StoryLaunchRequest,
-  project: ProjectFolder,
+  project: LocalFolder,
   progress: WorkflowProgress,
   noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PlannedStart> {
@@ -93,7 +93,7 @@ export async function beginPreparation(
 async function runningPreparation(
   source: PublishedSource,
   request: StoryLaunchRequest,
-  project: ProjectFolder,
+  project: LocalFolder,
   progress: WorkflowProgress,
   noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<PlannedStart> {
@@ -231,7 +231,7 @@ async function runningPreparation(
       };
     }
     // A stop that made no assignment leaves nothing to resume and removes the
-    // workspace and branch this launch created; the default checkout existed
+    // workspace and branch this launch created; the execution checkout existed
     // before, so it stays.
     await record(() => removeStart(source.id, request.identity, workflow));
     return {

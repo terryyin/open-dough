@@ -30,7 +30,7 @@ import {
   establishesPreparation,
   formattedPreparation,
 } from "./preparationStart.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import type { StartsWorkflow } from "./startStore.ts";
 
@@ -95,18 +95,18 @@ export type StartWorkflow = {
   readonly workflow: StartsWorkflow;
   // Whether the project's installed skill can continue from this start.
   establishes(
-    project: ProjectFolder,
+    project: LocalFolder,
     host: StoryLaunchRequest["host"],
   ): Promise<boolean>;
   begin(
     source: PublishedSource,
     request: StoryLaunchRequest,
-    project: ProjectFolder,
+    project: LocalFolder,
     progress: WorkflowProgress,
     noteWorker: (pid: number) => Promise<void>,
   ): Promise<PlannedStart>;
   format(
-    project: ProjectFolder,
+    project: LocalFolder,
     established: Established,
     host: StoryLaunchRequest["host"],
   ): Promise<string>;

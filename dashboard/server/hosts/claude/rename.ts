@@ -2,7 +2,7 @@
 import { setTimeout as delay } from "node:timers/promises";
 import type { LaunchRecord } from "../../../src/agentLaunch.ts";
 import { doneSessionName } from "../../../src/doneMark.ts";
-import type { ProjectFolder } from "../../projectFolders.ts";
+import type { LocalFolder } from "../../localFolder.ts";
 import { HostOperationFailure } from "../../hostLaunch.ts";
 import type { DoneIntent, WithAttachment } from "../../launchHosts.ts";
 import { claudeSessions } from "./runtime.ts";
@@ -42,7 +42,7 @@ const controlCharacter = /[\u0000-\u001f\u007f-\u009f]/;
 // running a turn is never typed into.
 export async function renameInClaudeCode(
   record: LaunchRecord,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   withAttachment: WithAttachment,
   intent: DoneIntent,
   stopped: AbortSignal,
@@ -97,7 +97,7 @@ function remaining({ deadline, stopped }: RenameWait): AbortSignal {
 // a running turn; no `status`, or no entry, is a process that has exited.
 function waitForIdle(
   record: LaunchRecord,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   wait: RenameWait,
 ): Promise<void> {
   const { sessionId } = record.session;
@@ -127,7 +127,7 @@ function waitForIdle(
 // Waits until Claude Code lists `name` for this session, within the rename wait.
 function confirmListed(
   record: LaunchRecord,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   name: string,
   wait: RenameWait,
 ): Promise<void> {
@@ -150,7 +150,7 @@ type Listing = Awaited<ReturnType<typeof claudeSessions>>;
 // Reads Claude Code's listing every `pollMs` until `settled` accepts it, or
 // fails with what `expired` names once another read would pass the deadline.
 async function pollListing(
-  folder: ProjectFolder,
+  folder: LocalFolder,
   wait: RenameWait,
   pollMs: number,
   settled: (listed: Listing) => boolean,

@@ -1,8 +1,8 @@
 // One test's start origin: a copy of its description's prepared origin and a
-// project checkout of it. A copy of a shared prepared origin receives the
-// description's later revisions from the project checkout, each on the
+// execution checkout of it. A copy of a shared prepared origin receives the
+// description's later revisions from the execution checkout, each on the
 // parents it names, as a materialized history has them. Answers the commit
-// each named revision became. The project checkout then fetches only what
+// each named revision became. The execution checkout then fetches only what
 // the description says it has, and holds the description's workspace
 // (./startOriginWorkspace.ts); neither reaches the prepared origin.
 

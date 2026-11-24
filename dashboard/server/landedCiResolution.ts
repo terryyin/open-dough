@@ -2,7 +2,7 @@
 // (`./landedCiCollection.ts`) asks in each pass: the CI timing comparison's
 // Landed rule (`lookupResultBuild` with `storyBranchLandedExactLookup`,
 // `./baseCiRevisionLookup.ts`) over the project's own CI read
-// (`./intentCiComparisonSlots.ts`) -- the project folder's Git with its
+// (`./intentCiComparisonSlots.ts`) -- the execution checkout's Git with its
 // `ciWorkflow` runs or its `ciAdapter` discovery -- made once per project in
 // a pass, at its first landing to resolve, with each revision's runs listed
 // once, within the read boundary's wait. A resolution is final, or the

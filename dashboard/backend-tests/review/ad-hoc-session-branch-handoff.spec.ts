@@ -1,4 +1,4 @@
-// A Default main launch's first input carries a branch-entry command whose
+// An execution checkout launch's first input carries a branch-entry command whose
 // outgoing request, admitted and handled through the typed branch-entry seam,
 // binds the original checkout's own branch and entered commit to that launch.
 import { execFile } from "node:child_process";
@@ -114,7 +114,7 @@ test("the launch command binds the original checkout's own branch", async () => 
   const { workspace, entered } = await onDraft(checkout);
   const record = makeMe.aLaunchRecord
     .adHoc({ title: "Continue the draft", instruction: "Continue the draft" })
-    .startingInDefaultCheckout({
+    .startingInExecutionCheckout({
       workspace: checkout.integration,
       startingRevision: checkout.base,
       repository: checkout.gitDirectory,
@@ -164,7 +164,7 @@ test("the launch command binds the original checkout's own branch", async () => 
 
 test("a session-addressed handoff binds the named session to its checkout", async () => {
   const { checkout, records } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("by-session", { launched: 60 })
+    .withCheckoutLaunch("by-session", { launched: 60 })
     .kept()
     .please();
   const record = records["by-session"];
@@ -221,7 +221,7 @@ test("a reporting reference from another origin is refused", async () => {
 
 test("a handoff while still on the project's trunk is refused", async () => {
   const { checkout, records } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("trunk-launch", { launched: 60 }, (launch) =>
+    .withCheckoutLaunch("trunk-launch", { launched: 60 }, (launch) =>
       launch.reportingThrough(dashboardReporting),
     )
     .kept()

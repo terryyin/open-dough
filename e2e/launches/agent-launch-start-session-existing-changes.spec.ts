@@ -1,11 +1,11 @@
-// The project row's Start session runs in the project's folder on default
+// The project row's Start session runs in the project's execution checkout on default
 // main, so it follows the default-checkout contract of the story dialogs
-// (./agent-launch-default-checkout-warning.spec.ts): with a real bare origin
-// (../../dashboard/test-support/support/startOrigin.ts) and the synthetic `claude`, a default checkout
+// (./agent-launch-execution-checkout-warning.spec.ts): with a real bare origin
+// (../../dashboard/test-support/support/startOrigin.ts) and the synthetic `claude`, an execution checkout
 // holding staged, changed, deleted, or untracked files shows them in the same
 // dialog (paths and count, never content) before anything starts. Back
 // returns to the text as typed, Cancel starts nothing, and Continue with
-// existing changes starts the session in the project folder with the changes
+// existing changes starts the session in the execution checkout with the changes
 // untouched, the developer's text and reporting context, and no story, Take,
 // or assignment. Switching to automatic
 // landing preserves the choice through Back and carries its established block.
@@ -33,7 +33,7 @@ import {
   dirty,
   existingChangesHeading as heading,
   status,
-} from "../../dashboard/test-support/support/defaultCheckoutChanges.ts";
+} from "../../dashboard/test-support/support/executionCheckoutChanges.ts";
 import {
   expect,
   test,
@@ -44,7 +44,7 @@ import {
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { recordStarts } from "../../dashboard/test-support/support/startSessionLanding.ts";
-import { expectDefaultMainSessionLaunch } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
+import { expectExecutionCheckoutSessionLaunch } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
 
 const text = "Explain how launch records are stored";
 const autoLand = { workspace: "default-checkout", landing: "auto-land" };
@@ -56,7 +56,7 @@ const worktrees = (project: string) =>
 
 type Recorded = { readonly request: RecordedLaunchRequest };
 
-test("existing changes warn before a session starts, Back keeps the text, Cancel starts nothing, and Continue starts in the project folder with them untouched", async ({
+test("existing changes warn before a session starts, Back keeps the text, Cancel starts nothing, and Continue starts in the execution checkout with them untouched", async ({
   page,
   dashboard,
   origin,
@@ -134,7 +134,7 @@ test("existing changes warn before a session starts, Back keeps the text, Cancel
   });
   await proceed.click();
   await expect(dialog.getByRole("status")).toHaveText(
-    "The changes in default main changed after they were shown; review them again.",
+    "The changes in the execution checkout changed after they were shown; review them again.",
   );
   await expect(warning).toBeFocused();
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
@@ -144,7 +144,7 @@ test("existing changes warn before a session starts, Back keeps the text, Cancel
   dashboard.claudeScenario("launched");
   await proceed.click();
   await expect(dialog).toBeHidden();
-  const record = await expectDefaultMainSessionLaunch(
+  const record = await expectExecutionCheckoutSessionLaunch(
     dashboard,
     origin.project,
     "auto-land",

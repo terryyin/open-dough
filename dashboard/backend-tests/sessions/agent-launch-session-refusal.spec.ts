@@ -1,7 +1,7 @@
 // A session policy that cannot be honored is refused at the launch
 // boundary before any start or native call, over raw HTTP against the
 // project's real installed start and a real bare origin: an installation
-// without the shared policy, or default main or automatic landing without
+// without the shared policy, or execution checkout or automatic landing without
 // one-shot tracking.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
@@ -72,7 +72,7 @@ test.describe("a policy the installation or tracking cannot take", () => {
       );
       expect(response.status).toBe(400);
       expect(JSON.parse(response.body)).toEqual({
-        error: `Default main · One-shot · Automatically land cannot be selected: the installed skills in ~/git/open-dough do not start ${workflow} with a session policy.`,
+        error: `Execution checkout · One-shot · Automatically land cannot be selected: the installed skills in ~/git/open-dough do not start ${workflow} with a session policy.`,
       });
     }
     expect(server.claudeLaunchCalls()).toEqual([]);
@@ -80,7 +80,7 @@ test.describe("a policy the installation or tracking cannot take", () => {
     expect(await originState(origin)).toEqual(before);
   });
 
-  test("default main or automatic landing without one-shot tracking is refused, not ignored", async () => {
+  test("execution checkout or automatic landing without one-shot tracking is refused, not ignored", async () => {
     for (const policy of [
       {
         tracking: "standard",
@@ -93,7 +93,7 @@ test.describe("a policy the installation or tracking cannot take", () => {
       expect(response.status).toBe(400);
       expect(JSON.parse(response.body)).toEqual({
         error:
-          "Default main and Automatically land apply to one-shot sessions; standard tracking publishes through its workflow.",
+          "Execution checkout and Automatically land apply to one-shot sessions; standard tracking publishes through its workflow.",
       });
     }
     expect(server.claudeLaunchCalls()).toEqual([]);

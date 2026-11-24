@@ -9,13 +9,13 @@ import { sessionKey } from "../src/sessionReference.ts";
 import { HostOperationFailure } from "./hostLaunch.ts";
 import { launchHost, type UnavailableWorkspace } from "./launchHosts.ts";
 import type { LiveTerminalClientOptions } from "./liveTerminalClient.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 const initialSize = { cols: 80, rows: 24 } as const;
 
 export function nativeAttach(
   session: HostSession,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   privately: boolean,
 ):
   | { readonly pty: IPty; readonly options: LiveTerminalClientOptions }

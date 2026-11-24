@@ -199,7 +199,7 @@ Status: planned
 **Proof.** Open the real review request from a standalone row or a Done
 card where the subject differs. Render comparison and run choices through
 the existing Review owner and typed source. Observe saved branch, delivery
-and Default main choices, exact file and run endpoints, chronological runs
+and execution checkout choices, exact file and run endpoints, chronological runs
 and retained selection through Refresh. Keep empty, missing, pending and
 unverified evidence distinguishable. Retain local versus published
 provenance and keyboard switching. Use the existing toolbar and details

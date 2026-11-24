@@ -20,7 +20,7 @@ import {
 } from "../src/commandOptions.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 // A project's installed definition, or why there is none to select from.
 export type ReadDefinition =
@@ -28,7 +28,7 @@ export type ReadDefinition =
   | { readonly kind: "unavailable"; readonly why: UnavailableOptionsWhy };
 
 export async function readDefinition(
-  project: ProjectFolder,
+  project: LocalFolder,
   skill: string,
   file: string,
   host: AgentLaunchRequest["host"],
@@ -69,7 +69,7 @@ export async function readDefinition(
 // group. A request with no selection is returned as it is.
 export async function withSelectedOptions(
   request: AgentLaunchRequest,
-  project: ProjectFolder,
+  project: LocalFolder,
 ): Promise<AgentLaunchRequest> {
   if (request.options === undefined || request.options.length === 0) {
     return request;

@@ -44,7 +44,7 @@ test.beforeEach(() => {
 });
 test.afterEach(async () => fixture.close());
 
-test("Add selects, reads the repository's default branch, launches in its configured folder and survives restart", async ({
+test("Add selects, reads the repository's default branch, launches in its execution checkout and survives restart", async ({
   page,
 }) => {
   let server = await fixture.start("preview");
@@ -153,7 +153,7 @@ test("Add in empty development leaves the production list on the same machine un
   await productionPage.close();
 });
 
-test("retained workspace explanations use the configured folder and keep actual start and stored evidence intact", async ({
+test("retained workspace explanations use the execution checkout and keep actual start and stored evidence intact", async ({
   page,
 }) => {
   const workspace = path.join(fixture.checkout, ".worktrees", "topic");
@@ -210,7 +210,7 @@ test("project settings errors retain the form draft and predecessor and allow ex
   const url = dialog.getByRole("textbox", { name: "GitHub URL" });
   await url.fill("not a repository");
   await dialog
-    .getByRole("textbox", { name: "Local path" })
+    .getByRole("textbox", { name: "Execution checkout" })
     .fill("~/work/private-checkout");
   await dialog.getByRole("button", { name: "Add", exact: true }).click();
   await expect(dialog.getByRole("alert")).toBeVisible();
@@ -218,7 +218,7 @@ test("project settings errors retain the form draft and predecessor and allow ex
   expect(readFileSync(file, "utf8")).toBe(predecessor);
   await url.fill("https://github.com/example/sample-app");
   await dialog
-    .getByRole("textbox", { name: "Local path" })
+    .getByRole("textbox", { name: "Execution checkout" })
     .fill("~/work/private-checkout");
   chmodSync(path.dirname(file), 0o500);
   try {
@@ -226,7 +226,7 @@ test("project settings errors retain the form draft and predecessor and allow ex
     await expect(dialog.getByRole("alert")).toBeVisible();
     await expect(url).toHaveValue("https://github.com/example/sample-app");
     await expect(
-      dialog.getByRole("textbox", { name: "Local path" }),
+      dialog.getByRole("textbox", { name: "Execution checkout" }),
     ).toHaveValue("~/work/private-checkout");
     expect(readFileSync(file, "utf8")).toBe(predecessor);
   } finally {

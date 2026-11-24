@@ -9,7 +9,7 @@ import { keptStartWords } from "./startResult.ts";
 // An announced start carries the published commit; a continued one (the
 // workspace already held the assignment) does not. A one-shot start that
 // prepared its workspace published nothing: it reports the revision its
-// result builds on, the default checkout's role when it took that checkout,
+// result builds on, the execution checkout's role when it took that checkout,
 // and a selected automatic landing.
 export type PreparationResult =
   | {

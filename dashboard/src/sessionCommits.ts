@@ -1,4 +1,4 @@
-// The commits a Default main session made in its checkout, kept with its
+// The commits an execution checkout session made in its checkout, kept with its
 // launch record when the session is marked done: read from the checkout's
 // local Git log from the launch to Done. Each run is an uninterrupted series
 // of session commits, kept as a fixed pair in the checkout's common Git

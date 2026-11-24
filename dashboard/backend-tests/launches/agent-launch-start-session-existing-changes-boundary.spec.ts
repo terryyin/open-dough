@@ -1,6 +1,6 @@
-// The launch boundary for the project row's Start session on default main
+// The launch boundary for the project row's Start session on the execution checkout
 // with existing changes, over raw HTTP: it takes an unattached policy and the
-// changes' confirmation, checks a request naming no policy as Default main,
+// changes' confirmation, checks a request naming no policy as Execution checkout,
 // refuses a tracking choice, starts nothing unconfirmed, and keeps no
 // confirmation in the launch's records. A real bare origin
 // (../../test-support/support/startOrigin.ts) and the synthetic `claude`. The
@@ -15,14 +15,14 @@ import {
   launch,
 } from "../../test-support/agentLaunchBoundary.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { dirty } from "../../test-support/support/defaultCheckoutChanges.ts";
+import { dirty } from "../../test-support/support/executionCheckoutChanges.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 
 const text = "Explain how launch records are stored";
 
 type Recorded = { readonly request: RecordedLaunchRequest };
 
-test("the boundary takes an unattached policy and confirmation, checks a request naming no policy as Default main, refuses a tracking choice, and keeps no confirmation", async ({
+test("the boundary takes an unattached policy and confirmation, checks a request naming no policy as Execution checkout, refuses a tracking choice, and keeps no confirmation", async ({
   dashboard,
   origin,
 }) => {

@@ -109,7 +109,10 @@ export async function mountProjectsSettings(
   });
   const dialog = page.getByRole("dialog", { name: "Add project", exact: true });
   const url = dialog.getByRole("textbox", { name: "GitHub URL", exact: true });
-  const path = dialog.getByRole("textbox", { name: "Local path", exact: true });
+  const path = dialog.getByRole("textbox", {
+    name: "Execution checkout",
+    exact: true,
+  });
   const add = dialog.getByRole("button", { name: "Add", exact: true });
   const cancel = dialog.getByRole("button", { name: "Cancel", exact: true });
   const refusal = dialog.getByRole("alert");

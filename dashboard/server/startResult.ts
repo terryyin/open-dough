@@ -7,7 +7,7 @@ import { z } from "zod";
 
 // What the start command reported, read from its one line of JSON. A
 // one-shot start that prepared its workspace published nothing: it reports
-// the revision its result builds on, the default checkout's role when it took
+// the revision its result builds on, the execution checkout's role when it took
 // that checkout, the fetched trunk, and a selected automatic landing.
 export type StartResult =
   | {

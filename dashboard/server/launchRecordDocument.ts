@@ -1,7 +1,7 @@
 // This machine's launch records (`../src/agentLaunch.ts`), kept for the local
 // launch boundary (`./agentLaunches.ts`) in one file outside every repository:
 // `~/.open-dough/dashboard/agent-launches.json`, resolved through `HOME` like
-// `./projectFolders.ts`. One JSON document holds each catalog project's
+// `./executionCheckout.ts`. One JSON document holds each catalog project's
 // records by project id. Every read and write consults the file, so each
 // dashboard server on this machine -- dev and preview alike -- sees every
 // launch. A write adds a launch, sets or clears a kept session's done time,

@@ -56,7 +56,7 @@ export const intentTrunkRevision = {
   },
 } satisfies RevisionFacts;
 
-// Publishes that revision onto trunk from the project checkout.
+// Publishes that revision onto trunk from the execution checkout.
 export function publishIntentTrunk(project: string) {
   writeRevisionFiles(project, intentTrunkRevision);
   commitAll(project, intentTrunkRevision.message);

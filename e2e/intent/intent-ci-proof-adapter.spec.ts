@@ -10,7 +10,7 @@ import {
 } from "../../dashboard/test-support/intentCiStatusPage.ts";
 // The CI proof of a ciAdapter attempt in Intent's CI status tab
 // (../../dashboard/src/IntentCiProof.tsx, ../../dashboard/server/ciAdapterProof.ts): the project's own
-// adapter, run from the project folder as its discover is, is asked for the
+// adapter, run from the execution checkout as its discover is, is asked for the
 // proof of the attempt the judgment shows, and its summary is shown below the
 // unchanged verdict, naming the attempt by its attemptId and short revision.
 // A running result's proof is its completed ancestor attempt's, and a slow

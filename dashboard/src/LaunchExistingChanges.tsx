@@ -1,4 +1,4 @@
-// A launch dialog's confirmation for a session in the default checkout that
+// A launch dialog's confirmation for a session in the execution checkout that
 // holds uncommitted changes: which paths changed and how many (never their
 // content), that continuing includes them in the session's result, and the
 // landing that remains selected, which confirming never changes. Its heading
@@ -9,7 +9,7 @@
 import { useEffect, useRef } from "react";
 import type { ExistingChangesFound, SessionPolicy } from "./agentLaunch.ts";
 
-const existingChangesHeading = "Existing changes in default main";
+const existingChangesHeading = "Existing changes in the execution checkout";
 
 // What stays selected after checks, said under the changes.
 function landingRemains(landing: SessionPolicy["landing"]): string {
@@ -54,7 +54,7 @@ export function LaunchExistingChanges({
         </h2>
         <p role="status" className="launch-changes-notice">
           {changed
-            ? "The changes in default main changed after they were shown; review them again."
+            ? "The changes in the execution checkout changed after they were shown; review them again."
             : ""}
         </p>
         <p>

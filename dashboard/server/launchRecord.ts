@@ -7,13 +7,13 @@ import {
   type RecordedLaunchRequest,
 } from "../src/agentLaunch.ts";
 import { startWorkspaceFolder } from "./launchWorkspace.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import type { StartRecord } from "./startStore.ts";
 
 // A kept start's workspace, policy and established record facts. Before its
 // command finishes the facts are empty; its workspace and policy still apply.
 export function launchStartContext(
-  project: ProjectFolder,
+  project: LocalFolder,
   kept: Pick<StartRecord, "workspace" | "policy" | "start" | "preparation">,
 ) {
   return {

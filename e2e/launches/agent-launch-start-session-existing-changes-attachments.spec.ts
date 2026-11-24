@@ -1,4 +1,4 @@
-// Default main Existing changes keeps attached images through Back; Continue
+// Execution checkout Existing changes keeps attached images through Back; Continue
 // with existing changes sends them once, copied under launch-attachments
 // (SEED-204 E6 / commitments 7e, 7f).
 
@@ -16,7 +16,7 @@ import {
   dirty,
   existingChangesHeading as heading,
   status,
-} from "../../dashboard/test-support/support/defaultCheckoutChanges.ts";
+} from "../../dashboard/test-support/support/executionCheckoutChanges.ts";
 import {
   expect,
   test,
@@ -28,8 +28,8 @@ import {
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
-  defaultMainSession,
-  defaultMainStart,
+  executionCheckoutSession,
+  executionCheckoutStart,
   recordStarts,
   sessionBlock,
 } from "../../dashboard/test-support/support/startSessionLanding.ts";
@@ -111,11 +111,11 @@ test("existing changes Back keeps images; Continue sends them copied once", asyn
       )) as LaunchRecord[];
       return record?.establishedSession;
     })
-    .toEqual(defaultMainSession(origin.project, "auto-land", before));
+    .toEqual(executionCheckoutSession(origin.project, "auto-land", before));
   const [call] = dashboard.claudeLaunchCalls();
   expect(call?.cwd).toBe(realpathSync(origin.project));
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  const session = defaultMainSession(origin.project, "auto-land", before);
+  const session = executionCheckoutSession(origin.project, "auto-land", before);
   const [block, reporting, developer, images] = (call?.argv.at(-1) ?? "").split(
     "\n\n",
   );
@@ -135,6 +135,6 @@ test("existing changes Back keeps images; Continue sends them copied once", asyn
   );
   expect(record?.request.attachments).toEqual([attachedPath]);
   expect(starts().map(({ argv }) => argv)).toEqual([
-    defaultMainStart(origin.project, "auto-land"),
+    executionCheckoutStart(origin.project, "auto-land"),
   ]);
 });

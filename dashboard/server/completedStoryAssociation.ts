@@ -13,7 +13,7 @@ import {
   defaultGitOutputLimit,
   type GitCall,
 } from "./gitRunner.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 
 export type CompletedStoryAssociation =
   | { readonly kind: "linked"; readonly identity: string }
@@ -84,7 +84,7 @@ export async function completedStoryAssociation(
   )
     return { kind: "absent" };
   try {
-    const directory = projectFolder(source).path;
+    const directory = executionCheckout(source).path;
     const call = { signal, maxBuffer: defaultGitOutputLimit };
     if (
       (await commonGitDirectory({ ...call, cwd: landing.repository })) !==

@@ -128,7 +128,7 @@ test("accepted refinement without an establishing skill says Starting refinement
 });
 
 const missingFolder =
-  "The project folder ~/git/open-dough was not found on this machine. Nothing was launched.";
+  "The execution checkout ~/git/open-dough was not found on this machine. Nothing was launched.";
 
 test("a missing folder explanation stays below Start execution and focus returns to that offer", async () => {
   const { accept, card, execution, refinement } =

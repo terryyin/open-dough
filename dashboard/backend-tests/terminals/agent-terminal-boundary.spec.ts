@@ -201,7 +201,7 @@ test.describe(`agent terminal boundary`, () => {
     expect(attachCalls(server)).toHaveLength(attachesBefore);
   });
 
-  test("refuses an upgrade whose project folder is gone, before running claude", async () => {
+  test("refuses an upgrade whose execution checkout is gone, before running claude", async () => {
     const elsewhere = await launched(server, "pygardon");
     const callsBefore = server.claudeCalls().length;
 

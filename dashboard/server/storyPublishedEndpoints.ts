@@ -4,7 +4,7 @@ import { realpath } from "node:fs/promises";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
 import { fetchGitTarget } from "./gitTargetFetch.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
 import {
   storyCompletionEndpoints,
   type PublishedStoryEndpoints,
@@ -23,7 +23,7 @@ export async function publishedStoryEndpoints(
   signal: AbortSignal,
   namedCompletion?: string,
 ): Promise<PublishedStoryEndpoints> {
-  const directory = projectFolder(source).path;
+  const directory = executionCheckout(source).path;
   const call: GitCall = { cwd: directory, signal, maxBuffer: 64 * 1024 * 1024 };
   const git = async (...args: string[]) =>
     (await runGit(args, call)).stdout.trim();
@@ -35,7 +35,7 @@ export async function publishedStoryEndpoints(
       return {
         kind: "unavailable",
         explanation:
-          "The configured project folder is no longer this project's Git checkout.",
+          "The execution checkout no longer points to this project's Git root.",
       };
     if (namedCompletion === undefined)
       await fetchGitTarget("origin", source.ref, { ...call, signal });

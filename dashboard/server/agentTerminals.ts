@@ -17,7 +17,7 @@ import { TerminalAttachments } from "./terminalAttachments.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { bridgeCursorTerminal } from "./hosts/cursor/terminalBridge.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import type { ScreenReadiness } from "./launchHosts.ts";
 
 // The one recorded session an admitted upgrade attaches to, in its project,
@@ -26,7 +26,7 @@ export type TerminalSession = {
   readonly sourceId: string;
   readonly session: HostSession;
   readonly markedDone: boolean;
-  readonly folder: ProjectFolder;
+  readonly folder: LocalFolder;
   // Recorded Claude launch context to recheck before attachment. Absent for
   // legacy Claude; Codex checks its native continuation inside its host.
   readonly savedWorkspace?: string;
@@ -118,7 +118,7 @@ export class AgentTerminals {
 
   withAttachment<T>(
     session: HostSession,
-    folder: ProjectFolder,
+    folder: LocalFolder,
     use: (type: (input: string) => void) => Promise<T>,
     signal: AbortSignal,
     ready: ScreenReadiness,

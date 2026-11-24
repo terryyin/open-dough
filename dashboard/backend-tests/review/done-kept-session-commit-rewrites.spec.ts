@@ -12,7 +12,7 @@ test("capture keeps a continued cherry-pick with the session's conflict resoluti
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
-    .withDefaultMainLaunch("launch", { launched: 60 })
+    .withCheckoutLaunch("launch", { launched: 60 })
     .please();
   const { integration } = checkout;
   const { baseline } = await performWork(
@@ -47,7 +47,7 @@ for (const mode of ["fixup", "squash"] as const) {
       performWork,
       at,
     } = await aDoneCaptureCase()
-      .withDefaultMainLaunch("launch", { launched: 60 })
+      .withCheckoutLaunch("launch", { launched: 60 })
       .please();
     const { base, integration } = checkout;
     const { target } = await performWork(

@@ -8,7 +8,7 @@ import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import type { LaunchHost } from "../../server/launchHosts.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
-import { localFolder } from "../../server/projectFolders.ts";
+import { localFolder } from "../../server/localFolder.ts";
 import { markDone, source, undoDone } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
@@ -20,7 +20,7 @@ async function aSessionWithHeldRename() {
     performWork,
     at,
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("default-launch", { launched: 60 }, (launch) =>
+    .withCheckoutLaunch("default-launch", { launched: 60 }, (launch) =>
       launch.reportingThrough(dashboardReporting),
     )
     .kept()
@@ -170,7 +170,7 @@ test("reopening keeps the earlier commit run until the next Done", async () => {
     performWork,
     at,
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("default-launch", { launched: 60 })
+    .withCheckoutLaunch("default-launch", { launched: 60 })
     .kept()
     .please();
   const { first } = await performWork(

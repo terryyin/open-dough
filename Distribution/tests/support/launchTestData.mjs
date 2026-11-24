@@ -168,7 +168,7 @@ export class LaunchRecordBuilder extends LaunchReportingBuilder {
   }
 
   /** @param {NonNullable<LaunchRecord["defaultStart"]>} start */
-  startingInDefaultCheckout(start) {
+  startingInExecutionCheckout(start) {
     this.#defaultStart = { ...start };
     return this;
   }
@@ -186,11 +186,11 @@ export class LaunchRecordBuilder extends LaunchReportingBuilder {
 
   /**
    * The ad hoc launch's start established its session in the project's
-   * default checkout `workspace` on `main` at `revision`, also the trunk it
+   * execution checkout `workspace` on `main` at `revision`, also the trunk it
    * fetched, landing as the developer chose.
-   * @param {{ workspace: string, landing: "auto-land" | "review", revision: string }} defaultCheckout
+   * @param {{ workspace: string, landing: "auto-land" | "review", revision: string }} checkout
    */
-  inDefaultCheckout({ workspace, landing, revision }) {
+  inExecutionCheckout({ workspace, landing, revision }) {
     this.#adHocWorkspace = {
       role: "default-checkout",
       workspace,

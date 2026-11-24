@@ -10,12 +10,12 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
-import { dirty } from "../../test-support/support/defaultCheckoutChanges.ts";
+import { dirty } from "../../test-support/support/executionCheckoutChanges.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
-  defaultMainSession,
+  executionCheckoutSession,
   recordStarts,
   sessionBlock,
 } from "../../test-support/support/startSessionLanding.ts";
@@ -45,7 +45,7 @@ test("the boundary honors a requested automatic landing with the developer's tex
     record?: LaunchRecord;
   };
   expect(answer.kind).toBe("launched");
-  const session = defaultMainSession(origin.project, "auto-land", before);
+  const session = executionCheckoutSession(origin.project, "auto-land", before);
   expect(answer.record?.establishedSession).toEqual(session);
   expect(answer.record?.request).toMatchObject({ policy: autoLand });
   const [block, reporting, developer, ...extra] = (

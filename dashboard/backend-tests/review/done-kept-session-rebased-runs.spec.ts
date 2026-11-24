@@ -12,7 +12,7 @@ test("capture keeps the published run when an amended session rebases onto pulle
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
-    .withDefaultMainLaunch("launch", { launched: 60 })
+    .withCheckoutLaunch("launch", { launched: 60 })
     .please();
   const { integration } = checkout;
   const { pulled } = await performWork(
@@ -45,7 +45,7 @@ test("capture keeps the published commit rebased onto fetched trunk", async () =
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
-    .withDefaultMainLaunch("launch", { launched: 60 })
+    .withCheckoutLaunch("launch", { launched: 60 })
     .please();
   const { integration } = checkout;
   const { made, fetched, pushed } = await performWork(

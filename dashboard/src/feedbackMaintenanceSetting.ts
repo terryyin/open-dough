@@ -17,7 +17,7 @@ export const feedbackMaintenanceEndpoint = "/__feedback-maintenance";
 export const feedbackMaintenanceSaveEndpoint = `${feedbackMaintenanceEndpoint}/save`;
 export const feedbackMaintenanceRemoveEndpoint = `${feedbackMaintenanceEndpoint}/remove`;
 
-// The project the cycle runs in: its configured local folder is where the
+// The project the cycle runs in: its execution checkout is where the
 // session starts, and its host model choices are the ones offered here.
 export const feedbackMaintenanceRepository = "terryyin/open-dough";
 

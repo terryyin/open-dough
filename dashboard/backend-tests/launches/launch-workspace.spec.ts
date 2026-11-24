@@ -1,5 +1,5 @@
 // The shared workspace choice (../../server/launchWorkspace.ts): a
-// pure function of the project folder, the story's title, and the slugs
+// pure function of the execution checkout, the story's title, and the slugs
 // already in use.
 
 import { execFileSync } from "node:child_process";

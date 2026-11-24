@@ -1,24 +1,24 @@
 // The start a default launch keeps (`../src/defaultLaunchStart.ts`): read
-// from the project's default checkout before the native session begins. An
+// from the project's execution checkout before the native session begins. An
 // established launch keeps its own start, and a checkout Git cannot read
 // keeps none.
 
 import type { RecordedLaunchRequest } from "../src/agentLaunch.ts";
 import { establishesSession } from "../src/unattachedSession.ts";
-import { checkoutHead } from "./defaultCheckoutChanges.ts";
+import { checkoutHead } from "./executionCheckoutChanges.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import type { LaunchStartFacts } from "./launchRecord.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 export async function defaultLaunchStartFacts(
   request: RecordedLaunchRequest,
-  checkout: ProjectFolder,
+  checkout: LocalFolder,
 ): Promise<LaunchStartFacts> {
   if (request.workflow !== "ad-hoc" || establishesSession(request)) return {};
   try {
     return {
-      defaultStart: await defaultCheckoutStart(
+      defaultStart: await executionCheckoutStart(
         checkout.path,
         (await checkoutHead(checkout)).trim(),
       ),
@@ -28,7 +28,7 @@ export async function defaultLaunchStartFacts(
   }
 }
 
-export async function defaultCheckoutStart(
+export async function executionCheckoutStart(
   workspace: string,
   startingRevision: string,
 ) {

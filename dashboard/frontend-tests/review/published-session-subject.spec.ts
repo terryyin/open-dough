@@ -81,9 +81,13 @@ test("a published-session review names published changes and the close time", as
   await expect
     .element(closed.getByRole("time"))
     .toHaveTextContent(new Date(closedAt).toLocaleString());
-  expect(document.body.textContent).not.toMatch(/launched|done|Default main/i);
+  expect(document.body.textContent).not.toMatch(
+    /launched|done|Execution checkout/i,
+  );
   expect(reviewDescription(review)).toMatch(/published changes/i);
-  expect(reviewDescription(review)).not.toMatch(/launched|kept|Default main/i);
+  expect(reviewDescription(review)).not.toMatch(
+    /launched|kept|Execution checkout/i,
+  );
 });
 
 test("a published-session refresh names published changes", async () => {

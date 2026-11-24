@@ -9,7 +9,7 @@ import { realpath } from "node:fs/promises";
 import type { RecordedLaunchRequest } from "../../../src/agentLaunch.ts";
 import type { PublishedSource } from "../../../src/publishedSource.ts";
 import type { SessionObservation } from "../../hostLaunch.ts";
-import type { ProjectFolder } from "../../projectFolders.ts";
+import type { LocalFolder } from "../../localFolder.ts";
 import { claudeSessionName } from "./launch.ts";
 import { claudeSessions } from "./runtime.ts";
 
@@ -25,14 +25,14 @@ async function resolved(folder: string): Promise<string> {
 }
 
 // The listed sessions this launch could have started, or undefined when the
-// listing could not be read. The listing is asked in the project folder, as
+// listing could not be read. The listing is asked in the execution checkout, as
 // a launch's confirmation asks it.
 export async function claudeLaunchedSessions(
   source: PublishedSource,
   request: RecordedLaunchRequest,
-  startedIn: ProjectFolder,
+  startedIn: LocalFolder,
   since: Date,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   signal: AbortSignal,
 ): Promise<readonly SessionObservation[] | undefined> {
   const listed = await claudeSessions(folder, signal);

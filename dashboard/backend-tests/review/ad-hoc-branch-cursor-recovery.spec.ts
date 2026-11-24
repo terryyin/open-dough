@@ -86,11 +86,8 @@ for (const [reason, remove] of Object.entries(removals)) {
         (launch, { worktrees }) =>
           launch.inCursorSession(inCursor(originalId, worktrees.topic ?? "")),
       )
-      .withDefaultMainLaunch(
-        "other",
-        { launched: 60 },
-        (launch, { checkout }) =>
-          launch.inCursorSession(inCursor(otherId, checkout.integration)),
+      .withCheckoutLaunch("other", { launched: 60 }, (launch, { checkout }) =>
+        launch.inCursorSession(inCursor(otherId, checkout.integration)),
       )
       .kept()
       .please();

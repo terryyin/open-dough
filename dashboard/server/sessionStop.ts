@@ -11,7 +11,7 @@ import type { AgentLaunches } from "./agentLaunches.ts";
 import { HostOperationFailure } from "./hostLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
 import { setRecordStopUnconfirmed } from "./launchRecordStore.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 
 // The wait before Stop reports itself unconfirmed.
 const stopWaitMs = 10_000;
@@ -25,7 +25,7 @@ export type StoppedSession = {
 export async function stopRecordedSession(
   source: PublishedSource,
   record: LaunchRecord,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   launches: AgentLaunches,
 ): Promise<StoppedSession> {
   const host = launchHost(record.session.host);

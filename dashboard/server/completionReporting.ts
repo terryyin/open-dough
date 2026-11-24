@@ -8,7 +8,7 @@ import type { ReportingContext } from "../src/launchRequest.ts";
 import type { LandingRepository } from "../src/launchLanding.ts";
 import { establishedStory } from "./launchRecord.ts";
 import { installedExports } from "./startLaunch.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { LocalFolder } from "./localFolder.ts";
 import { deliverCompletion } from "./completionDelivery.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 import { submissionSchema } from "./completionAdmission.ts";
@@ -35,7 +35,7 @@ export type PreparedReporting = {
 // This is an executable copy; the existing attempts/records remain the only evidence stores.
 export async function reportingContext(
   attempt: LaunchAttemptRecord,
-  folder: ProjectFolder,
+  folder: LocalFolder,
   established?: EstablishedContext | EstablishedSession,
 ): Promise<PreparedReporting | undefined> {
   if (!preparesReporting(attempt)) return undefined;

@@ -41,7 +41,8 @@ import type { AgentLaunches } from "./agentLaunches.ts";
 import { withSelectedOptions } from "./launchOptions.ts";
 import { withSessionPolicy } from "./launchSessionPolicy.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
+import { executionCheckout } from "./executionCheckout.ts";
+import { type LocalFolder } from "./localFolder.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import {
   deleteRequest,
@@ -79,7 +80,7 @@ export type Admitted =
       readonly kind: "done";
       readonly source: PublishedSource;
       readonly record: LaunchRecord;
-      readonly folder: ProjectFolder;
+      readonly folder: LocalFolder;
     }
   | {
       readonly kind: "delete";
@@ -95,7 +96,7 @@ export type Admitted =
       readonly kind: "stop";
       readonly source: PublishedSource;
       readonly record: LaunchRecord;
-      readonly folder: ProjectFolder;
+      readonly folder: LocalFolder;
     }
   | {
       // A read mark on a session whose report is unread.
@@ -148,7 +149,7 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
       `${launchKindName(request.workflow)} cannot be launched in this host.`,
     );
   }
-  const project = projectFolder(source);
+  const project = executionCheckout(source);
   await admitLaunchSettings(request, host);
   const selected = await withSelectedOptions(request, project);
   return {

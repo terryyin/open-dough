@@ -20,7 +20,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { keepRecord, keptSession } from "../../server/launchRecordStore.ts";
-import { localFolder } from "../../server/projectFolders.ts";
+import { localFolder } from "../../server/localFolder.ts";
 import type { CompletionReport } from "../../src/completionReport.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { source } from "../support/doneCaptureCase.ts";
@@ -88,15 +88,15 @@ async function keepLaunch(
   return reported;
 }
 
-test("a launch that opens later in Default main notes itself and the open launch from its own launch", async () => {
+test("a launch that opens later in the execution checkout notes itself and the open launch from its own launch", async () => {
   const root = reportingRoot();
   const {
     checkout,
     records: { first, second },
     at,
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("first", { launched: 60 }, reportingIn(root, "1"))
-    .withDefaultMainLaunch("second", { launched: 30 }, reportingIn(root, "2"))
+    .withCheckoutLaunch("first", { launched: 60 }, reportingIn(root, "1"))
+    .withCheckoutLaunch("second", { launched: 30 }, reportingIn(root, "2"))
     .kept()
     .please();
 
@@ -105,16 +105,16 @@ test("a launch that opens later in Default main notes itself and the open launch
   expect([first, second].map(notedSince)).toEqual([at(30), at(30)]);
 });
 
-test("a further launch in Default main leaves the earlier launches' notes at their earliest since", async () => {
+test("a further launch in the execution checkout leaves the earlier launches' notes at their earliest since", async () => {
   const root = reportingRoot();
   const {
     checkout,
     records: { first, second, third },
     at,
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("first", { launched: 60 }, reportingIn(root, "1"))
-    .withDefaultMainLaunch("second", { launched: 30 }, reportingIn(root, "2"))
-    .withDefaultMainLaunch("third", { launched: 10 }, reportingIn(root, "3"))
+    .withCheckoutLaunch("first", { launched: 60 }, reportingIn(root, "1"))
+    .withCheckoutLaunch("second", { launched: 30 }, reportingIn(root, "2"))
+    .withCheckoutLaunch("third", { launched: 10 }, reportingIn(root, "3"))
     .kept()
     .please();
   await keepLaunch(second, checkout.integration);
@@ -124,14 +124,14 @@ test("a further launch in Default main leaves the earlier launches' notes at the
   expect([first, second].map(notedSince)).toEqual([at(30), at(30)]);
 });
 
-test("a launch in an isolated worktree notes no overlap with an open Default main launch", async () => {
+test("a launch in an isolated worktree notes no overlap with an open Execution checkout launch", async () => {
   const root = reportingRoot();
   const {
     checkout,
     records: { main, isolated },
   } = await aDoneCaptureCase()
     .withWorkspace("isolated")
-    .withDefaultMainLaunch("main", { launched: 60 }, reportingIn(root, "main"))
+    .withCheckoutLaunch("main", { launched: 60 }, reportingIn(root, "main"))
     .withIsolatedLaunch(
       "isolated",
       { launched: 30 },
@@ -146,18 +146,18 @@ test("a launch in an isolated worktree notes no overlap with an open Default mai
   expect([main, isolated].map(notedSince)).toEqual([undefined, undefined]);
 });
 
-test("a launch done in Default main before another opened there gets no note", async () => {
+test("a launch done in the execution checkout before another opened there gets no note", async () => {
   const root = reportingRoot();
   const {
     checkout,
     records: { earlier, session },
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch(
+    .withCheckoutLaunch(
       "earlier",
       { launched: 90, done: 70 },
       reportingIn(root, "earlier"),
     )
-    .withDefaultMainLaunch("session", { launched: 60 }, reportingIn(root, "s"))
+    .withCheckoutLaunch("session", { launched: 60 }, reportingIn(root, "s"))
     .kept()
     .please();
 
@@ -173,8 +173,8 @@ test("a launch kept while an open launch's note cannot be written stays recorded
     records: { first, second },
     at,
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("first", { launched: 60 }, reportingIn(root, "1"))
-    .withDefaultMainLaunch("second", { launched: 30 }, reportingIn(root, "2"))
+    .withCheckoutLaunch("first", { launched: 60 }, reportingIn(root, "1"))
+    .withCheckoutLaunch("second", { launched: 30 }, reportingIn(root, "2"))
     .kept()
     .please();
   mkdirSync(notePath(first));
@@ -210,8 +210,8 @@ test("a torn note beside an open launch is replaced with that launch's own start
     checkout,
     records: { first, second },
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("first", { launched: 60 }, reportingIn(root, "1"))
-    .withDefaultMainLaunch("second", { launched: 30 }, reportingIn(root, "2"))
+    .withCheckoutLaunch("first", { launched: 60 }, reportingIn(root, "1"))
+    .withCheckoutLaunch("second", { launched: 30 }, reportingIn(root, "2"))
     .kept()
     .please();
   writeFileSync(notePath(first), '{"since":');

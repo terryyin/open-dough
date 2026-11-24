@@ -9,7 +9,7 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // branch namespace; the session opens there with its "Established session"
 // block, the reporting context, then the developer's text; nothing is
 // published, taken, or assigned; and the sidebar names the worktree. Existing
-// changes in default main are not asked about and stay untouched, and a
+// changes in the execution checkout are not asked about and stay untouched, and a
 // session with no text works in `.worktrees/session`. Raw requests, slug
 // numbering, an installation that cannot establish a session, and Codex are
 // in ./agent-launch-start-session-isolated-boundary.spec.ts.
@@ -31,7 +31,7 @@ import {
   dirty,
   existingChangesHeading as heading,
   status,
-} from "../../dashboard/test-support/support/defaultCheckoutChanges.ts";
+} from "../../dashboard/test-support/support/executionCheckoutChanges.ts";
 import {
   parts,
   sessionEntriesIn,
@@ -95,7 +95,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   await expect(
     dialog.getByRole("group", { name: "Workspace" }).getByRole("radio"),
   ).toHaveCount(2);
-  await expect(radio(dialog, "Workspace", "Default main")).toBeChecked();
+  await expect(radio(dialog, "Workspace", "Execution checkout")).toBeChecked();
   await expect(radio(dialog, "After checks", "Wait for review")).toBeChecked();
   const start = dialog.getByRole("button", { name: "Start", exact: true });
   await radio(dialog, "Workspace", "Isolated workspace").check();
@@ -119,7 +119,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   const [record] = await records(dashboard, 1);
   if (record === undefined) throw new Error("Missing launch record.");
 
-  // The installed start ran once, from the project folder, with the project
+  // The installed start ran once, from the execution checkout, with the project
   // as its integration checkout and no identity or publisher; it created the
   // one worktree, at fetched trunk, on the host's branch.
   expect(starts()).toEqual([
@@ -163,7 +163,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   expect(record.workspaceState).toEqual({ kind: "available" });
 
   // Nothing was published, taken, assigned, or kept as a start, and the
-  // default checkout holds no change.
+  // execution checkout holds no change.
   expect(await originHeads(origin)).toBe(heads);
   expect(await origin.takenProfiles()).toEqual([]);
   expect(await keptStarts(dashboard)).toEqual([]);
@@ -189,7 +189,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   await expect(panel).toContainText(`Saved workspace ${session.workspace}`);
 });
 
-test("with existing changes in default main, Isolated workspace · Automatically land starts at once with no text, in `.worktrees/session`, and leaves the changes untouched", async ({
+test("with existing changes in the execution checkout, Isolated workspace · Automatically land starts at once with no text, in `.worktrees/session`, and leaves the changes untouched", async ({
   page,
   dashboard,
   origin,
@@ -209,7 +209,7 @@ test("with existing changes in default main, Isolated workspace · Automatically
     `Isolated workspace · Automatically land ${inNew}; verified results land on origin without another review. Pressing Start authorizes that push.`,
   );
 
-  // No confirmation: the session does not run in the default checkout.
+  // No confirmation: the session does not run in the execution checkout.
   dashboard.claudeScenario("launched");
   await start.click();
   await expect(dialog).toBeHidden();
@@ -242,7 +242,7 @@ test("with existing changes in default main, Isolated workspace · Automatically
   expect(extra).toEqual([]);
   expectReportingBlock(reporting, record.request, dashboard);
 
-  // The default checkout's changes are as they were; nothing was published.
+  // The execution checkout's changes are as they were; nothing was published.
   expect(status(origin.project)).toBe(changes);
   expect(status(worktree(origin.project, "session"))).toBe("");
   expect(await originHeads(origin)).toBe(heads);
