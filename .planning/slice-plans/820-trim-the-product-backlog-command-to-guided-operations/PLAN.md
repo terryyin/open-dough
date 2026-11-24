@@ -147,7 +147,7 @@ direction expectation refusal and explicit queue return coverage.
 ### 2. Keep the command adapters with the operations they describe
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Compare receipts, exits and resulting bytes through the real CLI.
 Run the reached `product-backlog-{place,take,refresh,refresh-refusals,direction,direction-refusals,complete*,done-catalog,write-safety,plan-link}.test.mjs`
 and `product-backlog.test.mjs` files under `Distribution/tests/support/`
@@ -162,6 +162,12 @@ placement reader for add and place and the existing write locks. This leaves
 the entry point that slice 3 uses for the synopsis with dispatch and common
 arguments in one place. Delete forwarding code, exports and tests that the
 move leaves without a non-test caller. Estimated active effort 10–15 minutes.
+
+Accepted proof: Compared the real CLI before and after the move using the
+same scratch backlog and Git setup. All 20 paths matched exits, receipts
+and complete planning files, including unchanged help and refusal text.
+All 33 focused CLI, browser import, write safety and installation jobs passed.
+The entry point dropped from 226 to 99 lines.
 
 ### 3. Get a short synopsis from the terminal
 
