@@ -73,7 +73,9 @@ export class LandedCiCollection {
   // The pass asked for once the one under way ends.
   private next: Promise<void> | undefined;
 
-  constructor() {
+  constructor(
+    private readonly ci = { read: passRead, readProof: readLandedProof },
+  ) {
     if (!collects()) return;
     void repeatUntilStopped(this.stopped.signal, recheckMs, async () => {
       await this.collected();
@@ -83,9 +85,9 @@ export class LandedCiCollection {
 
   // Collects the recorded landings not yet final, now, or once the pass
   // under way ends; nothing where this server does not collect.
-  nudge(): void {
+  nudge(): Promise<void> | undefined {
     if (this.ended() || !collects()) return;
-    void this.collected();
+    return this.collected();
   }
 
   // A pass that starts once the one under way ends, joined by every ask
@@ -134,8 +136,8 @@ export class LandedCiCollection {
       ),
       repository,
       stopped: this.stopped.signal,
-      read: passRead(source, repository, this.stopped.signal),
-      readProof: readLandedProof,
+      read: this.ci.read(source, repository, this.stopped.signal),
+      readProof: this.ci.readProof,
     });
     if (!this.ended())
       await collectCiFollowUps(

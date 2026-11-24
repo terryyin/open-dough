@@ -183,17 +183,14 @@ current proof. Both Node cases and typecheck passed. Summed case time was
 ### 6. A completion retry retains one scoped measurement
 
 Type: Behavior
-Status: planned
+Status: done
 
-Convert `proof-completion`. Compose launch and landing preconditions.
-Submit a real typed delivery and repeat it using the same admitted
-attempt and receipt. Allow the production collection trigger to observe
-the delivery; keep the completion outcome out of arrangement.
-
-**Proof.** Read the delivery receipts, saved history and scoped result after
-both submissions. Assert one collected proof and one measurement with the
-same identity. Keep shared origin and wire response framing with its
-adapter proof.
+**Proof.** `proof-completion` uses actual prepare, Git publication and
+recording. The typed landing delivery triggers collection once. The real
+completion and retry return the same receipt, retain the accepted landing
+and original saved proof, and read one 300 ms case and 30 ms file point.
+The Node case took 0.830 s versus 4.032 s before conversion. Eighteen
+wiring and HTTP checks and typecheck passed. See `slice6-return.md`.
 
 ### 7. The scoped cohort gives faster feedback
 
