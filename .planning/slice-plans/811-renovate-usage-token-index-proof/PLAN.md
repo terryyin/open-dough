@@ -319,3 +319,22 @@ decision was identified.
   through usage files, native import, route and frontend readers.
   Where coalescing or rebuilding matters, confirm a representative wrong
   outcome fails the retained assertion. Follow normal refactor and hosted CI gates.
+
+## Hosted CI evidence
+
+The Distribution shard 1 job on `380f55076` exhausted its shared test
+deadline during `preparation-native-session-record-land.test.mjs`, as the
+[job log](https://github.com/terryyin/open-dough/actions/runs/45383393256/job/138408121614)
+reports. This branch has the prior shard configuration. The same
+preparation-family cutoff was diagnosed and corrected by `f5396f92c`,
+which moved the long comparison checks off shard 1.
+[The repaired main run](https://github.com/terryyin/open-dough/actions/runs/45376606941)
+passed all three Distribution shards at `53e40d69d`, which contains
+that repair. Trunk integration will carry the corrected configuration.
+
+## Execution complete
+
+Product advice: no change. The typed cohort preserves the chart and
+refresh outcomes at substantially lower test cost. The remaining backend
+family campaign already owns the six mounted consumers and runner
+retirement.
