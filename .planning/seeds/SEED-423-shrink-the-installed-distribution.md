@@ -44,21 +44,66 @@ Dashboard and installed scripts share.
 **Identity:** SEED-423#trim-the-product-backlog-command-to-guided-operations
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/820-trim-the-product-backlog-command-to-guided-operations/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f324a950b3d74f0b1a648677f826fd056354244d55a371d1fde7bedc2d41632b","plan":"fcb0814bcb49d6168b85d28bda81762250d76320a10688075c86ba1261b0a963"}}
 ```
 
-- **For / why.** An agent maintaining a backlog finds every operation it may
-  use in guidance, and the command carries none that guidance never names.
-- **Evaluation.** `refresh` and `direction` are either named in the skill or
-  removed with their reports, about 300 lines. The usage text gives a
-  synopsis and leaves explanation to the references, about 120 lines. The
-  seven story-state files read and write the block through one schema module
-  and one file module, about 200 lines. Handlers, request readers and
-  reporters sit with their operations.
-- **Effort hypothesis.** M, medium confidence. The Dashboard shares the
-  story-state digest in the browser.
-- **Depends on.** None.
-- **Safe stopping point.** Each of the three parts.
+**Goal.** An agent maintaining a backlog can find the installed operation for
+each supported task and follow its workflow from a short command synopsis.
+The developer receives a smaller command and can maintain story-state rules
+in one place while the CLI, execution start and Dashboard interpret existing
+records consistently.
+
+**Scope.**
+
+- Give each dispatched operation a discoverable home in the backlog skill or
+  its linked guidance. Document the checked `refresh` route for an established
+  rename or move and the checked `direction` route for a direction change
+  explicitly requested by the developer. The synopsis covers the supported
+  command forms and points readers to the guidance for procedure and policy.
+- A move preserves the work item's recorded identity and list position.
+  Reject a repoint when the proposed home does not establish the same work or
+  when the old home still claims it, since either would make the canonical
+  reference ambiguous. A direction update uses the direction the caller
+  reviewed so a concurrent change cannot be overwritten silently.
+- Put operation-specific request reading and receipts beside their handlers.
+  Consolidate story-state validation around one shared schema and keep
+  file access in one adapter. Preserve version 1 records, legacy absence,
+  digest and readiness meaning, and current accepted inputs and receipts
+  outside the help text.
+- Git reconciliation and publication have their own stories. Changes to
+  backlog priorities, dependency policy, Dashboard presentation and record
+  format are outside this increment.
+
+**Key examples.**
+
+- A listed story's canonical home has moved with its identity. The agent
+  finds `refresh` through the installed guidance and updates the title or
+  link in place. If both homes still record that identity, the same request
+  refuses and leaves the backlog byte-for-byte intact.
+- The developer explicitly supplies new near-future direction. The agent uses
+  `direction` with the text it read, and only the direction changes. If
+  another writer changed it first, the command asks the agent to reread and
+  leaves the newer text and both lists intact.
+- An agent asks for help or enters an unknown operation. The brief synopsis
+  names the supported forms, including dependency discovery and visiting,
+  and shows where to find the relevant installed procedure.
+- A planned story has a recorded Ready assessment against its own section
+  and plan. After a sibling edit the CLI and Dashboard still show it as
+  unchanged since review. After an edit to its own section they show Ready
+  with changed-since-review evidence, and a write using the old digest
+  refuses without changing the record.
+
+**Architecture.** Share the story-state schema and interpretation with the
+Dashboard's browser reader, and use the Node adapter for plan and home I/O and
+serialized writes. Published Git records remain the source of the Dashboard
+view. Keep the installed workflow self-contained and put detailed procedure
+in its existing guidance. See [ADR 0008, Project dashboard domain and
+architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md),
+[ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md)
+and [ADR 0006, Write skills for executing
+agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+
+**Depends on.** None.
 
 <a id="reconcile-the-backlog-through-one-git-adapter"></a>
 
