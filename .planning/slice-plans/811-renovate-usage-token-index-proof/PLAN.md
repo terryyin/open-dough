@@ -193,7 +193,7 @@ run. Checkout evidence uses the `slice-4-` prefix.
 ### 5. Codex reply evidence is attributed once to its launch
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `token-index-developer-reply-codex` and
 `token-index-refresh-developer-reply-codex`. Feed the existing import and
@@ -202,6 +202,15 @@ Observe late replies and workers attributed once, host-injected context,
 and compaction before turn context. Check where a later typed launch
 begins its own attribution. Consolidate matching observations only when
 an initial-import or incremental case already catches the same regression.
+
+The original two specs pass six cases through real private rollouts and
+typed import or refresh. The host-context case reads stable response IDs
+from the export. The compaction case uses different models across turns.
+Explicit file times distinguish an older parent reached through its late
+worker. A later typed turn stays out of the original launch before and
+after it begins contributing to its own kept launch. Summed case time
+fell from 12,079 ms to 400.80 ms. Checkout evidence uses the
+`slice-5-` prefix.
 
 ### 6. Claude reply evidence is attributed once to its launch
 

@@ -1,135 +1,182 @@
-// A dashboard launch's Token index includes the responses of a Codex turn the
-// developer opens after the launch, and the workers that turn spawns.
+// A launch's usage includes the Codex replies and workers it owns.
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
+import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { readUsageHistory } from "../../server/usageHistory.ts";
 import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
-import {
-  counters,
-  expect,
-  finished,
-  sol,
-  storedUsage,
-  test,
-  usageServer,
-} from "../../test-support/usage-history/tokenIndexHarness.ts";
+  importUsageHistory,
+  usageHistorySince,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 
-// The launch `SEED-7#first`'s rollout: its launch turn with 100 output tokens,
-// then a turn the developer opens with "yes", answered with 300.
-const codexReply = () =>
+const identity = "SEED-7#first";
+const sol = "gpt-6.1-sol";
+const counters = (output: number) => ({
+  input_tokens: 10_000,
+  cached_input_tokens: 8_000,
+  cache_write_input_tokens: 0,
+  output_tokens: output,
+});
+const launchTurn = () =>
   makeMe.aCodexRollout
     .forSession("first")
     .withTurnContext("first-turn", sol, "xhigh")
-    .withDeveloperInput("/dough-execute-plan SEED-7#first")
-    .withResponse("first-turn", "first-100", counters(100))
+    .withDeveloperInput(`/dough-execute-plan ${identity}`)
+    .withResponse("first-turn", "first-100", counters(100));
+const replied = () =>
+  launchTurn()
     .withTurnContext("reply-turn", sol, "xhigh")
     .withDeveloperInput("yes")
     .withResponse("reply-turn", "reply-300", counters(300));
 
-async function codexUsage(
-  machine: Parameters<typeof usageServer>[0],
-  rollouts: object[][],
-  imports = 1,
-) {
-  const { home } = machine;
-  const sessions = path.join(home, ".codex/sessions");
-  keepLaunchStore(home, { "open-dough": [finished("first")] });
-  for (const rows of rollouts)
-    writeCodexSession(path.join(sessions, "2026/11/14"), rows);
-  for (let i = 0; i < imports; i++) runImport(home, sessions);
-  await (await usageServer(machine)).refresh();
-  return (await storedUsage(home)).get("SEED-7#first");
+async function keptLaunch() {
+  const home = await mkdtemp(path.join(tmpdir(), "token-index-codex-reply-"));
+  onTestFinished(() => rm(home, { recursive: true, force: true }));
+  keepLaunchRecords(home, [
+    makeMe.aLaunchRecord
+      .executing({ identity, title: "First story" })
+      .inCodexSession({ sessionId: "first" })
+      .launchedAt("2026-11-14T09:00:00.000Z")
+      .withFirstInput({ state: "confirmed", turnId: "first-turn" })
+      .completedWith({})
+      .please(),
+  ]);
+  const rollouts = path.join(home, "rollouts");
+  const sources = {
+    home,
+    store: path.join(home, "usage.json"),
+    codexRoots: [rollouts],
+    since: usageHistorySince,
+  };
+  return { rollouts, sources };
 }
 
-test("a Codex reply turn's responses count in the launch", async ({
-  machine,
-}) => {
-  expect(await codexUsage(machine, [codexReply().please()])).toMatchObject([
-    { root: true, responses: 2, tokens: { output: 400 } },
-  ]);
+test("a Codex reply turn's responses count in the launch", async () => {
+  const { rollouts, sources } = await keptLaunch();
+  writeCodexSession(rollouts, replied().please());
+
+  await importUsageHistory(sources);
+  const { tasks } = await deriveUsageTaskSummary(sources.store);
+
+  expect(tasks.find((task) => task.identity === identity)?.usage).toMatchObject(
+    [{ root: true, responses: 2, tokens: { output: 400 } }],
+  );
 });
 
-test("a reply turn that opens with host-injected context counts once in the launch on every import", async ({
-  machine,
-}) => {
-  const rollout = makeMe.aCodexRollout
-    .forSession("first")
-    .withTurnContext("first-turn", sol, "xhigh")
-    .withDeveloperInput("/dough-execute-plan SEED-7#first")
-    .withResponse("first-turn", "first-100", counters(100))
-    .withTurnContext("reply-turn", sol, "xhigh")
-    .withDeveloperInput("<environment_context>restart</environment_context>")
-    .withResponse("reply-turn", "reply-300", counters(300))
-    .withDeveloperInput("yes")
-    .withResponse("reply-turn", "reply-500", counters(500))
-    .please();
-  expect(await codexUsage(machine, [rollout], 2)).toMatchObject([
+test("a reply turn that opens with host-injected context counts once in the launch on every import", async () => {
+  const { rollouts, sources } = await keptLaunch();
+  const responses = path.join(sources.home, "responses.json");
+  writeCodexSession(
+    rollouts,
+    launchTurn()
+      .withTurnContext("reply-turn", sol, "xhigh")
+      .withDeveloperInput("<environment_context>restart</environment_context>")
+      .withResponse("reply-turn", "reply-300", counters(300))
+      .withDeveloperInput("yes")
+      .withResponse("reply-turn", "reply-500", counters(500))
+      .please(),
+  );
+
+  const options = { ...sources, responses };
+  await importUsageHistory(options);
+  const first = await deriveUsageTaskSummary(sources.store);
+  await importUsageHistory(options);
+  const repeated = await deriveUsageTaskSummary(sources.store);
+  const { tasks } = await readUsageHistory(sources.store);
+  const { observations, associations } = JSON.parse(
+    await readFile(responses, "utf8"),
+  ) as UsageResponses;
+
+  const firstUsage = first.tasks.find(
+    (task) => task.identity === identity,
+  )?.usage;
+  expect(firstUsage).toMatchObject([
     { root: true, responses: 3, tokens: { output: 900 } },
   ]);
-  const { tasks, associations } = readImported(machine.home);
+  expect(repeated.tasks).toEqual(first.tasks);
   const launches = Object.values(tasks).filter(
-    (task) => task.rootTurnId === "first-turn",
+    ({ rootTurnId }) => rootTurnId === "first-turn",
   );
   expect(launches).toHaveLength(1);
+  const launch = launches[0];
+  expect(launch?.identity).toBe(identity);
   expect(
-    new Set(Object.values(associations).map(({ taskId }) => taskId)),
-  ).toEqual(new Set([launches[0]?.id]));
-});
-
-test("a Codex worker spawned in the reply turn counts once in the launch", async ({
-  machine,
-}) => {
-  const worker = makeMe.aCodexRollout
-    .forSession("first-worker")
-    .withParent("first")
-    .withTurnContext("worker-turn", sol, "xhigh")
-    .withResponse("worker-turn", "worker-own", counters(70), {
-      rootTurnId: "reply-turn",
-    })
-    .please();
-  expect(
-    await codexUsage(machine, [
-      codexReply().withSpawnedAgent("first-worker").please(),
-      worker,
-    ]),
+    Object.values(observations)
+      .toSorted((left, right) =>
+        left.responseId.localeCompare(right.responseId),
+      )
+      .map(({ id, responseId }) => [responseId, associations[id]?.taskId]),
   ).toEqual([
-    expect.objectContaining({
-      root: true,
-      responses: 2,
-      tokens: expect.objectContaining({ output: 400 }),
-    }),
-    expect.objectContaining({
-      root: false,
-      responses: 1,
-      tokens: expect.objectContaining({ output: 70 }),
-    }),
+    ["first-100", launch?.id],
+    ["reply-300", launch?.id],
+    ["reply-500", launch?.id],
   ]);
 });
 
-test("a reply turn's compaction response, recorded before its turn context, counts at that turn's model", async ({
-  machine,
-}) => {
-  // Codex starts the turn, records its compaction's usage and the compacted
-  // history, and only then writes the turn's `turn_context` and the input.
-  const rollout = makeMe.aCodexRollout
-    .forSession("first")
-    .withTurnContext("first-turn", sol, "xhigh")
-    .withDeveloperInput("/dough-execute-plan SEED-7#first")
-    .withResponse("first-turn", "first-100", counters(100))
-    .withRow({
-      type: "event_msg",
-      payload: { type: "task_started", turn_id: "reply-turn" },
-    })
-    .withResponse("reply-turn", "compaction-300", counters(300))
-    .withRow({ type: "compacted", payload: { message: "" } })
-    .withTurnContext("reply-turn", sol, "xhigh")
-    .withDeveloperInput("yes")
-    .please();
-  expect(await codexUsage(machine, [rollout])).toMatchObject([
-    { root: true, model: sol, responses: 2, tokens: { output: 400 } },
-  ]);
+test("a Codex worker spawned in the reply turn counts once in the launch", async () => {
+  const { rollouts, sources } = await keptLaunch();
+  writeCodexSession(
+    rollouts,
+    replied().withSpawnedAgent("first-worker").please(),
+  );
+  writeCodexSession(
+    rollouts,
+    makeMe.aCodexRollout
+      .forSession("first-worker")
+      .withParent("first")
+      .withTurnContext("worker-turn", sol, "xhigh")
+      .withResponse("worker-turn", "worker-own", counters(70), {
+        rootTurnId: "reply-turn",
+      })
+      .please(),
+  );
+
+  await importUsageHistory(sources);
+  const { tasks } = await deriveUsageTaskSummary(sources.store);
+
+  expect(tasks.find((task) => task.identity === identity)?.usage).toMatchObject(
+    [
+      { root: true, responses: 2, tokens: { output: 400 } },
+      { root: false, responses: 1, tokens: { output: 70 } },
+    ],
+  );
+});
+
+test("a reply turn's compaction response, recorded before its turn context, counts at that turn's model", async () => {
+  const { rollouts, sources } = await keptLaunch();
+  const astra = "gpt-6-astra";
+  writeCodexSession(
+    rollouts,
+    launchTurn()
+      .withRow({
+        type: "event_msg",
+        payload: { type: "task_started", turn_id: "reply-turn" },
+      })
+      .withResponse("reply-turn", "compaction-300", counters(300))
+      .withRow({ type: "compacted", payload: { message: "" } })
+      .withTurnContext("reply-turn", astra, "xhigh")
+      .withDeveloperInput("yes")
+      .please(),
+  );
+
+  await importUsageHistory(sources);
+  const { tasks } = await deriveUsageTaskSummary(sources.store);
+  const usage = tasks.find((task) => task.identity === identity)?.usage;
+
+  expect(usage).toHaveLength(2);
+  expect(usage?.find(({ model }) => model === sol)).toMatchObject({
+    root: true,
+    responses: 1,
+    tokens: { output: 100 },
+  });
+  expect(usage?.find(({ model }) => model === astra)).toMatchObject({
+    root: true,
+    responses: 1,
+    tokens: { output: 300 },
+  });
 });
