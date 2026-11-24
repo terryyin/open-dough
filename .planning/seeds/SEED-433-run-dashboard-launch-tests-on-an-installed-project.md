@@ -85,7 +85,7 @@ its story branch records the finding.
 
 **Identity:** SEED-433#compose-existing-sessions-directly
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/817-compose-existing-sessions-directly-in-dashboard-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6822fe38f47fc656bb16126e4873f8f08d514060ab01838dea5fd67f2c17b416","plan":"2195e556bd6905f33944aa9784368a6b7069e85c1b8e76dab09d750cf72badba"}}
 ```
 
 **Goal:** A maintainer gets fast backend and E2E feedback on what the Dashboard
