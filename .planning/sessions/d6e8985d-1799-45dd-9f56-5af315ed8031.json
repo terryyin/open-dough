@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "d6e8985d-1799-45dd-9f56-5af315ed8031",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T08:42:52.753Z",
+  "story": "SEED-389#verify-silent-supplier-wait-in-use",
+  "ranges": [
+    {
+      "base": "f7c7b9a346f65a8eb5a3e0af07dada1cadad862c",
+      "candidate": "1905a4a1cd7a081fa5b4c7da25361c88bc9fea23"
+    },
+    {
+      "base": "1905a4a1cd7a081fa5b4c7da25361c88bc9fea23",
+      "candidate": "563d87eac574c046ab1634e315bb1582f9da313a"
+    },
+    {
+      "base": "563d87eac574c046ab1634e315bb1582f9da313a",
+      "candidate": "034822b01088941dd0b306874bc608e12c11be38"
+    },
+    {
+      "base": "034822b01088941dd0b306874bc608e12c11be38",
+      "candidate": "4644fe6842dd7d65bae10dc885b23d324f0dacfc"
+    }
+  ]
+}
