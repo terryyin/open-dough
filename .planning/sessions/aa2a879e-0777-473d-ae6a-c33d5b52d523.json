@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "aa2a879e-0777-473d-ae6a-c33d5b52d523",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T09:33:53.512Z",
+  "story": "SEED-423#observe-the-cancelled-listing-discover",
+  "ranges": [
+    {
+      "base": "a4fd82cfd1b91a57325a355d2a76e20da95d9c4e",
+      "candidate": "072cebb20df000f950ade5fef4b78653a3c3a896"
+    },
+    {
+      "base": "072cebb20df000f950ade5fef4b78653a3c3a896",
+      "candidate": "52dc82736890a4c261ab03b76e02e1166cba1f93"
+    },
+    {
+      "base": "52dc82736890a4c261ab03b76e02e1166cba1f93",
+      "candidate": "ecaae7a767f356aeda7b4d6eb81ee1acaed7225c"
+    }
+  ]
+}
