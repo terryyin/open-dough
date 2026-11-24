@@ -55,6 +55,7 @@ export async function mountTouchTerminal(
     | "openingLines"
     | "connecting"
     | "storeTerminalImage"
+    | "transcription"
   > = {},
 ) {
   await useTouchScreen();

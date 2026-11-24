@@ -1,174 +1,131 @@
-// Built UI, native synthetic microphone, explicit transcription/settings/notes
-// substitutes. Real provider and restart boundaries are covered by e2e consumers.
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import type { StoryNoteContext } from "../../src/storyNote.ts";
+import { audioInput } from "../launches/instruction-voice-page.ts";
 import {
-  expect,
-  test,
-  openFrontendTakenBacklog,
-} from "../../test-support/support/frontendApp.ts";
-import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
-import { installFrontendTranscription } from "../../test-support/support/frontendTranscriptionSubstitutes.ts";
-import {
-  openFrontendStoryReview,
-  selectedFrontendStoryDiff,
-} from "../../test-support/support/frontendStoryReviewOpen.ts";
-import {
-  frontendFileDiff,
-  frontendReviewIds,
-} from "../../test-support/support/frontendStoryReview.ts";
-import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
-import { storyNoteVoicePage } from "../../test-support/support/storyNoteVoicePage.ts";
-import {
-  observeMicrophone,
-  stoppedTracks,
-  holdMicrophonePermission,
-} from "../../test-support/support/voicePage.ts";
-import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
-import { intentFile } from "../../test-support/support/intentStoryPage.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { takenStory, takenIdentity } from "../../test-support/launchJourney.ts";
+  holdAnswer,
+  mountNoteDictation,
+  noteAction,
+  noteIsBusy,
+  noteIsReady,
+  notes,
+  noteStatus,
+  noteText,
+  recordNoteClip,
+  transcriptEditor,
+} from "./story-note-dictation-page.ts";
 
-test.use(microphoneBrowserOptions);
-test.beforeEach(async ({ page }) => {
-  await observeMicrophone(page);
-});
-
-test("Taken line dictation waits for permission and transcription, then permits correction before saving exact context", async ({
-  page,
-  frontendServices,
-}) => {
-  const service = await installFrontendStoryNotes(page);
-  const transcription = await installFrontendTranscription(
-    page,
-    frontendServices,
-  );
-  transcription.answerText("Check this misstated line");
-  const { review } = await openFrontendStoryReview(
-    page,
-    frontendServices,
-    undefined,
-    (answers) => {
-      answers.answerFile(frontendFileDiff("story.txt", ["+Kept line"]));
+test("Taken line dictation waits for permission and transcription, then permits correction before saving exact context", async () => {
+  const capture = audioInput();
+  const permission = holdAnswer<MediaStream>();
+  capture.getUserMedia.mockImplementationOnce(() => permission.answer);
+  const context: StoryNoteContext = {
+    view: "Intent → Changes",
+    path: "story.txt",
+    comparison: {
+      name: "All changes",
+      baseline: "a".repeat(40),
+      tree: "b".repeat(40),
     },
-  );
-  await intentFile(review, "Added story.txt").click();
-  const notes = storyNotesPage(page);
-  const voice = storyNoteVoicePage(page);
-  await notes.fromLine(
-    await selectedFrontendStoryDiff(review, "Added story.txt"),
-    "new",
-    1,
-  );
-  await notes.expectComposerContext([
-    takenStory,
-    takenIdentity,
+    line: { number: 1, side: "new", text: "Kept line" },
+  };
+  const { story, changes, transcribe, open } = await mountNoteDictation({
+    context,
+  });
+  const held = holdAnswer<{ text: string }>();
+  transcribe.mockImplementationOnce(() => held.answer);
+  await open();
+  for (const fact of [
+    `${story.title} · ${story.identity}`,
     "Intent → Changes",
     "story.txt",
+    `All changes ${context.comparison.baseline} → ${context.comparison.tree}`,
     "Line 1 · new",
     "Kept line",
-  ]);
-  await notes.type("Typed observation");
-  const permission = await holdMicrophonePermission(page);
-  await voice.dictate();
-  await permission.requested();
-  await voice.expectStatus("Waiting for microphone permission…");
-  await voice.expectBusy();
-  await permission.grant();
-  await page.evaluate(() => {
-    (
-      window as unknown as { voiceObservation: { holdPermission: boolean } }
-    ).voiceObservation.holdPermission = false;
-  });
-  await voice.expectStatus("Recording… Stop recording when you are finished.");
-  await notes.cancel();
-  await expect.poll(() => stoppedTracks(page)).toBe(true);
-  expect(transcription.clips()).toBe(0);
-  await notes.fromLine(
-    await selectedFrontendStoryDiff(review, "Added story.txt"),
-    "new",
-    1,
-  );
-  await notes.type("Typed observation");
-  const held = transcription.holdNext();
-  await voice.record();
-  await held.received;
-  await voice.expectStatus("Transcribing…");
-  await voice.expectBusy();
-  expect(service.changes()).toEqual([]);
-  held.release();
-  await held.delivered;
-  await notes.expectComposing("Typed observation\n\nCheck this misstated line");
-  await voice.expectReady();
-  await notes.type("Typed observation\n\nCheck this corrected line");
-  await notes.save();
-  await notes.expectDiffSaved();
-  expect(service.changes()).toEqual([
-    {
-      action: "add",
-      identity: takenIdentity,
-      text: "Typed observation\n\nCheck this corrected line",
-      context: {
-        view: "Intent → Changes",
-        path: "story.txt",
-        comparison: {
-          name: "All changes",
-          baseline: frontendReviewIds.baseline,
-          tree: frontendReviewIds.tree,
-        },
-        line: { number: 1, side: "new", text: "Kept line" },
-      },
-    },
+  ]) {
+    await expect.element(notes.getByText(fact, { exact: true })).toBeVisible();
+  }
+  await noteText.fill("Typed observation");
+  await userEvent.click(noteAction("Dictate"));
+  await expect.poll(() => capture.getUserMedia.mock.calls.length).toBe(1);
+  await noteStatus("Waiting for microphone permission…");
+  await noteIsBusy();
+  permission.deliver(await capture.openStream());
+  await noteStatus("Recording… Stop recording when you are finished.");
+  await userEvent.click(noteAction("Cancel"));
+  await expect.element(notes).not.toBeInTheDocument();
+  await expect
+    .poll(() => capture.tracks().map((track) => track.readyState))
+    .toEqual(["ended"]);
+  expect(transcribe).not.toHaveBeenCalled();
+
+  await open();
+  await noteText.fill("Typed observation");
+  await recordNoteClip();
+  await expect.poll(() => transcribe.mock.calls.length).toBe(1);
+  expect(transcribe.mock.lastCall?.[0].size).toBeGreaterThan(0);
+  await expect
+    .poll(() => capture.tracks().map((track) => track.readyState))
+    .toEqual(["ended", "ended"]);
+  await noteStatus("Transcribing…");
+  await noteIsBusy();
+  expect(changes).not.toHaveBeenCalled();
+  held.deliver({ text: "Check this misstated line" });
+  await expect
+    .element(noteText)
+    .toHaveValue("Typed observation\n\nCheck this misstated line");
+  await noteIsReady();
+
+  const corrected = "Typed observation\n\nCheck this corrected line";
+  await noteText.fill(corrected);
+  await userEvent.click(noteAction("Save note"));
+  await expect
+    .element(notes.getByText("Note saved to this story.", { exact: true }))
+    .toBeVisible();
+  expect(changes.mock.calls).toEqual([
+    [{ action: "add", identity: story.identity, text: corrected, context }],
   ]);
 });
 
-test("over-limit transcript is reviewed, shortened or discarded without losing the note", async ({
-  page,
-  frontendServices,
-}) => {
-  const service = await installFrontendStoryNotes(page);
-  const transcription = await installFrontendTranscription(
-    page,
-    frontendServices,
-  );
-  await openFrontendTakenBacklog(page);
-  const notes = storyNotesPage(page);
-  const voice = storyNoteVoicePage(page);
-  await notes.open(
-    parts(page).taken.getByRole("article", { name: takenStory, exact: true }),
-  );
-  await notes.add();
-  await voice.expectKeyboardOrder(["Dictate", "Cancel", "Save note", "Close"]);
-  await notes.type("Keep this note");
-  const transcript = "x".repeat(4_001);
-  transcription.answerText(transcript);
-  await voice.record();
-  await voice.expectTranscript(transcript);
-  await voice.expectBusy();
-  await notes.expectComposing("Keep this note");
-  await voice.expectAddDisabled();
-  await notes.expectProblem(
-    "This transcript exceeds the note limit. Your note was kept.",
-  );
-  await voice.shorten("Corrected transcript");
-  await voice.addTranscript();
-  await notes.expectComposing("Keep this note\n\nCorrected transcript");
-  await voice.record();
-  await voice.expectTranscript(transcript);
-  await voice.discardTranscript();
-  await voice.expectNoTranscript();
-  await voice.expectReady();
-  await notes.expectComposing("Keep this note\n\nCorrected transcript");
-  await voice.record();
-  await voice.expectTranscript(transcript);
-  await voice.discardTranscript();
-  await voice.expectNoTranscript();
-  await notes.expectComposing("Keep this note\n\nCorrected transcript");
-  await notes.save();
-  await notes.expectSaved();
-  expect(service.changes()).toEqual([
-    {
-      action: "add",
-      identity: takenIdentity,
-      text: "Keep this note\n\nCorrected transcript",
-    },
+test("over-limit transcript is reviewed, shortened or discarded without losing the note", async () => {
+  audioInput();
+  const { story, changes, transcribe, open } = await mountNoteDictation();
+  const tooLong = "x".repeat(4_001);
+  transcribe.mockResolvedValue({ text: tooLong });
+  await open();
+  for (const name of ["Dictate", "Cancel", "Save note", "Close"]) {
+    await userEvent.keyboard("{Tab}");
+    await expect.element(noteAction(name)).toHaveFocus();
+  }
+  await noteText.fill("Keep this note");
+  await recordNoteClip();
+  await expect.element(transcriptEditor).toHaveValue(tooLong);
+  await expect.element(transcriptEditor).toHaveFocus();
+  await noteIsBusy();
+  await expect.element(noteText).toHaveValue("Keep this note");
+  await expect.element(noteAction("Add transcript")).toBeDisabled();
+  await expect
+    .element(notes.getByRole("alert"))
+    .toHaveTextContent(
+      "This transcript exceeds the note limit. Your note was kept. Shorten the complete transcript, then add it or discard it.",
+    );
+  await transcriptEditor.fill("Corrected transcript");
+  await userEvent.click(noteAction("Add transcript"));
+  const kept = "Keep this note\n\nCorrected transcript";
+  await expect.element(noteText).toHaveValue(kept);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    await recordNoteClip();
+    await expect.element(transcriptEditor).toHaveValue(tooLong);
+    await userEvent.click(noteAction("Discard transcript"));
+    await expect.element(transcriptEditor).not.toBeInTheDocument();
+    await noteIsReady();
+    await expect.element(noteText).toHaveValue(kept);
+  }
+  await userEvent.click(noteAction("Save note"));
+  await expect
+    .element(notes.getByText("Note saved to this story.", { exact: true }))
+    .toBeVisible();
+  expect(changes.mock.calls).toEqual([
+    [{ action: "add", identity: story.identity, text: kept }],
   ]);
 });

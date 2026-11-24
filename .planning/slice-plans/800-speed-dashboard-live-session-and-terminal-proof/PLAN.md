@@ -348,7 +348,7 @@ and held-output substitutes were removed. See `slice-7-mapping.md` and
 ### 8. Terminal and story-note dictation abandon cleanly and respect limits
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `terminals/session-terminal-voice`, `terminals/session-terminal-voice-touch`,
 `stories/story-note-voice`, and `stories/story-note-voice-recovery` (10). Mount
@@ -363,6 +363,45 @@ correction before save, and respects the character limit. Setup returns to the
 same draft; permission and transcription problems keep typed text; Close stops
 recording and Cancel abandons transcription; a new composer receives no late
 text.
+
+**Accepted implementation proof.** All ten dictation cases passed in
+13.580 s wall at two workers. Actual browser capture supplies nonempty
+recording bytes, and typed held, rejected and late replies exercise
+production terminal and note behavior. The cases retain exact editable
+input and note context, settings return, limit handling, device action
+sizes, track release and request abort. The 25 existing note consumers,
+15 touch consumers, 13 native E2E cases and dashboard typecheck
+passed. No E2E cases were added. Four spent wrappers were retired.
+See `slice-8-mapping.md` and `slice-8-return.md` in the worktree's Git evidence.
+
+## Campaign comparison
+
+All 31 formerly legacy files now select Vitest. The fine-pointer case
+runs in its own desktop spec. With the five existing sidebar files,
+the explicit selection passed all 80 cases in 37 Vitest files at two
+workers. No scoped Playwright frontend cases or new E2E cases remain
+in the campaign selection. The original scope ran 77 Playwright
+cases in 110.911 s with timing and case capture, and 12 mounted cases
+in 3.468 s, for 114.379 s across the two selections. The final
+instrumented Vitest run took 56.811 s, including runner preparation.
+The two-worker runs used the same AC-powered 16-core Mac with varying
+neighboring workloads. This is a scoped wall comparison. The
+un-instrumented legacy run also passed in 94.855 s.
+
+Paused scrollback and Copy remained the slowest mounted case
+(6.687 s), followed by desktop selection and scrollback (3.678 s),
+the application-scrolled pause (3.387 s), and report choices through
+rotation (3.384 s). Equivalent prompt and wide viewport cases account
+for the nine-case reduction. No recurring E2E costs were added. Existing
+native E2E gates ran separately where the slice boundary changed.
+Exact paths and terminal evidence are in `campaign-vitest-paths.txt`,
+`campaign-vitest.json`, and `campaign-vitest.log.run.json`.
+
+The daemon restarted during the final comparison; its original process
+completed and wrote the successful receipt. The original story-branch
+observer at `/tmp/dough-ci-501/watch-ISPmje` stopped with no unread
+events. The same coordinator resumed in `/tmp/dough-ci-501/watch-2lDLUR`
+(PID 46579, stream session 8795, cell g2:12) before final publication.
 
 ## Plan review
 

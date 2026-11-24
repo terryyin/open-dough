@@ -14,7 +14,7 @@ import { useStoryNoteAnnouncement } from "./storyNoteAnnouncement.ts";
 import { StoryNoteContext } from "./StoryNoteContext.tsx";
 import { StoryNoteEntry } from "./StoryNoteEntry.tsx";
 import { useLaunchInstruction } from "./LaunchInstruction.tsx";
-import { instructionTranscription } from "./instructionTranscriptionSource.ts";
+import { useInstructionTranscription } from "./pageReads.tsx";
 export function StoryNotesDialog({
   identity,
   title,
@@ -41,7 +41,7 @@ export function StoryNotesDialog({
   const dictation = useLaunchInstruction(
     field,
     dialog,
-    instructionTranscription,
+    useInstructionTranscription(),
     {
       before: "Save note",
       subject: "note",
