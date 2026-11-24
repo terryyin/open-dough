@@ -1,0 +1,89 @@
+import { expect } from "vitest";
+import { page, userEvent, type Locator } from "vitest/browser";
+import { boardReading, storyCard } from "./board-reading-page.ts";
+import { readingTop } from "./board-session-view.ts";
+import { showsMovingCue } from "./story-destination-cue.ts";
+
+export const recent = page.getByRole("button", { name: /^Recent stories,/ });
+export const popover = page.getByRole("dialog", {
+  name: "Recent stories",
+  exact: true,
+});
+export const roster = page.getByRole("region", {
+  name: "Agent roster",
+  exact: true,
+});
+
+export async function activate(control: Locator) {
+  await expect.element(control).toBeVisible();
+  const element = control.element();
+  if (!(element instanceof HTMLElement))
+    throw new Error("Expected an HTML control.");
+  element.click();
+}
+
+export async function selectCard(title: string, selected = true) {
+  const card = storyCard(title);
+  await activate(card.getByRole("heading", { level: 3 }).first());
+  await boardReading.expectStorySelection(card, selected);
+}
+
+export async function showsBookmark(identity?: string) {
+  const name =
+    identity === undefined
+      ? "Recent stories, no story selected"
+      : `Recent stories, ${identity} selected`;
+  await expect.element(recent).toHaveAccessibleName(name);
+  const icons = recent.element().querySelectorAll("svg");
+  expect(icons).toHaveLength(1);
+  const icon = icons.item(0);
+  expect(icon.getAttribute("fill") ?? "none").toBe(
+    identity === undefined ? "none" : "currentColor",
+  );
+}
+
+export async function showsEmptyHistory() {
+  await expect
+    .element(popover.getByText("There are no recent stories.", { exact: true }))
+    .toBeVisible();
+  expect(popover.getByRole("option").elements()).toHaveLength(0);
+}
+
+export async function showsHistory(
+  rows: readonly [project: string, identity: string, selected: boolean][],
+) {
+  const options = popover.getByRole("option");
+  await expect.poll(() => options.elements().length).toBe(rows.length);
+  for (const [index, [project, identity, selected]] of rows.entries()) {
+    const row = options.nth(index);
+    await expect.element(row.getByText(project, { exact: true })).toBeVisible();
+    await expect
+      .element(row.getByText(identity, { exact: true }))
+      .toBeVisible();
+    await expect
+      .element(row)
+      .toHaveAttribute("aria-selected", String(selected));
+  }
+}
+
+export async function dismissWithEscape() {
+  await userEvent.keyboard("{Escape}");
+  await expect.element(popover).not.toBeInTheDocument();
+}
+
+export async function chooseRecent(project: string, identity: string) {
+  await activate(
+    popover
+      .getByRole("option")
+      .filter({ has: page.getByText(project, { exact: true }) })
+      .filter({ has: page.getByText(identity, { exact: true }) }),
+  );
+  await expect.element(popover).not.toBeInTheDocument();
+}
+
+export async function showsRevealed(card: Locator) {
+  await boardReading.expectStoryHighlight(card);
+  await expect.element(card).toHaveFocus();
+  await readingTop(card.element());
+  await showsMovingCue(card);
+}

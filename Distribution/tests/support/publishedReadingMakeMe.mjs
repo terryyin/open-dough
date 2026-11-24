@@ -3,6 +3,7 @@
 // published files, Intent locations and their answer, CI scope history
 // glance, and a Done story's collected CI wall-time history. Node-free, so
 // makeMe.mjs and pageMakeMe.mjs expose them from these definitions.
+import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { PublishedWorkBuilder } from "./comparisonViewTestData.mjs";
 import { DoneWallTimeHistoryBuilder } from "./doneWallTimeHistoryTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
@@ -13,11 +14,16 @@ import {
 import { PublishedFilesBuilder } from "./publishedFilesTestData.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 import { ScopeHistoryGlanceBuilder } from "./scopeHistoryGlanceTestData.mjs";
+import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/publishedWork.ts").WorkEntry} WorkEntry */
+/** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 
 /**
  * @typedef {object} PublishedReadingMakeMe
+ * @property {import("./factBuilder.mjs").FactBuilder<BacklogEntry>} aBacklogEntry
+ * @property {typeof supplierAgreementBuilder} aSupplierAgreement
+ * @property {AgentProfileBuilder} anAgentProfile
  * @property {PublishedSourceBuilder} aPublishedSource
  * @property {PublishedWorkBuilder} aPublishedWork
  * @property {WorkEntryBuilder} aWorkEntry
@@ -48,6 +54,24 @@ class WorkEntryBuilder {
 /** @returns {PropertyDescriptorMap} */
 export function publishedReadingMakeMeProperties() {
   return {
+    aBacklogEntry: {
+      enumerable: true,
+      get() {
+        return { with: copyFacts };
+      },
+    },
+    aSupplierAgreement: {
+      enumerable: true,
+      get() {
+        return supplierAgreementBuilder;
+      },
+    },
+    anAgentProfile: {
+      enumerable: true,
+      get() {
+        return new AgentProfileBuilder();
+      },
+    },
     aPublishedSource: {
       enumerable: true,
       get() {

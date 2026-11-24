@@ -10,6 +10,7 @@ import { renderPublishedBacklog } from "../../../Distribution/tests/support/publ
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { AgentRoster } from "../../src/assignmentRoster.ts";
 import type { PublishedWork, WorkEntry } from "../../src/publishedWork.ts";
+import { ReadProblem } from "../../src/readProblem.ts";
 
 function backlogHref(recorded: string): string {
   // Backlog entry links cannot carry spaces or ")".
@@ -47,8 +48,28 @@ export function backlogMarkdownOf(work: PublishedWork): string {
   });
 }
 
-export function entriesOf(work: PublishedWork): readonly WorkEntry[] {
+function entriesOf(work: PublishedWork): readonly WorkEntry[] {
   return [...work.taken, ...work.backlog];
+}
+
+export function readBoardFixtureFile(
+  snapshots: Iterable<PublishedWork>,
+  path: string,
+): Promise<string> {
+  for (const work of snapshots) {
+    const entry = entriesOf(work).find((each) => {
+      if (each.canonical.kind !== "snapshot") return false;
+      return (
+        each.canonical.recorded === path ||
+        each.canonical.recorded.endsWith(path) ||
+        path.endsWith(each.canonical.recorded.replace(/^\.\//, ""))
+      );
+    });
+    if (entry?.dependencies?.status === "unavailable") {
+      return Promise.reject(new ReadProblem(entry.dependencies.problem));
+    }
+  }
+  return Promise.resolve(`# Detail for ${path}\n`);
 }
 
 export function emptyMachineAnswer(): MachineAnswer & {

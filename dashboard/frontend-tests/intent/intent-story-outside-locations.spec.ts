@@ -1,146 +1,95 @@
-// The selected story's changed files outside every Intent location, listed
-// after the locations in their repository folders, each read as Purpose like a
-// located file and kept under "Selected story only"; a Done story lists its
-// published completion's the same way. The header counts none of them. The
-// real Git overlay is observed in
-// ../../../e2e/intent/intent-story-changes.spec.ts.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { intentStory } from "../../test-support/support/intentStoryPage.ts";
-import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { expect, test } from "vitest";
 import {
-  putFrontendIntentStory,
-  answerFrontendIntentChanges,
-} from "../../test-support/support/frontendIntentStory.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openStoryIntent } from "../../test-support/intentModePage.ts";
-import { prepareFrontendDoneReview } from "../../test-support/support/frontendDoneReview.ts";
-import { selectDoneStoryInIntent } from "../../test-support/support/selectDoneStoryInIntent.ts";
+  changed,
+  openStoryChanges,
+  productPath,
+} from "./intent-story-changes-fixtures.ts";
+import {
+  activateComparisonControl,
+  intentStoryCompare,
+} from "./intent-story-compare-page.ts";
+import {
+  doneCompletion,
+  openDoneStoryComparison,
+} from "./intent-story-compare-stories.ts";
 
-const app = "Modified dashboard/src/App.tsx";
-const notes = "Renamed docs/notes.md → docs/renamed-notes.md";
-
-test("the changed files outside every Intent location follow the locations, once each, in their open folders", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendIntentStory(frontendServices);
-  await answerFrontendIntentChanges(page);
-  const { intent } = await openStoryIntent(page, "Story A");
-  const story = intentStory(intent);
-
-  await test.step("Given the story's Changes", async () => {
-    await story.chooseTab("Changes");
-  });
-
-  await test.step("Then the outside group comes last, listing each outside file once", async () => {
-    await expect(story.groups.last()).toHaveText(/^Outside Intent locations/);
-    for (const name of [app, notes])
-      await expect(story.outsideFile(name)).toBeVisible();
-  });
-
-  await test.step("And each row carries its change marker", async () => {
-    await expect(story.outsideRow(app)).toHaveAttribute(
-      "data-kind",
-      "modified",
-    );
-    await expect(story.outsideRow(notes)).toHaveAttribute(
-      "data-kind",
-      "renamed",
-    );
-  });
-
-  await test.step("And their folders holding changes are open", async () => {
-    await expect(story.folderToggle("docs", true)).toBeVisible();
-  });
+test("outside changes follow the configured locations in open folders and do not count in the story header", async () => {
+  await openStoryChanges();
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  const outside = story.outsideGroup;
+  await expect.element(outside).toBeVisible();
+  const groups = outside
+    .element()
+    .parentElement?.querySelectorAll(":scope > section");
+  expect(
+    [...(groups ?? [])].map((group) =>
+      group.classList.contains("intent-location"),
+    ),
+  ).toEqual([true, true, false]);
+  expect([...(groups ?? [])].at(-1)).toBe(outside.element());
+  for (const [name, kind] of [
+    [changed.product, "modified"],
+    [changed.notes, "renamed"],
+  ] as const) {
+    const file = story.outsideFile(name);
+    await expect.element(file).toBeVisible();
+    await expect.element(file).toHaveLength(1);
+    expect(file.element().closest("li")?.getAttribute("data-kind")).toBe(kind);
+  }
+  await expect.element(story.folderToggle("docs", true)).toBeVisible();
+  await expect.element(story.folderToggle("dashboard/src", true)).toBeVisible();
+  expect(story.headerText()).not.toMatch(/outside Intent locations/i);
+  await expect
+    .element(story.header.getByRole("button", { name: /outside/i }))
+    .not.toBeInTheDocument();
 });
 
-test("the selected story's header counts none of the files listed outside every Intent location", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendIntentStory(frontendServices);
-  await answerFrontendIntentChanges(page);
-  const { intent } = await openStoryIntent(page, "Story A");
-  const story = intentStory(intent);
-
-  await test.step("Given the story's Changes listing a file outside", async () => {
-    await story.chooseTab("Changes");
-    await expect(story.outsideFile(app)).toBeVisible();
+test("an outside file reads its diff as Purpose and stays selected under Selected story only", async () => {
+  const { reads } = await openStoryChanges({
+    review: () =>
+      Promise.resolve(makeMe.aStoryReview.modifying(productPath).please()),
+    fileDiff: () =>
+      Promise.resolve(
+        makeMe.aReviewedFileDiff.adding(productPath, "product change").please(),
+      ),
   });
-
-  await test.step("Then its header neither counts them nor offers to open them", async () => {
-    await expect(story.summary).not.toContainText("outside Intent locations");
-    await expect(
-      story.summary.getByRole("button", { name: /outside/ }),
-    ).toHaveCount(0);
-  });
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  const file = story.outsideFile(changed.product);
+  await activateComparisonControl(file);
+  await expect.poll(story.diffName).toBe(changed.product);
+  await expect.poll(story.diffCode).toContain("product change");
+  await activateComparisonControl(story.onlyChangedFiles);
+  await expect.element(story.onlyChangedFiles).toBeChecked();
+  await expect.element(file).toHaveAttribute("aria-pressed", "true");
+  await expect.poll(story.diffName).toBe(changed.product);
+  expect(reads.diffs).toEqual([productPath]);
 });
 
-test("a file outside every Intent location reads its diff as Purpose and stays selected under Selected story only", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendIntentStory(frontendServices);
-  const review = await answerFrontendIntentChanges(page, [
-    makeMe.aReviewedFile
-      .with({ kind: "modified", path: "dashboard/src/App.tsx" })
-      .please(),
-  ]);
-  review.answerFile(
-    frontendFileDiff("dashboard/src/App.tsx", ["+product change"]),
-    "dashboard/src/App.tsx",
-  );
-  const { intent } = await openStoryIntent(page, "Story A");
-  const story = intentStory(intent);
-
-  await test.step("Given the story's Changes", async () => {
-    await story.chooseTab("Changes");
+test("a Done story lists its published completion's outside product code with its diff as Purpose", async () => {
+  await openDoneStoryComparison({
+    review: () =>
+      Promise.resolve(
+        makeMe.aStoryReview
+          .published(doneCompletion)
+          .modifying("dashboard/tests/a.spec.ts")
+          .modifying(productPath)
+          .please(),
+      ),
+    fileDiff: ({ path }) => {
+      if (path !== productPath)
+        throw new Error(`Unexpected diff path: ${path ?? "missing"}`);
+      return Promise.resolve(
+        makeMe.aReviewedFileDiff.adding(path, "app change").please(),
+      );
+    },
   });
-
-  await test.step("When the outside file is selected", async () => {
-    await story.outsideFile(app).click();
-  });
-
-  await test.step("Then its diff reads as Purpose", async () => {
-    await expect(story.diffReading.name).toHaveText(app);
-    await expect(story.diffReading.container).toContainText("product change");
-  });
-
-  await test.step("When Selected story only is turned on", async () => {
-    await story.storyOnly().check();
-  });
-
-  await test.step("Then the file stays selected with its diff", async () => {
-    await expect(story.outsideFile(app)).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    await expect(story.diffReading.name).toHaveText(app);
-  });
-});
-
-test("a Done story lists its published completion's product code outside the locations, its diff read as Purpose", async ({
-  page,
-  frontendServices,
-}) => {
-  const { review } = await prepareFrontendDoneReview(
-    page,
-    frontendServices,
-    "completed historical test",
-  );
-  review.answerFile(
-    frontendFileDiff("dashboard/src/App.tsx", ["+app change"]),
-    "dashboard/src/App.tsx",
-  );
-  const { intent } = await selectDoneStoryInIntent(page);
-  const story = intentStory(intent);
-
-  await test.step("Given the Done story's Changes", async () => {
-    await story.chooseTab("Changes");
-  });
-
-  await test.step("Then the outside file's diff reads as Purpose", async () => {
-    expect(await story.diff(app)).toContain("app change");
-  });
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
+  await activateComparisonControl(story.outsideFile(changed.product));
+  await expect.poll(story.diffName).toBe(changed.product);
+  await expect.poll(story.diffCode).toContain("app change");
 });

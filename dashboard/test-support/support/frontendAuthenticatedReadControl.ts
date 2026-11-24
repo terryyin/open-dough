@@ -59,12 +59,3 @@ export function countAuthenticatedReads(
 // How many reads of one project's published source the page has asked from now on.
 export const countProjectReads = (page: Page, source: string) =>
   countAuthenticatedReads(page, (params) => params.get("source") === source);
-
-// How many reads of one project's published work the page has asked from now
-// on, its time-paced revision check aside.
-export const countProjectWorkReads = (page: Page, source: string) =>
-  countAuthenticatedReads(
-    page,
-    (params) =>
-      params.get("source") === source && !params.has(revisionStreamAtParameter),
-  );

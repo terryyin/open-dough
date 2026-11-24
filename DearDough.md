@@ -11,6 +11,7 @@ observations and context beyond those catalog records. See
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158. `488645e95fe49110418f94953944bea1beb3afec:DearDough.md` retains the exact removed pointers to ODF-154, ODF-205, ODF-169 and ODF-338. `c8c3aa62af81c1cf1bb13eeb6eb79dc0b67b8c7b:DearDough.md` retains the removed empty DD-613 and DD-608 Occurrences headings and the ODF-532 source-recovery pointer. `af192fc772f2a1fd18e0a9870365991e849fe56a:DearDough.md` preserves the removed redundant plan 792 occurrence under ODF-368. `80087ac3086625e928680a3d495d2526a3fd144f:DearDough.md` retains the removed ODF-456 catalog pointer and ODF-368's plan 777 occurrence.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
+- Recovery: `273d9687ed365db7e56ffa4291e4ef78763f855c:DearDough.md` retains the removed redundant recovery pointers. The same earlier log remains linked above.
 
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 
@@ -52,6 +53,7 @@ A story promising parity with an existing view proved only settled states; every
 
 ### Occurrences
 
+- Execution: SEED-413#speed-dashboard-frame-and-navigation-proof (plan 802, first implementation `fbfc48c26`). Timestamp: unknown (2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `f733216e1`). Evidence: focused proof and independent refactor passed before the selective formatter refused slices 3, 4, 5 and 6 for fixture, locator or unused-parameter lint. Slice 5's preparation rerun exposed a separate ordering defect after the syntax fix. Observed effect: four delivery retries and focused regressions before the same slices could publish. Inference: owner-side scoped read-only checks could find the lint while the author is still in context.
 - Execution: SEED-413#speed-dashboard-live-session-and-terminal-proof (plan 800, first implementation `f9c12f8a0`). Timestamp: unknown (2026-11-24 slice delivery). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `f41e39c2`). Evidence: slice returns supplied focused proof and the installed delegation reference at Take assigned selective formatting and hook-owned lint to the coordinator. Guarded formatting exposed unused fixture arguments, unbound methods and other type-aware lint errors after the returns. Observed effect: coordinator edits were needed before accepting the affected slices. Inference: the installed guidance still hands the first lint feedback to the coordinator.
 - Execution: SEED-420#compare-story-contributions (plan 790, first implementation `b159f51e1`). Timestamp: unknown (2026-11-23 +08:00, delivery of slices 1, 2 and 4). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `f3c0fe94a`). Evidence: each slice returned passing focused tests and independent refactor before guarded formatting caught unsafe matcher or fixture types, an unnecessary optional chain, unused parameters or an unbound method. Observed effect: three formatting refusals and three focused reruns after mechanical repairs. Inference: reading lint while the author still holds the fixture context would have exposed these issues before delivery.
 - Execution: SEED-424#poll-open-codex-sessions (plan 784, first implementation `b5b4a3ed8`). Timestamp: 2026-11-23T13:19:34+08:00 (initial formatting refusal). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION). Evidence: the passing focused test return and independent refactor preceded guarded delivery's errors on require-await and an unused index callback argument in the new Vitest case. The coordinator's first repair also exposed an unsafe spread. An explicit fixture array type cleared it. Observed effect: two preparation refusals before the slice could commit, plus one renewed targeted test. Inference: the existing delegated lint follow-up covers finding the initial errors while the author still has the fixture context.
@@ -322,15 +324,14 @@ Former local code: DD-566.
 - SEED-334#move-intent-ci-proof-comparison-and-candidate-checks (plan 651; first implementation `e7aac254bbe59f5dc277d473386359dddf56132d`)
 
 [Account and evidence at ODF-525](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-525.md#evidence-2026-11-23-open-dough-dd-566).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-443 — Refactor return reports an oversized module as within the 250-line limit <a id="odf-443"></a>
 
 - SEED-345#test-agent-effort-through-its-output-contract (plan 678; first implementation 849f72ca97d8c72e4173244f12d5558ff2679b60)
 - SEED-413#mount-story-review-changes-panel (plan 748; first implementation `277d5717c67aed5babc1806881797d52a0ec8235`)
+- Execution: SEED-413#speed-dashboard-frame-and-navigation-proof (plan 802, first implementation `fbfc48c26`). Timestamp: unknown (2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `f733216e1`). Evidence: slice 3's first formatted publication `3324960c0` grew the appearance spec from 233 to 273 lines. Final review ran the physical size check and `1f60b3797` restored the limit at 247 with the focused proof. Observed effect: a separate publication and renewal of the final CI basis. Inference: measuring the formatted candidate would catch size growth before delivery.
 
 [Account and evidence at ODF-443](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-443.md#evidence-2026-11-23-open-dough-odf-443).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-526 — Consumer-trace output is dominated by planning-record matches, so agents fall back to plain search <a id="dd-568"></a>
 
@@ -343,7 +344,6 @@ Former local code: DD-568.
 - SEED-400#keep-freshness-with-a-valid-take (plan 696; first implementation `03b29b34ee3cfdbe109111b86aba327e0691c277`)
 
 [Account and evidence at ODF-526](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-526.md#evidence-2026-11-23-open-dough-dd-568).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-569 — Conversion acceptance takes a named existing owner without reading its assertion <a id="dd-569"></a>
 
@@ -614,7 +614,6 @@ Former local code: DD-597.
 - SEED-413#split-branch-entry-proposal-from-store (plan 735, `bdfe9b08d`..`f6cfe454a`)
 
 [Account and evidence at ODF-530](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-530.md#evidence-2026-11-23-open-dough-dd-597).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-598 — A speed promise over every touched file covered renamed files the premises never timed <a id="dd-598"></a>
 
@@ -894,6 +893,7 @@ Plan 781 reached execution with `## Story obligations` followed by the line "Non
 
 ### Occurrences
 
+- Execution: SEED-413#speed-dashboard-frame-and-navigation-proof (plan 802, first implementation `fbfc48c26`). Timestamp: unknown (2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `f733216e1`). Evidence: plan 802 at Take `f733216e1` contained `None yet.` below Story obligations. The initial listing refused `malformed-obligations-section`. Removing the placeholder let selection pass. Observed effect: one startup refusal and a coordinator planning edit before slice 1.
 - Execution: SEED-413#correct-revision-detour-proof-residue (plan 781; first implementation `fd99453f8`)
   - Timestamp: unknown (2026-11-23 +08:00, before slice 1 delegation)
   - Tool: Claude Code

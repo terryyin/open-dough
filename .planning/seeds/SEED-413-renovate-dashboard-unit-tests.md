@@ -337,7 +337,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
 | 7 | Get fast proof of live sessions and terminal work (completed; recoverable at `290706bb1557f5437eb54df4d97da62cc1648457:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof`) | 77 | 31 |
-| 8a | [Get fast proof of the dashboard frame, navigation and settings](#speed-dashboard-frame-and-navigation-proof) | ≈67 | 22 |
+| 8a | Get fast proof of the dashboard frame, navigation and settings (completed; recoverable at `ad76d2ebbb88abe998fa1300963627dd10ac6551:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof`) | ≈67 | 22 |
 | 8b | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | ≈11 | 3 |
 | | **Total** | **594** | **249** |
 
@@ -465,67 +465,13 @@ apply.
   arrival preserves the readable diff and uses the selected snapshot's grammar
   and text. A file note records the exact comparison and paths it came from.
 
-<a id="speed-dashboard-frame-and-navigation-proof"></a>
-
-### Get fast proof of the dashboard frame, navigation and settings
-
-**Identity:** SEED-413#speed-dashboard-frame-and-navigation-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/802-speed-dashboard-frame-and-navigation-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c46f707d1969d56afaed5686c4bf37d0c24ab225491d86d5f0a3fd42381bfe79","plan":"2378907cf5c79b4519d8d0067bf51b0c3b57f817ca973990991fa453fe6e6a2d"}}
-```
-
-**Goal:** Developers get fast Vitest proof that the dashboard frame,
-project switching, recent stories, story references and settings behave
-correctly. This removes the last frontend legacy cases outside Done review,
-live sessions and the harness. The runner retirement then waits only on
-those stories.
-
-**Scope:**
-
-- Move the 22 legacy specs (about 67 cases) at `24ae92074` onto plain Vitest
-  under the [shared acceptance](#acceptance-shared-by-the-frontend-stories):
-  - `navigation/`: header, compact header and connection logo; project
-    selection and project keyboard navigation with its focus and
-    eligibility; recent stories; story reference navigation, identity and
-    recovery; story URL destination with its unavailable and repeat-cue
-    cases.
-  - `configuration/`: system appearance, system settings look and
-    navigation, and project hide selection.
-  - `stories/agent-roster-collection`.
-  - The three Intent story-changes specs that still mount the built app:
-    `intent-story-outside-proof`, `intent-story-outside-locations` and
-    `intent-story-changes-no-locations`.
-- Prove real deep links, reload and Back/Forward through a named E2E journey
-  only where a mounted owner cannot observe them. Reuse an existing journey
-  when it already proves the behavior.
-- Remove support that loses its last consumer here. The built-app runner
-  itself stays for stories 6, 7 and 8b.
-- Scope limit: the cases owned by
-  [Done review](#speed-dashboard-done-session-review-proof),
-  live sessions and terminal work and
-  `test-harness/`.
-
-**Key examples:**
-
-- A story URL opened directly selects the project and opens the story. When
-  the story is unavailable, the page shows the unavailable result. The
-  mounted page frame proves both through its required page-reads entry.
-  Only a reload or Back/Forward check that needs a real page load goes to
-  E2E.
-- A keyboard shortcut moves through eligible projects and keeps focus. The
-  three legacy keyboard specs collapse into fewer cases when they share
-  setup and each failure still names its distinct rule.
-- Choosing System appearance in settings changes the dashboard look in the
-  same mounted frame. The legacy built-app spec retires once every assertion
-  it made has a new owner.
-
 <a id="retire-legacy-dashboard-frontend-runner"></a>
 
 ### Run the entire dashboard frontend unit suite on Vitest
 
 **Identity:** SEED-413#retire-legacy-dashboard-frontend-runner
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#retire-legacy-dashboard-frontend-runner","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-done-session-review-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a Done review spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s Done review boundary remains on trunk.","state":"waiting"},{"supplier":{"identity":"SEED-413#speed-dashboard-live-session-and-terminal-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a live session and terminal spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s live session and terminal boundary remains on trunk.","state":"waiting"},{"supplier":{"identity":"SEED-413#speed-dashboard-frame-and-navigation-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a frame, navigation and settings spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s frame, navigation and settings boundary remains on trunk.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-413#retire-legacy-dashboard-frontend-runner","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-done-session-review-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a Done review spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s Done review boundary remains on trunk.","state":"waiting"},{"supplier":{"identity":"SEED-413#speed-dashboard-live-session-and-terminal-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a live session and terminal spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s live session and terminal boundary remains on trunk.","state":"satisfied","resolution":{"revision":"290706bb1557f5437eb54df4d97da62cc1648457","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof","summary":"All 31 formerly legacy specs in this supplier boundary select Vitest with the same contents as the tested campaign at integrated revision 92ab15e07689d189d5484d1c89fe472d0cf547eb. The focused mounted selection passed 80 cases in 37 files, including the five already-mounted sidebar files. Plan 800 records the migration inventory, unchanged native E2E boundaries and focused run.\nCondition satisfied: No legacy frontend spec in the supplier’s live session and terminal boundary remains on trunk.\nAccepted integration: 92ab15e07689d189d5484d1c89fe472d0cf547eb on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-dashboard-frame-and-navigation-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a frame, navigation and settings spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s frame, navigation and settings boundary remains on trunk.","state":"satisfied","resolution":{"revision":"ad76d2ebbb88abe998fa1300963627dd10ac6551","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof","summary":"At integrated revision 2b5ad6affc3613c048318f12d23f5d09433fce1d, all 22 originally scoped frontend spec paths either select Vitest or were retired with their observations reassigned. Plan 802 at the before-cleanup revision records the exact assertion map, 52 mounted passes, the real-history and Retry E2E, and the no-legacy audit. The integrated live-session overlap passed typecheck and 18 targeted cases in eight specs.\nCondition satisfied: No legacy frontend spec in the supplier’s frame, navigation and settings boundary remains on trunk.\nAccepted integration: 2b5ad6affc3613c048318f12d23f5d09433fce1d on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/800-run-the-entire-dashboard-frontend-unit-suite-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"70ced1c4fd5f863a78561fdc7753002f72fd3a45fc8360d0ad1d93b113c6f725","plan":"db4d681532b2f73a01775427f30b9cbcb1e4d466bd487aac3c00e307ef743135"}}

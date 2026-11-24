@@ -1,110 +1,139 @@
-// The agent roster lists the agents of the collection the selected project
-// chose in .planning/open-dough.json (read beside the profiles at the shown
-// revision): the current collection when the file or key is absent, the Odd-e
-// nerds with their local photos when "nerds" is true, and no guess when the
-// setting cannot be read. An agent of the other collection that still holds an
-// assignment stays listed. Built frontend against controlled published files;
-// the shared rotation reader and the page decide everything shown.
-
-import type { Page } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { publishExecutingRoster } from "../../test-support/support/frontendExecutingRoster.ts";
-import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
-import { rosterParts } from "../../test-support/dashboardPage.ts";
-import { avatarPng } from "../../test-support/avatarAnswers.ts";
+import { expect, onTestFinished, test } from "vitest";
+import { page } from "vitest/browser";
 import {
   agentIdentity,
   agentNames,
   nerdAgentNames,
+  renderAgentProfile,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { credit } from "../../test-support/agentCredit.ts";
-import { takenStory as story } from "../../test-support/agentRosterRecords.ts";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
+import { boardWork, story } from "../navigation/board-work.ts";
+import { browserSession } from "../review/browser-session.ts";
 
-const settingsPath = ".planning/open-dough.json";
-const agentsOf = (names: readonly string[]) =>
-  names.map((name) => agentIdentity(name).agent);
+const storyHeldByYui = story("Repair the installer’s update report", 59);
+const roster = page.getByRole("region", { name: "Agent roster", exact: true });
+const members = roster.getByRole("listitem");
+const member = (name: string) =>
+  members.filter({ has: page.getByRole("heading", { name, exact: true }) });
 
-async function openRoster(
-  page: Page,
-  services: FrontendServiceState,
-  settings?: string,
-) {
-  publishExecutingRoster(
-    services,
-    "Yui",
-    settings === undefined ? undefined : { [settingsPath]: settings },
+async function openRoster(settings?: string) {
+  const profile = makeMe.anAgentProfile
+    .executing({
+      name: "Yui",
+      identity: storyHeldByYui.identity,
+      host: "claude",
+    })
+    .please();
+  const work = boardWork([], { taken: [storyHeldByYui] });
+  await mountBoardFrame(
+    work,
+    { width: 1440, height: 900 },
+    "roster",
+    {},
+    {
+      readProfiles: () =>
+        Promise.resolve({
+          profiles: [
+            {
+              path: `.planning/${agentIdentity("Yui").path}`,
+              text: renderAgentProfile(profile),
+            },
+          ],
+          settings,
+        }),
+    },
   );
-  await page.goto("/?project=open-dough&view=roster");
-  return rosterParts(page);
 }
 
-test("without the setting the roster lists the current collection, with no nerds member", async ({
-  page,
-  frontendServices,
-}) => {
-  const { roster, members, member } = await openRoster(page, frontendServices);
-  await expect(members.getByRole("heading")).toHaveText(agentsOf(agentNames));
-  await expect(members).toHaveCount(29);
-  await expect(member("Yui-chan")).toContainText(story);
-  await expect(roster).not.toContainText("stanly-chan");
-  await expect(roster).not.toContainText("collection unknown");
+async function showsMembers(names: readonly string[]) {
+  const headings = members.getByRole("heading");
+  await expect
+    .poll(() =>
+      headings.elements().map((heading) => heading.textContent.trim()),
+    )
+    .toEqual(names.map((name) => agentIdentity(name).agent));
+  expect(members.elements()).toHaveLength(names.length);
+}
+
+test("absent collection settings list the current roster and Yui's published assignment", async () => {
+  await openRoster();
+  await showsMembers(agentNames);
+  expect(members.elements()).toHaveLength(29);
+  await expect
+    .element(
+      member("Yui-chan").getByText(storyHeldByYui.title, { exact: true }),
+    )
+    .toBeVisible();
+  await expect.element(member("stanly-chan")).not.toBeInTheDocument();
+  await expect
+    .element(roster.getByText(/Agent collection unknown/))
+    .not.toBeInTheDocument();
 });
 
-test("with nerds set the roster lists the 30 nerds, portraits where a photo exists and names alone where not, and Yui's existing assignment stays visible", async ({
-  page,
-  frontendServices,
-}) => {
-  const photo = avatarPng(40);
-  await page.route(
-    /\/agent-avatars\/odd-e-nerds\/cartoon\/[^/]+\.webp$/,
-    (route) =>
-      route.request().url().endsWith("/terry.webp")
-        ? route.fulfill({ status: 404 })
-        : route.fulfill(photo),
-  );
-  const { members, member } = await openRoster(
-    page,
-    frontendServices,
-    '{"nerds":true}',
-  );
-
-  await expect(members.getByRole("heading")).toHaveText([
-    ...agentsOf(nerdAgentNames),
-    "Yui-chan",
-  ]);
-  await expect(members).toHaveCount(31);
-  await expect(credit(members).portrait).toHaveCount(nerdAgentNames.length);
-  await expect(credit(member("terry-chan")).portrait).toHaveCount(0);
-  await expect(credit(member("stanly-chan")).portrait).toBeVisible();
-  await expect(member("stanly-chan")).toContainText("No assignment recorded");
-  const yui = member("Yui-chan");
-  await expect(yui.locator(".roster-activity")).toHaveText("Taken");
-  await expect(yui).toContainText(story);
-});
-
-for (const [why, settings, problem] of [
-  [
-    "is not JSON",
-    "{ not json",
-    '.planning/open-dough.json is not readable JSON, so the "nerds" key cannot be read',
-  ],
-  [
-    "holds a nerds value other than true",
-    '{"nerds":"yes"}',
-    '.planning/open-dough.json key "nerds" must be true when set',
-  ],
-] as const) {
-  test(`when the setting ${why} the roster says the collection is unknown and lists no agent`, async ({
-    page,
-    frontendServices,
-  }) => {
-    const { roster, members } = await openRoster(
-      page,
-      frontendServices,
-      settings,
-    );
-    await expect(roster).toContainText(`Agent collection unknown. ${problem}.`);
-    await expect(members).toHaveCount(0);
-    await expect(roster).not.toContainText("No assignment recorded");
+test("nerds settings list Nerds with available portraits and keep Yui's existing assignment", async () => {
+  const browser = browserSession();
+  await browser.send("Network.enable");
+  onTestFinished(async () => {
+    await browser.send("Network.setBlockedURLs", { urls: [] });
+    await browser.send("Network.disable");
   });
-}
+  await browser.send("Network.setBlockedURLs", {
+    urls: ["*/agent-avatars/odd-e-nerds/cartoon/terry.webp"],
+  });
+  await openRoster('{"nerds":true}');
+
+  await showsMembers([...nerdAgentNames, "Yui"]);
+  expect(members.elements()).toHaveLength(31);
+  await expect
+    .poll(() => roster.element().querySelectorAll(".agent-portrait").length)
+    .toBe(30);
+  expect(
+    member("terry-chan").element().querySelector(".agent-portrait"),
+  ).toBeNull();
+  const stanly = member("stanly-chan");
+  await expect
+    .element(stanly.getByText("No assignment recorded", { exact: true }))
+    .toBeVisible();
+  const portrait = stanly.element().querySelector(".agent-portrait");
+  expect(portrait).not.toBeNull();
+  if (portrait === null) throw new Error("Expected Stanly’s portrait.");
+  expect(portrait.checkVisibility()).toBe(true);
+  const yui = member("Yui-chan");
+  await expect.element(yui.getByText("Taken", { exact: true })).toBeVisible();
+  await expect
+    .element(yui.getByText(storyHeldByYui.title, { exact: true }))
+    .toBeVisible();
+});
+
+test("unreadable collection settings explain the invalid JSON and list no agent", async () => {
+  await openRoster("{ not json");
+  await expect
+    .element(
+      roster.getByText(
+        'Agent collection unknown. .planning/open-dough.json is not readable JSON, so the "nerds" key cannot be read.',
+        { exact: true },
+      ),
+    )
+    .toBeVisible();
+  expect(members.elements()).toHaveLength(0);
+  await expect
+    .element(roster.getByText("No assignment recorded", { exact: true }))
+    .not.toBeInTheDocument();
+});
+
+test("an invalid nerds value explains the required setting and lists no agent", async () => {
+  await openRoster('{"nerds":"yes"}');
+  await expect
+    .element(
+      roster.getByText(
+        'Agent collection unknown. .planning/open-dough.json key "nerds" must be true when set.',
+        { exact: true },
+      ),
+    )
+    .toBeVisible();
+  expect(members.elements()).toHaveLength(0);
+  await expect
+    .element(roster.getByText("No assignment recorded", { exact: true }))
+    .not.toBeInTheDocument();
+});

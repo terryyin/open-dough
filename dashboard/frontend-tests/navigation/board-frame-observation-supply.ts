@@ -1,11 +1,11 @@
 // Typed observation and machine replies for Board frame ConfiguredDashboard mounts.
+import { onTestFinished } from "vitest";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { AcceptanceAnswer } from "../../src/agentLaunchClient.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
 import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import { ReadProblem } from "../../src/readProblem.ts";
 import type {
   RevisionCheck,
   RevisionStreamHandlers,
@@ -15,7 +15,7 @@ import { pageReadsSupplying } from "../../test-support/component-mount/unreadPag
 import {
   backlogMarkdownOf,
   emptyMachineAnswer,
-  entriesOf,
+  readBoardFixtureFile,
   rosterProfileTexts,
 } from "./board-frame-fixture-text.ts";
 
@@ -25,6 +25,24 @@ export {
   forceRevisionStreamDelivery,
 } from "./board-frame-fixture-text.ts";
 
+type SnapshotAnswer =
+  | PublishedWork
+  | Promise<PublishedWork>
+  | Error
+  | ((signal: AbortSignal) => Promise<PublishedWork>);
+
+export function holdPublishedSnapshot(work: PublishedWork) {
+  let answer: (work: PublishedWork) => void = () => {};
+  const snapshot = new Promise<PublishedWork>((resolve) => {
+    answer = resolve;
+  });
+  const release = () => {
+    answer(work);
+  };
+  onTestFinished(release);
+  return { snapshot, release };
+}
+
 export type BoardFrameObservation = {
   readonly observation: PublishedObservationReadSource;
   readonly machine: MachineReadSource;
@@ -33,9 +51,7 @@ export type BoardFrameObservation = {
     readonly revision: string | undefined;
   }[];
   readonly detailPaths: string[];
-  readonly queueSnapshot: (
-    work: PublishedWork | Promise<PublishedWork> | Error,
-  ) => void;
+  readonly queueSnapshot: (work: SnapshotAnswer) => void;
   readonly revisionChanged: (revision: string) => void;
   readonly revisionCheckFailed: (error: Error) => void;
   readonly subscriptionCount: () => number;
@@ -44,14 +60,20 @@ export type BoardFrameObservation = {
 export function boardFrameObservationSupplying(
   snapshots: readonly PublishedWork[],
   {
-    initialReadError,
+    initialSnapshot,
+    detailFile,
+    readProfiles,
+    checkRevision,
     machineAnswer = emptyMachineAnswer(),
     machineRead,
     accept,
     association,
     doneCatalog,
   }: {
-    initialReadError?: Error;
+    initialSnapshot?: Error | Promise<PublishedWork>;
+    detailFile?: PublishedObservationReadSource["readDetailFile"];
+    readProfiles?: PublishedObservationReadSource["readProfiles"];
+    checkRevision?: PublishedObservationReadSource["checkRevision"];
     machineAnswer?: MachineAnswer & { readonly revision?: string };
     // A case-owned reader it can change, hold pending or fail.
     machineRead?: MachineReadSource["readSessionsSince"];
@@ -65,8 +87,8 @@ export function boardFrameObservationSupplying(
   } = {},
 ): BoardFrameObservation {
   const bySource = new Map(snapshots.map((work) => [work.source.id, work]));
-  const queued: (PublishedWork | Promise<PublishedWork> | Error)[] = [];
-  if (initialReadError !== undefined) queued.push(initialReadError);
+  const queued: SnapshotAnswer[] = [];
+  if (initialSnapshot !== undefined) queued.push(initialSnapshot);
   const snapshotAsks: BoardFrameObservation["snapshotAsks"] = [];
   const detailPaths: string[] = [];
   const streamHandlers: RevisionStreamHandlers[] = [];
@@ -74,6 +96,7 @@ export function boardFrameObservationSupplying(
 
   const resolveSnapshot = async (
     sourceId: string,
+    signal: AbortSignal,
     knownRevision: string | undefined,
   ): Promise<{ revision: string; backlog: string }> => {
     snapshotAsks.push({ sourceId, revision: knownRevision });
@@ -83,7 +106,7 @@ export function boardFrameObservationSupplying(
         throw new Error(`Queued snapshot for ${sourceId} vanished.`);
       }
       if (next instanceof Error) throw next;
-      const work = await next;
+      const work = await (typeof next === "function" ? next(signal) : next);
       bySource.set(work.source.id, work);
       return {
         revision: work.revision,
@@ -104,35 +127,26 @@ export function boardFrameObservationSupplying(
 
   const observation: PublishedObservationReadSource = {
     ...unread,
-    readSnapshot: (...[source, , knownRevision]) =>
-      resolveSnapshot(source.id, knownRevision),
-    readDetailFile: (...[, path]) => {
+    readSnapshot: (...[source, signal, knownRevision]) =>
+      resolveSnapshot(source.id, signal, knownRevision),
+    readDetailFile: (...args) => {
+      const [, path] = args;
       detailPaths.push(path);
-      for (const work of bySource.values()) {
-        const entry = entriesOf(work).find((each) => {
-          if (each.canonical.kind !== "snapshot") return false;
-          return (
-            each.canonical.recorded === path ||
-            each.canonical.recorded.endsWith(path) ||
-            path.endsWith(each.canonical.recorded.replace(/^\.\//, ""))
-          );
-        });
-        if (entry?.dependencies?.status === "unavailable") {
-          return Promise.reject(new ReadProblem(entry.dependencies.problem));
+      if (detailFile !== undefined) return detailFile(...args);
+      return readBoardFixtureFile(bySource.values(), path);
+    },
+    readProfiles:
+      readProfiles ??
+      ((...[source]) => {
+        const work = bySource.get(source.id);
+        if (work?.roster?.status === "read") {
+          return Promise.resolve({
+            profiles: rosterProfileTexts(work.roster),
+            settings: undefined,
+          });
         }
-      }
-      return Promise.resolve(`# Detail for ${path}\n`);
-    },
-    readProfiles: (...[source]) => {
-      const work = bySource.get(source.id);
-      if (work?.roster?.status === "read") {
-        return Promise.resolve({
-          profiles: rosterProfileTexts(work.roster),
-          settings: undefined,
-        });
-      }
-      return Promise.resolve({ profiles: [], settings: undefined });
-    },
+        return Promise.resolve({ profiles: [], settings: undefined });
+      }),
     readProfileAddition: () =>
       Promise.resolve({
         commit: "c".repeat(40),
@@ -165,11 +179,13 @@ export function boardFrameObservationSupplying(
       }
       return Promise.resolve([]);
     },
-    checkRevision: () =>
-      Promise.resolve({
-        changed: false,
-        heads: new Map(),
-      } satisfies RevisionCheck),
+    checkRevision:
+      checkRevision ??
+      (() =>
+        Promise.resolve({
+          changed: false,
+          heads: new Map(),
+        } satisfies RevisionCheck)),
     subscribeRevision: (...[, , , handlers]) => {
       streamHandlers.push(handlers);
       return {

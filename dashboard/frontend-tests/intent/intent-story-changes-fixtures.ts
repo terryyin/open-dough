@@ -1,4 +1,5 @@
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
@@ -107,10 +108,12 @@ export async function openStoryChanges({
       tree: `${publishedText}more\n`,
     }),
   storyNotes,
+  machine,
 }: {
   readonly hasWorkspace?: boolean;
   readonly hasLocations?: boolean;
   readonly title?: string;
+  readonly machine?: MachineAnswer;
   readonly review?: ReviewSource["review"];
 } & Partial<Pick<ReviewSource, "fileDiff" | "fileText">> &
   Partial<Pick<PageReads, "storyNotes">> = {}) {
@@ -128,9 +131,9 @@ export async function openStoryChanges({
     texts: [] as string[],
   };
   const review = pageReadsSupplying({}).review;
-  const mounted = await mountIntentCiPage({
-    work: workAt(revision, hasWorkspace, title),
-    machine: hasWorkspace
+  const storyMachine =
+    machine ??
+    (hasWorkspace
       ? makeMe.aMachineAnswer
           .holdingWorkspaces({
             source: openDoughSource.id,
@@ -140,7 +143,10 @@ export async function openStoryChanges({
             branch: storyA.branch,
           })
           .please()
-      : makeMe.aMachineAnswer.please(),
+      : makeMe.aMachineAnswer.please());
+  const mounted = await mountIntentCiPage({
+    work: workAt(revision, hasWorkspace, title),
+    machine: storyMachine,
     reads: {
       ...(storyNotes === undefined ? {} : { storyNotes }),
       intent: {
