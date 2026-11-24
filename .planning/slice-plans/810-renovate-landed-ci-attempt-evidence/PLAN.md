@@ -113,7 +113,7 @@ distinguish them. Compose dedicated read inputs with MakeMe.
 ### 3. Proof extraction and admission preserve evidence identity
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `ci-proof-extraction` and `intent-ci-proof-read` through
 `ciProofArtifactReader`, `parseIntentCiProofRead`, and the existing
@@ -199,6 +199,8 @@ only after its consumers have gone.
 - Slice 2 refactor: named readers type, `buildKeyOf`, extracted
   `retainedLandedCiProof` support, split summary history reopen; cohort-wide
   checkout harness left as follow-up.
+- Slice 3: narrow `RequestedRead` to `intent-ci-proof` before
+  `performIntentCiProofRead`; authenticated route dispatch binding unchanged.
 
 ## Accepted proof (slice 1)
 
@@ -214,6 +216,13 @@ Evidence: `open-dough/evidence/slice2-refactor-20261124185000.log.run.json`,
 `slice2-proof-ts.log.run.json` (renewed after delivery formatting lint repair),
 `slice2-return-report.md`, `slice2-refactor-consumer-trace-20261124185000.txt`.
 Production: optional `IntentCiProofReaders` pass-through; default wire unchanged.
+
+## Accepted proof (slice 3)
+
+Focused: `npm run test:dashboard:backend -- ci-proof-extraction intent-ci-proof-read --workers=2` (exit 0; 2 files / 2 tests); `npm run typecheck:dashboard` (exit 0).
+Evidence: `open-dough/evidence/slice3-proof2-20261124185123.log.run.json`,
+`slice3-typecheck2-20261124185123.log.run.json`, `slice3-return-report.md`.
+Refactor disposition: skipped — subject specs plus comment-only Distribution pointer; product search finds conversion onto existing `ciProofArtifactReader` / `parseIntentCiProofRead` / `performIntentCiProofRead`; no new production representation.
 
 ## Concern evidence
 
