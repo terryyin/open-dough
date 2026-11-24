@@ -307,6 +307,17 @@ caller, and the `export` on the file-local `TrunkChange`, `publishedChange`
 and `observedKinds`. Other mount-era support still serves the
 `landed-ci-scope-*` specs and other owners.
 
+## Execution complete
+
+Product advice: The composed-state approach works across a collection pass
+and its read model. The 14 wall-time specs dropped from 50.22 s to 4.66 s of
+shell time, with every case under 100 ms and a surviving mutation check in
+each slice. The Taken [scoped proof story](../806-renovate-landed-ci-scope-proof/PLAN.md)
+can reuse `collectLandedCiPass` and `dashboard/backend-tests/support/landedCiPassInputs.ts`
+rather than build its own pass setup. It also edits `landedCiCollectionLanding.ts`,
+so its integration should expect a small textual merge there. No
+correction is needed.
+
 ## Concern evidence
 
 Refinement retained seven slices and assigned overlap review to each migration
