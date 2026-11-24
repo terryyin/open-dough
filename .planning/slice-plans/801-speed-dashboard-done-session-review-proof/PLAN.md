@@ -227,7 +227,7 @@ observations. Real captured Git and published reviews keep their owners in
 ### 8. Keep the displayed diff and notes tied to the selected comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (8 cases).** `review/story-review-diff-syntax-{appearance,arrival,intent-hints}.spec.ts`,
 `review/story-review-{files-divider-room,note-context,notes}.spec.ts`.
@@ -256,7 +256,14 @@ case in `sessions/recently-done-sessions-review-cue.spec.ts`
 
 **Proof.** Measure the three lists' floors, shared room with Running Cursor,
 drag to floor, exact key step and short-window reachability in the slice 1
-mount with native Chromium input. Prove ages ticking with the clock there. In the slice 2 selection mount,
+mount with native Chromium input. Prove ages ticking with the clock there. Close slice 8's open read: the
+review diff's syntax hint (`dashboard/src/reviewDiffSyntaxHint.ts`) reads
+Intent locations through the module-level request instead of `PageReads`.
+Route it through `useIntentReads()` (patch retained in the execution
+evidence as `s8-hint-route.patch`), add a mounted story-subject Review
+changes case observing the snapshot tree for a live review and the
+completion for a Done review, then retire
+`review/story-review-diff-syntax-intent-hints.spec.ts` and its support. In the slice 2 selection mount,
 prove the Development highlight after an Intent choice; leave Open's
 terminal reopening to `e2e/sessions/recently-done-sessions-select-open.spec.ts`
 if it needs a real attach. Row ring style, equal row heights, coarse-input
@@ -465,3 +472,37 @@ changes' own selection and `RunChoice`. No support was left without callers.
 | Old case | Distinct observations | Replacement or equivalent |
 | --- | --- | --- |
 | `review/story-review-details-runs.spec.ts` — "a Done card opens on the latest captured run, keeping an older choice across Refresh" (deleted) | Opens on Landed runs with the newer run chosen; runs offered in read order, newest first; choosing each run names its launch time, "Refinement launched", `origin/main` and `From <base> to <revision>.`; that run's file reads its own diff; Refresh keeps the older choice | Default newer run and choice: compare-done "a Done story keeps its published locations when choosing captured changes…". Launch time, destination and endpoints: compare-done "Intent names the launch, destination and captured revisions of the landed run being compared". Order: new compare-done "Landed runs lists the captured runs as read, newest first, and the keyboard moves to the older run's changes" (fails when `RunChoice` reverses the options; also proves keyboard switching). Exact run file read: `intent/intent-story-compare-fixed.spec.ts` "a captured landed run reads its own diff pair…" (path, run baseline and tree). Refresh retention: compare-done "a newer default run moves an unchosen run but not a chosen one…" (stronger than the old case, which had no newer default), plus `review/story-review-details.spec.ts` "the chosen session run survives Refresh…" for "Review refreshed". Card-to-Review handoff: slice 6. Diff rendering: the diff reader specs. |
+
+Slice 8. All six legacy files were deleted. Replacements:
+`review/story-review-diff-text-retry-mount.spec.ts` and
+`review/story-review-diff-grammar-failure-mount.spec.ts`, both through
+`openGreetingReview` in `review/greetingDiff.ts` (over `mountReviewChanges`
+and `reviewSourceAnswering`), which also holds the plain-and-complete reading
+shared with `story-review-diff-late-styling.spec.ts`;
+`review/story-review-diff-syntax-hint.spec.ts`, using the production
+derivations plus `StyledFileDiff`;
+`review/story-review-diff-source-appearance.spec.ts`, which mounts
+`StyledFileDiff` beside `IntentSourceLines`;
+`intent/intent-story-file-notes.spec.ts`, using `openStoryChanges`,
+`notesKept` and the Notes composer and saved-note readers in
+`intent/intent-story-notes-page.ts`, shared with `intent-story-notes.spec.ts`;
+and `navigation/side-panel-width-files-room.spec.ts`, using
+`mountWidthReview` with native frame and divider drags and the Files divider's
+upper bound and stacking readers in `review/story-review-files-divider-view.ts`. Support left without
+callers was removed: `test-support/support/{frontendSidePanelWidth,syntaxGrammar}.ts`
+and `test-support/filesDividerPage.ts`; `reviewDiffSyntax` and
+`frontendStoryReviewOpen` stay with the kept intent-hints spec until slice 9.
+
+| Old case | Distinct observations | Replacement or equivalent |
+| --- | --- | --- |
+| `review/story-review-diff-syntax-arrival.spec.ts` — "text that cannot be read leaves plain lines with only the context problem and Retry, and a Retry that reads it styles them" (deleted) | The diff's alert says exactly "Additional context could not be read: … Retry"; the lines are plain and complete with no tokens; Retry reads again and styles the same lines; the alert is gone | Text-retry spec, same title. The ReviewSource answers unavailable first and text second, so the case fails if Retry does not read again. |
+| — "a grammar that fails to load leaves the code plain with nothing added" (deleted) | A failed TypeScript grammar leaves the lines plain and complete; revealing context adds 20 lines; no tokens; no alert | Grammar-failure spec, same title. A `vi.mock` of `@shikijs/langs/typescript` throws, and the case waits for that load. Mutation check: without the mock the case fails, so it detects a grammar that loads after all. |
+| `review/story-review-diff-syntax-intent-hints.spec.ts` — "a live review supplies a diff's hint from Intent settings at the snapshot tree" (kept until slice 9) | The settings are read at the snapshot tree; a hinted path and a renamed file's new path take the shell syntax; a path outside the location stays plain | Hint spec: "a live review reads Intent settings at its snapshot tree, …" (`reviewIntentSettingsRevision`), "a hinted path and a renamed file's new path take the location's syntax, …" (`syntaxHintOfRepositoryPath`), and "a diff styles by its syntax hint and stays plain without one" (rendered). Open gap: `useReviewDiffSyntaxHint` reads Intent locations through `readIntentLocationsAt`, whose default reader is the authenticated module request; it does not go through `PageReads.intent`. Passing `useIntentReads().readLocations` into that call is a 9-line production change, retained as `s8-hint-route.patch` in the execution evidence, and it typechecks. No mounted case proves it yet, so it was reverted. Two attempts failed: Intent → Changes over `openStoryChanges` never asked for the snapshot tree (only one revision was read), and `mountReviewChanges` with a session subject plus a snapshot review rendered an empty panel. A story-subject `StoryReviewBody` mount with typed intent reads is needed. |
+| — "a published Done review styles by completion Intent settings, not a later tip change" (deleted) | A published review takes its hint from the completion settings, not a later tip | Hint spec "… a published Done review at its completion" (published → completion). |
+| `review/story-review-diff-syntax-appearance.spec.ts` — "diff tokens match Intent's source reading of the same code in both appearances" (deleted) | Keyword, identifier, string and comment on unchanged, added and removed lines match `IntentSourceLines` in dark and light; the schemes differ; roles differ | Source-appearance spec, same title (it mounts the actual `IntentSourceLines`). The legacy "switching appearance needs no extra read" no longer applies: the text is a prop and nothing is read. |
+| `review/story-review-notes.spec.ts` — "workspace file notes name the Changes comparison and its endpoints" (deleted) | The composer shows Intent → Changes, the path, and All changes with baseline → tree; no line; the saved change has an exact context; the line menu offers only Add note | File-notes spec "a workspace file note names All changes and its exact endpoints without a line". |
+| `review/story-review-note-context.spec.ts` — "Changes saves a landed run's renamed paths and exact endpoints without a line" (deleted) | Rename `old → new` and Landed run with baseline → tree in the composer; no line; the saved context has `path`, `oldPath` and exact endpoints; the saved entry in Notes shows the rename and comparison without a line | File-notes spec "a landed run's file note keeps the renamed paths and exact endpoints without a line". The story is Taken with a landed review; the comparison context is the observation that matters. The published note stays in `e2e/review/story-review-diff-add-note.spec.ts`. |
+| `review/story-review-files-divider-room.spec.ts` — "the Side panel's room limits the file sidebar while its chosen width stays kept" (deleted) | Narrowed by 60, the diff is 18rem and the kept width is unchanged; widened, the chosen width returns; maximized, the upper bound equals `floor(room − 18rem)` and accepts ±48; Restore; narrowed by 400, the panes stack with no divider; widened again, the divider returns at the chosen width | Files-room spec, same title, over the mounted Board frame with native Side panel and Files divider drags. |
+
+Timing (`--workers=2`): legacy 8 cases took 10.6 s at load 3.0 → 2.7. The
+replacements, 9 Vitest cases, took 4.8 s at load 4.6 → 4.7. No E2E was added.

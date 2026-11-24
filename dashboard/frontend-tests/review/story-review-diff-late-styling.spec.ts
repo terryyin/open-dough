@@ -4,7 +4,7 @@ import {
   greetDiff,
   greetText,
 } from "../../test-support/support/diffSyntaxFixtures.ts";
-import { greetingDiffHunkLines } from "./greetingDiffExpectations.ts";
+import { expectGreetingHunk, expectPlainAndComplete } from "./greetingDiff.ts";
 import { styledDiffReading } from "./styledDiffReading.ts";
 import { reviewDiffPage } from "./reviewDiffPage.ts";
 import { printedDiff } from "./styledDiffCases.ts";
@@ -15,18 +15,6 @@ const readingViewport = {
   fillsViewport: true,
 };
 
-async function expectPlainAndComplete(diff: ReturnType<typeof reviewDiffPage>) {
-  await expect
-    .element(diff.newLine(31).line)
-    .toHaveTextContent(" export default greeting;", {
-      normalizeWhitespace: false,
-    });
-  expect(diff.lineFacts().map(({ text }) => text)).toEqual(
-    greetingDiffHunkLines,
-  );
-  await expect.element(diff.firstToken()).not.toBeInTheDocument();
-}
-
 test("a diff shown before its text is read stays plain and complete until the text arrives", async () => {
   const path = "greet.ts";
   const input = { path, printed: greetDiff(path).printed };
@@ -36,9 +24,7 @@ test("a diff shown before its text is read stays plain and complete until the te
 
   rerender(styledDiffReading({ ...input, text: greetText }));
   await expect.element(diff.newLine(28).token(/^const$/)).toBeVisible();
-  expect(diff.lineFacts().map(({ text }) => text)).toEqual(
-    greetingDiffHunkLines,
-  );
+  expectGreetingHunk(diff);
 });
 
 test("styling that arrives after the diff keeps the reading position, revealed context and an open line menu", async () => {
