@@ -988,3 +988,11 @@ A planned CI or flake repair delivered through `execution-increment-delivery.mjs
   - Observed effect: one refused delivery and a manual park and restore of an owned record outside the CI repair stash.
   - Inference: `stagedPaths` for a partially staged plan, or a repair mode that accepts an unchanged plan, would avoid the hand-managed copy.
 
+## ODF-329 — Delegation omits read-only lint before coordinator formatting <a id="odf-329"></a>
+
+[Meaning, evidence and response](docs/maintainer/findings/ODF-329.md).
+Source recovery: `71e820478b6a0fb8854a6cb5f428b59b44d31225:DearDough.md`.
+
+### Occurrences
+
+- Execution: SEED-429#skip-empty-instruction-recordings (plan 807, first implementation `d6d9ae22c`). Timestamp: unknown (slice delivery on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `857f49430`). Evidence: the implementation and refactor briefs reserved the staged lint hook and formatter for the coordinator and supplied no scoped read-only lint command. After both proof returns passed, guarded preparation refused `instruction-voice-page.ts` on `unbound-method` and `no-unsafe-return`. Observed effect: one withheld preparation, a fixture repair, and one additional mounted proof run before publication. Scoped read-only lint would have checked both rules before the handoff.

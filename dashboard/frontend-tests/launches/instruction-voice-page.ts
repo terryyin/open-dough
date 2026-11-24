@@ -31,6 +31,38 @@ export function audioInput() {
     .mockImplementation(openStream);
   const format = vi.spyOn(MediaRecorder, "isTypeSupported");
   const recording = vi.spyOn(MediaRecorder.prototype, "start");
+  const captureNoAudio = () => {
+    const prototype = MediaRecorder.prototype;
+    const dataHandlerDescriptor = Object.getOwnPropertyDescriptor(
+      prototype,
+      "ondataavailable",
+    );
+    if (!dataHandlerDescriptor?.set) {
+      throw new Error("MediaRecorder has no data handler setter.");
+    }
+    const dataHandler = vi
+      .spyOn(prototype, "ondataavailable", "set")
+      .mockImplementation(function (this: MediaRecorder, handler) {
+        dataHandlerDescriptor.set?.call(
+          this,
+          handler &&
+            ((event: BlobEvent) => {
+              handler.call(
+                this,
+                new BlobEvent(event.type, {
+                  data: new Blob(),
+                  timecode: event.timecode,
+                }),
+              );
+            }),
+        );
+      });
+    const restore = () => {
+      dataHandler.mockRestore();
+    };
+    onTestFinished(restore);
+    return restore;
+  };
   const recordedAudio = async () => {
     let bytes = 0;
     const recorder = recording.mock.contexts.at(-1);
@@ -51,7 +83,14 @@ export function audioInput() {
     });
     await audio.close();
   });
-  return { getUserMedia, format, tracks, openStream, recordedAudio };
+  return {
+    getUserMedia,
+    format,
+    tracks,
+    openStream,
+    recordedAudio,
+    captureNoAudio,
+  };
 }
 
 export async function mountInstructionVoice() {
@@ -130,8 +169,9 @@ export async function mountInstructionVoice() {
     exact: true,
   });
   const problem = inDialog.getByRole("alert");
-  const recordClip = async () => {
+  const recordClip = async (capture: ReturnType<typeof audioInput>) => {
     await begin();
+    await capture.recordedAudio();
     await stop.click();
   };
   const ready = async () => {

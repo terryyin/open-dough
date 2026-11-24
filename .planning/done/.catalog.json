@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-429_skip-empty-instruction-recordings.json",
+      "identity": "SEED-429#skip-empty-instruction-recordings",
+      "completedAt": "2026-11-24T07:26:43.713Z",
+      "blob": "ea3c5e0cb0791e6fd5fa8b1d5171044be27d4608"
+    },
+    {
       "fileName": "SEED-413_speed-dashboard-done-session-review-proof.json",
       "identity": "SEED-413#speed-dashboard-done-session-review-proof",
       "completedAt": "2026-11-24T04:24:40.300Z",
