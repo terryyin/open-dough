@@ -70,13 +70,28 @@ caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_CO
 ```
 
 Before editing each selection, run its existing cases and establish the
-observed result. For the family baseline use
-`npm run test:dashboard:backend -- token-index --workers=2` with a proof
-record. Use the same conditions in the final measurement. Repeated
-assertions about attribution belong with the narrowest operation that
-demonstrates each distinct case.
+observed result. For the matched family measurements use
+`npm run test:dashboard:backend -- 'usage-history/token-index[^/]*\.spec\.ts$' --workers=2`
+with a proof record. Playwright matches absolute paths, so the original bare
+`token-index` filter matches the worktree name and selects other backend specs.
+That run was stopped. The filename-anchored baseline at `3969b5307` passed all
+58 first attempts across 19 files on AC macOS with Node 24.21.0 at two
+workers. It took 58.70 s elapsed and 107.479 s summed case time. The
+checkout-bound evidence directory retains `baseline.json` and the command
+and terminal result in `baseline.log.run.json`. Use the same conditions
+in the final measurement. Repeated assertions about attribution belong
+with the narrowest operation that demonstrates each distinct case.
 
-## Slices and outside-in proof
+## Execution context
+
+- Story Branch Mode, `codex/prove-token-index-reads-and-refreshes-through-ty`.
+  Established claim `3969b53078464221a79fe2e82ebd1e4d803e9b30` on
+  `origin/main` and the story branch, from `038abcb59dafba765e072468091d95802c5e1c36`.
+- Codex observer for `terryyin/open-dough`, workflow `ci.yml`, story branch,
+  coordinator `honoka-811-dfd89717`, directory `/tmp/dough-ci-501/watch-sDxS8N`,
+  PID 77876, shell session 16385, cell `g130:15`.
+
+## Ordered slices
 
 Each stem below is a file in `dashboard/backend-tests/usage-history/`.
 Record where each former purpose survives. Run the relevant file selection
@@ -85,7 +100,7 @@ through the maintained backend command at each slice.
 ### 1. The chart reads configured usage and refuses invalid requests
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `token-index` and `token-index-period`. Call the typed read with
 configured projects including a hidden project, retained task state and a
@@ -96,6 +111,18 @@ filtering after historical rolling median, and production defaults.
 Pass typed invalid tool/workflow and incomplete or malformed period inputs
 to request admission and assert refusal with no store read. Check the GET
 adapter and frontend reader contract if the binding changes.
+
+Proof: the former chart and period cases now run in their original files
+through `readTokenIndex` and `tokenIndexAnswer`. The configured-project case
+reads a retained end for a hidden project's worker-bearing task and asserts
+default cohort, rates and check time. The real stale-cache case observes
+updated chart and cache bytes with unchanged usage bytes. Bypassing the
+digest check returned the stale task and failed that case. The two Vitest
+specs passed nine cases. The existing `system-settings-usage.spec.ts` E2E
+passed the real chart and refresh journeys, and the frontend
+`system-settings-usage-source.spec.ts` passed three reader cases. Dashboard
+typecheck passed. Retained records use the `slice-1-` prefix in checkout
+evidence.
 
 ### 2. Cohorts and medians include only eligible tasks
 

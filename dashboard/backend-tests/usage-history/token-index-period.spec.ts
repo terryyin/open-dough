@@ -1,24 +1,19 @@
-// Real HTTP/store period projection keeps prior eligible history and dated counts.
+// Period projection keeps prior eligible history and dated counts.
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
-import {
-  expect,
-  test,
-  usageServer,
-  writeTaskUsage,
-} from "../../test-support/usage-history/tokenIndexHarness.ts";
+import { readTokenIndex } from "../../server/tokenIndexRead.ts";
+import { codexTariff } from "../../server/usageTariffs.ts";
+import type { UsagePeriod } from "../../src/usagePeriod.ts";
 
-test("calendar bounds select tasks and unpriced counts after the historical rolling median", async ({
-  machine,
-}) => {
+test("calendar bounds select tasks and unpriced counts after the historical rolling median", async () => {
   const tasks = [...Array<number>(9).keys()].map((at) =>
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs(`earlier-${at + 1}`)
       .endedAt(`2026-11-${String(at + 1).padStart(2, "0")}T12:00:00.000Z`)
       .please(),
   );
   tasks.push(
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("tenth")
       .endedAt("2026-11-15T12:00:00.000Z")
       .please(),
@@ -29,10 +24,10 @@ test("calendar bounds select tasks and unpriced counts after the historical roll
     ["until", "2026-11-16T00:00:00.000Z"],
   ] as const)
     tasks.push(
-      makeMe.aUsageTaskHistory
+      makeMe.aSummaryTask
         .identifiedAs(id)
         .endedAt(at)
-        .withWorkerGaps("missing-worker-evidence")
+        .with({ gaps: ["missing-worker-evidence"] })
         .please(),
     );
   for (const [id, at] of [
@@ -40,32 +35,32 @@ test("calendar bounds select tasks and unpriced counts after the historical roll
     ["unpriced-out", "2026-11-14T10:00:00.000Z"],
   ] as const)
     tasks.push(
-      makeMe.aUsageTaskHistory
+      makeMe.aSummaryTask
         .identifiedAs(id)
         .endedAt(at)
-        .withResponse({ serviceTier: "fast" })
+        .withUsage({ tier: "fast" })
         .please(),
     );
   // An unrated model is estimated: plotted and dated, outside the median.
   tasks.push(
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("estimated-in")
       .endedAt("2026-11-15T11:00:00.000Z")
-      .withResponse({ model: "unrated-model" })
+      .withUsage({ model: "unrated-model" })
       .please(),
   );
-  await writeTaskUsage(machine.home, tasks);
-  const usage = await usageServer(machine);
-  const read = async (from: string) => {
-    const query = new URLSearchParams({
-      from,
-      until: "2026-11-16T00:00:00.000Z",
-    });
-    const result = await usage.request("GET", `/__usage/token-index?${query}`);
-    expect(result.status).toBe(200);
-    return result.body as TokenIndexAnswer;
+  const inputs = {
+    summary: makeMe.aUsageTaskSummary.with({ tasks }).please(),
+    projects: [makeMe.aPublishedSource.openDough.please()],
+    launches: new Map(),
+    tariff: codexTariff,
+    checkedAt: null,
   };
-  const one = await read("2026-11-15T00:00:00.000Z");
+  const until = "2026-11-16T00:00:00.000Z";
+  const read = (period?: UsagePeriod) =>
+    readTokenIndex("GET", new URLSearchParams(period), () => inputs);
+
+  const one = await read({ from: "2026-11-15T00:00:00.000Z", until });
   expect(one.tasks.map(({ id }) => id)).toEqual([
     "start",
     "estimated-in",
@@ -78,7 +73,7 @@ test("calendar bounds select tasks and unpriced counts after the historical roll
   expect(one.average).toEqual([
     { at: "2026-11-15T12:00:00.000Z", task: "tenth", value: 1_950 },
   ]);
-  const seven = await read("2026-11-09T00:00:00.000Z");
+  const seven = await read({ from: "2026-11-09T00:00:00.000Z", until });
   expect(seven.average).toEqual(one.average);
   expect(seven.tasks.map(({ id }) => id)).toEqual([
     "earlier-9",
@@ -89,21 +84,19 @@ test("calendar bounds select tasks and unpriced counts after the historical roll
   ]);
   expect(one.options).toEqual(seven.options);
   expect(one.options.models.map(({ id }) => id)).toContain("unrated-model");
-  const all = await usage.chart();
+  const all = await read();
   expect(all.tasks).toHaveLength(14);
   expect(all.unpriced).toBe(2);
-  const empty = await usage.request(
-    "GET",
-    "/__usage/token-index?from=2026-11-17T00:00:00.000Z&until=2026-11-18T00:00:00.000Z",
-  );
-  expect(empty.status).toBe(200);
-  expect(empty.body).toMatchObject({ tasks: [], average: [], unpriced: 0 });
+  const empty = await read({
+    from: "2026-11-17T00:00:00.000Z",
+    until: "2026-11-18T00:00:00.000Z",
+  });
+  expect(empty).toMatchObject({ tasks: [], average: [], unpriced: 0 });
 });
 
-test("malformed or incomplete period bounds are refused instead of broadening history", async ({
-  machine,
-}) => {
-  const usage = await usageServer(machine);
+test("malformed or incomplete period bounds are refused before reading usage", async () => {
+  const load = vi.fn<() => never>();
+
   for (const query of [
     "from=2026-11-15T00:00:00.000Z",
     "until=2026-11-16T00:00:00.000Z",
@@ -113,8 +106,9 @@ test("malformed or incomplete period bounds are refused instead of broadening hi
     "from=2026-11-15&until=2026-11-16",
     "from=2026-11-15T00:00:00.000Z&from=2026-11-14T00:00:00.000Z&until=2026-11-16T00:00:00.000Z",
   ])
-    expect(
-      (await usage.request("GET", `/__usage/token-index?${query}`)).status,
+    await expect(
+      readTokenIndex("GET", new URLSearchParams(query), load),
       query,
-    ).toBe(400);
+    ).rejects.toMatchObject({ status: 400 });
+  expect(load).not.toHaveBeenCalled();
 });
