@@ -1,8 +1,8 @@
 // Catalogued done records for the shared follow-up source story
-// (`./recentlyDoneFollowUpGrouping.ts`): one card, a recent batch that places
-// the source beyond the default ten, and an older source outside that window.
-// `../../frontend-tests/sessions/follow-up-source-navigation.spec.ts` and the
-// Recently done follow-up grouping specs publish through here.
+// (`./recentlyDoneFollowUpGrouping.ts`): a recent batch that places the source
+// beyond the default ten, and an older source outside that window.
+// `../../frontend-tests/sessions/follow-up-source-navigation.spec.ts` publishes
+// through here.
 
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -10,7 +10,7 @@ import {
   putFrontendDoneRecords,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
-import { completedAt, sourceStory } from "./recentlyDoneFollowUpGrouping.ts";
+import { sourceStory } from "./recentlyDoneFollowUpGrouping.ts";
 
 export const sourceFileName = doneRecordFileName(sourceStory.identity);
 
@@ -25,12 +25,6 @@ function doneRecord(identity: string, title: string, completed: string) {
       host: "codex",
     })
     .please();
-}
-
-export function publishSourceCard(services: FrontendServiceState) {
-  putFrontendDoneRecords(services, "open-dough", [
-    doneRecord(sourceStory.identity, sourceStory.title, completedAt),
-  ]);
 }
 
 // Recent fillers plus the source, newest first by completion: source at

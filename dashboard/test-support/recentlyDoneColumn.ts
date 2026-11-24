@@ -1,6 +1,5 @@
 // The Recently done journeys' view of the column
 // (../../e2e/stories/recently-done-stories.spec.ts,
-// ../frontend-tests/sessions/recently-done-story-sessions.spec.ts,
 // ../../e2e/sessions/recently-done-story-sessions-expired.spec.ts,
 // ../../e2e/sessions/recently-done-published-sessions.spec.ts):
 // the names of the sessions outside any done story, a published session's

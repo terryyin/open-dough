@@ -6,8 +6,13 @@ import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import {
+  doneCard,
+  recentlyDone,
+  standaloneEntry,
+  standaloneName,
+} from "./recently-done-column-page.ts";
+import {
   adHocTitle,
-  boardDone,
   development,
   intent,
   linked,
@@ -15,7 +20,6 @@ import {
   projectShown,
   readInIntent,
   report,
-  standaloneEntry,
   takenTitle,
   terminal,
 } from "./recently-done-selection-mount-page.ts";
@@ -82,10 +86,7 @@ test("a linked row's Select in Development brings its selected done card, beyond
 
   await shown.select(linked.title).click();
   await expect.element(projectShown()).toHaveAccessibleName("Pygardon");
-  const card = boardDone().getByRole("article", {
-    name: linked.title,
-    exact: true,
-  });
+  const card = doneCard(linked.title);
   await expect.element(card).toHaveClass(/story-card-selected/);
   await expect.element(card).toBeInViewport();
   await expect.element(shown.select(linked.title)).toHaveFocus();
@@ -118,8 +119,8 @@ test("selecting an older standalone session in Development reveals and marks its
   await expect.element(entry).toHaveClass(/\bselected-session\b/);
   await expect.element(entry).toBeInViewport();
   await expect
-    .element(boardDone().getByRole("article").nth(10))
-    .toHaveAccessibleName(`Ad hoc session for ${adHocTitle}`);
+    .element(recentlyDone().getByRole("article").nth(10))
+    .toHaveAccessibleName(standaloneName(adHocTitle));
 });
 
 test("selecting a standalone session from Development's agent roster shows its project's Board with the entry selected in view", async () => {

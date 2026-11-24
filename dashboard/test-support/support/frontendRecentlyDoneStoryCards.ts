@@ -10,8 +10,6 @@ import {
   at,
   executed,
   placed,
-  queuedIdentity,
-  queuedTitle,
   recentlyDoneNestingRecords,
   workspaceEntry,
 } from "../recentlyDoneRecords.ts";
@@ -97,60 +95,4 @@ export async function openFrontendStoryCardSessions(
   await expect(
     page.getByRole("button", { name: /Start session in/ }),
   ).toBeVisible();
-}
-
-// Active story owns its open session beside a matching done card's closed one.
-export async function openFrontendActiveStorySessions(
-  page: Page,
-  services: FrontendServiceState,
-): Promise<{
-  readonly openKey: string;
-  readonly closedKey: string;
-}> {
-  const now = Date.now();
-  const openId = "queued-open-execution";
-  const closedId = "99999999-aaaa-bbbb-cccc-000000000009";
-  putQueuedBacklog(services);
-  putFrontendDoneRecords(services, "open-dough", [
-    makeMe.aDoneRecord
-      .with({
-        identity: queuedIdentity,
-        title: queuedTitle,
-        completedAt: at(now, placed.executedDone),
-        developer: "Terry Yin",
-      })
-      .please(),
-  ]);
-  const closed = makeMe.aLaunchRecord
-    .refining({ identity: queuedIdentity, title: queuedTitle })
-    .inClaudeSession({ sessionId: closedId })
-    .launchedAt(at(now, placed.executedDoneSessionLaunched))
-    .markedDoneAt(at(now, placed.executedDoneSessionMarked))
-    .please();
-  const open = makeMe.aLaunchRecord
-    .executing({ identity: queuedIdentity, title: queuedTitle })
-    .inClaudeSession({ sessionId: openId })
-    .launchedAt(at(now, placed.queuedLaunched))
-    .please();
-  const adHoc = makeMe.aLaunchRecord
-    .adHoc({ title: adHocTitle })
-    .inClaudeSession({ sessionId: "ad-hoc-done-active" })
-    .launchedAt(at(now, placed.adHocLaunched))
-    .markedDoneAt(at(now, 30 * 60_000))
-    .please();
-  services.answerMachine(
-    makeMe.aMachineAnswer
-      .observingDone(closed)
-      .observingOpen(open)
-      .observingDone(adHoc)
-      .please(),
-  );
-  await page.goto("/");
-  await expect(
-    page.getByRole("button", { name: /Start session in/ }),
-  ).toBeVisible();
-  return {
-    openKey: `claude:${openId}`,
-    closedKey: `claude:${closedId}`,
-  };
 }

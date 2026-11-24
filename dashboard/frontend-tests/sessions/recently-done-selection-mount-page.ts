@@ -131,12 +131,6 @@ export const terminal = () => page.getByRole("region", { name: "Terminal" });
 export const development = () =>
   page.getByRole("radio", { name: "Development", exact: true });
 
-// The shown project's Board Recently done entries, and a standalone session's.
-export const boardDone = () =>
-  page.getByRole("region", { name: "Recently done", exact: true });
-export const standaloneEntry = (title: string) =>
-  boardDone().getByRole("article", { name: `Ad hoc session for ${title}` });
-
 // Pygardon's done catalog as the case answers, holds or fails it; other
 // projects publish none.
 export function pygardonCatalog() {

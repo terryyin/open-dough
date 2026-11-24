@@ -438,6 +438,12 @@ equivalent. Carry the existing mounted checks through the focused verification.
 The sibling stories own live sessions, terminal internals and runner retirement.
 Real publication, Git and installation keep their service or E2E proof owners.
 The separate renamed-path grammar correction keeps its own acceptance example.
+Standalone (ad hoc) session cases not yet migrated stay in their legacy specs:
+[SEED-426](SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
+removes the standalone paths together with their cases and support.
+Trunk's revert `0bdef6cb2` removed the competing-association chooser, so the
+second key example's unresolved association and explicit choice no longer
+apply.
 
 **Key examples.**
 

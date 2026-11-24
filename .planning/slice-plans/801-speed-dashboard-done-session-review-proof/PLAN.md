@@ -11,7 +11,10 @@ and diff. Reconcile the roster with trunk at execution start.
 
 Follow the [campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-frontend-stories).
 Live sessions and terminal internals, shared runner retirement, real Git,
-publication and installation have their own owners. Preserve the separate
+publication and installation have their own owners. Standalone (ad hoc)
+session cases not migrated by slices 1 and 2 stay in their legacy specs for
+[SEED-426](../../seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
+to remove with the standalone paths (developer decision, 2026-11-24). Preserve the separate
 [renamed-path grammar correction](../746-prove-renamed-diff-grammar-from-new-path/PLAN.md).
 Coordinate session-test cleanup with
 [SEED-341](../../seeds/SEED-341-simplify-session-tests.md).
@@ -134,7 +137,7 @@ observations of `sessions/recently-done-sessions-select.spec.ts` and all of
 ### 3. Attribute a session to its resolved Done card
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (15 cases).** `sessions/recently-done-{active-story-sessions,follow-up-grouping,follow-up-membership,published-session-story,story-sessions}.spec.ts`.
 
@@ -143,9 +146,14 @@ Exercise the production membership and deduplication rules beneath the
 list for direct variants. Render a discriminating cross-machine arrival,
 retained counterpart and ambiguous association, followed by an explicit
 choice. Prove open, Done and reopened membership, originating card, source
-project isolation, older standalone entries and top-level paging count.
+project isolation and top-level paging count. Older standalone entries stay
+legacy for SEED-426. Trunk's revert removed
+`sessions/recently-done-published-session-story.spec.ts` from this roster.
 Keep the documented real publication journey in
 `e2e/sessions/recently-done-published-sessions.spec.ts`.
+Trunk's revert `0bdef6cb2` deleted `dashboard/src/storyAssociationChoice.ts`
+and its server half, withdrawing the ambiguous association and explicit
+choice from this promise.
 
 ### 4. Reveal a follow-up's source without losing the current place
 
@@ -186,22 +194,23 @@ Persist across actual reload and restart through the existing
 Type: Behavior
 Status: planned
 
-**Roster (10 cases).** `review/story-review-action.spec.ts`,
-`sessions/recently-done-ad-hoc-review.spec.ts`.
+**Roster.** `review/story-review-action.spec.ts`.
+`sessions/recently-done-ad-hoc-review.spec.ts` stays legacy for SEED-426.
 
 **Proof.** Start from the real card actions and Review opening. Prove order,
 wrap and keyboard handoff to Intent Changes. Use the production eligibility
 rule for the distinct launch, preparation, claim and unavailable inputs
 across Backlog and Taken. Render representative destination and focus
-handoffs, including the standalone ad hoc row opening its own Review.
+handoffs.
 
 ### 7. Review the evidence of the chosen session and run
 
 Type: Behavior
 Status: planned
 
-**Roster (15 cases).** `sessions/recently-done-ad-hoc-{branch-result,comparisons,review-gaps,session-commits,session-runs}.spec.ts`,
-`review/story-review-details-runs.spec.ts`.
+**Roster.** `review/story-review-details-runs.spec.ts`.
+`sessions/recently-done-ad-hoc-{branch-result,comparisons,review-gaps,session-commits,session-runs}.spec.ts`
+stay legacy for SEED-426.
 
 **Proof.** Open the real review request from a standalone row or a Done
 card where the subject differs. Render comparison and run choices through
@@ -245,8 +254,7 @@ and those slice 2 left in `sessions/recently-done-sessions-select{,-touch}.spec.
 **Proof.** Measure the three lists' floors, shared room with Running Cursor,
 drag to floor, exact key step and short-window reachability in the slice 1
 mount with native Chromium input. Prove ages ticking with the clock there. In the slice 2 selection mount,
-prove the Development highlight after an Intent choice and the Intent
-Changes file and Taken card kept across standalone choices; leave Open's
+prove the Development highlight after an Intent choice; leave Open's
 terminal reopening to `e2e/sessions/recently-done-sessions-select-open.spec.ts`
 if it needs a real attach. Row ring style, equal row heights, coarse-input
 touch sizes and the phone overlay need native layout or a touch page.
@@ -273,7 +281,8 @@ check its remaining consumers before deleting or modifying it.
 Pair the original and resulting selections at two workers under comparable
 load. Record elapsed time including setup, counts by engine and destination,
 slow remaining cases and added E2E cost. Run the final moved and retained
-proof together and check for zero scoped legacy registrations.
+proof together and check that the only scoped legacy registrations left are
+the standalone cases SEED-426 removes.
 
 The slice review found no remaining concerns after grouping proof by the
 reader's actions and assigning each legacy case once. A separate refinement
@@ -345,6 +354,29 @@ over `sessions/recently-done-selection-mount-page.ts`.
 | `sessions/recently-done-sessions-select-supersede.spec.ts` — "choosing another project while a linked row is still checked abandons the check…" (deleted) | Project chosen meanwhile stands; Intent kept, no selected story; row unpressed, no status | Check spec "choosing another project while a linked row is still checked abandons the check, keeping the reader in the project they chose". |
 | `sessions/recently-done-sessions-select-supersede.spec.ts` — "another row's Open while a linked row is still checked abandons the check…" (deleted) | Open supersedes the check; Development shown; row unpressed | Check spec "another row's Open while a linked row is still checked abandons the check and shows Development". Gap: the opened report text stays with the legacy `select.spec.ts` Side-panel observations and the e2e select-open spec. |
 | Slice 1 leftovers in `sessions/recently-done-sessions-sidebar{,-paging}.spec.ts` — Select switches project and reveals the Board entry with no terminal; Open's destination | Project switch, entry `selected-session` + "Selected session", no Terminal region; Open → Development | Destination spec "selecting a standalone row in Development shows its project's Board with its entry marked selected and opens no terminal", "selecting a linked done row in Development…", and check spec Open case. Legacy files keep their reload observations (planned E2E, slice 9). |
-| `sessions/recently-done-sessions-select.spec.ts` (kept, partly mapped) | Linked from Intent selects that project's story; standalone keeps project; Tab Select→Open terminal, description, ad hoc has no Open; opened final report kept in the Side panel with its row `aria-current` and unpressed | Destination spec "selecting a linked done row from Intent…", "a linked row's Select in Development brings its selected done card…; Tab reaches its separate Open terminal, which an ad hoc row lacks", and "selecting a linked row from Intent keeps the opened final report in the Side panel, its row current but not chosen" (typed `SessionServices.readFinalReport`). Slice 9: row ring style, equal row heights, Development highlight after an Intent choice, Open reopening the terminal, Intent Changes file and Taken card selection kept across standalone choices. |
+| `sessions/recently-done-sessions-select.spec.ts` (kept, partly mapped) | Linked from Intent selects that project's story; standalone keeps project; Tab Select→Open terminal, description, ad hoc has no Open; opened final report kept in the Side panel with its row `aria-current` and unpressed | Destination spec "selecting a linked done row from Intent…", "a linked row's Select in Development brings its selected done card…; Tab reaches its separate Open terminal, which an ad hoc row lacks", and "selecting a linked row from Intent keeps the opened final report in the Side panel, its row current but not chosen" (typed `SessionServices.readFinalReport`). Slice 9: row ring style, equal row heights, Development highlight after an Intent choice, Open reopening the terminal. Intent Changes file and Taken card kept across standalone choices: legacy for SEED-426. |
 | `sessions/recently-done-sessions-select-development.spec.ts` (deleted, all three cases) | Linked done card beyond Pygardon's first ten selected in view, kept on re-select; older standalone entry beyond Doughnut's first ten revealed, marked and in view; roster view gives way to the project's Board with the entry selected | Destination spec "a linked row's Select in Development brings its selected done card, beyond Pygardon's first ten, into view and keeps it on a second Select; …", "selecting an older standalone session in Development reveals and marks its entry beyond Doughnut's first ten" (eleventh entry), "selecting a standalone session from Development's agent roster shows its project's Board with the entry selected in view". Distinguishes a reveal that stops at the default ten or a roster that stays. Gap: Side-panel report kept during these (legacy `select.spec.ts` still observes report preservation in Intent). |
 | `sessions/recently-done-sessions-select-touch.spec.ts` (kept) | Coarse-input touch sizes, phone overlay | Slice 9. |
+
+Slice 3 (in progress). Replacements over `ConfiguredDashboard` with typed
+machine answers, published done catalogs and done-record reads:
+`sessions/recently-done-card-membership-mount.spec.ts` ("membership spec") and
+`sessions/recently-done-card-membership-transition-mount.spec.ts`
+("transition spec") over `sessions/recently-done-card-membership-mount-page.ts`;
+`sessions/recently-done-active-story-mount.spec.ts` ("active spec");
+`sessions/recently-done-story-card-sessions-mount.spec.ts` ("story card spec").
+They and the slice 2 destination spec read the Board's column through
+`sessions/recently-done-column-page.ts`.
+
+| Old case | Distinct observations | Replacement or equivalent |
+| --- | --- | --- |
+| `sessions/recently-done-active-story-sessions.spec.ts` — "an active story owns its open and Done sessions even with a matching done card…" (deleted) | Backlog card holds open (Working) session; Done card and Recently done hold neither; Done disclosure counts and holds the closed one; each key shown once on the Board; two top-level entries; "Recently done 2 entries" | Active spec, same title. Distinguishes a matching done card taking the active story's closed session (Recently done would hold its key and the top-level count would change). |
+| `sessions/recently-done-follow-up-grouping.spec.ts` — "marking a follow-up Done moves it from Taken onto its source card" (deleted) | Open follow-up in Taken, card empty; after Done it leaves Taken and is the card's one Done entry | Transition spec "a follow-up answered Done moves from Taken onto its source card, and reopened returns to Taken" (the next machine answer carries the Done mark). The Mark as done action posting itself stays with the session-action specs. |
+| `sessions/recently-done-follow-up-grouping.spec.ts` — "card and file follow-ups of one story share its Done card" (deleted) | Both nested, newest first; each listed once; kept after reload | Membership spec "card and file follow-ups of one story share its Done card, newest first, and are listed once". Reload is a re-read of the same answers; no separate observation kept. |
+| `sessions/recently-done-follow-up-grouping.spec.ts` — "reopening a closed follow-up returns it to Taken" (deleted) | Reopened answer returns it to Taken and empties the card | Transition spec above (poll-driven answer instead of reload). |
+| `sessions/recently-done-follow-up-membership.spec.ts` — "another story's and another project's closed follow-ups stay off the card" (deleted) | Own on source card, other story on its card, other project's not in Open Dough's Recently done | Membership spec, same title (Doughnut also lists the source identity, so a project-blind join would show it). |
+| `sessions/recently-done-follow-up-membership.spec.ts` — "a closed follow-up whose source card is not listed stays standalone" (deleted) | Standalone entry; listed card holds none | Membership spec, same title. |
+| `sessions/recently-done-follow-up-membership.spec.ts` — "a card holding a closed follow-up still names the story's Follow up context" (deleted) | Card holds 2; Follow up context lists the story's own session facts only; follow-up title absent | Membership spec "a card holding a closed follow-up still names only the story's own sessions in its Follow up context" (Completed line matched by prefix). |
+| `sessions/recently-done-story-sessions.spec.ts` — "a done story's card holds this machine's sessions for it…" (reduced) | Entries newest first by completion; card holds two closed sessions newest first, Done, no terminal/actions, raised-surface set-off; open session stays Taken with identity, terminal and actions; last week's card holds yesterday's session; card without sessions shows none | Story card spec "a done story's card holds this machine's closed sessions for it, newest first, while its open session stays local Taken, and done cards order by completion". Set-off checks background only (in-card text colour unobserved). The 31-day-old retained standalone entry stays in the reduced legacy case "a session of a done record past the window is its own Recently done entry" — legacy for SEED-426. |
+| `sessions/recently-done-story-sessions.spec.ts` — set-off in-card text (legacy `expectSessionEntryInCardText`) | Entry reads in its card's colour, which is not quiet; its `.launch-local` facts are quiet | Story card spec, same case (restored). |
+| Plan proof row 3, cross-machine arrival (no legacy case left after trunk removed `recently-done-published-session-story.spec.ts`) | Published record with no kept counterpart stands alone and leaves the card empty; a kept Done follow-up reporting through it stands for it on the source card; a kept live counterpart also stands for it | `sessions/recently-done-published-counterpart.spec.ts` (plain Vitest on `newestFirst`, three cases); rendered: membership spec "a follow-up published from another machine while its kept counterpart is Done here shows one entry, on its source card" (mutating the reporting reference renders two entries and fails it). |
