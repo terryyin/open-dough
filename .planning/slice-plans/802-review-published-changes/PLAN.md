@@ -125,6 +125,7 @@ depended on Taken default opening unpublished Trunk changes.
 
 Accepted proof: published Trunk attribution, exact prior reads, touch Refresh,
 measured Proof and Done transition passed. See `slice-3-report.md`.
+CI repair checked the Taken review action in keyboard order and control counts.
 
 ### 4. Retire the remaining workspace story comparison
 

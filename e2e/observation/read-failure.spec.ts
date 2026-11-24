@@ -181,7 +181,11 @@ test("read failure and retry is not caused by an unknown section, which adds no 
   await expect(page.getByRole("region", { name: /review/i })).toHaveCount(0);
   await expect(page.getByText(underReview)).toHaveCount(0);
   await expect(problem).toHaveCount(0);
-  await expectSnapshotButtons(page, { backlogCards: 1, cards: 2 });
+  await expectSnapshotButtons(page, {
+    backlogCards: 1,
+    takenCards: 1,
+    cards: 2,
+  });
 });
 
 test("read failure and retry publishes the first snapshot and withdraws the failure when a reload succeeds after failed openings", async ({
@@ -226,6 +230,10 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   );
   await expect(problem).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
-  await expectSnapshotButtons(page, { backlogCards: 3, cards: 4 });
+  await expectSnapshotButtons(page, {
+    backlogCards: 3,
+    takenCards: 1,
+    cards: 4,
+  });
   expect(pathsRead(origin)).toHaveLength(4);
 });
