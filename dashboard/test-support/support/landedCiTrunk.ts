@@ -23,7 +23,6 @@ export {
   passedFrom,
   runningFrom,
   serveTrunkRuns,
-  timeAfter,
   trunkActions,
   trunkRun,
   usableProofOf,
@@ -34,7 +33,7 @@ export {
 // One change on trunk: a code change CI builds, a planning change CI skips,
 // or trunk's CI workflow, whose push runs ignore changes under `.planning/`
 // and `docs/` (./storyCiComparisonWorkflows.ts).
-export type TrunkChange = {
+type TrunkChange = {
   readonly title: string;
   readonly kind: "code" | "planning" | "ci-workflow";
 };
@@ -51,7 +50,7 @@ function changedFile({ title, kind }: TrunkChange): readonly [string, string] {
 
 // `change` published on the origin's trunk with a push of its own; answers
 // its revision.
-export function publishedChange(
+function publishedChange(
   origin: StartOrigin,
   change: TrunkChange,
 ): Promise<string> {
@@ -88,22 +87,6 @@ export async function publishedLanding(
     }),
   };
 }
-
-// A landing published on the origin's trunk for `title` and recorded
-// `minutes` ago, under a receipt that names that minute: a code change CI
-// builds, or, when `planningOnly`, a planning change CI skips.
-export const landingMinutesAgo = (
-  origin: StartOrigin,
-  title: string,
-  minutes: number,
-  planningOnly = false,
-) =>
-  publishedLanding(origin, {
-    title,
-    receipt: `dddddddd-0000-4000-8000-${String(minutes).padStart(12, "0")}`,
-    at: minutesAgo(minutes),
-    planningOnly,
-  });
 
 // Trunk's `runs` and their CI proof served as the case has them at each
 // read (`serveTrunkRuns`), and `landings` recorded as executions in the

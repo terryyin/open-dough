@@ -258,7 +258,7 @@ deleted. Adapter reason wording stays with
 ### 7. The wall-time cohort gives faster feedback
 
 Type: Behavior
-Status: planned
+Status: done
 
 Run the maintained selection at two workers under conditions comparable to
 slice 1. Compare shell elapsed, summed case time and file and case counts.
@@ -272,6 +272,40 @@ comparable run is faster. The purpose map names surviving coverage for each
 removed or consolidated case and the focused proof shows that the surviving
 case rejects a representative regression. Inspect for direct typed entry and
 verify the cohort is free of server mounts, browser setup and new wrappers.
+
+**Slice 7 evidence.** The comparison used the baseline's literal command
+(`landed-ci-history-`, two workers, `/usr/bin/time -p caffeinate -s -i`) on
+AC power at load 6.5–8.2. The baseline ran at 920286793 at load ~5–7.
+
+| | Baseline | After |
+| --- | --- | --- |
+| Files / cases | 14 / 22 | 14 / 19, all passed first attempt |
+| Summed case time | 75.795 s | 0.770 s |
+| Runner duration | 48.9 s | 4.2 s |
+| Shell elapsed | 50.22 s | 4.66 s |
+
+Every case is under 100 ms. The slowest are `window` at 91 ms (24 real MakeMe
+repository revisions for trunk ancestry), `comparison-run` at 86 ms (both
+readers over three passes) and `adapter-measure-gaps` at 80 ms (three
+landings over two passes). Each retained cost is the behavior asserted, so no
+avoidable setup, waiting or repeated proof remains. Most of the run is Vitest
+import and worker spawn time. No cases were added to the moved-proof owners
+named in slices 1–6 (`landed-ci-collector-lifetime`,
+`ci-comparison-finality-*`, `landed-ci-proof-collection`,
+`story-branch-landing-capture`, `landed-ci-attempt-start-adapter` and
+Distribution `dashboard-ci-adapter-revision-lookup`), so the moved proof added
+no cost. The slice 1–6 purpose maps cover every removed or consolidated case.
+In each slice, at least one scratch mutation made a surviving case fail
+(pass ignores stop, trunk ignores kept references, nudge ignores `collects()`,
+pass ignores the typed clock, retention dropped, unanswered proof made final,
+final gaps, `measuredWindow` 20→19, unpruned window, and unanswered runner-wait
+read made final). The 14 files import only Vitest, production modules, MakeMe,
+`landedCiPassInputs` and the existing comparison support. None uses Playwright,
+`test.use`, a server mode or a page. Retired: `landedCiHistoryAnswers.ts`,
+which had no importer, `landingMinutesAgo` and `runsListedAgain`, which had no
+caller, and the `export` on the file-local `TrunkChange`, `publishedChange`
+and `observedKinds`. Other mount-era support still serves the
+`landed-ci-scope-*` specs and other owners.
 
 ## Concern evidence
 

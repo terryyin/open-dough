@@ -201,7 +201,7 @@ export async function keepLandedCiHistory(
 }
 
 // What each landing the history keeps resolved to, by its receipt.
-export const observedKinds = (kept: ReturnType<typeof keptLandedCiHistory>) =>
+const observedKinds = (kept: ReturnType<typeof keptLandedCiHistory>) =>
   Object.fromEntries(
     Object.entries(kept.landings).map(([receipt, { observed }]) => [
       receipt,

@@ -14,15 +14,3 @@ export function listedAttemptJobPages(calls: readonly GhCall[]): string[] {
     )
     .sort();
 }
-
-// Revisions whose runs (`head_sha=`) were listed more than once.
-export function runsListedAgain(calls: readonly GhCall[]): string[] {
-  const listed = calls.flatMap(({ request }) =>
-    request.kind === "actions-runs" && request.headSha !== ""
-      ? [request.headSha]
-      : [],
-  );
-  return [...new Set(listed)].filter(
-    (sha) => listed.indexOf(sha) !== listed.lastIndexOf(sha),
-  );
-}

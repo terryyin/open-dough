@@ -68,7 +68,7 @@ export const passedBetween = (startedAt: string, completedAt: string) => ({
 });
 
 // `ms` after the moment `at`, as a CI read names a moment.
-export const timeAfter = (at: string, ms: number): string =>
+const timeAfter = (at: string, ms: number): string =>
   new Date(Date.parse(at) + ms).toISOString();
 
 // A run's facts once it passed: created and started as the landing recorded
