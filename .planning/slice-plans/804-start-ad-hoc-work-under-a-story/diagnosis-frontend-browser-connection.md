@@ -160,6 +160,24 @@ it to that base found only the suite step's DEBUG entry. Bash syntax,
 the CI container and browser-cache guards, and 21 existing checks of
 browser-group selection and proof passed. The worktree Git evidence log
 and clock run record are `ci-browser-round2-verify.log` and
-`ci-browser-round2-verify.log.run.json`. Round 2 was at 2.1 active minutes
-after these checks, 9.1 active minutes cumulative. Hosted observation is
-pending coordinator publication.
+`ci-browser-round2-verify.log.run.json`.
+
+The one hosted diagnostic attempt tested `908b7ad987361706bfaf34087b23fc078225b450`
+in GitHub Actions run 45347374556, attempt 1. Frontend shard 1 job
+138285104444 confirmed the exact DEBUG setting, passed 205 files and 526
+cases, and exercised both source-identity cases. The orchestrator sockets
+closed after suite completion, then both Chromium processes exited with
+code zero and no signal. The full run succeeded. Its receipt and exact
+job log are `ci-browser-round2-hosted.log` and
+`ci-browser-round2-frontend.log` in the worktree Git evidence directory.
+The original closure did not recur, and the cause remains unresolved.
+Round 2 used 4.5 active minutes, 11.5 cumulative across both rounds.
+
+Remove the temporary DEBUG entry and verify the reusable workflow is
+byte-identical to the original failure revision. This cleanup publication
+will trigger one regular push run by policy. Its hypothesis is that removing
+the temporary logging restores the identical test configuration, and its
+result does not change the disposition of the earlier failed attempt.
+Retain Slice 3's saved work. A decision on how to continue diagnosis or
+whether to make an exception for the original failure is required before
+resuming it.

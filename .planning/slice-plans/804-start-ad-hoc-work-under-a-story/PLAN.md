@@ -87,6 +87,10 @@ legacy runner retirement.
   the execution branch.
 - Slice 1 published as `d1271312797dc8394764efea4b74c969fd2c5d77` on the
   execution branch.
+- Slice 2 published as `efca0e5a9ecd3686eaa38abe0ab359f81f26a7fb` on the
+  execution branch. The original frontend CI failure is unresolved after
+  two diagnosis rounds. Slice 3 is paused with its edits in the managed
+  repair stash. [CI diagnosis](diagnosis-frontend-browser-connection.md)
 - Codex CI observer `sola-chan-804`, GitHub Actions `ci.yml` (CI),
   `/tmp/dough-ci-501/watch-CNuTjf`, PID 1090, session 45469, cell `g34:8`.
 
