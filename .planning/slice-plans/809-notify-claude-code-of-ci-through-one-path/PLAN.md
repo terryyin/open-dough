@@ -110,6 +110,15 @@ and the five `ci-host-hook-*` tests pass; consumers `payload-declaration-links`,
 `update-skip-verified` and the execute-plan guidance readers pass. The consumer
 search leaves only slice 1's retirement data and its scenario helpers.
 
+## Execution complete
+
+Product advice: no change. Claude Code now completes CI through
+`complete-revision` and the synchronous hook, as Codex and Cursor do, and
+updates retire the former asyncRewake entry. The retirement data in
+`open-dough-register-hooks-fragments.mjs` stays while older installations may
+still carry the entry. Process review is deferred into wrap-up with the Intent
+Coverage check for the removed handoff tests.
+
 ## Concern evidence
 
 Slice-plan refinement was not needed: two slices, each with one outcome and
