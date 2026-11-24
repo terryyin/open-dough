@@ -1,6 +1,6 @@
 // A start request can carry a draft before there is an originating draft
 // checkout. Admission still reads and publishes it through the ordinary Take.
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import {
@@ -26,10 +26,13 @@ import {
 } from "./workspace-publication-ownership.mjs";
 
 const anchor = "ad-hoc-work";
+const planningDirectory = dirname(backlogPath);
+const seedDirectory = `${planningDirectory}/${defaultSeedDirectory}`;
 const identityPaths = [
   backlogPath,
-  ...[defaultSeedDirectory, doneRecordDirectory, doneCatalogPath].map(
-    (path) => `${dirname(backlogPath)}/${path}`,
+  seedDirectory,
+  ...[doneRecordDirectory, doneCatalogPath].map(
+    (path) => `${planningDirectory}/${path}`,
   ),
 ];
 const documentOf = (seed) => `seeds/${seed}-${anchor}.md`;
@@ -75,6 +78,9 @@ async function publishedEvidence(repository, revision, identity) {
         "--",
         ...paths,
       );
+      // The tree listing verifies that this revision has no tracked seeds.
+      if (!paths.includes(seedDirectory))
+        await mkdir(join(snapshot, seedDirectory));
       const evidence = await readIdentityEvidence(join(snapshot, backlogPath), {
         identity,
         includeSeedUse: true,

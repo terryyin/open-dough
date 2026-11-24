@@ -178,6 +178,9 @@ byte-identical to the original failure revision. This cleanup publication
 will trigger one regular push run by policy. Its hypothesis is that removing
 the temporary logging restores the identical test configuration, and its
 result does not change the disposition of the earlier failed attempt.
-Retain Slice 3's saved work. A decision on how to continue diagnosis or
-whether to make an exception for the original failure is required before
-resuming it.
+Cleanup published as `aabca7d1947eba45cfa6a6b600d784834daed002`. The
+developer authorized a one-time exception for run 45345208843, attempt 1,
+frontend shard 1/2, so that Slice 3 can resume with the original cause
+unresolved. Every later CI and production cutover check still applies.
+The managed repair stash restored the seven owned Slice 3 paths into
+the same checkout. The resumed CI observer registered the cleanup SHA.
