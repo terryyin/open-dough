@@ -16,7 +16,7 @@ import {
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
-  launched,
+  composeSession,
   openTerminal,
   shows,
 } from "../../test-support/agentTerminalBoundary.ts";
@@ -51,7 +51,7 @@ test.describe("manual Done when Claude Code rename does not settle", () => {
     markDone(server, { source: "open-dough", session: session.sessionId });
 
   test("marks an idle session whose typed rename is never listed once the wait ends and still stops it; Mark as done renames it given a new running-session precondition", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     const terminal = await openTerminal(server, session);
     expect(await shows(terminal, "attached")).toBe(true);
     server.claudeSessionBecomes(session.sessionId, "working-idle");
@@ -104,7 +104,7 @@ test.describe("manual Done when Claude Code rename does not settle", () => {
   });
 
   test("never attaches to a session still working, names that cause once the wait ends, and still stops it; Mark as done renames it given a new running-session precondition", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "working");
     const attachesBefore = server.claudeAttaches().length;
     const stopsBefore = server.claudeStopCalls().length;

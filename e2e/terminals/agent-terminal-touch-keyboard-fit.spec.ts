@@ -5,7 +5,7 @@ import { control } from "../../dashboard/test-support/sidePanelFrame.ts";
 // attachment and unsent draft survive; hide-keyboard dismisses focus; desktop
 // keeps today's layout without the fit override.
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   expectTerminalInputFocused,
   expectTerminalInputNotFocused,
@@ -54,7 +54,7 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
     page,
     dashboard,
   }) => {
-    const native = await launched(dashboard, "open-dough", {
+    const native = await composeSession(dashboard, "open-dough", {
       identity: "SEED-901#phone-terminal-keyboard-fit",
       title,
     });
@@ -173,7 +173,7 @@ test.describe("desktop terminal without soft-keyboard fit chrome", () => {
     page,
     dashboard,
   }) => {
-    const native = await launched(dashboard, "open-dough", {
+    const native = await composeSession(dashboard, "open-dough", {
       identity: "SEED-901#desktop-no-keyboard-fit",
       title: "Desktop terminal without keyboard fit",
     });

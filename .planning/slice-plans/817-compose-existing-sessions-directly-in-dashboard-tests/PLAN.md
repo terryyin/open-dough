@@ -51,8 +51,22 @@ launches that did not fail in the baseline stay as they are.
   using the existing page objects, as
   `e2e/navigation/side-panel-terminal-continuity.spec.ts` does. Add any
   missing step to a page object, never to a spec-shared helper.
-- Execute in Trunk Mode. Every slice leaves its consumers green, and plan
-  816 needs each moved group on trunk.
+- Execute in Story Branch Mode from the established worktree. Publish each
+  green slice to `codex/compose-existing-sessions-directly-in-dashboard` and
+  integrate at wrap-up. Plan 816's recorded dependency waits for this story
+  on `main`.
+
+## Execution context
+
+- Worktree `.worktrees/compose-existing-sessions-directly-in-dashboard` under
+  the Open Dough integration checkout. Publisher
+  `dashboard-territory.local-open-dough`, agent Kirara-chan.
+- The Take at `aa4e0a66dd03322376bc220bd36ed27c54b6a44d` was accepted on
+  `origin/main` and started the remote story branch. The starting revision
+  was `d9c75458f9a8286eccf7c5b6d0fd8ceca4eb8991`.
+- Codex observer for GitHub Actions `ci.yml` on the story branch:
+  coordinator `kirara-seed433`, mailbox `/tmp/dough-ci-501/watch-ce97an`,
+  PID `87152`, shell session `95690`, cell `g190:7`.
 
 ## Decisive premises and baseline
 
@@ -68,8 +82,11 @@ Scratch installed wiring, for every slice's discriminating run: apply
 `attempt-4.patch` from that evidence directory, and add the one line that
 `wiring.md` there names to `dashboard/test-support/support/dashboardServer.ts`.
 Run, then revert both before any commit.
+For cases sharing one machine between concurrent server starts, also use
+`slice1-scratch-catalog-lock.patch` from the execution evidence directory.
+This covers the reproduced bare-origin initialization race in the probe.
 
-## Slices and outside-in proof
+## Slices
 
 Each slice runs the
 [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
@@ -79,7 +96,7 @@ Run Dashboard typecheck and lint.
 
 ### 1. Hand out composed sessions where `launched()` answered a launched one
 Type: Behavior
-Status: planned
+Status: done
 Proof: Every spec that calls `launched(` or uses a page object that does
 passes plainly, and its in-scope files pass with the scratch wiring.
 Among the backend files are `agent-terminal-boundary`,
@@ -91,6 +108,12 @@ Among the backend files are `agent-terminal-boundary`,
 `-host-status`, `-reading`, `-touch`, `-navigation-cases`,
 `session-column-membership` and the `agent-terminal-touch*` specs.
 `server.claudeLaunchCalls()` stays empty for the composed sessions.
+
+Slice 1 proof: plain and installed backend passed 119 and 118 cases. Plain
+and installed E2E passed 47 and 41. See `slice1-return.md` in execution
+evidence for the retained commands, observations and exclusions. The
+mounted-boundary launch wait and the second sidebar-reading case remain
+launch consumers for plan 816. Terminal delete's Start moves in slice 5.
 
 A consumer asks for an existing session → it gets a listed, recorded
 session without a launch, named as the launch names it. Add the MakeMe step
@@ -185,6 +208,13 @@ reach. Slices 2–7 apply one rule: compose when the launch is a
 precondition. The open question is how many E2E files are launch consumers
 after all. Execution answers it by moving those files to plan 816, so it
 does not affect this plan's sizing.
+
+## Story obligations
+
+### G1. The terminal delete journey still starts a session on the board
+Reported: slice 1 — "The E2E terminal delete case keeps its direct Start precondition for this file's plan 817 receiving slice 5."
+Story clause: "Consumers whose observation starts after a session exists stop launching through the launch endpoint or Start."
+Disposition: receiving slice 5
 
 ## Verification and delivery
 

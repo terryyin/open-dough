@@ -7,7 +7,7 @@ import {
   launch,
   refinementRequest,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import { sessionAttachmentEndpoint } from "../../src/agentTerminal.ts";
 import {
   launchAttachmentEmpty,
@@ -51,7 +51,7 @@ function attachmentUrl(
 test("session upload enforces origin, known session, image type and bounded body before writing", async ({
   dashboard,
 }) => {
-  const { sessionId } = await launched(dashboard);
+  const { sessionId } = await composeSession(dashboard);
   const url = attachmentUrl(dashboard, sessionId);
   const requests = [
     { url, method: "GET", status: 405, error: "Only POST is accepted." },
@@ -137,7 +137,7 @@ test("an unavailable native session cannot store a pasted image", async ({
 test("successful requests keep numbered images and a storage refusal keeps the existing file", async ({
   dashboard,
 }) => {
-  const { sessionId } = await launched(dashboard);
+  const { sessionId } = await composeSession(dashboard);
   const url = attachmentUrl(dashboard, sessionId);
   const upload = (image: Buffer, name: string) =>
     fetch(url, {
@@ -172,7 +172,7 @@ test("successful requests keep numbered images and a storage refusal keeps the e
   const blockingRecord = path.join(
     attachmentsRoot(dashboard),
     "claude",
-    (await launched(dashboard)).sessionId,
+    (await composeSession(dashboard)).sessionId,
   );
   writeFileSync(blockingRecord, "keep this existing file");
   const refused = await fetch(

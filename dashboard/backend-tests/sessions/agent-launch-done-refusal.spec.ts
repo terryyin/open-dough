@@ -11,9 +11,9 @@ import { expect, test } from "../../test-support/support/pageTest.ts";
 import { markDone, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
 import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
 import {
-  launched,
+  composeSession,
   withoutProjectFolder,
-  type LaunchedSession,
+  type RecordedSession,
 } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
@@ -27,7 +27,7 @@ test.describe("refusing a done request", () => {
   const listed = (shortId: string) =>
     server.claudeListing().find((each) => each["id"] === shortId);
 
-  const expectUnmarkedAndBusy = async (session: LaunchedSession) => {
+  const expectUnmarkedAndBusy = async (session: RecordedSession) => {
     const [record] = (await recordsOf(server, "open-dough")).filter(
       (each) =>
         (each as { session: { sessionId: string } }).session.sessionId ===
@@ -54,7 +54,7 @@ test.describe("refusing a done request", () => {
   });
 
   test("refuses a request for a session this dashboard did not record, or another project's, before running claude", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     for (const body of [
       {
         source: "open-dough",
@@ -73,7 +73,7 @@ test.describe("refusing a done request", () => {
   });
 
   test("refuses a request for a session whose execution checkout is missing, without stopping or running claude", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     const callsBefore = server.claudeCalls().length;
 
     const response = await withoutProjectFolder(server, "open-dough", () =>
@@ -107,7 +107,7 @@ test.describe("refusing a done request", () => {
     },
   ]) {
     test(`refuses a done request ${refused.request} before running claude`, async () => {
-      const session = await launched(server);
+      const session = await composeSession(server);
       const callsBefore = server.claudeCalls().length;
 
       const response = await markDone(

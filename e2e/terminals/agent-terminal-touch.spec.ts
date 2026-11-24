@@ -6,7 +6,7 @@ import {
 } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Ordinary page/xterm/WebSocket/PTY touch path; native stand-in supplies replies.
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
@@ -69,15 +69,18 @@ test.describe(`${name} terminal input`, () => {
   }) => {
     // Earlier sessions above it in Taken keep the Board scrolling behind the
     // covering panel, so the revealed card holds a real reading place (E3).
+    const now = Date.now();
     for (const earlier of [1, 2, 3]) {
-      await launched(dashboard, "open-dough", {
+      await composeSession(dashboard, "open-dough", {
         identity: `SEED-901#earlier-${String(earlier)}`,
         title: `Earlier session ${String(earlier)}`,
+        startedAt: now - (4 - earlier) * 1_000,
       });
     }
-    const native = await launched(dashboard, "open-dough", {
+    const native = await composeSession(dashboard, "open-dough", {
       identity: "SEED-901#continue-touch-terminal",
       title,
+      startedAt: now,
     });
     const opened = await openStoryColumnsJourney(page, journey);
     await opened.settled();
@@ -96,8 +99,7 @@ test.describe(`${name} terminal input`, () => {
       await expect(shownSessionId).toHaveCount(0);
       expect(attaches()).toHaveLength(count);
       expect(attaches().every(({ id }) => id === native.shortId)).toBe(true);
-      // The three earlier sessions and this one; nothing launches again.
-      expect(dashboard.claudeLaunchCalls()).toHaveLength(4);
+      expect(dashboard.claudeLaunchCalls()).toEqual([]);
       expect(dashboard.claudeStopCalls()).toEqual([]);
     };
     await expectTerminalText(panel, `attached ${native.shortId}`);

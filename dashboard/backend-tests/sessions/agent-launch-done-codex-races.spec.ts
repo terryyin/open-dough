@@ -1,7 +1,7 @@
 // Refusal/race substitutions supply vendor replies, never local done semantics.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   test,
   expect,
@@ -189,7 +189,7 @@ require(${JSON.stringify(fixturePath)});
 `,
     { mode: 0o755 },
   );
-  const session = await launched(dashboard);
+  const session = await composeSession(dashboard);
   // Idle between steps, so the rename succeeds and only the stop fails.
   dashboard.claudeSessionBecomes(session.sessionId, "working-idle");
   const response = await markDone(dashboard, {

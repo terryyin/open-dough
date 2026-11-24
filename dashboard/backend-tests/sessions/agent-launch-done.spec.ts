@@ -17,8 +17,6 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
-  launch,
-  launchRequest,
   markDone,
   openDoughFolder,
   recordsOf,
@@ -26,10 +24,10 @@ import {
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
   lastAttachEnded,
-  launched,
+  composeSession,
   openTerminal,
   shows,
-  type LaunchedSession,
+  type RecordedSession,
 } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
@@ -52,7 +50,7 @@ test.describe("marking a recorded session done", () => {
       doneRenameWaitMs: 3_000,
     });
 
-  const listed = (session: LaunchedSession) =>
+  const listed = (session: RecordedSession) =>
     server.claudeListing().find((each) => each["id"] === session.shortId);
 
   test.beforeAll(async () => {
@@ -66,7 +64,7 @@ test.describe("marking a recorded session done", () => {
   });
 
   test("renames the session through its open terminal, ends the attachment, stops the session, and keeps the mark across a restart", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     const terminal = await openTerminal(server, session);
     expect(await shows(terminal, "attached")).toBe(true);
     terminal.send({ input: "a leftover draft" });
@@ -117,19 +115,11 @@ test.describe("marking a recorded session done", () => {
   });
 
   test("types nothing into the open terminal of a session whose title holds a control character, keeping the done- name only in the record", async () => {
-    server.claudeScenario("launched");
     const escTitle = `${title} \u001b[2J`;
     const escName = `Open Dough · Execution · ${escTitle}`;
-    const launchedAnswer = await launch(server, {
-      ...launchRequest,
+    const session = await composeSession(server, "open-dough", {
       title: escTitle,
     });
-    expect(launchedAnswer.status).toBe(200);
-    const { session } = (
-      JSON.parse(launchedAnswer.body) as {
-        record: { session: LaunchedSession };
-      }
-    ).record;
     const terminal = await openTerminal(server, session);
     expect(await shows(terminal, "attached")).toBe(true);
     const stopsBefore = server.claudeStopCalls().length;
@@ -162,7 +152,7 @@ test.describe("marking a recorded session done", () => {
   });
 
   test("with no terminal open, renames through a private attachment it then hangs up, and still stops the session", async () => {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "working-idle");
     const attachesBefore = server.claudeAttaches().length;
     const stopsBefore = server.claudeStopCalls().length;

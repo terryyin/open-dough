@@ -9,7 +9,7 @@ import {
   expect,
   test as base,
 } from "../../dashboard/test-support/dashboardTest.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   expectTerminalText,
   insertTerminalText,
@@ -78,7 +78,7 @@ test.describe("phone terminal composer Insert without submit", () => {
     github,
     machine,
   }) => {
-    const native = await launched(dashboard, "open-dough", {
+    const native = await composeSession(dashboard, "open-dough", {
       identity: "SEED-901#phone-terminal-composer",
       title: composerTitle,
     });
