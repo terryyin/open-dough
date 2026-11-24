@@ -338,6 +338,8 @@ workflow file from `f5396f92c`. Local before and after selection assigned
 the same 651 files exactly once and moved only the two native comparison
 checks from shard 1 to shard 3. All 16 focused workflow and proof
 declaration checks passed. Hosted branch CI validates the new revision.
+The [repaired branch run](https://github.com/terryyin/open-dough/actions/runs/45388379941)
+passed at `e9699edc` and its observer shut down with all notices delivered.
 
 ## Execution complete
 
