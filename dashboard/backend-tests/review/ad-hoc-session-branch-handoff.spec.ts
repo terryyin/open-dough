@@ -116,9 +116,7 @@ test("the launch command binds the original checkout's own branch", async () => 
     .adHoc({ title: "Continue the draft", instruction: "Continue the draft" })
     .startingInExecutionCheckout({
       workspace: checkout.integration,
-      startingRevision: checkout.base,
       repository: checkout.gitDirectory,
-      branch: "refs/heads/main",
     })
     .inClaudeSession({ sessionId: "default-launch" })
     .launchedAt(at(60))

@@ -82,28 +82,12 @@ export const comparisonChoice = (
 export const comparisonLabel = (review: Locator, name: string) =>
   comparison(review).locator("label", { hasText: name });
 
-// The retained run chooser, whose keyboard protocol belongs to the scenario.
-// includeHidden reaches a picker still mounted behind a collapsed details
-// section or cleared from the panel entirely.
-export const landedRunChoice = (
-  review: Locator,
-  { includeHidden = false }: { includeHidden?: boolean } = {},
-) => review.getByRole("listbox", { name: "Landed run", includeHidden });
-
 // The comparison switch says the one comparison shown.
 export async function expectShown(review: Locator, shown: string) {
   const choices = comparison(review);
   await expect(comparisonChoice(review, shown)).toBeChecked();
   await expect(choices.getByRole("radio", { checked: true })).toHaveCount(1);
 }
-
-// The check that controls whether All changes includes uncommitted changes.
-export const uncommittedCheck = (review: Locator) =>
-  review.getByRole("checkbox", { name: "Include uncommitted changes" });
-
-// The visible label is the touch tap target for that check.
-export const uncommittedLabel = (review: Locator) =>
-  review.locator("label", { hasText: "Include uncommitted changes" });
 
 // Refresh can be pressed without waiting for the read it starts.
 export const reviewRefresh = (

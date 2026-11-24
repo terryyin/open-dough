@@ -5,8 +5,8 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
-import { queuedIdentity } from "./startOrigin.ts";
-import { branch } from "./storyReviewWorktree.ts";
+import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
+import { branch, commitAll, git } from "./storyReviewWorktree.ts";
 
 // Story A's execution in the session given, as one the synthetic `claude`
 // lists; callers state what its start established.
@@ -32,3 +32,47 @@ export const keepLaunchRecord = (
 ) => {
   keepLaunchRecords(dashboard, [storyALaunchRecord(workspace)]);
 };
+
+// Make the fixture changes an accepted origin pair before offering their review.
+export function keepPublishedStoryReview(
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+  workspace: string,
+  story = { identity: queuedIdentity, title: "Story A" },
+) {
+  const onStoryA = story.identity === queuedIdentity;
+  const reference = onStoryA
+    ? "88888888-8888-4888-8888-888888888888"
+    : "99999999-9999-4999-8999-999999999999";
+  if (git(workspace, "status", "--porcelain") !== "")
+    commitAll(workspace, "Publish the review files");
+  git(workspace, "fetch", "--quiet", "origin", "main");
+  const base = git(workspace, "rev-parse", "origin/main");
+  git(workspace, "merge", "--quiet", "--no-edit", base);
+  const revision = git(workspace, "rev-parse", "HEAD");
+  git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
+  const record = makeMe.aLaunchRecord
+    .executing(story)
+    .inClaudeSession({
+      sessionId: onStoryA ? "story-a-session" : "story-b-session",
+    })
+    .onStoryBranch({
+      workspace,
+      branch: git(workspace, "branch", "--show-current"),
+    })
+    .reportingThrough({
+      reference,
+      origin: "http://127.0.0.1:1",
+      command: "report-completion",
+    })
+    .withLanding(
+      makeMe.aLaunchLanding
+        .capturedFrom({ repository: origin.origin, identity: story.identity })
+        .forLaunch(reference)
+        .comparing({ base, revision })
+        .please(),
+    )
+    .please();
+  keepLaunchRecords(dashboard, [record]);
+  return { base, revision, reference, record };
+}

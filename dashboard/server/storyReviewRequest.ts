@@ -1,7 +1,6 @@
 // The review read's adapter: the query's exact shape becomes one typed read.
 // Refusals of that shape answer here; the kept records decide the rest in the
-// handler (`storyReview` in `./storyReviewSnapshot.ts`).
-import { sessionComparisonKeySchema } from "../src/sessionReviewComparisons.ts";
+// handler (`storyReview` in `./storyReview.ts`).
 import type {
   PublishedSessionReviewRead,
   SessionReviewRead,
@@ -32,7 +31,7 @@ function sessionReviewRead(url: URL): SessionReviewRead {
     ["source", "host", "session", ...(named === null ? [] : ["run"])],
     "review",
   );
-  if (named !== null && !sessionComparisonKeySchema.safeParse(named).success)
+  if (named !== null && !/^(0|[1-9]\d*)$/.test(named))
     throw new RefusedRequest(400, "The review run is malformed.");
   return {
     subject: queriedSessionSubject(url),
@@ -46,6 +45,7 @@ function identityReviewRead(
   const reference = url.searchParams.get("reference");
   const run = url.searchParams.get("run");
   const completed = url.searchParams.get("completed");
+  const taken = url.searchParams.get("taken");
   const historical = url.searchParams.get("historical");
   requireExactQuery(
     url,
@@ -55,10 +55,19 @@ function identityReviewRead(
       ...(reference === null ? [] : ["reference"]),
       ...(run === null ? [] : ["run"]),
       ...(completed === null ? [] : ["completed"]),
+      ...(taken === null ? [] : ["taken"]),
       ...(historical === null ? [] : ["historical"]),
     ],
     "review",
   );
+  if (
+    taken !== null &&
+    (taken !== "true" ||
+      completed !== null ||
+      reference !== null ||
+      run !== null)
+  )
+    throw new RefusedRequest(400, "The Taken review request is malformed.");
   if (completed !== null && completed !== "true")
     throw new RefusedRequest(400, "The completed review request is malformed.");
   if (historical !== null && (historical !== "true" || completed !== "true"))
@@ -74,6 +83,7 @@ function identityReviewRead(
     ...(reference === null ? {} : { reference }),
     ...(run === null ? {} : { run }),
     ...(completed === null ? {} : { completed: true }),
+    ...(taken === null ? {} : { taken: true }),
     ...(historical === null ? {} : { historical: true }),
   };
 }

@@ -27,7 +27,7 @@ import {
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
-import { storyALaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+import { keepPublishedStoryReview } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import {
   branch,
   storyWorktree,
@@ -71,16 +71,18 @@ test("a delayed card opening cannot choose a file for the next story", async ({
   dashboard,
   origin,
 }) => {
-  keepLaunchRecords(dashboard, [
-    storyALaunchRecord(storyWorktree(origin).workspace),
-    makeMe.aLaunchRecord
-      .executing(storyB)
-      .onStoryBranch({
-        workspace: path.join(origin.project, ".worktrees", "story-b"),
-        branch: storyBBranch,
-      })
-      .please(),
-  ]);
+  const firstPair = keepPublishedStoryReview(
+    dashboard,
+    origin,
+    storyWorktree(origin).workspace,
+  );
+  const secondPair = keepPublishedStoryReview(
+    dashboard,
+    origin,
+    path.join(origin.project, ".worktrees", "story-b"),
+    storyB,
+  );
+  keepLaunchRecords(dashboard, [firstPair.record, secondPair.record]);
   const a = await openBacklog(page, origin);
   const { backlog, development, intent } = parts(page);
   const b = backlog.getByRole("article", { name: storyB.title, exact: true });
@@ -100,8 +102,8 @@ test("a delayed card opening cannot choose a file for the next story", async ({
     await expectStoryTab(intent, "Changes");
     await expect(storyTab(intent, "Changes")).toBeFocused();
     const answer = storyReviewSchema.parse(await (await first.reached).json());
-    expect(answer.kind).toBe("snapshot");
-    if (answer.kind === "snapshot")
+    expect(answer.kind).toBe("landed");
+    if (answer.kind === "landed")
       expect(answer.files.map(({ path }) => path)).toEqual([
         "a-first.txt",
         "a-kept.txt",
@@ -135,9 +137,7 @@ test("choosing a file while the card's comparison is reading keeps that file", a
   dashboard,
   origin,
 }) => {
-  keepLaunchRecords(dashboard, [
-    storyALaunchRecord(storyWorktree(origin).workspace),
-  ]);
+  keepPublishedStoryReview(dashboard, origin, storyWorktree(origin).workspace);
   const card = await openBacklog(page, origin);
   const { intent } = parts(page);
   const files = intentReviewFiles(intent);

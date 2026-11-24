@@ -67,6 +67,18 @@ test("review requests the boundary does not admit are refused and nothing runs",
       "The historical review request is malformed.",
     ],
     [
+      review,
+      { ...story, taken: "true", completed: "true" },
+      400,
+      "The Taken review request is malformed.",
+    ],
+    [
+      diff,
+      { ...fileDiff, publishedHead: "HEAD" },
+      400,
+      "The published branch head is malformed.",
+    ],
+    [
       diff,
       { ...fileDiff, baseline: `--output=${written}` },
       400,
@@ -80,6 +92,7 @@ test("review requests the boundary does not admit are refused and nothing runs",
       400,
       "The file diff request is malformed.",
     ],
+    [diff, fileDiff, 400, "The file diff must name a published comparison."],
   ] as const) {
     const response = await getReview(request, dashboard, endpoint, query);
     expect(response.status(), new URLSearchParams(query).toString()).toBe(

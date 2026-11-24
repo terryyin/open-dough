@@ -8,7 +8,6 @@ import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
 import { pathLanguage } from "./sourceHighlight.ts";
 import { FileDiff } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
-import { comparisonWords } from "./StoryReviewComparison.tsx";
 import { StoryNoteComparison } from "./StoryDiffNote.tsx";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
 
@@ -32,7 +31,7 @@ export function IntentComparedFile({
   );
   const settingsRevision =
     pathLanguage(file.path) === undefined
-      ? (reviewed.completion ?? tree)
+      ? (reviewed.completion ?? reviewed.publishedHead ?? tree)
       : undefined;
   const pinnedSyntax = useReviewDiffSyntaxHint(
     source,
@@ -40,9 +39,8 @@ export function IntentComparedFile({
     file.path,
   );
   const syntax = pinnedSyntax ?? syntaxHint;
-  const name = comparisonWords[story.workspaceComparison ?? "all"];
   return (
-    <StoryNoteComparison.Provider value={name}>
+    <StoryNoteComparison.Provider value="All changes">
       <div className="intent-story-diff">
         <ReviewedFileHeader
           reviewed={reviewed}

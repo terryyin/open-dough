@@ -20,8 +20,6 @@ export const sessionBranchEntrySchema = z.object({
   workspace: z.string().min(1),
   branch: z.string().min(1),
   committedTip: commitIdSchema,
-  tree: commitIdSchema,
-  defaultTip: commitIdSchema.optional(),
   trunk: branchTrunkSchema.optional(),
 });
 export type SessionBranchEntry = z.infer<typeof sessionBranchEntrySchema>;
@@ -29,10 +27,7 @@ export type SessionBranchEntry = z.infer<typeof sessionBranchEntrySchema>;
 export const sessionBranchResultSchema = z.object({
   repository: z.string().min(1),
   doneAt: z.iso.datetime(),
-  base: commitIdSchema,
-  revision: commitIdSchema,
   committedTip: commitIdSchema,
-  attributionGap: z.string().min(1).optional(),
   manualDeliveryChecked: z.literal(true).optional(),
 });
 export type SessionBranchResult = z.infer<typeof sessionBranchResultSchema>;

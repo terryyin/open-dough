@@ -1,24 +1,11 @@
-// Compares two points of a story review by restating the from tree on the
-// to baseline when they differ, leaving trunk's intervening changes out.
-// Inseparable files are compared from the original from tree, or from the
-// to baseline when kept as they were. The comparison's paths, counts and
-// file diffs therefore all describe the same observation. All changes lists
-// a Trunk Mode story's inseparable files through the same listing
-// (`./storyPublishedCommits.ts`). Missing from
-// objects and unsupported restatement remain distinct; aborted responses
-// and Git failures outside restatement belong to the caller.
-// A selected range can also supply the listed points of its integrations:
-// their inseparable paths survive even if the outer from tree predates the
-// story edit or the resolution restores that tree's original content.
-
+// Shared listing and restatement for published changes and recorded pairs.
 import {
   type ReviewComparison,
   type ReviewedFile,
-  type ReviewIntegration,
 } from "../src/storyReviewContract.ts";
 import { gitExitedOne, runGit, type GitCall } from "./gitRunner.ts";
 import { mergeTreeOutput } from "./mergeTreeOutput.ts";
-import { reviewPointObjects, type ReviewPoint } from "./storyReviewPoints.ts";
+import type { ReviewPoint } from "./storyReviewPoints.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
 
 export async function compareOriginalTrees(
@@ -27,19 +14,6 @@ export async function compareOriginalTrees(
   call: GitCall,
 ): Promise<ReviewComparison> {
   return { from, files: await changedFrom(from, tree, call) };
-}
-
-// Whether the repository holds the point's tree and baseline commit.
-async function holdsPoint(point: ReviewPoint, call: GitCall) {
-  try {
-    for (const object of reviewPointObjects(point)) {
-      await runGit(["rev-parse", "--verify", "--quiet", object], call);
-    }
-    return true;
-  } catch (error) {
-    if (gitExitedOne(error)) return false;
-    throw error;
-  }
 }
 
 // The from tree restated on the to baseline, and the paths Git could not
@@ -137,86 +111,4 @@ export async function listedFrom(
     ...restated.filter((file) => !touches(file, listed)),
     ...flagged.values(),
   ].sort(byPath);
-}
-
-// The range comparison, or why the from point cannot be compared.
-export async function compareReviewPoints(
-  from: ReviewPoint,
-  to: ReviewPoint,
-  call: GitCall,
-  integrations: readonly ReviewIntegration[],
-): Promise<
-  | { readonly kind: "comparison"; readonly comparison: ReviewComparison }
-  | {
-      readonly kind: "uncomparable";
-      readonly reason: "unreadable" | "not-restated";
-    }
-> {
-  if (!(await holdsPoint(from, call)))
-    return { kind: "uncomparable", reason: "unreadable" };
-  // A cumulative branch starts with trunk's own tree. Restating it there
-  // leaves the destination baseline itself; integrations can still conflict.
-  const restatement =
-    from.tree === from.baseline
-      ? { tree: to.baseline, inseparable: new Set<string>() }
-      : await restatedPoint(from, to.baseline, call);
-  if (restatement === undefined)
-    return { kind: "uncomparable", reason: "not-restated" };
-  const { tree, inseparable } = restatement;
-  for (const integration of integrations) {
-    if (
-      !(await holdsPoint(
-        { tree: integration.fromTree, baseline: integration.fromBaseline },
-        call,
-      )) ||
-      !(await holdsPoint(
-        { tree: integration.fromTree, baseline: integration.baseline },
-        call,
-      ))
-    ) {
-      return { kind: "uncomparable", reason: "unreadable" };
-    }
-    const same =
-      integration.fromTree === from.tree &&
-      integration.fromBaseline === from.baseline &&
-      integration.baseline === to.baseline;
-    const integrated = same
-      ? restatement
-      : await restatedPoint(
-          { tree: integration.fromTree, baseline: integration.fromBaseline },
-          integration.baseline,
-          call,
-        );
-    if (integrated === undefined) {
-      return { kind: "uncomparable", reason: "not-restated" };
-    }
-    const conflicts = new Set(integrated.inseparable);
-    for (const conflict of conflicts) {
-      inseparable.add(conflict);
-    }
-    if (conflicts.size > 0) {
-      for (const target of [from.tree, to.tree]) {
-        const files = await changedFrom(integration.fromTree, target, call);
-        for (const file of files) {
-          if (file.kind === "renamed" && touches(file, conflicts)) {
-            inseparable.add(file.oldPath);
-            inseparable.add(file.path);
-          }
-        }
-      }
-    }
-  }
-  return {
-    kind: "comparison",
-    comparison: {
-      from: tree,
-      files: await listedFrom(
-        tree,
-        to.tree,
-        new Map([...inseparable].map((file) => [file, from.tree])),
-        to.baseline,
-        call,
-      ),
-    },
-  };
 }

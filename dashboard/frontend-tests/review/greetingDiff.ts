@@ -51,7 +51,10 @@ export async function openGreetingReview(fileText: ReviewSource["fileText"]) {
     reviewSourceAnswering({
       review: () =>
         Promise.resolve(
-          makeMe.aStoryReview.sessionCommits().modifying(greetingPath).please(),
+          makeMe.aStoryReview
+            .publishedSession()
+            .modifying(greetingPath)
+            .please(),
         ),
       fileDiff: () => Promise.resolve(greetDiff(greetingPath)),
       fileText,

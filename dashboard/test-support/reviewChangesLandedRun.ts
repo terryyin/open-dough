@@ -6,7 +6,7 @@
 // supplies the run keys, revisions and words. Choosing waits for no read.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { landedRunChoice } from "./support/reviewControls.ts";
+import { comparison } from "./support/reviewControls.ts";
 
 export class ReviewLandedRun {
   readonly #review: Locator;
@@ -59,64 +59,70 @@ export class ReviewLandedRun {
     return this;
   }
 
-  // The picker offers exactly these runs, by key, in order.
+  #choices() {
+    return comparison(this.#review).locator(
+      "input[type=radio]:not([value=published])",
+    );
+  }
+
+  #choice(key: string) {
+    return this.#choices().and(
+      this.#review.locator(`input[value=${JSON.stringify(key)}]`),
+    );
+  }
+
   async expectRunKeys(keys: readonly string[]) {
     await this.#reveal();
-    expect(
-      await landedRunChoice(this.#review)
-        .locator("option")
-        .evaluateAll((options) =>
-          options.map((option) => option.getAttribute("value")),
+    await expect
+      .poll(() =>
+        this.#choices().evaluateAll((choices) =>
+          choices.map((choice) => choice.getAttribute("value")),
         ),
-    ).toEqual(keys);
+      )
+      .toEqual(keys);
     return this;
   }
 
   async expectRunCount(count: number) {
     await this.#reveal();
-    await expect(landedRunChoice(this.#review).locator("option")).toHaveCount(
-      count,
-    );
+    await expect(this.#choices()).toHaveCount(count);
     return this;
   }
 
-  #picker(includeHidden = false) {
-    return landedRunChoice(this.#review, { includeHidden });
-  }
-
-  async choose(key: string) {
+  async choose(key: string, using: "mouse" | "keyboard" = "mouse") {
     await this.#reveal();
-    await this.#picker().selectOption(key);
+    const choice = this.#choice(key);
+    if (using === "keyboard") await choice.press("Space");
+    else await choice.click();
     return this;
   }
 
-  // Focuses the picker, then presses `keys` in order with the keyboard.
-  async press(...keys: readonly string[]) {
+  async chooseLatest() {
     await this.#reveal();
-    const picker = this.#picker();
-    await picker.focus();
-    for (const key of keys) await picker.press(key);
+    await this.#choices().first().check();
     return this;
   }
 
-  // The picker shows `key`, and when given, these options in order.
+  async expectOffered() {
+    await this.#reveal();
+    await expect(this.#choices().first()).toBeVisible();
+    return this;
+  }
+
   async expectChosen(key: string, options?: readonly (string | RegExp)[]) {
     await this.#reveal();
-    await expect(this.#picker()).toHaveValue(key);
-    if (options) await this.expectOptions(options);
-    return this;
-  }
-
-  // The options the picker lists, in order, whichever is chosen.
-  async expectOptions(options: readonly (string | RegExp)[]) {
-    await this.#reveal();
-    await expect(this.#picker().getByRole("option")).toHaveText(options);
-    return this;
-  }
-
-  // No run picker, not even one mounted behind collapsed details.
-  async expectNoPicker() {
-    await expect(this.#picker(true)).toHaveCount(0);
+    await expect(this.#choice(key)).toBeChecked();
+    if (options) {
+      await expect(
+        comparison(this.#review)
+          .locator("label")
+          .filter({
+            has: this.#review
+              .page()
+              .locator("input[type=radio]:not([value=published])"),
+          }),
+      ).toHaveText([...options]);
+    }
     return this;
   }
 }

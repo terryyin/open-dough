@@ -32,33 +32,12 @@ import { useProjects } from "./projectList.tsx";
 import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
 import { StoryReviewWorkarea } from "./StoryReviewWorkarea.tsx";
 
-// What the review says in place of the browser when the comparison shown
-// lists no files.
-function NoChanges({
-  sessionCommits,
-  branchResult,
-}: {
-  readonly sessionCommits: boolean;
-  readonly branchResult: boolean;
-}) {
-  if (branchResult)
-    return <p>No changes: the branch at Done matches its starting revision.</p>;
-  return (
-    <p>
-      {sessionCommits
-        ? "No changes: these session commits leave no difference."
-        : "No changes: this session's delivered comparison is empty."}
-    </p>
-  );
-}
-
 export function SnapshotView({
   reviewed,
   comparison,
   headingId,
   browser,
   tree: comparedTree,
-  branchResult = false,
   settingsRevision,
 }: {
   readonly reviewed: ReviewedWork;
@@ -66,7 +45,6 @@ export function SnapshotView({
   readonly headingId: string;
   readonly browser: FileBrowserPlace;
   readonly tree: string;
-  readonly branchResult?: boolean;
   // Intent locations revision for path-grammar fallback (`./reviewDiffSyntaxHint.ts`).
   readonly settingsRevision?: string;
 }) {
@@ -121,10 +99,7 @@ export function SnapshotView({
   const { id: browserId } = browser;
   const diffHeadingId = `${headingId}-diff`;
   return selected === undefined ? (
-    <NoChanges
-      sessionCommits={reviewed.reference === undefined}
-      branchResult={branchResult}
-    />
+    <p>No changes: this published comparison is empty.</p>
   ) : (
     <StoryReviewWorkarea
       sidebarShown={browser.shown}

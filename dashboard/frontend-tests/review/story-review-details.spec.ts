@@ -1,11 +1,8 @@
-// Details and their focus behavior in a retained Execution checkout session review.
+// Details and their focus behavior in a published session review.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
-import {
-  frontendReviewIds,
-  frontendSessionCommitsReview,
-} from "../../test-support/support/frontendStoryReview.ts";
+import { frontendReviewIds } from "../../test-support/support/frontendStoryReview.ts";
 import {
   adHocSession,
   mountReviewChanges,
@@ -13,38 +10,27 @@ import {
 } from "./story-review-panel-page.ts";
 
 const { baseline, tree, head, commit } = frontendReviewIds;
-const doneAt = "2026-01-02T12:00:00.000Z";
-const record = makeMe.aLaunchRecord
-  .adHoc({ title: "Interrupted Main session" })
-  .launchedAt("2026-01-02T10:00:00.000Z")
-  .keptSessionCommits({
-    repository: "/tmp/default-main/.git",
-    runs: [
-      { base: baseline, revision: tree },
-      { base: head, revision: commit },
-    ],
-  })
-  .markedDoneAt(doneAt)
-  .please();
 const opened = makeMe.aStoryReview
-  .sessionCommits()
+  .publishedSession()
   .adding("first.txt")
   .adding("second.txt")
   .adding("third.txt")
   .please();
 const picked = makeMe.aStoryReview
-  .sessionCommits()
+  .publishedSession()
   .adding("fourth.txt")
   .please();
-if (opened.kind !== "session-commits" || picked.kind !== "session-commits")
-  throw new Error("The mounted fixture requires session commits.");
-const facts = [
-  { commits: 1, subject: "First run", committedAt: doneAt },
-  { commits: 2, subject: "Second run", committedAt: doneAt },
-];
-const firstRun = frontendSessionCommitsReview(record, opened.files, 0, facts);
-const secondRun = frontendSessionCommitsReview(record, picked.files, 1, facts);
-const secondRunLabel = `2 commits — Second run — ${new Date(doneAt).toLocaleString()}`;
+if (opened.kind !== "published-session" || picked.kind !== "published-session")
+  throw new Error("The mounted fixture requires published session records.");
+const firstRun = { ...opened, baseline, tree, ranges: 2, selectedRun: "0" };
+const secondRun = {
+  ...picked,
+  baseline: head,
+  tree: commit,
+  ranges: 2,
+  selectedRun: "1",
+};
+const secondRunLabel = "Published range 2 of 2";
 const linesOf: Record<string, string[]> = {
   "first.txt": ["alpha"],
   "second.txt": Array.from({ length: 300 }, (...[, at]) => `second ${at}`),
@@ -74,7 +60,7 @@ test("a session review opens on the diff and keeps its place while the eye revea
   await review.expectListed("3 changed files");
   await review.expectDiffShows(first, "+alpha");
   await review.expectDetailsCollapsed();
-  await review.expectFilesToggleLeads("Session commits");
+  await review.expectFilesToggleLeads("Published changes");
   await review.expectEyeBesideComparison();
 
   // The second file, its diff scrolled.
@@ -85,13 +71,13 @@ test("a session review opens on the diff and keeps its place while the eye revea
 
   await review.revealDetails();
   await review.expectEyeBesideComparison("Hide review details");
-  await review.expectDetailsSay("Commits made in the execution checkout");
+  await review.expectDetailsSay("Published changes of this session");
   await review.expectDetailsSay(`From ${baseline} to ${tree}.`);
   await review.expectSelected(second);
   expect(review.codeScrollTop(second)).toBe(readingAt);
 
   await review.hideDetails();
-  await review.expectComparisonNamed("Session commits");
+  await review.expectComparisonNamed("Published changes");
   await review.expectSelected(second);
   expect(review.codeScrollTop(second)).toBe(readingAt);
 
@@ -119,7 +105,7 @@ test("the chosen session run survives Refresh and Escape returns focus to the ey
   await review.expectComparisonChosen(secondRunLabel);
 
   await review.escapeFromComparison(secondRunLabel);
-  await review.expectComparisonNamed("Session commits");
+  await review.expectComparisonNamed("Published changes");
   await review.expectDiffShows("Added fourth.txt", "+delta");
 });
 

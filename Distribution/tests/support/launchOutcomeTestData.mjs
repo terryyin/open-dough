@@ -154,14 +154,12 @@ export class LaunchOutcomeBuilder extends LaunchDoneCaptureBuilder {
       workspace: branch,
       branch,
       committedTip: base,
-      tree: base,
       trunk: { remote, target: "refs/heads/main", revision: base },
     })
       .markedDone()
       .branchResultFrom({
         repository,
-        base,
-        revision,
+        committedTip: revision,
         manualDeliveryChecked: true,
       });
   }

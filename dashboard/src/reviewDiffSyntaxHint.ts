@@ -18,11 +18,10 @@ import type { StoryReview } from "./storyReviewContract.ts";
 // Settings revision that pins Intent locations for language fallback.
 export function reviewIntentSettingsRevision(
   review: StoryReview | undefined,
-  tree: string | undefined,
 ): string | undefined {
   if (review?.kind === "published") return review.completion;
+  if (review?.kind === "published-taken") return review.head;
   if (review?.kind === "landed") return review.landing.revision;
-  if (review?.kind === "snapshot") return tree;
   return undefined;
 }
 

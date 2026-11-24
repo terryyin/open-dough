@@ -50,7 +50,6 @@ export type LaunchBuilder = ReturnType<typeof makeMe.aLaunchRecord.adHoc>;
 export type CaseFacts<Work extends string> = {
   at: typeof minutesAgo;
   checkout: Checkout;
-  baseTree: string;
   worktrees: Readonly<Record<string, string>>;
   work: Record<Work, string>;
 };
@@ -117,7 +116,6 @@ export async function materialize<
       refine?.(recipe, {
         at: minutesAgo,
         checkout,
-        baseTree: places.baseTree,
         worktrees,
         work,
       }) ?? recipe;
@@ -134,7 +132,6 @@ export async function materialize<
     published,
     at: minutesAgo,
     checkout,
-    baseTree: places.baseTree,
     worktrees,
     work,
     records,

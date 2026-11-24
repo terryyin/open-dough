@@ -118,8 +118,9 @@ test("file Proof keeps unchanged counts, precise times and source cues", async (
 });
 
 test("file Proof keeps owning merge modified counts, precise times and source cues", async () => {
-  const edit = makeMe.aStoryReview.modifying(mergeEditedFile).pleaseRange();
-  if (edit.kind !== "comparison") throw new Error("Arrange the owning merge");
+  const edit = makeMe.aStoryReview.modifying(mergeEditedFile).please();
+  if (edit.kind !== "published-taken")
+    throw new Error("Arrange the owning merge");
   const story = makeMe.aComparedStory
     .inSummaryScope()
     .withChanged(...edit.files)

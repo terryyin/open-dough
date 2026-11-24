@@ -26,7 +26,6 @@ import { ClaudeListingRowBuilder } from "./claudeListingTestData.mjs";
 import { CursorCliConfigBuilder } from "./cursorCliConfigTestData.mjs";
 import { runningCursorSessionsMakeMeProperties } from "./runningCursorSessionsTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
-import { SessionReviewReadBuilder } from "./sessionReviewTestData.mjs";
 
 /** @typedef {import("../../../dashboard/server/startStore.ts").StartRecord} StartRecord */
 /** @typedef {import("../../../dashboard/src/hostStatus.ts").HostStatus} HostStatus */
@@ -60,7 +59,6 @@ import { SessionReviewReadBuilder } from "./sessionReviewTestData.mjs";
  * @property {import("./launchReportingAttemptTestData.mjs").ReportingAttemptBuilder} anAcceptedAttempt
  * @property {import("./launchAttemptObservationTestData.mjs").AttemptObservationBuilder} anAttemptObservation
  * @property {import("./machineAnswerTestData.mjs").MachineAnswerBuilder} aMachineAnswer
- * @property {import("./sessionReviewTestData.mjs").SessionReviewReadBuilder} aSessionReviewRead
  */
 
 /** @returns {PropertyDescriptorMap} */
@@ -187,12 +185,6 @@ export function launchMakeMeProperties() {
       enumerable: true,
       get() {
         return new MachineAnswerBuilder();
-      },
-    },
-    aSessionReviewRead: {
-      enumerable: true,
-      get() {
-        return new SessionReviewReadBuilder();
       },
     },
   };

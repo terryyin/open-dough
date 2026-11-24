@@ -1,16 +1,14 @@
 // The review details as a reader meets them: an inline section between the
 // review's toolbar and its work area that the toolbar's eye reveals and
-// hides. Collapsed, none of the comparison choices, the run picker, the
-// context of the comparison shown or the uncommitted check is offered.
+// hides. Collapsed, its comparison choices and run picker are hidden.
 import { expect, type Locator } from "@playwright/test";
 import { box } from "../pageLayout.ts";
 import {
   detailsToggle,
   reviewToolbar,
   toolbarComparison,
-  uncommittedCheck,
 } from "./reviewControls.ts";
-import { contextLine, reviewBody } from "./reviewContextLine.ts";
+import { reviewBody } from "./reviewContextLine.ts";
 
 // The section the eye says it controls, shown or not.
 async function controlledSection(review: Locator) {
@@ -29,8 +27,6 @@ export async function expectDetailsCollapsed(review: Locator) {
   await expect(section).toBeHidden();
   await expect(review.getByRole("radio")).toHaveCount(0);
   await expect(review.getByRole("listbox")).toHaveCount(0);
-  await expect(uncommittedCheck(review)).toHaveCount(0);
-  await expect(contextLine(review)).toBeHidden();
   await expect(
     review.getByRole("heading", { name: "Landed run", exact: true }),
   ).toHaveCount(0);

@@ -32,7 +32,6 @@ export const reviewSourceAnswering = (
   reads: Partial<ReviewSource>,
 ): ReviewSource => ({
   review: unanswered,
-  range: unanswered,
   fileDiff: unanswered,
   fileText: unanswered,
   ...reads,

@@ -7,7 +7,6 @@
 
 import { expect, type Page } from "@playwright/test";
 import {
-  contextLine,
   fileBrowser,
   reviewBody,
   reviewFeedback,
@@ -71,7 +70,6 @@ export class ReviewFrame {
       panel: review,
       header: review.locator(".side-panel-header"),
       top: review.locator(".story-review-top"),
-      contextLine: contextLine(review),
       details: review.getByRole("group", { name: "Review details" }),
       feedback: reviewFeedback(review),
       body: reviewBody(review),

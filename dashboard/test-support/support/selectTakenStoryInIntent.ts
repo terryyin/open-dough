@@ -1,9 +1,7 @@
 // Story A, or `story` as the Take names it, taken in Story Branch Mode by
-// Yui's declared Take, its worktree changing the tests Intent publishes, or
-// as `change` changes it; its Taken card selected by an empty-area click, and
+// Yui's declared Take and the changes published to its assigned branch; its Taken card selected by an empty-area click, and
 // Intent shown. Intent opens the story at its CI comparison; this then
-// chooses Changes, which the journeys read. The baseline is the claim,
-// where the worktree meets trunk; the head is the worktree's last commit.
+// chooses Changes, which the journeys read. The baseline is the claim tree.
 // What those journeys then read of Intent: ./intentStoryPage.ts.
 
 import { expect, type Page } from "@playwright/test";
@@ -21,7 +19,7 @@ import {
 import { expectStoryComparisonRead } from "./intentStoryPage.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { git } from "./storyReviewWorktree.ts";
+import { commitAll, git } from "./storyReviewWorktree.ts";
 
 export async function selectTakenStoryInIntent(
   page: Page,
@@ -32,13 +30,16 @@ export async function selectTakenStoryInIntent(
   story = storyA,
 ) {
   publishIntentTrunk(origin.project);
-  const { workspace } = await origin.publishTake({
+  const { workspace, branch, claim } = await origin.publishTake({
     agent: "Yui",
     story,
     queued: [storyB],
     mode: "story-branch",
   });
   change(workspace);
+  if (git(workspace, "status", "--porcelain") !== "")
+    commitAll(workspace, "add the remaining story files");
+  git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
   await openBacklog(page, origin, follows);
   const { taken, intentChoice, intent } = parts(page);
   const card = taken.getByRole("article", { name: story.title });
@@ -53,7 +54,7 @@ export async function selectTakenStoryInIntent(
     card,
     intent,
     workspace,
-    baseline: (await origin.originGit("rev-parse", "main")).trim(),
+    baseline: git(workspace, "rev-parse", `${claim}^{tree}`),
     head: git(workspace, "rev-parse", "HEAD"),
   };
 }

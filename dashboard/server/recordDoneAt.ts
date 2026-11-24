@@ -1,7 +1,6 @@
-// Owns the durable Done mark and starts evidence capture for a new mark.
+// Owns the durable Done mark and retains any branch delivery evidence.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
-import { keptWithDoneCapture } from "./doneCapture.ts";
 import {
   type DoneTransitionOptions,
   doneTransition,
@@ -39,7 +38,7 @@ export async function setRecordDoneAt(
     doneAt !== undefined && !finishing
       ? await keptSession(sourceId, session, store)
       : undefined;
-  const marked = await withBranchResultAtDone(
+  return withBranchResultAtDone(
     candidate,
     finishing ? undefined : doneAt,
     (settle) =>
@@ -63,7 +62,4 @@ export async function setRecordDoneAt(
       ),
     capture,
   );
-  if (doneAt === undefined || marked?.doneAt !== doneAt || finishing)
-    return marked;
-  return keptWithDoneCapture(sourceId, marked, store);
 }

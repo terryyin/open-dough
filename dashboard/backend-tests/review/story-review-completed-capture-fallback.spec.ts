@@ -34,7 +34,7 @@ for (const invalid of [
   "already completed base",
   "shallow result",
 ] as const)
-  test(`a historical default rejects a capture with ${invalid} while its explicit run stays readable`, async ({
+  test(`a historical default rejects a capture with ${invalid} and never uses its capture repository to verify the explicit landing`, async ({
     request,
     dashboard,
     origin,
@@ -130,13 +130,12 @@ for (const invalid of [
       ).json(),
     );
     expect(explicit).toMatchObject({
-      kind: "landed",
-      tree: accepted,
+      kind: "landing-unavailable",
       selectedRun: story.reporting.reference,
     });
   });
 
-test("an earlier refinement remains an explicit choice but cannot replace unavailable completion history", async ({
+test("a shallow origin cannot verify an earlier refinement or replace unavailable completion history", async ({
   request,
   dashboard,
   origin,
@@ -181,14 +180,7 @@ test("an earlier refinement remains an explicit choice but cannot replace unavai
     ).json(),
   );
   expect(explicit).toMatchObject({
-    kind: "landed",
-    tree: refinement.receipt.revision,
+    kind: "landing-unavailable",
     selectedRun: refinement.key,
-    landing: { workflow: "refinement" },
   });
-  if (explicit.kind !== "landed")
-    throw new Error("Missing explicit refinement");
-  expect(explicit.files).toContainEqual(
-    expect.objectContaining({ kind: "added", path: "earlier-refinement.txt" }),
-  );
 });

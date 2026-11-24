@@ -164,10 +164,7 @@ export async function unattachedStarted(
           ...(result.role === "default-checkout" &&
           result.startingRevision !== undefined
             ? {
-                defaultStart: await executionCheckoutStart(
-                  result.workspace,
-                  result.startingRevision,
-                ),
+                defaultStart: await executionCheckoutStart(result.workspace),
               }
             : {}),
           ...(repository === undefined

@@ -1,7 +1,3 @@
-import {
-  storyA,
-  storyB,
-} from "../../Distribution/tests/support/queued-repository.mjs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
@@ -26,28 +22,18 @@ import { listed } from "../../dashboard/test-support/support/sidePanelContents.t
 import {
   expect,
   test,
-} from "../../dashboard/test-support/support/storyAReviewRepository.ts";
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
-  branch,
-  git,
-  storyWorktree,
+  commitAll,
   writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
 import {
   openTerminalControl,
   terminalPanel,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 
-const fileNames = [
-  "Added fresh/new.txt",
-  "Deleted gone.txt",
-  "Modified image.png",
-  "Renamed old.txt → new.txt",
-  "Modified staged.txt",
-  "Added story.txt",
-  "Modified unstaged.txt",
-];
 const firstFile = "Added z-tests/nested/first.spec.ts";
 
 test("the Taken Story card opens Changes beside its terminal and Back returns to that card", async ({
@@ -55,23 +41,7 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   dashboard,
   origin,
 }) => {
-  const { workspace } = storyWorktree(origin);
-  const session = dashboard.claudeListsSession({
-    name: "Story A",
-    cwd: workspace,
-    startedAt: Date.now(),
-  });
-  keepLaunchRecords(dashboard, [
-    makeMe.aLaunchRecord
-      .executing({ identity: queuedIdentity, title: "Story A" })
-      .onStoryBranch({ workspace, branch })
-      .inClaudeSession(listed(session))
-      .please(),
-  ]);
-  git(origin.project, "fetch", "--quiet", "origin", "main");
-  git(origin.project, "merge", "--ff-only", "origin/main");
   await origin.publishRevision({
-    backlog: { taken: [storyA], queued: [storyB] },
     files: {
       ".planning/open-dough.json": intentSettingsText(
         makeMe.intentSettings
@@ -91,6 +61,20 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
       "a-tests/kept.spec.ts": "kept second location\n",
     },
   });
+  const { workspace, branch } = await origin.takenInTrunkMode("trunk-review");
+  const session = dashboard.claudeListsSession({
+    name: "Story A",
+    cwd: workspace,
+    startedAt: Date.now(),
+  });
+  keepLaunchRecords(dashboard, [
+    makeMe.aLaunchRecord
+      .executing({ identity: queuedIdentity, title: "Story A" })
+      .onStoryBranch({ workspace, branch })
+      .inClaudeSession(listed(session))
+      .please(),
+  ]);
+  writeAt(workspace, "story.txt", "story\n");
   writeAt(
     workspace,
     "z-tests/nested/first.spec.ts",
@@ -101,6 +85,8 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
     "a-tests/second.spec.ts",
     "second in the displayed tree\n",
   );
+  commitAll(workspace, "Publish the story files");
+  push(workspace);
   await page.setViewportSize({ width: 1920, height: 900 });
   await openBacklog(page, origin);
   await showColumn(page, "Taken");
@@ -139,26 +125,10 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   expect(dashboard.claudeAttaches()).toEqual(attached);
 
   const review = await openIntentReviewChanges(page, card);
-  const inputPaths = review.snapshot.files.map(({ path }) => path);
-  expect(
-    inputPaths.filter((path) =>
-      [
-        "a-tests/second.spec.ts",
-        "story.txt",
-        "z-tests/nested/first.spec.ts",
-      ].includes(path),
-    ),
-  ).toEqual([
-    "a-tests/second.spec.ts",
-    "story.txt",
-    "z-tests/nested/first.spec.ts",
-  ]);
-  await review.comparison.expectChosen("All changes");
-  await review.files.expectOutsideFiles(fileNames.length, fileNames);
+  await review.expectText("Published trunk");
+  await review.files.expectOutsideFiles(1, ["Added story.txt"]);
   await review.files.choose("Added story.txt");
   await expect(reading.name).toHaveText("Added story.txt");
-  await review.comparison.choose("Commits");
-  await review.comparison.expectChosen("Commits");
 
   await storySummary(intent)
     .getByRole("button", { name: "Project Intent" })
@@ -168,7 +138,6 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await openIntentReviewChanges(page, card);
   await expectStoryTab(intent, "Changes");
   await review.files.expectSelected("Added story.txt");
-  await review.comparison.expectChosen("All changes");
   await expect(reading.name).toHaveText("Added story.txt");
 
   await chooseStoryTab(intent, "Intent coverage");
@@ -186,7 +155,6 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
   await chooseStoryTab(intent, "Changes");
-  await review.comparison.expectChosen("All changes");
-  await review.files.expectOutsideFiles(fileNames.length, fileNames);
+  await review.files.expectOutsideFiles(1, ["Added story.txt"]);
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
 });

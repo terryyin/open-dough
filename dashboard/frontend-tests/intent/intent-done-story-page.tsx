@@ -55,8 +55,6 @@ function summaryOf(story: ComparedStory, completion: string): StorySummary {
   const shown = storyComparisonShown({
     subject: { source: story.source.id, identity: story.identity },
     review,
-    comparison: undefined,
-    tree: undefined,
   });
   if (shown === undefined) throw new Error("No published comparison");
   return {

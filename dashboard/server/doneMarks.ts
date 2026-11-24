@@ -7,11 +7,9 @@ import {
 import type { HostIdentity } from "../src/hostDescription.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { sessionKey } from "../src/sessionReference.ts";
-import { keptWithDoneCapture } from "./doneCapture.ts";
 import {
   acknowledgeDoneLocally,
   doneSessionRecord,
-  reportedDoneNeedsContinuation,
   reportedNativeDonePending,
 } from "./doneSessionRecord.ts";
 import {
@@ -40,8 +38,8 @@ export type DoneCollaborators = {
   readonly capture?: BranchCapture;
 };
 
-// Quiet reports continue native Done and execution checkout capture outside
-// reporting locks. The developer's Done takes over a reported rename.
+// Quiet reports continue native Done outside reporting locks.
+// The developer's Done takes over a reported rename.
 export class NativeDoneMarks {
   private readonly running = new Map<
     string,
@@ -52,7 +50,7 @@ export class NativeDoneMarks {
 
   constructor(private readonly collaborators: DoneCollaborators) {}
 
-  // Continue the latest report's capture and any pending native Done.
+  // Continue pending native Done for the latest receipt.
   reported(sourceId: string, receipt: CompletionReport) {
     if (this.closed || !completedWithoutAttention(receipt)) return;
     const continued = this.continueReported(sourceId, receipt).catch(() => {});
@@ -61,23 +59,13 @@ export class NativeDoneMarks {
     return continued;
   }
 
-  private async captureReportedDone(
-    sourceId: string,
-    receipt: CompletionReport,
-  ): Promise<LaunchRecord | undefined> {
-    const current = (await keptRecords(sourceId)).find(
-      (entry) => entry.completion?.receipt === receipt.receipt,
-    );
-    if (this.closed || !reportedDoneNeedsContinuation(current, receipt))
-      return undefined;
-    return keptWithDoneCapture(sourceId, current);
-  }
-
   private async continueReported(
     sourceId: string,
     receipt: CompletionReport,
   ): Promise<void> {
-    const marked = await this.captureReportedDone(sourceId, receipt);
+    const marked = (await keptRecords(sourceId)).find(
+      (entry) => entry.completion?.receipt === receipt.receipt,
+    );
     if (this.closed || !reportedNativeDonePending(marked, receipt)) return;
     const key = sessionKey(marked.session);
     // A running Done of the session may still leave native Done pending, so

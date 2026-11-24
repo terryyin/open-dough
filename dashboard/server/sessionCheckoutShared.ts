@@ -1,10 +1,9 @@
 // Whether another kept session of the same project worked in a session's
-// checkout while that session was open, so the commits read for it
-// (`./sessionCommitsCapture.ts`) may include that session's work.
+// checkout while that session was open, so publication can record shared work.
 import { recordedWorkspace } from "../src/establishedPlace.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { sessionKey } from "../src/sessionReference.ts";
-import { resolvedCheckout } from "./sessionCommitsCapture.ts";
+import { resolvedCheckout } from "./sessionCheckout.ts";
 
 // The checkout a kept record names: a default launch's kept start, or the
 // workspace its record saved. A record that names none, or one that is gone,
@@ -36,18 +35,6 @@ function openMeanwhileIn(
     (other.doneAt === undefined || Date.parse(other.doneAt) >= from) &&
     checkoutOf(other) === checkout
   );
-}
-
-// Whether one of the project's `kept` records, other than `record`, was open
-// in the checkout `start` names at some time from `record`'s launch to its
-// Done.
-export function checkoutSharedMeanwhile(
-  record: Pick<LaunchRecord, "launchedAt" | "doneAt" | "session">,
-  start: { readonly workspace: string },
-  kept: readonly LaunchRecord[],
-): boolean {
-  const checkout = resolvedCheckout(start.workspace);
-  return kept.some((other) => openMeanwhileIn(record, checkout, other));
 }
 
 // The project's `kept` records, other than `record`, that were open in the

@@ -59,7 +59,7 @@ test("a CLI-completed story without a local launch opens fixed published changes
     removed: ["-line 0"],
     added: ["+story first"],
   });
-  await review.comparison.expectChosen("Published completion");
+  await review.comparison.expectNoSwitch();
   await review.hideFiles();
   await review.setFilesShown(true);
   advanceCompletedTrunk(origin);
@@ -74,14 +74,8 @@ test("a CLI-completed story without a local launch opens fixed published changes
     "+delivered on another machine",
   );
   await reopened.expectNoText("later.txt");
-  // A later retained capture cannot replace the published comparison when
-  // its repository is gone. Both choices remain navigable without a launch
-  // being invented for the published completion.
-  // Accepted cost: this tail's refresh and radio round trip, the only proof
-  // of switching to Landed runs and back with the published files restored.
-  // The server fallback proof
-  // (../../dashboard/backend-tests/review/story-review-completed-gaps.spec.ts) cannot
-  // show that, and ending the journey before the tail saved no time.
+  // A receipt with a missing capture repository still opens its fixed landing.
+  // The single chooser keeps the published completion reachable beside it.
   keepUnusableCompletedCapture(dashboard, origin, {
     workspace: path.join(origin.project, ".worktrees", "missing-completed"),
     completion,
@@ -94,10 +88,8 @@ test("a CLI-completed story without a local launch opens fixed published changes
     files: first.files,
   });
   await reopened.comparison.expectChosen("Published completion");
-  await reopened.comparison.choose("Landed runs");
-  await reopened.expectText(
-    "captured landing repository is missing or unreadable",
-  );
+  await reopened.landedRun.chooseLatest();
+  await reopened.landedRun.expectShown(completion);
   await reopened.comparison.choose("Published completion");
   await reopened.comparison.expectChosen("Published completion");
   await reopened.files.choose("Added [literal]*.txt");

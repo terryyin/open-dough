@@ -27,7 +27,6 @@ import { selectedComparisonOf } from "./intentCiEvidenceModel.ts";
 import { JudgedBranch } from "./IntentCiJudgedBranch.tsx";
 import type { CiTarget } from "./intentCiTarget.ts";
 import { suppressesComparisonBesideJudgment } from "./storyCiComparison.ts";
-import { UncommittedCiNote } from "./UncommittedCiNote.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
 import "./intent-ci-status.css";
 
@@ -64,15 +63,6 @@ function provisionalBesideJudgment(
 }
 
 export function IntentCiStatus() {
-  return (
-    <>
-      <UncommittedCiNote />
-      <CiStatusContent />
-    </>
-  );
-}
-
-function CiStatusContent() {
   const evidence = useIntentCiEvidence();
   if (evidence.kind === "inactive") return null;
   if (evidence.kind === "retained")

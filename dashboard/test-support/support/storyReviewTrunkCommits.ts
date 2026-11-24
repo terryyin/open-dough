@@ -1,8 +1,7 @@
 // Who authors the commits of Story A's Trunk Mode review
 // (./storyReviewTrunkMode.ts) and how they reach `origin/main`: the roster
 // agent Yui-chan, a preparation agent, or a checkout's own author, another
-// developer; each checkout pushes its head onto trunk, meets trunk before
-// writing, or is rebased onto it.
+// developer. Each checkout pushes its head onto trunk or meets trunk before writing.
 
 import { execFileSync } from "node:child_process";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -41,10 +40,3 @@ export const push = (cwd: string) =>
 // Trunk as a checkout on it meets it before writing.
 export const pull = (cwd: string) =>
   git(cwd, "pull", "--quiet", "--ff-only", "origin", "main");
-
-// The worktree's commits replayed onto freshly fetched trunk, returned.
-export function rebaseOntoTrunk(workspace: string) {
-  git(workspace, "fetch", "--quiet", "origin", "main");
-  git(workspace, "rebase", "--quiet", "origin/main");
-  return git(workspace, "rev-parse", "origin/main");
-}

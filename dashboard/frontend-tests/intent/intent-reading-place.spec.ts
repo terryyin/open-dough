@@ -104,7 +104,6 @@ async function openStoryChanges() {
   };
   const review: ReviewSource = {
     review: () => Promise.resolve(storyReview),
-    range: unanswered,
     fileDiff: (query) => {
       reads.push(`story ${query.path}`);
       return Promise.resolve(longDiff);

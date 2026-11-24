@@ -36,9 +36,9 @@ function heldRead() {
   };
 }
 
-test("a Done session holds progress with no name or eye until its kept commits arrive", async () => {
+test("a Done session holds progress with no name or eye until its published changes arrive", async () => {
   const commits = makeMe.aStoryReview
-    .sessionCommits()
+    .publishedSession()
     .adding("done.txt")
     .please();
   const held = heldRead();
@@ -49,7 +49,7 @@ test("a Done session holds progress with no name or eye until its kept commits a
   const review = await mountReviewChanges(source, adHocSession);
   await review.expectPending();
   held.answer(commits);
-  await review.expectComparisonNamed("Session commits");
+  await review.expectComparisonNamed("Published changes");
   await review.expectEyeBesideComparison();
   await review.expectDiffShows("Added done.txt", "+done");
 });
@@ -74,7 +74,7 @@ test("an ad hoc landing holds the same pending toolbar, then names Landed runs",
 
 test("a refused first read keeps the problem and Refresh; retry reveals the answer", async () => {
   const commits = makeMe.aStoryReview
-    .sessionCommits()
+    .publishedSession()
     .adding("retry.txt")
     .please();
   let refuse = true;
@@ -87,7 +87,7 @@ test("a refused first read keeps the problem and Refresh; retry reveals the answ
   await review.expectRefused();
   await review.expectFeedbackSays("refused for proof");
   await review.refresh();
-  await review.expectComparisonNamed("Session commits");
+  await review.expectComparisonNamed("Published changes");
   await review.expectEyeBesideComparison();
   await review.expectDiffShows("Added retry.txt", "+retry");
   await review.expectNoProblem("refused for proof");
@@ -95,7 +95,7 @@ test("a refused first read keeps the problem and Refresh; retry reveals the answ
 
 test("Refresh of a readable comparison keeps its name, eye and diff while progress shows", async () => {
   const commits = makeMe.aStoryReview
-    .sessionCommits()
+    .publishedSession()
     .adding("keep.txt")
     .please();
   let read: () => Promise<StoryReview> = () => Promise.resolve(commits);
@@ -104,14 +104,14 @@ test("Refresh of a readable comparison keeps its name, eye and diff while progre
     makeMe.aReviewedFileDiff.adding("keep.txt", "keep").please(),
   );
   const review = await mountReviewChanges(source, adHocSession);
-  await review.expectComparisonNamed("Session commits");
+  await review.expectComparisonNamed("Published changes");
   await review.expectDetailsCollapsed();
   await review.expectDiffShows("Added keep.txt", "+keep");
   const held = heldRead();
   read = held.read;
   await review.refresh();
   await review.expectFeedbackSays("Refreshing the review…");
-  await review.expectComparisonNamed("Session commits");
+  await review.expectComparisonNamed("Published changes");
   await review.expectDetailsCollapsed();
   await review.expectDiffShows("Added keep.txt", "+keep");
   held.answer(commits);
@@ -125,7 +125,7 @@ test("the files toggle stays independent of whether details are offered", async 
   const source = sourceOf(
     () =>
       Promise.resolve(
-        makeMe.aStoryReview.sessionCommits().adding("toggle.txt").please(),
+        makeMe.aStoryReview.publishedSession().adding("toggle.txt").please(),
       ),
     makeMe.aReviewedFileDiff.adding("toggle.txt", "toggle").please(),
   );

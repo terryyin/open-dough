@@ -16,7 +16,7 @@ export const olderGit = test.extend({
       wrapper,
       [
         "#!/bin/sh",
-        'if [ "$1" = merge-tree ]; then',
+        'if [ "$1" = merge-tree ] && [ "${5#--merge-base=}" != "$5" ]; then',
         '  echo "fatal: $6 is not a commit" >&2',
         "  exit 128",
         "fi",

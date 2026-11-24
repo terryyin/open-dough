@@ -26,7 +26,7 @@ an execution checkout. Previously synced comparisons stay readable when origin
 is unavailable, and file navigation uses local Git.
 
 **Starting point.**
-[SEED-427](SEED-427-review-published-changes.md#review-published-changes) delivers
+[SEED-427](https://github.com/terryyin/open-dough/blob/d0489607774ee6a3dd2c69b3fd5e0409288e68ab/.planning/seeds/SEED-427-review-published-changes.md#review-published-changes) delivers
 the published story and session comparison contract and removes local-only review
 paths and their dedicated proof. Adopt the new Git source for those surviving
 readers. The temporary design direction lives in the

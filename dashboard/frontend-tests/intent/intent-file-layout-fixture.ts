@@ -100,7 +100,6 @@ export async function openIntentFileLayout({
       }),
       review: {
         review: () => Promise.resolve(change.please()),
-        range: () => Promise.reject(new Error("Unexpected comparison range")),
         fileDiff: () =>
           Promise.resolve(
             makeMe.aReviewedFileDiff.adding(deepPath, added).please(),

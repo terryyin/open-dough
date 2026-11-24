@@ -1,22 +1,17 @@
 // @ts-check
-// What a kept launch's Done captured (`./launchOutcomeTestData.mjs` states
-// the Done mark): the commits its session made in the execution checkout,
-// the result its session branch reached, or the time either read failed. A
-// branch result is stated from the work's known revisions.
+// A kept launch’s committed delivery candidate and legacy ref owners.
 
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {import("../../../dashboard/src/sessionBranchResult.ts").SessionBranchResult} SessionBranchResult */
 /** @typedef {{ repository: string, runs: { base: string, revision: string }[], shared?: true, readAt?: string }} KeptSessionCommits */
 /**
- * A branch result as a case states it: its committed tip is its revision and
- * its Done is the record's Done mark unless the case states otherwise.
- * @typedef {Omit<SessionBranchResult, "committedTip" | "doneAt"> & Partial<Pick<SessionBranchResult, "committedTip" | "doneAt">>} StatedBranchResult
+ * A candidate belongs to the record’s Done mark unless stated otherwise.
+ * @typedef {Omit<SessionBranchResult, "doneAt"> & Partial<Pick<SessionBranchResult, "doneAt">>} StatedBranchResult
  */
 
 /**
  * @typedef {{
  *   sessionCommits?: KeptSessionCommits,
- *   sessionCommitsFailedAt?: string,
  *   branchResult?: StatedBranchResult,
  *   branchResultFailedAt?: string,
  * }} DoneCapture
@@ -28,10 +23,7 @@ export class LaunchDoneCaptureBuilder {
   #capture = {};
 
   /**
-   * The commits the session made in its execution checkout, kept at Done:
-   * each run's pair in the checkout's common repository, oldest first, and
-   * `shared` when another session was open in that checkout meanwhile. State
-   * `readAt` when the kept run was read at a different time than the Done mark.
+   * Legacy data from records that pinned execution checkout commits.
    * @param {KeptSessionCommits} kept
    */
   keptSessionCommits({ repository, runs, shared, readAt }) {
@@ -45,15 +37,8 @@ export class LaunchDoneCaptureBuilder {
     return this;
   }
 
-  /** The Done time whose checkout read failed. @param {string} at */
-  sessionCommitsFailedAt(at) {
-    this.#capture = { ...this.#capture, sessionCommitsFailedAt: at };
-    return this;
-  }
-
   /**
-   * The session branch reached `revision` from `base` in `repository` at
-   * Done. State `doneAt` for a result kept for an earlier Done.
+   * The session branch’s last commit at Done, in its recorded repository.
    * @param {StatedBranchResult} result
    */
   branchResultFrom(result) {
@@ -73,24 +58,17 @@ export class LaunchDoneCaptureBuilder {
    * @returns {Partial<LaunchRecord>}
    */
   doneCaptureFacts(doneAt) {
-    const {
-      sessionCommits,
-      sessionCommitsFailedAt,
-      branchResult,
-      branchResultFailedAt,
-    } = this.#capture;
+    const { sessionCommits, branchResult, branchResultFailedAt } =
+      this.#capture;
     return {
-      ...(sessionCommitsFailedAt !== undefined && { sessionCommitsFailedAt }),
       ...(sessionCommits && {
         sessionCommits: {
           ...structuredClone(sessionCommits),
-          readAt: sessionCommits.readAt ?? doneAt,
         },
       }),
       ...(branchResult && {
         branchResult: {
           ...branchResult,
-          committedTip: branchResult.committedTip ?? branchResult.revision,
           doneAt: branchResult.doneAt ?? doneAt,
         },
       }),

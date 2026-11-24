@@ -18,15 +18,9 @@ import {
   keepBranchResultRefs,
   releaseBranchResultRefs,
 } from "./launchRecordPins.ts";
-import { resolvedCheckout } from "./sessionCommitsCapture.ts";
-import { writeWorkingTree } from "./workingTreeSnapshot.ts";
+import { resolvedCheckout } from "./sessionCheckout.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { configuredProject } from "./projectConfiguration.ts";
-import {
-  attributeBranchResult,
-  branchTrunk,
-  readBranchTrunkRevision,
-} from "./sessionBranchAttribution.ts";
+import { readBranchTrunkRevision } from "./sessionBranchAttribution.ts";
 import {
   keepManualLanding,
   type ManualLanding,
@@ -70,12 +64,11 @@ export async function readBranchWorkspace({
   const lines = async (args: readonly string[]) =>
     (await runGit(args, call)).stdout.trim().split("\n");
   const ref = `refs/heads/${branch}`;
-  const [toplevel, common, tip, committedTree, head] = await lines([
+  const [toplevel, common, tip, head] = await lines([
     "rev-parse",
     "--show-toplevel",
     ...commonGitDirectoryOptions,
     "HEAD^{commit}",
-    "HEAD^{tree}",
     "--symbolic-full-name",
     "HEAD",
   ]);
@@ -86,7 +79,6 @@ export async function readBranchWorkspace({
   )
     throw new Error("The checkout no longer holds the launch's branch.");
   const committedTip = commitIdSchema.parse(tip);
-  const tree = commitIdSchema.parse(await writeWorkingTree(committedTip, call));
   const [tipAfter, headAfter] = await lines([
     "rev-parse",
     "HEAD",
@@ -95,11 +87,7 @@ export async function readBranchWorkspace({
   ]);
   if (headAfter !== ref || tipAfter !== committedTip)
     throw new Error("The launch's branch changed during capture.");
-  return {
-    committedTip,
-    tree,
-    revision: tree === committedTree ? committedTip : tree,
-  };
+  return committedTip;
 }
 
 // Answers a candidate record's branch result at its Done time, with the
@@ -121,17 +109,13 @@ export const captureBranchResult: BranchCapture = async (record, doneAt) => {
   const baseTip = commitIdSchema.parse(
     entry?.committedTip ?? record.establishedSession?.startingRevision,
   );
-  const base = entry?.tree ?? baseTip;
-  const source = configuredProject(record.request.source);
   const witnessedTrunk = manualLandingTrunk(record);
-  const trunk =
-    witnessedTrunk ??
-    (source === undefined ? undefined : branchTrunk("origin", source.ref));
   const call = gitCall(repository);
-  // Independent reads run together: each Git process is the capture's cost.
-  const [{ committedTip, revision }, targetHead] = await Promise.all([
+  const [committedTip, targetHead] = await Promise.all([
     readBranchWorkspace({ ...start, repository }),
-    readBranchTrunkRevision(trunk, call),
+    record.landing === undefined
+      ? readBranchTrunkRevision(witnessedTrunk, call)
+      : undefined,
   ]);
   const [, delivery] = await Promise.all([
     runGit(
@@ -148,25 +132,11 @@ export const captureBranchResult: BranchCapture = async (record, doneAt) => {
         )
       : undefined,
   ]);
-  // A proved direct delivery establishes that this exact tip is session work.
-  // Its prior target is the trunk history imported by the branch.
-  const attributionTarget =
-    delivery?.revision === committedTip ? delivery.base : targetHead;
-  const attribution = await attributeBranchResult(
-    base,
-    baseTip,
-    committedTip,
-    trunk?.revision ?? (entry === undefined ? baseTip : undefined),
-    attributionTarget,
-    call,
-  );
   const result: SessionBranchResult = {
     repository,
     doneAt,
-    revision,
     committedTip,
     manualDeliveryChecked: true,
-    ...attribution,
   };
   return { result, delivery };
 };
@@ -195,7 +165,7 @@ export async function withBranchResultAtDone<T>(
       )
         throw new RefusedRequest(
           409,
-          "The session identified its branch while Done was in progress. Retry Done to capture it.",
+          "The session identified its branch while Done was in progress. Retry Done to retain its delivery evidence.",
         );
       return Promise.resolve(marked);
     });

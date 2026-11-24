@@ -163,8 +163,9 @@ test("a selected done story's changed test file shows Purpose as the diff and Pr
 });
 
 test("a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with merge-edited merges", async () => {
-  const edit = makeMe.aStoryReview.modifying(mergeEditedFile).pleaseRange();
-  if (edit.kind !== "comparison") throw new Error("Arrange the owning merge");
+  const edit = makeMe.aStoryReview.modifying(mergeEditedFile).please();
+  if (edit.kind !== "published-taken")
+    throw new Error("Arrange the owning merge");
   const story = makeMe.aComparedStory
     .inSummaryScope()
     .withChanged(...edit.files)

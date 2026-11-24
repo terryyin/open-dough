@@ -117,7 +117,6 @@ export async function openSummaryComparison(
           Promise.resolve(
             identity === story.identity ? review.please() : unavailableReview,
           ),
-        range: () => Promise.reject(new Error("Unexpected review range")),
         fileDiff:
           options.fileDiff ??
           (() => Promise.reject(new Error("Unexpected file diff"))),

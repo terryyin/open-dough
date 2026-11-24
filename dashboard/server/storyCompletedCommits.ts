@@ -17,25 +17,21 @@ import {
   type ReviewedStory,
 } from "./storyPublishedEvidence.ts";
 
-// Claim history for a completion: every owning agent's claims and commits,
-// the story-start bound, and owning landing merges. No merge-resolution
-// attribution — that stays in `completedStoryAttribution`.
-export type CompletedStoryClaimEvidence = {
+// The story start and the history owned by the story before merge attribution.
+export type PublishedStoryCommitEvidence = {
   readonly commits: PublishedCommit[];
-  readonly claims: readonly string[];
-  // Octopus base of the claims' parents: the story-start bound for CI
-  // comparison baseline and result ancestor walks.
   readonly storyStart: string;
-  // Owning landing merges recovered from published claim history.
   readonly owningMerges: ReadonlySet<string>;
 };
 
-// Completion attribution uses the same author/profile rule as live review.
-// Every historical owning agent uses that rule, including story takeovers.
-// `commits` also holds each owning merge's own edits, taken out against the
-// merge tree without them; `resolutions` names genuine conflict paths with
-// the tree they are compared from.
-export type CompletedStoryEvidence = CompletedStoryClaimEvidence & {
+// For a completion, the story start is the octopus base of the claims' parents.
+export type CompletedStoryClaimEvidence = PublishedStoryCommitEvidence & {
+  readonly claims: readonly string[];
+};
+
+// A story owns its attributed commits and the edits introduced by its merges.
+type PublishedStoryAttribution = {
+  readonly commits: PublishedCommit[];
   readonly resolutions: ReadonlyMap<string, string>;
 };
 
@@ -107,23 +103,21 @@ export async function completedStoryClaimEvidence(
   return { commits, claims, storyStart, owningMerges };
 }
 
-// Published-history commit order on top of claim evidence, with each owning
-// or completion merge's own edits taken out like a story commit and its
-// genuine conflicts kept as mixed work. Endpoint recovery reuses the claim
-// walk; Review composes this without recovering claims again.
-export async function completedStoryAttribution(
-  evidence: CompletedStoryClaimEvidence,
-  completion: string,
+// In published history order, count each owning merge's own edits as a story
+// commit and keep its genuine conflicts as mixed work.
+export async function publishedStoryAttribution(
+  evidence: PublishedStoryCommitEvidence,
+  head: string,
   call: GitCall,
-): Promise<CompletedStoryEvidence | { explanation: string }> {
-  const { commits, claims, storyStart, owningMerges } = evidence;
+): Promise<PublishedStoryAttribution | { explanation: string }> {
+  const { commits, storyStart, owningMerges } = evidence;
   const history = publishedStoryHistory(call);
   // A merge resolution is not attributable by the single-parent author rule.
   // Check owning merges after the execution claims; the completion, when a
   // merge, is one of them. Other stories' merges stay trunk's: restating the
   // story's commits through them isolates its changes or marks the file as
   // mixed.
-  const merges = await history.mergesBetween(completion, storyStart);
+  const merges = await history.mergesBetween(head, storyStart);
   const storyCommits = commits.map(({ commit }) => commit);
   const resolutions = new Map<string, string>();
   const edits = new Map<string, PublishedCommit>();
@@ -184,7 +178,7 @@ export async function completedStoryAttribution(
     if (edit !== undefined) edits.set(merge, edit);
   }
   const byRevision = new Map(commits.map((commit) => [commit.commit, commit]));
-  const ordered = await history.orderedAt(completion);
+  const ordered = await history.orderedAt(head);
   return {
     resolutions,
     commits: ordered.flatMap((revision) =>
@@ -192,8 +186,5 @@ export async function completedStoryAttribution(
         (commit) => commit !== undefined,
       ),
     ),
-    claims,
-    storyStart,
-    owningMerges,
   };
 }

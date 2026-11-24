@@ -1,13 +1,10 @@
-// A Done baseline combines the saved entry files with the trunk history
-// the branch actually incorporated. Review reads only the retained result.
-import { commitIdSchema } from "../src/launchLanding.ts";
+// Reads the authorized trunk for branch entry and manual delivery.
 import type { BranchTrunk } from "../src/sessionBranchResult.ts";
 import {
   fetchUnlessCommitPresent,
   remoteBranchHead,
 } from "./gitTargetFetch.ts";
-import { isAncestor, runGit, type GitCall } from "./gitRunner.ts";
-import { restatedPoint } from "./storyReviewComparison.ts";
+import type { GitCall } from "./gitRunner.ts";
 
 type BranchGitCall = GitCall & { readonly signal: AbortSignal };
 
@@ -41,99 +38,5 @@ export async function readBranchTrunkRevision(
     return revision;
   } catch {
     return undefined;
-  }
-}
-
-// Excluding the ancestry of tip leaves a contiguous prefix of the target's
-// first-parent history. The next commit is the latest shared trunk point.
-// Git's --boundary also prints merge side parents, including a delivered
-// topic tip.
-async function sharedFirstParent(
-  history: string,
-  tip: string,
-  call: BranchGitCall,
-): Promise<string> {
-  const { stdout: count } = await runGit(
-    ["rev-list", "--first-parent", "--count", history, "--not", tip],
-    call,
-  );
-  const { stdout } = await runGit(
-    [
-      "rev-list",
-      "--first-parent",
-      "--max-count=1",
-      `--skip=${count.trim()}`,
-      history,
-    ],
-    call,
-  );
-  return commitIdSchema.parse(stdout.trim());
-}
-
-type BranchAttribution = {
-  readonly base: string;
-  readonly attributionGap?: string;
-};
-
-export async function attributeBranchResult(
-  base: string,
-  entryTip: string,
-  committedTip: string,
-  observedAtEntry: string | undefined,
-  target: string | undefined,
-  call: BranchGitCall,
-): Promise<BranchAttribution> {
-  const ambiguous = {
-    base,
-    attributionGap:
-      "The saved branch changes could not be separated from trunk history.",
-  };
-  const unavailable = {
-    base,
-    attributionGap:
-      "The authorized trunk could not be read to separate its changes from the saved branch result.",
-  };
-  if (entryTip === committedTip) return { base };
-  if (target === undefined) return unavailable;
-
-  try {
-    const [observedShared, entryTrunk, incorporated] = await Promise.all([
-      observedAtEntry === undefined
-        ? undefined
-        : sharedFirstParent(target, observedAtEntry, call),
-      sharedFirstParent(observedAtEntry ?? target, entryTip, call),
-      sharedFirstParent(target, committedTip, call),
-    ]);
-    if (observedShared !== observedAtEntry) return ambiguous;
-    if (
-      entryTrunk === incorporated ||
-      (await isAncestor(incorporated, entryTip, call))
-    )
-      return { base };
-
-    // A newly shared commit on both first-parent lines could be a direct
-    // delivery. An earlier target observation can establish it as trunk.
-    if (
-      !(await isAncestor(incorporated, observedAtEntry ?? entryTrunk, call)) &&
-      (await sharedFirstParent(committedTip, incorporated, call)) ===
-        incorporated
-    )
-      return ambiguous;
-
-    const restated = await restatedPoint(
-      { baseline: entryTrunk, tree: base },
-      incorporated,
-      call,
-    );
-    if (restated === undefined) return ambiguous;
-    if (restated.inseparable.size !== 0)
-      return {
-        base,
-        attributionGap:
-          "Earlier branch changes conflict with imported trunk changes, so the saved branch changes could not be separated.",
-      };
-    return { base: restated.tree };
-  } catch {
-    return ambiguous;
   }
 }

@@ -6,13 +6,12 @@ import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { launchExactReads } from "../../server/launchExactReads.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
+import { storyReviewResponse } from "../../server/storyReview.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import {
   storyReviewFileResponse,
   storyReviewFileTextResponse,
 } from "../../server/storyReviewFileResponse.ts";
-import { reviewInput } from "../../server/storyReviewInput.ts";
-import { storyReviewResponse } from "../../server/storyReviewSnapshot.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
@@ -20,7 +19,6 @@ import {
 } from "../../src/storyReviewContract.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import { keep } from "../support/doneCaptureCase.ts";
-import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const session = { source: "doughnut", host: "claude", session: "ad-hoc" };
 const file = { baseline: "a".repeat(40), tree: "b".repeat(40), path: "a.txt" };
@@ -48,111 +46,6 @@ function keepForReview(...records: Parameters<typeof keep>) {
   onTestFinished(mountProjectConfiguration("production"));
 }
 
-const workFile = "work[1].txt";
-
-async function keptAcrossHosts() {
-  const { checkout } = await aDoneCaptureCase()
-    .withBaseFiles({ [workFile]: "before\n" })
-    .withHistory((history) =>
-      history
-        .withRevision("first", { files: { "first.txt": "first run\n" } })
-        .withRevision("codex", { files: { [workFile]: "codex work\n" } })
-        .withRevision("claude", {
-          parents: ["base"],
-          files: { [workFile]: "claude work\n" },
-        }),
-    )
-    .please();
-  const { base, first, codex, claude } = checkout.revisions;
-  const claudeRecord = makeMe.aLaunchRecord
-    .adHoc({ source: session.source, title: "Claude work" })
-    .inClaudeSession({ sessionId: session.session })
-    .keptSessionCommits({
-      repository: checkout.integration,
-      runs: [{ base, revision: claude }],
-    })
-    .markedDone()
-    .please();
-  const codexRecord = makeMe.aLaunchRecord
-    .adHoc({ source: session.source, title: "Codex work" })
-    .inCodexSession({ sessionId: session.session })
-    .keptSessionCommits({
-      repository: checkout.integration,
-      runs: [
-        { base, revision: first },
-        { base: first, revision: codex },
-      ],
-    })
-    .markedDone()
-    .please();
-  keepForReview(claudeRecord, codexRecord);
-  return { ...checkout.revisions, claudeRecord, codexRecord };
-}
-
-test("the comparison route selects the requested host's named run when native IDs match", async () => {
-  const { first, codex, codexRecord } = await keptAcrossHosts();
-  const subject = { ...session, host: "codex" };
-  const request = await routed(storyReviewEndpoint, { ...subject, run: "1" });
-  if (request.kind !== "story-review")
-    throw new Error("Expected a comparison read");
-  expect(request).toEqual({
-    kind: "story-review",
-    read: { subject, run: "1" },
-  });
-
-  const signal = new AbortController().signal;
-  expect(await reviewInput(request.read, signal)).toEqual({
-    read: { run: "1" },
-    record: codexRecord,
-  });
-
-  expect(await storyReviewResponse(request, response())).toMatchObject({
-    status: 200,
-    body: {
-      kind: "session-commits",
-      selectedRun: "1",
-      baseline: first,
-      tree: codex,
-      files: [{ path: workFile, kind: "modified" }],
-    },
-  });
-});
-
-test("both file routes read the requested host's literal pair when native IDs match", async () => {
-  const { base, claude, claudeRecord } = await keptAcrossHosts();
-  const pair = { baseline: base, tree: claude, path: workFile };
-  const query = { ...session, ...pair };
-  const admittedFile = { read: pair, record: claudeRecord };
-  const signal = new AbortController().signal;
-  const diff = await routed(storyReviewFileEndpoint, query);
-  if (diff.kind !== "story-review-file")
-    throw new Error("Expected a file diff read");
-  expect(diff).toEqual({
-    kind: "story-review-file",
-    read: { subject: session, ...pair },
-  });
-  expect(await reviewInput(diff.read, signal)).toEqual(admittedFile);
-  expect(await storyReviewFileResponse(diff, response())).toMatchObject({
-    status: 200,
-    body: {
-      kind: "diff",
-      printed: expect.stringContaining("+claude work") as string,
-    },
-  });
-  const text = await routed(storyReviewFileTextEndpoint, query);
-  if (text.kind !== "story-review-file-text")
-    throw new Error("Expected a file text read");
-  expect(text).toEqual({
-    kind: "story-review-file-text",
-    read: { subject: session, ...pair },
-  });
-  expect(await reviewInput(text.read, signal)).toEqual(admittedFile);
-  expect(await storyReviewFileTextResponse(text, response())).toEqual({
-    status: 200,
-    body: { kind: "text", baseline: "before\n", tree: "claude work\n" },
-  });
-});
-
 for (const [endpoint, query, error] of [
   [
     storyReviewEndpoint,
@@ -162,6 +55,11 @@ for (const [endpoint, query, error] of [
   [
     storyReviewEndpoint,
     { ...session, run: "not-a-run" },
+    "The review run is malformed.",
+  ],
+  [
+    storyReviewEndpoint,
+    { ...session, run: "branch-result" },
     "The review run is malformed.",
   ],
   [
@@ -247,4 +145,42 @@ test("both standalone file responses direct a one-shot story launch to its story
       "This session belongs to a story launch and is reviewed by its story.",
     );
   }
+});
+
+test("native host qualification and an admitted Done entry without published evidence", async () => {
+  keepForReview(
+    makeMe.aLaunchRecord
+      .adHoc({ source: session.source, title: "Standalone work" })
+      .inClaudeSession({ sessionId: session.session })
+      .markedDone()
+      .please(),
+    makeMe.aLaunchRecord
+      .executing({
+        source: session.source,
+        identity: "SEED-7#story-a",
+        title: "Story work with the same native ID",
+      })
+      .inCodexSession({ sessionId: session.session })
+      .markedDone()
+      .please(),
+  );
+  const native = await routed(storyReviewEndpoint, session);
+  const otherHost = await routed(storyReviewEndpoint, {
+    ...session,
+    host: "codex",
+  });
+  if (native.kind !== "story-review" || otherHost.kind !== "story-review")
+    throw new Error("Expected both review reads.");
+  await expect(storyReviewResponse(native, response())).resolves.toMatchObject({
+    status: 200,
+    body: {
+      kind: "unavailable",
+      explanation: "No published comparison is available for this session.",
+    },
+  });
+  await expectRefusal(
+    storyReviewResponse(otherHost, response()),
+    400,
+    "This session belongs to a story launch and is reviewed by its story.",
+  );
 });

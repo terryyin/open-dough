@@ -11,7 +11,6 @@ import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import type { CiComparisonRange } from "./selectedCiComparison.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
-import { reviewRangeEnds } from "./storyReviewPoints.ts";
 
 // The selected story as Intent names it.
 // A completed story carries what is known of its published done record.
@@ -76,7 +75,7 @@ function publishedDoneEvidenceOf(summary: StorySummary | undefined) {
         at: review.completedAt,
       },
     };
-  if (review?.kind === "landed")
+  if (review?.kind === "landed" && review.landing.receivedAt !== undefined)
     return {
       doneEndpoint: {
         revision: review.landing.revision,
@@ -107,30 +106,16 @@ function settledComparisonEvidenceOf(summary: StorySummary | undefined) {
   const { compare, review } = comparison;
   if (compare === undefined) return {};
 
-  if (summary.story.completed) {
-    if (
-      review?.kind !== "landed" ||
-      compare.shown !== "landed" ||
-      compare.selectedRun?.comparison === undefined ||
-      compare.isDefault
-    )
-      return {};
-    const { base, revision } = review.landing;
-    return ciRangeEvidenceOf(base, revision);
-  }
-
-  if (review?.kind !== "snapshot") return {};
-  if (compare.shown === "all") {
-    const includesEdits = compare.includeUncommitted !== false;
-    const hasEdits =
-      review.committed !== undefined || review.uncommitted !== undefined;
-    return includesEdits && hasEdits ? { uncommittedHead: review.head } : {};
-  }
-  if (compare.shown !== "commits" || compare.isDefault) return {};
-  const { oldest, newest } = reviewRangeEnds(compare.selectedItems);
-  return oldest?.kind === "commit" && newest?.kind === "commit"
-    ? ciRangeEvidenceOf(oldest.firstParent, newest.revision)
-    : {};
+  if (
+    !summary.story.completed ||
+    review?.kind !== "landed" ||
+    compare.shown !== "landed" ||
+    compare.selectedRun?.comparison === undefined ||
+    compare.isDefault
+  )
+    return {};
+  const { base, revision } = review.landing;
+  return ciRangeEvidenceOf(base, revision);
 }
 
 function ciRangeEvidenceOf(

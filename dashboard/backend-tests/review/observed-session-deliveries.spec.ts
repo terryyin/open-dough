@@ -17,8 +17,7 @@ test("decides each hand-merged Done branch's exact delivery without writing pins
     (launch, { checkout, work }) =>
       launch.branchResultFrom({
         repository: checkout.gitDirectory,
-        base: checkout.base,
-        revision: work[tip],
+        committedTip: work[tip],
         manualDeliveryChecked: true,
       });
   const {
@@ -94,11 +93,11 @@ const branch = {
   workspace: "draft-worktree",
   branch: "draft",
   committedTip: base,
-  tree: base,
   trunk,
 };
 const result = { repository: branch.repository, base, revision };
-const checkedResult = { ...result, manualDeliveryChecked: true } as const;
+const branchResult = { repository: branch.repository, committedTip: revision };
+const checkedResult = { ...branchResult, manualDeliveryChecked: true } as const;
 const aDraft = (title: string) =>
   makeMe.aLaunchRecord
     .adHoc({ title })
@@ -123,7 +122,7 @@ test("inspects only Done branch results awaiting delivery, including one Done si
     aDraft("captured earlier")
       .markedDone()
       .branchResultFrom({ ...checkedResult, doneAt: minutesAgo(20) }),
-    aDraft("unchecked").markedDone().branchResultFrom(result),
+    aDraft("unchecked").markedDone().branchResultFrom(branchResult),
     awaitingDelivery("unwitnessed").enteredBranch({
       ...branch,
       trunk: originTrunk,

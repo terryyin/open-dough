@@ -13,87 +13,10 @@ import {
 import {
   doneCompletion,
   openDoneStoryComparison,
-  openStoryAComparison,
   publishedCompletion,
 } from "./intent-story-compare-stories.ts";
 
-const [first, second] = [
-  makeMe.aReviewCommit.numbered(1, "first change").please(),
-  makeMe.aReviewCommit.numbered(2, "second change").please(),
-];
-const missing = "The story's commit objects are missing from this machine.";
 const unreadable = "The chosen changes could not be read.";
-const wholeStory = "Describes the whole story, not the chosen comparison.";
-const takenOnCommits = () =>
-  Promise.resolve(
-    makeMe.aStoryReview
-      .modifying("dashboard/tests/a.spec.ts")
-      .adding("dashboard/tests/boundary/b.spec.ts")
-      .onCommits(second, first)
-      .please(),
-  );
-
-test("an unavailable commit range is explained in the header, not as a story without changes, and All changes stays offered", async () => {
-  await openStoryAComparison({
-    review: takenOnCommits,
-    range: () => Promise.resolve({ kind: "unavailable", explanation: missing }),
-  });
-  const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-
-  // Commits is explained without Retry, not as a story without changes.
-  await story.choose("Commits");
-  await expect.poll(story.alertText).toBe(unreadable);
-  await expect.element(story.retryControl).not.toBeInTheDocument();
-  await expect.poll(story.headerText).toContain(missing);
-  await expect.element(story.filesToggle).toBeVisible();
-  expect(story.headerText()).not.toContain("No comparison is available");
-
-  // CI comparison and Intent coverage say they describe the whole story.
-  for (const name of ["CI comparison", "Intent coverage"] as const) {
-    await story.chooseTab(name);
-    await expect.poll(() => story.noteIn(name)).toBe(wholeStory);
-  }
-  await story.chooseTab("Changes");
-
-  // All changes again compares the story.
-  await story.choose("All changes");
-  await expect.element(story.alert).not.toBeInTheDocument();
-  await expect.element(story.workspaceContext).toBeVisible();
-});
-
-test("a failed read of a chosen commit range offers Retry, which reads it again", async () => {
-  let rangeAsks = 0;
-  await openStoryAComparison({
-    review: takenOnCommits,
-    range: () => {
-      rangeAsks += 1;
-      return rangeAsks === 1
-        ? Promise.reject(new Error("The range read was refused."))
-        : Promise.resolve(
-            makeMe.aStoryReview
-              .modifying("dashboard/tests/a.spec.ts")
-              .pleaseRange(first, second),
-          );
-    },
-  });
-  const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-
-  // Commits whose read fails explains the failure.
-  await story.choose("Commits");
-  await expect.poll(story.alertText).toContain(unreadable);
-  await expect
-    .poll(story.headerText)
-    .toContain("The chosen commits could not be read:");
-
-  // Retry reads the range again and shows it.
-  const asked = rangeAsks;
-  await story.retry();
-  await expect.poll(story.range).toContain("second change");
-  await expect.element(story.alert).not.toBeInTheDocument();
-  expect(rangeAsks).toBeGreaterThan(asked);
-});
 
 const run = makeMe.aReviewRun
   .keyed("capture-chosen-run")
@@ -117,14 +40,14 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
   await expect.element(story.filesToggle).toBeVisible();
 
   // Landed runs is explained, not as a story without changes.
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await expect.poll(story.alertText).toBe(unreadable);
   await expect
     .poll(story.headerText)
     .toContain("The landed run's objects are missing from this machine.");
   expect(story.headerText()).not.toContain("No comparison is available");
   await expect.element(story.filesToggle).not.toBeInTheDocument();
-  await expect.element(story.run).toHaveValue(run.key);
+  await expect.element(story.runChoice(run.key)).toBeChecked();
 
   // CI comparison and Intent coverage say they describe the whole story at
   // the measured build.
@@ -169,7 +92,7 @@ test("a failed read of a chosen landed run offers Retry, which reads that run ag
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
 
   // Landed runs whose read fails explains the failure.
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await expect.poll(story.alertText).toContain(unreadable);
   await expect
     .poll(story.headerText)
@@ -223,7 +146,7 @@ test("a captured run with no end build keeps the measured baseline and can check
   });
   const story = intentStoryCompare();
   await story.chooseTab("CI comparison");
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   const endpoints = page.getByRole("table", {
     name: "Baseline and selection CI builds with timing",
   });
@@ -236,5 +159,5 @@ test("a captured run with no end build keeps the measured baseline and can check
   );
   await expect.poll(() => asks).toBe(2);
   await expect.element(endpoints.getByText(gap)).toBeVisible();
-  await expect.element(story.run).toHaveValue(run.key);
+  await expect.element(story.runChoice(run.key)).toBeChecked();
 });

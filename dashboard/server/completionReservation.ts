@@ -14,7 +14,7 @@ import {
   type CompletionSubmission,
 } from "./completionAdmission.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { reportedDoneNeedsContinuation } from "./doneSessionRecord.ts";
+import { reportedNativeDonePending } from "./doneSessionRecord.ts";
 
 // Both acknowledgment recovery and the locked disposition write respect
 // the same durable ordering, including newer reservations not yet applied.
@@ -84,7 +84,7 @@ export async function previousCompletion(
     applied,
     continueDone:
       retained.completion?.receipt === duplicate.receipt &&
-      reportedDoneNeedsContinuation(record, duplicate),
+      reportedNativeDonePending(record, duplicate),
   };
 }
 

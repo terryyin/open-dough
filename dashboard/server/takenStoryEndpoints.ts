@@ -32,10 +32,18 @@ export type TakenStoryEndpointFacts = {
   readonly branch?: string;
 };
 
-export type TakenStoryEndpoints =
-  | { readonly kind: "facts"; readonly facts: TakenStoryEndpointFacts }
+type TakenClaimGap =
   | { readonly kind: "unavailable"; readonly explanation: string }
   | { readonly kind: "absent" };
+
+export type TakenStoryEndpoints =
+  | { readonly kind: "facts"; readonly facts: TakenStoryEndpointFacts }
+  | TakenClaimGap;
+
+type TakenClaim = Omit<TakenStoryEndpointFacts, "liveTip"> & {
+  readonly claim: string;
+  readonly trunk: string;
+};
 
 async function storyStartOf(
   claim: string,
@@ -84,13 +92,7 @@ async function liveTipOf(
         explanation: `The recorded story branch ${branch} is no longer published on ${adapter ? "origin" : "GitHub"}.`,
       };
     }
-    // Make the tip and its first-parent ancestors readable for the revision
-    // walk that selects the provisional build.
-    await runGit(
-      ["fetch", "--quiet", "--no-write-fetch-head", "origin", head],
-      fetch,
-    );
-    await runGit(["rev-parse", "--verify", `${head}^{commit}`], call);
+    await fetchTip(head, fetch);
     return head;
   } catch (error) {
     return {
@@ -99,9 +101,103 @@ async function liveTipOf(
   }
 }
 
-// Resolve Taken comparison endpoints for `identity` of `source` from the
-// live claim on the configured trunk. Returns absent when no live profile
-// claims the identity (caller may treat that as a done-story gap).
+// Fetch exactly the advertised commit, also in readers that only track trunk.
+async function fetchTip(head: string, call: GitCall): Promise<void> {
+  await runGit(
+    ["fetch", "--quiet", "--no-write-fetch-head", "origin", head],
+    call,
+  );
+  await runGit(["rev-parse", "--verify", `${head}^{commit}`], call);
+}
+
+export async function publishedTakenBranchTip(
+  branch: string,
+  call: GitCall,
+): Promise<string | undefined> {
+  const fetch = { ...call, env: { ...call.env, GIT_TERMINAL_PROMPT: "0" } };
+  const head = await publishedBranchHead(branch, fetch);
+  if (head !== undefined) await fetchTip(head, fetch);
+  return head;
+}
+
+// Both Review and CI recover the claim and its story-start bound from the
+// configured target. The caller owns how it resolves the story branch's tip.
+export async function takenStoryClaim(
+  source: PublishedSource,
+  identity: string,
+  call: GitCall & { readonly signal: AbortSignal },
+): Promise<
+  { readonly kind: "claim"; readonly facts: TakenClaim } | TakenClaimGap
+> {
+  await fetchGitTarget("origin", source.ref, call);
+  const trunk = (
+    await runGit(
+      ["rev-parse", "--verify", `origin/${source.ref}^{commit}`],
+      call,
+    )
+  ).stdout.trim();
+  const story: ReviewedStory = {
+    identity,
+    profileDirectory: agentProfileDirectoryOf(source),
+  };
+  const live = await liveClaimsAt(story, trunk, call);
+  if ("explanation" in live)
+    return { kind: "unavailable", explanation: live.explanation };
+  if (live.length === 0) return { kind: "absent" };
+  if (live.length > 1) {
+    return {
+      kind: "unavailable",
+      explanation:
+        "More than one agent profile names this Taken story, so its comparison endpoints cannot be attributed safely.",
+    };
+  }
+  const [claiming] = live;
+  if (claiming === undefined) return { kind: "absent" };
+  if (agentNameOf(claiming.agent) === undefined) {
+    return {
+      kind: "unavailable",
+      explanation:
+        "The Taken story's live agent profile does not name a usable execution agent.",
+    };
+  }
+  const evidence = await publishedStoryEvidence(
+    story,
+    trunk,
+    publishedStoryHistory(call),
+    claiming.agent,
+  );
+  const [claim] = evidence.claims;
+  if (claim === undefined) {
+    return {
+      kind: "unavailable",
+      explanation:
+        "Published execution claim history does not establish a claim for this Taken story.",
+    };
+  }
+  const storyStart = await storyStartOf(claim, call);
+  if (storyStart === undefined || storyStart === "") {
+    return {
+      kind: "unavailable",
+      explanation:
+        "Published execution claim history does not name a usable story-start bound.",
+    };
+  }
+  return {
+    kind: "claim",
+    facts: {
+      identity,
+      claim,
+      trunk,
+      storyStart,
+      mode: claiming.mode,
+      agent: claiming.agent,
+      ...(claiming.mode === "story-branch" && claiming.branch !== undefined
+        ? { branch: claiming.branch }
+        : {}),
+    },
+  };
+}
+
 export async function takenStoryEndpoints(
   source: PublishedSource,
   identity: string,
@@ -109,69 +205,22 @@ export async function takenStoryEndpoints(
 ): Promise<TakenStoryEndpoints> {
   try {
     const directory = executionCheckout(source).path;
-    const call: GitCall = {
-      cwd: directory,
-      signal,
-      maxBuffer: 64 * 1024 * 1024,
-    };
-    await fetchGitTarget("origin", source.ref, { ...call, signal });
-    const trunk = (
-      await runGit(
-        ["rev-parse", "--verify", `origin/${source.ref}^{commit}`],
-        call,
-      )
-    ).stdout.trim();
-    const story: ReviewedStory = {
-      identity,
-      profileDirectory: agentProfileDirectoryOf(source),
-    };
-    const live = await liveClaimsAt(story, trunk, call);
-    if ("explanation" in live)
-      return { kind: "unavailable", explanation: live.explanation };
-    if (live.length === 0) return { kind: "absent" };
-    if (live.length > 1) {
-      return {
-        kind: "unavailable",
-        explanation:
-          "More than one agent profile names this Taken story, so its comparison endpoints cannot be attributed safely.",
-      };
-    }
-    const [claiming] = live;
-    if (claiming === undefined) return { kind: "absent" };
-    if (agentNameOf(claiming.agent) === undefined) {
-      return {
-        kind: "unavailable",
-        explanation:
-          "The Taken story's live agent profile does not name a usable execution agent.",
-      };
-    }
-    const evidence = await publishedStoryEvidence(
-      story,
+    const call = { cwd: directory, signal, maxBuffer: 64 * 1024 * 1024 };
+    const taken = await takenStoryClaim(source, identity, call);
+    if (taken.kind !== "claim") return taken;
+    const {
+      identity: claimed,
+      mode,
       trunk,
-      publishedStoryHistory(call),
-      claiming.agent,
-    );
-    const [claim] = evidence.claims;
-    if (claim === undefined) {
-      return {
-        kind: "unavailable",
-        explanation:
-          "Published execution claim history does not establish a claim for this Taken story.",
-      };
-    }
-    const storyStart = await storyStartOf(claim, call);
-    if (storyStart === undefined || storyStart === "") {
-      return {
-        kind: "unavailable",
-        explanation:
-          "Published execution claim history does not name a usable story-start bound.",
-      };
-    }
+      branch,
+      storyStart,
+      agent,
+    } = taken.facts;
     const tip = await liveTipOf(
       source,
-      claiming.mode,
+      mode,
       trunk,
-      claiming.branch,
+      branch,
       call,
       signal,
       directory,
@@ -181,14 +230,12 @@ export async function takenStoryEndpoints(
     return {
       kind: "facts",
       facts: {
-        identity,
-        mode: claiming.mode,
+        identity: claimed,
+        mode,
         storyStart,
-        agent: claiming.agent,
+        agent,
         liveTip: tip,
-        ...(claiming.mode === "story-branch" && claiming.branch !== undefined
-          ? { branch: claiming.branch }
-          : {}),
+        ...(branch === undefined ? {} : { branch }),
       },
     };
   } catch (error) {

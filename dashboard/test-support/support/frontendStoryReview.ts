@@ -26,7 +26,6 @@ export {
   frontendPublishedReview,
   frontendReviewIds,
   frontendReviewSnapshot,
-  frontendSessionCommitsReview,
 } from "./frontendStoryReviewFixtures.ts";
 
 export type FrontendStoryReview = {
