@@ -17,12 +17,18 @@ import {
 } from "./ciAdapterTimeout.ts";
 import type { GitCall } from "./gitRunner.ts";
 
+export type RevisionCiProviders = {
+  readonly github?: Parameters<typeof githubRevisionLookup>[4];
+  readonly adapter?: Parameters<typeof adapterRevisionLookup>[6];
+};
+
 export async function revisionLookupOrGap(
   source: PublishedSource,
   folderPath: string,
   call: GitCall,
   signal: AbortSignal,
   storyBranch: string | undefined,
+  providers: RevisionCiProviders = {},
 ): Promise<RevisionCiLookup | BaseCiJudgment> {
   const { adapter, workflow } = ciConfiguration(folderPath);
   if (adapter !== undefined) {
@@ -34,6 +40,7 @@ export async function revisionLookupOrGap(
         adapter,
         call,
         signal,
+        providers.adapter,
       );
     } catch (error) {
       if (comparisonDeadlineExpired(signal))
@@ -48,7 +55,13 @@ export async function revisionLookupOrGap(
     }
   }
   try {
-    return githubRevisionLookup(source, workflow, call, signal);
+    return githubRevisionLookup(
+      source,
+      workflow,
+      call,
+      signal,
+      providers.github,
+    );
   } catch (error) {
     return githubAcquisitionUnread(error, "The CI workflow could not be read");
   }

@@ -1,7 +1,7 @@
 // A streaming Board whose held stream is stopped or whose listing fails over
 // the stream: lost freshness with the snapshot kept, reopens at the pace, and
 // a replaced server across a new revision catches up; a 504 listing leaves the
-// watched branch shown. Slots stay free; the server pace is lowered.
+// watched branch shown. Both cases leave stream slots free.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { connect, createServer, type Socket } from "node:net";
@@ -52,6 +52,7 @@ import {
 } from "../../dashboard/test-support/support/dashboardServer.ts";
 import type { FakeGitHub } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import { signal } from "../../dashboard/test-support/support/processGroup.ts";
+import { ConnectionMark } from "./connectionMark.ts";
 
 const test = base.extend<{
   machine: string;
@@ -122,10 +123,15 @@ const test = base.extend<{
   },
 });
 
-test.use({
-  preholdRevisionStreamSlots: false,
-  extraEnv: streamServerEnv,
-});
+test.use({ preholdRevisionStreamSlots: false });
+
+// Each open answers immediately. Keep the next server tick beyond the real
+// test timeout, so no queued answer can restart the client's fake countdown.
+const stoppedStreamEnv = {
+  DOUGH_REVISION_STREAM_MS: String(revisionStreamSilenceMs),
+};
+const stoppedStreamTest = test.extend({ extraEnv: stoppedStreamEnv });
+const fastStreamTest = test.extend({ extraEnv: streamServerEnv });
 
 async function replacePreview(
   dashboard: DashboardServer,
@@ -138,73 +144,72 @@ async function replacePreview(
     prebuilt: sharedDashboardBuild,
     github,
     machine,
-    extraEnv: streamServerEnv,
+    extraEnv: stoppedStreamEnv,
   });
 }
 
-test("a stopped stream shows lost freshness within 45s with R kept; reopens at the pace; a replaced server across R' catches up", async ({
-  page,
-  dashboard,
-  github,
-  machine,
-  browserAddress,
-}) => {
-  const origin = await openStreamingAtA(page);
-  const { problem, retrievedAt, readRevision } = parts(page);
-  const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
-  expect(retrievedA).not.toBe("");
-  await expect(readRevision).toContainText(shortRevision(revisionA));
+stoppedStreamTest(
+  "a stopped stream shows lost freshness within 45s with R kept; reopens at the pace; a replaced server across R' catches up",
+  async ({ page, dashboard, github, machine, browserAddress }) => {
+    const origin = await openStreamingAtA(page);
+    await new ConnectionMark(page).shows("connected");
+    const { problem, retrievedAt, readRevision } = parts(page);
+    const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
+    expect(retrievedA).not.toBe("");
+    await expect(readRevision).toContainText(shortRevision(revisionA));
 
-  await test.step("SIGSTOP: 45s of page time shows today's failed-check problem with R kept", async () => {
-    signal(-dashboard.pid, "SIGSTOP");
-    await passPageMs(page, revisionStreamSilenceMs);
-    await expectLostFreshnessProblem(page, retrievedA, titlesOfA);
-  });
-
-  await test.step("reopen attempts come no more often than the pace", async () => {
-    signal(-dashboard.pid, "SIGKILL");
-    browserAddress.disconnect();
-    // Land the reopen scheduled by the silence loss, and let it fail closed.
-    const failedReopen = page.waitForEvent("requestfailed", (request) =>
-      isRevisionStream(request.url()),
-    );
-    await passPageMs(page, checkIntervalMs);
-    await failedReopen;
-    await expectStreamOpenGapsAtLeastPace(page);
-  });
-
-  let replacement: DashboardServer | undefined;
-  try {
-    await test.step("replaced server across R': first answer names R', page reads it, problem clears", async () => {
-      origin.push(revisionB, backlogB, recordsAt("B"));
-      const caughtUp = untilStreamingAt(page, revisionB);
-      replacement = await replacePreview(dashboard, github, machine);
-      browserAddress.forwardTo(replacement);
-      await passPageMs(page, checkIntervalMs);
-      await expectSettledPage(page, titlesOfB);
-      await expect(readRevision).toContainText(shortRevision(revisionB));
-      await expect(problem).toHaveCount(0);
-      await caughtUp;
+    await test.step("SIGSTOP: 45s of page time shows today's failed-check problem with R kept", async () => {
+      signal(-dashboard.pid, "SIGSTOP");
+      await passPageMs(page, revisionStreamSilenceMs);
+      await expectLostFreshnessProblem(page, retrievedA, titlesOfA);
     });
-  } finally {
-    await replacement?.close();
-  }
-});
 
-test("a 504 listing over the stream leaves the watched branch shown", async ({
-  page,
-}) => {
-  const streaming = untilStreamingAt(page, revision);
-  const { origin, progress } = await openedSettled(page);
-  await streaming;
-  await expect(progress).not.toContainText("no longer published");
-  const restore = origin.failListing();
-  try {
-    await untilMatchingRefsSince(page, githubFor(page).calls.length, 1);
-    await page.waitForTimeout(streamPaceMs * 3);
+    await test.step("reopen attempts come no more often than the pace", async () => {
+      signal(-dashboard.pid, "SIGKILL");
+      browserAddress.disconnect();
+      // Land the reopen scheduled by the silence loss, and let it fail closed.
+      const failedReopen = page.waitForEvent("requestfailed", (request) =>
+        isRevisionStream(request.url()),
+      );
+      await passPageMs(page, checkIntervalMs);
+      await failedReopen;
+      await expectStreamOpenGapsAtLeastPace(page);
+    });
+
+    let replacement: DashboardServer | undefined;
+    try {
+      await test.step("replaced server across R': first answer names R', page reads it, problem clears", async () => {
+        origin.push(revisionB, backlogB, recordsAt("B"));
+        const caughtUp = untilStreamingAt(page, revisionB);
+        replacement = await replacePreview(dashboard, github, machine);
+        browserAddress.forwardTo(replacement);
+        await passPageMs(page, checkIntervalMs);
+        await expectSettledPage(page, titlesOfB);
+        await expect(readRevision).toContainText(shortRevision(revisionB));
+        await expect(problem).toHaveCount(0);
+        await caughtUp;
+      });
+    } finally {
+      await replacement?.close();
+    }
+  },
+);
+
+fastStreamTest(
+  "a 504 listing over the stream leaves the watched branch shown",
+  async ({ page }) => {
+    const streaming = untilStreamingAt(page, revision);
+    const { origin, progress } = await openedSettled(page);
+    await streaming;
     await expect(progress).not.toContainText("no longer published");
-    await expect(page.getByRole("article", { name: onBranch })).toBeVisible();
-  } finally {
-    restore();
-  }
-});
+    const restore = origin.failListing();
+    try {
+      await untilMatchingRefsSince(page, githubFor(page).calls.length, 1);
+      await page.waitForTimeout(streamPaceMs * 3);
+      await expect(progress).not.toContainText("no longer published");
+      await expect(page.getByRole("article", { name: onBranch })).toBeVisible();
+    } finally {
+      restore();
+    }
+  },
+);

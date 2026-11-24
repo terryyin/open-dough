@@ -135,13 +135,14 @@ export async function readIntentCiProof(
   subject: CiProofSubject,
   signal: AbortSignal,
   folderOf: (source: PublishedSource) => string,
+  readers = { artifact: readCiProofArtifact, adapter: readCiAdapterProof },
 ): Promise<CiProof> {
   return isAdapterProofAttempt(subject)
-    ? await readCiAdapterProof(
+    ? await readers.adapter(
         source.repository,
         folderOf(source),
         subject,
         signal,
       )
-    : await readCiProofArtifact(source.repository, subject, signal);
+    : await readers.artifact(source.repository, subject, signal);
 }

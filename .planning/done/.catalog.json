@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-landed-ci-scope-proof.json",
+      "identity": "SEED-413#renovate-landed-ci-scope-proof",
+      "completedAt": "2026-11-24T09:00:51.185Z",
+      "blob": "c72d0b0a7bea9996cc5839d6cd263871ead3be8c"
+    },
+    {
       "fileName": "SEED-423_notify-claude-code-of-ci-through-one-path.json",
       "identity": "SEED-423#notify-claude-code-of-ci-through-one-path",
       "completedAt": "2026-11-24T08:24:46.868Z",

@@ -9,6 +9,7 @@ import {
   collectedProofOf,
   needsCollectedProof,
   proofRetainedWith,
+  type LandedProofRead,
 } from "./landedCiCollectedProof.ts";
 import {
   keepLandedCiResolution,
@@ -41,10 +42,11 @@ export async function collectLandingResolution(args: {
   history: ProjectHistory;
   order: readonly string[] | undefined;
   read: Parameters<typeof landingResolution>[2];
+  readProof: LandedProofRead;
   proofSignal: AbortSignal;
   ended: () => boolean;
 }): Promise<CollectLandingOutcome> {
-  const { source, landing, order, read, proofSignal, ended } = args;
+  const { source, landing, order, read, readProof, proofSignal, ended } = args;
   let history = await collectRetainedAttemptTiming(args);
   if (ended()) return { kind: "ended", history };
   const held = history.landings[landing.receipt]?.observed;
@@ -66,7 +68,12 @@ export async function collectLandingResolution(args: {
     const resolved = await landingResolution(source, landing, read);
     // A read the end of collection cut short says nothing of its CI.
     if (ended()) return { kind: "ended", history };
-    const collected = await proofRetainedWith(source, resolved, proofSignal);
+    const collected = await proofRetainedWith(
+      source,
+      resolved,
+      proofSignal,
+      readProof,
+    );
     if (ended()) return { kind: "ended", history };
     const measure =
       resolved.kind === "build"
@@ -111,6 +118,7 @@ export async function collectLandingResolution(args: {
         source,
         retained,
         proofSignal,
+        readProof,
       );
       const measure = needsCollectedMeasure(retained)
         ? await answeredCollectedMeasureOf(retained, read)

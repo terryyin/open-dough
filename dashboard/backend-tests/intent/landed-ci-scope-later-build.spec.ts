@@ -1,243 +1,189 @@
-// Actual Landed resolution and artifact acquisition through a local scoped read.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { githubApi } from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  collectedSummary,
-  playwrightRecord,
-  summaryTextZipAnswer,
-} from "../../test-support/support/ciProofCollected.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import {
-  collectingLandedCi,
-  restartAsLandedCiReader,
-  resultToLand,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  retainedHistory,
-  collectedScopeHistory,
-} from "../../test-support/support/collectedScopeHistory.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { land } from "../../test-support/support/startSessionLandingContext.ts";
-import { commonGitDir } from "../../test-support/support/launchLanding.ts";
-import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { publishCodeLandedBeforeCompletion } from "../../test-support/support/storyCiComparisonEarlierLanding.ts";
-import {
-  laterTrunkRevisions,
-  serveEarlierLandingWithLandedOutcome,
-} from "../../test-support/support/storyCiComparisonLandedOutcome.ts";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { readCiAdapterProof } from "../../server/ciAdapterProof.ts";
+import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
+import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
+import { readIntentCiProof } from "../../server/intentCiProofRead.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
+import { collectLandedCiPass } from "../../server/landedCiPass.ts";
+import { passRead } from "../../server/landedCiPassRead.ts";
+import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifacts.ts";
+import { archiveOf, listedArtifact } from "../support/ciProofMemory.ts";
 
-test.use({
-  serverMode: "boundary",
-  extraEnv: collectingLandedCi,
-  liveServer: "synchronous delivery child blocks the mounted receiver",
-});
-const readers: DashboardServer[] = [];
-test.afterEach(async () => {
-  await Promise.all(readers.splice(0).map((reader) => reader.close()));
-});
-const retainedProof = (home: string, key: string) =>
-  retainedHistory(home)?.builds[key]?.proof;
-const scopedHistory = (origin: string, revision: string) =>
-  collectedScopeHistory(
-    origin,
-    "dashboard/tests",
-    revision,
-    "2026-11-05T14:00:00.000Z",
-  );
+const source = makeMe.aPublishedSource.openDough.please();
+const history = makeMe.aRepository
+  .withBaseBeforeEveryLaunch()
+  .withRevision("landed", { files: { "landed.txt": "Earlier landing\n" } })
+  .withRevision("later", { files: { "later.txt": "Later trunk build\n" } })
+  .withRevision("unrelated", {
+    files: { "unrelated.txt": "Unrelated landing\n" },
+  })
+  .please();
 
-test("a cancelled landing's collected scope uses its labelled later attempt and omits unrelated later landing points", async ({
-  page,
-  dashboard,
-  origin,
-  github,
-}) => {
-  const setup = await publishCodeLandedBeforeCompletion(page, origin);
-  const landing = setup.landingMerge;
-  const later = laterTrunkRevisions(origin.origin, landing);
-  const unrelated = later.at(-1);
-  expect(later[0]).toBe(setup.completion);
-  if (unrelated === undefined || unrelated === setup.completion)
-    throw new Error("Fixture needs an unrelated later trunk landing.");
-  const recorded = [
-    {
-      revision: landing,
-      base: setup.trunkSide,
-      receipt: "30000000-0000-4000-8000-000000000001",
-      at: "2026-11-05T14:00:00.000Z",
-    },
-    {
-      revision: unrelated,
-      base: setup.advanced,
+test("a cancelled landing uses its labeled later attempt and excludes unrelated landing points", async () => {
+  const checkout = await materializeRepository(history);
+  const repository = checkout.integration;
+  const { base, landed, later, unrelated } = checkout.revisions;
+  vi.stubEnv("HOME", checkout.fixture);
+  const stopped = new AbortController();
+  onTestFinished(async () => {
+    stopped.abort();
+    vi.unstubAllEnvs();
+    await checkout.cleanup();
+  });
+
+  const cancelled = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing({ base, revision: landed })
+    .receivedAt("2026-11-05T14:00:00.000Z")
+    .please();
+  const other = makeMe.aLaunchLanding
+    .capturedFrom({ repository })
+    .comparing({ base: later, revision: unrelated })
+    .deliveredAs({
+      delivery: "30000000-0000-4000-8000-000000000001",
       receipt: "30000000-0000-4000-8000-000000000002",
-      at: "2026-11-05T15:00:00.000Z",
+    })
+    .receivedAt("2026-11-05T15:00:00.000Z")
+    .please();
+  const scope = "dashboard/tests";
+  const file = `${scope}/a.spec.ts`;
+  const laterUrl = "https://ci.invalid/runs/304";
+  const laterStartedAt = "2026-11-06T10:00:00Z";
+
+  const builds = [
+    {
+      runId: 304,
+      revision: later,
+      url: laterUrl,
+      startedAt: laterStartedAt,
+      ms: 3400,
     },
-  ];
-  keepMoreLaunchRecords(
-    dashboard,
-    recorded.map(({ revision, base, receipt, at }) =>
-      makeMe.aLaunchRecord
-        .executing({ identity: setup.identity, title: "Story A" })
-        .inClaudeSession({ sessionId: receipt })
-        .launchedAt(at)
-        .completedWith({ message: "", receivedAt: at })
-        .markedDoneAt(at)
-        .withCapturedLanding(
-          makeMe.aLaunchLanding
-            .capturedFrom({
-              repository: commonGitDir(origin.project),
-              identity: setup.identity,
-            })
-            .forLaunch(receipt)
-            .deliveredAs({ delivery: receipt, receipt })
-            .comparing({
-              base,
-              revision,
-            })
-            .receivedAt(at)
+    {
+      runId: 399,
+      revision: unrelated,
+      url: "https://ci.invalid/runs/399",
+      startedAt: "2026-11-07T10:00:00Z",
+      ms: 9900,
+    },
+  ].map(({ runId, revision, url, startedAt, ms }) => {
+    const attempt = makeMe.aCiProofRun
+      .with({ runId, runAttempt: 1, revision })
+      .please();
+    const run = makeMe.aCiRun
+      .with({
+        id: runId,
+        attempt: attempt.runAttempt,
+        headSha: revision,
+        url,
+        startedAt,
+        completedAt: new Date(Date.parse(startedAt) + 60_000).toISOString(),
+      })
+      .please();
+    const summary = proofSummaryForEntry(
+      { repository: source.repository, runId, attempt: 1, revision },
+      makeMe.aCiProofEntry
+        .at(scope)
+        .holding(
+          makeMe.aCiProofEvidence
+            .inUnit("case")
+            .brokenDown({ path: file, passed: 1, durationMs: ms })
             .please(),
         )
         .please(),
-    ),
-  );
-  const trigger = await resultToLand(
-    dashboard,
-    "trigger-later-scope-proof.txt",
-  );
-  serveEarlierLandingWithLandedOutcome(setup, "cancelled", {
-    [setup.completion]: [
-      makeMe.aCiRun
-        .with({
-          headSha: setup.completion,
-          id: 304,
-          attempt: 1,
-          conclusion: "success",
-          url: "https://ci.invalid/runs/304",
-          createdAt: "2026-11-06T10:00:00Z",
-          startedAt: "2026-11-06T10:00:00Z",
-          completedAt: "2026-11-06T10:01:00Z",
-        })
-        .please(),
-    ],
-    [unrelated]: [
-      makeMe.aCiRun
-        .with({
-          headSha: unrelated,
-          id: 399,
-          attempt: 1,
-          conclusion: "success",
-          url: "https://ci.invalid/runs/399",
-          createdAt: "2026-11-07T10:00:00Z",
-          startedAt: "2026-11-07T10:00:00Z",
-          completedAt: "2026-11-07T10:01:00Z",
-        })
-        .please(),
-    ],
-    [trigger.revision]: [],
-  });
-  const texts = new Map<number, string>();
-  for (const [runId, revision, ms] of [
-    [304, setup.completion, 3400],
-    [399, unrelated, 9900],
-  ] as const)
-    texts.set(
-      runId,
-      collectedSummary(
-        { repository: "terryyin/open-dough", runId, attempt: 1, revision },
-        [{ entry: "dashboard/tests", parts: 1, unit: "case" }],
-        [
-          {
-            entries: ["dashboard/tests"],
-            part: 1,
-            of: 1,
-            byFile: true,
-            record: playwrightRecord([
-              ["dashboard/tests/a.spec.ts", "expected", [ms]],
-            ]),
-          },
-        ],
-      ),
     );
-  setup.serveProofs(
-    Object.fromEntries(
-      [...texts].map(([runId, text]) => [
-        runId,
-        {
-          kind: "summary" as const,
-          artifactId: runId + 1000,
-          summary: JSON.parse(text) as unknown,
-        },
-      ]),
-    ),
-  );
-  setup.interceptActions((argv) => {
-    const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
-    const artifact = /\/actions\/artifacts\/(\d+)\/zip$/.exec(route)?.[1];
-    const text =
-      artifact === undefined ? undefined : texts.get(Number(artifact) - 1000);
-    return text === undefined ? undefined : summaryTextZipAnswer(text);
+    return { revision, run, runId, attempt, archive: archiveOf(summary) };
   });
-  expect(
-    land(trigger.record, origin, dashboard.home).result.landing.receipt
-      .revision,
-  ).toBe(trigger.revision);
-  await expect
-    .poll(() => retainedProof(dashboard.home, "run/304/1"))
-    .toMatchObject({
-      kind: "summary",
-      summary: {
-        revision: setup.completion,
-        runId: 304,
-        entries: [
-          {
-            path: "dashboard/tests",
-            evidence: [{ unit: "case", durationMs: 3400 }],
-          },
-        ],
-      },
-    });
-  await expect
-    .poll(() => scopedHistory(dashboard.origin, landing))
-    .toMatchObject({
-      status: 200,
-      body: {
-        selectedRevision: landing,
-        availability: "retained",
-        entries: [
-          {
-            kind: "point",
-            readings: [{ kind: "point", unit: "case", ms: 3400 }],
-            selected: true,
-            date: "2026-11-06T10:00:00Z",
-            build: {
-              revision: setup.completion,
-              runId: 304,
-              runAttempt: 1,
-              runUrl: "https://ci.invalid/runs/304",
-              provenance: "later",
-            },
-            landings: [
-              { revision: landing, selected: true, provenance: "later" },
-            ],
-          },
-        ],
-      },
-    });
-  const reader = await restartAsLandedCiReader(
-    dashboard,
-    origin,
-    "boundary",
-    "the preceding live server retains the machine's Cursor runner",
+  const cancelledRun = makeMe.aCiRun
+    .with({
+      id: 303,
+      headSha: landed,
+      conclusion: "cancelled",
+      startedAt: cancelled.receivedAt,
+      completedAt: cancelled.receivedAt,
+    })
+    .please();
+  const github = githubApi(({ commit }: { commit?: string }) =>
+    commit === landed
+      ? [cancelledRun]
+      : builds
+          .filter((build) => build.revision === commit)
+          .map(({ run }) => run),
   );
-  readers.push(reader);
-  const answer = await scopedHistory(reader.origin, landing);
-  expect((answer.body as { entries: unknown[] }).entries).toHaveLength(1);
-  expect(JSON.stringify(answer.body)).not.toContain(unrelated);
+  const artifact = ciProofArtifactReader({
+    listing: (args: readonly string[]) =>
+      Promise.resolve({
+        artifacts: builds
+          .filter(({ runId }) =>
+            args[1]?.includes(`/runs/${String(runId)}/artifacts?`),
+          )
+          .map(({ attempt, runId }) => listedArtifact(attempt, 1000 + runId)),
+      }),
+    archive: (args) => {
+      const build = builds.find(({ runId }) =>
+        args[1]?.endsWith(`/artifacts/${String(1000 + runId)}/zip`),
+      );
+      if (build === undefined)
+        throw new Error("Unexpected proof archive request");
+      return Promise.resolve(build.archive);
+    },
+  });
+
+  await collectLandedCiPass({
+    source,
+    receipts: [cancelled, other],
+    history: await keptLandedCiHistory(source.id),
+    repository,
+    stopped: stopped.signal,
+    read: passRead(source, repository, stopped.signal, {
+      providers: { github },
+      readArtifact: artifact,
+    }),
+    readProof: (project, subject, signal) =>
+      readIntentCiProof(project, subject, signal, () => repository, {
+        artifact,
+        adapter: readCiAdapterProof,
+      }),
+  });
+
+  const kept = await keptLandedCiHistory(source.id);
+  expect(kept.landings[other.receipt]?.observed).toMatchObject({
+    kind: "build",
+    build: "run/399/1",
+    selection: "exact",
+  });
+  expect(kept.builds["run/399/1"]?.proof?.kind).toBe("summary");
   expect(
-    github.calls.filter(
-      ({ request }) =>
-        request.kind === "actions-artifact-zip" && request.artifactId === 1304,
-    ),
-  ).toHaveLength(1);
-  const asked = github.calls.length;
-  expect(await scopedHistory(reader.origin, landing)).toEqual(answer);
-  expect(github.calls.slice(asked)).toEqual([]);
+    await performIntentCiHistoryRead(source, {
+      kind: "intent-ci-history",
+      scope: file,
+      revision: landed,
+      through: cancelled.receivedAt,
+    }),
+  ).toMatchObject({
+    kind: "answered",
+    answer: {
+      selectedRevision: landed,
+      availability: "retained",
+      entries: [
+        {
+          key: "run/304/1",
+          kind: "point",
+          readings: [{ kind: "point", unit: "case", ms: 3400 }],
+          selected: true,
+          date: laterStartedAt,
+          build: {
+            revision: later,
+            runId: 304,
+            runAttempt: 1,
+            runUrl: laterUrl,
+            provenance: "later",
+          },
+          landings: [{ revision: landed, selected: true, provenance: "later" }],
+        },
+      ],
+    },
+  });
 });

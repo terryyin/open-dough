@@ -115,10 +115,7 @@ export async function answer(
       url.pathname === landingPrepareEndpoint ||
       url.pathname === landingEndpoint
     ) {
-      const receipt = await submitLanding(req);
-      // The recorded landing's CI is collected whether or not a page is open.
-      if (url.pathname === landingEndpoint) landedCi.nudge();
-      return { status: 200, body: receipt };
+      return { status: 200, body: await submitLanding(req, landedCi) };
     }
     if (url.pathname === sessionAttachmentEndpoint) {
       return {

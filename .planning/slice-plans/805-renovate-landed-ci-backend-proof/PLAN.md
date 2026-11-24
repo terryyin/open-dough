@@ -51,7 +51,7 @@ that still catches the distinct regressions in these 14 source files.
   only the existing history projection from adapter composition. Keep
   reads, selection and pruning on their existing production path. Check all
   call sites and affected scoped-history specs before accepting the change.
-- The [scoped proof story](../806-renovate-landed-ci-scope-proof/PLAN.md) may
+- The [scoped proof story](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/slice-plans/806-renovate-landed-ci-scope-proof/PLAN.md) may
   also change these entries. Each story starts from the current composition
   and can deliver independently. The [automatic-repeat correction](../607-close-landed-ci-repeat-check-gaps/PLAN.md)
   keeps its distinct process, natural-load and fault obligations.
