@@ -6,7 +6,7 @@ authoritative.
 
 ## Read published comparisons from the Review repository
 
-After [Review published changes](seeds/SEED-427-review-published-changes.md#review-published-changes),
+After [Review published changes](https://github.com/terryyin/open-dough/blob/d0489607774ee6a3dd2c69b3fd5e0409288e68ab/.planning/seeds/SEED-427-review-published-changes.md#review-published-changes),
 move every published code review read to one dashboard-managed bare Review
 repository per project. Origin supplies the published history. Share bounded
 fetches per project and serve file lists, diffs, and source from local Git. Resolve

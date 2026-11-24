@@ -218,7 +218,7 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
 - **Evaluation.** Split one family at a time when it is reached, each sized
   to one plan. A family is the cases that share a typed handler and its
   arrangement. Recount the review families after
-  [Review published changes](SEED-427-review-published-changes.md#review-published-changes)
+  [Review published changes](https://github.com/terryyin/open-dough/blob/d0489607774ee6a3dd2c69b3fd5e0409288e68ab/.planning/seeds/SEED-427-review-published-changes.md#review-published-changes)
   so migration covers the surviving published-review cases and fixtures.
   For each family:
   - Keep wire transport thin over exported strongly typed handlers sharing

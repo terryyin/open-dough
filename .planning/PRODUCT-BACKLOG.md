@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Review published changes](seeds/SEED-427-review-published-changes.md#review-published-changes) — SEED-427#review-published-changes ([plan](slice-plans/802-review-published-changes/PLAN.md))
-
 ## Backlog list
 
 - [Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository) — SEED-428#read-reviews-from-the-review-repository
