@@ -13,7 +13,14 @@ import {
   mountProjectConfiguration,
 } from "../../server/projectConfiguration.ts";
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
+import { reviewRepositoryPath } from "../../server/reviewRepository.ts";
+import { knownSource } from "../../server/sessionAdmission.ts";
 import { storyReview } from "../../server/storyReview.ts";
+import {
+  reviewOriginHangs,
+  shortSyncDeadline,
+  timedOutSync,
+} from "../support/hangingOrigin.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { reviewLaunch } from "../../test-support/support/reviewRunRecords.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
@@ -159,5 +166,53 @@ test("a landed run never synced and opened offline is unavailable and names the 
   expect(answer.kind).toMatch(/unavailable/);
   expect("explanation" in answer && answer.explanation).toMatch(
     /^The review could not sync from origin/,
+  );
+});
+
+const deadlineMs = 1500;
+const originHangs = () =>
+  reviewOriginHangs(reviewRepositoryPath(knownSource("open-dough")));
+
+test("a synced landed run reopened while origin hangs shows its last synced pair, naming the timeout", async () => {
+  const { base, accepted, review } = await retiredLandedRun();
+  const signal = new AbortController().signal;
+  const synced = await storyReview(review, signal);
+  if (synced.kind !== "landed") throw new Error("No landed review");
+  await originHangs();
+
+  const reopened = await storyReview(
+    review,
+    signal,
+    shortSyncDeadline(deadlineMs),
+  );
+
+  // The timeout names the deadline that cut the hang, well before it ends.
+  expect(reopened).toMatchObject({
+    kind: "landed",
+    baseline: base,
+    tree: accepted,
+    files: synced.files,
+    syncFailure: { problem: timedOutSync(deadlineMs) },
+  });
+});
+
+test("a landed run never synced and opened while origin hangs is unavailable and names the timed-out sync", async () => {
+  const { review } = await retiredLandedRun();
+  await originHangs();
+
+  const answer = await storyReview(
+    review,
+    new AbortController().signal,
+    shortSyncDeadline(deadlineMs),
+  );
+
+  expect(answer).toMatchObject({
+    kind: "landing-unavailable",
+    explanation: expect.stringMatching(
+      /^The review could not sync from origin/,
+    ) as unknown,
+  });
+  expect("explanation" in answer && answer.explanation).toContain(
+    timedOutSync(deadlineMs),
   );
 });

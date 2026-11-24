@@ -6,11 +6,12 @@
 // with the execution checkout retired, and a failed sync that leaves the
 // record absent is named.
 import { randomUUID } from "node:crypto";
-import { renameSync } from "node:fs";
+import { realpathSync, renameSync } from "node:fs";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { launchExactReads } from "../../server/launchExactReads.ts";
 import { fetchedPublishedSessionSource } from "../../server/publishedSessionSource.ts";
+import { ReviewSyncDeadline } from "../../server/reviewRepository.ts";
 import { storyReview } from "../../server/storyReview.ts";
 import { reviewInput } from "../../server/storyReviewInput.ts";
 import {
@@ -22,6 +23,12 @@ import {
   aNeverSyncedPublishedSessionOffline,
   aSyncedPublishedSession,
 } from "../support/publishedSessionCase.ts";
+import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
+import {
+  reviewOriginHangs,
+  shortSyncDeadline,
+  timedOutSync,
+} from "../support/hangingOrigin.ts";
 
 const published = { source: "open-dough", published: randomUUID() };
 const file = { baseline: "a".repeat(40), tree: "b".repeat(40), path: "a.txt" };
@@ -86,18 +93,29 @@ const newSignal = () => new AbortController().signal;
 const originMain = async (cwd: string) =>
   (await git(cwd, "rev-parse", "origin/main")).stdout.trim();
 
-test("a UUID at the last synced trunk resolves without starting a fetch", async () => {
-  const { repository, recordedAt, sessionId, source } =
-    await aSyncedPublishedSession();
-  let fetches = 0;
+type Synced = Awaited<ReturnType<typeof aSyncedPublishedSession>>;
 
-  const resolved = await fetchedPublishedSessionSource(source, sessionId, {
-    admission: newSignal,
-    fetch: () => {
-      fetches += 1;
-      return newSignal();
+// Resolve a session's source as an open does, counting the Review
+// repository's fetches.
+async function resolvedCountingFetches(session: (synced: Synced) => string) {
+  const synced = await aSyncedPublishedSession();
+  const recording = stubRemoteRequestRecording(synced.fixture);
+  const resolved = await fetchedPublishedSessionSource(
+    synced.source,
+    session(synced),
+    {
+      admission: newSignal,
+      request: newSignal(),
+      syncDeadline: new ReviewSyncDeadline(),
     },
-  });
+  );
+  const fetches = recording.fetchesIn(realpathSync(synced.repository));
+  return { ...synced, resolved, fetches };
+}
+
+test("a UUID at the last synced trunk resolves without starting a fetch", async () => {
+  const { repository, recordedAt, resolved, fetches } =
+    await resolvedCountingFetches(({ sessionId }) => sessionId);
 
   expect(resolved.revision).toBe(recordedAt);
   expect(await originMain(repository)).toBe(recordedAt);
@@ -105,16 +123,8 @@ test("a UUID at the last synced trunk resolves without starting a fetch", async 
 });
 
 test("an absent UUID starts one fetch and resolves the advanced origin/main", async () => {
-  const { repository, advanced, source } = await aSyncedPublishedSession();
-  let fetches = 0;
-
-  const resolved = await fetchedPublishedSessionSource(source, randomUUID(), {
-    admission: newSignal,
-    fetch: () => {
-      fetches += 1;
-      return newSignal();
-    },
-  });
+  const { repository, advanced, resolved, fetches } =
+    await resolvedCountingFetches(() => randomUUID());
 
   expect(resolved.revision).toBe(advanced);
   expect(await originMain(repository)).toBe(advanced);
@@ -129,11 +139,18 @@ const failedSync = {
   ) as unknown,
 };
 
-const reviewed = async (session: string) => {
+const reviewed = async (
+  session: string,
+  syncDeadline = new ReviewSyncDeadline(),
+) => {
   const signal = newSignal();
   const subject = { source: "open-dough", published: session };
   return storyReviewSchema.parse(
-    await storyReview(await reviewInput({ subject }, signal), signal),
+    await storyReview(
+      await reviewInput({ subject }, signal, syncDeadline),
+      signal,
+      syncDeadline,
+    ),
   );
 };
 
@@ -159,31 +176,18 @@ test("a session absent after a successful sync is refused as unknown", async () 
   });
 });
 
-test("a hung fetch for a session absent from the last sync names the failed sync", async () => {
-  const { repository, source } = await aSyncedPublishedSession();
-  const boundMs = 500;
-  await git(
-    repository,
-    "remote",
-    "set-url",
-    "origin",
-    "ssh://example.invalid/x.git",
+test("a session absent from the last sync, opened while origin hangs, names the timed-out sync", async () => {
+  const { repository, unsyncedSessionId } = await aSyncedPublishedSession();
+  await reviewOriginHangs(repository);
+  const deadlineMs = 500;
+
+  const review = await reviewed(
+    unsyncedSessionId,
+    shortSyncDeadline(deadlineMs),
   );
-  await git(repository, "config", "core.sshCommand", "sh -c 'sleep 2'");
 
-  let fetchSignal: AbortSignal | undefined;
-  const opened = fetchedPublishedSessionSource(source, randomUUID(), {
-    admission: () => AbortSignal.timeout(boundMs),
-    fetch: () => {
-      fetchSignal = AbortSignal.timeout(boundMs);
-      return fetchSignal;
-    },
-  });
-
-  await expect(opened).rejects.toMatchObject({
-    message: expect.stringContaining(
-      "The review could not sync from origin",
-    ) as unknown,
-  });
-  expect(fetchSignal?.aborted).toBe(true);
+  expect(review).toMatchObject(failedSync);
+  expect("explanation" in review && review.explanation).toContain(
+    timedOutSync(deadlineMs),
+  );
 });

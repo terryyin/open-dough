@@ -119,7 +119,7 @@ async function requirePublishedCompletion(
     source,
     identity,
     admissionBound(signal),
-    completion,
+    { completion },
   );
   throwIfRequestAborted(signal);
   if (review?.kind !== "published")

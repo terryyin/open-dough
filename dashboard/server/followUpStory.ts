@@ -24,6 +24,7 @@ import { PinnedTexts } from "./pinnedTexts.ts";
 import { publishedSessionRecord } from "./publishedSessionReview.ts";
 import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
 import { RetainedAnswers } from "./retainedAnswers.ts";
+import { ReviewSyncDeadline } from "./reviewRepository.ts";
 import { RevisionMemo } from "./revisionMemo.ts";
 import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
 
@@ -87,11 +88,13 @@ async function readSelectedPublications(
   if (ids.length === 0) return [];
   const now = new Date();
   const signal = admissionBound();
+  const syncDeadline = ReviewSyncDeadline.forSession();
   const records = await mapPool(ids, listedReadConcurrency, async (id) => {
     try {
       const published = await fetchedPublishedSessionSource(source, id, {
         admission: () => signal,
-        fetch: () => signal,
+        request: signal,
+        syncDeadline,
       });
       return await publishedSessionRecord(published, id, now, signal);
     } catch {

@@ -11,6 +11,7 @@ import {
   reviewedFileDiff,
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
+import { ReviewSyncDeadline } from "../../server/reviewRepository.ts";
 import { publishedStoryReview } from "../../server/storyReviewPublished.ts";
 import { completedStoryContributionHistory } from "../../test-support/support/completedStoryHistory.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
@@ -60,6 +61,7 @@ test("a branch completion admits incoming file text only on the widened pair", a
     knownSource(subject.source),
     subject.identity,
     signal,
+    { syncDeadline: new ReviewSyncDeadline() },
   );
   if (review?.kind !== "published") throw new Error("No published completion");
   expect(review).toMatchObject({

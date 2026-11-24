@@ -257,9 +257,16 @@ UUID now also falls back to its launch record on a failed sync
 gets "This project published no such session.". The product reaches file reads
 only after an open, so that case has no dedicated test.
 
+CI run 45435504555 attempt 1 failed on two jobs, both during setup. In Lint
+and type-check, "Restore npm cache" stalled at 90% and timed out. In e2e
+shard 5/6, the Node download finished after its acquisition deadline. Both
+stalls happened at the same time. No other run among the last 40 failures
+had an acquisition failure. This was judged runner network infrastructure,
+and attempt 2 of the failed jobs passed.
+
 ### 4. Answer from the last sync when origin hangs
 Type: Behavior
-Status: planned
+Status: done
 Proof: backend `dashboard/backend-tests/review/story-review-offline-sync.spec.ts` and `dashboard/backend-tests/review/story-review-published-landing.spec.ts` with a hanging origin and a short injected deadline; `story-review-completed-shared-fetch.spec.ts` and `e2e/review/story-review-offline.spec.ts` stay green.
 
 Behavior:
@@ -272,6 +279,17 @@ Behavior:
 Change: implement the sync-deadline decision above. Taken's trunk and branch
 syncs share one deadline. Sessions keep their existing 30s fetch bound,
 expressed through the same input.
+
+Accepted proof: `ReviewSyncDeadline` in `reviewRepository.ts` is created once
+per open by `openSyncDeadline`: 30s after a successful sync, 50s when the
+project never synced, and 30s for every session open
+(`review-sync-deadline.spec.ts`). Taken and landed reopens against a hanging
+origin answer from the last sync with "origin did not answer within N
+seconds". Never-synced opens are unavailable and name the timed-out sync. A
+Taken reopen whose trunk sync used up the deadline starts no branch fetch:
+the Review repository fetch count is 1, and 2 with a fresh deadline per sync.
+The hanging-origin fixture (`backend-tests/support/hangingOrigin.ts`) execs its
+sleep, so an aborted fetch releases the fetch queue.
 
 ### 5. Restore the CI Git-root guard's backend case
 Type: Structure
@@ -290,7 +308,7 @@ parent-publication steps. Product code is unchanged.
 ### G1. A hung session sync names the abort, not the timeout, and is observed only below storyReview
 Reported: slice 3 — "For a hang, the problem text is the abort message. Slice 4 should fold sessionSyncFailure's abort handling into reviewSyncFailure and its timeout wording."
 Story clause: "names the failed sync when nothing synced earlier can answer"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `dashboard/backend-tests/review/published-session-review-request.spec.ts` "a session absent from the last sync, opened while origin hangs, names the timed-out sync" answers session-unavailable through `reviewInput` and `storyReview` with "origin did not answer within N seconds" (run s4-8)
 
 ## Concern evidence
 

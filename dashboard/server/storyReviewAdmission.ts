@@ -49,12 +49,9 @@ export async function admitReviewedFile(
         400,
         "The file names multiple review comparisons.",
       );
-    const review = await publishedTakenReview(
-      source,
-      identity,
-      signal,
-      publishedHead,
-    );
+    const review = await publishedTakenReview(source, identity, signal, {
+      head: publishedHead,
+    });
     if (
       review.kind !== "published-taken" ||
       !belongsOnPublishedStory(review, file)

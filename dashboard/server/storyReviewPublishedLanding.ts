@@ -21,7 +21,6 @@ import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 import {
   lastSyncedReviewRepository,
   reviewRepositoryPath,
-  reviewRepositoryRead,
   type ReviewRepositoryReader,
   ReviewSyncFailed,
   withSyncFailure,
@@ -142,7 +141,7 @@ export async function recordedLandingReview(
   identity: string,
   reference: string,
   signal: AbortSignal,
-  reader: ReviewRepositoryReader = reviewRepositoryRead,
+  reader: ReviewRepositoryReader,
 ): Promise<
   Extract<StoryReview, { kind: "landed" | "landing-unavailable" }> | undefined
 > {

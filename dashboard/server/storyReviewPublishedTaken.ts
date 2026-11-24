@@ -13,6 +13,7 @@ import { publishedStoryComparison } from "./storyReviewPublished.ts";
 import {
   failedSyncExplanation,
   reviewRepositoryPath,
+  type ReviewSyncDeadline,
   reviewSyncFailure,
   withSyncFailure,
 } from "./reviewRepository.ts";
@@ -48,24 +49,27 @@ function keepBuiltComparison(key: string, review: PublishedTakenReview) {
 // repository by exact ref. A named head (a file read) makes no remote request:
 // it is usable only while the last synced target or branch contains it. Git
 // may already hold the object locally, which does not establish publication.
+// Both syncs of an open share its deadline.
 export async function publishedTakenReview(
   source: PublishedSource,
   identity: string,
   signal: AbortSignal,
-  namedHead?: string,
+  read:
+    { readonly syncDeadline: ReviewSyncDeadline } | { readonly head: string },
 ): Promise<PublishedTakenReview> {
   try {
-    const live = namedHead === undefined;
+    const syncDeadline = "syncDeadline" in read ? read.syncDeadline : undefined;
+    const namedHead = "head" in read ? read.head : undefined;
     const directory = reviewRepositoryPath(source);
     const call = { cwd: directory, signal, maxBuffer: 64 * 1024 * 1024 };
     // A failed live sync keeps the last synced refs readable, with a notice.
     let syncFailure: ReviewSyncFailure | undefined;
-    const attemptSync = async (ref: string) => {
-      const failure = await reviewSyncFailure(source, signal, ref);
+    const attemptSync = async (deadline: ReviewSyncDeadline, ref: string) => {
+      const failure = await reviewSyncFailure(source, signal, deadline, ref);
       if (failure !== undefined && !unpublishedRef(failure))
         syncFailure = failure;
     };
-    if (live) await attemptSync(source.ref);
+    if (syncDeadline !== undefined) await attemptSync(syncDeadline, source.ref);
     if (syncFailure !== undefined && !(await syncedRef(source.ref, call)))
       return unavailableAfterFailedSync(syncFailure);
     const git = async (...args: string[]) =>
@@ -99,7 +103,8 @@ export async function publishedTakenReview(
       return unavailable("The Taken story does not record a published branch.");
     if (!isSafeBranchName(target))
       return unavailable("The recorded branch name is not usable.");
-    if (mode === "story-branch" && live) await attemptSync(target);
+    if (mode === "story-branch" && syncDeadline !== undefined)
+      await attemptSync(syncDeadline, target);
     const tip = mode === "trunk" ? trunk : await syncedRef(target, call);
     if (tip === undefined && syncFailure !== undefined)
       return unavailableAfterFailedSync(syncFailure);

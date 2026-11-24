@@ -22,7 +22,6 @@ import {
 } from "./gitRunner.ts";
 import {
   lastSyncedReviewRepository,
-  reviewRepositoryRead,
   type ReviewRepositoryReader,
   ReviewSyncFailed,
   withSyncFailure,
@@ -37,7 +36,7 @@ export async function landedStoryReview(
   run: LandingReviewSource,
   signal: AbortSignal,
   source: PublishedSource,
-  reader: ReviewRepositoryReader = reviewRepositoryRead,
+  reader: ReviewRepositoryReader,
 ): Promise<StoryReview> {
   const { record } = run;
   const reference = landingReportingReference(record);

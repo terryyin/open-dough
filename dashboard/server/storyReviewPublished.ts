@@ -13,17 +13,24 @@ import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import {
   lastSyncedReviewRepository,
   reviewRepositoryRead,
+  type ReviewSyncDeadline,
   ReviewSyncFailed,
   withSyncFailure,
 } from "./reviewRepository.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
 import { compareOriginalTrees, listedFrom } from "./storyReviewComparison.ts";
 
+// An open syncs within its deadline; a named completion (a file or follow-up
+// read) reads what the last sync left.
+type PublishedStoryRead =
+  | { readonly syncDeadline: ReviewSyncDeadline }
+  | { readonly completion: string };
+
 export async function publishedStoryReview(
   source: PublishedSource,
   identity: string,
   signal: AbortSignal,
-  namedCompletion?: string,
+  read: PublishedStoryRead,
 ): Promise<StoryReview | undefined> {
   const unavailable = (explanation: string): StoryReview => ({
     kind: "unavailable",
@@ -31,11 +38,11 @@ export async function publishedStoryReview(
   });
   try {
     // A named completion admits a file or follow-up after an open has
-    // synced: it reads the last sync, and the endpoints refuse a completion
-    // beyond the synced target.
+    // synced: the endpoints refuse a completion beyond the synced target.
+    const namedCompletion = "completion" in read ? read.completion : undefined;
     const { repository: directory, syncFailure } = await (
-      namedCompletion === undefined
-        ? reviewRepositoryRead
+      "syncDeadline" in read
+        ? reviewRepositoryRead(read.syncDeadline)
         : lastSyncedReviewRepository
     )(source, signal);
     const endpoints = await publishedStoryEndpoints(

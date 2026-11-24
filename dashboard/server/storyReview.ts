@@ -12,7 +12,15 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
-import { reviewInput, type StoryReviewInput } from "./storyReviewInput.ts";
+import {
+  openSyncDeadline,
+  reviewInput,
+  type StoryReviewInput,
+} from "./storyReviewInput.ts";
+import {
+  reviewRepositoryRead,
+  ReviewSyncDeadline,
+} from "./reviewRepository.ts";
 import type { AdmittedStoryReview } from "./storyReviewRequest.ts";
 import {
   keptStoryReview,
@@ -37,7 +45,14 @@ export async function storyReviewResponse(
 ): Promise<AgentLaunchAnswer> {
   const body = await withResponseSignal(
     res,
-    async (signal) => storyReview(await reviewInput(read, signal), signal),
+    async (signal) => {
+      const syncDeadline = openSyncDeadline(read);
+      return storyReview(
+        await reviewInput(read, signal, syncDeadline),
+        signal,
+        syncDeadline,
+      );
+    },
     storyReviewWaitMs,
   );
   return { status: 200, body };
@@ -46,11 +61,14 @@ export async function storyReviewResponse(
 // Answer one review read for a story or an ad hoc session. A local session
 // uses its admitted launch record. A published session uses its fetched
 // project source, or names the sync that failed to bring its record.
-// Refusals carry their status in `RefusedRequest`.
+// Refusals carry their status in `RefusedRequest`. Every sync of the open
+// shares its deadline, so the answer keeps within the response bound.
 export async function storyReview(
   input: StoryReviewInput,
   signal: AbortSignal,
+  syncDeadline: ReviewSyncDeadline = new ReviewSyncDeadline(),
 ): Promise<StoryReview> {
+  const reader = reviewRepositoryRead(syncDeadline);
   if ("syncFailed" in input) return unsyncedSessionReview(input.syncFailed);
   if ("published" in input)
     return publishedSessionReview(
@@ -66,6 +84,7 @@ export async function storyReview(
       input.record,
       input.read.run,
       signal,
+      reader,
     );
   if ("subject" in input.read && input.read.taken === true) {
     if (
@@ -75,7 +94,9 @@ export async function storyReview(
     )
       throw new RefusedRequest(400, "The Taken review request is malformed.");
     const { source, identity } = input.read.subject;
-    return publishedTakenReview(knownSource(source), identity, signal);
+    return publishedTakenReview(knownSource(source), identity, signal, {
+      syncDeadline,
+    });
   }
   if ("subject" in input.read) {
     const { subject, run, reference } = input.read;
@@ -86,12 +107,13 @@ export async function storyReview(
         subject.identity,
         named,
         signal,
+        reader,
       );
       if (recorded !== undefined) return recorded;
     }
   }
   const request = await keptStoryReview(input.read);
-  const review = await answered(request, signal);
+  const review = await answered(request, signal, syncDeadline);
   const kept = request.runs.map(reviewRunChoice);
   const recorded =
     "completed" in request && review.kind === "published"
@@ -120,14 +142,13 @@ export async function storyReview(
 async function answered(
   request: KeptStoryReview,
   signal: AbortSignal,
+  syncDeadline: ReviewSyncDeadline,
 ): Promise<StoryReview> {
   if ("completed" in request)
     return (
-      (await publishedStoryReview(
-        request.completed,
-        request.identity,
-        signal,
-      )) ?? {
+      (await publishedStoryReview(request.completed, request.identity, signal, {
+        syncDeadline,
+      })) ?? {
         kind: "unavailable",
         explanation:
           "No published completion record is available for this story, so its historical changes cannot be identified.",
@@ -139,7 +160,12 @@ async function answered(
       explanation: request.explanation,
     };
   return {
-    ...(await landedStoryReview(request.run, signal, request.source)),
+    ...(await landedStoryReview(
+      request.run,
+      signal,
+      request.source,
+      reviewRepositoryRead(syncDeadline),
+    )),
     selectedRun: reviewRunKey(request.run.record),
   };
 }

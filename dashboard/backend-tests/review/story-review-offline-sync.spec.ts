@@ -1,4 +1,4 @@
-import { renameSync } from "node:fs";
+import { realpathSync, renameSync } from "node:fs";
 import { beforeAll, expect, test } from "vitest";
 import {
   commitStoryFile,
@@ -7,6 +7,13 @@ import {
 } from "../support/takenStoryReader.ts";
 import { lastSync } from "../../server/reviewRepository.ts";
 import { storyReview } from "../../server/storyReview.ts";
+import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
+import type { ReviewSyncDeadline } from "../../server/reviewRepository.ts";
+import {
+  reviewOriginHangs,
+  shortSyncDeadline,
+  timedOutSync,
+} from "../support/hangingOrigin.ts";
 import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { takenBranchContributionHistory } from "../../test-support/support/takenBranchContributionHistory.ts";
 
@@ -16,10 +23,11 @@ async function publishedStory() {
   const reader = await takenStoryReader();
   commitStoryFile(reader.writer, "src/a.ts", "first\n");
   publishBranch(reader.writer);
-  const open = () =>
+  const open = (syncDeadline?: ReviewSyncDeadline) =>
     storyReview(
       { read: { subject: reader.subject, taken: true } },
       reader.signal,
+      syncDeadline,
     );
   const moveOrigin = () => {
     renameSync(reader.origin, `${reader.origin}-moved`);
@@ -80,4 +88,60 @@ test("a sync after origin returns advances the comparison, records the time and 
   const record = await lastSync(story.reviewRepository());
   expect(record.lastSyncedAt).toBeDefined();
   expect(record).not.toHaveProperty("lastFailure");
+});
+
+const deadlineMs = 1500;
+
+// Reopen under a short sync deadline, counting the Review repository's
+// fetches.
+async function openCountingFetches(
+  story: Awaited<ReturnType<typeof publishedStory>>,
+) {
+  const recording = stubRemoteRequestRecording(story.home);
+  const review = await story.open(shortSyncDeadline(deadlineMs));
+  const fetches = recording.fetchesIn(realpathSync(story.reviewRepository()));
+  return { review, fetches };
+}
+
+test("a synced Taken review reopened while origin hangs shows its last sync, naming the timeout", async () => {
+  const story = await publishedStory();
+  const synced = await story.open();
+  if (synced.kind !== "published-taken") throw new Error("No first sync");
+  await reviewOriginHangs(story.reviewRepository());
+
+  const { review } = await openCountingFetches(story);
+
+  expect(review).toMatchObject({
+    kind: "published-taken",
+    head: synced.head,
+    syncFailure: { problem: timedOutSync(deadlineMs) },
+  });
+});
+
+test("a Taken reopen whose trunk sync used up the deadline starts no branch fetch", async () => {
+  const story = await publishedStory();
+  await story.open();
+  await reviewOriginHangs(story.reviewRepository());
+
+  const { fetches } = await openCountingFetches(story);
+
+  // The branch sync shares the trunk sync's spent deadline, so it never
+  // reaches origin; a fresh deadline would have fetched again.
+  expect(fetches).toBe(1);
+});
+
+test("a never synced Taken review opened while origin hangs is unavailable and names the timed-out sync", async () => {
+  const story = await publishedStory();
+  await reviewOriginHangs(story.reviewRepository());
+
+  const { review } = await openCountingFetches(story);
+
+  expect(review).toMatchObject({
+    kind: "unavailable",
+    explanation: expect.stringMatching(
+      /^The review could not sync from origin/,
+    ) as unknown,
+  });
+  if (review.kind !== "unavailable") throw new Error("Shown");
+  expect(review.explanation).toContain(timedOutSync(deadlineMs));
 });

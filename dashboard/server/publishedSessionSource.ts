@@ -4,21 +4,24 @@
 // leaves the record absent; a file read never syncs.
 import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type { ReviewSyncFailure } from "../src/storyReviewContract.ts";
-import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
+import { runGit, type GitCall } from "./gitRunner.ts";
 import {
   unknownSession,
   type PublishedSessionSource,
 } from "./publishedSessionReview.ts";
 import {
+  type ReviewSyncDeadline,
   ReviewSyncFailed,
   reviewRepositoryPath,
   reviewSyncFailure,
 } from "./reviewRepository.ts";
 
+// The open's local reads each get `admission`; its sync runs under the
+// request and the open's sync deadline.
 type PublishedSessionSourceBounds = {
   readonly admission: () => AbortSignal;
-  readonly fetch: () => AbortSignal;
+  readonly request: AbortSignal;
+  readonly syncDeadline: ReviewSyncDeadline;
 };
 
 async function revisionAtOrigin(
@@ -99,20 +102,6 @@ export async function lastSyncedPublishedSessionSource(
   );
 }
 
-// The open's sync, with the session's fetch bound running out named as a
-// failed sync; a request abort still rethrows.
-async function sessionSyncFailure(
-  source: PublishedSource,
-  bounds: PublishedSessionSourceBounds,
-): Promise<ReviewSyncFailure | undefined> {
-  try {
-    return await reviewSyncFailure(source, bounds.fetch());
-  } catch (error) {
-    if (bounds.admission().aborted) throw error;
-    return { problem: gitProblem(error) };
-  }
-}
-
 // Throws ReviewSyncFailed when the open's sync failed and the last synced
 // trunk still lacks the record, or the project never synced.
 export async function fetchedPublishedSessionSource(
@@ -123,7 +112,11 @@ export async function fetchedPublishedSessionSource(
   const current = await lastSyncOf(source, sessionId, bounds.admission());
   if (current.recorded) return sourceAt(source, current.revision);
 
-  const failure = await sessionSyncFailure(source, bounds);
+  const failure = await reviewSyncFailure(
+    source,
+    bounds.request,
+    bounds.syncDeadline,
+  );
   // Give the last synced trunk its read budget after the sync settles.
   const synced = await lastSyncOf(source, sessionId, bounds.admission());
   if (failure !== undefined && !synced.recorded)
