@@ -311,6 +311,14 @@ parent's history and the case fails. The shared fixture-project setup is now
 `configuredFixtureProject` in `backend-tests/support/fixtureProject.ts`, used
 by this case, `takenStoryReader` and three review specs.
 
+## Execution complete
+
+Product advice: no product change. This correction makes every review file
+read local, with proof, so wrap-up should remove the North Star topic "Read
+published comparisons from the Review repository" as that topic directs.
+SEED-430 remains the next owner of the stale deleted-branch ref (F5) and the
+shared sync record (F6).
+
 ## Story obligations
 
 ### G1. A hung session sync names the abort, not the timeout, and is observed only below storyReview
