@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "9e110a71-404d-4941-99fa-ad5927db096c",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T10:23:17.189Z",
+  "story": "SEED-431#reduce-codex-wakes-during-supplier-watches",
+  "ranges": [
+    {
+      "base": "f68d86de65db7483e7f5e8bedc5f62aed180bbf4",
+      "candidate": "faddac224a654755752bed0f0bcf60fc5f6ed92f"
+    },
+    {
+      "base": "faddac224a654755752bed0f0bcf60fc5f6ed92f",
+      "candidate": "5bbbc506a3a6d9b1b3ef1352df6d122c8c6710d5"
+    },
+    {
+      "base": "5bbbc506a3a6d9b1b3ef1352df6d122c8c6710d5",
+      "candidate": "44c865eeb3a18ae7a91a0d49e08f1f680984e9e4"
+    },
+    {
+      "base": "44c865eeb3a18ae7a91a0d49e08f1f680984e9e4",
+      "candidate": "a556d64537450d6b0ce419082f58d069d06ac5e4"
+    }
+  ]
+}
