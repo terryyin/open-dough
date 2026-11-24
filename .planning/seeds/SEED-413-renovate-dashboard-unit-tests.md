@@ -292,10 +292,10 @@ smaller unit selection does not hide its cost or a lost regression check.
      retired the last two users of `adHocReview.ts` and moved the branch-entry
      command case. The other converted cases already use typed entry points.
      Remaining native Done cases belong to `sessions/`.
-  2. `intent/` landed CI starts with the two queued splits for
-     [wall-time history](#renovate-landed-ci-backend-proof) and
-     [scoped test history](#renovate-landed-ci-scope-proof). Their spec rosters
-     belong to those stories. The remaining campaign includes attempt-start,
+  2. `intent/` landed CI starts with
+     [wall-time history](#renovate-landed-ci-backend-proof) and the completed
+     [scoped test history](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof).
+     The remaining campaign includes attempt-start,
      standalone proof collection and reader restart, and the remaining
      lifecycle and follow-up seams. Keep the distinct coverage and load
      commitments of the [automatic-repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
@@ -393,55 +393,6 @@ It tests whether the composed-state approach also works across a collection
 pass and its read model. The estimate compares source files, with separate
 slices for the distinct transition and read promises. The wall-time proof and
 its measured feedback stand on their own if scope history is deferred.
-
-<a id="renovate-landed-ci-scope-proof"></a>
-
-### Prove landed CI scoped test history through typed backend handlers
-
-**Identity:** SEED-413#renovate-landed-ci-scope-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/806-renovate-landed-ci-scope-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"210452aa16ba19b1e5ba03bee378e773166863250603e9134153bab52837069b","plan":"e632b65aeeb3a6aca36fd9578d79ddc634866d4259717a059395b583e5d825b0"}}
-```
-
-**Goal.** Dashboard maintainers get faster, directly runnable feedback on how
-Landed collection turns exact CI artifacts into project and file scope history.
-The checks preserve the provenance, availability and finality of each point.
-Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families)
-to the scoped cohort, aiming for about 100 ms per unit case or faster.
-
-**Scope.** Convert the 13 `dashboard/backend-tests/intent/landed-ci-scope-*.spec.ts`
-files to typed production entries on Node Vitest. Cover GitHub and adapter
-attempt identity, exact, equivalent and later build provenance, pending and
-final proofs across collection restarts, and the retained window. Use typed
-landing and completion inputs with real Git and temporary file stores where
-they carry the behavior. Preserve completion delivery and retry as actual
-operations in the case that observes them. Wall-time-only and runner-wait
-cases, automatic repeat, standalone proof collection and backend runner
-retirement stay in their own work. Reduce repeated setup and keep the
-smallest set of cases that detects the same regressions.
-
-**Key examples.**
-
-- Given two receipts for one true adapter attempt, reading scope returns one
-  point. Distinct adapter runs that reuse an opaque attempt ID keep each
-  run's own proof and point.
-- Given exact and equivalent skipped landings that share one collected build,
-  the selected endpoint preserves both landing roles. A cancelled landing
-  uses its labelled later build while unrelated points stay outside the read.
-- Given an unanswered proof read, a later collector can recover the same
-  attempt. A final unreadable proof stays final while another build resolves.
-  Exercise restart where saved evidence changes what the collector may retry.
-  Give actual completion retry its own case that keeps one measurement.
-- Given 20 ordered measurements, an unordered new landing waits without
-  evicting one. Once ordered and measured, the twenty-first evicts the oldest
-  in trunk order. Legacy proof and explanation-only gaps remain readable.
-
-**Sizing and learning.** Thirteen source files are about 1.9 times the earlier
-seven-file roster. This story tests the same approach with immutable attempt
-evidence, compatibility and restart. It can use the current collector and
-read path independently of the wall-time story. Run it second to reuse any
-compatible seams already delivered and reconcile shared callers on the
-current branch.
 
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 

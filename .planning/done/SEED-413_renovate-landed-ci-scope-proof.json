@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#renovate-landed-ci-scope-proof",
+  "title": "Prove landed CI scoped test history through typed backend handlers",
+  "completedAt": "2026-11-24T09:00:51.185Z",
+  "developer": "Terry Yin",
+  "agent": "Julia-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** The checked story is `SEED-413#renovate-landed-ci-scope-proof` at `b678e34eb28dc1b087b8e2d3e6df2ce44b94f692`. Its scoped file history must keep each run’s own proof when different adapter runs reuse an opaque attempt ID.\n\nIn an isolated detached checkout, I reduced `rememberedKey` in `dashboard/server/ciAdapterProof.ts:29` to repository and opaque attempt ID. The existing fixture uses one reader across real Git landings for `run-a` and `run-b`, with separate expected file points of 1,200 ms and 3,400 ms. A diagnostic on the cache hit separately observed that `run-b` requested the second revision and received the first revision’s proof. The maintained scoped-read assertion in `dashboard/backend-tests/intent/landed-ci-scope-adapter-identity.spec.ts:163` then failed because the selected entry was a gap where the fixture expected the 3,400 ms point.\n\nThe focused command `npm run --silent test:dashboard:backend -- landed-ci-scope-adapter-identity.spec.ts --workers=1` ran under the AC sleep guard. The single case passed before the probe, failed on the scoped assertion with the fault, and passed after byte-for-byte restoration. Git status and revision matched the pre-probe state. The scratch worktree was retired. The three runner logs and fault patch remain in `/tmp/dough-scope-coverage.3YeH3n`.\n\n**Next proof action.** Retain the maintained assertion for this adapter proof-aliasing path.\n\n- **Test runtime.** Measured Vitest durations of 1.290 s baseline, 0.486 s faulted and 0.446 s restored, totaling 2.222 s.\n- **Human effort.** Unavailable. No separate measure was collected.\n- **Agent effort.** Unavailable. No separate active-effort measure was collected.\n\n\n- **Invocation-to-report elapsed.** 95147 ms (measured), from 1795510599423 to 1795510694570 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition. Checked revision b678e34eb28dc1b087b8e2d3e6df2ce44b94f692. Verdict Caught. Retain the existing assertion. No follow-up.\n"
+  }
+}
