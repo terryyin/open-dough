@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-423#use-one-managed-install-layout",
+  "mode": "story-branch",
+  "branch": "codex/use-one-managed-install-layout",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
