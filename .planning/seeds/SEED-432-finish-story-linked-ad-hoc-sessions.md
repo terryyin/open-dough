@@ -135,6 +135,14 @@ and the combined case count should decrease. Keep focused coverage of
 startup, retry, membership and ordinary completion and review. Delete obsolete
 standalone cases and support.
 
+The end state is one story-linked session lifecycle. Startup admits a story or
+resolves an existing one. Land, completion, follow-up and review use that
+binding. At cutover, trace what still calls the first leg's admission and
+recovery code and the older standalone paths. Fold shared behavior into the
+ordinary workflow and remove every superseded solution, script, test helper,
+document and shipped instruction. Retire migration-only code after acceptance
+and keep historical evidence recoverable.
+
 **Resume evidence.** Scope moved here from SEED-426. Its published
 `121b9158b0249e88f8d8979efe175970346d2380` retains the working isolated
 Dashboard path and both Dashboard retry cases before the split. The default

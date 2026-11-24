@@ -147,9 +147,12 @@ and `completionReporting` through Board, sidebar, Intent, published review,
 completion and fixtures. Keep story-linked cue, focus, comparison and stale
 response observations when they still express current behavior. Run the
 exact legacy listing, check the owning mounted specs and retarget only E2E
-journeys that still protect a live behavior. Remove shared support when its
-last caller goes. Remove any standalone workflow instructions left by slices
-1–5. Temporarily retain only store decoding needed for slice 7.
+journeys that still protect a live behavior. Trace the installed SEED-426
+admission and retry callers alongside the standalone paths. Keep the shared
+logic that still protects admission and recovery, and remove superseded code,
+test support, documents and instructions when their last caller goes. The
+ordinary story binding should supply Land, completion, follow-up and review.
+Temporarily retain only store decoding needed for slice 7.
 
 ### 7. Switch the deployed store to story-linked sessions
 Type: Behavior
@@ -169,8 +172,9 @@ start and reporting references with each converted record. Require schema
 parse, row/disposition accounting and lookup of still-open linked sessions
 through the actual Dashboard reader. On failure keep writes paused and restore
 or retain the prior complete store and deployment. After acceptance remove the
-one-time converter and confirm no product reader or writer accepts a new
-unassociated session. Keep Git session history recoverable. Deploy only after
+one-time converter and transition-only guidance. Confirm no product reader or
+writer accepts a new unassociated session and no remaining caller needs a
+superseded path. Keep Git session history recoverable. Deploy only after
 final proof under the existing production and client-update authorization.
 
 ## Proof gates

@@ -31,34 +31,30 @@ const seedDirectory = `${planningDirectory}/${defaultSeedDirectory}`;
 const identityPaths = [
   backlogPath,
   seedDirectory,
-  ...[doneRecordDirectory, doneCatalogPath].map(
-    (path) => `${planningDirectory}/${path}`,
-  ),
+  `${planningDirectory}/${doneRecordDirectory}`,
+  `${planningDirectory}/${doneCatalogPath}`,
 ];
-const documentOf = (seed) => `seeds/${seed}-${anchor}.md`;
+const draftLink = (seed) =>
+  `${defaultSeedDirectory}/${seed}-${anchor}.md#${anchor}`;
 const oneLine = (value) =>
   typeof value === "string" && value.trim() !== "" && !/[\r\n]/.test(value);
 
-// Identity evidence reads a checkout and its HEAD. Give it only the published
-// planning files in a disposable, detached checkout of the exact revision.
-// Neither the admission workspace nor the later session's checkout supplies
-// draft evidence, and their working trees, indexes and HEADs stay untouched.
+// Reuse the allocation reader on a detached checkout with just its inputs.
 async function publishedEvidence(repository, revision, identity) {
-  const directory = await mkdtemp(join(tmpdir(), "dough-identity-"));
-  const snapshot = join(directory, "snapshot");
+  const { stdout } = await git(
+    repository,
+    "ls-tree",
+    "--name-only",
+    "-z",
+    revision,
+    "--",
+    ...identityPaths,
+  );
+  const paths = stdout.split("\0").filter(Boolean);
+  if (!paths.includes(backlogPath))
+    throw refused("fetched trunk has no product backlog");
+  const snapshot = await mkdtemp(join(tmpdir(), "dough-identity-"));
   try {
-    const { stdout } = await git(
-      repository,
-      "ls-tree",
-      "--name-only",
-      "-z",
-      revision,
-      "--",
-      ...identityPaths,
-    );
-    const paths = stdout.split("\0").filter(Boolean);
-    if (!paths.includes(backlogPath))
-      throw refused("fetched trunk has no product backlog");
     await git(
       repository,
       "worktree",
@@ -73,17 +69,16 @@ async function publishedEvidence(repository, revision, identity) {
         snapshot,
         "restore",
         `--source=${revision}`,
-        "--staged",
         "--worktree",
         "--",
         ...paths,
       );
-      // The tree listing verifies that this revision has no tracked seeds.
+      // An absent tree in the exact revision is an empty seed directory.
       if (!paths.includes(seedDirectory))
         await mkdir(join(snapshot, seedDirectory));
       const evidence = await readIdentityEvidence(join(snapshot, backlogPath), {
         identity,
-        includeSeedUse: true,
+        includeSeedUse: identity !== undefined,
       });
       if (evidence.gaps.length > 0)
         throw refused(
@@ -94,7 +89,7 @@ async function publishedEvidence(repository, revision, identity) {
       await git(repository, "worktree", "remove", "--force", snapshot);
     }
   } finally {
-    await rm(directory, { recursive: true, force: true });
+    await rm(snapshot, { recursive: true, force: true });
   }
 }
 
@@ -117,7 +112,7 @@ export async function draftAdmission(request) {
     const evidence = await publishedEvidence(repository, basis);
     const seed = evidence.next ?? "SEED-001";
     const identity = composeIdentity(seed, anchor);
-    const link = `${documentOf(seed)}#${anchor}`;
+    const link = draftLink(seed);
     renderEntry({ identity, href: link, title });
     return {
       ok: true,
@@ -152,7 +147,7 @@ export async function readOwnedAdmissionText(request, homePath, candidate) {
     !seed ||
     !/^[\w-]+$/.test(seed.seed) ||
     identity !== composeIdentity(seed.seed, anchor) ||
-    link !== `${documentOf(seed.seed)}#${anchor}` ||
+    link !== draftLink(seed.seed) ||
     !oneLine(title)
   )
     throw refused(
@@ -182,14 +177,11 @@ export async function ownedAdmissionDrafts(request, ref, homePath, content) {
   const trunk = await revParse(repository, ref);
   if (!(await isAncestor(repository, basis, trunk)))
     throw refused("owned draft basis is not on fetched trunk");
-  const original = await publishedEvidence(repository, basis, identity);
-  const published =
-    trunk === basis
-      ? original
-      : await publishedEvidence(repository, trunk, identity);
+  const { highest } = await publishedEvidence(repository, basis);
   if (
-    seedNumberOf(identity).number <= (original.highest?.number ?? 0) ||
-    published.seedInUse
+    seedNumberOf(identity).number <= (highest?.number ?? 0) ||
+    (trunk !== basis &&
+      (await publishedEvidence(repository, trunk, identity)).seedInUse)
   )
     throw refused(
       `owned draft identity ${identity} has already been used or is below its allocated range`,

@@ -58,18 +58,19 @@ async function replaySuffix(request, onto) {
 
 export async function claimMembership(request) {
   await git(request.workspace, "fetch", remoteOf(request));
-  const ref = remoteRef(request);
+  const tip = await revParse(request.workspace, remoteRef(request));
   const provenance = await claimProvenance(
     request.workspace,
-    ref,
+    tip,
     request.identity,
     pathOf(request),
   );
   const candidateSha = request.candidateSha;
   const candidateIsAncestor = candidateSha
-    ? await isAncestor(request.workspace, candidateSha, ref)
+    ? await isAncestor(request.workspace, candidateSha, tip)
     : false;
   return {
+    tip,
     provenance,
     candidateIsAncestor,
     ownership: classifyOwnership({
