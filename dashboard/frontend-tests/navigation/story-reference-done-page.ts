@@ -16,9 +16,13 @@ export const referenceNotice = page.getByRole("status", {
   name: "Story reference navigation",
   exact: true,
 });
-export const farDestination = recent.getByRole("article", {
-  name: new RegExp(`^(?:${farDone.identity}|${farDone.title})$`),
-});
+// A Recently done card named by its identity until its body is read, then by
+// its title.
+export const doneDestination = ({ identity, title }: typeof farDone) =>
+  recent.getByRole("article", {
+    name: new RegExp(`^(?:${identity}|${title})$`),
+  });
+export const farDestination = doneDestination(farDone);
 export const farDestinationReading = farDestination.getByText(
   "Reading done story…",
   { exact: true },
@@ -69,11 +73,10 @@ export async function openDependencies(
   }
 }
 
-export async function followReference(
-  name: string,
+export async function followLink(
+  link: Locator,
   using: "pointer" | "keyboard" = "pointer",
 ) {
-  const link = reference(name);
   if (using === "pointer") await link.click();
   else {
     await expect.element(link).toBeVisible();
@@ -81,6 +84,11 @@ export async function followReference(
     await userEvent.keyboard("{Enter}");
   }
 }
+
+export const followReference = (
+  name: string,
+  using: "pointer" | "keyboard" = "pointer",
+) => followLink(reference(name), using);
 
 export async function showsDoneEntries(names: readonly string[]) {
   await expect

@@ -158,7 +158,7 @@ choice from this promise.
 ### 4. Reveal a follow-up's source without losing the current place
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (6 cases).** `sessions/follow-up-source-navigation.spec.ts`.
 
@@ -380,3 +380,20 @@ They and the slice 2 destination spec read the Board's column through
 | `sessions/recently-done-story-sessions.spec.ts` — "a done story's card holds this machine's sessions for it…" (reduced) | Entries newest first by completion; card holds two closed sessions newest first, Done, no terminal/actions, raised-surface set-off; open session stays Taken with identity, terminal and actions; last week's card holds yesterday's session; card without sessions shows none | Story card spec "a done story's card holds this machine's closed sessions for it, newest first, while its open session stays local Taken, and done cards order by completion". Set-off checks background only (in-card text colour unobserved). The 31-day-old retained standalone entry stays in the reduced legacy case "a session of a done record past the window is its own Recently done entry" — legacy for SEED-426. |
 | `sessions/recently-done-story-sessions.spec.ts` — set-off in-card text (legacy `expectSessionEntryInCardText`) | Entry reads in its card's colour, which is not quiet; its `.launch-local` facts are quiet | Story card spec, same case (restored). |
 | Plan proof row 3, cross-machine arrival (no legacy case left after trunk removed `recently-done-published-session-story.spec.ts`) | Published record with no kept counterpart stands alone and leaves the card empty; a kept Done follow-up reporting through it stands for it on the source card; a kept live counterpart also stands for it | `sessions/recently-done-published-counterpart.spec.ts` (plain Vitest on `newestFirst`, three cases); rendered: membership spec "a follow-up published from another machine while its kept counterpart is Done here shows one entry, on its source card" (mutating the reporting reference renders two entries and fails it). |
+
+Slice 4 (in progress). Replacement: `sessions/follow-up-source-reveal-mount.spec.ts`
+("reveal spec") over `sessions/follow-up-source-page.ts`, a `mountBoardFrame`
+Board with Open Dough's published done catalog (source among 11 recent
+fillers), a case-held or failed source body read, an open follow-up machine
+answer and a selectable Backlog story. Legacy file and its spent support
+(`test-support/support/recentlyDoneFollowUpGrouping.ts`,
+`followUpSourceCatalog.ts`) deleted.
+
+| Old case | Distinct observations | Replacement or equivalent |
+| --- | --- | --- |
+| `sessions/follow-up-source-navigation.spec.ts` — "a Taken follow-up names its source by title when read, and by identity while unread" (deleted) | Identity link while the older source's body is held, no title link; title replaces identity after release | Reveal spec "a Taken follow-up names its source by identity while its body is unread, and by title once read". Distinguishes naming before the body answers or keeping the identity after it. |
+| — "keyboard source reveal beyond ten on a narrow reduced-motion viewport focuses the card and keeps the selected story" (deleted) | 390 wide, reduced motion; no destination before; keyboard Enter on the Taken link focuses the card at least half in view; "Showing 12 of 12 entries."; selected story kept; Show latest 10 offered | Reveal spec "keyboard reveal of an older source beyond ten at a narrow reduced-motion viewport focuses its card, keeps the selected story, restores with Show latest 10 and reveals again" (`showsReached` from the Done reference page: focus plus half in the reading room). Selection is a Backlog story rather than a Taken story card (same `story-card-selected` owner). |
+| — "an older catalogued source reveals on demand, restores with Show latest 10, and reveals again" (deleted) | 31-day-old source absent until followed; focused in view; Show latest 10 removes it; second follow reaches it again | Same reveal spec case (source 31 days old, twelfth). Distinguishes a reveal that stops at the default ten/window or a restore that keeps the range. |
+| — "keyboard source reveal beyond ten keeps an open Side panel and leaves selection alone under reduced motion" (deleted) | 1280 wide; unselected story stays unselected; Terminal Side panel opened from the Taken entry stays visible; destination focused in view | Reveal spec "keyboard source reveal beyond ten keeps an open Side panel and leaves selection alone under reduced motion" (`answerTerminal` transport; Open terminal on the Taken entry). |
+| — "a failed source body keeps the Taken entry naming the identity and still reveals the gap card" (deleted) | Naming read fails → identity link; reveal read fails → focused destination says "This done story could not be read."; Taken entry still names identity | Reveal spec, same title (two failed source reads). |
+| — "an absent source keeps the Taken entry accessible with honest unavailable feedback" (deleted) | Notice "`<identity>` is unavailable in Open Dough's dashboard."; no destination; Taken entry kept | Reveal spec, same title (exact notice text). |
