@@ -262,7 +262,7 @@ history in this process instead of starting a Node command for each
 import and each read.
 
 **Scope.** The 54 backend `usage-history/` specs outside the
-[Token Index family](#renovate-usage-token-index-proof) that share the
+[Token Index family](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) that share the
 usage `home` and `root` fixture module or the usage-import command
 wrapper; 45 of them import or read through the wrapper. Call
 `importUsageHistory` with explicit home, store, since, response file and
@@ -314,7 +314,7 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`)
   and completed landed attempt evidence (recoverable at
   `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
-  [Token Index](#renovate-usage-token-index-proof) remains selected. Two
+  [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete. Two
   systematic extractions come first and leave it their remainder: the
   [direct specs moved to Vitest by one rewrite](#run-direct-backend-specs-on-vitest)
   and the [usage import cases on the typed importer](#prove-usage-import-through-typed-importer).
@@ -401,7 +401,7 @@ smaller unit selection does not hide its cost or a lost regression check.
      `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`).
      Attempt evidence is complete (recoverable at
      `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
-     Next comes [Token Index](#renovate-usage-token-index-proof).
+     [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete.
   3. Recount the remaining files against the available seams and CI cost.
      Intent still includes comparison, follow-up and lifecycle proof outside
      the extracted spec list, together with other Intent readers and proof
@@ -490,41 +490,6 @@ smaller unit selection does not hide its cost or a lost regression check.
 - **Safe stopping point.** Every completed family stands on its own with
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
-
-<a id="renovate-usage-token-index-proof"></a>
-
-### Prove Token Index reads and refreshes through typed backend handlers
-
-**Identity:** SEED-413#renovate-usage-token-index-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/811-renovate-usage-token-index-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5026a333100f058612353387b3198eea3b68e08be429c213417569a02ef48f54","plan":"0efa864976b2a2183a5a02ca9cd817cddefe53f9c4d26600f801fa68f3d800aa"}}
-```
-
-**Goal.** Dashboard maintainers get fast feedback on whether the Token
-Index reports the right usage for completed work and reflects manual
-refresh, including partial and unpriced evidence.
-
-**Scope.** Convert all 19 backend `usage-history/token-index*.spec.ts`
-files as one family on Node Vitest. Read the typed Token Index service
-with explicit project, retained launch, tariff, check time and summary
-inputs. Drive the real usage refresh against isolated native transcript
-and usage files where importing, replacing or preserving evidence is the
-behavior. Keep the production HTTP, child-process and cache composition.
-Other usage history and effort reports remain in the original story.
-Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families).
-
-**Key examples.**
-
-- Given configured launches with measured, estimated, or partial usage,
-  reading a cohort returns the appropriate points and excludes tasks
-  ineligible for its rolling median. A malformed period is refused
-  before reading the usage store.
-- Given a reply and worker evidence that arrives after the last check,
-  Refresh attributes each response once to the correct launch. A later
-  launch gets its own turns. Refreshing again leaves the same totals.
-- Given a missing worker, a refresh retains the partial result until
-  that evidence can be read. An unreadable store preserves the last
-  saved summary and check time and reports failure.
 
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 

@@ -2,20 +2,26 @@
 // missing make a task partial, while the background work no transcript
 // records is no task's gap. Each root response is the transcript builder's
 // counted Opus response, weighing 1,450 + 5×O input tokens for O output tokens.
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
+import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { retainedLaunchEnds } from "../../server/retainedUsageTasks.ts";
+import { tokenIndexAnswer } from "../../server/tokenIndexRead.ts";
+import { readUsageHistory } from "../../server/usageHistory.ts";
+import {
+  importUsageHistory,
+  usageHistorySince,
+} from "../../server/usageImport.ts";
+import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
+import { usageTariffs } from "../../server/usageTariffs.ts";
+import { defaultCohort } from "../../src/usageTokenIndex.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   nativeFile,
-  readImported,
-  runImport,
   writeClaudeSession,
 } from "../../test-support/usage-history/importHarness.ts";
-import {
-  expect,
-  test,
-  usageServer,
-} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 const reference = (at: number) =>
   `ca7430bd-0d52-499d-a1bd-${String(at).padStart(12, "0")}`;
@@ -36,11 +42,14 @@ const response = (at: number, outputTokens: number) => ({
   timestamp: `2026-11-14T${String(10 + at).padStart(2, "0")}:00:00.000Z`,
 });
 
-test("Claude launches whose root or worker transcript is gone are partial with that gap and out of the rolling median, while launches with only the background-work limit stay measured", async ({
-  machine,
-}) => {
+test("Claude launches whose root or worker transcript is gone are partial with that gap and out of the rolling median, while launches with only the background-work limit stay measured", async () => {
+  const home = await mkdtemp(
+    path.join(tmpdir(), "token-index-claude-coverage-"),
+  );
+  onTestFinished(() => rm(home, { recursive: true, force: true }));
+  const store = path.join(home, "usage.json");
   const measured = [...Array<number>(10).keys()].map((at) => at + 1);
-  keepLaunchStore(machine.home, {
+  keepLaunchStore(home, {
     "open-dough": [
       ...[...measured, 11].map((at) =>
         launch(at).markedDoneAt("2026-11-14T23:00:00.000Z").please(),
@@ -52,7 +61,7 @@ test("Claude launches whose root or worker transcript is gone are partial with t
         .please(),
     ],
   });
-  const claudeRoot = path.join(machine.home, "claude");
+  const claudeRoot = path.join(home, "claude");
   for (const at of measured)
     writeClaudeSession(
       claudeRoot,
@@ -81,17 +90,29 @@ test("Claude launches whose root or worker transcript is gone are partial with t
       .withCountedOpusResponse(response(12, 1_000_000))
       .please(),
   ]);
-  runImport(machine.home, path.join(machine.home, "codex"), [
-    "--claude-root",
-    claudeRoot,
-  ]);
+  await importUsageHistory({
+    home,
+    store,
+    codexRoots: [],
+    claudeRoots: [claudeRoot],
+    since: usageHistorySince,
+  });
   expect(
-    readImported(machine.home)
-      .gaps.filter(({ sessionId }) => sessionId === "claude-1")
+    (await readUsageHistory(store)).gaps
+      .filter(({ sessionId }) => sessionId === "claude-1")
       .map(({ code }) => code),
   ).toEqual(["auxiliary-usage-not-covered"]);
 
-  const answer = await (await usageServer(machine)).chart("?tool=claude");
+  const answer = tokenIndexAnswer(
+    {
+      projects: [makeMe.aPublishedSource.openDough.please()],
+      tariff: usageTariffs.claude,
+      checkedAt: null,
+      summary: await deriveUsageTaskSummary(store),
+      launches: await retainedLaunchEnds(home),
+    },
+    { ...defaultCohort, tool: "claude" },
+  );
   const coverage: Record<string, unknown> = {};
   for (const { identity, coverage: taskCoverage } of answer.tasks)
     if (identity !== null) coverage[identity] = taskCoverage;

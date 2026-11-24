@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 639. Removed numbers are never reused.
-- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158. `488645e95fe49110418f94953944bea1beb3afec:DearDough.md` retains the exact removed pointers to ODF-154, ODF-205, ODF-169 and ODF-338. `c8c3aa62af81c1cf1bb13eeb6eb79dc0b67b8c7b:DearDough.md` retains the removed empty DD-613 and DD-608 Occurrences headings and the ODF-532 source-recovery pointer. `af192fc772f2a1fd18e0a9870365991e849fe56a:DearDough.md` preserves the removed redundant plan 792 occurrence under ODF-368. `80087ac3086625e928680a3d495d2526a3fd144f:DearDough.md` retains the removed ODF-456 catalog pointer and ODF-368's plan 777 occurrence. [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes. Recovery: `71e820478b6a0fb8854a6cb5f428b59b44d31225:DearDough.md` retains ODF-329 and ODF-368, removed for the line ceiling; their accounts stay in the finding catalog. Recovery: `563d87eac574c046ab1634e315bb1582f9da313a:DearDough.md` retains the removed ODF-519 pointer. Its reconciled occurrence remains in the finding catalog. Occurrence history is partial. Recovery: `273d9687ed365db7e56ffa4291e4ef78763f855c:DearDough.md` retains the removed redundant recovery pointers. The same earlier log remains linked above. The original line layout is at `cd7c95f9360409e4cd9644f424d140fda330aa73:DearDough.md`. Two section-local recovery pointers duplicated above remain in `77afb096e0f5c2c40a970a83c52e50fe7d633157:DearDough.md`. The redundant DD-546 source-recovery pointer is recoverable at `cf3972a4efeeff8a3ca8a00e1ef74146d06d5fe9:DearDough.md`. Recovery: `421a5b994c151ec95ab31aef6c1687cf190eecee:DearDough.md` keeps the section-local recovery pointers consolidated here.
+- Highest allocated local number: 640. Removed numbers are never reused.
+- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158. `488645e95fe49110418f94953944bea1beb3afec:DearDough.md` retains the exact removed pointers to ODF-154, ODF-205, ODF-169 and ODF-338. `c8c3aa62af81c1cf1bb13eeb6eb79dc0b67b8c7b:DearDough.md` retains the removed empty DD-613 and DD-608 Occurrences headings and the ODF-532 source-recovery pointer. `af192fc772f2a1fd18e0a9870365991e849fe56a:DearDough.md` preserves the removed redundant plan 792 occurrence under ODF-368. `80087ac3086625e928680a3d495d2526a3fd144f:DearDough.md` retains the removed ODF-456 catalog pointer and ODF-368's plan 777 occurrence. [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes. Recovery: `71e820478b6a0fb8854a6cb5f428b59b44d31225:DearDough.md` retains ODF-329 and ODF-368, removed for the line ceiling; their accounts stay in the finding catalog. Recovery: `563d87eac574c046ab1634e315bb1582f9da313a:DearDough.md` retains the removed ODF-519 pointer. Its reconciled occurrence remains in the finding catalog. Additional repeated section recovery pointers remain at `0e22b4b58c7430b0a4ca6e59bf732fb768665347:DearDough.md`. Occurrence history is partial. Recovery: `273d9687ed365db7e56ffa4291e4ef78763f855c:DearDough.md` retains the removed redundant recovery pointers. The same earlier log remains linked above. The original line layout is at `cd7c95f9360409e4cd9644f424d140fda330aa73:DearDough.md`. Two section-local recovery pointers duplicated above remain in `77afb096e0f5c2c40a970a83c52e50fe7d633157:DearDough.md`. The redundant DD-546 source-recovery pointer is recoverable at `cf3972a4efeeff8a3ca8a00e1ef74146d06d5fe9:DearDough.md`. Recovery: `421a5b994c151ec95ab31aef6c1687cf190eecee:DearDough.md` keeps the section-local recovery pointers consolidated here.
 
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 
@@ -125,7 +125,6 @@ Former local code: DD-550.
 - SEED-345#test-agent-effort-through-its-output-contract (plan 678; first implementation 849f72ca97d8c72e4173244f12d5558ff2679b60)
 
 [Account and evidence at ODF-521](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-521.md#evidence-2026-11-23-open-dough-dd-550).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-551 — A rule over retained history is accepted on fixtures before any real-history comparison
 
@@ -157,7 +156,6 @@ A changed attribution rule passed its fixture specs and full consumer suite and 
 - SEED-353#declare-trunk-review-authorship (plan 711; first implementation `61b3b48a2`)
 
 [Account and evidence at ODF-516](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-516.md#evidence-2026-11-23-open-dough-dd-552).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-522 — A real-history premise is settled at an intermediate stage, not at the total it predicts
 
@@ -168,7 +166,6 @@ Former local code: DD-553.
 - SEED-388#count-nested-claude-background-agent-work (plan 670; first implementation 669216b05)
 
 [Account and evidence at ODF-522](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-522.md#evidence-2026-11-23-open-dough-dd-553).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-523 — A real-store prediction is settled on a scratch store that starts empty
 
@@ -179,7 +176,6 @@ Former local code: DD-554.
 - SEED-388#read-claude-rows-with-unicode-line-separators (plan 667; first implementation a3553a7ad)
 
 [Account and evidence at ODF-523](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-523.md#evidence-2026-11-23-open-dough-dd-554).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-557 — Launch-record delivery listeners planned for the dashboard process miss Cursor's runner process <a id="dd-557"></a>
 
@@ -204,7 +200,6 @@ Former local code: DD-610.
 - SEED-418#resume-shared-checkout-closes-as-their-own-session (plan 771, `77665435d`..`18b84d427`)
 
 [Account and evidence at ODF-141](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-141.md#evidence-2026-11-23-open-dough-dd-610).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-209 — Delegated repair and refactor agents ran wide proof in parallel and raised the load they then blamed <a id="dd-611"></a>
 
@@ -220,7 +215,6 @@ Former local code: DD-611.
 - Execution: SEED-424#poll-open-codex-sessions (plan 784, first implementation `b5b4a3ed8`). Timestamp: 2026-11-23T05:11:01Z (browser proof start). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION). Evidence: `b5b4a3ed8:.planning/slice-plans/784-poll-open-codex-sessions/PLAN.md` records the accepted proof. The first E2E command overlapped backend and typecheck proof, timed out on two review cases at board navigation, and took 200 seconds. At diagnosis the 16-CPU Mac was at load 37 with 18 GB compressed memory. A different, one-worker selection including both cases after those owned commands ended passed in 43 seconds at default timeouts. Observed effect: two trace inspections and one separate focused proof run. Inference: shared workload contributed to the timeouts. The selection and background load changed. A throughput comparison would require equivalent conditions.
 
 [Account and evidence at ODF-209](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-209.md#evidence-2026-11-23-open-dough-dd-611).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-524 — A planned controlled proof cannot fit the CI job deadline, and its cost was never estimated <a id="dd-559"></a>
 
@@ -230,7 +224,6 @@ Former local code: DD-559.
 - SEED-393#repeat-native-guidance-checks-on-real-story-examples (plan 674; first implementation d178ed635)
 
 [Account and evidence at ODF-524](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-524.md#evidence-2026-11-23-open-dough-dd-559).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-560 — A consumer trace searched by a removed phrase misses its reworded restatements <a id="dd-560"></a>
 
@@ -278,7 +271,6 @@ Former local code: DD-563.
 - SEED-396#remove-redundant-evaluation-checks (plan 680; first implementation `f2226ca4b`)
 
 [Account and evidence at ODF-435](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-435.md#evidence-2026-11-23-open-dough-dd-563).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-525 — A compound scratch break is accepted as proof that one guard is protected <a id="dd-566"></a>
 
@@ -337,7 +329,6 @@ Former local code: DD-572.
 - Execution: SEED-341#keep-attention-completion-journey-within-timeout (plan 782, first implementation `4e31faa0f`). Timestamp: 2026-11-23T06:41:38Z (first candidate load sample). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION at Take `497eed2c2`). Evidence: `bdf484822:.planning/slice-plans/782-keep-attention-completion-journey-within-timeout/PLAN.md` records three diagnostic runs with 86, 48 and 20 synthetic burners. Nominally matching the original burner count produced load over 100, and reducing the count still yielded timeouts in unchanged controls. A separate three-minute wait for natural load at or below 17 selected no tests. The same five specs at four workers, with no burners, reproduced the original timeout while both split cases and all seven controls passed at overlapping natural load and control timings. Observed effect: roughly six minutes of diagnostic runner time and one readiness wait. Inference: case times from unchanged controls made the contention comparison more informative than burner count or a load threshold alone.
 
 [Account and evidence at ODF-527](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-527.md#evidence-2026-11-23-open-dough-dd-572).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-573 — A refactor pass removes support as dead after searching only the dashboard test folders <a id="dd-573"></a>
 
@@ -423,7 +414,6 @@ Former local code: DD-580.
 - SEED-401#pilot-new-retrospective-findings (plan 706; first implementation `d6190e523`)
 
 [Account and evidence at ODF-528](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-528.md#evidence-2026-11-23-open-dough-dd-580).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-529 — Delivery lint checks only changed files, so a narrowed shared type fails CI in unchanged consumers <a id="dd-581"></a>
 
@@ -975,6 +965,7 @@ A planned CI or flake repair delivered through `execution-increment-delivery.mjs
 - Execution: SEED-429#skip-empty-instruction-recordings (plan 807, first implementation `d6d9ae22c`). Timestamp: unknown (slice delivery on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `857f49430`). Evidence: the implementation and refactor briefs reserved the staged lint hook and formatter for the coordinator and supplied no scoped read-only lint command. After both proof returns passed, guarded preparation refused `instruction-voice-page.ts` on `unbound-method` and `no-unsafe-return`. Observed effect: one withheld preparation, a fixture repair, and one additional mounted proof run before publication. Scoped read-only lint would have checked both rules before the handoff.
 - Execution: SEED-423#notify-claude-code-of-ci-through-one-path (plan 809, first implementation `075e33ee5`). Timestamp: unknown (slice 1 delivery on 2026-11-24 +08:00). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.112 (installed at Take `b45f38dcf`). Evidence: the implementation and refactor briefs reserved lint for the coordinator and named only `prettier --check`; guarded preparation then refused `no-param-reassign`, `no-unused-vars` and shellcheck SC2016/SC2312 in the refactor's edits. Observed effect: one withheld preparation, a coordinator repair and one focused rerun before publication.
 - Execution: SEED-413#renovate-landed-ci-scope-proof (plan 806, first implementation `6993c9661`). Timestamp: unknown (slices 1, 3 and 5 on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `344e50f93`). Evidence: implementation and refactor returns passed focused tests and typecheck before guarded preparation found unsafe test fixture types in slice 1 and unused callback bindings in slices 3 and 5. Observed effect: each of those three deliveries needed a coordinator lint repair and focused reproof. The reserved staged hook did not cover delegated returns.
+- Execution: SEED-413#renovate-usage-token-index-proof (plan 811, first implementation `6ccd0f3d5`). Timestamp: unknown (slices 3 and 5 on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.113 (installed guidance at Take `3969b5307`). Evidence: focused proof passed in both slices. The formatter rejected an unused callback binding in `token-index-estimate-family.spec.ts` and unsafe nested Vitest matchers in `token-index-developer-reply-codex.spec.ts`. Observed effect: two refused preparations, each followed by a coordinator fix and a focused recheck before `b8f6b6c01` and `878aef1e3` were published.
 
 ## DD-638 — Deferring a story left its old agent assigned
 
@@ -990,6 +981,7 @@ The deferred story returned to the backlog with its original agent profile. A la
 
 - Execution: SEED-413#renovate-landed-ci-scope-proof (plan 806, first implementation `6993c9661`). Timestamp: unknown (before slice 1 publication on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `344e50f93`). Evidence: the Ready plan at `344e50f93` used `## Slices and outside-in proof`. The empty obligations listing succeeded, but guarded preparation refused the plan-status mutation. Renaming the heading to `## Slices` restored delivery in `6993c9661`. Observed effect: an additional preparation attempt after implementation and review. Earlier occurrences are in [ODF-368](docs/maintainer/findings/ODF-368.md).
 - Execution: SEED-427#review-published-changes (plan 802, first implementation `a3093e76f`). Timestamp: unknown (2026-11-24 +08:00, before slice 1 publication). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `f5f354ab3`). Evidence: the ready plan at `f5f354ab3` used `## Outside-in proof and ordered slices`. Guarded delivery refused the slice status mutation. `a3093e76f` uses `## Ordered slices` and publishes the same product change. Observed effect: one refused preparation and a heading edit. Inference: readiness could check the section with the same reader used to deliver it.
+- Execution: SEED-413#renovate-usage-token-index-proof (plan 811, first implementation `6ccd0f3d5`). Timestamp: unknown (slice 1 delivery on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.113 (installed guidance at Take `3969b5307`). Evidence: the Ready plan at `3969b5307` used `## Slices and outside-in proof`. The obligations list returned zero obligations. Guarded preparation then refused the status change. `6ccd0f3d5` delivers the same chart change with `## Ordered slices`. Observed effect: a refused preparation and heading repair.
 
 ## DD-639 — New launch tests used the legacy backend runner despite the typed-test direction
 
@@ -998,3 +990,11 @@ The proof plan named HTTP launch cases and delegation followed the existing suit
 ### Occurrences
 
 - Execution: SEED-415#choose-clear-follow-up-context (plan 808, first implementation `33533a6ff`). Timestamp: unknown (execution on 2026-11-24). Tool: Codex. Model: gpt-6.2-sol (execution profile). Open Dough release: 0.3.112 (installed at Take `0648365e4`). Evidence: the new follow-up selection, published-session, and published-range admission specs at `e7aa42bed` use the Playwright backend runner. The North Star already reserved Playwright for E2E at the Take. The outcome record `421a5b99` retains the assertions and assigns their placement to the existing typed backend renovation under SEED-413. Observed effect: the legacy runner gained three spec files. The widened-pair scratch check caught an incorrect baseline at the native first input and passed after restoration. Runtime saving from typed placement is unmeasured.
+
+## DD-640 — A focused Playwright filter matched the worktree name
+
+Other — The bare Token Index file filter matched the same words in the absolute worktree paths. Checking the selected filenames before starting the comparative run would have exposed the broader scope.
+
+### Occurrences
+
+- Execution: SEED-413#renovate-usage-token-index-proof (plan 811, first implementation `6ccd0f3d5`). Timestamp: unknown (pre-change measurement before 18:30 on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.113 (installed guidance at Take `3969b5307`). Evidence: the plan at `3969b5307` specified `token-index` as the file filter, and the checkout name began `prove-token-index-`. The monitored command started legacy cases outside the intended family and was interrupted at 821.66 s. The filename-anchored selection recorded in plan 811 at `80b538a19` selected all and only the intended 19 files and passed the 58 originals in 58.70 s. Observed effect: the extra command delayed edits until a valid original measurement finished.

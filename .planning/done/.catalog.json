@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-usage-token-index-proof.json",
+      "identity": "SEED-413#renovate-usage-token-index-proof",
+      "completedAt": "2026-11-24T12:11:28.303Z",
+      "blob": "1cb8a819dab42a6346e50d6eb3ee73f7c1be0100"
+    },
+    {
       "fileName": "SEED-413_renovate-landed-ci-attempt-evidence.json",
       "identity": "SEED-413#renovate-landed-ci-attempt-evidence",
       "completedAt": "2026-11-24T12:01:30.197Z",

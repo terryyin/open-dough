@@ -1,72 +1,91 @@
 // Cohort choices use the most common root setting, counted by response.
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { tokenIndexCohort } from "../../server/tokenIndexCohort.ts";
+import { codexTariff } from "../../server/usageTariffs.ts";
 import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
-import { readCohort } from "../../test-support/usage-history/tokenIndexHarness.ts";
-import type { TokenIndexCohort } from "../../src/usageTokenIndex.ts";
+  defaultCohort,
+  type TokenIndexCohort,
+} from "../../src/usageTokenIndex.ts";
 
 const sol = "gpt-6.1-sol",
   astra = "gpt-6-astra";
 
-test("model and effort filter by root response counts, with ties unknown and options spanning workflows", async ({
-  home,
-}) => {
+test("model and effort filter by root response counts, with ties unknown and options spanning workflows", () => {
+  const twoResponses = { uncachedInput: 2_000, cacheRead: 18_000, output: 200 };
   const tasks = [
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("mostly-astra")
-      .inWorkflow("refinement")
-      .withResponse({ model: astra, effort: "high" })
-      .withResponse({ model: astra, effort: "high" })
-      .withResponse({ effort: "high" })
+      .with({ workflow: "refinement" })
+      .withUsage({
+        model: astra,
+        effort: "high",
+        responses: 2,
+        tokens: twoResponses,
+      })
+      .withUsage({ effort: "high" })
       .please(),
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("sol-with-workers")
-      .inWorkflow("refinement")
-      .withResponse({ effort: "medium" })
-      .withWorkerResponse({ model: astra, effort: "high" })
-      .withWorkerResponse({ model: astra, effort: "high" })
+      .with({ workflow: "refinement" })
+      .withUsage({ effort: "medium" })
+      .withUsage({
+        root: false,
+        model: astra,
+        effort: "high",
+        responses: 2,
+        tokens: twoResponses,
+      })
       .please(),
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("model-tie")
-      .inWorkflow("refinement")
-      .withResponse({ effort: "high" })
-      .withResponse({ model: astra, effort: "high" })
+      .with({ workflow: "refinement" })
+      .withUsage({ effort: "high" })
+      .withUsage({ model: astra, effort: "high" })
       .please(),
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("counted-by-response")
-      .inWorkflow("refinement")
-      .withResponse({
+      .with({ workflow: "refinement" })
+      .withUsage({
         model: astra,
         tokens: { uncachedInput: 90_000, cacheRead: 900_000, output: 9_000 },
       })
-      .withResponse({})
-      .withResponse({})
+      .withUsage({ responses: 2, tokens: twoResponses })
       .please(),
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("effort-tie")
-      .inWorkflow("refinement")
-      .withResponse({})
-      .withResponse({ effort: "max" })
+      .with({ workflow: "refinement" })
+      .withUsage({})
+      .withUsage({ effort: "max" })
       .please(),
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("recovered-refinement")
-      .recovered()
-      .inWorkflow("refinement")
-      .withResponse({ effort: "medium" })
+      .with({
+        kind: "recovered",
+        workflow: "dough-story-refinement",
+        outcome: null,
+      })
+      .withUsage({ effort: "medium" })
       .please(),
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("execution")
-      .withResponse({ effort: "ultra" })
+      .withUsage({ effort: "ultra" })
       .please(),
   ];
-  const cohort = await readCohort(
-    home,
-    makeMe.aUsageHistory.with({ tasks }).please(),
-  );
+  const summary = makeMe.aUsageTaskSummary.with({ tasks }).please();
+  const project = makeMe.aPublishedSource.openDough.please();
+  const reading = {
+    projects: new Map([[project.id, project.label]]),
+    launches: new Map(),
+    tariff: codexTariff,
+    checkedAt: null,
+  };
   const ids = (choice: Partial<TokenIndexCohort> = {}) =>
-    cohort({ workflow: "refinement", ...choice }).tasks.map(({ id }) => id);
+    tokenIndexCohort(summary, reading, {
+      ...defaultCohort,
+      workflow: "refinement",
+      ...choice,
+    }).tasks.map(({ id }) => id);
 
   expect(ids()).toEqual([
     "counted-by-response",
@@ -92,7 +111,10 @@ test("model and effort filter by root response counts, with ties unknown and opt
   expect(ids({ workflow: "execution", effort: "ultra" })).toEqual([
     "execution",
   ]);
-  expect(cohort({ model: astra }).options).toEqual({
+  expect(
+    tokenIndexCohort(summary, reading, { ...defaultCohort, model: astra })
+      .options,
+  ).toEqual({
     models: [
       { id: sol, name: "GPT-6.1 Sol" },
       { id: astra, name: "GPT-6 Astra" },

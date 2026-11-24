@@ -12,8 +12,7 @@ wrapper. 45 of them start `node dashboard/server/importUsageHistory.ts`
 for every import and every read, 364 call sites in all. Call the typed
 importer and the typed store read in this process, keep a few command
 cases for what only the command owns, and move the fixture module and
-the family to Node Vitest. Token Index stays with
-[its plan](../811-renovate-usage-token-index-proof/PLAN.md). Reducing
+the family to Node Vitest. The [Token Index migration](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/slice-plans/811-renovate-usage-token-index-proof/PLAN.md) is complete. Reducing
 case count beyond command duplicates stays with the
 [later families](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families).
 
