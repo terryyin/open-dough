@@ -1,100 +1,84 @@
-// Literal editable quick replies, and explicit recovery after an attachment ends.
-// Connecting/refused recovery stays with ./terminal-prompts-recovery.spec.ts.
-import type { Locator } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { openFrontendTerminalVoice } from "../../test-support/support/frontendTerminalVoice.ts";
-import { directedApplication } from "../../test-support/support/terminalSubstituteApplication.ts";
-import { terminalScreen } from "../../test-support/terminalScreen.ts";
-import { unfocusedPromptButtons } from "../../test-support/support/terminalVoicePage.ts";
-import { tapWhereShown } from "../../test-support/pageLayout.ts";
+import { expect, test } from "vitest";
+import { userEvent, type Locator } from "vitest/browser";
+import { useTouchScreen, portrait } from "../navigation/board-touch-page.ts";
+import {
+  terminal,
+  terminalInput,
+  terminalStatus,
+} from "../sessions/session-terminal-page.ts";
+import {
+  choosePrompt,
+  openAgain,
+  tapTerminalControl,
+  unfocusedPromptButtons,
+} from "./terminal-input-controls.ts";
+import { mountTerminalInput } from "./terminal-input-mount.ts";
 
-const variants = [
-  {
-    name: "desktop",
-    using: "mouse",
-    viewport: { width: 1280, height: 800 },
-    hasTouch: false,
-    press: (control: Locator) => control.click(),
-  },
-  {
-    name: "phone",
-    using: "touch",
-    viewport: { width: 390, height: 844 },
-    hasTouch: true,
-    press: tapWhereShown,
-  },
-] as const;
-
-for (const { name, using, viewport, hasTouch, press } of variants) {
-  test.describe(name, () => {
-    test.use({ viewport, hasTouch });
-    test.beforeEach(async ({ page }) => {
-      await unfocusedPromptButtons(page);
-    });
-
-    for (const { phrase, prefix } of [
-      { phrase: "OK", prefix: "" },
-      { phrase: "as recommended", prefix: "Review " },
-      { phrase: "Try again", prefix: "Review " },
-      { phrase: "Resume", prefix: "Review " },
-      { phrase: "Please explain", prefix: "Review " },
-    ]) {
-      test(`${phrase} inserts literal editable input and requires deliberate Enter`, async ({
-        page,
-        frontendServices,
-      }) => {
-        const { sent } = await openFrontendTerminalVoice(
-          page,
-          frontendServices,
-          {
-            twoSessions: false,
-            withTranscription: false,
-            press,
-          },
-        );
-        const terminal = terminalScreen(page);
-        await terminal.writeInput(prefix);
-        await terminal.choosePrompt(phrase, { using });
-        await expect
-          .poll(() => sent.filter((text) => text === phrase))
-          .toEqual([phrase]);
-        await terminal.expectInputFocused();
-        await terminal.expectText(`${prefix}${phrase}`);
-        expect(sent.some((text) => /[\r\n]/.test(text))).toBe(false);
-        const beforeEdit = sent.length;
-        await terminal.replaceLastCharacter("!");
-        await terminal.submitInput();
-        await expect
-          .poll(() => sent.slice(beforeEdit).join(""))
-          .toBe("\u007f!\r");
-      });
-    }
-
-    test("an ended attachment rejects a preset and recovery requires a new choice", async ({
-      page,
-      frontendServices,
-    }) => {
-      const program = directedApplication(
-        "attached voicea01\r\nClaude Code\r\n",
-      );
-      const { sent } = await openFrontendTerminalVoice(page, frontendServices, {
-        application: program.application,
-        twoSessions: false,
-        withTranscription: false,
-        press,
-      });
-      const terminal = terminalScreen(page);
-      program.end();
-      await terminal.expectStatus("The terminal ended");
-      await terminal.choosePrompt("OK", { using });
-      await terminal.expectStatus(
-        "Choose Open again, then open Prompts again.",
-      );
-      expect(sent).toEqual([]);
-      await terminal.openAgain();
-      await terminal.expectText("Claude Code");
-      await terminal.choosePrompt("as recommended", { using });
-      await expect.poll(() => sent).toEqual(["as recommended"]);
-    });
-  });
+async function openPromptTerminal(byTouch: boolean) {
+  if (byTouch) await useTouchScreen();
+  unfocusedPromptButtons();
+  const press = byTouch
+    ? tapTerminalControl
+    : (control: Locator) => userEvent.click(control);
+  const mounted = await mountTerminalInput(
+    byTouch ? { viewport: portrait } : {},
+  );
+  return { ...mounted, press };
 }
+
+async function literalPrompt(phrase: string, prefix: string, byTouch: boolean) {
+  const { sent, press } = await openPromptTerminal(byTouch);
+  if (prefix) await userEvent.keyboard(prefix);
+  await choosePrompt(phrase, press);
+  await expect.poll(() => sent().join("")).toBe(prefix + phrase);
+  expect(sent().filter((text) => text === phrase)).toEqual([phrase]);
+  await expect.element(terminalInput).toHaveFocus();
+  await expect
+    .element(terminal.getByText(prefix + phrase, { exact: true }))
+    .toBeVisible();
+  const beforeEdit = sent().length;
+  await userEvent.keyboard("{Backspace}!{Enter}");
+  await expect.poll(() => sent().slice(beforeEdit).join("")).toBe("\u007f!\r");
+}
+
+async function endedPrompt(byTouch: boolean) {
+  const { attachment, sent, press } = await openPromptTerminal(byTouch);
+  attachment.end();
+  await expect
+    .element(terminalStatus.getByText("The terminal ended", { exact: false }))
+    .toBeVisible();
+  await choosePrompt("OK", press);
+  await expect
+    .element(
+      terminalStatus.getByText("Choose Open again, then open Prompts again.", {
+        exact: true,
+      }),
+    )
+    .toBeVisible();
+  expect(sent()).toEqual([]);
+  await press(openAgain);
+  await expect.element(openAgain).not.toBeInTheDocument();
+  await expect
+    .element(terminal.getByText("Claude Code", { exact: true }))
+    .toBeVisible();
+  expect(sent()).toEqual([]);
+  await choosePrompt("as recommended", press);
+  await expect.poll(sent).toEqual(["as recommended"]);
+  await expect.element(terminalInput).toHaveFocus();
+}
+
+test("a desktop prompt inserts literal editable input and requires deliberate Enter", async () => {
+  await literalPrompt("OK", "", false);
+});
+
+test("a phone prompt appends literal editable input and requires deliberate Enter", async () => {
+  await literalPrompt("as recommended", "Review ", true);
+});
+
+test("a desktop ended attachment rejects a preset and recovery requires a new choice", async () => {
+  await endedPrompt(false);
+});
+
+test("a phone ended attachment rejects a preset and recovery requires a new choice", async () => {
+  await endedPrompt(true);
+});

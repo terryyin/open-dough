@@ -1,117 +1,132 @@
-// Phone text input that an ended attachment cannot accept names the panel's
-// shown Open again action; reopening sends nothing by itself, and a retained
-// transcript is then offered once by Insert transcript. Built frontend against
-// directed terminal end and controlled transcription answers.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { openFrontendTerminalByTouch } from "../../test-support/support/frontendTouchTerminal.ts";
-import { installFrontendTranscription } from "../../test-support/support/frontendTranscriptionSubstitutes.ts";
-import { directedApplication } from "../../test-support/support/terminalSubstituteApplication.ts";
-import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { InstructionTranscriptionSource } from "../../src/instructionTranscriptionSource.ts";
+import { audioInput } from "../launches/instruction-voice-page.ts";
+import { portrait, useTouchScreen } from "../navigation/board-touch-page.ts";
 import {
-  expectTerminalText,
-  openAgainControl,
-  pressTerminalKey,
+  sidebarButton,
+  sidebarSession,
+} from "../sessions/session-card-page.ts";
+import {
+  terminal,
+  terminalInput,
   terminalStatus,
-} from "../../test-support/terminalScreenPage.ts";
+} from "../sessions/session-terminal-page.ts";
 import {
-  holdCompletedVoiceResponse,
-  observeMicrophone,
-} from "../../test-support/support/voicePage.ts";
-import {
-  beginTerminalClip,
-  expectNoUnsentTranscript,
-  expectUnsentTranscript,
-  expectVoiceStatus,
-  insertTranscriptControl,
-  stopTerminalClip,
-} from "../../test-support/support/terminalVoicePage.ts";
-import { tapWhereShown } from "../../test-support/pageLayout.ts";
-import { copyClipboardText } from "../../test-support/terminalPastePage.ts";
-import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
-import {
-  focusByTouch,
-  tapTerminalKey,
-} from "../../test-support/touchTerminalPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  dictate,
+  openAgain,
+  tapTerminalControl,
+  tapTerminalScreen,
+} from "./terminal-input-controls.ts";
+import { mountTerminalInput } from "./terminal-input-mount.ts";
 
-test.use({
-  ...microphoneBrowserOptions,
-  viewport: phoneLaunchTouchViewport.portrait,
-  hasTouch: true,
-  permissions: ["microphone", "clipboard-read", "clipboard-write"],
-});
-test.beforeEach(async ({ page }) => {
-  await observeMicrophone(page);
-});
-
-test("an ended terminal keeps the transcript with Open again feedback, Paste names Open again, and reopening sends nothing until Insert transcript", async ({
-  page,
-  frontendServices,
-}) => {
+test("an ended terminal keeps the transcript with Open again feedback, Paste names Open again, and reopening sends nothing until Insert transcript", async () => {
   const transcript = "Keep this for the reopened terminal.";
-  const transcription = await installFrontendTranscription(
-    page,
-    frontendServices,
+  const title = "Ended terminal input session";
+  const record = makeMe.aLaunchRecord
+    .adHoc({ instruction: "ended", title })
+    .inClaudeSession({ sessionId: "ended-session", shortId: "ended01" })
+    .please();
+  let deliver: () => void = () => {
+    throw new Error("The recording has no held answer.");
+  };
+  const answer = new Promise<{ text: string }>((resolve) => {
+    deliver = () => {
+      resolve({ text: transcript });
+    };
+  });
+  const transcribe = vi.fn<InstructionTranscriptionSource["transcribe"]>(
+    () => answer,
   );
-  transcription.answerText(transcript);
-  const program = directedApplication("attached ended01\r\nClaude Code\r\n");
-  const { panel, sent } = await openFrontendTerminalByTouch(
-    page,
-    frontendServices,
-    makeMe.aLaunchRecord
-      .adHoc({
-        instruction: "ended",
-        title: "Ended terminal input session",
-      })
-      .inClaudeSession({ sessionId: "ended-session", shortId: "ended01" })
-      .please(),
-    { application: program.application },
+  audioInput();
+  const clipboardText = new Blob(["not for the ended terminal"], {
+    type: "text/plain",
+  });
+  const readClipboard = vi
+    .spyOn(navigator.clipboard, "read")
+    .mockResolvedValue([new ClipboardItem({ "text/plain": clipboardText })]);
+  onTestFinished(() => {
+    readClipboard.mockRestore();
+  });
+  await useTouchScreen();
+  const { attachment, sent } = await mountTerminalInput({
+    viewport: portrait,
+    record,
+    openingLines: ["attached ended01", "Claude Code"],
+    openSession: async () => {
+      await tapTerminalControl(sidebarButton);
+      await tapTerminalControl(sidebarSession(title));
+    },
+    transcription: { configured: () => Promise.resolve(true), transcribe },
+  });
+  await tapTerminalControl(dictate);
+  await expect
+    .element(
+      terminalStatus.getByText(
+        "Recording… Stop recording when you are finished.",
+      ),
+    )
+    .toBeVisible();
+  await tapTerminalControl(
+    terminal.getByRole("button", { name: "Stop recording", exact: true }),
   );
-  const status = terminalStatus(panel);
-  const insert = insertTranscriptControl(panel);
-  const openAgain = openAgainControl(panel);
-  await expectTerminalText(panel, "attached ended01");
-  await expectTerminalText(panel, "Claude Code");
+  await expect.poll(() => transcribe.mock.calls.length).toBe(1);
+  await expect
+    .element(terminalStatus.getByText("Transcribing…", { exact: true }))
+    .toBeVisible();
+  await tapTerminalScreen();
+  await expect.element(terminalInput).toHaveFocus();
+  await userEvent.keyboard("{Control>}z{/Control}");
+  await expect.poll(sent).toEqual(["\u001a"]);
+  attachment.end();
+  await expect
+    .element(terminalStatus.getByText("The terminal ended", { exact: false }))
+    .toBeVisible();
+  await expect.element(openAgain).toBeVisible();
+  deliver();
 
-  await test.step("a transcript completing after the terminal ended stays unsent with feedback naming Open again", async () => {
-    const delivery = await holdCompletedVoiceResponse(page);
-    await beginTerminalClip(page, panel);
-    await stopTerminalClip(page, panel);
-    await delivery.ready();
-    await focusByTouch(panel);
-    await pressTerminalKey(page, "Control+z");
-    program.end();
-    await expect(status).toContainText("The terminal ended");
-    await expect(openAgain).toBeVisible();
-    await delivery.release();
-    await expectUnsentTranscript(panel, transcript);
-    await expectVoiceStatus(
-      panel,
-      "The transcript was not inserted. Open again, then insert it here or discard it.",
-    );
-    expect(sent.filter((text) => text === "\u001a")).toEqual(["\u001a"]);
+  const unsent = terminal.getByRole("textbox", { name: "Unsent transcript" });
+  const insert = terminal.getByRole("button", {
+    name: "Insert transcript",
+    exact: true,
   });
+  await expect.element(unsent).toHaveValue(transcript);
+  await expect
+    .element(
+      terminalStatus.getByText(
+        "The transcript was not inserted. Open again, then insert it here or discard it.",
+        { exact: false },
+      ),
+    )
+    .toBeVisible();
+  expect(sent()).toEqual(["\u001a"]);
+  await tapTerminalControl(
+    terminal.getByRole("button", { name: "Paste", exact: true }),
+  );
+  await expect
+    .element(
+      terminalStatus.getByText("Tap Open again, then tap Paste again.", {
+        exact: true,
+      }),
+    )
+    .toBeVisible();
+  expect(readClipboard).toHaveBeenCalledOnce();
+  await tapTerminalControl(insert);
+  await expect.element(unsent).toHaveValue(transcript);
+  expect(sent()).toEqual(["\u001a"]);
 
-  await test.step("Paste and Insert transcript on the ended terminal send nothing, and Paste names Open again", async () => {
-    await copyClipboardText(page, "not for the ended terminal");
-    await tapTerminalKey(panel, "Paste");
-    await expect(status).toContainText("Tap Open again, then tap Paste again.");
-    await tapWhereShown(insert);
-    await expectUnsentTranscript(panel, transcript);
-    expect(sent.filter((text) => text !== "\u001a")).toEqual([]);
-  });
-
-  await test.step("Open again reattaches without sending, and Insert transcript then offers the transcript once", async () => {
-    await tapWhereShown(openAgain);
-    await expectTerminalText(panel, "Claude Code");
-    await expect(openAgain).toHaveCount(0);
-    await expectUnsentTranscript(panel, transcript);
-    await tapWhereShown(insert);
-    await expectNoUnsentTranscript(panel);
-    await expect
-      .poll(() => sent.filter((text) => text === transcript))
-      .toEqual([transcript]);
-    await expect(panel).toContainText(transcript);
-  });
+  await tapTerminalControl(openAgain);
+  await expect.element(openAgain).not.toBeInTheDocument();
+  await expect
+    .element(terminal.getByText("Claude Code", { exact: true }))
+    .toBeVisible();
+  await expect.element(unsent).toHaveValue(transcript);
+  expect(sent()).toEqual(["\u001a"]);
+  await tapTerminalControl(insert);
+  await expect.element(unsent).not.toBeInTheDocument();
+  await expect.poll(sent).toEqual(["\u001a", transcript]);
+  await expect
+    .element(terminal.getByText(transcript, { exact: true }))
+    .toBeVisible();
 });

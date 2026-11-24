@@ -56,3 +56,8 @@ initial Taken placement and sufficient rendered content make the
 offscreen precondition independent of the horizontal layout that
 triggered the CI failure. Use the first applicable CI verdict as the
 stopping point for this hypothesis and diagnose any new failure.
+
+The repaired story-branch candidate `474680898dc75858d220e88db13871bb3c596a6b`
+passed the first applicable Linux CI run, 45295856270 attempt 1.
+The owned slice 6 files were restored from the retained stash receipt
+after repair publication and resumed on the same branch.

@@ -16,6 +16,7 @@ import type { SessionServices } from "../../src/sessionServices.ts";
 import { withPagePreferences } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+import type { InstructionTranscriptionSource } from "../../src/instructionTranscriptionSource.ts";
 import { boardFrameObservationSupplying } from "../navigation/board-frame-observation-supply.ts";
 import { boardWork, story } from "../navigation/board-work.ts";
 
@@ -110,6 +111,7 @@ export async function mountSessionCards({
   machineReads = {},
   readRunningCursorSessions,
   readFinalReport,
+  transcription,
   openTerminal,
   viewport = { width: 1200, height: 840 },
   otherProjects = [],
@@ -126,6 +128,7 @@ export async function mountSessionCards({
   markDone?: MachineReadSource["markDone"];
   markRead?: MachineReadSource["markRead"];
   readFinalReport?: SessionServices["readFinalReport"];
+  transcription?: InstructionTranscriptionSource;
   viewport?: { width: number; height: number };
   openTerminal?: SessionServices["openTerminal"];
   otherProjects?: readonly PublishedWork[];
@@ -139,6 +142,7 @@ export async function mountSessionCards({
     machineReads.readSessionsSince ?? (() => next),
   );
   const reads = pageReadsSupplying({
+    ...(transcription === undefined ? {} : { transcription }),
     observation: {
       ...supply.observation,
       readDetailFile: (...args) =>

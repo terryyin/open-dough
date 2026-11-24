@@ -280,7 +280,7 @@ passed locally. See [diagnosis](diagnosis-ad-hoc-reveal.md).
 ### 6. Terminal keyboard, prompts, and ended-input recovery stay usable
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `terminals/session-terminal-keyboard`, `terminals/session-terminal-prompts`,
 `terminals/terminal-prompts-recovery`, and
@@ -298,6 +298,18 @@ Literal quick replies send and recover when ended. Connecting or refused
 attachment refuses presets, names recovery and requires a new choice. An ended
 terminal keeps the transcript with Open again feedback; Paste names Open again
 and reopening sends nothing until Insert transcript.
+
+**Accepted implementation proof.** The early production Terminal probe
+sent exact Tab input over the typed socket. Eleven mounted cases
+passed in 10.762 s wall at two workers. Eight repeated prompt cases
+consolidated into representative mouse and touch journeys while the
+menu keeps the exact five phrases. Connecting, refusal, ending,
+keyboard focus and editable input remain distinct. A held typed
+transcription after the terminal ends stays unsent until explicit
+Insert after reattachment. Existing proof passed for 82 mounted cases,
+six still-legacy voice cases, thirteen native E2E cases (46.489 s),
+and dashboard typecheck. No E2E cases were added. See
+`slice-6-mapping.md` and `slice-6-return.md` in the worktree's Git evidence.
 
 ### 7. Terminal touch select, paste, and application scroll preserve paused and live text
 

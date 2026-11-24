@@ -100,6 +100,10 @@ export const pageReadsSupplying = (
   ci: unreadCiReads,
   review: unreadReviewReads,
   sessions: unreadSessionServices,
+  transcription: {
+    configured: unread("transcription configuration"),
+    transcribe: unread("instruction transcription"),
+  },
   done: unreadDoneRecordReads,
   storyNotes: unreadStoryNotes,
   ciFollowUp: unreadCiFollowUp,
