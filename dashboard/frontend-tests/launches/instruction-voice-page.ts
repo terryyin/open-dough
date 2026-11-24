@@ -30,16 +30,28 @@ export function audioInput() {
     .spyOn(navigator.mediaDevices, "getUserMedia")
     .mockImplementation(openStream);
   const format = vi.spyOn(MediaRecorder, "isTypeSupported");
+  const recording = vi.spyOn(MediaRecorder.prototype, "start");
+  const recordedAudio = async () => {
+    let bytes = 0;
+    const recorder = recording.mock.contexts.at(-1);
+    if (recorder instanceof MediaRecorder) {
+      recorder.addEventListener("dataavailable", (event) => {
+        bytes += event.data.size;
+      });
+    }
+    await expect.poll(() => bytes).toBeGreaterThan(0);
+  };
   const tracks = () => streams.flatMap((stream) => stream.getTracks());
   onTestFinished(async () => {
     getUserMedia.mockRestore();
     format.mockRestore();
+    recording.mockRestore();
     tracks().forEach((track) => {
       track.stop();
     });
     await audio.close();
   });
-  return { getUserMedia, format, tracks, openStream };
+  return { getUserMedia, format, tracks, openStream, recordedAudio };
 }
 
 export async function mountInstructionVoice() {

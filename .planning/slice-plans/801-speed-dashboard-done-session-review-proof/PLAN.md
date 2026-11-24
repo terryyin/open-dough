@@ -322,7 +322,13 @@ CI run 45296057233 failed on `a49313ba` in
 `intent/intent-scope-timing-history-units.spec.ts`: a late Done comparison
 renamed the location button that a name-resolved click was waiting for. The
 repair presses the button by its path; see
-[the diagnosis record](diagnosis-intent-scope-timing-click.md). Fit the 15 active-minute limit by keeping representative
+[the diagnosis record](diagnosis-intent-scope-timing-click.md).
+
+CI run 45305912032 failed on the trunk merge `28407491` in
+`stories/story-note-voice.spec.ts`: Stop pressed before the recorder encoded
+any audio produced an empty clip. Note-clip helpers now wait for recorded
+audio before Stop; see
+[the diagnosis record](diagnosis-story-note-voice-clip.md). Fit the 15 active-minute limit by keeping representative
 rendered scenarios and checking distinct variants at their smallest owner.
 
 ## Assertion map
