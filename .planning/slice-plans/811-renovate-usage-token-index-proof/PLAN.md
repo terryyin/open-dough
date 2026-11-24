@@ -170,7 +170,7 @@ Checkout evidence uses the `slice-3-` prefix.
 ### 4. Retained launch evidence determines measured and provisional detail
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `token-index-detail`, `token-index-provisional` and
 `token-index-claude-coverage`. Pass retained launch ends, reports, check
@@ -179,6 +179,16 @@ outcomes, provisional and partial reasons, and whether a task enters the
 median. For the case about a later refresh, drive the production importer
 and read the updated check time and result. Keep the contrast between a
 missing transcript and an existing background-work limit.
+
+The original three specs pass seven cases on Vitest. The detail and
+coverage cases use retained records and derived usage to preserve the
+report, Done, archived history, missing-root, missing-worker and
+background-limit distinctions. The provisional cases vary the selected
+launch end and check time. The real incremental refresh reads new Claude
+reply rows at a controlled time, checks the persisted timestamp, and
+moves the median from 1,950 to 3,425. Summed case time fell from
+7,756 ms to 197.04 ms. The slowest case took 88.33 ms in the final focused
+run. Checkout evidence uses the `slice-4-` prefix.
 
 ### 5. Codex reply evidence is attributed once to its launch
 

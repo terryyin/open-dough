@@ -1,16 +1,23 @@
-// Live launch outcomes determine which imported tasks the endpoint plots.
+// Live launch outcomes determine which imported tasks the chart plots.
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { retainedUsageTasks } from "../../server/retainedUsageTasks.ts";
+import {
+  retainedLaunchEnds,
+  retainedUsageTasks,
+} from "../../server/retainedUsageTasks.ts";
+import { tokenIndexAnswer } from "../../server/tokenIndexRead.ts";
+import { writeUsageHistory } from "../../server/usageHistory.ts";
+import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
+import { codexTariff } from "../../server/usageTariffs.ts";
+import { defaultCohort } from "../../src/usageTokenIndex.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import { keepRetainedLaunch } from "../../test-support/usage-history/importHarness.ts";
-import {
-  day,
-  expect,
-  test,
-  usageServer,
-  writeTaskUsage,
-} from "../../test-support/usage-history/tokenIndexHarness.ts";
 
+const day = (date: number) =>
+  `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
 const sol = "gpt-6.1-sol",
   astra = "gpt-6-astra";
 const story = { identity: "SEED-7#same-story", title: "The same story" };
@@ -20,9 +27,10 @@ const launch = (sessionId: string) =>
     .inCodexSession({ sessionId })
     .launchedAt(day(2));
 
-test("each launch keeps its own detail and outcome; current reports, Done marks and retained history finish imported tasks", async ({
-  machine,
-}) => {
+test("each launch keeps its own detail and outcome; current reports, Done marks and retained history finish imported tasks", async () => {
+  const home = await mkdtemp(path.join(tmpdir(), "token-index-detail-"));
+  onTestFinished(() => rm(home, { recursive: true, force: true }));
+  const store = path.join(home, "usage.json");
   const running = launch("running");
   const records = [
     launch("returned")
@@ -39,14 +47,11 @@ test("each launch keeps its own detail and outcome; current reports, Done marks 
       .please(),
     launch("done").markedDoneAt(day(8)).please(),
   ];
-  keepRetainedLaunch(
-    machine.home,
-    launch("aged-out").markedDoneAt(day(4)).please(),
-  );
-  keepLaunchStore(machine.home, {
+  keepRetainedLaunch(home, launch("aged-out").markedDoneAt(day(4)).please());
+  keepLaunchStore(home, {
     "open-dough": [...records, running.please()],
   });
-  const imported = await retainedUsageTasks(machine.home);
+  const imported = await retainedUsageTasks(home);
   const histories = imported.map((task) => {
     const usage = makeMe.aUsageTaskHistory
       .withTask({ ...task, lastActivityAt: day(9) })
@@ -59,16 +64,25 @@ test("each launch keeps its own detail and outcome; current reports, Done marks 
         .withResponse({ model: astra, effort: "high" });
     return usage.please();
   });
-  await writeTaskUsage(machine.home, [
+  const tasks = [
     ...histories,
     makeMe.aUsageTaskHistory
       .identifiedAs("recovered")
       .recovered()
       .endedAt(day(10))
       .please(),
-  ]);
-  const usage = await usageServer(machine);
-  const answer = await usage.chart();
+  ];
+  await writeUsageHistory(makeMe.aUsageHistory.with({ tasks }).please(), store);
+  const reading = {
+    projects: [makeMe.aPublishedSource.openDough.please()],
+    tariff: codexTariff,
+    checkedAt: day(12),
+    summary: await deriveUsageTaskSummary(store),
+  };
+  const answer = tokenIndexAnswer(
+    { ...reading, launches: await retainedLaunchEnds(home) },
+    defaultCohort,
+  );
   const sessionOf = (id: string) =>
     imported.find((task) => task.id === id)?.sessionId ?? id;
 
@@ -114,11 +128,12 @@ test("each launch keeps its own detail and outcome; current reports, Done marks 
     coverage: { kind: "measured" },
   });
 
-  keepLaunchStore(machine.home, {
+  keepLaunchStore(home, {
     "open-dough": [...records, running.markedDoneAt(day(11)).please()],
   });
-  const finished = (await usage.chart()).tasks.find(
-    ({ id }) => sessionOf(id) === "running",
-  );
+  const finished = tokenIndexAnswer(
+    { ...reading, launches: await retainedLaunchEnds(home) },
+    defaultCohort,
+  ).tasks.find(({ id }) => sessionOf(id) === "running");
   expect(finished).toMatchObject({ endedAt: day(9), outcome: null });
 });
