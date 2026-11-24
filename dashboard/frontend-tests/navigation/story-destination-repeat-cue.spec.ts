@@ -1,7 +1,6 @@
-import { expect, onTestFinished, test, vi } from "vitest";
-import { page, type Locator } from "vitest/browser";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { destinationCueMs } from "../../src/destinationCue.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import {
   backToDashboard,
@@ -12,28 +11,15 @@ import { reviewSourceAnswering } from "../review/story-review-panel-page.ts";
 import { boardReading, storyCard } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 import {
+  controlDestinationCueTime,
+  finishCue,
+  showsMovingCue,
+} from "./story-destination-cue.ts";
+import {
   coldStoryUrl,
   mountStoryUrl,
   storyInAddress,
 } from "./story-url-frame.ts";
-
-async function showsMovingCue(card: Locator) {
-  await expect.element(card).toHaveClass("story-card-destination-cue");
-  expect(document.querySelectorAll(".story-card-destination-cue")).toHaveLength(
-    1,
-  );
-  const mark = getComputedStyle(card.element(), "::after");
-  expect(mark.content).not.toBe("none");
-  expect(mark.boxShadow).not.toBe("none");
-  expect(mark.animationName).toBe("story-card-destination-cue");
-}
-
-async function finishCue(card: Locator) {
-  vi.advanceTimersByTime(destinationCueMs);
-  await expect.element(card).not.toHaveClass("story-card-destination-cue");
-  expect(document.querySelector(".story-card-destination-cue")).toBeNull();
-  expect(getComputedStyle(card.element(), "::after").content).toBe("none");
-}
 
 test("Back from Intent and System settings cues the same destination without changing its Highlight or detail", async () => {
   const taken = story("Keep selected review work in view", 807);
@@ -52,13 +38,7 @@ test("Back from Intent and System settings cues the same destination without cha
     .adding("story.txt")
     .please();
   coldStoryUrl(work.source.id, taken.identity);
-  vi.useFakeTimers({
-    toFake: ["setTimeout", "clearTimeout"],
-    shouldAdvanceTime: true,
-  });
-  onTestFinished(() => {
-    vi.useRealTimers();
-  });
+  controlDestinationCueTime();
   const frame = await mountStoryUrl(
     { width: 1920, height: 900 },
     {

@@ -1,5 +1,4 @@
 // @ts-check
-import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { FileFollowUpBuilder } from "./followUpFileTestData.mjs";
 import { FollowUpBuilder } from "./followUpTestData.mjs";
@@ -54,7 +53,6 @@ import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
  * @property {NativeEvidenceRecordBuilder} aNativeEvidenceRecord
  * @property {RepositoryBuilder} aRepository
  * @property {CheckoutWorkBuilder} aCheckoutWork
- * @property {AgentProfileBuilder} anAgentProfile
  * @property {ConfiguredProjectBuilder} aConfiguredProject
  * @property {FactBuilder<PublishedRevision>} aPublishedRevision
  * @property {StoryPreparationBuilder} aStoryPreparation
@@ -101,12 +99,6 @@ export const makeMe = Object.defineProperties(
       enumerable: true,
       get() {
         return new CheckoutWorkBuilder();
-      },
-    },
-    anAgentProfile: {
-      enumerable: true,
-      get() {
-        return new AgentProfileBuilder();
       },
     },
     aConfiguredProject: {

@@ -1,4 +1,4 @@
-import { createElement, useState } from "react";
+import { createElement, Fragment, useState } from "react";
 import { expect, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
@@ -64,6 +64,7 @@ export async function mountBoardFrame(
     otherWork = [],
     initialSnapshot,
     detailFile,
+    readProfiles,
     revisionCheck,
     intentReads,
     done,
@@ -75,6 +76,7 @@ export async function mountBoardFrame(
     otherWork?: readonly PublishedWork[];
     initialSnapshot?: Error | Promise<PublishedWork>;
     detailFile?: PublishedObservationReadSource["readDetailFile"];
+    readProfiles?: PublishedObservationReadSource["readProfiles"];
     revisionCheck?: PublishedObservationReadSource["checkRevision"];
     intentReads?: IntentReadSource;
     done?: DoneRecordReadSource;
@@ -101,6 +103,7 @@ export async function mountBoardFrame(
   const supply = boardFrameObservationSupplying(snapshots, {
     ...(initialSnapshot === undefined ? {} : { initialSnapshot }),
     ...(detailFile === undefined ? {} : { detailFile }),
+    ...(readProfiles === undefined ? {} : { readProfiles }),
     ...(revisionCheck === undefined ? {} : { checkRevision: revisionCheck }),
     machineAnswer: machine.answer ?? emptyMachineAnswer(),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),
@@ -132,7 +135,11 @@ export async function mountBoardFrame(
           reads,
           settingsSources,
         });
-  await mountComponent(dashboard, { viewport, fillsViewport: true });
+  let pageInstance = 0;
+  const mounted = await mountComponent(dashboard, {
+    viewport,
+    fillsViewport: true,
+  });
   // Production launches settle through typed machine reads; wait out the first
   // answer before cases interact so Cancel→Enter reopen is not racing that
   // Board/Recently done update (Slice 4 removed the sync useAgentLaunches mock).
@@ -156,6 +163,12 @@ export async function mountBoardFrame(
       .toBe(true);
   }
   return {
+    remount: () => {
+      pageInstance += 1;
+      mounted.rerender(
+        createElement(Fragment, { key: pageInstance }, dashboard),
+      );
+    },
     revisionChanged: supply.revisionChanged,
     revisionCheckFailed: supply.revisionCheckFailed,
     queueSnapshot: supply.queueSnapshot,

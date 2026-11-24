@@ -343,9 +343,9 @@ reveal. All eight cases passed again in `slice5-motion-ownership.log.run.json`.
 ### 6. Recent stories and agent roster follow selection and collection settings
 
 Type: Behavior
-Status: planned
+Status: done
 
-**Roster (7 runtime cases).** `navigation/recent-stories`,
+**Roster (8 runtime cases).** `navigation/recent-stories`,
 `stories/agent-roster-collection`.
 
 **Behavior.** Recent stories lists card and Side panel selections, caps at the
@@ -360,6 +360,30 @@ across reload.
 **Proof.** Mounted frame recent-stories and roster views stay green with typed
 published files / executing roster answers. Built-app consumers for these
 titles are gone.
+
+**Accepted assertion map.**
+
+| Retired case | Replacement observation |
+| --- | --- |
+| Bookmark and card or Side panel selections | `recent-stories` checks the live bookmark, recent order, exact labels, clearing, native Escape and outside dismissal, and Highlight from a real terminal Side panel selection. |
+| Saved capped history and refused storage | Two `recent-stories-storage` cases use fresh keyed production frames. One checks the ten newest from real browser storage and no restored selection. The other makes the storage getter throw, checks usable in-page order, then observes an empty fresh frame without a page error. |
+| Choosing across projects and unavailable | `recent-stories` chooses from a roster, checks route, picked project's Highlight, focus, reading edge and sole moving cue, then checks the exact unavailable notice for a stale history entry. |
+| Reveal before opening the list | `recent-stories` checks the first bookmark action reveals an offscreen card, the second opens its list, a readable tall card opens immediately, and a cross-project return retains the same reveal. |
+| Current collection | `agent-roster-collection` supplies no setting and checks 29 ranked agents and the existing published assignment. |
+| Nerds collection and existing assignment | `agent-roster-collection` checks the 30 Nerds, available portraits, a name with no photo, and the existing assignment from the other collection. |
+| Malformed JSON | `agent-roster-collection` checks the exact unreadable settings explanation and empty agent list. |
+| Invalid nerds value | `agent-roster-collection` checks the exact must-be-true explanation and no agents. |
+
+**Result.** Nine mounted cases took 4.77 s including preparation versus
+9.23 s for eight legacy cases at two workers. There is no added E2E cost.
+The fresh mount uses the actual storage boundary and distinguishes persisted
+history from the failed-write fallback. Nine existing mounted cases, nine
+Node builder cases, one retained frontend case, one existing E2E and
+typecheck passed. Exact commands and assertion details are in Git evidence
+`slice6-return.md`. The independent refactor shared moving-cue timing,
+paint and expiry across Recent stories, story URLs and references. The
+nine affected cases passed in 4.74 s and typecheck passed. The reference
+spec kept its distinct fade/restart proof and dropped from 254 to 227 lines.
 
 ### 7. Intent outside and no-locations Changes stay truthful on Vitest
 
@@ -390,8 +414,12 @@ Intent substitutes lose these consumers.
   is on `origin/main` and is the story branch's published starting point.
 - Checkout-bound `npm ci` and `npm run typecheck:dashboard` passed on AC power.
 - GitHub Actions `ci.yml`, observer `frame-navigation-hitomi` on the story branch,
-  directory `/tmp/dough-ci-501/watch-9WUqm2`, PID `73735`, Codex cell `g500:14`.
-  The Take was published before this story-branch observer was armed.
+  directory `/tmp/dough-ci-501/watch-vdpxYr`, PID `46347`, Codex cell `6`.
+  The previous mailbox `/tmp/dough-ci-501/watch-9WUqm2` recorded success for
+  the header repair `80576474be8850aad538795acd48ff700ad48ed8` and stopped
+  with no unread events after the host restarted. Registration for already
+  published `15d54275554a23d13623cb3d1e43cf7ad1da51f8` recovered with zero
+  pushes. The Take preceded story branch observation.
 
 ## Plan review
 

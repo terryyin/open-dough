@@ -1,13 +1,18 @@
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { page, type Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
-import { destinationCueMs } from "../../src/destinationCue.ts";
 import { ReadProblem } from "../../src/readProblem.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import { boardReading, storyCard } from "./board-reading-page.ts";
 import { longBacklog } from "./board-work.ts";
 import { focus } from "./project-navigation-frame.ts";
+import {
+  controlDestinationCueTime,
+  destinationCueAnimationName,
+  finishCue,
+  showsMovingCue,
+} from "./story-destination-cue.ts";
 import {
   canonicalRecord,
   detail,
@@ -29,16 +34,6 @@ import {
 const supplierFile = ".planning/seeds/B.md";
 const supplierCard = storyCard(supplier.title);
 const supplierDetail = detail(supplier.title);
-
-function controlPageTime() {
-  vi.useFakeTimers({
-    toFake: ["setTimeout", "clearTimeout"],
-    shouldAdvanceTime: true,
-  });
-  onTestFinished(() => {
-    vi.useRealTimers();
-  });
-}
 
 async function showsReadingTop(card: Locator) {
   await expect
@@ -63,28 +58,6 @@ async function showsReadingTop(card: Locator) {
     .toBe(true);
 }
 
-const cues = () => document.querySelectorAll(".story-card-destination-cue");
-
-async function showsCue() {
-  await expect.element(supplierCard).toHaveClass("story-card-destination-cue");
-  expect([...cues()]).toEqual([supplierCard.element()]);
-  const mark = getComputedStyle(supplierCard.element(), "::after");
-  expect(mark.content).not.toBe("none");
-  expect(mark.boxShadow).not.toBe("none");
-  expect(mark.animationName).toBe("story-card-destination-cue");
-}
-
-async function finishCue() {
-  vi.advanceTimersByTime(destinationCueMs);
-  await expect
-    .element(supplierCard)
-    .not.toHaveClass("story-card-destination-cue");
-  expect(cues()).toHaveLength(0);
-  expect(getComputedStyle(supplierCard.element(), "::after").content).toBe(
-    "none",
-  );
-}
-
 function cueAnimation() {
   const animation = supplierCard
     .element()
@@ -92,7 +65,7 @@ function cueAnimation() {
     .find(
       (candidate) =>
         candidate instanceof CSSAnimation &&
-        candidate.animationName === "story-card-destination-cue",
+        candidate.animationName === destinationCueAnimationName,
     );
   if (!animation || typeof animation.currentTime !== "number")
     throw new Error("Expected the card's CSS destination cue.");
@@ -100,7 +73,7 @@ function cueAnimation() {
 }
 
 test("a dependency opens its active story at the reading edge and restarts the cue without changing inspection or Highlight", async () => {
-  controlPageTime();
+  controlDestinationCueTime();
   const initial = referenceWork({ revision: "b3".repeat(20) });
   const work = makeMe.aPublishedWork
     .with({ ...initial, backlog: [...initial.backlog, ...longBacklog] })
@@ -127,16 +100,16 @@ test("a dependency opens its active story at the reading edge and restarts the c
     innerHeight,
   );
   await showsReadingTop(supplierCard);
-  await showsCue();
+  await showsMovingCue(supplierCard);
   expect(document.querySelector(".story-card-selected")).toBeNull();
-  await finishCue();
+  await finishCue(supplierCard);
   await boardReading.expectStorySelection(supplierCard, false);
   expect(location.href).toBe(address);
 
   await supplierCard.getByRole("heading", { name: supplier.title }).click();
   await boardReading.expectStoryHighlight(supplierCard);
   await followReference(supplier.title);
-  await showsCue();
+  await showsMovingCue(supplierCard);
   await showsReadingTop(supplierCard);
   await expect.element(supplierDetail).toBeVisible();
 
@@ -151,7 +124,7 @@ test("a dependency opens its active story at the reading edge and restarts the c
   expect(fadingOpacity).toBeGreaterThan(0);
   expect(fadingOpacity).toBeLessThan(1);
   await followReference(supplier.title);
-  await showsCue();
+  await showsMovingCue(supplierCard);
   const restarted = cueAnimation();
   expect(restarted).not.toBe(fading);
   expect(restarted.currentTime).toBeLessThan(1000);
@@ -159,8 +132,8 @@ test("a dependency opens its active story at the reading edge and restarts the c
     Number(getComputedStyle(supplierCard.element(), "::after").opacity),
   ).toBe(1);
   vi.advanceTimersByTime(1000);
-  await showsCue();
-  await finishCue();
+  await showsMovingCue(supplierCard);
+  await finishCue(supplierCard);
   await boardReading.expectStoryHighlight(supplierCard);
   await expect.element(supplierDetail).toBeVisible();
   await expect.element(supplierCard).toHaveFocus();
@@ -192,7 +165,7 @@ test("a dependency opens its active story at the reading edge and restarts the c
 });
 
 test("a reference reveals a story with a running accepted start while its protected inspection remains closed", async () => {
-  controlPageTime();
+  controlDestinationCueTime();
   const work = referenceWork();
   const accepted = makeMe.anAcceptedAttempt.executing(supplier).please();
   const attempt = makeMe.anAttemptObservation

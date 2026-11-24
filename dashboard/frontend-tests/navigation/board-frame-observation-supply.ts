@@ -62,12 +62,14 @@ export function boardFrameObservationSupplying(
   {
     initialSnapshot,
     detailFile,
+    readProfiles,
     checkRevision,
     machineAnswer = emptyMachineAnswer(),
     accept,
   }: {
     initialSnapshot?: Error | Promise<PublishedWork>;
     detailFile?: PublishedObservationReadSource["readDetailFile"];
+    readProfiles?: PublishedObservationReadSource["readProfiles"];
     checkRevision?: PublishedObservationReadSource["checkRevision"];
     machineAnswer?: MachineAnswer & { readonly revision?: string };
     accept?: (
@@ -124,16 +126,18 @@ export function boardFrameObservationSupplying(
       if (detailFile !== undefined) return detailFile(...args);
       return readBoardFixtureFile(bySource.values(), path);
     },
-    readProfiles: (...[source]) => {
-      const work = bySource.get(source.id);
-      if (work?.roster?.status === "read") {
-        return Promise.resolve({
-          profiles: rosterProfileTexts(work.roster),
-          settings: undefined,
-        });
-      }
-      return Promise.resolve({ profiles: [], settings: undefined });
-    },
+    readProfiles:
+      readProfiles ??
+      ((...[source]) => {
+        const work = bySource.get(source.id);
+        if (work?.roster?.status === "read") {
+          return Promise.resolve({
+            profiles: rosterProfileTexts(work.roster),
+            settings: undefined,
+          });
+        }
+        return Promise.resolve({ profiles: [], settings: undefined });
+      }),
     readProfileAddition: () =>
       Promise.resolve({
         commit: "c".repeat(40),

@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
@@ -18,6 +19,7 @@ const desktopLaunchSpecs = [
 ];
 
 export default defineConfig({
+  publicDir: fileURLToPath(new URL("./public", import.meta.url)),
   plugins: [react(), brandAssetPlugin()],
   test: {
     // The frontend specs that import Vitest, beside the group's Playwright
