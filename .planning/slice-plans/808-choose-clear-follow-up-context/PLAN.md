@@ -140,6 +140,7 @@ controls, and the chosen session reached the native first input. The HTTP
 selection case proved distinct Starts, the cleared selection, project/story
 eligibility and exact Continue. The refactor's receiving browser proof passed.
 `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/launches/agent-launch-follow-up-session.spec.ts e2e/stories/recently-done-follow-up.spec.ts --grep "Done session|retained session selected through the composer" --workers=1 --reporter=dot` and `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend -- dashboard/backend-tests/launches/agent-launch-follow-up-selection.spec.ts --workers=1 --reporter=dot` both passed.
+CI run `45353396533` exposed the flat-list expectation in `recently-done-card-membership-mount.spec.ts`. The repaired mounted journey verifies the sole eligible attachment, its disclosed facts, and Cancel focus. All five cases passed with `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:frontend -- dashboard/frontend-tests/sessions/recently-done-card-membership-mount.spec.ts --workers=1 --reporter=dot`.
 
 ### 3. A developer can inspect and attach the waiting notes together
 
