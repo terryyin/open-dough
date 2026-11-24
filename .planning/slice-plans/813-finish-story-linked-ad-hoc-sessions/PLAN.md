@@ -191,6 +191,17 @@ Moving these consumers is behavior work for their expectations, and the plan
 is at the ten-slice cap. That makes it a human decision, not a slice
 refinement.
 
+The developer moved this migration to
+[SEED-433](../../seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#run-dashboard-launch-tests-on-an-installed-project).
+It is queued first on trunk at `6bdc79078` and recorded as SEED-432's waiting
+supplier. Execution stopped here, after slices 1–2 were delivered on the story
+branch. Resume once SEED-433 integrates:
+1. Absorb trunk.
+2. Confirm that slice 3's promise holds on the integrated harness, and close
+   the slice on that evidence.
+3. Continue with slice 4. Its expectation updates shrink to the
+   story-dependent ones.
+
 ### 4. Open a default-checkout session on its admitted story
 Type: Behavior
 Status: planned
