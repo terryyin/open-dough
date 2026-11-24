@@ -159,6 +159,10 @@ The checkout's `open-dough/evidence` holds `slice-2-return.md`, its run
 records, the combined selection and timings, and the lock mutation witness.
 Independent refactor review found no candidate after inspecting the typed
 IPC boundary, lock cue and child shutdown. The accepted proof still applies.
+The full formatter produced 251 lines. A delivery follow-up consolidated the
+duplicate distinct-story assertions, preserving one acceptance and effect
+per owner and both kept identities. The 249-line spec passed the affected
+focused case. Its separate run is `slice-2-file-size-refactor.log.run.json`.
 
 ## Concern evidence
 
@@ -198,6 +202,8 @@ No remaining slice-specific concerns were identified.
   published story-branch base are `f4bd0d8c5d57f22de27d721b8501b1c1c589a170`.
 - Slice 1 was accepted on the remote story branch at
   `6d1ea9be8941fd7862346841ba10f16313b33efe` and registered with the observer.
+- Slice 2 was accepted on the remote story branch at
+  `05d3c39844908d23a08e009ef74720f5812b73ef` and registered with the observer.
 - Locked `npm ci` and `npm run typecheck:dashboard` succeeded in the execution
   checkout on Node 24.21.0. Retain the existing planning authority for overruns.
 - GitHub Actions `ci.yml` (`CI`) on the remote story branch. Codex observer

@@ -240,11 +240,9 @@ if (process.argv[2] === childMode) {
       refinement,
     );
 
-    expect([local.answer.kind, local.effects]).toEqual(["accepted", 1]);
-    expect([independent.answer.kind, independent.effects]).toEqual([
-      "accepted",
-      1,
-    ]);
+    for (const { answer, effects } of [local, independent]) {
+      expect([answer.kind, effects]).toEqual(["accepted", 1]);
+    }
     const identities = kept?.map(({ request }) => storyOf(request)).sort();
     expect(identities).toEqual([story.identity, anotherStory.identity]);
   });
