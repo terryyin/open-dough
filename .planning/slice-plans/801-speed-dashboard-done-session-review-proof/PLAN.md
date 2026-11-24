@@ -563,3 +563,25 @@ Slice 10. All five remaining legacy files were mapped and deleted:
 | `-review-cue` "a long title leaves Needs review and separate Select and Open usable" | Cue inside the row, Select/Open ≥ 44px, tap Select keeps cue and opens no report, tap Open reads the final report | `sessions/recently-done-review-cue-mount.spec.ts` "at narrow touch width a long title leaves Needs review and separate Select and Open usable": the row is observed retained for review (new `openReviewCue({ reported })`) with a typed `SessionServices.readFinalReport`; Open is named "Read final report" and its tap shows the report text in the Final report region. Same observations as the legacy case. |
 
 Story-wide timing (`npm run test:dashboard:frontend -- sessions/recently-done sessions/follow-up-source-navigation stories/recently-done review/ --workers=2`, back to back, legacy at 4c0b4a9cb in a temporary worktree): legacy 63.8 s (load 3.61 → 4.60), resulting 53.8 s (4.60 → 3.93; one failure, the new phone review-control tap, fixed by reduced Board motion), resulting 44.0 s (3.93 → 4.15), legacy 58.4 s (4.15 → 5.31); a final resulting run after the fixes passed 172/172 in 39.5 s (runner) at 4.08 → 3.37. Elapsed includes setup. Counts: legacy 92 Playwright (96–99 summed case-seconds) + 107 Vitest; resulting 21 Playwright (18.7 s) + 172 Vitest, 174 after the refactor split the three-lists case. Slowest remaining: Playwright `sessions/recently-done-sessions-select.spec.ts` standalone case 3.18 s, the ad hoc review cases 1.3–1.4 s; Vitest the three-lists mount, split into three one-behavior cases (about 4.9 s summed; 2.5–2.9 s as one case, 9.4 s with a retrying assertion per control), the Files divider 2.0 s. Added E2E cost: one reload step in `e2e/sessions/cursor-sessions-sidebar-size-kept.spec.ts` (45 kept launches, reveal 40, one reload). The 21 Playwright registrations left are all SEED-426 standalone/ad hoc cases: `recently-done-ad-hoc-{branch-result,comparisons,review-gaps,review,session-commits,session-runs}`, `-review-cue-{evidence,races}`, the standalone `-select` case and the 31-day standalone entry in `recently-done-story-sessions.spec.ts`.
+
+## Execution complete
+
+Product advice:
+- Retain the result: the scoped Done-session and review selection runs in
+  39.5–44 s against 58–64 s at two workers, with 92 legacy Playwright cases
+  reduced to 21, all standalone cases SEED-426 removes. The campaign's fewer
+  maintained cases aim is met only marginally here (199 → 195 cases); most of
+  that reduction arrives when SEED-426 deletes the standalone cases.
+- Runner retirement (SEED-413#retire-legacy-dashboard-frontend-runner) still
+  waits on this story with the condition that no legacy frontend spec in its
+  Done review boundary remains on trunk, which the SEED-426 handoff leaves
+  unmet; its dependency belongs on SEED-426 for the remaining standalone specs.
+- Five read functions still default to their authenticated reader when none
+  is passed (`dashboard/src/doneStories.ts` `cataloguedAt` and
+  `readDoneStories`, `authenticatedIntentRead.ts` `readIntentLocationsAt`,
+  `agentAssignments.ts`, `authenticatedProfileRead.ts`), against the shared
+  acceptance; slices 2 and 9 each had to reroute such a read before mounted
+  proof could run. The board-frame mount relays each read through several
+  optional layers, and a partial `PageReads` override would remove that relay.
+- Planning runner retirement can reuse slices 6 and 8's learning: mounted
+  cases split across files ran about twice as fast as one serial file.
