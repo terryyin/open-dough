@@ -189,13 +189,15 @@ Slice 5 proof: 16 cases passed in each setup. See `slice5-return.md`.
 
 ### 6. Alert and toggle the sidebar over composed sessions in E2E
 Type: Behavior
-Status: planned
+Status: done
 Proof: `session-alerts`, `-alerts-navigation`, `-alerts-unavailable`,
 `sessions-sidebar-keyboard`, `-stays-as-left` and `-navigation` pass
 plainly and with the scratch wiring.
 
 Composed sessions needing the developer → the page's alerts, their
 navigation and the sidebar's keyboard and persistence behave as today.
+
+Slice 6 proof: 14 cases passed in each setup. See `slice6-return.md`.
 
 ### 7. Drive the desktop terminal and voice over composed sessions in E2E
 Type: Behavior
