@@ -74,9 +74,9 @@ where that assertion lands. The current restart spec actually occupies the
 old port and checks requests at both addresses, so a local-file read alone
 cannot own that distinction.
 
-## Slices and outside-in proof
+## Slices
 
-All file stems in this section refer to
+Outside-in proof. All file stems in this section refer to
 `dashboard/backend-tests/intent/<stem>.spec.ts`. Use the maintained backend
 runner to verify each slice's exact selection. Retain a map from each original
 purpose to its surviving assertion and use that map during cleanup.
@@ -84,7 +84,7 @@ purpose to its surviving assertion and use that map during cleanup.
 ### 1. Retained timing belongs to the original attempt
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `landed-ci-attempt-start` and `landed-ci-attempt-start-adapter`.
 Give the typed collection pass a retained receipt, Git order and a provider
@@ -181,6 +181,24 @@ unnecessary Git, persistence or repeated assertions, retaining required
 costs with the relevant purpose. Verify all ten original files have a
 disposition and that the backend selection uses Node Vitest. Delete support
 only after its consumers have gone.
+
+## Learnings
+
+- Slice 1 reopen proof for the timing write is a second
+  `performIntentCiHistoryRead` on the retained document (no further provider
+  calls). The old-address HTTP restart stays with slice 4.
+- Refactor disposition for slice 1: skipped. Owned change is only the two
+  subject specs; product search finds the conversion on the existing
+  `collectLandedCiPass` / `collectRetainedAttemptTiming` seam already used by
+  `landed-ci-scope-*` specs; no new production representation; no
+  refactor-check candidate.
+
+## Accepted proof (slice 1)
+
+Focused: `npm run test:dashboard:backend -- landed-ci-attempt-start landed-ci-attempt-start-adapter --workers=2` (exit 0; 2 files / 3 tests).
+Evidence: `open-dough/evidence/slice1-proof2-20261124182203.log.run.json`,
+`slice1-proof-lint4.log.run.json` (renewed after delivery formatting lint repair),
+`slice1-return-report.md`. Consumer-trace: test-only; production binding unchanged.
 
 ## Concern evidence
 
