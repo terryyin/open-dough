@@ -27,31 +27,71 @@ import {
   recordState,
 } from "./product-backlog-story-state-command.mjs";
 import { preparationRefusal } from "./product-backlog-story-state-home.mjs";
-import { usage } from "./product-backlog-usage.mjs";
+
+const placement = "(--after <id> | --before <id> | --position first|last)";
+const dependencyRequest =
+  "--identity <id> --link <href> --dependency-file <path> --expect-dependencies <sha256>";
+const acceptedSupplier =
+  "--accepted-revision <sha> --remote <remote> --target <branch>";
 
 // Operations on canonical story homes; their refusals say nothing was
 // written rather than that the backlog was unchanged.
 const preparationOperations = {
-  "record-state": recordState,
-  "read-state": readState,
-  "discover-consumers": readConsumers,
-  "visit-consumers": visitConsumers,
-  "resolve-dependency": resolveDependency,
-  "read-dependencies": readDependencies,
-  "update-dependency": updateDependency,
+  "record-state": [
+    recordState,
+    "--identity <id> --link <href> --refinement not-refined|refined\n" +
+      "    --approach unselected|planned|planless [--plan <home-relative-path>]\n" +
+      "    [--assessment ready|not-ready --expect-document <sha256> [--expect-plan <sha256>] [--reason <text>...]]",
+  ],
+  "read-state": [readState, "--link <href>"],
+  "read-dependencies": [readDependencies, "--link <href>"],
+  "update-dependency": [updateDependency, dependencyRequest],
+  "discover-consumers": [readConsumers, "--supplier-identity <id>"],
+  "visit-consumers": [
+    visitConsumers,
+    `--supplier-identity <id>\n    ${acceptedSupplier}`,
+  ],
+  "resolve-dependency": [
+    resolveDependency,
+    `${dependencyRequest}\n    ${acceptedSupplier} [--correct-agreement]\n` +
+      "    [--plan <backlog-relative-path>] [--planless-complete --completion-file <repo-relative-path>]",
+  ],
 };
 
 const operations = {
-  add,
-  place,
-  take,
-  complete,
-  "catalog-done": catalogDone,
-  refresh,
-  direction,
-  "identity-evidence": printIdentityEvidence,
+  add: [add, `--identity <id> --title <title> --link <href>\n    ${placement}`],
+  place: [place, `--identity <id> ${placement} [--return]`],
+  take: [take, "--identity <id> (--plan <backlog-relative-path> | --no-plan)"],
+  complete: [
+    complete,
+    "--identity <id> [--dropped | --intent-coverage <path> | --intent-coverage-unavailable <reason>]",
+  ],
+  "catalog-done": [catalogDone],
+  refresh: [
+    refresh,
+    "--identity <id> [--title <title>] [--link <href>] [--plan <backlog-relative-path>]",
+  ],
+  direction: [
+    direction,
+    "(--text <text> | --clear) (--expect <text> | --expect-none)",
+  ],
+  "identity-evidence": [
+    printIdentityEvidence,
+    "[--identity <id>] [--seeds <path>]",
+  ],
   ...preparationOperations,
 };
+
+const usage = [
+  "Usage: product-backlog.mjs [--file <path>] <operation> [options]",
+  "       product-backlog.mjs --help",
+  "",
+  ...Object.entries(operations).map(([name, [, form = ""]]) =>
+    `  ${name} ${form}`.trimEnd(),
+  ),
+  "",
+  "See dough-product-backlog/SKILL.md in the installed skills for procedures.",
+].join("\n");
 
 function unknownOperation(name) {
   return new BacklogError(`Unknown operation: ${name || "(none)"}\n\n${usage}`);
@@ -82,7 +122,8 @@ async function main(argv) {
   if (!Object.hasOwn(operations, named)) {
     throw unknownOperation(positionals.join(" "));
   }
-  await operations[named](resolvePath(values.file), values);
+  const [run] = operations[named];
+  await run(resolvePath(values.file), values);
 }
 
 try {

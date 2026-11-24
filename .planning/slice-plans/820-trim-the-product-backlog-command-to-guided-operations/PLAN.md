@@ -172,7 +172,7 @@ The entry point dropped from 226 to 99 lines.
 ### 3. Get a short synopsis from the terminal
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: On the installed CLI, `--help` succeeds and the synopsis names each
 supported form, with a route to installed guidance. An unknown command and
 a CLI parse error refuse without writes and show the same compact synopsis.
@@ -187,6 +187,12 @@ operation. Existing references own the procedural detail. Delete the old
 usage prose, the assertions that only checked it, and any guidance that
 points readers to the terminal for procedure. Estimated active
 effort 6–10 minutes.
+
+Accepted proof: The fresh installed CLI showed a 26-line synopsis, down
+from 194, with all 15 dispatched operations and 34 options. Unknown command
+and parse-error exits shared the help bytes and preserved the scratch planning
+files. All 19 focused jobs passed, and the three synopsis regression cases
+passed after the independent test review.
 
 ### 4. Ship a smaller story-state implementation with one schema
 
