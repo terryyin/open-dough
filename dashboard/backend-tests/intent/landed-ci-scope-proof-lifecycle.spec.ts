@@ -1,6 +1,8 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { readCiAdapterProof } from "../../server/ciAdapterProof.ts";
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
 import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
@@ -15,10 +17,6 @@ import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifact
 import { archiveOf, listedArtifact } from "../support/ciProofMemory.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
-const description = makeMe.aRepository
-  .withBaseBeforeEveryLaunch()
-  .withRevision("revision")
-  .please();
 
 test.each([
   { stored: "without proof", proof: undefined },
@@ -34,21 +32,19 @@ test.each([
 ])(
   "a retained build $stored backfills without its live launch",
   async ({ proof }) => {
-    const checkout = await materializeLocalCheckout(undefined, description, {
-      gitTemplates: false,
-    });
-    const repository = checkout.integration;
-    vi.stubEnv("HOME", checkout.fixture);
+    const home = mkdtempSync(path.join(tmpdir(), "landed-ci-backfill-"));
+    const repository = path.join(home, "retired-checkout");
+    vi.stubEnv("HOME", home);
     const stopped = new AbortController();
-    onTestFinished(async () => {
+    onTestFinished(() => {
       stopped.abort();
       vi.unstubAllEnvs();
-      await checkout.cleanup();
+      rmSync(home, { recursive: true, force: true });
     });
 
     const landing = makeMe.aLaunchLanding
       .capturedFrom({ repository })
-      .comparing(checkout.revisions)
+      .comparing({ base: "a".repeat(40), revision: "b".repeat(40) })
       .please();
     const { revision, receivedAt } = landing;
     const subject = makeMe.aCiProofRun

@@ -195,20 +195,36 @@ wiring and HTTP checks and typecheck passed. See `slice6-return.md`.
 ### 7. The scoped cohort gives faster feedback
 
 Type: Behavior
-Status: planned
+Status: done
 
-Run the maintained scoped selection at two workers under conditions comparable
-to slice 1. Compare shell elapsed, summed case time and file and case counts.
-List individual case durations against the ~100 ms target. Investigate slower
-cases for avoidable setup, waiting and repeated proof, and document any retained
-cost and the behavior that needs it. Include the cost of any proof moved to
-another suite. Retire setup and support imports whose consumers are gone.
+**Proof.** The maintained two-worker selection passed all 15 Node cases in
+12 files on their first attempt. Elapsed time fell from 39.20 s to 9.20 s,
+and summed case time from 58.563 s to 8.369 s. The earlier Node run took
+7.29 s elapsed and 6.798 s summed. Unchanged cases varied across the runs.
+After removing unnecessary fresh Git setup, the two backfill cases together
+fell from 372.766 ms to 238.790 ms. Old support with no callers was removed.
 
-**Proof.** The runner proof record shows passing Node Vitest cases and the
-comparable run is faster. The purpose map names surviving coverage for each
-removed or consolidated case and the focused proof shows that the surviving
-case rejects a representative regression. Inspect for direct typed entry and
-verify the cohort is free of server mounts, browser setup and new wrappers.
+| Scoped spec | Individual case time, ms |
+| --- | ---: |
+| adapter-identity | 641 |
+| adapter-shared-attempt | 510 |
+| build-provenance | 750 |
+| later-build | 1065 |
+| legacy-gap | 136 |
+| pending-proof, queued link and unread order | 506, 85 |
+| proof-adapter-recovery | 528 |
+| proof-completion | 1070 |
+| proof-finality | 652 |
+| proof-lifecycle, missing and legacy | 141, 98 |
+| proof-recovery, same reader and reopened | 623, 477 |
+| retained-window | 1089 |
+
+Thirteen cases exceeded the 100 ms aim. Retained costs include real Git,
+archive parsing, durable writes and the actual delivery and retry. The suite
+calls typed handlers without server mounts or browser setup. Reducing the
+window to 19 in a disposable checkout failed on premature eviction of
+`run/100/1`. The scratch change was restored and the checkout retired.
+Typecheck passed. See `slice7-return.md` for the full purpose map and commands.
 
 ## Concern evidence
 
