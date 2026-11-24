@@ -3,7 +3,7 @@
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { applyReleaseToWorktree } from "../../server/worktreeReleaseApply.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 

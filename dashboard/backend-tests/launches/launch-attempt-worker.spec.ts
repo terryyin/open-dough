@@ -1,7 +1,7 @@
 // Machine worker facts are separate from ownership and cleared on settlement.
 import { spawnSync } from "node:child_process";
 import { mock } from "node:test";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { workerAlive } from "../../server/launchAttemptWorker.ts";
 import { settleAttempt } from "../../server/launchAttemptSettlement.ts";

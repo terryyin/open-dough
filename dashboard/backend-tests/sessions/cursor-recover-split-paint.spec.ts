@@ -2,7 +2,7 @@
 // with a native PTY replaced, so one working paint arrives in two reads split
 // at its line break, as a Linux PTY can deliver it. The first read alone looks
 // like the idle composer, but its synchronized update has not finished.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { TerminalAttachments } from "../../server/terminalAttachments.ts";
 import { cursorSessionLabel } from "../../server/hosts/cursor/idleScreen.ts";
 import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";

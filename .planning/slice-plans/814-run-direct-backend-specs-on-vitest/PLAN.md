@@ -96,11 +96,25 @@ evidence directory holds `baseline.proof.json`, `slice1-run.proof.json`,
 ### 2. Launch and session direct specs run on Vitest
 
 Type: Behavior
-Status: planned
-Proof: the runner lists the 18 `launches/` and 12 `sessions/` files under the Node engine and their cases pass
+Status: done
+Proof: the runner lists qualifying `launches/` and `sessions/` files under the Node engine and all 30 original files' cases pass
 
 Apply the script to those entries and run them. Check each file that used
 `test.describe.configure` still passes when its cases run in file order.
+
+Accepted proof: the maintained runner passed all 136 cases with exact
+baseline file and expanded-title parity. In the final selection, 27 files
+and 115 cases ran on Node Vitest, and three files and 21 cases ran on
+Playwright. Focused lint and Dashboard typecheck passed. None of these
+30 originals used an explicit serial directive.
+
+Two launch files stay on Playwright because the asymmetric matchers in
+their assertions fail lint under Vitest. The direct backend subprocess in
+`runner-ownership.spec.ts` also needs `agent-launch-options-rules.spec.ts`
+on Playwright. With the specimen rewritten, its direct Playwright selection
+reported `No tests found`. The runner-ownership case passed after its
+restoration. See `slice2-final-run.proof.json` and
+`slice2-runner-ownership.proof.json` in the execution evidence directory.
 
 ### 3. The remaining direct specs run on Vitest
 
@@ -146,6 +160,18 @@ identified.
 Reported: slice 1 — "Required ESLint rejects unsafe assignments from Vitest's `expect.stringContaining` in `ci-comparison-client-identity.spec.ts` and `ci-proof-memory-github-gaps.spec.ts`."
 Story clause: "its cases pass on Vitest under the default timeout with only the engine import changed."
 Disposition: excluded "Cases, assertions, arrangement and the production entry stay as they are."
+
+### G2. Two launch specs require assertion edits to satisfy lint on Vitest
+
+Reported: slice 2 — "Required ESLint rejects unsafe assignments from Vitest's asymmetric matchers in `launch-attempt-admission-close.spec.ts` and `settled-attempt-reconciliation.spec.ts`."
+Story clause: "its cases pass on Vitest under the default timeout with only the engine import changed."
+Disposition: excluded "Cases, assertions, arrangement and the production entry stay as they are."
+
+### G3. One launch spec is a direct Playwright runner specimen
+
+Reported: slice 2 — "`runner-ownership.spec.ts` exercises direct Playwright with `agent-launch-options-rules.spec.ts`. Rewriting it made the direct selection empty. Restoring it preserved the runner-ownership proof."
+Story clause: "Move, by one scripted rewrite, every Playwright-selected backend spec outside `usage-history/` that meets all of these at execution"
+Disposition: excluded "with only the engine import changed"
 
 ## Verification and delivery
 

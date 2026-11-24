@@ -14,7 +14,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { observeHeldCursorSession } from "../../server/hosts/cursor/sessions.ts";
 import type { HeldCursorSession } from "../../server/hosts/cursor/heldSessions.ts";
 import { cursorBelongingSubagentsDirectory } from "../../server/hosts/cursor/unfinishedSubagents.ts";
@@ -70,12 +70,12 @@ function expectAvailableActivity(
   });
 }
 
-test.describe("follow-up with belonging subagent transcripts", () => {
+describe("follow-up with belonging subagent transcripts", () => {
   let home: string;
-  test.beforeEach(() => {
+  beforeEach(() => {
     home = mkdtempSync(path.join(tmpdir(), "dough-cursor-subagents-"));
   });
-  test.afterEach(() => {
+  afterEach(() => {
     rmSync(home, { recursive: true, force: true });
   });
 

@@ -7,7 +7,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { establishedStart } from "../../server/startRecording.ts";
 import { establishedStartSchema } from "../../src/launchRecord.ts";
 import { lostStartArguments } from "../../server/startGit.ts";
@@ -184,14 +184,14 @@ test("words every stop status the start command reports, keeping a stop's worksp
   );
 });
 
-test.describe("the arguments that resume a start lost with the server", () => {
+describe("the arguments that resume a start lost with the server", () => {
   let repository: string;
   const git = (...args: string[]) =>
     execFileSync("git", ["-C", repository, ...args], {
       encoding: "utf8",
     }).trim();
 
-  test.beforeEach(() => {
+  beforeEach(() => {
     repository = mkdtempSync(path.join(tmpdir(), "dough-lost-start-"));
     execFileSync("git", ["init", "-q", "-b", "claude/x", repository]);
     git("config", "user.name", "T");
@@ -200,7 +200,7 @@ test.describe("the arguments that resume a start lost with the server", () => {
     git("commit", "-q", "--allow-empty", "-m", "claim");
   });
 
-  test.afterEach(() => {
+  afterEach(() => {
     rmSync(repository, { recursive: true, force: true });
   });
 
