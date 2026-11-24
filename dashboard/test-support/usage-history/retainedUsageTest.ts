@@ -1,13 +1,10 @@
-// Shared launch setup and isolated home for the actual usage-import command.
-// Cases build Codex rollouts and Claude transcripts through MakeMe; this helper
-// supplies the isolated home/root fixture.
+// Shared launch setup and isolated home for usage-history cases.
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test as base } from "../support/pageTest.ts";
+import { test as base } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
-export { expect } from "../support/pageTest.ts";
 export const test = base.extend<{ home: string; root: string }>({
   // eslint-disable-next-line no-empty-pattern
   home: async ({}, use) => {

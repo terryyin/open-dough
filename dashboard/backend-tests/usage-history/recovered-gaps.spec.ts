@@ -1,22 +1,35 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
 import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
 import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 test("uses recorded repository evidence for a deleted worktree and leaves unavailable revisions and unknown projects honest", async ({
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   const seed = ".planning/seeds/SEED-42-title.md";
   const repo = await configuredRepository(
     home,
@@ -119,8 +132,11 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       })
       .please(),
   );
-  runImport(home, root);
-  const history = readImported(home);
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(store)),
+    ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+  };
   const tasks = Object.values(history.tasks);
   const deleted = tasks.find((task) => task.sessionId === "deleted-worktree");
   const missing = tasks.find((task) => task.sessionId === "missing-objects");
@@ -141,7 +157,7 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
     expect.objectContaining({
       identity: null,
       title: null,
-      gaps: expect.arrayContaining(["unresolved-historical-story"]),
+      gaps: expect.arrayContaining(["unresolved-historical-story"]) as unknown,
     }),
   );
   expect(unknown).toEqual(
@@ -153,7 +169,7 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       gaps: expect.arrayContaining([
         "unresolved-project",
         "task-start-unknown",
-      ]),
+      ]) as unknown,
     }),
   );
   expect(JSON.stringify(history)).not.toContain("Current misleading title");

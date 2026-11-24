@@ -1,17 +1,13 @@
 // How selections resolve: exact tasks, ambiguous story identities and
 // retained native family windows through the documented CLI contract.
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { bytes } from "../../test-support/usage-history/agentEffortHarness.ts";
 import { costReport } from "../../test-support/usage-history/agentEffortCost.ts";
 import {
@@ -22,6 +18,13 @@ import {
   succeeded,
   type ListedTask,
 } from "../../test-support/usage-history/agentEffortSelection.ts";
+import { readFileSync } from "node:fs";
+import { usageHistoryFile } from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 
 const story = "SEED-358#reconstruct-codex-and-claude-code-usage-history";
 
@@ -153,7 +156,7 @@ test("a native family selection without its window is refused before reading evi
   );
 });
 
-test("an explicit retained family remains inspectable when Usage excludes its unrelated project", ({
+test("an explicit retained family remains inspectable when Usage excludes its unrelated project", async ({
   home,
   root,
 }) => {
@@ -172,9 +175,20 @@ test("an explicit retained family remains inspectable when Usage excludes its un
       })
       .please(),
   );
-  const imported = runImport(home, root);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const imported = await importUsageHistory(options);
   expect(imported).toMatchObject({ excludedUnrelatedObservations: 1 });
-  expect(Object.values(readImported(home).observations)).toEqual([]);
+  const { observations } = JSON.parse(
+    readFileSync(options.responses, "utf8"),
+  ) as UsageResponses;
+  expect(Object.values(observations)).toEqual([]);
   const before = bytes(home);
   const actual = costReport(home, [
     "--host",

@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
-- [Prove usage import through the typed importer instead of its command](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-usage-import-through-typed-importer) — SEED-413#prove-usage-import-through-typed-importer ([plan](slice-plans/815-prove-usage-import-through-typed-importer/PLAN.md))
 - [Compose existing sessions directly in Dashboard tests](seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly) — SEED-433#compose-existing-sessions-directly ([plan](slice-plans/817-compose-existing-sessions-directly-in-dashboard-tests/PLAN.md))
 
 ## Backlog list

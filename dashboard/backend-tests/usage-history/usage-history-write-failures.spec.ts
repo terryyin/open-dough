@@ -1,37 +1,118 @@
-// A failed replacement and concurrent writer processes leave one coherent
-// history document.
-import { spawn } from "node:child_process";
+// The import command resolves its defaults and reports failures. A failed
+// replacement and concurrent writers leave one coherent history document.
+import { execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
+import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  readUsageHistory,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   failing,
   importFailure,
   keepOperationalLaunch,
-  readImported,
-  runImport,
   sessionTotals,
+  writeClaudeSession,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
-test("a failed replacement keeps the previous history readable and a retry counts each response once", ({
+const command = "dashboard/server/importUsageHistory.ts";
+
+test("the usage command resolves roots and store under --home and prints the import report and stored history", async ({
+  home,
+}) => {
+  const roots = [".codex/sessions", ".codex/archived_sessions"];
+  for (const [index, root] of roots.entries()) {
+    const session = `default-${index}`;
+    writeCodexSession(
+      path.join(home, root),
+      makeMe.aCodexRollout
+        .forSession(session)
+        .withResponse("turn", "one", { output_tokens: index + 1 })
+        .please(),
+    );
+  }
+  writeClaudeSession(
+    path.join(home, ".claude/projects/test"),
+    makeMe.aClaudeTranscript
+      .forSession("default-claude")
+      .withAssistant({
+        uuid: "one",
+        messageId: "one",
+        usage: { output_tokens: 3 },
+      })
+      .please(),
+  );
+  keepLaunchStore(home, {
+    "open-dough": Array.from(roots.keys(), (index) =>
+      launch(`default-${index}`, "turn"),
+    ),
+  });
+  const environment = { ...process.env, HOME: path.join(home, "unused-home") };
+  const report = execFileSync(
+    process.execPath,
+    [command, "import", "--home", home],
+    {
+      env: environment,
+      encoding: "utf8",
+    },
+  );
+  expect(JSON.parse(report)).toMatchObject({
+    scope: "retained-evidence",
+    files: 3,
+    tasks: 2,
+  });
+  const store = usageHistoryFile(home);
+  expect(sessionTotals(await readUsageHistory(store))).toEqual([
+    ["default-0", 1, 1],
+    ["default-1", 1, 2],
+  ]);
+  const printed = execFileSync(
+    process.execPath,
+    [command, "read", "--home", home],
+    {
+      env: environment,
+      encoding: "utf8",
+    },
+  );
+  expect(printed).toBe(readFileSync(store, "utf8"));
+});
+
+test("a failed replacement reports the injected command error, keeps the previous history and lets a retry count each response once", async ({
   home,
   root,
 }) => {
+  const store = usageHistoryFile(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store,
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
   keepOperationalLaunch(home, launch("atomic", "turn"));
   const first = makeMe.aCodexRollout
     .forSession("atomic")
     .withResponse("turn", "one", { output_tokens: 2 })
     .please();
   writeCodexSession(root, first);
-  runImport(home, root);
-  const before = readImported(home);
+  await importUsageHistory(options);
+  const before = await readUsageHistory(store);
+  const bytes = readFileSync(store);
+  const responses = readFileSync(options.responses);
   expect(sessionTotals(before)).toEqual([["atomic", 1, 2]]);
   writeCodexSession(
     root,
@@ -42,17 +123,21 @@ test("a failed replacement keeps the previous history readable and a retry count
       .please(),
   );
   expect(
-    importFailure(home, root, failing("rename", "/usage.json")),
-  ).toMatchObject({
+    importFailure(options, root, failing("rename", "/usage.json")),
+  ).toEqual({
     status: 1,
-    stderr: expect.stringContaining("injected rename failure"),
+    stderr: "injected rename failure\n",
   });
-  expect(readImported(home)).toEqual(before);
-  runImport(home, root);
-  const after = readImported(home);
+  expect(readFileSync(store)).toEqual(bytes);
+  expect(readFileSync(options.responses)).toEqual(responses);
+  expect(await readUsageHistory(store)).toEqual(before);
+  await importUsageHistory(options);
+  const after = await readUsageHistory(store);
   expect(sessionTotals(after)).toEqual([["atomic", 2, 5]]);
-  runImport(home, root);
-  expect(readImported(home)).toEqual(after);
+  const artifact: unknown = JSON.parse(readFileSync(options.responses, "utf8"));
+  await importUsageHistory(options);
+  expect(await readUsageHistory(store)).toEqual(after);
+  expect(JSON.parse(readFileSync(options.responses, "utf8"))).toEqual(artifact);
 });
 
 test("cross-process writers both land after waiting for the shared lock, and a reader meanwhile sees the earlier history whole", async ({
@@ -75,8 +160,17 @@ test("cross-process writers both land after waiting for the shared lock, and a r
       .withResponse("turn", "zero", { output_tokens: 1 })
       .please(),
   );
-  runImport(home, earlier);
-  const before = readImported(home);
+  const store = usageHistoryFile(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store,
+      codexRoots: [earlier],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
+  const before = await readUsageHistory(store);
   writeCodexSession(
     root,
     makeMe.aCodexRollout
@@ -99,7 +193,7 @@ test("cross-process writers both land after waiting for the shared lock, and a r
       [
         "--import",
         preload(source),
-        "dashboard/server/importUsageHistory.ts",
+        command,
         "import",
         "--home",
         home,
@@ -139,13 +233,13 @@ test("cross-process writers both land after waiting for the shared lock, and a r
   `,
   );
   expect((await once(second.child, "message"))[0]).toBe("locking");
-  expect(readImported(home)).toEqual(before);
+  expect(await readUsageHistory(store)).toEqual(before);
   first.child.send("publish");
   first.child.disconnect();
   expect((await first.exited)[0]).toBe(0);
   expect((await second.exited)[0]).toBe(0);
   // Each writer's session keeps its contribution beside the other's.
-  expect(sessionTotals(readImported(home))).toEqual([
+  expect(sessionTotals(await readUsageHistory(store))).toEqual([
     ["earlier", 1, 1],
     ["concurrent", 1, 2],
     ["second", 1, 3],

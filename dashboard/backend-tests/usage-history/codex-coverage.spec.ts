@@ -1,11 +1,15 @@
 // Damaged native files preserve independent evidence and expose coverage limits.
 import assert from "node:assert/strict";
-import { appendFileSync, writeFileSync } from "node:fs";
+import { readFileSync, appendFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
 import {
-  expect,
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
@@ -13,12 +17,15 @@ import {
   keepOperationalLaunch,
   keepRetainedLaunch,
   nativeFile,
-  readImported,
-  runImport,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 
-test("keeps independent responses through damaged files and reports unsupported, missing and incomplete native evidence", ({
+test("keeps independent responses through damaged files and reports unsupported, missing and incomplete native evidence", async ({
   home,
   root,
 }) => {
@@ -84,8 +91,16 @@ test("keeps independent responses through damaged files and reports unsupported,
   );
   const broken = nativeFile(root, "broken", []);
   writeFileSync(`${broken}.zst`, "not zstd");
-  runImport(home, root, ["--codex-root", path.join(home, "absent")]);
-  const history = readImported(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root, path.join(home, "absent")],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
+  const history = await readUsageHistory(options.store);
   const task = Object.values(history.tasks).find(
     (item) => item.sessionId === "root",
   );
@@ -93,7 +108,7 @@ test("keeps independent responses through damaged files and reports unsupported,
   expect(taskUsage(history, task.id)).toEqual(
     expect.objectContaining({
       requests: 2,
-      tokens: expect.objectContaining({ output: 8 }),
+      tokens: expect.objectContaining({ output: 8 }) as unknown,
     }),
   );
   const old = Object.values(history.tasks).find(
@@ -103,7 +118,7 @@ test("keeps independent responses through damaged files and reports unsupported,
   expect(taskUsage(history, old.id)).toEqual(
     expect.objectContaining({
       requests: 0,
-      tokens: expect.objectContaining({ output: null }),
+      tokens: expect.objectContaining({ output: null }) as unknown,
     }),
   );
   expect(history.gaps).toEqual(
@@ -119,7 +134,7 @@ test("keeps independent responses through damaged files and reports unsupported,
       }),
       expect.objectContaining({
         code: "native-source-unreadable",
-        source: expect.objectContaining({ file: `${broken}.zst` }),
+        source: expect.objectContaining({ file: `${broken}.zst` }) as unknown,
       }),
       expect.objectContaining({ code: "native-source-unavailable" }),
       expect.objectContaining({
@@ -134,7 +149,7 @@ test("keeps independent responses through damaged files and reports unsupported,
   );
 });
 
-test("refuses contradictory parent lineage instead of charging a worker to a task", ({
+test("refuses contradictory parent lineage instead of charging a worker to a task", async ({
   home,
   root,
 }) => {
@@ -154,8 +169,19 @@ test("refuses contradictory parent lineage instead of charging a worker to a tas
       )
       .please(),
   );
-  runImport(home, root);
-  const history = readImported(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   const [observation] = Object.values(history.observations);
   assert(observation);
   expect(observation.gaps).toContain("contradictory-lineage");
@@ -165,7 +191,7 @@ test("refuses contradictory parent lineage instead of charging a worker to a tas
   expect(taskUsage(history, task.id)).toEqual(
     expect.objectContaining({
       requests: 0,
-      tokens: expect.objectContaining({ output: null }),
+      tokens: expect.objectContaining({ output: null }) as unknown,
     }),
   );
 });

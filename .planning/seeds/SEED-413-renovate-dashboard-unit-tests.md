@@ -197,50 +197,6 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
 
-<a id="prove-usage-import-through-typed-importer"></a>
-
-### Prove usage import through the typed importer instead of its command
-
-**Identity:** SEED-413#prove-usage-import-through-typed-importer
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/815-prove-usage-import-through-typed-importer/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2b6c12b8c9069f761c8f9cefaac96830ce9954ae0329e4ce29242e729210d315","plan":"f6867ab52e890ea4f4344c4baf1050badbbcea82c71fc6f748692c55c246191e"}}
-```
-
-Extracted from the [later backend families](#renovate-later-dashboard-backend-unit-test-families)
-on 24 November 2026 with the story above.
-
-**Goal.** Dashboard maintainers get faster feedback on usage import and
-recovery, from cases that call the typed importer and read the stored
-history in this process instead of starting a Node command for each
-import and each read.
-
-**Scope.** The 54 backend `usage-history/` specs outside the
-[Token Index family](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) that share the
-usage `home` and `root` fixture module or the usage-import command
-wrapper; 45 of them import or read through the wrapper. Call
-`importUsageHistory` with explicit home, store, since, response file and
-native roots, and read the store with `readUsageHistory`. Move the
-fixture module and all 54 specs to Node Vitest in the same story. Keep a
-few command cases for what only the command owns: argument defaults, printed output, exit status and
-failures injected into its process. Remove the wrapper's import and read
-entries once no backend spec uses them; the E2E usage journeys keep what
-they need. Measure the family before and after under the
-[campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families).
-Reducing case count beyond the command duplicates stays with the later
-families.
-
-**Key examples.**
-
-- Given Codex rollouts and Claude transcripts written under a private
-  native root, calling the importer with that root and a private store
-  returns the import result, and reading the store returns the same
-  tasks, contributions and gaps the command printed.
-- Given a second import of unchanged transcripts, the stored totals stay
-  the same, observed through the typed read.
-- Given a failure injected into the command's own file removal or rename,
-  the command case still reports the exit status and error text, and the
-  store keeps its earlier bytes.
-
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
@@ -267,10 +223,9 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`)
   and completed landed attempt evidence (recoverable at
   `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
-  [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete. Two
-  systematic extractions come first and leave it their remainder: the
+  [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete. The two systematic extractions are complete too: the
   [direct specs moved to Vitest by one rewrite](https://github.com/terryyin/open-dough/blob/34bb5e074f8613671d687d434192dad84e4a60e4/.planning/slice-plans/814-run-direct-backend-specs-on-vitest/PLAN.md)
-  and the [usage import cases on the typed importer](#prove-usage-import-through-typed-importer).
+  and the Usage History cohort that moved to typed imports.
   It also owns final runner retirement and the Story Notes store follow-up
   below. Keep the automatic-repeat correction's separately assigned coverage
   and load obligations with its plan. Count any legacy files it leaves for
@@ -376,10 +331,9 @@ smaller unit selection does not hide its cost or a lost regression check.
     only their engine import ran them on Vitest at four workers: 164 files
     and 596 of 667 cases passed. 122 of the passing files reach no
     Playwright import at all: 76 outside `usage-history/` form the
-    [direct cohort](https://github.com/terryyin/open-dough/blob/34bb5e074f8613671d687d434192dad84e4a60e4/.planning/slice-plans/814-run-direct-backend-specs-on-vitest/PLAN.md), and the 46 usage
-    files move with the
-    [typed importer](#prove-usage-import-through-typed-importer), since
-    their command-bound cases ran up to 4.9 s against the 5 s default. Of the 43 failing
+    [direct cohort](https://github.com/terryyin/open-dough/blob/34bb5e074f8613671d687d434192dad84e4a60e4/.planning/slice-plans/814-run-direct-backend-specs-on-vitest/PLAN.md), and 46 Usage History files moved
+    with the typed importer. Their command-bound cases had run up to 4.9 s
+    against the 5 s default. Of the 43 failing
     files, 29 exceeded the default timeout.
   - 291 start or mount a server, or reach one through support. They enter
     through few boundaries: 122 import the launch boundary helpers, and 101
@@ -413,6 +367,13 @@ smaller unit selection does not hide its cost or a lost regression check.
     specimen used by `runner-ownership.spec.ts`.
   - `configuration/notifier-setup.spec.ts` uses Playwright's platform skip
     overload, which fails Dashboard typecheck under Vitest.
+- **Inventory after the Usage History cohort** (`52ad3cb65656`, 24 November
+  2026). The maintained backend selector reports 348 Playwright specs and
+  232 Node Vitest specs across 580 paths. All 73 Usage History specs select
+  Node Vitest, including the 54 that moved with the typed importer. The
+  remaining Playwright paths are launches 91, sessions 64, observation 54,
+  Intent 45, runtime 40, Review 29, configuration 13 and terminals 12.
+  [Per-case Usage History measurements](https://github.com/terryyin/open-dough/blob/a542045b824e24e73490f7ecc3e733852b879f16/.planning/slice-plans/815-prove-usage-import-through-typed-importer/MEASUREMENTS.md).
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,
   2,519 s; entry kinds counted from each spec's text, so approximate).
 

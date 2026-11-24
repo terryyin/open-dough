@@ -1,7 +1,5 @@
-import {
-  test,
-  expect,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { expect } from "vitest";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { bytes } from "../../test-support/usage-history/agentEffortHarness.ts";
 import { costViews } from "../../test-support/usage-history/agentEffortCost.ts";
 import { writeWakeEvidence } from "../../test-support/usage-history/agentEffortWakeFixtures.ts";

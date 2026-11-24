@@ -1,17 +1,18 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
 import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  readImported,
-  runImport,
-  writeClaudeSession,
-} from "../../test-support/usage-history/importHarness.ts";
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import { importUsageHistory } from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
+import { writeClaudeSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 test("recovers Claude historical renamed seed, backlog and completion facts from recorded Git reads with separate report outcomes", async ({
@@ -50,6 +51,15 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
   const sessionId = "recovered-claude";
   const reference = "ca7430bd-0d52-499d-a1bd-660263c77c12";
   const claude = path.join(home, "claude");
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claude],
+    })
+    .please();
+  const { store, responses } = options;
   const turns = [
     [
       "renamed",
@@ -128,8 +138,11 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
       });
   }
   writeClaudeSession(claude, transcript.please());
-  runImport(home, root, ["--claude-root", claude]);
-  const history = readImported(home);
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(store)),
+    ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+  };
   const tasks = Object.values(history.tasks);
   const renamedTask = tasks.find((task) => task.rootTurnId === "renamed");
   const done = tasks.find((task) => task.rootTurnId === "done");
@@ -194,6 +207,11 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
     expect(taskUsage(history, task.id).tokens.output).toBe(3);
   expect(JSON.stringify(history)).not.toContain("PRIVATE-REPORT");
   const saved = JSON.stringify(history);
-  runImport(home, root, ["--claude-root", claude]);
-  expect(JSON.stringify(readImported(home))).toBe(saved);
+  await importUsageHistory(options);
+  expect(
+    JSON.stringify({
+      ...(await readUsageHistory(store)),
+      ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+    }),
+  ).toBe(saved);
 });

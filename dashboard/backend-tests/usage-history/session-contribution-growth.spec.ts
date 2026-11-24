@@ -2,20 +2,25 @@
 // (../../server/usageHistory.ts): its task record and its session's
 // contribution, a few kilobytes however many responses its rollout holds.
 import { statSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryFile } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
-  readImported,
-  runImport,
   sessionTotals,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 
 const used = (output: number) => ({
   input_tokens: 10,
@@ -24,7 +29,7 @@ const used = (output: number) => ({
   output_tokens: output,
 });
 
-test("a new task with a 400-response rollout grows the history by under 10 KB", ({
+test("a new task with a 400-response rollout grows the history by under 10 KB", async ({
   home,
   root,
 }) => {
@@ -36,8 +41,16 @@ test("a new task with a 400-response rollout grows the history by under 10 KB", 
       .withResponse("turn", "earlier-one", used(2))
       .please(),
   );
-  runImport(home, root);
-  const store = usageHistoryFile(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
+  const { store } = options;
   const before = statSync(store).size;
 
   keepLaunchStore(home, {
@@ -49,9 +62,12 @@ test("a new task with a 400-response rollout grows the history by under 10 KB", 
   for (const index of [...Array<number>(400).keys()])
     rollout.withResponse("turn", `grown-${index}`, used(3));
   writeCodexSession(root, rollout.please());
-  expect(runImport(home, root)).toMatchObject({ tasks: 2, observations: 401 });
+  expect(await importUsageHistory(options)).toMatchObject({
+    tasks: 2,
+    observations: 401,
+  });
 
-  expect(sessionTotals(readImported(home))).toEqual([
+  expect(sessionTotals(await readUsageHistory(options.store))).toEqual([
     ["earlier", 1, 2],
     ["grown", 400, 1200],
   ]);

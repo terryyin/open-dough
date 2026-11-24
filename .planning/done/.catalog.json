@@ -8,6 +8,12 @@
       "blob": "0125fe3e9c0a8461986a5e927cea4780d0315013"
     },
     {
+      "fileName": "SEED-413_prove-usage-import-through-typed-importer.json",
+      "identity": "SEED-413#prove-usage-import-through-typed-importer",
+      "completedAt": "2026-11-24T14:45:31.596Z",
+      "blob": "215478e5ed3ca2466cbfc2ebe1da51ae2d4b9ab3"
+    },
+    {
       "fileName": "SEED-423_use-one-managed-install-layout.json",
       "identity": "SEED-423#use-one-managed-install-layout",
       "completedAt": "2026-11-24T13:01:17.021Z",

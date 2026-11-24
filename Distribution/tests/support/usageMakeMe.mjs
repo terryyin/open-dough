@@ -7,6 +7,7 @@ import {
   UsageTaskBuilder,
 } from "./usageHistoryTestData.mjs";
 import { UsageHistoryBuilder } from "./usageStoreTestData.mjs";
+import { UsageImportOptionsBuilder } from "./usageImportOptionsTestData.mjs";
 import { UsageTaskHistoryBuilder } from "./usageTaskHistoryTestData.mjs";
 import {
   SummaryTaskBuilder,
@@ -25,6 +26,7 @@ import { CursorTranscriptBuilder } from "./cursorTranscriptTestData.mjs";
  * @property {UsageObservationBuilder} aUsageObservation
  * @property {UsageAssociationBuilder} aUsageAssociation
  * @property {UsageHistoryBuilder} aUsageHistory
+ * @property {UsageImportOptionsBuilder} aUsageImportOptions
  * @property {UsageTaskHistoryBuilder} aUsageTaskHistory
  * @property {SummaryTaskBuilder} aSummaryTask
  * @property {UsageTaskSummaryBuilder} aUsageTaskSummary
@@ -83,6 +85,12 @@ export function usageMakeMeProperties() {
       enumerable: true,
       get() {
         return new UsageHistoryBuilder();
+      },
+    },
+    aUsageImportOptions: {
+      enumerable: true,
+      get() {
+        return new UsageImportOptionsBuilder();
       },
     },
     aTokenIndexAnswer: {

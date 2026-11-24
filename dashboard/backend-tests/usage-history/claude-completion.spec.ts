@@ -1,17 +1,18 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import { importUsageHistory } from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  readImported,
-  runImport,
-  writeClaudeSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
+import { writeClaudeSession } from "../../test-support/usage-history/importHarness.ts";
 
 const sessionId = "claude-completion";
 const reference = "ca7430bd-0d52-499d-a1bd-660263c77c12";
@@ -61,7 +62,7 @@ function assistant(
   };
 }
 
-test("counts explicit terminal output once, even before a later progressive snapshot, without completing the task", ({
+test("counts explicit terminal output once, even before a later progressive snapshot, without completing the task", async ({
   home,
   root,
 }) => {
@@ -93,8 +94,19 @@ test("counts explicit terminal output once, even before a later progressive snap
       )
       .please(),
   );
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  const history = readImported(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claudeRoot],
+    })
+    .please();
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   const [observation] = Object.values(history.observations);
   const [task] = Object.values(history.tasks);
   assert(observation && task);
@@ -122,14 +134,14 @@ test("counts explicit terminal output once, even before a later progressive snap
   expect(taskUsage(history, task.id)).toEqual(
     expect.objectContaining({
       requests: 1,
-      tokens: expect.objectContaining({ output: 690 }),
+      tokens: expect.objectContaining({ output: 690 }) as unknown,
     }),
   );
   expect(task.outcome ?? null).toBeNull();
   expect(JSON.stringify(history)).not.toContain("private response text");
 });
 
-test("keeps incomplete progress and competing terminal or unclassified evidence unknown while preserving legacy counters", ({
+test("keeps incomplete progress and competing terminal or unclassified evidence unknown while preserving legacy counters", async ({
   home,
   root,
 }) => {
@@ -168,9 +180,20 @@ test("keeps incomplete progress and competing terminal or unclassified evidence 
       )
       .please(),
   );
-  runImport(home, root, ["--claude-root", claudeRoot]);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claudeRoot],
+    })
+    .please();
+  await importUsageHistory(options);
+  const responses = JSON.parse(
+    readFileSync(options.responses, "utf8"),
+  ) as UsageResponses;
   const observations = Object.fromEntries(
-    Object.values(readImported(home).observations).map((item) => [
+    Object.values(responses.observations).map((item) => [
       item.responseId,
       item,
     ]),

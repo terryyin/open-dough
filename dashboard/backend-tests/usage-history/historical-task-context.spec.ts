@@ -1,14 +1,16 @@
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
 import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
 import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 import {
   historicalCodexTaskRows,
@@ -37,6 +39,14 @@ test("uses only same-message labelled established identity and keeps conflicting
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
   const repo = await configuredRepository(home, description());
   const messages = {
     established: `$dough-execute-plan\n\nEstablished start:\n- identity: ${identity}\n- branch: example`,
@@ -53,8 +63,8 @@ test("uses only same-message labelled established identity and keeps conflicting
   };
   for (const [turn, text] of Object.entries(messages))
     record(root, repo.integration, repo.revisions.then, turn, text);
-  runImport(home, root);
-  const history = readImported(home);
+  await importUsageHistory(options);
+  const history = await readUsageHistory(options.store);
   for (const turn of [
     "established",
     "preparation",
@@ -97,7 +107,7 @@ test("uses only same-message labelled established identity and keeps conflicting
             file: plan,
             revision: repo.revisions.then,
           }),
-        ]),
+        ]) as unknown,
       }),
       expect.objectContaining({
         value: otherIdentity,
@@ -107,7 +117,7 @@ test("uses only same-message labelled established identity and keeps conflicting
             file: otherSeed,
             revision: repo.revisions.then,
           }),
-        ]),
+        ]) as unknown,
       }),
     ]),
   );
@@ -117,6 +127,14 @@ test("later argumentless workflow does not inherit prior established intent or i
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
   const repo = await configuredRepository(home, description());
   const session = "successive";
   writeCodexSession(root, [
@@ -157,8 +175,8 @@ test("later argumentless workflow does not inherit prior established intent or i
       .withResponse("later", "later-answer", { output_tokens: 3 })
       .rows(),
   ]);
-  runImport(home, root);
-  const history = readImported(home);
+  await importUsageHistory(options);
+  const history = await readUsageHistory(options.store);
   expect(task(history, session).identity).toBe(identity);
   const later = task(history, "later");
   expect(later).toEqual(

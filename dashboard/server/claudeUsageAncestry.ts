@@ -15,7 +15,8 @@ export function claudeAncestry(
   uuid: string,
 ) {
   const sources: UsageSource[] = [];
-  const files = new Map<string, UsageSource>();
+  const files: UsageSource[] = [];
+  const filesByKind = new Map<UsageSource["kind"], Set<string>>();
   const roots: { uuid: string; references: string[] }[] = [];
   // The agents whose transcripts the climb passes through; "" is the root's.
   const transcripts = new Set<string>();
@@ -44,29 +45,28 @@ export function claudeAncestry(
       unresolved = true;
       continue;
     }
-    for (const source of node.sources)
-      files.set(JSON.stringify([source.kind, source.file]), {
-        kind: source.kind,
-        file: source.file,
-      });
-    if (next.key === first || node.boundary) sources.push(...node.sources);
-    const parts: unknown = JSON.parse(next.key);
-    if (!Array.isArray(parts)) {
-      unresolved = true;
-      continue;
+    for (const { kind, file } of node.sources) {
+      let seen = filesByKind.get(kind);
+      if (!seen) {
+        seen = new Set();
+        filesByKind.set(kind, seen);
+      }
+      if (!seen.has(file)) {
+        seen.add(file);
+        files.push({ kind, file });
+      }
     }
-    const fields: unknown[] = parts;
-    const [, transcriptAgent, nodeUuid] = fields;
-    if (typeof transcriptAgent === "string") transcripts.add(transcriptAgent);
+    if (next.key === first || node.boundary) sources.push(...node.sources);
+    const { transcriptAgent } = node;
+    transcripts.add(transcriptAgent);
     if (node.boundary) {
-      if (typeof nodeUuid === "string")
-        roots.push({ uuid: nodeUuid, references: node.references });
+      roots.push({ uuid: node.uuid, references: node.references });
       continue;
     }
     if (node.parents.length) {
       for (const parent of node.parents)
         pending.push({ key: parent, exiting: false });
-    } else if (typeof transcriptAgent === "string" && transcriptAgent) {
+    } else if (transcriptAgent) {
       const worker = lineage.workers.get(
         claudeWorkerKey(session, transcriptAgent),
       );
@@ -81,7 +81,7 @@ export function claudeAncestry(
   }
   return {
     roots: uniqueFacts(roots),
-    sources: uniqueFacts([...files.values(), ...sources]),
+    sources: uniqueFacts([...files, ...sources]),
     transcripts: [...transcripts],
     unresolved,
   };

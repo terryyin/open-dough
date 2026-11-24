@@ -1,83 +1,11 @@
-// Real usage persistence and HTTP fixtures for mounted usage-history tests.
+// Usage-history launch, transcript, and persistence fixtures.
 import { createHash } from "node:crypto";
-import {
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { usageCheckFile } from "../../server/usageCheck.ts";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
 import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
-import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
-import { expect, test as base } from "../support/pageTest.ts";
-import { projectConfigurationFile } from "../support/projectConfiguration.ts";
-import { rawRequest } from "../support/rawHttp.ts";
-import { systemSettingsMachine } from "../support/systemSettingsMachine.ts";
-
-type Machine = ReturnType<typeof systemSettingsMachine>;
-export const test = base.extend<{ machine: Machine }>({
-  // eslint-disable-next-line no-empty-pattern
-  machine: async ({}, use) => {
-    const machine = systemSettingsMachine();
-    configureProjects(machine.home);
-    try {
-      await use(machine);
-    } finally {
-      await machine.close();
-    }
-  },
-});
-export { expect };
-
-function configureProjects(home: string) {
-  const projects = [
-    makeMe.aConfiguredProject
-      .with({
-        id: "open-dough",
-        label: "Open Dough",
-        repository: "terryyin/open-dough",
-        localPath: "~/git/open-dough",
-      })
-      .please(),
-  ];
-  const file = projectConfigurationFile(home, "production");
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(file, JSON.stringify(projects));
-}
-
-export async function usageServer(machine: Machine) {
-  const { baseURL, origin } = await machine.start("boundary");
-  const request = async (method: "GET" | "POST", endpoint: string) => {
-    const answer = await rawRequest({
-      url: `${baseURL}${endpoint}`,
-      method,
-      headers: { Origin: origin },
-    });
-    return { status: answer.status, body: JSON.parse(answer.body) as unknown };
-  };
-  return {
-    request,
-    // The answer for the cohort `query` spells, Codex's Execution without one.
-    async chart(query = "") {
-      const { status, body } = await request(
-        "GET",
-        `/__usage/token-index${query}`,
-      );
-      expect(status, JSON.stringify(body)).toBe(200);
-      return body as TokenIndexAnswer;
-    },
-    async refresh() {
-      const { status, body } = await request("POST", "/__usage/refresh");
-      expect(status, JSON.stringify(body)).toBe(200);
-      return (body as { checkedAt: string }).checkedAt;
-    },
-  };
-}
-
 // A finished execution launch of story `SEED-7#<session>` in that Codex
 // session, whose first turn is `<session>-turn`.
 export const finished = (sessionId: string) =>

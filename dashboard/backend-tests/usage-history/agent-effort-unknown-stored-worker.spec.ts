@@ -1,18 +1,20 @@
 import { rmSync } from "node:fs";
+import { expect } from "vitest";
 import { costViews } from "../../test-support/usage-history/agentEffortCost.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
+import { usageHistoryFile } from "../../server/usageHistory.ts";
 import {
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 
-test("a stored-only worker leaves its peak unavailable without qualifying the retained coordinator maximum", ({
+test("a stored-only worker leaves its peak unavailable without qualifying the retained coordinator maximum", async ({
   home,
   root,
 }) => {
@@ -38,7 +40,15 @@ test("a stored-only worker leaves its peak unavailable without qualifying the re
       .withResponse("work", "work", usage, { rootTurnId: "turn" })
       .please(),
   );
-  runImport(home, root);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
   rmSync(workerFile);
   const {
     json: actual,

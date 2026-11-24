@@ -1,21 +1,25 @@
 import assert from "node:assert/strict";
 import path from "node:path";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
-  readImported,
-  runImport,
   keepOperationalLaunch,
   writeClaudeSession,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
+import {
+  readUsageHistory,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import { importUsageHistory } from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 
 test("reports configured in-window work separately from retained old launches, unknown projects and unassigned usage", async ({
   home,
@@ -157,7 +161,15 @@ test("reports configured in-window work separately from retained old launches, u
       })
       .please(),
   );
-  const report = runImport(home, root, ["--claude-root", claudeRoot]);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claudeRoot],
+    })
+    .please();
+  const report = await importUsageHistory(options);
   expect(report).toMatchObject({
     tasks: 4,
     observations: 4,
@@ -197,7 +209,10 @@ test("reports configured in-window work separately from retained old launches, u
       outsideWindowTasks: 1,
     },
   });
-  const stored = readImported(home);
+  const stored = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   expect(
     Object.values(stored.tasks).find((task) => task.sessionId === "old-root"),
   ).toMatchObject({
@@ -215,7 +230,10 @@ test("reports configured in-window work separately from retained old launches, u
     "orphan-response",
     "unknown-response",
   ]);
-  expect(runImport(home, root, ["--claude-root", claudeRoot])).toEqual(report);
-  expect(readImported(home)).toEqual(stored);
+  expect(await importUsageHistory(options)).toEqual(report);
+  expect({
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  }).toEqual(stored);
   expect(JSON.stringify(report)).not.toContain("private unknown assignment");
 });
