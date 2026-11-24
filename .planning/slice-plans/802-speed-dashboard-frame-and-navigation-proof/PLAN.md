@@ -396,7 +396,7 @@ slice 6 refactor and adds no helper or representation. See
 ### 7. Intent outside and no-locations Changes stay truthful on Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (8 cases).** `intent/intent-story-outside-proof`,
 `intent/intent-story-outside-locations`,
@@ -414,6 +414,58 @@ claiming worktrees keep their review explanation. Real Git overlay stays in
 **Proof.** Mount Intent Changes / Proof owners over typed intent and review
 reads as prior Intent stories did. The three built-app leftovers retire. Shared
 Intent substitutes lose these consumers.
+
+**Accepted assertion map.**
+
+| Retired case | Replacement observation |
+| --- | --- |
+| Outside files ordered and marked | `intent-story-outside-locations` checks the two configured locations precede the open outside folders and that each changed file appears once with its actual marker. |
+| Outside files absent from the header count | The same populated Changes view checks there is no outside count or control in the header. |
+| Outside Purpose and Selected story only | `intent-story-outside-locations` opens the typed product diff, checks its path, heading and content, and keeps the selected row when the filter changes. |
+| Done outside Purpose | `intent-story-outside-locations` follows the published completion and checks its identity, outside row, and exact diff. |
+| Outside Proof labels and reading place | `intent-story-outside-proof` checks Baseline, Branch and Landed states and revisions, the exact absent-file-evidence message and no table. Both return paths retain the same nonzero diff scroll offset. |
+| No configured Intent locations | `intent-story-changes-no-locations` checks the project explanation, eight exact changed rows in repository folders and the opened typed diff. |
+| No local workspace | `intent-story-changes-no-locations` checks the exact no-workspace explanation, published-tree continuation and absence of Retry. |
+| Several claiming worktrees | `intent-story-changes-no-locations` preserves the exact ambiguity explanation naming both worktrees, continuation and absence of Retry. |
+
+**Result.** Seven mounted cases took 4.60 s including preparation versus
+7.26 s for eight legacy cases at two workers. Ordering and header count
+share one Changes opening. The existing real Git-overlay E2E and 20 other
+affected mounts passed, as did typecheck. Nine unused route substitutes
+were removed. Exact commands and mapped assertions are in Git evidence
+`slice7-return.md`. The independent refactor reused the existing outside
+group locator. Nine affected cases and typecheck passed.
+
+**Combined with the live-session delivery.** Trunk `77e36a081` had closed the
+named live-session story through merge `92ab15e07`. Its required session and
+machine methods affect the shared Intent mount and Board observation supply.
+The selected-story amendment only retires a scope-reference link. On an
+isolated merge tree of `8e7a024f2` and `77e36a081` with the final slice's product
+diff, locked install, dashboard typecheck and 18 cases across eight scoped
+Intent, roster, Board, session order and Cursor runner specs passed. The
+records are `slice7-live-overlap-*.log.run.json`. The verification checkout
+was removed after proof.
+
+## Story proof comparison
+
+The complete migrated selection passed **52 Vitest cases in 21 files** at the
+two-worker limit, with no scoped legacy Playwright registrations. The separate
+real URL history/Retry journey passed **1 E2E case** and used one worker.
+Compared with the prepared baseline of 58 legacy cases across 22 files and
+about 81 s with preparation, the same AC macOS setup measured **22.33 s**
+for the mounted selection and **4.92 s** for the new E2E, or **27.25 s**
+before the added checks in two existing hidden-project E2Es. The marginal
+hidden-link timing was 0.86 s in the original pair and 4.36 s in the later
+confirmation, including tab lifecycle. The later value gives about 31.62 s
+including that added proof. These are single focused runs at different
+revisions. Combined command records are `final-frame-vitest.log.run.json`
+and `final-frame-history-e2e.log.run.json`.
+
+The slowest mounted cases were the four-width banner and reverse Tab journey
+(6.31 s), system appearance (3.57 s), and hiding the selected project and its
+neighbors (2.37 s). The two real CI-only test failures exposed variable
+tab fit and a bookmark interaction with offscreen selection. Each was
+reproduced with a targeted failing witness and repaired at its test boundary.
 
 ## Execution context
 

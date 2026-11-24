@@ -19,9 +19,7 @@ const panel = (name: string) =>
 async function showsUsablePublishedTree() {
   const story = intentStoryCompare();
   await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
-  await expect
-    .element(page.getByRole("region", { name: "Outside Intent locations" }))
-    .not.toBeInTheDocument();
+  await expect.element(story.outsideGroup).not.toBeInTheDocument();
   await expect
     .element(panel("Changes").getByText(/No test files|no changes/i))
     .not.toBeInTheDocument();

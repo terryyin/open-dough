@@ -563,7 +563,7 @@ those stories.
   itself stays for stories 6, 7 and 8b.
 - Scope limit: the cases owned by
   [Done review](#speed-dashboard-done-session-review-proof),
-  [live sessions](#speed-dashboard-live-session-and-terminal-proof) and
+  live sessions and terminal work and
   `test-harness/`.
 
 **Key examples:**
