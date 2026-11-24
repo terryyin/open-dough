@@ -214,7 +214,7 @@ through production's store. Slice 5 seeds its retained history with it.
 ### 5. History returns the newest measured window in trunk order
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `window` and `read-window` with real ancestry for the collecting
 window and composed retained history for the read. Use the production
@@ -224,6 +224,12 @@ window functions through the pass and `performIntentCiHistoryRead`.
 during a pass. Read a pre-seeded 35-build history and verify exact newest
 20, gaps among and after them and exclusion of an older gap. Keep storage
 pruning and read projection independently observed.
+
+**Slice 5 evidence.** `window` went from 1442 ms to 42 ms and `read-window`
+from 868 ms to 15 ms. The 20→19 `measuredWindow` scratch change fails both
+cases, so the discrimination now holds at the typed reader. An unpruned
+`windowedHistory` fails only `window`, which keeps storage pruning and read
+projection independently observed.
 
 ### 6. Time without runner waits preserves wall time and explains gaps
 
