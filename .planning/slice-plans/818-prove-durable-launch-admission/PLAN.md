@@ -164,6 +164,13 @@ duplicate distinct-story assertions, preserving one acceptance and effect
 per owner and both kept identities. The 249-line spec passed the affected
 focused case. Its separate run is `slice-2-file-size-refactor.log.run.json`.
 
+## Execution complete
+
+Product advice: no change. The four unit cases cover durable admission at the
+owner boundary. The separate writer earns its startup cost by exercising
+cross-process lock ownership. Keep HTTP and native launch coverage with their
+existing owners and leave the remaining backend renovation in its own story.
+
 ## Concern evidence
 
 Slice-plan refinement was unnecessary. The two slices exercise one
@@ -204,8 +211,15 @@ No remaining slice-specific concerns were identified.
   `6d1ea9be8941fd7862346841ba10f16313b33efe` and registered with the observer.
 - Slice 2 was accepted on the remote story branch at
   `05d3c39844908d23a08e009ef74720f5812b73ef` and registered with the observer.
+  The assertion refactor was accepted and registered at
+  `74214c4aa33bd2268a0c92be803cdec4c7b99df9`.
 - Locked `npm ci` and `npm run typecheck:dashboard` succeeded in the execution
   checkout on Node 24.21.0. Retain the existing planning authority for overruns.
 - GitHub Actions `ci.yml` (`CI`) on the remote story branch. Codex observer
   `julia-chan-c609a25e`, directory `/tmp/dough-ci-501/watch-KlkXuy`, PID `98709`,
   shell session `6241`, cell `g209:13`.
+- Review attributed the work to the two slice commits and the assertion
+  refactor. Typed unit cases and deliberate break checks drove this work.
+  Representative Dashboard journeys retain installed launches and trunk
+  integration. Product and proof review found no correction to queue.
+  Process review is deferred until the wrap-up intent coverage check returns.
