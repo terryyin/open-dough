@@ -51,9 +51,22 @@ already provides the per-session identity and comparison.
   paths. Inventory existing unassociated records and work in flight before
   cutover, and decide their disposition during refinement. Keep published Git
   history recoverable without carrying a parallel standalone workflow.
+- Remove the 21 standalone Done review cases across ten legacy frontend
+  specs. In `dashboard/frontend-tests/sessions/`, these are the six
+  `recently-done-ad-hoc-*` specs retained at the Done review cutover, the
+  `recently-done-sessions-review-cue-{evidence,races}` specs, the standalone
+  case in `recently-done-sessions-select`, and the 31-day standalone case in
+  `recently-done-story-sessions`. Preserve applicable story-linked coverage.
+  [Runner retirement](SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner)
+  waits until no standalone legacy frontend spec remains on trunk.
 - Preserve published story and per-session comparisons through the common
   path. Session selection within Intent, follow-up context
   composition, and open follow-up card cues have their own stories.
+
+**Retained standalone records.** During refinement, settle how developers
+access existing standalone records and how that disposition fits
+[ADR 0008's standalone row behavior](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts).
+Bring any change to that Accepted behavior to the developer before cutover.
 
 **Key examples.**
 

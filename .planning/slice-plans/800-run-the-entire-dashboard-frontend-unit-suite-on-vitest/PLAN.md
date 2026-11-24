@@ -13,12 +13,14 @@ measured against the 7 min 15 s campaign baseline, with about one minute at
 two workers as the target.
 
 Included: the `test-harness/` audit, the runner cutover, the deletion of the
-built-app support, and the documentation, CI and output settings that name
-them. Excluded: the backend group's own Playwright runner, which belongs to
+built-app support, the remaining authenticated defaults on reads owned by
+`PageReads`, and the documentation, CI and output settings for the cutover.
+Excluded: the backend group's own Playwright runner, which belongs to
 the separately scheduled backend migration, and E2E. Evaluation case
 overlays that run against a pinned revision are also excluded. The story
-starts only after its three recorded suppliers have moved their legacy
-cases.
+starts when all recorded prerequisites are satisfied, including
+[SEED-426](../../seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
+removing the remaining standalone legacy frontend cases from trunk.
 
 ## Current decisions
 
@@ -49,9 +51,10 @@ cases.
 
 | Consuming operation | Observation and result |
 | --- | --- |
-| Legacy specs this story moves | At `24ae92074`, a search for specs without a `from "vitest"` import, matching `isVitestFile`, found 30 frontend specs outside the Vitest set. Of these, `test-harness/` holds 3 `pageTest.ts` specs: observation measurements (2 cases), control reachability (7) and touch reading (2). The other 27 belong to the three suppliers. Slice 1 repeats the search at fetched trunk. |
+| Legacy specs this story moves | At `24ae92074`, a search for specs without a `from "vitest"` import, matching `isVitestFile`, found 30 frontend specs outside the Vitest set. Of these, `test-harness/` holds 3 `pageTest.ts` specs: observation measurements (2 cases), control reachability (7) and touch reading (2). The other 27 are outside retirement's scope. Slice 1 repeats the search after SEED-426 removes the 21 standalone cases across ten specs. |
 | Consumers of the retired modules | At `24ae92074`, `git grep` outside `dashboard/frontend-tests/` named these consumers: the four backend specs above; `Distribution/tests/support/local-test-suite-checkout.mjs`, `local-test-suite-focused-runners.test.mjs` and `local-test-resources.md`; `runLifecycle.ts`, `runnerConfig.mjs`, `testFiles.mjs` and `groupRunnerExamples.ts`; `tsconfig.node.json`; `eslint.ignores.mjs`; and `scripts/retained-playwright.mjs`, which backend still uses. This is presence only. Slice 1 settles it by a scratch application and the consuming suites. |
 | CI shard partition | `.github/workflows/ci.yml` `dashboard-frontend` declares shards `[1, 2]`. Shard 1 takes `intent/**`, `navigation/**` and `review/**`, and the other shard takes the rest, through `browser-test-group.yml`. Slice 5 observes the partition on branch CI. |
+| Typed readers reach mounted consumers | At `f5f354ab3`, published details already supply the Done catalog, profile list and addition readers. Done link lookup supplies the catalog, and Intent locations and diff syntax hints supply the locations reader. `SessionAssignment` still relies on both profile defaults. This source trace leaves the mounted session-details observation with supplied profile readers open. |
 | Full local suite route | Run the full group with Homebrew Bash 5 under `caffeinate -s -i` on AC power, per the [machine sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos). A Playwright listing in this preparation worktree failed: `node_modules/playwright/cli.js` was missing after a partial install. The execution workspace needs a complete `npm ci` on the pinned `.node-version` before any proof. |
 
 ## Slices
@@ -61,7 +64,7 @@ cases.
 Type: Structure
 Status: planned
 
-At fetched trunk, after all three suppliers are satisfied, repeat the
+At fetched trunk, after all recorded prerequisites are satisfied, repeat the
 legacy-spec search. In a scratch edit, remove `frontend.playwright.config.ts`
 and the frontend group's `config`, then run `npm run typecheck:dashboard`,
 the lint command, `npm run test:dashboard:frontend -- --list`, the four
@@ -144,7 +147,27 @@ proof label and publication.
 local `--list` with no omission or duplicate, and `ci-proof` reads the
 frontend proof.
 
-### 6. The complete frontend group is measured against the campaign baseline
+### 6. Mounted Dashboard reads use their supplied readers
+
+Type: Structure
+Status: planned
+
+Require an explicit reader for `cataloguedAt`, `readDoneStories`,
+`readIntentLocationsAt`, `readAssignments` and `profileAdditionsAt`. Use the
+existing typed `PageReads` sources for their page callers. Give
+`SessionAssignment` the observation's profile list and addition readers;
+keep authenticated implementations at production composition. Preserve read
+results, gaps, retries and cancellation. Limit the change to the five reader
+contracts and their direct callers and leave broader Board frame wiring to
+its own work.
+
+**Proof.** Typecheck the required readers at every call site. Run focused
+mounted proof for Done catalog selection, Intent locations and review syntax,
+and the session assignment shown from supplied profile and addition replies.
+Use cold reads and make an unexpected authenticated read fail the case.
+Keep the focused checks before the final suite measurement.
+
+### 7. The complete frontend group is measured against the campaign baseline
 
 Type: Behavior
 Status: planned
@@ -162,17 +185,16 @@ proof promoted to E2E.
 
 ## Concern evidence
 
-Refinement was not needed: six slices, one outcome each, and the cutover
-order follows consumer removal. The first slice is the authorized early
+The seven slices follow consumer removal, then close the typed read boundary
+before measuring the whole suite. The first slice is the authorized early
 probe. The suppliers will change the paths that the consumer premises
 inspected, so those premises reopen at start, and slice 1 settles them
-before any deletion. Slice 1 also bounds the sizing of slices 3 and 4. No
-other slice-specific concern was identified in this review.
+before any deletion. Slice 1 also bounds the sizing of slices 3 and 4.
 
 ## Verification and delivery
 
 - Local gate: use the maintained [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
-  (`caffeinate -s -i`, AC power) for the full group run in slice 6. Follow
+  (`caffeinate -s -i`, AC power) for the full group run in slice 7. Follow
   the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   as written.
 - Changing the shared group run and the CI workflow justifies the broader
