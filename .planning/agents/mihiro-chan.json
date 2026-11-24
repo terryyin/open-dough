@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Mihiro-chan",
-  "email": "mihiro-chan@example.org",
-  "identity": "SEED-423#notify-claude-code-of-ci-through-one-path",
-  "mode": "story-branch",
-  "branch": "claude/notify-claude-code-of-ci-results-through-one-pat",
-  "host": "claude"
-}

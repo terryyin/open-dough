@@ -156,6 +156,25 @@ function readMatcher(target, root) {
   writeSettings(target, "claude", settings);
 }
 
+// Appends the former managed background wake Stop wrapper, as an earlier
+// installation registered it, with the given (possibly locally edited) timeout.
+function formerWake(target, timeout) {
+  writeSettings(
+    target,
+    "claude",
+    makeMe.hostHookSettings
+      .forHost("claude")
+      .with(readSettings(target, "claude"))
+      .handling("Stop", {
+        command:
+          'node "$CLAUDE_PROJECT_DIR/.claude/skills/dough-execute-plan/scripts/ci-background-hook.mjs"',
+        timeout: Number(timeout),
+        asyncRewake: true,
+      })
+      .please(),
+  );
+}
+
 const scenarios = {
   empty,
   mergeable,
@@ -166,6 +185,7 @@ const scenarios = {
   similarlyNamed,
   duplicate,
   readMatcher,
+  formerWake,
 };
 const [operation, ...args] = process.argv.slice(2);
 scenarios[operation](...args);

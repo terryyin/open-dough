@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_notify-claude-code-of-ci-through-one-path.json",
+      "identity": "SEED-423#notify-claude-code-of-ci-through-one-path",
+      "completedAt": "2026-11-24T08:24:46.868Z",
+      "blob": "f84eace60004c5e03ed2d6343ac01c792b15d363"
+    },
+    {
       "fileName": "SEED-389_verify-silent-supplier-wait-in-use.json",
       "identity": "SEED-389#verify-silent-supplier-wait-in-use",
       "completedAt": "2026-11-24T08:23:47.907Z",

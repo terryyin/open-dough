@@ -925,6 +925,7 @@ Plan 783 recorded that `historyChart().failed` has no reader. `e2e/intent/intent
   - Evidence: run `s2-typecheck` failed with TS2339; `.failed` was kept and recorded as obligation G1 in `50d02ebe7`.
   - Observed effect: one failed typecheck and a narrowed scope commitment; nothing was lost.
   - Inference: a typecheck over the removal settles a "spent member" premise more reliably than a name search.
+- Execution: SEED-423#notify-claude-code-of-ci-through-one-path (plan 809, first implementation `075e33ee5`). Timestamp: unknown (slice 1 return on 2026-11-24 +08:00). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.112. Evidence: the plan's premise "Nothing outside the handoff imports its scripts" searched script names; `ci-background-test-fixtures.mjs` copied `claude-hooks.json`, so dropping the asset entry in slice 1 failed 11 handoff tests. Observed effect: one implementation stop; the coordinator moved the test deletion into slice 1. Inference: premises about removing an asset entry also need a search for readers of that asset.
 
 ## ODF-470 — Sequential before/after timings cannot judge a no-slowdown promise
 
@@ -986,6 +987,7 @@ Source recovery: `71e820478b6a0fb8854a6cb5f428b59b44d31225:DearDough.md`.
 ### Occurrences
 
 - Execution: SEED-429#skip-empty-instruction-recordings (plan 807, first implementation `d6d9ae22c`). Timestamp: unknown (slice delivery on 2026-11-24 +08:00). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `857f49430`). Evidence: the implementation and refactor briefs reserved the staged lint hook and formatter for the coordinator and supplied no scoped read-only lint command. After both proof returns passed, guarded preparation refused `instruction-voice-page.ts` on `unbound-method` and `no-unsafe-return`. Observed effect: one withheld preparation, a fixture repair, and one additional mounted proof run before publication. Scoped read-only lint would have checked both rules before the handoff.
+- Execution: SEED-423#notify-claude-code-of-ci-through-one-path (plan 809, first implementation `075e33ee5`). Timestamp: unknown (slice 1 delivery on 2026-11-24 +08:00). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.112 (installed at Take `b45f38dcf`). Evidence: the implementation and refactor briefs reserved lint for the coordinator and named only `prettier --check`; guarded preparation then refused `no-param-reassign`, `no-unused-vars` and shellcheck SC2016/SC2312 in the refactor's edits. Observed effect: one withheld preparation, a coordinator repair and one focused rerun before publication.
 
 ## DD-638 — Deferring a story left its old agent assigned
 

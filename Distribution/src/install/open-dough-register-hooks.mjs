@@ -79,6 +79,7 @@ function planHost(targetRoot, sourceDir, host) {
     fragment,
     host.id,
     host.relativePath,
+    host.retiredEntries,
   );
   if (merged.error) {
     return { host, error: merged.error, code: merged.code };
