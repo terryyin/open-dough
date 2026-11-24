@@ -31,11 +31,11 @@ intent introduced or affected by a newly developed story.
 - [Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository) — SEED-428#read-reviews-from-the-review-repository ([plan](slice-plans/803-read-reviews-from-the-review-repository/PLAN.md))
 - [Use one managed install layout](seeds/SEED-423-shrink-the-installed-distribution.md#use-one-managed-install-layout) — SEED-423#use-one-managed-install-layout ([plan](slice-plans/812-use-one-managed-install-layout/PLAN.md))
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
+- [Prove usage import through the typed importer instead of its command](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-usage-import-through-typed-importer) — SEED-413#prove-usage-import-through-typed-importer ([plan](slice-plans/815-prove-usage-import-through-typed-importer/PLAN.md))
 
 ## Backlog list
 
 - [Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git
-- [Prove usage import through the typed importer instead of its command](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-usage-import-through-typed-importer) — SEED-413#prove-usage-import-through-typed-importer
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
 - [Prove a renamed file's Review diff reads its grammar from the new path](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-renamed-diff-grammar-from-new-path) — SEED-413#prove-renamed-diff-grammar-from-new-path
