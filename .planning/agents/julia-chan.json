@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Julia-chan",
+  "email": "julia-chan@example.org",
+  "identity": "SEED-413#renovate-later-dashboard-backend-unit-test-families",
+  "mode": "story-branch",
+  "branch": "codex/prove-durable-launch-admission-through-the-typed",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
