@@ -41,7 +41,7 @@ recordings still go to transcription, as the seed's scope says.
 ### 1. An empty recording returns to Ready without transcribing
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: typed draft “Keep this work local”, a recorder whose final data
 totals zero bytes → Record, then Stop → the control is Ready and shows “No
@@ -54,6 +54,16 @@ fails on the current hook (one transcription request with zero-byte audio) and
 passes with the change. The instruction voice specs in
 `dashboard/frontend-tests/launches/mounted-instruction-voice*.spec.ts` pass
 through `npm run --silent test:dashboard:frontend -- <files>`.
+
+**Accepted proof.** Before the hook change the new mounted case returned to
+Ready and observed one transcription call. After the change it observed Ready,
+zero calls, the recovery message, and the unchanged draft. A retry with
+native recorder bytes made one call, appended its text, and cleared the alert.
+The focused launch, story-note, and terminal set passed 21 tests in eight
+files. All six focused E2E specs for voice recording and terminal readiness
+passed. The independent refactor made the retry wait for recorder bytes and
+passed all three tests in the changed Chromium spec. The production change and
+other proof boundaries stayed unchanged during that pass.
 
 ## Concern evidence
 
@@ -71,3 +81,16 @@ This review found no remaining slice-specific concern.
 - The execution workspace needs a complete `npm ci` on the pinned
   `.node-version` before proof. Apply the normal post-change refactor and the
   commit and publication gates.
+
+## Execution context
+
+Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent
+Tsubomi-chan. The selected worktree and branch use
+`skip-transcription-for-empty-instruction-recordi` and publish increments to
+`origin/codex/skip-transcription-for-empty-instruction-recordi`. The accepted
+Take base is `857f494304b9cee05b3aa88958ef8883ec4dc75d`. The Take was on
+trunk, outside the story-branch observer's coverage.
+
+CI is the push workflow `ci.yml` in `terryyin/open-dough`. Codex coordinator
+`seed-429-6b7bcbeb` armed the story-branch observer in
+`/tmp/dough-ci-501/watch-NgD3ew` (cell `g41:8`, session `21059`, PID `28110`).

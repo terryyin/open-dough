@@ -66,3 +66,29 @@ test("an unavailable device and an unsupported recording format make no transcri
   await startsTyped(voice);
   expect(voice.transcribe).not.toHaveBeenCalled();
 });
+
+test("stopping an empty recording keeps the typed draft and lets the user record again", async () => {
+  const capture = audioInput();
+  const restoreAudio = capture.captureNoAudio();
+  const voice = await mountInstructionVoice();
+  await voice.field.fill(originalDraft);
+  await voice.recordClip();
+  await voice.ready();
+  expect(voice.transcribe).not.toHaveBeenCalled();
+  await expect
+    .element(voice.problem)
+    .toHaveTextContent(
+      "No audio was captured. Record again or type the instruction.",
+    );
+  await expect.element(voice.field).toHaveValue(originalDraft);
+
+  restoreAudio();
+  await voice.begin();
+  await capture.recordedAudio();
+  await voice.stop.click();
+  await expect
+    .element(voice.field)
+    .toHaveValue(`${originalDraft}\n\nDo not implement yet`);
+  expect(voice.transcribe).toHaveBeenCalledTimes(1);
+  await expect.element(voice.problem).not.toBeInTheDocument();
+});
