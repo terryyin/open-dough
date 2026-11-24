@@ -115,3 +115,45 @@ test("oversized adapter proof shows a problem border and no counts under the pas
   expect(border.borderLeftWidth).toBe("4px");
   expect(border.borderLeftColor).toBe(problemColour);
 });
+
+test("the passing retry's judgment asks for that attempt's proof and shows its counts", async () => {
+  const retry = { runId: "pipeline", attemptId: "2" };
+  const retryJudgment = judgedStatus("main", "pass", revision, "Add login", {
+    ciAdapter: true,
+    runBranch: "main",
+    adapterAttempt: retry,
+  });
+  const summary = makeMe.aCiProof
+    .summaryForAdapter(
+      { attemptId: retry.attemptId, revision },
+      [makeMe.aCiProofEntry.at("tests").counting(8, "file").please()],
+      openDoughSource.repository,
+    )
+    .please();
+  const readProof = vi
+    .fn<IntentCiReadSource["readProof"]>()
+    .mockResolvedValue(summary);
+  await mountIntentCiPage({
+    work,
+    reads: {
+      intent: unconfiguredIntentReads,
+      ci: inertCiReads({
+        readStatus: () => Promise.resolve(retryJudgment),
+        readProof,
+      }),
+    },
+  });
+
+  await intentCiStatus().answers(verdict);
+  const proof = intentCiProof();
+  await proof.showsAttemptAndRevision("Attempt 2", shortRevision);
+  await proof.showsRows([["tests", "8 passed test files", "No timings"]]);
+  expect(
+    readProof.mock.calls.map(([source, subject]) => [source, subject]),
+  ).toEqual([
+    [
+      openDoughSource,
+      { runId: "pipeline", attemptId: "2", branch: "main", revision },
+    ],
+  ]);
+});

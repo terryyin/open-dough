@@ -1,63 +1,23 @@
 import {
   ciProofReading,
   expectNoProofRows,
-  expectProofRows,
 } from "../../dashboard/test-support/intentCiProofPage.ts";
 import { expectCiAnswer } from "../../dashboard/test-support/intentCiStatusPage.ts";
-// Intent shows the retry's verdict and remembered CI proof. An attempt whose
-// ID another discovered attempt shares at its revision shows why it is
-// ambiguous, without requesting proof.
+// When another discovered attempt shares the attempt ID at its revision,
+// Intent explains the ambiguity and makes no proof request.
 // Missing proof and recovery: ./intent-ci-proof-adapter.spec.ts.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { expectAttemptAt } from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
 import {
   adapterProject,
-  failed,
   openAdapterProof,
   passed,
-  testsRow,
   testsSummary,
   verdict,
 } from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
 
-import {
-  login,
-  repository,
-} from "../../dashboard/test-support/intentCiStoryRecords.ts";
-
-test("a retried adapter attempt shows the retry's verdict and proof, and Check again keeps that attempt's remembered summary", async ({
-  page,
-  dashboard,
-}) => {
-  const adapter = adapterProject(dashboard.home);
-  const discover = {
-    main: [
-      passed("r1", "2", login, "main", { time: "2026-10-01T01:00:00Z" }),
-      failed("r1", "1", login, "main", { time: "2026-10-01T00:00:00Z" }),
-    ],
-  };
-  adapter.answer({ discover, proof: testsSummary("2", login) });
-  const { panel, proof } = await openAdapterProof(page);
-
-  await expectCiAnswer(panel, verdict);
-  await expectAttemptAt(proof, "Attempt 2", "4774f60");
-  await expectProofRows(proof, [testsRow]);
-
-  // A later adapter answer for another attempt is ignored: the valid summary
-  // for this attempt is immutable and remembered for the process lifetime.
-  adapter.answer({ discover, proof: testsSummary("1", login) });
-  await panel.getByRole("button", { name: "Check again" }).click();
-  await expectProofRows(proof, [testsRow]);
-  await expect(ciProofReading(proof).unavailable).toHaveCount(0);
-  await expectCiAnswer(panel, verdict);
-  const asked = {
-    operation: "proof",
-    check: { repo: repository, branch: "main" },
-    attempt: { runId: "r1", attemptId: "2", sha: login },
-  };
-  expect(adapter.proofRequests()).toEqual([asked]);
-});
+import { login } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 
 test("an adapter attempt whose attemptId another discovered attempt shares at its revision is ambiguous, and no adapter is asked its proof", async ({
   page,

@@ -85,6 +85,16 @@ coordinator `adapter-proof-798`, directory `/tmp/dough-ci-501/watch-eFtW1t`,
 stream session `62286`, PID `81330`, yielded cell `g525:7`. The established
 Take on trunk predates this observer.
 
+The story branch accepted slice 1 at `f742e02fbbffc4a2d263694f284880b3ea0d9afb`
+and registered it on this observer.
+
+CI found that Distribution shard 2 exhausted its run deadline. The
+[diagnosis](diagnosis-distribution-shard-2-deadline.md) records the timing
+replay, the one-pattern move of 15 Git publication files, and proof that all
+657 files remain selected exactly once with the same deadlines. The repair
+was accepted on the story branch at `58a596796738df2e96cf327efc2d501342dd0a14`
+and registered before the parked slice 2 work was restored.
+
 ## Slices
 
 ### 1. Missing adapter proof and recovery use one composed workflow
@@ -130,7 +140,7 @@ journey's failure signal when Check again cannot recover the proof.
 ### 2. The retry's verdict and remembered proof have unit coverage
 
 Type: Structure
-Status: planned
+Status: done
 
 Prove newest retry selection directly through `judgeCommandAdapter`. At the
 mounted homepage, supply the resulting typed retry judgment and observe the
@@ -143,6 +153,25 @@ attempts. The mounted check observes only the retry's proof request and row.
 The reader returns the retry's remembered counts on another read of that
 attempt and does not invoke the external command again. Run the focused backend
 and frontend groups and the remaining scoped E2E cases.
+
+**Accepted observations.** Under the same guarded local setup:
+
+- `caffeinate -s -i npm run --silent test:dashboard:backend -- intent/ci-adapter-retry-judgment.spec.ts intent/ci-proof-memory-adapter.spec.ts --workers=2 --reporter=line`
+  passed six cases. `judgeCommandAdapter` uses timed MakeMe replies from
+  real discovery and names attempt 2. The memory reader returns different
+  summaries for the two attempts and calls the command only for their two
+  initial subjects. Scratch changes selecting the older judgment and omitting
+  attempt IDs from the memory key failed at those assertions.
+- `caffeinate -s -i npm run --silent test:dashboard:frontend -- intent/intent-ci-proof-adapter-states.spec.ts --workers=2 --reporter=line`
+  passed three cases. The mounted retry judgment renders the verdict and
+  count row for attempt 2 and gives the proof reader only that subject.
+- `caffeinate -s -i npm run --silent test:e2e -- e2e/intent/intent-ci-proof-adapter --workers=2 --reporter=line`
+  passed the five remaining browser cases after the retry case was removed.
+  `slice2-implementation.md` in the Git evidence directory indexes the runs
+  and the consumer trace.
+- Independent review removed the unused `failed` adapter fixture example.
+  The eight affected E2E cases across five files passed after the change.
+  `slice2-refactor.md` indexes the exact selection, consumer trace and result.
 
 ### 3. Ambiguous attempts have unit coverage and the reasons spec is retired
 
