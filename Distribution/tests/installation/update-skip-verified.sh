@@ -100,7 +100,7 @@ assert_full_noop() {
   [[ $(snapshot_path_state "${target}") == "${before}" ]]
   assert_payload_unwritten "${label}"
   assert_settings_unwritten "${label}"
-  grep -Fq 'both physical installations are current; no installer invocation or installed-file writes.' \
+  grep -Fxq 'Outcome: both installations are current; no installer invocation or installed-file writes.' \
     "${output_file}"
   grep -qx "apply-skip-equal ${dest}" "${trace_file}"
   if grep -qE '^(install |apply-hooks-repair )' "${trace_file}"; then
@@ -115,7 +115,7 @@ assert_hooks_repaired_without_payload_writes() {
   local trace_file=$3
 
   assert_payload_unwritten "${label}"
-  grep -Fq 'restored missing host hook registration without rewriting managed payload files' \
+  grep -Fxq 'Outcome: both installations are current; restored missing host hook registration without rewriting managed payload files.' \
     "${output_file}"
   grep -qx "apply-hooks-repair ${dest}" "${trace_file}"
   if grep -q '^install ' "${trace_file}"; then

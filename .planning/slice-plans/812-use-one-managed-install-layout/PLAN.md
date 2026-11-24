@@ -116,7 +116,7 @@ premise and `ci-deployment-layout.test.mjs`.
 ### 3. Installation text describes the one layout
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `scripts/test.sh Distribution/tests/installation/update-skip-verified.sh`
 plus the Distribution Markdown/link checks the delivery gate runs.
 
@@ -170,11 +170,17 @@ remains unknown. Temporary instrumentation was removed. Resolve the
 worktree evidence directory with `git rev-parse --git-path open-dough/evidence`.
 Its `slice1-return.md` records the commands, original failure and traces.
 
-Slice 2 focused verification covered 75 Distribution files. Two auto-land
+Slice 2 landed on the story branch at `534470b8d1f9ebebfd4bbd6ebbe0f561919a9a5e`.
+Focused verification covered 75 Distribution files. Two auto-land
 files found that their fixture excluded only one installed root from status.
 Both passed after the fixture excluded both roots. The other 73 files did
 not use that exclusion and retain their passing results. `slice2-return.md`
-records the proof and host-specific observations.
+records the proof and host-specific observations. `slice2-refactor-return.md`
+records twelve passing checks after refactoring.
+
+Slice 3's six focused checks and separate no-hook-fragments apply passed.
+The refactored output paths passed the update and no-hook-fragments checks
+again. See `slice3-return.md` and `slice3-refactor-return.md`.
 
 Codex observes `ci.yml` for the story branch through coordinator
 `anri-460afa7c` at `/tmp/dough-ci-501/watch-wRJJiC` (PID 30474). The earlier

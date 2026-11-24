@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2043 # One representative physical root exercises each injected write failure.
+# shellcheck disable=SC2043 # One representative root exercises each injected write failure.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)

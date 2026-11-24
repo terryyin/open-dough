@@ -69,7 +69,7 @@ assert_payload_unchanged() {
   fi
 }
 
-# Entry contexts share both physical roots and native registrations, including
+# Entry contexts share both skill roots and native registrations, including
 # paths with spaces. Cursor covers shared .agents; default Codex installs below.
 for entry in cursor claude; do
   target="${temporary_dir}/fresh ${entry}"
