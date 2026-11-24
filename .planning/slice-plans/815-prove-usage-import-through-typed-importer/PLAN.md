@@ -111,7 +111,7 @@ preserving unavailable-root gaps in whole-store comparisons.
 ### 2. Recovery, repeated checks and historical tasks use the typed importer
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the nine files pass with no command start
 
 Convert `recovered-corroboration`, `recovered-gaps`, `recovered-tasks`,
@@ -119,6 +119,17 @@ Convert `recovered-corroboration`, `recovered-gaps`, `recovered-tasks`,
 `historical-task-context`, `historical-task-references` and
 `historical-tasks`. A second import of unchanged transcripts leaves the
 stored totals unchanged, observed through the typed read.
+
+Proof result: all 15 cases passed on the maintained backend runner before
+and after with two workers. The nine specs replaced 49 usage command calls.
+The unchanged-record replay checks typed store equality, file bytes and
+inode, mtime and hash evidence. Summed case time fell from 25,345 ms to
+10,965 ms and runner time from 15,447 ms to 6,986 ms. The immediate
+baseline load was unrecorded. The checkout's Git evidence directory keeps
+`slice-2-{before,after}.json` and the named observations and per-case
+comparison in `slice-2-implementation.md`. Dashboard typecheck passed.
+The change touched only the nine subject specs and reused the established
+MakeMe options and typed observations. No independent refactor was needed.
 
 ### 3. Codex imports, reports and effort selection use the typed importer
 
@@ -222,3 +233,11 @@ load, so the speed gain is unsettled until that slice measures it.
 - The guard captured `family-before.json` at the claim before any edits. All
   54 files and 150 cases passed. Summed case time was 171,138 ms and runner
   time was 88,701 ms. Natural one-minute load was 7.60–15.61 on 16 cores.
+
+## Story obligations
+
+### G1. Migrate the six mounted Usage specs to Node Vitest
+
+Reported: slice 2 — "`repeated-checks` and `repeated-checks-evidence` still use the Token Index Playwright fixture for Refresh and chart. Inspection identified the same fixture in `usage-check-freshness`, `usage-writer-consistency`, `native-reader-gaps` and `earlier-store-conversion`. The retained usage fixture switch alone leaves all six on Playwright."
+Story clause: "Move the fixture module and all 54 specs to Node Vitest in the same story."
+Disposition: receiving slice 6

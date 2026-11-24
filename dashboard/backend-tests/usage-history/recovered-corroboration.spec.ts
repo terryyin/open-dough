@@ -3,15 +3,21 @@ import { rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   expect,
   test,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
-  readImported,
-  runImport,
   writeClaudeSession,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
@@ -28,6 +34,14 @@ test("joins later Claude retained timestamp identity to one recovered task and p
   const sessionId = "claude-later-retained";
   const reference = "ca7430bd-0d52-499d-a1bd-660263c77c12";
   const claude = path.join(home, "claude");
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claude],
+    })
+    .please();
   writeClaudeSession(
     claude,
     makeMe.aClaudeTranscript
@@ -54,8 +68,8 @@ test("joins later Claude retained timestamp identity to one recovered task and p
       })
       .please(),
   );
-  runImport(home, root, ["--claude-root", claude]);
-  const initial = readImported(home);
+  await importUsageHistory(options);
+  const initial = await readUsageHistory(options.store);
   const task = Object.values(initial.tasks)[0];
   assert(task);
   expect(task.origin).toBe("dashboard");
@@ -71,8 +85,8 @@ test("joins later Claude retained timestamp identity to one recovered task and p
     })
     .please();
   keepLaunchStore(home, { historic: [retained] });
-  runImport(home, root, ["--claude-root", claude]);
-  const enriched = readImported(home);
+  await importUsageHistory(options);
+  const enriched = await readUsageHistory(options.store);
   expect(Object.keys(enriched.tasks)).toEqual([task.id]);
   expect(enriched.tasks[task.id]).toEqual(
     expect.objectContaining({
@@ -84,15 +98,24 @@ test("joins later Claude retained timestamp identity to one recovered task and p
   );
   expect(taskUsage(enriched, task.id).tokens.output).toBe(108);
   rmSync(claude, { recursive: true });
-  runImport(home, root, ["--claude-root", claude]);
-  expect(readImported(home).tasks[task.id]?.title).toBe("Retained title");
-  expect(taskUsage(readImported(home), task.id).tokens.output).toBe(108);
+  await importUsageHistory(options);
+  const reimported = await readUsageHistory(options.store);
+  expect(reimported.tasks[task.id]?.title).toBe("Retained title");
+  expect(taskUsage(reimported, task.id).tokens.output).toBe(108);
 });
 
 test("retains contradictory historical facts and reporting project joins without selecting a current title", async ({
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
   const seed = ".planning/seeds/SEED-42-old.md";
   const story = (title: string, identity: string) =>
     `---\nid: SEED-42\n---\n# Seed\n<a id="story"></a>\n### ${title}\n**Identity:** ${identity}\n`;
@@ -124,12 +147,14 @@ test("retains contradictory historical facts and reporting project joins without
       .withResponse("same-turn", "answer", { output_tokens: 5 })
       .please();
   writeCodexSession(root, rollout(repo.revisions.first));
-  runImport(home, root);
-  const initial = Object.values(readImported(home).tasks)[0];
+  await importUsageHistory(options);
+  const initial = Object.values(
+    (await readUsageHistory(options.store)).tasks,
+  )[0];
   assert(initial);
   writeCodexSession(root, rollout(repo.revisions.other));
-  runImport(home, root);
-  const history = readImported(home);
+  await importUsageHistory(options);
+  const history = await readUsageHistory(options.store);
   const task = history.tasks[initial.id];
   assert(task);
   expect(Object.keys(history.tasks)).toEqual([initial.id]);
@@ -168,8 +193,8 @@ test("retains contradictory historical facts and reporting project joins without
       .withResponse("same-turn", "conflict-answer", { output_tokens: 900 })
       .please(),
   );
-  runImport(home, root);
-  const joined = readImported(home);
+  await importUsageHistory(options);
+  const joined = await readUsageHistory(options.store);
   const conflict = Object.values(joined.tasks).find(
     (item) => item.sessionId === "project-conflict",
   );

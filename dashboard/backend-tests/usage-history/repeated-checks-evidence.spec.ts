@@ -6,11 +6,13 @@
 import { appendFileSync, rmSync, utimesSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { usageHistoryFile } from "../../server/usageHistory.ts";
 import {
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import {
   counters,
   expect,
@@ -29,7 +31,14 @@ test("a Refresh after one of a session's two files changed counts each of the se
   const { home } = machine;
   const sessions = path.join(home, ".codex/sessions");
   const archived = path.join(home, ".codex/archived_sessions");
-  const bothRoots = ["--codex-root", archived];
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [sessions, archived],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
   keepLaunchStore(home, { "open-dough": [finished("split")] });
   const live = writeCodexSession(
     path.join(sessions, "2026/11/14"),
@@ -42,7 +51,7 @@ test("a Refresh after one of a session's two files changed counts each of the se
       .withResponse("split-turn", "split-archived", counters(30))
       .please(),
   );
-  runImport(home, sessions, bothRoots);
+  await importUsageHistory(options);
   const usage = await usageServer(machine);
   await usage.refresh();
   const totals = async () =>
@@ -61,7 +70,7 @@ test("a Refresh after one of a session's two files changed counts each of the se
 
   expect(await totals()).toEqual([[3, 135]]);
 
-  runImport(home, sessions, bothRoots);
+  await importUsageHistory(options);
   expect(await totals()).toEqual([[3, 135]]);
 });
 
@@ -71,6 +80,14 @@ test("a task whose rollout was deleted keeps its totals and its point in the cha
   const { home } = machine;
   const sessions = path.join(home, ".codex/sessions");
   const day = path.join(sessions, "2026/11/14");
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [sessions],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
   keepLaunchStore(home, {
     "open-dough": [finished("kept"), finished("removed")],
   });
@@ -81,7 +98,7 @@ test("a task whose rollout was deleted keeps its totals and its point in the cha
       .withResponse("removed-turn", "removed-more", counters(40))
       .please(),
   );
-  runImport(home, sessions);
+  await importUsageHistory(options);
   const usage = await usageServer(machine);
   await usage.refresh();
   const chart = await usage.chart();
@@ -110,7 +127,7 @@ test("a task whose rollout was deleted keeps its totals and its point in the cha
   expect(refreshed.tasks).toContainEqual(point);
   expect(refreshed.tasks).toHaveLength(chart.tasks.length);
 
-  runImport(home, sessions);
+  await importUsageHistory(options);
 
   expect(await removed()).toEqual(totals);
   const imported = await usage.chart();

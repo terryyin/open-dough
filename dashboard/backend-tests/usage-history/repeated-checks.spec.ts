@@ -8,11 +8,17 @@ import { appendFileSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { usageCheckFile } from "../../server/usageCheck.ts";
-import { usageHistoryFile } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   keepRetainedLaunch,
-  runImport,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 import {
@@ -62,7 +68,16 @@ test("a Refresh with no rollout activity since the last check writes only its ch
   machine,
 }) => {
   const { home } = machine;
-  runImport(home, threeTasks(home));
+  const sessions = threeTasks(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [sessions],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
   const usage = await usageServer(machine);
   let checkedAt = await usage.refresh();
   const chart = await usage.chart();
@@ -87,19 +102,29 @@ test("a Refresh with no rollout activity since the last check writes only its ch
   }
 });
 
-test("an import over unchanged evidence leaves the history as the first import stored it", ({
+test("an import over unchanged evidence leaves the history as the first import stored it", async ({
   machine,
 }) => {
   const { home } = machine;
   const sessions = threeTasks(home);
-  runImport(home, sessions);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [sessions],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
   const stored = storedBesideCheck(home);
-  const history = readFileSync(usageHistoryFile(home), "utf8");
-  expect(history).toContain("SEED-7#left");
+  const history = await readUsageHistory(options.store);
+  const bytes = readFileSync(options.store, "utf8");
+  expect(bytes).toContain("SEED-7#left");
 
-  runImport(home, sessions);
+  await importUsageHistory(options);
 
-  expect(readFileSync(usageHistoryFile(home), "utf8")).toBe(history);
+  expect(await readUsageHistory(options.store)).toEqual(history);
+  expect(readFileSync(options.store, "utf8")).toBe(bytes);
   expect(storedBesideCheck(home)).toEqual(stored);
 });
 
@@ -108,6 +133,14 @@ test("three responses a finished task's rollout gains raise its totals by exactl
 }) => {
   const { home } = machine;
   const sessions = path.join(home, ".codex/sessions");
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [sessions],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
   keepLaunchStore(home, {
     "open-dough": [finished("first"), finished("second")],
   });
@@ -119,7 +152,7 @@ test("three responses a finished task's rollout gains raise its totals by exactl
     path.join(sessions, "2026/11/14"),
     rootRollout("second", 200).please(),
   );
-  runImport(home, sessions);
+  await importUsageHistory(options);
   const usage = await usageServer(machine);
   await usage.refresh();
   const group = { model: sol, effort: "xhigh", tier: null, root: true };
@@ -162,7 +195,7 @@ test("three responses a finished task's rollout gains raise its totals by exactl
   expect(storedBesideCheck(home)).toEqual(stored);
   expect(await usage.chart()).toEqual({ ...chart, checkedAt });
 
-  runImport(home, sessions);
+  await importUsageHistory(options);
   expect(await storedUsage(home)).toEqual(risen);
   expect((await usage.chart()).tasks).toEqual(chart.tasks);
 });

@@ -5,21 +5,35 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   expect,
   test,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 
 test("recovers pruned native task facts from historical deleted stories without copying private input or mutating workflow", async ({
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   const seed = ".planning/seeds/SEED-42-old.md";
   const plan = ".planning/slice-plans/042-old/PLAN.md";
   const identity = "SEED-42#earlier-story";
@@ -125,8 +139,11 @@ test("recovers pruned native task facts from historical deleted stories without 
     path.join(repository.integration, ".planning/PRODUCT-BACKLOG.md"),
     "utf8",
   );
-  runImport(home, root);
-  const history = readImported(home);
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(store)),
+    ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+  };
   const task = Object.values(history.tasks).find(
     (item) => item.sessionId === session,
   );
@@ -197,8 +214,18 @@ test("recovers pruned native task facts from historical deleted stories without 
   ).toBe(backlog);
   expect(readFileSync(projects, "utf8")).toContain('"hidden":true');
   const saved = JSON.stringify(history);
-  runImport(home, root);
-  expect(JSON.stringify(readImported(home))).toBe(saved);
+  await importUsageHistory(options);
+  expect(
+    JSON.stringify({
+      ...(await readUsageHistory(store)),
+      ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+    }),
+  ).toBe(saved);
   rmSync(root, { recursive: true });
-  expect(JSON.stringify(readImported(home))).toBe(saved);
+  expect(
+    JSON.stringify({
+      ...(await readUsageHistory(store)),
+      ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+    }),
+  ).toBe(saved);
 });

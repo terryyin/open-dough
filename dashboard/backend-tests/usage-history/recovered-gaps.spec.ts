@@ -1,22 +1,37 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   expect,
   test,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 test("uses recorded repository evidence for a deleted worktree and leaves unavailable revisions and unknown projects honest", async ({
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   const seed = ".planning/seeds/SEED-42-title.md";
   const repo = await configuredRepository(
     home,
@@ -119,8 +134,11 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       })
       .please(),
   );
-  runImport(home, root);
-  const history = readImported(home);
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(store)),
+    ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+  };
   const tasks = Object.values(history.tasks);
   const deleted = tasks.find((task) => task.sessionId === "deleted-worktree");
   const missing = tasks.find((task) => task.sessionId === "missing-objects");
