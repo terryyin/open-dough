@@ -144,16 +144,14 @@ All three Node cases passed in 0.544 s summed and 1.20 s elapsed versus
 ### 3. Contextual adapter identity controls which scope points can be shared
 
 Type: Behavior
-Status: planned
+Status: done
 
-Convert `adapter-identity` and `adapter-shared-attempt`. Give the production
-collector distinct adapter runs with the same opaque attempt ID and two
-receipts for one truly shared attempt. Use the same contextual identity
-for collection and read projection.
-
-**Proof.** Distinct runs return their own exact file evidence. A shared
-attempt returns one point and retains both represented landing receipts.
-Observe the saved build keys and the public scoped result.
+**Proof.** `adapter-identity` uses one proof reader to acquire distinct runs
+that share an opaque attempt ID. Their exact requests and retained keys yield
+separate 1200 ms and 3400 ms file points. `adapter-shared-attempt` checks one
+proof request, one retained key, and one selected point representing both
+dated receipts. Both Node cases and typecheck passed. Summed case time was
+1.151 s versus 13.329 s before conversion. See `slice3-return.md`.
 
 ### 4. Scoped reads preserve exact, equivalent and later build provenance
 
