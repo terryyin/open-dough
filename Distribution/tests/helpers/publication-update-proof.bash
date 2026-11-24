@@ -1,5 +1,5 @@
-# Shared observations for an ordinary update: project configuration is planted
-# by the caller, and the installed publication modules must load afterwards.
+# Shared observation for an ordinary update: the caller plants project
+# configuration, and the update leaves it unchanged.
 # shellcheck shell=bash
 
 project_configuration='{"sentinel":"project-owned-open-dough"}'
@@ -15,45 +15,4 @@ assert_project_configuration() {
   local contents
   contents=$(cat "${target}/.planning/open-dough.json")
   [[ "${contents}" == "${project_configuration}" ]]
-}
-
-assert_installed_publication_modules() {
-  local root=$1
-  # shellcheck disable=SC2016 # The node program is literal source, not a shell expansion.
-  node --input-type=module -e '
-    import { pathToFileURL } from "node:url";
-    const root = process.argv[1];
-    const modules = [
-      "dough-execute-plan/scripts/applicable-candidate-proof.mjs",
-      "dough-execute-plan/scripts/execution-increment-delivery.mjs",
-      "dough-execute-plan/scripts/execution-increment-observation.mjs",
-      "dough-execute-plan/scripts/execution-increment-publication.mjs",
-      "dough-execute-plan/scripts/execution-increment-resume.mjs",
-      "dough-execute-plan/scripts/execution-start.mjs",
-      "dough-execute-plan/scripts/story-obligation-reader.mjs",
-      "dough-execute-plan/scripts/story-obligations.mjs",
-      "dough-execute-plan/scripts/execution-source.mjs",
-      "dough-execute-plan/scripts/github-requests.mjs",
-      "dough-execute-plan/scripts/history-preserving-publication.mjs",
-      "dough-execute-plan/scripts/maintain-default-checkout.mjs",
-      "dough-execute-plan/scripts/owned-suffix-reconciliation.mjs",
-      "dough-execute-plan/scripts/publication-resume.mjs",
-      "dough-execute-plan/scripts/publication-git.mjs",
-      "dough-execute-plan/scripts/session-record-publication.mjs",
-      "dough-land/scripts/retirement-checks.mjs",
-      "dough-land/scripts/worktree-retirement.mjs",
-      "dough-land/scripts/queued-closure-check.mjs",
-      "dough-story-refinement/scripts/preparation-assignment.mjs",
-      "dough-story-wrap-up/scripts/trunk-closure-arguments.mjs",
-      "dough-story-wrap-up/scripts/trunk-closure-observer.mjs",
-      "dough-story-wrap-up/scripts/trunk-closure-session-record.mjs",
-      "dough-story-wrap-up/scripts/story-branch-session-record.mjs",
-      "dough-story-wrap-up/scripts/trunk-closure-settlement.mjs",
-      "dough-story-wrap-up/scripts/trunk-closure-visit.mjs",
-      "dough-story-wrap-up/scripts/trunk-closure.mjs",
-    ];
-    for (const modulePath of modules) {
-      await import(pathToFileURL(`${root}/${modulePath}`));
-    }
-  ' "${root}"
 }

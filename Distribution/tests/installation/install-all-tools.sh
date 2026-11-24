@@ -14,7 +14,7 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
 assert_all_roots() {
-  local target=$1 version=$2 marker=$3 source=$4 root dest script
+  local target=$1 version=$2 marker=$3 source=$4 root dest
   for root in .agents .claude; do
     dest="${target}/${root}/skills/dough-update"
     if [[ -n "${marker}" ]]; then
@@ -23,10 +23,6 @@ assert_all_roots() {
       assert_payload_bytes_match "${source_dir}/Distribution/src/skills" "$(dirname -- "${dest}")"
       [[ $(cat "${dest}/VERSION") == "${version}" ]]
     fi
-    for script in dashboard-completion.mjs dashboard-landing.mjs first-landing-expectation.mjs ci-direct-entry.mjs publication-comparison.mjs execution-increment-reconciliation.mjs session-record-publication.mjs session-record.mjs; do
-      cmp "${source_dir}/Distribution/src/skills/dough-execute-plan/scripts/${script}" \
-        "$(dirname -- "${dest}")/dough-execute-plan/scripts/${script}"
-    done
     [[ $(cat "${dest}/SOURCE") == "${source}" ]]
   done
   assert_sentinels "${target}"

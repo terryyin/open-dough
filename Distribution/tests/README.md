@@ -45,7 +45,7 @@ if it finds a root-level `.sh` or `.test.mjs` file.
 | [Delivery evidence](delivery-evidence/) | Source freshness, updated use, and proof scheduling |
 | [Git publication](git-publication/) | Worktree preparation, admission, publication, and landing |
 | [Installation](installation/) | Install, release verification, payload checks, and updates |
-| [MakeMe](makeme/) | Test-entry selection and installed MakeMe guidance |
+| [MakeMe](makeme/) | Test-entry selection |
 | [Native harness](native-harness/) | Host setup, streams, timeouts, and retained results |
 | [Product backlog](product-backlog/) | Installed backlog editing and Take |
 | [Test runner](test-runner/) | Discovery, execution, reporting, and browser runner isolation |
@@ -207,15 +207,15 @@ hosts only: [Native guidance checks](../evaluation/guidance-checks.md) and
 ## Shared installation and update protections
 
 Every payload file is protected by the same installer and updater
-walk, so each shared protection has one owning check, and a payload-update
-check proves only what its own payload adds:
+walk, so each shared protection has one owning check that uses one example
+file or skill. Installation checks prove the mechanism, not each shipped file:
 
 | Protection | Owning check |
 | --- | --- |
 | Ordinary update refuses an edited or missing managed file without writes | `Distribution/tests/installation/update-refuses-unverifiable.sh` |
 | Repeat install refuses an edited or removed managed file without writes | `Distribution/tests/installation/install.sh` |
 | `--force` restores an edited or incomplete installation | `Distribution/tests/installation/update-force-restores-latest.sh` |
-| Ordinary update refuses an unrelated file at a newly managed path | `Distribution/tests/installation/story-payload-update.sh` |
+| Ordinary update delivers a newly shipped skill, and refuses an unrelated file at its path | `Distribution/tests/installation/update-adds-new-payload-skill.sh` |
 | Linked supporting files ship | `Distribution/tests/installation/payload-declaration-links.sh` |
 
 `Distribution/tests/installation/payload-declaration-links.sh` reads the shipped

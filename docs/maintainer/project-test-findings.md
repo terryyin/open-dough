@@ -102,8 +102,7 @@ reading a fresh path remain manual.
 
 **Follow-up:** open, unqueued. Current `producer | grep -q` sites remain in
 `tests/support/product-backlog-native-use.sh` (unresolved-index and driver
-checks) and `tests/helpers/product-backlog-payload-runtime.bash` (status
-checks). They are repository test helpers, outside the published payload.
+checks). It is a repository test helper, outside the published payload.
 Do not claim these residual sites have failed without an observed occurrence.
 
 <a id="dd-187"></a>
@@ -123,7 +122,7 @@ Ubuntu runner did not.
   - Tool: Claude Code · Model: claude-opus-5-5[1m]
   - Evidence: CI run 36591803631 `test (1/2)`: `FAIL: counterexample command-only (signal setup-marker) changes signals remote-claim, setup-marker (fields claim-owned, …)`; local `tests/git-publication-native.sh` passed. A repro with one extra commit under the claim gave `claim-owned: false` with `PIPESTATUS` `141 0`. Repaired in `66f96e34`; slice 7 (`abf2fc4f`) fixed three more observer derivations of the same shape.
   - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
-  - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
+  - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh`.
 
 ## Loaded-suite evidence lacks within-run load (open, unqueued)
 

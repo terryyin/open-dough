@@ -12,51 +12,20 @@ source "${source_dir}/Distribution/tests/helpers/publication-update-proof.bash"
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
-new_managed_files=(
-  dough-maintain-findings/SKILL.md
-  dough-triage-project-findings/SKILL.md
-  dough-triage-project-findings/references/maintenance-delivery.md
-  dough-triage-project-findings/references/finding-lifecycle.md
-  dough-bug-fixing/SKILL.md
-  dough-resplit-story/SKILL.md
-  dough-slice-planning/SKILL.md
-  dough-slice-plan-refinement/SKILL.md
-  dough-test-optimization/SKILL.md
-  dough-test-optimization/references/optimization-tactics.md
-  dough-test-optimization/references/candidate-record.md
-  dough-test-optimization/references/resolving-candidates.md
-  dough-test-optimization/references/evidence-and-leads.md
-  dough-test-optimization/scripts/ci-proof-read.mjs
-  dough-test-optimization/scripts/ci-proof-archive.mjs
-  dough-test-optimization/scripts/ci-proof-check.mjs
-  dough-test-optimization/scripts/ci-proof-leads.mjs
-  dough-test-optimization/scripts/ci-proof-attempts.mjs
-  dough-test-optimization/scripts/ci-proof-gaps.mjs
-  dough-test-optimization/scripts/ci-proof-project.mjs
-  dough-test-optimization/scripts/ci-proof-revisions.mjs
-  dough-test-optimization/scripts/ci-proof-scope.mjs
-  dough-test-optimization/scripts/ci-proof-scope-gaps.mjs
-  dough-test-optimization/scripts/ci-proof-ranking.mjs
-  dough-test-optimization/scripts/ci-proof-leads-table.mjs
-  dough-test-optimization/scripts/ci-proof-ranking-table.mjs
-  dough-test-optimization/scripts/ci-proof-table-text.mjs
-  dough-intent-coverage/SKILL.md
-  dough-intent-coverage/finish-report.mjs
-)
+added_skill=dough-bug-fixing
 
 fixture="${temporary_dir}/fixture.git"
 older_checkout="${temporary_dir}/release-0.1.1"
-# Model a release declaring none of the added skills' files.
-added_skill_paths=$(printf '"%s", ' "${new_managed_files[@]}")
+# Model a release without the added skill.
 node "${source_dir}/Distribution/tests/support/release-source.mjs" "${fixture}" << JSON
 {"revisions": [
-  {"name": "release 0.1.1 payload-before-added-skills", "release": {
+  {"name": "release 0.1.1 payload-before-added-skill", "release": {
     "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
-    "marker": "payload-before-added-skills",
-    "declaration": "grouped", "withheld": [${added_skill_paths%, }], "removed": [${added_skill_paths%, }]}},
-  {"name": "release 0.1.2 payload-with-added-skills", "release": {
+    "marker": "payload-before-added-skill",
+    "declaration": "grouped", "withheld": ["${added_skill}/"], "removed": ["${added_skill}"]}},
+  {"name": "release 0.1.2 payload-with-added-skill", "release": {
     "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
-    "marker": "payload-with-added-skills"}}
+    "marker": "payload-with-added-skill"}}
 ]}
 JSON
 source_url="file://$(cd -- "${fixture}" && pwd -P)"
@@ -84,9 +53,7 @@ for predecessor in complete shared-root-only; do
     actual_source=$(cat "${root}/dough-update/SOURCE")
     [[ ${actual_version} == '0.1.1' ]]
     [[ ${actual_source} == "${source_url}" ]]
-    for managed_file in "${new_managed_files[@]}"; do
-      [[ ! -e ${root}/${managed_file} ]]
-    done
+    [[ ! -e ${root}/${added_skill} ]]
   done
   claude_sentinel="${target}/.claude/skills/other-skill/SKILL.md"
   if [[ ${predecessor} == shared-root-only ]]; then
@@ -95,6 +62,20 @@ for predecessor in complete shared-root-only; do
     claude_sentinel="${target}/.claude/other-skill/SKILL.md"
     rm -rf -- "${target}/.claude/skills"
     [[ ! -e ${target}/.claude/skills ]]
+  else
+    # An unrelated file at a newly managed path stops the update unchanged.
+    collision="${target}/.claude/skills/${added_skill}/SKILL.md"
+    mkdir -p -- "${collision%/*}"
+    printf '%s\n' 'Local guidance.' > "${collision}"
+    before=$(snapshot_path_state "${target}")
+    if bash "${source_dir}/Distribution/src/install/open-dough-release.sh" apply \
+      --target "${target}" --platform codex > /dev/null 2>&1; then
+      echo 'FAIL: update overwrote an unrelated file at a newly managed path.' >&2
+      exit 1
+    fi
+    after=$(snapshot_path_state "${target}")
+    [[ "${after}" == "${before}" ]]
+    rm -r -- "${collision%/*}"
   fi
 
   output=$(bash "${source_dir}/Distribution/src/install/open-dough-release.sh" apply \
