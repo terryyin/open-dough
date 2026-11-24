@@ -1,5 +1,6 @@
 // The Intent CI homepage shows an adapter's absence without replacing the
-// verdict, styles a size-limit problem, and checks the same attempt again.
+// verdict, styles a size-limit problem, and skips unreadable ambiguous attempts
+// even after checking again.
 import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
@@ -156,4 +157,47 @@ test("the passing retry's judgment asks for that attempt's proof and shows its c
       { runId: "pipeline", attemptId: "2", branch: "main", revision },
     ],
   ]);
+});
+
+test("an ambiguous adapter attempt keeps its explanation without a proof read after Check again", async () => {
+  const ambiguousJudgment = {
+    ...judgment,
+    adapterAttempt: { runId: 7, attemptId: 1, ambiguous: true as const },
+  };
+  const refreshedAt = "2026-11-05T12:01:00.000Z";
+  const readStatus = vi
+    .fn<IntentCiReadSource["readStatus"]>()
+    .mockResolvedValueOnce(ambiguousJudgment)
+    .mockResolvedValue({ ...ambiguousJudgment, checkedAt: refreshedAt });
+  const readProof = vi
+    .fn<IntentCiReadSource["readProof"]>()
+    .mockResolvedValue(makeMe.aCiProof.unavailable("none").please());
+  await mountIntentCiPage({
+    work,
+    reads: {
+      intent: unconfiguredIntentReads,
+      ci: inertCiReads({ readStatus, readProof }),
+    },
+  });
+  const ci = intentCiStatus();
+  const proof = intentCiProof();
+  const reason = proof.proof.getByText(
+    "This attempt is ambiguous at its revision: another discovered attempt is also attempt 1 at 4774f60.",
+    { exact: true },
+  );
+
+  await ci.answers(verdict);
+  await proof.showsAttemptAndRevision("Attempt 1", shortRevision);
+  await expect.element(reason).toBeVisible();
+  await expect.element(proof.proof.getByRole("row")).not.toBeInTheDocument();
+  expect(readProof).not.toHaveBeenCalled();
+
+  await ci.checkAgain();
+  await expect.poll(() => ci.showsChecked()).toBe(refreshedAt);
+  await ci.answers(verdict);
+  await proof.showsAttemptAndRevision("Attempt 1", shortRevision);
+  await expect.element(reason).toBeVisible();
+  await expect.element(proof.proof.getByRole("row")).not.toBeInTheDocument();
+  expect(readStatus).toHaveBeenCalledTimes(2);
+  expect(readProof).not.toHaveBeenCalled();
 });

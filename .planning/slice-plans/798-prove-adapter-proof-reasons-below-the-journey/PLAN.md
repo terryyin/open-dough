@@ -81,9 +81,11 @@ checkout-local `npm ci` and the focused Playwright listing with
 `--reporter=list` verified the locked setup and seven-case baseline roster.
 
 The Codex CI observer watches the published story branch via `ci.yml` (CI),
-coordinator `adapter-proof-798`, directory `/tmp/dough-ci-501/watch-eFtW1t`,
-stream session `62286`, PID `81330`, yielded cell `g525:7`. The established
-Take on trunk predates this observer.
+coordinator `adapter-proof-798`, directory `/tmp/dough-ci-501/watch-x4xTeu`,
+stream session `30882`, PID `46004`, yielded cell `g3:7`. After the tool host
+restarted, the prior observer was stopped with zero unread events and slice 2
+was registered on the replacement without another push. The Take on trunk
+predates story-branch observation.
 
 The story branch accepted slice 1 at `f742e02fbbffc4a2d263694f284880b3ea0d9afb`
 and registered it on this observer.
@@ -94,6 +96,12 @@ replay, the one-pattern move of 15 Git publication files, and proof that all
 657 files remain selected exactly once with the same deadlines. The repair
 was accepted on the story branch at `58a596796738df2e96cf327efc2d501342dd0a14`
 and registered before the parked slice 2 work was restored.
+
+All three Distribution jobs succeeded in the
+[repair run](https://github.com/terryyin/open-dough/actions/runs/45300253934),
+including both shares that moved checks. The next push superseded that workflow
+under its same-branch concurrency setting. Slice 2 was accepted and registered
+at `87eb8d1e4aef59f2abec1f4ef7b28a99544c816d`.
 
 ## Slices
 
@@ -176,7 +184,7 @@ and frontend groups and the remaining scoped E2E cases.
 ### 3. Ambiguous attempts have unit coverage and the reasons spec is retired
 
 Type: Structure
-Status: planned
+Status: done
 
 Pair the existing discovery proof of both ambiguity shapes with one mounted UI
 case. Use real refresh and wait for its fresh judgment before asserting that
@@ -189,6 +197,31 @@ fails in scratch if the ambiguous request is allowed. Trace the retired file's
 consumers and update their references. List and run the retained E2E selection
 with four cases at the default timeout. Record the selected counts before and
 after and compare measured wall and case time only under comparable conditions.
+
+**Accepted observations.** Under the guarded local setup:
+
+- `caffeinate -s -i npm test -- Distribution/tests/support/dashboard-story-branch-ci-adapter.test.mjs Distribution/tests/support/dashboard-ci-adapter-proof.test.mjs`
+  passed. The real discovery case marks the attempt ambiguous for both
+  competing checks and an older same-check run omitted from the verdict. The
+  configured adapter fixture still emits the precise command failure lines.
+- `caffeinate -s -i npm run --silent test:dashboard:frontend -- intent/intent-ci-proof-adapter-states.spec.ts --workers=2 --reporter=line`
+  passed four cases. The mounted ambiguity case waits for the new checked time
+  and asserts the same verdict and explanation, zero proof reads and no rows.
+  The refresh-only scratch break issued one proof request and failed the final
+  zero-read assertion. The original production bytes were restored.
+- The configured runner listed four cases in
+  `e2e/intent/intent-ci-proof-adapter.spec.ts`, against seven across two files
+  at the baseline. `caffeinate -s -i npm run --silent test:e2e -- e2e/intent/intent-ci-proof-adapter --workers=2 --reporter=line`
+  passed all four at the default timeout in 7.8 s of Playwright time. The
+  final run and preparation baseline lack matched load and per-case timings,
+  so the roster reduction is the comparable observation.
+- The retargeted live headers and their four Distribution files, GitHub
+  reasons E2E, and backend wording owners passed their focused selections.
+  `slice3-implementation.md` in the Git evidence directory indexes commands,
+  production observations, and the trace. Historical references remain in Git.
+- The independent refactor removed the retired case's unused fixture override.
+  Seven affected E2E cases passed after re-establishing proof following the
+  tool host restart, including all four retained adapter proof cases.
 
 ## Local gate and delivery
 

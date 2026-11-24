@@ -18,8 +18,8 @@ import {
 // summary has expired, cannot be read, is invalid, or is for another
 // attempt or revision, or when no completed run is shown, one line under
 // Proof says why, and the judgment reads exactly as with no summary; Check
-// again reads both again. A ciAdapter attempt's reasons:
-// ./intent-ci-proof-adapter-reasons.spec.ts. A run with a summary or a gap:
+// again reads both again. The adapter's absence and recovery:
+// ./intent-ci-proof-adapter.spec.ts. A run with a summary or a gap:
 // ../../dashboard/frontend-tests/intent/intent-ci-proof.spec.ts; the omitted-
 // attempt refusal:
 // ../../dashboard/backend-tests/intent/intent-ci-proof-read.spec.ts; query-shape refusals:

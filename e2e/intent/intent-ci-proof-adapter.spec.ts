@@ -14,10 +14,12 @@ import {
 // proof of the attempt the judgment shows, and its summary is shown below the
 // unchanged verdict, naming the attempt by its attemptId and short revision.
 // A running result's proof is its completed ancestor attempt's, and a slow
-// proof read never delays the verdict. GitHub is asked for no proof. Why an
-// adapter attempt shows no proof: ./intent-ci-proof-adapter-reasons.spec.ts;
-// a GitHub Actions run's proof: ../../dashboard/frontend-tests/intent/intent-ci-proof.spec.ts; the runner's own
-// limits:
+// proof read never delays the verdict. GitHub is asked for no proof. A missing
+// summary is explained below the verdict. Check again obtains the counts when
+// the adapter has them. Other adapter proof states:
+// ../../dashboard/frontend-tests/intent/intent-ci-proof-adapter-states.spec.ts.
+// A GitHub Actions run's proof: ../../dashboard/frontend-tests/intent/intent-ci-proof.spec.ts.
+// The runner's own limits:
 // ../../Distribution/tests/skills/dough-execute-plan/ci-command-adapter-proof.test.mjs.
 
 import { adapterResponseBytes } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-run.mjs";

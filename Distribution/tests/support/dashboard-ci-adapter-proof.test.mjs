@@ -99,7 +99,7 @@ for (const { reason, answer, stderr, line } of [
   },
 ]) {
   test(`an adapter that ${reason} gives the exact command failure in Intent`, async (t) => {
-    const source = makeMe.aPublishedSource.with({ repository }).please();
+    const source = makeMe.aPublishedSource.openDough.please();
     const folder = adapterProject(t, answer, stderr);
     const proof = await readIntentCiProof(
       source,

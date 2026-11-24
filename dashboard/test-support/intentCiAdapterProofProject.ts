@@ -1,5 +1,5 @@
 // A ciAdapter project for proof in Intent's CI status and comparison
-// (../../e2e/intent/intent-ci-proof-adapter.spec.ts, ../../e2e/intent/intent-ci-proof-adapter-reasons.spec.ts):
+// (../../e2e/intent/intent-ci-proof-adapter.spec.ts):
 // the project folder in the test home whose own adapter records each request
 // it is asked and answers from the test's answers; its attempts, a tests
 // summary of one, and the tab opened on its judged result.
@@ -103,15 +103,12 @@ export function adapterProject(home: string) {
   };
 }
 
-type ListedAttemptOptions = { time?: string; check?: string; url?: string };
-
 // A passed attempt as the adapter's discover answers it.
 export function passed(
   runId: string | number,
   attemptId: string | number,
   sha: string,
   branch: string,
-  options: ListedAttemptOptions = {},
 ) {
   return makeMe.aCiAdapterAttempt
     .passedWithoutTimes({
@@ -119,9 +116,8 @@ export function passed(
       attemptId,
       sha,
       branch,
-      url: options.url ?? mainRun,
-      time: options.time ?? "2026-10-01T00:00:00Z",
-      ...(options.check !== undefined ? { check: options.check } : {}),
+      url: mainRun,
+      time: "2026-10-01T00:00:00Z",
     })
     .please();
 }
