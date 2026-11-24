@@ -69,10 +69,24 @@ legacy runner retirement.
   relevant slice edits it. If an addition needs a split, keep form UI, card
   actions, persisted session schema, and detailed startup procedure in their
   respective existing seams. Preserve the public adapters and their proof.
-- Deliver the cutover in Trunk Mode (`--trunk`). Changes may land in bounded
-  increments on trunk. Keep the current deployed package serving until the
-  candidate and migrated store pass the final cutover. Transitional readers
-  in implementation slices expire in slice 8.
+- Use the published Story Branch Mode assignment. Publish validated slices to
+  the execution branch. Rehearse the final reader and migration there before
+  integrating into trunk. Coordinate that integration with the writer pause
+  and production watcher in slice 8 so the last verified package and store can
+  continue serving until the cutover is ready. Transitional readers in
+  implementation slices expire in slice 8.
+
+## Execution context
+
+- Publisher `dashboard-territory.local-open-dough`, agent Sola-chan, Story Branch Mode.
+- Execution checkout `.worktrees/start-ad-hoc-work-under-a-story` in this
+  repository, branch `codex/start-ad-hoc-work-under-a-story`.
+  Integration checkout `/Users/terryyin/git/open-dough`; trunk `origin/main`.
+- Starting revision `2ae40178f5d1bd39555dd0b52fe87cab9d6f81c8`.
+  Published Take `46dd56241b745df00d8459cd36483d8732187261` on trunk and
+  the execution branch.
+- Codex CI observer `sola-chan-804`, GitHub Actions `ci.yml` (CI),
+  `/tmp/dough-ci-501/watch-CNuTjf`, PID 1090, session 45469, cell `g34:8`.
 
 ## Premises and baseline
 
@@ -110,7 +124,7 @@ and Dashboard source and shipped guidance. Use the same measurements twice:
 
 ### 1. Establish the cutover baseline
 Type: Behavior
-Status: planned
+Status: done
 Proof: Inventory output, recovered Git evidence and comparable test-case
 counts are available before implementation changes their subjects.
 
@@ -121,6 +135,36 @@ operational inputs to a private scratch home and keep raw records out of Git.
 If a long or state-changing observation needs permission or native tooling,
 this probe owns obtaining it. A changed unresolved binding or missing evidence
 stops the dependent migration path until its disposition is known.
+
+Baseline at the published Take, `46dd56241`. Local tracked-source counts are
+38,428 Distribution code lines and 13,946 Markdown lines (52,374 total),
+and 131,034 Dashboard code lines with no Markdown in the measured roots.
+Distribution discovery finds 539 Node jobs and 118 shell checks, including
+the repository self-installation check outside the Distribution-only CI
+fragments. GitHub Actions run 45327072530, attempt 1 at `2c300bd10`, covers
+the same test and runner inputs and the exact Node job selection. Its 2,259
+Node leaves (2,256 passed, three other) bring Distribution to 2,377 cases.
+Frontend lists 821, backend 1,951, and E2E 811, for 5,960 combined cases.
+The legacy selection lists 21 in ten files. Published Git history has 85
+session records, 72 linked and 13 storyless.
+
+The live `e9c2517` reader parsed all 1,641 rows, 1,658 attempts, and 307
+history rows from the private copy. Three open launches match their native
+sessions and retained attempts. Two are story-linked. A standalone Claude
+session was still working. Of 1,638 closed rows, 1,437 were linked in their
+stored records. The published-history lookup found nine associations among
+the remaining rows, established absence for 191, and had one unavailable
+lookup. The one uncertain Cursor attempt retains the original clean
+checkout and has no recorded native ID. The native evidence leaves an
+orphaned conversation possible. The historical declared-branch context
+reproduced the legacy 409 on the released reader, and Git confirms the
+planned comparison is on trunk.
+
+Run commands and terminal observations are in the worktree Git evidence
+directory, `open-dough/evidence/slice-1-return.md`. The production snapshot
+and exact references stay private there. The comparison inputs are
+`baseline-counts-matched.log.run.json`, `baseline-production-joined.log.run.json`,
+and `baseline-associations.log.run.json`. Disposition is records-only.
 
 ### 2. Admit independent work as a Taken story
 Type: Behavior
@@ -244,6 +288,21 @@ On battery plug in or start awake with the lid open under `caffeinate -i` and
 check the sleep log. Follow shared local full-suite admission and assess load
 before launching long runs. [Machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 
-Separate slice-plan refinement was unnecessary. The slices have independent
-acceptance observations and use one shared membership rule. Slice 1 owns the
-remaining baseline and host observations. No other slice concern remains.
+The slices have independent acceptance observations and share the membership rule.
+
+## Story obligations
+
+### G1. Open standalone launch at baseline
+Reported: slice 1 — "The stored launch, retained attempt, and native Claude session all identify an open standalone session that was still working."
+Story clause: "Deliver one switch to story-linked startup, completion and review."
+Disposition: receiving slice 8
+
+### G2. Cursor timeout with uncertain native binding
+Reported: slice 1 — "The retained worktree matches the timed-out attempt. The available native listing and retained references cannot rule out a conversation without a stored ID."
+Story clause: "Keep the checkout and evidence if ownership or native state cannot be confirmed."
+Disposition: receiving slice 8
+
+### G3. Closed launch with unavailable association lookup
+Reported: slice 1 — "The current completion-history lookup for one Lizard launch was unavailable. Retain that record and its related evidence until publication history or an explicit disposition settles its status."
+Story clause: "Archive closed records with no corroborated story and their linked attempt and reporting evidence."
+Disposition: receiving slice 8
