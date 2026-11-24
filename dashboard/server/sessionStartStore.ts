@@ -1,9 +1,10 @@
 // This machine's kept unattached starts (`./unattachedStart.ts`), beside the
 // workflows' start stores (`./startStore.ts`):
 // `~/.open-dough/dashboard/session-starts.json`, resolved through `HOME`. An
-// unattached session has no story, so its start is kept by its launch
-// attempt, under its project id. It is written before its script runs (host,
-// workspace, branch, when), then given the session the script established,
+// unattached start begins without a story and is kept by its launch attempt,
+// under its project id. Isolated admissions also retain the draft, candidate
+// and confirmed publication when known. The start is written before its
+// script runs (host, workspace, branch, when), then given the established session,
 // however long after the launch stopped waiting. Continuing that attempt goes
 // on in the same workspace on the same branch instead of choosing new ones.
 // It is removed when its script stops, having left nothing to resume, and
@@ -51,6 +52,12 @@ const sessionStartSchema = z.object({
     .object({
       draft: sessionDraftSchema,
       publishedSha: z.string().min(1).optional(),
+      retained: z
+        .object({
+          startingRevision: z.string().min(1),
+          candidateSha: z.string().min(1),
+        })
+        .optional(),
     })
     .optional(),
 });

@@ -126,6 +126,16 @@ export function startRequest(requestInput) {
       });
     request.ownedDraft = draft;
   }
+  if (
+    request.retryAdmission !== undefined &&
+    (request.retryAdmission !== "true" ||
+      !request.ownedDraft ||
+      !request.retained ||
+      request.mode !== "trunk")
+  )
+    return stopped("invalid-request", {
+      error: "--retry-admission requires a retained owned draft in Trunk Mode",
+    });
   const reportError = agentReportError(request);
   if (reportError) return stopped("invalid-request", { error: reportError });
   // Permission to work is separate from permission to publish: only a start

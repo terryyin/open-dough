@@ -72,9 +72,9 @@ legacy runner retirement.
 - Use the published Story Branch Mode assignment. Publish validated slices to
   the execution branch. Rehearse the final reader and migration there before
   integrating into trunk. Coordinate that integration with the writer pause
-  and production watcher in slice 9 so the last verified package and store can
+  and production watcher in slice 10 so the last verified package and store can
   continue serving until the cutover is ready. Transitional readers in
-  implementation slices expire in slice 9.
+  implementation slices expire in slice 10.
 
 ## Execution context
 
@@ -94,6 +94,15 @@ legacy runner retirement.
   stash restored Slice 3's edits. [CI diagnosis](diagnosis-frontend-browser-connection.md)
 - The first-story admission repair and revised launch boundaries published as
   `e4586ebd97caf82d5970f9d26abe29d0b040c3f0` on the execution branch.
+- Isolated session admission published as
+  `6b7a205ca9afeba9f7a607826238c779a3c6d9bc` on the execution branch.
+- The mounted Start layout assertion failed in CI run 45356148325, attempt
+  1, because it expected the prior isolated description. The same failure
+  reproduced locally. The repaired assertion checks the added Taken-story
+  disclosure and preserves both workspace descriptions, controls, narrow
+  layout, and 200% zoom. All ten affected mounted cases passed. Repair
+  published as `d321e9960dbbf454bd38b635221f965c8ab63f77`. Evidence is
+  `open-dough/evidence/ci-45356148325-layout-repair-return.md`.
 - Codex CI observer `sola-chan-804`, GitHub Actions `ci.yml` (CI),
   `/tmp/dough-ci-501/watch-aNGFlu`, PID 20728, session 71797, cell `g66:4`.
 
@@ -105,10 +114,10 @@ Listings verify selection. Each changed journey earns proof in its slice.
 | Consuming operation | Observation and result |
 | --- | --- |
 | Existing admitted claim resumes and completes against fetched trunk | `node --test --test-reporter=spec Distribution/tests/skills/dough-execute-plan/workspace-publication-startup-admission-recovery.test.mjs Distribution/tests/skills/dough-execute-plan/workspace-publication-admitted-completion.test.mjs` passed 7 cases. The fixtures exercise accepted-but-lost response, interruption, competing trunk work, refusal and ordinary admitted completion with a bare remote. Slices 2 and 3 add the new draft and accepted-start callers. |
-| Declared branch accepts and replays exact comparison | `npm run test:dashboard:backend -- dashboard/backend-tests/launches/declared-worktree-publication.spec.ts` passed the installed publication and retry case with an identity-free context. Calling `decideRetainedLanding` for `prepare` with the actual old retained authority and matching context identity reproduced 409. The record is Done with no checkout, preparations, or accepted comparison. `git rev-parse 0bdef6cb2^` and `git merge-base --is-ancestor 0bdef6cb2 origin/main` verified the historical pair and trunk containment. Slice 6 proves the linked acceptance and rejection paths. |
+| Declared branch accepts and replays exact comparison | `npm run test:dashboard:backend -- dashboard/backend-tests/launches/declared-worktree-publication.spec.ts` passed the installed publication and retry case with an identity-free context. Calling `decideRetainedLanding` for `prepare` with the actual old retained authority and matching context identity reproduced 409. The record is Done with no checkout, preparations, or accepted comparison. `git rev-parse 0bdef6cb2^` and `git merge-base --is-ancestor 0bdef6cb2 origin/main` verified the historical pair and trunk containment. Slice 7 proves the linked acceptance and rejection paths. |
 | Production launch document and retained contexts | In the listening deployment at `e9c2517`, importing `readStoredRecords` from `./dashboard/server/launchRecordDocument.ts` and calling it against the production home read all 1,639 launch rows. Two were open and linked. Ninety-five closed rows had no corroborated story. Raw operational inventory found one uncertain isolated ad hoc attempt with a kept start, clean matching branch without unique commits, and no bound launch. One of 2,041 context files had the identified declared-branch regression on a retained record. The JSONL usage archive held 307 readable rows. Slice 1 verifies native binding and rehearses the exact cutover input without a write. |
-| Published session history | `git ls-tree -r --name-only HEAD .planning/sessions` and parsing each record counted 84 records at the post-revert preparation baseline. Seventy-one carry story identities and 13 are storyless. Preserve the latter through Git history. Slice 7 exercises published review from an empty machine store. |
-| Legacy frontend inventory | `node node_modules/@playwright/test/cli.js test --config dashboard/frontend.playwright.config.ts --list --reporter=list recently-done-ad-hoc recently-done-sessions-review-cue-evidence recently-done-sessions-review-cue-races 'recently-done-sessions-select\.spec' 'recently-done-story-sessions\.spec'` listed 21 cases in ten files. See the seed for the boundary and slice 8 for the replacement observations. |
+| Published session history | `git ls-tree -r --name-only HEAD .planning/sessions` and parsing each record counted 84 records at the post-revert preparation baseline. Seventy-one carry story identities and 13 are storyless. Preserve the latter through Git history. Slice 8 exercises published review from an empty machine store. |
+| Legacy frontend inventory | `node node_modules/@playwright/test/cli.js test --config dashboard/frontend.playwright.config.ts --list --reporter=list recently-done-ad-hoc recently-done-sessions-review-cue-evidence recently-done-sessions-review-cue-races 'recently-done-sessions-select\.spec' 'recently-done-story-sessions\.spec'` listed 21 cases in ten files. See the seed for the boundary and slice 9 for the replacement observations. |
 | Startup recovery and published review E2E selection | `npm run test:e2e -- --list --reporter=list e2e/launches/agent-launch-start-session-recovery.spec.ts e2e/sessions/recently-done-published-sessions.spec.ts` listed four Chromium cases in two specs. Keep the bare remote, distinct launch and empty-machine setup when changing these journeys. |
 | Comparable simplification measurement | At this post-revert baseline, `git ls-files` and counting physical lines in tracked UTF-8 files found 52,374 lines under `Distribution/src` and 131,034 under `dashboard/src` and `dashboard/server`. The browser listings below counted 821 frontend, 1,951 backend and 811 E2E cases. The Distribution discovery listed 539 Node jobs and 118 shell checks. Slice 1 obtains comparable Node case counts from full case artifacts before edits. |
 
@@ -251,11 +260,50 @@ then passed its focused backend, mounted and held-reply checks.
 The isolated competing-candidate and receipt-write branches are safe to
 refuse before native startup. Slice 4 owns their retry and feedback gaps.
 The established-session landing keeps its observed exact comparison until
-slice 6 binds the authority to the admitted story. Literal commands and
+slice 7 binds the authority to the admitted story. Literal commands and
 consumer dispositions are in `open-dough/evidence/slice-3-isolated-return.md`
 and `slice-3-isolated-refactor-return.md` in the worktree Git directory.
 
-### 4. Open a session in the default checkout under its admitted story
+### 4. Retry a stopped story admission
+Type: Behavior
+Status: done
+Proof: Continue the same isolated attempt after a competing claim or a failed
+receipt write, then open one native session with the retained or new admission.
+
+Settle retry of a definitively competing owned candidate through the common
+admission boundary. Reuse the same attempt and selected workspace, preserving
+the losing candidate and any developer changes. Prove a losing attempt opens
+no session and that safe reallocation on Retry cannot adopt the winning
+claim or duplicate an already accepted start. Implement candidate handling
+at the existing installed claim boundary and require its exact remote
+different-owner evidence before changing an owned local candidate. Refuse
+with the existing checkout and evidence preserved when ownership or
+workspace state is uncertain.
+
+When admission succeeds but the attempt receipt cannot be written, preserve
+the confirmed claim, show that recording failed, and keep native startup
+waiting until Continue can record it. Observe the retained accepted SHA.
+Verify both cases at the installed startup and Dashboard attempt boundaries
+they actually traverse.
+
+The installed workflow verifies the different owner at the live trunk tip,
+the candidate's ancestry and exact changes, and the original clean linked
+workspace. It pins the losing commit before resetting the branch to that
+candidate's actual parent. The bare-remote fixture refused an unrelated
+rename into an assignment path and successfully retired a valid replacement
+with a newer parent than its original selection basis. The Dashboard route
+then proved Continue allocated one new identity and opened one native session
+in the same worktree and attempt.
+
+A failed write of the admission receipt reports the confirmed SHA and
+leaves native startup waiting. Continue recorded that same SHA before
+opening one session, with the remote tip unchanged. The existing execution
+and preparation receipt messages and recovery also passed their E2E checks.
+Dashboard typecheck, installed claim and completion, and source installation
+passed. Commands, exact observations, and consumer trace are retained in
+`open-dough/evidence/slice-4-recovery-return.md` in the worktree Git directory.
+
+### 5. Open a session in the default checkout under its admitted story
 Type: Behavior
 Status: planned
 Proof: An independent launch borrows the selected checkout and publishes one
@@ -273,16 +321,9 @@ boundary and observe blank, pending, refusal, accepted and Retry. Revise
 all affected existing default-launch callers and assertions with this increment.
 Use the published identity and existing Session entry so Board behavior
 continues through the same card and launch record used by slice 3.
-Settle retry of a definitively competing owned candidate through the common
-admission boundary. Reuse the same attempt and selected workspace, preserving
-the losing candidate and any developer changes. Prove a losing attempt opens
-no session and that safe reallocation on Retry cannot adopt the winning
-claim or duplicate an already accepted start.
-When admission succeeds but the attempt receipt cannot be written, preserve
-the confirmed claim, show that recording failed, and keep native startup
-waiting until Continue can record it. Observe the retained accepted SHA.
+Reuse the admission recovery cases and rules established in slice 4.
 
-### 5. Follow up under the source story
+### 6. Follow up under the source story
 Type: Behavior
 Status: planned
 Proof: Start through the ordinary card and session actions against published
@@ -295,7 +336,7 @@ project membership and record readers. Check both sources and a mismatched
 or unavailable source. Keep context delivery, original workspace/host rules,
 and accepted retry binding. Observe no new story or membership mutation.
 
-### 6. Land a story-linked follow-up with exact evidence
+### 7. Land a story-linked follow-up with exact evidence
 Type: Behavior
 Status: planned
 Proof: The declared-worktree publication spec exercises the installed Land
@@ -313,7 +354,7 @@ The same landing authority must match the bound story on newly admitted
 independent launches. Preserve the exact observed range and retained retry
 that the isolated session path already exercises.
 
-### 7. Return to completed ad hoc work through ordinary review
+### 8. Return to completed ad hoc work through ordinary review
 Type: Behavior
 Status: planned
 Proof: An admitted story completes via the installed workflow, then another
@@ -324,7 +365,7 @@ Land as setup actions, preserving independent observations of session IDs,
 range order, repeat review, expiry and shared-checkout uncertainty where applicable. Observe Done membership, retirement and exact endpoints. Include a no-change completion through the ordinary
 workflow. The second checkout fetches published facts to populate Recently done.
 
-### 8. Retire standalone review and completion
+### 9. Retire standalone review and completion
 Type: Behavior
 Status: planned
 Proof: Ordinary story-linked selection and warnings still work after
@@ -339,9 +380,9 @@ response observations when they still express current behavior. Run the
 exact legacy listing, check the owning mounted specs and retarget only E2E
 journeys that still protect a live behavior. Remove shared support when its
 last caller goes. Remove any standalone workflow instructions left by slices
-2–7. Temporarily retain only store decoding needed for slice 9.
+2–8. Temporarily retain only store decoding needed for slice 10.
 
-### 9. Switch the deployed store to story-linked sessions
+### 10. Switch the deployed store to story-linked sessions
 Type: Behavior
 Status: planned
 Proof: The shipped Dashboard parses the complete migrated production store
@@ -388,22 +429,28 @@ uncommitted source and proof are parked in the worktree Git evidence directory
 at `slice-3-before-split` and `slice-3-return.md`. The original attempt
 remains incomplete, with no accepted Dashboard change.
 
+After slice 3, the attempt review identified two independently reachable
+recovery paths on the now-published isolated entry. Repairing those paths
+has an installed and typed Dashboard proof loop of its own. The default
+checkout launch retains its workspace and host proof in the next slice.
+These two boundaries replace the combined default launch and retry slice.
+
 ## Story obligations
 
 ### G1. Open standalone launch at baseline
 Reported: slice 1 — "The stored launch, retained attempt, and native Claude session all identify an open standalone session that was still working."
 Story clause: "Deliver one switch to story-linked startup, completion and review."
-Disposition: receiving slice 9
+Disposition: receiving slice 10
 
 ### G2. Cursor timeout with uncertain native binding
 Reported: slice 1 — "The retained worktree matches the timed-out attempt. The available native listing and retained references cannot rule out a conversation without a stored ID."
 Story clause: "Keep the checkout and evidence if ownership or native state cannot be confirmed."
-Disposition: receiving slice 9
+Disposition: receiving slice 10
 
 ### G3. Closed launch with unavailable association lookup
 Reported: slice 1 — "The current completion-history lookup for one Lizard launch was unavailable. Retain that record and its related evidence until publication history or an explicit disposition settles its status."
 Story clause: "Archive closed records with no corroborated story and their linked attempt and reporting evidence."
-Disposition: receiving slice 9
+Disposition: receiving slice 10
 
 ### G4. First admission to a project with no seed directory
 Reported: slice 3 — "The installed owned-draft command refused a bare origin with a valid empty published backlog and no seed files."
@@ -413,19 +460,29 @@ Disposition: proved by slice 2: `workspace-publication-startup-admission-recover
 ### G5. Default-checkout launches remain on their current path during isolated rollout
 Reported: slice 3 — "The in-progress launch slice separated isolated and default-checkout startup because their supported workspace ownership and affected proof differ."
 Story clause: "Every Open Dough project session has a story identity from startup."
-Disposition: receiving slice 4
+Disposition: receiving slice 5
 
 ### G6. Retry after a competing claim leaves a local candidate
 Reported: slice 3 — "A definitive different-owner refusal after local candidate creation currently repeats the same refusal on Continue because the losing candidate still occupies the retained workspace."
 Story clause: "On refusal, show the reason and let the developer retry that start."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `workspace-publication-owned-admission-retry.test.mjs` and the competing claim case in `admitted-session-retry.spec.ts`
 
 ### G7. Isolated launch landing still uses legacy established-session authority
 Reported: slice 3 — "The isolated session record binds a Taken story. Its retained landing still uses the legacy established-session authority to preserve the current exact comparison."
 Story clause: "Use the ordinary story lifecycle and recorded membership for Land, completion, follow-ups and review, including after checkout retirement and from another clone."
-Disposition: receiving slice 6
+Disposition: receiving slice 7
 
 ### G8. Admission receipt write failure obscures a confirmed publication
 Reported: slice 3 — "The accepted isolated claim is retained and native startup is blocked if saving the attempt receipt fails, but the resulting generic uncertainty omits the known publication and failed write."
 Story clause: "On refusal, show the reason and let the developer retry that start."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `admitted-session-retry.spec.ts` receipt write failure and Continue
+
+### G9. Candidate retirement misses the original path of a rename
+Reported: slice 4 — "The exact owned-path check can miss a rename from an unrelated file into an allowed assignment path when Git's rename detection is enabled."
+Story clause: "A start that cannot establish or resolve its story must stop at admission."
+Disposition: proved by slice 4: `workspace-publication-owned-admission-retry.test.mjs` rejects the witnessed unrelated rename and retains HEAD and remote tip
+
+### G10. Retained retry uses an old parent after the candidate was replayed
+Reported: slice 4 — "The retained recovery file can carry the original workspace base with the replacement candidate SHA. A later competing claim leaves that clean candidate refused because its actual parent differs."
+Story clause: "On refusal, show the reason and let the developer retry that start."
+Disposition: proved by slice 4: `workspace-publication-owned-admission-retry.test.mjs` pins and retires a replacement to its verified actual parent

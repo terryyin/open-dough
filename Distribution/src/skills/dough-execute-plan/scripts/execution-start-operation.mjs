@@ -6,7 +6,11 @@ import {
   maintenance,
   reportedMaintenance,
 } from "./execution-start-maintenance.mjs";
-import { recovery, retainedCandidate } from "./execution-start-recovery.mjs";
+import {
+  recovery,
+  retainedCandidate,
+  stoppedClaim,
+} from "./execution-start-recovery.mjs";
 import { finishCarry, parkCarriedEdits } from "./execution-start-carry.mjs";
 import {
   existingClaim,
@@ -137,17 +141,10 @@ async function startRequested(request) {
     );
   }
   if (checked.ownership !== "absent") {
-    return stopped("conflict", {
-      ownership: checked.ownership,
-      workspace: selected.workspace,
-      branch: selected.branch,
+    return {
+      ...(await stoppedClaim(claimRequest, checked)),
       ...stopMaintenance,
-      provenance: checked.provenance,
-      recovery: {
-        ...recovery(request, selected, request.retained?.candidateSha),
-        provenance: checked.provenance,
-      },
-    });
+    };
   }
   let committed;
   try {

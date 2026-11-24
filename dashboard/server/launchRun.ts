@@ -25,12 +25,14 @@ import { launchRecord } from "./launchRecord.ts";
 import { defaultLaunchStartFacts } from "./defaultLaunchStart.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
 import { removeLaunchedStart } from "./startStore.ts";
-import { settleSessionResult } from "./sessionStartSettlement.ts";
+import {
+  publicationRecordingFailure,
+  settleSessionResult,
+} from "./sessionStartSettlement.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import type { OwnedAttempt } from "./ownedAttempts.ts";
 import { attemptWorker } from "./launchAttemptWorker.ts";
 import { establishedFacts } from "./startLaunch.ts";
-import { publishedAssignment } from "./startWorkflows.ts";
 import type { StartProgress } from "./startProgress.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 
@@ -107,19 +109,14 @@ async function startedRun(
       : ({ kind: "none" } as const);
   let endWait: (() => void) | undefined;
   try {
+    const publication =
+      pending !== undefined && attempt.publication.kind === "published"
+        ? attempt.publication
+        : publicationOf(start, pending);
     try {
-      await notePublication(
-        pending !== undefined && attempt.publication.kind === "published"
-          ? attempt.publication
-          : publicationOf(start, pending),
-      );
+      await notePublication(publication);
     } catch (error) {
-      if (start.kind !== "established") throw error;
-      return {
-        kind: "failed",
-        reason: "unrecorded",
-        explanation: `Publication succeeded (${publishedAssignment(start)}, workspace ${start.workspace.shown}), but the receipt could not be recorded in ~/.open-dough/dashboard/launch-attempts.json: ${error instanceof Error ? error.message : String(error)}. Repair the file, then Continue; nothing more was started.`,
-      };
+      return publicationRecordingFailure(start, publication, error);
     }
     if (start.kind === "stopped") return start.result;
     const baseRecording =

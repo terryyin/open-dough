@@ -11,7 +11,7 @@ export { startExecution } from "./execution-start-operation.mjs";
 function argumentsOf(argv) {
   if (argv[0] !== "start" && argv[0] !== "draft")
     throw new Error(
-      "usage: execution-start.mjs start [--integration PATH] [--repository PATH] --workspace PATH --branch NAME [--identity ID] [--publisher-id ID] --mode trunk|story-branch --remote NAME --target BRANCH [--push-authorized] --workspace-authorized [--admit --link HREF --title TEXT [--carry | --owned-draft JSON] | --one-shot [--default-main] [--auto-land]] [--plan PATH] [--host claude|codex|cursor] [--model TEXT] [--starting-revision SHA --candidate-sha SHA]\n       execution-start.mjs draft --repository PATH --remote NAME --target BRANCH --title TEXT --goal TEXT",
+      "usage: execution-start.mjs start [--integration PATH] [--repository PATH] --workspace PATH --branch NAME [--identity ID] [--publisher-id ID] --mode trunk|story-branch --remote NAME --target BRANCH [--push-authorized] --workspace-authorized [--admit --link HREF --title TEXT [--carry | --owned-draft JSON [--retry-admission true]] | --one-shot [--default-main] [--auto-land]] [--plan PATH] [--host claude|codex|cursor] [--model TEXT] [--starting-revision SHA --candidate-sha SHA]\n       execution-start.mjs draft --repository PATH --remote NAME --target BRANCH --title TEXT --goal TEXT",
     );
   const result = {};
   for (let index = 1; index < argv.length; index += 1) {
