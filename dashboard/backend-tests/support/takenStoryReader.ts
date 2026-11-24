@@ -1,15 +1,7 @@
 // A backend case's configured project whose Taken story origin publishes,
 // with the writer that publishes story commits to it.
-import { mkdirSync } from "node:fs";
 import path from "node:path";
-import { onTestFinished, vi } from "vitest";
-import { fixtureRepository, stubFixtureHome } from "./fixtureHome.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import {
-  appendConfiguredProject,
-  mountProjectConfiguration,
-} from "../../server/projectConfiguration.ts";
+import { configuredFixtureProject } from "./fixtureProject.ts";
 import { reviewRepositoryPath } from "../../server/reviewRepository.ts";
 import { knownSource } from "../../server/sessionAdmission.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
@@ -27,25 +19,10 @@ import { takenBranchContributionHistory } from "../../test-support/support/taken
 export async function takenStoryReader(
   history: StartRepository = takenBranchContributionHistory(),
 ) {
-  const repository = await materializeRepository(history);
-  const home = path.join(repository.fixture, "home");
-  mkdirSync(home, { recursive: true });
-  stubFixtureHome(home, repository.origin);
-  const unmount = mountProjectConfiguration("development");
-  onTestFinished(async () => {
-    unmount();
-    vi.unstubAllEnvs();
-    await repository.cleanup();
-  });
-  const project = makeMe.aConfiguredProject
-    .with({
-      id: "open-dough",
-      label: "Open Dough",
-      repository: fixtureRepository,
-      localPath: path.join(repository.fixture, "absent-checkout"),
-    })
-    .please();
-  appendConfiguredProject(project);
+  const { repository, home, project } = await configuredFixtureProject(
+    history,
+    ({ fixture }) => path.join(fixture, "absent-checkout"),
+  );
   if (repository.execution === undefined) throw new Error("Missing writer");
   return {
     home,

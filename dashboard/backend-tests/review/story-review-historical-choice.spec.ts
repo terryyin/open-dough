@@ -1,12 +1,6 @@
 import path from "node:path";
-import { expect, test, vi } from "vitest";
-import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import {
-  appendConfiguredProject,
-  mountProjectConfiguration,
-} from "../../server/projectConfiguration.ts";
+import { configuredFixtureProject } from "../support/fixtureProject.ts";
+import { expect, test } from "vitest";
 import { storyReview } from "../../server/storyReview.ts";
 import { ordinaryTrunkModeCompletedHistory } from "../../test-support/support/completedStoryHistory.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
@@ -18,29 +12,11 @@ import {
   writeAt,
 } from "../../test-support/support/storyReviewWorktree.ts";
 
-test("a Done story opens its published completion while its workspace has local edits", async ({
-  onTestFinished,
-}) => {
-  const repository = await materializeRepository(
+test("a Done story opens its published completion while its workspace has local edits", async () => {
+  const { repository, home, project } = await configuredFixtureProject(
     ordinaryTrunkModeCompletedHistory(),
   );
   const { completion } = repository.revisions;
-  stubFixtureHome(repository.fixture, repository.origin);
-  const unmount = mountProjectConfiguration("development");
-  onTestFinished(async () => {
-    unmount();
-    vi.unstubAllEnvs();
-    await repository.cleanup();
-  });
-  const project = makeMe.aConfiguredProject
-    .with({
-      id: "open-dough",
-      label: "Open Dough",
-      repository: fixtureRepository,
-      localPath: repository.integration,
-    })
-    .please();
-  appendConfiguredProject(project);
   const workspace = path.join(repository.fixture, "retained");
   git(
     repository.integration,
@@ -53,7 +29,7 @@ test("a Done story opens its published completion while its workspace has local 
     completion,
   );
   writeAt(workspace, "local-only.txt", "after completion\n");
-  keepLaunchRecords(repository.fixture, [storyALaunchRecord(workspace)]);
+  keepLaunchRecords(home, [storyALaunchRecord(workspace)]);
 
   const review = await storyReview(
     {

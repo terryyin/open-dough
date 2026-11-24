@@ -293,7 +293,7 @@ sleep, so an aborted fetch releases the fetch queue.
 
 ### 5. Restore the CI Git-root guard's backend case
 Type: Structure
-Status: planned
+Status: done
 Proof: the new case in `dashboard/backend-tests/intent/` fails when the Git-root check in `checkoutStoryEndpoints` is removed, and passes with it in place; `dashboard/backend-tests/intent/ci-comparison-taken.spec.ts` stays green.
 
 Correction: the CI comparison's refusal of a checkout that resolves to a parent
@@ -302,6 +302,14 @@ comparison specs. It moves the execution checkout's `.git` to its parent and
 expects "The execution checkout no longer points to this project's Git root.".
 It follows the deleted case's setup at `bd0acbfd^`, without the
 parent-publication steps. Product code is unchanged.
+
+Accepted proof: `dashboard/backend-tests/intent/ci-comparison-git-root.spec.ts`
+"an execution checkout whose Git root is a parent checkout gets no CI
+comparison" calls `performIntentCiComparisonRead` against real Git. It passes
+with the guard. With the guard replaced by `false`, the read reaches the
+parent's history and the case fails. The shared fixture-project setup is now
+`configuredFixtureProject` in `backend-tests/support/fixtureProject.ts`, used
+by this case, `takenStoryReader` and three review specs.
 
 ## Story obligations
 

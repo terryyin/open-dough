@@ -1,17 +1,9 @@
 import { renameSync } from "node:fs";
 import path from "node:path";
-import { expect, onTestFinished, test, vi } from "vitest";
-import {
-  fixtureRepository,
-  stubFixtureHome,
-  stubRemoteRequestRecording,
-} from "../support/fixtureHome.ts";
+import { expect, test } from "vitest";
+import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
+import { configuredFixtureProject } from "../support/fixtureProject.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import {
-  appendConfiguredProject,
-  mountProjectConfiguration,
-} from "../../server/projectConfiguration.ts";
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { reviewRepositoryPath } from "../../server/reviewRepository.ts";
 import { knownSource } from "../../server/sessionAdmission.ts";
@@ -31,32 +23,15 @@ const literal = "[literal]*.txt";
 
 // A legacy receipt for an accepted landing whose execution checkout is retired.
 async function retiredLandedRun() {
-  const repository = await materializeRepository(
+  const { repository, home } = await configuredFixtureProject(
     makeMe.aRepository
       .withRevision("base")
       .withRevision("accepted", { files: { [literal]: "accepted file\n" } })
       .withRevision("later", { files: { [literal]: "later change\n" } })
       .please(),
   );
-  stubFixtureHome(repository.fixture, repository.origin);
-  const unmount = mountProjectConfiguration("development");
-  onTestFinished(async () => {
-    unmount();
-    vi.unstubAllEnvs();
-    await repository.cleanup();
-  });
-  appendConfiguredProject(
-    makeMe.aConfiguredProject
-      .with({
-        id: "open-dough",
-        label: "Open Dough",
-        repository: fixtureRepository,
-        localPath: repository.integration,
-      })
-      .please(),
-  );
   const { base, accepted } = repository.revisions;
-  keepLaunchRecords(repository.fixture, [
+  keepLaunchRecords(home, [
     reviewLaunch({
       sessionId: "retired",
       workspace: path.join(repository.fixture, "retired"),

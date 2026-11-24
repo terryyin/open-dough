@@ -1,19 +1,14 @@
 import { renameSync } from "node:fs";
 import path from "node:path";
-import { expect, test, onTestFinished, vi } from "vitest";
-import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
+import { expect, test } from "vitest";
+import { configuredFixtureProject } from "../support/fixtureProject.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import {
   reviewedFileDiff,
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReview.ts";
-import {
-  appendConfiguredProject,
-  mountProjectConfiguration,
-} from "../../server/projectConfiguration.ts";
 import { reviewInput } from "../../server/storyReviewInput.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
@@ -23,28 +18,11 @@ const file = "delivered[1].txt";
 // A Done ad hoc session whose launch reports through a published session
 // reference and kept the accepted pair of a configured project's history.
 async function aDoneSessionReportingThroughReference() {
-  const repository = await materializeRepository(
+  const { repository, home } = await configuredFixtureProject(
     makeMe.aRepository
       .withRevision("base")
       .withRevision("accepted", { files: { [file]: "accepted\n" } })
       .withRevision("later", { files: { [file]: "advanced\n" } })
-      .please(),
-  );
-  stubFixtureHome(repository.fixture, repository.origin);
-  const unmount = mountProjectConfiguration("development");
-  onTestFinished(async () => {
-    unmount();
-    vi.unstubAllEnvs();
-    await repository.cleanup();
-  });
-  appendConfiguredProject(
-    makeMe.aConfiguredProject
-      .with({
-        id: "open-dough",
-        label: "Open Dough",
-        repository: fixtureRepository,
-        localPath: repository.integration,
-      })
       .please(),
   );
   const { base, accepted } = repository.revisions;
@@ -65,7 +43,7 @@ async function aDoneSessionReportingThroughReference() {
         .please(),
     )
     .please();
-  keepLaunchRecords(repository.fixture, [record]);
+  keepLaunchRecords(home, [record]);
   const subject = {
     source: record.request.source,
     host: record.session.host,
