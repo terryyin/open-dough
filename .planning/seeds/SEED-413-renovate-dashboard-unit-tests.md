@@ -199,12 +199,60 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
 
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
-### Renovate the later dashboard backend unit-test families around typed server handlers
+### Prove durable launch admission through the typed attempt owner
 
 **Identity:** SEED-413#renovate-later-dashboard-backend-unit-test-families
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["The residual campaign spans about 290 server-bound specs across several boundaries. After the two extracted systematic stories, recount and select the next bounded cohort by boundary, launch boundary first, before executable slice planning."],"basis":{"document":"143ec851d6096784628956cac19b66a20413aea68af730c0c7e6390553863bec"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/818-prove-durable-launch-admission/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0ca1128e9ce54ca8fff30b1227b0bc438b8d742c064214a7578376eb7356863b","plan":"cc737bbcdf04e7f53a5a070d7824873e45c0db3810c9274e65b2c0f866b54261"}}
 ```
+
+- **Goal.** Dashboard maintainers get fast, compile-time-checked feedback
+  when changing the rules that keep a launch attempt before its effects and
+  prevent overlapping starts of the same story.
+- **Scope.** Move the close-during-admission and cross-server admission cases
+  to plain Node Vitest. Feed MakeMe launch requests and attempt records to
+  the production attempt owner. Exercise the real attempt file and its lock,
+  with a separate minimal process where an independent writer matters.
+  Observe whether launch effects would run at the typed callback. Require no
+  dashboard server or installed launch project for these cases.
+- **Boundary.** The [remaining backend renovation](#renovate-remaining-backend-families-after-launch-admission)
+  carries the rest of the campaign, including change-wait, settlement and
+  reconciliation cases, the Story Notes store and final runner retirement.
+  Installed start, native host and HTTP contracts stay with their current
+  proof owners, including the [installed-project launch story](SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#run-dashboard-launch-tests-on-an-installed-project)
+  and [existing-session composition](SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly).
+- **Evaluation.** Compare the two-file selection under the maintained
+  backend runner before and after. Use the campaign's roughly 100 ms per
+  case target, with the cost of any process required for real contention
+  accounted for separately.
+
+**Key examples**
+
+- A typed request is being kept when its owner closes. When the write
+  finishes, the exact attempt is available for recovery and the request is
+  refused without starting any launch effect.
+- An execution request is waiting for the attempt-file lock when another
+  writer keeps a pending refinement of that story. When the lock becomes
+  available, the contender sees the newly kept attempt, answers
+  `already-starting` and starts nothing.
+- Two independent owners accept overlapping requests. For the same story,
+  one request is kept and only its effects can run. For different stories,
+  both requests are kept and both can run.
+
+<a id="renovate-remaining-backend-families-after-launch-admission"></a>
+
+### Renovate the remaining dashboard backend unit-test families after launch admission
+
+**Identity:** SEED-413#renovate-remaining-backend-families-after-launch-admission
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Recount the surviving legacy specs by production boundary and select the next independently verifiable cohort before slice planning. The two durable launch-admission specs have a separate plan."],"basis":{"document":"ca5b502accf9b8622b5c901aee654008588dbc88414e88bce0fa415e1ff6b304"}}
+```
+
+Continues the campaign after
+[durable launch admission](#renovate-later-dashboard-backend-unit-test-families).
+That cohort owns `launches/launch-attempt-admission-close.spec.ts` and
+`launches/agent-launch-cross-server-accept.spec.ts`. The scope below
+applies to the remaining inventory.
 
 Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
 kept the [completed Done capture family](https://github.com/terryyin/open-dough/blob/8f4cc9480ccb0b736e3b29c787ab49a6ac80d366/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests).
@@ -310,7 +358,9 @@ smaller unit selection does not hide its cost or a lost regression check.
      Attempt evidence is complete (recoverable at
      `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
      [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete.
-  3. Recount the remaining files against the available seams and CI cost.
+  3. Begin with [durable launch admission](#renovate-later-dashboard-backend-unit-test-families).
+     Select the next launch or other boundary cohort from the surviving
+     runner inventory and measured CI cost.
      Intent still includes comparison, follow-up and lifecycle proof outside
      the extracted spec list, together with other Intent readers and proof
      recording. Keep freshness, invalidation and closing with the production
@@ -374,6 +424,16 @@ smaller unit selection does not hide its cost or a lost regression check.
   remaining Playwright paths are launches 91, sessions 64, observation 54,
   Intent 45, runtime 40, Review 29, configuration 13 and terminals 12.
   [Per-case Usage History measurements](https://github.com/terryyin/open-dough/blob/a542045b824e24e73490f7ecc3e733852b879f16/.planning/slice-plans/815-prove-usage-import-through-typed-importer/MEASUREMENTS.md).
+- **Inventory at launch-admission selection** (`a31b7eee9`, 24 November
+  2026). The maintained selector counts 583 backend specs, 350 Playwright
+  and 233 Node Vitest. The Playwright paths are launches 91, sessions 64,
+  observation 54, Intent 45, runtime 40, Review 31, configuration 13 and
+  terminals 12. Of these, 139 directly import a launch-boundary or
+  attempt/terminal arrangement helper (77 in launches, 40 in sessions, 10
+  each in Review and terminals, and two in runtime). These are import counts,
+  so they include setup-only use. Two Playwright files belong to the
+  durable admission cohort. Recount the survivors when selecting the next
+  bounded outcome.
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,
   2,519 s; entry kinds counted from each spec's text, so approximate).
 

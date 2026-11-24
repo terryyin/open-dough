@@ -20,7 +20,7 @@ import {
 } from "../../server/hosts/cursor/runnerClient.ts";
 import {
   lastAttachEnded,
-  launched,
+  composeSession,
   openTerminal,
   shows,
   type Terminal,
@@ -108,7 +108,7 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
 
     let terminal: Terminal | undefined;
     try {
-      const session = await launched(local);
+      const session = await composeSession(local);
       terminal = await openTerminal(local, session);
       expect(await shows(terminal, "attached")).toBe(true);
 

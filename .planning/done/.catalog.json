@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-433_compose-existing-sessions-directly.json",
+      "identity": "SEED-433#compose-existing-sessions-directly",
+      "completedAt": "2026-11-24T17:35:26.572Z",
+      "blob": "b6a6989806d919a565c41732aff0f547b4975ecf"
+    },
+    {
       "fileName": "SEED-428_read-review-files-without-fetching.json",
       "identity": "SEED-428#read-review-files-without-fetching",
       "completedAt": "2026-11-24T17:02:37.888Z",

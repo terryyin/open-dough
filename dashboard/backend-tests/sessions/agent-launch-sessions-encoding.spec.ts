@@ -15,7 +15,7 @@ import {
   sessionsRevisionHeader,
 } from "../../src/machineSessionsRevision.ts";
 import { markDone } from "../../test-support/agentLaunchBoundary.ts";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -68,8 +68,8 @@ test.describe("the sessions answer's transfer encoding", () => {
       projectFolders: ["open-dough"],
     });
     // One retained done session and one open, so both audiences have entries.
-    const done = await launched(server);
-    await launched(server);
+    const done = await composeSession(server);
+    await composeSession(server);
     expect(
       (
         await markDone(server, {

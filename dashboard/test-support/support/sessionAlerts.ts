@@ -4,11 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test as base } from "./pageTest.ts";
-import {
-  launch,
-  launchRequest,
-  machineFolder,
-} from "../agentLaunchBoundary.ts";
+import { machineFolder } from "../agentLaunchBoundary.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -79,16 +75,6 @@ export async function afterFurtherListings(
 ): Promise<void> {
   const before = listings(server);
   await expect.poll(() => listings(server)).toBeGreaterThanOrEqual(before + 2);
-}
-
-export async function start(
-  server: DashboardServer,
-  request: object = launchRequest,
-): Promise<string> {
-  const response = await launch(server, request);
-  return (
-    JSON.parse(response.body) as { record: { session: { sessionId: string } } }
-  ).record.session.sessionId;
 }
 
 export async function becomes(

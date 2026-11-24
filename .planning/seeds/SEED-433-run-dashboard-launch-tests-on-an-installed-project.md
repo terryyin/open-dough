@@ -15,7 +15,7 @@ scope: two stories
 
 **Identity:** SEED-433#run-dashboard-launch-tests-on-an-installed-project
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-433#run-dashboard-launch-tests-on-an-installed-project","dependencies":[{"supplier":{"identity":"SEED-433#compose-existing-sessions-directly","href":"seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly"},"implementation":"Install every catalog project and update only the launch-behavior consumers, relying on the session consumers already composing their sessions as data.","rationale":"Installing every catalog project makes story launches run the real start. At cde557acd that failed about 95 spec files, roughly two thirds of them consumers that launch only to obtain a session. The developer chose to move those consumers first, so this story stays within its launch-behavior consumers and keeps every catalog project installed with no opt-out.","condition":"The Dashboard backend and E2E consumers that need only an existing session compose it as data on trunk, without launching.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-433#run-dashboard-launch-tests-on-an-installed-project","dependencies":[{"supplier":{"identity":"SEED-433#compose-existing-sessions-directly","href":"seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly"},"implementation":"Install every catalog project and update only the launch-behavior consumers, relying on the session consumers already composing their sessions as data.","rationale":"Installing every catalog project makes story launches run the real start. At cde557acd that failed about 95 spec files, roughly two thirds of them consumers that launch only to obtain a session. The developer chose to move those consumers first, so this story stays within its launch-behavior consumers and keeps every catalog project installed with no opt-out.","condition":"The Dashboard backend and E2E consumers that need only an existing session compose it as data on trunk, without launching.","state":"satisfied","resolution":{"revision":"db57040f8fbeb93cf8db44538d3ac4d2ec55e8da","path":".planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly","summary":"Plan 817 kept real launch behavior in launch cases and migrated existing-session setup to composed records and native listings. The installed-catalog probe passed 144 backend and 88 E2E cases. Full plain backend and E2E suites passed with one existing opt-in backend skip. The integrated tests attach to composed Claude sessions, raise session alerts, and navigate the sidebar without using Start as setup. Plan 816 carries the remaining genuine launch cases.\nCondition satisfied: The Dashboard backend and E2E consumers that need only an existing session compose it as data on trunk, without launching.\nAccepted integration: 83956b350a0cc72710cc16011486f6c908b3abf1 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md","assessment":"not-ready","reasons":["Slice 3: the real start's workspace may change E2E card observations beyond the launch. The baseline left 24 E2E files' toHaveCount/toBeEnabled failures unattributed, so slice 3's sizing is unsettled until they are attributed against the supplier's result.","Slice 5: the remaining consumer set is known only after the supplier story lands. Rerun the scratch full suites on that trunk, then refine slices 3–5 from the failures."],"basis":{"document":"d639f1bdb1fc3e1e7f290b0388c29340f82a6ee906e4b63beb8ce436bbd6d964","plan":"9e1ceaf14f8ae2377f2c516b972b62deec0915a64b12ce43db3e7a3f15fe7375"}}
@@ -35,7 +35,7 @@ changes only the expectations that depend on its story.
 - On 2026-11-24 the developer set two criteria. Tests use the distribution
   cohesively, not in diverging ways. Most cases stay fast, and slow behavior
   gets its own focused, fast tests. The developer accepted the recommended
-  split: [compose existing sessions directly](#compose-existing-sessions-directly)
+  split: [compose existing sessions directly](https://github.com/terryyin/open-dough/blob/db57040f8fbeb93cf8db44538d3ac4d2ec55e8da/.planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly)
   lands first, and this story then moves only the launch-behavior consumers.
 
 **Scope.**
@@ -78,46 +78,6 @@ harness. It is parked privately as `slice-3/attempt-4.patch` in SEED-432's
 execution evidence, and
 [plan 813](../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md) on
 its story branch records the finding.
-
-<a id="compose-existing-sessions-directly"></a>
-
-### Compose existing sessions directly in Dashboard tests
-
-**Identity:** SEED-433#compose-existing-sessions-directly
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/817-compose-existing-sessions-directly-in-dashboard-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6822fe38f47fc656bb16126e4873f8f08d514060ab01838dea5fd67f2c17b416","plan":"2195e556bd6905f33944aa9784368a6b7069e85c1b8e76dab09d750cf72badba"}}
-```
-
-**Goal:** A maintainer gets fast backend and E2E feedback on what the Dashboard
-does with an existing session. Those tests compose the session as data
-instead of launching one, so neither the installed project nor SEED-432's
-admission slows them or changes what they observe.
-
-**Scope.**
-
-- Consumers whose observation starts after a session exists stop launching
-  through the launch endpoint or Start. Examples are sessions, terminals,
-  alerts, Done, delete, history and sidebar journeys. Each composes the
-  launch record through `makeMe.aLaunchRecord` in the launch store
-  (`dashboard/test-support/support/launchStore.ts`), together with the native
-  listing the fake host reads.
-- Keep each consumer's observation unchanged. A consumer whose observation
-  depends on the launch itself stays a launch consumer for
-  [the installed-project story](#run-dashboard-launch-tests-on-an-installed-project).
-- Add no wrapper to test support. Extend MakeMe builder steps where a composed
-  session needs a fact the builders lack.
-- Production behavior does not change.
-
-**Key examples.**
-
-- `agent-terminal-boundary` attaches to a composed Claude session and passes
-  output, input and size as it does today.
-- `session-alerts` raises one notification for each reading of a composed
-  session that needs the developer.
-- The E2E `sessions-sidebar-navigation-cases` journeys navigate composed
-  sessions without pressing Start.
-- With the scratch installed catalog project from the baseline below, these
-  consumers pass unchanged.
 
 ## Shared context
 

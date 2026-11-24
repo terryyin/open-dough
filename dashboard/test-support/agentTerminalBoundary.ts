@@ -1,58 +1,56 @@
-// Shared by the specs that drive the terminal boundary without a page
-// (../backend-tests/terminals/agent-terminal-boundary.spec.ts, ../backend-tests/terminals/agent-terminal-close.spec.ts,
-// ../backend-tests/sessions/agent-terminal-reopen.spec.ts, and ../backend-tests/sessions/agent-launch-done.spec.ts): a
-// session launched through the real launch boundary, in any project and for
-// any story and workflow (as ../../e2e/sessions/sessions-sidebar.spec.ts launches outside the
-// shown project), and a raw WebSocket to
-// the terminal boundary for it, opened or refused, whose output and ending the
-// synthetic `claude` reports. A request can also be made while the session's
-// execution checkout is missing, which the terminal boundary and
-// ../backend-tests/sessions/agent-launch-done-refusal.spec.ts both refuse.
-
 import { renameSync } from "node:fs";
 import path from "node:path";
 import WebSocket from "ws";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { claudeSessionName } from "../server/hosts/claude/launch.ts";
+import { productionSeedProjects } from "../server/projectConfigurationSeed.ts";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
-import { launch, launchRequest } from "./agentLaunchBoundary.ts";
+import { launchRequest } from "./agentLaunchBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+import { keepMoreLaunchRecordsBesideServer } from "./support/launchStore.ts";
 import { waitUntil } from "./support/waitUntil.ts";
 import { processRunning } from "./support/processGroup.ts";
 
-export type LaunchedSession = {
+export type RecordedSession = {
   readonly sessionId: string;
   readonly shortId: string;
 };
 
-let launchSerial = 0;
+let sessionSerial = 0;
 
-// Launches through `launch` / `accept`, which confirm a base-CI gate answer
-// the same way Continue does, so hook and terminal specs without a page keep
-// reaching a session when origin CI is unread or non-pass.
-export async function launched(
+export async function composeSession(
   server: DashboardServer,
   source = "open-dough",
   work: Partial<
-    Pick<typeof launchRequest, "identity" | "title" | "workflow">
-  > = {},
-): Promise<LaunchedSession> {
-  server.claudeScenario("launched");
-  // A fresh identity when the caller does not name one, so a second launch on
-  // a shared server is not refused for an open session of the default story.
-  const serial = ++launchSerial;
-  const response = await launch(server, {
-    ...launchRequest,
-    source,
-    identity: `${launchRequest.identity}#${serial}`,
-    ...work,
+    Pick<typeof launchRequest, "identity" | "title" | "workflow" | "model">
+  > & { startedAt?: number } = {},
+): Promise<RecordedSession> {
+  const project = productionSeedProjects.find(({ id }) => id === source);
+  if (project === undefined) throw new Error(`Unknown project ${source}`);
+  const {
+    startedAt = Date.now(),
+    identity = `${launchRequest.identity}#${++sessionSerial}`,
+    title = launchRequest.title,
+    workflow = launchRequest.workflow,
+  } = work;
+  const story = { source, identity, title };
+  const name = claudeSessionName(project, {
+    ...story,
+    workflow,
+    host: "claude",
   });
-  const answer = JSON.parse(response.body) as {
-    kind?: string;
-    record?: { session?: LaunchedSession };
-  };
-  if (answer.record?.session === undefined) {
-    throw new Error(`Expected a launched session, got ${response.body}`);
-  }
-  return answer.record.session;
+  const sessionId = server.claudeListsSession({
+    name,
+    cwd: path.join(server.home, "git", source),
+    startedAt,
+  });
+  const record = makeMe.aLaunchRecord
+    .ofWorkflow(workflow, story)
+    .inClaudeSession({ sessionId, name })
+    .launchedAt(new Date(startedAt).toISOString());
+  if (work.model !== undefined) record.requestingModel(work.model);
+  await keepMoreLaunchRecordsBesideServer(server, [record.please()], source);
+  return { sessionId, shortId: sessionId.slice(0, 8) };
 }
 
 // Answers `request` while the project's execution checkout on the dashboard's machine is
@@ -94,7 +92,7 @@ export type Terminal = {
 
 export async function openTerminal(
   server: DashboardServer,
-  session: LaunchedSession,
+  session: RecordedSession,
   source = "open-dough",
 ): Promise<Terminal> {
   const socket = new WebSocket(terminalUrl(server, source, session.sessionId), {

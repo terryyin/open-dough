@@ -7,7 +7,7 @@ import {
 // the toolbar or composer; swipe still scrolls history only. Composer Insert
 // lives in ./agent-terminal-touch-composer.spec.ts.
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   expectTerminalInputFocused,
   expectTerminalText,
@@ -49,7 +49,7 @@ test.describe("phone terminal key toolbar", () => {
     dashboard,
   }) => {
     dashboard.claudeAttachMenu(true);
-    const native = await launched(dashboard, "open-dough", {
+    const native = await composeSession(dashboard, "open-dough", {
       identity: "SEED-901#phone-terminal-keys",
       title,
     });
@@ -203,7 +203,7 @@ test.describe("desktop terminal without phone key toolbar", () => {
     page,
     dashboard,
   }) => {
-    const native = await launched(dashboard, "open-dough", {
+    const native = await composeSession(dashboard, "open-dough", {
       identity: "SEED-901#desktop-no-toolbar",
       title: "Desktop terminal without phone keys",
     });

@@ -1,7 +1,4 @@
-// Cross-project Sessions sidebar: attention first, closed toggle working then
-// attention counts, Done removes entries; wide sits left, narrow overlays.
-// Real boundaries, fake Claude, paused time. Order alone:
-// ../../dashboard/frontend-tests/sessions/sessions-sidebar-order.spec.ts.
+// Cross-project ordering, counts, Done and layout in the Sessions sidebar.
 import {
   expect,
   pausePageClockAt,
@@ -11,7 +8,6 @@ import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.t
 import {
   storyCardSessionOf,
   expectMembership,
-  sessionNamedBy,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnutSharedTitle,
@@ -19,13 +15,16 @@ import {
 } from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedStory,
+  notRefinedIdentity,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
+  takenIdentity,
   takenStory,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
 import { markDone as markSessionDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { watchRecordReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import {
   expectEntries,
@@ -68,17 +67,37 @@ test.describe("the Sessions sidebar", () => {
   }) => {
     await pausePageClockAt(page, new Date());
     const { passOnePace } = await watchRecordReads(page);
-    // Server time, which a launch record's time is.
     const since = Date.now() - 1_000;
-    const { sessionId: doughnut } = await launched(dashboard, "doughnut", {
-      identity: sharedStoryIdentity,
-      title: doughnutSharedTitle,
+    const { sessionId: doughnut } = await composeSession(
+      dashboard,
+      "doughnut",
+      {
+        identity: sharedStoryIdentity,
+        title: doughnutSharedTitle,
+        startedAt: since + 1,
+      },
+    );
+    const { sessionId: pygardon } = await composeSession(
+      dashboard,
+      "pygardon",
+      {
+        ...pygardonStory,
+        workflow: "refinement",
+        startedAt: since + 2,
+      },
+    );
+    const ready = await composeSession(dashboard, "open-dough", {
+      identity: readyIdentity,
+      title: readyStory,
+      startedAt: since + 3,
     });
-    const { sessionId: pygardon } = await launched(dashboard, "pygardon", {
-      ...pygardonStory,
+    await composeSession(dashboard, "open-dough", {
+      identity: notRefinedIdentity,
+      title: notRefinedStory,
       workflow: "refinement",
+      startedAt: since + 4,
     });
-    const { settled, card, launch } = await openStoryColumnsJourney(
+    const { settled, card } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
@@ -95,16 +114,9 @@ test.describe("the Sessions sidebar", () => {
     const queued = [takenStory, readyStory, notRefinedStory];
     await expectMembership(page, { taken: [], backlog: queued });
     await settled();
-    await launch(readyStory, "Execution");
-    await launch(notRefinedStory, "Refinement");
-    const ready = await sessionNamedBy(
-      storyCardSessionOf(card(readyStory), "Execution"),
-    );
 
     await test.step("Sessions in the banner opens the sidebar, closed at first, on every project's sessions newest first", async () => {
       await expect(button).toHaveText("");
-      // Four working across projects, none needing attention; no badge before
-      // first read is elsewhere.
       await expectClosedToggleCounts(page, 4, 0);
       await expect(button.locator("img.product-mark")).toBeVisible();
       await expectSessionsSidebar(page, "closed");
@@ -163,22 +175,20 @@ test.describe("the Sessions sidebar", () => {
         since,
       );
 
-      await launch(takenStory, "Execution");
+      const taken = await composeSession(dashboard, "open-dough", {
+        identity: takenIdentity,
+        title: takenStory,
+      });
+      await passOnePace();
       await expect(entries).toHaveCount(5);
-      // Closed: 3 working then 2 attention; open: attention only.
       await button.click();
       await expectSessionsSidebar(page, "closed");
       await expectClosedToggleCounts(page, 3, 2);
 
-      // One working starts waiting for input → 2 working / 3 attention.
-      const taken = await sessionNamedBy(
-        storyCardSessionOf(card(takenStory), "Execution"),
-      );
-      dashboard.claudeSessionBecomes(taken, "blocked");
+      dashboard.claudeSessionBecomes(taken.sessionId, "blocked");
       await passOnePace();
       await expectClosedToggleCounts(page, 2, 3);
 
-      // Open: attention only; closing restores both.
       await button.click();
       await expectSessionsSidebar(page, "open");
       await expect(workingBadge).toHaveCount(0);
@@ -192,7 +202,7 @@ test.describe("the Sessions sidebar", () => {
     });
 
     await test.step("a state change moves the entry into the attention group", async () => {
-      dashboard.claudeSessionBecomes(ready, "done-live");
+      dashboard.claudeSessionBecomes(ready.sessionId, "done-live");
       await passOnePace();
       await expect(badge).toHaveText("4");
       // Attention by earliest launch: doughnut, pygardon, ready, taken.

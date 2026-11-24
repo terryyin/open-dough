@@ -3,6 +3,7 @@
 // changed summaries are not work; even a new question stays quiet if all its
 // intervening work escaped observation. The machine answer remains current.
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import {
   observationRecord as record,
@@ -15,7 +16,6 @@ import {
 import {
   afterFurtherListings,
   notices,
-  start,
 } from "../../test-support/support/sessionAlerts.ts";
 import { notRefinedIdentity } from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -183,7 +183,7 @@ test("Claude input survives unreadable listing and native omission recovery", as
     alertCheckMs: 50,
   });
   try {
-    const session = await start(server);
+    const { sessionId: session } = await composeSession(server);
     await afterFurtherListings(server);
     server.claudeSessionBecomes(session, "blocked", "Which database?");
     await expect.poll(() => server.notifierCalls().length).toBe(1);

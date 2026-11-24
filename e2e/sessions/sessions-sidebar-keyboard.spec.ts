@@ -2,25 +2,26 @@
 // inside the terminal, leaving the keyboard where it was, and takes the key
 // from the browser; Ctrl+B in the terminal still reaches the session. An open
 // dialog, as the launch dialog or the badge legend, keeps Command+B. The
-// page's own dashboard server launches and attaches the synthetic `claude`
+// page's own dashboard server attaches the synthetic `claude`
 // (./fixtures/fake-claude), which records each line entered in its terminal;
 // the real one is never reached.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
-  openTerminalControl,
+  expectTerminalText,
+  openTerminalFromEntry,
   terminalPanel,
-  terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessionOf,
   expectMembership,
   parts,
-  sessionNamedBy,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
@@ -57,7 +58,11 @@ test.describe("Command+B and the Sessions sidebar", () => {
     page,
     dashboard,
   }) => {
-    const { settled, card, launch } = await openStoryColumnsJourney(
+    const { shortId } = await composeSession(dashboard, "open-dough", {
+      identity: readyIdentity,
+      title: readyStory,
+    });
+    const { settled, card } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
@@ -83,18 +88,12 @@ test.describe("Command+B and the Sessions sidebar", () => {
     });
 
     await test.step("from inside the terminal, it toggles and the keyboard stays in the terminal, while Ctrl+B reaches the session", async () => {
-      await launch(readyStory, "Execution");
       const entry = storyCardSessionOf(card(readyStory), "Execution");
-      const session = await sessionNamedBy(entry);
-      await openTerminalControl(entry).click();
+      await openTerminalFromEntry(entry);
       const attach = () =>
-        dashboard
-          .claudeAttaches()
-          .find((attached) => attached.id === session.slice(0, 8));
+        dashboard.claudeAttaches().find((attached) => attached.id === shortId);
       await expect.poll(() => attach()?.id).toBeDefined();
-      await expect(terminalScreenParts(panel).rows).toContainText(
-        `attached ${session.slice(0, 8)}`,
-      );
+      await expectTerminalText(panel, `attached ${shortId}`);
       expect(await keyboardWithin(panel)).toBe(true);
       await markKeyboardPlace(page);
 

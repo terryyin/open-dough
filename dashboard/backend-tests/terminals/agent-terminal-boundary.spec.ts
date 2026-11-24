@@ -16,14 +16,14 @@ import {
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
   lastAttachEnded,
-  launched,
+  composeSession,
   openTerminal,
   refusedResponse,
   refusedStatus,
   shows,
   terminalUrl,
   withoutProjectFolder,
-  type LaunchedSession,
+  type RecordedSession,
 } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
@@ -36,14 +36,14 @@ function attachCalls(server: DashboardServer) {
 test.describe(`agent terminal boundary`, () => {
   test.describe.configure({ mode: "serial" });
   let server: DashboardServer;
-  let session: LaunchedSession;
+  let session: RecordedSession;
 
   test.beforeAll(async () => {
     server = await startDashboardServer({
       mode: "boundary",
       projectFolders: ["open-dough", "pygardon"],
     });
-    session = await launched(server);
+    session = await composeSession(server);
   });
 
   test.afterAll(async () => {
@@ -75,6 +75,7 @@ test.describe(`agent terminal boundary`, () => {
         sessionState: { kind: "available" },
       },
     ]);
+    expect(server.claudeLaunchCalls()).toEqual([]);
   });
 
   for (const refused of [
@@ -104,7 +105,7 @@ test.describe(`agent terminal boundary`, () => {
   }
 
   test("attaches to a stopped session Claude Code still lists", async () => {
-    const stopped = await launched(server);
+    const stopped = await composeSession(server);
     server.claudeSessionBecomes(stopped.sessionId, "stopped");
     const terminal = await openTerminal(server, stopped);
 
@@ -185,7 +186,7 @@ test.describe(`agent terminal boundary`, () => {
   }
 
   test("refuses an upgrade for a session Claude Code no longer lists, without attaching", async () => {
-    const forgotten = await launched(server);
+    const forgotten = await composeSession(server);
     server.claudeSessionBecomes(forgotten.sessionId, "forgotten");
     const attachesBefore = attachCalls(server).length;
 
@@ -202,7 +203,7 @@ test.describe(`agent terminal boundary`, () => {
   });
 
   test("refuses an upgrade whose execution checkout is gone, before running claude", async () => {
-    const elsewhere = await launched(server, "pygardon");
+    const elsewhere = await composeSession(server, "pygardon");
     const callsBefore = server.claudeCalls().length;
 
     const status = await withoutProjectFolder(server, "pygardon", () =>

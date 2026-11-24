@@ -16,7 +16,7 @@ import {
   standaloneSessionName,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
-import { launched } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
@@ -129,7 +129,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       columnsJourney,
     );
     const doneStorySession = (
-      await launched(dashboard, "open-dough", {
+      await composeSession(dashboard, "open-dough", {
         identity: notRefinedIdentity,
         title: notRefinedStory,
         workflow: "refinement",

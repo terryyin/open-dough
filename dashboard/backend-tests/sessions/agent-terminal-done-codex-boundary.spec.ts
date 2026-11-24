@@ -10,7 +10,7 @@ import {
   markDone,
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
-  launched,
+  composeSession,
   openTerminal,
   shows,
 } from "../../test-support/agentTerminalBoundary.ts";
@@ -29,7 +29,7 @@ test("done ends every Codex attachment while an equal Claude ID keeps its attach
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
-  const claude = await launched(dashboard);
+  const claude = await composeSession(dashboard);
   const claudeTerminal = await openTerminal(dashboard, claude);
   expect(await shows(claudeTerminal, "attached")).toBe(true);
   native.threadId = claude.sessionId;

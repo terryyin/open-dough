@@ -1,12 +1,10 @@
-// Session history returns full Done records and reconciled attempts. The regular
-// answer returns attempts still needing attention and names the history revision
-// (../../src/launchAttemptSelection.ts, ../../src/machineSessionsRevision.ts,
-// ../../server/machineSessionObservation.ts). Holding that revision yields an
-// unchanged response. Open-session edits leave it standing; marking a session
-// Done or reconciling an attempt moves it. Any other audience is refused.
+// Session history returns full Done records and reconciled attempts. Its
+// revision moves when sessions enter history, independently of open sessions.
+import { randomUUID } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { launchRecordsSchema } from "../../src/agentLaunch.ts";
 import { attemptsNeedingAttention } from "../../src/launchAttemptSelection.ts";
 import type { AttemptObservation } from "../../src/launchOutcome.ts";
@@ -15,17 +13,18 @@ import {
   sessionsRevisionHeader,
 } from "../../src/machineSessionsRevision.ts";
 import {
+  launchRequest,
   markDone,
   noteReconciled,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
+import { keepMoreAttemptsBesideServer } from "../../test-support/acceptedAttempts.ts";
 import {
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { keepUnsettledAttempt } from "../../test-support/support/unsettledAttempt.ts";
 import {
   type AnsweredEntry,
   withoutRetainedDetail,
@@ -93,31 +92,43 @@ test.describe("the sessions history ask", () => {
   });
 
   test("answers retained done sessions and attempts no longer needing attention under its own revision, which the regular answer names", async () => {
-    const done = await launched(server);
-    const open = await launched(server);
-    expect(
-      (
-        await markDone(server, {
-          source: "open-dough",
-          session: done.sessionId,
-        })
-      ).status,
-    ).toBe(200);
-    const unsettled = keepUnsettledAttempt(server);
-    // Both launches settled; no page has reconciled either with the
-    // published snapshot yet, so both still need attention.
+    const doneStory = { ...launchRequest, identity: "SEED-052#done" };
+    const openStory = { ...launchRequest, identity: "SEED-052#open" };
+    const now = Date.now();
+    const done = await composeSession(server, "open-dough", {
+      ...doneStory,
+      startedAt: now - 1_000,
+    });
+    const open = await composeSession(server, "open-dough", {
+      ...openStory,
+      startedAt: now,
+    });
+    const accepted = (story: typeof launchRequest) =>
+      makeMe.anAcceptedAttempt.withId(randomUUID()).requesting(story);
+    const settled = (story: typeof launchRequest, sessionId: string) =>
+      accepted(story)
+        .launched({ host: "claude", sessionId })
+        .settledAt(new Date(now).toISOString())
+        .please();
+    const doneStart = settled(doneStory, done.sessionId);
+    const openStart = settled(openStory, open.sessionId);
+    const pending = accepted(doneStory).please();
+    await keepMoreAttemptsBesideServer(server, [doneStart, openStart, pending]);
+    const { id: unsettled } = pending;
+    const mark = (session: string) =>
+      markDone(server, { source: "open-dough", session });
+    expect((await mark(done.sessionId)).status).toBe(200);
+    // Neither settled attempt has been reconciled with the published snapshot.
     const before = await ask(server);
-    const attemptOf = (sessionId: string) =>
-      (before.answer.attempts ?? []).find(
-        ({ outcome }) =>
-          outcome?.kind === "launched" &&
-          outcome.session.sessionId === sessionId,
-      )?.id ?? "";
-    const doneAttempt = attemptOf(done.sessionId);
-    const openAttempt = attemptOf(open.sessionId);
+    const { id: doneAttempt } = doneStart;
+    const { id: openAttempt } = openStart;
     expect(attemptIds(before.answer)).toEqual(
       [doneAttempt, openAttempt, unsettled].toSorted(),
     );
+    for (const { id, outcome } of [doneStart, openStart])
+      expect(
+        before.answer.attempts?.find((attempt) => attempt.id === id)?.outcome,
+      ).toEqual(outcome);
     // A page reconciles the open session's start: it no longer needs
     // attention. The done session's start shares its story with the
     // unsettled copy, which no server runs, so it still does.
@@ -130,8 +141,6 @@ test.describe("the sessions history ask", () => {
     expect(regular.status).toBe(200);
     const historyRevision = regular.answer.historyRevision ?? "";
     expect(historyRevision).toMatch(/^[0-9a-f]{64}$/);
-    // The regular answer names it last, after the fields it always had,
-    // and still reads as before.
     expect(
       regular.body.endsWith(
         `,"historyRevision":${JSON.stringify(historyRevision)}}`,
@@ -184,7 +193,6 @@ test.describe("the sessions history ask", () => {
       "attempts",
     ]);
 
-    // Holding the history revision: unchanged, and only for the history.
     for (let repeat = 0; repeat < 2; repeat += 1)
       expect((await history(server, historyRevision)).answer).toEqual({
         revision: historyRevision,
@@ -208,14 +216,7 @@ test.describe("the sessions history ask", () => {
     );
 
     // A session marked done moves the history, which the regular answer names.
-    expect(
-      (
-        await markDone(server, {
-          source: "open-dough",
-          session: open.sessionId,
-        })
-      ).status,
-    ).toBe(200);
+    expect((await mark(open.sessionId)).status).toBe(200);
     const moved = await history(server, historyRevision);
     expect(moved.answer.unchanged).toBeUndefined();
     expect(moved.answer.revision).not.toBe(historyRevision);

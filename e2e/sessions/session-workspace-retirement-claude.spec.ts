@@ -89,6 +89,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   );
   await expect(panel).toContainText(workspace);
   expect(dashboard.claudeAttaches()).toEqual([]);
+  expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
   await closeSidePanel(panel);
   await entry.getByRole("button", { name: "Mark as read" }).click();

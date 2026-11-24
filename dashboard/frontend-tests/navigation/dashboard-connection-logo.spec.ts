@@ -73,10 +73,12 @@ test("the logo kneads once when the waiting dashboard receives updates", async (
     toFake: ["setTimeout", "clearTimeout"],
     shouldAdvanceTime: true,
   });
+  const scheduledTimers = vi.spyOn(window, "setTimeout");
   const visibility = vi
     .spyOn(document, "visibilityState", "get")
     .mockReturnValue("visible");
   onTestFinished(() => {
+    scheduledTimers.mockRestore();
     vi.useRealTimers();
     visibility.mockRestore();
   });
@@ -84,6 +86,16 @@ test("the logo kneads once when the waiting dashboard receives updates", async (
   const mark = () =>
     sessions.element().querySelector<HTMLImageElement>("img.product-mark");
   const shownAsset = () => mark()?.getAttribute("src");
+  async function expectPlaybackToFinish(playbackCount: number) {
+    // Resource timing and image dimensions can arrive before React handles load.
+    await expect
+      .poll(() =>
+        scheduledTimers.mock.calls.filter(([, delay]) => delay === 3_780),
+      )
+      .toHaveLength(playbackCount);
+    await vi.advanceTimersByTimeAsync(4_000);
+    await expect.poll(shownAsset).toBe("/icon-64.png");
+  }
   const connection = banner.getByRole("img", {
     name: /^Dashboard connection:/,
   });
@@ -143,8 +155,7 @@ test("the logo kneads once when the waiting dashboard receives updates", async (
   const firstURL = first.currentSrc;
   await expect.poll(() => loads).toEqual([firstURL]);
   await expectServedBrandAsset(firstURL, "kneadingAnimation");
-  await vi.advanceTimersByTimeAsync(4_000);
-  await expect.poll(shownAsset).toBe("/icon-64.png");
+  await expectPlaybackToFinish(1);
 
   await vi.advanceTimersByTimeAsync(checkIntervalMs);
   await expect.poll(() => checks.length).toBe(2);
@@ -178,7 +189,6 @@ test("the logo kneads once when the waiting dashboard receives updates", async (
   const replayURL = replay.currentSrc;
   expect(replayURL).not.toBe(firstURL);
   await expect.poll(() => loads).toEqual([firstURL, replayURL]);
-  await vi.advanceTimersByTimeAsync(4_000);
-  await expect.poll(shownAsset).toBe("/icon-64.png");
+  await expectPlaybackToFinish(2);
   expect(loads).toEqual([firstURL, replayURL]);
 });
