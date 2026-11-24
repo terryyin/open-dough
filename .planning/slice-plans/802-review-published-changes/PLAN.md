@@ -68,12 +68,12 @@ cases passed. The edit was reverted.
 Start each slice with its smallest failing published example. Recheck test
 selection against the execution base.
 
-## Outside-in proof and ordered slices
+## Ordered slices
 
 ### 1. Open a completed story from published history
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Open a completed story through the existing Git source on a reader with
 no session worktree or launch store. After trunk advances, open the same
 published completion and read its literal file diff. Keep targeted backend
@@ -82,6 +82,13 @@ cases for interleaved work, mixed merge edits, and exact file admission.
 Make published completion the default Done comparison. Reuse existing
 attribution and preserve published revision, paths, notes, and Proof context.
 Resolve the published input through the current configured Git source.
+
+Accepted proof: the typed `story-review-historical-choice.spec.ts` regression
+returned a workspace snapshot before the change and the published completion
+after it. The completed-review backend and Chromium gates passed for immutable
+literal diff, interleaved and mixed merge attribution, source, notes, Proof,
+and explicit landing choices. Dashboard typecheck passed. The independent
+refactor required no edits. Run records: `slice-1-report.md` in checkout evidence.
 
 ### 2. Read a Taken story's published branch before landing
 
@@ -196,6 +203,17 @@ example. Preserve outstanding published promises and useful historical evidence.
   runner selections or shard patterns keep the current group and shard ownership.
 
 ## Current decisions and plan review
+
+The published pre-execution baseline is
+`f5f354ab320dfea79b8c02b10125809e2e06fc2a`. This Story Branch Mode
+execution uses `codex/review-published-changes` in the owned
+`review-published-changes` worktree, publisher
+`dashboard-territory.local-open-dough`, with `origin/main` as the
+integration target. Both remote branches contained the accepted Take before
+slice 1. GitHub Actions workflow `ci.yml` observes the remote execution
+branch through coordinator `yui-review-published-427`, stream
+`/tmp/dough-ci-501/watch-ou4lkf` (PID 64952, Codex cell `g20:10`, shell
+session 71952).
 
 The ordered slices share one model: a configured project supplies attributable
 published endpoints and files for a story or session. Merge attribution and

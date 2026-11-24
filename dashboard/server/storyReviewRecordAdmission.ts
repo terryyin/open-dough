@@ -30,23 +30,13 @@ interface AdmittedWorkspaceReview {
   readonly shown: string;
   readonly fallback?: ReviewLandedRun;
   readonly runs: readonly ReviewLandedRun[];
-  readonly publishedFallback?: {
-    readonly source: PublishedSource;
-    readonly identity: string;
-  };
 }
 
 export type KeptStoryReview =
   | AdmittedWorkspaceReview
   | {
       readonly kind: "story-review";
-      readonly historical: PublishedSource;
-      readonly identity: string;
-      readonly runs: readonly ReviewLandedRun[];
-    }
-  | {
-      readonly kind: "story-review";
-      readonly published: PublishedSource;
+      readonly completed: PublishedSource;
       readonly identity: string;
       readonly runs: readonly ReviewLandedRun[];
     }
@@ -61,17 +51,12 @@ export type KeptStoryReview =
       readonly kind: "story-review";
       readonly run: ReviewLandedRun;
       readonly runs: readonly ReviewLandedRun[];
-      readonly publishedFallback?: {
-        readonly source: PublishedSource;
-        readonly identity: string;
-      };
     }
   | AdmittedSessionReview;
 
 async function admittedIdentityReview(
   read: StoryReviewRead & { readonly subject: ReviewedStorySubject },
 ): Promise<KeptStoryReview> {
-  const { completed, historical } = read;
   const found = await namedReviewRun(
     read.subject.source,
     read.subject.identity,
@@ -79,41 +64,21 @@ async function admittedIdentityReview(
   );
   if (found.run !== undefined)
     return { kind: "story-review", run: found.run, runs: found.runs };
-  if (historical === true)
+  const { source, identity, runs } = found;
+  if (read.completed === true)
     return {
       kind: "story-review",
-      historical: found.source,
-      identity: found.identity,
-      runs: found.runs,
+      completed: source,
+      identity,
+      runs,
     };
-  const fallback = preferredReviewRun(
-    found.runs,
-    ({ record }) => record.landing,
-  );
-  const { source, identity } = found;
+  const fallback = preferredReviewRun(runs, ({ record }) => record.landing);
   const resolved = await resolvedWorkspace(source, identity, found.records);
   const readable =
     resolved?.kind === "workspace" &&
     directoryState(resolved.established.workspace).kind === "available";
   if (!readable && fallback !== undefined)
-    return {
-      kind: "story-review",
-      run: fallback,
-      runs: found.runs,
-      ...(completed === true
-        ? { publishedFallback: { source, identity } }
-        : {}),
-    };
-  if (
-    completed === true &&
-    (resolved === undefined || resolved.kind === "ambiguous")
-  )
-    return {
-      kind: "story-review",
-      published: source,
-      identity,
-      runs: found.runs,
-    };
+    return { kind: "story-review", run: fallback, runs };
   if (resolved === undefined)
     throw new RefusedRequest(
       404,
@@ -123,7 +88,7 @@ async function admittedIdentityReview(
     return {
       kind: "story-review",
       explanation: resolved.explanation,
-      runs: found.runs,
+      runs,
     };
   return {
     kind: "story-review",
@@ -134,8 +99,7 @@ async function admittedIdentityReview(
       executionCheckout(source),
       resolved.established.workspace,
     ),
-    runs: found.runs,
-    ...(completed === true ? { publishedFallback: { source, identity } } : {}),
+    runs,
     ...(fallback === undefined ? {} : { fallback }),
   };
 }

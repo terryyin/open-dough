@@ -1,5 +1,5 @@
-// Ordinary Review opens a workspace or explicit captured run. Done Intent
-// delegates its default to authoritative completion and validated capture recovery.
+// Done review opens authoritative completion, with verified capture recovery.
+// Active stories and explicit captured runs have their own admitted reads.
 // The handler admits a typed read against the kept records and answers under
 // the caller's signal; the response adapter bounds that signal.
 import type { ServerResponse } from "node:http";
@@ -19,7 +19,6 @@ import {
   type KeptStoryReview,
 } from "./storyReviewRecordAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
-import { publishedStoryReview } from "./storyReviewPublished.ts";
 import { publishedSessionReview } from "./publishedSessionReview.ts";
 import { historicalStoryReview } from "./storyReviewHistorical.ts";
 import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
@@ -63,24 +62,12 @@ async function answered(
   request: KeptStoryReview,
   signal: AbortSignal,
 ): Promise<StoryReview> {
-  if ("historical" in request)
+  if ("completed" in request)
     return historicalStoryReview(
-      request.historical,
+      request.completed,
       request.identity,
       request.runs,
       signal,
-    );
-  if ("published" in request)
-    return (
-      (await publishedStoryReview(
-        request.published,
-        request.identity,
-        signal,
-      )) ?? {
-        kind: "unavailable",
-        explanation:
-          "No published completion record is available for this story, so its historical changes cannot be identified.",
-      }
     );
   if ("explanation" in request)
     return {
@@ -89,41 +76,27 @@ async function answered(
       explanation: request.explanation,
     };
   if ("readSession" in request) return request.readSession(signal);
-  let local: StoryReview;
-  if ("run" in request) {
-    local = await landedStoryReview(request.run, signal);
-    if (request.runs.length > 0)
-      local = {
-        ...local,
-        selectedRun: reviewRunKey(request.run.record),
-      };
-  } else {
-    const { sourceId, identity, established, shown } = request;
-    local = await storyReviewSnapshot(
-      established,
-      {
-        identity,
-        profileDirectory: agentProfileDirectoryOf(knownSource(sourceId)),
-      },
-      shown,
-      signal,
-    );
-    if (local.kind === "unavailable" && request.fallback !== undefined)
-      local = {
-        ...(await landedStoryReview(request.fallback, signal)),
-        selectedRun: reviewRunKey(request.fallback.record),
-      };
-  }
-  if (
-    local.kind !== "snapshot" &&
-    local.kind !== "landed" &&
-    request.publishedFallback !== undefined
-  ) {
-    const { source, identity } = request.publishedFallback;
-    const published = await publishedStoryReview(source, identity, signal);
-    if (published !== undefined) return published;
-  }
-  return local;
+  if ("run" in request)
+    return {
+      ...(await landedStoryReview(request.run, signal)),
+      selectedRun: reviewRunKey(request.run.record),
+    };
+  const { sourceId, identity, established, shown, fallback } = request;
+  const workspace = await storyReviewSnapshot(
+    established,
+    {
+      identity,
+      profileDirectory: agentProfileDirectoryOf(knownSource(sourceId)),
+    },
+    shown,
+    signal,
+  );
+  return workspace.kind === "unavailable" && fallback !== undefined
+    ? {
+        ...(await landedStoryReview(fallback, signal)),
+        selectedRun: reviewRunKey(fallback.record),
+      }
+    : workspace;
 }
 
 export {
