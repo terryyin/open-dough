@@ -98,7 +98,12 @@ story-state validation.
 The scratch changes were reverted and `git diff --exit-code HEAD --
 Distribution/src` passed.
 
-## Slices and outside-in proof
+## Slices
+
+Execution uses the existing Story Branch workspace
+`codex/trim-the-product-backlog-command-to-guided-opera` and publisher
+`dashboard-territory.local-open-dough`. The Take `df44afa65896` is published
+on `origin/main` and is the base of the slice publications on the story branch.
 
 At each boundary trace the changed CLI forms, strings and imported symbols
 through [consumer tracing](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace).
@@ -113,7 +118,7 @@ Apply the [failing and flaky test policy](../../../Distribution/src/skills/dough
 ### 1. Find the checked operation for a backlog change
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Follow the installed skill from a new disposable project. For an
 established canonical move, reach the real `refresh` invocation and observe the
 entry's unchanged identity and position. For a developer-requested direction
@@ -131,6 +136,13 @@ duplicated procedure. Fold the new routes into the existing sections and
 delete any text they supersede. Record the guidance line count against the
 1,091-line baseline of the skill and its four references. The existing
 preparation and supplier references already name their operations. Estimated active effort 8–12 minutes.
+
+Accepted proof: A fresh installation reached all 15 dispatch verbs through
+the skill and references. The project compared complete backlog bytes after
+a canonical move, direction update and stale refusal. The entry dropped from
+249 to 238 lines and total guidance from 1,091 to 1,084. The focused runner
+passed the named CLI and installation jobs, including refresh old-home refusal,
+direction expectation refusal and explicit queue return coverage.
 
 ### 2. Keep the command adapters with the operations they describe
 
