@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-431#reduce-codex-wakes-during-supplier-watches",
+  "title": "Reduce Codex wakes during supplier watches",
+  "completedAt": "2026-11-24T10:11:32.127Z",
+  "developer": "Terry Yin",
+  "agent": "Shunka-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-431_reduce-codex-wakes-during-supplier-watches.json",
+      "identity": "SEED-431#reduce-codex-wakes-during-supplier-watches",
+      "completedAt": "2026-11-24T10:11:32.127Z",
+      "blob": "0e49b07246c4593d21ce044b36a38cc7219a864c"
+    },
+    {
       "fileName": "SEED-423_observe-the-cancelled-listing-discover.json",
       "identity": "SEED-423#observe-the-cancelled-listing-discover",
       "completedAt": "2026-11-24T09:16:02.298Z",
@@ -3114,12 +3120,6 @@
       "identity": "SEED-151#balance-test-shares",
       "completedAt": "2026-10-25T12:16:59.774Z",
       "blob": "0d94eef59fd51cd8e5216ff13e4c56f7627e8d86"
-    },
-    {
-      "fileName": "SEED-152_retry-aware-integrated-completion.json",
-      "identity": "SEED-152#retry-aware-integrated-completion",
-      "completedAt": "2026-10-25T10:10:39.595Z",
-      "blob": "db90611165ad8ef1d08819cdd2bf9e83d646b0e3"
     }
   ],
   "unreadable": []
