@@ -5,183 +5,277 @@
 
 ## Goal and scope
 
-Every catalog project the Dashboard test harness creates becomes an installed
-Open Dough project with a matching bare origin. The consumers whose promise is
-about launching are updated to what installation changes: reporting context in
-ad hoc instructions, story launches through the real installed start, and the
-start's refusal when `claude` is missing. Each consumer keeps its distinct
-observation, and production code is unchanged. The result lets SEED-432's
-default-choice admission change only story-dependent expectations.
+Dashboard maintainers get backend and E2E launch results from installed Open
+Dough test projects with matching bare origins. Launches keep their command,
+refusal, record and visible-session observations. Fast cases use ad hoc work
+when the observation is independent of a story. Existing real-start journeys
+continue to prove publication, retry and kept work. SEED-432 can then change
+the expectations its ad hoc admission reaches.
 
-Excluded: consumers that launch only to obtain a session. The supplier story
-[compose existing sessions directly](https://github.com/terryyin/open-dough/blob/db57040f8fbeb93cf8db44538d3ac4d2ec55e8da/.planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly)
-moves them first, and the recorded dependency holds this story until that
-supplier is on trunk.
+The [session-composition prerequisite](https://github.com/terryyin/open-dough/blob/db57040f8fbeb93cf8db44538d3ac4d2ec55e8da/.planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly)
+is satisfied. Consumers whose setup only needs an existing session use the
+composed data from Plan 817. A case whose subject includes a newly written
+launch record, acceptance or the transition from Start to a session keeps
+that launch.
 
 ## Current decisions
 
-- Follow the North Star topic
-  [make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support).
-  Add no support module. Attempt 4's `catalogProjectOrigin.ts` is not
-  reused. Installation replaces the empty folder `installFakeClaude`
-  creates (`dashboard/test-support/support/fakeClaude.ts`), through the
-  existing `initializeStartOrigin`
-  (`dashboard/test-support/support/startOriginInitialization.ts`). Seeded
-  stories are MakeMe repository descriptions (`queuedReadyRepository` and
-  `withRevision`). Assert the readiness of the installed checkout and its
-  bare origin once, where the checkout is made.
-- A server whose machine already holds an installed checkout, such as one
-  `startOrigin` or `preparationPage` made, keeps it.
-- Keep the run-wide prepared origin cheap. A consumer's description shares
-  the run-wide queued base (`queuedReadyRepository`) as its first revision
-  and adds its stories as later revisions. `preparedStartOrigin` then copies
-  the shared preparation and commits the later revisions, instead of
-  privately materializing a whole new installation per process.
-- Story launches whose observation needs no started workspace launch ad hoc
-  work instead, which costs about 300 ms rather than about 1,900 ms. Keep a
-  story launch where the observation is about a story workflow: the
-  execution or refinement command, a kept start, or the card's Start.
-- Interim divergence: slices 1–4 install only the consumers they move,
-  through one fixture option on the server options (`catalog: "installed"`).
-  Slice 5 makes installation the only path and removes the option, so no
-  consumer opts out at the end.
-- Execute in Trunk Mode. Every slice leaves its consumers green, and
-  landing each slice gives SEED-432 the harness early.
+- Use the existing run-wide origin preparation and `initializeStartOrigin`
+  for catalog projects. Keep fixture routing aligned with the configured
+  repository, including Doughnut's `nerds-odd-e/doughnut`. Preserve caller-owned
+  installed origins and cases that intentionally omit local projects. Validate a
+  fixture-created project's installed skill, bare origin and matching
+  `main` once at initialization. Concurrent starts on a shared machine wait
+  for the same initialization. A failed initialization cannot leave a
+  partly initialized project reusable as a ready project.
+- Use MakeMe repository descriptions. Extend the prepared `queuedReadyRepository`
+  base with later revisions for selected readiness, Taken entries, and installed
+  file variants. Select the installation layout that owns the host's path
+  under test. Keep host-specific files and runtime stand-ins distinct from
+  the actual distribution installation. Leave the dedicated `startOrigin`
+  and `preparationPage` cases on their existing private origins.
+- For a case observing a real publication, have its page read the same
+  fixture origin the workflow writes. Reuse `publishCommittedOrigin` with
+  `follows` or an explicit advance at the observation's publication boundary.
+  The workflow publishes the Take or Preparing assignment. The page reports
+  the resulting placement and local session. This follows
+  [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them).
+- Use the installed start when a case observes an execution or refinement
+  workflow. Stage successful execution with recorded Ready on origin. Keep a
+  separate rough story for refinement and cases about eligibility. Keep
+  distinct effects at their existing proof boundaries. Follow the North Star
+  topics [test production directly](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support),
+  [act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows),
+  and [unit tests and E2E](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).
+  Reuse the existing fixture seam and page objects. Keep runner migration
+  with SEED-413.
+- Slices 1–7 select the installed fixture for the consumers they move.
+  Slice 8 makes installation the default for every catalog project and
+  removes the temporary selection. Trunk Mode keeps each increment
+  verifiable independently.
 
-## Decisive premises and baseline
+## Preparation evidence
 
-| Consuming operation | Observation | Result |
-| --- | --- | --- |
-| Install a catalog project per server cheaply (slices 1–5) | At `cde557acd`, 24 November 2026, load about 12 on 16 cores, Node 24.21.0: a temporary backend spec under `npm run --silent test:dashboard:backend -- <spec> --workers=1` timed `startOrigin(queuedReadyRepository().please())` four times | 110–160 ms after a 1,029 ms first round, against a 440–580 ms server start |
-| An ad hoc launch on the installed project launches, with reporting context (slice 1) | Same spec, `launch(server, makeMe.aLaunchRequest.adHoc())` on a `startOrigin` machine; and the full scratch run below | `launched` in 270–340 ms; `agent-launch-ad-hoc-boundary` failed only because the instruction gained the reporting context and branch-entry block |
-| A story launch of a story queued on the catalog origin runs the real start and launches (slices 2–4) | Same spec, `makeMe.aLaunchRequest.executing({ identity: queuedIdentity, … })` against a `startOrigin(queuedReadyRepository())` machine | `launched` in 1,830–2,100 ms. The E2E card Start posts the same request to the same endpoint; only page data differs, and the page reads its stories from the published fixture origin, not the catalog origin |
-| Story launches of stories absent from the catalog origin are refused (slices 2–4) | Full scratch run with every catalog project installed: attempt 4's `catalogProjectOrigin.ts`, called after `installFakeClaude` in `dashboardServer.ts`, `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend` and `… test:e2e`, 21:38–22:21 +08 | 53 backend cases in 37 files and 109 E2E cases in 58 files failed; the [seed's baseline](../../seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#shared-context) classifies them. Logs are private under the common Git directory at `open-dough/evidence/SEED-433-installed-catalog-probe` |
-| Missing `claude` answers the start's refusal (slice 2) | Same full run, `agent-launch-boundary.spec.ts:225` | `{ kind: "failed", reason: "start-refused" }` instead of `not-installed` |
+The post-supplier probe at `698cbd33` installed the shared queued Claude
+origin in each catalog folder provisioned by `startDashboardServer`.
+It reused caller-owned installations and serialized initialization for
+servers on the same machine. The earlier Plan 817 probe reproduced an
+`EACCES` when two servers initialized one project at the same time.
 
-The baseline's failing set includes the supplier story's consumers, so each
-slice reruns its own consumers rather than reusing that run. The scratch
-wiring is reverted; nothing from it is on the branch.
+Both maintained suites ran to completion with four workers on macOS
+on AC power, 25 November 2026, 06:42–07:10 +08, Node 24.21.0. Backend
+recorded 1,923 passed, 47 skipped and 17 failed. Fifteen failures were
+launch cases across 12 files, covered by slices 1–3. Two were Review
+timeouts. E2E recorded 739 passed and 40 failed. Thirty-nine launch
+failures across 19 files are covered by slices 1 and 4–7. One was a
+Review navigation test. The installed-catalog results replace the
+pre-supplier failure inventory. The old timing sample in the seed still
+explains the choice to keep the real start focused. Competing host work
+during the full probe makes its elapsed times unsuitable for a cost baseline.
 
-## Slices and outside-in proof
+| Consuming operation | Result on the installed fixture |
+| --- | --- |
+| Ad hoc boundary with developer text | `agent-launch-ad-hoc-boundary` reached the native call in the project checkout and differed at the old exact instruction assertion by the reporting context and branch-entry block. |
+| Backend story boundary and shell | With the original request seeded as Ready, `agent-launch-environment` passed. `agent-launch-boundary` reached the legacy checkout-scoped native command assertion. The no-Claude case answered `start-refused`. |
+| Page Start on a queued story | The seeded story-card run observed execution refuse a rough story with “Preparation is not recorded”. Refinement opened in `.worktrees/story-c` with the established preparation. The Ready control reached native execution in the same worktree with the established start and reporting context. |
+| Card placement after real publication | The seeded control kept the page fixture pinned and reached the session and focus assertions there. `agent-launch-start-phases`, which passed in the full probe, advances the page's displayed revision to the actual origin's accepted publication and observes the story in Taken. Slice 4 owns the corresponding final-state journeys. |
+| Every fixture-created catalog folder | The scratch wiring exercised the server seam. The direct fake-host calls in the two terminal-close files rely on the same project-folder option and are explicit verification in slice 8. |
 
-Each slice runs the
-[consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
-with `--term catalog --term projectFolders --term launchRequest`. It then
-runs its named files before and after the change, plus every further
-launching consumer the trace reaches.
+The common Git directory retains the scratch inputs, literal commands,
+consumer trace, logs, and runner proof records under
+`open-dough/evidence/SEED-433-post-supplier-698cbd33`. The full run locates
+affected cases. Use the focused before-and-after checks to accept each
+slice's preserved behavior.
+
+## Slices
 
 ### 1. Launch ad hoc work on an installed catalog project
+
 Type: Behavior
 Status: planned
-Proof: The backend `agent-launch-ad-hoc-boundary` and the E2E
-`agent-launch-ad-hoc*` specs and `responsive-session-recovery-ad-hoc` pass on
-installed catalog projects. In the baseline, `agent-launch-ad-hoc`,
-`-ad-hoc-attachments` and `-ad-hoc-instructed` failed, and the rest passed. The boundary spec asserts the reporting context
-and its branch-entry block for the launch's own reference.
+Proof: Backend `agent-launch-ad-hoc-boundary` and E2E `agent-launch-ad-hoc*`,
+`agent-launch-ad-hoc-terminal` and `responsive-session-recovery-ad-hoc`.
+Observe independent native input, its launch-reference reporting context
+and branch-entry block, the project checkout, and the stored label.
+Keep the Pygardon, attachment, host and problem observations that these
+cases cover.
 
-Installed catalog project, ad hoc Start or launch → the native session opens
-in the project checkout with the developer's text followed by the Dashboard
-reporting context. Add the installation path and the `catalog` option, with
-its one readiness assertion. Move the ad hoc launch consumers onto the
-option, keeping their attachment, label, terminal and problem observations.
-Include the Pygardon project case in `agent-launch-ad-hoc`.
+When a launch consumer selects the installed catalog fixture, starting ad
+hoc work sends the developer's text with the reporting context for that
+launch and opens in the project checkout. Establish the one shared
+initialization path through existing support and make the installed fixture
+available to this slice's consumers. Pair the existing shared-machine
+startup case with one origin and a usable post-initialization checkout.
+Use the catalog project route for the matching origin and confirm the
+launch's configuration through the regular HTTP boundary.
 
-### 2. Launch stories at the backend boundary through the real start
+### 2. Launch queued stories with their native command and refusal
+
 Type: Behavior
 Status: planned
-Proof: `agent-launch-boundary`, `-environment`, `-model-boundary`,
-`-options-boundary`, `-options-groups`, `-duplicate`,
-`-uncertain-continuation` and `runtime/mounted-boundary-server` pass on
-installed catalog projects, with their launched stories queued on origin.
-The missing-`claude` case answers the start's refusal and keeps no record.
+Proof: Backend `agent-launch-boundary`, `agent-launch-environment`,
+`agent-launch-model-boundary`, `agent-launch-options-boundary` and
+`agent-launch-options-groups`. Observe the installed receipt, workspace,
+native command with the model, effort, arguments and instructions the case
+already checks, and the launch record. Missing Claude Code answers the
+installed start's refusal with no native launch or record. The environment
+case still checks the developer's shell.
 
-Queued story on the catalog origin, execution or refinement launch → the
-real start runs, the session opens in its workspace with the established
-block, and the consumer's own observation holds: environment, model alias,
-option order, one conversation under contention, or continuation. Queue
-`agentLaunchBoundary`'s identity through a MakeMe later revision on the
-shared queued base, or use `queuedIdentity`. Cases whose observation needs no
-story workflow switch to ad hoc launches under the current decision.
+A Ready queued story receives execution or a queued story receives
+refinement over the normal boundary. Use the existing queued identities or
+publish the request's own identity as a later revision. Stage an independent
+eligible story or a fresh origin where a second launch would otherwise
+depend on a prior Take or Preparing assignment. Keep explicit refusal
+fixtures at their original boundary, including absent, invalid and
+unreadable installed option definitions.
 
-### 3. Start a card's story through the real start in E2E
+### 3. Preserve acceptance, continuation and launch-record writes
+
 Type: Behavior
 Status: planned
-Proof: The E2E `agent-launch-story-card`, `-story-card-open-session`,
-`-story-card-problems`, `-claude-verification`,
-`-claude-own-record-verification`, `-follow-up-session` and `-codex` specs
-pass on installed catalog projects.
+Proof: Backend `agent-launch-change-wait`, `agent-launch-duplicate`,
+`agent-launch-uncertain-continuation`, `agent-launch-records`,
+`agent-launch-records-replaced` and
+`runtime/mounted-boundary-server`. Observe the attempt change count and
+settlement, the held-wait outcome, one native conversation and input,
+retained continuation effort, and real record writes visible to other
+servers, after restart, and during retention.
 
-The launch journey's catalog origin queues the journey's stories, including
-its Taken story → Start on the card runs the real start, and the card lists
-the session beside its Start actions. Verification, Recheck, the follow-up
-and the Codex host keep their observations. Use `launchJourney`'s story
-identities in the description, and update workspace and instruction
-expectations to the started workspace.
+A held or continued launch produces the same lifecycle and store effects
+through the installed catalog fixture. Use ad hoc requests for a native
+hold or launch-record write whose observation does not use story
+membership. Keep a Ready queued story when the assertion depends on its
+identity or the start's phase or policy. Exercise concurrent server starts
+on a shared machine with the shared initialization path from slice 1.
 
-### 4. Launch from the options, model and voice dialogs on installed projects
+### 4. Start a story from its card and follow it through publication
+
 Type: Behavior
 Status: planned
-Proof: The E2E `agent-launch-options`, `-options-exclusive`,
-`-options-kept`, `-model`, `session-instruction-voice`,
-`-voice-key-failures` and `-voice-provider-failures` specs pass on installed
-catalog projects.
+Proof: E2E `agent-launch-story-card`, `agent-launch-story-card-open-session`,
+`agent-launch-story-card-problems`,
+`sessions/sessions-sidebar-reading` and `terminals/agent-terminal`.
+Keep layout, focus, refusal, Mark as done and terminal observations. Check
+the published placement after a Take, the started workspace in native input,
+the one session entry after the first session read, and both Starts' actual
+availability in each Backlog or Taken state.
 
-Dialog choices, then Start → the launch carries the chosen flags, model or
-dictated text through the real start. The options-file cases (no file,
-invalid, another command's, a skill that is not installed) state their file
-through the MakeMe repository description of the installed project, not
-beside an empty folder.
+Seed the successful execution card as Ready on the origin. Keep the rough
+card for refinement and preserve the unready evidence in the eligibility
+observation. Watch the same origin for the launch's publication, address the
+card by story across the move to Taken, and assert the role and membership in
+each phase. Retain the phone's exact-draft and held-native checks. For
+journeys that later exercise an independent published transition, declare it
+on the fixture origin and observe the corresponding card or standalone
+entry. Preserve the source identity and the terminal attach target.
 
-### 5. Install every catalog project
+### 5. Observe verified or continued launches in the page
+
 Type: Behavior
 Status: planned
-Proof: Full backend and E2E suites pass with no `catalog` option left, run as
-`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend`
-with `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD` set, and the same for
-`test:e2e`. Their wall time is within the run-to-run spread of a
-preparation-base run taken under the same load.
+Proof: E2E `agent-launch-claude-verification`,
+`agent-launch-claude-own-record-verification`, `agent-launch-codex` and
+`agent-launch-follow-up-session`. Observe verification, Recheck and
+the adopted native session and message. Follow-up retains the source story's
+status, keeps its context and has a distinct session. The host-switch case
+still reads the selected host's changed options and binds its own record.
 
-Any server → its catalog projects are installed with a matching bare origin.
-Remove the option and make installation the only path. Move every remaining
-consumer the full run reaches onto the slice 2–4 patterns. A consumer that
-launches only to obtain a session is a supplier gap: report it to the
-developer instead of moving it here. Full suites are the local gate for this
-slice because every server fixture changes.
+Use a Ready queued story when a launch's record must carry an established
+start. Arrange an existing source session through MakeMe for the follow-up
+when only the follow-up is under test. Match the host installation to the
+command exercised and keep the native fake's distinguishing behavior. Keep
+the retained attempt and final session ID assertions independent of setup.
 
-## Installed probe handoff from plan 817
+### 6. Carry dialog choices through the installed launch
 
-The composed-session selection passed 144 backend cases and 88 E2E cases.
-The original remaining launch failures span 11 backend launch specs, 17
-E2E launch specs, and `e2e/terminals/agent-terminal.spec.ts`. Two other
-launch cases remain in mixed files: ending a pending launch wait in
-`mounted-boundary-server.spec.ts` and withholding Start until the first
-read in `sessions-sidebar-reading.spec.ts`.
+Type: Behavior
+Status: planned
+Proof: E2E `agent-launch-options`, `agent-launch-options-exclusive`,
+`agent-launch-options-kept` and `agent-launch-model`.
+Keep the dialogs' definition, exclusion, kept selections, model, effort and
+ordered outgoing flags or text. Check native input and the recorded choices
+through the corresponding host.
 
-Two servers starting on the same machine reproduced `EACCES` while
-copying one catalog origin. The probe passed after serializing the
-per-project existence check and bare-origin initialization.
+Supply actual installed option definitions, including variants committed
+through the repository description. Keep the missing file, invalid file,
+other command and absent-skill cases intentional. A missing-skill example
+keeps the project's installation and omits the specific skill whose
+absence it proves. Where a file changes after the dialog opens, preserve
+that temporal distinction and the re-read from the selected host.
+
+### 7. Send voice input through the installed launch
+
+Type: Behavior
+Status: planned
+Proof: E2E `session-instruction-voice`,
+`session-instruction-voice-key-failures` and
+`session-instruction-voice-provider-failures`.
+Keep the dictated and typed instruction, the send boundary, and the
+provider failure and recovery observations.
+
+The launch uses the final draft from the composer. Use a real start where
+the case asserts its command and ad hoc work where the promise is the
+native submission. Observe the visible voice state and exact draft, then the complete native
+instruction with the appropriate established and reporting context.
+
+### 8. Install every fixture-created catalog project
+
+Type: Behavior
+Status: planned
+Proof: Full backend and E2E suites, with the strict proof records. Check the
+fixture path for all `projectFolders` callers, including direct
+`installFakeClaude` users in `agent-terminal-close` and
+`agent-terminal-codex-close`. Check that concurrently reused projects share
+one ready checkout and that pre-installed fixture checkouts keep their own
+origins. Check elapsed time against a plain run under comparable conditions,
+using retained case and group times to attribute any difference. Preserve the
+cheap path for composed sessions and put any unexpected slow behavior in the
+focused case that owns it.
+
+Remove the interim fixture selection. Every catalog folder made by the
+harness has an installed checkout and its own bare origin with matching
+`main`. Run the catalog consumer trace before the change and account for
+every affected assertion. Full suites are the local gate because every
+fixture-created catalog project receives the new default.
 
 ## Concern evidence
 
-Refinement was not needed. Each of slices 1–4 owns one launch route and its
-own consumers, and slice 5 removes the interim option. Remaining concerns:
+Slice-plan refinement split the backend command and record lifecycles, the
+E2E card and host outcomes, and dialog and voice submissions into eight
+slices. They share one installation path. Each slice verifies its own
+observable effect, and slice 8 removes the temporary fixture selection.
 
-- Slice 3: the started workspace may change E2E card observations beyond the
-  launch, such as Taken placement or the session's folder. The baseline
-  attributed 24 E2E files' `toHaveCount`/`toBeEnabled` failures to no cause.
-  Most of them belong to the supplier's consumers, but any launch consumers
-  among them may overrun this slice's sizing.
-- Slice 5: the remaining set depends on what the supplier story leaves.
-  Its size is known only once the supplier lands.
+- Slice 8's backend gate has an open reliability defect.
+  `review/story-review-offline-sync.spec.ts` timed out in two cases during
+  the full run. One timed out again in the six-case focused replay.
+  Its Review fixture constructs its own repository and never enters
+  `startDashboardServer` or the catalog installer.
+- Slice 8's E2E gate has an open navigation race.
+  `review/story-review-tree-collapse.spec.ts` lost the response body
+  after navigation in the full run and passed in isolation. It supplies an
+  installed origin through `preparationPage`, which the scratch installer
+  reused. The focused pass leaves the full-run failure open.
+
+Resolve both under the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+and establish a stable full-suite baseline before reassessing readiness.
 
 ## Verification and delivery
 
-- Local gate: use the maintained [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
-  with `caffeinate -s -i` on AC power for slice 5's full runs. Keep the
-  default timeout and apply the
-  [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
-- Run slice files with
-  `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend -- <files>`
-  or `… npm run --silent test:e2e -- <files>`. Run Dashboard typecheck and
-  lint. When a slice changes `Distribution/tests/support/` builders, run
-  `scripts/test.sh` on the MakeMe support tests it touches.
+- Local gate on macOS uses the maintained
+  [sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
+  with `caffeinate -s -i` on AC power. Keep the default case timeout and
+  apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+- Run `node .agents/skills/dough-execute-plan/scripts/consumer-trace.mjs
+  --checkout "$PWD" --base HEAD --term projectFolders --term catalog
+  --term launchRequest --term claudeLaunches` with the relevant fixture and
+  assertion terms for each slice. Run its named and newly reached cases
+  before and after. Inspect the setup and observing assertion for each distinct
+  purpose. Keep the full trace and its dispositions in execution evidence.
+- Use `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES
+  npm run --silent test:dashboard:backend -- <files>` and the equivalent
+  `test:e2e` command, with the respective
+  `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD` and `OPEN_DOUGH_E2E_PROOF_RECORD`.
+  For slice 8 run both without file selectors under the AC guard. Run
+  Dashboard typecheck and lint. For changed Distribution test builders, run
+  the existing affected MakeMe support tests through `scripts/test.sh`.
+  Follow the repository's installed MakeMe and page-object selections.
