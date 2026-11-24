@@ -10,6 +10,7 @@ import { repositoryHistoryReads } from "../../../Distribution/tests/support/repo
 import type { ListedRun } from "../../server/baseCiNearest.ts";
 import { timeWithoutAdapterRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import type { ComparisonBuildSource } from "../../server/comparisonBuildSource.ts";
+import type { CiProof, CiProofRun } from "../../src/ciProof.ts";
 import {
   collectLandedCiPass,
   type LandedCiPassInputs,
@@ -92,7 +93,9 @@ export async function historyEntries(home: string, project = passProject) {
   return landedCiHistorySchema.parse(read.answer).entries;
 }
 
-// Trunk revisions in order, oldest first, each building the project.
+// Trunk revisions in order, oldest first, each building the project but
+// the planning-only `skips` its CI workflow ignores. A run's CI proof is
+// `proofOf`'s answer, or none.
 export function landedCiPassInputs(
   trunk: readonly string[],
   answers: {
@@ -100,6 +103,8 @@ export function landedCiPassInputs(
     readonly records: () => readonly LaunchRecord[];
     readonly readable?: () => boolean;
     readonly now?: () => number;
+    readonly skips?: readonly string[];
+    readonly proofOf?: (run: CiProofRun) => CiProof;
   },
   home = machineHome(),
 ) {
@@ -108,7 +113,9 @@ export function landedCiPassInputs(
   });
   for (const revision of trunk)
     repository = repository.withRevision(revision, {
-      files: { "src/app.ts": `${revision}\n` },
+      files: answers.skips?.includes(revision)
+        ? { "docs/plan.md": `${revision}\n` }
+        : { "src/app.ts": `${revision}\n` },
     });
   const git = repositoryHistoryReads(repository.please());
   const runsAt: string[] = [];
@@ -126,8 +133,10 @@ export function landedCiPassInputs(
       timeWithoutRunnerWaitsOf: () =>
         Promise.resolve(timeWithoutAdapterRunnerWaits([])),
     },
-    proofOf: () =>
-      Promise.resolve(makeMe.aCiProof.unavailable("none").please()),
+    proofOf: (run) =>
+      Promise.resolve(
+        answers.proofOf?.(run) ?? makeMe.aCiProof.unavailable("none").please(),
+      ),
   };
   const pass = landedCiPass({ ...answers, builds, trunk, home });
   return {

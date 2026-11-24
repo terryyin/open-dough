@@ -168,7 +168,7 @@ specs.
 ### 3. Equivalent and later builds resolve from pending evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `pending-proof` and `pending-sources`. Give `landingResolution`
 and the collection pass Git ancestry, a skipped or cancelled landing or
@@ -179,6 +179,14 @@ passes. Keep the window open to other landings when one proof is unanswered.
 is pending, continued collection of unrelated evidence, and the eventual
 equivalent, later or exact point with its original provenance. Prove
 answered and unanswered outcomes through the same production rules.
+
+**Slice 3 evidence.** `pending-proof` and `pending-sources` went from 4
+server cases taking 11,557 ms to 3 typed cases taking about 81 ms. The two
+pending-proof cases merged into one. The support builder gained optional
+`skips` and `proofOf` answers. A skip is a real MakeMe repository revision
+that changes only files the workflow ignores. Later conversions build launch
+records with the `makeMe.aLaunchRecord…landedAt(revision, { receipt })` chain
+rather than porting `storyLandingRecord` or `capturedComparisonLanding`.
 
 ### 4. Final gaps keep their reasons and valid late recovery
 
@@ -263,6 +271,11 @@ Disposition: proved by slice 1: `dashboard/backend-tests/intent/landed-ci-proof-
 Reported: slice 2 — "The typed cases only cover repeated delivery at the collection level."
 Story clause: "Give expiry, repeated delivery and receipt retention their own observations"
 Disposition: proved by slice 2: `dashboard/backend-tests/review/story-branch-landing-capture.spec.ts` "records the fetched trunk tip and the accepted merge …" integrates again with an explicit landing context and observes `landing: { state: "recorded", receipt }`, the same receipt, while the record stays unchanged; collection-level repeat delivery is owned by `landed-ci-history-comparison-run.spec.ts`.
+
+### G3. Adapter collection's absent GitHub Actions requests have no typed case
+Reported: slice 3 — "checking that adapter projects make no GitHub `actions-*` calls, stay with the adapter specs."
+Story clause: "exact and reused builds"
+Disposition: proved by slice 3: `dashboard/backend-tests/intent/landed-ci-attempt-start-adapter.spec.ts` collects an adapter project's landing and asserts no `actions-` request at line 107, and `landed-ci-history-pending-sources.spec.ts:98` proves the adapter attempt's pending-to-exact point.
 
 ## Verification and delivery
 
