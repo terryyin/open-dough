@@ -71,6 +71,7 @@ intent introduced or affected by a newly developed story.
 - [Read test optimization leads from a smaller reader](seeds/SEED-423-shrink-the-installed-distribution.md#read-test-leads-from-a-smaller-reader) — SEED-423#read-test-leads-from-a-smaller-reader
 - [Decide whether GitHub requests need a shared owner process](seeds/SEED-423-shrink-the-installed-distribution.md#ask-github-without-a-shared-request-owner) — SEED-423#ask-github-without-a-shared-request-owner
 - [Report a missing exact run without inferring coverage](seeds/SEED-423-shrink-the-installed-distribution.md#report-a-missing-exact-run-without-inferring-coverage) — SEED-423#report-a-missing-exact-run-without-inferring-coverage
+- [Catch imports missing from the shipped skills](seeds/SEED-423-shrink-the-installed-distribution.md#check-shipped-script-imports) — SEED-423#check-shipped-script-imports
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
 - [Declare retained landing and recovery state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-retained-landing-recovery-state) — SEED-353#declare-retained-landing-recovery-state
 - [Declare launch and session repository state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-launch-session-repository-state) — SEED-353#declare-launch-session-repository-state

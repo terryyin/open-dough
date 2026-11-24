@@ -236,6 +236,29 @@ the root the orphaned adapter writes to. A scratch witness showed the
 restored code killing the story-branch discover and the faulted code letting
 it finish.
 
+<a id="check-shipped-script-imports"></a>
+
+### Catch imports missing from the shipped skills
+
+**Identity:** SEED-423#check-shipped-script-imports
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** A maintainer moving a module during Distribution cleanup
+  learns in CI if a shipped skill would fail to load it in a client checkout.
+  The payload inventory and Markdown link checks can pass while a script
+  imports a file available only in the Open Dough repository.
+- **Evaluation.** The Distribution check passes for relative `.mjs` imports
+  whose targets are shipped under `Distribution/src/skills/`. It fails and
+  names the importing script and specifier when a literal relative `.mjs`
+  import resolves outside that directory or its target is absent. Prove the
+  boundary with an import that resolves in the source checkout and fails in
+  an installed checkout.
+- **Effort hypothesis.** S. The native evaluation tool already walks literal
+  relative imports for evidence hashing.
+
 ## Ordering and scope reduction
 
 Start with CI reuse removal, the smaller custom CI interface, retirement of
