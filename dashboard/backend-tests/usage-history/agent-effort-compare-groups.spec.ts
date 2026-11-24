@@ -14,10 +14,12 @@ import {
   writeCursorTranscript,
 } from "../../test-support/usage-history/agentEffortHarness.ts";
 import { compareViews } from "../../test-support/usage-history/agentEffortCompare.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
+import { usageHistoryFile } from "../../server/usageHistory.ts";
 import {
-  writeCodexSession,
-  runImport,
-} from "../../test-support/usage-history/importHarness.ts";
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 
 const window = {
   from: "2026-11-14T00:00:00.000Z",
@@ -116,7 +118,7 @@ test("explicit continuation groups deduplicate overlapping selections and retain
   expect(bytes(home)).toEqual(before);
 });
 
-test("repeated stored task selections and Cursor transcript files do not double charge and mixed hosts have no token deltas", ({
+test("repeated stored task selections and Cursor transcript files do not double charge and mixed hosts have no token deltas", async ({
   home,
   root,
 }) => {
@@ -133,7 +135,15 @@ test("repeated stored task selections and Cursor transcript files do not double 
       })
       .please(),
   );
-  runImport(home, root);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
   rmSync(root, { recursive: true });
   const cursorRoot = path.join(home, "cursor");
   writeCursorTranscript(

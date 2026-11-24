@@ -10,10 +10,7 @@ import {
   type UsageHistory,
 } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import {
   counters,
   expect,
@@ -23,6 +20,10 @@ import {
   usageServer,
 } from "../../test-support/usage-history/tokenIndexHarness.ts";
 import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 
 function rollout(home: string, session: string, skill: string, output: number) {
   return makeMe.aCodexRollout
@@ -76,8 +77,16 @@ test("alternating writers keep launch workflows, cohort membership, totals and b
     sessions,
     rollout(home, "refining", "dough-story-refinement", 200),
   );
-  runImport(home, sessions);
-  const store = usageHistoryFile(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [sessions],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
+  const { store } = options;
   const expected = [
     ["executing", "execution", 100],
     ["refining", "refinement", 200],
@@ -96,21 +105,19 @@ test("alternating writers keep launch workflows, cohort membership, totals and b
   for (const task of Object.values(legacy.tasks))
     if (task.workflow === "execution") task.workflow = "dough-execute-plan";
   writeFileSync(store, `${JSON.stringify(legacy)}\n`);
-  runImport(home, sessions);
+  await importUsageHistory(options);
   expect(await taskFacts(store)).toEqual(expected);
   const normalized = readFileSync(store);
   for (const write of [
     () => usage.refresh(),
-    () => runImport(home, sessions),
+    () => importUsageHistory(options),
     () => usage.refresh(),
   ]) {
     await write();
     expect(await taskFacts(store)).toEqual(expected);
     expect(readFileSync(store)).toEqual(normalized);
   }
-  const refreshing = usage.refresh();
-  runImport(home, sessions);
-  await refreshing;
+  await Promise.all([usage.refresh(), importUsageHistory(options)]);
   expect(await taskFacts(store)).toEqual(expected);
   expect(readFileSync(store)).toEqual(normalized);
   for (const [workflow, identity] of [
@@ -159,7 +166,15 @@ test("recovered skills fill a missing launch workflow and remain on a recovered-
     sessions,
     rollout(home, "recovered", "dough-story-refinement", 40),
   );
-  runImport(home, sessions);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store,
+      codexRoots: [sessions],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
   const history = await readUsageHistory(store);
   expect(
     Object.values(history.tasks)

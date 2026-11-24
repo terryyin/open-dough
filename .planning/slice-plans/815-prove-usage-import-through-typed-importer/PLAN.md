@@ -134,7 +134,7 @@ MakeMe options and typed observations. No independent refactor was needed.
 ### 3. Codex imports, reports and effort selection use the typed importer
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the fourteen files pass with no command start
 
 Convert `codex-coverage`, `codex-usage`, `import-report`,
@@ -144,6 +144,19 @@ Convert `codex-coverage`, `codex-usage`, `import-report`,
 `agent-effort-compare-overlap`, `agent-effort-unknown-counters`,
 `agent-effort-unknown-stored-worker` and `agent-effort-selection`. Where a
 case asserts the printed report, assert the importer's returned summary.
+
+Proof result: all 31 cases passed across the same 14 specs and 49 usage
+command calls were replaced. Report assertions now observe the typed return.
+The separate effort CLI retains its argument, output and refusal coverage.
+The writer-consistency case still starts Refresh and import together and
+observes stable totals and bytes after both finish. Its mounted chart proof
+and the mounted freshness specs belong to G1 in slice 6. Summed case time
+fell from 36,248 ms to 17,742 ms and runner time from 20,876 ms to 11,183 ms.
+With Node 24.21.0 and two workers, natural one-minute load was 9.66–10.62
+before and 8.39–9.28 after. The checkout's Git evidence directory keeps
+`slice-3-{before,after}.json` and the per-case table and observations in
+`slice-3-implementation.md`. Dashboard typecheck passed. The 14 subject
+specs reuse the established inputs with no independent refactor candidate.
 
 ### 4. Claude transcripts import through the typed importer
 
@@ -230,6 +243,8 @@ load, so the speed gain is unsettled until that slice measures it.
 - Codex observes GitHub Actions `ci.yml` on the remote execution branch.
   Coordinator `seed413-f763c576`, mailbox `/tmp/dough-ci-501/watch-vtN9oF`,
   PID `20113`, shell session `8533`, cell `g172:11`.
+  Slice 2 superseded the cancelled slice 1 push run `45401287967` when
+  run `45402593213` started on the same branch and workflow.
 - The guard captured `family-before.json` at the claim before any edits. All
   54 files and 150 cases passed. Summed case time was 171,138 ms and runner
   time was 88,701 ms. Natural one-minute load was 7.60–15.61 on 16 cores.

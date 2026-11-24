@@ -4,10 +4,7 @@ import path from "node:path";
 import { usageCheckFile } from "../../server/usageCheck.ts";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import {
   expect,
   finished,
@@ -15,6 +12,11 @@ import {
   test,
   usageServer,
 } from "../../test-support/usage-history/tokenIndexHarness.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 
 test("Checked follows a later import and then an unchanged Refresh's own start time", async ({
   machine,
@@ -23,8 +25,16 @@ test("Checked follows a later import and then an unchanged Refresh's own start t
   const sessions = path.join(home, ".codex/sessions");
   keepLaunchStore(home, { "open-dough": [finished("first")] });
   writeCodexSession(sessions, rootRollout("first", 100).please());
-  runImport(home, sessions);
-  const store = usageHistoryFile(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [sessions],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
+  const { store } = options;
   const usage = await usageServer(machine);
   const firstCheck = await usage.refresh();
   expect((await usage.chart()).checkedAt).toBe(firstCheck);
@@ -36,7 +46,7 @@ test("Checked follows a later import and then an unchanged Refresh's own start t
     "open-dough": [finished("first"), finished("second")],
   });
   writeCodexSession(sessions, rootRollout("second", 200).please());
-  runImport(home, sessions);
+  await importUsageHistory(options);
   const importedAt = statSync(store).mtime.toISOString();
   const chart = await usage.chart();
   expect(chart.tasks.map(({ identity }) => identity)).toEqual([
@@ -62,7 +72,15 @@ test("Checked has no time before import, uses the first import's write, and acce
   const sessions = path.join(home, ".codex/sessions");
   keepLaunchStore(home, { "open-dough": [finished("first")] });
   writeCodexSession(sessions, rootRollout("first", 100).please());
-  runImport(home, sessions);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store,
+      codexRoots: [sessions],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
   expect((await usage.chart()).checkedAt).toBe(
     statSync(store).mtime.toISOString(),
   );

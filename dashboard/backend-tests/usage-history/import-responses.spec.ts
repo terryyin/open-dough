@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
+  readUsageHistory,
   taskUsage,
   usageHistoryFile,
   writeUsageHistory,
@@ -13,11 +14,12 @@ import {
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
-  readImported,
-  responsesFile,
-  runImport,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 
 const injectedAt = "2026-11-14T08:00:00.000Z";
 
@@ -81,12 +83,20 @@ test("an import writes each response it read once to the named file, with its me
   await writeUsageHistory({ tasks: [withdrawn] }, usageHistoryFile(home));
   const native = [launched, injected].map((file) => readFileSync(file, "utf8"));
 
-  runImport(home, root);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
 
   const responses = JSON.parse(
-    readFileSync(responsesFile(home), "utf8"),
+    readFileSync(options.responses, "utf8"),
   ) as UsageResponses;
-  const stored = readImported(home);
+  const stored = await readUsageHistory(options.store);
   const answer = JSON.stringify(["codex", "launched", "answer"]);
   const reply = JSON.stringify(["codex", "injected", "reply"]);
   const stray = JSON.stringify(["codex", "worker", "stray"]);

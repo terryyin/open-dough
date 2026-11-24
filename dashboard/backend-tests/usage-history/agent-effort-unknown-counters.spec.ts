@@ -19,12 +19,16 @@ import {
   succeeded,
 } from "../../test-support/usage-history/agentEffortSelection.ts";
 import {
-  runImport,
   writeClaudeSession,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
+import { usageHistoryFile } from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 
-test("lost native files retain known stored counters with provenance and named unknowns without refreshing Usage", ({
+test("lost native files retain known stored counters with provenance and named unknowns without refreshing Usage", async ({
   home,
   root,
 }) => {
@@ -41,7 +45,15 @@ test("lost native files retain known stored counters with provenance and named u
       })
       .please(),
   );
-  runImport(home, root);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
   rmSync(root, { recursive: true });
   const before = bytes(home);
   const {

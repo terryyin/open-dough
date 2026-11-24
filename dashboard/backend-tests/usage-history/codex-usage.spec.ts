@@ -5,7 +5,11 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   expect,
@@ -14,12 +18,15 @@ import {
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
-  readImported,
-  runImport,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 
-test("attributes own responses and explicit descendants across compressed archives and successive task turns once", ({
+test("attributes own responses and explicit descendants across compressed archives and successive task turns once", async ({
   home,
   root,
 }) => {
@@ -111,32 +118,31 @@ test("attributes own responses and explicit descendants across compressed archiv
       .withResponse("worker-turn", "uncertain", { output_tokens: 1000 })
       .please(),
   );
-  runImport(home, root, ["--codex-root", archive]);
-  const history = readImported(home);
-  const first = Object.values(history.tasks).find(
-    (task) => task.rootTurnId === "first-task",
-  );
-  const second = Object.values(history.tasks).find(
-    (task) => task.rootTurnId === "second-task",
-  );
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root, archive],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
+  const tasks = Object.values(history.tasks);
+  const first = tasks.find(({ rootTurnId }) => rootTurnId === "first-task");
+  const second = tasks.find(({ rootTurnId }) => rootTurnId === "second-task");
   assert(first && second);
-  expect(taskUsage(history, first.id)).toEqual(
-    expect.objectContaining({
-      requests: 3,
-      tokens: expect.objectContaining({
-        output: 37,
-        uncachedInput: 30,
-        cacheRead: 60,
-        cacheWrite: 10,
-      }),
-    }),
-  );
-  expect(taskUsage(history, second.id)).toEqual(
-    expect.objectContaining({
-      requests: 1,
-      tokens: expect.objectContaining({ output: 11 }),
-    }),
-  );
+  expect(taskUsage(history, first.id)).toMatchObject({
+    requests: 3,
+    tokens: { output: 37, uncachedInput: 30, cacheRead: 60, cacheWrite: 10 },
+  });
+  expect(taskUsage(history, second.id)).toMatchObject({
+    requests: 1,
+    tokens: { output: 11 },
+  });
   expect(
     Object.values(history.observations)
       .map((item) => item.responseId)
@@ -162,14 +168,12 @@ test("attributes own responses and explicit descendants across compressed archiv
     (item) => item.responseId === "worker-own",
   );
   assert(workerObservation);
-  expect(workerObservation).toEqual(
-    expect.objectContaining({
-      sessionId: worker,
-      parentSessionId: parent,
-      rootTurnId: "first-task",
-      turnId: "worker-turn",
-    }),
-  );
+  expect(workerObservation).toMatchObject({
+    sessionId: worker,
+    parentSessionId: parent,
+    rootTurnId: "first-task",
+    turnId: "worker-turn",
+  });
   expect(
     workerObservation.measurements.some((item) =>
       item.source.file.endsWith(".zst"),
@@ -179,18 +183,20 @@ test("attributes own responses and explicit descendants across compressed archiv
     (item) => item.responseId === "uncertain",
   );
   assert(uncertainObservation);
-  expect(history.associations[uncertainObservation.id]).toEqual(
-    expect.objectContaining({
-      taskId: null,
-      gaps: expect.arrayContaining(["unresolved-task-association"]),
-    }),
-  );
+  expect(history.associations[uncertainObservation.id]).toMatchObject({
+    taskId: null,
+    gaps: expect.arrayContaining(["unresolved-task-association"]),
+  });
   const before = JSON.stringify(history);
-  runImport(home, root, ["--codex-root", archive]);
-  expect(JSON.stringify(readImported(home))).toBe(before);
+  await importUsageHistory(options);
+  const replayed = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
+  expect(JSON.stringify(replayed)).toBe(before);
 });
 
-test("responses keep the service tier their thread's settings last applied, and none where no tier was recorded", ({
+test("responses keep the service tier their thread's settings last applied, and none where no tier was recorded", async ({
   home,
   root,
 }) => {
@@ -216,10 +222,21 @@ test("responses keep the service tier their thread's settings last applied, and 
       .withResponse("turn", "untiered", { output_tokens: 3 })
       .please(),
   );
-  runImport(home, root);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
 
+  const responses = JSON.parse(
+    readFileSync(options.responses, "utf8"),
+  ) as UsageResponses;
   const tiers = Object.fromEntries(
-    Object.values(readImported(home).observations).map((item) => [
+    Object.values(responses.observations).map((item) => [
       item.responseId,
       item.settings.serviceTier,
     ]),

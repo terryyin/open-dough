@@ -1,5 +1,6 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
+  readUsageHistory,
   writeUsageHistory,
   usageHistoryFile,
 } from "../../server/usageHistory.ts";
@@ -7,11 +8,11 @@ import {
   expect,
   test,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  readImported,
-  runImport,
-} from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 
 test("counts recorded in-window activity without attributed counters and keeps undated tasks unresolved", async ({
   home,
@@ -53,7 +54,15 @@ test("counts recorded in-window activity without attributed counters and keeps u
     },
     usageHistoryFile(home),
   );
-  expect(runImport(home, root)).toMatchObject({
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  expect(await importUsageHistory(options)).toMatchObject({
     tasks: 3,
     observations: 0,
     summary: {
@@ -69,9 +78,7 @@ test("counts recorded in-window activity without attributed counters and keeps u
       outsideWindowTasks: 1,
     },
   });
-  expect(Object.keys(readImported(home).tasks).sort()).toEqual([
-    "active",
-    "early",
-    "undated",
-  ]);
+  expect(
+    Object.keys((await readUsageHistory(options.store)).tasks).sort(),
+  ).toEqual(["active", "early", "undated"]);
 });
