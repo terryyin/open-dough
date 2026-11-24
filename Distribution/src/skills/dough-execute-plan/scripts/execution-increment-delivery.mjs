@@ -2,7 +2,10 @@
 // Resolve runtime and observation, publish an authorized increment, and attach
 // acceptance. Held proof stops before push; local-only authority never pushes.
 import { prepareAndDeliverFreshIncrement } from "./execution-increment-fresh.mjs";
-import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
+import {
+  checkoutRuntimeReceipt,
+  resolveCheckoutRuntime,
+} from "./ci-checkout-runtime.mjs";
 import {
   registerPushedRevision,
   recordDeliveryProgress,
@@ -75,8 +78,7 @@ export async function deliverManagedExecutionIncrement(request) {
   }
 
   const runtime = resolveCheckoutRuntime(workspace, { host });
-  const { alias, skillRoot, entrypoint } = runtime;
-  const runtimeSummary = { alias, skillRoot, entrypoint };
+  const runtimeSummary = checkoutRuntimeReceipt(runtime);
   const observerRoot = root ?? runtime.checkout;
   const observerStorage = storage ?? mailboxRoot;
   const targetBranch = targetBranchName(targetRef);

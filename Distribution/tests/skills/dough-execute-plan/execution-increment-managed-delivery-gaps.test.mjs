@@ -79,7 +79,7 @@ test("an unavailable host bridge reports unobserved coverage and preserves accep
 });
 
 test("the installed deliver command keeps a local-only increment unpublished and unobserved", async (t) => {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  const fixture = await createManagedFixture({ platform: ".claude" });
   t.after(fixture.cleanup);
 
   const { delivered } = await deliverThroughCli(fixture, {
@@ -96,7 +96,7 @@ test("the installed deliver command keeps a local-only increment unpublished and
 });
 
 test("a Claude delivery whose hook does not confirm readiness reports an unavailable bridge and keeps acceptance", async (t) => {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  const fixture = await createManagedFixture({ platform: ".claude" });
   t.after(fixture.cleanup);
   // An installed hook that answers without delivering (as when disabled).
   writeFileSync(
@@ -147,7 +147,7 @@ for (const { trunkAdvanced, pendingEdit } of unpublishedBaseCases) {
   test(`the deliver command refuses a base the remote does not hold${trunkAdvanced ? " after trunk advanced" : ""} before any rebase or push`, async (t) => {
     const fixture = await createManagedFixture({
       description: trunkWithHumanEditTarget,
-      platforms: [".claude"],
+      platform: ".claude",
       checkout: "integration",
     });
     t.after(fixture.cleanup);

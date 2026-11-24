@@ -1,4 +1,10 @@
-import { cpSync, mkdirSync, mkdtempSync, realpathSync } from "node:fs";
+import {
+  appendFileSync,
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -6,6 +12,7 @@ import { makeMe } from "../../support/makeMe.mjs";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
+import { git } from "./publication-test-fixtures.mjs";
 import { blockingGithubCommandDirectory } from "./watch-ci-test-fixtures.mjs";
 
 const source = fileURLToPath(
@@ -26,6 +33,28 @@ export function deployRuntime(root, platform = ".agents") {
 
 export function deployMailboxEntrypoint(root) {
   return join(deployRuntime(root), "scripts/ci-mailbox.mjs");
+}
+
+// Keep the test installation and CI settings out of candidate changes.
+export async function ignoreInstalledSkills(
+  checkout,
+  { anchored = false } = {},
+) {
+  const common = (
+    await git(
+      checkout,
+      "rev-parse",
+      "--path-format=absolute",
+      "--git-common-dir",
+    )
+  ).stdout.trim();
+  const info = join(common, "info");
+  const prefix = anchored ? "/" : "";
+  mkdirSync(info, { recursive: true });
+  appendFileSync(
+    join(info, "exclude"),
+    `${prefix}.agents/\n${prefix}.claude/\n${prefix}.planning/open-dough.json\n`,
+  );
 }
 
 // A repository with one commit, which is no Open Dough backlog project.

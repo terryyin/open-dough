@@ -96,7 +96,7 @@ Enables slice 2's single-root fixtures with no symlink helper left to update.
 ### 2. The CI runtime runs from the invoking host's own root
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: managed-delivery and resolution tests, plus the three files the
 premise names.
 
@@ -154,7 +154,8 @@ Anri-chan started in the linked worktree on
 `codex/use-one-managed-install-layout` in Story Branch Mode. The starting
 revision was `7697cb8426d39b3776496fad4af64bad730682f3`. The Take
 `1317e54a8d0ddc25285ad06b33af4817b0357902` was published to `origin/main` and
-the execution branch. It remains the branch head and first delivery base.
+the execution branch. The branch accepted slice 1 at
+`d83686b7a51da460c16aaff9fd3241bd7baf9da3`.
 
 The slice 1 removal search had zero matches. The
 38-path focused run timed out in `github-request-owner-unresponsive.test.mjs`
@@ -168,6 +169,12 @@ exception for the original timeout so slice 1 could be delivered. Its cause
 remains unknown. Temporary instrumentation was removed. Resolve the
 worktree evidence directory with `git rev-parse --git-path open-dough/evidence`.
 Its `slice1-return.md` records the commands, original failure and traces.
+
+Slice 2 focused verification covered 75 Distribution files. Two auto-land
+files found that their fixture excluded only one installed root from status.
+Both passed after the fixture excluded both roots. The other 73 files did
+not use that exclusion and retain their passing results. `slice2-return.md`
+records the proof and host-specific observations.
 
 Codex observes `ci.yml` for the story branch through coordinator
 `anri-460afa7c` at `/tmp/dough-ci-501/watch-wRJJiC` (PID 30474). The earlier

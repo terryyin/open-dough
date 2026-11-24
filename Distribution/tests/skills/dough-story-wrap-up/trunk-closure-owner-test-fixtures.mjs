@@ -216,7 +216,7 @@ export async function closureBelowToplevel(
     teardown,
     base.fixture,
     project,
-    [".claude"],
+    ".claude",
   );
   await installClosureSkills({ execution: project }, ".claude");
   const common = (

@@ -21,7 +21,7 @@ import {
 } from "./execution-increment-managed-delivery-owner-test-fixtures.mjs";
 
 test("a delivery that names another session reuses that session's observer, says so on its receipt, and its failure reaches the named session's hook and never the caller's", async (t) => {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  const fixture = await createManagedFixture({ platform: ".claude" });
   t.after(fixture.cleanup);
   const as = (session) => ({ ...fixture.env, CLAUDE_CODE_SESSION_ID: session });
 
@@ -71,7 +71,7 @@ test("a delivery that names another session reuses that session's observer, says
 });
 
 test("a Claude Code caller that names an agent_id keeps one observer whose failure reaches that agent alone; without it the receipt names the session alone and that observer stays unused", async (t) => {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  const fixture = await createManagedFixture({ platform: ".claude" });
   t.after(fixture.cleanup);
   // The ambient variable names the session without an agent.
   const env = { ...fixture.env, CLAUDE_CODE_SESSION_ID: "parent-session" };
