@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
 - [Prove durable launch admission through the typed attempt owner](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families ([plan](slice-plans/818-prove-durable-launch-admission/PLAN.md))
 - [Read the published Board and Review from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git ([plan](slice-plans/819-read-published-board-and-review/PLAN.md))
+- [Trim the product backlog command to guided operations](seeds/SEED-423-shrink-the-installed-distribution.md#trim-the-product-backlog-command-to-guided-operations) — SEED-423#trim-the-product-backlog-command-to-guided-operations ([plan](slice-plans/820-trim-the-product-backlog-command-to-guided-operations/PLAN.md))
 
 ## Backlog list
 
@@ -42,7 +43,6 @@ intent introduced or affected by a newly developed story.
 - [Renovate the remaining dashboard backend unit-test families after launch admission](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission) — SEED-413#renovate-remaining-backend-families-after-launch-admission
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
-- [Trim the product backlog command to guided operations](seeds/SEED-423-shrink-the-installed-distribution.md#trim-the-product-backlog-command-to-guided-operations) — SEED-423#trim-the-product-backlog-command-to-guided-operations
 - [Reconcile backlog merges and rebases through one Git adapter](seeds/SEED-423-shrink-the-installed-distribution.md#reconcile-the-backlog-through-one-git-adapter) — SEED-423#reconcile-the-backlog-through-one-git-adapter
 - [Publish to trunk through one loop](seeds/SEED-423-shrink-the-installed-distribution.md#publish-to-trunk-through-one-loop) — SEED-423#publish-to-trunk-through-one-loop
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof

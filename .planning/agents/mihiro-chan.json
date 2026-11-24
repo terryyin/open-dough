@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Mihiro-chan",
+  "email": "mihiro-chan@example.org",
+  "identity": "SEED-423#trim-the-product-backlog-command-to-guided-operations",
+  "mode": "story-branch",
+  "branch": "codex/trim-the-product-backlog-command-to-guided-opera",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
