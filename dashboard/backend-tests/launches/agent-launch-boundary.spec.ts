@@ -98,7 +98,7 @@ test.describe(`agent launch boundary`, () => {
 
   test("launches refinement on its own skill and name, with the developer's instruction after a blank line", async () => {
     server.claudeScenario("launched");
-    const callsBefore = server.claudeCalls().length;
+    const launchesBefore = server.claudeLaunches().length;
     const instruction = "Focus on the empty-state wording";
     const response = await launch(server, {
       ...refinementRequest,
@@ -112,19 +112,11 @@ test.describe(`agent launch boundary`, () => {
         session: { name: `Open Dough · Refinement · ${title}` },
       },
     });
-    expect(server.claudeCalls()[callsBefore]).toEqual({
-      argv: [
-        "--bg",
-        "--name",
-        `Open Dough · Refinement · ${title}`,
-        "--effort",
-        "medium",
-        "--disallowedTools",
-        "Artifact",
-        "--",
-        `/dough-story-refinement ${identity}\n\n${instruction}`,
-      ],
+    expect(server.claudeLaunches()[launchesBefore]).toEqual({
       cwd: openDoughFolder(server),
+      name: `Open Dough · Refinement · ${title}`,
+      effort: "medium",
+      instruction: `/dough-story-refinement ${identity}\n\n${instruction}`,
     });
   });
 

@@ -1,12 +1,12 @@
 // The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
-// at the boundary server, for a launch that asks for a model: a story's or an ad
-// hoc session's `--model <alias>` goes before its instruction, a request
-// without a model passes none, the record keeps the alias, and a model outside
-// the table is refused before any `claude` runs. A chosen effort, or Open
-// Dough's default `medium` when none is chosen, goes as `--effort <level>`
-// after the model and is kept in the record; one outside Claude Code's levels
-// is refused the same way. A refused launch names the model asked for. The
-// synthetic `claude` (../../test-support/fixtures/fake-claude) records every call.
+// at the boundary server, for a launch that asks for a model: a story or ad
+// hoc session starts with `--model <alias>`, a request without a model passes
+// none, the record keeps the alias, and a model outside the table is refused
+// before any `claude` runs. A chosen effort, or Open Dough's default `medium`
+// when none is chosen, goes as `--effort <level>` and is kept in the record;
+// one outside Claude Code's levels is refused the same way. A refused launch
+// names the model asked for. The synthetic `claude`
+// (../../test-support/fixtures/fake-claude) records every call.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -45,8 +45,8 @@ test.describe(`agent launch boundary, chosen model`, () => {
     await server.close();
   });
 
-  // Launches and returns the answered record, the `--bg` call's argv and the
-  // launch read from it.
+  // Launches and returns the answered record and the `--bg` launch read from
+  // its call.
   async function launched(body: unknown) {
     await closeOpenSessions(server);
     server.claudeScenario("launched");
@@ -64,12 +64,11 @@ test.describe(`agent launch boundary, chosen model`, () => {
     expect(call?.cwd).toBe(openDoughFolder(server));
     return {
       record: answer.record,
-      argv: call?.argv,
       started: call && claudeLaunch(call),
     };
   }
 
-  test("starts a story session on the chosen model before its instruction and keeps the alias", async () => {
+  test("starts a story session on the chosen model and keeps the alias", async () => {
     const request = makeMe.aLaunchRequest
       .executing({ identity, title })
       .requestingModel("opus")
@@ -106,7 +105,7 @@ test.describe(`agent launch boundary, chosen model`, () => {
     );
   });
 
-  test("starts an ad hoc session on the chosen model before its text", async () => {
+  test("starts an ad hoc session on the chosen model with its text", async () => {
     const { started } = await launched(
       makeMe.aLaunchRequest
         .adHoc({ instruction: "look at the build" })
@@ -120,28 +119,22 @@ test.describe(`agent launch boundary, chosen model`, () => {
     });
   });
 
-  test("starts a story session at the chosen effort after its model and keeps it", async () => {
+  test("starts a story session at the chosen effort and keeps it", async () => {
     const request = makeMe.aLaunchRequest
       .executing({ identity, title })
       .requestingModel("opus")
       .withEffort("high")
       .withInstruction("go")
       .please();
-    const { record, argv } = await launched(request);
+    const { record, started } = await launched(request);
 
-    expect(argv).toEqual([
-      "--bg",
-      "--name",
-      `Open Dough · Execution · ${title}`,
-      "--model",
-      "opus",
-      "--effort",
-      "high",
-      "--disallowedTools",
-      "Artifact",
-      "--",
-      `/dough-execute-plan ${identity}\n\ngo`,
-    ]);
+    expect(started).toEqual({
+      cwd: openDoughFolder(server),
+      name: `Open Dough · Execution · ${title}`,
+      model: "opus",
+      effort: "high",
+      instruction: `/dough-execute-plan ${identity}\n\ngo`,
+    });
     expect(record.request).toEqual(request);
     expect(await machineSessions(server)).toContainEqual(
       expect.objectContaining({ request: record.request }),

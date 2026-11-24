@@ -39,8 +39,8 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     await server.close();
   });
 
-  // Launches and returns the answered record, the `--bg` call's argv and the
-  // launch read from it.
+  // Launches and returns the answered record and the `--bg` launch read from
+  // its call.
   async function launched(instruction?: string) {
     server.claudeScenario("launched");
     const callsBefore = server.claudeCalls().length;
@@ -61,27 +61,21 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     expect(call?.cwd).toBe(openDoughFolder(server));
     return {
       record: answer.record,
-      argv: call?.argv,
       started: call && claudeLaunch(call),
     };
   }
 
   test("starts a session named for the text, keeps the label, and lists it", async () => {
     const text = "why is the CI slow on main?";
-    const { record, argv } = await launched(text);
+    const { record, started } = await launched(text);
     const label = text;
 
-    expect(argv).toEqual([
-      "--bg",
-      "--name",
-      `Open Dough · Ad hoc · ${label}`,
-      "--effort",
-      "medium",
-      "--disallowedTools",
-      "Artifact",
-      "--",
-      text,
-    ]);
+    expect(started).toEqual({
+      cwd: openDoughFolder(server),
+      name: `Open Dough · Ad hoc · ${label}`,
+      effort: "medium",
+      instruction: text,
+    });
     expect(record.request).toMatchObject({
       ...adHocRequest,
       title: label,

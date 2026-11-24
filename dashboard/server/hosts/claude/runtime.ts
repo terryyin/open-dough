@@ -54,8 +54,9 @@ function execClaude(
 
 // `claude --bg --name <name> [--model <alias>] [--effort <level>]
 // --disallowedTools Artifact [-- <instruction>]` in the execution checkout: one
-// background session, whose short id it prints. With no instruction the session starts without a first prompt;
-// with no model, Claude Code's own model setting applies. A new launch always
+// background session, whose short id it prints. With no instruction the
+// session starts without a first prompt; with no model, Claude Code's own
+// model setting applies. A new launch always
 // records an effort (`../../agentLaunchAccept.ts`); only an attempt recorded
 // without one starts at Claude Code's own effort setting. A passed effort
 // applies to this session only.
