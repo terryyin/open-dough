@@ -285,6 +285,14 @@ served asset check across the header, logo and Settings mark. All six cases
 from the three affected files passed with typecheck. That selection differs
 from the measured header/compact/logo pair.
 
+**CI repair.** At 700 px, a touch context on Linux can show compact Project
+instead of the desktop radio group when text and controls use more room. The
+mounted case now checks the mode against the rendered fit and preserves the
+four width, layout and native focus observations. The matching failure was
+reproduced on Ubuntu. Both radio and compact conditions passed after the fix,
+as did the six focused macOS cases and typecheck. See
+[the diagnosis](diagnosis-header-viewport.md) for the failed attempt and proof.
+
 ### 5. Story references navigate, identify and recover without late theft
 
 Type: Behavior

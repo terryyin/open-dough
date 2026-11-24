@@ -27,6 +27,17 @@ export const settings = banner.getByRole("button", {
   exact: true,
 });
 
+export function projectTabsFit() {
+  const slot = banner.element().querySelector(".project-slot");
+  const tabs = slot?.querySelector(".project-select");
+  if (slot === null || !tabs)
+    throw new Error("Expected the banner's project choices.");
+  return (
+    tabs.getBoundingClientRect().width <=
+    slot.getBoundingClientRect().width + 0.5
+  );
+}
+
 export async function expectBannerRow(project: Locator) {
   await expect.element(project).toBeInViewport({ ratio: 1 });
   const controls = [

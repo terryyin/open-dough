@@ -12,6 +12,7 @@ import {
   expectFrameTextWhole,
   expectOnlyBannerControls,
   projectChoices,
+  projectTabsFit,
   sessions,
   settings,
 } from "./dashboard-header-reading.ts";
@@ -93,7 +94,8 @@ test("the selected project banner stays pinned and reachable across wide, mid an
 
   for (const { viewport, compact, font } of [
     { viewport: wide, compact: false, font: "" },
-    { viewport: { width: 700, height: 720 }, compact: false, font: "" },
+    // At this width, system fonts and touch-sized controls can change what fits.
+    { viewport: { width: 700, height: 720 }, compact: undefined, font: "" },
     { viewport: { width: 520, height: 720 }, compact: true, font: "" },
     { viewport: zoomedViewport, compact: true, font: "Verdana, sans-serif" },
   ]) {
@@ -101,9 +103,11 @@ test("the selected project banner stays pinned and reachable across wide, mid an
     header.style.fontFamily = font;
     last.element().scrollIntoView({ block: "nearest" });
     await expect.element(last).toBeInViewport({ ratio: 1 });
-    await expectBannerRow(compact ? compactProject : projectChoices);
+    expect(innerWidth).toBe(viewport.width);
+    const showsCompact = compact ?? !projectTabsFit();
+    await expectBannerRow(showsCompact ? compactProject : projectChoices);
     expectOnlyBannerControls();
-    if (compact) {
+    if (showsCompact) {
       await expect.element(compactProject).toHaveTextContent("Open Dough");
       expect(projectChoices.query()).toBeNull();
     } else {
