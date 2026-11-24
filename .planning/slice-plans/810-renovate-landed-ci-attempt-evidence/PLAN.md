@@ -99,7 +99,7 @@ write; leave the addressed-reader assertion to slice 4.
 ### 2. Standalone collection retains the selected attempt's proof
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `landed-ci-proof-collection` and
 `landed-ci-proof-adapter-units`. Pass GitHub artifact answers and an
@@ -192,6 +192,13 @@ only after its consumers have gone.
   `collectLandedCiPass` / `collectRetainedAttemptTiming` seam already used by
   `landed-ci-scope-*` specs; no new production representation; no
   refactor-check candidate.
+- Slice 2: unavailable proofs are not remembered — assert listing/archive
+  after collection, before a second typed proof read. Optional
+  `IntentCiProofReaders` on `performIntentCiProofRead` / `readIntentCiProof`
+  forwards collection seams; production `performedRead` still omits readers.
+- Slice 2 refactor: named readers type, `buildKeyOf`, extracted
+  `retainedLandedCiProof` support, split summary history reopen; cohort-wide
+  checkout harness left as follow-up.
 
 ## Accepted proof (slice 1)
 
@@ -199,6 +206,14 @@ Focused: `npm run test:dashboard:backend -- landed-ci-attempt-start landed-ci-at
 Evidence: `open-dough/evidence/slice1-proof2-20261124182203.log.run.json`,
 `slice1-proof-lint4.log.run.json` (renewed after delivery formatting lint repair),
 `slice1-return-report.md`. Consumer-trace: test-only; production binding unchanged.
+
+## Accepted proof (slice 2)
+
+Focused (post-refactor): `npm run test:dashboard:backend -- landed-ci-proof-collection landed-ci-proof-adapter-units --workers=2` (exit 0; 2 files / 5 tests).
+Evidence: `open-dough/evidence/slice2-refactor-20261124185000.log.run.json`,
+`slice2-proof-ts.log.run.json` (renewed after delivery formatting lint repair),
+`slice2-return-report.md`, `slice2-refactor-consumer-trace-20261124185000.txt`.
+Production: optional `IntentCiProofReaders` pass-through; default wire unchanged.
 
 ## Concern evidence
 
