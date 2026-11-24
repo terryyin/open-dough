@@ -29,11 +29,11 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Review published changes](seeds/SEED-427-review-published-changes.md#review-published-changes) — SEED-427#review-published-changes ([plan](slice-plans/802-review-published-changes/PLAN.md))
+- [Start ad hoc work under a story](seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story) — SEED-426#start-ad-hoc-work-under-a-story ([plan](slice-plans/804-start-ad-hoc-work-under-a-story/PLAN.md))
 
 ## Backlog list
 
 - [Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository) — SEED-428#read-reviews-from-the-review-repository
-- [Start ad hoc work under a story](seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story) — SEED-426#start-ad-hoc-work-under-a-story
 - [Observe that a failed listing discover cancels the other branch](seeds/SEED-423-shrink-the-installed-distribution.md#observe-the-cancelled-listing-discover) — SEED-423#observe-the-cancelled-listing-discover
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
