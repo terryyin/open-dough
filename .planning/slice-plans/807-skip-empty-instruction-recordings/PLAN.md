@@ -94,3 +94,16 @@ trunk, outside the story-branch observer's coverage.
 CI is the push workflow `ci.yml` in `terryyin/open-dough`. Codex coordinator
 `seed-429-6b7bcbeb` armed the story-branch observer in
 `/tmp/dough-ci-501/watch-NgD3ew` (cell `g41:8`, session `21059`, PID `28110`).
+
+## Execution complete
+
+Product advice: no change. The mounted launch regression exercises the shared
+recorder through explicit Stop and a successful retry. Existing real-recorder
+journeys preserve the nonempty request and review paths. The guard stays in
+the browser recording hook and uses the same failure and cleanup path.
+
+Implementation was accepted on the story branch as
+`d6d9ae22cde916b8a82ed93e5d89ec3d6d13ef7f`. The coordinator repaired two
+fixture lint findings during delivery and reran the three affected mounted
+cases before publishing. The retrospective recorded the formatting retry
+under ODF-329 in `DearDough.md` and found no product follow-up.
