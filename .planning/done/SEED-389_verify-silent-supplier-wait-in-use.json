@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-389#verify-silent-supplier-wait-in-use",
+  "title": "Verify the silent supplier wait in Codex",
+  "completedAt": "2026-11-24T08:23:47.907Z",
+  "developer": "Terry Yin",
+  "agent": "Maria-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

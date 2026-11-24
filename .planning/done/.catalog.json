@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-389_verify-silent-supplier-wait-in-use.json",
+      "identity": "SEED-389#verify-silent-supplier-wait-in-use",
+      "completedAt": "2026-11-24T08:23:47.907Z",
+      "blob": "a71dc2046fe41b59a306769d30f6b7b4beb030d5"
+    },
+    {
       "fileName": "SEED-429_skip-empty-instruction-recordings.json",
       "identity": "SEED-429#skip-empty-instruction-recordings",
       "completedAt": "2026-11-24T07:26:43.713Z",
