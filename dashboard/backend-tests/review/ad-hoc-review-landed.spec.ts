@@ -1,5 +1,6 @@
 import path from "node:path";
 import { expect, test, onTestFinished, vi } from "vitest";
+import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
@@ -26,7 +27,7 @@ test("a Done session reads a legacy accepted pair through origin without its cap
       .withRevision("later", { files: { [file]: "advanced\n" } })
       .please(),
   );
-  vi.stubEnv("HOME", repository.fixture);
+  stubFixtureHome(repository.fixture, repository.origin);
   const unmount = mountProjectConfiguration("development");
   onTestFinished(async () => {
     unmount();
@@ -38,7 +39,7 @@ test("a Done session reads a legacy accepted pair through origin without its cap
       .with({
         id: "open-dough",
         label: "Open Dough",
-        repository: "terryyin/open-dough",
+        repository: fixtureRepository,
         localPath: repository.integration,
       })
       .please(),

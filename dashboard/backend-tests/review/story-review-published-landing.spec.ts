@@ -1,5 +1,6 @@
 import path from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
+import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
@@ -24,7 +25,7 @@ test("a legacy receipt reads the exact accepted origin pair and loses authority 
       .withRevision("later", { files: { [literal]: "later change\n" } })
       .please(),
   );
-  vi.stubEnv("HOME", repository.fixture);
+  stubFixtureHome(repository.fixture, repository.origin);
   const unmount = mountProjectConfiguration("development");
   onTestFinished(async () => {
     unmount();
@@ -36,7 +37,7 @@ test("a legacy receipt reads the exact accepted origin pair and loses authority 
       .with({
         id: "open-dough",
         label: "Open Dough",
-        repository: "terryyin/open-dough",
+        repository: fixtureRepository,
         localPath: repository.integration,
       })
       .please(),

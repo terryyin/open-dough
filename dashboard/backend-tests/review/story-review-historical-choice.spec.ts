@@ -1,5 +1,6 @@
 import path from "node:path";
 import { expect, test, vi } from "vitest";
+import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
@@ -24,7 +25,7 @@ test("a Done story opens its published completion while its workspace has local 
     ordinaryTrunkModeCompletedHistory(),
   );
   const { completion } = repository.revisions;
-  vi.stubEnv("HOME", repository.fixture);
+  stubFixtureHome(repository.fixture, repository.origin);
   const unmount = mountProjectConfiguration("development");
   onTestFinished(async () => {
     unmount();
@@ -35,7 +36,7 @@ test("a Done story opens its published completion while its workspace has local 
     .with({
       id: "open-dough",
       label: "Open Dough",
-      repository: "terryyin/open-dough",
+      repository: fixtureRepository,
       localPath: repository.integration,
     })
     .please();

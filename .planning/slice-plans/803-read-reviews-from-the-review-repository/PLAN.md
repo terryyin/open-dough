@@ -97,7 +97,7 @@ about 22.
 
 ### 1. Route fixture origins through the fixture HOME's Git config
 Type: Structure
-Status: planned
+Status: done
 Proof: The review backend specs and E2E journeys named in the premise table stay green.
 
 Change: `startOrigin`, `publishedMainFixture`, and the backend review reader
@@ -105,6 +105,27 @@ setups write `url.<fixture origin>.insteadOf=https://github.com/<repository>.git
 to their fixture HOME. One test-support step does this for each fixture, not one
 inline per spec. Clones stop carrying their own `insteadOf`. Enables slice 2,
 whose Review repository fetches the configured repository URL.
+
+Accepted proof (uncommitted candidate on 773efc16c, load 11–19): the named
+backend and E2E specs, plus `launches/start-origin-isolation`,
+`launches/agent-launch-start`, `runtime/production-publication-fixture`,
+`runtime/production-deployment`, `story-review-story-branch-landed` and
+`sessions/agent-completion-execution`, and typecheck, all exited 0.
+
+Learnings for later slices:
+- `routeOriginThroughHome` (`dashboard/test-support/support/fixtureOriginRoute.ts`)
+  is the one route writer. Backend review cases call `stubFixtureHome` and
+  configure `fixtureRepository` (`dashboard/backend-tests/support/fixtureHome.ts`).
+  The `startOrigin` clone includes the machine HOME's `.gitconfig`, because
+  fixture git commands in it run under the real HOME.
+- `published-session-review.spec.ts` has no fixture origin or HOME yet. Slice 4
+  gives it `withOrigin()` and `stubFixtureHome`.
+- `story-review-published-taken.spec.ts` timed out under load at 17–19, at base
+  too. Its first case per history pays the repository template build, and each
+  read re-fetches origin. The reader clone now disables auto-maintenance, and
+  the literal-file case reuses the cached history. The literal-file case still
+  runs 2.3–3.6s at load 14. That remaining cost is the product's per-read fetch,
+  which slice 3 removes, so slice 3 re-measures it.
 
 ### 2. Open a Done story's review from the Review repository
 Type: Behavior

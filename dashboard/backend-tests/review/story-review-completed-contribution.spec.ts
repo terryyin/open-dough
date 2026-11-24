@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, expect, test, vi } from "vitest";
+import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
@@ -32,14 +33,14 @@ beforeAll(async () => {
     completedStoryContributionHistory(),
   );
   cleanRepository = repository.cleanup;
-  vi.stubEnv("HOME", repository.fixture);
+  stubFixtureHome(repository.fixture, repository.origin);
   unmount = mountProjectConfiguration("development");
   appendConfiguredProject(
     makeMe.aConfiguredProject
       .with({
         id: subject.source,
         label: "Open Dough",
-        repository: "terryyin/open-dough",
+        repository: fixtureRepository,
         localPath: repository.integration,
       })
       .please(),
