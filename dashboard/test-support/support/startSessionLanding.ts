@@ -1,8 +1,9 @@
 // What the unattached Start session specs share on a real start origin
 // (./startOrigin.ts): the installed start's invocations recorded as they
-// happen, the start an unattached session's place is established by, in the
-// execution checkout or a new workspace, and the "Established session" block
-// its first input carries.
+// happen, the start that establishes a session in the execution checkout,
+// what a session in either workspace is recorded as, and the "Established
+// session" block its first input carries. An isolated session's admitting
+// start is in ./isolatedSessionAdmissionProof.ts.
 
 import { execFileSync } from "node:child_process";
 import {
@@ -69,7 +70,7 @@ export function recordStarts(origin: StartOrigin, host: Host = "claude") {
       'import { spawnSync } from "node:child_process";',
       'import { appendFileSync, existsSync, writeFileSync } from "node:fs";',
       "const argv = process.argv.slice(2);",
-      `appendFileSync(${JSON.stringify(log)}, JSON.stringify({ argv, cwd: process.cwd() }) + "\\n");`,
+      `if (argv[0] === "start") appendFileSync(${JSON.stringify(log)}, JSON.stringify({ argv, cwd: process.cwd() }) + "\\n");`,
       "const held = (when) => {",
       `  const hold = ${JSON.stringify(path.join(origin.machine, "start-hold-"))} + when;`,
       "  if (!existsSync(hold)) return;",
@@ -78,9 +79,9 @@ export function recordStarts(origin: StartOrigin, host: Host = "claude") {
       "  // Bounded, so a failed case's server can still close.",
       "  for (let waited = 0; existsSync(hold) && waited < 600; waited += 1) Atomics.wait(wait, 0, 0, 50);",
       "};",
-      'held("before");',
+      'if (argv[0] === "start") held("before");',
       `const run = spawnSync(process.execPath, [${JSON.stringify(real)}, ...argv], { stdio: ["ignore", "pipe", "inherit"] });`,
-      'held("after");',
+      'if (argv[0] === "start") held("after");',
       "process.stdout.write(run.stdout);",
       "process.exitCode = run.status ?? 1;",
       "",
@@ -122,37 +123,9 @@ export const executionCheckoutStart = (project: string, landing: Landing) => [
 export const worktree = (project: string, slug: string) =>
   path.join(project, ".worktrees", slug);
 
-// The start that establishes an unattached session in a new workspace: the
-// same one-shot start, given the project as its integration checkout and the
-// workspace and branch the dashboard chose on the host's namespace.
-export const isolatedStart = (
-  project: string,
-  slug: string,
-  landing: Landing,
-  host: Host = "claude",
-) => [
-  "start",
-  "--integration",
-  project,
-  ...(landing === "auto-land" ? ["--push-authorized"] : []),
-  "--one-shot",
-  ...(landing === "auto-land" ? ["--auto-land"] : []),
-  "--workspace",
-  worktree(project, slug),
-  "--branch",
-  `${host}/${slug}`,
-  "--mode",
-  "story-branch",
-  "--remote",
-  "origin",
-  "--target",
-  "main",
-  "--workspace-authorized",
-];
-
-// What a session established in a new workspace at `revision`, the fetched
-// trunk its worktree was created at, is recorded as, and the block its first
-// input carries. Its start reports no separate fetched trunk.
+// What a session established in a new workspace at `revision`, the revision
+// its worktree starts from, is recorded as, and the block its first input
+// carries. Its start reports no separate fetched trunk.
 export const isolatedSession = (
   project: string,
   slug: string,
@@ -204,10 +177,6 @@ export const git = (folder: string, ...args: string[]) =>
     encoding: "utf8",
     stdio: ["ignore", "pipe", "ignore"],
   }).trim();
-
-// Every branch origin holds, with its revision.
-export const originHeads = (origin: StartOrigin) =>
-  origin.originGit("for-each-ref", "--format=%(refname) %(objectname)");
 
 // The project's linked worktrees, as their folders under `.worktrees/`.
 export const worktrees = (project: string) =>

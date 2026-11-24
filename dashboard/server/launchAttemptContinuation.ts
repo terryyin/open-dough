@@ -54,7 +54,10 @@ export function continuationRecord(
     notContinued(owned.observed(found));
   if (unneeded !== undefined) return unneeded;
   if (verifying.has(id)) return recheckRunning;
-  if (found.request.workflow === "ad-hoc")
+  if (
+    found.request.workflow === "ad-hoc" &&
+    found.publication.kind !== "published"
+  )
     return { attempt: found, ownLaunch: false };
   if (records === undefined) return unreadableLaunchRecords;
   if (

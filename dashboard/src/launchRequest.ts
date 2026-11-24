@@ -13,6 +13,7 @@ import {
   unattachedPolicyOf,
   unattachedSessionPolicySchema,
   type SessionPolicy,
+  type UnattachedSessionPolicy,
 } from "./launchRequestSessionPolicy.ts";
 
 export {
@@ -130,6 +131,18 @@ export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
 export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 
+// These independent launches publish a Taken story before native start.
+export const admitsIsolatedStory = (request: {
+  readonly policy?: UnattachedSessionPolicy | undefined;
+  readonly followUp?: unknown;
+}): boolean =>
+  request.followUp === undefined && request.policy?.workspace === "isolated";
+
+// Whether a launch starts a story before its native session: every story
+// workflow's start, or an isolated ad hoc admission. Others publish nothing.
+export const startsStory = (request: AgentLaunchRequest): boolean =>
+  request.workflow !== "ad-hoc" || admitsIsolatedStory(request);
+
 // A request as it is kept: without transient confirmation of existing changes,
 // base CI, or attachment claim ids (bytes stay out of JSON stores; paths are
 // set only after admission materializes claims).
@@ -215,6 +228,7 @@ export const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [
     })
     .extend({
       title: oneLine,
+      storyIdentity: oneLine.optional(),
       reporting: reportingContextSchema.optional(),
     }),
 ]);

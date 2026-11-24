@@ -102,6 +102,16 @@ function adHocLabel(
     : text;
 }
 
+export function admittedStoryTitle(
+  request: Pick<UnattachedRequest, "instruction" | "maintenance">,
+  began: Date,
+): string {
+  const label = adHocLabel(request, began);
+  return adHocLabelText(request) === undefined || /[[\]]/.test(label)
+    ? `Ad hoc work — ${launchTime(began)}`
+    : label;
+}
+
 // The request a launch keeps, without the transient confirmation of existing
 // changes: an ad hoc one titled with its label, the one place the label is
 // derived.

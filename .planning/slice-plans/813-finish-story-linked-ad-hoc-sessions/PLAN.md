@@ -112,7 +112,7 @@ cursor-agent 2026.11.22.
 
 ### 2. Open an isolated Dashboard session on its admitted story
 Type: Behavior
-Status: planned
+Status: done
 Proof: An isolated Start session publishes one remote Taken story before native
 dispatch and then shows one ordinary Session entry, including after Continue.
 
@@ -123,6 +123,25 @@ one native launch under the accepted identity, and a competing or mismatched
 claim that opens no native session. Reuse Start's current attempt recording
 and workspace selection. Exercise the real installed script and a moving
 bare origin. Keep removed files from the old isolated patch recoverable in Git.
+
+Result: trunk had removed isolated admission in a single commit,
+`fc66bdb8e`. Reverse-applying that commit conflicted in two files only, and
+those were resolved on current interfaces. `isolatedSessionAdmission.ts` drafts
+and admits through the installed script. The script writes its own owned draft,
+so slice 1's hand-seeded inputs do not apply. `startsStory` in
+`launchRequest.ts` selects isolated, non-follow-up ad hoc Starts. The first
+input gains a `Taken story:` line, and a blank admitted Start sends no input.
+Refusal keeps the existing "Continue session start of …" control.
+`admitted-session-retry` and `admitted-session-refusal` observe these cases:
+- receipt refusal followed by one native start;
+- a competing claim and an origin mismatch, with no native start;
+- in the isolated E2E, publication before dispatch, attachment bytes and one
+  Session entry.
+
+The recovery E2E observes a held start with no native call until Continue.
+"The story admission can be retried." still has no assertion. Slice 3 reuses
+this admission and its proof seams, `isolatedSessionAdmissionProof.ts`
+and `startSessionLanding.ts`.
 
 ### 3. Open a default-checkout or scheduled session on its admitted story
 Type: Behavior

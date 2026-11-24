@@ -132,12 +132,16 @@ export function startName(workflow: LaunchWorkflow | "ad-hoc"): string {
     : `${launchWorkflows[workflow].name.toLowerCase()} start`;
 }
 
-// The story a request is of, by its identity, or undefined for an ad hoc
-// session, which has none.
+// The story a request is of. An incoming ad hoc request names none until
+// the workflow's admission binds its recorded launch.
 export function storyOf(
   request: AgentLaunchRequest | RecordedLaunchRequest,
 ): string | undefined {
-  return request.workflow === "ad-hoc" ? undefined : request.identity;
+  return request.workflow === "ad-hoc"
+    ? "storyIdentity" in request
+      ? request.storyIdentity
+      : undefined
+    : request.identity;
 }
 
 // What a consumer of a launch record needs of its request, spelled once: the
