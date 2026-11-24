@@ -495,3 +495,22 @@ reproduced with a targeted failing witness and repaired at its test boundary.
   key examples map to slices 1–3; no duplicated domain rule remains.
 - **Remaining concerns.** None identified beyond the early-probe-bounded
   story-URL mount premise above.
+
+## Execution complete
+
+Product advice: no change. The scoped migration is complete and the
+runner-retirement story already owns the remaining cutover work and
+prerequisites.
+
+The review compared the selected story and plan at `49b9af9bc` with all ten
+published increments after Take `f733216e1` through `1f60b3797`. The live-session
+migration is separate work. The final scope check observed no legacy
+registrations in the 22 original spec paths. The assertion maps, 52 mounted
+passes, one new real-history pass, and renewed appearance proof support the
+original promise at the two-worker comparison conditions recorded above.
+Mounted behavior drove the settings-return focus repair. Real Retry, reload
+and Back/Forward keep an E2E owner, and saved visibility adds focused checks
+to the existing E2E. Typed application settings reads, real production mounts
+and the shrinking route-substitute surface follow ADRs 0002 and 0008. The
+comparison follows ADR 0010. The proof and product review leave no open
+correction. Process review remains selected for wrap-up after Intent Coverage.
