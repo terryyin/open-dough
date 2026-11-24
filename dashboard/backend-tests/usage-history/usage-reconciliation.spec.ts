@@ -3,6 +3,7 @@
 // unknown and its gap in the task's coverage, never a sum.
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
+import { describe, expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -17,7 +18,6 @@ import {
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
@@ -26,7 +26,7 @@ import {
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
-test.describe("response usage reconciliation", () => {
+describe("response usage reconciliation", () => {
   test("enriches partial measurements, counts a session written again once and leaves conflicting counters unknown without increasing totals", async ({
     home,
     root,

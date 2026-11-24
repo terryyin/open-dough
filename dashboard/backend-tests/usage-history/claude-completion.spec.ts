@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -10,10 +11,7 @@ import {
 import { importUsageHistory } from "../../server/usageImport.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { writeClaudeSession } from "../../test-support/usage-history/importHarness.ts";
 
 const sessionId = "claude-completion";
@@ -136,7 +134,7 @@ test("counts explicit terminal output once, even before a later progressive snap
   expect(taskUsage(history, task.id)).toEqual(
     expect.objectContaining({
       requests: 1,
-      tokens: expect.objectContaining({ output: 690 }),
+      tokens: expect.objectContaining({ output: 690 }) as unknown,
     }),
   );
   expect(task.outcome ?? null).toBeNull();

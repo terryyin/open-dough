@@ -2,6 +2,7 @@
 // (../../server/usageHistory.ts): its task record and its session's
 // contribution, a few kilobytes however many responses its rollout holds.
 import { statSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -10,7 +11,6 @@ import {
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {

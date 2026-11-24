@@ -1,7 +1,11 @@
 // Import and Refresh agree on launch workflows without rewriting unchanged history.
-import { readFileSync, utimesSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, utimesSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { retainedLaunchEnds } from "../../server/retainedUsageTasks.ts";
+import { readTokenIndex } from "../../server/tokenIndexRead.ts";
+import { lastUsageCheck } from "../../server/usageCheck.ts";
 import {
   readUsageHistory,
   taskUsage,
@@ -9,21 +13,44 @@ import {
   writeUsageHistory,
   type UsageHistory,
 } from "../../server/usageHistory.ts";
-import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
-import {
-  counters,
-  expect,
-  finished,
-  sol,
-  test,
-  usageServer,
-} from "../../test-support/usage-history/tokenIndexHarness.ts";
-import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
 import {
   claudeUsageRoots,
   importUsageHistory,
 } from "../../server/usageImport.ts";
+import { refreshUsage } from "../../server/usageRefreshRun.ts";
+import { usageTariffs } from "../../server/usageTariffs.ts";
+import { currentUsageTaskSummary } from "../../server/usageTaskSummaryCache.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { projectConfigurationFile } from "../../test-support/support/projectConfiguration.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
+import {
+  counters,
+  finished,
+  sol,
+} from "../../test-support/usage-history/tokenIndexHarness.ts";
+
+const project = makeMe.aConfiguredProject
+  .with({
+    ...makeMe.aPublishedSource.openDough.please(),
+    localPath: "~/git/open-dough",
+  })
+  .please();
+
+function keepProject(home: string) {
+  const file = projectConfigurationFile(home, "production");
+  mkdirSync(path.dirname(file), { recursive: true });
+  writeFileSync(file, JSON.stringify([project]));
+}
+
+const chart = (home: string, store: string, query: URLSearchParams) =>
+  readTokenIndex("GET", query, async (tool) => ({
+    summary: await currentUsageTaskSummary(store),
+    projects: [project],
+    launches: await retainedLaunchEnds(home),
+    tariff: usageTariffs[tool],
+    checkedAt: await lastUsageCheck(store),
+  }));
 
 function rollout(home: string, session: string, skill: string, output: number) {
   return makeMe.aCodexRollout
@@ -57,9 +84,9 @@ const taskFacts = async (store: string) => {
 };
 
 test("alternating writers keep launch workflows, cohort membership, totals and bytes after normalizing an old skill spelling", async ({
-  machine,
+  home,
 }) => {
-  const { home } = machine;
+  keepProject(home);
   const sessions = path.join(home, ".codex/sessions");
   const refinement = makeMe.aLaunchRecord
     .refining({ identity: "SEED-7#refining", title: "Refining story" })
@@ -93,8 +120,7 @@ test("alternating writers keep launch workflows, cohort membership, totals and b
   ];
   expect(await taskFacts(store)).toEqual(expected);
   const initial = readFileSync(store);
-  const usage = await usageServer(machine);
-  await usage.refresh();
+  await refreshUsage(home, store);
   expect(readFileSync(store)).toEqual(initial);
   const longAgo = new Date("2026-11-01T00:00:00.000Z");
   utimesSync(older, longAgo, longAgo);
@@ -109,36 +135,30 @@ test("alternating writers keep launch workflows, cohort membership, totals and b
   expect(await taskFacts(store)).toEqual(expected);
   const normalized = readFileSync(store);
   for (const write of [
-    () => usage.refresh(),
+    () => refreshUsage(home, store),
     () => importUsageHistory(options),
-    () => usage.refresh(),
+    () => refreshUsage(home, store),
   ]) {
     await write();
     expect(await taskFacts(store)).toEqual(expected);
     expect(readFileSync(store)).toEqual(normalized);
   }
-  await Promise.all([usage.refresh(), importUsageHistory(options)]);
+  await Promise.all([refreshUsage(home, store), importUsageHistory(options)]);
   expect(await taskFacts(store)).toEqual(expected);
   expect(readFileSync(store)).toEqual(normalized);
   for (const [workflow, identity] of [
     ["execution", "SEED-7#executing"],
     ["refinement", "SEED-7#refining"],
-  ]) {
-    const answer = await usage.request(
-      "GET",
-      `/__usage/token-index?workflow=${workflow}`,
-    );
-    expect(answer.status).toBe(200);
-    expect(
-      (answer.body as TokenIndexAnswer).tasks.map((task) => task.identity),
-    ).toEqual([identity]);
+  ] as const) {
+    const answer = await chart(home, store, new URLSearchParams({ workflow }));
+    expect(answer.tasks.map((task) => task.identity)).toEqual([identity]);
   }
 });
 
 test("recovered skills fill a missing launch workflow and remain on a recovered-only Refinement task", async ({
-  machine,
+  home,
 }) => {
-  const { home } = machine;
+  keepProject(home);
   const sessions = path.join(home, ".codex/sessions");
   const store = usageHistoryFile(home);
   await writeUsageHistory(
@@ -184,13 +204,12 @@ test("recovered skills fill a missing launch workflow and remain on a recovered-
     ["missing", "launch", "dough-story-refinement"],
     ["recovered", "recovered", "dough-story-refinement"],
   ]);
-  const usage = await usageServer(machine);
-  const answer = await usage.request(
-    "GET",
-    "/__usage/token-index?workflow=refinement",
+  const answer = await chart(
+    home,
+    store,
+    new URLSearchParams({ workflow: "refinement" }),
   );
-  expect(answer.status).toBe(200);
-  expect(
-    (answer.body as TokenIndexAnswer).tasks.map((task) => task.id),
-  ).toContain(JSON.stringify(["codex", "recovered", "recovered-turn"]));
+  expect(answer.tasks.map((task) => task.id)).toContain(
+    JSON.stringify(["codex", "recovered", "recovered-turn"]),
+  );
 });

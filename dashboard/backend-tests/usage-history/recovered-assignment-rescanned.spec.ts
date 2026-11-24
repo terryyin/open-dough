@@ -2,6 +2,7 @@
 // task as its contribution's candidate, so the task regains the usage from
 // later launch evidence after the rollout is gone.
 import { readFileSync, rmSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -16,7 +17,6 @@ import {
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
@@ -97,7 +97,7 @@ test("usage charged to a task, withdrawn by a rejection whose import reads the r
   expect(associations[response]).toMatchObject({
     taskId: null,
     candidates: [task.id],
-    gaps: expect.arrayContaining(["unsupported-task-assignment"]),
+    gaps: expect.arrayContaining(["unsupported-task-assignment"]) as unknown,
   });
   expect(withdrawn.sessions[`codex:${session}`]?.entries).toMatchObject([
     { candidates: [task.id], responses: 1, tokens: { output: 9 } },

@@ -217,7 +217,7 @@ timing records and `slice-5-scratch-mutation.diff`.
 ### 6. The usage family runs on Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the runner lists all 54 files under the Node engine and their cases pass under the default timeout
 
 Change the fixture module's base and the importers' engine imports in one
@@ -234,6 +234,26 @@ each case makes, preserving the overlapping writer case, persisted check
 ordering, archive restoration and paged conversion. Once all six callers
 use typed entries and private fixtures, remove the unused HTTP fixture and
 Playwright bindings from `tokenIndexHarness.ts` in the same migration.
+
+Proof result: all 54 original specs and the same 151 cases passed under
+Node Vitest with the default timeout. Both early scratch failure paths
+passed. The six G1 specs preserve separate typed observations of checked-time
+ordering, chart filtering and points, archive recovery, paged conversion,
+store bytes and writer overlap. The mounted fixture has no remaining
+callers. The checkout's Git evidence directory keeps `slice-6-before.json`,
+`slice-6-after.json`, `slice-6-case-times.tsv` and the observations in
+`slice-6-implementation.md`. Dashboard typecheck passed. Independent
+refactoring grouped the same import bindings in two specs.
+The formatter exposed 26 Vitest asymmetric matcher assignments typed as
+`any`. The repair kept the same matchers with `unknown` assertions and
+passed the 30 affected cases under Node. See `slice-6-matcher-repair.md`.
+
+From the immediate Playwright baseline, summed case time fell from 72,065 ms
+to 66,359 ms and runner time rose from 39,730 ms to 42,938 ms. Both runs used
+the same two workers and locked Node on the same Mac. One-minute load was
+11.15–12.66 before and 13.61 at the candidate's end. The candidate's initial
+load was unrecorded. Slice 7 compares the completed family to the original
+150-case baseline.
 
 ### 7. The family reports its times and the wrapper loses its unused entries
 
@@ -299,4 +319,4 @@ load, so the speed gain is unsettled until that slice measures it.
 
 Reported: slice 2 — "`repeated-checks` and `repeated-checks-evidence` still use the Token Index Playwright fixture for Refresh and chart. Inspection identified the same fixture in `usage-check-freshness`, `usage-writer-consistency`, `native-reader-gaps` and `earlier-store-conversion`. The retained usage fixture switch alone leaves all six on Playwright."
 Story clause: "Move the fixture module and all 54 specs to Node Vitest in the same story."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: `slice-6-after.json` selects all six and the G1 section of `slice-6-implementation.md` identifies their typed Refresh, chart and persistence observations.

@@ -3,6 +3,7 @@
 import { readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { zstdCompressSync } from "node:zlib";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -11,16 +12,13 @@ import {
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
 import { importUsageHistory } from "../../server/usageImport.ts";
+import { refreshUsageHistory } from "../../server/usageRefresh.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   writeClaudeSession,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
-import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  expect,
-  test,
-  usageServer,
-} from "../../test-support/usage-history/tokenIndexHarness.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 
 const sessionId = "01a1c000-84ab-7240-a940-8a72564202cd";
 const reference = "ca7430bd-0d52-499d-a1bd-000000000001";
@@ -123,7 +121,7 @@ const readerGapsOf = async (store: string, file: string) =>
   );
 
 test("Import reports a malformed Codex row as a gap naming its host and file", async ({
-  machine: { home },
+  home,
 }) => {
   const session = plainSession(codexSessionFile(home));
   const options = importOptions(home);
@@ -137,7 +135,7 @@ test("Import reports a malformed Codex row as a gap naming its host and file", a
 });
 
 test("Import drops a Codex malformed-row gap once the row is complete", async ({
-  machine: { home },
+  home,
 }) => {
   const session = plainSession(codexSessionFile(home));
   const options = importOptions(home);
@@ -151,22 +149,21 @@ test("Import drops a Codex malformed-row gap once the row is complete", async ({
 });
 
 test("Refresh drops a Claude unreadable-stream gap once the stream is readable", async ({
-  machine,
+  home,
 }) => {
-  const session = archivedSession(claudeSessionFile(machine.home));
-  const options = importOptions(machine.home);
+  const session = archivedSession(claudeSessionFile(home));
+  const options = importOptions(home);
   session.corrupt();
   await importUsageHistory(options);
-  const usage = await usageServer(machine);
 
   session.restore();
-  await usage.refresh();
+  await refreshUsageHistory({ home, store: options.store });
 
   expect(await readerGapsOf(options.store, session.file)).toEqual([]);
 });
 
 test("Rereading a session keeps its stored host-less reader gap", async ({
-  machine: { home },
+  home,
 }) => {
   const file = codexSessionFile(home);
   const options = importOptions(home);
@@ -184,21 +181,19 @@ test("Rereading a session keeps its stored host-less reader gap", async ({
 });
 
 test("Refresh counts a response once its unreadable stream is restored", async ({
-  machine,
+  home,
 }) => {
-  const { home } = machine;
   const session = archivedSession(codexSessionFile(home));
   const options = importOptions(home);
   // An earlier check saw the session before its response was written, so
   // Refresh must count the restored response rather than reuse that count.
   session.holdNoRows();
   await importUsageHistory(options);
-  const usage = await usageServer(machine);
   session.corrupt();
-  await usage.refresh();
+  await refreshUsageHistory({ home, store: options.store });
 
   session.restore();
-  await usage.refresh();
+  await refreshUsageHistory({ home, store: options.store });
 
   const history = await readUsageHistory(options.store);
   const task = Object.values(history.tasks).find(
@@ -207,7 +202,7 @@ test("Refresh counts a response once its unreadable stream is restored", async (
   expect(task && taskUsage(history, task.id)).toEqual(
     expect.objectContaining({
       requests: 1,
-      tokens: expect.objectContaining({ output: 17 }),
+      tokens: expect.objectContaining({ output: 17 }) as unknown,
     }),
   );
 });

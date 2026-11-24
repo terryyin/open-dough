@@ -1,9 +1,9 @@
 // How selections resolve: exact tasks, ambiguous story identities and
 // retained native family windows through the documented CLI contract.
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";

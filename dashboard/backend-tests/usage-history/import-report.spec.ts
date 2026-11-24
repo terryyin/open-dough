@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { readFileSync, writeFileSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";

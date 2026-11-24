@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -11,10 +12,7 @@ import {
   importUsageHistory,
 } from "../../server/usageImport.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
-import {
-  test,
-  expect,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   legacyHistory,
   writeLegacyStore,
@@ -118,7 +116,7 @@ for (const format of ["legacy", "paged"]) {
       gaps: expect.arrayContaining([
         "unsupported-task-assignment",
         "task-start-unknown",
-      ]),
+      ]) as unknown,
       assignmentEvidence: [
         {
           status: "rejected",

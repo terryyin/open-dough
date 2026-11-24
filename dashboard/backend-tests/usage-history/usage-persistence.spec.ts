@@ -1,6 +1,6 @@
 // Guard filesystem reads in an isolated process during routine launch operations.
+import { expect } from "vitest";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";

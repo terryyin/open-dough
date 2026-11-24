@@ -1,13 +1,11 @@
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
   writeUsageHistory,
   usageHistoryFile,
 } from "../../server/usageHistory.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 import {
   claudeUsageRoots,

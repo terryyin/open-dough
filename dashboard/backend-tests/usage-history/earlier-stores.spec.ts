@@ -6,6 +6,7 @@ import { once } from "node:events";
 import fs from "node:fs";
 import path from "node:path";
 import { Worker } from "node:worker_threads";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -21,7 +22,6 @@ import {
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {

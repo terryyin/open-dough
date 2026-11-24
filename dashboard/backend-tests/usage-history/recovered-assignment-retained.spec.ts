@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -12,7 +13,6 @@ import {
 } from "../../server/usageImport.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {

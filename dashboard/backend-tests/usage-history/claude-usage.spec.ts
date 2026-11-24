@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync, rmSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -10,10 +11,7 @@ import {
 import { importUsageHistory } from "../../server/usageImport.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
   writeClaudeSession,

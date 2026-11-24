@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync, rmSync } from "node:fs";
 import path from "node:path";
+import { describe, expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -14,7 +15,6 @@ import {
 } from "../../server/usageImport.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
@@ -24,7 +24,7 @@ import {
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
-test.describe("retained launch usage import", () => {
+describe("retained launch usage import", () => {
   test("persists operational and retained launches, disjoint counters and changed observed settings across fresh reads and reruns", async ({
     home,
     root,
@@ -117,16 +117,16 @@ test.describe("retained launch usage import", () => {
           cacheWrite: 10,
           output: 7,
           reasoningOutput: 3,
-        }),
+        }) as unknown,
         measurements: expect.arrayContaining([
           expect.objectContaining({
-            reported: expect.objectContaining({ input_tokens: 100 }),
+            reported: expect.objectContaining({ input_tokens: 100 }) as unknown,
             source: expect.objectContaining({
               file: path.join(root, "root-one.jsonl"),
               line: 3,
-            }),
+            }) as unknown,
           }),
-        ]),
+        ]) as unknown,
       }),
     );
     const partial = observations.find((item) => item.responseId === "partial");
@@ -150,7 +150,7 @@ test.describe("retained launch usage import", () => {
           cacheRead: 70,
           cacheWrite: 10,
           output: 7,
-        }),
+        }) as unknown,
       }),
     );
     await importUsageHistory(options);

@@ -6,8 +6,11 @@
 // ./repeated-checks-evidence.spec.ts.
 import { appendFileSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { expect, onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageCheckFile } from "../../server/usageCheck.ts";
+import { retainedLaunchEnds } from "../../server/retainedUsageTasks.ts";
+import { tokenIndexAnswer } from "../../server/tokenIndexRead.ts";
+import { lastUsageCheck, usageCheckFile } from "../../server/usageCheck.ts";
 import {
   readUsageHistory,
   usageHistoryFile,
@@ -16,23 +19,40 @@ import {
   claudeUsageRoots,
   importUsageHistory,
 } from "../../server/usageImport.ts";
+import { refreshUsageHistory } from "../../server/usageRefresh.ts";
+import { usageTariffs } from "../../server/usageTariffs.ts";
+import { currentUsageTaskSummary } from "../../server/usageTaskSummaryCache.ts";
+import { defaultCohort } from "../../src/usageTokenIndex.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   keepRetainedLaunch,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   counters,
-  expect,
   finished,
   rootRollout,
   sol,
   storedBesideCheck,
   storedUsage,
-  test,
-  usageServer,
   workerRollout,
 } from "../../test-support/usage-history/tokenIndexHarness.ts";
+
+const project = makeMe.aPublishedSource.openDough.please();
+
+async function readChart(home: string, store: string) {
+  return tokenIndexAnswer(
+    {
+      summary: await currentUsageTaskSummary(store),
+      projects: [project],
+      launches: await retainedLaunchEnds(home),
+      tariff: usageTariffs.codex,
+      checkedAt: await lastUsageCheck(store),
+    },
+    defaultCohort,
+  );
+}
 
 const measured = (
   uncachedInput: number,
@@ -65,9 +85,8 @@ function threeTasks(home: string) {
 }
 
 test("a Refresh with no rollout activity since the last check writes only its check record, and the chart's Checked time moves", async ({
-  machine,
+  home,
 }) => {
-  const { home } = machine;
   const sessions = threeTasks(home);
   const options = makeMe.aUsageImportOptions
     .with({
@@ -78,9 +97,11 @@ test("a Refresh with no rollout activity since the last check writes only its ch
     })
     .please();
   await importUsageHistory(options);
-  const usage = await usageServer(machine);
-  let checkedAt = await usage.refresh();
-  const chart = await usage.chart();
+  onTestFinished(() => {
+    vi.useRealTimers();
+  });
+  let { checkedAt } = await refreshUsageHistory({ home, store: options.store });
+  const chart = await readChart(home, options.store);
   expect(chart.tasks.map(({ identity }) => identity).toSorted()).toEqual([
     "SEED-7#first",
     "SEED-7#left",
@@ -89,7 +110,11 @@ test("a Refresh with no rollout activity since the last check writes only its ch
   const stored = storedBesideCheck(home);
 
   for (const check of ["second", "third"]) {
-    const again = await usage.refresh();
+    vi.setSystemTime(Date.parse(checkedAt) + 1);
+    const { checkedAt: again } = await refreshUsageHistory({
+      home,
+      store: options.store,
+    });
 
     expect(Date.parse(again), check).toBeGreaterThan(Date.parse(checkedAt));
     expect(storedBesideCheck(home), check).toEqual(stored);
@@ -97,15 +122,17 @@ test("a Refresh with no rollout activity since the last check writes only its ch
       readFileSync(usageCheckFile(usageHistoryFile(home)), "utf8"),
       check,
     ).toBe(`${JSON.stringify({ checkedAt: again })}\n`);
-    expect(await usage.chart(), check).toEqual({ ...chart, checkedAt: again });
+    expect(await readChart(home, options.store), check).toEqual({
+      ...chart,
+      checkedAt: again,
+    });
     checkedAt = again;
   }
 });
 
 test("an import over unchanged evidence leaves the history as the first import stored it", async ({
-  machine,
+  home,
 }) => {
-  const { home } = machine;
   const sessions = threeTasks(home);
   const options = makeMe.aUsageImportOptions
     .with({
@@ -129,9 +156,8 @@ test("an import over unchanged evidence leaves the history as the first import s
 });
 
 test("three responses a finished task's rollout gains raise its totals by exactly those, and a second Refresh and an import change no value", async ({
-  machine,
+  home,
 }) => {
-  const { home } = machine;
   const sessions = path.join(home, ".codex/sessions");
   const options = makeMe.aUsageImportOptions
     .with({
@@ -153,8 +179,7 @@ test("three responses a finished task's rollout gains raise its totals by exactl
     rootRollout("second", 200).please(),
   );
   await importUsageHistory(options);
-  const usage = await usageServer(machine);
-  await usage.refresh();
+  await refreshUsageHistory({ home, store: options.store });
   const group = { model: sol, effort: "xhigh", tier: null, root: true };
   const before = await storedUsage(home);
   expect(before.get("SEED-7#first")).toEqual([
@@ -175,7 +200,7 @@ test("three responses a finished task's rollout gains raise its totals by exactl
     rollout,
     gained.map((row) => `${JSON.stringify(row)}\n`).join(""),
   );
-  await usage.refresh();
+  await refreshUsageHistory({ home, store: options.store });
 
   const risen = await storedUsage(home);
   expect(Object.fromEntries(risen)).toEqual({
@@ -188,14 +213,17 @@ test("three responses a finished task's rollout gains raise its totals by exactl
     ],
     "SEED-7#second": before.get("SEED-7#second"),
   });
-  const chart = await usage.chart();
+  const chart = await readChart(home, options.store);
   const stored = storedBesideCheck(home);
 
-  const checkedAt = await usage.refresh();
+  const { checkedAt } = await refreshUsageHistory({
+    home,
+    store: options.store,
+  });
   expect(storedBesideCheck(home)).toEqual(stored);
-  expect(await usage.chart()).toEqual({ ...chart, checkedAt });
+  expect(await readChart(home, options.store)).toEqual({ ...chart, checkedAt });
 
   await importUsageHistory(options);
   expect(await storedUsage(home)).toEqual(risen);
-  expect((await usage.chart()).tasks).toEqual(chart.tasks);
+  expect((await readChart(home, options.store)).tasks).toEqual(chart.tasks);
 });

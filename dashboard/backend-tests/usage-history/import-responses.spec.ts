@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -9,7 +10,6 @@ import {
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
@@ -128,7 +128,7 @@ test("an import writes each response it read once to the named file, with its me
   expect(responses.associations[reply]?.taskId).toBeNull();
   expect(responses.associations[stray]).toMatchObject({
     taskId: null,
-    gaps: expect.arrayContaining(["contradictory-lineage"]),
+    gaps: expect.arrayContaining(["contradictory-lineage"]) as unknown,
   });
   // The history keeps what the file's assignments add up to, and no response.
   expect(

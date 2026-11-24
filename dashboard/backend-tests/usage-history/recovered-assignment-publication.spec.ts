@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import fs from "node:fs/promises";
 import { syncBuiltinESMExports } from "node:module";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -11,10 +12,7 @@ import {
   claudeUsageRoots,
   importUsageHistory,
 } from "../../server/usageImport.ts";
-import {
-  test,
-  expect,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 
 const wrapperAt = "2026-11-14T08:00:00.000Z";
@@ -81,6 +79,6 @@ test("failed correction publication leaves prior assignment readable before a su
   await importUsageHistory(options);
   expect((await readUsageHistory(store)).tasks[task.id]).toMatchObject({
     launchedAt: null,
-    gaps: expect.arrayContaining(["unsupported-task-assignment"]),
+    gaps: expect.arrayContaining(["unsupported-task-assignment"]) as unknown,
   });
 });

@@ -3,6 +3,7 @@ import { once } from "node:events";
 import { readFileSync } from "node:fs";
 import { Worker } from "node:worker_threads";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
@@ -11,10 +12,7 @@ import {
   usageHistoryFile,
 } from "../../server/usageHistory.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { writeClaudeSession } from "../../test-support/usage-history/importHarness.ts";
 
 test("imports a long Claude parent chain within bounded memory and retains one response charge with its provenance", async ({
@@ -105,7 +103,9 @@ test("imports a long Claude parent chain within bounded memory and retains one r
   });
   expect(history.associations[last.id]).toMatchObject({
     taskId: task.id,
-    sources: expect.arrayContaining([{ kind: "native", file, line: 1 }]),
+    sources: expect.arrayContaining([
+      { kind: "native", file, line: 1 },
+    ]) as unknown,
   });
   expect(JSON.stringify(history)).not.toContain("private assignment");
 });

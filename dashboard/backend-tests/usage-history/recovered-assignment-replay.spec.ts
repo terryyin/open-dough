@@ -1,5 +1,6 @@
 import { readFileSync, rmSync } from "node:fs";
 import assert from "node:assert/strict";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -13,7 +14,6 @@ import {
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
@@ -105,7 +105,7 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
         status: "supported",
         at: "2026-11-14T10:00:00.000Z",
       }),
-    ]),
+    ]) as unknown,
   });
   expect(taskUsage(supported, task.id).tokens.output).toBe(9);
   keepOperationalLaunch(home, launch(session, "turn", launchAt));

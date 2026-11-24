@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -15,10 +16,7 @@ import {
   importUsageHistory,
 } from "../../server/usageImport.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 
 test("recovers pruned native task facts from historical deleted stories without copying private input or mutating workflow", async ({

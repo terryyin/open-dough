@@ -4,6 +4,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -16,7 +17,6 @@ import {
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {

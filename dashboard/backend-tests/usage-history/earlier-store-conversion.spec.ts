@@ -5,7 +5,11 @@ import fs from "node:fs";
 import fsPromises from "node:fs/promises";
 import { syncBuiltinESMExports } from "node:module";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { retainedLaunchEnds } from "../../server/retainedUsageTasks.ts";
+import { tokenIndexAnswer } from "../../server/tokenIndexRead.ts";
+import { lastUsageCheck } from "../../server/usageCheck.ts";
 import {
   readUsageHistory,
   usageHistoryFile,
@@ -15,7 +19,11 @@ import {
   claudeUsageRoots,
   importUsageHistory,
 } from "../../server/usageImport.ts";
+import { refreshUsageHistory } from "../../server/usageRefresh.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import { usageTariffs } from "../../server/usageTariffs.ts";
+import { currentUsageTaskSummary } from "../../server/usageTaskSummaryCache.ts";
+import { defaultCohort } from "../../src/usageTokenIndex.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   legacyHistory,
@@ -29,13 +37,12 @@ import {
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 import {
-  test,
-  expect,
   launch,
+  test,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
-  test as refreshTest,
-  usageServer,
+  finished,
+  rootRollout,
 } from "../../test-support/usage-history/tokenIndexHarness.ts";
 
 const importOptions = (home: string, root: string) =>
@@ -198,47 +205,37 @@ test("a document replacement that fails leaves the paged store and every page as
   expect(fs.existsSync(pagesOf(home))).toBe(false);
 });
 
-refreshTest(
-  "the first Refresh over a paged store shows the same tasks and Token index values and removes the page directory",
-  async ({ machine }) => {
-    const { home } = machine;
-    const sessions = path.join(home, ".codex/sessions");
-    keepLaunchStore(home, {
-      "open-dough": [
-        makeMe.aLaunchRecord
-          .executing({ identity: "SEED-7#paged", title: "Paged story" })
-          .inCodexSession({ sessionId: "paged" })
-          .launchedAt("2026-11-14T09:00:00.000Z")
-          .withFirstInput({ state: "confirmed", turnId: "turn" })
-          .completedWith({ message: "" })
-          .please(),
-      ],
-    });
-    writeCodexSession(
-      path.join(sessions, "2026/11/14"),
-      makeMe.aCodexRollout
-        .forSession("paged")
-        .withTurnContext("turn", "gpt-6.1-sol", "xhigh")
-        .withResponse("turn", "one", {
-          input_tokens: 10_000,
-          cached_input_tokens: 8_000,
-          cache_write_input_tokens: 0,
-          output_tokens: 100,
-        })
-        .please(),
+test("the first Refresh over a paged store shows the same tasks and Token index values and removes the page directory", async ({
+  home,
+}) => {
+  const sessions = path.join(home, ".codex/sessions");
+  const store = usageHistoryFile(home);
+  keepLaunchStore(home, { "open-dough": [finished("paged")] });
+  writeCodexSession(
+    path.join(sessions, "2026/11/14"),
+    rootRollout("paged", 100).please(),
+  );
+  await importAndKeepPages(home, sessions);
+  leaveUnnamedPage(home);
+  const chart = async () =>
+    tokenIndexAnswer(
+      {
+        summary: await currentUsageTaskSummary(store),
+        projects: [makeMe.aPublishedSource.openDough.please()],
+        launches: await retainedLaunchEnds(home),
+        tariff: usageTariffs.codex,
+        checkedAt: await lastUsageCheck(store),
+      },
+      defaultCohort,
     );
-    await importAndKeepPages(home, sessions);
-    leaveUnnamedPage(home);
-    const usage = await usageServer(machine);
-    const before = await usage.chart();
-    expect(before.tasks.map(({ identity }) => identity)).toEqual([
-      "SEED-7#paged",
-    ]);
-    expect(fs.existsSync(pagesOf(home))).toBe(true);
+  const before = await chart();
+  expect(before.tasks.map(({ identity }) => identity)).toEqual([
+    "SEED-7#paged",
+  ]);
+  expect(fs.existsSync(pagesOf(home))).toBe(true);
 
-    await usage.refresh();
+  await refreshUsageHistory({ home, store });
 
-    expect((await usage.chart()).tasks).toEqual(before.tasks);
-    expect(fs.existsSync(pagesOf(home))).toBe(false);
-  },
-);
+  expect((await chart()).tasks).toEqual(before.tasks);
+  expect(fs.existsSync(pagesOf(home))).toBe(false);
+});

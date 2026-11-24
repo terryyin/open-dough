@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
 import {
@@ -13,10 +14,7 @@ import {
   importUsageHistory,
 } from "../../server/usageImport.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   writeClaudeSession,
   writeCodexSession,
@@ -203,7 +201,9 @@ test("retains contradictory historical facts and reporting project joins without
     expect.objectContaining({
       project: null,
       origin: "unknown",
-      gaps: expect.arrayContaining(["contradictory-project-evidence"]),
+      gaps: expect.arrayContaining([
+        "contradictory-project-evidence",
+      ]) as unknown,
     }),
   );
   expect(taskUsage(joined, conflict.id).requests).toBe(0);

@@ -1,11 +1,9 @@
 import path from "node:path";
 import { appendFileSync } from "node:fs";
+import { expect } from "vitest";
 import { costViews } from "../../test-support/usage-history/agentEffortCost.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
   writeClaudeSession,

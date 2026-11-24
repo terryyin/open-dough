@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync, appendFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -9,7 +10,6 @@ import {
   usageHistoryFile,
 } from "../../server/usageHistory.ts";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
@@ -108,7 +108,7 @@ test("keeps independent responses through damaged files and reports unsupported,
   expect(taskUsage(history, task.id)).toEqual(
     expect.objectContaining({
       requests: 2,
-      tokens: expect.objectContaining({ output: 8 }),
+      tokens: expect.objectContaining({ output: 8 }) as unknown,
     }),
   );
   const old = Object.values(history.tasks).find(
@@ -118,7 +118,7 @@ test("keeps independent responses through damaged files and reports unsupported,
   expect(taskUsage(history, old.id)).toEqual(
     expect.objectContaining({
       requests: 0,
-      tokens: expect.objectContaining({ output: null }),
+      tokens: expect.objectContaining({ output: null }) as unknown,
     }),
   );
   expect(history.gaps).toEqual(
@@ -134,7 +134,7 @@ test("keeps independent responses through damaged files and reports unsupported,
       }),
       expect.objectContaining({
         code: "native-source-unreadable",
-        source: expect.objectContaining({ file: `${broken}.zst` }),
+        source: expect.objectContaining({ file: `${broken}.zst` }) as unknown,
       }),
       expect.objectContaining({ code: "native-source-unavailable" }),
       expect.objectContaining({
@@ -191,7 +191,7 @@ test("refuses contradictory parent lineage instead of charging a worker to a tas
   expect(taskUsage(history, task.id)).toEqual(
     expect.objectContaining({
       requests: 0,
-      tokens: expect.objectContaining({ output: null }),
+      tokens: expect.objectContaining({ output: null }) as unknown,
     }),
   );
 });

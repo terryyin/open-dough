@@ -1,3 +1,4 @@
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -8,10 +9,7 @@ import {
   claudeUsageRoots,
   importUsageHistory,
 } from "../../server/usageImport.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 import {
@@ -109,7 +107,7 @@ test("uses only same-message labelled established identity and keeps conflicting
             file: plan,
             revision: repo.revisions.then,
           }),
-        ]),
+        ]) as unknown,
       }),
       expect.objectContaining({
         value: otherIdentity,
@@ -119,7 +117,7 @@ test("uses only same-message labelled established identity and keeps conflicting
             file: otherSeed,
             revision: repo.revisions.then,
           }),
-        ]),
+        ]) as unknown,
       }),
     ]),
   );

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -12,10 +13,7 @@ import {
   importUsageHistory,
 } from "../../server/usageImport.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
@@ -159,7 +157,7 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
     expect.objectContaining({
       identity: null,
       title: null,
-      gaps: expect.arrayContaining(["unresolved-historical-story"]),
+      gaps: expect.arrayContaining(["unresolved-historical-story"]) as unknown,
     }),
   );
   expect(unknown).toEqual(
@@ -171,7 +169,7 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       gaps: expect.arrayContaining([
         "unresolved-project",
         "task-start-unknown",
-      ]),
+      ]) as unknown,
     }),
   );
   expect(JSON.stringify(history)).not.toContain("Current misleading title");

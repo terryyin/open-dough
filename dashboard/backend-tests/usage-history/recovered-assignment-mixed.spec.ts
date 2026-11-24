@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -11,10 +12,7 @@ import {
   importUsageHistory,
 } from "../../server/usageImport.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
-import {
-  test,
-  expect,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
@@ -95,7 +93,7 @@ test("wrapper followed by genuine mixed content corrects the same old task start
         at: "2026-11-14T10:00:00.000Z",
         source: { kind: "native", file, line: 4 },
       }),
-    ]),
+    ]) as unknown,
   });
   expect(taskUsage(history, id).tokens.output).toBe(5);
   const responseEvidence = JSON.parse(

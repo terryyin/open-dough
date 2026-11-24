@@ -1,4 +1,5 @@
 import { readFileSync, rmSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -10,10 +11,7 @@ import {
   importUsageHistory,
 } from "../../server/usageImport.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 import {
   recoveredTask as task,
@@ -138,7 +136,9 @@ test("resolves only the unique numbered historical plan and retains pinned sourc
       expect.objectContaining({
         identity: null,
         title: null,
-        gaps: expect.arrayContaining(["unresolved-historical-story"]),
+        gaps: expect.arrayContaining([
+          "unresolved-historical-story",
+        ]) as unknown,
       }),
     );
   expect(taskUsage(history, resolved.id).tokens.output).toBe(7);

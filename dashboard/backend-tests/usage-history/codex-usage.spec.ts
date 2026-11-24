@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { zstdCompressSync } from "node:zlib";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -12,7 +13,6 @@ import {
 } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
@@ -185,7 +185,7 @@ test("attributes own responses and explicit descendants across compressed archiv
   assert(uncertainObservation);
   expect(history.associations[uncertainObservation.id]).toMatchObject({
     taskId: null,
-    gaps: expect.arrayContaining(["unresolved-task-association"]),
+    gaps: expect.arrayContaining(["unresolved-task-association"]) as unknown,
   });
   const before = JSON.stringify(history);
   await importUsageHistory(options);

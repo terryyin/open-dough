@@ -2,6 +2,7 @@
 // keeps the row whole.
 import assert from "node:assert/strict";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readUsageHistory,
@@ -14,7 +15,6 @@ import {
 } from "../../server/usageImport.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
