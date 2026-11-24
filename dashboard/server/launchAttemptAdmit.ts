@@ -1,7 +1,6 @@
 // Locked machine evidence admits one acceptance across servers, then local
 // registration precedes effects. An attempt that cannot be kept starts nothing.
 
-import { admitsIsolatedStory } from "../src/launchRequest.ts";
 import type {
   Acceptance,
   AgentLaunchRequest,
@@ -55,11 +54,7 @@ export async function admitAttempt(
   // exit and the next worker note. Keep that worker before any effect.
   const working = {
     ...attempt,
-    worker: attemptWorker(
-      request.workflow === "ad-hoc" && !admitsIsolatedStory(request)
-        ? "launch"
-        : "start",
-    ),
+    worker: attemptWorker(request.workflow === "ad-hoc" ? "launch" : "start"),
   };
   let keptAttempt: LaunchAttemptRecord = working;
   let refusal: Unaccepted | undefined;

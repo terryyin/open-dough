@@ -164,7 +164,7 @@ export function runStartCommand(
   script: string,
   args: readonly string[],
   project: LocalFolder,
-  operation: "start" | "continue" | "draft" = "start",
+  operation: "start" | "continue" = "start",
   noteWorker: (pid: number) => Promise<void> = async () => {},
 ): Promise<StartCommandOutput | undefined> {
   return new Promise((resolve) => {

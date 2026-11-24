@@ -1,4 +1,3 @@
-import { admitsIsolatedStory } from "../src/launchRequest.ts";
 // Keeps one attempt per story before effects, then settles independently of
 // its caller. Interrupted attempts resume their kept request and identity;
 // reconciliation and verification settle them from retained evidence.
@@ -98,10 +97,7 @@ export class LaunchAttemptOwner {
           acceptedAt: new Date().toISOString(),
           ...(reportingOrigin === undefined ? {} : { reportingOrigin }),
           publication: {
-            kind:
-              request.workflow === "ad-hoc" && !admitsIsolatedStory(request)
-                ? "none"
-                : "unknown",
+            kind: request.workflow === "ad-hoc" ? "none" : "unknown",
           },
         },
         run,

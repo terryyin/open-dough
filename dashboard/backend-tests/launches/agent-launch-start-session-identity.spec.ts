@@ -1,4 +1,3 @@
-import { isolatedAdmissionFlags } from "../../test-support/support/isolatedSessionAdmissionProof.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // An unattached Start session's identity includes its Workspace and After
 // checks choices, over raw HTTP with a real bare origin
@@ -19,6 +18,7 @@ import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
+  isolatedStart,
   recordStarts,
   worktrees,
 } from "../../test-support/support/startSessionLanding.ts";
@@ -26,10 +26,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-const request = makeMe.aLaunchRequest
-  .adHoc({ host: "codex" })
-  .withInstruction("Session")
-  .please();
+const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 const isolated = { workspace: "isolated", landing: "review" };
 const landing = { workspace: "isolated", landing: "auto-land" };
 
@@ -103,25 +100,13 @@ test("a pending Isolated workspace conversation waiting for review is not resume
     launch(dashboard, { ...request, policy: landing }),
   );
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  const revision = await originMain(origin);
-  expect(revision).not.toBe(before);
   expect(launched.record?.session.sessionId).toBe("landing-thread-id");
   expect(launched.record?.establishedSession).toEqual(
-    isolatedSession(
-      origin.project,
-      "session-2",
-      "auto-land",
-      revision,
-      "codex",
-    ),
+    isolatedSession(origin.project, "session-2", "auto-land", before, "codex"),
   );
   const bothStarts = [
-    expect.arrayContaining(
-      isolatedAdmissionFlags(origin.project, "session", "codex"),
-    ),
-    expect.arrayContaining(
-      isolatedAdmissionFlags(origin.project, "session-2", "codex"),
-    ),
+    isolatedStart(origin.project, "session", "review", "codex"),
+    isolatedStart(origin.project, "session-2", "auto-land", "codex"),
   ];
   expect(starts().map(({ argv }) => argv)).toEqual(bothStarts);
   expect(worktrees(origin.project)).toEqual(["session", "session-2"]);

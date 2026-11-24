@@ -1,4 +1,3 @@
-import { isolatedAdmissionFlags } from "../../test-support/support/isolatedSessionAdmissionProof.ts";
 // An unattached Start session whose start is lost with its server, before or
 // after it made its workspace (../../server/sessionStartStore.ts), with a real
 // bare origin (../../test-support/support/startOrigin.ts), the installed start held
@@ -28,11 +27,13 @@ import {
 import {
   holdStarts,
   keptSessionStarts,
+  keptWords,
 } from "../../test-support/support/keptSessionStart.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
+  isolatedStart,
   recordStarts,
   worktree,
   worktrees,
@@ -58,7 +59,10 @@ for (const when of ["before", "after"] as const) {
     expect(JSON.parse((await launch(dashboard, request)).body)).toMatchObject({
       kind: "uncertain",
       reason: "timed-out",
-      explanation: expect.stringContaining("story admission is unresolved"),
+      explanation: keptWords(
+        "~/git/open-dough/.worktrees/session",
+        "claude/session",
+      ),
     });
     await expect.poll(hold.reached, { timeout: 30_000 }).toBe(true);
     expect(worktrees(origin.project)).toEqual(made ? ["session"] : []);
@@ -93,23 +97,15 @@ for (const when of ["before", "after"] as const) {
       expect(answer.kind, JSON.stringify(answer)).toBe("launched");
       // The installed start ran again for the same workspace and branch, and
       // made it or took it as it was, handed an existing one as Git names it.
-      const startsForWorkspace = isolatedAdmissionFlags(
-        origin.project,
-        "session",
-      );
-      const revision = await originMain(origin);
-      expect(revision).not.toBe(before);
+      const start = isolatedStart(origin.project, "session", "review");
+      const kept = worktree(origin.project, "session");
       expect(starts().map(({ argv }) => argv)).toEqual([
-        expect.arrayContaining(startsForWorkspace),
-        expect.arrayContaining(
-          made
-            ? [...startsForWorkspace, "--candidate-sha", revision]
-            : startsForWorkspace,
-        ),
+        start,
+        start.map((arg) => (made && arg === kept ? realpathSync(kept) : arg)),
       ]);
       expect(worktrees(origin.project)).toEqual(["session"]);
       expect(answer.record?.establishedSession).toEqual(
-        isolatedSession(origin.project, "session", "review", revision),
+        isolatedSession(origin.project, "session", "review", before),
       );
       const [call, ...others] = restarted.claudeLaunchCalls();
       expect(others).toEqual([]);

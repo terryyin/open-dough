@@ -70,7 +70,7 @@ const lands =
   "verified results land on origin without another review. Pressing Start authorizes that push.";
 const effect = {
   "Execution checkout": `Execution checkout · Automatically land The session runs in this project's execution checkout, with its existing changes; ${lands}`,
-  "Isolated workspace": `Isolated workspace · Automatically land Start publishes a Taken story before the session opens. The session runs in a new workspace under .worktrees/; ${lands}`,
+  "Isolated workspace": `Isolated workspace · Automatically land The session runs in a new workspace under .worktrees/; ${lands}`,
 };
 
 test("both workspace policies keep the automatic landing actions in view when narrow or zoomed", async () => {

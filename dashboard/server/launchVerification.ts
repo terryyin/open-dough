@@ -60,7 +60,6 @@ export async function verifyLaunch(
   {
     request,
     acceptedAt,
-    publication,
     reporting,
   }: LaunchAttemptRecord & { request: StoryLaunchRequest },
   signal: AbortSignal,
@@ -76,7 +75,7 @@ export async function verifyLaunch(
     return unresolved(
       "This machine's launch records could not be read, so whether a listed session belongs to this launch is not known.",
     );
-  const own = ownLaunchRecord(records, { request, acceptedAt, publication });
+  const own = ownLaunchRecord(records, { request, acceptedAt });
   if (own !== undefined)
     return {
       kind: "launched",

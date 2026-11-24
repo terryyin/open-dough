@@ -3,12 +3,11 @@
 // the arguments that resume a start lost with the server.
 
 import { hostDescriptions } from "../src/hostDescription.ts";
-import { readdir, realpath } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { worktreesFolder } from "./launchWorkspace.ts";
 import type { LocalFolder } from "./localFolder.ts";
-import { directoryState } from "./sessionWorkspace.ts";
 
 // What git printed, or "" when the call failed.
 export async function git(
@@ -108,54 +107,4 @@ export async function lostStartArguments(
   return current === branch && head && parent
     ? ["--starting-revision", parent, "--candidate-sha", head]
     : [];
-}
-
-export async function lostAdmissionArguments(
-  workspace: string,
-  branch: string,
-  publisher: string,
-  identity: string,
-): Promise<string[]> {
-  const message = (
-    await git({ path: workspace }, ["log", "-1", "--format=%B"])
-  ).split("\n");
-  return message.includes(`Claim-Publisher: ${publisher}`) &&
-    message.includes(`Claim-Identity: ${identity}`)
-    ? lostStartArguments(workspace, branch)
-    : [];
-}
-
-// A new draft can reuse an absent checkout or a clean branch based on
-// fetched trunk. An unreadable or changed checkout keeps the earlier draft.
-export async function canReuseClaimWorkspace(
-  workspace: string,
-  branch: string,
-  target: string,
-): Promise<boolean> {
-  if (directoryState(workspace).kind === "missing") return true;
-  const read = async (...args: string[]) =>
-    (
-      await runGit(args, {
-        cwd: workspace,
-        maxBuffer: defaultGitOutputLimit,
-      })
-    ).stdout.trim();
-  try {
-    if (
-      (await realpath(await read("rev-parse", "--show-toplevel"))) !==
-        (await realpath(workspace)) ||
-      (await read("branch", "--show-current")) !== branch ||
-      (await read("status", "--porcelain", "--untracked-files=all")) !== ""
-    )
-      return false;
-    await read(
-      "merge-base",
-      "--is-ancestor",
-      "HEAD",
-      `refs/remotes/origin/${target}`,
-    );
-    return true;
-  } catch {
-    return false;
-  }
 }

@@ -48,7 +48,6 @@ test("an unattached launch's kept record captures its landing after its startup 
       source: "open-dough",
       workflow: "ad-hoc",
       host: "codex",
-      instruction: "Session",
       policy: { workspace: "isolated", landing: "auto-land" },
     });
     const record = stored(receiver.home)[0];

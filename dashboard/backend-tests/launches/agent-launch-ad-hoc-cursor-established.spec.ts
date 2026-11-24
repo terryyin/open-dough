@@ -147,7 +147,7 @@ test("an isolated session starts Cursor with the new worktree as its workspace a
   origin,
   cursor,
 }) => {
-  const before = (await origin.originGit("rev-parse", "main")).trim();
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   const slug = "tidy-the-readme-wording";
   expect(
     JSON.parse(
@@ -163,8 +163,6 @@ test("an isolated session starts Cursor with the new worktree as its workspace a
     ),
   ).toMatchObject({ kind: "launched" });
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  const revision = (await origin.originGit("rev-parse", "main")).trim();
-  expect(revision).not.toBe(before);
   const session = isolatedSession(
     origin.project,
     slug,

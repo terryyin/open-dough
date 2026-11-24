@@ -93,19 +93,11 @@ export function unattachedSummary(policy: UnattachedSessionPolicy): string {
 // What starting an unattached session does, for the dialog's line beside
 // Start under its summary: where it runs, and whether what it later verifies
 // lands.
-export function unattachedEffect(
-  policy: UnattachedSessionPolicy,
-  admitting: boolean,
-): string {
-  const admission = admitting
-    ? "Start publishes a Taken story before the session opens. "
-    : "";
-  return `${admission}The session runs ${startsIn(policy.workspace)}; ${
+export function unattachedEffect(policy: UnattachedSessionPolicy): string {
+  return `The session runs ${startsIn(policy.workspace)}; ${
     policy.landing === "auto-land"
       ? "verified results land on origin without another review. Pressing Start authorizes that push."
-      : admitting
-        ? "the work waits for review."
-        : "nothing is published."
+      : "nothing is published."
   }`;
 }
 
@@ -133,16 +125,13 @@ export const notOfferedHint = (
 export function unattachedWhere(
   policy: UnattachedSessionPolicy,
   establishes: boolean,
-  admitting: boolean,
 ): string {
   return `The session runs ${startsIn(policy.workspace)}.${
     establishes
       ? ` Its first message carries the established session: workspace, workspace role, branch, remote, target, landing, ${
           policy.workspace === "default-checkout"
             ? "starting revision, and fetched trunk"
-            : admitting
-              ? "and the starting revision after admission"
-              : "and the starting revision on fetched trunk"
+            : "and the starting revision on fetched trunk"
         }.`
       : ""
   }`;

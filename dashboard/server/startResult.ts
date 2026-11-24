@@ -31,7 +31,6 @@ export type StartResult =
   | {
       readonly kind: "stopped";
       readonly status: string;
-      readonly ownership?: string;
       readonly error?: string;
       readonly recovery?: {
         readonly workspace: string;
@@ -65,7 +64,6 @@ const preparedSchema = z.looseObject({
 const stoppedSchema = z.looseObject({
   ok: z.literal(false),
   status: z.string().min(1),
-  ownership: z.string().optional(),
   error: z.string().optional(),
   recovery: z
     .looseObject({
@@ -122,11 +120,10 @@ export function readStartResult(stdout: string): StartResult {
   if (!stopped.success) {
     return { kind: "unreadable" };
   }
-  const { status, ownership, error, recovery } = stopped.data;
+  const { status, error, recovery } = stopped.data;
   return {
     kind: "stopped",
     status,
-    ...(ownership === undefined ? {} : { ownership }),
     ...(error === undefined ? {} : { error }),
     ...(recovery === undefined
       ? {}

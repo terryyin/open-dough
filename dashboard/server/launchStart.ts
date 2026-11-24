@@ -1,5 +1,10 @@
-// Run deterministic startup before native launch. Check the existing checkout
-// and applicable origin CI before accepting a new start.
+// Run the shared workflow's deterministic start and format its handoff before
+// the native session begins. A slow start warns while it keeps running.
+// Before a launch is accepted, a start in the execution checkout first observes
+// its existing changes: changes the request did not confirm, or that changed
+// since, answer with what was observed, and nothing starts. A new execution
+// start then judges the origin target's CI the same way: a non-pass answers
+// for confirmation before any attempt or script.
 import {
   policyOf,
   unattachedPolicyOf,
@@ -57,16 +62,11 @@ export type Started =
       // The policy the start ran with, a kept start's own.
       readonly policy: SessionPolicy;
     } & EstablishedLaunch<Established>)
-  | ({
-      readonly kind: "session";
-      readonly storyTitle?: string;
-      readonly publication: PublicationReceipt;
-    } & EstablishedLaunch<UnattachedEstablished>)
+  | ({ readonly kind: "session" } & EstablishedLaunch<UnattachedEstablished>)
   | {
       readonly kind: "stopped";
       readonly result: LaunchResult;
       readonly publishedNothing?: true;
-      readonly publication?: PublicationReceipt;
     };
 
 function startFailed(
@@ -141,17 +141,9 @@ export async function started(
   attemptId: string,
   noteSlow: (slowSince: string) => Promise<void> = async () => {},
   noteWorker: (pid: number) => Promise<void> = async () => {},
-  began = new Date(),
 ): Promise<Started> {
   if (request.workflow === "ad-hoc") {
-    return unattachedStarted(
-      source,
-      request,
-      folder,
-      attemptId,
-      began,
-      noteWorker,
-    );
+    return unattachedStarted(source, request, folder, attemptId);
   }
   const workflow = startOf(request.workflow);
   if (workflow === undefined) {
@@ -227,7 +219,6 @@ export function publicationOf(
   start: Started,
   pending: LaunchRecord | undefined,
 ): PublicationReceipt {
-  if ("publication" in start) return start.publication;
   const established =
     pending !== undefined
       ? (pending.start ?? pending.preparation)

@@ -20,9 +20,9 @@ import {
   laterAttempt,
   settled,
   settlement,
+  storyOf,
   type AttemptObservation,
 } from "./agentLaunch.ts";
-import { attemptStory } from "./launchAttemptSelection.ts";
 import { noteAttemptReconciled } from "./agentLaunchClient.ts";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -80,7 +80,7 @@ function latestSettled(
 ): readonly AttemptObservation[] {
   const latest = new Map<string, AttemptObservation>();
   for (const attempt of known) {
-    const identity = attemptStory(attempt);
+    const identity = storyOf(attempt.request);
     if (identity === undefined) continue;
     const key = JSON.stringify([attempt.request.source, identity]);
     latest.set(key, laterAttempt(latest.get(key), attempt));

@@ -16,9 +16,7 @@ import {
   unattachedPolicyOf,
   type AgentLaunchRequest,
   type EstablishedSession,
-  type PublicationReceipt,
 } from "../src/agentLaunch.ts";
-import { admitsIsolatedStory } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { executePlanScript, shipsStartScript } from "./executionStart.ts";
 import { adHocLabelText } from "./hostLaunch.ts";
@@ -31,7 +29,7 @@ import {
 import type { LocalFolder } from "./localFolder.ts";
 import { installedExports, isFile } from "./startLaunch.ts";
 import { shipsSessionPolicy } from "./startPolicy.ts";
-import { git, takenSlugs } from "./startGit.ts";
+import { takenSlugs } from "./startGit.ts";
 import { keptSessionStart } from "./sessionStartStore.ts";
 import { refusal } from "./startResult.ts";
 import {
@@ -41,7 +39,6 @@ import {
 import { withinStartWait } from "./startWait.ts";
 import { unattachedStartWords } from "./startWorkflows.ts";
 import { isolatedBranchReviewRepository } from "./sessionBranchCapture.ts";
-import { directoryState } from "./sessionWorkspace.ts";
 import { executionCheckoutStart } from "./defaultLaunchStart.ts";
 
 const formatterScript = "established-session.mjs";
@@ -78,7 +75,6 @@ async function formattedSession(
 function stopped(
   explanation: string,
   kind: "failed" | "uncertain" = "failed",
-  publication: PublicationReceipt = { kind: "none" },
 ): Started {
   return {
     kind: "stopped",
@@ -86,7 +82,7 @@ function stopped(
       kind === "failed"
         ? { kind, reason: "start-refused", explanation }
         : { kind, reason: "timed-out", explanation },
-    publication,
+    publishedNothing: true,
   };
 }
 
@@ -120,8 +116,6 @@ export async function unattachedStarted(
   request: UnattachedRequest,
   project: LocalFolder,
   attempt: string,
-  began: Date,
-  noteWorker: (pid: number) => Promise<void>,
 ): Promise<Started> {
   if (!establishesSession(request)) return { kind: "none" };
   if (!(await establishesUnattached(project, request.host))) {
@@ -139,9 +133,7 @@ export async function unattachedStarted(
         : { workspace: project, branch: source.ref };
   const place = { workspace: chosen.workspace.shown, branch: chosen.branch };
   const result =
-    (kept?.claim !== undefined || !admitsIsolatedStory(request)
-      ? kept?.session
-      : undefined) ??
+    kept?.session ??
     (await withinStartWait(
       scriptSession(
         source,
@@ -150,65 +142,17 @@ export async function unattachedStarted(
         attempt,
         chosen,
         kept !== undefined,
-        began,
-        noteWorker,
       ),
     ));
   if (result === "expired") {
-    const admitting = admitsIsolatedStory(request);
-    return stopped(
-      unattachedStartWords.uncertain(place, admitting),
-      "uncertain",
-      { kind: admitting ? "unknown" : "none" },
-    );
+    return stopped(unattachedStartWords.uncertain(place), "uncertain");
   }
   if ("kind" in result) {
-    if (result.kind === "refused")
-      return stopped(result.explanation, "failed", result.publication);
     return stopped(
       result.kind === "stopped"
         ? refusal(result)
         : unattachedStartWords.unreadable,
     );
-  }
-  const claim = (await keptSessionStart(source.id, attempt))?.claim;
-  const publication: PublicationReceipt =
-    claim?.publishedSha === undefined
-      ? { kind: "none" }
-      : {
-          kind: "published",
-          identity: claim.draft.identity,
-          revision: claim.publishedSha,
-        };
-  if (admitsIsolatedStory(request)) {
-    if (publication.kind !== "published")
-      return stopped(
-        "Story admission could not be read. Continue to recover it.",
-        "failed",
-        { kind: "unknown" },
-      );
-    if (directoryState(result.workspace).kind === "missing")
-      return {
-        kind: "stopped",
-        publication,
-        result: {
-          kind: "failed",
-          reason: "folder-not-found",
-          explanation: `The workspace ${result.workspace} was not found on this machine. Nothing was launched.`,
-        },
-      };
-    const revision = await git({ path: result.workspace }, [
-      "rev-parse",
-      "HEAD",
-      "--abbrev-ref",
-      "HEAD",
-    ]);
-    if (revision.trim() !== `${publication.revision}\n${result.branch}`)
-      return stopped(
-        "The admitted workspace no longer holds the Take. Restore its branch and revision to continue.",
-        "failed",
-        publication,
-      );
   }
   try {
     const repository = await isolatedBranchReviewRepository(result);
@@ -233,10 +177,8 @@ export async function unattachedStarted(
         formatted: await formattedSession(project, result, request.host),
       },
       workspace: chosen.workspace,
-      publication,
-      ...(claim === undefined ? {} : { storyTitle: claim.draft.title }),
     };
   } catch {
-    return stopped(unattachedStartWords.formatFailed(), "failed", publication);
+    return stopped(unattachedStartWords.formatFailed());
   }
 }

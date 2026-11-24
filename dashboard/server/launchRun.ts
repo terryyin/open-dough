@@ -25,14 +25,12 @@ import { launchRecord } from "./launchRecord.ts";
 import { defaultLaunchStartFacts } from "./defaultLaunchStart.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
 import { removeLaunchedStart } from "./startStore.ts";
-import {
-  publicationRecordingFailure,
-  settleSessionResult,
-} from "./sessionStartSettlement.ts";
+import { settleSessionResult } from "./sessionStartSettlement.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import type { OwnedAttempt } from "./ownedAttempts.ts";
 import { attemptWorker } from "./launchAttemptWorker.ts";
 import { establishedFacts } from "./startLaunch.ts";
+import { publishedAssignment } from "./startWorkflows.ts";
 import type { StartProgress } from "./startProgress.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 
@@ -104,34 +102,26 @@ async function startedRun(
           attempt.id,
           noteSlow,
           (pid) => noteWorker(attemptWorker("start", pid)),
-          began,
         )
       : ({ kind: "none" } as const);
   let endWait: (() => void) | undefined;
   try {
-    const publication =
-      pending !== undefined && attempt.publication.kind === "published"
-        ? attempt.publication
-        : publicationOf(start, pending);
     try {
-      await notePublication(publication);
+      await notePublication(publicationOf(start, pending));
     } catch (error) {
-      return publicationRecordingFailure(start, publication, error);
+      if (start.kind !== "established") throw error;
+      return {
+        kind: "failed",
+        reason: "unrecorded",
+        explanation: `Publication succeeded (${publishedAssignment(start)}, workspace ${start.workspace.shown}), but the receipt could not be recorded in ~/.open-dough/dashboard/launch-attempts.json: ${error instanceof Error ? error.message : String(error)}. Repair the file, then Continue; nothing more was started.`,
+      };
     }
     if (start.kind === "stopped") return start.result;
     const baseRecording =
       pending?.request ??
       (start.kind === "established"
         ? withStartPolicy(requested, start.policy)
-        : start.kind === "session" &&
-            start.publication.kind === "published" &&
-            requested.workflow === "ad-hoc"
-          ? {
-              ...requested,
-              storyIdentity: start.publication.identity,
-              title: start.storyTitle ?? requested.title,
-            }
-          : requested);
+        : requested);
     const kept = pending?.request.reporting ?? attempt.reporting;
     const preparedReporting = await prepareAttemptReporting(
       attempt,

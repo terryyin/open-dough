@@ -1,6 +1,7 @@
 // Retained-record landings: declared branch handoffs and expired attempts.
 import { landingReportingReference } from "../src/launchLanding.ts";
 import { launchRetentionDays, type LaunchRecord } from "../src/launchRecord.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
@@ -97,8 +98,8 @@ function expiredAttemptRecord({
   if (
     record?.request.host !== report.host ||
     record.request.reporting?.origin !== origin ||
+    storyOf(record.request) !== report.identity ||
     established === undefined ||
-    establishedStory(established) !== report.identity ||
     establishedStory(established) !== authority.identity ||
     established.workspace !== authority.workspace ||
     established.branch !== authority.branch ||

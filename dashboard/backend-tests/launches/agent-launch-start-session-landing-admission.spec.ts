@@ -49,10 +49,7 @@ childPublication(
       instruction: "Tidy the README wording",
       policy: { workspace: "isolated", landing: "review" } satisfies Policy,
     });
-    const [block, reportingBlock, story, text] = waiting.sent.split("\n\n");
-    expect(story).toBe(
-      `Taken story: ${"storyIdentity" in waiting.record.request ? waiting.record.request.storyIdentity : ""}`,
-    );
+    const [block, reportingBlock, text] = waiting.sent.split("\n\n");
     expect(text).toBe("Tidy the README wording");
     const { session, reporting, context } = landingHandoff(waiting.record);
     expect(block).toBe(sessionBlock(session));
@@ -150,7 +147,6 @@ test.describe("Codex", () => {
         await launch(dashboard, {
           ...request,
           host: "codex",
-          instruction: "Session",
           policy: { workspace: "isolated", landing: "auto-land" },
         })
       ).body,
