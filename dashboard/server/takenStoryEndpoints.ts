@@ -110,18 +110,9 @@ async function fetchTip(head: string, call: GitCall): Promise<void> {
   await runGit(["rev-parse", "--verify", `${head}^{commit}`], call);
 }
 
-export async function publishedTakenBranchTip(
-  branch: string,
-  call: GitCall,
-): Promise<string | undefined> {
-  const fetch = { ...call, env: { ...call.env, GIT_TERMINAL_PROMPT: "0" } };
-  const head = await publishedBranchHead(branch, fetch);
-  if (head !== undefined) await fetchTip(head, fetch);
-  return head;
-}
-
 // Both Review and CI recover the claim and its story-start bound from the
-// configured target. The caller owns how it resolves the story branch's tip.
+// configured target as last fetched into the repository `call` reads. The
+// caller owns fetching it and resolving the story branch's tip.
 export async function takenStoryClaim(
   source: PublishedSource,
   identity: string,
@@ -129,7 +120,6 @@ export async function takenStoryClaim(
 ): Promise<
   { readonly kind: "claim"; readonly facts: TakenClaim } | TakenClaimGap
 > {
-  await fetchGitTarget("origin", source.ref, call);
   const trunk = (
     await runGit(
       ["rev-parse", "--verify", `origin/${source.ref}^{commit}`],
@@ -206,6 +196,7 @@ export async function takenStoryEndpoints(
   try {
     const directory = executionCheckout(source).path;
     const call = { cwd: directory, signal, maxBuffer: 64 * 1024 * 1024 };
+    await fetchGitTarget("origin", source.ref, call);
     const taken = await takenStoryClaim(source, identity, call);
     if (taken.kind !== "claim") return taken;
     const {

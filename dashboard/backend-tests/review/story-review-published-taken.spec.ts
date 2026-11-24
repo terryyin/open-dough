@@ -1,92 +1,19 @@
-import path from "node:path";
-import { expect, onTestFinished, test, vi } from "vitest";
-import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { renameSync } from "node:fs";
+import { delimiter } from "node:path";
+import { expect, test, vi } from "vitest";
 import {
-  appendConfiguredProject,
-  mountProjectConfiguration,
-} from "../../server/projectConfiguration.ts";
+  commitStoryFile,
+  publishBranch,
+  takenStoryReader,
+} from "../support/takenStoryReader.ts";
 import {
   reviewedFileDiff,
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReview.ts";
-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
-import type { StartRepository } from "../../test-support/support/startOriginPreparation.ts";
-import { yui } from "../../test-support/support/storyReviewTrunkCommits.ts";
+import { remoteRequestRecordingGit } from "../../test-support/support/remoteRequestRecordingGit.ts";
 import { trunkModeStory } from "../../test-support/support/storyReviewTrunkMode.ts";
-import {
-  branch,
-  git,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
-import { takenBranchContributionHistory } from "../../test-support/support/takenBranchContributionHistory.ts";
-
-async function takenStoryReader(
-  history: StartRepository = takenBranchContributionHistory(),
-) {
-  const repository = await materializeRepository(history);
-  const reader = path.join(repository.fixture, "reader");
-  git(
-    repository.fixture,
-    "clone",
-    "--quiet",
-    "--config",
-    "maintenance.auto=false",
-    "--config",
-    "gc.auto=0",
-    "--single-branch",
-    "--branch",
-    "main",
-    repository.origin,
-    reader,
-  );
-  stubFixtureHome(reader, repository.origin);
-  const unmount = mountProjectConfiguration("development");
-  onTestFinished(async () => {
-    unmount();
-    vi.unstubAllEnvs();
-    await repository.cleanup();
-  });
-  const project = makeMe.aConfiguredProject
-    .with({
-      id: "open-dough",
-      label: "Open Dough",
-      repository: fixtureRepository,
-      localPath: reader,
-    })
-    .please();
-  appendConfiguredProject(project);
-  if (repository.execution === undefined) throw new Error("Missing writer");
-  return {
-    reader,
-    writer: repository.execution,
-    revisions: repository.revisions,
-    subject: { source: project.id, identity: queuedIdentity },
-    signal: new AbortController().signal,
-  };
-}
-
-const publishBranch = (writer: string) =>
-  git(writer, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
-
-function commitStoryFile(writer: string, file: string, text: string) {
-  writeAt(writer, file, text);
-  git(writer, "--literal-pathspecs", "add", "--", file);
-  git(
-    writer,
-    "-c",
-    `user.name=${yui.agent}`,
-    "-c",
-    `user.email=${yui.email}`,
-    "commit",
-    "--quiet",
-    "-m",
-    "Published story file",
-  );
-  return git(writer, "rev-parse", "HEAD");
-}
+import { branch, git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test("a Taken story reads its published branch and attributable merge edit without a local launch or worktree", async () => {
   const { subject, signal, writer, revisions } = await takenStoryReader();
@@ -157,10 +84,13 @@ test("a named published branch pair admits its literal file after origin advance
 });
 
 test("locally readable unpublished commits cannot name a published file comparison", async () => {
-  const { reader, subject, signal, writer } = await takenStoryReader();
+  const { reviewRepository, subject, signal, writer } =
+    await takenStoryReader();
   publishBranch(writer);
+  await storyReview({ read: { subject, taken: true } }, signal);
   const path = "guides/undelivered.txt";
   const unpublished = commitStoryFile(writer, path, "only present locally\n");
+  const reader = reviewRepository();
   git(reader, "fetch", "--quiet", "--no-write-fetch-head", writer, unpublished);
   const read = {
     subject,
@@ -210,4 +140,61 @@ test("a Taken Trunk story reads only its attributable changes from interleaved p
   if (source.kind !== "text") throw new Error("No published file source");
   expect(source.tree).toContain("a one\n");
   expect(source.tree).not.toContain("now published");
+});
+
+// One open syncs a three-file branch; origin then publishes a later head and
+// moves away, and Git calls are recorded from then on.
+async function openedBranchWithOriginGone() {
+  const { home, origin, subject, signal, writer } = await takenStoryReader();
+  const paths = ["guides/one.txt", "guides/two.txt", "guides/three.txt"];
+  commitStoryFile(writer, "guides/one.txt", "story text\n", ...paths.slice(1));
+  publishBranch(writer);
+  const review = await storyReview({ read: { subject, taken: true } }, signal);
+  if (review.kind !== "published-taken") throw new Error("No published branch");
+  const beyond = commitStoryFile(writer, "guides/later.txt", "later\n");
+  publishBranch(writer);
+  const recording = remoteRequestRecordingGit(home);
+  vi.stubEnv("PATH", `${recording.bin}${delimiter}${process.env.PATH ?? ""}`);
+  renameSync(origin, `${origin}-moved`);
+  const read = {
+    subject,
+    publishedHead: review.head,
+    baseline: review.baseline,
+    tree: review.tree,
+  };
+  return { paths, beyond, read, signal, remoteRequests: recording.requests };
+}
+
+test("a named published branch pair reads its files without a remote request after origin moves away", async () => {
+  const { paths, read, signal, remoteRequests } =
+    await openedBranchWithOriginGone();
+
+  for (const file of paths) {
+    const diff = await reviewedFileDiff(
+      { read: { ...read, path: file } },
+      signal,
+    );
+    if (diff.kind !== "diff") throw new Error(`No diff for ${file}`);
+    expect(diff.printed).toContain("+story text");
+  }
+  expect(remoteRequests()).toEqual([]);
+});
+
+test("a named published branch pair refuses an unlisted path or a head beyond the last sync without a remote request", async () => {
+  const { beyond, read, signal, remoteRequests } =
+    await openedBranchWithOriginGone();
+
+  await expect(
+    reviewedFileDiff(
+      { read: { ...read, path: "guides/incoming.txt" } },
+      signal,
+    ),
+  ).rejects.toMatchObject({ status: 409 });
+  await expect(
+    reviewedFileDiff(
+      { read: { ...read, publishedHead: beyond, path: "guides/later.txt" } },
+      signal,
+    ),
+  ).rejects.toMatchObject({ status: 409 });
+  expect(remoteRequests()).toEqual([]);
 });

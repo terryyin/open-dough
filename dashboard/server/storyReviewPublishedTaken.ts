@@ -1,19 +1,19 @@
-import { realpath } from "node:fs/promises";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   objectIdSchema,
   type StoryReview,
 } from "../src/storyReviewContract.ts";
-import { executionCheckout } from "./executionCheckout.ts";
-import { gitProblem, runGit } from "./gitRunner.ts";
+import { isSafeBranchName } from "../src/authenticatedReadRules.ts";
+import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { publishedStoryEvidence } from "./storyPublishedEvidence.ts";
 import { publishedStoryComparison } from "./storyReviewPublished.ts";
 import {
-  publishedTakenBranchTip,
-  takenStoryClaim,
-} from "./takenStoryEndpoints.ts";
+  reviewRepositoryPath,
+  syncedReviewRepository,
+} from "./reviewRepository.ts";
+import { takenStoryClaim } from "./takenStoryEndpoints.ts";
 
 type PublishedTakenReview = Extract<
   StoryReview,
@@ -25,8 +25,26 @@ const unavailable = (explanation: string): PublishedTakenReview => ({
   explanation,
 });
 
-// A named head is usable only while the published target still contains it.
-// Git may already hold the object locally, which does not establish publication.
+// Comparisons already built for a head over the same synced refs: the named
+// head is immutable, and the source's target and backlog with the refs fix the
+// claim and published bound, so a file read reuses the comparison its open
+// built instead of rebuilding it. The oldest kept goes first.
+const builtComparisons = new Map<string, PublishedTakenReview>();
+const builtComparisonLimit = 32;
+
+function keepBuiltComparison(key: string, review: PublishedTakenReview) {
+  builtComparisons.delete(key);
+  builtComparisons.set(key, review);
+  for (const oldest of builtComparisons.keys()) {
+    if (builtComparisons.size <= builtComparisonLimit) break;
+    builtComparisons.delete(oldest);
+  }
+}
+
+// A live open syncs the target and the story branch into the Review
+// repository by exact ref. A named head (a file read) makes no remote request:
+// it is usable only while the last synced target or branch contains it. Git
+// may already hold the object locally, which does not establish publication.
 export async function publishedTakenReview(
   source: PublishedSource,
   identity: string,
@@ -34,17 +52,30 @@ export async function publishedTakenReview(
   namedHead?: string,
 ): Promise<PublishedTakenReview> {
   try {
-    const directory = executionCheckout(source).path;
+    const live = namedHead === undefined;
+    const directory = live
+      ? await syncedReviewRepository(source, signal)
+      : reviewRepositoryPath(source);
     const call = { cwd: directory, signal, maxBuffer: 64 * 1024 * 1024 };
     const git = async (...args: string[]) =>
       (await runGit(args, call)).stdout.trim();
-    if (
-      (await realpath(await git("rev-parse", "--show-toplevel"))) !==
-      (await realpath(directory))
-    )
-      return unavailable(
-        "The execution checkout no longer points to this project's Git root.",
-      );
+    const comparisonKey = async (head: string) =>
+      [
+        directory,
+        source.ref,
+        source.backlogPath,
+        identity,
+        head,
+        await git(
+          "for-each-ref",
+          "--format=%(refname) %(objectname)",
+          "refs/remotes/origin",
+        ),
+      ].join("\n");
+    if (namedHead !== undefined) {
+      const built = builtComparisons.get(await comparisonKey(namedHead));
+      if (built !== undefined) return built;
+    }
     const taken = await takenStoryClaim(source, identity, call);
     if (taken.kind === "absent")
       return unavailable(
@@ -55,8 +86,12 @@ export async function publishedTakenReview(
     const target = mode === "trunk" ? source.ref : branch;
     if (target === undefined)
       return unavailable("The Taken story does not record a published branch.");
+    if (!isSafeBranchName(target))
+      return unavailable("The recorded branch name is not usable.");
     const tip =
-      mode === "trunk" ? trunk : await publishedTakenBranchTip(target, call);
+      mode === "trunk"
+        ? trunk
+        : await syncedBranchTip(source, target, live, call);
     if (tip === undefined)
       return unavailable(
         `The recorded story branch ${target} is not published on origin.`,
@@ -100,7 +135,7 @@ export async function publishedTakenReview(
       call,
     );
     if ("explanation" in compared) return unavailable(compared.explanation);
-    return {
+    const review: PublishedTakenReview = {
       kind: "published-taken",
       mode,
       agent,
@@ -109,10 +144,34 @@ export async function publishedTakenReview(
       target,
       ...compared,
     };
+    keepBuiltComparison(await comparisonKey(head), review);
+    return review;
   } catch (error) {
     if (signal.aborted) throw error;
     return unavailable(
       `Published Taken story changes could not be read: ${gitProblem(error)}`,
     );
+  }
+}
+
+// The story branch as last synced into the Review repository, syncing it
+// first on a live open. A branch origin does not publish has no tip.
+async function syncedBranchTip(
+  source: PublishedSource,
+  branch: string,
+  live: boolean,
+  call: GitCall & { readonly signal: AbortSignal },
+): Promise<string | undefined> {
+  try {
+    if (live) await syncedReviewRepository(source, call.signal, branch);
+    return (
+      await runGit(
+        ["rev-parse", "--verify", `refs/remotes/origin/${branch}^{commit}`],
+        call,
+      )
+    ).stdout.trim();
+  } catch (error) {
+    if (call.signal.aborted) throw error;
+    return undefined;
   }
 }

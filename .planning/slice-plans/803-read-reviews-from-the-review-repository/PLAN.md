@@ -188,7 +188,7 @@ Learnings for later slices:
 
 ### 3. Move Taken story comparisons and fix file reads to their endpoints
 Type: Behavior
-Status: planned
+Status: done
 Proof: backend `dashboard/backend-tests/review/story-review-published-taken.spec.ts` with the checkout absent, plus the origin-moved file-read case; E2E `e2e/review/story-review-trunk-own-changes.spec.ts`; `dashboard/backend-tests/intent/ci-comparison-taken.spec.ts` stays green.
 
 Behavior: a Story Branch Mode or Trunk Mode story is Taken with published work,
@@ -197,6 +197,27 @@ off and on → the same attributed comparisons appear. File reads admit only
 paths in the comparison at the named head within the last synced published
 branch or trunk. They make no remote request, so they keep working after origin
 becomes unreachable.
+
+Accepted proof (uncommitted candidate on d354fbc6, load 7–27): all six
+checkout-absent Taken cases failed first and then passed. Two new cases cover
+reads after origin moves away: three admitted reads, plus refusal of an
+outside path and a head beyond the sync, with no `fetch` or `ls-remote`. The
+taken spec passed 3 runs back to back. Typecheck passed. Backend
+`ci-comparison-taken`, `-taken-range`, `-endpoints`, `-published-endpoints`,
+`story-review-refusal` and the Done review specs passed. Thirty Taken-review
+and CI E2E journeys passed, including `story-review-trunk-own-changes`.
+
+Learnings for later slices:
+- A live Taken open syncs trunk, then the story branch by exact ref. Concurrent
+  opens share each fetch.
+- Built Taken comparisons are kept in-process, keyed by repository, identity,
+  head and the synced ref listing. A file switch reuses its comparison instead
+  of rebuilding it, which cost about 0.6s.
+- `takenStoryClaim` no longer fetches. CI's `takenStoryEndpoints` fetches trunk
+  into its checkout first. `publishedTakenBranchTip` is gone.
+- The Trunk Mode case is still slow: the `trunkModeStory` template build alone
+  takes about 1.9s, and the case reached 4.3s at load 16. A fixture repair
+  before slice 4 trims that history across its five consumers.
 
 ### 4. Move accepted landing pairs and recorded session ranges
 Type: Behavior
@@ -227,6 +248,13 @@ Behavior:
 
 The notice wording stays consistent with the existing "Refreshing the review…"
 and "Review refreshed" lines in `StoryReviewFeedback.tsx`.
+
+## Story obligations
+
+### G1. A failed Taken branch sync reads as an unpublished branch
+Reported: slice 3 — "A failed live branch sync (network or deleted branch) reports \"The recorded story branch X is not published on origin.\""
+Story clause: "A cold review with no readable comparison stays unavailable and names the failed sync."
+Disposition: receiving slice 5
 
 ## Concern evidence
 

@@ -71,47 +71,43 @@ async function created(source: PublishedSource, signal: AbortSignal) {
 const refspec = (ref: string) =>
   `+refs/heads/${ref}:refs/remotes/origin/${ref}`;
 
-// Fetch the published target, sharing a fetch of the same ref already under
-// way for this Review repository, and record its outcome.
+// Fetch one exact published ref (the target by default, or a Taken story
+// branch), sharing a fetch of the same ref already under way for this Review
+// repository, and record its outcome.
 export async function syncedReviewRepository(
   source: PublishedSource,
   signal: AbortSignal,
+  ref: string = source.ref,
 ): Promise<string> {
   const repository = reviewRepositoryPath(source);
-  await fetches.fetch(
-    repository,
-    "origin",
-    source.ref,
-    signal,
-    async (fetching) => {
-      const previous = await lastSync(repository);
-      try {
-        await created(source, fetching);
-        await runGitUntilClosed(
-          [...credentials, "fetch", "--quiet", "origin", refspec(source.ref)],
-          {
-            cwd: repository,
-            signal: fetching,
-            env: fetchEnvironment,
-            maxBuffer,
-          },
-        );
+  await fetches.fetch(repository, "origin", ref, signal, async (fetching) => {
+    const previous = await lastSync(repository);
+    try {
+      await created(source, fetching);
+      await runGitUntilClosed(
+        [...credentials, "fetch", "--quiet", "origin", refspec(ref)],
+        {
+          cwd: repository,
+          signal: fetching,
+          env: fetchEnvironment,
+          maxBuffer,
+        },
+      );
+      await record(repository, {
+        lastSyncedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      if (!fetching.aborted)
         await record(repository, {
-          lastSyncedAt: new Date().toISOString(),
-        });
-      } catch (error) {
-        if (!fetching.aborted)
-          await record(repository, {
-            ...previous,
-            lastFailure: {
-              at: new Date().toISOString(),
-              problem: gitProblem(error),
-            },
-          }).catch(() => undefined);
-        throw error;
-      }
-    },
-  );
+          ...previous,
+          lastFailure: {
+            at: new Date().toISOString(),
+            problem: gitProblem(error),
+          },
+        }).catch(() => undefined);
+      throw error;
+    }
+  });
   return repository;
 }
 

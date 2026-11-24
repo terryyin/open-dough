@@ -1,8 +1,6 @@
 // Concurrent Review changes opens for one project share one fetch into its
 // Review repository.
-import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import path from "node:path";
+import { realpathSync } from "node:fs";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   getReview as get,
@@ -11,6 +9,7 @@ import {
 import { ordinaryTrunkModeCompletedHistory } from "../../test-support/support/completedStoryHistory.ts";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { fixtureReviewRepository } from "../../test-support/support/reviewRepositoryFixture.ts";
+import { remoteRequestRecordingGit } from "../../test-support/support/remoteRequestRecordingGit.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 
 test.use({
@@ -18,36 +17,13 @@ test.use({
   originRepository: ordinaryTrunkModeCompletedHistory(),
 });
 
-// Records the physical directory of every `git fetch` before running Git;
-// callers name directories physically too.
-function fetchRecordingGit(machine: string) {
-  const bin = path.join(machine, "fetch-recording-bin");
-  const log = path.join(machine, "fetches.log");
-  const git = execFileSync("sh", ["-c", "command -v git"], {
-    encoding: "utf8",
-  }).trim();
-  mkdirSync(bin, { recursive: true });
-  writeFileSync(
-    path.join(bin, "git"),
-    `#!/bin/sh\ncase " $* " in *" fetch "*) pwd -P >> '${log}';; esac\nexec '${git}' "$@"\n`,
-    { mode: 0o755 },
-  );
-  return {
-    bin,
-    fetchesIn: (directory: string) =>
-      readFileSync(log, "utf8")
-        .split("\n")
-        .filter((line) => line === directory).length,
-  };
-}
-
 test("two concurrent opens of a Done story's review share one fetch", async ({
   request,
   dashboard,
   origin,
 }) => {
   await dashboard.close();
-  const recording = fetchRecordingGit(origin.machine);
+  const recording = remoteRequestRecordingGit(origin.machine);
   const server = await startDashboardServer({
     mode: "boundary",
     liveServer: "separate process",
