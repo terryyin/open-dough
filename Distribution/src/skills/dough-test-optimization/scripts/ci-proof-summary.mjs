@@ -172,8 +172,8 @@ function runSummarize(argv) {
     process.stdout.write(`${line}\n`);
 }
 
-// As dough-execute-plan's isDirectCliEntry, repeated so the copied collector
-// needs no installed skill: a symlinked spelling of argv still runs the CLI.
+// The standalone collector uses the same realpath check as isDirectCliEntry
+// so a platform path alias such as macOS `/tmp` still invokes the CLI.
 function isDirectEntry() {
   if (!process.argv[1]) return false;
   if (import.meta.url === pathToFileURL(process.argv[1]).href) return true;

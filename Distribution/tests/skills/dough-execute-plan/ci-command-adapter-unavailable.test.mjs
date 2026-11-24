@@ -14,9 +14,9 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { makeMe } from "../../support/makeMe.mjs";
 import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
+import { deployMailboxEntrypoint } from "./ci-installed-checkouts-test-fixtures.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { endProcess } from "./process-lifetime-test-fixtures.mjs";
-import { installLinkedSkills } from "./symlinked-skill-test-fixtures.mjs";
 import { waitForFile, waitForPidExit } from "./watch-ci-test-fixtures.mjs";
 
 const checkedSha = "e".repeat(40).toUpperCase();
@@ -192,9 +192,7 @@ test("discovery loss after a diagnostic failure still preserves the known CI fai
 
 test("observer cancellation terminates its blocking adapter child", async (t) => {
   const fixture = unavailableFixture(t, "blocking");
-  const observer = installLinkedSkills(fixture.root)(
-    "dough-execute-plan/scripts/ci-mailbox.mjs",
-  ).real;
+  const observer = deployMailboxEntrypoint(fixture.root);
   const child = spawn(
     process.execPath,
     [observer, "stream", "--execution", "owner/project", "feature/custom"],

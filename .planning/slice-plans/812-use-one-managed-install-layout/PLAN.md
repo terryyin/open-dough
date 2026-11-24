@@ -68,12 +68,12 @@ deferred in the story.
   `scripts/test.sh Distribution/tests/installation/update-skip-verified.sh`
   under Homebrew bash failed at line 103 only. The scratch edit was reverted.
 
-## Slices and outside-in proof
+## Ordered slices
 
 ### 1. Scripts are proven through the installed layout alone
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `scripts/test.sh` over the changed and consumer test files below.
 
 Delete `symlinked-skill-entry.test.mjs` and `symlinked-skill-test-fixtures.mjs`.
@@ -147,3 +147,28 @@ behavior change, and the scratch run already shows who consumes it.
   change touches shared Distribution test fixtures, so run the full
   Distribution suite once before landing, with Homebrew bash 5. Hosted CI
   remains the final gate.
+
+## Execution resume
+
+Anri-chan started in the linked worktree on
+`codex/use-one-managed-install-layout` in Story Branch Mode. The starting
+revision was `7697cb8426d39b3776496fad4af64bad730682f3`. The Take
+`1317e54a8d0ddc25285ad06b33af4817b0357902` was published to `origin/main` and
+the execution branch. It remains the branch head and first delivery base.
+
+The slice 1 removal search had zero matches. The
+38-path focused run timed out in `github-request-owner-unresponsive.test.mjs`
+after the replacement owner appeared, while waiting for both clients' held
+requests. Four diagnostic runs passed. The targeted timing experiment showed
+that a client still greeting the suspended owner can reach the replacement.
+The requested retry ran six isolated instances concurrently with the original
+client launch order. All six recorded both requests and two HTTP 200 replies
+from the replacement owner. The developer explicitly approved a one-time
+exception for the original timeout so slice 1 could be delivered. Its cause
+remains unknown. Temporary instrumentation was removed. Resolve the
+worktree evidence directory with `git rev-parse --git-path open-dough/evidence`.
+Its `slice1-return.md` records the commands, original failure and traces.
+
+Codex observes `ci.yml` for the story branch through coordinator
+`anri-460afa7c` at `/tmp/dough-ci-501/watch-wRJJiC` (PID 30474). The earlier
+observer stopped with zero unread events before this one started.

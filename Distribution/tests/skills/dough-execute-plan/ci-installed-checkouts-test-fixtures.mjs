@@ -24,6 +24,10 @@ export function deployRuntime(root, platform = ".agents") {
   return skill;
 }
 
+export function deployMailboxEntrypoint(root) {
+  return join(deployRuntime(root), "scripts/ci-mailbox.mjs");
+}
+
 // A repository with one commit, which is no Open Dough backlog project.
 const oneCommit = makeMe.aRepository.withRevision("init", {
   backlog: null,
@@ -54,7 +58,7 @@ export async function installedCheckouts(t, prefix) {
   const launchers = Object.fromEntries(
     Object.entries(roots).map(([name, root]) => [
       name,
-      join(deployRuntime(root), "scripts/ci-mailbox.mjs"),
+      deployMailboxEntrypoint(root),
     ]),
   );
   const env = {
