@@ -15,14 +15,20 @@ import {
   storyContext,
   type StoryFollowUpContext,
 } from "../src/followUpContext.ts";
-import type { AttachedStoryNote, FollowUp } from "../src/followUpRequest.ts";
-import { retainedFollowUpReference } from "../src/followUpSessions.ts";
+import {
+  followUpSessionKey,
+  type AttachedStoryNote,
+  type FollowUp,
+} from "../src/followUpRequest.ts";
+import {
+  followUpSessionContext,
+  followUpSessionSelected,
+} from "../src/followUpSessions.ts";
 import { storyNotesContext } from "../src/followUpStoryNotes.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { sessionKey } from "../src/sessionReference.ts";
 import { storyNoteVersion } from "../src/storyNote.ts";
 import { admitFollowUpFile } from "./followUpFileAdmission.ts";
-import { doneStorySessions, publishedDoneStory } from "./followUpStory.ts";
+import { followUpStorySessions, publishedDoneStory } from "./followUpStory.ts";
 import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { storyFollowUpMessage } from "./storyFollowUpMessage.ts";
@@ -36,19 +42,23 @@ async function resolveStoryFollowUp(
   notes?: AttachedStoryNote[];
 }> {
   const story = await publishedDoneStory(source, followUp);
-  const sessions = await doneStorySessions(source, followUp.identity);
-  const selected = new Set(followUp.sessions?.map(sessionKey));
+  const sessions = await followUpStorySessions(
+    source,
+    followUp.identity,
+    followUp.sessions ?? [],
+  );
+  const selected = new Set(followUp.sessions?.map(followUpSessionKey));
   const file =
     followUp.file === undefined
       ? undefined
       : await admitFollowUpFile(source, followUp.identity, followUp.file);
   const base = storyContext(
     story,
-    sessions.filter((record) =>
-      selected.has(sessionKey(retainedFollowUpReference(record))),
-    ),
+    sessions
+      .filter((session) => followUpSessionSelected(session, selected))
+      .map(followUpSessionContext),
     file,
-    sessions.length > 0,
+    sessions.some(({ retained }) => retained !== undefined),
   );
   if (followUp.notes !== true) return { context: base };
   const waiting = await waitingStoryNotes(source.id, followUp.identity);

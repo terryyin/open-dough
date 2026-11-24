@@ -11,12 +11,14 @@ import {
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 
 const commitSchema = z.string().regex(/^[0-9a-f]{40,64}$/);
+export const publishedSessionIdSchema = z.string().refine(isSessionId);
 
 export const publishedSessionRecordSchema = z.object({
   version: z.literal(sessionRecordVersion),
-  sessionId: z.string().refine(isSessionId),
+  sessionId: publishedSessionIdSchema,
   workflow: z.string().min(1),
   closedAt: z.iso.datetime(),
+  story: z.string().min(1).optional(),
   // The session's ordered recorded pairs; the review selects one by position.
   ranges: z
     .array(

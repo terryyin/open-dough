@@ -9,6 +9,7 @@ import {
 import { FollowUpSubject, type FollowUpShown } from "./FollowUpSubject.tsx";
 import {
   followUpSourceAttaching,
+  type FollowUpSessionChoice,
   type FollowUpSource,
 } from "./followUpRequest.ts";
 import { instructionTranscription } from "./instructionTranscriptionSource.ts";
@@ -20,7 +21,6 @@ import {
   unattachedSummary,
   unattachedWhere,
 } from "./sessionPolicyWords.ts";
-import type { SessionReference } from "./sessionReference.ts";
 import type { AdHocLaunches } from "./StartSession.tsx";
 import { unattachedSession } from "./UnattachedSessionPolicy.tsx";
 
@@ -50,7 +50,9 @@ export function StartSessionDialog({
   readonly onClose: (accepted: boolean) => void;
 }) {
   const [policy, setPolicy] = useState(unattachedPolicyOf({}));
-  const [sessions, setSessions] = useState<readonly SessionReference[]>([]);
+  const [sessions, setSessions] = useState<readonly FollowUpSessionChoice[]>(
+    [],
+  );
   const [attachNotes, setAttachNotes] = useState(false);
   const workspace =
     policy.workspace === "isolated"

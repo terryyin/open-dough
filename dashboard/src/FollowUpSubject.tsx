@@ -1,16 +1,17 @@
 import { StoryNotesAttachment } from "./AttachStoryNotes.tsx";
-import {
-  followUpItems,
-  sessionContext,
-  type FollowUpContext,
-} from "./followUpContext.ts";
+import { followUpItems, type FollowUpContext } from "./followUpContext.ts";
 import { FollowUpDetails } from "./FollowUpDetails.tsx";
-import type { FollowUpSource } from "./followUpRequest.ts";
-import { retainedFollowUpReference } from "./followUpSessions.ts";
+import {
+  followUpSessionKey,
+  type FollowUpSessionChoice,
+  type FollowUpSource,
+} from "./followUpRequest.ts";
+import {
+  followUpSessionContext,
+  followUpSessionName,
+  type FollowUpSession,
+} from "./followUpSessions.ts";
 import { LaunchDisclosure } from "./LaunchDisclosure.tsx";
-import type { LaunchRecord } from "./launchRecord.ts";
-import { hostName } from "./sessionCapabilities.ts";
-import { sessionKey, type SessionReference } from "./sessionReference.ts";
 import "./follow-up.css";
 
 // The required source context and any sessions the developer can attach.
@@ -18,7 +19,7 @@ export type FollowUpShown = {
   readonly source: FollowUpSource;
   readonly name: string;
   readonly context: FollowUpContext;
-  readonly sessions?: readonly LaunchRecord[];
+  readonly sessions?: readonly FollowUpSession[];
 };
 
 export function FollowUpSubject({
@@ -31,8 +32,8 @@ export function FollowUpSubject({
 }: {
   readonly followUp: FollowUpShown;
   readonly sourceId: string;
-  readonly selected: readonly SessionReference[];
-  readonly onSessions: (sessions: readonly SessionReference[]) => void;
+  readonly selected: readonly FollowUpSessionChoice[];
+  readonly onSessions: (sessions: readonly FollowUpSessionChoice[]) => void;
   readonly attachNotes: boolean;
   readonly onNotes: (attach: boolean) => void;
 }) {
@@ -51,25 +52,25 @@ export function FollowUpSubject({
       {followUp.sessions !== undefined && followUp.sessions.length > 0 && (
         <fieldset className="follow-up-sessions">
           <legend>Attach sessions</legend>
-          {followUp.sessions.map((record) => {
-            const reference = retainedFollowUpReference(record);
-            const key = sessionKey(reference);
-            const context = sessionContext(record);
-            const name = `${context.label} · ${hostName(reference.host)} · ${reference.sessionId}`;
+          {followUp.sessions.map((session) => {
+            const { choice } = session;
+            const key = followUpSessionKey(choice);
+            const context = followUpSessionContext(session);
+            const name = followUpSessionName(session, context.label);
             return (
               <div className="follow-up-session" key={key}>
                 <label>
                   <input
                     type="checkbox"
                     checked={selected.some(
-                      (session) => sessionKey(session) === key,
+                      (each) => followUpSessionKey(each) === key,
                     )}
                     onChange={(event) => {
                       onSessions(
                         event.currentTarget.checked
-                          ? [...selected, reference]
+                          ? [...selected, choice]
                           : selected.filter(
-                              (session) => sessionKey(session) !== key,
+                              (each) => followUpSessionKey(each) !== key,
                             ),
                       );
                     }}

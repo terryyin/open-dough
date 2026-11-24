@@ -101,7 +101,7 @@ export function fileContextItems(
 // The context a done story supplies, with its reviewed file when present.
 export function storyContext(
   story: FollowUpStoryFacts,
-  sessions: readonly FollowUpSessionFacts[],
+  sessions: readonly FollowUpSection[],
   file?: FollowUpFileFacts,
   hasRetainedSessions = sessions.length > 0,
 ): StoryFollowUpContext {
@@ -125,7 +125,7 @@ export function storyContext(
       ],
     },
     file,
-    sessions: sessions.map(sessionContext),
+    sessions,
   };
 }
 

@@ -7,7 +7,9 @@
 // offers Follow up for the whole file or a line
 // (`./StoryAnchoredFollowUp.tsx`).
 
+import { useContext } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
+import type { MachineSessions } from "./agentLaunches.ts";
 import type { DoneStory } from "./doneRecord.ts";
 import {
   sessionContext,
@@ -18,9 +20,11 @@ import {
 import type { FollowUpFile, FollowUpSource } from "./followUpRequest.ts";
 import {
   retainedFollowUpReference,
-  retainedStoryFollowUpSessions,
+  storyFollowUpSessions,
 } from "./followUpSessions.ts";
 import { usePageSessions } from "./pageSessions.ts";
+import { currentPublishedSessions } from "./recentlyDoneListing.ts";
+import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { offersFollowUp } from "./sessionAccess.ts";
 import { StartSession, type AdHocLaunches } from "./StartSession.tsx";
@@ -34,6 +38,7 @@ type Launching = {
 
 type StoryLaunch = Launching & {
   readonly story: DoneStory;
+  readonly launches: AdHocLaunches & Pick<MachineSessions, "records">;
   // The revision the story's done record was read at.
   readonly revision: string;
   // The sessions its card holds, oldest first.
@@ -44,7 +49,6 @@ type StoryLaunch = Launching & {
 export function StoryFollowUpSession({
   story,
   revision,
-  sessions,
   project,
   sourceId,
   launches,
@@ -63,8 +67,13 @@ export function StoryFollowUpSession({
 }) {
   const readHistory = useReadRetainedHistory();
   const { presentTerminal } = usePageSessions();
-  const candidates = retainedStoryFollowUpSessions(
-    sessions,
+  const { work } = useContext(RecentlyDoneLinkSources);
+  const candidates = storyFollowUpSessions(
+    launches.records,
+    currentPublishedSessions(
+      work?.source.id === sourceId ? work.publishedSessions : undefined,
+      new Date(),
+    ),
     sourceId,
     story.identity,
   );
@@ -88,7 +97,12 @@ export function StoryFollowUpSession({
       followUp={{
         source,
         name: storyName(story),
-        context: storyContext(story, [], file?.facts, candidates.length > 0),
+        context: storyContext(
+          story,
+          [],
+          file?.facts,
+          candidates.some(({ retained }) => retained !== undefined),
+        ),
         sessions: candidates,
       }}
     />

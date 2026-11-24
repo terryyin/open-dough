@@ -20,6 +20,17 @@ export const fileFollowUpDialog = (page: Page, project = "Open Dough") =>
 
 export { startSessionField };
 
+export async function openFileFollowUp(
+  page: Page,
+  scope: Locator,
+  storyName: string,
+) {
+  await fileFollowUp(scope, storyName).click();
+  const dialog = fileFollowUpDialog(page);
+  await expect(dialog).toBeVisible();
+  return followUpComposer(dialog);
+}
+
 export function followUpComposer(dialog: Locator) {
   const sessions = dialog.getByRole("group", { name: "Attach sessions" });
   return {

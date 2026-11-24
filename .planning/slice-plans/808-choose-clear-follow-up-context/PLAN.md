@@ -8,7 +8,7 @@
 - Kaoru-chan executes in Story Branch Mode on `codex/choose-clear-follow-up-context` for `dashboard-territory.local-open-dough`.
 - The starting revision is `ddfaa6c71e86a74bcfd3f2d918bc086654bbbe46`. Take `0648365e4e61dd56946fb5fe95dd3bb33edb01d0` was accepted on `origin/main` and the execution branch.
 - Node 24.21.0 passed `npm ci --offline --no-audit --no-fund` and `npm run typecheck:dashboard`. The story branch uses `ci.yml`.
-- The story branch accepted slice 1 at `33533a6fff17635ac64769b53e135bcc5704c20f`, slice 2 at `a3bd4204093b203ea9e21c96f65f96b8791c6eba`, and its test repair at `1458a400129f67c6fb0983f89340b025b2cc3770`.
+- The story branch accepted slice 1 at `33533a6fff17635ac64769b53e135bcc5704c20f`, slice 2 at `a3bd4204093b203ea9e21c96f65f96b8791c6eba`, its test repair at `1458a400129f67c6fb0983f89340b025b2cc3770`, and slice 3 at `6b72361da2aad23f33cdf973694d379cdabb2713`.
 
 ## Goal and scope
 
@@ -166,7 +166,7 @@ the required request when the optional store was unreadable.
 ### 4. Published sessions can supply context on a second machine
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: From a whole-story comparison, a session associated with the story
 in a published record is selectable on a machine that holds no local launch
@@ -183,6 +183,12 @@ boundary. Exercise the match between a published UUID and a retained launch
 in the same candidate rule, preserving the available local context if the
 optional publication read is unavailable. Keep the published range and listing
 reader checks green.
+
+**Accepted proof.** The bare-origin Intent journey observed both exact
+recorded pairs in a selected published-only section and one matched local
+choice. HTTP launch proof observed combined facts, local-only fallback on a
+missing record, story scope, and byte-identical Continue after local removal.
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/intent/intent-published-session-follow-up.spec.ts e2e/stories/recently-done-follow-up.spec.ts --workers=1 --reporter=dot` and `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend -- dashboard/backend-tests/launches/agent-launch-follow-up-published-sessions.spec.ts dashboard/backend-tests/launches/agent-launch-follow-up-selection.spec.ts dashboard/backend-tests/launches/agent-launch-follow-up-story.spec.ts --workers=1 --reporter=dot` passed, alongside the published readers.
 
 ### 5. Follow up from an individual range preserves that exact source
 

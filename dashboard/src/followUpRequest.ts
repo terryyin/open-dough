@@ -11,17 +11,24 @@
 
 import { z } from "zod";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
+import { publishedSessionIdSchema } from "./publishedSessionRecord.ts";
 import { objectIdSchema, reviewedPathSchema } from "./storyReviewFiles.ts";
-import {
-  sessionHostSchema,
-  sessionKey,
-  type SessionReference,
-} from "./sessionReference.ts";
+import { sessionHostSchema, sessionKey } from "./sessionReference.ts";
 
 const followUpSessionSchema = z.strictObject({
   host: sessionHostSchema,
   sessionId: z.string().min(1).max(200),
 });
+
+const followUpSessionChoiceSchema = z.union([
+  followUpSessionSchema,
+  z.strictObject({ published: publishedSessionIdSchema }),
+]);
+
+export type FollowUpSessionChoice = z.infer<typeof followUpSessionChoiceSchema>;
+
+export const followUpSessionKey = (choice: FollowUpSessionChoice) =>
+  "published" in choice ? `published:${choice.published}` : sessionKey(choice);
 
 // Optional file anchor on a done story: the comparison the diff shows and,
 // when given, one line and its side. Exactly one of completion or reference
@@ -57,8 +64,8 @@ const followUpStorySchema = z.strictObject({
   // The published revision whose done record the page showed.
   revision: z.string().regex(commitShaPattern),
   file: followUpFileSchema.optional(),
-  // Optional retained sessions, resolved against the story at admission.
-  sessions: z.array(followUpSessionSchema).optional(),
+  // Optional sessions, resolved against the story at admission.
+  sessions: z.array(followUpSessionChoiceSchema).optional(),
   // Attach waiting notes from the machine store at admission.
   notes: z.literal(true).optional(),
 });
@@ -123,7 +130,7 @@ export function followUpSourceKey(followUp: FollowUpSource): string {
     identity,
     anchor,
     notes === true,
-    [...new Set(sessions?.map(sessionKey))].sort(),
+    [...new Set(sessions?.map(followUpSessionKey))].sort(),
   ]);
 }
 
@@ -138,7 +145,7 @@ export function sameFollowUpSource(
 
 export function followUpSourceAttaching(
   source: FollowUpSource | undefined,
-  sessions: readonly SessionReference[],
+  sessions: readonly FollowUpSessionChoice[],
   notes: boolean,
 ): FollowUpSource | undefined {
   if (source === undefined || !("story" in source)) return source;

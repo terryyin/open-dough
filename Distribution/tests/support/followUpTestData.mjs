@@ -6,6 +6,7 @@
 // kept on the recorded request.
 
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUp} FollowUp */
+/** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpSessionChoice} FollowUpSessionChoice */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpFile} FollowUpFile */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").AttachedStoryNote} AttachedStoryNote */
 /** @typedef {import("../../../dashboard/src/followUpContext.ts").FollowUpFileFacts} FollowUpFileFacts */
@@ -33,7 +34,7 @@ export class FollowUpBuilder {
   #file;
   /** @type {boolean} */
   #attachNotes = false;
-  /** @type {SessionReference[] | undefined} */
+  /** @type {FollowUpSessionChoice[] | undefined} */
   #sessions;
   /** @type {FollowUp["context"]} */
   #context;
@@ -75,6 +76,15 @@ export class FollowUpBuilder {
       const { host, sessionId } = "request" in source ? source.session : source;
       return { host, sessionId };
     });
+    return this;
+  }
+
+  /** @param {readonly { readonly sessionId: string }[]} sources */
+  attachingPublishedSessions(sources) {
+    this.#sessions = [
+      ...(this.#sessions ?? []),
+      ...sources.map(({ sessionId }) => ({ published: sessionId })),
+    ];
     return this;
   }
 
