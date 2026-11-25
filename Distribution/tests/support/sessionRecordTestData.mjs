@@ -5,6 +5,7 @@
 // publication workflow.
 
 import {
+  executionSessionWorkflow,
   sessionRecordVersion,
   sharedCheckoutUncertainty,
 } from "../../src/skills/dough-execute-plan/scripts/session-record.mjs";
@@ -32,11 +33,18 @@ export class SessionRecordBuilder {
   #closedAt;
   /** @type {string | undefined} */
   #story;
+  #workflow = "ad-hoc";
 
   /** @param {string} identity */
   forStory(identity) {
     this.#story = identity;
     return this;
+  }
+
+  /** @param {string} identity */
+  forExecutionOf(identity) {
+    this.#workflow = executionSessionWorkflow;
+    return this.forStory(identity);
   }
 
   /** @param {string} closedAt the ISO time the session closed; now unless set */
@@ -74,7 +82,7 @@ export class SessionRecordBuilder {
     return {
       version: sessionRecordVersion,
       sessionId: globalThis.crypto.randomUUID(),
-      workflow: "ad-hoc",
+      workflow: this.#workflow,
       closedAt: this.#closedAt ?? new Date().toISOString(),
       ...(this.#story === undefined ? {} : { story: this.#story }),
       ranges: this.#ranges,

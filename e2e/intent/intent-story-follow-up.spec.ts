@@ -145,7 +145,7 @@ test("Intent Follow up sends the reviewed whole comparison or one file as its re
   await test.step("Then the review shows the published baseline", () =>
     expect(review.header.publishedBaseline).toHaveText(baseline));
   await test.step("When I follow up on the whole comparison", async () => {
-    const composer = await review.followUpComparison(storyName);
+    const composer = await review.followUpComparison();
     await composer.start("Review the whole comparison");
   });
   const whole =
