@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sessionId": "ed66655b-6e0a-4dbf-bbe6-23ce5ee4cf73",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T06:12:23.546Z",
+  "story": "SEED-413#renovate-remaining-backend-families-after-launch-admission",
+  "ranges": [
+    {
+      "base": "bd235e657576e89c61b49f42c6bdefb1086c1b10",
+      "candidate": "832f3af3b1ae6460e364d75bf14e6509f29c196f"
+    },
+    {
+      "base": "832f3af3b1ae6460e364d75bf14e6509f29c196f",
+      "candidate": "b9b270ea514154a9ff4241620754efa172539a2e"
+    },
+    {
+      "base": "b9b270ea514154a9ff4241620754efa172539a2e",
+      "candidate": "56debefc4d196cc45a20911cf70387e022f47382"
+    },
+    {
+      "base": "56debefc4d196cc45a20911cf70387e022f47382",
+      "candidate": "fc5779c46938dfb73789c4f773e070623b92a861"
+    },
+    {
+      "base": "fc5779c46938dfb73789c4f773e070623b92a861",
+      "candidate": "2a65e40ac5ddbfa88871154f5f9ac265af6df79f"
+    },
+    {
+      "base": "2a65e40ac5ddbfa88871154f5f9ac265af6df79f",
+      "candidate": "38f934ba97ebfd3576460c0a81c1ba0c4d1aad46"
+    },
+    {
+      "base": "38f934ba97ebfd3576460c0a81c1ba0c4d1aad46",
+      "candidate": "35d3fee29ba3e9de515a01571e4f98b39d3f1567"
+    }
+  ]
+}
