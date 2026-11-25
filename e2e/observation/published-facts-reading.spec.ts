@@ -29,16 +29,14 @@ import {
 } from "../../dashboard/test-support/publishedFactsArrival.ts";
 import { expectDoneFacts } from "../../dashboard/test-support/publishedFactsAssertions.ts";
 import { expectVisibleReadingFocus } from "../../dashboard/test-support/readingPlace.ts";
-import {
-  repository,
-  revision,
-} from "../../dashboard/test-support/sliceClockRecords.ts";
+import { repository } from "../../dashboard/test-support/sliceClockRecords.ts";
 
 async function expectReadingPlace(
   page: Page,
   card: Locator,
   detail: Locator,
   link: Locator,
+  revision: string,
 ) {
   await expectView(page, ["Taken", "Recently done"], ["Backlog 1 entry"]);
   await expect(
@@ -76,7 +74,7 @@ async function openReadingPlace(page: Page) {
   const link = canonicalRecord(detail);
   await link.scrollIntoViewIfNeeded();
   await link.focus();
-  await expectReadingPlace(page, trunkCard, detail, link);
+  await expectReadingPlace(page, trunkCard, detail, link, held.revision);
   return { ...held, detail, link };
 }
 
@@ -95,6 +93,7 @@ for (const doneOutcome of ["success", "failure"] as const) {
       fail,
       detail,
       link,
+      revision,
     } = await openReadingPlace(page);
 
     await test.step("available assignments keep the chosen reading context while preparation and done remain held", async () => {
@@ -106,7 +105,7 @@ for (const doneOutcome of ["success", "failure"] as const) {
       await expect(credit(queuedCard).preparing).toContainText("Kirara-chan");
       await expect(trunkCard).toContainText("Reading preparation…");
       await expect(doneCard).toHaveCount(0);
-      await expectReadingPlace(page, trunkCard, detail, link);
+      await expectReadingPlace(page, trunkCard, detail, link, revision);
     });
 
     await test.step(`the independent done ${doneOutcome} leaves the same inspection, focus, and visible link`, async () => {
@@ -122,7 +121,7 @@ for (const doneOutcome of ["success", "failure"] as const) {
       }
       await expect(trunkCard).toContainText("Yuma-chan");
       await expect(trunkCard).toContainText("Reading preparation…");
-      await expectReadingPlace(page, trunkCard, detail, link);
+      await expectReadingPlace(page, trunkCard, detail, link, revision);
     });
 
     await test.step("preparation, dependent progress, and clocks enrich the open inspection without taking the reader back to the top", async () => {
@@ -141,7 +140,7 @@ for (const doneOutcome of ["success", "failure"] as const) {
           "Done stories could not be read.",
         );
       }
-      await expectReadingPlace(page, trunkCard, detail, link);
+      await expectReadingPlace(page, trunkCard, detail, link, revision);
       await expect(trunkCard).not.toContainText("Reading preparation…");
       await expect(problem).toHaveCount(0);
     });

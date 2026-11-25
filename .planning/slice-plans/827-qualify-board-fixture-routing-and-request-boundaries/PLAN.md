@@ -268,6 +268,16 @@ moved materialization, registration and advance to `revisionReuseOrigin` and
 rechecked all 24 revision-reuse cases and typecheck. The other observations
 keep the same setup and checks.
 
+The resumed repair commits the held-fact trunk, checks the same Git pin in
+both serving modes and both shared request owner HOMEs, and asserts the
+canonical links at the materialized revision. The held groups, explicit
+branch pin, and Actions wrapper retain their independent REST observations.
+The incident record's original cold pin is proved before the test withdraws
+its route to exercise failures. All 13 affected E2E and 13 backend cases
+passed, along with Dashboard typecheck. `resume-facts-return.md` and the
+terminal `resume-facts-*.log.run.json` records retain the exact evidence.
+The independent review made no edits.
+
 ### 6. Keep retained-answer proof on the reads that use it
 
 Type: Behavior

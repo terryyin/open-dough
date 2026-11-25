@@ -175,7 +175,7 @@ ${renderStorySection(terminalStory, {
 test("a detail still unread at the wait bound recovers on its own at the same revision while assignments stay shown", async ({
   page,
 }) => {
-  const { branchCard, queuedCard, doneCard, problem, release } =
+  const { branchCard, queuedCard, doneCard, problem, release, revision } =
     await heldFactGroups(page);
   release("profiles");
   release("done");
@@ -204,14 +204,12 @@ test("a detail still unread at the wait bound recovers on its own at the same re
     await page.clock.runFor(1_250);
     await untilPageReadsAnswered(page);
     await expect(branchCard).not.toContainText(preparationGap);
-    await expectCanonicalFacts(queuedCard);
+    await expectCanonicalFacts(queuedCard, revision);
     await expectStoryCardAssignments(branchCard, queuedCard);
     await expectDoneFacts(doneCard);
     await expect(problem).toHaveCount(0);
-    expect(
-      contentReads(callsSince(page, from)).some((read) =>
-        read.includes(takenCanonicalPath),
-      ),
-    ).toBe(true);
+    expect(contentReads(callsSince(page, from))).toContain(
+      `${takenCanonicalPath}?ref=${revision}`,
+    );
   });
 });
