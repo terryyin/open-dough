@@ -32,7 +32,6 @@ import {
   openDoughSource,
 } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
-import { backToStory } from "./intent-recent-stories-page.ts";
 
 const login = judgedStatus("main", "pass", "a1b2c3d", "Add login");
 const browsed = "dashboard/tests/browse.spec.ts";
@@ -90,7 +89,6 @@ test("with nothing selected Project Intent lands on CI status filling the readin
   await expect
     .element(intentViewTab("CI status"))
     .toHaveAttribute("aria-selected", "true");
-  await expect.element(backToStory).not.toBeInTheDocument();
   await expect
     .element(
       page.getByRole("heading", { name: "No story selected", exact: true }),

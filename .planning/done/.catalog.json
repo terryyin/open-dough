@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_choose-review-scope.json",
+      "identity": "SEED-420#choose-review-scope",
+      "completedAt": "2026-11-25T12:15:52.737Z",
+      "blob": "d251a71a1c6da3e6987293514c393c0b444f110b"
+    },
+    {
       "fileName": "SEED-345_load-execution-guidance-for-the-current-phase.json",
       "identity": "SEED-345#load-execution-guidance-for-the-current-phase",
       "completedAt": "2026-11-25T12:00:22.857Z",

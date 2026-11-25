@@ -8,13 +8,13 @@ import { storyReviewSchema } from "../../dashboard/src/storyReviewContract.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectStoryTab,
-  openProjectIntent,
   storyTab,
 } from "../../dashboard/test-support/intentModePage.ts";
 import {
   expandIntentGroup,
   purposeRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { chooseWholeProject } from "../../dashboard/test-support/recentStoriesPage.ts";
 import { intentReviewFiles } from "../../dashboard/test-support/intentReviewFiles.ts";
 import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
@@ -110,8 +110,11 @@ test("a delayed card opening cannot choose a file for the next story", async ({
         "tests/changed.spec.ts",
       ]);
     await firstReview.diffs.expectAbsent();
-    await openProjectIntent(intent);
-    await development.click();
+    await test.step("When I clear the delayed review through Whole project", async () => {
+      await chooseWholeProject(page);
+      await expect(intent).not.toHaveAttribute("data-selected-story");
+      await development.click();
+    });
 
     await reviewChanges(b).press("Enter");
     await firstReview.expectStory(storyB.title);

@@ -5,7 +5,6 @@ import {
   chooseStoryTab,
   expectStoryTab,
   storyTab,
-  storySummary,
 } from "../../dashboard/test-support/intentModePage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
@@ -130,9 +129,6 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await review.files.choose("Added story.txt");
   await expect(reading.name).toHaveText("Added story.txt");
 
-  await storySummary(intent)
-    .getByRole("button", { name: "Project Intent" })
-    .click();
   await development.click();
   await expectSelected(card, true);
   await openIntentReviewChanges(page, card);

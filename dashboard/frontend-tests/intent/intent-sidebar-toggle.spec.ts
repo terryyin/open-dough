@@ -16,6 +16,11 @@ import {
   locationHeader,
   locationHeaderLook,
 } from "./intent-scope-tree-page.ts";
+import {
+  chooseWholeProject,
+  intentRecentStories,
+} from "./intent-recent-stories-page.ts";
+import { openDoughSource } from "./intent-ci-status-fixtures.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 const proof = intentPage.getByRole("region", { name: "Proof", exact: true });
@@ -154,7 +159,7 @@ test("changed locations keep their own full-width header and change mark when se
   });
 });
 
-test("the hidden column stays hidden through a Project Intent visit, which keeps its own choice, and Development, and a project change shows it", async () => {
+test("the hidden column stays hidden across scopes and Development, with its own choice in Whole project, and a project change shows it", async () => {
   const mounted = await openIntentFileLayout({
     viewport: { width: 1280, height: 800 },
   });
@@ -164,14 +169,12 @@ test("the hidden column stays hidden through a Project Intent visit, which keeps
   await files.toggle.click();
   await files.showsFiles(false);
 
-  await story.projectIntent.click();
+  await chooseWholeProject();
   await files.showsFiles(true);
   await projectView("Optimization Candidates").click();
   await expect.element(files.toggle).not.toBeInTheDocument();
-  await story.backToStory.click();
-  await expect
-    .element(story.viewTab("Changes"))
-    .toHaveAttribute("aria-selected", "true");
+  await intentRecentStories(openDoughSource).chooseRow("SEED-A#a");
+  await story.chooseTab("Changes");
   await files.showsFiles(false);
 
   await mounted.showDevelopment();

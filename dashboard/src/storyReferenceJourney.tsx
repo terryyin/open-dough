@@ -18,7 +18,7 @@ import { untilOwnMove } from "./storyCardFocus.ts";
 import { usePageRange } from "./recentlyDoneRange.ts";
 import { revealStory } from "./pageEntries.ts";
 import {
-  isStoryReferenceAction,
+  keepsStoryReference,
   StoryReferenceNotice,
 } from "./StoryReferenceNotice.tsx";
 
@@ -39,6 +39,7 @@ export type StoryNavigation = {
     options?: FollowOptions,
   ) => void;
   readonly opening: StoryDestination | undefined;
+  readonly unavailable?: StoryDestination | undefined;
 };
 
 export function useStoryReferenceJourney({
@@ -107,6 +108,8 @@ export function useStoryReferenceJourney({
         : follows && readProblem !== undefined
           ? `Could not read ${journey.project.label} to find ${name}. ${readProblem}`
           : `${name} is unavailable in ${journey.project?.label ?? "the configured projects"}'s dashboard.`);
+  const unavailable =
+    problem !== undefined && !pending ? journey?.reference : undefined;
   useLayoutEffect(() => {
     if (journey === undefined || current === undefined || opening !== undefined)
       return;
@@ -175,19 +178,18 @@ export function useStoryReferenceJourney({
         window.addEventListener("pointerup", released, { once: true });
         window.addEventListener("pointercancel", clear, { once: true });
       };
+      const keepsJourney = (event: Event) =>
+        keepsStoryReference(event, unavailable !== undefined);
       return journey.demand === undefined
-        ? untilOwnMove(giveUp, isStoryReferenceAction)
-        : range.givenUpOnOwnMove(
-            journey.demand,
-            giveUp,
-            isStoryReferenceAction,
-          );
+        ? untilOwnMove(giveUp, keepsJourney)
+        : range.givenUpOnOwnMove(journey.demand, giveUp, keepsJourney);
     }
     return;
-  }, [journey, follows, pending, reached, problem]);
+  }, [journey, follows, pending, reached, problem, unavailable]);
   return {
     navigation: {
       opening,
+      unavailable,
       follow: (reference: StoryDestination, options?: FollowOptions) => {
         const project = projects.find(
           (project) => project.id === reference.project,

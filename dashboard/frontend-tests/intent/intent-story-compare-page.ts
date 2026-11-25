@@ -95,14 +95,6 @@ export function intentStoryCompare() {
       name: "Selected story only",
       exact: true,
     }),
-    projectIntent: intent.getByRole("button", {
-      name: "Project Intent",
-      exact: true,
-    }),
-    backToStory: intent.getByRole("button", {
-      name: "Back to selected story",
-      exact: true,
-    }),
     // A CI view's text, Proof that of the selected file's Proof tab.
     viewText: (name: CiView) => textOf(ciView(name)),
     // What a CI view says while another comparison than the default is

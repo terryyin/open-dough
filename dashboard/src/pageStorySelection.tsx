@@ -77,27 +77,18 @@ export function usePageStorySelection() {
   });
   const selectedRef = useRef(selected);
   selectedRef.current = selected;
-  const remember = useCallback((story: SelectedStory) => {
+  const select = useCallback((story: SelectedStory) => {
+    if (sameSelectedStory(selectedRef.current, story)) return;
     setRecent((history) => rememberKeptRecentStory(history, story));
+    // The history entry names the story. The copy identifies this act of selection.
+    setSelected({ ...story });
   }, []);
   const toggle = useCallback(
     (story: SelectedStory) => {
-      if (sameSelectedStory(selectedRef.current, story)) {
-        setSelected(undefined);
-        return;
-      }
-      remember(story);
-      setSelected(story);
+      if (sameSelectedStory(selectedRef.current, story)) setSelected(undefined);
+      else select(story);
     },
-    [remember],
-  );
-  const select = useCallback(
-    (story: SelectedStory) => {
-      if (sameSelectedStory(selectedRef.current, story)) return;
-      remember(story);
-      setSelected(story);
-    },
-    [remember],
+    [select],
   );
   const clear = useCallback(() => {
     setSelected(undefined);

@@ -35,11 +35,6 @@ retires standalone session rows at delivery.
 
 **Review changes** opens Intent at the selected story's cumulative diff.
 
-- **Scope.** The banner bookmark is the one scope chooser. Its menu offers
-  **Whole project** to clear the story and recent stories to select. On
-  mobile, only the bookmark icon occupies the banner. Its accessible name
-  identifies the selection. The [Board interaction](dashboard-board-interaction.md#touch-browsing-and-selection)
-  defines when a click first reveals an offscreen selection.
 - **Sessions and Compare.** A story opens as a whole. Choose individual
   refinements, execution sessions or follow-ups, including several together.
   Review the published story comparison or **Landed runs** from exact

@@ -6,13 +6,12 @@
 // its own workspace selection while Project Intent shows. Mounted on its own,
 // it keeps its own reading place and read recovery. The selected story's
 // pages read the same followed reading through `storyPages`, under the
-// `story` reading scope, so the story's browser follows Show latest too. It
-// does not own the story lens, selection, chosen view, scope choice, arrival
-// focus or either scope's CI evidence; its caller supplies those around it.
+// `story` reading scope, so the story's browser follows Show latest too. The
+// caller supplies the story view and each scope's CI evidence.
 
 import type { ReactNode } from "react";
 import { IntentPage } from "./IntentPage.tsx";
-import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
+import { ProjectIntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import type { ModeChoice } from "./pageIntentMode.tsx";
 import { IntentReadRecoveryOfItsOwn } from "./intentReadRecovery.tsx";
 import {
@@ -34,8 +33,6 @@ type Props = {
   readonly project: ModeChoice;
   // Whether Project Intent shows.
   readonly projectShown: boolean;
-  // Returns to the selected story, when there is one.
-  readonly onBackToStory?: (() => void) | undefined;
   // The selected story's pages, given the same followed reading.
   readonly storyPages?: (reading: ShownIntentLocations) => ReactNode;
 };
@@ -55,7 +52,6 @@ function FollowedReading({
   work,
   project,
   projectShown,
-  onBackToStory,
   storyPages,
 }: Props) {
   const reading = useShownIntentLocations(source, work);
@@ -67,14 +63,9 @@ function FollowedReading({
         </IntentReadingScope>
       )}
       {projectShown && (
-        <IntentWorkspaceSelectionProvider>
-          <IntentPage
-            source={source}
-            shown={reading}
-            project={project}
-            onBackToStory={onBackToStory}
-          />
-        </IntentWorkspaceSelectionProvider>
+        <ProjectIntentWorkspaceSelectionProvider>
+          <IntentPage source={source} shown={reading} project={project} />
+        </ProjectIntentWorkspaceSelectionProvider>
       )}
     </>
   );
