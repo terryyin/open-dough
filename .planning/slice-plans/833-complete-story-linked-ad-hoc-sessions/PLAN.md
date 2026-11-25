@@ -80,6 +80,13 @@ minutes, and its fixture migration became
   The previous observer's stop was confirmed. The same coordinator rearmed
   for this branch in `/tmp/dough-ci-501/watch-4GogZe`, PID `82162`, session
   `40845`, cell `g419:219`.
+- At the slice 9 decision stop, the branch tip `4122661d` passed Actions
+  run `45677279871`, attempt 1. The observer stopped with no unread events
+  and PID `82162` exited. See `slice-9-judgment-observer-stop.log` and
+  `slice-9-judgment-observer-pid.json` in the worktree's Git evidence.
+- After the developer approved the session-bound handoff, the same
+  coordinator rearmed branch observation in `/tmp/dough-ci-501/watch-B7iDEN`,
+  PID `30861`, session `60478`, cell `g491:3`.
 - On the unchanged claim revision, the backend admission retry, refusal and
   `agent-launch-start-session` selection and the isolated Start E2E selection
   passed 21 backend cases and three E2E cases under the macOS sleep guard. Run
@@ -400,7 +407,7 @@ and two affected browser cases passed in the `slice-8-refactor` records.
 
 ### 9. Carry the landing selection into the workflow after blank Start
 Type: Behavior
-Status: planned
+Status: done
 Proof: The approved blank Start and invoked workflow behavior is observed at
 the native input and installed publication boundaries. The selected launch
 alone supplies any inherited landing authorization.
@@ -409,18 +416,42 @@ The completion and review proof in slice 5 is independent of the policy
 delivery path. Slice 4 proved exact capture context discovery once publication
 starts. The installed workflow currently learns policy from explicit options
 or the Established session handoff, and blank native startup carries no such
-handoff. The developer needs to decide whether to preserve both behaviors with
-a session-bound handoff, require explicit policy on workflow invocation, or
-restore generated startup input for Automatically land. Before implementing,
-record that decision and its proof. A checkout-level capture pointer cannot
-authorize another caller in the same checkout. The production switch depends
-on settling this behavior.
+handoff. The developer approved preserving blank Start and passing
+Automatically land through the verified native session. Prove that no user
+input is submitted, the exact bound native session can use the selected policy
+through the installed workflow, and another session in the same checkout
+cannot inherit it. A checkout-level capture pointer cannot authorize another
+caller in the same checkout. The production switch depends on this behavior.
 
 Use the same verified launch identity to test one borrowed checkout reused
 by a later independent launch before the earlier claim closes. Verify that
 each launch's accepted comparison remains recoverable through ordinary
 completion with no second push and no inferred range. Preserve the earlier
 claim when evidence is unavailable.
+
+The independent comparison work is preserved in the execution checkout
+at `4122661d`. The installed test reproduced the earlier missing range
+after two launches shared one checkout and another writer advanced trunk.
+The local fix retains accepted ranges by exact launch reference. Both
+claims close with their own ranges, the earlier report retry runs zero Git
+commands, and missing evidence leaves the owned claim and target tip in
+place. The existing no-change and fresh-clone paths passed. See
+`slice-9-g7-{baseline-exact,backend-guard,e2e,distribution,static-final}`
+in the worktree's Git evidence directory. Independent review made no edits.
+A separate installed replay removed only the new file and verified that the
+matching legacy singleton still supplies the same accepted pair. See
+`slice-9-g7-legacy-fallback-backend.proof.json`. The local change and its
+untracked test are also preserved in `slice-9-g7-parked.patch`.
+The approved handoff resolves retained launch authority by native host and
+session, verifies the original Git common directory and checkout, and returns
+the exact Dashboard reporting context. The invoked workflow continues the
+same published assignment through managed delivery and ordinary wrap-up.
+The focused final proof covers blank Start, wrong-session and replacement
+denials, borrowed and isolated installed publication, and an exact reporting
+receipt. Claude and Cursor carrier observations used vendor fixtures.
+See `slice-9-g6-refactor-native-final.proof.json`, the corresponding typecheck
+and consumer trace, and `slice-9-g6-install-hooks.log.run.json`. The active
+implementation clock paused at 14.7 minutes before independent review.
 
 ### 10. Switch production to the reconciled story-linked store
 Type: Behavior
@@ -438,6 +469,8 @@ open row. Verify the candidate schema and the real Dashboard reader,
 including launch lookup, attempt continuation in the isolated rehearsal,
 and published review. Save a restorable original and account for each
 converted, retained, or archived row in the affected stores.
+
+The developer approved the cutover with the required proof and writer hold.
 
 After proof and before triggering the production watcher, the production
 owner approves the cutover window and its
@@ -467,9 +500,8 @@ Run the owning slice's focused checks and the installed
 [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace).
 Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 Run Dashboard typecheck for changed Dashboard contracts and installation proof
-for changed shipped operations. On macOS, start awake on AC under
-`caffeinate -s -i`. On battery plug in or start awake with the lid open under
-`caffeinate -i` and check the sleep log.
+for changed shipped operations. Run long macOS checks from a fully awake
+machine on AC power under `caffeinate -s -i`.
 
 Default-route admission cost sizing twice: SEED-426 overran at 14.7 active
 minutes, and plan 813's slice 3 overran at 15. Both times the cost was moving
@@ -514,12 +546,12 @@ Disposition: proved by slice 4: `agent-launch-start-session-landing.spec.ts` obs
 ### G6. The ordinary workflow needs the retained landing selection after blank Start
 Reported: slice 4 — "The Dashboard retains Automatically land after a blank borrowed Start, and the installed publisher discovers its capture context once invoked. The invoked workflow currently learns landing policy from explicit options or the native Established session handoff, which blank Start does not supply."
 Story clause: "Preserve native access and writer checks, the chosen checkout and landing policy, and the original first input."
-Disposition: receiving slice 9
+Disposition: proved by slice 9: `slice-9-g6-refactor-native-final.proof.json` records blank dispatch, matching native identity, wrong-session and replaced repository denial, and installed publication and reporting. The reviewed guidance continues the matching assignment under its approved policy.
 
 ### G7. Retain each borrowed launch's evidence until its claim closes
 Reported: slice 5 — "Another accepted launch on the same checkout can replace the native worktree's session evidence. If the original launch landed and that exact evidence is absent during adoption, closure stops and keeps its claim checkout."
 Story clause: "Each published session keeps its own accepted comparison and supports reporting recovery without another push."
-Disposition: receiving slice 9
+Disposition: proved by slice 9: `slice-9-g7-backend-guard.proof.json` records both accepted pairs through ordinary closure, zero Git commands during report retry, and refusal with the claim and tip preserved when exact evidence is missing. The legacy fallback replay supplies the same accepted pair.
 
 ### G8. Progressive Board fixtures still rely on standalone placement
 Reported: slice 6 — "Two browser journeys failed when their shared fixture expected an unbound launch at ordinal 27 to appear in Taken or Recently done."

@@ -12,6 +12,7 @@ import {
   readLandingInput,
 } from "../../dough-execute-plan/scripts/dashboard-landing.mjs";
 import {
+  readAcceptedLaunchEvidence,
   readSessionEvidence,
   retainAdmittedSession,
 } from "../../dough-execute-plan/scripts/execution-session-evidence.mjs";
@@ -118,15 +119,22 @@ export async function adoptAdmittedSession({
     );
 
   const landed = await firstLanding(file);
-  const native = readSessionEvidence(claim.nativeWorkspace);
-  const ranges = native?.sessionId === context.reference ? native.ranges : [];
+  const exact = readAcceptedLaunchEvidence(
+    claim.nativeWorkspace,
+    context.reference,
+  );
+  const native = exact ?? readSessionEvidence(claim.nativeWorkspace);
+  const matchesLaunch =
+    native?.sessionId === context.reference && native.story === identity;
+  const ranges = matchesLaunch ? native.ranges : [];
   if (
-    landed &&
-    (landed.reference !== context.reference ||
-      !ranges.some(
-        ({ base, candidate }) =>
-          base === landed.base && candidate === landed.revision,
-      ))
+    (exact !== undefined && !matchesLaunch) ||
+    (landed &&
+      (landed.reference !== context.reference ||
+        !ranges.some(
+          ({ base, candidate }) =>
+            base === landed.base && candidate === landed.revision,
+        )))
   ) {
     throw new Error(
       "The native landing has no matching accepted session range.",

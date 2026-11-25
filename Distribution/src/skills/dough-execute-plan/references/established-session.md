@@ -34,8 +34,42 @@ one-shot, admitted, or Taken, and that workflow owns its verification and
 completion. Until one is invoked, nothing in the session is claimed, tracked,
 or landed.
 
-This reference applies in a session that received the block; it stays in force
-for every workflow invoked there.
+When the first message supplied the block, retain it across workflow invocations.
+
+When an invoked workflow has no Established session block, run the installed
+`scripts/session-landing-handoff.mjs` from its working checkout using the same
+native session's shell tool. In Cursor use the exact command
+`node .agents/skills/dough-execute-plan/scripts/session-landing-handoff.mjs`,
+and read the native post-tool context. Claude Code uses the copy in
+`.claude/skills/dough-execute-plan/scripts/`. A matching blank Start that selected
+Automatically land returns the established block, its Taken story and its exact
+landing and Dashboard reporting context. An empty answer supplies no inherited
+landing permission.
+Use that handoff only when the invocation continues the published assignment
+it names. Another requested identity or independent workflow uses its own
+source and authority.
+
+## Continue the published Dashboard admission
+
+Keep the handoff's Taken story, native workspace, branch, and trunk target.
+Continue the invoked workflow's source, scope, checkout setup, and proof in
+Trunk Mode using the existing claim. Skip Take, admission, and one-shot start.
+Resolve a conflicting mode or assignment before changing state.
+
+- In a `default-checkout` session, [read the owned claim](wrap-up-closure-publication.md#finish-a-dashboard-admission-from-its-owned-claim-checkout)
+  beside the landing context for its `publishedSha`. Verify that the native
+  checkout can reach that base while preserving existing work. Use the separate
+  claim checkout for Story Wrap Up.
+- In an `isolated` session, the native worktree owns the claim and
+  `startingRevision` is its published SHA. Use that checkout for ordinary
+  [Trunk Mode closure](wrap-up-closure-publication.md#finish-trunk-mode-closure).
+
+Use the accepted claim SHA as the first increment's published base. With
+Automatically land, send the verified result through [managed delivery](trunk-publication.md#publish-an-execution-increment-or-repair)
+without a separate keep request. An explicit review, hold, or local-only
+instruction still governs. Follow the [launch's first landing and reporting rules](../../dough-land/references/dashboard-completion.md)
+with the supplied context. Carry the admitted story, accepted publication, and
+reporting context into Story Wrap Up when its completion gates permit.
 
 ## Work in the established workspace
 
@@ -116,8 +150,9 @@ Dough Land invoked in the session lands the established checkout: the block's
 `workspace` and `branch` on its `remote` and `target`, with `startingRevision`
 as its starting revision.
 
-Tracked work publishes through its own lifecycle as it always does, with the
-authority its own invocation carries, and ignores the block's `landing`.
+For the matched blank-Start admission, use
+[its managed delivery](#continue-the-published-dashboard-admission). Other
+tracked work publishes under the authority of its own invocation.
 
 A landing made in the session supplies the landing context that the session's
 reporting context names, when it names one, as that reporting context and

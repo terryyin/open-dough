@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
 import { expect } from "@playwright/test";
@@ -72,13 +72,18 @@ async function runSkill(
   args: string[],
   env = process.env,
 ) {
-  return (
-    await exec(
+  try {
+    const { stdout } = await exec(
       process.execPath,
       [path.join(workspace, skills, command), ...args],
       { cwd: workspace, env },
-    )
-  ).stdout.trim();
+    );
+    return stdout.trim();
+  } catch (error) {
+    const { stdout } = error as { stdout?: string };
+    if (stdout?.trim()) throw new Error(stdout.trim(), { cause: error });
+    throw error;
+  }
 }
 
 export async function landNativeWork(
@@ -136,12 +141,16 @@ export async function finishAdmittedClaim(
     landingContext,
     origin,
   } = admitted;
-  git(workspace, "fetch", "origin");
+  git(workspace, "fetch", "--quiet", "origin");
   git(workspace, "merge", "--ff-only", beforeCleanup);
   completeBacklogStory(workspace, { identity, skillsDirectory: skills });
   const final = commitAll(workspace, "Complete the admitted story");
-  const ci = completionCi(origin.machine, [beforeCleanup, final]);
+  const ci = completionCi(
+    mkdtempSync(path.join(origin.machine, "admitted-completion-")),
+    [beforeCleanup, final],
+  );
   const mailbox = "dough-execute-plan/scripts/ci-mailbox.mjs";
+  let observerDirectory: string | undefined;
   try {
     const observer = await runSkill(
       workspace,
@@ -149,6 +158,9 @@ export async function finishAdmittedClaim(
       ["start", "--execution", repo, "main"],
       ci.env,
     );
+    ({ directory: observerDirectory } = JSON.parse(
+      observer.replace(/^CI_OBSERVER /, ""),
+    ) as { directory: string });
     await claimCompletionObserver(
       path.join(workspace, skills),
       workspace,
@@ -199,6 +211,11 @@ export async function finishAdmittedClaim(
     });
     return final;
   } finally {
-    await ci.endRequests();
+    try {
+      if (observerDirectory && existsSync(workspace))
+        await runSkill(workspace, mailbox, ["stop", observerDirectory], ci.env);
+    } finally {
+      await ci.endRequests();
+    }
   }
 }

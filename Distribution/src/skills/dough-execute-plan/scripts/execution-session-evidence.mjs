@@ -2,18 +2,29 @@
 // path `open-dough/session-record` holding the session UUID, workflow, story
 // and the ordered accepted increment pairs. A fresh native claim, admission or
 // preparation announcement starts a new UUID; a resumed start keeps the file.
-// A Dashboard launch's landing-context reference names the session, and a
-// different reference replaces an unclosed earlier session's evidence, except
-// where Story Branch integration adopts the launch reference. Only accepted
-// pairs are appended, so refused or rewritten candidates never enter.
+// An accepted pair with a bound Dashboard launch reference is also retained
+// under that reference, so another session in the checkout can replace the
+// current record without losing the earlier launch's comparison.
 import { randomUUID } from "node:crypto";
 import { readGitPathJson, replaceGitPathJson } from "./git-path-json-store.mjs";
-import { executionSessionWorkflow } from "./session-record.mjs";
+import {
+  executionSessionWorkflow,
+  hasSessionStory,
+  isSessionId,
+} from "./session-record.mjs";
 
 const sessionEvidencePath = "open-dough/session-record";
 
 export function readSessionEvidence(workspace) {
   return readGitPathJson(workspace, sessionEvidencePath);
+}
+
+const acceptedLaunchPath = (reference) =>
+  `open-dough/accepted-launches/${reference}.json`;
+
+export function readAcceptedLaunchEvidence(workspace, reference) {
+  if (isSessionId(reference))
+    return readGitPathJson(workspace, acceptedLaunchPath(reference));
 }
 
 function writeSessionEvidence(workspace, evidence) {
@@ -56,19 +67,29 @@ export function recordAcceptedIncrement(
   workspace,
   { base, candidate, reference, story, uncertainty },
 ) {
+  const range = { base, candidate, ...(uncertainty && { uncertainty }) };
+  if (isSessionId(reference) && hasSessionStory(story)) {
+    const launch =
+      readAcceptedLaunchEvidence(workspace, reference) ??
+      freshSession(reference, story);
+    if (launch.sessionId === reference && launch.story === story) {
+      if (!launch.ranges.some((prior) => sameAcceptedPair(prior, range)))
+        launch.ranges.push(range);
+      replaceGitPathJson(workspace, acceptedLaunchPath(reference), launch);
+    }
+  }
   const kept = readSessionEvidence(workspace);
   const evidence =
     reference && kept?.sessionId !== reference
       ? freshSession(reference, story ?? kept?.story)
       : (kept ?? freshSession(randomUUID()));
-  const last = evidence.ranges.at(-1);
-  if (last?.base !== base || last?.candidate !== candidate)
-    evidence.ranges.push({
-      base,
-      candidate,
-      ...(uncertainty && { uncertainty }),
-    });
+  if (!sameAcceptedPair(evidence.ranges.at(-1), range))
+    evidence.ranges.push(range);
   return writeSessionEvidence(workspace, evidence);
+}
+
+function sameAcceptedPair(prior, range) {
+  return prior?.base === range.base && prior?.candidate === range.candidate;
 }
 
 // Closes the native session `sessionId` at the close time its sealed record
