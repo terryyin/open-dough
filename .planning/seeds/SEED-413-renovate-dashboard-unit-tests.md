@@ -202,51 +202,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-<a id="finish-backend-vitest-renovation-after-launch-attachments"></a>
-
-### Prove Story Notes and follow-up delivery in Node Vitest
-
-**Identity:** SEED-413#finish-backend-vitest-renovation-after-launch-attachments
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/845-prove-story-notes-and-follow-up-delivery-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d557577d4bc370ec22a6fbfb87b442e19305973e8057718064059b4557e663af","plan":"9531ce0ea7f26a4eb4e7b82d38ca48b99d7361f1e4d8c3cb477facfab46523c1"}}
-```
-
-- **Goal.** Developers changing Story Notes can check the full note lifecycle
-  quickly through typed backend operations. A developer who opts in to notes on
-  a story follow-up sees only the intended note versions reach the receiving
-  agent and can tell which versions were sent.
-- **Scope.** Renovate the three `launches/agent-launch-follow-up-notes*.spec.ts`
-  files. Revisit the Story Notes pilot so its typed persistence tests use a
-  private file with no process-wide home override. Preserve request admission,
-  note selection, kept context on retry, and the effect of first-input
-  confirmation on the real notes store. Keep the existing browser proof of
-  sent status and move the native Cursor confirmation journey to E2E, where
-  its out-of-process runner remains observable.
-- **Key examples.**
-  - Given waiting and sent notes, follow-up with Attach story notes selected
-    includes the waiting text and its saved Review context. Leaving the option
-    clear omits notes. Session-source note selection, page-composed context
-    and page-supplied attached versions are refused before host start.
-  - After a refused start, edit an admitted note and continue the same attempt.
-    The receiving input uses the saved text and version. The newer edit stays
-    waiting after confirmation. A first input that is still uncertain leaves
-    the note waiting until the real Cursor runner confirms it.
-  - Given a corrupt notes file, a requested attachment is omitted and required
-    follow-up context still starts. A failed notes write leaves the file
-    recoverable and the latest version waiting. A normal edit survives opening
-    the file again and remains isolated by project and story.
-- **Boundary.** Own note-specific selection, identity, storage, and delivery.
-  The other stories carry general startup, session lifecycle, and historical
-  comparison admission. This increment can land by itself.
-- **Effort hypothesis.** M, medium confidence. Two typed owners already exist
-  for notes persistence and launch-record delivery. The native confirmation
-  journey and the retained-start proof account for most of the uncertainty.
-- **Replacement trace.** This is the first of the six replacements for the
-  [former backend remainder](https://github.com/terryyin/open-dough/blob/1e0e1f8767e7cebaba46182d141d75d7fb026525/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-attachments).
-  It keeps the queued identity and anchor. The
-  [campaign coverage and order](#backend-vitest-replacement-coverage) account
-  for the rest of its scope.
-
 <a id="prove-launch-starts-and-recovery-on-vitest"></a>
 
 ### Prove Dashboard launch starts and recovery in Node Vitest
@@ -510,7 +465,7 @@ or removed once its behavior or duplicate is accounted for.
 | Selection at the recount | Proof disposition owner |
 | --- | --- |
 | Two `launch-attachment-*` specs | [Attachment admission](https://github.com/terryyin/open-dough/blob/ee8d963f593e06a2a2ca518b8c4072e888b8bae6/.planning/slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md), completed on Node Vitest |
-| Three `agent-launch-follow-up-notes*` specs, plus the two Vitest Story Notes pilot specs | [Story Notes](#finish-backend-vitest-renovation-after-launch-attachments) |
+| Three `agent-launch-follow-up-notes*` specs, plus the two Vitest Story Notes pilot specs | [Story Notes](https://github.com/terryyin/open-dough/blob/dec37b6b829b7b5d20a57df4a3775e9c6a015faa/.planning/slice-plans/845-prove-story-notes-and-follow-up-delivery-on-vitest/PLAN.md), completed on Node Vitest with Cursor confirmation in E2E |
 | Six `agent-launch-follow-up-{file-admission,file,landed-comparison-admission,published-range-admission,published-sessions,selection}` specs | [Published reads and evidence](#prove-published-dashboard-reads-on-vitest) |
 | `agent-launch-options-rules.spec.ts` | [Runner cutover](#retire-legacy-dashboard-backend-runner), while it is a runner specimen |
 | 14 launch admission, attempt and worker specs | [Launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest) |
@@ -533,9 +488,9 @@ The nine product-facing runtime specs are `boundary-server`,
 `production-watcher-setup-lifetime`, and `serving-modes`. Use the
 same distinction for newly added runtime cases according to what they observe.
 
-Start with Story Notes to learn how far explicit store inputs and retained
-records can replace a real start while preserving the receiving-input
-observation. Next are launch and session families, which carry the largest
+Story Notes used explicit store inputs and retained records to preserve
+receiving-input and note-version observations through typed operations.
+Next are launch and session families, which carry the largest
 historical setup cost, followed by published evidence after reconciling the
 moving local-Git boundaries. Configuration and serving can move up if that
 overlap is still active. Runner cutover is last. When pausing for product work,

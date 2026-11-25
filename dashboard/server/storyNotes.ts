@@ -1,5 +1,5 @@
-// The sole home of story notes: ~/.open-dough/dashboard/story-notes.json.
-// An unreadable file is reported and preserved in place; it cannot be rebuilt.
+// Story notes live in one machine-local file. An unreadable file is reported
+// and preserved in place.
 import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
@@ -29,8 +29,12 @@ const storedNotesSchema = z.record(
   z.record(z.string(), z.array(storyNoteSchema)),
 );
 type StoredNotes = z.infer<typeof storedNotesSchema>;
-const notesStore = (): MachineJsonStore<StoredNotes> => ({
-  file: machineDashboardPath("story-notes.json"),
+export function machineStoryNotesFile(): string {
+  return machineDashboardPath("story-notes.json");
+}
+
+const notesStore = (file: string): MachineJsonStore<StoredNotes> => ({
+  file,
   schema: storedNotesSchema,
   empty: {},
   unreadable: "preserve",
@@ -44,10 +48,11 @@ const answerOf = (stored: StoredNotes, project: string): StoryNotesAnswer => ({
 // Waiting notes of one story for follow-up admission, or that the store
 // could not be read.
 export async function waitingStoryNotes(
+  file: string,
   project: string,
   identity: string,
 ): Promise<"unreadable" | StoryNote[]> {
-  const read = await readMachineJson(notesStore());
+  const read = await readMachineJson(notesStore(file));
   if (read.kind === "unreadable") return "unreadable";
   return (read.document[project]?.[identity] ?? []).filter(storyNoteIsWaiting);
 }
@@ -55,13 +60,14 @@ export async function waitingStoryNotes(
 // Sets `delivered` on each note whose current version still equals the
 // attached one (`./storyNoteDelivery.ts`). A newer edit is left waiting.
 export async function deliverAttachedStoryNotes(
+  file: string,
   project: string,
   identity: string,
   attached: readonly AttachedStoryNote[],
 ): Promise<void> {
   if (attached.length === 0) return;
   const versions = new Map(attached.map((note) => [note.id, note.version]));
-  await replaceMachineJson(notesStore(), (stored) => {
+  await replaceMachineJson(notesStore(file), (stored) => {
     const projectNotes = stored[project];
     const notes = projectNotes?.[identity];
     if (projectNotes === undefined || notes === undefined)
@@ -105,11 +111,12 @@ function nextEditTime(note: StoryNote): string {
 }
 
 async function changeNotes(
+  file: string,
   project: string,
   change: StoryNoteChange,
 ): Promise<StoryNotesAnswer> {
   let answer: StoryNotesAnswer = { kind: "notes", notes: {} };
-  await replaceMachineJson(notesStore(), (stored) => {
+  await replaceMachineJson(notesStore(file), (stored) => {
     const notes = stored[project]?.[change.identity] ?? [];
     if (change.action !== "add" && !notes.some(({ id }) => id === change.id))
       throw new RefusedRequest(404, "The note no longer exists.");
@@ -150,11 +157,12 @@ async function changeNotes(
 // The typed notes handler: reads (no change) or changes one admitted project's
 // notes and answers them. A change to a note that no longer exists is refused.
 export async function storyNotes(
+  file: string,
   project: string,
   change?: StoryNoteChange,
 ): Promise<StoryNotesAnswer> {
-  if (change !== undefined) return changeNotes(project, change);
-  const read = await readMachineJson(notesStore());
+  if (change !== undefined) return changeNotes(file, project, change);
+  const read = await readMachineJson(notesStore(file));
   return read.kind === "unreadable" ? read : answerOf(read.document, project);
 }
 
@@ -191,6 +199,7 @@ export async function admittedStoryNotesRequest(
 export async function answerStoryNotes(
   req: IncomingMessage,
   signal: AbortSignal,
+  file: string,
 ): Promise<StoryNotesAnswer> {
   const { project, change } = await admittedStoryNotesRequest(
     {
@@ -201,5 +210,5 @@ export async function answerStoryNotes(
     (id) => configuredProject(id) !== undefined,
   );
   signal.throwIfAborted();
-  return storyNotes(project, change);
+  return storyNotes(file, project, change);
 }
