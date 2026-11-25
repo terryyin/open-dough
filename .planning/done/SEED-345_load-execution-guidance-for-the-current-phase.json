@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-345#load-execution-guidance-for-the-current-phase",
+  "title": "Load execution guidance for the current phase",
+  "completedAt": "2026-11-25T12:00:22.857Z",
+  "developer": "Terry Yin",
+  "agent": "Eimi-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "## Intent Coverage\n\n**Caught.** At revision `73d7e84afc6f9597796993c2e39c7a81fc73db66`, the maintained payload link check caught a link from the completion guide to the retired recovery companion. This check covers the missing-file navigation fault in key example 3 of `SEED-345#load-execution-guidance-for-the-current-phase`.\n\nIn a detached scratch worktree, I changed only the managed completion recovery link in `Distribution/src/skills/dough-execute-plan/references/ci-completion-wait.md`. It pointed to `ci-completion-recovery.md`, which remained absent. A separate disposable installation copied the faulted guide byte-for-byte into both `.agents/skills` and `.claude/skills`. Reading the installed Markdown and resolving its relative link independently confirmed that both links led to missing files.\n\nThe focused command was `env PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh`. The runner confirmed a pass on the baseline, exit 1 with the fault, and a pass after restoration. The maintained assertion in `check_declared_links` named `dough-execute-plan/references/ci-completion-wait.md` as linking to undeclared `ci-completion-recovery.md`. I restored the original guide bytes, verified a clean scratch worktree, and removed it after the restored pass.\n\n**Next proof action.** Keep the existing payload link check for this fault. The separate ordinary tagged update already verified removal and anchor resolution. This probe called for no new repair.\n\n- **Test runtime** — 32.7 seconds measured by the runner across the baseline (17.2), fault (3.1), and restored (12.4) runs.\n- **Human effort** — unavailable as a separate measure. The probe required no human intervention.\n- **Agent effort** — unavailable as a separate measure. The host exposes command runtimes and overall elapsed time, with no separate per-probe effort reading.\n\n\n- **Invocation-to-report elapsed.** 119762 ms (measured), from 1795607833522 to 1795607953284 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition for `73d7e84afc6f9597796993c2e39c7a81fc73db66` — Caught, no follow-up.\n"
+  }
+}
