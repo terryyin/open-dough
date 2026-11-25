@@ -53,9 +53,10 @@ test.describe("authenticated done catalog read (development environment)", () =>
   );
 
   test("the catalog is answered without reading a record, and only the named records are read, once", async () => {
-    const revision = revisionOf("a1");
     const files = publishedDone({ doneRecords: doneRecords("named", 12) });
-    server.github.serve(everyRepository, publishes({ revision, files }));
+    const published = publishes({ files });
+    const { revision } = published;
+    server.github.serve(everyRepository, published);
     const catalog = catalogOf(files);
 
     let before = server.github.calls.length;
@@ -104,8 +105,6 @@ test.describe("authenticated done catalog read (development environment)", () =>
   });
 
   test("a later revision reads its own catalog and asks only for changed records named", async () => {
-    const first = revisionOf("b2");
-    const second = revisionOf("c3");
     const records = doneRecords("later", 4);
     const changedIdentity = identityOf("later", 1);
     const removedIdentity = identityOf("later", 0);
@@ -136,15 +135,16 @@ test.describe("authenticated done catalog read (development environment)", () =>
     const later = publishedDone({ doneRecords: laterRecords });
     const everyFile = (published: Readonly<Record<string, string>>) =>
       catalogOf(published).records.map(({ fileName }) => fileName);
+    const firstPublished = publishes({ files });
+    const secondPublished = publishes({ files: later });
+    const first = firstPublished.revision;
+    const second = secondPublished.revision;
 
-    server.github.serve(everyRepository, publishes({ revision: first, files }));
+    server.github.serve(everyRepository, firstPublished);
     expect((await catalogAt(first)).status).toBe(200);
     expect((await bodiesAt(first, everyFile(files))).status).toBe(200);
 
-    server.github.serve(
-      everyRepository,
-      publishes({ revision: second, files: later }),
-    );
+    server.github.serve(everyRepository, secondPublished);
     let before = server.github.calls.length;
     const catalog = await catalogAt(second);
     expect(answerOf(catalog)).toEqual({
@@ -198,7 +198,6 @@ test.describe("authenticated done catalog read (development environment)", () =>
   });
 
   test("a record file the catalog could not read is listed by name and read as published", async () => {
-    const revision = revisionOf("e5");
     const malformed = `${doneDirectory}/SEED-200_malformed.json`;
     // A record in a later format: its exact bytes are what the catalog
     // cannot read.
@@ -206,7 +205,9 @@ test.describe("authenticated done catalog read (development environment)", () =>
       doneRecords: doneRecords("malformed", 2),
       files: { [malformed]: '{"schemaVersion":2}\n' },
     });
-    server.github.serve(everyRepository, publishes({ revision, files }));
+    const published = publishes({ files });
+    const { revision } = published;
+    server.github.serve(everyRepository, published);
     expect(catalogOf(files).unreadable.map(({ fileName }) => fileName)).toEqual(
       ["SEED-200_malformed.json"],
     );

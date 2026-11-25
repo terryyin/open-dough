@@ -22,10 +22,12 @@ test("simultaneous servers keep distinct answers across a restart on one machine
   client,
 }) => {
   const otherGitHub = await startFakeGitHub();
-  const firstRevision = "cd".repeat(20);
-  const secondRevision = "ef".repeat(20);
-  client.github.serve(everyRepository, publishes({ revision: firstRevision }));
-  otherGitHub.serve(everyRepository, publishes({ revision: secondRevision }));
+  const firstPublished = publishes({});
+  const secondPublished = publishes({});
+  const firstRevision = firstPublished.revision;
+  const secondRevision = secondPublished.revision;
+  client.github.serve(everyRepository, firstPublished);
+  otherGitHub.serve(everyRepository, secondPublished);
   const options = {
     ...developmentBoundary,
     liveServer: "separate process",
@@ -82,8 +84,9 @@ test("two dashboards and the installed diagnostic use one fast owner", async ({
 }) => {
   const machine = await dashboardsOnOneOwner();
   const launched = poisonApi(machine.gh, client.root);
-  const revision = "ab".repeat(20);
-  machine.serve(withWorkflow(publishes({ revision })));
+  const published = publishes({});
+  const { revision } = published;
+  machine.serve(withWorkflow(published));
   try {
     const answers = await Promise.all(
       [machine.first, machine.second].map((server) => readAt(server, "")),
@@ -124,8 +127,9 @@ test("an explicitly started clock-controlled owner composes both preloads", asyn
 }) => {
   const owner = await requestOwnerWithClock(client.github);
   const launched = poisonApi(owner.gh, client.root);
-  const revision = "ab".repeat(20);
-  client.github.serve(everyRepository, publishes({ revision }));
+  const published = publishes({});
+  const { revision } = published;
+  client.github.serve(everyRepository, published);
   const server = await startDashboardServer({
     ...developmentBoundary,
     github: client.github,

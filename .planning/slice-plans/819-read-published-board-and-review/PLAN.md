@@ -93,29 +93,39 @@ Proof: The e2e specs using `publishCommittedOrigin` pass unchanged, and a
 focused check shows a Git `ls-remote` under the fixture HOME reaching the
 committed origin's `main`.
 
-### 2. Back `publishes()` Board fixtures with a real origin
+### 2. Back backend `publishes()` fixtures with a real origin
 
 Type: Structure
-Status: planned
-Change: The published-repository fixture commits its backlog and files to a
-real origin routed through the fixture HOME and answers fake GitHub with that
-origin's actual revision. Specs that named a synthetic trunk revision take it
-from the fixture. Enables slice 4.
+Status: done
+Change: `publishes()` without a supplied revision commits its backlog and
+files to a real origin and answers fake GitHub with that origin's revision.
+Serving it under a repository name routes that origin through every HOME
+the fake GitHub serves, and a later publication of the same repository
+replaces the route. Backend specs that named a synthetic trunk revision take
+it from the fixture. Callers that still supply a revision are unchanged.
+Enables slice 4.
 
-Proof: The backend and e2e specs using `publishes()` pass with unchanged
-assertions apart from revision sourcing. If the migration exceeds the
-slice's time, split it at the backend and e2e boundary.
+Proof: The migrated backend specs pass with assertions unchanged apart from
+revision sourcing. A routed check shows `ls-remote` following a
+republication. The full backend and e2e suites pass, because the route
+replacement also governs `publishCommittedOrigin`.
 
 ### 3. Publish the remaining Board-opening fixtures through a real origin
 
 Type: Structure
 Status: planned
-Change: Specs that open the Board with a hand-written `ref` answer publish
-their trunk through a real routed origin instead. Specs that never open the
-Board keep their answers. Enables slice 4.
+Change: The e2e `publishes()` specs and shared test-support callers, the
+`describedRevisions.ts` publications, launch fixtures that already hold a
+real origin, and specs that hand-answer `ref` publish their trunk through a
+named, routed real origin. Wrappers around a published answerer, such as
+`holdingAnswer`, keep its origin. Specs that serve the `everyRepository`
+fallback and open the Board serve their project by name instead. Specs that
+never open the Board keep their answers. Enables slice 4.
 
-Proof: The migrated specs pass unchanged in observed behavior. A search
-shows no remaining Board-opening hand answer of `ref`.
+Proof: The migrated specs pass unchanged in observed behavior, with both
+full suites. A search shows no remaining Board-opening synthetic trunk or
+fallback-served project. If this slice overruns, split it at the e2e and
+shared-support boundary.
 
 ### 4. Open the Board at verified published trunk
 
@@ -174,3 +184,19 @@ authoring or changing proof.
   answer, so a journey relying on it must move the origin's real `main`.
   A change to `dashboardServer.ts` needs both full suites (about 22 minutes
   for e2e and 20 for backend on this machine).
+- Slice 2's first attempt (7.5 active minutes) completed the backend
+  `publishes()` migration and returned the rest. Its findings set slice 3's
+  scope. Migrated backend cases serve the `everyRepository` fallback, which
+  routes nothing. Wrappers around `publishes()` drop its origin. A
+  done-catalog case needs one revision holding different files for two
+  projects, so it keeps a synthetic answer. Identical contents gave
+  identical revisions, so each publication commits distinctly.
+- CI run 45514916618 lost frontend shard 1/2 to a closed Vitest browser
+  connection. With the developer's decision, a permanent history guard
+  landed as the repair; see
+  [the diagnosis record](diagnosis-frontend-browser-connection.md).
+- Slice 2's second full backend run (load about 11–13) timed out three
+  cases of `story-review-offline-sync.spec.ts` at the 5 s default. That
+  file passed in the first full run, passed alone (6/6, 2.3–3.2 s per case),
+  and this story does not change it. Its review syncs are a load-sensitive
+  test defect that needs a follow-up correction at wrap-up.

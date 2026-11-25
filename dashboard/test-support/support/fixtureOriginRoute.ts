@@ -2,7 +2,7 @@
 // repository's URL reaches the fixture's local origin, and any other GitHub URL
 // fails locally, so no Git command run under that HOME, including one in a
 // repository the fixture never cloned, reaches the network.
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import path from "node:path";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 
@@ -61,12 +61,34 @@ export function routeDashboardHome(home: string, github: FakeGitHub): void {
     routeOriginThroughHome(home, origin, repository);
 }
 
+// Git takes the first of two routes for one URL, so a repository published
+// again through the same fake GitHub drops the route its earlier publication
+// added; a route the HOME's own fixture set up stays first.
+function unrouteOrigin(home: string, origin: string, repository: string) {
+  spawnSync("git", [
+    "config",
+    "--file",
+    path.join(home, ".gitconfig"),
+    "--fixed-value",
+    "--unset-all",
+    `url.${origin}.insteadOf`,
+    gitHubRepositoryUrl(repository),
+  ]);
+}
+
 export function routeOriginThroughServedHomes(
   github: FakeGitHub,
   origin: string,
   repository: string,
 ): void {
-  const { homes, origins } = served(github);
-  origins.push([origin, repository]);
-  for (const home of homes) routeOriginThroughHome(home, origin, repository);
+  const known = served(github);
+  const earlier = known.origins.find(([, routed]) => routed === repository);
+  known.origins = [
+    ...known.origins.filter(([, routed]) => routed !== repository),
+    [origin, repository],
+  ];
+  for (const home of known.homes) {
+    if (earlier !== undefined) unrouteOrigin(home, earlier[0], repository);
+    routeOriginThroughHome(home, origin, repository);
+  }
 }

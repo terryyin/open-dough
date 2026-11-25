@@ -26,7 +26,6 @@ import {
   type Terminal,
 } from "../../test-support/agentTerminalBoundary.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { defaultBaseCiRevision } from "../../test-support/support/baseCiActions.ts";
 import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
 import {
   endFakeGh,
@@ -59,10 +58,7 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
     // Actions so this hook wiring never hits the suite's ownerless root.
     const gh = installFakeGh(tempRoot);
     const github = await startFakeGitHub();
-    github.serve(
-      everyRepository,
-      publishes({ revision: defaultBaseCiRevision }),
-    );
+    github.serve(everyRepository, publishes({}));
     const ghEnv = fakeGhEnv(gh, github.url);
     const claude = installFakeClaude(
       tempRoot,

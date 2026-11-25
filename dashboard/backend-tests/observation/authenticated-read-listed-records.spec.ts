@@ -92,12 +92,9 @@ test.describe("authenticated listed records read (development environment)", () 
     listedAt(revision, "agents=profiles");
 
   test("several done records are read from GitHub at once", async () => {
-    const revision = revisionOf("a1");
     const files = doneRecords("together", 6);
-    const published = publishes({
-      revision,
-      files: withCatalog(files),
-    });
+    const published = publishes({ files: withCatalog(files) });
+    const { revision } = published;
     let release: () => void = () => undefined;
     const released = new Promise<void>((resolve) => {
       release = resolve;
@@ -136,22 +133,18 @@ test.describe("authenticated listed records read (development environment)", () 
   });
 
   test("a later revision asks GitHub only for the record whose blob changed", async () => {
-    const first = revisionOf("b2");
-    const second = revisionOf("c3");
     const files = doneRecords("unchanged", 4);
     const changed = `${doneDirectory}/SEED-003_x.json`;
     const later = { ...files, [changed]: '{"test":"changed"}\n' };
+    const firstPublished = publishes({ files: withCatalog(files) });
+    const secondPublished = publishes({ files: withCatalog(later) });
+    const first = firstPublished.revision;
+    const second = secondPublished.revision;
 
-    server.github.serve(
-      everyRepository,
-      publishes({ revision: first, files: withCatalog(files) }),
-    );
+    server.github.serve(everyRepository, firstPublished);
     expect((await doneAt(first, files)).status).toBe(200);
 
-    server.github.serve(
-      everyRepository,
-      publishes({ revision: second, files: withCatalog(later) }),
-    );
+    server.github.serve(everyRepository, secondPublished);
     const response = await doneAt(second, later);
     expect(response.status).toBe(200);
     expect(JSON.parse(response.body)).toEqual({
@@ -165,14 +158,11 @@ test.describe("authenticated listed records read (development environment)", () 
   });
 
   test("one failing record among several fails the read naming that record", async () => {
-    const revision = revisionOf("d4");
     const files = doneRecords("failing", 3);
     const failing = `${doneDirectory}/SEED-002_x.json`;
     const after = `${doneDirectory}/SEED-003_x.json`;
-    const published = publishes({
-      revision,
-      files: withCatalog(files),
-    });
+    const published = publishes({ files: withCatalog(files) });
+    const { revision } = published;
     let failed: () => void = () => undefined;
     const answeredFailure = new Promise<void>((resolve) => {
       failed = resolve;

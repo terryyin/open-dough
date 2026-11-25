@@ -22,7 +22,6 @@ import { describedBacklog } from "../../test-support/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 
-const revisionA = "a1".repeat(20);
 const revisionB = "b2".repeat(20);
 // An empty project's backlog.
 const backlog = describedBacklog(makeMe.aRepository.please());
@@ -47,10 +46,7 @@ test.describe("authenticated read boundary backlog (development environment)", (
   });
 
   test("reads the backlog pinned to the named revision without resolving main", async () => {
-    server.github.serve(
-      everyRepository,
-      publishes({ revision: revisionA, backlog }),
-    );
+    server.github.serve(everyRepository, publishes({ backlog }));
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=pygardon&revision=${revisionB}`,
       headers: { Origin: server.origin },
@@ -80,8 +76,8 @@ test.describe("authenticated read boundary backlog (development environment)", (
   });
 
   test("asks again which commit the ref names on each membership read, but not for a backlog already read at that commit, and reads a new commit's backlog", async () => {
-    const revision = "3a".repeat(20);
-    const nextRevision = "3b".repeat(20);
+    const published = publishes({ backlog });
+    const { revision } = published;
     const nextBacklog = describedBacklog(
       makeMe.aRepository
         .withRevision("next", {
@@ -123,7 +119,7 @@ test.describe("authenticated read boundary backlog (development environment)", (
       };
     };
 
-    server.github.serve(everyRepository, publishes({ revision, backlog }));
+    server.github.serve(everyRepository, published);
     let callsBefore = server.ghCalls().length;
     const first = await membership();
     const second = await membership();
@@ -139,10 +135,9 @@ test.describe("authenticated read boundary backlog (development environment)", (
       Date.parse(first.askedAt),
     );
 
-    server.github.serve(
-      everyRepository,
-      publishes({ revision: nextRevision, backlog: nextBacklog }),
-    );
+    const next = publishes({ backlog: nextBacklog });
+    const nextRevision = next.revision;
+    server.github.serve(everyRepository, next);
     callsBefore = server.ghCalls().length;
     expect(await membership()).toMatchObject({
       revision: nextRevision,
@@ -157,8 +152,9 @@ test.describe("authenticated read boundary backlog (development environment)", (
   });
 
   test("names the backlog at the resolved revision when its read fails, and asks for it again on the next membership read", async () => {
-    const revision = "3c".repeat(20);
-    const published = publishes({ revision, backlog });
+    // A trunk of its own, so no backlog read earlier at that commit answers.
+    const published = publishes({ backlog });
+    const { revision } = published;
     let refuse = true;
     server.github.serve(everyRepository, (call) =>
       refuse && call.request.kind === "content"

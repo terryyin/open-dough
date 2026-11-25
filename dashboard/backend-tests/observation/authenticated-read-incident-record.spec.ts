@@ -61,7 +61,7 @@ test("a replaced server lists the failures the earlier one retained, newest firs
     try {
       // A read that succeeds starts the owner, whose record names its
       // socket and caller token.
-      github.serve(everyRepository, publishes({ revision: "c3".repeat(20) }));
+      github.serve(everyRepository, publishes({}));
       expect((await read(first)).status).toBe(200);
       const [record] = owner.records() as {
         pid: number;
