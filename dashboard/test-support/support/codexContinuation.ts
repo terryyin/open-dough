@@ -1,7 +1,6 @@
 // Saved continuation and native outcomes in the existing mixed-host launch journey.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import path from "node:path";
 import type { CodexSession } from "../../src/agentLaunch.ts";
 import { shellCommand } from "../../src/sessionCapabilities.ts";
 import { expect, stored } from "./codexLaunch.ts";
@@ -9,7 +8,7 @@ import type { FakeCodex } from "./fakeCodex.ts";
 
 export function expectSavedContinuation(
   session: CodexSession,
-  home: string,
+  workspace: string,
   native: FakeCodex,
 ) {
   const continuation = session.continuation;
@@ -20,11 +19,11 @@ export function expectSavedContinuation(
     "--remote",
     `unix://${native.env["FAKE_CODEX_SOCKET"] ?? ""}`,
     "--cd",
-    path.join(home, "git", "open-dough"),
+    workspace,
     native.threadId,
   ];
   expect(continuation.args).toEqual(args);
-  expect(continuation.workspace).toBe(path.join(home, "git", "open-dough"));
+  expect(continuation.workspace).toBe(workspace);
   expect(continuation.notice).toBeUndefined();
   return { continuation, args };
 }

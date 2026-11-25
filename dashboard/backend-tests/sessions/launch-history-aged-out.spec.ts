@@ -17,11 +17,11 @@ import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   identity,
-  launch,
+  markDone,
   recordsOf,
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { distinctStoryRequest } from "../../test-support/openStorySessionSetup.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -39,12 +39,22 @@ import {
   readLaunchHistory,
 } from "../../server/launchHistory.ts";
 
-const launchWaitMs = 4_000;
-
 const execution = (sessionId: string) =>
   makeMe.aLaunchRecord
     .executing({ identity, title })
     .inClaudeSession({ sessionId });
+
+async function markExistingSessionDone(
+  server: DashboardServer,
+): Promise<string> {
+  const { sessionId } = await composeSession(server);
+  const done = await markDone(server, {
+    source: "open-dough",
+    session: sessionId,
+  });
+  expect(done.status, done.body).toBe(200);
+  return sessionId;
+}
 
 test.describe("aged-out launch records move into launch history", () => {
   let machine: string;
@@ -56,7 +66,6 @@ test.describe("aged-out launch records move into launch history", () => {
       environment: "production",
       machine,
       projectFolders: ["open-dough"],
-      launchTimeoutMs: launchWaitMs,
     });
     servers.push(server);
     return server;
@@ -91,18 +100,14 @@ test.describe("aged-out launch records move into launch history", () => {
       { ...recentlyDone, sessionState: { kind: "unavailable" } },
     ]);
 
-    server.claudeScenario("launched");
-    const first = JSON.parse(
-      (await launch(server, distinctStoryRequest("history-first-write"))).body,
-    ) as { record: { session: { sessionId: string } } };
+    const first = await markExistingSessionDone(server);
 
     const afterFirst = keptLaunchRecords(home);
     expect(afterFirst).toEqual([
       recentlyDone,
       expect.objectContaining({
-        session: expect.objectContaining({
-          sessionId: first.record.session.sessionId,
-        }),
+        doneAt: expect.any(String),
+        session: expect.objectContaining({ sessionId: first }),
       }),
     ]);
     expect(afterFirst).not.toContainEqual(longDone);
@@ -120,18 +125,14 @@ test.describe("aged-out launch records move into launch history", () => {
 
     await Promise.all(servers.splice(0).map((server) => server.close()));
     const restarted = await serverOn();
-    restarted.claudeScenario("launched");
-    const second = JSON.parse(
-      (await launch(restarted, distinctStoryRequest("history-second-write")))
-        .body,
-    ) as { record: { session: { sessionId: string } } };
+    const second = await markExistingSessionDone(restarted);
 
     const storedIds = keptLaunchRecords(home).map((entry) => {
       if (!("session" in entry)) throw new Error("Expected a kept session");
       return entry.session.sessionId;
     });
     expect(storedIds).toContain(recentlyDone.session.sessionId);
-    expect(storedIds).toContain(second.record.session.sessionId);
+    expect(storedIds).toContain(second);
     expect(storedIds).not.toContain(longDone.session.sessionId);
 
     const history = await readLaunchHistory(home);
@@ -173,10 +174,7 @@ test.describe("aged-out launch records move into launch history", () => {
         { ...recentlyDone, sessionState: { kind: "unavailable" } },
       ]);
 
-      server.claudeScenario("launched");
-      const launched = JSON.parse(
-        (await launch(server, distinctStoryRequest("history-unwritable"))).body,
-      ) as { record: { session: { sessionId: string } } };
+      const marked = await markExistingSessionDone(server);
 
       const stored = keptLaunchRecords(home);
       expect(stored).toEqual(
@@ -184,9 +182,8 @@ test.describe("aged-out launch records move into launch history", () => {
           longDone,
           recentlyDone,
           expect.objectContaining({
-            session: expect.objectContaining({
-              sessionId: launched.record.session.sessionId,
-            }),
+            doneAt: expect.any(String),
+            session: expect.objectContaining({ sessionId: marked }),
           }),
         ]),
       );
@@ -195,9 +192,8 @@ test.describe("aged-out launch records move into launch history", () => {
         expect.arrayContaining([
           { ...recentlyDone, sessionState: { kind: "unavailable" } },
           expect.objectContaining({
-            session: expect.objectContaining({
-              sessionId: launched.record.session.sessionId,
-            }),
+            doneAt: expect.any(String),
+            session: expect.objectContaining({ sessionId: marked }),
           }),
         ]),
       );
@@ -214,8 +210,7 @@ test.describe("aged-out launch records move into launch history", () => {
       chmodSync(historyDir, 0o700);
     }
 
-    server.claudeScenario("launched");
-    await launch(server, distinctStoryRequest("history-after-restore"));
+    await markExistingSessionDone(server);
 
     const storedIds = keptLaunchRecords(home).map((entry) => {
       if (!("session" in entry)) throw new Error("Expected a kept session");

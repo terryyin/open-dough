@@ -2,10 +2,10 @@
 // alias identities keep their distinct deduplication rules.
 import { writeFileSync, symlinkSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
@@ -14,12 +14,14 @@ import {
   writeCursorTranscript,
 } from "../../test-support/usage-history/agentEffortHarness.ts";
 import { compareViews } from "../../test-support/usage-history/agentEffortCompare.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
+import { usageHistoryFile } from "../../server/usageHistory.ts";
 import {
-  writeCodexSession,
-  runImport,
-} from "../../test-support/usage-history/importHarness.ts";
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 
-test("same-session stored counters cannot double-charge native evidence and disjoint stored workers survive", ({
+test("same-session stored counters cannot double-charge native evidence and disjoint stored workers survive", async ({
   home,
   root,
 }) => {
@@ -54,7 +56,15 @@ test("same-session stored counters cannot double-charge native evidence and disj
       )
       .please(),
   );
-  runImport(home, root);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
   const task = {
     label: "native and stored worker",
     host: "codex",

@@ -1,18 +1,26 @@
 // Vendor report payload and privately retired workspace for real dashboard journeys.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, rmSync, symlinkSync } from "node:fs";
+import { mkdirSync, symlinkSync } from "node:fs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import type { renderPublishedBacklog } from "../../../Distribution/tests/support/published-backlog.mjs";
 import path from "node:path";
-import { expect, stored } from "./codexLaunch.ts";
-import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
+import { expect } from "./codexLaunch.ts";
+import {
+  givenSavedCodexSession,
+  type SavedCodexSessionFacts,
+} from "./codexObservation.ts";
+import { openDoughFolder, refinementRequest } from "../agentLaunchBoundary.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { codexAttaches } from "./codexTerminal.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { claudeSessionName } from "../../server/hosts/claude/launch.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { changeLaunchStore } from "./launchStore.ts";
+import {
+  changeLaunchStore,
+  keepMoreLaunchRecordsBesideServer,
+} from "./launchStore.ts";
 
 export const report =
   "Landed on main at `a5df85d90a`.\n\n- Story 2 remains **not ready**.\n- Removed the worktree and branch.\n\nNo product code changed.\n<script>window.reportExecuted=true</script>";
@@ -22,101 +30,87 @@ export function save(home: string, records: LaunchRecord[]) {
     "open-dough": records,
   }));
 }
-export async function retained(
+export async function givenRetiredCodexReport(
   dashboard: DashboardServer,
   native: FakeCodex,
-  unknown = false,
+  {
+    workspaceState = "missing",
+    text = report,
+    ...record
+  }: Pick<SavedCodexSessionFacts, "title" | "readCompletion"> & {
+    workspaceState?: "missing" | "unreadable";
+    text?: string;
+  } = {},
 ) {
-  await launch(dashboard, {
-    ...refinementRequest,
-    host: "codex",
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-  });
   const workspace = path.join(dashboard.home, "private-workspace");
-  mkdirSync(workspace);
-  rmSync(workspace, { recursive: true });
-  if (unknown) symlinkSync(workspace, workspace);
-  const records = stored(dashboard.home);
-  const record = records[0];
-  if (
-    record === undefined ||
-    record.session.host !== "codex" ||
-    record.session.continuation === undefined
-  )
-    throw new Error("Missing recorded session");
-  record.session.continuation.workspace = workspace;
-  keepFinalReport(native, workspace, report);
+  if (workspaceState === "unreadable") symlinkSync(workspace, workspace);
+  keepFinalReport(native, workspace, text);
   native.observations.set(native.threadId, {
     status: { type: "notLoaded" },
     turns: [{ id: "landing-turn", status: "completed" }],
   });
-  save(dashboard.home, records);
-  return { record: { ...record, session: record.session }, workspace };
-}
-// A launch of the not-refined story recorded with a prepared workspace that
-// still exists, for a journey to retire; the host helpers below specialize
-// its session and completion report saying `message`.
-async function recordedRetired(
-  dashboard: DashboardServer,
-  workspaceName: string,
-  branch: string,
-  missing: string,
-) {
-  await launch(dashboard, {
-    ...refinementRequest,
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-  });
-  const record = stored(dashboard.home)[0];
-  if (record === undefined) throw new Error(missing);
-  const workspace = path.join(dashboard.home, workspaceName);
-  mkdirSync(workspace);
-  record.preparation = {
-    identity: notRefinedIdentity,
+  const saved = await givenSavedCodexSession(dashboard, native, {
+    ...record,
     workspace,
-    branch,
-    remote: "origin",
-    target: "main",
-  };
-  return { record, workspace };
+    history: native.history,
+  });
+  return { record: saved, workspace };
+}
+// The not-refined story's recorded preparation has a workspace to retire.
+const retiredStory = { identity: notRefinedIdentity, title: notRefinedStory };
+
+function recordedRetired(
+  dashboard: DashboardServer,
+  host: "claude" | "cursor",
+  message: string,
+) {
+  const workspace = path.join(dashboard.home, `retired-${host}-workspace`);
+  mkdirSync(workspace);
+  const startedAt = Date.now();
+  const builder = makeMe.aLaunchRecord
+    .refining(retiredStory)
+    .onStoryBranch({ workspace, branch: `${host}/retired` })
+    .launchedAt(new Date(startedAt).toISOString())
+    .completedWith({ message });
+  return { builder, startedAt, workspace };
 }
 // The Claude specialization: its session has exited.
 export async function recordedClaude(
   dashboard: DashboardServer,
   message = report,
 ) {
-  const { record, workspace } = await recordedRetired(
+  const { builder, startedAt, workspace } = recordedRetired(
     dashboard,
-    "retired-claude-workspace",
-    "claude/retired",
-    "Missing Claude launch",
+    "claude",
+    message,
   );
-  record.completion = makeMe.aCompletionReport.saying(message).please();
-  dashboard.claudeSessionBecomes(record.session.sessionId, "done-exited");
-  save(dashboard.home, [record]);
+  const project = makeMe.aPublishedSource.openDough.please();
+  const name = claudeSessionName(project, {
+    ...refinementRequest,
+    ...retiredStory,
+  });
+  const sessionId = dashboard.claudeListsSession({
+    name,
+    cwd: openDoughFolder(dashboard),
+    startedAt,
+  });
+  const record = builder.inClaudeSession({ sessionId, name }).please();
+  dashboard.claudeSessionBecomes(sessionId, "done-exited");
+  await keepMoreLaunchRecordsBesideServer(dashboard, [record]);
   return { record, workspace };
 }
-// The Cursor specialization, seeded from a story launch record. Its
-// continuation names that workspace, as a real Cursor record's resume
-// command does; no Cursor runner holds the session.
+// The recorded Cursor session names the workspace in its continuation;
+// no Cursor runner holds the session.
 export async function recordedCursor(
   dashboard: DashboardServer,
   message = report,
 ) {
-  const { record, workspace } = await recordedRetired(
-    dashboard,
-    "retired-cursor-workspace",
-    "cursor/retired",
-    "Missing Cursor launch",
-  );
+  const { builder, workspace } = recordedRetired(dashboard, "cursor", message);
   const sessionId = "11111111-1111-4111-8111-111111111111";
-  record.session = makeMe.aHostSession
-    .cursor({ sessionId, continuation: { workspace } })
-    .named(record.session.name)
+  const record = builder
+    .inCursorSession({ sessionId, continuation: { workspace } })
     .please();
-  record.completion = makeMe.aCompletionReport.saying(message).please();
-  save(dashboard.home, [record]);
+  await keepMoreLaunchRecordsBesideServer(dashboard, [record]);
   return { record, workspace };
 }
 

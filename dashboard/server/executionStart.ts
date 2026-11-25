@@ -1,23 +1,18 @@
 // Execution start uses the selected installed skill's script and formatter;
 // the dashboard owns arguments, while the script owns publication/recovery.
 
-import {
-  type EstablishedStart,
-  type StoryLaunchRequest,
-} from "../src/agentLaunch.ts";
+import type { StoryLaunchRequest } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { installedSkillPath } from "./launchHosts.ts";
+import { launchHost } from "./launchHosts.ts";
+import { establishesStart, runStartScript } from "./executionStartCommands.ts";
 import type { LocalFolder } from "./localFolder.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import { continuedStart, policyArguments } from "./startPolicy.ts";
 import { lostStartArguments, ownerOf } from "./startGit.ts";
 import {
   gatedStart,
-  installedExports,
-  isFile,
   startChoice,
   publisherId,
-  runStartCommand,
   type PlannedStart,
   type StartAttempt,
 } from "./startLaunch.ts";
@@ -27,12 +22,7 @@ import {
   record,
   recordStop,
 } from "./startRecording.ts";
-import {
-  keepsStart,
-  readStartResult,
-  refusal,
-  type StartResult,
-} from "./startResult.ts";
+import { keepsStart, refusal } from "./startResult.ts";
 import {
   keepStart,
   keptStart,
@@ -40,56 +30,7 @@ import {
   updateStart,
 } from "./startStore.ts";
 
-const executePlanSkill = "dough-execute-plan";
-const startScript = "execution-start.mjs";
-const formatterScript = "established-start.mjs";
 const workflow = "execution";
-
-// A script the selected host's installed execution skill ships.
-export const executePlanScript = (
-  project: LocalFolder,
-  host: StoryLaunchRequest["host"],
-  name: string,
-) => installedSkillPath(host, project, executePlanSkill, "scripts", name);
-
-// Whether the installation ships the shared start command.
-export const shipsStartScript = (
-  project: LocalFolder,
-  host: StoryLaunchRequest["host"],
-) => isFile(executePlanScript(project, host, startScript));
-
-// The installed start command's result for these arguments.
-export async function runStartScript(
-  args: readonly string[],
-  project: LocalFolder,
-  host: StoryLaunchRequest["host"],
-  noteWorker: (pid: number) => Promise<void>,
-): Promise<StartResult> {
-  const output = await runStartCommand(
-    executePlanScript(project, host, startScript),
-    args,
-    project,
-    "start",
-    noteWorker,
-  );
-  // A command that could not run leaves no result to read. Execution start
-  // still reads stdout only; stderr is not part of its refusal wording.
-  return output === undefined
-    ? { kind: "unreadable" }
-    : readStartResult(output.stdout);
-}
-
-// Whether the project's installed skill can continue from a start: it ships
-// the start command and formatter, shared by admission and machine reads.
-export async function establishesStart(
-  project: LocalFolder,
-  host: StoryLaunchRequest["host"],
-): Promise<boolean> {
-  return (
-    (await shipsStartScript(project, host)) &&
-    (await isFile(executePlanScript(project, host, formatterScript)))
-  );
-}
 
 // Runs one start, registered in progress before the script starts.
 export async function beginStart(
@@ -127,6 +68,15 @@ async function runningStart(
     source.ref,
   );
   const oneShot = policy.tracking === "one-shot";
+  if (!oneShot && kept?.start === undefined) {
+    const explanation = await launchHost(request.host)?.executionStartRefusal?.(
+      workspace,
+    );
+    if (explanation !== undefined) {
+      progress.clear(source.id, request.identity);
+      return { kind: "refused", explanation };
+    }
+  }
   if (oneShot && kept?.start !== undefined) {
     progress.set(source.id, request.identity, {
       phase: "launching",
@@ -234,16 +184,4 @@ async function runningStart(
     }
   });
   return { kind: "running", workspace, branch, policy, attempt };
-}
-
-// The handoff is written by the selected installation's own formatter.
-export async function formattedStart(
-  project: LocalFolder,
-  start: EstablishedStart,
-  host: StoryLaunchRequest["host"],
-): Promise<string> {
-  const formatter = await installedExports<{
-    formatEstablishedStart: (start: EstablishedStart) => string;
-  }>(executePlanScript(project, host, formatterScript));
-  return formatter.formatEstablishedStart(start);
 }

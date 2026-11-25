@@ -1,16 +1,13 @@
+import { givenSavedCodexSession } from "../../test-support/support/codexObservation.ts";
 // Host-qualified identity owns all attachments, independently of opaque native IDs.
 import {
   test,
   expect,
   stored,
 } from "../../test-support/support/codexLaunch.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
 import {
-  launch,
-  refinementRequest,
-  markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  launched,
+  composeSession,
   openTerminal,
   shows,
 } from "../../test-support/agentTerminalBoundary.ts";
@@ -29,13 +26,11 @@ test("done ends every Codex attachment while an equal Claude ID keeps its attach
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
-  const claude = await launched(dashboard);
+  const claude = await composeSession(dashboard);
   const claudeTerminal = await openTerminal(dashboard, claude);
   expect(await shows(claudeTerminal, "attached")).toBe(true);
   native.threadId = claude.sessionId;
-  await launch(dashboard, {
-    ...refinementRequest,
-    host: "codex",
+  await givenSavedCodexSession(dashboard, native, {
     identity: "SEED-other#codex-equal-id",
     title: "Codex equal-id story",
   });

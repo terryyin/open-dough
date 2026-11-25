@@ -32,9 +32,12 @@ way when browsing Sessions or using the shared Intent and Review changes file br
 - On a wide screen, the open sidebar sits alongside the main content. The
   developer can interact with that content while the sidebar stays open.
 - The Files toggle stays reachable with the sidebar closed. In the file
-  sidebar's top row a Home icon precedes Intent only and Changes only. All
-  three fit on a phone in one row. Home opens the current scope's overview
-  while preserving the story, sessions and comparison.
+  sidebar's top row a Home icon precedes Intent only and, in story scope,
+  Changes only. The available controls fit on a phone in one row. The
+  [Story Home story](SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home)
+  owns the action that clears the path selection and restores story evidence.
+  [Project browsing](SEED-420-unified-intent-review.md#browse-the-project-at-a-revision)
+  owns returning to the project's CI overview.
 
 **Scope.** The Sessions sidebar and the shared file browser use one
 implementation for toggling, responsive layout and outside-click dismissal.

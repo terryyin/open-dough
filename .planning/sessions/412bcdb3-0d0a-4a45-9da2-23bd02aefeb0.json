@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "412bcdb3-0d0a-4a45-9da2-23bd02aefeb0",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T03:56:05.075Z",
+  "story": "SEED-413#renovate-remaining-backend-families-after-launch-admission",
+  "ranges": [
+    {
+      "base": "2bf3fe927901bc0d86d4881a71ecd6e8df3b0c7f",
+      "candidate": "c48a05b74870c149f869d636aeefa155b56af3cd"
+    }
+  ]
+}

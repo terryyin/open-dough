@@ -1,19 +1,22 @@
 import assert from "node:assert/strict";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
+  readUsageHistory,
   taskUsage,
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
 import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
-  readImported,
-  runImport,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
@@ -24,6 +27,15 @@ test("retained launch is eligible despite wrapper rejection and unavailable sour
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store } = options;
   keepOperationalLaunch(home, launch("retained", "retained-turn", launchAt));
   writeCodexSession(
     root,
@@ -51,9 +63,9 @@ test("retained launch is eligible despite wrapper rejection and unavailable sour
       sources: [{ kind: "native", file: "/unavailable.jsonl", line: 6 }],
     })
     .please();
-  await writeUsageHistory({ tasks: [independent] }, usageHistoryFile(home));
-  runImport(home, root);
-  const history = readImported(home);
+  await writeUsageHistory({ tasks: [independent] }, store);
+  await importUsageHistory(options);
+  const history = await readUsageHistory(store);
   expect(history.tasks[independent.id]?.launchedAt).toBe(
     "2026-11-14T10:00:00.000Z",
   );
@@ -70,7 +82,7 @@ test("retained launch is eligible despite wrapper rejection and unavailable sour
     assignmentEvidence: [expect.objectContaining({ status: "rejected" })],
   });
   expect(taskUsage(history, retained.id).tokens.output).toBe(4);
-  expect(runImport(home, root)).toMatchObject({
+  expect(await importUsageHistory(options)).toMatchObject({
     summary: { unsupportedAssignmentTasks: 0 },
   });
 });

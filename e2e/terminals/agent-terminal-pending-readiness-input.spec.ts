@@ -1,3 +1,4 @@
+import { givenSavedCodexSession } from "../../dashboard/test-support/support/codexObservation.ts";
 // Phone text input reaches a visible Codex prompt whose readiness the server
 // has yet to confirm: the open attachment accepts it as it accepts typing,
 // while only a confirmed ready frame reopens a done session.
@@ -32,18 +33,12 @@ import {
 } from "../../dashboard/test-support/support/codexTerminal.ts";
 import { pngA } from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
 import {
-  launch,
-  refinementRequest,
-} from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import {
   publishStoryColumnsJourney,
   notRefinedStory,
-  notRefinedIdentity,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import { recentlyDoneParts } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
-import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import { retainedDoneAt } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import { tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
 import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
@@ -85,18 +80,7 @@ test("dictation, Paste, composer Insert and toolbar keys reach a held Codex fram
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
   seedVoiceKey(dashboard.home);
-  await launch(dashboard, {
-    ...refinementRequest,
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-    host: "codex",
-  });
-  keepLaunchStore(dashboard, {
-    "open-dough": stored(dashboard.home).map((record) => ({
-      ...record,
-      doneAt: retainedDoneAt(),
-    })),
-  });
+  await givenSavedCodexSession(dashboard, native, { doneAt: retainedDoneAt() });
   const doneMark = () => stored(dashboard.home)[0]?.doneAt;
   const submitted = () => {
     const pid = codexAttaches(native).at(-1)?.pid;

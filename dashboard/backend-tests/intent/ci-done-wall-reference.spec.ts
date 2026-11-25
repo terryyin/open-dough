@@ -1,18 +1,28 @@
 // Exact Done publication boundaries traverse the authenticated local reader.
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { afterEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
-import { landedTrunk } from "../../test-support/support/landedCiTrunk.ts";
-import { commonGitDir } from "../../test-support/support/launchLanding.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
+import {
+  parseIntentCiHistoryRead,
+  performIntentCiHistoryRead,
+} from "../../server/intentCiHistoryRead.ts";
+import {
+  keepLandedCiHistory,
+  minutesAgo,
+} from "../../test-support/support/landedCiHistory.ts";
 
-test.use({ serverMode: "boundary" });
+const source = makeMe.aPublishedSource.openDough.please();
+let home = "";
 
-test("a Done read uses its exact publication, excludes its shared equivalent attempt and a cancelled future proxy, and keeps a later selected measurement", async ({
-  dashboard,
-  origin,
-  github,
-}) => {
+afterEach(() => {
+  if (home !== "") rmSync(home, { recursive: true, force: true });
+  home = "";
+});
+
+test("a Done read uses its exact publication, excludes its shared equivalent attempt and a cancelled future proxy, and keeps a later selected measurement", async () => {
+  home = mkdtempSync(path.join(tmpdir(), "ci-done-wall-reference-"));
   const names = [
     "prior1",
     "prior2",
@@ -25,30 +35,40 @@ test("a Done read uses its exact publication, excludes its shared equivalent att
     "unrelated",
     "publication",
   ];
-  const trunk = landedTrunk(
-    origin,
-    names.map((title) => ({ title, kind: "code" })),
-    names,
-  );
+  const revisionOf = (title: string) => {
+    const index = names.indexOf(title);
+    if (index < 0) throw new Error(`No change ${title}.`);
+    return (index + 1).toString(16).padStart(40, "0");
+  };
+  const landings = names.map((title, index) => {
+    const minutes = names.length - index;
+    return {
+      title,
+      revision: revisionOf(title),
+      receipt: `bbbbbbbb-0000-4000-8000-0000000000${String(minutes).padStart(2, "0")}`,
+      at: minutesAgo(minutes),
+    };
+  });
+  const landing = (title: string) => {
+    const found = landings.find((each) => each.title === title);
+    if (found === undefined) throw new Error(`No landing ${title}.`);
+    return found;
+  };
   const builder = makeMe.aLandedCiHistory.inTrunkOrder(
-    trunk.landings.map(({ revision }) => revision),
+    landings.map(({ revision }) => revision),
   );
   for (const [index, title] of names.entries()) {
-    const facts = trunk.landing(title);
+    const facts = landing(title);
     const selected = title === "execution" || title === "shared";
     const future = title === "cancelled";
     const runId = selected ? 6 : future ? 10 : index + 1;
-    const revision = trunk.revision(
+    const revision = revisionOf(
       selected ? "shared" : future ? "publication" : title,
     );
     const start = `2026-11-${String(runId).padStart(2, "0")}T10:00:00Z`;
     builder.recording(
       makeMe.aLaunchLanding
-        .capturedFrom({
-          repository: commonGitDir(origin.project),
-          identity: "SEED-9#same-story",
-        })
-        .comparing({ base: trunk.revision("prior1"), revision: facts.revision })
+        .comparing({ base: revisionOf("prior1"), revision: facts.revision })
         .deliveredAs({ delivery: facts.receipt, receipt: facts.receipt })
         .receivedAt(facts.at)
         .please(),
@@ -73,31 +93,28 @@ test("a Done read uses its exact publication, excludes its shared equivalent att
       title === "execution" ? "equivalent" : future ? "later" : "exact",
     );
   }
-  await keepLandedCiHistory(dashboard.home, builder.please());
+  await keepLandedCiHistory(home, builder.please());
   const read = async (title: string) => {
     const query = new URLSearchParams({
       source: "open-dough",
       intent: "ci-history",
-      revision: trunk.revision(title),
-      through: trunk.landing(title).at,
+      revision: revisionOf(title),
+      through: landing(title).at,
     });
-    const response = await rawRequest({
-      url: `${dashboard.origin}/__authenticated-read?${query}`,
-      headers: { Origin: dashboard.origin },
-    });
-    return {
-      status: response.status,
-      body: JSON.parse(response.body) as unknown,
-    };
+    const named = parseIntentCiHistoryRead(query);
+    expect(named).toMatchObject({ kind: "intent-ci-history" });
+    if (named?.kind !== "intent-ci-history")
+      throw new Error("expected intent-ci-history read");
+    const outcome = await performIntentCiHistoryRead(source, named, { home });
+    return outcome;
   };
-  const before = github.calls.length;
   expect(await read("execution")).toMatchObject({
-    status: 200,
-    body: {
-      selectedRevision: trunk.revision("execution"),
+    kind: "answered",
+    answer: {
+      selectedRevision: revisionOf("execution"),
       availability: "retained",
       reference: {
-        endpoint: trunk.revision("execution"),
+        endpoint: revisionOf("execution"),
         selected: { key: "run/6/1", ms: 120000 },
         sampleCount: 5,
         averageMs: 100000,
@@ -123,9 +140,9 @@ test("a Done read uses its exact publication, excludes its shared equivalent att
     },
   });
   expect(await read("cancelled")).toMatchObject({
-    status: 200,
-    body: {
-      selectedRevision: trunk.revision("cancelled"),
+    kind: "answered",
+    answer: {
+      selectedRevision: revisionOf("cancelled"),
       reference: {
         selected: { key: "run/10/1", ms: 100000 },
         sampleCount: 5,
@@ -133,5 +150,4 @@ test("a Done read uses its exact publication, excludes its shared equivalent att
       },
     },
   });
-  expect(github.calls).toHaveLength(before);
 });

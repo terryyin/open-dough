@@ -18,10 +18,11 @@ import {
   keepUnusableCompletedCapture,
 } from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
 import { ordinaryJourneyCompletedHistory } from "../../dashboard/test-support/support/completedFollowUpHistory.ts";
+import { renameExecutionCheckout } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 
 test.use({ originRepository: ordinaryJourneyCompletedHistory() });
 
-test("a CLI-completed story without a local launch opens fixed published changes and file diffs after trunk advances", async ({
+test("a CLI-completed story without a local launch opens fixed published changes and file diffs after trunk advances and its checkout moves", async ({
   page,
   dashboard,
   origin,
@@ -63,17 +64,20 @@ test("a CLI-completed story without a local launch opens fixed published changes
   await review.hideFiles();
   await review.setFilesShown(true);
   advanceCompletedTrunk(origin);
+  const moved = renameExecutionCheckout(origin);
   expect((await review.refreshAndAnswer()).answer).toEqual(first);
   await review.returnToDevelopment();
   await expectReviewed(card, false);
   const reopened = await openIntentReviewChanges(page, card);
   expect(reopened.answer).toEqual(first);
+  await reopened.expectText("Published completion");
   await reopened.files.choose("Added [literal]*.txt");
   await reopened.diffs.expectShows(
     "Added [literal]*.txt",
     "+delivered on another machine",
   );
   await reopened.expectNoText("later.txt");
+  moved.restore();
   // A receipt with a missing capture repository still opens its fixed landing.
   // The single chooser keeps the published completion reachable beside it.
   keepUnusableCompletedCapture(dashboard, origin, {

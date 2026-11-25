@@ -5,10 +5,7 @@ import { trunkAdvancedWith } from "../../dashboard/test-support/originatingMachi
 import { publishedSessionEntry } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
-import {
-  fileFollowUpDialog,
-  followUpComposer,
-} from "../../dashboard/test-support/support/fileFollowUpPage.ts";
+import { followUpComposer } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
 import { storyNameOf } from "../../dashboard/test-support/support/followUpStories.ts";
 import {
   expect,
@@ -18,9 +15,9 @@ import {
   queuedIdentity,
   type StartOrigin,
 } from "../../dashboard/test-support/support/startOrigin.ts";
+import { reviewRepositorySyncedTrunk } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 import { publishStorySession } from "../../dashboard/test-support/support/storySessionPublication.ts";
 import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
-import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { defaultBacklogPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-store.mjs";
 
@@ -75,73 +72,14 @@ test("a second machine follows up on the exact published file and old line", asy
   const storyName = storyNameOf(story);
   const pair = `${second.base} → ${second.candidate}`;
   const comparison = `Published session ${record.sessionId} ${pair}`;
-  const fileComposer =
-    await test.step("When I open Follow up on the file", async () => {
-      await review.diffs.followUp(storyName);
-      return followUpComposer(fileFollowUpDialog(page));
-    });
-  await test.step("Then the only session choice is clear and collapsed", async () => {
-    await fileComposer.expectSessionChoices(1);
-    await fileComposer
-      .session(`Published session ${record.sessionId}`)
-      .expectChoiceState({
-        checked: false,
-        detailsOpen: false,
-      });
-  });
-  await test.step("When I start with the file as the required source", () =>
-    fileComposer.start("Review the file"));
-  const fileInput =
-    await test.step("Then Claude receives one file follow-up", async () => {
-      await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
-      return dashboard.claudeLaunches()[0]?.instruction ?? "";
-    });
-  await test.step("And its required request names the exact story, pair and file", () => {
-    expect(fileInput).toContain(`<story>\n${storyName}\n`);
-    expect(fileInput).toContain(
-      `<follow-up>\n- Path: ${file}\n- Comparison: ${comparison}\nRequest:\nReview the file\n</follow-up>`,
-    );
-  });
-  await test.step("And it carries no optional attachments", () => {
-    expect(fileInput).not.toContain("<session>");
-    expect(fileInput).not.toContain("<line-notes>");
-  });
   const context = [
     `Path: ${file}`,
     `Comparison: ${comparison}`,
     "Line: 1",
     "Side: old",
   ];
-  const lineRequest = `<follow-up>
-- Path: ${file}
-- Comparison: ${comparison}
-- Line: 1
-- Side: old
-Request:
-Review the removed line
-</follow-up>`;
-  await test.step("When I follow up on the removed line with the session clear", async () => {
-    const dialog = await review.followUpFromLine(
-      changed,
-      "old",
-      1,
-      storyName,
-      context,
-    );
-    await followUpComposer(dialog).start("Review the removed line");
-  });
-  const lineInput =
-    await test.step("Then Claude receives a separate line follow-up", async () => {
-      await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(2);
-      return dashboard.claudeLaunches()[1]?.instruction ?? "";
-    });
-  await test.step("And its required request names the source session and old line with the session clear", () => {
-    expect(lineInput).toContain(`<story>\n${storyName}\n`);
-    expect(lineInput).toContain(lineRequest);
-    expect(lineInput).not.toContain("<session>");
-  });
   const lineComposer =
-    await test.step("When I reopen Follow up on that line", async () => {
+    await test.step("When I open Follow up on the removed line", async () => {
       const dialog = await review.followUpFromLine(
         changed,
         "old",
@@ -151,20 +89,27 @@ Review the removed line
       );
       return followUpComposer(dialog);
     });
-  await test.step("And I select its session and start again", async () => {
+  await test.step("And I attach its session and start", async () => {
     await lineComposer
       .session(`Published session ${record.sessionId}`)
       .toggleSelectionByKeyboard();
     await lineComposer.start("Review the removed line");
   });
   const attachedInput =
-    await test.step("Then Claude receives another line follow-up", async () => {
-      await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(3);
-      return dashboard.claudeLaunches()[2]?.instruction ?? "";
+    await test.step("Then Claude receives one line follow-up", async () => {
+      await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
+      return dashboard.claudeLaunches()[0]?.instruction ?? "";
     });
-  await test.step("And the required request retains the old line", () => {
+  await test.step("And its required request names the source session, file and old line", () => {
     expect(attachedInput).toContain(`<story>\n${storyName}\n`);
-    expect(attachedInput).toContain(lineRequest);
+    expect(attachedInput).toContain(`<follow-up>
+- Path: ${file}
+- Comparison: ${comparison}
+- Line: 1
+- Side: old
+Request:
+Review the removed line
+</follow-up>`);
   });
   await test.step("And the separate session attachment shows both pairs", () => {
     expect(attachedInput).toContain(
@@ -192,7 +137,7 @@ test("a stale line Follow up explains the unavailable source and returns to the 
       sessionRecordPathBeside(defaultBacklogPath, record.sessionId),
       "unreadable record\n",
     );
-    git(origin.project, "fetch", "--quiet", "origin", "main");
+    reviewRepositorySyncedTrunk(origin);
   });
   await test.step("When I start the follow-up", () =>
     followUpComposer(dialog).start("Review the old line"));

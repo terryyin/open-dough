@@ -2,22 +2,28 @@
 // keeps the row whole.
 import assert from "node:assert/strict";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
-  readImported,
-  runImport,
   writeClaudeSession,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
-test("counts a Claude Code row whose text holds line separators and the rows climbing through it", ({
+test("counts a Claude Code row whose text holds line separators and the rows climbing through it", async ({
   home,
   root,
 }) => {
@@ -36,8 +42,9 @@ test("counts a Claude Code row whose text holds line separators and the rows cli
         .please(),
     ],
   });
+  const claudeRoot = path.join(home, "claude");
   writeClaudeSession(
-    path.join(home, "claude"),
+    claudeRoot,
     makeMe.aClaudeTranscript
       .forSession(sessionId)
       .withLaunchInput({ reference, command: "report" })
@@ -46,9 +53,17 @@ test("counts a Claude Code row whose text holds line separators and the rows cli
       .please(),
   );
 
-  runImport(home, root, ["--claude-root", path.join(home, "claude")]);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claudeRoot],
+    })
+    .please();
+  await importUsageHistory(options);
 
-  const history = readImported(home);
+  const history = await readUsageHistory(options.store);
   const task = Object.values(history.tasks).find(
     (item) => item.kind === "launch",
   );
@@ -56,7 +71,7 @@ test("counts a Claude Code row whose text holds line separators and the rows cli
   expect(taskUsage(history, task.id).requests).toBe(2);
 });
 
-test("counts a Codex rollout whose row text holds a paragraph separator", ({
+test("counts a Codex rollout whose row text holds a paragraph separator", async ({
   home,
   root,
 }) => {
@@ -71,9 +86,17 @@ test("counts a Codex rollout whose row text holds a paragraph separator", ({
       .please(),
   );
 
-  runImport(home, root);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
 
-  const history = readImported(home);
+  const history = await readUsageHistory(options.store);
   const task = Object.values(history.tasks).find(
     (item) => item.kind === "launch",
   );

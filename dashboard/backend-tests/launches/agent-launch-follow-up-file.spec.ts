@@ -177,6 +177,8 @@ test.describe("widened comparison", () => {
     const baseline = origin.revision("story start");
     const tree = git(origin.project, "rev-parse", `${completion}^{tree}`);
     const { revision, story } = await serveDoneAtTrunk(dashboard, origin);
+    // The follow-up starts from a file the review open showed.
+    await publishedReviewOf(dashboard, completion);
     dashboard.claudeScenario("launched");
 
     const launched = await answerOf(

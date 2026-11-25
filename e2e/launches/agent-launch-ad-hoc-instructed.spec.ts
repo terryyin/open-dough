@@ -38,6 +38,7 @@ import { keepLaunchRecords } from "../../dashboard/test-support/support/launchSt
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import { takenAdHocSession } from "../../dashboard/test-support/support/startedAdHocSession.ts";
 import { watchTerminalSockets } from "../../dashboard/test-support/support/terminalSockets.ts";
+import { adHocDeveloperInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -85,9 +86,11 @@ test("an instructed Start session leaves the open final report in the Side panel
   await expect(panel).toHaveCount(0);
   expect(terminalSockets).toEqual([]);
   await expect(sessionStateOf(entry)).toHaveText("Working");
-  expect(dashboard.claudeLaunches().map((each) => each.instruction)).toEqual([
-    text,
-  ]);
+  expect(
+    dashboard
+      .claudeLaunches()
+      .map(({ instruction }) => adHocDeveloperInput(instruction ?? "")),
+  ).toEqual([text]);
   const { button: sessions, entry: listed } = sessionsSidebarParts(page);
   await sessions.click();
   await expect(listed(text)).toBeVisible();

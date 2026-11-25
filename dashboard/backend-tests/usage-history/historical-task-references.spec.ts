@@ -1,14 +1,17 @@
 import { readFileSync, rmSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
 import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
 import {
-  readImported,
-  runImport,
-} from "../../test-support/usage-history/importHarness.ts";
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 import {
   recoveredTask as task,
@@ -59,6 +62,15 @@ test("resolves only the unique numbered historical plan and retains pinned sourc
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   const repo = await configuredRepository(home, description());
   const file = record(
     root,
@@ -89,8 +101,11 @@ test("resolves only the unique numbered historical plan and retains pinned sourc
     "$dough-execute-plan 51",
   );
   const original = readFileSync(file, "utf8");
-  runImport(home, root);
-  const history = readImported(home);
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(store)),
+    ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+  };
   const resolved = task(history, "unique");
   expect(resolved).toEqual(
     expect.objectContaining({
@@ -121,24 +136,34 @@ test("resolves only the unique numbered historical plan and retains pinned sourc
       expect.objectContaining({
         identity: null,
         title: null,
-        gaps: expect.arrayContaining(["unresolved-historical-story"]),
+        gaps: expect.arrayContaining([
+          "unresolved-historical-story",
+        ]) as unknown,
       }),
     );
   expect(taskUsage(history, resolved.id).tokens.output).toBe(7);
   expect(readFileSync(file, "utf8")).toBe(original);
   expect(JSON.stringify(history)).not.toContain("PRIVATE-NUMERIC-PROMPT");
   const saved = JSON.stringify(history);
-  runImport(home, root);
-  expect(JSON.stringify(readImported(home))).toBe(saved);
+  await importUsageHistory(options);
+  expect(
+    JSON.stringify({
+      ...(await readUsageHistory(store)),
+      ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+    }),
+  ).toBe(saved);
   rmSync(root, { recursive: true });
   rmSync(repo.integration, { recursive: true });
-  runImport(home, root);
-  const withoutSources = readImported(home);
+  await importUsageHistory(options);
+  const withoutSources = await readUsageHistory(store);
+  const { observations } = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
   expect(withoutSources.tasks).toEqual(history.tasks);
   expect(withoutSources.sessions).toEqual(history.sessions);
   expect(taskUsage(withoutSources, resolved.id).tokens.output).toBe(7);
   // That import read no response.
-  expect(withoutSources.observations).toEqual({});
+  expect(observations).toEqual({});
   expect(withoutSources.gaps).toEqual(
     expect.arrayContaining([
       expect.objectContaining({ code: "native-source-unavailable" }),

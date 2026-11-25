@@ -1,3 +1,4 @@
+import { givenSavedCodexSession } from "../../dashboard/test-support/support/codexObservation.ts";
 // Rendered controls, reload, native failure and readiness exercise the same stored record.
 // Mark as done in the panel on a Codex session waiting for input asks first.
 import {
@@ -5,10 +6,6 @@ import {
   expect,
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
-import {
-  launch,
-  refinementRequest,
-} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   sessionStateOf,
@@ -22,7 +19,6 @@ import {
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
-  notRefinedIdentity,
   notRefinedStory,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
@@ -55,12 +51,7 @@ for (const attached of [false, true]) {
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture");
-    await launch(dashboard, {
-      ...refinementRequest,
-      identity: notRefinedIdentity,
-      title: notRefinedStory,
-      host: "codex",
-    });
+    await givenSavedCodexSession(dashboard, native);
     native.observations.set(native.threadId, {
       status: {
         type: attached ? "active" : "notLoaded",
@@ -149,10 +140,10 @@ for (const attached of [false, true]) {
     ).toBe(true);
     expect(
       native.calls.filter((call) => call.method === "thread/start"),
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     expect(
       native.calls.filter((call) => call.method === "turn/start"),
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     expect(
       native.calls.filter((call) => call.method === "turn/interrupt"),
     ).toEqual(
@@ -178,12 +169,7 @@ test("native interrupt refusal retains Done and its diagnostic through reload, c
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, {
-    ...refinementRequest,
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-    host: "codex",
-  });
+  await givenSavedCodexSession(dashboard, native);
   native.observations.set(native.threadId, {
     status: { type: "active", activeFlags: [] },
     turns: [{ id: "refused-turn", status: "inProgress" }],

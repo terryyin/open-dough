@@ -1,9 +1,10 @@
 // Publications of the Recently done stories (./recentlyDoneRecords.ts) whose
 // catalog or records cannot be read: no catalog, a catalog that omits a record
 // added beside it, a catalog read that fails, and malformed records beside the
-// readable ones. Each uses its own revision, so a journey can publish one after
-// another and the local boundary has not remembered it. The stories spec states
-// the problem each publication produces.
+// readable ones. Each publishes files of its own, so its commit lands at its own
+// revision and a journey can publish one after another without the local
+// boundary having remembered it. The stories spec states the problem each
+// publication produces.
 import { basename } from "node:path";
 import { catalogFile } from "../../Distribution/tests/support/revision-done-catalog.mjs";
 import {
@@ -20,36 +21,26 @@ import {
   recentlyDoneNestingRecords,
 } from "./recentlyDoneRecords.ts";
 
-// Another revision, whose reads the local boundary has not yet remembered.
-const otherRevision = "d1".repeat(20);
-// Done records published without a catalog, as a writer from before catalogs
-// would leave them.
-const uncataloguedRevision = "d3".repeat(20);
-// A catalog published before the story done last week's record was added
-// beside it, as a merge outside the backlog's Git adapters would leave it.
-const staleCatalogRevision = "d5".repeat(20);
-// Malformed records beside the readable ones.
-const malformedRevision = "d2".repeat(20);
-
 const futureFormat = "SEED-050#future-format";
 const misnamed = "SEED-051#misnamed";
 const recordFile = (identity: string) => basename(doneRecordPath(identity));
 
 export const doneStoryReadFailures = {
   unansweredCatalog: (now: number) =>
-    doneStoryPublication(otherRevision, doneStoryRevisionFacts(now), [
-      catalogFile,
-    ]),
+    doneStoryPublication(doneStoryRevisionFacts(now), [catalogFile]),
+  // Done records published without a catalog, as a writer from before catalogs
+  // would leave them.
   withoutCatalog: (now: number) =>
-    doneStoryPublication(uncataloguedRevision, {
+    doneStoryPublication({
       ...doneStoryRevisionFacts(now),
       remove: [catalogFile],
     }),
-  // The story done last week stands beside a catalog of the other records.
+  // The story done last week stands beside a catalog of the other records, as
+  // a merge outside the backlog's Git adapters would leave it.
   staleCatalog: (now: number) => {
     const catalog = doneStories.published(now).files[catalogFile];
     if (catalog === undefined) throw new Error(`publishes no ${catalogFile}`);
-    return doneStoryPublication(staleCatalogRevision, {
+    return doneStoryPublication({
       doneRecords: recentlyDoneNestingRecords(now),
       files: {
         ...doneStoryRevisionFacts(now).files,
@@ -62,7 +53,7 @@ export const doneStoryReadFailures = {
     misnamedFile: recordFile(misnamed),
     published: (now: number) => {
       const { doneRecords = [], files = {} } = doneStoryRevisionFacts(now);
-      return doneStoryPublication(malformedRevision, {
+      return doneStoryPublication({
         doneRecords,
         files: {
           ...files,

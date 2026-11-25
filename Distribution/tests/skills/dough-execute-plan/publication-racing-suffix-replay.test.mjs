@@ -1,10 +1,7 @@
-// Git mechanics (not guidance-following): after an owned suffix was already
-// rewritten, a later rejection replays only that suffix onto the newer trunk.
-// The cutoff is the trunk the suffix was just replayed onto, not the older
-// published revision and not the rejected tip. Lost-response classification
-// is not this file.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../support/makeMe.mjs";
+import { publishExecutionIncrement } from "../../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs";
 import { rebaseInProgress } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import { backlogOf } from "../../support/product-backlog-fixture.mjs";
 import {
@@ -16,8 +13,6 @@ import {
   itemC,
   itemD,
   ownedD,
-  pushRejected,
-  rebaseOwnedSuffix,
   siblingB,
 } from "./publication-racing-suffix-fixtures.mjs";
 import {
@@ -26,9 +21,6 @@ import {
   assertRemoteCandidate,
   captureCheckout,
   git,
-  lsRemoteSha,
-  pushCandidate,
-  revParse,
 } from "./publication-test-fixtures.mjs";
 
 test("a rejection after the suffix was already rewritten replays only that suffix onto the newer trunk", async (t) => {
@@ -57,35 +49,52 @@ test("a rejection after the suffix was already rewritten replays only that suffi
     backlogOf([], [itemA, siblingB, itemC, itemD]),
     "sibling backlog change",
   );
-  await git(execution, "fetch", "origin");
-  const firstReplay = await rebaseOwnedSuffix({
-    cwd: execution,
-    onto: firstWriter,
-    upstream: trunkSha,
-    branch: "exec/story",
+  let secondWriter;
+  const comparisons = [];
+  const checked = [];
+  const outcome = await publishExecutionIncrement({
+    workspace: execution,
+    ...makeMe.anIncrementPublication
+      .with({
+        previouslyPublishedBase: trunkSha,
+        branch: "exec/story",
+        targetRef: "refs/heads/main",
+      })
+      .please(),
+    validate: async (candidate) => {
+      checked.push(candidate);
+      await assertAffectedCombination(fixture, candidate);
+      assert.equal(
+        (
+          await git(execution, "log", "-1", "--format=%(trailers)", candidate)
+        ).stdout.trim(),
+        credit,
+      );
+      return true;
+    },
+    beforePush: async ({ attempt, candidate, suffixBase }) => {
+      comparisons.push({ candidate, suffixBase });
+      if (attempt === 0) {
+        secondWriter = await advanceOriginFromAnotherWriter(origin);
+      }
+    },
   });
-  assert.equal(firstReplay.code, 0, firstReplay.stdout + firstReplay.stderr);
-  const rewritten = await revParse(execution, "exec/story");
-  await assertAffectedCombination(fixture, rewritten);
-  const suffixBase = (
-    await git(execution, "rev-parse", `${rewritten}^`)
-  ).stdout.trim();
-  assert.equal(suffixBase, firstWriter);
-
-  const secondWriter = await advanceOriginFromAnotherWriter(origin);
-  assert.equal(await pushRejected(execution, rewritten), true);
-  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), secondWriter);
-
-  await git(execution, "fetch", "origin");
-  const retry = await rebaseOwnedSuffix({
-    cwd: execution,
-    onto: secondWriter,
-    upstream: suffixBase,
-    branch: "exec/story",
-  });
-  assert.equal(retry.code, 0, retry.stdout + retry.stderr);
-  const candidate = await revParse(execution, "exec/story");
-  await assertAffectedCombination(fixture, candidate);
+  assert.equal(outcome.publication, "accepted");
+  assert.equal(outcome.reconciliations, 2);
+  const { sha: candidate } = outcome.receipt;
+  assert.deepEqual(
+    checked,
+    comparisons.map(({ candidate }) => candidate),
+  );
+  assert.equal(comparisons[0].suffixBase, firstWriter);
+  assert.equal(
+    (
+      await git(execution, "rev-parse", `${comparisons[0].candidate}^`)
+    ).stdout.trim(),
+    firstWriter,
+  );
+  assert.deepEqual(comparisons[1], { candidate, suffixBase: secondWriter });
+  assert.equal(outcome.suffixBase, secondWriter);
   assert.equal(
     (await git(execution, "rev-parse", `${candidate}^`)).stdout.trim(),
     secondWriter,
@@ -101,20 +110,12 @@ test("a rejection after the suffix was already rewritten replays only that suffi
     ).stdout,
     "verified increment\n",
   );
-  // Each replay kept the credit exactly as it was: nothing added or lost.
-  assert.equal(
-    (
-      await git(execution, "log", "-1", "--format=%(trailers)", candidate)
-    ).stdout.trim(),
-    credit,
-  );
   assert.equal(
     (
       await git(execution, "ls-tree", "-r", "--name-only", candidate)
     ).stdout.includes("other-writer.txt"),
     true,
   );
-  await pushCandidate(execution, candidate);
   await git(execution, "fetch", "origin");
   await assertRemoteCandidate(origin, candidate);
   assertCheckoutUnchanged(before, await captureCheckout(integration));

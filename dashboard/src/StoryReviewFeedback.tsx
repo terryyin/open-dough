@@ -1,7 +1,8 @@
 // Session review progress, refresh and failures, beside the shared unread explanations.
 import { RefreshedHistoricalComparison } from "./StoryReviewHistoricalOutcome.tsx";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
-import type { StoryReview } from "./storyReviewContract.ts";
+import { Moment } from "./Moment.tsx";
+import type { ReviewSyncFailure, StoryReview } from "./storyReviewContract.ts";
 import type { ReviewReadState } from "./useReviewRead.ts";
 
 // Why a settled read holds no comparison, as this region says it: a failed
@@ -40,6 +41,7 @@ export function ReviewFeedback({
   // A review already showing changes stays shown while it is read again.
   const showsChanges =
     review?.kind === "landed" || review?.kind === "published-session";
+  const syncFailure = reviewSyncFailure(review);
   return (
     <div role="status">
       {reading && !showsChanges && <p>Reading the story&apos;s changes…</p>}
@@ -61,9 +63,42 @@ export function ReviewFeedback({
           changes.
         </p>
       )}
+      {!reading && syncFailure !== undefined && (
+        <p>
+          <ReviewSyncNotice failure={syncFailure} />
+        </p>
+      )}
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
       {problem !== undefined && <p>{reviewReadFailure(problem)}</p>}
       {review?.kind === "unavailable" && <p>{review.explanation}</p>}
     </div>
+  );
+}
+
+// The failed sync from origin a review answered with, if any.
+export const reviewSyncFailure = (review: StoryReview | undefined) =>
+  review !== undefined && "syncFailure" in review
+    ? review.syncFailure
+    : undefined;
+
+// The comparison shown is the last synced one: the sync from origin failed.
+export function ReviewSyncNotice({
+  failure: { problem, lastSyncedAt },
+}: {
+  readonly failure: ReviewSyncFailure;
+}) {
+  return (
+    <>
+      Review not refreshed: origin could not be synced ({problem}). What is
+      shown was last synced{" "}
+      {lastSyncedAt === undefined ? (
+        "earlier"
+      ) : (
+        <>
+          at <Moment at={new Date(lastSyncedAt)} />
+        </>
+      )}
+      .
+    </>
   );
 }

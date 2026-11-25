@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "88d312ab-9a8c-44ea-9a5d-6deba32f707a",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T08:28:23.619Z",
+  "story": "SEED-413#renovate-remaining-backend-families-after-browser-reporter",
+  "ranges": [
+    {
+      "base": "2a4b5a04b8aecf682718cdaaf216f801cd82af31",
+      "candidate": "fb97ed0226e7331b343adb6034abf146cf19d77a"
+    }
+  ]
+}

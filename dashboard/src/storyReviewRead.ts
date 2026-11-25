@@ -21,6 +21,8 @@ export interface StoryReviewRead {
   readonly completed?: boolean;
   // Read the completed story's published historical comparison.
   readonly historical?: boolean;
+  // The story pane can follow an owned sync, then resume its exact read.
+  readonly initialSync?: true | string;
 }
 
 // What a session review handler reads: the session subject and optional run.
@@ -46,5 +48,8 @@ export function storyReviewQuery(
     ...(read.taken === true ? { taken: "true" } : {}),
     ...(read.completed === true ? { completed: "true" } : {}),
     ...(read.historical === true ? { historical: "true" } : {}),
+    ...(read.initialSync === undefined
+      ? {}
+      : { initialSync: String(read.initialSync) }),
   };
 }

@@ -1,5 +1,6 @@
 // Terminal artifact answers freeze comparison memory, unlike the artifact
 // reader's own policy of retrying every answer except a valid summary.
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   trunkSide,
@@ -9,7 +10,6 @@ import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.
 import { finalityArtifacts } from "../support/finalityArtifacts.ts";
 import { archiveOf } from "../support/ciProofMemory.ts";
 import {
-  expect,
   test,
   observedComparisonSource,
   comparisonAcquisitions,

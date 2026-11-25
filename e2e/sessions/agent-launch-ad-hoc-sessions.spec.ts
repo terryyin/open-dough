@@ -45,7 +45,9 @@ import {
   takenAdHocSession,
   startAdHocAndClose,
 } from "../../dashboard/test-support/support/startedAdHocSession.ts";
-test.use({ projectFolders: ["open-dough", "pygardon"] });
+test.use({
+  projectFolders: ["open-dough", "pygardon"],
+});
 
 const openDoughStories = {
   taken: [takenStory],

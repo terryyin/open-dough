@@ -1,17 +1,14 @@
+import { givenSavedCodexSession } from "../../test-support/support/codexObservation.ts";
 // Refusal/race substitutions supply vendor replies, never local done semantics.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   test,
   expect,
   stored,
 } from "../../test-support/support/codexLaunch.ts";
-import {
-  launch,
-  refinementRequest,
-  markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 // No page: the local boundaries alone answer these requests.
@@ -23,7 +20,7 @@ for (const refusal of ["rename", "interrupt"] as const) {
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture");
-    await launch(dashboard, { ...refinementRequest, host: "codex" });
+    await givenSavedCodexSession(dashboard, native);
     native.observations.set(native.threadId, {
       status: { type: "active", activeFlags: [] },
       turns: [{ id: "running-turn", status: "inProgress" }],
@@ -68,7 +65,7 @@ test("a turn finishing during interruption never redirects the request to a newe
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   const observation = {
     status: { type: "active", activeFlags: [] },
     turns: [{ id: "observed-turn", status: "inProgress" }],
@@ -117,7 +114,7 @@ test("active metadata followed by a completed latest turn never invents an inter
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   native.observations.set(native.threadId, {
     status: { type: "active", activeFlags: [] },
     turns: [{ id: "finished-turn", status: "completed" }],
@@ -140,7 +137,7 @@ test("an unreadable active-turn identity remains unknown rather than a guessed s
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   native.observations.set(native.threadId, {
     status: { type: "active", activeFlags: [] },
     turns: [],
@@ -189,7 +186,7 @@ require(${JSON.stringify(fixturePath)});
 `,
     { mode: 0o755 },
   );
-  const session = await launched(dashboard);
+  const session = await composeSession(dashboard);
   // Idle between steps, so the rename succeeds and only the stop fails.
   dashboard.claudeSessionBecomes(session.sessionId, "working-idle");
   const response = await markDone(dashboard, {

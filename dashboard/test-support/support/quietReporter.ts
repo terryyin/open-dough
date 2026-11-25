@@ -26,24 +26,11 @@ import type {
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { ProofRecord } from "./proofRecord.ts";
+import { describeError, indent, shown, text } from "./quietReporterFormat.ts";
 import { SpecTimes } from "./specTimes.ts";
 
 type Write = typeof process.stdout.write;
-
-function text(chunk: string | Buffer): string {
-  return typeof chunk === "string" ? chunk : chunk.toString("utf8");
-}
-
-// Paths under the working directory are shown relative to it.
-function shown(file: string): string {
-  // eslint-disable-next-line no-restricted-syntax -- shows paths relative to where the run started, not the repository root
-  const relative = path.relative(process.cwd(), file);
-  return relative.startsWith("..") ? file : relative;
-}
-
-function indent(block: string): string {
-  return block.replace(/^(?=.)/gm, "    ");
-}
+type Stream = { write: Write };
 
 // `proofRecord` / `times`: CI run record, per-spec seconds.
 export type QuietReporterOptions = {
@@ -51,9 +38,17 @@ export type QuietReporterOptions = {
   times?: string | undefined;
 };
 
+// Direct cases pass writable stand-ins; Playwright constructs with options only.
+export type QuietReporterStreams = {
+  stdout?: Stream;
+  stderr?: Stream;
+};
+
 export default class QuietReporter implements Reporter {
   private readonly writeOut: Write;
   private readonly writeErr: Write;
+  private readonly stdout: Stream;
+  private readonly stderr: Stream;
   private readonly strayRunOutput: string[] = [];
   private readonly printed: string[] = [];
   private outputDir: string | undefined;
@@ -62,11 +57,16 @@ export default class QuietReporter implements Reporter {
   private proof: ProofRecord | undefined;
   private times: SpecTimes | undefined;
 
-  constructor(private readonly options: QuietReporterOptions = {}) {
-    this.writeOut = process.stdout.write.bind(process.stdout);
-    this.writeErr = process.stderr.write.bind(process.stderr);
-    process.stdout.write = this.watch(this.writeOut);
-    process.stderr.write = this.watch(this.writeErr);
+  constructor(
+    private readonly options: QuietReporterOptions = {},
+    streams: QuietReporterStreams = {},
+  ) {
+    this.stdout = streams.stdout ?? process.stdout;
+    this.stderr = streams.stderr ?? process.stderr;
+    this.writeOut = this.stdout.write.bind(this.stdout);
+    this.writeErr = this.stderr.write.bind(this.stderr);
+    this.stdout.write = this.watch(this.writeOut);
+    this.stderr.write = this.watch(this.writeErr);
   }
 
   // The reporter itself writes the console; no default reporter is added.
@@ -127,7 +127,7 @@ export default class QuietReporter implements Reporter {
         : `FAIL: ${location} › ${title} (${result.status})`,
     ];
     for (const error of result.errors) {
-      lines.push(indent(this.describe(error)));
+      lines.push(indent(describeError(error)));
     }
     if (output !== "") {
       lines.push("  output:", indent(output.replace(/\n$/, "")));
@@ -143,7 +143,7 @@ export default class QuietReporter implements Reporter {
 
   onError(error: TestError): void {
     this.failed = true;
-    this.print(`ERROR outside a test:\n${indent(this.describe(error))}\n\n`);
+    this.print(`ERROR outside a test:\n${indent(describeError(error))}\n\n`);
   }
 
   onEnd(
@@ -182,17 +182,6 @@ export default class QuietReporter implements Reporter {
       rmSync(this.outputDir, { recursive: true, force: true });
     }
     return Promise.resolve();
-  }
-
-  private describe(error: TestError): string {
-    const where = error.location
-      ? `at ${shown(error.location.file)}:${String(error.location.line)}\n`
-      : "";
-    const detail = error.stack ?? error.message ?? error.value ?? "";
-    return `${detail}\n${where}${error.snippet ? `${error.snippet}\n` : ""}`.replace(
-      /\n+$/,
-      "",
-    );
   }
 
   private print(message: string): void {
@@ -234,8 +223,8 @@ export default class QuietReporter implements Reporter {
   private stopWatching(): void {
     if (this.watching) {
       this.watching = false;
-      process.stdout.write = this.writeOut;
-      process.stderr.write = this.writeErr;
+      this.stdout.write = this.writeOut;
+      this.stderr.write = this.writeErr;
     }
   }
 }

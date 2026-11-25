@@ -14,6 +14,7 @@ import { expect } from "./pageTest.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
+  claimedRecord,
   trunkCommitFromAnotherWriter,
 } from "./storyBranchIntegration.ts";
 
@@ -32,7 +33,7 @@ function changeSharedLine(checkout: string, line: number, text: string) {
 // execution trunk changes line 5 of the shared file and the branch merges it;
 // the story then changes line 1 and completes itself in the backlog. Trunk's
 // tip, awaiting integration, also changes line 9.
-export async function storyBranchExecutionAfterRefinement(
+async function storyBranchExecutionAfterRefinement(
   dashboard: DashboardServer,
   origin: StartOrigin,
   native: FakeCodex,
@@ -98,7 +99,7 @@ export async function storyBranchExecutionAfterRefinement(
 // Integrates that execution onto trunk and answers the accepted revision with
 // the paths it delivers from the trunk tip it was published onto: the story's
 // own, never what only trunk changed, before or during execution.
-export async function integratedOntoTrunk(
+async function integratedOntoTrunk(
   origin: StartOrigin,
   story: Awaited<
     ReturnType<typeof storyBranchExecutionAfterRefinement>
@@ -144,4 +145,22 @@ export async function integratedOntoTrunk(
     ),
   );
   return { accepted, delivered };
+}
+
+// The refined story's execution integrated onto trunk, with its launch record.
+export async function landedStoryBranch(
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+  native: FakeCodex,
+) {
+  const { refinement, story } = await storyBranchExecutionAfterRefinement(
+    dashboard,
+    origin,
+    native,
+  );
+  // Before it lands, the claimed launch with its workspace is no landed run.
+  expect((await claimedRecord(dashboard)).landing).toBeUndefined();
+  const { accepted, delivered } = await integratedOntoTrunk(origin, story);
+  const record = await claimedRecord(dashboard);
+  return { refinement, story, accepted, delivered, record };
 }

@@ -10,13 +10,26 @@ import {
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import type { CodexSession } from "../src/agentLaunch.ts";
 import { sessionDetails } from "./support/sessionEntryDisclosure.ts";
-import { openTerminalControl } from "./terminalScreenPage.ts";
+import { openTerminalControl, terminalPanel } from "./terminalScreenPage.ts";
 import { storyCard } from "./storyCardControls.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+
+export async function openOnlySidebarSession(page: Page, state: string) {
+  const sidebar = sessionsSidebarParts(page);
+  await sidebar.button.click();
+  await expect(sidebar.entries).toHaveCount(1);
+  await expect(sidebar.entries.filter({ hasText: state })).toHaveCount(1);
+  await sidebar.entries.getByRole("button").click();
+  const panel = terminalPanel(page);
+  await expect(panel).toHaveCount(1);
+  return panel;
+}
 
 export async function expectMixedContinuation(
   page: Page,
   story: string,
   continuation: NonNullable<CodexSession["continuation"]>,
+  workspaceShown: string,
   notice?: string,
 ) {
   const card = storyCard(parts(page).board, story);
@@ -25,7 +38,7 @@ export async function expectMixedContinuation(
   });
   await sessionDetails(codex);
   await expect(codex.locator("p", { hasText: /^Workspace / })).toHaveText(
-    `Workspace ${continuation.workspace}`,
+    `Workspace ${workspaceShown}`,
   );
   await expect(
     codex.locator("p", { hasText: /^Continue in / }).locator("code"),

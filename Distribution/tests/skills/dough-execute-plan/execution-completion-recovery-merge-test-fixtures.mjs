@@ -57,7 +57,7 @@ const mergeLandingDescription = makeMe.aRepository
 export async function mergeRecoveryFixture(t, { provider = "command" } = {}) {
   const fixture = await createManagedFixture({
     description: mergeLandingDescription,
-    platforms: [".claude"],
+    platform: ".claude",
     checkout: "integration",
   });
   t.after(fixture.cleanup);

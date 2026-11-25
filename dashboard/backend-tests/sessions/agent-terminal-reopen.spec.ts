@@ -16,12 +16,12 @@ import { markDone, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
 import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
 import {
   lastAttachEnded,
-  launched,
+  composeSession,
   openTerminal,
   refusedStatus,
   shows,
   terminalUrl,
-  type LaunchedSession,
+  type RecordedSession,
 } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
@@ -29,7 +29,7 @@ import {
 } from "../../test-support/support/dashboardServer.ts";
 
 // The project's kept record of the session, as the launch boundary answers it.
-async function recordOf(server: DashboardServer, session: LaunchedSession) {
+async function recordOf(server: DashboardServer, session: RecordedSession) {
   const records = (await recordsOf(server, "open-dough")) as {
     session: { sessionId: string };
     doneAt?: string;
@@ -42,7 +42,7 @@ async function recordOf(server: DashboardServer, session: LaunchedSession) {
 // Marks the session done through the launch boundary, answering its done time.
 async function markedDone(
   server: DashboardServer,
-  session: LaunchedSession,
+  session: RecordedSession,
 ): Promise<string> {
   const response = await markDone(server, {
     source: "open-dough",
@@ -77,7 +77,7 @@ test.describe("reopening a session marked done through its terminal", () => {
   });
 
   test("reopens a session marked done once its attach starts, and keeps it reopened across a restart", async () => {
-    const done = await launched(server);
+    const done = await composeSession(server);
     await markedDone(server, done);
     expect(await recordOf(server, done)).toHaveProperty("doneAt");
 
@@ -103,7 +103,7 @@ test.describe("reopening a session marked done through its terminal", () => {
 
   test("keeps a done session Claude Code no longer lists done when its upgrade is refused", async () => {
     await closeOpenSessions(server);
-    const forgotten = await launched(server);
+    const forgotten = await composeSession(server);
     const doneAt = await markedDone(server, forgotten);
     server.claudeSessionBecomes(forgotten.sessionId, "forgotten");
 

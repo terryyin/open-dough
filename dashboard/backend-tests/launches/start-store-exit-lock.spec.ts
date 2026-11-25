@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { fsPromisesHook } from "../../test-support/support/serverFsHook.ts";
 import { keepStart, keptStart, updateStart } from "../../server/startStore.ts";
 

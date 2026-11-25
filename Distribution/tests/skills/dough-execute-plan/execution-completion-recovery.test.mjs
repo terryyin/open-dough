@@ -101,6 +101,7 @@ test("completion recovery on a replacement observer", async (t) => {
 
       const recovered = await h.recoverInstalled();
       assert.equal(recovered.ok, true, recovered.observation?.reason);
+      assert.equal(recovered.runtime.root, ".claude");
       assert.equal(recovered.receipt.verdict, "success");
       assert.equal(recovered.receipt.shutdown.status, "retained");
       assert.equal(

@@ -67,7 +67,7 @@ assert_refused_unchanged() {
 }
 
 # The codex and cursor hints select the same .agents root, so codex represents
-# both; claude is the other physical root.
+# both. The claude hint selects the .claude root.
 for platform in codex claude; do
   for force_arg in '' --force; do
     target="${temporary_dir}/${platform}-${force_arg:-ordinary}-symlink-target"

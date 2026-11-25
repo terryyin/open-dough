@@ -18,10 +18,9 @@ const cli = fileURLToPath(
   ),
 );
 
-// Runs the guided commit entry point from `cwd`, through `entry` when another
-// path reaches it; `input` is its standard input.
-export async function agentCommit(cwd, args, input, entry = cli) {
-  const running = exec(process.execPath, [entry, ...args], { cwd });
+// Runs the guided commit entry point from `cwd` with optional standard input.
+export async function agentCommit(cwd, args, input) {
+  const running = exec(process.execPath, [cli, ...args], { cwd });
   running.child.stdin.end(input ?? "");
   try {
     const { stdout } = await running;
@@ -87,7 +86,7 @@ export async function takenWorkspace(t) {
     `#!/bin/sh\ncp "$1" '${checked}'\n`,
     { mode: 0o755 },
   );
-  return { trunk, workspace, checked };
+  return { workspace, checked };
 }
 
 export async function stageWork(workspace, name) {

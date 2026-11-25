@@ -10,9 +10,10 @@ import {
   stored,
 } from "../../test-support/support/codexLaunch.ts";
 import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
+import { keepMoreLaunchRecordsBesideServer } from "../../test-support/support/launchStore.ts";
 import {
   deleteRecord,
-  launch,
   refinementRequest,
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
@@ -93,10 +94,11 @@ test("endpoint/read failures preserve healthy hosts, saved identity and independ
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
-  dashboard.claudeScenario("launched");
-  expect((await launch(dashboard, refinementRequest)).status).toBe(200);
-  const claude = stored(dashboard.home)[0];
-  if (claude === undefined) throw new Error("Missing Claude record");
+  const claude = await composeSession(
+    dashboard,
+    "open-dough",
+    refinementRequest,
+  );
   observed(native, "healthy", { type: "notLoaded" }, "completed");
   observed(native, "refused", { type: "idle" });
   native.observations.set("refused", {
@@ -111,8 +113,7 @@ test("endpoint/read failures preserve healthy hosts, saved identity and independ
   });
   const legacy = record(dashboard, native, "legacy-no-endpoint");
   delete legacy.session.continuation;
-  save(dashboard, [
-    claude,
+  await keepMoreLaunchRecordsBesideServer(dashboard, [
     record(dashboard, native, "healthy"),
     record(dashboard, native, "refused"),
     badEndpoint,
@@ -121,7 +122,7 @@ test("endpoint/read failures preserve healthy hosts, saved identity and independ
   const response = await states(dashboard);
   expect(response.map((r) => [r.session.sessionId, r.sessionState])).toEqual([
     [
-      claude.session.sessionId,
+      claude.sessionId,
       { kind: "available", availability: "loaded", activity: "working" },
     ],
     [

@@ -8,8 +8,7 @@ import {
 import { ownConflictExtraCompletedHistory } from "../../test-support/support/completedOwnMergeHistory.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
-import { rmSync } from "node:fs";
-import path from "node:path";
+import { dropReviewRepositoryObject } from "../../test-support/support/reviewRepositoryFixture.ts";
 
 test.use({
   serverMode: "boundary",
@@ -27,10 +26,8 @@ test("an unreadable merge edit object explains the Git gap instead of a partial 
     "rev-parse",
     `${completion}:merge-resolution.txt`,
   );
-  const objects = git(origin.project, "rev-parse", "--git-path", "objects");
-  rmSync(
-    path.resolve(origin.project, objects, blob.slice(0, 2), blob.slice(2)),
-  );
+  await get(request, dashboard, storyReviewEndpoint, completed);
+  dropReviewRepositoryObject(origin.machine, blob);
   const response = await get(
     request,
     dashboard,

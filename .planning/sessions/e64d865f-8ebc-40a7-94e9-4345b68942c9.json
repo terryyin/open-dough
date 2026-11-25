@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "e64d865f-8ebc-40a7-94e9-4345b68942c9",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T06:28:40.290Z",
+  "story": "SEED-413#renovate-remaining-backend-families-after-intent-ci-readers",
+  "ranges": [
+    {
+      "base": "9464e9a0a0cbccebec35c386ca93888da74725aa",
+      "candidate": "62961bd27f7bbbd4445396c4008d13bbb7bb5080"
+    }
+  ]
+}

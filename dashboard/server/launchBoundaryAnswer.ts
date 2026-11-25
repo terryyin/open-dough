@@ -39,6 +39,7 @@ import { submitSessionAttachment } from "./sessionAttachments.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 import { sessionBranchEntryEndpoint } from "../src/sessionBranchResult.ts";
 import { submitSessionBranchEntry } from "./sessionBranchEntry.ts";
+import type { ReviewInitialSync } from "./reviewInitialSync.ts";
 
 // How long a wait for an attempt observation to change lasts. A test may
 // shorten it through `DOUGH_CHANGE_WAIT_MS`; production stays at 30 seconds.
@@ -108,6 +109,7 @@ export async function answer(
   doneMarks: NativeDoneMarks,
   sessions: MachineSessionObservation,
   landedCi: Pick<LandedCiCollection, "nudge">,
+  initialSync: ReviewInitialSync,
 ): Promise<AgentLaunchAnswer> {
   try {
     if (
@@ -138,7 +140,7 @@ export async function answer(
       case "completed-story-association":
         return await completedStoryAssociationResponse(request, res);
       case "story-review":
-        return await storyReviewResponse(request, res);
+        return await storyReviewResponse(request, res, initialSync);
       case "story-review-file":
         return await storyReviewFileResponse(request, res);
       case "story-review-file-text":

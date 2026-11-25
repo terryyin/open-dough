@@ -42,7 +42,7 @@ Ordinary Open Dough release updates remain available from the recorded source.
    The numeric `VERSION` record and the
    recorded `SOURCE` live beside each `dough-update/SKILL.md`. Installation
    writes the same `SOURCE` from the supplied repository URL or local path,
-   then `VERSION`, in both physical roots. Ordinary no-URL updates reuse the
+   then `VERSION`, in both skill roots. Ordinary no-URL updates reuse the
    invoking root's recorded `SOURCE`.
 
 4. Resolve the Open Dough source from the invoking root. If that updater

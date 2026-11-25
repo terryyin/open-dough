@@ -15,7 +15,7 @@ import { readStoredLandedCiHistory } from "./landedCiHistoryStore.ts";
 import type { LandingReceiptFacts } from "./landedCiReceipt.ts";
 import { observationNow } from "./observationClock.ts";
 import {
-  publishedStoryEndpoints,
+  checkoutStoryEndpoints,
   type PublishedStoryEndpointFacts,
 } from "./storyPublishedEndpoints.ts";
 import {
@@ -47,13 +47,16 @@ export type StoryCiComparisonSource = {
   readonly observationNow: () => number;
 };
 
+// `home` names the machine whose launch and history documents receipt reading
+// uses; absent, this machine (the authenticated adapter's default).
 export function storyCiComparisonSource(
   source: PublishedSource,
   signal: AbortSignal,
+  home?: string,
 ): StoryCiComparisonSource {
   return {
     publishedEndpoints: (identity) =>
-      publishedStoryEndpoints(source, identity, signal),
+      checkoutStoryEndpoints(source, identity, signal),
     takenEndpoints: (identity) => takenStoryEndpoints(source, identity, signal),
     async buildsFor(branch) {
       const context = await lookupContext(source, signal, branch);
@@ -78,8 +81,8 @@ export function storyCiComparisonSource(
     project: source,
     async landingReceipts() {
       const [launchesByProject, retained] = await Promise.all([
-        readableRecordsByProject(),
-        readStoredLandedCiHistory(),
+        readableRecordsByProject(home),
+        readStoredLandedCiHistory(home),
       ]);
       return { launchesByProject, retained };
     },

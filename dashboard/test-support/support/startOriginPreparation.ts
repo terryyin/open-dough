@@ -21,6 +21,7 @@ import { materializeLocalCheckout } from "../../../Distribution/tests/support/re
 import { repoRoot } from "./repositoryRoot.ts";
 import { requestRunArtifact } from "./runArtifacts.ts";
 import {
+  nativeStartLayouts,
   type StartOriginLayout,
   type StartRepository,
   withInstallation,
@@ -35,10 +36,6 @@ export type { StartOriginLayout, StartRepository };
 const exec = promisify(execFile);
 export const startOriginPreparationVariable =
   "OPEN_DOUGH_START_ORIGIN_PREPARATION";
-const startOriginLayouts = [
-  "claude",
-  "codex",
-] as const satisfies readonly StartOriginLayout[];
 
 // The commit each revision name of a prepared origin's description became:
 // harness metadata kept beside the bare origin, never a ref in it.
@@ -83,23 +80,26 @@ export function createStartOriginPreparationDirectory(): string {
 }
 
 export function startOriginArtifacts() {
-  return startOriginLayouts.flatMap((layout) =>
-    runWideNames.map(
-      (repository) =>
-        [
-          startOriginArtifactKey(layout, repository),
-          {
-            create: createStartOriginPreparationDirectory,
-            prepare: (directory: string) =>
-              prepareStartOrigin(
-                directory,
-                layout,
-                runWideRepositories[repository],
-              ),
-          },
-        ] as const,
+  return [
+    ...nativeStartLayouts.flatMap((layout) =>
+      runWideNames.map((repository) => startOriginArtifact(layout, repository)),
     ),
-  );
+    startOriginArtifact("catalog", "queued"),
+  ];
+}
+
+function startOriginArtifact(
+  layout: StartOriginLayout,
+  repository: RunWideRepository,
+) {
+  return [
+    startOriginArtifactKey(layout, repository),
+    {
+      create: createStartOriginPreparationDirectory,
+      prepare: (directory: string) =>
+        prepareStartOrigin(directory, layout, runWideRepositories[repository]),
+    },
+  ] as const;
 }
 
 export async function prepareStartOrigin(
@@ -199,7 +199,9 @@ export async function preparedStartOrigin(
   const runWide = runWideKeys.get(JSON.stringify({ revisions: [first] }));
   // An explicit fixture override still takes precedence over the run owner.
   const shared =
-    process.env[startOriginPreparationVariable] ??
+    (layout === "catalog"
+      ? undefined
+      : process.env[startOriginPreparationVariable]) ??
     (runWide === undefined
       ? undefined
       : await requestRunArtifact(startOriginArtifactKey(layout, runWide)));

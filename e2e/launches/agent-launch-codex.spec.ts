@@ -1,47 +1,45 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // The real shared host choice, native input, mixed history and continuation journey.
 
+import path from "node:path";
+import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import {
-  terminalPanel,
   terminalScreenParts,
   openTerminalControl,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
-import path from "node:path";
 import {
   startDashboardServer,
   sharedDashboardBuild,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
-  openTakenBacklog,
-  installRefinementSkill,
   instructionField,
-  showOptions,
+  storyLaunchChoices,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
-  notRefinedStory,
   notRefinedIdentity,
+  notRefinedStory,
 } from "../../dashboard/test-support/launchJourney.ts";
 import {
+  parts,
   storyCardSessions,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
-import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
-  test,
+  codexProtocol,
   expect,
   expectOneThreadStarted,
   stored,
-  codexSkill,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
+  markDone,
   machineSessions,
   deleteRecord,
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { passive } from "../../dashboard/test-support/support/codexObservation.ts";
-import { expectMixedContinuation } from "../../dashboard/test-support/continuationPage.ts";
+import {
+  expectMixedContinuation,
+  openOnlySidebarSession,
+} from "../../dashboard/test-support/continuationPage.ts";
 import {
   expectSavedContinuation,
   expectResumeCommand,
@@ -52,118 +50,136 @@ import {
   idleBetweenSteps,
   markDoneAnyway,
 } from "../../dashboard/test-support/support/markDone.ts";
+import {
+  codexRefinementOptionsRevision,
+  codexRefinementRepository,
+} from "../../dashboard/test-support/support/installedCodexRefinement.ts";
+import {
+  expectReportingBlock,
+  installedStoryLaunchInput,
+} from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { test as base } from "../../dashboard/test-support/support/startOriginTest.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
+const test = base.extend({ codexProtocol });
 test.use({
   projectFolders: ["open-dough"],
   extraEnv: briefDoneRenameWait,
+  originRepository: codexRefinementRepository("--before-switch"),
 });
 
 test("shared host choice uses own installation/defaults, keeps equal IDs distinct and survives page/server restart", async ({
   page,
   dashboard,
-  codexProtocol: protocol,
+  codexProtocol,
   machine,
-  launchJourney,
+  origin,
 }) => {
-  const native = protocol;
+  const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
-  const root = codexSkill(dashboard.home, "--before-switch");
-  installRefinementSkill(dashboard.home);
-  const { refine, card } = await openTakenBacklog(page, launchJourney);
+  const board = await openInstalledStoryBoard(page, origin, { follows: false });
+  const card = board.card(notRefinedStory);
   dashboard.claudeScenario("launched");
-  await refine(notRefinedStory).click();
-  let dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(1);
+  const claude = await board.open(notRefinedStory, "Refinement");
+  await claude.chooseOneShot();
+  await claude.submit();
+  await expect(storyCardSessions(card)).toHaveCount(1);
   const claudeSession = String(dashboard.claudeListing()[0]?.["sessionId"]);
   idleBetweenSteps(dashboard, claudeSession);
-  await markDoneAnyway(storyCardSessions(card(notRefinedStory)));
-  await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(0);
+  await markDoneAnyway(storyCardSessions(card));
+  await expect(storyCardSessions(card)).toHaveCount(0);
   native.threadId = claudeSession;
-  await refine(notRefinedStory).click();
-  dialog = page.getByRole("dialog");
-  await showOptions(dialog);
-  await dialog.getByRole("checkbox", { name: "Explore", exact: true }).check();
-  await dialog.getByRole("combobox", { name: "Model" }).selectOption("opus");
-  codexSkill(dashboard.home, "--codex-only"); // Change after page read: host switch must reread its installation.
-  await dialog.getByRole("combobox", { name: "Host" }).selectOption("codex");
+  await board.open(notRefinedStory, "Refinement");
+  const dialog = page.getByRole("dialog");
+  const choices = storyLaunchChoices(dialog);
+  const flag = "--codex-only";
+  const draft = "Ask me about scope.";
+  await choices.chooseOption("Explore");
+  await choices.chooseModel("opus");
+  await origin.publishRevision(codexRefinementOptionsRevision(flag));
+  await choices.chooseHost("codex");
   await expect(dialog).toHaveAccessibleName("Start refinement in Codex");
-  await expect(dialog).toContainText(
+  await choices.showsRemovedOption(
+    "Explore",
     "Not offered any more, so not sent: --explore.",
   );
-  await expect(dialog.getByRole("combobox", { name: "Model" })).toHaveValue("");
-  await expect(
-    dialog.getByRole("combobox", { name: "Model" }).locator("option"),
-  ).toHaveText(["Use Codex setting", "Native Sol", "Native Luna"]);
-  await expect(
-    dialog.getByRole("checkbox", { name: "Explore", exact: true }),
-  ).toHaveCount(0);
-  await showOptions(dialog);
-  await dialog
-    .getByRole("checkbox", { name: "Codex option", exact: true })
-    .check();
-  await instructionField(dialog).fill("Ask me about scope.");
+  await choices.showsModels("", [
+    "Use Codex setting",
+    "Native Sol",
+    "Native Luna",
+  ]);
+  await choices.chooseOption("Codex option");
+  await instructionField(dialog).fill(draft);
+  const checkout = path.join(origin.project, ".worktrees", "story-c-2");
+  const codexRecord = () =>
+    stored(dashboard.home).find(({ session }) => session.host === "codex");
   native.beforeInput = () => {
-    expect(
-      stored(dashboard.home).find((record) => record.session.host === "codex"),
-    ).toMatchObject({
+    expect(codexRecord()).toMatchObject({
       session: {
         sessionId: native.threadId,
-        continuation: {
-          workspace: path.dirname(path.dirname(path.dirname(root))),
-        },
+        continuation: { workspace: checkout },
       },
       firstInput: { state: "uncertain" },
     });
   };
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(1);
-  const codex = storyCardSessions(card(notRefinedStory)).filter({
+  await expect(storyCardSessions(card)).toHaveCount(1);
+  const codex = storyCardSessions(card).filter({
     hasText: "Refinement started in Codex",
   });
   await expect(codex).toContainText("First input accepted");
-  // Fresh shared polling replaces launch-time unknown.
-  await reloadUntilRead(page);
+  // Read the published Preparing assignment and refresh native activity.
+  await board.showPublished();
   await expect(sessionStateOf(codex)).toHaveText("Working");
   await expect(openTerminalControl(codex)).toHaveCount(1);
   await expect(await sessionAction(codex, "Mark as done")).toHaveCount(1);
-  const checkout = path.join(dashboard.home, "git", "open-dough");
   expectOneThreadStarted(native, checkout);
-  expect(
-    native.calls.find((call) => call.method === "turn/start")?.params,
-  ).toEqual({
+  const record = codexRecord();
+  if (record?.session.host !== "codex")
+    throw new Error("Missing saved Codex record.");
+  const publishedSha = await originMain(origin);
+  expect(record).toMatchObject({
+    preparation: { workspace: checkout, publishedSha },
+    firstInput: { state: "confirmed", turnId: "native-turn-id" },
+  });
+  const skill = "dough-story-refinement";
+  const text = record.firstInput?.instruction;
+  const { invocation, handoff, reporting, instruction } =
+    installedStoryLaunchInput(text);
+  expect(invocation).toBe(`$${skill} ${notRefinedIdentity} ${flag}`);
+  expect(handoff).toContain("Established preparation:");
+  expect(handoff).toContain(publishedSha);
+  expectReportingBlock(reporting, record.request, dashboard);
+  expect(instruction).toBe(draft);
+  const turn = native.calls.find((call) => call.method === "turn/start");
+  expect(turn?.params).toEqual({
     threadId: native.threadId,
     input: [
-      {
-        type: "text",
-        text: `$dough-story-refinement ${notRefinedIdentity} --codex-only\n\nAsk me about scope.`,
-      },
+      { type: "text", text },
       {
         type: "skill",
-        name: "dough-story-refinement",
-        path: path.join(root, "SKILL.md"),
+        name: skill,
+        path: path.join(checkout, ".agents/skills", skill, "SKILL.md"),
       },
     ],
   });
-  const record = stored(dashboard.home).find(
-    (entry) => entry.session.host === "codex",
-  );
-  if (record?.session.host !== "codex")
-    throw new Error("Missing saved Codex record.");
   expect(record.request).not.toHaveProperty("model");
-  expect(record.firstInput).toMatchObject({
-    state: "confirmed",
-    turnId: "native-turn-id",
-    instruction: `$dough-story-refinement ${notRefinedIdentity} --codex-only\n\nAsk me about scope.`,
-  });
+  const { session } = record;
   const { continuation, args } = expectSavedContinuation(
-    record.session,
-    dashboard.home,
+    session,
+    checkout,
     native,
   );
   const checkContinuation = (notice?: string) =>
-    expectMixedContinuation(page, notRefinedStory, continuation, notice);
+    expectMixedContinuation(
+      page,
+      notRefinedStory,
+      continuation,
+      "~/git/open-dough/.worktrees/story-c-2",
+      notice,
+    );
   const beforeDisplay = stored(dashboard.home);
   const sinceDisplay = native.calls.length;
   await checkContinuation();
@@ -173,28 +189,18 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   passive(native.calls.slice(sinceDisplay));
   expect(native.sockets.size).toBe(1);
   await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(0);
-  const sidebar = sessionsSidebarParts(page);
-  await sidebar.button.click();
-  await expect(sidebar.entries).toHaveCount(1);
-  await expect(sidebar.entries.filter({ hasText: "Working" })).toHaveCount(1);
-  // Both hosts share the opaque ID; the open Codex session is the Sessions sidebar Session entry.
-  await sidebar.entries.first().getByRole("button").click();
-  await expect(page.locator(".side-panel")).toHaveCount(1);
-  const panel = terminalPanel(page);
+  const panel = await openOnlySidebarSession(page, "Working");
   await expect(terminalScreenParts(panel).rows).toContainText(
     "original retained history",
   );
   await closeSidePanel(panel);
   const before = dashboard.claudeCalls().length;
-  expect(
-    (
-      await markDone(dashboard, {
-        source: "open-dough",
-        session: "unrecorded-codex-thread",
-        host: "codex",
-      })
-    ).status,
-  ).toBe(404);
+  const unknown = await markDone(dashboard, {
+    source: "open-dough",
+    session: "unrecorded-codex-thread",
+    host: "codex",
+  });
+  expect(unknown.status).toBe(404);
   expect(dashboard.claudeCalls()).toHaveLength(before);
   const shownCommand = await codex
     .locator("code")
@@ -202,7 +208,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     .innerText();
   expectResumeCommand(shownCommand, args, native);
   const { notice, records: withNotice } = await disconnectContinuation(
-    record.session,
+    session,
     dashboard.home,
     native,
   );
@@ -220,7 +226,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     machine,
     github: dashboard.github,
     port,
-    codexProtocol: protocol,
+    codexProtocol: native,
   });
   try {
     await reloadUntilRead(page);
@@ -230,15 +236,12 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     expect(await machineSessions(restarted)).toHaveLength(2);
     expectOneThreadStarted(native, checkout);
     native.failRead = true;
-    expect(
-      (
-        await deleteRecord(restarted, {
-          source: "open-dough",
-          session: native.threadId,
-          host: "codex",
-        })
-      ).status,
-    ).toBe(200);
+    const deleted = await deleteRecord(restarted, {
+      source: "open-dough",
+      session: native.threadId,
+      host: "codex",
+    });
+    expect(deleted.status).toBe(200);
     expect(await machineSessions(restarted)).toHaveLength(1);
     expect(stored(restarted.home)[0]?.session.host).toBe("claude");
   } finally {

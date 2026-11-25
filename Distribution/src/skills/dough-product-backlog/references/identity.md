@@ -47,9 +47,13 @@ written; keep that work item's identity when you write the entry out in full.
 
 ## When the canonical home moves
 
-The moved document's own recorded identity is what establishes that it is the
-same work item. Record the identity in the moved document first, then update
-the entry's link. Leave no second document recording the same identity.
+Finish the rename or move first. Keep the recorded identity in the moved
+canonical home and confirm the former home no longer claims it. Run
+`refresh --identity <id>` with one or more of `--title <title>`, `--link <home>`,
+and `--plan <link>` for an existing plan link. Give links relative to the
+backlog directory. The check preserves the entry's identity, list, and
+position and refuses a move whose old home still claims the identity. Update
+other incoming links separately.
 
 ## Allocate a new identity
 

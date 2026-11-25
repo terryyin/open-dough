@@ -5,10 +5,12 @@
 // session in its current story card. The page attaches the synthetic `claude`
 // (./fixtures/fake-claude).
 
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   takenStory,
   notRefinedStory,
@@ -23,7 +25,7 @@ import {
 } from "../../dashboard/test-support/sidePanelFrame.ts";
 import {
   openStoryColumnsBoard,
-  type LaunchedSession,
+  type ListedSession,
   type StoryColumnsBoard,
 } from "../../dashboard/test-support/storyColumnsBoard.ts";
 import { terminalScreen } from "../../dashboard/test-support/terminalScreen.ts";
@@ -40,7 +42,7 @@ const queued = {
 type Terminal = ReturnType<typeof terminalScreen>;
 type Scene = {
   board: StoryColumnsBoard;
-  session: LaunchedSession;
+  session: ListedSession;
   terminal: Terminal;
   sent: string[];
   closeKeyTaken: () => Promise<boolean[] | undefined>;
@@ -63,11 +65,15 @@ test.describe("Command+Shift+Escape closes the terminal", () => {
     page,
     dashboard,
   }) => {
-    await test.step("Given the story columns page is open", async () => {
-      dashboard.claudeScenario("launched");
+    await test.step("Given the ready story has an existing Execution session", async () => {
+      const { sessionId } = await composeSession(dashboard, "open-dough", {
+        identity: readyIdentity,
+        title: readyStory,
+      });
+      const board = await openStoryColumnsBoard(page, columnsJourney);
       scene = {
-        board: await openStoryColumnsBoard(page, columnsJourney),
-        session: undefined as unknown as LaunchedSession,
+        board,
+        session: board.listedSession(readyStory, sessionId),
         terminal: undefined as unknown as Terminal,
         sent: noteTerminalTraffic(page).sent,
         closeKeyTaken: () => Promise.resolve(undefined),
@@ -78,14 +84,7 @@ test.describe("Command+Shift+Escape closes the terminal", () => {
 
     await test.step("And the board shows the queued stories", async () => {
       await scene.board.showsStories(queued);
-    });
-
-    await test.step("And the page has settled", async () => {
       await scene.board.settled();
-    });
-
-    await test.step("And Execution is launched for the ready story", async () => {
-      scene.session = await scene.board.launch(readyStory, "Execution");
     });
 
     await test.step("Given that session's terminal shows its attachment", async () => {

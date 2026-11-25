@@ -3,23 +3,30 @@
 // unknown and its gap in the task's coverage, never a sum.
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
+import { describe, expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage, usageHistoryFile } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+  writeUsageHistory,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
 import {
-  expect,
   test,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
-  nodeProcess,
-  readImported,
-  runImport,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
-test.describe("response usage reconciliation", () => {
+describe("response usage reconciliation", () => {
   test("enriches partial measurements, counts a session written again once and leaves conflicting counters unknown without increasing totals", async ({
     home,
     root,
@@ -30,8 +37,17 @@ test.describe("response usage reconciliation", () => {
       .withResponse("turn", "one", { input_tokens: 50, output_tokens: 2 })
       .please();
     const file = writeCodexSession(root, partial);
-    runImport(home, root);
-    const [task] = Object.values(readImported(home).tasks);
+    const options = makeMe.aUsageImportOptions
+      .with({
+        home,
+        store: usageHistoryFile(home),
+        codexRoots: [root],
+        claudeRoots: claudeUsageRoots(home),
+      })
+      .please();
+    await importUsageHistory(options);
+    const initial = await readUsageHistory(options.store);
+    const [task] = Object.values(initial.tasks);
     assert(task);
     const measured = {
       uncachedInput: 10,
@@ -39,7 +55,7 @@ test.describe("response usage reconciliation", () => {
       cacheWrite: 0,
       output: 2,
     };
-    expect(taskUsage(readImported(home), task.id)).toMatchObject({
+    expect(taskUsage(initial, task.id)).toMatchObject({
       requests: 1,
       tokens: { cacheRead: null, output: 2 },
     });
@@ -56,10 +72,13 @@ test.describe("response usage reconciliation", () => {
         })
         .please(),
     );
-    runImport(home, root);
-    const enriched = readImported(home);
-    expect(Object.values(enriched.observations)).toHaveLength(1);
-    const [observation] = Object.values(enriched.observations);
+    await importUsageHistory(options);
+    const enriched = await readUsageHistory(options.store);
+    const { observations, associations } = JSON.parse(
+      readFileSync(options.responses, "utf8"),
+    ) as UsageResponses;
+    expect(Object.values(observations)).toHaveLength(1);
+    const [observation] = Object.values(observations);
     assert(observation);
     expect(observation.tokens).toEqual(expect.objectContaining(measured));
     expect(taskUsage(enriched, task.id)).toMatchObject({
@@ -72,14 +91,15 @@ test.describe("response usage reconciliation", () => {
       ...item,
       source: { kind: "native", file: "collector://one" },
     }));
-    nodeProcess(
-      home,
-      `
-      const { writeUsageHistory } = await import('./dashboard/server/usageHistory.ts');
-      await writeUsageHistory({ tasks: [${JSON.stringify({ ...task, requested: {} })}], observations: [${JSON.stringify(observation)}], associations: ${JSON.stringify(Object.values(enriched.associations))} });
-    `,
+    await writeUsageHistory(
+      {
+        tasks: [{ ...task, requested: {} }],
+        observations: [observation],
+        associations: Object.values(associations),
+      },
+      options.store,
     );
-    const replayed = readImported(home);
+    const replayed = await readUsageHistory(options.store);
     expect(replayed.tasks[task.id]?.requested).toEqual(
       expect.objectContaining({ model: "requested-model", effort: "high" }),
     );
@@ -101,8 +121,11 @@ test.describe("response usage reconciliation", () => {
       file,
       `${readFileSync(file, "utf8") + JSON.stringify(conflict)}\n`,
     );
-    runImport(home, root);
-    const conflicting = readImported(home);
+    await importUsageHistory(options);
+    const conflicting = await readUsageHistory(options.store);
+    const responses = JSON.parse(
+      readFileSync(options.responses, "utf8"),
+    ) as UsageResponses;
     expect(taskUsage(conflicting, task.id)).toMatchObject({
       requests: 1,
       tokens: {
@@ -113,11 +136,11 @@ test.describe("response usage reconciliation", () => {
       },
       unmeasured: { uncachedInput: 1, cacheRead: 1, cacheWrite: 0, output: 0 },
     });
-    const summary = await deriveUsageTaskSummary(usageHistoryFile(home));
+    const summary = await deriveUsageTaskSummary(options.store);
     expect(summary.tasks.map(({ id, gaps }) => [id, gaps])).toEqual([
       [task.id, ["missing-token-components"]],
     ]);
-    const [conflicted] = Object.values(conflicting.observations);
+    const [conflicted] = Object.values(responses.observations);
     assert(conflicted);
     expect(conflicted.tokens.cacheRead).toBeNull();
     expect(conflicted.tokens.uncachedInput).toBeNull();
@@ -155,10 +178,21 @@ test.describe("response usage reconciliation", () => {
         .withResponse("turn", "one", used)
         .please(),
     );
-    runImport(home, root);
-    const settled = readImported(home);
+    const options = makeMe.aUsageImportOptions
+      .with({
+        home,
+        store: usageHistoryFile(home),
+        codexRoots: [root],
+        claudeRoots: claudeUsageRoots(home),
+      })
+      .please();
+    await importUsageHistory(options);
+    const settled = await readUsageHistory(options.store);
+    const settledResponses = JSON.parse(
+      readFileSync(options.responses, "utf8"),
+    ) as UsageResponses;
     const [task] = Object.values(settled.tasks);
-    const [observation] = Object.values(settled.observations);
+    const [observation] = Object.values(settledResponses.observations);
     assert(task);
     assert(observation);
     expect(taskUsage(settled, task.id)).toMatchObject({
@@ -184,18 +218,21 @@ test.describe("response usage reconciliation", () => {
         .withResponse("another-turn", "one", { output_tokens: 2 })
         .please(),
     );
-    runImport(home, root);
-    const history = readImported(home);
-    expect(Object.values(history.observations)).toHaveLength(1);
-    const [association] = Object.values(history.associations);
-    const [conflicting] = Object.values(history.observations);
+    await importUsageHistory(options);
+    const history = await readUsageHistory(options.store);
+    const responses = JSON.parse(
+      readFileSync(options.responses, "utf8"),
+    ) as UsageResponses;
+    expect(Object.values(responses.observations)).toHaveLength(1);
+    const [association] = Object.values(responses.associations);
+    const [conflicting] = Object.values(responses.observations);
     assert(association);
     assert(conflicting);
     expect(association.taskId).toBeNull();
     expect(conflicting.gaps).toContain("contradictory-lineage");
     // The response names no task now, so it counts for none.
     expect(taskUsage(history, task.id).requests).toBe(0);
-    const summary = await deriveUsageTaskSummary(usageHistoryFile(home));
+    const summary = await deriveUsageTaskSummary(options.store);
     expect(
       summary.tasks.map(({ id, usage, gaps }) => [id, usage, gaps]),
     ).toEqual([[task.id, [], ["no-attributable-response-usage"]]]);

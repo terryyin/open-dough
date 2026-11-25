@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "c8709345-b6c0-4dba-8a9a-21e8254188dd",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T23:27:33.766Z",
+  "story": "SEED-423#reconcile-the-backlog-through-one-git-adapter",
+  "ranges": [
+    {
+      "base": "9ba3fba8711bf550e79938e5f77c2bb96b6fc6fb",
+      "candidate": "4cfb0df0646326d43bf2d79c91c02742bf576a9f"
+    }
+  ]
+}

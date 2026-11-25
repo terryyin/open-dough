@@ -10,6 +10,7 @@ import {
   enteredInstruction,
   heldOnWorkspaceTrust,
   keptCursor,
+  expectKeptCursorInstruction,
   keptFirstInputState,
   withInstructedCursor,
 } from "../../test-support/support/keptCursorTurn.ts";
@@ -88,10 +89,8 @@ test.describe(`Cursor launch wait`, () => {
           throw new Error("Missing recorded Cursor session.");
         }
         expectInstructionDeliveryTimedOut(launched, session);
-        expect(recorded.firstInput).toMatchObject({
-          state: "confirmed",
-          instruction: story,
-        });
+        expect(recorded.firstInput?.state).toBe("confirmed");
+        expectKeptCursorInstruction(server, story);
         const pid = cursor.attaches()[0]?.pid ?? 0;
         expect(processRunning(pid)).toBe(true);
         expect(cursor.attaches()).toHaveLength(1);
@@ -118,9 +117,9 @@ test.describe(`Cursor launch wait`, () => {
           explanation:
             "Cursor is waiting for workspace trust. Answer the workspace trust prompt in this session's terminal to deliver the first input.",
         });
+        const delivered = expectKeptCursorInstruction(server, instruction);
         expect(recorded.firstInput).toMatchObject({
           state: "uncertain",
-          instruction,
           explanation:
             "Cursor is waiting for workspace trust. Answer the workspace trust prompt in this session's terminal to deliver the first input.",
         });
@@ -135,10 +134,10 @@ test.describe(`Cursor launch wait`, () => {
         await expect
           .poll(() => keptCursor(server.home).firstInput?.state)
           .toBe("confirmed");
-        expect(cursor.input(pid)).toBe(`a${instruction}\r`);
+        expect(cursor.input(pid)).toBe(`a${delivered}\r`);
         expect(keptCursor(server.home).firstInput).toEqual({
           state: "confirmed",
-          instruction,
+          instruction: delivered,
         });
         expect(cursor.attaches()).toHaveLength(1);
         expect(processRunning(pid)).toBe(true);

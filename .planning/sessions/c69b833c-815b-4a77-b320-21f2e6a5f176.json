@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "sessionId": "c69b833c-815b-4a77-b320-21f2e6a5f176",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T07:55:42.161Z",
+  "story": "SEED-433#run-dashboard-launch-tests-on-an-installed-project",
+  "ranges": [
+    {
+      "base": "6e146d8ba709e5b3ca285238089ef95a9d618756",
+      "candidate": "902165eaf1870b425a00934a229c7b49a0580810"
+    },
+    {
+      "base": "902165eaf1870b425a00934a229c7b49a0580810",
+      "candidate": "344f64cb7e7fc7692f976015c6d905b81de1c919"
+    },
+    {
+      "base": "344f64cb7e7fc7692f976015c6d905b81de1c919",
+      "candidate": "1c39c80dd843876b678fc965abbf1299d152a6db"
+    },
+    {
+      "base": "1c39c80dd843876b678fc965abbf1299d152a6db",
+      "candidate": "e98c81b6cd2153168dead084e5e1432a4f54112d"
+    },
+    {
+      "base": "e98c81b6cd2153168dead084e5e1432a4f54112d",
+      "candidate": "e86c9fa362b2737602a88e9e6658af43763bcc75"
+    },
+    {
+      "base": "e86c9fa362b2737602a88e9e6658af43763bcc75",
+      "candidate": "9cb22125f37e17265bc2465ed42505c159f496f4"
+    },
+    {
+      "base": "9cb22125f37e17265bc2465ed42505c159f496f4",
+      "candidate": "9e653e3870f6658ef228cdb766acc7ca309a55a1"
+    },
+    {
+      "base": "9e653e3870f6658ef228cdb766acc7ca309a55a1",
+      "candidate": "42b8a23ec402a5ab2607b0c8ca004f62bad14278"
+    },
+    {
+      "base": "42b8a23ec402a5ab2607b0c8ca004f62bad14278",
+      "candidate": "28c7c440950cae77ec6fded823e377d730197b08"
+    },
+    {
+      "base": "28c7c440950cae77ec6fded823e377d730197b08",
+      "candidate": "be9e802fb66d358975c91a127a78ac4506a41d6e"
+    },
+    {
+      "base": "be9e802fb66d358975c91a127a78ac4506a41d6e",
+      "candidate": "0a16b5242d6e246034d172a0eae8cbe5c9923966"
+    },
+    {
+      "base": "0a16b5242d6e246034d172a0eae8cbe5c9923966",
+      "candidate": "b248838c1526e9fc9e2d6dfea77ca58816e70624"
+    },
+    {
+      "base": "672fc3210ea793abfa349ec73adb38c9e09c6add",
+      "candidate": "a80b8437735fa33426249d900c769ce5e3a5bdec"
+    }
+  ]
+}

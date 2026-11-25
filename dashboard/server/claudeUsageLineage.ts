@@ -22,6 +22,8 @@ import type {
 } from "./usageRecords.ts";
 
 type Node = {
+  transcriptAgent: string;
+  uuid: string;
   parents: string[];
   boundary: boolean;
   references: string[];
@@ -77,6 +79,8 @@ export function recordClaudeNode(
   const key = nodeKey(session, agent, uuid);
   const old = lineage.nodes.get(key);
   lineage.nodes.set(key, {
+    transcriptAgent: agent ?? "",
+    uuid,
     parents: uniqueFacts([
       ...(old?.parents ?? []),
       ...(parent ? [nodeKey(session, agent, parent)] : []),

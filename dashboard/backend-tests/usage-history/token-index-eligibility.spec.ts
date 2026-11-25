@@ -1,34 +1,43 @@
 // Unpriced tasks are counted; missing usage stays partial and out of the median.
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  day,
-  readCohort,
-} from "../../test-support/usage-history/tokenIndexHarness.ts";
+import { tokenIndexCohort } from "../../server/tokenIndexCohort.ts";
+import { writeUsageHistory } from "../../server/usageHistory.ts";
+import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
+import { codexTariff } from "../../server/usageTariffs.ts";
+import { defaultCohort } from "../../src/usageTokenIndex.ts";
 
-test("standard and unrecorded tiers are priced; a fast worker leaves the entire task unpriced", async ({
-  home,
-}) => {
+const project = makeMe.aPublishedSource.openDough.please();
+const reading = {
+  projects: new Map([[project.id, project.label]]),
+  launches: new Map(),
+  tariff: codexTariff,
+  checkedAt: null,
+};
+const day = (date: number) =>
+  `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
+
+test("standard and unrecorded tiers are priced; a fast worker leaves the entire task unpriced", () => {
   const tasks = [
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs("standard")
-      .withResponse({ serviceTier: "default" })
+      .withUsage({ tier: "default" })
       .please(),
-    makeMe.aUsageTaskHistory.identifiedAs("unrecorded").please(),
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask.identifiedAs("unrecorded").please(),
+    makeMe.aSummaryTask
       .identifiedAs("fast-worker")
-      .withResponse({ serviceTier: "default" })
-      .withWorkerResponse({ serviceTier: "fast" })
+      .withUsage({ tier: "default" })
+      .withUsage({ root: false, tier: "fast" })
       .please(),
   ];
-  const cohort = await readCohort(
-    home,
-    makeMe.aUsageHistory.with({ tasks }).please(),
+  const answer = tokenIndexCohort(
+    makeMe.aUsageTaskSummary.with({ tasks }).please(),
+    reading,
+    defaultCohort,
   );
-  const answer = cohort();
   expect(answer.tasks.map(({ id, index }) => [id, index])).toEqual([
     ["standard", 1_950],
     ["unrecorded", 1_950],
@@ -36,27 +45,24 @@ test("standard and unrecorded tiers are priced; a fast worker leaves the entire 
   expect(answer.unpriced).toBe(1);
 });
 
-test("an unrated worker model is estimated at the reference rates beside its rated root, kept under the root's model", async ({
-  home,
-}) => {
-  const cohort = await readCohort(
-    home,
-    makeMe.aUsageHistory
-      .with({
-        tasks: [
-          makeMe.aUsageTaskHistory
-            .identifiedAs("mixed")
-            .withResponse({ model: "gpt-6-astra" })
-            .withWorkerResponse({ model: "gpt-9-nova" })
-            .withWorkerResponse({ model: "gpt-9-nova" })
-            .please(),
-        ],
-      })
-      .please(),
-  );
-  const [task] = cohort({ model: "gpt-6-astra" }).tasks;
-  // Astra root (1,000×250 + 9,000×25 + 100×1,250) / 50 = 12,000, plus two
-  // worker groups at GPT-6.1 Sol rates, 1,950 each.
+test("an unrated worker model is estimated at the reference rates beside its rated root, kept under the root's model", () => {
+  const mixed = makeMe.aSummaryTask
+    .identifiedAs("mixed")
+    .withUsage({ model: "gpt-6-astra" })
+    .withUsage({
+      root: false,
+      model: "gpt-9-nova",
+      responses: 2,
+      tokens: { uncachedInput: 2_000, cacheRead: 18_000, output: 200 },
+    })
+    .please();
+  const summary = makeMe.aUsageTaskSummary.with({ tasks: [mixed] }).please();
+  const [task] = tokenIndexCohort(summary, reading, {
+    ...defaultCohort,
+    model: "gpt-6-astra",
+  }).tasks;
+  // The Astra root is 12,000 and the two worker responses are 1,950 each
+  // using GPT-6.1 Sol rates.
   expect(task?.index).toBe(15_900);
   expect(task?.observed.model?.id).toBe("gpt-6-astra");
   expect(task?.substitutions).toEqual([
@@ -67,34 +73,32 @@ test("an unrated worker model is estimated at the reference rates beside its rat
   ]);
 });
 
-test("a wholly estimated complete task plots without joining the ten-task rolling median", async ({
-  home,
-}) => {
+test("a wholly estimated complete task plots without joining the ten-task rolling median", () => {
   const exact = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((date) =>
-    makeMe.aUsageTaskHistory
+    makeMe.aSummaryTask
       .identifiedAs(`exact-${date}`)
       .endedAt(day(date))
       .please(),
   );
-  const estimated = makeMe.aUsageTaskHistory
+  const estimated = makeMe.aSummaryTask
     .identifiedAs("estimated")
     .endedAt(day(10))
-    .withResponse({ model: "gpt-9-nova" })
+    .withUsage({ model: "gpt-9-nova" })
     .please();
-  const answer = (
-    await readCohort(
-      home,
-      makeMe.aUsageHistory.with({ tasks: [...exact, estimated] }).please(),
-    )
-  )();
+  const answer = tokenIndexCohort(
+    makeMe.aUsageTaskSummary.with({ tasks: [...exact, estimated] }).please(),
+    reading,
+    defaultCohort,
+  );
   expect(answer.tasks).toHaveLength(10);
   expect(answer.tasks.at(-1)?.coverage).toEqual({ kind: "measured" });
   expect(answer.average).toEqual([]);
 });
 
-test("only complete tasks, including a measured zero, fill the ten-task rolling median window", async ({
-  home,
-}) => {
+test("only measured and priced tasks, including a measured zero, fill the ten-task rolling median window", async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), "token-index-gaps-"));
+  onTestFinished(() => rm(directory, { recursive: true, force: true }));
+  const store = path.join(directory, "usage.json");
   const eligibleDays = [1, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15];
   const eligible = eligibleDays.map((date, at) =>
     makeMe.aUsageTaskHistory
@@ -133,7 +137,15 @@ test("only complete tasks, including a measured zero, fill the ten-task rolling 
           .endedAt(day(8))
           .withoutResponses()
           .please(),
-        { task: { id: "other-task" }, responses: [] },
+        makeMe.aUsageTaskHistory
+          .identifiedAs("unpriced")
+          .endedAt(day(8))
+          .withResponse({ serviceTier: "fast" })
+          .please(),
+        makeMe.aUsageTaskHistory
+          .identifiedAs("other-task")
+          .withoutResponses()
+          .please(),
       ],
     })
     .please();
@@ -144,16 +156,25 @@ test("only complete tasks, including a measured zero, fill the ten-task rolling 
       tokens: { uncachedInput: 1_000, cacheRead: 9_000, output: 100 },
     })
     .please();
-  history.observations.push(stray);
-  history.associations.push(
-    makeMe.aUsageAssociation
-      .ambiguousAmong({
-        observation: stray,
-        tasks: [{ id: "unattributed" }, { id: "other-task" }],
-      })
-      .please(),
+  const ambiguous = makeMe.aUsageAssociation
+    .ambiguousAmong({
+      observation: stray,
+      tasks: [{ id: "unattributed" }, { id: "other-task" }],
+    })
+    .please();
+  await writeUsageHistory(
+    {
+      ...history,
+      observations: [...history.observations, stray],
+      associations: [...history.associations, ambiguous],
+    },
+    store,
   );
-  const answer = (await readCohort(home, history))();
+  const answer = tokenIndexCohort(
+    await deriveUsageTaskSummary(store),
+    reading,
+    defaultCohort,
+  );
 
   expect(
     Object.fromEntries(answer.tasks.map(({ id, coverage }) => [id, coverage])),
@@ -177,24 +198,23 @@ test("only complete tasks, including a measured zero, fill the ten-task rolling 
     { at: day(14), task: "eligible-14", value: 3_700 },
     { at: day(15), task: "eligible-15", value: 4_200 },
   ]);
-  expect(answer.unpriced).toBe(0);
+  expect(answer.unpriced).toBe(1);
 });
 
-test("median observations at a tied completion time each name their own eligible task, in task ID order", async ({
-  home,
-}) => {
+test("median observations at a tied completion time each name their own eligible task, in task ID order", () => {
   const task = (id: string, date: number) =>
-    makeMe.aUsageTaskHistory.identifiedAs(id).endedAt(day(date)).please();
+    makeMe.aSummaryTask.identifiedAs(id).endedAt(day(date)).please();
   const earlier = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((date) =>
     task(`earlier-${date}`, date),
   );
-  const cohort = await readCohort(
-    home,
-    makeMe.aUsageHistory
+  const answer = tokenIndexCohort(
+    makeMe.aUsageTaskSummary
       .with({ tasks: [...earlier, task("tied-b", 10), task("tied-a", 10)] })
       .please(),
+    reading,
+    defaultCohort,
   );
-  expect(cohort().average).toEqual([
+  expect(answer.average).toEqual([
     { at: day(10), task: "tied-a", value: 1_950 },
     { at: day(10), task: "tied-b", value: 1_950 },
   ]);

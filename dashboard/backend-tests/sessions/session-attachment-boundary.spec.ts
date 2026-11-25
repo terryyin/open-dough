@@ -1,13 +1,10 @@
+import { givenSavedCodexSession } from "../../test-support/support/codexObservation.ts";
 // Real local upload admission and the files retained by the machine server.
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../test-support/support/codexLaunch.ts";
-import {
-  launch,
-  refinementRequest,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import { sessionAttachmentEndpoint } from "../../src/agentTerminal.ts";
 import {
   launchAttachmentEmpty,
@@ -51,7 +48,7 @@ function attachmentUrl(
 test("session upload enforces origin, known session, image type and bounded body before writing", async ({
   dashboard,
 }) => {
-  const { sessionId } = await launched(dashboard);
+  const { sessionId } = await composeSession(dashboard);
   const url = attachmentUrl(dashboard, sessionId);
   const requests = [
     { url, method: "GET", status: 405, error: "Only POST is accepted." },
@@ -112,7 +109,7 @@ test("an unavailable native session cannot store a pasted image", async ({
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   native.observations.set(native.threadId, {
     status: { type: "idle" },
     turns: [],
@@ -137,7 +134,7 @@ test("an unavailable native session cannot store a pasted image", async ({
 test("successful requests keep numbered images and a storage refusal keeps the existing file", async ({
   dashboard,
 }) => {
-  const { sessionId } = await launched(dashboard);
+  const { sessionId } = await composeSession(dashboard);
   const url = attachmentUrl(dashboard, sessionId);
   const upload = (image: Buffer, name: string) =>
     fetch(url, {
@@ -172,7 +169,7 @@ test("successful requests keep numbered images and a storage refusal keeps the e
   const blockingRecord = path.join(
     attachmentsRoot(dashboard),
     "claude",
-    (await launched(dashboard)).sessionId,
+    (await composeSession(dashboard)).sessionId,
   );
   writeFileSync(blockingRecord, "keep this existing file");
   const refused = await fetch(
@@ -198,7 +195,7 @@ test("an opaque host session ID cannot select a storage path component", async (
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
   native.threadId = "../another/session";
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   const response = await fetch(
     attachmentUrl(dashboard, native.threadId, "codex"),
     {

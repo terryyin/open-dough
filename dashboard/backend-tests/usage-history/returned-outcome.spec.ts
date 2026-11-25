@@ -1,21 +1,26 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepRetainedLaunch,
-  readImported,
-  runImport,
   writeClaudeSession,
 } from "../../test-support/usage-history/importHarness.ts";
+import {
+  readUsageHistory,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 
-test("keeps a matching returned-to-backlog receipt distinct from ordinary reports and ignores a stale marker", ({
+test("keeps a matching returned-to-backlog receipt distinct from ordinary reports and ignores a stale marker", async ({
   home,
   root,
 }) => {
@@ -51,8 +56,19 @@ test("keeps a matching returned-to-backlog receipt distinct from ordinary report
   );
   const historyBytes = readFileSync(historyFile, "utf8");
   const operationalBytes = readFileSync(operationalFile, "utf8");
-  runImport(home, root);
-  const history = readImported(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   const tasks = Object.values(history.tasks);
   const returnedTask = tasks.find((task) => task.sessionId === "returned");
   const staleTask = tasks.find((task) => task.sessionId === "stale-marker");
@@ -80,11 +96,14 @@ test("keeps a matching returned-to-backlog receipt distinct from ordinary report
   expect(JSON.stringify(history)).not.toContain("PRIVATE-ATTENTION-MESSAGE");
   expect(readFileSync(historyFile, "utf8")).toBe(historyBytes);
   expect(readFileSync(operationalFile, "utf8")).toBe(operationalBytes);
-  runImport(home, root);
-  expect(readImported(home)).toEqual(history);
+  await importUsageHistory(options);
+  expect({
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  }).toEqual(history);
 });
 
-test("enriches a native report with matching retained return evidence without inventing a conflicting outcome", ({
+test("enriches a native report with matching retained return evidence without inventing a conflicting outcome", async ({
   home,
   root,
 }) => {
@@ -125,8 +144,16 @@ test("enriches a native report with matching retained return evidence without in
       })
       .please(),
   );
-  runImport(home, root, ["--claude-root", claude]);
-  const initial = readImported(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claude],
+    })
+    .please();
+  await importUsageHistory(options);
+  const initial = await readUsageHistory(options.store);
   const task = Object.values(initial.tasks)[0];
   assert(task);
   expect(task.outcome).toEqual({
@@ -145,8 +172,11 @@ test("enriches a native report with matching retained return evidence without in
     .completedWith({ receipt, reference, message: "" })
     .please();
   keepRetainedLaunch(home, { ...record, returnedToBacklog: receipt });
-  runImport(home, root, ["--claude-root", claude]);
-  const enriched = readImported(home);
+  await importUsageHistory(options);
+  const enriched = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   expect(Object.keys(enriched.tasks)).toEqual([task.id]);
   expect(enriched.tasks[task.id]?.outcome).toEqual({
     kind: "reported-complete",
@@ -157,11 +187,14 @@ test("enriches a native report with matching retained return evidence without in
   expect(enriched.tasks[task.id]?.gaps).not.toContain(
     "contradictory-task-field:outcome",
   );
-  runImport(home, root, ["--claude-root", claude]);
-  expect(readImported(home)).toEqual(enriched);
+  await importUsageHistory(options);
+  expect({
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  }).toEqual(enriched);
 });
 
-test("retains conflicting report kind and time as evidence instead of selecting the newest report", ({
+test("retains conflicting report kind and time as evidence instead of selecting the newest report", async ({
   home,
   root,
 }) => {
@@ -172,8 +205,17 @@ test("retains conflicting report kind and time as evidence instead of selecting 
     .completedWith({ message: "" })
     .please();
   keepLaunchStore(home, { "open-dough": [completed] });
-  runImport(home, root);
-  const original = Object.values(readImported(home).tasks)[0];
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  await importUsageHistory(options);
+  const initial = await readUsageHistory(options.store);
+  const [original] = Object.values(initial.tasks);
   assert(original);
   const unfinished = makeMe.aLaunchRecord
     .executing({ identity: "SEED-42#story", title: "Reported work" })
@@ -181,8 +223,8 @@ test("retains conflicting report kind and time as evidence instead of selecting 
     .completedWith({ outcome: "unfinished", receivedAt: later, message: "" })
     .please();
   keepLaunchStore(home, { "open-dough": [unfinished] });
-  runImport(home, root);
-  const history = readImported(home);
+  await importUsageHistory(options);
+  const history = await readUsageHistory(options.store);
   expect(Object.keys(history.tasks)).toEqual([original.id]);
   expect(history.tasks[original.id]?.outcome).toBeNull();
   expect(history.tasks[original.id]?.gaps).toContain(

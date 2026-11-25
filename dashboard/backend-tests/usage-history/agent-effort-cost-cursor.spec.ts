@@ -1,9 +1,7 @@
 import { statSync } from "node:fs";
 import path from "node:path";
-import {
-  test,
-  expect,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { expect } from "vitest";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   bytes,
   writeCursorTranscript,

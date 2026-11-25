@@ -22,13 +22,17 @@ import type {
   StoryReviewRead,
 } from "../src/storyReviewRead.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
+import type { ReviewSyncFailure } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { executionCheckout } from "./executionCheckout.ts";
 import {
   publishedSessionRecord,
   type PublishedSessionSource,
 } from "./publishedSessionReview.ts";
-import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
+import {
+  fetchedPublishedSessionSource,
+  lastSyncedPublishedSessionSource,
+} from "./publishedSessionSource.ts";
+import { ReviewSyncDeadline, ReviewSyncFailed } from "./reviewRepository.ts";
 import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
 import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
 
@@ -59,8 +63,16 @@ export type KeptStoryReviewInput = ReviewInput<
   StoryReviewRead & { readonly subject: ReviewedStorySubject },
   SessionReviewRead
 >;
+// A published session open whose sync failed before its record was synced.
+export interface UnsyncedPublishedSessionInput {
+  readonly read: PublishedSessionReviewRead;
+  readonly syncFailed: ReviewSyncFailure;
+}
+
 export type StoryReviewInput =
-  KeptStoryReviewInput | PublishedSessionInput<PublishedSessionReviewRead>;
+  | KeptStoryReviewInput
+  | PublishedSessionInput<PublishedSessionReviewRead>
+  | UnsyncedPublishedSessionInput;
 
 export type ReviewedFileInput =
   | ReviewInput<
@@ -68,6 +80,14 @@ export type ReviewedFileInput =
       SessionFileRead
     >
   | PublishedSessionInput<PublishedSessionFileRead>;
+
+type ReviewRead =
+  StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead;
+type FileRead = ReviewedFileRead | SessionFileRead | PublishedSessionFileRead;
+
+// A file read names one file of a comparison; a review read names none.
+const isFileRead = (read: ReviewRead | FileRead): read is FileRead =>
+  "path" in read;
 
 // Resolve the session once at the shared comparison and file boundary.
 async function admitReviewSession(
@@ -86,6 +106,13 @@ async function admitReviewSession(
   return record;
 }
 
+// One open's sync deadline: a session open, published or kept, keeps the
+// session fetch bound; a story open gets the review bounds.
+export const openSyncDeadline = (read: ReviewRead | FileRead) =>
+  isReviewedStorySubject(read.subject)
+    ? new ReviewSyncDeadline()
+    : ReviewSyncDeadline.forSession();
+
 // The adapters read a session's kept launch records, or a published session's
 // project source under the request's signal, on every request (fetching only
 // when the last fetched trunk lacks the ref or UUID); an unknown source is
@@ -93,31 +120,35 @@ async function admitReviewSession(
 // to SessionReviewRead / SessionFileRead so story-only fields cannot reach the
 // session handlers.
 export async function reviewInput(
-  read: ReviewedFileRead | SessionFileRead | PublishedSessionFileRead,
+  read: FileRead,
   signal: AbortSignal,
 ): Promise<ReviewedFileInput>;
 export async function reviewInput(
-  read: StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead,
+  read: ReviewRead,
   signal: AbortSignal,
+  syncDeadline?: ReviewSyncDeadline,
 ): Promise<StoryReviewInput>;
 export async function reviewInput(
-  read:
-    | StoryReviewRead
-    | SessionReviewRead
-    | PublishedSessionReviewRead
-    | ReviewedFileRead
-    | SessionFileRead
-    | PublishedSessionFileRead,
+  read: ReviewRead | FileRead,
   signal: AbortSignal,
+  syncDeadline: ReviewSyncDeadline = openSyncDeadline(read),
 ): Promise<StoryReviewInput | ReviewedFileInput> {
   const now = new Date();
   if (isPublishedRead(read)) {
     const source = knownSource(read.subject.source);
-    return {
-      read,
-      published: await publishedSource(source, read.subject.published, signal),
-      now,
-    };
+    try {
+      return {
+        read,
+        published: await publishedSource(source, read.subject.published, read, {
+          signal,
+          syncDeadline,
+        }),
+        now,
+      };
+    } catch (error) {
+      if (!(error instanceof ReviewSyncFailed) || isFileRead(read)) throw error;
+      return { read, syncFailed: error.failure };
+    }
   }
   const { subject } = read;
   if (isReviewedSessionSubject(subject)) {
@@ -126,7 +157,10 @@ export async function reviewInput(
     const published = record.request.reporting?.reference;
     if (published !== undefined && isSessionId(published)) {
       try {
-        const project = await publishedSource(source, published, signal);
+        const project = await publishedSource(source, published, read, {
+          signal,
+          syncDeadline,
+        });
         await publishedSessionRecord(project, published, now, signal);
         if ("reference" in read)
           throw new RefusedRequest(409, "Choose a recorded published range.");
@@ -137,11 +171,13 @@ export async function reviewInput(
         };
       } catch (error) {
         signal.throwIfAborted();
-        if (!(error instanceof RefusedRequest) || error.status !== 404)
-          throw error;
+        const unpublished =
+          error instanceof ReviewSyncFailed ||
+          (error instanceof RefusedRequest && error.status === 404);
+        if (!unpublished) throw error;
       }
     }
-    if ("baseline" in read) {
+    if (isFileRead(read)) {
       return {
         read: {
           ...(read.reference === undefined
@@ -175,18 +211,22 @@ const isPublishedRead = (read: {
 }): read is PublishedSessionReviewRead | PublishedSessionFileRead =>
   isReviewedPublishedSessionSubject(read.subject);
 
+// An open syncs within its deadline when its record is absent; a file read
+// reads the last sync only.
 function publishedSource(
   source: PublishedSource,
   session: string,
-  signal: AbortSignal,
+  read: ReviewRead | FileRead,
+  {
+    signal,
+    syncDeadline,
+  }: { signal: AbortSignal; syncDeadline: ReviewSyncDeadline },
 ) {
-  return fetchedPublishedSessionSource(
-    executionCheckout(source).path,
-    source,
-    session,
-    {
-      admission: () => admissionBound(signal),
-      fetch: () => admissionBound(signal),
-    },
-  );
+  if (isFileRead(read))
+    return lastSyncedPublishedSessionSource(source, admissionBound(signal));
+  return fetchedPublishedSessionSource(source, session, {
+    admission: () => admissionBound(signal),
+    request: signal,
+    syncDeadline,
+  });
 }

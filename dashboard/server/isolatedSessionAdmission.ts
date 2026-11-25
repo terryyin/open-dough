@@ -2,7 +2,7 @@
 // session. The attempt retains its draft before asking Git to publish.
 import type { PublicationReceipt } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { executePlanScript, runStartScript } from "./executionStart.ts";
+import { executePlanScript, runStartScript } from "./executionStartCommands.ts";
 import { admittedStoryTitle } from "./hostLaunch.ts";
 import type { LocalFolder } from "./localFolder.ts";
 import {

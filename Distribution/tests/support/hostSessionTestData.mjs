@@ -17,8 +17,9 @@
 
 /**
  * A `claude` session by its ID and short ID (its native alias), which is
- * otherwise the ID's first eight characters.
- * @typedef {{ sessionId: string, shortId?: string }} ClaudeFacts
+ * otherwise the ID's first eight characters. The name defaults to the
+ * launch record's title when its native name is not stated.
+ * @typedef {{ sessionId: string, shortId?: string, name?: string }} ClaudeFacts
  */
 
 /**
@@ -48,8 +49,17 @@
  * @param {ClaudeFacts} facts
  * @returns {(name: string) => ClaudeSession}
  */
-export function claudeSession({ sessionId, shortId = sessionId.slice(0, 8) }) {
-  return (name) => ({ host: "claude", sessionId, shortId, name });
+export function claudeSession({
+  sessionId,
+  shortId = sessionId.slice(0, 8),
+  name,
+}) {
+  return (title) => ({
+    host: "claude",
+    sessionId,
+    shortId,
+    name: name ?? title,
+  });
 }
 
 /**

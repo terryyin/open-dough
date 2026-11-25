@@ -1,15 +1,12 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
-import { realpathSync } from "node:fs";
-import path from "node:path";
 import { dashboardBrowserArgs } from "./browserArgs.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { voiceProvider } from "./voiceProvider.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import {
   openTakenBacklog,
-  startSession,
-  startSessionDialog,
+  openStartSession,
   startSessionField,
 } from "../launchStoryCardPage.ts";
 import { seedVoiceKey, stoppedTracks, voiceKey } from "./voicePage.ts";
@@ -43,15 +40,9 @@ export async function openVoiceDraft(
 ) {
   if (configure) seedVoiceKey(dashboard.home);
   await openTakenBacklog(page, journey);
-  return startVoiceDraft(page);
-}
-
-// Opens Start session on the open board and types the original draft.
-export async function startVoiceDraft(page: Page) {
-  await startSession(page, "Open Dough").click();
-  const dialog = startSessionDialog(page, "Open Dough");
-  await startSessionField(dialog).fill(originalDraft);
-  return dialog;
+  const composer = await openStartSession(page, "Open Dough");
+  await startSessionField(composer.dialog).fill(originalDraft);
+  return composer;
 }
 
 // The dialog after a failed recording: `message` alerts, the original draft
@@ -131,22 +122,4 @@ export async function recovered(
   ).toBe(false);
   expect(dashboard.output()).not.toContain(voiceKey);
   expect(dashboard.output()).not.toContain("private-provider-diagnostic");
-}
-
-export async function typedStart(dashboard: DashboardServer, dialog: Locator) {
-  const text = `${originalDraft}\n\nReview before implementing`;
-  await startSessionField(dialog).fill(text);
-  expect(dashboard.claudeCalls()).toEqual([]);
-  dashboard.claudeScenario("launched");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(dialog).toBeHidden();
-  await expect
-    .poll(() => dashboard.claudeLaunches())
-    .toMatchObject([
-      {
-        name: "Open Dough · Ad hoc · Keep this work local Review before imple…",
-        instruction: text,
-        cwd: realpathSync(path.join(dashboard.home, "git", "open-dough")),
-      },
-    ]);
 }

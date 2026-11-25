@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-420#choose-review-scope",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

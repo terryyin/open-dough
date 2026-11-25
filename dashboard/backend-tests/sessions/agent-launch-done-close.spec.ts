@@ -12,7 +12,7 @@ import {
   openDoughFolder,
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 
@@ -28,7 +28,7 @@ test("a server closed while manual Done waits for a working session retains the 
   });
   let closed = false;
   try {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "working");
     const listingsBefore = server
       .claudeCalls()
@@ -88,7 +88,7 @@ test("a server closed before the private composer abandons manual rename without
   });
   let closed = false;
   try {
-    const session = await launched(server);
+    const session = await composeSession(server);
     server.claudeSessionBecomes(session.sessionId, "working-idle");
     server.claudeAttachPromptDelay(60_000);
     const marked = markDone(server, {

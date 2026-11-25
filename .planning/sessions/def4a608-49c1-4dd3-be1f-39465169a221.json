@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sessionId": "def4a608-49c1-4dd3-be1f-39465169a221",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T00:22:31.821Z",
+  "story": "SEED-423#trim-the-product-backlog-command-to-guided-operations",
+  "ranges": [
+    {
+      "base": "df44afa65896215a3c27ca2b9f15c815e7975b9a",
+      "candidate": "76783d2e97fb80d18b42e477c8855a0210c49803"
+    },
+    {
+      "base": "76783d2e97fb80d18b42e477c8855a0210c49803",
+      "candidate": "4b4f9150fbae7077ad2793bd804891f419a0745c"
+    },
+    {
+      "base": "4b4f9150fbae7077ad2793bd804891f419a0745c",
+      "candidate": "6e61e8d3fdd600a73906c494d60f43cb16bbfb43"
+    },
+    {
+      "base": "6e61e8d3fdd600a73906c494d60f43cb16bbfb43",
+      "candidate": "fa8170dce8a0ec48a2e268c0e6e16d4592cb9ab1"
+    },
+    {
+      "base": "fa8170dce8a0ec48a2e268c0e6e16d4592cb9ab1",
+      "candidate": "fe24f8795993b18e8a4c16896d1fbef194f6aeab"
+    },
+    {
+      "base": "fe24f8795993b18e8a4c16896d1fbef194f6aeab",
+      "candidate": "49cc6f2b41ed7dca3c4a981d4708f9732ec255c3"
+    }
+  ]
+}

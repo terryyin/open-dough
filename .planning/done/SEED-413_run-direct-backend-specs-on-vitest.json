@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#run-direct-backend-specs-on-vitest",
+  "title": "Run the backend specs that already call production code directly on Vitest",
+  "completedAt": "2026-11-24T12:33:04.838Z",
+  "developer": "Terry Yin",
+  "agent": "Akiho-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** The migrated Node Vitest case still catches a file cache that retains more than its declared 16 MiB budget under write pressure.\n\n- Story `SEED-413#run-direct-backend-specs-on-vitest` at `5bb6bcc5940a438fbfb525bbeb081cd66764f219`. The check sampled the story’s promise that existing production assertions still protect behavior after the runner migration.\n- In a detached scratch checkout, doubled the capacity passed to `byteBudgetedMemo` in `dashboard/src/fileContentCache.ts` and kept the exported 16 MiB budget, test, and fixture intact. An independent Node witness wrote 288 distinct 64 KiB entries via `rememberFile`. The original retained 16,777,216 bytes and evicted the oldest entry. The faulted cache retained 18,874,368 bytes and still held the oldest entry.\n- The same focused command selected exactly one Node case before, during, and after the fault. Its retained-byte assertion at `dashboard/backend-tests/runtime/file-content-cache-budget.spec.ts:53` passed before the edit, failed with 18,874,368 bytes against the 16,777,216-byte bound, and passed after byte-for-byte restoration. The witness returned to the original bound and eviction result. The scratch checkout matched its initial clean state and was removed.\n\nFocused command on AC power with the standard sleep guard, default timeout, and a separate proof record per run:\n\n```sh\ncaffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:dashboard:backend -- backend-tests/runtime/file-content-cache-budget.spec.ts --grep 'writes past the 16 MiB budget' --workers=2\n```\n\n**Next proof action.** Keep this assertion as maintained proof of the checked cache-budget path. The probe requires no additional coverage.\n\n- **Test runtime.** Measured runner durations were 1,107 ms at baseline, 627 ms with the fault, and 680 ms after restoration, totaling 2,414 ms.\n- **Human effort.** Unavailable because no separate human-effort measurement was recorded.\n- **Agent effort.** Unavailable because the host did not expose separately supported active agent time.\n\n\n- **Invocation-to-report elapsed.** 81662 ms (measured), from 1795523373617 to 1795523455279 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition: `5bb6bcc5940a438fbfb525bbeb081cd66764f219`, Caught, no follow-up.\n"
+  }
+}

@@ -1,20 +1,23 @@
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
 import {
-  test,
-  expect,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   legacyHistory,
   writeLegacyStore,
 } from "../../test-support/usage-history/earlierStores.ts";
-import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 
 const wrapperAt = "2026-11-14T08:00:00.000Z";
 const pluginWrapper = {
@@ -26,10 +29,19 @@ const pluginWrapper = {
   },
 };
 
-test("legacy effective association without candidates survives beside a rejected task when neither response is rescanned", ({
+test("legacy effective association without candidates survives beside a rejected task when neither response is rescanned", async ({
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   for (const session of ["valid-legacy", "bad-legacy"]) {
     writeCodexSession(
       root,
@@ -45,8 +57,11 @@ test("legacy effective association without candidates survives beside a rejected
         .please(),
     );
   }
-  runImport(home, root);
-  const prior = readImported(home);
+  await importUsageHistory(options);
+  const prior = {
+    ...(await readUsageHistory(store)),
+    ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+  };
   for (const task of Object.values(prior.tasks)) delete task.assignmentEvidence;
   const valid = Object.values(prior.tasks).find(
     (task) => task.sessionId === "valid-legacy",
@@ -71,9 +86,12 @@ test("legacy effective association without candidates survives beside a rejected
       .withRow(pluginWrapper)
       .please(),
   );
-  runImport(home, root);
-  const after = readImported(home);
-  expect(after.observations).toEqual({});
+  await importUsageHistory(options);
+  const after = await readUsageHistory(store);
+  const { observations } = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
+  expect(observations).toEqual({});
   expect(taskUsage(after, valid.id)).toMatchObject({
     requests: 1,
     tokens: { output: 6 },
@@ -87,10 +105,19 @@ test("legacy effective association without candidates survives beside a rejected
   expect(taskUsage(after, invalid.id).requests).toBe(0);
 });
 
-test("independent retained assignment sources preserve eligibility when their native row disappears", ({
+test("independent retained assignment sources preserve eligibility when their native row disappears", async ({
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   const session = "independent-assignment";
   const file = writeCodexSession(
     root,
@@ -105,8 +132,11 @@ test("independent retained assignment sources preserve eligibility when their na
       .withResponse("turn", "retained", { output_tokens: 8 })
       .please(),
   );
-  runImport(home, root);
-  const prior = readImported(home);
+  await importUsageHistory(options);
+  const prior = {
+    ...(await readUsageHistory(store)),
+    ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+  };
   const task = Object.values(prior.tasks)[0];
   assert(task);
   // Old decoder retained both field sources while its monotonic start kept the wrapper time.
@@ -128,8 +158,8 @@ test("independent retained assignment sources preserve eligibility when their na
       .withRow(pluginWrapper)
       .please(),
   );
-  runImport(home, root);
-  const after = readImported(home);
+  await importUsageHistory(options);
+  const after = await readUsageHistory(store);
   expect(after.tasks[task.id]).toMatchObject({
     launchedAt: null,
     workflow: "dough-slice-planning",
@@ -139,9 +169,13 @@ test("independent retained assignment sources preserve eligibility when their na
     "unsupported-task-assignment",
   );
   expect(taskUsage(after, task.id).tokens.output).toBe(8);
-  expect(after.observations).toEqual({});
+  const { observations } = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
+  expect(observations).toEqual({});
   rmSync(root, { recursive: true });
-  runImport(home, root);
-  expect(readImported(home).sessions).toEqual(after.sessions);
-  expect(taskUsage(readImported(home), task.id).tokens.output).toBe(8);
+  await importUsageHistory(options);
+  const missing = await readUsageHistory(store);
+  expect(missing.sessions).toEqual(after.sessions);
+  expect(taskUsage(missing, task.id).tokens.output).toBe(8);
 });

@@ -36,7 +36,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(page, doughnut, mixedSettings, {
+  publishIntentProject(page, doughnut, mixedSettings, {
     "e2e_test/features/usable/usable.feature": usableFeature,
     "empty_features/README.md": "# no features here\n",
     "frontend/src/app.ts": "export {}\n",

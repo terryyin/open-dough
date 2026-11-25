@@ -13,17 +13,24 @@ import {
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
+import type { ReviewInitialSyncFeedback } from "./useReviewRead.ts";
+import { IntentReviewInitialSync } from "./IntentReviewInitialSync.tsx";
 import {
   ComparedContext,
   EmptyHistoricalContext,
   RefreshedComparison,
 } from "./IntentComparedContext.tsx";
-import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
+import {
+  ReviewSyncNotice,
+  reviewSyncFailure,
+  type UnreadComparison,
+} from "./StoryReviewFeedback.tsx";
 
 // What Intent knows of the selected story's comparison.
 export type LensComparison =
   | {
       readonly state: "reading";
+      readonly initialSync?: ReviewInitialSyncFeedback | undefined;
       // Kept while the first comparison, or a later one, is still in flight.
       readonly defaultReview?: StoryReview | undefined;
       readonly compare?: StoryCompare | undefined;
@@ -119,6 +126,8 @@ export function CompactComparisonState({
   readonly comparison: LensComparison;
   readonly onRetry: () => void;
 }) {
+  if (comparison.state === "reading" && comparison.initialSync !== undefined)
+    return <IntentReviewInitialSync sync={comparison.initialSync} />;
   if (
     comparison.state === "reading" ||
     (comparison.state === "compared" && comparison.reading === true)
@@ -128,6 +137,16 @@ export function CompactComparisonState({
         Reading the story&apos;s changes…
         {comparison.state === "compared" &&
           " The previous comparison stays visible."}
+      </p>
+    );
+  const syncFailure =
+    comparison.state === "compared"
+      ? reviewSyncFailure(comparison.review)
+      : undefined;
+  if (syncFailure !== undefined)
+    return (
+      <p className="intent-story-state" role="status">
+        <ReviewSyncNotice failure={syncFailure} />
       </p>
     );
   if (comparison.state === "unavailable")

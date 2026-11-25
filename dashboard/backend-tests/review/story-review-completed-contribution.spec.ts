@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, expect, test, vi } from "vitest";
+import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
@@ -10,6 +11,7 @@ import {
   reviewedFileDiff,
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
+import { ReviewSyncDeadline } from "../../server/reviewRepository.ts";
 import { publishedStoryReview } from "../../server/storyReviewPublished.ts";
 import { completedStoryContributionHistory } from "../../test-support/support/completedStoryHistory.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
@@ -31,14 +33,14 @@ beforeAll(async () => {
     completedStoryContributionHistory(),
   );
   cleanRepository = repository.cleanup;
-  vi.stubEnv("HOME", repository.fixture);
+  stubFixtureHome(repository.fixture, repository.origin);
   unmount = mountProjectConfiguration("development");
   appendConfiguredProject(
     makeMe.aConfiguredProject
       .with({
         id: subject.source,
         label: "Open Dough",
-        repository: "terryyin/open-dough",
+        repository: fixtureRepository,
         localPath: repository.integration,
       })
       .please(),
@@ -59,6 +61,7 @@ test("a branch completion admits incoming file text only on the widened pair", a
     knownSource(subject.source),
     subject.identity,
     signal,
+    { syncDeadline: new ReviewSyncDeadline() },
   );
   if (review?.kind !== "published") throw new Error("No published completion");
   expect(review).toMatchObject({

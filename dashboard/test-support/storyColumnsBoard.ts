@@ -1,11 +1,8 @@
-// The story-columns Board and a session launched from one of its cards, as
-// fluent page objects for the terminal journeys. Opening the journey returns
-// the Board; launching returns that session; opening its terminal returns the
-// screen the developer then faces (./terminalScreen.ts). The scenario supplies
-// titles, the workflow, and expected readings. Attach traffic, launch records,
-// and shortcut results stay in the scenario.
+// The story-columns Board and a session on one of its cards. The scenario
+// names the session expected on that card before opening its terminal.
 
 import type { Locator, Page } from "@playwright/test";
+import { sessionKey } from "../src/sessionReference.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
 import { expect } from "./dashboardTest.ts";
 import {
@@ -13,10 +10,11 @@ import {
   parts,
   sessionNamedBy,
   sessionStateOf,
-  storyCardSessionOf,
+  sessionEntryShowing,
 } from "./dashboardPage.ts";
 import type { StoryColumnsJourney } from "./launchJourney.ts";
 import { openTerminalControl } from "./sessionEntryAccess.ts";
+import { openTerminalFromEntry } from "./terminalScreenPage.ts";
 import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
 import { terminalScreen } from "./terminalScreen.ts";
 
@@ -44,8 +42,8 @@ export class LaunchDialog {
   }
 }
 
-// A session listed on a story card after it has been launched.
-export class LaunchedSession {
+// A session listed on a story card.
+export class ListedSession {
   readonly page: Page;
   readonly #entry: Locator;
 
@@ -60,7 +58,7 @@ export class LaunchedSession {
 
   // Opens the session's terminal and waits until that panel is showing.
   async openTerminal() {
-    await openTerminalControl(this.#entry).click();
+    await openTerminalFromEntry(this.#entry);
     const terminal = terminalScreen(this.page);
     await terminal.expectShown();
     return terminal;
@@ -147,11 +145,11 @@ export class StoryColumnsBoard {
     return this;
   }
 
-  // Starts `workflow` for the story and returns its listed session.
-  async launch(title: string, workflow: Workflow) {
-    await this.#opened.launch(title, workflow);
-    const entry = storyCardSessionOf(this.#opened.card(title), workflow);
-    return new LaunchedSession(this.page, entry, await sessionNamedBy(entry));
+  // Finds the recorded Claude session on its story card.
+  listedSession(title: string, sessionId: string) {
+    const key = sessionKey({ host: "claude", sessionId });
+    const entry = sessionEntryShowing(this.#opened.card(title), key);
+    return new ListedSession(this.page, entry, sessionId);
   }
 
   // Opens the start dialog and waits until it is showing.

@@ -135,7 +135,6 @@ test("concurrent validated additions recheck admission and save exactly one appe
     release = resolve;
   });
   const published = publishes({
-    revision: "ab".repeat(20),
     defaultBranch: "release+next",
   });
   fixture.github.serve(validationRepository, async (call) => {

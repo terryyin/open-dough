@@ -2,8 +2,12 @@
 // (`./committedOrigin.ts`): `git show`, `git ls-tree`, and `git rev-parse` over
 // an isolated repo directory, never hand-constructed display state.
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, type StdioOptions } from "node:child_process";
 import type { ListedPath } from "./listingAnswers.ts";
+
+// A read that answers undefined once the repository is gone keeps Git's
+// complaint out of the journey's output.
+const quietWhenGone: StdioOptions = ["ignore", "pipe", "ignore"];
 
 export function showAt(
   repoDir: string,
@@ -15,7 +19,7 @@ export function showAt(
       "git",
       ["-C", repoDir, "show", `${revision}:${repositoryPath}`],
       // An absent path is a 404, not output.
-      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+      { encoding: "utf8", stdio: quietWhenGone },
     );
   } catch {
     return undefined;
@@ -34,7 +38,7 @@ export function listedAt(
     return execFileSync(
       "git",
       ["-C", repoDir, "ls-tree", revision, "--", `${directory}/`],
-      { encoding: "utf8" },
+      { encoding: "utf8", stdio: quietWhenGone },
     )
       .split("\n")
       .flatMap((line) => {
@@ -59,10 +63,42 @@ export function commitOf(repoDir: string, name: string): string | undefined {
     return execFileSync(
       "git",
       ["-C", repoDir, "rev-parse", "--verify", "--quiet", `${name}^{commit}`],
-      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+      { encoding: "utf8", stdio: quietWhenGone },
     ).trim();
   } catch {
     return undefined;
+  }
+}
+
+// Moves `main` to the published `revision`, so a Git read routed to
+// `repoDir` finds the trunk the fixture answers; a checkout's own `main`
+// stays with its working tree.
+export function publishMain(repoDir: string, revision: string): void {
+  if (commitOf(repoDir, "main") === revision) return;
+  if (checkedOutMain(repoDir)) return;
+  execFileSync("git", [
+    "-C",
+    repoDir,
+    "update-ref",
+    "refs/heads/main",
+    revision,
+  ]);
+}
+
+// Whether `repoDir` is a checkout whose working tree holds `main`.
+function checkedOutMain(repoDir: string): boolean {
+  const git = (...args: string[]) =>
+    execFileSync("git", ["-C", repoDir, ...args], {
+      encoding: "utf8",
+      stdio: quietWhenGone,
+    }).trim();
+  try {
+    return (
+      git("rev-parse", "--is-bare-repository") === "false" &&
+      git("symbolic-ref", "--quiet", "HEAD") === "refs/heads/main"
+    );
+  } catch {
+    return false;
   }
 }
 
@@ -82,7 +118,8 @@ export function headsOf(
       "--format=%(refname:short) %(objectname)",
       "refs/heads",
     ],
-    { encoding: "utf8" },
+    // A gone repository fails the answer with Git's complaint, not the output.
+    { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
   )
     .trim()
     .split("\n")
@@ -117,7 +154,7 @@ export function filesUnder(
         "--",
         `${directory}/`,
       ],
-      { encoding: "utf8" },
+      { encoding: "utf8", stdio: quietWhenGone },
     )
       .split("\n")
       .filter((file) => file !== "");

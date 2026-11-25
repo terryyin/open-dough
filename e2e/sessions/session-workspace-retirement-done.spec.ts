@@ -21,7 +21,7 @@ import { codexAttaches } from "../../dashboard/test-support/support/codexTermina
 import {
   report,
   save,
-  retained,
+  givenRetiredCodexReport,
 } from "../../dashboard/test-support/support/retainedReport.ts";
 import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -39,7 +39,9 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing protocol fixture");
-  const { workspace } = await retained(dashboard, native, true);
+  const { workspace } = await givenRetiredCodexReport(dashboard, native, {
+    workspaceState: "unreadable",
+  });
   const since = native.calls.length;
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
@@ -102,7 +104,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
         call.method === "turn/start" ||
         call.method === "thread/start",
     ),
-  ).toHaveLength(2);
+  ).toEqual([]);
   expect(codexAttaches(native)).toEqual([]);
   expect(
     native.calls

@@ -5,28 +5,49 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
-import { executionCheckout } from "./executionCheckout.ts";
 import {
   publishedStoryAttribution,
   type PublishedStoryCommitEvidence,
 } from "./storyCompletedCommits.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
+import {
+  lastSyncedReviewRepository,
+  reviewRepositoryRead,
+  type ReviewSyncDeadline,
+  ReviewSyncFailed,
+  withSyncFailure,
+} from "./reviewRepository.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
 import { compareOriginalTrees, listedFrom } from "./storyReviewComparison.ts";
+
+// An open syncs within its deadline; a named completion (a file or follow-up
+// read) reads what the last sync left.
+type PublishedStoryRead =
+  | { readonly syncDeadline: ReviewSyncDeadline }
+  | { readonly completion: string };
 
 export async function publishedStoryReview(
   source: PublishedSource,
   identity: string,
   signal: AbortSignal,
-  namedCompletion?: string,
+  read: PublishedStoryRead,
 ): Promise<StoryReview | undefined> {
   const unavailable = (explanation: string): StoryReview => ({
     kind: "unavailable",
     explanation,
   });
   try {
+    // A named completion admits a file or follow-up after an open has
+    // synced: the endpoints refuse a completion beyond the synced target.
+    const namedCompletion = "completion" in read ? read.completion : undefined;
+    const { repository: directory, syncFailure } = await (
+      "syncDeadline" in read
+        ? reviewRepositoryRead(read.syncDeadline)
+        : lastSyncedReviewRepository
+    )(source, signal);
     const endpoints = await publishedStoryEndpoints(
       source,
+      directory,
       identity,
       signal,
       namedCompletion,
@@ -35,7 +56,6 @@ export async function publishedStoryReview(
     if (endpoints.kind === "unavailable")
       return unavailable(endpoints.explanation);
     const { facts, claim } = endpoints;
-    const directory = executionCheckout(source).path;
     const call: GitCall = {
       cwd: directory,
       signal,
@@ -61,8 +81,10 @@ export async function publishedStoryReview(
       remote: "origin",
       target: source.ref,
       ...compared,
+      ...withSyncFailure(syncFailure),
     };
   } catch (error) {
+    if (error instanceof ReviewSyncFailed) return unavailable(error.message);
     return unavailable(
       `Published completion history could not be read: ${gitProblem(error)}`,
     );

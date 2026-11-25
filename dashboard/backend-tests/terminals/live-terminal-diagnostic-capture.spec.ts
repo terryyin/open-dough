@@ -4,7 +4,7 @@
 // not accumulate a lifetime string.
 import type { IPty } from "@lydell/node-pty";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import {
   diagnosticCaptureBudgetBytes,
   LiveTerminalClient,

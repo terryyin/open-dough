@@ -1,9 +1,7 @@
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import {
-  test,
-  expect,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { expect } from "vitest";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   bytes,
   command,
@@ -40,7 +38,9 @@ test("Cursor names whole-family evidence when requested time boundaries are unpr
   expect(actual.selection).toMatchObject({
     from: "2026-11-14T00:00:00Z",
     until: "2026-11-15T00:00:00Z",
-    boundary: expect.stringContaining("whole-retained-directory-family"),
+    boundary: expect.stringContaining(
+      "whole-retained-directory-family",
+    ) as unknown,
   });
   expect(actual.selection.appliedBoundary).toEqual({
     kind: "whole-retained-directory-family",

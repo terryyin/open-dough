@@ -20,9 +20,14 @@ import {
   preparedRevisions,
   preparedStartOrigin,
   prepareStartOrigin,
+  type StartOriginLayout,
   type StartRepository,
   type StartRevisions,
 } from "./startOriginPreparation.ts";
+import {
+  gitHubRepositoryUrl,
+  routeOriginThroughHome,
+} from "./fixtureOriginRoute.ts";
 import { describedWorkspaces } from "../../../Distribution/tests/support/repository-workspace.mjs";
 import {
   leaveTrunkUnfetched,
@@ -33,12 +38,12 @@ const exec = promisify(execFile);
 
 export async function initializeStartOrigin(
   origin: string,
+  home: string,
   project: string,
   repository: string,
-  host: "claude" | "codex" | "cursor",
+  layout: StartOriginLayout,
   description: StartRepository,
 ): Promise<StartRevisions> {
-  const layout = host === "claude" ? "claude" : "codex";
   const { directory: prepared, shared } = await preparedStartOrigin(
     layout,
     description,
@@ -52,7 +57,11 @@ export async function initializeStartOrigin(
       recursive: true,
     });
     mkdirSync(path.dirname(project), { recursive: true });
-    const spelled = `https://github.com/${repository}.git`;
+    // The machine HOME routes the configured URL to this origin; the clone
+    // includes that HOME's config, so a command run in it under another HOME
+    // reaches the same origin.
+    routeOriginThroughHome(home, origin, repository);
+    const homeConfig = path.join(home, ".gitconfig");
     await exec("git", [
       "clone",
       "--no-hardlinks",
@@ -63,8 +72,8 @@ export async function initializeStartOrigin(
       "-c",
       "maintenance.auto=false",
       "-c",
-      `url.${origin}.insteadOf=${spelled}`,
-      spelled,
+      `include.path=${homeConfig}`,
+      gitHubRepositoryUrl(repository),
       project,
     ]);
     // The original init + explicit push fixture had no upstream branch.

@@ -15,5 +15,3 @@ export const settings = makeMe.intentSettings
     makeMe.anIntentLocation.at("e2e_test/features").ofKind("gherkin").please(),
   )
   .please();
-
-export const revisionOf = (byte: string) => byte.repeat(20);

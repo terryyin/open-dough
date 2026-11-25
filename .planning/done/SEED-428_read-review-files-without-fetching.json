@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-428#read-review-files-without-fetching",
+  "title": "Read review files without fetching",
+  "completedAt": "2026-11-24T17:02:37.888Z",
+  "developer": "Terry Yin",
+  "agent": "Mana-chan",
+  "host": "claude"
+}

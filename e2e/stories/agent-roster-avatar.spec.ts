@@ -46,7 +46,6 @@ import {
   unfetchedAvatar,
 } from "../../dashboard/test-support/agentAttributionRecords.ts";
 import {
-  doughnut,
   publishUnlistableProfiles,
   queuedStory,
   takenStory,
@@ -57,7 +56,7 @@ test("each assignment credits the committer who added its profile's current allo
   const github = githubFor(page);
   github.serveAvatars(avatarHost);
   const origin = publishMovingFiles(page, firstRevision);
-  publishUnlistableProfiles(page);
+  const doughnutRevision = publishUnlistableProfiles(page);
   const pageRequests: string[] = [];
   page.on("request", (request) => pageRequests.push(request.url()));
   await page.goto("/");
@@ -175,7 +174,7 @@ test("each assignment credits the committer who added its profile's current allo
   await test.step("another project's roster and cards show no human or avatar from the previous project", async () => {
     await chooseProject(page, "Doughnut");
     await expect(roster).toContainText(
-      `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
+      `Doughnut: agent profiles published at revision ${doughnutRevision.slice(0, 7)}.`,
     );
     await expect(roster).not.toContainText("Human developer");
     await expect(credit(roster).avatar).toHaveCount(0);

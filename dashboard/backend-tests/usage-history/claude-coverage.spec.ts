@@ -1,24 +1,37 @@
 // Distinct task requests in one native session must not share an API charge.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
 import { responseKey } from "../../server/usageRecords.ts";
-import { taskUsage } from "../../server/usageHistory.ts";
-import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+  writeUsageHistory,
+} from "../../server/usageHistory.ts";
+import { importUsageHistory } from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
-  nodeProcess,
-  readImported,
-  runImport,
   writeClaudeSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
-test("keeps explicit resumed launch boundaries separate, permits evidenced follow-up, and retains conflicting messages without double charge", ({
+const importOptions = (home: string, root: string, claudeRoot: string) =>
+  makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claudeRoot],
+    })
+    .please();
+
+test("keeps explicit resumed launch boundaries separate, permits evidenced follow-up, and retains conflicting messages without double charge", async ({
   home,
   root,
 }) => {
@@ -82,31 +95,27 @@ test("keeps explicit resumed launch boundaries separate, permits evidenced follo
     })
     .please();
   writeClaudeSession(claudeRoot, rows);
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  const history = readImported(home);
-  const first = Object.values(history.tasks).find(
-    (task) => task.identity === "SEED-358#task-0",
-  );
-  const second = Object.values(history.tasks).find(
-    (task) => task.identity === "SEED-358#task-1",
-  );
+  const options = importOptions(home, root, claudeRoot);
+  await importUsageHistory(options);
+  const { store, responses } = options;
+  const history = await readUsageHistory(store);
+  const initial = JSON.parse(readFileSync(responses, "utf8")) as UsageResponses;
+  const tasks = Object.values(history.tasks);
+  const first = tasks.find(({ identity }) => identity === "SEED-358#task-0");
+  const second = tasks.find(({ identity }) => identity === "SEED-358#task-1");
   assert(first && second);
-  expect(taskUsage(history, first.id)).toEqual(
-    expect.objectContaining({
-      requests: 2,
-      tokens: expect.objectContaining({ output: 10, uncachedInput: 0 }),
-    }),
-  );
-  expect(taskUsage(history, second.id)).toEqual(
-    expect.objectContaining({
-      requests: 1,
-      tokens: expect.objectContaining({ output: 11 }),
-    }),
-  );
-  const observation =
-    history.observations[responseKey("claude", sessionId, "msg-first")];
+  expect(taskUsage(history, first.id)).toMatchObject({
+    requests: 2,
+    tokens: { output: 10, uncachedInput: 0 },
+  });
+  expect(taskUsage(history, second.id)).toMatchObject({
+    requests: 1,
+    tokens: { output: 11 },
+  });
+  const firstResponse = responseKey("claude", sessionId, "msg-first");
+  const observation = initial.observations[firstResponse];
   assert(observation);
-  const replay = {
+  const replay: typeof observation = {
     ...observation,
     measurements: observation.measurements.map((measurement) => ({
       ...measurement,
@@ -114,18 +123,14 @@ test("keeps explicit resumed launch boundaries separate, permits evidenced follo
     })),
   };
   // A writer passes every response of the session it read, with its tasks.
-  const session = {
-    observations: Object.values({
-      ...history.observations,
-      [replay.id]: replay,
-    }),
-    associations: Object.values(history.associations),
-  };
-  nodeProcess(
-    home,
-    `const {writeUsageHistory}=await import('./dashboard/server/usageHistory.ts'); await writeUsageHistory(${JSON.stringify(session)});`,
-  );
-  expect(taskUsage(readImported(home), first.id).tokens.output).toBe(10);
+  const observations = Object.values({
+    ...initial.observations,
+    [replay.id]: replay,
+  });
+  const associations = Object.values(initial.associations);
+  await writeUsageHistory({ observations, associations }, store);
+  const replayed = await readUsageHistory(store);
+  expect(taskUsage(replayed, first.id).tokens.output).toBe(10);
   writeClaudeSession(claudeRoot, [
     ...rows,
     ...makeMe.aClaudeTranscript
@@ -148,24 +153,24 @@ test("keeps explicit resumed launch boundaries separate, permits evidenced follo
       })
       .please(),
   ]);
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  const conflicted = readImported(home);
-  const changed = conflicted.observations[observation.id];
+  await importUsageHistory(options);
+  const conflicted = await readUsageHistory(store);
+  const artifact = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
+  const changed = artifact.observations[observation.id];
   assert(changed);
   expect(changed.tokens.output).toBeNull();
   expect(changed.gaps).toContain("contradictory-measurements");
-  expect(
-    changed.measurements.map((measurement) => measurement.tokens.output),
-  ).toEqual(expect.arrayContaining([7, 9]));
-  expect(
-    conflicted.associations[responseKey("claude", sessionId, "msg-follow-up")]
-      ?.taskId,
-  ).toBeNull();
+  const outputs = changed.measurements.map(({ tokens }) => tokens.output);
+  expect(outputs).toEqual(expect.arrayContaining([7, 9]));
+  const followup = responseKey("claude", sessionId, "msg-follow-up");
+  expect(artifact.associations[followup]?.taskId).toBeNull();
   expect(taskUsage(conflicted, first.id).requests).toBe(1);
   expect(taskUsage(conflicted, second.id).tokens.output).toBe(11);
 });
 
-test("retains independent partial workers and reports missing transcripts and unsupported API identities honestly", ({
+test("retains independent partial workers and reports missing transcripts and unsupported API identities honestly", async ({
   home,
   root,
 }) => {
@@ -194,46 +199,50 @@ test("retains independent partial workers and reports missing transcripts and un
       .please(),
   );
   // Orphan worker outside `subagents/` is layout under proof.
-  nativeFile(path.join(claudeRoot, "workers"), "agent-orphan", [
-    ...makeMe.aClaudeTranscript
-      .forSession(sessionId)
-      .asSidechain({ agentId: "orphan" })
-      .withUser({
-        uuid: "worker-input",
-        parentUuid: null,
-        content: "private orphan prompt",
-      })
-      .withAssistant({
-        uuid: "worker-response",
-        messageId: "msg-orphan",
-        usage: { output_tokens: 4 },
-      })
-      .please(),
-  ]);
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  const history = readImported(home);
+  const orphan = makeMe.aClaudeTranscript
+    .forSession(sessionId)
+    .asSidechain({ agentId: "orphan" })
+    .withUser({
+      uuid: "worker-input",
+      parentUuid: null,
+      content: "private orphan prompt",
+    })
+    .withAssistant({
+      uuid: "worker-response",
+      messageId: "msg-orphan",
+      usage: { output_tokens: 4 },
+    })
+    .please();
+  nativeFile(path.join(claudeRoot, "workers"), "agent-orphan", orphan);
+  const options = importOptions(home, root, claudeRoot);
+  await importUsageHistory(options);
+  const { store, responses } = options;
+  const history = await readUsageHistory(store);
+  const artifact = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
   const task = Object.values(history.tasks)[0];
-  const observation = Object.values(history.observations)[0];
+  const observation = Object.values(artifact.observations)[0];
   assert(task && observation);
   expect(taskUsage(history, task.id).tokens.output).toBeNull();
-  expect(observation.tokens).toEqual(
-    expect.objectContaining({
-      uncachedInput: null,
-      cacheRead: null,
-      cacheWrite: null,
-      output: 4,
-    }),
-  );
+  expect(observation.tokens).toMatchObject({
+    uncachedInput: null,
+    cacheRead: null,
+    cacheWrite: null,
+    output: 4,
+  });
   expect(observation.coverage).toBe("partial");
-  expect(history.associations[observation.id]?.taskId).toBeNull();
-  expect(history.gaps.map((gap) => gap.code)).toEqual(
-    expect.arrayContaining([
-      "missing-worker-evidence",
-      "unjoined-worker-evidence",
-      "missing-root-transcript-usage",
-      "unsupported-response-identity",
-      "no-attributable-response-usage",
-    ]),
+  expect(artifact.associations[observation.id]?.taskId).toBeNull();
+  const reasons = [
+    "missing-worker-evidence",
+    "unjoined-worker-evidence",
+    "missing-root-transcript-usage",
+    "unsupported-response-identity",
+    "no-attributable-response-usage",
+  ];
+  const gaps = history.gaps.map(({ code }) => code);
+  expect(gaps).toEqual(expect.arrayContaining(reasons));
+  expect(JSON.stringify([history, artifact])).not.toContain(
+    "private orphan prompt",
   );
-  expect(JSON.stringify(history)).not.toContain("private orphan prompt");
 });

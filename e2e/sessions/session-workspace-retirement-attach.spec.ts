@@ -30,7 +30,7 @@ import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColum
 import {
   report,
   save,
-  retained,
+  givenRetiredCodexReport,
 } from "../../dashboard/test-support/support/retainedReport.ts";
 import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 import {
@@ -57,7 +57,10 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     codexProtocol: native,
   }) => {
     if (native === undefined) throw new Error("Missing protocol fixture");
-    const { record, workspace } = await retained(dashboard, native);
+    const { record, workspace } = await givenRetiredCodexReport(
+      dashboard,
+      native,
+    );
     mkdirSync(workspace);
     const originalDirectory = realpathSync(workspace);
     const doneAt =

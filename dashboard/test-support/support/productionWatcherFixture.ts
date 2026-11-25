@@ -3,7 +3,10 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciWorkflowPath } from "../../server/productionQualification.mjs";
 import { projectConfigurationFile } from "./projectConfiguration.ts";
-import { localPublishedMainFixture } from "./publishedMainFixture.ts";
+import {
+  localPublishedMainFixture,
+  publishedMainRepository,
+} from "./publishedMainFixture.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 import { linkInstalledDevelopmentRuntime } from "./publishedDevelopmentRuntime.ts";
 
@@ -29,7 +32,7 @@ export async function configureWatcherApplication(
     .with({
       id: "open-dough",
       label: "Open Dough",
-      repository: "fixture/open-dough",
+      repository: publishedMainRepository,
       localPath: fixture.development,
       hidden: true,
     })

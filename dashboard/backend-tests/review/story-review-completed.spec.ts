@@ -12,20 +12,17 @@ import {
   ordinaryCompletedReviewHistories,
   ordinaryTrunkModeCompletedHistory,
 } from "../../test-support/support/completedStoryHistory.ts";
-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
-import {
-  git,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
-import { realpathSync, renameSync } from "node:fs";
-import path from "node:path";
+import {
+  renameExecutionCheckout,
+  trunkAdvancedPastCheckout,
+} from "../../test-support/support/reviewRepositoryFixture.ts";
 
 test.use({ serverMode: "boundary" });
 
@@ -161,7 +158,7 @@ for (const [mode, history] of ordinaryCompletedReviewHistories()) {
 test.describe("execution checkout", () => {
   test.use({ originRepository: ordinaryTrunkModeCompletedHistory() });
 
-  test("an execution checkout cannot borrow a parent checkout's published history or file diffs", async ({
+  test("a renamed execution checkout leaves the published review and its file diffs readable", async ({
     request,
     dashboard,
     origin,
@@ -173,52 +170,21 @@ test.describe("execution checkout", () => {
     );
     if (review.kind !== "published")
       throw new Error("No initial published review");
-    const metadata = path.join(origin.project, ".git");
-    const parentMetadata = path.join(path.dirname(origin.project), ".git");
-    renameSync(metadata, parentMetadata);
+    const moved = renameExecutionCheckout(origin);
     try {
-      // Git would otherwise walk upwards and read this other checkout's trees.
-      expect(
-        realpathSync(git(origin.project, "rev-parse", "--show-toplevel")),
-      ).toBe(realpathSync(path.dirname(origin.project)));
-      const parent = path.dirname(origin.project);
-      // Publish the done evidence where Git's child-relative pathspec finds it.
-      // These are actual commits in the parent checkout, not a review answer.
-      git(
-        parent,
-        "update-ref",
-        "refs/heads/main",
-        git(parent, "rev-parse", "origin/main"),
-      );
-      git(parent, "read-tree", "origin/main");
-      const done = `.planning/done/${doneRecordFileName(queuedIdentity)}`;
-      writeAt(origin.project, done, git(parent, "show", `origin/main:${done}`));
-      git(
-        parent,
-        "add",
-        "--",
-        `${path.basename(origin.project)}/.planning/done`,
-      );
-      git(
-        parent,
-        "commit",
-        "--quiet",
-        "-m",
-        "parent checkout publishes nested completion evidence",
-      );
-      git(parent, "push", "--quiet", "origin", "HEAD:main");
-      const other = await get(
+      const reopened = await get(
         request,
         dashboard,
         storyReviewEndpoint,
         completed,
       );
-      expect(other.status()).toBe(200);
-      expect(await other.json()).toMatchObject({
-        kind: "unavailable",
-        explanation: expect.stringContaining("execution checkout"),
+      expect(await reopened.json()).toMatchObject({
+        kind: "published",
+        completion: review.completion,
+        baseline: review.baseline,
+        tree: review.tree,
+        files: review.files,
       });
-      expect(await other.json()).not.toHaveProperty("files");
       const file = await get(request, dashboard, storyReviewFileEndpoint, {
         ...named,
         completion: review.completion,
@@ -226,12 +192,27 @@ test.describe("execution checkout", () => {
         tree: review.tree,
         path: "[literal]*.txt",
       });
-      expect(file.status()).toBe(409);
-      expect(await file.json()).toMatchObject({
-        error: expect.stringContaining("execution checkout"),
-      });
+      expect(file.status()).toBe(200);
     } finally {
-      renameSync(parentMetadata, metadata);
+      moved.restore();
     }
+  });
+
+  test("opening a published review leaves the execution checkout's tracked trunk where it was", async ({
+    request,
+    dashboard,
+    origin,
+  }) => {
+    const synced = trunkAdvancedPastCheckout(origin);
+    const review = await get(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      completed,
+    );
+    expect(await review.json()).toMatchObject({ kind: "published" });
+    expect(git(origin.project, "rev-parse", "refs/remotes/origin/main")).toBe(
+      synced,
+    );
   });
 });

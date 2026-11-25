@@ -13,21 +13,22 @@ import { askToDeleteRecord } from "../../dashboard/test-support/support/sessionE
 // (./fixtures/fake-claude); the real one is never reached.
 
 import {
-  openTerminalControl,
+  expectTerminalText,
+  openTerminalFromEntry,
   terminalPanel,
-  terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessionOf,
   storyCardSessions,
   parts,
   standaloneSessionName,
-  sessionNamedBy,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
@@ -50,26 +51,34 @@ test.describe("deleting the record of the session the terminal shows", () => {
     page,
     dashboard,
   }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryColumnsJourney(
+    const { sessionId, shortId } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: readyIdentity,
+        title: readyStory,
+      },
+    );
+    const { card, settled } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
     const panel = terminalPanel(page);
     await settled();
-    await launch(readyStory, "Execution");
     const entry = storyCardSessionOf(card(readyStory), "Execution");
-    const sessionName = await sessionNamedBy(entry);
     const inRecent = parts(page).recentlyDone.getByRole("article", {
       name: standaloneSessionName("Execution", readyStory),
     });
+    await openTerminalFromEntry(entry);
+    await expectTerminalText(panel, `attached ${shortId}`);
 
     dashboard.claudeListingFails(true);
     await page.reload();
     await settled();
     await expect(sessionStateOf(entry)).toContainText("State unknown");
-    await openTerminalControl(entry).click();
-    await expect(terminalScreenParts(panel).rows).toContainText("attached");
+    await openTerminalFromEntry(entry);
+    await expectTerminalText(panel, `attached ${shortId}`);
+    await expect.poll(() => attachesOf(dashboard, sessionId)).toHaveLength(2);
     await expect(page.getByText("Shown in terminal")).not.toHaveCount(0);
     await expectSelected(card(readyStory), true);
 
@@ -81,7 +90,7 @@ test.describe("deleting the record of the session the terminal shows", () => {
     await expectSelected(card(readyStory), true);
     await expect(card(readyStory)).toBeFocused();
     await expect
-      .poll(() => attachesOf(dashboard, sessionName).at(-1)?.endedBy)
+      .poll(() => attachesOf(dashboard, sessionId).at(-1)?.endedBy)
       .toBeDefined();
     expect(dashboard.claudeStopCalls()).toEqual([]);
 
@@ -89,10 +98,11 @@ test.describe("deleting the record of the session the terminal shows", () => {
     dashboard.claudeListingFails(false);
     expect(
       dashboard.claudeListing().map((item) => item["sessionId"]),
-    ).toContain(sessionName);
+    ).toContain(sessionId);
     await page.reload();
     await settled();
     await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
     await expect(inRecent).toHaveCount(0);
+    expect(dashboard.claudeLaunchCalls()).toEqual([]);
   });
 });

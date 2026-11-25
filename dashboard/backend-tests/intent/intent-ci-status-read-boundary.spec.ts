@@ -19,14 +19,13 @@ import {
 } from "../../test-support/support/trunkCiAnswers.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 
-const revision = "b2".repeat(20);
-
 test("the CI status read refuses an unsafe branch name and a pinned revision before asking GitHub", async () => {
   const server = await startDashboardServer(developmentBoundary);
   try {
     // Open Dough's trunk, published at `revision`, with no CI runs listed.
+    const published = publishes({});
+    const { revision } = published;
     const ci = trunkCi(revision, () => []);
-    const published = publishes({ revision });
     server.github.serve(
       everyRepository,
       async (call) => (await ci(call)) ?? published(call),

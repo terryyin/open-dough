@@ -20,13 +20,13 @@ import {
 } from "../../server/hosts/cursor/runnerClient.ts";
 import {
   lastAttachEnded,
-  launched,
+  composeSession,
   openTerminal,
   shows,
   type Terminal,
 } from "../../test-support/agentTerminalBoundary.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { defaultBaseCiRevision } from "../../test-support/support/baseCiActions.ts";
+import { prepareCatalogProjects } from "../../test-support/support/catalogProjectOrigin.ts";
 import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
 import {
   endFakeGh,
@@ -59,16 +59,14 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
     // Actions so this hook wiring never hits the suite's ownerless root.
     const gh = installFakeGh(tempRoot);
     const github = await startFakeGitHub();
-    github.serve(
-      everyRepository,
-      publishes({ revision: defaultBaseCiRevision }),
-    );
+    github.serve(everyRepository, publishes({}));
     const ghEnv = fakeGhEnv(gh, github.url);
     const claude = installFakeClaude(
       tempRoot,
       { binDir: gh.binDir, path: ghEnv["PATH"] ?? "" },
-      { projectFolders: ["open-dough"] },
+      {},
     );
+    await prepareCatalogProjects(claude.controls.home, ["open-dough"]);
     configureDevelopmentProjects(claude.controls.home);
     // Claude's PATH keeps fake-claude ahead of fake-gh; ghEnv supplies the
     // request-owner root and FAKE_GH_ORIGIN.
@@ -108,7 +106,7 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
 
     let terminal: Terminal | undefined;
     try {
-      const session = await launched(local);
+      const session = await composeSession(local);
       terminal = await openTerminal(local, session);
       expect(await shows(terminal, "attached")).toBe(true);
 

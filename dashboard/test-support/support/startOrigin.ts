@@ -1,8 +1,8 @@
 // A bare origin and execution checkout with source skills installed for real
 // execution-start journeys. The caller names the repository description the
-// origin starts with; with none, it holds an empty valid backlog. Git
-// insteadOf routes catalog URLs to this local origin; machine holds the fake
-// HOME. No fixture operation reaches a network.
+// origin starts with; with none, it holds an empty valid backlog. The fake
+// HOME under machine routes the catalog URL to this local origin
+// (./fixtureOriginRoute.ts). No fixture operation reaches a network.
 
 import { execFile } from "node:child_process";
 import {
@@ -126,14 +126,16 @@ export async function startOrigin(
 ): Promise<StartOrigin> {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-start-"));
   const origin = path.join(machine, "origin.git");
-  const project = path.join(machine, "home", "git", projectId);
+  const home = path.join(machine, "home");
+  const project = path.join(home, "git", projectId);
   let revisions: StartRevisions;
   try {
     revisions = await initializeStartOrigin(
       origin,
+      home,
       project,
       repository,
-      host,
+      host === "claude" ? "claude" : "codex",
       description,
     );
   } catch (error) {

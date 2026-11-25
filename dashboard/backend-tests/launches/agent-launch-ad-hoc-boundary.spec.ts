@@ -16,6 +16,11 @@ import {
   openDoughFolder,
 } from "../../test-support/agentLaunchBoundary.ts";
 import { claudeLaunch } from "../../test-support/support/claudeLaunch.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
+import {
+  adHocDeveloperInput,
+  expectAdHocReportingInput,
+} from "../../test-support/support/reportingInputAssertions.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -51,10 +56,7 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     expect(response.status).toBe(200);
     const answer = JSON.parse(response.body) as {
       kind: string;
-      record: {
-        request: Record<string, unknown>;
-        session: { name: string };
-      };
+      record: LaunchRecord;
     };
     expect(answer.kind).toBe("launched");
     const call = server.claudeCalls()[callsBefore];
@@ -70,12 +72,17 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     const { record, started } = await launched(text);
     const label = text;
 
-    expect(started).toEqual({
+    expect(started).toMatchObject({
       cwd: openDoughFolder(server),
       name: `Open Dough · Ad hoc · ${label}`,
       effort: "medium",
-      instruction: text,
     });
+    expectAdHocReportingInput(
+      started?.instruction ?? "",
+      text,
+      record.request,
+      server,
+    );
     expect(record.request).toMatchObject({
       ...adHocRequest,
       title: label,
@@ -96,7 +103,7 @@ test.describe(`agent launch boundary, ad hoc`, () => {
 
       expect(started).not.toHaveProperty("instruction");
       expect(started?.name).toBe(
-        `Open Dough · Ad hoc · ${String(record.request["title"])}`,
+        `Open Dough · Ad hoc · ${record.request.title}`,
       );
       expect(record.request["title"]).toMatch(timeLabel);
     });
@@ -111,9 +118,9 @@ test.describe(`agent launch boundary, ad hoc`, () => {
       "Investigate the slow build step and why …",
     );
     expect(started).toMatchObject({
-      name: `Open Dough · Ad hoc · ${String(record.request["title"])}`,
-      instruction: text,
+      name: `Open Dough · Ad hoc · ${record.request.title}`,
     });
+    expect(adHocDeveloperInput(started?.instruction ?? "")).toBe(text);
   });
 
   test("names the session for the launch time when the text holds a control character", async () => {
@@ -121,7 +128,7 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     const { record, started } = await launched(text);
 
     expect(record.request["title"]).toMatch(timeLabel);
-    expect(started?.instruction).toBe(text);
+    expect(adHocDeveloperInput(started?.instruction ?? "")).toBe(text);
   });
 
   for (const refused of [

@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import {
   test as base,
@@ -7,7 +8,8 @@ import { publishCommittedOrigin } from "../../test-support/committedOrigin.ts";
 import { serveActionsFor } from "../../test-support/support/storyCiComparisonFixture.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
-// This contract opens no application page and starts no dashboard server.
+// These contracts open no application page; only the dashboard HOME contract
+// starts a dashboard server.
 const test = base.extend({
   // eslint-disable-next-line no-empty-pattern
   baseURL: async ({}, use) => {
@@ -106,4 +108,25 @@ test("explicit Actions answers avoid native main lookup while declined and resto
     else process.env["GIT_TRACE2_EVENT"] = priorTrace;
     await page.close();
   }
+});
+
+test("a Git read of the committed repository under the dashboard HOME reaches its origin's main", async ({
+  context,
+  dashboard,
+  origin,
+}) => {
+  const page = await context.newPage();
+  const initial = (await origin.originGit("rev-parse", "main")).trim();
+  await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    repository: "terryyin/open-dough",
+    revision: initial,
+  });
+  const listed = execFileSync(
+    "git",
+    ["ls-remote", "https://github.com/terryyin/open-dough.git", "main"],
+    { env: { ...process.env, HOME: dashboard.home }, encoding: "utf8" },
+  );
+  expect(listed).toBe(`${initial}\trefs/heads/main\n`);
+  await page.close();
 });

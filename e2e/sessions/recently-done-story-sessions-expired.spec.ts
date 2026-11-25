@@ -10,7 +10,7 @@ import {
   parts,
   standaloneSessionName,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/committedFiles.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import { doneStorySessions } from "../../dashboard/test-support/recentlyDoneSessions.ts";
 import { doneStories } from "../../dashboard/test-support/recentlyDoneRecords.ts";
@@ -51,7 +51,7 @@ test("a session of a done record past the window is its own Recently done entry 
       (one, other) => Date.parse(one.launchedAt) - Date.parse(other.launchedAt),
     ),
   );
-  await publishFiles(page, doneStories.publishedWithLastWeek(now));
+  publishCommittedFiles(page, doneStories.publishedWithLastWeek(now));
   await page.goto("/");
   await expectMembership(page, {
     taken: [],

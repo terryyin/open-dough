@@ -1,24 +1,36 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 test("keeps successive native tasks distinct and enriches the same task with later retained corroboration", async ({
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   const repo = await configuredRepository(
     home,
     makeMe.aRepository.withRevision("then", {}).please(),
@@ -55,8 +67,11 @@ test("keeps successive native tasks distinct and enriches the same task with lat
       .withResponse("second", "two", { output_tokens: 7 })
       .please(),
   );
-  runImport(home, root);
-  const initial = readImported(home);
+  await importUsageHistory(options);
+  const initial = await readUsageHistory(store);
+  const { observations } = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
   const first = Object.values(initial.tasks).find(
     (task) => task.rootTurnId === "first",
   );
@@ -74,9 +89,8 @@ test("keeps successive native tasks distinct and enriches the same task with lat
     options: ["--trunk", "--skip-retro"],
   });
   expect(
-    Object.values(initial.observations).find(
-      (item) => item.responseId === "one",
-    )?.settings,
+    Object.values(observations).find((item) => item.responseId === "one")
+      ?.settings,
   ).toEqual({ model: "observed", effort: "low" });
   expect(taskUsage(initial, first.id).tokens.output).toBe(3);
   expect(taskUsage(initial, second.id).tokens.output).toBe(7);
@@ -94,8 +108,8 @@ test("keeps successive native tasks distinct and enriches the same task with lat
     ".open-dough/dashboard/agent-launches.json",
   );
   const bytes = readFileSync(operational, "utf8");
-  runImport(home, root);
-  const enriched = readImported(home);
+  await importUsageHistory(options);
+  const enriched = await readUsageHistory(store);
   expect(Object.keys(enriched.tasks)).toHaveLength(2);
   expect(enriched.tasks[first.id]).toEqual(
     expect.objectContaining({
@@ -113,6 +127,15 @@ test("leaves incidental examples and contradictory project joins unknown and exc
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   const repo = await configuredRepository(
     home,
     makeMe.aRepository.withRevision("then", {}).please(),
@@ -149,16 +172,19 @@ test("leaves incidental examples and contradictory project joins unknown and exc
       .withResponse("alien", "alien-answer", { output_tokens: 999 })
       .please(),
   );
-  const report = runImport(home, root);
+  const report = await importUsageHistory(options);
   expect(report).toEqual(
     expect.objectContaining({
       excludedUnrelatedTasks: 1,
       excludedUnrelatedObservations: 1,
     }),
   );
-  const history = readImported(home);
+  const history = await readUsageHistory(store);
+  const { observations } = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
   expect(
-    Object.values(history.observations).map((item) => item.responseId),
+    Object.values(observations).map((item) => item.responseId),
   ).not.toContain("alien-answer");
   const tasks = Object.values(history.tasks);
   expect(tasks).toHaveLength(1);

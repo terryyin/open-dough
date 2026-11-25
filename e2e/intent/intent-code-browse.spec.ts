@@ -78,7 +78,7 @@ test("Intent lists matched code test files under include patterns, omits helpers
     ["observation", "authenticated-read-shared.spec.ts"],
     ["runtime", "serving-modes.spec.ts"],
   ] as const;
-  await publishIntentProject(page, openDough, settings, {
+  const { revision } = publishIntentProject(page, openDough, settings, {
     ...Object.fromEntries(
       groupedSources.map(([group, file]) => [
         `dashboard/tests/${group}/${file}`,
@@ -148,7 +148,7 @@ test("Intent lists matched code test files under include patterns, omits helpers
     );
     await expect(source).toContainText('test("browses", async () => {});');
     await expect(intent).toContainText(
-      `at revision ${shortRevision(openDough.revision)}`,
+      `at revision ${shortRevision(revision)}`,
     );
     await expectKeywordAndStringColours(
       source,

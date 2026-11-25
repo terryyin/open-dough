@@ -1,104 +1,88 @@
-// Choosing the model in a launch dialog, on the launch journey's committed
-// origin (../../dashboard/test-support/launchJourney.ts): one representative dialog
-// offers Model beside Host after its instruction field on Default, and a
-// chosen model reaches the synthetic `claude`
-// (../../dashboard/test-support/fixtures/fake-claude) as `--model`; another proves
-// Default starts without `--model`, and a launched choice does not carry into
-// the next opening. Claude Code's Reasoning effort opens on Open Dough's
-// default among five levels, and a chosen one reaches `claude` as `--effort`. The real
-// `claude` is never reached. How the launch boundary takes a model across
-// request kinds is
-// ../../dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts;
-// the host switch, dismissal and keyboard order of the dialog are
-// ../../dashboard/frontend-tests/launches/launch-model-effort.spec.ts.
-
-import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+// Model and reasoning effort reach Claude and the saved launch request on
+// installed projects. A blank ad hoc launch keeps the session dialog's defaults.
+import path from "node:path";
+import { realpathSync } from "node:fs";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
-  openTakenBacklog,
-  startSession,
-  startSessionDialog,
+  instructionField,
+  openStartSession,
+  storyLaunchChoices,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
+  notRefinedIdentity,
   notRefinedStory,
+  readyIdentity,
   readyStory,
-  type LaunchJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
+import { claudeRefinementRepository } from "../../dashboard/test-support/support/claudeRefinementRepository.ts";
+import {
+  expectInstalledClaudeStory,
+  readClaudeLaunch,
+} from "./claudeLaunchObservation.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { test } from "../../dashboard/test-support/support/startOriginTest.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+test.use({
+  projectFolders: ["open-dough"],
+  originRepository: claudeRefinementRepository(),
+});
 
-const defaultChoice = "Default (your Claude Code setting)";
-const choices = [defaultChoice, "Fable", "Opus", "Sonnet"];
-
-// The three launch actions, each opened from the page and answering its
-// dialog.
-async function actions(page: Page, launchJourney: LaunchJourney) {
-  const { card, start, refine, dialog, refinementDialog } =
-    await openTakenBacklog(page, launchJourney);
-  return {
-    card,
-    execution: {
-      open: () => start(readyStory).click(),
-      dialog,
-    },
-    refinement: {
-      open: () => refine(notRefinedStory).click(),
-      dialog: refinementDialog,
-    },
-    session: {
-      open: () => startSession(page, "Open Dough").click(),
-      dialog: startSessionDialog(page, "Open Dough"),
-    },
-  };
-}
-
-const modelOf = (dialog: Locator) =>
-  dialog.getByRole("combobox", { name: "Model" });
-
-const effortOf = (dialog: Locator) =>
-  dialog.getByRole("combobox", { name: "Reasoning effort" });
+const choices = [
+  "Default (your Claude Code setting)",
+  "Fable",
+  "Opus",
+  "Sonnet",
+];
 
 test("the refinement dialog offers Model after the instruction on Default, and choosing Opus starts the session with --model opus", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("launched");
-  const { refinement: action } = await actions(page, launchJourney);
-
-  await action.open();
-  const select = modelOf(action.dialog);
-  await expect(select).toBeVisible();
-  await expect(select.locator("option")).toHaveText(choices);
-  await expect(select).toHaveValue("");
-  const [field, choice] = await Promise.all([
-    action.dialog.getByRole("textbox").boundingBox(),
-    select.boundingBox(),
+  const board = await openInstalledStoryBoard(page, origin);
+  const { dialog, submit } = await board.open(notRefinedStory, "Refinement");
+  const selection = storyLaunchChoices(dialog);
+  await expect(selection.model).toBeVisible();
+  await selection.showsModels("", choices);
+  const [field, model] = await Promise.all([
+    instructionField(dialog).boundingBox(),
+    selection.model.boundingBox(),
   ]);
-  if (!field || !choice) throw new Error("not laid out");
-  expect(choice.y).toBeGreaterThanOrEqual(field.y + field.height);
+  if (!field || !model) throw new Error("not laid out");
+  expect(model.y).toBeGreaterThanOrEqual(field.y + field.height);
 
-  await select.selectOption({ label: "Opus" });
-  await action.dialog.getByRole("button", { name: "Start" }).click();
-
-  await expect(action.dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
-  const [started] = dashboard.claudeLaunches();
-  expect(started?.name).toContain("Refinement");
-  expect(started?.model).toBe("opus");
+  await selection.chooseModel("opus");
+  const before = dashboard.claudeLaunches().length;
+  const acceptance = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await acceptance);
+  const launch = readClaudeLaunch(dashboard, outcome, before);
+  await expect(dialog).toBeHidden();
+  expect(launch.started.name).toContain("Refinement");
+  expect(launch.started.model).toBe("opus");
+  expect(launch.record.request.model).toBe("opus");
+  expectInstalledClaudeStory(dashboard, launch, {
+    invocation: `/dough-story-refinement ${notRefinedIdentity}`,
+    handoff: "Established preparation:",
+    workspace: path.join(origin.project, ".worktrees", "story-c"),
+    publishedSha: await originMain(origin),
+  });
 });
 
 test("the execution dialog offers Claude Code's efforts whatever the model, and Opus with high starts the session with --effort high", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("launched");
-  const { execution: action } = await actions(page, launchJourney);
-
-  await action.open();
-  const effort = effortOf(action.dialog);
+  const board = await openInstalledStoryBoard(page, origin);
+  const { dialog, submit } = await board.open(readyStory, "Execution");
+  const selection = storyLaunchChoices(dialog);
   const efforts = [
     "low",
     "medium (Open Dough default)",
@@ -106,81 +90,102 @@ test("the execution dialog offers Claude Code's efforts whatever the model, and 
     "xhigh (about 3× the cost of medium)",
     "max (about 7× the cost of medium)",
   ];
-  await expect(effort.locator("option")).toHaveText(efforts);
-  await expect(effort).toHaveValue("medium");
-  await modelOf(action.dialog).selectOption({ label: "Opus" });
-  await expect(effort.locator("option")).toHaveText(efforts);
-  await effort.selectOption("high");
-  await action.dialog.getByRole("button", { name: "Start" }).click();
+  await expect(selection.effort.locator("option")).toHaveText(efforts);
+  await expect(selection.effort).toHaveValue("medium");
+  await selection.chooseModel("opus");
+  await expect(selection.effort.locator("option")).toHaveText(efforts);
+  await selection.effort.selectOption("high");
 
-  await expect(action.dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
-  expect(dashboard.claudeLaunches()[0]).toMatchObject({
+  const before = dashboard.claudeLaunches().length;
+  const acceptance = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await acceptance);
+  const launch = readClaudeLaunch(dashboard, outcome, before);
+  await expect(dialog).toBeHidden();
+  expect(launch.started).toMatchObject({ model: "opus", effort: "high" });
+  expect(launch.record.request).toMatchObject({
     model: "opus",
     effort: "high",
+  });
+  expectInstalledClaudeStory(dashboard, launch, {
+    invocation: `/dough-execute-plan ${readyIdentity}`,
+    handoff: "Established start:",
+    workspace: path.join(origin.project, ".worktrees", "story-b"),
+    publishedSha: await originMain(origin),
   });
 });
 
 test("the session dialog left on Default starts the session without --model, at Open Dough's default effort", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("launched");
-  const { session: action } = await actions(page, launchJourney);
+  await openInstalledStoryBoard(page, origin);
+  const { dialog, submit } = await openStartSession(page, "Open Dough");
 
-  await action.open();
-  await action.dialog.getByRole("button", { name: "Start" }).click();
-
-  await expect(action.dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
-  const [started] = dashboard.claudeLaunches();
+  const before = dashboard.claudeLaunches().length;
+  const acceptance = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await acceptance);
+  const { started, record } = readClaudeLaunch(dashboard, outcome, before);
+  await expect(dialog).toBeHidden();
   expect(started).not.toHaveProperty("model");
-  expect(started?.effort).toBe("medium");
+  expect(started.effort).toBe("medium");
+  expect(started.cwd).toBe(realpathSync(origin.project));
+  expect(record.request).not.toHaveProperty("model");
+  expect(record.request.effort).toBe("medium");
 });
 
 test("Opus launched from a dialog, the same dialog opens again on Default", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("launched");
-  const { session } = await actions(page, launchJourney);
+  await openInstalledStoryBoard(page, origin);
+  const first = await openStartSession(page, "Open Dough");
+  await storyLaunchChoices(first.dialog).chooseModel("opus");
+  const before = dashboard.claudeLaunches().length;
+  const acceptance = nextAcceptedAttemptId(page);
+  await first.submit();
+  const outcome = await settledOutcome(dashboard, await acceptance);
+  const selected = readClaudeLaunch(dashboard, outcome, before);
+  await expect(first.dialog).toBeHidden();
 
-  await session.open();
-  await modelOf(session.dialog).selectOption({ label: "Opus" });
-  await session.dialog.getByRole("button", { name: "Start" }).click();
-  await expect(session.dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-
-  await session.open();
-  await expect(modelOf(session.dialog)).toHaveValue("");
-  await session.dialog.getByRole("button", { name: "Start" }).click();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(2);
-  const [first, second] = dashboard.claudeLaunches();
-  expect(first?.model).toBe("opus");
-  expect(second).not.toHaveProperty("model");
+  const second = await openStartSession(page, "Open Dough");
+  await expect(storyLaunchChoices(second.dialog).model).toHaveValue("");
+  const defaultBefore = dashboard.claudeLaunches().length;
+  const defaultAcceptance = nextAcceptedAttemptId(page);
+  await second.submit();
+  const defaultOutcome = await settledOutcome(
+    dashboard,
+    await defaultAcceptance,
+  );
+  const defaulted = readClaudeLaunch(dashboard, defaultOutcome, defaultBefore);
+  expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
+  expect(selected.started.model).toBe("opus");
+  expect(selected.record.request.model).toBe("opus");
+  expect(defaulted.started).not.toHaveProperty("model");
+  expect(defaulted.record.request).not.toHaveProperty("model");
 });
 
 test("a refused launch with Opus says Launch failed beside its action, closes the dialog, and lists no session", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("refused");
-  const { card, execution } = await actions(page, launchJourney);
+  const board = await openInstalledStoryBoard(page, origin, { follows: false });
+  const { dialog, submit } = await board.open(readyStory, "Execution");
+  await storyLaunchChoices(dialog).chooseModel("opus");
+  await submit();
 
-  await execution.open();
-  await modelOf(execution.dialog).selectOption({ label: "Opus" });
-  await execution.dialog.getByRole("button", { name: "Start" }).click();
-
-  await expect(execution.dialog).toBeHidden();
-  await expect(card(readyStory).locator(".launch-problem")).toContainText(
+  await expect(dialog).toBeHidden();
+  await expect(board.launchProblem(readyStory)).toContainText(
     "Launch failed: Claude Code refused to start a session",
   );
-  await expect(card(readyStory).locator(".launch-problem")).toContainText(
-    "Opus",
-  );
-  await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
-  expect(dashboard.claudeCalls()).toHaveLength(1);
+  await expect(board.launchProblem(readyStory)).toContainText("Opus");
+  await expect(storyCardSessions(board.card(readyStory))).toHaveCount(0);
+  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
 });

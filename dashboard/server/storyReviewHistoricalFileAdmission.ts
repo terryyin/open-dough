@@ -11,17 +11,17 @@ import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { executionCheckout } from "./executionCheckout.ts";
+import { reviewRepositoryPath } from "./reviewRepository.ts";
 import {
   reviewedLandedRunByReference,
   reviewedLandedRuns,
 } from "./storyReviewRunAdmission.ts";
 import {
-  landedStoryReview,
+  landedFileReview,
   type LandingReviewSource,
 } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
-import { recordedLandingReview } from "./storyReviewPublishedLanding.ts";
+import { recordedLandingFileReview } from "./storyReviewPublishedLanding.ts";
 
 export type HistoricalReviewedFileFields = ReviewedPairFile;
 
@@ -119,7 +119,7 @@ async function requirePublishedCompletion(
     source,
     identity,
     admissionBound(signal),
-    completion,
+    { completion },
   );
   throwIfRequestAborted(signal);
   if (review?.kind !== "published")
@@ -167,7 +167,7 @@ async function admitPublishedCompletion(
       409,
       "The file or comparison does not belong to this published completion.",
     );
-  return { repository: executionCheckout(source).path, ...file };
+  return { repository: reviewRepositoryPath(source), ...file };
 }
 
 function requireLandingFile(
@@ -189,7 +189,7 @@ export async function admitLandedRun(
   signal: AbortSignal | undefined,
   source: PublishedSource,
 ): Promise<AdmittedReviewedFile> {
-  const review = await landedStoryReview(run, admissionBound(signal), source);
+  const review = await landedFileReview(run, admissionBound(signal), source);
   throwIfRequestAborted(signal);
   if (review.kind !== "landed")
     throw new RefusedRequest(
@@ -200,7 +200,7 @@ export async function admitLandedRun(
     );
   requireLandingFile(review, file);
   return {
-    repository: executionCheckout(source).path,
+    repository: reviewRepositoryPath(source),
     ...file,
   };
 }
@@ -225,7 +225,7 @@ export async function admitHistoricalReviewedFile(
       file,
       signal,
     );
-  const recorded = await recordedLandingReview(
+  const recorded = await recordedLandingFileReview(
     source,
     named.identity,
     named.reference,
@@ -236,7 +236,7 @@ export async function admitHistoricalReviewedFile(
     if (recorded.kind === "landing-unavailable")
       throw new RefusedRequest(409, recorded.explanation);
     requireLandingFile(recorded, file);
-    return { repository: executionCheckout(source).path, ...file };
+    return { repository: reviewRepositoryPath(source), ...file };
   }
   const { runs } = await reviewedLandedRuns(source, named.identity);
   return admitLandedRun(

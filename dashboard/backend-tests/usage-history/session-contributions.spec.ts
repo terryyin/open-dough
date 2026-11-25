@@ -1,37 +1,42 @@
-// What the usage history stores after the offline import
-// (../../server/usageHistory.ts): one document of tasks, coverage gaps and
-// one contribution per native session whose responses name a task, and no
-// response. A session read again, by the import or another writer, replaces
-// its contribution; a session whose rollout is gone keeps it; and a rollout
-// moved to the archived root is still one session. What a new task adds to
-// the document is ./session-contribution-growth.spec.ts.
+// The usage history keeps each session's contribution as native evidence is
+// replayed, removed or archived. Growth is covered in session-contribution-growth.spec.ts.
 import assert from "node:assert/strict";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  renameSync,
-  rmSync,
-  statSync,
-} from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryFile } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  usageHistoryFile,
+  writeUsageHistory,
+  type UsageHistory,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
-  nodeProcess,
-  readImported,
-  runImport,
   sessionTotals,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
+
+const importOptions = (home: string, ...codexRoots: string[]) =>
+  makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots,
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
 
 const used = (output: number) => ({
   input_tokens: 10,
@@ -40,7 +45,7 @@ const used = (output: number) => ({
   output_tokens: output,
 });
 
-test("an import stores one document with a contribution per session by model and effort, and no response or page", ({
+test("an import stores one document with a contribution per session by model and effort, and no response or page", async ({
   home,
   root,
 }) => {
@@ -67,47 +72,42 @@ test("an import stores one document with a contribution per session by model and
       .please(),
   );
 
-  expect(runImport(home, root)).toMatchObject({ tasks: 1, observations: 4 });
-
-  const store = usageHistoryFile(home);
-  const text = readFileSync(store, "utf8");
-  const [task] = Object.values(readImported(home).tasks);
+  const options = importOptions(home, root);
+  const report = await importUsageHistory(options);
+  expect(report).toMatchObject({ tasks: 1, observations: 4 });
+  const { store } = options;
+  const text = fs.readFileSync(store, "utf8");
+  const [task] = Object.values((await readUsageHistory(store)).tasks);
   assert(task);
-  expect(existsSync(`${store}.pages`)).toBe(false);
+  expect(fs.existsSync(`${store}.pages`)).toBe(false);
   expect(text).not.toMatch(/response-(one|two|three|stray)/);
-  const document = JSON.parse(text) as ReturnType<typeof readImported>;
-  expect(Object.keys(document)).toEqual([
-    "format",
-    "tasks",
-    "sessions",
-    "gaps",
-  ]);
+  const document = JSON.parse(text) as UsageHistory;
+  const fields = Object.keys(document);
+  expect(fields).toEqual(["format", "tasks", "sessions", "gaps"]);
   expect(document.format).toBe("usage-history-v2");
   expect(document.tasks[task.id]?.sources.length).toBeGreaterThan(0);
   expect(JSON.stringify(document.sessions)).not.toContain(file);
+  const tokens = { uncachedInput: 5, cacheRead: 4, cacheWrite: 1, output: 5 };
+  const entry = { candidates: [task.id], tier: null, tokens };
   expect(document.sessions).toEqual({
     "codex:stored": {
       host: "codex",
       sessionId: "stored",
       entries: [
         {
-          candidates: [task.id],
+          ...entry,
           model: "model-a",
           effort: "low",
-          tier: null,
           responses: 2,
-          tokens: { uncachedInput: 5, cacheRead: 4, cacheWrite: 1, output: 5 },
           missing: { uncachedInput: 1, cacheRead: 1, cacheWrite: 1, output: 0 },
           unmeasured: 1,
           lastAt: "2026-11-14T10:00:00.000Z",
         },
         {
-          candidates: [task.id],
+          ...entry,
           model: "model-b",
           effort: "high",
-          tier: null,
           responses: 1,
-          tokens: { uncachedInput: 5, cacheRead: 4, cacheWrite: 1, output: 5 },
           missing: { uncachedInput: 0, cacheRead: 0, cacheWrite: 0, output: 0 },
           unmeasured: 0,
           lastAt: "2026-11-14T12:00:00.000Z",
@@ -117,7 +117,7 @@ test("an import stores one document with a contribution per session by model and
   });
 });
 
-test("a session read again by the import or passed again by another writer replaces its contribution, changes no task total and, unchanged, leaves the file as it is", ({
+test("a session read again by the import or passed again by another writer replaces its contribution, changes no task total and, unchanged, leaves the file as it is", async ({
   home,
   root,
 }) => {
@@ -136,32 +136,34 @@ test("a session read again by the import or passed again by another writer repla
         .withResponse("turn", `${session}-two`, used(output))
         .please(),
     );
-  runImport(home, root);
-  const once = readImported(home);
+  const options = importOptions(home, root);
+  const { store, responses } = options;
+  await importUsageHistory(options);
+  const once = await readUsageHistory(store);
   expect(sessionTotals(once)).toEqual([
     ["first", 2, 4],
     ["second", 2, 14],
   ]);
 
-  runImport(home, root);
-  const twice = readImported(home);
+  await importUsageHistory(options);
+  const twice = await readUsageHistory(store);
   expect(sessionTotals(twice)).toEqual(sessionTotals(once));
 
-  const sessions = {
-    observations: Object.values(twice.observations),
-    associations: Object.values(twice.associations),
-  };
+  const { observations, associations } = JSON.parse(
+    fs.readFileSync(responses, "utf8"),
+  ) as UsageResponses;
   // The file as it stands: a write that changes nothing replaces nothing.
   const file = () => {
-    const { ino, mtimeNs } = statSync(usageHistoryFile(home), { bigint: true });
+    const { ino, mtimeNs } = fs.statSync(store, { bigint: true });
     return [ino, mtimeNs];
   };
   const stored = file();
-  nodeProcess(
-    home,
-    `const { writeUsageHistory } = await import('./dashboard/server/usageHistory.ts'); await writeUsageHistory(${JSON.stringify(sessions)});`,
-  );
-  const written = readImported(home);
+  const replay = {
+    observations: Object.values(observations),
+    associations: Object.values(associations),
+  };
+  await writeUsageHistory(replay, store);
+  const written = await readUsageHistory(store);
   expect(sessionTotals(written)).toEqual(sessionTotals(once));
   expect(written.sessions).toEqual(once.sessions);
   expect(file()).toEqual(stored);
@@ -190,38 +192,40 @@ test("a task whose rollout was deleted keeps its totals and its usage in the tas
       .withResponse("turn", "removed-two", used(4))
       .please(),
   );
-  runImport(home, root);
-  const before = readImported(home);
-  const summary = await deriveUsageTaskSummary(usageHistoryFile(home));
+  const options = importOptions(home, root);
+  const { store } = options;
+  await importUsageHistory(options);
+  const before = await readUsageHistory(store);
+  const summary = await deriveUsageTaskSummary(store);
   expect(sessionTotals(before)).toEqual([
     ["kept", 1, 2],
     ["removed", 2, 7],
   ]);
 
-  rmSync(rollout);
-  expect(runImport(home, root)).toMatchObject({ tasks: 2, observations: 1 });
+  fs.rmSync(rollout);
+  const report = await importUsageHistory(options);
+  expect(report).toMatchObject({ tasks: 2, observations: 1 });
 
-  const after = readImported(home);
+  const after = await readUsageHistory(store);
   expect(sessionTotals(after)).toEqual(sessionTotals(before));
   expect(after.sessions).toEqual(before.sessions);
-  const usage = (
-    await deriveUsageTaskSummary(usageHistoryFile(home))
-  ).tasks.map((task) => [task.id, task.usage]);
-  expect(usage).toEqual(summary.tasks.map((task) => [task.id, task.usage]));
+  const current = await deriveUsageTaskSummary(store);
+  const usage = current.tasks.map(({ id, usage }) => [id, usage]);
+  expect(usage).toEqual(summary.tasks.map(({ id, usage }) => [id, usage]));
   expect(usage.map(([, groups]) => groups)).toMatchObject([
     [{ responses: 1 }],
     [{ model: "model-a", effort: "low", root: true, responses: 2 }],
   ]);
 });
 
-test("a rollout moved from the live root to the archived root is counted once", ({
+test("a rollout moved from the live root to the archived root is counted once", async ({
   home,
   root,
 }) => {
   keepOperationalLaunch(home, launch("moved", "turn"));
   const live = path.join(root, "sessions/2026/11/14");
   const archived = path.join(root, "archived_sessions");
-  const roots = ["--codex-root", archived];
+  const options = importOptions(home, path.join(root, "sessions"), archived);
   const rollout = writeCodexSession(
     live,
     makeMe.aCodexRollout
@@ -230,17 +234,16 @@ test("a rollout moved from the live root to the archived root is counted once", 
       .withResponse("turn", "moved-two", used(3))
       .please(),
   );
-  runImport(home, path.join(root, "sessions"), roots);
-  const before = readImported(home);
+  await importUsageHistory(options);
+  const before = await readUsageHistory(options.store);
   expect(sessionTotals(before)).toEqual([["moved", 2, 5]]);
 
-  mkdirSync(archived, { recursive: true });
-  renameSync(rollout, path.join(archived, path.basename(rollout)));
-  expect(runImport(home, path.join(root, "sessions"), roots)).toMatchObject({
-    observations: 2,
-  });
+  fs.mkdirSync(archived, { recursive: true });
+  fs.renameSync(rollout, path.join(archived, path.basename(rollout)));
+  const { observations } = await importUsageHistory(options);
+  expect(observations).toBe(2);
 
-  const after = readImported(home);
+  const after = await readUsageHistory(options.store);
   expect(sessionTotals(after)).toEqual([["moved", 2, 5]]);
   expect(after.sessions).toEqual(before.sessions);
 });

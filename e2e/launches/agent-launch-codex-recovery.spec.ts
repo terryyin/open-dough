@@ -7,10 +7,11 @@ import {
   startDashboardServer,
   sharedDashboardBuild,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
-import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
   notRefinedStory,
   notRefinedIdentity,
+  queuedDashboardRepository,
 } from "../../dashboard/test-support/launchJourney.ts";
 import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import { sessionDetailsControl } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
@@ -19,7 +20,7 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/test-support/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
 import {
   attempts,
   continued,
@@ -28,8 +29,9 @@ import {
   machineSessions,
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { expectInstalledCodexStoryInput } from "./codexLaunchObservation.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+test.use({ originRepository: queuedDashboardRepository().please() });
 
 for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
   test(`lost acknowledgment resumes matching history (${resumedStatus}) without creating or resending`, async ({
@@ -37,11 +39,11 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
     dashboard,
     codexProtocol: protocol,
     machine,
-    launchJourney,
+    origin,
   }) => {
     const native = protocol;
     if (native === undefined) throw new Error("Missing native fixture.");
-    const { card } = await openTakenBacklog(page, launchJourney);
+    const { card } = await openInstalledStoryBoard(page, origin);
     const pendingRequest = {
       ...refinementRequest,
       host: "codex",
@@ -84,6 +86,12 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
       const record = stored(limited.home)[0];
       if (record?.session.host !== "codex")
         throw new Error("Missing saved Codex record.");
+      expectInstalledCodexStoryInput(
+        limited,
+        native,
+        record,
+        `$dough-story-refinement ${notRefinedIdentity}`,
+      );
       const command = shellCommand(record.session.continuation?.args ?? []);
       execFileSync("/bin/sh", ["-c", command], {
         env: { ...process.env, ...native.env },
@@ -98,7 +106,7 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
         "--remote",
         `unix://${native.env["FAKE_CODEX_SOCKET"]}`,
         "--cd",
-        path.join(limited.home, "git", "open-dough"),
+        path.join(origin.project, ".worktrees", "story-c"),
         "native id's opaque",
       ]);
     } finally {

@@ -19,6 +19,42 @@ import {
 } from "../pathHistoryAnswers.ts";
 import type { RepositoryAnswerer } from "./fakeGitHub.ts";
 import { defaultPassingBaseCi } from "./baseCiActions.ts";
+import {
+  commitPublishedOrigin,
+  type PublishedOrigin,
+} from "./publishedOrigin.ts";
+
+// A published repository's answerer and the real origin its trunk is
+// committed to; serving it routes that origin (./fakeGitHub.ts).
+export type PublishedOriginAnswerer = RepositoryAnswerer & PublishedOrigin;
+
+export const publishedOriginOf = (
+  answerer: RepositoryAnswerer,
+): PublishedOrigin | undefined =>
+  "origin" in answerer ? (answerer as PublishedOriginAnswerer) : undefined;
+
+// `wrapper` answers from `published`'s origin, so serving it routes that
+// origin as serving `published` would.
+export const keepingOrigin = (
+  wrapper: RepositoryAnswerer,
+  published: RepositoryAnswerer,
+): RepositoryAnswerer => {
+  const origin = publishedOriginOf(published);
+  return origin === undefined
+    ? wrapper
+    : Object.assign(wrapper, {
+        origin: origin.origin,
+        revision: origin.revision,
+      });
+};
+
+type Publishing = {
+  readonly defaultBranch?: string;
+  readonly backlog?: string;
+  readonly files?: Readonly<Record<string, string>>;
+  readonly committed?: Readonly<Record<string, Date>>;
+  readonly history?: PathHistories;
+};
 
 // Answers `revision` for any ref, and as the only branch head the published
 // default branch (`main` when unset) of a head listing — so a revision
@@ -30,16 +66,27 @@ import { defaultPassingBaseCi } from "./baseCiActions.ts";
 // asks for, each listed commit answering for its own change to that path; a
 // published agent profile nothing else dates was added by a commit of its
 // own (../pathHistoryAnswers.ts).
-export function publishes(published: {
-  readonly revision: string;
-  readonly defaultBranch?: string;
-  readonly backlog?: string;
-  readonly files?: Readonly<Record<string, string>>;
-  readonly committed?: Readonly<Record<string, Date>>;
-  readonly history?: PathHistories;
-}): RepositoryAnswerer {
-  const branch = published.defaultBranch ?? "main";
-  return ({ request }) => {
+// Without a `revision`, the backlog and files are committed to a real origin
+// and its actual revision answers instead.
+export function publishes(
+  publishing: Publishing & { readonly revision?: undefined },
+): PublishedOriginAnswerer;
+export function publishes(
+  publishing: Publishing & { readonly revision: string },
+): RepositoryAnswerer;
+export function publishes(
+  publishing: Publishing & { readonly revision?: string | undefined },
+): RepositoryAnswerer {
+  const branch = publishing.defaultBranch ?? "main";
+  const origin =
+    publishing.revision === undefined
+      ? commitPublishedOrigin({ ...publishing, branch })
+      : undefined;
+  const published = {
+    ...publishing,
+    revision: origin?.revision ?? publishing.revision ?? "",
+  };
+  const answerer: RepositoryAnswerer = ({ request }) => {
     // Default passing Actions / head history for the published head so
     // execution-start journeys are not asked about base CI (SEED-210).
     const passingBase = defaultPassingBaseCi(
@@ -101,4 +148,5 @@ export function publishes(published: {
       stderr: "fake gh: unrecognized invocation\n",
     });
   };
+  return origin === undefined ? answerer : Object.assign(answerer, origin);
 }

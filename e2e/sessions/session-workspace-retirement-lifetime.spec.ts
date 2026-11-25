@@ -18,7 +18,7 @@ import {
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   save,
-  retained,
+  givenRetiredCodexReport,
 } from "../../dashboard/test-support/support/retainedReport.ts";
 import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 import { codexAttaches } from "../../dashboard/test-support/support/codexTerminal.ts";
@@ -37,7 +37,10 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing protocol fixture");
-  const { record, workspace } = await retained(dashboard, native);
+  const { record, workspace } = await givenRetiredCodexReport(
+    dashboard,
+    native,
+  );
   mkdirSync(workspace);
   save(dashboard.home, [record]);
   const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");

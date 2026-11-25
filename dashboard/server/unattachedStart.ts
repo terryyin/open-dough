@@ -20,7 +20,10 @@ import {
 } from "../src/agentLaunch.ts";
 import { admitsIsolatedStory } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { executePlanScript, shipsStartScript } from "./executionStart.ts";
+import {
+  executePlanScript,
+  shipsStartScript,
+} from "./executionStartCommands.ts";
 import { adHocLabelText } from "./hostLaunch.ts";
 import type { Started } from "./launchStart.ts";
 import {

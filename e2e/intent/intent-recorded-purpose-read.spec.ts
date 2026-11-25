@@ -23,7 +23,7 @@ import {
 test("opening a recorded Purpose case acquires its pinned source from GitHub exactly once", async ({
   page,
 }) => {
-  const upstream = await publishDoughnutCasePosition(page);
+  const upstream = publishDoughnutCasePosition(page);
   await openUntilRead(page, "/?project=doughnut&perspective=intent");
   const { intent } = parts(page);
   await chooseOptimizationCandidates(intent);

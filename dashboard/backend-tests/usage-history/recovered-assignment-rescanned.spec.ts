@@ -1,22 +1,26 @@
 // A session read again while its task's assignment does not hold keeps the
 // task as its contribution's candidate, so the task regains the usage from
 // later launch evidence after the rollout is gone.
-import { rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
+  readUsageHistory,
   taskUsage,
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
 import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import {
   test,
-  expect,
   launch,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
-  readImported,
-  runImport,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
@@ -26,6 +30,15 @@ test("usage charged to a task, withdrawn by a rejection whose import reads the r
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   const session = "rescanned";
   const file = writeCodexSession(
     root,
@@ -67,21 +80,24 @@ test("usage charged to a task, withdrawn by a rejection whose import reads the r
         makeMe.aUsageAssociation.with({ observation, task }).please(),
       ],
     },
-    usageHistoryFile(home),
+    store,
   );
-  expect(taskUsage(readImported(home), task.id).requests).toBe(1);
+  expect(taskUsage(await readUsageHistory(store), task.id).requests).toBe(1);
 
-  runImport(home, root);
+  await importUsageHistory(options);
 
-  const withdrawn = readImported(home);
+  const withdrawn = await readUsageHistory(store);
+  const { associations } = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
   expect(withdrawn.tasks[task.id]?.gaps).toContain(
     "unsupported-task-assignment",
   );
   expect(taskUsage(withdrawn, task.id).requests).toBe(0);
-  expect(withdrawn.associations[response]).toMatchObject({
+  expect(associations[response]).toMatchObject({
     taskId: null,
     candidates: [task.id],
-    gaps: expect.arrayContaining(["unsupported-task-assignment"]),
+    gaps: expect.arrayContaining(["unsupported-task-assignment"]) as unknown,
   });
   expect(withdrawn.sessions[`codex:${session}`]?.entries).toMatchObject([
     { candidates: [task.id], responses: 1, tokens: { output: 9 } },
@@ -92,14 +108,17 @@ test("usage charged to a task, withdrawn by a rejection whose import reads the r
     home,
     launch(session, "turn", "2026-11-14T07:00:00.000Z"),
   );
-  runImport(home, root);
+  await importUsageHistory(options);
 
-  const regained = readImported(home);
+  const regained = await readUsageHistory(store);
+  const { observations } = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
   expect(regained.tasks[task.id]).toMatchObject({ kind: "launch" });
   expect(regained.tasks[task.id]?.gaps).not.toContain(
     "unsupported-task-assignment",
   );
-  expect(regained.observations).toEqual({});
+  expect(observations).toEqual({});
   expect(taskUsage(regained, task.id)).toMatchObject({
     requests: 1,
     tokens: { output: 9 },

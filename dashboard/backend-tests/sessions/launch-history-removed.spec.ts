@@ -21,7 +21,7 @@ import {
   recordsOf,
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { launched } from "../../test-support/agentTerminalBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -163,7 +163,7 @@ test.describe("removed sessions remain in launch history", () => {
 
   test("refuses removal when history is unwritable and keeps the record", async () => {
     const server = await serverOn();
-    const session = await launched(server);
+    const session = await composeSession(server);
     const before = keptLaunchRecords(server);
     const home = machineHome(machine);
     const historyDir = launchHistoryDirectory(home);

@@ -5,9 +5,8 @@ import { textLines } from "../src/diffContextExpansion.ts";
 import type { FollowUpFile } from "../src/followUpRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { executionCheckout } from "./executionCheckout.ts";
 import { admitPublishedSessionFile } from "./publishedSessionReview.ts";
-import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
+import { lastSyncedPublishedSessionSource } from "./publishedSessionSource.ts";
 import {
   admissionBound,
   admitHistoricalReviewedFile,
@@ -58,11 +57,9 @@ export async function admitFollowUpFile(
     ...(oldPath === undefined ? {} : { oldPath }),
   };
   if (published !== undefined) {
-    const project = await fetchedPublishedSessionSource(
-      executionCheckout(source).path,
+    const project = await lastSyncedPublishedSessionSource(
       source,
-      published,
-      { admission: admissionBound, fetch: admissionBound },
+      admissionBound(),
     );
     const admitted = await admitPublishedSessionFile(
       project,

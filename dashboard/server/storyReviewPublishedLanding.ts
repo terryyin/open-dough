@@ -1,5 +1,4 @@
 // Published close records can supply the exact pair of the story's owning landing.
-import { realpath } from "node:fs/promises";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import type {
@@ -10,7 +9,6 @@ import {
   isSessionId,
   sessionRecordPathBeside,
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
-import { executionCheckout } from "./executionCheckout.ts";
 import {
   defaultGitOutputLimit,
   gitExitedOne,
@@ -20,31 +18,26 @@ import {
 import { publishedRecordAt } from "./publishedSessionReview.ts";
 import { sessionRecordDirectoryOf } from "./recordsBesideBacklog.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
+import {
+  lastSyncedReviewRepository,
+  reviewRepositoryPath,
+  type ReviewRepositoryReader,
+  ReviewSyncFailed,
+  withSyncFailure,
+} from "./reviewRepository.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 
-export async function publishedLandingCheckout(
-  source: PublishedSource,
-  signal: AbortSignal,
-) {
-  const repository = executionCheckout(source).path;
-  const call = { cwd: repository, signal, maxBuffer: defaultGitOutputLimit };
-  const { stdout } = await runGit(["rev-parse", "--show-toplevel"], call);
-  if ((await realpath(stdout.trim())) !== (await realpath(repository)))
-    throw new Error(
-      "The execution checkout no longer points to this project's Git root.",
-    );
-  return call;
-}
-
+// Landings recorded in `repository`, which its caller has already synced.
 async function publishedLandings(
   source: PublishedSource,
+  repository: string,
   identity: string,
   landing: string,
   signal: AbortSignal,
   named?: string,
 ): Promise<LandedReviewContext[]> {
   try {
-    const call = await publishedLandingCheckout(source, signal);
+    const call = { cwd: repository, signal, maxBuffer: defaultGitOutputLimit };
     const { stdout } = await runGit(
       ["rev-parse", "--verify", `origin/${source.ref}^{commit}`],
       call,
@@ -125,15 +118,22 @@ export async function recordedLandingChoices(
   signal: AbortSignal,
 ): Promise<ReviewRunChoice[]> {
   if (landing === undefined) return [];
-  return (await publishedLandings(source, identity, landing, signal)).map(
-    (pair) => ({
-      key: pair.reference,
-      workflow: pair.workflow,
-      remote: pair.remote,
-      target: pair.target,
-      comparison: { base: pair.base, revision: pair.revision },
-    }),
-  );
+  // The published review this answers has just synced the Review repository.
+  return (
+    await publishedLandings(
+      source,
+      reviewRepositoryPath(source),
+      identity,
+      landing,
+      signal,
+    )
+  ).map((pair) => ({
+    key: pair.reference,
+    workflow: pair.workflow,
+    remote: pair.remote,
+    target: pair.target,
+    comparison: { base: pair.base, revision: pair.revision },
+  }));
 }
 
 export async function recordedLandingReview(
@@ -141,12 +141,30 @@ export async function recordedLandingReview(
   identity: string,
   reference: string,
   signal: AbortSignal,
+  reader: ReviewRepositoryReader,
 ): Promise<
   Extract<StoryReview, { kind: "landed" | "landing-unavailable" }> | undefined
 > {
   if (!isSessionId(reference)) return undefined;
   // Named reads can arrive before the Done view has fetched the close record.
-  const endpoints = await publishedStoryEndpoints(source, identity, signal);
+  let synced: Awaited<ReturnType<ReviewRepositoryReader>>;
+  try {
+    synced = await reader(source, signal);
+  } catch (error) {
+    if (!(error instanceof ReviewSyncFailed)) throw error;
+    return {
+      kind: "landing-unavailable",
+      reference,
+      explanation: error.message,
+    };
+  }
+  const { repository, syncFailure } = synced;
+  const endpoints = await publishedStoryEndpoints(
+    source,
+    repository,
+    identity,
+    signal,
+  );
   if (endpoints.kind !== "facts") return undefined;
   const { facts } = endpoints;
   const landing =
@@ -154,6 +172,7 @@ export async function recordedLandingReview(
   if (landing === undefined) return undefined;
   const [pair] = await publishedLandings(
     source,
+    repository,
     identity,
     landing,
     signal,
@@ -163,7 +182,7 @@ export async function recordedLandingReview(
   const read = await retainedCommitPairFiles(
     {
       ...pair,
-      repository: executionCheckout(source).path,
+      repository,
     },
     signal,
   );
@@ -181,5 +200,22 @@ export async function recordedLandingReview(
     tree: pair.revision,
     files: read.files,
     selectedRun: reference,
+    ...withSyncFailure(syncFailure),
   };
 }
+
+// A recorded landing's pair from what the last sync left: file reads make no
+// remote request, since the open that showed the file has already synced.
+export const recordedLandingFileReview = (
+  source: PublishedSource,
+  identity: string,
+  reference: string,
+  signal: AbortSignal,
+) =>
+  recordedLandingReview(
+    source,
+    identity,
+    reference,
+    signal,
+    lastSyncedReviewRepository,
+  );

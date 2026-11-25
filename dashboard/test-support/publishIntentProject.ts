@@ -1,20 +1,21 @@
+import type { Page } from "@playwright/test";
 import type { IntentSettings } from "../../Distribution/tests/support/intentLocationTestData.mjs";
 import type { CatalogPublication } from "./catalogProjectRecords.ts";
-import { publishFiles } from "./publishedFiles.ts";
+import { publishCommittedFiles } from "./committedFiles.ts";
 import { intentSettingsText } from "./support/intentSettingsFile.ts";
 
-// `published` with `settings`, built through MakeMe or given as the exact
-// settings text a case proves, and `sources` at its revision.
+// `published`'s files with `settings`, built through MakeMe or given as the
+// exact settings text a case proves, and `sources` committed as its
+// configured ref's one commit; returns that real revision and the requests.
 export function publishIntentProject(
-  page: Parameters<typeof publishFiles>[0],
-  published: CatalogPublication,
+  page: Page,
+  published: Pick<CatalogPublication, "repository" | "ref" | "files">,
   settings: IntentSettings | string,
   sources: Readonly<Record<string, string>>,
 ) {
-  return publishFiles(page, {
+  return publishCommittedFiles(page, {
     repository: published.repository,
     ref: published.ref,
-    revision: published.revision,
     files: {
       ...published.files,
       ".planning/open-dough.json":

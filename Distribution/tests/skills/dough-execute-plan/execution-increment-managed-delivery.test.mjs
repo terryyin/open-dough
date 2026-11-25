@@ -148,15 +148,9 @@ test("a second managed delivery reuses its coordinator's live observer", async (
   );
 });
 
-test("missing host alias still resolves a usable checkout runtime", async (t) => {
-  const fixture = await createManagedFixture({ platforms: [".agents"] });
+test("managed Claude delivery uses the Claude runtime when both roots are installed", async (t) => {
+  const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
-
-  const runtime = fixture.resolveCheckoutRuntime(fixture.execution, {
-    host: "claude",
-  });
-  assert.equal(runtime.alias, ".agents");
-  assert.match(runtime.entrypoint, /\.agents\/skills\/dough-execute-plan/);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -168,7 +162,11 @@ test("missing host alias still resolves a usable checkout runtime", async (t) =>
     repo,
   });
   assert.equal(delivered.observation.state, "attached");
-  assert.equal(delivered.runtime.alias, ".agents");
+  assert.equal(delivered.runtime.root, ".claude");
+  assert.match(
+    delivered.runtime.entrypoint,
+    /\.claude\/skills\/dough-execute-plan/,
+  );
 });
 
 // Records, from inside the remote's receive, which mailbox owners already
@@ -183,7 +181,7 @@ function recordOwnersAtPush(origin, storage, log) {
 }
 
 test("a fresh Claude coordinator's taught deliver command attaches, receives its CI failure, and reuses the observer", async (t) => {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  const fixture = await createManagedFixture({ platform: ".claude" });
   t.after(fixture.cleanup);
   const pushLog = join(fixture.fixture, "owners-at-push.log");
   recordOwnersAtPush(fixture.origin, fixture.storage, pushLog);

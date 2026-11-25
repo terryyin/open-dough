@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-21
 planted_during: Review of the SEED-413 file-count comparison and unified Intent design
 trigger_when: selected from the product backlog
-scope: nine stories
+scope: story and project review in Intent
 ---
 
 # SEED-420 — Review code and proof in the same Intent workspace
@@ -22,8 +22,14 @@ Keep the existing owners for [published session records and session selection](S
 [sidebar behavior](SEED-417-use-sidebars-consistently-across-the-dashboard.md),
 [Board actions](SEED-416-put-story-actions-in-the-comment-toolbar.md) and
 [outgoing follow-up context](https://github.com/terryyin/open-dough/blob/9d70e5741139db0443e0cf37f16c0881c7b1b55f/.planning/seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context).
-The effort bands below are relative hypotheses. Each section delivers a
-usable change, independently of the later polish.
+
+The annotated review on 2026-11-25 used the Done story
+`SEED-413#trim-follow-up-context-e2e-journeys` with a file diff open. It showed
+an icon-only banner, stacked comparison details and actions, page-wide story
+tabs, and separate Intent sections and outside files. The current entry
+points are [IntentPage](../../dashboard/src/IntentPage.tsx),
+[IntentHeader](../../dashboard/src/IntentHeader.tsx), and
+[IntentTreeGroups](../../dashboard/src/IntentTreeGroups.tsx).
 
 <a id="choose-review-scope"></a>
 
@@ -34,10 +40,12 @@ usable change, independently of the later polish.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-A developer uses the banner bookmark to switch stories or choose **Whole
-project**. Clearing the story preserves its recent-list entry. On mobile the
-closed control shows only the bookmark icon, with a touch target and accessible
-name conveying its scope. At desktop width it can show the current scope.
+A developer can identify the perspective and scope at a glance from the
+desktop **Intent** banner label and the adjacent bookmark labeled with the
+selected story or **Whole project**. The bookmark opens the menu to switch
+stories or choose **Whole project**. Clearing the story preserves its
+recent-list entry. On mobile the closed bookmark shows only its icon, with a
+touch target and accessible name conveying its scope.
 
 Repair the reported failure to open the menu while the selected story is
 already visible. Verify Board and Intent: the first click on a visible story
@@ -48,6 +56,98 @@ to it. Exercise keyboard activation as well as touch.
 **Effort hypothesis:** S, medium confidence. Reproduce the visibility
 regression at the affected viewport before changing its detection.
 
+<a id="compact-story-comparison-controls"></a>
+
+### Read and change the story comparison from one control bar
+
+**Identity:** SEED-420#compact-story-comparison-controls
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer reviewing a story can identify the active comparison and change
+it from one compact toolbar row, leaving room for files and proof. Keep the
+story title above the bar. Group the file sidebar toggle, available comparison
+controls, and **Include merged changes** when supported. Show the Sessions
+control there as it becomes available through
+[session selection](SEED-418-review-published-session-changes.md#select-a-story-session-for-review).
+
+Collapse the comparison metadata into a one-line summary in that row. Show
+the recorded agent's avatar alongside attribution when an agent is known.
+Make the full comparison details available from the row, including the
+recorded time, branch, baseline and result revisions, and attribution or
+availability explanation. Switching comparisons updates the summary and the
+details to describe the active choice. Remove the standalone comparison
+**Refresh** button. A comparison read failure still offers its
+existing **Retry** where applicable.
+
+<a id="put-comparison-follow-up-by-story-notes"></a>
+
+### Put comparison follow-up beside story notes
+
+**Identity:** SEED-420#put-comparison-follow-up-by-story-notes
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer can open **Follow up on comparison** from an icon-only button
+beside the existing note button on the story title row. Give the icon the
+accessible name **Follow up on comparison**. The action keeps its existing
+availability and opens the composer with the comparison currently under
+review, including a changed choice such as a landed run.
+
+<a id="read-story-evidence-from-intent-home"></a>
+
+### Read CI comparison and Intent coverage from Story Home
+
+**Identity:** SEED-420#read-story-evidence-from-intent-home
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer who opens a story in Intent with no file or folder selected sees
+the CI comparison by default. **Intent coverage** is another tab inside that
+Home view. The existing page-wide **CI comparison**, **Changes**, and
+**Intent coverage** tabs give way to Home and the selected path's reading.
+Opening a folder or file takes the reader directly to its summary, diff,
+Purpose, or Proof as applicable. **Review changes** continues to open the
+story's changed-file review directly.
+
+The sidebar **Home** icon clears the path selection and opens the CI
+comparison by default, keeping the story, comparison, and session choices.
+Home remains reachable while a folder or file is selected. File filters leave
+Home's CI evidence intact, including evidence from unchanged tests. When a
+different comparison is chosen, the existing CI comparison and Intent
+coverage qualifications still identify the evidence basis where applicable.
+The [sidebar story](SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
+owns the shared responsive layout.
+
+<a id="browse-one-selectable-review-tree"></a>
+
+### Browse and select folders in one story review tree
+
+**Identity:** SEED-420#browse-one-selectable-review-tree
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer can browse Intent paths and other paths together in one tree of
+repository paths at the story review's selected revision. Show each path in
+its repository folder. Retire the separate Intent section lists and
+**Outside Intent locations** section. Keep comparison paths for deleted and
+renamed files reachable and preserve the selected comparison when opening a
+path.
+
+Folder rows can become the current selection, with a separate expand and
+collapse control. Selecting a regular folder replaces the previous reading
+with an empty or minimal folder view. Selecting a configured Intent root or
+a folder under it opens the folder's proof summary. For example, a developer
+can expand `dashboard`, select a regular folder without leaving the tree,
+then select a frontend test folder and see its proof. The
+[folder proof story](#recognize-intent-folders-and-read-proof) owns the visual
+cues and section details. [Project browsing](#browse-the-project-at-a-revision)
+applies the shared tree to the whole-project scope.
+
 <a id="filter-review-files"></a>
 
 ### Filter the file browser by Intent and by changes
@@ -57,20 +157,44 @@ regression at the affected viewport before changing its detection.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-A developer sees the same files in the tree and folder list for the selected
-revision and filters. **Intent only** means configured Intent locations.
-**Changes only** means added, modified, removed or renamed paths in the chosen
-comparison. With both enabled, a changed spec appears and an untouched spec
-and changed production file are hidden. Turning off either filter widens the
-selection along that dimension. Preserve historical locations, deletion and
-rename navigation, and the full comparison's evidence on Overview.
+A developer sees the same filtered inventory in the unified tree and the
+folder file list. Replace **Selected story only** with two independent
+controls. **Intent only** means paths matching the selected revision's
+configured Intent locations. **Changes only** means added, modified, removed
+or renamed paths in the active story comparison. Both on shows changed specs
+that match Intent and hides untouched specs and changed production files.
+Either off widens the inventory along that dimension. Both off shows the
+repository inventory at the selected revision, with comparison paths for
+deletions and renames. Keep ancestors needed to navigate to matching paths.
 
-Home precedes both filters in the sidebar header and returns to the current
-overview. Opening and hiding the sidebar follows SEED-417. A snapshot with
-no comparison offers Intent filtering and explains why Changes only is
-unavailable.
+Place the filters after **Home** in the sidebar. Keep Intent filtering usable
+without a story. In whole-project scope omit **Changes only**. If a story has
+no usable comparison, explain why its changes filter is unavailable. File
+filtering leaves Home's comparison evidence intact.
 
 **Effort hypothesis:** M, medium confidence, given the current story overlay.
+
+<a id="recognize-intent-folders-and-read-proof"></a>
+
+### Recognize Intent folders and read their proof
+
+**Identity:** SEED-420#recognize-intent-folders-and-read-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer can find configured Intent locations in the shared file tree.
+Style a collapsed ancestor containing one or more Intent locations with a
+cue related to the current Intent section style. Once expanded, style the
+visible Intent root itself. If an intervening folder still hides a root, its
+collapsed row carries the cue. Root rows stay visually distinct whether open
+or closed. The tree rows show folder names and state. Test types and
+configured folder and file patterns belong in the selected root's summary.
+
+Selecting the root shows its test type, configured patterns, matching files
+and proof. Selecting a folder inside that location shows proof scoped to that
+folder, with the evidence basis identified. The same tree cues and folder
+reading apply when browsing a published project without a selected story.
 
 <a id="browse-the-project-at-a-revision"></a>
 
@@ -82,19 +206,23 @@ unavailable.
 ```
 
 With no story selected, a developer starts at the project's existing CI
-overview and can open a production file, test, or document at the named
-revision. Read a test's Purpose and Proof or a production file's source.
-Explain missing file-level evidence. Moving to another path keeps the named
-revision. Returning to Home restores the project's CI changes and measured
-builds. Project browsing also works for a repository with no Intent locations.
+overview and uses the same unified tree, selectable folders, Intent folder
+cues and **Intent only** filter as story review. The story-only **Changes
+only** filter is unavailable in this scope. A developer can open a production
+file, test, or document at the named revision and read a test's Purpose and
+Proof or a production file's source. Explain missing file-level evidence.
+Moving to another path keeps the named revision. Returning to **Home**
+restores the project's CI changes and measured builds. Project browsing also
+works for a repository with no Intent locations.
 
 **Effort hypothesis:** M, medium confidence. This expands the inventory beyond
 test locations while preserving revision-pinned reads.
 
 ## Order and scope
 
-Prioritize readable, retry-safe session identity and existing record-format
-work before designs that depend on those facts. The shared review and its
-proof baseline are the first opportunity to replay the reported discrepancy.
-The bookmark repair travels with scope selection at ordinary priority. Whole
-project browsing can be deferred while the existing story review remains useful. Structure and generating new paired CI runs are separate directions.
+The [product backlog](../PRODUCT-BACKLOG.md#backlog-list) carries the priority
+of the annotated review outcomes. The story header and Home can improve with
+the comparisons already available. The shared story tree gives the filtering
+and folder cues one inventory, and project browsing applies the same reading
+to the published project revision. Session subset attribution, Structure,
+and generating new paired CI runs remain separate directions.

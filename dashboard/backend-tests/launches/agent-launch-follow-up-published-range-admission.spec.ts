@@ -13,11 +13,14 @@ import {
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { publishes } from "../../test-support/support/publishedRepository.ts";
 import { publishStorySession } from "../../test-support/support/storySessionPublication.ts";
+import { getReview } from "../../test-support/support/completedReviewRequests.ts";
+import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { request } from "./followUpBoundaryCases.ts";
 
 test.use({ serverMode: "boundary" });
 
 test("a published file Follow up requires the exact recorded range, literal path and owning story", async ({
+  request: http,
   dashboard,
   origin,
 }) => {
@@ -40,6 +43,12 @@ test("a published file Follow up requires the exact recorded range, literal path
       ),
     }),
   );
+  // The follow-up starts from a file the session review open showed.
+  const opened = await getReview(http, dashboard, storyReviewEndpoint, {
+    source: "open-dough",
+    published: record.sessionId,
+  });
+  expect(await opened.json()).toMatchObject({ kind: "published-session" });
   dashboard.claudeScenario("launched");
   const file = {
     published: record.sessionId,

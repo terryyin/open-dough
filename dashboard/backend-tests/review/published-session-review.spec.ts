@@ -9,9 +9,12 @@ import { RefusedRequest } from "../../server/localOrigin.ts";
 import { storyReviewSchema } from "../../src/storyReviewContract.ts";
 import {
   aPublishedSession,
+  aSyncedPublishedSession,
   read,
+  readAdmittedFile,
   readFile,
 } from "../support/publishedSessionCase.ts";
+import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
 
 test("Given a published session record and a later trunk revision, when its UUID is reviewed, then the recorded pair's file diff is shown", async () => {
   const published = await aPublishedSession();
@@ -47,7 +50,7 @@ test("Given a session named by no UUID, when it is reviewed, then it is refused 
   });
 });
 
-test("Given a record whose commits this machine's Git lacks, when it is reviewed, then the review explains they are unavailable", async () => {
+test("Given a record whose commits the Review repository lacks, when it is reviewed, then the review explains they are unavailable", async () => {
   const absent = "0123456789abcdef0123456789abcdef01234567";
   const published = await aPublishedSession({
     base: absent,
@@ -60,7 +63,7 @@ test("Given a record whose commits this machine's Git lacks, when it is reviewed
     kind: "landing-unavailable",
     comparison: "published-session",
     explanation: expect.stringContaining(
-      "This session's published commits are not in this machine's Git.",
+      "This session's published commits are not in this project's Review repository.",
     ) as unknown,
   });
 });
@@ -89,4 +92,34 @@ test("Given a published session, when a file off its recorded pair is read, then
       path: "later.md",
     }),
   ).rejects.toMatchObject({ status: 409 });
+});
+
+test("Given a synced published session whose origin has moved on, when a file of its recorded pair is read, then its diff is shown without a remote request", async () => {
+  const synced = await aSyncedPublishedSession();
+  const recording = stubRemoteRequestRecording(synced.fixture);
+
+  const diff = readAdmittedFile(synced.sessionId, synced, "notes.md");
+
+  await expect(diff).resolves.toMatchObject({
+    kind: "diff",
+    printed: expect.stringContaining("+edited") as unknown,
+  });
+  expect(recording.requests()).toEqual([]);
+});
+
+test("Given a session record published after the last sync, when a file of its recorded pair is read, then it is refused without a remote request", async () => {
+  const synced = await aSyncedPublishedSession();
+  const recording = stubRemoteRequestRecording(synced.fixture);
+
+  const refused = readAdmittedFile(
+    synced.unsyncedSessionId,
+    synced,
+    "notes.md",
+  );
+
+  await expect(refused).rejects.toMatchObject({
+    status: 404,
+    message: "This project published no such session.",
+  });
+  expect(recording.requests()).toEqual([]);
 });

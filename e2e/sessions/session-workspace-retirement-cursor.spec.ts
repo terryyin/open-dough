@@ -69,6 +69,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
   );
   await expect(panel).toContainText(workspace);
   await expect(terminalPanel(page)).toHaveCount(0);
+  expect(dashboard.claudeLaunchCalls()).toEqual([]);
   // Reading is passive: it changes no read or done mark in the saved record.
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
   await closeSidePanel(panel);

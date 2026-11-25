@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "01a211c4-5819-7ba2-8b53-51768355b858",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T08:23:51.051Z",
+  "story": "SEED-430#publish-moving-board-fixtures-through-git",
+  "ranges": [
+    {
+      "base": "4f107f7e71e679dc434ee553c7dffbc661f1c77a",
+      "candidate": "74c05df37461211ffa4da94c8c44ec3cde35fe79"
+    }
+  ]
+}

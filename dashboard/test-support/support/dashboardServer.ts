@@ -8,6 +8,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { installFakeClaude, type FakeClaudeControls } from "./fakeClaude.ts";
 import { dashboardServerEnvironment } from "./dashboardServerEnvironment.ts";
+import { prepareCatalogProjects } from "./catalogProjectOrigin.ts";
+import { routeDashboardHome } from "./fixtureOriginRoute.ts";
 import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { readPid } from "./processGroup.ts";
 import {
@@ -15,7 +17,6 @@ import {
   startFakeGitHub,
   type FakeGitHub,
 } from "./fakeGitHub.ts";
-import { defaultBaseCiRevision } from "./baseCiActions.ts";
 import { publishes } from "./publishedRepository.ts";
 import { dashboardFixtureLifetime } from "./dashboardFixtureLifetime.ts";
 import {
@@ -47,15 +48,7 @@ export type {
   DashboardCursorRunner,
   DashboardServerOptions,
 } from "./dashboardServerOptions.ts";
-
-// The boundary server in the development project environment, for a
-// boundary spec whose fact belongs to that environment, not to Vite's dev
-// server. A page journey starts a dev server only for a fact of the
-// development environment; every other one runs under the built preview.
-export const developmentBoundary = {
-  mode: "boundary",
-  environment: "development",
-} as const;
+export { developmentBoundary } from "./dashboardServerOptions.ts";
 
 export type DashboardServer = {
   readonly baseURL: string;
@@ -105,10 +98,7 @@ async function start(
   const ownsGitHub = options.github === undefined;
   const github = options.github ?? (await startFakeGitHub());
   if (ownsGitHub) {
-    github.serve(
-      everyRepository,
-      publishes({ revision: defaultBaseCiRevision }),
-    );
+    github.serve(everyRepository, publishes({}));
   }
   const gh = installFakeGh(tempRoot, { transport: options.ghTransport });
   const ghEnv = fakeGhEnv(gh, github.url);
@@ -117,6 +107,7 @@ async function start(
     { binDir: gh.binDir, path: ghEnv["PATH"] ?? "" },
     options,
   );
+  routeDashboardHome(claude.controls.home, github);
   const environment = projectEnvironmentOf(options.mode, options.environment);
   if (
     environment === "development" &&
@@ -175,6 +166,12 @@ async function start(
         )
       : undefined;
   const closeOwned = dashboardFixtureLifetime({ ...resources, standIn });
+  await prepareCatalogProjects(resources.home, options.projectFolders).catch(
+    async (error: unknown) => {
+      await closeOwned();
+      throw error;
+    },
+  );
 
   const launchLive = async () => {
     const { spawn, outDir } = await serverLaunch(

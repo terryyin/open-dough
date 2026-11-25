@@ -3,10 +3,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import {
-  launch,
-  launchRequest,
-} from "../../test-support/agentLaunchBoundary.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   refusedResponse,
   terminalUrl,
@@ -178,7 +176,7 @@ test("the mounted server accepts the control that ends a pending launch wait", a
   });
   try {
     server.claudeScenario("hang");
-    const response = launch(server, launchRequest);
+    const response = launch(server, makeMe.aLaunchRequest.adHoc().please());
     await expect.poll(() => server.heldClaudePid()).toBeDefined();
     await server.endLaunchWait();
     expect(JSON.parse((await response).body)).toMatchObject({

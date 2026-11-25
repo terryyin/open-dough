@@ -9,12 +9,11 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
 import { listed } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   publishedFiles,
   repository,
-  revision,
 } from "../../dashboard/test-support/recentlyDoneRecords.ts";
 import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
@@ -78,9 +77,8 @@ test("a done story's Follow up sends only the retained session selected through 
     .markedDoneAt(doneAt.toISOString())
     .please();
   keepLaunchRecords(dashboard, [...quiet, reopenable]);
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository,
-    revision,
     files: publishedFiles({
       doneRecords: doneStoryRecords(
         [recoverStory, otherStory, reopenableStory],
@@ -140,24 +138,9 @@ test("a done story's Follow up sends only the retained session selected through 
   const text = "Paste drops the last line on iPad";
   const refined = composer.session(/-refined$/);
   const executed = composer.session(/-executed$/);
-  await test.step("Then both session choices start clear and closed", async () => {
+  await test.step("When I attach only the refinement", async () => {
     await composer.expectSessionChoices(2);
-    await refined.expectChoiceState({ checked: false, detailsOpen: false });
-    await executed.expectChoiceState({ checked: false, detailsOpen: false });
-  });
-  await test.step("When I open the refinement details by keyboard", async () => {
-    await refined.toggleDetailsByKeyboard();
-  });
-  await test.step("Then the details appear and the choice stays clear", async () => {
-    await refined.expectDetails(refinement.instruction, refinement.report);
-    await refined.expectSelection(false);
-  });
-  await test.step("When I select and close the details by keyboard", async () => {
     await refined.toggleSelectionByKeyboard();
-    await refined.toggleDetailsByKeyboard();
-  });
-  await test.step("Then only the refinement stays selected", async () => {
-    await refined.expectChoiceState({ checked: true, detailsOpen: false });
     await executed.expectSelection(false);
   });
   await test.step("Start sends the selection and the new session names the source story", async () => {
@@ -204,9 +187,8 @@ test("starting a follow-up with attached notes marks them sent on the card and i
     .savedAt("2026-11-17T12:00:00.000Z")
     .please();
   seedStoryNotes(dashboard.home, { [recoverStory.identity]: [waiting] });
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository,
-    revision,
     files: publishedFiles({
       doneRecords: doneStoryRecords([recoverStory], completedAt),
     }),

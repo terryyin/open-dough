@@ -5,7 +5,6 @@
 import assert from "node:assert/strict";
 import { execFile, execFileSync } from "node:child_process";
 import {
-  appendFileSync,
   cpSync,
   existsSync,
   mkdirSync,
@@ -17,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { makeMe } from "../../support/makeMe.mjs";
 import { publishJson } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
+import { ignoreInstalledSkills } from "../dough-execute-plan/ci-installed-checkouts-test-fixtures.mjs";
 import { deliverThroughCli } from "../dough-execute-plan/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import {
   createManagedFixture,
@@ -46,25 +46,14 @@ function install(name, checkout, platform) {
 export async function installClosureSkills(fixture, platform = ".claude") {
   install("dough-story-wrap-up", fixture.execution, platform);
   install("dough-land", fixture.execution, platform);
-  const common = (
-    await git(
-      fixture.execution,
-      "rev-parse",
-      "--path-format=absolute",
-      "--git-common-dir",
-    )
-  ).stdout.trim();
-  appendFileSync(
-    join(common, "info/exclude"),
-    `${platform}/\n.planning/open-dough.json\n`,
-  );
+  await ignoreInstalledSkills(fixture.execution);
 }
 
 // `description` is the repository the closure harness is installed on.
 export async function createTrunkClosureFixture(t, { description } = {}) {
   const fixture = await createManagedFixture({
     description,
-    platforms: [".claude"],
+    platform: ".claude",
   });
   t.after(fixture.cleanup);
   await installClosureSkills(fixture);

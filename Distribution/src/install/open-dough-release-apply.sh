@@ -18,35 +18,36 @@ finish_equal_version_host_hooks() {
   local work=$1
   local target=$2
   local dest=$3
-  local hooks_status
+  local hooks_status=complete
+  local outcome
 
-  if ! host_hook_fragments_present "${work}"; then
-    trace_line "apply-skip-equal ${dest}"
-    printf 'Outcome: both physical installations are current; no installer invocation or installed-file writes.\n'
-    return 0
-  fi
-  if ! hooks_status=$(host_hooks_registration_status "${work}" "${target}"); then
+  if host_hook_fragments_present "${work}" \
+    && ! hooks_status=$(host_hooks_registration_status "${work}" "${target}"); then
     trace_line "apply-hooks-conflict ${dest}"
     printf 'Outcome: refused; preserved the selected installation.\n'
     return 1
   fi
-  if [[ "${hooks_status}" == complete ]]; then
-    trace_line "apply-skip-equal ${dest}"
-    printf 'Outcome: both physical installations are current; no installer invocation or installed-file writes.\n'
-    return 0
-  fi
-  if [[ "${hooks_status}" != repair ]]; then
-    echo "Unexpected host hook registration status: ${hooks_status}" >&2
-    printf 'Outcome: refused; preserved the selected installation.\n'
-    return 1
-  fi
-  # Status already proved a mergeable write; apply re-plans and writes.
-  trace_line "apply-hooks-repair ${dest}"
-  if ! apply_host_hooks "${work}" "${target}"; then
-    printf 'Outcome: refused; preserved the selected installation.\n'
-    return 1
-  fi
-  printf 'Outcome: both physical installations are current; restored missing host hook registration without rewriting managed payload files.\n'
+  case ${hooks_status} in
+    complete)
+      trace_line "apply-skip-equal ${dest}"
+      outcome='no installer invocation or installed-file writes.'
+      ;;
+    repair)
+      # Status already proved a mergeable write; apply re-plans and writes.
+      trace_line "apply-hooks-repair ${dest}"
+      if ! apply_host_hooks "${work}" "${target}"; then
+        printf 'Outcome: refused; preserved the selected installation.\n'
+        return 1
+      fi
+      outcome='restored missing host hook registration without rewriting managed payload files.'
+      ;;
+    *)
+      echo "Unexpected host hook registration status: ${hooks_status}" >&2
+      printf 'Outcome: refused; preserved the selected installation.\n'
+      return 1
+      ;;
+  esac
+  printf 'Outcome: both installations are current; %s\n' "${outcome}"
   return 0
 }
 

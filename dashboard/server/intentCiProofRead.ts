@@ -109,17 +109,37 @@ export function readingIntentCiProofOf(
   return readingCiProofOf(read, source.repository);
 }
 
+// Artifact and adapter seams that acquire one attempt's proof. Collection and
+// typed Intent proof reads bind the same bag; production keeps the defaults.
+export type IntentCiProofReaders = {
+  readonly artifact: typeof readCiProofArtifact;
+  readonly adapter: typeof readCiAdapterProof;
+};
+
+const defaultReaders: IntentCiProofReaders = {
+  artifact: readCiProofArtifact,
+  adapter: readCiAdapterProof,
+};
+
 // Performs one CI proof read: it always answers, with the reason when no
 // proof can be shown. `folderOf` resolves the execution checkout an adapter
-// attempt's proof is asked in.
+// attempt's proof is asked in. Optional `readers` bind the same artifact and
+// adapter seams `readIntentCiProof` already accepts for collection.
 export async function performIntentCiProofRead(
   source: PublishedSource,
   read: IntentCiProofRead,
   signal: AbortSignal,
   folderOf: (source: PublishedSource) => string,
+  readers?: IntentCiProofReaders,
 ): Promise<Outcome> {
   const subject = ciProofSubjectOf(read);
-  const proof = await readIntentCiProof(source, subject, signal, folderOf);
+  const proof = await readIntentCiProof(
+    source,
+    subject,
+    signal,
+    folderOf,
+    readers,
+  );
   const answer: IntentCiProofAnswer = {
     ...subject,
     checkedAt: new Date().toISOString(),
@@ -135,7 +155,7 @@ export async function readIntentCiProof(
   subject: CiProofSubject,
   signal: AbortSignal,
   folderOf: (source: PublishedSource) => string,
-  readers = { artifact: readCiProofArtifact, adapter: readCiAdapterProof },
+  readers: IntentCiProofReaders = defaultReaders,
 ): Promise<CiProof> {
   return isAdapterProofAttempt(subject)
     ? await readers.adapter(

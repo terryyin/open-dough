@@ -120,10 +120,10 @@ test.describe("authenticated done catalog refusal (development environment)", ()
   }
 
   test("a failing record read names that record", async () => {
-    const revision = revisionOf("9c");
     const files = publishedDone({ doneRecords: doneRecords("failing", 3) });
     const failing = pathOf(identityOf("failing", 1));
-    const published = publishes({ revision, files });
+    const published = publishes({ files });
+    const { revision } = published;
     const answerer: RepositoryAnswerer = (call) =>
       call.request.kind === "content" && call.request.path === failing
         ? Promise.resolve({ exitCode: 1, stderr: "connection reset" })
@@ -140,11 +140,12 @@ test.describe("authenticated done catalog refusal (development environment)", ()
   });
 
   test("a record read its request leaves is ended, and a later request asks again", async () => {
-    const revision = revisionOf("9d");
     const files = publishedDone({ doneRecords: doneRecords("leaving", 2) });
+    const published = publishes({ files });
+    const { revision } = published;
     const heldPath = pathOf(identityOf("leaving", 1));
     const held = holdingAnswer(
-      publishes({ revision, files }),
+      published,
       (request) => request.kind === "content" && request.path === heldPath,
     );
     server.github.serve(everyRepository, held.answer);

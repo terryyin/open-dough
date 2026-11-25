@@ -1,148 +1,97 @@
-// The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
-// at the boundary server, for a definition that declares an exclusive group: a
-// selection with at most one of the group's flags launches (the flags in the
-// definition's order), one naming two of them is refused naming the group and
-// both flags; which groups make a definition malformed is
-// ./agent-launch-options-rules.spec.ts. The project's skill is a copy of this
-// repository's refinement skill references with its definition replaced; the
-// synthetic `claude` records every call.
-
-import { cpSync, rmSync, writeFileSync } from "node:fs";
-import path from "node:path";
+// The installed refinement definition orders flags and enforces its exclusive groups.
 import type { OptionsDefinition } from "../../src/commandOptions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect } from "../../test-support/support/pageTest.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
-  launch,
-  launchRequest,
-  machineSessions,
-  openDoughFolder,
-  refinementRequest,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
-import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  expectStoryCommand,
+  launchClaude,
+  otherRefinement,
+  refinementDefinition,
+  refinementSkill,
+  refuseOptions,
+  roughRefinement,
+  test,
+} from "../support/installedClaudeLaunch.ts";
 
-const skill = "dough-story-refinement";
 const [a, b, c] = ["--a", "--b", "--c"];
+const entry = (flag: string) => makeMe.anOptionsEntry.with({ flag }).please();
+const group = (...flags: string[]) =>
+  makeMe.anExclusiveOptionGroup
+    .with({ id: "pair", label: "Pair", flags })
+    .please();
 
-test.describe(`agent launch boundary, exclusive option groups`, () => {
-  test.describe.configure({ mode: "serial" });
-  let server: DashboardServer;
+function definitionWith(
+  groups: NonNullable<OptionsDefinition["groups"]>,
+  focuses: readonly string[] = [c],
+) {
+  const definition = makeMe.anOptionsDefinition
+    .with({
+      command: refinementSkill,
+      options: [a, b].map(entry),
+      focuses: focuses.map(entry),
+      groups,
+    })
+    .please();
+  return { files: { [refinementDefinition]: JSON.stringify(definition) } };
+}
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer({
-      mode: "boundary",
-      projectFolders: ["open-dough"],
-      doneRenameWaitMs: 100,
-    });
+async function expectSelectedFlags(
+  server: DashboardServer,
+  options: string[],
+  shown: string,
+  story = roughRefinement,
+) {
+  const result = await launchClaude(server, { ...story, options });
+  expectStoryCommand(
+    result.started,
+    `/${refinementSkill} ${story.identity} ${shown}`,
+  );
+}
+
+test("launches a free flag beside one flag of the group, in the definition's order", async ({
+  installedClaude,
+}) => {
+  const server = await installedClaude({}, definitionWith([group(a, b)]));
+  await expectSelectedFlags(server, [c, a], `${a} ${c}`);
+});
+
+test("launches with one flag of the group alone, or none of them", async ({
+  installedClaude,
+}) => {
+  const server = await installedClaude({}, definitionWith([group(a, b)]));
+  await expectSelectedFlags(server, [b], b);
+  await expectSelectedFlags(server, [c], c, otherRefinement);
+});
+
+test("refuses two flags of the group, naming the group and both flags", async ({
+  installedClaude,
+}) => {
+  const server = await installedClaude({}, definitionWith([group(a, b)]));
+  const error = await refuseOptions(server, {
+    ...roughRefinement,
+    options: [b, c, a],
   });
+  expect(error).toContain("Pair");
+  expect(error).toContain(`${a} and ${b}`);
+  expect(error).not.toContain(c);
+});
 
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  const skillFolder = () =>
-    path.join(openDoughFolder(server), ".claude", "skills", skill);
-
-  // Each case starts from an installed copy of the real skill's references;
-  // its scripts stay out, so the launch establishes no preparation.
-  test.beforeEach(() => {
-    rmSync(skillFolder(), { recursive: true, force: true });
-    cpSync(
-      path.join(repoRoot, "Distribution", "src", "skills", skill, "references"),
-      path.join(skillFolder(), "references"),
-      { recursive: true },
-    );
-  });
-
-  const entry = (flag: string) => makeMe.anOptionsEntry.with({ flag }).please();
-
-  // Installs a definition of options A and B and focus C, with these groups.
-  const defineWith = (
-    groups: NonNullable<OptionsDefinition["groups"]>,
-    { focuses = [c] }: { focuses?: readonly string[] } = {},
-  ) => {
-    writeFileSync(
-      path.join(skillFolder(), "references", "refinement-options.json"),
-      JSON.stringify(
-        makeMe.anOptionsDefinition
-          .with({
-            command: skill,
-            options: [a, b].map(entry),
-            focuses: focuses.map(entry),
-            groups,
-          })
-          .please(),
-      ),
-    );
-  };
-
-  const group = (...flags: string[]) =>
-    makeMe.anExclusiveOptionGroup
-      .with({ id: "pair", label: "Pair", flags })
-      .please();
-
-  const instructionOf = async (options: string[]) => {
-    await closeOpenSessions(server);
-    server.claudeScenario("launched");
-    const callsBefore = server.claudeLaunchCalls().length;
-    const response = await launch(server, { ...refinementRequest, options });
-    expect(response.status, response.body).toBe(200);
-    const launches = server.claudeLaunches();
-    expect(launches).toHaveLength(callsBefore + 1);
-    return launches[callsBefore]?.instruction;
-  };
-
-  // The refusal's text, with no `claude` run and no record for it.
-  async function refused(options: string[]) {
-    server.claudeScenario("launched");
-    const recordsBefore = (await machineSessions(server)).length;
-    const callsBefore = server.claudeCalls().length;
-    const response = await launch(server, { ...refinementRequest, options });
-    expect(response.status).toBe(400);
-    expect(server.claudeCalls()).toHaveLength(callsBefore);
-    expect(await machineSessions(server)).toHaveLength(recordsBefore);
-    return (JSON.parse(response.body) as { error: string }).error;
-  }
-
-  test("launches a free flag beside one flag of the group, in the definition's order", async () => {
-    defineWith([group(a, b)]);
-    expect(await instructionOf([c, a])).toBe(
-      `/${skill} ${launchRequest.identity} ${a} ${c}`,
-    );
-  });
-
-  test("launches with one flag of the group alone, or none of them", async () => {
-    defineWith([group(a, b)]);
-    for (const [selection, shown] of [
-      [[b], b],
-      [[c], c],
-    ] as const) {
-      expect(await instructionOf([...selection])).toBe(
-        `/${skill} ${launchRequest.identity} ${shown}`,
-      );
-    }
-  });
-
-  test("refuses two flags of the group, naming the group and both flags", async () => {
-    defineWith([group(a, b)]);
-    const error = await refused([b, c, a]);
-    expect(error).toContain("Pair");
-    expect(error).toContain(`${a} and ${b}`);
-    expect(error).not.toContain(c);
-  });
-
-  test("honors each group on its own, and flags of different groups together", async () => {
-    defineWith([group(a, b), { ...group(c, "--d"), id: "other" }], {
-      focuses: [c, "--d"],
-    });
-    expect(await instructionOf([a, c])).toBe(
-      `/${skill} ${launchRequest.identity} ${a} ${c}`,
-    );
-    expect(await refused([c, "--d"])).toContain(`${c} and --d`);
-  });
+test("honors each group on its own, and flags of different groups together", async ({
+  installedClaude,
+}) => {
+  const server = await installedClaude(
+    {},
+    definitionWith(
+      [group(a, b), { ...group(c, "--d"), id: "other" }],
+      [c, "--d"],
+    ),
+  );
+  await expectSelectedFlags(server, [a, c], `${a} ${c}`);
+  expect(
+    await refuseOptions(server, {
+      ...otherRefinement,
+      options: [c, "--d"],
+    }),
+  ).toContain(`${c} and --d`);
 });

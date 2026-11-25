@@ -24,7 +24,11 @@ import {
   skillInvocation,
 } from "../../../src/hostDescription.ts";
 import type { PublishedSource } from "../../../src/publishedSource.ts";
-import { claudeSessions, startClaudeInBackground } from "./runtime.ts";
+import {
+  claudeExecutableMissing,
+  claudeSessions,
+  startClaudeInBackground,
+} from "./runtime.ts";
 import type { LocalFolder } from "../../localFolder.ts";
 import { developerPart } from "../../../src/launchAttachments.ts";
 import { unattachedInput } from "../../unattachedInput.ts";
@@ -75,6 +79,15 @@ function printedShortId(stdout: string): string | undefined {
 
 const checkAgents = hostDescriptions.claude.uncertaintyHint;
 
+const missingClaude =
+  "Claude Code (`claude`) was not found on this machine. Install it to start a session.";
+
+export async function claudeExecutionStartRefusal(
+  folder: LocalFolder,
+): Promise<string | undefined> {
+  return (await claudeExecutableMissing(folder)) ? missingClaude : undefined;
+}
+
 function timedOut(): HostLaunch {
   return {
     kind: "uncertain",
@@ -104,8 +117,7 @@ function failedLaunch(
     return {
       kind: "failed",
       reason: "not-installed",
-      explanation:
-        "Claude Code (`claude`) was not found on this machine. Install it to start a session.",
+      explanation: missingClaude,
     };
   }
   if (typeof error.code === "number") {

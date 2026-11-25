@@ -1,5 +1,5 @@
 // One matching contract serves both in-flight and retained-evidence lookup.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import {
   sameLaunch,
   type AgentLaunchRequest,

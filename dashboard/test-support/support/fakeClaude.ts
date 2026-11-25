@@ -1,7 +1,7 @@
 // Prepares one dashboard server's side of the local launch boundary: the
 // synthetic `claude` (../fixtures/fake-claude, with its attach module) in its
-// own PATH directory, a temporary HOME holding only the project folders a test
-// chooses (inside a machine directory the test owns, if it passes one) and,
+// own PATH directory, a temporary HOME (inside a machine directory the test
+// owns, if it passes one) and,
 // as that HOME's Open Dough notification sender, the synthetic
 // `terminal-notifier` (../fixtures/fake-terminal-notifier), and the controls a
 // test uses to choose the fake's scenario and read back what it was asked.
@@ -44,8 +44,6 @@ export type FakeClaudeOptions = {
   // state, and outlives the server, so another server can start on the same
   // machine state. A private one, removed with the server, when unset.
   readonly machine?: string | undefined;
-  // Folder names created under `<home>/git/`, as catalog projects' folders.
-  readonly projectFolders?: readonly string[] | undefined;
   // `absent`: no `claude` anywhere on the server's PATH, which then holds
   // only the fake `gh` and Node.
   readonly claude?: "fake" | "absent";
@@ -148,9 +146,7 @@ export function installFakeClaude(
       "terminal-notifier",
     );
   mkdirSync(stateDir, { recursive: true });
-  for (const folder of ["", ...(options.projectFolders ?? [])]) {
-    mkdirSync(path.join(home, "git", folder), { recursive: true });
-  }
+  mkdirSync(path.join(home, "git"), { recursive: true });
 
   const env: Record<string, string> = {
     // The real `claude` is never reached: the fake one comes first, or, where

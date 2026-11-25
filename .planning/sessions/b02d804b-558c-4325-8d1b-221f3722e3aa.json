@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "b02d804b-558c-4325-8d1b-221f3722e3aa",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T23:12:21.549Z",
+  "story": "SEED-433#run-dashboard-launch-tests-on-an-installed-project",
+  "ranges": [
+    {
+      "base": "9c6dd0a787a99f3213d8bbf67b08c6d0a523bcea",
+      "candidate": "1fe93ab7ab7cc5e867de9504b0220529eee4834c"
+    }
+  ]
+}

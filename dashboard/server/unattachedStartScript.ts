@@ -12,7 +12,7 @@ import {
   type EstablishedSession,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { runStartScript } from "./executionStart.ts";
+import { runStartScript } from "./executionStartCommands.ts";
 import type { WorkspaceChoice } from "./launchWorkspace.ts";
 import type { LocalFolder } from "./localFolder.ts";
 import {

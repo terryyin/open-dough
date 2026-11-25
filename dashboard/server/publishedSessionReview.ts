@@ -10,11 +10,15 @@ import {
   sharedCheckoutUncertainty,
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
-import type { StoryReview } from "../src/storyReviewContract.ts";
+import type {
+  ReviewSyncFailure,
+  StoryReview,
+} from "../src/storyReviewContract.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { publishedRecordFromText } from "./publishedSessionRecordText.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
+import { failedSyncExplanation } from "./reviewRepository.ts";
 import {
   admissionBound,
   belongsOnRetainedPair,
@@ -23,7 +27,7 @@ import {
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
 
-// What the published read needs: the execution checkout, the published
+// What the published read needs: the Review repository, the published
 // revision it reads records from, and the configured backlog path.
 export interface PublishedSessionSource {
   readonly repository: string;
@@ -31,8 +35,17 @@ export interface PublishedSessionSource {
   readonly backlogPath: string;
 }
 
-const unknownSession = () =>
+export const unknownSession = () =>
   new RefusedRequest(404, "This project published no such session.");
+
+// A session open whose sync failed before its record reached the last sync.
+export const unsyncedSessionReview = (
+  failure: ReviewSyncFailure,
+): StoryReview => ({
+  kind: "landing-unavailable",
+  comparison: "published-session",
+  explanation: failedSyncExplanation(failure),
+});
 
 // The record a published file holds, undefined unless it is valid and sits at
 // its own UUID's path.
@@ -73,8 +86,7 @@ export async function publishedSessionRecord(
   return record;
 }
 
-// The files of one recorded pair, read from the execution checkout's
-// objects.
+// The files of one recorded pair, read from the Review repository's objects.
 const recordedPairFiles = (
   source: PublishedSessionSource,
   { base, candidate }: PublishedSessionRecord["ranges"][number],
@@ -115,9 +127,9 @@ export async function publishedSessionReview(
       comparison: "published-session",
       explanation: {
         repository:
-          "This project's execution checkout is missing or unreadable.",
+          "This project's Review repository is missing or unreadable.",
         objects:
-          "This session's published commits are not in this machine's Git. Fetch the project to review them.",
+          "This session's published commits are not in this project's Review repository.",
         changes: "This session's published changes could not be read.",
       }[read.missing],
     };

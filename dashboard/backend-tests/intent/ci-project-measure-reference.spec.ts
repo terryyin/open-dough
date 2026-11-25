@@ -2,25 +2,31 @@
 // kept CI time without runner waits (../../server/intentCiHistoryRead.ts);
 // Done and default project reads keep wall time
 // (SEED-364#chart-ci-time-without-runner-waits example 2).
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { afterEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  parseIntentCiHistoryRead,
+  performIntentCiHistoryRead,
+} from "../../server/intentCiHistoryRead.ts";
 import { pendingWaitWords } from "../../src/ciHistoryGapWords.ts";
 import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
 import { landedCiHistorySchema } from "../../src/landedCiHistory.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import {
-  keepLandedCiHistory,
-  landedCiHistory,
-} from "../../test-support/support/landedCiHistory.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
 
-test.use({ serverMode: "boundary" });
-
+const source = makeMe.aPublishedSource.openDough.please();
 const revisionOf = (n: number) => n.toString(16).padStart(40, "0");
+let home = "";
 
-test("a measure-naming project read averages five priors at 5 min against a 4 min landing; without the measure a prior is excluded; Done and default stay wall time", async ({
-  dashboard,
-  github,
-}) => {
+afterEach(() => {
+  if (home !== "") rmSync(home, { recursive: true, force: true });
+  home = "";
+});
+
+test("a measure-naming project read averages five priors at 5 min against a 4 min landing; without the measure a prior is excluded; Done and default stay wall time", async () => {
+  home = mkdtempSync(path.join(tmpdir(), "ci-project-measure-reference-"));
   const wallMs = 6 * 60_000;
   const fiveMin = 5 * 60_000;
   const fourMin = 4 * 60_000;
@@ -49,11 +55,24 @@ test("a measure-naming project read averages five priors at 5 min against a 4 mi
         .please(),
     );
   }
-  await keepLandedCiHistory(dashboard.home, builder.please());
-  const before = github.calls.length;
-  const named = landedCiHistorySchema.parse(
-    (await landedCiHistory(dashboard, undefined, historyMeasure.value)).body,
-  );
+  await keepLandedCiHistory(home, builder.please());
+  const projectRead = async (measure?: typeof historyMeasure.value) => {
+    const query = new URLSearchParams({
+      source: "open-dough",
+      intent: "ci-history",
+      ...(measure === undefined ? {} : { [historyMeasure.name]: measure }),
+    });
+    const named = parseIntentCiHistoryRead(query);
+    expect(named).toMatchObject({ kind: "intent-ci-history" });
+    if (named?.kind !== "intent-ci-history")
+      throw new Error("expected intent-ci-history read");
+    const outcome = await performIntentCiHistoryRead(source, named, { home });
+    expect(outcome).toMatchObject({ kind: "answered" });
+    if (outcome.kind !== "answered")
+      throw new Error("expected answered history");
+    return landedCiHistorySchema.parse(outcome.answer);
+  };
+  const named = await projectRead(historyMeasure.value);
   expect(named.reference).toMatchObject({
     endpoint: revisionOf(7),
     selected: { key: "run/7/1", ms: fourMin },
@@ -67,9 +86,7 @@ test("a measure-naming project read averages five priors at 5 min against a 4 mi
     status: "excluded",
     reason: pendingWaitWords[historyMeasure.value],
   });
-  const defaultRead = landedCiHistorySchema.parse(
-    (await landedCiHistory(dashboard)).body,
-  );
+  const defaultRead = await projectRead();
   expect(defaultRead.reference).toMatchObject({
     selected: { key: "run/7/1", ms: wallMs },
     sampleCount: 6,
@@ -81,16 +98,16 @@ test("a measure-naming project read averages five priors at 5 min against a 4 mi
     revision: revisionOf(7),
     through: "2026-11-07T10:00:00Z",
   });
-  const doneResponse = await rawRequest({
-    url: `${dashboard.origin}/__authenticated-read?${doneQuery}`,
-    headers: { Origin: dashboard.origin },
+  const doneNamed = parseIntentCiHistoryRead(doneQuery);
+  expect(doneNamed).toMatchObject({ kind: "intent-ci-history" });
+  if (doneNamed?.kind !== "intent-ci-history")
+    throw new Error("expected intent-ci-history read");
+  const doneOutcome = await performIntentCiHistoryRead(source, doneNamed, {
+    home,
   });
-  expect({
-    status: doneResponse.status,
-    body: JSON.parse(doneResponse.body) as unknown,
-  }).toMatchObject({
-    status: 200,
-    body: {
+  expect(doneOutcome).toMatchObject({
+    kind: "answered",
+    answer: {
       selectedRevision: revisionOf(7),
       reference: {
         selected: { key: "run/7/1", ms: wallMs },
@@ -99,5 +116,4 @@ test("a measure-naming project read averages five priors at 5 min against a 4 mi
       },
     },
   });
-  expect(github.calls).toHaveLength(before);
 });

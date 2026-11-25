@@ -1,47 +1,73 @@
-// Intent CI proof read boundary (../../server/intentCiProofRead.ts
-// via the authenticated read): a proof query must name the run's attempt; one
-// that omits it is refused before GitHub is asked. Query-shape refusals of
-// `parseIntentCiProofRead`:
+// Intent CI proof admission (`../../server/intentCiProofRead.ts`
+// `parseIntentCiProofRead` via `parseRequestedRead`): a proof query must name
+// the run's attempt; one that omits it is refused before any provider is asked.
+// Query-shape refusals of `parseIntentCiProofRead`:
 // ../../../Distribution/tests/support/dashboard-ci-proof-parse.test.mjs.
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
 import {
-  developmentBoundary,
-  startDashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { trunkCi } from "../../test-support/support/trunkCiAnswers.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+  parseIntentCiProofRead,
+  performIntentCiProofRead,
+  type IntentCiProofReaders,
+} from "../../server/intentCiProofRead.ts";
+import { parseRequestedRead } from "../../server/requestedRead.ts";
 
 const revision = "a1".repeat(20);
+const source = makeMe.aPublishedSource.openDough.please();
+const refusal =
+  "A CI proof read names only the Intent request, one run, its attempt and its revision.";
 
-test("a CI proof query that omits the attempt is refused before asking GitHub", async () => {
-  const server = await startDashboardServer(developmentBoundary);
-  try {
-    const ci = trunkCi(revision, () => []);
-    const published = publishes({ revision });
-    server.github.serve(
-      everyRepository,
-      async (call) => (await ci(call)) ?? published(call),
-    );
-    const ask = (query: string) =>
-      rawRequest({
-        url: `${server.baseURL}${authenticatedReadEndpoint}?source=open-dough&intent=ci-proof&run=41&revision=${revision}${query}`,
-        headers: { Origin: server.origin },
-      });
-    const before = server.github.calls.length;
-    const refused = await ask("");
-    expect(refused.status).toBe(400);
-    expect(server.github.calls.slice(before)).toEqual([]);
-    // The same query naming its attempt is read from GitHub.
-    const read = await ask("&attempt=1");
-    expect(read.status).toBe(200);
-    expect(server.github.calls.slice(before)).not.toEqual([]);
-  } finally {
-    await server.close();
-  }
+test("a CI proof query that omits the attempt is refused before asking the provider", async () => {
+  const listing = vi.fn().mockResolvedValue({ artifacts: [] });
+  const archive = vi.fn();
+  const adapter = vi.fn();
+  const readers: IntentCiProofReaders = {
+    artifact: ciProofArtifactReader({ listing, archive }),
+    adapter: adapter as IntentCiProofReaders["adapter"],
+  };
+  const omitted = new URLSearchParams(
+    `intent=ci-proof&run=41&revision=${revision}`,
+  );
+
+  expect(parseIntentCiProofRead(omitted)).toMatchObject({
+    kind: "refused",
+    status: 400,
+    message: refusal,
+  });
+  // Authenticated admission refuses before `perform` (`authenticatedRead.ts`).
+  expect(parseRequestedRead(omitted)).toMatchObject({
+    kind: "refused",
+    status: 400,
+    message: refusal,
+  });
+  expect(listing).toHaveBeenCalledTimes(0);
+  expect(archive).toHaveBeenCalledTimes(0);
+  expect(adapter).toHaveBeenCalledTimes(0);
+
+  // The same query naming its attempt is admitted and asks the artifact provider.
+  const complete = parseRequestedRead(
+    new URLSearchParams(
+      `intent=ci-proof&run=41&attempt=1&revision=${revision}`,
+    ),
+  );
+  expect(complete).toMatchObject({
+    kind: "intent-ci-proof",
+    runId: 41,
+    runAttempt: 1,
+    revision,
+  });
+  if (complete.kind !== "intent-ci-proof")
+    throw new Error("expected intent-ci-proof admission");
+  await performIntentCiProofRead(
+    source,
+    complete,
+    new AbortController().signal,
+    () => "/unused",
+    readers,
+  );
+  expect(listing).toHaveBeenCalledTimes(1);
+  expect(archive).toHaveBeenCalledTimes(0);
+  expect(adapter).toHaveBeenCalledTimes(0);
 });

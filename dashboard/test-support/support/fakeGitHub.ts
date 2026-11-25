@@ -18,6 +18,11 @@ import { avatarsAt } from "../avatarAnswers.ts";
 import { asGhReply } from "./ghReply.ts";
 import { parseRequest, type GhRequest } from "./ghRequest.ts";
 import { unanswered } from "./waitUntil.ts";
+import {
+  routeFallbackThroughServedHomes,
+  routeOriginThroughServedHomes,
+} from "./fixtureOriginRoute.ts";
+import { publishedOriginOf } from "./publishedRepository.ts";
 
 export { publishes } from "./publishedRepository.ts";
 
@@ -178,7 +183,7 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
   });
   const { port } = server.address() as AddressInfo;
 
-  return {
+  const github: FakeGitHub = {
     url: `http://127.0.0.1:${String(port)}/`,
     calls,
     avatarReads,
@@ -193,6 +198,11 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
     serve(repository, answerer) {
       const previous = served.get(repository);
       served.set(repository, answerer);
+      const published = publishedOriginOf(answerer);
+      if (repository === everyRepository)
+        routeFallbackThroughServedHomes(github, published?.origin);
+      else if (published !== undefined)
+        routeOriginThroughServedHomes(github, published.origin, repository);
       return previous;
     },
     serveAvatars(answerer) {
@@ -207,4 +217,5 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
       });
     },
   };
+  return github;
 }

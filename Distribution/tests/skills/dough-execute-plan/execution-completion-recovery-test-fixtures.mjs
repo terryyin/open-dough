@@ -29,7 +29,7 @@ export const targetRef = "refs/heads/main";
 export const repo = "owner/project";
 
 export async function recoveryFixture(t) {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  const fixture = await createManagedFixture({ platform: ".claude" });
   t.after(fixture.cleanup);
   const session = { session_id: sessionId };
   const env = {

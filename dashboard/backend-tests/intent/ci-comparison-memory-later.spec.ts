@@ -1,12 +1,9 @@
 // The cancelled landing's explicitly refreshable gap must not become final.
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { start, branch, later } from "../support/comparisonRead.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
-import {
-  expect,
-  test,
-  observedComparisonSource,
-} from "../support/comparisonMemory.ts";
+import { test, observedComparisonSource } from "../support/comparisonMemory.ts";
 
 test("an awaiting-later gap reads a newly published trunk head and then remembers its usable build", async ({
   comparisonRead,

@@ -2,11 +2,9 @@
 // recomputed from the deduplicated request union with their coverage.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import { bytes } from "../../test-support/usage-history/agentEffortHarness.ts";
 import { compareViews } from "../../test-support/usage-history/agentEffortCompare.ts";
 import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";

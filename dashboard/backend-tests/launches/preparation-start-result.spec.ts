@@ -3,7 +3,7 @@
 // that words a stop (`preparationRefusal`). Continuation detail and refusal
 // wrapping for unreadable printed failures live here too.
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import {
   continuationDetail,
   continuationRefusal,

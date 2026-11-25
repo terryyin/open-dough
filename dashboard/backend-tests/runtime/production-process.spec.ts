@@ -1,7 +1,7 @@
 // Production process ownership (../../server/productionProcess.mjs): a
 // production build or preview runs as its own process group, and stopping it
 // ends that whole group.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { ownedProcess, stopProcess } from "../../server/productionProcess.mjs";

@@ -1,11 +1,10 @@
-// The done catalog through the Git-aware rebase and cherry-pick adapters:
+// The done catalog through the Git-aware rebase adapter:
 // real scratch repositories, real replays through the real adapter CLIs,
 // each accepted replay ending with a tip whose committed catalog describes
 // its committed record files, in at most one added catalog-only commit.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
-import { runCherryPick } from "./product-backlog-git-cherry-pick-fixture.mjs";
 import { backlogOf, direction } from "./product-backlog-fixture.mjs";
 import {
   assertCatalogDoneAgrees,
@@ -24,7 +23,6 @@ import {
   checkout,
   checkoutOf,
   commitOn,
-  headSha,
   isMidRebase,
   refSha,
   runRebase,
@@ -98,34 +96,6 @@ test("a rebase where both sides changed the catalog replays without a stop and a
   await assertCatalogDoneAgrees(repo);
 });
 
-test("a cherry-pick completing work onto a branch that added records without a catalog ends with one catalog-only tip commit", async (t) => {
-  const repo = await replayShape(t, { withCatalog: false });
-  const picked = refSha(repo, "feature");
-  checkout(repo, "main");
-  const before = headSha(repo);
-
-  const result = await runCherryPick(repo, ["pick", "--ref", picked]);
-
-  assert.equal(result.code, 0, result.stdout + result.stderr);
-  assert.equal(refSha(repo, "HEAD~2"), before);
-  await assertCatalogTip(repo, "complete C");
-});
-
-test("a cherry-pick where both sides changed the catalog applies without a stop", async (t) => {
-  const repo = await replayShape(t, { withCatalog: true });
-  const picked = refSha(repo, "feature");
-  checkout(repo, "main");
-  const before = headSha(repo);
-
-  const result = await runCherryPick(repo, ["pick", "--ref", picked]);
-
-  assert.equal(result.code, 0, result.stdout + result.stderr);
-  assert.equal(refSha(repo, "HEAD^"), before);
-  assert.equal(subject(repo), "complete C");
-  assertCommittedCatalogCurrent(repo.git, "HEAD");
-  await assertCatalogDoneAgrees(repo);
-});
-
 // `main` and `feature` both complete A at different times, so the record
 // conflicts; leaves `feature` checked out.
 async function conflictingRecordShape(t) {
@@ -172,29 +142,6 @@ test("a conflicting record stops the rebase, and continue after the resolution e
   assert.equal(isMidRebase(repo), false);
   assert.equal(subject(repo), catalogSubject);
   assert.equal(changedPaths(repo), catalog);
-  assert.deepEqual(
-    completions(assertCommittedCatalogCurrent(repo.git, "HEAD")),
-    [["A_A.json", "2026-10-06T10:00:00.000Z"]],
-  );
-  await assertCatalogDoneAgrees(repo);
-});
-
-test("a conflicting record stops the cherry-pick, and continue after the resolution ends with a current catalog", async (t) => {
-  const repo = await conflictingRecordShape(t);
-  const picked = refSha(repo, "feature");
-  checkout(repo, "main");
-
-  const stopped = await runCherryPick(repo, ["pick", "--ref", picked]);
-
-  assert.equal(stopped.code, 1);
-  assert.match(repo.git(["ls-files", "-u"]), /\.planning\/done\/A_A\.json/);
-
-  repo.git(["checkout", "--ours", "--", `${done}/A_A.json`]);
-  repo.git(["add", "--", `${done}/A_A.json`]);
-  const continued = await runCherryPick(repo, ["continue"]);
-
-  assert.equal(continued.code, 0, continued.stdout + continued.stderr);
-  assert.equal(subject(repo), catalogSubject);
   assert.deepEqual(
     completions(assertCommittedCatalogCurrent(repo.git, "HEAD")),
     [["A_A.json", "2026-10-06T10:00:00.000Z"]],

@@ -23,7 +23,7 @@ const repo = "owner/project";
 const ambient = "ambient-claude-session";
 
 test("explicit session JSON, including its owner metadata, wins over a different ambient Claude session", async (t) => {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  const fixture = await createManagedFixture({ platform: ".claude" });
   t.after(fixture.cleanup);
   const env = { ...fixture.env, CLAUDE_CODE_SESSION_ID: ambient };
   const explicit = { session_id: "explicit-owner", agent_id: "explicit-agent" };
@@ -48,7 +48,7 @@ test("explicit session JSON, including its owner metadata, wins over a different
 });
 
 test("malformed explicit session JSON is refused rather than replaced by the ambient Claude session", async (t) => {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
+  const fixture = await createManagedFixture({ platform: ".claude" });
   t.after(fixture.cleanup);
 
   const result = await deliverThroughCli(fixture, {

@@ -1,16 +1,19 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
-import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
-  expect,
-  test,
-} from "../../test-support/usage-history/retainedUsageTest.ts";
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import { importUsageHistory } from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+import { test } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
-  readImported,
-  runImport,
   writeClaudeSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
@@ -91,13 +94,24 @@ function nestedWorkerSession(
   return claudeRoot;
 }
 
-test("counts a background worker started by a worker through the starting worker's agent result", ({
+test("counts a background worker started by a worker through the starting worker's agent result", async ({
   home,
   root,
 }) => {
   const claudeRoot = nestedWorkerSession(home, { joinedB: true });
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  const history = readImported(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claudeRoot],
+    })
+    .please();
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   const task = Object.values(history.tasks).find(
     (item) => item.kind === "launch",
   );
@@ -110,13 +124,24 @@ test("counts a background worker started by a worker through the starting worker
   expect(taskUsage(history, task.id).requests).toBe(3);
 });
 
-test("leaves a nested worker without a recorded agent result unassigned and explained", ({
+test("leaves a nested worker without a recorded agent result unassigned and explained", async ({
   home,
   root,
 }) => {
   const claudeRoot = nestedWorkerSession(home, { joinedB: false });
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  const history = readImported(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claudeRoot],
+    })
+    .please();
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   const nested = Object.values(history.observations).find(
     (item) => item.responseId === "msg-b",
   );
@@ -128,7 +153,7 @@ test("leaves a nested worker without a recorded agent result unassigned and expl
   );
 });
 
-test("counts a response a forked worker replays from its parent once, as the parent's", ({
+test("counts a response a forked worker replays from its parent once, as the parent's", async ({
   home,
   root,
 }) => {
@@ -136,8 +161,19 @@ test("counts a response a forked worker replays from its parent once, as the par
     joinedB: true,
     forkedB: true,
   });
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  const history = readImported(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claudeRoot],
+    })
+    .please();
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   const task = Object.values(history.tasks).find(
     (item) => item.kind === "launch",
   );

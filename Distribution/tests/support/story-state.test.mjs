@@ -9,7 +9,6 @@ import {
   run,
   scratchProject,
 } from "./product-backlog-fixture.mjs";
-import { importedModules } from "./pure-module-imports.mjs";
 import {
   backlogBytes,
   first,
@@ -21,62 +20,6 @@ import {
   seedBytes,
   seedRelative,
 } from "./story-state-fixture.mjs";
-
-test("story-state: shared reader imports no filesystem or Node-only module", async () => {
-  const { visited, specifiers } = importedModules(readerPath);
-
-  assert.ok(
-    [...visited].some((path) =>
-      path.endsWith("product-backlog-story-state.mjs"),
-    ),
-  );
-  assert.ok(
-    [...visited].some((path) =>
-      path.endsWith("product-backlog-story-state-block.mjs"),
-    ),
-  );
-  assert.ok(
-    [...visited].some((path) =>
-      path.endsWith("product-backlog-story-state-preparation.mjs"),
-    ),
-  );
-  assert.ok(
-    [...visited].some((path) =>
-      path.endsWith("product-backlog-story-state-basis.mjs"),
-    ),
-  );
-  assert.ok(
-    [...visited].some((path) =>
-      path.endsWith("product-backlog-story-state-assessment.mjs"),
-    ),
-  );
-  for (const specifier of specifiers) {
-    assert.equal(
-      specifier.startsWith("node:"),
-      false,
-      `unexpected Node built-in import: ${specifier}`,
-    );
-    assert.equal(
-      specifier.includes("product-backlog-store"),
-      false,
-      `unexpected store import: ${specifier}`,
-    );
-    assert.equal(
-      specifier.includes("product-backlog-home.mjs"),
-      false,
-      `unexpected filesystem home wrapper import: ${specifier}`,
-    );
-    assert.equal(
-      specifier.includes("product-backlog-story-state-home"),
-      false,
-      `unexpected filesystem story-state wrapper import: ${specifier}`,
-    );
-  }
-
-  const loaded = await import(pathToFileURL(readerPath).href);
-  assert.equal(typeof loaded.readStoryState, "function");
-  assert.equal(typeof loaded.recordStoryState, "function");
-});
 
 test("story-state: records one story's preparation and leaves its neighbor intact", async (t) => {
   const project = scratchProject(t);

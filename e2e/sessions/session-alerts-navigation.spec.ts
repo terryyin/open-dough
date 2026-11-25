@@ -1,7 +1,7 @@
 // The sender's own URL, not a fixture-built destination, is opened in a real
 // page. Published files decide only membership; routing/focus stay production.
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { launchRequest } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { expectProjectChoice } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notificationOrigins,
@@ -12,7 +12,6 @@ import {
 import {
   afterFurtherListings,
   notificationUrls,
-  start,
 } from "../../dashboard/test-support/support/sessionAlerts.ts";
 import { dashboardServedIn } from "../../dashboard/test-support/support/sessionAlertServers.ts";
 
@@ -26,12 +25,14 @@ for (const mode of ["dev", "preview"] as const) {
     }) => {
       await page.setViewportSize({ width: 1440, height: 1100 });
       await notificationOrigins(page);
-      const session = await start(dashboard, {
-        ...launchRequest,
-        source: "doughnut",
-        identity: notifiedIdentity,
-        title: "An old title that no longer identifies the card",
-      });
+      const { sessionId: session } = await composeSession(
+        dashboard,
+        "doughnut",
+        {
+          identity: notifiedIdentity,
+          title: "An old title that no longer identifies the card",
+        },
+      );
       await afterFurtherListings(dashboard);
       dashboard.claudeSessionBecomes(session, "blocked", "Review this story");
       await expect.poll(() => dashboard.notifierCalls().length).toBe(1);
@@ -40,7 +41,6 @@ for (const mode of ["dev", "preview"] as const) {
         `${dashboard.origin}/?project=doughnut&story=SEED-777%23shared-story`,
       );
       expect(new URL(dashboard.origin).port).not.toBe("4173");
-      const before = dashboard.claudeLaunchCalls();
       await page.goto(destination ?? "");
       await expectProjectChoice(page, "Doughnut");
       const card = page.getByRole("article", {
@@ -52,7 +52,7 @@ for (const mode of ["dev", "preview"] as const) {
       await expect(page.getByRole("article", { name: otherTitle })).toHaveCount(
         0,
       );
-      expect(dashboard.claudeLaunchCalls()).toEqual(before);
+      expect(dashboard.claudeLaunchCalls()).toEqual([]);
       expect(dashboard.claudeAttaches()).toEqual([]);
       expect(
         dashboard.claudeCalls().filter(({ argv }) => argv.includes("resume")),

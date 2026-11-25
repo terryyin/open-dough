@@ -9,7 +9,7 @@ import {
 import type { ReviewedFileInput } from "./storyReviewInput.ts";
 import { admitPublishedSessionFile } from "./publishedSessionReview.ts";
 import { admitSessionReviewedFile } from "./storyReviewSessionFileAdmission.ts";
-import { executionCheckout } from "./executionCheckout.ts";
+import { reviewRepositoryPath } from "./reviewRepository.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { publishedTakenReview } from "./storyReviewPublishedTaken.ts";
 
@@ -49,12 +49,9 @@ export async function admitReviewedFile(
         400,
         "The file names multiple review comparisons.",
       );
-    const review = await publishedTakenReview(
-      source,
-      identity,
-      signal,
-      publishedHead,
-    );
+    const review = await publishedTakenReview(source, identity, signal, {
+      head: publishedHead,
+    });
     if (
       review.kind !== "published-taken" ||
       !belongsOnPublishedStory(review, file)
@@ -65,7 +62,7 @@ export async function admitReviewedFile(
           ? review.explanation
           : "The file or comparison does not belong to this published head.",
       );
-    return { repository: executionCheckout(source).path, ...file };
+    return { repository: reviewRepositoryPath(source), ...file };
   }
   if (completion !== undefined)
     return admitHistoricalReviewedFile(

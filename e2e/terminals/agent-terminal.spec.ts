@@ -2,23 +2,23 @@ import {
   closeSidePanel,
   sidePanelNamesOf,
 } from "../../dashboard/test-support/sidePanelFrame.ts";
-// A session launched from this dashboard opens in the page's one terminal,
-// on the committed origin from ../../dashboard/test-support/launchJourney.ts:
-// a card's session entry or a standalone Taken entry offers Open terminal, the page
-// splits with the terminal on the right, and what is typed there reaches the
-// session and its answer shows. Opening another session detaches the first,
-// which keeps running; Close detaches only and returns the keyboard to the
-// control that opened the session; an entry whose story is in no list still
-// opens; and no page text offers `claude attach`. Origin alone still places
-// every story. The dashboard starts as a deployment's does, and each attach
-// runs in the developer's shell environment. The page's own dashboard server attaches the synthetic `claude`
-// (./fixtures/fake-claude), which echoes what is typed; the real one is never
-// reached.
-
+// Installed launches publish the stories the Board follows. A card or
+// standalone entry opens one terminal, keeps other sessions running, and
+// passes input and shell environment to the synthetic Claude attach.
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { test } from "../../dashboard/test-support/support/startOriginTest.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import {
+  completionRevision,
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+  storyA,
+  storyB,
+  storyPlanPath,
+} from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   expectTerminalIdentity,
   openTerminalControl,
@@ -36,12 +36,10 @@ import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   notRefinedStory,
-  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
@@ -57,6 +55,7 @@ test.use({
   projectFolders: ["open-dough"],
   pathPrefix: start.pathPrefix,
   extraEnv: start.extraEnv,
+  originRepository: queuedRepositoryWithRoughStory(roughStoryC).please(),
 });
 
 const shortId = (sessionId: string) => sessionId.slice(0, 8);
@@ -68,25 +67,21 @@ async function reportedSize(rows: Locator): Promise<string | undefined> {
 }
 
 test.describe("the terminal beside the page", () => {
-  let columnsJourney: StoryColumnsJourney;
-  test.beforeAll(async () => {
+  test.beforeAll(() => {
     start.create();
-    columnsJourney = await publishStoryColumnsJourney();
   });
-  test.afterAll(async () => {
-    await (columnsJourney as StoryColumnsJourney | undefined)?.cleanup();
+  test.afterAll(() => {
     start.remove();
   });
 
   test("a card or standalone Taken entry opens its session in the right-hand terminal, one at a time, and Close leaves it running", async ({
     page,
     dashboard,
+    origin,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, show, launch } = await openStoryColumnsJourney(
-      page,
-      columnsJourney,
-    );
+    const board = await openInstalledStoryBoard(page, origin);
+    const { card, settled } = board;
     const { taken, backlog } = parts(page);
     const panel = terminalPanel(page);
     const { rows } = terminalScreenParts(panel);
@@ -118,29 +113,32 @@ test.describe("the terminal beside the page", () => {
     await expectMembership(page, queued);
     await settled();
 
-    await launch(notRefinedStory, "Execution");
-    await launch(readyStory, "Execution");
-    const first = await sessionNamedBy(cardEntries(notRefinedStory));
+    await (await board.open(takenStory, "Execution")).submit();
+    await expect(storyCardSessions(card(takenStory))).toHaveCount(1);
+    await (await board.open(readyStory, "Execution")).submit();
+    await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
+    const launched = {
+      taken: [takenStory, readyStory],
+      backlog: [notRefinedStory],
+    };
+    await expectMembership(page, launched);
+    const first = await sessionNamedBy(cardEntries(takenStory));
     const second = await sessionNamedBy(cardEntries(readyStory));
-    await expect(
-      openTerminalControl(cardEntries(notRefinedStory)),
-    ).toBeVisible();
-    await expect(entry(notRefinedStory)).toHaveCount(0);
+    await expect(openTerminalControl(cardEntries(takenStory))).toBeVisible();
+    await expect(entry(takenStory)).toHaveCount(0);
     await expect(panel).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText("claude attach");
     await expect(page.getByRole("button", { name: /copy/i })).toHaveCount(0);
 
     await test.step("a card's session entry opens its session to the right of the page, and an answer typed there reaches it", async () => {
-      await openTerminalControl(cardEntries(notRefinedStory)).click();
-      await expectTerminalIdentity(panel, notRefinedStory);
+      await openTerminalControl(cardEntries(takenStory)).click();
+      await expectTerminalIdentity(panel, takenStory);
       await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
         "Execution session",
       );
       await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
       await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
-      // The page, showing Backlog, stays on the left, and the terminal is to
-      // its right.
       const left = await backlog.boundingBox();
       const right = await panel.boundingBox();
       expect(right?.x).toBeGreaterThanOrEqual(
@@ -150,7 +148,7 @@ test.describe("the terminal beside the page", () => {
       await page.keyboard.type("yes, go on");
       await page.keyboard.press("Enter");
       await expect(rows).toContainText("echo yes, go on");
-      await expectMembership(page, queued);
+      await expectMembership(page, launched);
     });
 
     await test.step("the terminal's size follows the panel", async () => {
@@ -174,7 +172,7 @@ test.describe("the terminal beside the page", () => {
     });
 
     await test.step("opening another active card's session detaches the first, which keeps running, and shows the second in its place", async () => {
-      await showColumn(page, "Backlog");
+      await showColumn(page, "Taken");
       await openTerminalControl(cardEntries(readyStory)).click();
       await expect(panel).toHaveCount(1);
       await expectTerminalIdentity(panel, readyStory);
@@ -186,37 +184,48 @@ test.describe("the terminal beside the page", () => {
       await expect(rows).not.toContainText("echo yes, go on");
       await expect.poll(() => attachesEnded(first)).toBe(true);
       await stillListed(first);
-      await expect(
-        openTerminalControl(cardEntries(notRefinedStory)),
-      ).toBeVisible();
+      await expect(openTerminalControl(cardEntries(takenStory))).toBeVisible();
     });
 
     await test.step("Close ends the panel and detaches only, and the keyboard returns to the card entry that opened it", async () => {
-      await showColumn(page, "Backlog");
-      await openTerminalControl(cardEntries(notRefinedStory)).click();
+      await showColumn(page, "Taken");
+      await openTerminalControl(cardEntries(takenStory)).click();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await closeSidePanel(panel, { using: "mouse" });
       await expect(panel).toHaveCount(0);
-      // The card still lists the session, so its entry's Open terminal, not
-      // another entry, has the keyboard.
-      await expect(
-        openTerminalControl(cardEntries(notRefinedStory)),
-      ).toBeFocused();
+      await expect(openTerminalControl(cardEntries(takenStory))).toBeFocused();
       await expect.poll(() => attachesEnded(first)).toBe(true);
       await stillListed(first);
       await expect(openTerminalControl(cardEntries(readyStory))).toBeVisible();
-      await expectMembership(page, queued);
+      await expectMembership(page, launched);
     });
 
     await test.step("an entry whose story is in no list still opens its session", async () => {
-      await show(columnsJourney.completed);
+      const completion = completionRevision({
+        story: storyA,
+        queued: [roughStoryC],
+        developer: "Another Developer",
+        completedAt: new Date().toISOString(),
+        agentless: true,
+      });
+      const remaining = makeMe.aBacklogEntry
+        .with({
+          ...storyB,
+          plan: { label: "plan", target: storyPlanPath(storyB) },
+        })
+        .please();
+      await origin.publishRevision({
+        ...completion,
+        backlog: { ...completion.backlog, taken: [remaining] },
+      });
+      await page.reload();
       await expectMembership(page, {
         taken: [readyStory],
-        backlog: [takenStory],
+        backlog: [notRefinedStory],
       });
       await showColumn(page, "Taken");
-      await openTerminalControl(entry(notRefinedStory)).click();
-      await expectTerminalIdentity(panel, notRefinedStory);
+      await openTerminalControl(entry(takenStory)).click();
+      await expectTerminalIdentity(panel, takenStory);
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await page.keyboard.type("carry on");
       await page.keyboard.press("Enter");
@@ -224,12 +233,10 @@ test.describe("the terminal beside the page", () => {
       await expect(page.locator("body")).not.toContainText("claude attach");
       await expectMembership(page, {
         taken: [readyStory],
-        backlog: [takenStory],
+        backlog: [notRefinedStory],
       });
     });
 
-    // Every attach the page opened was to a session it launched, in the
-    // developer's shell environment.
     expect(
       new Set(dashboard.claudeAttaches().map((attach) => attach.id)),
     ).toEqual(new Set([shortId(first), shortId(second)]));

@@ -16,11 +16,8 @@
 // logged further listings, never after a sleep.
 
 import { expect } from "@playwright/test";
-import {
-  launchRequest,
-  markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { distinctStoryRequest } from "../../test-support/openStorySessionSetup.ts";
+import { markDone } from "../../test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -32,7 +29,6 @@ import {
   alertCheckMs,
   becomes,
   messages,
-  start,
   test,
 } from "../../test-support/support/sessionAlerts.ts";
 
@@ -48,17 +44,11 @@ test.describe("a session that starts needing the developer raises one macOS noti
       "unrecognized",
     ] as const;
     const sessions: string[] = [];
-    while (sessions.length < changes.length) {
-      sessions.push(
-        await start(
-          server,
-          distinctStoryRequest(
-            `alert-${sessions.length}`,
-            launchRequest,
-            `Alert story ${sessions.length}`,
-          ),
-        ),
-      );
+    for (const index of changes.keys()) {
+      const { sessionId } = await composeSession(server, "open-dough", {
+        title: `Alert story ${index}`,
+      });
+      sessions.push(sessionId);
     }
     await afterFurtherListings(server);
     for (const [index, change] of changes.entries()) {
@@ -79,7 +69,7 @@ test.describe("a session that starts needing the developer raises one macOS noti
   test("raises nothing when Claude Code's listing cannot be read", async ({
     server,
   }) => {
-    await start(server);
+    await composeSession(server);
     await afterFurtherListings(server);
     server.claudeListingFails(true);
     await afterFurtherListings(server);
@@ -90,7 +80,7 @@ test.describe("a session that starts needing the developer raises one macOS noti
   test("never raises one for a session marked done, even when it stops", async ({
     server,
   }) => {
-    const session = await start(server);
+    const { sessionId: session } = await composeSession(server);
     const response = await markDone(server, {
       source: "open-dough",
       session,
@@ -112,7 +102,7 @@ test.describe("a session that starts needing the developer raises one macOS noti
     });
     let session: string;
     try {
-      session = await start(first);
+      ({ sessionId: session } = await composeSession(first));
       first.claudeSessionBecomes(session, "blocked", "Which database?");
     } finally {
       await first.close();
@@ -140,14 +130,18 @@ test.describe("a session that starts needing the developer raises one macOS noti
     }
   });
 
-  test("raises one for a session launched after the server started only once it needs the developer", async ({
+  test("raises one for a session first listed after server start, once it needs the developer", async ({
     server,
   }) => {
-    const session = await start(server);
+    expect(server.claudeListing()).toEqual([]);
+    const { sessionId: session } = await composeSession(server);
     await afterFurtherListings(server);
     expect(server.notifierCalls()).toEqual([]);
     server.claudeSessionBecomes(session, "blocked");
     await expect.poll(() => server.notifierCalls().length).toBe(1);
+    await afterFurtherListings(server);
+    expect(server.notifierCalls()).toHaveLength(1);
+    expect(server.claudeLaunchCalls()).toEqual([]);
   });
 
   test("closing the server ends a notifier it started and stops reading the sessions", async ({
@@ -163,7 +157,7 @@ test.describe("a session that starts needing the developer raises one macOS noti
     });
     let held: number | undefined;
     try {
-      const session = await start(server);
+      const { sessionId: session } = await composeSession(server);
       await afterFurtherListings(server);
       server.claudeSessionBecomes(session, "blocked");
       expect(

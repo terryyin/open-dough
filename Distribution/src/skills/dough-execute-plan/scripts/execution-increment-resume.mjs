@@ -4,7 +4,10 @@
 // coverage cannot be restored. A fetch or push that outlasts the transport
 // bound stops as held stops do.
 import { resolve } from "node:path";
-import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
+import {
+  checkoutRuntimeReceipt,
+  resolveCheckoutRuntime,
+} from "./ci-checkout-runtime.mjs";
 import {
   rejectRetiredObserverFlags,
   withExplicitSession,
@@ -161,11 +164,7 @@ export async function resumeManagedExecutionIncrement(request) {
     },
     suffixBase: published.suffixBase,
     observation,
-    runtime: {
-      alias: runtime.alias,
-      skillRoot: runtime.skillRoot,
-      entrypoint: runtime.entrypoint,
-    },
+    runtime: checkoutRuntimeReceipt(runtime),
     maintenance: published.maintenance ?? null,
   };
 }

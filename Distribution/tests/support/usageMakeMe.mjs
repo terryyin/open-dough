@@ -7,7 +7,12 @@ import {
   UsageTaskBuilder,
 } from "./usageHistoryTestData.mjs";
 import { UsageHistoryBuilder } from "./usageStoreTestData.mjs";
+import { UsageImportOptionsBuilder } from "./usageImportOptionsTestData.mjs";
 import { UsageTaskHistoryBuilder } from "./usageTaskHistoryTestData.mjs";
+import {
+  SummaryTaskBuilder,
+  UsageTaskSummaryBuilder,
+} from "./usageTaskSummaryTestData.mjs";
 import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
 import { CodexRolloutBuilder } from "./codexRolloutTestData.mjs";
 import { ClaudeTranscriptBuilder } from "./claudeTranscriptTestData.mjs";
@@ -21,7 +26,10 @@ import { CursorTranscriptBuilder } from "./cursorTranscriptTestData.mjs";
  * @property {UsageObservationBuilder} aUsageObservation
  * @property {UsageAssociationBuilder} aUsageAssociation
  * @property {UsageHistoryBuilder} aUsageHistory
+ * @property {UsageImportOptionsBuilder} aUsageImportOptions
  * @property {UsageTaskHistoryBuilder} aUsageTaskHistory
+ * @property {SummaryTaskBuilder} aSummaryTask
+ * @property {UsageTaskSummaryBuilder} aUsageTaskSummary
  * @property {TokenIndexAnswerBuilder} aTokenIndexAnswer
  * @property {CodexRolloutBuilder} aCodexRollout
  * @property {ClaudeTranscriptBuilder} aClaudeTranscript
@@ -61,10 +69,28 @@ export function usageMakeMeProperties() {
         return new UsageTaskHistoryBuilder();
       },
     },
+    aSummaryTask: {
+      enumerable: true,
+      get() {
+        return new SummaryTaskBuilder();
+      },
+    },
+    aUsageTaskSummary: {
+      enumerable: true,
+      get() {
+        return new UsageTaskSummaryBuilder();
+      },
+    },
     aUsageHistory: {
       enumerable: true,
       get() {
         return new UsageHistoryBuilder();
+      },
+    },
+    aUsageImportOptions: {
+      enumerable: true,
+      get() {
+        return new UsageImportOptionsBuilder();
       },
     },
     aTokenIndexAnswer: {

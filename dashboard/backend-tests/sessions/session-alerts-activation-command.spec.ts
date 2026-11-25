@@ -2,7 +2,7 @@
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
 import { notificationActivation } from "../../test-support/support/notificationActivation.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
