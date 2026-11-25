@@ -37,24 +37,6 @@ in [Intent and attribution](SEED-434-browse-published-intent-from-local-git.md#b
 [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git),
 and [Add Project](SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git).
 
-<a id="recover-fixed-observation-at-its-published-pin"></a>
-
-### Recover a fixed observation at its published pin
-
-**Identity:** SEED-430#recover-fixed-observation-at-its-published-pin
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/831-recover-fixed-observation-at-its-published-pin/PLAN.md"}
-```
-
-**Goal.** A maintainer relying on the authenticated observation journey
-again proves that restored access shows the same published revision the
-Board read before the login failure.
-
-**Scope.** Correct the restored-access step left publishing a new commit
-by the fixed fixture story SEED-430#open-published-board-from-local-git, and the
-residue it left. Plan:
-[831](../slice-plans/831-recover-fixed-observation-at-its-published-pin/PLAN.md).
-
 <a id="publish-moving-board-fixtures-through-git"></a>
 
 ### Publish moving Board test fixtures through real Git

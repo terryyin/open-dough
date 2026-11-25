@@ -33,6 +33,7 @@ import {
   assertNoCredentialMarker,
   collectFiles,
 } from "../../dashboard/test-support/support/credentialAbsence.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
@@ -150,8 +151,20 @@ test("authenticated project observation: each catalog project opens and reloads 
     });
   }
 
+  const doughnutRepository = catalogPublications.doughnut.repository;
+  const originalDoughnutRevision =
+    observed.get(doughnutRepository)?.revision ?? "";
+  let previousDoughnutAnswerer: ReturnType<typeof github.serve>;
+
   await test.step("without a gh login, the selected project reports its own actionable failure and no snapshot", async () => {
-    github.serve("nerds-odd-e/doughnut", () => Promise.resolve(notLoggedIn));
+    previousDoughnutAnswerer = github.serve(doughnutRepository, () =>
+      Promise.resolve(notLoggedIn),
+    );
+    expectServedHomesReach(
+      github,
+      doughnutRepository,
+      originalDoughnutRevision,
+    );
     await projectTab(page, "Doughnut").check();
     await expect(problem).toContainText(
       "The local GitHub CLI is not logged in, so main of nerds-odd-e/doughnut could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
@@ -163,16 +176,25 @@ test("authenticated project observation: each catalog project opens and reloads 
 
   await test.step("after access is restored, reloading shows the selected project's published work", async () => {
     const { doughnut } = catalogExpectations;
-    const { revision } = publishCommittedFiles(
-      page,
-      catalogPublications.doughnut,
+    if (previousDoughnutAnswerer === undefined) {
+      throw new Error(
+        "expected the Doughnut answerer from before the login refusal",
+      );
+    }
+    github.serve(doughnutRepository, previousDoughnutAnswerer);
+    expectServedHomesReach(
+      github,
+      doughnutRepository,
+      originalDoughnutRevision,
     );
     await page.reload();
     await expectMembership(page, {
       taken: [doughnut.taken],
       backlog: [doughnut.queued],
     });
-    await expect(readRevision).toContainText(shortRevision(revision));
+    await expect(readRevision).toContainText(
+      shortRevision(originalDoughnutRevision),
+    );
     await expect(problem).toHaveCount(0);
   });
 

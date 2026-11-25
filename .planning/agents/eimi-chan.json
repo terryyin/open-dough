@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Eimi-chan",
+  "email": "eimi-chan@example.org",
+  "identity": "SEED-345#load-execution-guidance-for-the-current-phase",
+  "mode": "story-branch",
+  "branch": "codex/load-execution-guidance-for-the-current-phase",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

@@ -126,10 +126,10 @@ function acceptsGzip(field: string | undefined): boolean {
 }
 
 async function encodedFor(
-  req: IncomingMessage,
+  acceptEncoding: string | undefined,
   answer: SharedAnswer,
 ): Promise<Buffer | undefined> {
-  if (!acceptsGzip(req.headers["accept-encoding"])) return undefined;
+  if (!acceptsGzip(acceptEncoding)) return undefined;
   try {
     return await answer.gzipped?.();
   } catch {
@@ -138,30 +138,55 @@ async function encodedFor(
   }
 }
 
+// The status, headers and bytes sent for `answer` to a caller sending
+// `acceptEncoding` as its `Accept-Encoding` field value.
+export type LaunchResponse = {
+  readonly status: number;
+  readonly headers: Readonly<Record<string, string>>;
+  readonly body: Buffer;
+};
+
+export async function launchResponse(
+  acceptEncoding: string | undefined,
+  answer: AgentLaunchAnswer,
+): Promise<LaunchResponse> {
+  const headers = {
+    "Cache-Control": "no-store",
+    "Content-Type": "application/json",
+  };
+  if (!("serialized" in answer))
+    return {
+      status: answer.status,
+      headers,
+      body: Buffer.from(JSON.stringify(answer.body)),
+    };
+  const negotiated = answer.gzipped !== undefined;
+  const encoded = negotiated
+    ? await encodedFor(acceptEncoding, answer)
+    : undefined;
+  const body = encoded ?? Buffer.from(answer.serialized);
+  return {
+    status: answer.status,
+    headers: {
+      ...headers,
+      "Content-Length": String(body.length),
+      ...(negotiated && { Vary: "Accept-Encoding" }),
+      ...(encoded !== undefined && { "Content-Encoding": "gzip" }),
+    },
+    body,
+  };
+}
+
 export async function respondToLaunch(
   req: IncomingMessage,
   res: ServerResponse,
   answer: AgentLaunchAnswer,
 ): Promise<void> {
-  const headers = {
-    "Cache-Control": "no-store",
-    "Content-Type": "application/json",
-  };
-  if (!("serialized" in answer)) {
-    if (res.writableEnded || res.destroyed) return;
-    res.writeHead(answer.status, headers);
-    res.end(JSON.stringify(answer.body));
-    return;
-  }
-  const negotiated = answer.gzipped !== undefined;
-  const encoded = negotiated ? await encodedFor(req, answer) : undefined;
+  const { status, headers, body } = await launchResponse(
+    req.headers["accept-encoding"],
+    answer,
+  );
   if (res.writableEnded || res.destroyed) return;
-  const sent = encoded ?? Buffer.from(answer.serialized);
-  res.writeHead(answer.status, {
-    ...headers,
-    "Content-Length": String(sent.length),
-    ...(negotiated && { Vary: "Accept-Encoding" }),
-    ...(encoded !== undefined && { "Content-Encoding": "gzip" }),
-  });
-  res.end(sent);
+  res.writeHead(status, headers);
+  res.end(body);
 }

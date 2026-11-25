@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "077b94f3-9cf2-42df-a8e0-9bb8f2c4ae23",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T10:17:19.575Z",
+  "story": "SEED-430#recover-fixed-observation-at-its-published-pin",
+  "ranges": [
+    {
+      "base": "a5a980624b66450da07fbe07146fbb750f79e445",
+      "candidate": "9d67ad7c22c3532c114e8ed7e7ddb98e5702b060"
+    }
+  ]
+}

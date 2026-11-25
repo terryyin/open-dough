@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "sessionId": "ab4e2aeb-7dd4-4f69-bc87-8698cd9c64df",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T10:18:48.073Z",
+  "story": "SEED-413#renovate-remaining-backend-families-after-browser-reporter",
+  "ranges": [
+    {
+      "base": "3eca0ec43c0e65bb4ceb4097bb1e10d43f8fcd50",
+      "candidate": "58c8cc03384b96597923462ecc9a0fee3f4c6f03"
+    },
+    {
+      "base": "58c8cc03384b96597923462ecc9a0fee3f4c6f03",
+      "candidate": "4036080e0722db27706fb20e51147395dc9c17dc"
+    },
+    {
+      "base": "4036080e0722db27706fb20e51147395dc9c17dc",
+      "candidate": "20a4d246287041c093e1706804d4ec47f8553b3f"
+    },
+    {
+      "base": "20a4d246287041c093e1706804d4ec47f8553b3f",
+      "candidate": "1717664f563ea3b6fddb81dd135f0b15d9802315"
+    },
+    {
+      "base": "1717664f563ea3b6fddb81dd135f0b15d9802315",
+      "candidate": "ef5ff18df40a1ef14066743673dfde81f5f35239"
+    },
+    {
+      "base": "ef5ff18df40a1ef14066743673dfde81f5f35239",
+      "candidate": "97592f7a901f25fc7753350119e2f96a773cc11a"
+    },
+    {
+      "base": "97592f7a901f25fc7753350119e2f96a773cc11a",
+      "candidate": "0c7ad7e2c6019d0b736e8e04ff4218ee61944e10"
+    },
+    {
+      "base": "0c7ad7e2c6019d0b736e8e04ff4218ee61944e10",
+      "candidate": "7921a773935a995c111e9cd78d1d6378a3c245d4"
+    }
+  ]
+}

@@ -64,25 +64,55 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
 **Identity:** SEED-345#load-execution-guidance-for-the-current-phase
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/835-load-execution-guidance-for-the-current-phase/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d97c12e2eb91023ff384d61f87185f5d78eaacbb3b6a5f0d89135628f511a226","plan":"6a74ffe33c5ffbac2f3427c7c252f6087a7807c755779f54da4f35e4c57bab83"}}
 ```
 
-- **Scope and beneficiary.** Shared guidance used on every host. A
-  coordinator starts each execution phase with the guidance that phase needs.
-- **Evaluation.** On a representative execution, the coordinator reaches
-  the same decisions, refusals and proof while reading guidance for the phase
-  it is in rather than the whole reference tree, and re-reads a boundary only
-  when it changed. Skill descriptions listed in every session stay short while
-  naming their triggers. Compare guidance read and coordinator context.
-- **Priority.** Fifth. Coordinators read about 21 execute-plan files on
-  Cursor and about 20 (roughly 250k characters) on Claude Code; Codex's
-  first reference batch truncated in SEED-342. Every execution pays this,
-  but the 2026-11-15 re-measurement put the carried guidance at about $2
-  list-price per Claude Code execution.
-- **Effort and boundary.** Medium, medium confidence. Keep required
-  breadth ([ODF-158](../../docs/maintainer/findings/ODF-158.md)) and keep
-  boundary rows maintainable ([ODF-446](../../docs/maintainer/findings/ODF-446.md)).
-  [Guidance reads](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
+**Goal**
+
+Developers using Execute Plan get the required decisions, refusals, and proof
+with less startup retrieval. In the [recorded occurrence](../../docs/maintainer/findings/ODF-264.md#odf-264),
+the coordinator searched broadly despite having named CI tools, and full-file
+guidance reads overflowed independently of tool discovery.
+
+**Scope**
+
+- Integrate startup and reading into one concise procedure. Use tools the
+  workflow names when available. When a tool is missing, search for the specific
+  capability and inspect plausible matches. Retrieve the passages and linked
+  prerequisites needed for the decision at hand and reuse them while they apply.
+  Put required guidance links at the steps that need them. Preserve source and
+  authority checks, delegation and proof requirements, and live CI routes.
+- Retire the boundary-read table, its separate-response and skill-body rules,
+  the 30,000-byte test, and artifacts that exist solely for that limit. Bring
+  `ci-completion-recovery.md` into the completion guide, retarget the live
+  reference, and remove the old path. Verify removal in both managed skill
+  roots through an ordinary update from the preceding payload.
+- Evaluate the shared procedure on representative native traces, with Codex as
+  the lead host and a Claude Code check for the Bash output limit that motivated
+  the old rule. Compare equivalent outcomes and proof before retrieval effort,
+  under [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) and
+  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+  Release and client rollout, changes to host adapters or CI runtime, and the
+  separate Cursor implementer handoff are outside this story.
+
+**Key examples**
+
+1. A coordinator starts an execution with CI observation due and its named
+   tools available. It arms the applicable observer and reaches the first
+   delegation with the required inputs, without catalog discovery, truncated
+   guidance, or reading ahead to delivery and completion.
+2. A referenced tool is unavailable. The coordinator looks up the exact
+   capability and checks the likely matches. If an authoritative prerequisite
+   remains unavailable after targeted retrieval, it names the missing input and
+   stops the affected step before the dependent action.
+3. An owned CI observer has ended before a completion receipt. The completion
+   guide leads the coordinator to managed recovery for that owner, target, and
+   accepted revision, preserving the ordinary receipt and shutdown contract.
+   A project updated from a payload carrying the old split reaches the same
+   guidance with no obsolete companion file or incoming link.
+
+**Priority.** First at Terry's direction. The [original recovery split](https://github.com/terryyin/open-dough/commit/607771fa60ce2902ec07da6abba1fd1d0865e083)
+was driven by the byte budget.
 
 <a id="start-cursor-slices-from-complete-task-briefs"></a>
 

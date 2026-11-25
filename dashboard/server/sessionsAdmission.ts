@@ -1,6 +1,6 @@
 // Sessions read admission: which audience asks, the held revision, and
 // whether the ask must be answered by an observation begun after it arrived.
-import type { IncomingMessage } from "node:http";
+import type { IncomingHttpHeaders } from "node:http";
 import {
   sessionsAudienceParameter,
   sessionsFreshHeader,
@@ -29,12 +29,13 @@ function audienceOf(url: URL): SessionsAudience {
   throw new RefusedRequest(400, "The sessions request is malformed.");
 }
 
+// The admitted read for a GET of `url` carrying `headers`.
 export function sessionsRequest(
-  req: IncomingMessage,
   url: URL,
+  headers: IncomingHttpHeaders,
 ): AdmittedSessions {
-  const held = req.headers[sessionsRevisionHeader];
-  const fresh = req.headers[sessionsFreshHeader];
+  const held = headers[sessionsRevisionHeader];
+  const fresh = headers[sessionsFreshHeader];
   return {
     kind: "sessions",
     audience: audienceOf(url),

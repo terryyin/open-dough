@@ -58,9 +58,11 @@
 // unavailable is refused before native terminal attachment.
 
 import type { HttpServer } from "vite";
+import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { admittedAttach, launchBoundaryPaths } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { AgentTerminals } from "./agentTerminals.ts";
+import { configuredLimit } from "./configuredLimit.ts";
 import { NativeDoneMarks } from "./doneMarks.ts";
 import { launchHost } from "./launchHosts.ts";
 import { configuredProject } from "./projectConfiguration.ts";
@@ -75,7 +77,11 @@ import { installRecordRemovalDispatch } from "./launchRecordRemoval.ts";
 import { installStoryNoteDelivery } from "./storyNoteDelivery.ts";
 import type { BoundaryMiddlewares } from "./localBoundary.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
-import { MachineSessionObservation } from "./machineSessionObservation.ts";
+import {
+  machineSessionInputs,
+  MachineSessionObservation,
+  readMachineSessions,
+} from "./machineSessionObservation.ts";
 import { dashboardOrigin } from "./dashboardOrigin.ts";
 import { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
 import { LandedCiCollection } from "./landedCiCollection.ts";
@@ -118,9 +124,13 @@ export function installAgentLaunchMiddleware(
   // Every viewer and the notification observer share one observation. It
   // reads the alerts' availability only while observing, after construction.
   const sessions: MachineSessionObservation = new MachineSessionObservation(
-    launches,
-    () => alerts.availability(),
-    maintenance,
+    () =>
+      readMachineSessions(launches, () => alerts.availability(), maintenance),
+    machineSessionInputs,
+    {
+      waitMs: configuredLimit("DOUGH_SESSIONS_WAIT_MS", readWaitLimitMs),
+      reuseMs: configuredLimit("DOUGH_SESSIONS_REUSE_MS", 1_000),
+    },
   );
   const alerts = new SessionAlerts(sessions, () => dashboardOrigin(httpServer));
   middlewares.use((req, res, next) => {

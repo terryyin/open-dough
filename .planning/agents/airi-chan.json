@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Airi-chan",
+  "email": "airi-chan@example.org",
+  "identity": "SEED-420#compact-story-comparison-controls",
+  "mode": "story-branch",
+  "branch": "claude/read-and-change-the-story-comparison-from-one-co",
+  "host": "claude"
+}
