@@ -33,12 +33,16 @@ export const watchListDue = (reviewAfter: string) =>
 
 let revisions = 0;
 // Pushes Open Dough's main with this watch list, or none.
-export function pushWatchList(moving: MovingOrigin, text?: string): string {
+export function pushWatchList(
+  moving: MovingOrigin,
+  text?: string,
+  backlog = describedBacklog(makeMe.aRepository.please()),
+): string {
   revisions += 1;
   const revision = revisions.toString(16).padStart(40, "a");
   moving.push(
     revision,
-    describedBacklog(makeMe.aRepository.please()),
+    backlog,
     text === undefined ? {} : { [watchList]: text },
   );
   return revision;

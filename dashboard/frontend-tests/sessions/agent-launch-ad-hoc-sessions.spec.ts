@@ -8,13 +8,18 @@ import {
   withFramePreference,
 } from "../../test-support/component-mount/framePreferences.ts";
 import { boardReading as board } from "../navigation/board-reading-page.ts";
+import {
+  boardWork,
+  defaultTakenStory,
+  story,
+} from "../navigation/board-work.ts";
 import { mountSessionCards, sessionsReading } from "./session-card-mount.ts";
 import {
   sessionEntry,
   sidebarButton,
   sidebarSession,
   taken,
-  takenAdHocSession,
+  takenSession,
 } from "./session-card-page.ts";
 import {
   terminal,
@@ -30,8 +35,17 @@ import {
   present,
 } from "./sessions-sidebar-page.ts";
 
-function adHoc(title: string, state: SessionState, launchedAt?: string) {
-  const launch = makeMe.aLaunchRecord.adHoc({ instruction: title, title });
+function adHoc(
+  title: string,
+  state: SessionState,
+  launchedAt?: string,
+  storyIdentity = defaultTakenStory.identity,
+) {
+  const launch = makeMe.aLaunchRecord.adHoc({
+    instruction: title,
+    title,
+    storyIdentity,
+  });
   if (launchedAt !== undefined) launch.launchedAt(launchedAt);
   return makeMe.anObservedLaunch
     .of(launch.please())
@@ -46,10 +60,11 @@ test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and t
     .loaded("waiting")
     .waitingFor("input needed")
     .please();
+  const record = adHoc(title, waiting);
   await mountSessionCards({
-    reading: sessionsReading("blocked", adHoc(title, waiting)),
+    reading: sessionsReading("blocked", record),
   });
-  const entry = takenAdHocSession(title);
+  const entry = takenSession(defaultTakenStory.title, record.session);
   const badge = page
     .getByRole("banner")
     .getByRole("img", { name: "1 session needs attention" });
@@ -99,8 +114,12 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
     deleteRecord,
     viewport: { width: 1440, height: 900 },
   });
-  const olderEntry = sessionEntry(takenAdHocSession(older.request.title));
-  const newerEntry = sessionEntry(takenAdHocSession(newer.request.title));
+  const olderEntry = sessionEntry(
+    takenSession(defaultTakenStory.title, older.session),
+  );
+  const newerEntry = sessionEntry(
+    takenSession(defaultTakenStory.title, newer.session),
+  );
   await userEvent.click(sidebarButton);
   await expect.poll(() => entries()).toHaveLength(2);
   await expect
@@ -125,7 +144,7 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
   await expect
     .element(
       taken.getByRole("article", {
-        name: "Repair the installer's update report",
+        name: defaultTakenStory.title,
       }),
     )
     .toHaveFocus();
@@ -137,17 +156,27 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
 test("with Open Dough already shown, its Sessions sidebar Session entry brings its Taken entry into view", async () => {
   const title = "where is this entry?";
   const working = makeMe.aSessionState.loaded("working").please();
-  const older = adHoc(title, working, "2026-01-01T00:00:00.000Z");
-  const newer = Array.from(new Array<undefined>(12).keys(), (index) =>
-    adHoc(`Newer session ${index + 1}`, working, "2026-01-01T00:05:00.000Z"),
+  const owner = story(title, 70);
+  const older = adHoc(
+    title,
+    working,
+    "2026-01-01T00:00:00.000Z",
+    owner.identity,
+  );
+  const newerStories = Array.from(new Array<undefined>(12).keys(), (index) =>
+    story(`Newer session ${index + 1}`, 71 + index),
+  );
+  const newer = newerStories.map(({ title, identity }) =>
+    adHoc(title, working, "2026-01-01T00:05:00.000Z", identity),
   );
   withFramePreference(positionKey, "1");
   await mountSessionCards({
+    published: boardWork([], { taken: [...newerStories, owner] }),
     reading: sessionsReading("working", older, ...newer),
     openTerminal: openAttachedTerminal,
     viewport: { width: 700, height: 600 },
   });
-  const entry = takenAdHocSession(title);
+  const entry = takenSession(owner.title, older.session);
   await expect.element(entry).toBeInTheDocument();
   await userEvent.click(sidebarButton);
   await expect

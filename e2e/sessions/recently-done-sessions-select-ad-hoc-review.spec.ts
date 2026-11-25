@@ -36,6 +36,7 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
   test.setTimeout(120_000);
   publishIntentTrunk(origin.project);
   const linked = await retainAdHocCompletedStory(dashboard, origin, {
+    withStoryBinding: true,
     title: sessionTitle,
     intentCoverage: {
       report:

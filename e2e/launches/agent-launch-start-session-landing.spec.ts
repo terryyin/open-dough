@@ -86,7 +86,7 @@ test("blank Automatically land Start opens a blank terminal and keeps the publis
   origin,
 }) => {
   const starts = recordStarts(origin);
-  await openBacklog(page, origin);
+  await openBacklog(page, origin, true);
   const before = await originMain(origin);
   const places = worktrees(origin.project);
   await startSession(page, "Open Dough").click();

@@ -44,14 +44,16 @@ test("recurring observation reads open Codex conversations and resumes reading t
   const source = configuredProjects().find(({ id }) => id === "open-dough");
   if (source === undefined) throw new Error("Missing configured project");
   const launch = (sessionId: string) =>
-    makeMe.aLaunchRecord.adHoc({ title: sessionId }).inCodexSession({
-      sessionId,
-      continuation: {
-        workspace: home,
-        endpoint: "unix:///unused-codex.sock",
-        args: [],
-      },
-    });
+    makeMe.aLaunchRecord
+      .adHoc({ title: sessionId, storyIdentity: "SEED-A#a" })
+      .inCodexSession({
+        sessionId,
+        continuation: {
+          workspace: home,
+          endpoint: "unix:///unused-codex.sock",
+          args: [],
+        },
+      });
   const older = new Date(Date.now() - 60_000).toISOString();
   const retained: LaunchRecord[] = [];
   for (let index = 0; index < 427; index += 1) {

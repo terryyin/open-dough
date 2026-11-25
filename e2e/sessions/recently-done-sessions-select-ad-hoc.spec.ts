@@ -1,8 +1,6 @@
-// Selecting a retained ad hoc Recently done sessions row derives its unique
-// published Done story (../../dashboard/src/recentlyDoneSelection.ts) without rewriting
-// the Ad hoc label or request identity. Perspective, Side panel, and Open stay
-// as for story-linked rows (../../dashboard/frontend-tests/sessions/recently-done-sessions-select.spec.ts). Absent
-// evidence leaves the row unselected. Development reveal of an older Done card lives in
+// Selecting a retained ad hoc Recently done sessions row opens its published
+// Done story and keeps its Ad hoc label, the perspective and the open report.
+// An unbound retained record stays out of this list. Development reveal lives in
 // ./recently-done-sessions-select-ad-hoc-development.spec.ts.
 import path from "node:path";
 import { randomUUID } from "node:crypto";
@@ -14,7 +12,6 @@ import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { expectProjectChoice } from "../../dashboard/test-support/projectChoice.ts";
 import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
-import { completedStoryAssociationEndpoint } from "../../dashboard/src/completedStoryAssociation.ts";
 import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
 import {
   chooseStoryTab,
@@ -35,16 +32,17 @@ const sessionTitle = "Ad hoc completed session";
 const reportTitle = "Open Dough reported session";
 const reportMessage = "Landed the reported change on main.";
 
-test("selecting a completed ad hoc session from Intent selects its Done story, keeps Intent and Ad hoc, and leaves a miss unselected", async ({
+test("selecting a completed ad hoc session from Intent selects its Done story and keeps Intent and Ad hoc", async ({
   page,
   dashboard,
   origin,
 }) => {
-  // Real claim/completion publish plus Intent catalog and association reads.
+  // Real claim/completion publication plus Intent catalog reads.
   test.setTimeout(90_000);
   publishIntentTrunk(origin.project);
   const linked = await retainAdHocCompletedStory(dashboard, origin, {
     title: sessionTitle,
+    withStoryBinding: true,
     landing: { repository: path.join(origin.project, ".git") },
     intentCoverage: {
       report:
@@ -98,46 +96,19 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     await expect(reportText).toHaveText(reportMessage);
   });
 
-  await test.step("Select links the ad hoc row to Story A, keeps Intent and the Side panel report, and skips blanket Done bodies during association", async () => {
+  await test.step("Select opens the saved story, keeps Intent and the Side panel report, and reads only its Done body", async () => {
     const linkedDoneFile = doneRecordFileName(linked.identity);
-    const bodyRequestsDuringLookup: string[][] = [];
-    let watchingLookup = false;
+    const bodyRequestsDuringSelection: string[][] = [];
     const onRequest = (request: { url: () => string }) => {
-      if (!watchingLookup) return;
       const url = new URL(request.url());
       if (
         url.pathname === authenticatedReadEndpoint &&
         url.searchParams.get("done") === "bodies"
       )
-        bodyRequestsDuringLookup.push(url.searchParams.getAll("file"));
+        bodyRequestsDuringSelection.push(url.searchParams.getAll("file"));
     };
     page.on("request", onRequest);
-    const associationRequest = page.waitForRequest(
-      (request) =>
-        request.url().includes(completedStoryAssociationEndpoint) &&
-        request.method() === "GET",
-    );
-    const association = page.waitForResponse(
-      (response) =>
-        response.url().includes(completedStoryAssociationEndpoint) &&
-        response.request().method() === "GET",
-    );
     await shown.select(sessionTitle).click();
-    await associationRequest;
-    watchingLookup = true;
-    const answered = await association;
-    watchingLookup = false;
-    page.off("request", onRequest);
-    expect(answered.ok()).toBe(true);
-    expect(await answered.json()).toEqual({
-      kind: "linked",
-      identity: linked.identity,
-    });
-    // Association is server-side git. Intent may race a single linked Done
-    // body before Playwright settles the association response; bulk Done
-    // bodies (no file, or any file other than the linked story) must not.
-    for (const files of bodyRequestsDuringLookup)
-      expect(files).toEqual([linkedDoneFile]);
     await expect(shown.select(sessionTitle)).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -152,6 +123,10 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     await expect(storyTitle(intent)).toHaveText(linked.title, {
       timeout: 30_000,
     });
+    page.off("request", onRequest);
+    expect(bodyRequestsDuringSelection).toContainEqual([linkedDoneFile]);
+    for (const files of bodyRequestsDuringSelection)
+      expect(files).toEqual([linkedDoneFile]);
     await expect(row).toHaveClass(/\bchosen\b/);
     await expect(shown.choiceStatus(sessionTitle)).toHaveCount(0);
     await expect(shown.select(sessionTitle)).toHaveAttribute(
@@ -174,7 +149,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     );
   });
 
-  await test.step("a session without matching claim stays unselected and keeps the story", async () => {
+  await test.step("an unbound retained record stays outside active selection", async () => {
     const alone = makeMe.aLaunchRecord
       .adHoc({
         instruction: "Standalone miss",
@@ -193,17 +168,13 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     await expect(intentChoice).toBeChecked();
     const after = await showRecentlyDone(page);
     await expect(after.select(sessionTitle)).toBeVisible();
-    await expect(after.entries).toHaveCount(3);
+    await expect(after.entries).toHaveCount(2);
     await after.select(sessionTitle).click();
     await expect(intent).toHaveAttribute(
       "data-selected-story",
       linked.identity,
     );
-    await after.select("Standalone miss").click();
-    await expect(after.select("Standalone miss")).toHaveAttribute(
-      "aria-pressed",
-      "false",
-    );
+    await expect(after.select("Standalone miss")).toHaveCount(0);
     await expect(intent).toHaveAttribute(
       "data-selected-story",
       linked.identity,

@@ -12,7 +12,7 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   parts,
   sessionEntriesIn,
@@ -62,10 +62,9 @@ async function chooseInSettings(page: Page, label: ComputedPalette) {
 test("the page's terminal shows the theme chosen in System settings, live without re-attaching, on the next attachment and after a reload", async ({
   page,
   dashboard,
-  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  await openTakenBacklog(page, launchJourney);
+  await openCatalogLaunchBoard(page, dashboard.home);
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
   const entry = sessionEntriesIn(parts(page).taken);

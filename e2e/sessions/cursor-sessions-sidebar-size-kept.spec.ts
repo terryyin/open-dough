@@ -45,6 +45,7 @@ import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonPr
 import { revealRecentlyDoneThrough } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPaging.ts";
 import { fortyFiveDoneSessions } from "../../dashboard/test-support/retainedDoneSessions.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import { recentlyDoneSessionsInitialLimit } from "../../dashboard/src/agentLaunch.ts";
 
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
@@ -93,7 +94,7 @@ test.describe("with two projects", () => {
     await publishOnePygardonStory(page, afterGitHubStops);
     keepLaunchRecords(
       dashboard,
-      fortyFiveDoneSessions(Date.now(), ["open-dough"]).records,
+      fortyFiveDoneSessions(Date.now(), ["open-dough"], queuedIdentity).records,
     );
     const asked = changesAsked(page);
     await showPage(page, origin);

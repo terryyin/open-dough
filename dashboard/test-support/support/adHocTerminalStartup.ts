@@ -3,10 +3,10 @@
 import type { Page } from "@playwright/test";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { sessionsAudienceParameter } from "../../src/machineSessionsRevision.ts";
+import { recordsOf } from "../agentLaunchBoundary.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { parts, sessionNamedBy, sessionEntriesIn } from "../dashboardPage.ts";
-import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import type { LaunchJourney } from "../launchJourney.ts";
+import { openCatalogLaunchBoard } from "./codexLaunch.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
 import {
   openTerminalControl,
@@ -14,6 +14,7 @@ import {
   terminalScreenParts,
 } from "../terminalScreenPage.ts";
 import { isTerminalSocket, watchTerminalSockets } from "./terminalSockets.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
 
 // While withheld, the page reads every launch attempt of this machine as still
 // starting, though its session may already be listed: the window between the
@@ -71,7 +72,7 @@ async function withholdLaunchOutcomes(page: Page) {
 // pace pass at a time, each with its read answered, until it shows `text`.
 export async function openWhileStarting(
   page: Page,
-  launchJourney: LaunchJourney,
+  dashboard: DashboardServer,
 ) {
   await pausePageClockAt(page, new Date());
   const { passOnePace } = await watchRecordReads(page);
@@ -80,7 +81,7 @@ export async function openWhileStarting(
     stopWithholding();
     await passOnePace();
   };
-  await openTakenBacklog(page, launchJourney);
+  await openCatalogLaunchBoard(page, dashboard.home);
   const dialog = page.getByRole("dialog", {
     name: "Start a session in Open Dough in Claude Code",
   });
@@ -98,6 +99,8 @@ export async function openWhileStarting(
     .click();
   await dialog.getByRole("button", { name: "Start" }).click();
   const entry = sessionEntriesIn(parts(page).taken);
+  await expect.poll(() => recordsOf(dashboard, "open-dough")).toHaveLength(1);
+  await passOnePace();
   await expect(entry).toHaveCount(1, { timeout: 20_000 });
   const sessionId = await sessionNamedBy(entry);
   await expect(

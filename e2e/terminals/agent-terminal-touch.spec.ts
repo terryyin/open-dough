@@ -10,6 +10,7 @@ import { composeSession } from "../../dashboard/test-support/agentTerminalBounda
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
+  bottomOf,
   expectRowRestsShowing,
   scrollYOf,
 } from "../../dashboard/test-support/boardPage.ts";
@@ -22,11 +23,9 @@ import {
   terminalScreenParts,
   typeLine,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
-import {
-  publishStoryColumnsJourney,
-  type StoryColumnsJourney,
-} from "../../dashboard/test-support/launchJourney.ts";
-import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/committedFiles.ts";
+import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { takenStoryFiles } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
@@ -50,11 +49,6 @@ import {
 } from "../../dashboard/test-support/touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryColumnsJourney;
-test.beforeAll(async () => {
-  journey = await publishStoryColumnsJourney();
-});
-test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 const title =
   "Continue the intended terminal session with a long title whose final words identify the work that should remain attached";
@@ -70,20 +64,27 @@ test.describe(`${name} terminal input`, () => {
     // Earlier sessions above it in Taken keep the Board scrolling behind the
     // covering panel, so the revealed card holds a real reading place (E3).
     const now = Date.now();
-    for (const earlier of [1, 2, 3]) {
-      await composeSession(dashboard, "open-dough", {
-        identity: `SEED-901#earlier-${String(earlier)}`,
-        title: `Earlier session ${String(earlier)}`,
-        startedAt: now - (4 - earlier) * 1_000,
-      });
-    }
-    const native = await composeSession(dashboard, "open-dough", {
+    const earlier = [1, 2, 3].map((index) => ({
+      identity: `SEED-901#earlier-${index}`,
+      title: `Earlier session ${index}`,
+      startedAt: now - (4 - index) * 1_000,
+    }));
+    const continued = {
       identity: "SEED-901#continue-touch-terminal",
       title,
       startedAt: now,
+    };
+    for (const story of earlier) {
+      await composeSession(dashboard, "open-dough", story);
+    }
+    const native = await composeSession(dashboard, "open-dough", continued);
+    // Leave reading room below the selected story across the panel resizes.
+    const later = { identity: "SEED-901#later", title: "Later story" };
+    publishCommittedFiles(page, {
+      repository: "terryyin/open-dough",
+      files: takenStoryFiles([...earlier, continued, later]),
     });
-    const opened = await openStoryColumnsJourney(page, journey);
-    await opened.settled();
+    await openUntilRead(page);
     const { banner, board } = parts(page);
     const sidebar = sessionsSidebarParts(page);
     await tapWhereShown(sidebar.button);
@@ -110,6 +111,7 @@ test.describe(`${name} terminal input`, () => {
     await expectRowRestsShowing(page, "Taken");
     const scrollWhileCovering = await scrollYOf(page);
     expect(scrollWhileCovering).toBeGreaterThan(0);
+    expect(scrollWhileCovering).toBeLessThan(await bottomOf(page));
     await expect(control("Mark as done")).toBeVisible();
     await expect(control("Close")).toBeVisible();
     await expectBoardUnreachableBehindCovering(panel, board);
@@ -214,7 +216,7 @@ test.describe(`${name} terminal input`, () => {
       await expect(sidebar.button).toBeFocused();
       await expect(banner).toBeVisible();
       await expect(board).toBeVisible();
-      expect(await scrollYOf(page)).toBe(scrollWhileCovering);
+      await expect.poll(() => scrollYOf(page)).toBe(scrollWhileCovering);
       await expect.poll(() => attaches()[0]?.endedBy).toBe("SIGHUP");
       await expect
         .poll(() => processRunning(attaches()[0]?.pid ?? 0))

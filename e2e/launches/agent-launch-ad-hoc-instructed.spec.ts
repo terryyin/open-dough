@@ -11,9 +11,14 @@
 import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { test } from "../../dashboard/test-support/support/startOriginTest.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   parts,
+  sessionEntriesIn,
   sessionNamedBy,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
@@ -24,7 +29,6 @@ import {
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   expectQuietAdHocActionsRow,
-  openTakenBacklog,
   startSession,
   startSessionDialog,
   startSessionField,
@@ -40,7 +44,25 @@ import { takenAdHocSession } from "../../dashboard/test-support/support/startedA
 import { watchTerminalSockets } from "../../dashboard/test-support/support/terminalSockets.ts";
 import { adHocDeveloperInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+const reportStory = {
+  identity: "SEED-899#retained-report",
+  title: retiredTitle,
+};
+const completedAt = new Date(Date.now() - 60_000);
+test.use({
+  originRepository: queuedReadyRepository()
+    .withRevision("retained-report", {
+      doneRecords: [
+        makeMe.aDoneRecord
+          .completed({
+            ...reportStory,
+            completedAt: completedAt.toISOString(),
+          })
+          .please(),
+      ],
+    })
+    .please(),
+});
 
 const text = "summarize the open issues";
 
@@ -55,22 +77,26 @@ async function startInstructed(page: Page) {
 test("an instructed Start session leaves the open final report in the Side panel, requests no terminal, and its Taken entry's Open terminal shows the session", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   const report = "The cache key changed; I restored it.";
   keepLaunchRecords(dashboard, [
     retiredSession(dashboard.home, {
       report,
       landed: "ab".repeat(20),
-      doneAt: new Date(Date.now() - 60_000),
+      doneAt: completedAt,
+      storyIdentity: reportStory.identity,
     }),
   ]);
   dashboard.claudeScenario("launched");
-  await openTakenBacklog(page, launchJourney);
+  await openBacklog(page, origin, true);
   const { panel: finalReport } = await readFinalReport(
-    parts(page).recentlyDone.getByRole("article", {
-      name: new RegExp(retiredTitle),
-    }),
+    sessionEntriesIn(
+      parts(page).recentlyDone.getByRole("article", {
+        name: retiredTitle,
+        exact: true,
+      }),
+    ),
   );
   const panel = terminalPanel(page);
   await expect(finalReport).toContainText(report);

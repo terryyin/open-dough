@@ -1,4 +1,4 @@
-// Development reveal for an ad hoc association, including a Done story older
+// Development reveal for an ad hoc session, including a Done story older
 // than the Board's default 30-day window (../../dashboard/src/recentlyDoneView.ts).
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -21,10 +21,13 @@ import {
 import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
 
 const sessionTitle = "Older ad hoc completed session";
+const executionTitle = "Older execution session";
 const day = 24 * 60 * 60_000;
 
 test("selecting an ad hoc session whose Done story is beyond the Board window reveals its card in Development", async ({
@@ -39,7 +42,14 @@ test("selecting an ad hoc session whose Done story is beyond the Board window re
   await pausePageClockAt(page, new Date(now));
   const linked = await retainAdHocCompletedStory(dashboard, origin, {
     title: sessionTitle,
+    withStoryBinding: true,
   });
+  const execution = makeMe.aLaunchRecord
+    .executing({ identity: linked.identity, title: executionTitle })
+    .launchedAt(new Date(now - 120_000).toISOString())
+    .markedDoneAt(new Date(now - 60_000).toISOString())
+    .please();
+  keepLaunchRecords(dashboard, [linked.record, execution]);
   // Backdate the published Done record past the Board window; the retained
   // session stays within launch retention.
   const file = path.join(
@@ -83,16 +93,24 @@ test("selecting an ad hoc session whose Done story is beyond the Board window re
   await openSessionsSidebar(page);
   const shown = recentlyDoneParts(page);
   await shown.header.click();
+  const card = parts(page).recentlyDone.getByRole("article", {
+    name: linked.title,
+    exact: true,
+  });
+  await expect(shown.reviewCue(sessionTitle)).toBeVisible();
+  await expect(shown.reviewCue(executionTitle)).toHaveCount(0);
+  await shown.select(executionTitle).click();
+  await expect(shown.select(executionTitle)).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+  await expect(card).toHaveCount(0);
   await shown.select(sessionTitle).click();
   await expectProjectChoice(page, "Open Dough");
   await expect(shown.select(sessionTitle)).toHaveAttribute(
     "aria-pressed",
     "true",
   );
-  const card = parts(page).recentlyDone.getByRole("article", {
-    name: linked.title,
-    exact: true,
-  });
   await expectSelected(card, true);
   await expect(card).toBeInViewport();
   await expect(shown.select(sessionTitle)).toHaveAttribute(

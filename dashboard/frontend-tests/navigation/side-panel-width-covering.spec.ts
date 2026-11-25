@@ -42,11 +42,12 @@ test("a narrow window covers the page and widening restores width and Maximize c
   expect(document.documentElement.scrollWidth).toBe(
     document.documentElement.clientWidth,
   );
-  const heading = panel.getByRole("heading", { level: 2 }).element();
-  const bounds = heading.getBoundingClientRect();
+  const heading = panel.getByRole("heading", { level: 2 });
+  await heading.getByRole("button").click();
+  const bounds = heading.element().getBoundingClientRect();
   expect(bounds.top).toBeGreaterThanOrEqual(0);
   expect(bounds.bottom).toBeLessThanOrEqual(innerHeight);
-  expect(readsWhole(heading, panel.element())).toBe(true);
+  expect(readsWhole(heading.element(), panel.element())).toBe(true);
   for (const control of panel.getByRole("button").elements()) {
     control.scrollIntoView({ block: "nearest", inline: "nearest" });
     const { top, bottom, left, right } = control.getBoundingClientRect();

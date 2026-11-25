@@ -1,6 +1,7 @@
 import { expect, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { publishedSessionRecordSchema } from "../../src/publishedSessionRecord.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import type { WorkEntry } from "../../src/publishedWork.ts";
 import {
@@ -8,7 +9,6 @@ import {
   withClosedSessionsSidebar,
   withFramePreference,
 } from "../../test-support/component-mount/framePreferences.ts";
-import { standaloneSessionName } from "../../test-support/dashboardParts.ts";
 import { browserSession } from "../review/browser-session.ts";
 import { reviewFiles } from "../review/story-review-files-view.ts";
 import { reviewSourceAnswering } from "../review/story-review-panel-page.ts";
@@ -23,7 +23,7 @@ export const keyStep = 32;
 export const widthKey = "open-dough.sidePanel.width";
 export { sidebarKey };
 
-const sessionTitle = "Inspect the chosen width";
+const reviewStory = story("Inspect the chosen width", 60);
 const taken = story("Work in progress", 59);
 
 export const panel = page.getByRole("region", {
@@ -44,21 +44,21 @@ export const button = (name: string) =>
 export const files = reviewFiles(panel);
 
 export async function openReview() {
-  const action = boardReading
+  const entry = boardReading
     .column("Recently done")
-    .getByRole("article", {
-      name: standaloneSessionName("Ad hoc", sessionTitle),
-      exact: true,
-    })
-    .getByRole("button", { name: "Review changes", exact: true });
+    .getByRole("article", { name: reviewStory.title, exact: true })
+    .getByRole("list", { name: "Published sessions" })
+    .getByRole("article");
+  const action = entry.getByRole("button", { name: "Review session changes" });
   await expect.element(action).toBeInTheDocument();
+  const title = entry.element().getAttribute("aria-label") ?? "";
   const control = action.element();
   if (!(control instanceof HTMLElement))
     throw new Error("Review changes is not focusable.");
   control.focus();
   await userEvent.keyboard("{Enter}");
   await expect
-    .element(panel.getByRole("heading", { level: 2, name: sessionTitle }))
+    .element(panel.getByRole("heading", { level: 2, name: title, exact: true }))
     .toBeVisible();
 }
 
@@ -71,11 +71,13 @@ export async function mountWidthReview(
     .adding("story.txt")
     .modifying("unstaged.txt")
     .please();
-  const record = makeMe.aLaunchRecord
-    .adHoc({ title: sessionTitle })
-    .markedDone()
+  const record = publishedSessionRecordSchema.parse(
+    makeMe.aSessionRecord.forStory(reviewStory.identity).please(),
+  );
+  const completed = makeMe.aDoneRecord
+    .completed({ ...reviewStory, completedAt: record.closedAt })
     .please();
-  const { records } = makeMe.aMachineAnswer.observingOpen(record).please();
+  const catalog = makeMe.aDoneCatalog.holding([completed]).please();
   const review = vi.fn<ReviewSource["review"]>().mockResolvedValue(comparison);
   const fileDiff = vi
     .fn<ReviewSource["fileDiff"]>()
@@ -86,10 +88,22 @@ export async function mountWidthReview(
       );
     });
   const frame = await mountBoard(
-    [boardWork(backlog, { taken: [taken] })],
+    [
+      boardWork(backlog, {
+        revision: catalog.done.revision,
+        taken: [taken],
+        done: catalog.done,
+        publishedSessions: {
+          status: "listed",
+          revision: catalog.done.revision,
+          sessions: [record],
+        },
+      }),
+    ],
     viewport,
-    { records, launched: records },
+    {},
     {
+      done: catalog.doneReads,
       reviews: reviewSourceAnswering({ review, fileDiff }),
       sessionsSidebar: "kept",
     },

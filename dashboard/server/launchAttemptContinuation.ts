@@ -130,6 +130,9 @@ export async function continueAttempt(
     (entry) => entry.id === id && entry.request.source === sourceId,
   );
   if (found === undefined) return unknownAttempt;
+  const observed = owned.observed(found);
+  const running = notContinued(observed);
+  if (observed.running && running !== undefined) return running;
   if (verifying.has(id)) return recheckRunning;
   let selected: Continuation | Unaccepted = {
     attempt: found,

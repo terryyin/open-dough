@@ -1,5 +1,10 @@
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
+import {
+  sessionKey,
+  type SessionReference,
+} from "../../src/sessionReference.ts";
+import "../page-objects/cssLocator.ts";
 import { readyStory } from "./session-card-mount.ts";
 
 const deleteQuestion =
@@ -15,11 +20,15 @@ export const sidebarButton = page.getByRole("button", {
 export const sidebarSession = (title: string) =>
   sidebar.getByRole("button", { name: title, exact: true });
 export const taken = page.getByRole("region", { name: "Taken", exact: true });
-export const takenAdHocSession = (title: string) =>
-  taken.getByRole("article", {
-    name: `Ad hoc session for ${title}`,
-    exact: true,
-  });
+export const takenSession = (story: string, session: SessionReference) =>
+  taken
+    .getByRole("article", { name: story, exact: true })
+    .getByRole("article", { name: "Ad hoc session", exact: true })
+    .and(
+      page.getByCSS(
+        `[data-shows-session="${CSS.escape(sessionKey(session))}"]`,
+      ),
+    );
 export const namedCard = (title: string) =>
   page.getByRole("article", { name: title, exact: true });
 export const card = namedCard(readyStory.title);

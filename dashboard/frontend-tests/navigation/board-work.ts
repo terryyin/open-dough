@@ -17,7 +17,10 @@ export function story(
     .please();
 }
 
-const taken = story("Repair the installer's update report", 59);
+export const defaultTakenStory = story(
+  "Repair the installer's update report",
+  59,
+);
 
 export function boardWork(
   backlog: readonly WorkEntry[],
@@ -37,7 +40,7 @@ export function boardWork(
   return makeMe.aPublishedWork
     .with({
       ...empty,
-      taken: [taken],
+      taken: [defaultTakenStory],
       backlog,
       done: {
         status: "catalogued",

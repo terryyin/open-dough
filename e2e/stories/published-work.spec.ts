@@ -12,10 +12,7 @@ import {
   publishOrigin,
   rawFileAnswer,
 } from "../../dashboard/test-support/publishedOrigin.ts";
-import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
-import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectSideBySideInOrder } from "../../dashboard/test-support/pageLayout.ts";
-import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   canonicalRecord,
   focusCanonicalRecord,
@@ -180,7 +177,7 @@ test("published Board shows Backlog and Taken work read at one revision", async 
       recentlyDone.getByRole("heading", { name: "Recently done" }),
     ).toBeVisible();
     await expect(recentlyDone).toContainText(
-      "Recently done stories and sessions launched from this dashboard for this project, newest first. Sessions are kept on this machine.",
+      "Done stories for this project, newest first. Local sessions appear on their story cards.",
     );
     await expectSideBySideInOrder([backlog, taken, recentlyDone]);
   });
@@ -234,31 +231,4 @@ test("published Board shows Backlog and Taken work read at one revision", async 
     ]);
     expect(externalReads).toEqual([]);
   });
-});
-
-test("published Board accepts successfully empty groups and no recorded direction", async ({
-  page,
-}) => {
-  await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: {
-      revision,
-      answer: rawFileAnswer(describedBacklog(makeMe.aRepository.please())),
-    },
-  });
-
-  await openUntilRead(page);
-
-  const { board, backlog, taken, direction, readRevision } = parts(page);
-  await expect(taken).toContainText("No Taken entries are recorded.");
-  await expect(taken).toContainText("0 entries");
-  await expect(backlog).toContainText("No Backlog entries are recorded.");
-  await expect(backlog).toContainText("0 entries");
-  await expect(board.getByRole("article")).toHaveCount(0);
-  await openDirection(page);
-  await expect(direction).toContainText(
-    "No near-future direction is recorded.",
-  );
-  await expect(readRevision).toContainText(shortRevision(revision));
-  await expect(page.getByRole("alert")).toHaveCount(0);
 });

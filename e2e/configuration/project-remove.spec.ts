@@ -10,11 +10,19 @@ import {
   snapshotMachineRecords,
 } from "../../dashboard/test-support/support/machineRecordNames.ts";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
-import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
+import {
+  addedBranch,
+  addedRepository,
+  projectAddMachine,
+} from "../../dashboard/test-support/support/projectAddMachine.ts";
+import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { identity } from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  parts,
+  sessionEntryShowing,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
@@ -42,10 +50,10 @@ test.afterEach(async () => fixture.close());
 test("removing a configured project retains its checkout and records, hides sessions, persists and re-add restores them", async ({
   page,
 }) => {
+  const story = { identity, title: "Retained sample session" };
   const record = makeMe.aLaunchRecord
     .executing({
-      identity,
-      title: "Retained sample session",
+      ...story,
       source: "sample-app",
     })
     .inClaudeSession({ sessionId: "01234567-retained" })
@@ -60,18 +68,22 @@ test("removing a configured project retains its checkout and records, hides sess
     "utf8",
   );
   let server = await fixture.start("preview");
+  publishRetainedProjectStory(server, addedRepository, story, addedBranch);
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
-  const recent = page.getByRole("region", { name: "Taken", exact: true });
-  await expect(recent).toContainText("Retained sample session", {
-    timeout: 5_000,
-  });
+  const { taken } = parts(page);
+  const retainedEntry = sessionEntryShowing(taken, "claude:01234567-retained");
+  const expectRetainedStorySession = async () => {
+    await expect(taken).toContainText(story.title, { timeout: 5_000 });
+    await expect(retainedEntry).toBeVisible();
+  };
+  await expectRetainedStorySession();
   await page.getByRole("button", { name: "Sessions", exact: true }).click();
   const sidebar = page.getByRole("complementary", {
     name: "Sessions sidebar",
     exact: true,
   });
-  await expect(sidebar).toContainText("Retained sample session");
+  await expect(sidebar).toContainText(story.title);
   const file = fixture.configurationFile("preview");
   const before = readFileSync(file, "utf8");
   const recordsFolder = path.dirname(file);
@@ -136,10 +148,10 @@ test("removing a configured project retains its checkout and records, hides sess
     await expect(openDough).not.toBeFocused();
     await expect(settings(page)).toBeFocused();
     await untilPublishedWorkRead(page);
-    await expect(recent).not.toContainText("Retained sample session", {
+    await expect(taken).not.toContainText(story.title, {
       timeout: 1_000,
     });
-    await expect(sidebar).not.toContainText("Retained sample session", {
+    await expect(sidebar).not.toContainText(story.title, {
       timeout: 1_000,
     });
     await expect.poll(() => readHeld, { timeout: 1_000 }).toBe(true);
@@ -163,17 +175,16 @@ test("removing a configured project retains its checkout and records, hides sess
   expectUnchangedMachineRecords(recordsFolder, machineRecordsBefore);
   await fixture.stop(server);
   server = await fixture.start("preview");
+  publishRetainedProjectStory(server, addedRepository, story, addedBranch);
   await openUntilRead(page, server.baseURL);
   await expect(parts(page).project.getByRole("radio")).toHaveCount(
     remainingIds.length,
   );
   await expect(page.getByRole("radio", { name: "Sample App" })).toHaveCount(0);
   await addProjectOnPage(page);
-  await expect(recent).toContainText("Retained sample session", {
-    timeout: 5_000,
-  });
+  await expectRetainedStorySession();
   await openSessionsSidebar(page);
-  await expect(sidebar).toContainText("Retained sample session", {
+  await expect(sidebar).toContainText(story.title, {
     timeout: 5_000,
   });
   expect(readFileSync(launchStore, "utf8")).toBe(records);

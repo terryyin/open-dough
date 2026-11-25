@@ -20,6 +20,11 @@ import { settings } from "../../dashboard/test-support/support/systemSettingsPag
 import { expectFrameIconControl } from "../../dashboard/test-support/frameIconControl.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { productionSeedProjects } from "../../dashboard/server/projectConfigurationSeed.ts";
+import {
+  parts,
+  sessionEntryShowing,
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 
 let fixture: ReturnType<typeof projectConfigurationMachine>;
 test.beforeEach(() => {
@@ -30,6 +35,10 @@ test.afterEach(async () => fixture.close());
 test("production seeds its projects and shows a previously saved session", async ({
   page,
 }) => {
+  const firstSeed = productionSeedProjects[0];
+  if (firstSeed === undefined) {
+    throw new Error("production seed projects must include a default project");
+  }
   keepLaunchStore(machineHome(fixture.machine), {
     "open-dough": [
       makeMe.aLaunchRecord
@@ -41,15 +50,17 @@ test("production seeds its projects and shows a previously saved session", async
   });
   const records = readFileSync(launchStoreFile(machineHome(fixture.machine)));
   const server = await fixture.start("preview");
+  publishRetainedProjectStory(
+    server,
+    firstSeed.repository,
+    { identity, title },
+    firstSeed.ref,
+  );
   await openUntilRead(page, server.baseURL);
   const projectRadios = page
     .getByRole("radiogroup", { name: "Project" })
     .getByRole("radio");
   await expect(projectRadios).toHaveCount(productionSeedProjects.length);
-  const firstSeed = productionSeedProjects[0];
-  if (firstSeed === undefined) {
-    throw new Error("production seed projects must include a default project");
-  }
   await expect(
     page.getByRole("radio", {
       name: firstSeed.label,
@@ -57,8 +68,8 @@ test("production seeds its projects and shows a previously saved session", async
     }),
   ).toBeChecked();
   await expect(
-    page.getByRole("region", { name: "Taken", exact: true }),
-  ).toContainText(title);
+    sessionEntryShowing(parts(page).taken, "claude:01234567-previous-session"),
+  ).toBeVisible();
   expect(
     JSON.parse(readFileSync(fixture.configurationFile("preview"), "utf8")),
   ).toEqual([...productionSeedProjects]);

@@ -1,7 +1,7 @@
-// An ad hoc session occupies Taken without a story card. Its Sessions sidebar
+// An ad hoc session lives on its published Taken story card. Its Sessions sidebar
 // Session entry, while another project is shown, opens Open Dough's stories,
 // attaches its terminal and reveals its Taken entry; Mark as done in the
-// terminal renames it and takes it out of the sidebar into Recently done; Open
+// terminal renames it and takes it out of the sidebar into the card's Done history; Open
 // terminal puts it back, through a reload. The real boundary drives the
 // synthetic Claude. Its Needs input count, deletion and same-project reveal
 // are ../../dashboard/frontend-tests/sessions/agent-launch-ad-hoc-sessions.spec.ts.
@@ -12,21 +12,18 @@ import {
   terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   chooseProject,
+  expandStoryCardDoneHistory,
   expectProjectChoice,
   expectMembership,
   parts,
+  sessionEntriesIn,
   sessionNamedBy,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { showColumn } from "../../dashboard/test-support/boardPage.ts";
-import {
-  notRefinedStory,
-  readyStory,
-  takenStory,
-} from "../../dashboard/test-support/launchJourney.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   expectRevealsSince,
   recordReveals,
@@ -49,30 +46,24 @@ test.use({
   projectFolders: ["open-dough", "pygardon"],
 });
 
-const openDoughStories = {
-  taken: [takenStory],
-  backlog: [readyStory, notRefinedStory],
-};
-
 test("its Sessions sidebar Session entry opens Open Dough's stories, the terminal and its Taken entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload", async ({
   page,
   dashboard,
-  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   await recordReveals(page);
-  await openTakenBacklog(page, launchJourney);
+  await openCatalogLaunchBoard(page, dashboard.home);
   const text = "why is the CI slow on main?";
+  const openDoughStories = { taken: [text], backlog: ["Story A", "Story B"] };
   const { button, entries, entry } = sessionsSidebarParts(page);
   const panel = terminalPanel(page);
   const active = takenAdHocSession(page, text);
-  const recent = parts(page).recentlyDone.getByRole("article", {
-    name: `Ad hoc session for ${text}`,
-  });
+  const card = storyCard(parts(page).taken, text);
+  const recent = parts(page).recentlyDone;
 
   await startAdHocAndClose(page, "Open Dough", text);
   await expect(active).toHaveCount(1);
-  await expect(recent).toHaveCount(0);
+  await expect(sessionEntriesIn(recent)).toHaveCount(0);
   const sessionId = await sessionNamedBy(active);
   await chooseProject(page, "Pygardon");
   await expectProjectChoice(page, "Pygardon");
@@ -94,34 +85,32 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
     await expect
       .poll(async () => (await revealsOf(page)).length)
       .toBeGreaterThan(revealed);
-    await expectRevealsSince(
-      page,
-      revealed,
-      `Ad hoc session for ${text}`,
-      "smooth",
-    );
+    await expectRevealsSince(page, revealed, text, "smooth");
     await expect(active.getByText("Shown in terminal")).toBeVisible();
     await expect(entry(text)).toHaveAttribute("aria-current", "true");
   });
 
-  await test.step("Mark as done in the terminal takes it out of the sidebar and Recently done reads Done", async () => {
+  await test.step("Mark as done in the terminal takes it out of the sidebar and the owning story's history reads Done", async () => {
     idleBetweenSteps(dashboard, sessionId);
     await markDoneAnyway(panel);
     await expect(panel).toHaveCount(0);
     await expect(entries).toHaveCount(0);
-    await expect(sessionStateOf(recent)).toHaveText("Done");
-    await expect(recent).toContainText(
+    const closed = sessionEntriesIn(await expandStoryCardDoneHistory(card));
+    await expect(sessionStateOf(closed)).toHaveText("Done");
+    await expect(closed).toContainText(
       `Named done-Open Dough · Ad hoc · ${text}`,
     );
-    await expect(recent).not.toContainText("Shown in terminal");
+    await expect(closed).not.toContainText("Shown in terminal");
+    await expect(sessionEntriesIn(recent)).toHaveCount(0);
   });
 
   await test.step("Open terminal reopens it into the sidebar, and a reload keeps it there", async () => {
-    await showColumn(page, "Recently done");
-    await openTerminalControl(recent).click();
+    await openTerminalControl(
+      sessionEntriesIn(await expandStoryCardDoneHistory(card)),
+    ).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expect(entries).toHaveCount(1);
-    await expect(recent).toHaveCount(0);
+    await expect(sessionEntriesIn(recent)).toHaveCount(0);
     await expect(sessionStateOf(active)).not.toHaveText("Done");
     await expect(active).not.toContainText("Named done-");
 
@@ -131,6 +120,6 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
     await expect(entries).toHaveCount(1);
     await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
     await expect(sessionStateOf(active)).not.toHaveText("Done");
-    await expect(recent).toHaveCount(0);
+    await expect(sessionEntriesIn(recent)).toHaveCount(0);
   });
 });

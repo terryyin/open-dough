@@ -6,6 +6,7 @@ import { recordStoryState } from "../../../Distribution/src/skills/dough-product
 import { computeBasis } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-story-state-basis.mjs";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
+import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
@@ -105,6 +106,8 @@ export function sessionsReading(
 
 export async function mountSessionCards({
   reading,
+  published = work,
+  done,
   deleteRecord,
   markDone,
   markRead,
@@ -118,6 +121,8 @@ export async function mountSessionCards({
   otherProjects = [],
 }: {
   reading?: MachineSessionsRead;
+  published?: PublishedWork;
+  done?: DoneRecordReadSource;
   machineReads?: Partial<
     Pick<
       MachineReadSource,
@@ -136,7 +141,7 @@ export async function mountSessionCards({
   otherProjects?: readonly PublishedWork[];
 }) {
   withPagePreferences();
-  const projects = [work, ...otherProjects];
+  const projects = [published, ...otherProjects];
   const supply = boardFrameObservationSupplying(projects);
   const defaults = pageReadsSupplying({});
   let next = Promise.resolve(reading);
@@ -145,6 +150,7 @@ export async function mountSessionCards({
   );
   const reads = pageReadsSupplying({
     ...(transcription === undefined ? {} : { transcription }),
+    ...(done === undefined ? {} : { done }),
     observation: {
       ...supply.observation,
       readDetailFile: (...args) =>

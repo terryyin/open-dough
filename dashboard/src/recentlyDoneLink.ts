@@ -29,8 +29,12 @@ export type AssociationAnswer =
   | { readonly problem: string }
   | { readonly kind: "linked"; readonly identity: string };
 
+// Ad hoc sessions can still reopen an older published story from the sidebar.
+export const doneStoryMustBeRecent = (record: LaunchRecord) =>
+  record.request.workflow !== "ad-hoc";
+
 // Whether the catalog lists the story, lacks it, or cannot say. `recentOnly`
-// keeps the Board's default window for story launches; ad hoc association may
+// keeps the Board's default window for story launches. Ad hoc sessions can
 // name a catalogued Done story beyond that window.
 export function linkIn(
   done: Extract<DoneStories, { status: "catalogued" }>,

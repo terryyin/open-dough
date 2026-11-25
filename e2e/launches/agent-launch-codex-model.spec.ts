@@ -16,7 +16,10 @@ import {
   expect,
   stored,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import { test as journeyTest } from "../../dashboard/test-support/support/codexLaunch.ts";
+import {
+  openCatalogLaunchBoard,
+  test as journeyTest,
+} from "../../dashboard/test-support/support/codexLaunch.ts";
 import type { FakeCodex } from "../../dashboard/test-support/support/fakeCodex.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
@@ -164,7 +167,7 @@ journeyTest(
 
 journeyTest(
   "a vanished explicit model is explained; deliberate default and former dynamic labels remain safe in the real UI",
-  async ({ page, dashboard, launchJourney, codexProtocol: fixture }) => {
+  async ({ page, dashboard, codexProtocol: fixture }) => {
     if (!fixture) throw new Error("Native fixture missing");
     const codexProtocol = fixture;
     const dynamicId = "<img src=x onerror=alert(1)>";
@@ -175,7 +178,7 @@ journeyTest(
       supportedReasoningEfforts: [],
     };
     codexProtocol.models = [dynamic];
-    await openTakenBacklog(page, launchJourney);
+    await openCatalogLaunchBoard(page, dashboard.home);
     const open = page.getByRole("button", {
       name: "Start session in Open Dough",
     });

@@ -15,7 +15,7 @@ import { box, expectInside } from "./pageLayout.ts";
 import { expect, test as cursorTest } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
-import type { StartOrigin } from "./support/startOrigin.ts";
+import { queuedIdentity, type StartOrigin } from "./support/startOrigin.ts";
 import { keepLaunchRecords } from "./support/launchStore.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
@@ -129,7 +129,7 @@ export function keepCrowd(dashboard: DashboardServer, held: LaunchRecord) {
       startedAt: Date.parse(launchedAt),
     });
     return makeMe.aLaunchRecord
-      .adHoc({ title: name })
+      .adHoc({ title: name, storyIdentity: queuedIdentity })
       .inClaudeSession({ sessionId })
       .launchedAt(launchedAt)
       .please();

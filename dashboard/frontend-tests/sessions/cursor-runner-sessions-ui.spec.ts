@@ -6,18 +6,23 @@ import {
   type RunningCursorSessions,
 } from "../../src/cursorRunnerSessions.ts";
 import type { SessionServices } from "../../src/sessionServices.ts";
+import { defaultTakenStory } from "../navigation/board-work.ts";
 import { mountSessionCards, revealPage } from "./session-card-mount.ts";
 import {
   sidebar,
   sidebarButton,
   sidebarSession,
-  takenAdHocSession,
+  takenSession,
 } from "./session-card-page.ts";
 import { terminal } from "./session-terminal-page.ts";
 
 const instruction = "hold this session";
 const record = makeMe.aLaunchRecord
-  .adHoc({ instruction, title: instruction })
+  .adHoc({
+    instruction,
+    title: instruction,
+    storyIdentity: defaultTakenStory.identity,
+  })
   .inCursorSession({
     sessionId: "12345678-1234-4123-8123-123456789abc",
     continuation: { workspace: "/Users/test/git/open-dough" },
@@ -61,7 +66,9 @@ async function openRunningCursorSessions() {
     reading: makeMe.aMachineAnswer.observingOpen(record).please(),
     readRunningCursorSessions: read,
   });
-  await expect.element(takenAdHocSession(instruction)).toBeVisible();
+  await expect
+    .element(takenSession(defaultTakenStory.title, record.session))
+    .toBeVisible();
   await userEvent.click(sidebarButton);
   expect(read).not.toHaveBeenCalled();
   await userEvent.click(toggle);

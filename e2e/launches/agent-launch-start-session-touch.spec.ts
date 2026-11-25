@@ -40,7 +40,7 @@ test.describe(`${name} touch session editing`, () => {
     origin,
     dashboard,
   }) => {
-    await openBacklog(page, origin);
+    await openBacklog(page, origin, true);
     const launcher = startSession(page, "Open Dough");
     await tapWhereShown(launcher);
     const dialog = startSessionDialog(page, "Open Dough");

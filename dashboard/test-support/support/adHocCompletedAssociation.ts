@@ -1,8 +1,8 @@
 // Retained ad hoc session whose published claim/completion evidence links it
 // to one Done story (SEED-291 association). Claim-Publisher equals the launch
 // reporting reference; the landing names no story identity; the execution
-// workspace and branch are removed. Facts that drive each case are stated at
-// the call site.
+// workspace and branch are removed. Browser journeys can retain the known
+// story binding; association boundary tests still exercise the old shape.
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
 import path from "node:path";
@@ -85,6 +85,7 @@ export async function retainAdHocCompletedStory(
     implementation,
     landing: landingOverride,
     claimPublisher,
+    withStoryBinding = false,
   }: {
     readonly reference?: string;
     readonly title?: string;
@@ -93,6 +94,7 @@ export async function retainAdHocCompletedStory(
     readonly implementation?: (workspace: string) => void;
     readonly landing?: AdHocAssociationLandingOverride;
     readonly claimPublisher?: string;
+    readonly withStoryBinding?: boolean;
   } = {},
 ): Promise<AdHocCompletedAssociation> {
   writeAt(origin.project, "shared.txt", lines("line"));
@@ -151,7 +153,11 @@ export async function retainAdHocCompletedStory(
   if (landingOverride?.reference !== undefined)
     landing.forLaunch(landingOverride.reference);
   const record = makeMe.aLaunchRecord
-    .adHoc({ instruction: title, title })
+    .adHoc({
+      instruction: title,
+      title,
+      ...(withStoryBinding && { storyIdentity: queuedIdentity }),
+    })
     .reportingThrough({
       origin: dashboard.origin,
       reference,

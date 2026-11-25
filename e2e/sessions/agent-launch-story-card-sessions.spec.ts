@@ -1,8 +1,7 @@
 import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // A story's card lists its unclosed sessions in every column origin shows it,
-// beside Start actions that stay disabled, through reloads. A story in no list
-// keeps its open sessions in local Taken; Mark as done retains one in Recently
-// done. Start availability after Mark as done or Delete record is
+// beside Start actions that stay disabled, through reloads. Published completion
+// moves open sessions with their card. Start availability after Mark as done or Delete record is
 // ../launches/agent-launch-story-card-open-session.spec.ts.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
@@ -159,12 +158,12 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     expect(launches()).toEqual([]);
   });
 
-  test("a story in no list keeps its open sessions in local Taken, and Mark as done retains one in the unfinished card's Done history while its story stays in Backlog", async ({
+  test("published completion moves open sessions into the Done card, and Mark as done retains a session on its unfinished Backlog card", async ({
     page,
     dashboard,
   }) => {
     const { settled, show, card } = opened;
-    const { taken, recentlyDone } = parts(page);
+    const { recentlyDone } = parts(page);
     const launches = () => dashboard.claudeLaunchCalls();
     const completed = { taken: [readyStory], backlog: [takenStory] };
     await show(columnsJourney.taken, { reload: false });
@@ -173,7 +172,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       backlog: [takenStory, notRefinedStory],
     });
 
-    await test.step("completion moves the open session into local Taken and returning the story restores its card without reattaching", async () => {
+    await test.step("completion moves the open session to its Done card and returning the story restores its card without reattaching", async () => {
       const key = listed.get(notRefinedStory)?.[0]?.key;
       const native = listed.get(notRefinedStory)?.[0]?.session;
       if (!key || !native) throw new Error("No completed story session");
@@ -183,16 +182,16 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       const attaches = dashboard.claudeAttaches().length;
       await show(columnsJourney.completed, { reload: false });
       await expectMembership(page, completed);
-      const local = sessionEntryShowing(taken, key);
       const onBoard = sessionEntryShowing(parts(page).board, key);
       const doneCard = recentlyDone.getByRole("article", {
         name: notRefinedStory,
         exact: true,
       });
+      const local = sessionEntryShowing(doneCard, key);
       await expect(sessionIdLineOf(local, native)).toBeAttached();
       await expect(local).toContainText("Shown in terminal");
       await expect(doneCard).toBeVisible();
-      await expect(sessionEntriesIn(doneCard)).toHaveCount(0);
+      await expect(sessionEntriesIn(doneCard)).toHaveCount(1);
       await expect(onBoard).toHaveCount(1);
       await show(columnsJourney.taken, { reload: false });
       await expectListed([readyStory, takenStory, notRefinedStory]);
@@ -207,7 +206,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expectMembership(page, completed);
       await expect(sessionIdLineOf(local, native)).toBeAttached();
       await expectListed([readyStory, takenStory]);
-      await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
+      await expect(sessionEntriesIn(recentlyDone)).toHaveCount(1);
     });
 
     await test.step("Mark as done retains the same session in the unfinished card's Done history while its story stays in Backlog, through reload", async () => {
@@ -216,7 +215,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       idleBetweenSteps(dashboard, closed.session);
       await markDoneAnyway(storyCardSessions(card(takenStory)));
       listed.set(takenStory, []);
-      await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
+      await expect(sessionEntriesIn(recentlyDone)).toHaveCount(1);
       await expandStoryCardDoneHistory(card(takenStory));
       const retained = sessionEntryShowing(card(takenStory), closed.key);
       await expect(retained).toHaveCount(1);

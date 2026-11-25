@@ -42,13 +42,13 @@ test("confirmed Ad hoc and repeated story sessions share review changes while un
   dashboard,
   origin,
 }) => {
-  // The real claim, completion, publication and retirement are this case's
-  // independent association proof, rather than a supplied linked answer.
+  // Use the real claim, completion, publication and retired checkout.
   test.setTimeout(90_000);
   const title =
     "Ad hoc completed session with a long title that remains readable in session details";
   const linked = await retainAdHocCompletedStory(dashboard, origin, {
     title,
+    withStoryBinding: true,
     landing: { repository: path.join(origin.project, ".git") },
   });
   const secondTitle = "Another session of the same completed story";

@@ -99,7 +99,7 @@ test.describe("retained launches in their current column homes", () => {
       "Recently done",
     );
     await expect(recent.locator("> p").first()).toHaveText(
-      "Recently done stories and sessions launched from this dashboard for this project, newest first. Sessions are kept on this machine.",
+      "Done stories for this project, newest first. Local sessions appear on their story cards.",
     );
     await expect(recent).toContainText(
       "No sessions launched from this dashboard are kept.",

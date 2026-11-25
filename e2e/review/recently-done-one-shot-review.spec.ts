@@ -157,7 +157,7 @@ test("a completed queued one-shot is reviewable from its published done card aft
   expect(saved?.start?.workspace).toBe(run.established.workspace);
 });
 
-test("an unfinished attention session outside its done card still supplies review while done details are unread or failed and native observation is unavailable", async ({
+test("an unfinished attention session stays on its Done card and supplies review while Done details and native observation are unavailable", async ({
   page,
   dashboard,
   origin,
@@ -186,12 +186,12 @@ test("an unfinished attention session outside its done card still supplies revie
     exact: true,
   });
   await expect(unread).toContainText("Reading done story…");
-  await expect(sessionEntriesIn(unread)).toHaveCount(0);
-  await expect(sessionEntriesIn(taken)).toHaveCount(1);
-  await expect(sessionUnreadReportOf(taken)).toHaveText(
+  await expect(sessionEntriesIn(taken)).toHaveCount(0);
+  await expect(sessionEntriesIn(unread)).toHaveCount(1);
+  await expect(sessionUnreadReportOf(unread)).toHaveText(
     "Unread report: Unfinished work",
   );
-  await expect(sessionEntriesIn(taken)).toContainText(
+  await expect(sessionEntriesIn(unread)).toContainText(
     "Live observation unavailable: Continue this conversation in Codex",
   );
   const pending = await inspectDelivered(page, unread, receipt, origin.origin);
@@ -206,7 +206,7 @@ test("an unfinished attention session outside its done card still supplies revie
   await recent.getByRole("button", { name: "Retry done stories" }).click();
   const card = recent.getByRole("article", { name: "Story A", exact: true });
   await expect(card).toBeVisible();
-  await expect(sessionEntriesIn(card)).toHaveCount(0);
+  await expect(sessionEntriesIn(card)).toHaveCount(1);
   await expect(columnCountOf(recent)).toHaveText("1 entry");
   const readable = await inspectDelivered(page, card, receipt, origin.origin);
   await readable.expectStory("Story A");

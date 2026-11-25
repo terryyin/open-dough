@@ -32,6 +32,7 @@ import {
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
+import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
 
 test("a launched ad hoc start leaves the overview and its page presents the session from the history", async ({
   page,
@@ -92,6 +93,10 @@ test("a launched ad hoc start leaves the overview and its page presents the sess
 
   const panel = terminalPanel(page);
   await expect(terminalScreenParts(panel).input).toBeFocused();
+  // The other page reconciled the publication. Let this page see its own
+  // published Board again without replacing the page that asked for the start.
+  await setPageVisibility(page, "hidden");
+  await setPageVisibility(page, "visible");
   await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
   await expect(startSession(page, "Open Dough")).toBeEnabled();
 

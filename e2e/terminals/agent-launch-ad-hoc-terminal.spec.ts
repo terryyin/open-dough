@@ -12,6 +12,8 @@ import {
 // (./fixtures/fake-claude) echoes what is typed; the real one is never reached.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
+import { keptLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   terminalPanel,
   terminalScreenParts,
@@ -19,7 +21,6 @@ import {
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   expectQuietAdHocActionsRow,
-  openTakenBacklog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
@@ -40,10 +41,9 @@ test.use({ projectFolders: ["open-dough"] });
 test("starting with nothing typed opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session", async ({
   page,
   dashboard,
-  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  await openTakenBacklog(page, launchJourney);
+  await openCatalogLaunchBoard(page, dashboard.home);
   const button = page.getByRole("button", {
     name: "Start session in Open Dough",
   });
@@ -71,9 +71,17 @@ test("starting with nothing typed opens the session in the terminal with the key
   const entry = sessionEntriesIn(taken);
   await expect(entry).toHaveCount(1);
   const sessionId = await sessionNamedBy(entry);
-  const title = await entry.getByRole("heading", { level: 3 }).textContent();
+  const launch = keptLaunchRecords(dashboard).find(
+    (record) => "session" in record && record.session.sessionId === sessionId,
+  );
+  if (launch === undefined || !("session" in launch))
+    throw new Error("Missing admitted terminal launch.");
+  const title = launch.request.title;
+  await expect(
+    taken.getByRole("article", { name: title, exact: true }),
+  ).toBeVisible();
   await expect(panel).toHaveCount(1);
-  await expect(terminalScreenParts(panel).heading).toHaveText(title ?? "");
+  await expect(terminalScreenParts(panel).heading).toHaveText(title);
   await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
     "Ad hoc session",
   );
@@ -106,11 +114,10 @@ test("starting with nothing typed opens the session in the terminal with the key
 test("a terminal the developer closed while its session started stays closed once it starts, and Open terminal still opens it", async ({
   page,
   dashboard,
-  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   const { release, panel, shows, sessionId, openTerminal, terminalSockets } =
-    await openWhileStarting(page, launchJourney);
+    await openWhileStarting(page, dashboard);
   await closeSidePanel(panel, { using: "mouse" });
   await expect(panel).toHaveCount(0);
   await expect(openTerminal).toBeFocused();
@@ -138,7 +145,6 @@ test("a terminal the developer closed while its session started stays closed onc
 test("a terminal the developer reopened while its session started stays open, attached as it was, once it starts", async ({
   page,
   dashboard,
-  launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
   const {
@@ -149,7 +155,7 @@ test("a terminal the developer reopened while its session started stays open, at
     sessionId,
     openTerminal,
     terminalSockets,
-  } = await openWhileStarting(page, launchJourney);
+  } = await openWhileStarting(page, dashboard);
   await closeSidePanel(panel, { using: "mouse" });
   await expect(panel).toHaveCount(0);
   await openTerminal.click();

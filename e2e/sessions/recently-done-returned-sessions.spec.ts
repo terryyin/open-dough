@@ -147,7 +147,7 @@ test("a launch returned to the backlog reads Returned to backlog under the unfin
     expectServedHomesReach(githubFor(page), repository, done);
     await reloadUntilRead(page);
     await expectMembership(page, { taken: [], backlog: [] });
-    const later = sessionEntryShowing(taken, laterKey);
+    const later = sessionEntryShowing(storyCard(recent, queuedTitle), laterKey);
     await expect(sessionStateOf(later)).toHaveText("Working");
     idleBetweenSteps(dashboard, laterId);
     await markDoneAnyway(later);

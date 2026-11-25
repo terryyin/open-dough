@@ -45,7 +45,7 @@ export const test = base.extend({
   codexProtocol,
 });
 
-export async function openCodexLaunchBoard(page: Page, home: string) {
+export async function openCatalogLaunchBoard(page: Page, home: string) {
   const origin = path.join(
     path.dirname(home),
     "catalog-origins",
@@ -59,6 +59,8 @@ export async function openCodexLaunchBoard(page: Page, home: string) {
   });
   await page.goto("/");
 }
+
+export const openCodexLaunchBoard = openCatalogLaunchBoard;
 
 // The launches started exactly one native thread, in the execution checkout
 // `cwd`, with no model or effort of their own.

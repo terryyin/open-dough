@@ -22,6 +22,7 @@ import {
 import {
   expandStoryCardDoneHistory,
   parts,
+  storyCardSessions,
   storyCardDoneDisclosure,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { sessionDetailsControl } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
@@ -46,6 +47,10 @@ test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
 const minute = 60_000;
 const opened = Date.parse("2026-10-28T10:00:00.000Z");
+const retainedStory = (index: number) => ({
+  identity: `SEED-900#retained-${String(index)}`,
+  title: `Retained story ${String(index + 1)}`,
+});
 
 // Retained done sessions at several ages, one of them a Backlog story's,
 // each with a report and every part of the detail the history keeps.
@@ -66,8 +71,7 @@ function retainedSessions(dashboard: DashboardServer): LaunchRecord[] {
     });
     const listed = makeMe.aLaunchRecord
       .executing({
-        identity:
-          index === 0 ? queuedIdentity : `SEED-900#retained-${String(index)}`,
+        identity: index === 0 ? queuedIdentity : retainedStory(index).identity,
         title,
       })
       .inClaudeSession({ sessionId })
@@ -127,8 +131,10 @@ async function answerInFull(route: Route) {
 // What the page shows of the retained sessions, closed and then opened.
 async function shownRetained(page: Page) {
   const board = parts(page);
-  const recent = board.recentlyDone.getByRole("article");
-  await expect(recent.filter({ hasText: "Retained session 5" })).toBeVisible();
+  const recent = board.recentlyDone;
+  await expect(
+    storyCardSessions(storyCard(recent, retainedStory(4).title)),
+  ).toContainText("Retained session 5");
   const backlogCard = storyCard(board.backlog, backlogStoryTitle);
   await expect(storyCardDoneDisclosure(backlogCard)).toContainText("1");
   await expect(
@@ -148,7 +154,7 @@ async function shownRetained(page: Page) {
   const expanded = await sidebar.body.innerText();
   await sidebar.header.click();
   await sidebar.button.click();
-  const entry = recent.filter({ hasText: "Retained session 2" });
+  const entry = storyCardSessions(storyCard(recent, retainedStory(1).title));
   const details = sessionDetailsControl(entry);
   await details.click();
   await expect(details).toHaveAttribute("aria-expanded", "true");
@@ -172,6 +178,17 @@ test("retained sessions listed by their listing facts show as the full answer sh
   const retained = retainedSessions(dashboard);
   const message = retained[1]?.completion?.message ?? "";
   expect(message).not.toBe("");
+  await origin.publishRevision({
+    message: "Publish the stories owning the retained sessions",
+    doneRecords: [1, 2, 3, 4].map((index) =>
+      makeMe.aDoneRecord
+        .completed({
+          ...retainedStory(index),
+          completedAt: new Date(opened - index * 60 * minute).toISOString(),
+        })
+        .please(),
+    ),
+  });
   keepLaunchStore(dashboard, { "open-dough": retained });
   await pausePageClockAt(page, new Date(opened));
   await showPage(page, origin);

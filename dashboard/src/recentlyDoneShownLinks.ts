@@ -12,6 +12,7 @@ import {
   associatedIdentity,
   catalogNow,
   currentCatalog,
+  doneStoryMustBeRecent,
   linkIn,
 } from "./recentlyDoneLink.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
@@ -96,8 +97,9 @@ export function useShownDoneLinks(
                         const identity = launchSubject(record.request).identity;
                         if (
                           identity !== undefined &&
-                          linkIn(done, identity, { recentOnly: true }) ===
-                            "linked"
+                          linkIn(done, identity, {
+                            recentOnly: doneStoryMustBeRecent(record),
+                          }) === "linked"
                         )
                           links.set(sessionKey(record.session), identity);
                       }

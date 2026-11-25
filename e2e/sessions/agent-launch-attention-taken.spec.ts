@@ -1,12 +1,13 @@
 // A Taken card counts its sessions needing attention as Backlog cards do
 // (./agent-launch-attention.spec.ts); each project counts only its own, and a
-// story in no list keeps its affected session in local Taken.
+// affected session moves with its published story into Recently done.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   chooseProject,
   expectMembership,
-  standaloneSessionName,
+  parts,
+  storyCardSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnutSharedTitle,
@@ -28,7 +29,10 @@ import {
   attentionCountsOn,
   publishedFactsOf,
 } from "../../dashboard/test-support/storyCardAttention.ts";
-import { storyFollowUp } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  storyCard,
+  storyFollowUp,
+} from "../../dashboard/test-support/storyCardControls.ts";
 import {
   openDoughWorkingSessions,
   openWithOpenSessions,
@@ -55,7 +59,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  test("counts a Taken card's sessions and only the shown project's, and a story in no list keeps its session in local Taken", async ({
+  test("counts only the shown project's sessions and keeps an affected session on its published Done card", async ({
     page,
     dashboard,
   }) => {
@@ -71,7 +75,6 @@ test.describe("a story's card counts the sessions that need attention", () => {
       settled,
       show,
       board,
-      taken,
       card,
       entryOf,
       expectOpen,
@@ -125,7 +128,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await expectCounted({});
     });
 
-    await test.step("a story that leaves every list keeps its affected session, with its reason and Open terminal, in local Taken", async () => {
+    await test.step("the published Done card keeps its affected session, reason and Open terminal", async () => {
       await markNotReloaded(page);
       becomes(notRefinedStory, "Execution", "done-live");
       await show(columnsJourney.completed, { pace: passOnePace });
@@ -134,9 +137,9 @@ test.describe("a story's card counts the sessions that need attention", () => {
         backlog: [takenStory],
       });
       await expectCounted({});
-      const kept = taken.getByRole("article", {
-        name: standaloneSessionName("Execution", notRefinedStory),
-      });
+      const kept = storyCardSessions(
+        storyCard(parts(page).recentlyDone, notRefinedStory),
+      );
       await expectSessionShown(kept, "Ready for review", true);
       await expect(openTerminalControl(kept)).toBeVisible();
       await expectNotReloaded(page);

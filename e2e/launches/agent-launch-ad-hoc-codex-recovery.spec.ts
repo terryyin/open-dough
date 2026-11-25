@@ -5,6 +5,7 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
   expect,
+  openCatalogLaunchBoard,
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
@@ -15,7 +16,6 @@ import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
-import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   parts,
   sessionEntriesIn,
@@ -34,11 +34,10 @@ for (const blank of [true, false]) {
     codexProtocol,
     machine,
     github,
-    launchJourney,
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture.");
-    await openTakenBacklog(page, launchJourney);
+    await openCatalogLaunchBoard(page, dashboard.home);
     const own = blank
       ? request
       : { ...request, instruction: "Keep this exact question." };

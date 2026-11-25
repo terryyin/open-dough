@@ -6,7 +6,10 @@
 // no page reconciled before its story was removed reconciles on the next
 // page once GitHub confirms the shown revision contains it.
 
-import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import {
+  attempts,
+  recordsOf,
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   expectSettledPage,
@@ -44,8 +47,7 @@ async function expectRemovedSettled(page: Page, revision: string) {
       .locator("[data-story-card]")
       .and(page.getByRole("article", { name: "Story A" })),
   ).toHaveCount(0);
-  await expect(sessionEntriesIn(taken)).toHaveCount(1);
-  await expect(sessionEntriesIn(taken)).toContainText("Story A");
+  await expect(sessionEntriesIn(taken)).toHaveCount(0);
   await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
   const other = backlog.getByRole("article", { name: "Story B" });
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
@@ -100,6 +102,11 @@ test("a reconciled Take whose story is then removed leaves no recovery after a r
     ]);
     expect(published.compares).toEqual(compares);
     expect(restarted.claudeLaunchCalls()).toHaveLength(1);
+    expect(await recordsOf(restarted, "open-dough")).toEqual([
+      expect.objectContaining({
+        request: expect.objectContaining({ title: "Story A" }),
+      }),
+    ]);
   } finally {
     await restarted.close();
   }
@@ -141,4 +148,9 @@ test("a Take no page reconciled before its story was removed reconciles on a new
     .toBeDefined();
   await expectRemovedSettled(next, removal);
   expect(published.compares).toEqual([`${accepted}...${removal}`]);
+  expect(await recordsOf(dashboard, "open-dough")).toEqual([
+    expect.objectContaining({
+      request: expect.objectContaining({ title: "Story A" }),
+    }),
+  ]);
 });

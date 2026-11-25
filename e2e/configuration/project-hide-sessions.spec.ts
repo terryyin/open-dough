@@ -4,6 +4,8 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
+import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
+import { doughnutRepository } from "../../dashboard/test-support/doughnutProject.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { identity } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
@@ -13,6 +15,7 @@ import {
   expectProjectChoice,
   expectVisibleProjectLabels,
   parts,
+  sessionEntryShowing,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
@@ -49,6 +52,10 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   mkdirSync(doughnutFolder, { recursive: true });
   const server = await fixture.start("preview");
   const sessionTitle = "Retained Doughnut session";
+  publishRetainedProjectStory(server, doughnutRepository, {
+    identity,
+    title: sessionTitle,
+  });
   const sessionName = `Doughnut · Execution · ${sessionTitle}`;
   const sessionId = server.claudeListsSession({
     name: sessionName,
@@ -70,6 +77,7 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await untilPublishedWorkRead(page);
   const taken = page.getByRole("region", { name: "Taken", exact: true });
   await expect(taken).toContainText(sessionTitle, { timeout: 5_000 });
+  await expect(sessionEntryShowing(taken, `claude:${sessionId}`)).toBeVisible();
 
   await openSessionsSidebar(page);
   const { sidebar, entry } = sessionsSidebarParts(page);
@@ -162,12 +170,14 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await chooseProject(page, "Doughnut");
   await expectProjectChoice(page, "Doughnut");
   await expect(intentMain).toHaveAttribute("data-selected-story", identity);
-  await browseStoryFiles(intentMain);
   await expect(
-    intentMain.getByText(
-      "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
-    ),
+    intentMain.getByRole("heading", { name: sessionTitle, exact: true }),
   ).toBeVisible();
+  await browseStoryFiles(intentMain);
+  await expect(intentMain).toContainText(
+    "Intent locations for Doughnut could not be read.",
+  );
+  await expect(intentMain).not.toContainText("Intent locations for Pygardon");
   await expect(filesColumn(intentMain)).toHaveCount(0);
   await entry(sessionTitle).click();
   await untilPublishedWorkRead(page);

@@ -2,8 +2,8 @@ import {
   closeSidePanel,
   sidePanelNamesOf,
 } from "../../dashboard/test-support/sidePanelFrame.ts";
-// Installed launches publish the stories the Board follows. A card or
-// standalone entry opens one terminal, keeps other sessions running, and
+// Installed launches publish the stories the Board follows. A story's entry
+// opens one terminal, keeps other sessions running, and
 // passes input and shell environment to the synthetic Claude attach.
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -29,7 +29,7 @@ import {
   storyCardSessions,
   expectMembership,
   parts,
-  standaloneSessionName,
+  sessionEntriesIn,
   sessionNamedBy,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
@@ -74,7 +74,7 @@ test.describe("the terminal beside the page", () => {
     start.remove();
   });
 
-  test("a card or standalone Taken entry opens its session in the right-hand terminal, one at a time, and Close leaves it running", async ({
+  test("a Taken or Done story opens its session in the right-hand terminal, one at a time, and Close leaves it running", async ({
     page,
     dashboard,
     origin,
@@ -82,14 +82,10 @@ test.describe("the terminal beside the page", () => {
     dashboard.claudeScenario("launched");
     const board = await openInstalledStoryBoard(page, origin);
     const { card, settled } = board;
-    const { taken, backlog } = parts(page);
+    const { taken, backlog, recentlyDone } = parts(page);
     const panel = terminalPanel(page);
     const { rows } = terminalScreenParts(panel);
     const cardEntries = (title: string) => storyCardSessions(card(title));
-    const entry = (title: string) =>
-      taken.getByRole("article", {
-        name: standaloneSessionName("Execution", title),
-      });
     const attachesEnded = (sessionId: string) =>
       dashboard
         .claudeAttaches()
@@ -125,7 +121,7 @@ test.describe("the terminal beside the page", () => {
     const first = await sessionNamedBy(cardEntries(takenStory));
     const second = await sessionNamedBy(cardEntries(readyStory));
     await expect(openTerminalControl(cardEntries(takenStory))).toBeVisible();
-    await expect(entry(takenStory)).toHaveCount(0);
+    await expect(sessionEntriesIn(taken)).toHaveCount(2);
     await expect(panel).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText("claude attach");
     await expect(page.getByRole("button", { name: /copy/i })).toHaveCount(0);
@@ -200,7 +196,7 @@ test.describe("the terminal beside the page", () => {
       await expectMembership(page, launched);
     });
 
-    await test.step("an entry whose story is in no list still opens its session", async () => {
+    await test.step("a session stays on its owning card as the published story moves to Recently done", async () => {
       const completion = completionRevision({
         story: storyA,
         queued: [roughStoryC],
@@ -223,8 +219,12 @@ test.describe("the terminal beside the page", () => {
         taken: [readyStory],
         backlog: [notRefinedStory],
       });
-      await showColumn(page, "Taken");
-      await openTerminalControl(entry(takenStory)).click();
+      await showColumn(page, "Recently done");
+      const completedCard = recentlyDone.getByRole("article", {
+        name: takenStory,
+        exact: true,
+      });
+      await openTerminalControl(sessionEntriesIn(completedCard)).click();
       await expectTerminalIdentity(panel, takenStory);
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await page.keyboard.type("carry on");

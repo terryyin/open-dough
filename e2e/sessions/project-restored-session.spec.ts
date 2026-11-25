@@ -2,7 +2,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
-import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
+import {
+  addedBranch,
+  addedRepository,
+  projectAddMachine,
+} from "../../dashboard/test-support/support/projectAddMachine.ts";
 import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
 import { installFakeCodex } from "../../dashboard/test-support/support/fakeCodex.ts";
 import {
@@ -18,6 +22,7 @@ import {
 } from "../../dashboard/test-support/support/launchStore.ts";
 import { machineSessions } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 
 test("adding an initially unconfigured retained Codex project prepares its passive service once without starting a conversation", async ({
   page,
@@ -30,7 +35,12 @@ test("adding an initially unconfigured retained Codex project prepares its passi
   );
   try {
     const home = path.join(fixture.machine, "home");
+    const story = {
+      identity: "SEED-900#restore-session",
+      title: "Restore sample session",
+    };
     const record = observationRecord({ home }, native, "retained-sample", {
+      ...story,
       source: "sample-app",
       workspace: fixture.checkout,
     });
@@ -41,6 +51,7 @@ test("adding an initially unconfigured retained Codex project prepares its passi
     );
     observed(native, "retained-sample", { type: "notLoaded" }, "completed");
     const server = await fixture.start("preview", undefined, native);
+    publishRetainedProjectStory(server, addedRepository, story, addedBranch);
     await page.goto(server.baseURL);
     expect(await machineSessions(server)).toEqual([]);
     expect(existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "")).toBe(false);

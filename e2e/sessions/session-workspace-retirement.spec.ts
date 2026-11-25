@@ -33,6 +33,7 @@ import {
 import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
@@ -80,14 +81,11 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(open).toBeFocused();
   // Closing keeps the story selected (ADR 0008).
   await expectSelected(card(notRefinedStory), true);
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: native.threadId });
+  const recent = storyCard(parts(page).recentlyDone, notRefinedStory);
   await expect(recent).toHaveCount(0);
-  // With no active story card, its open session has the local Taken home
-  // and the same passive report access.
+  // After publication, the Done card keeps the same passive report access.
   await show(journey.completed);
-  const local = sessionEntriesIn(parts(page).taken).filter({
+  const local = sessionEntriesIn(recent).filter({
     hasText: native.threadId,
   });
   await readFinalReport(local);

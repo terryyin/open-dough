@@ -19,7 +19,11 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
+import {
+  backlogPath,
+  publishMovingOrigin,
+} from "../../dashboard/test-support/publishedOrigin.ts";
+import { shownDoneSessionEntriesOf } from "../../dashboard/test-support/dashboardPage.ts";
 import { dayFromToday } from "../../dashboard/test-support/support/feedbackMaintenanceDue.ts";
 import {
   afterFurtherChecks,
@@ -148,7 +152,11 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
     server.claudeScenario("launched");
     const input = await launchedInput(server);
 
-    pushWatchList(moving, watchListDue(dayFromToday(6)));
+    const admittedBacklog = await origin.originGit(
+      "show",
+      `main:${backlogPath}`,
+    );
+    pushWatchList(moving, watchListDue(dayFromToday(6)), admittedBacklog);
     await reportingThrough(origin, input)({ message: "" });
     await expect
       .poll(async () => (await maintenanceRecords(server))[0]?.doneAt)
@@ -158,13 +166,11 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
     await expect(settingsLine(page)).toHaveText(
       `Due since ${due}. Last automatic launch: done (due ${due}).`,
     );
-    // The done session's card in Recently done comes from the same sessions
+    // The owning Taken story's Done history comes from the same sessions
     // answer as the row.
     await openDashboard(page, server);
     await expect(
-      page.getByRole("article", {
-        name: "Ad hoc session for Feedback maintenance",
-      }),
+      await shownDoneSessionEntriesOf(page, "Feedback maintenance"),
     ).toBeVisible();
     await expect(row(page)).toHaveCount(0);
     expect(watchListReads(moving)).toEqual([served]);

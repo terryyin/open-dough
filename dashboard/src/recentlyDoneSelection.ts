@@ -20,6 +20,7 @@ import type { PublishedWork } from "./publishedWork.ts";
 import {
   associatedIdentity,
   currentCatalog,
+  doneStoryMustBeRecent,
   linkIn,
   readLink,
   type DoneLink,
@@ -139,7 +140,7 @@ export function useRecentlyDoneSelection(
       });
     };
     if (requested !== undefined) {
-      checkCatalog(requested, true);
+      checkCatalog(requested, doneStoryMustBeRecent(record));
       return;
     }
     const controller = new AbortController();

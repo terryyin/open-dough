@@ -13,7 +13,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   parts,
   sessionNamedBy,
@@ -27,7 +27,7 @@ import { box } from "../../dashboard/test-support/pageLayout.ts";
 import {
   takenIdentity,
   takenStory,
-} from "../../dashboard/test-support/agentRosterRecords.ts";
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   openTerminalControl,
   terminalPanel,
@@ -48,7 +48,6 @@ test.use({ projectFolders: ["open-dough"] });
 test("the header shows the recorded agent's portrait left of its two rows, proportionate to both, named by the agent, and none without an agent or a portrait", async ({
   page,
   dashboard,
-  launchJourney,
 }) => {
   const where = {
     workspace: path.join(dashboard.home, "agent-workspace"),
@@ -64,14 +63,14 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     /\/agent-avatars\/odd-e-nerds\/cartoon\/ruuf\.webp$/,
     (route) => route.fulfill({ status: 404 }),
   );
-  await openTakenBacklog(page, launchJourney);
+  await openCatalogLaunchBoard(page, dashboard.home);
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
   const sessionRow = sidePanelNamesOf(panel).sessionName;
   const heading = terminalScreenParts(panel).heading;
   const identity = panel.locator(".terminal-identity");
   const portrait = credit(identity).portrait;
-  const entry = sessionEntriesIn(parts(page).taken);
+  const entry = sessionEntriesIn(parts(page).board);
 
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
@@ -82,14 +81,13 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     })
     .getByRole("button", { name: "Start" })
     .click();
-  await expect(entry).toHaveCount(1);
+  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
   const sessionId = await sessionNamedBy(entry);
-  const title =
-    (await entry.getByRole("heading", { level: 3 }).textContent()) ?? "";
   await expect.poll(() => existsSync(launchStoreFile(dashboard))).toBe(true);
   const [adHoc] = keptLaunchStore(dashboard)["open-dough"] ?? [];
   if (!adHoc || !("session" in adHoc))
     throw new Error("Expected the kept ad hoc launch");
+  const title = adHoc.request.title;
 
   const expectRows = async (storyTitle: string, sessionLabel: string) => {
     await expect(heading).toHaveText(storyTitle);
@@ -156,13 +154,11 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     await expectServed(panel, image, "image/webp");
     await expectBesideBothRows(yui);
     await expectTerminalPreviewFits(yui, panel);
-    await expectRows("See who owns Taken work", "Refinement session");
+    await expectRows(takenStory, "Refinement session");
     // The terminal identity has no developer avatar or name beside the agent.
     await expect(identity.getByRole("img")).toHaveCount(1);
     await expect(identity.locator("img")).toHaveCount(0);
-    await expect(identity).toHaveText(
-      "See who owns Taken workRefinement session",
-    );
+    await expect(identity).toHaveText(`${takenStory}Refinement session`);
   });
 
   await test.step("a start by an Odd-e nerds member whose cartoon is served shows that cartoon", async () => {
@@ -182,7 +178,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     await expect(stanly).toHaveAttribute("title", "stanly-chan");
     await expect(stanly).toHaveCSS("background-image", /\/stanly\.webp"\)$/);
     await expectBesideBothRows(stanly);
-    await expectRows("See who owns Taken work", "Execution session");
+    await expectRows(takenStory, "Execution session");
   });
 
   await test.step("a start by a member whose cartoon is not served shows no portrait and its two rows", async () => {
@@ -196,7 +192,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
         .please(),
     );
     expect((await asked).status()).toBe(404);
-    await expectRows("See who owns Taken work", "Execution session");
+    await expectRows(takenStory, "Execution session");
     await expect(portrait).toHaveCount(0);
     await expect(identity.getByRole("img")).toHaveCount(0);
   });

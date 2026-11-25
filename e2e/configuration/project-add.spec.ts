@@ -15,6 +15,7 @@ import {
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import { git } from "../../dashboard/test-support/support/launchLanding.ts";
 import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
+import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import {
   startSessionDialog,
@@ -157,12 +158,12 @@ test("Add in empty development leaves the production list on the same machine un
 test("retained workspace explanations use the execution checkout and keep actual start and stored evidence intact", async ({
   page,
 }) => {
+  const story = { identity, title: "Existing custom workspace" };
   const workspace = path.join(fixture.checkout, ".worktrees", "topic");
   mkdirSync(workspace, { recursive: true });
   const record = makeMe.aLaunchRecord
     .executing({
-      identity,
-      title: "Existing custom workspace",
+      ...story,
       source: "sample-app",
     })
     .inClaudeSession({ sessionId: "01234567-retained-custom" })
@@ -175,6 +176,7 @@ test("retained workspace explanations use the execution checkout and keep actual
     "utf8",
   );
   const server = await fixture.start("preview");
+  publishRetainedProjectStory(server, addedRepository, story, addedBranch);
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
   await expect(
