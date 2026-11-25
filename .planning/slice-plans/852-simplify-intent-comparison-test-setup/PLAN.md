@@ -98,3 +98,11 @@ consumer trace found them.
 Refinement was not needed. The single slice repeats one mechanical edit,
 and the premise observation already rehearsed it. This review found no
 remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. The 20 comparison specs now mount docked and read
+only their comparison. Shared fixtures (`openSummaryComparison`,
+`intent-done-scope-history.ts`, the project-visit fixture) keep their
+placement-adapting `browseFiles` call, which their narrow callers need, as the
+plan decided.
