@@ -35,7 +35,6 @@ intent introduced or affected by a newly developed story.
 - [Prove launch attachment admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-options) — SEED-413#finish-backend-vitest-renovation-after-launch-options ([plan](slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md))
 - [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries ([plan](slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md))
 - [Exercise Board navigation on published story fixtures](seeds/SEED-442-exercise-board-navigation-on-published-story-fixtures.md#exercise-board-navigation-on-published-story-fixtures) — SEED-442#exercise-board-navigation-on-published-story-fixtures ([plan](slice-plans/844-exercise-board-navigation-on-published-story-fixtures/PLAN.md))
-- [Discover a project's default branch through Git](seeds/SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git) — SEED-437#discover-project-default-branch-through-git ([plan](slice-plans/843-discover-project-default-branch-through-git/PLAN.md))
 
 ## Backlog list
 
