@@ -17,7 +17,11 @@ import { ReviewComparison } from "./reviewChangesComparison.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
 import { ReviewDiffs } from "./reviewChangesDiffs.ts";
 import { reviewChanges } from "./storyCardControls.ts";
-import { intentDiffReading, storyTitle } from "./support/intentStoryPage.ts";
+import {
+  intentDiffReading,
+  storyHeaderReading,
+  storyTitle,
+} from "./support/intentStoryPage.ts";
 import { reviewAfter } from "./support/launchLandingReview.ts";
 import { reviewRefresh } from "./support/reviewControls.ts";
 import { IntentReviewFiles } from "./intentReviewFiles.ts";
@@ -68,6 +72,15 @@ class IntentReviewChanges {
 
   async expectStory(title: string) {
     await expect(storyTitle(this.#intent)).toHaveText(title);
+    return this;
+  }
+
+  async expectCompletedAt(completedAt: string) {
+    const { revisions } = storyHeaderReading(this.#intent);
+    await expect(revisions.locator("time")).toHaveAttribute(
+      "datetime",
+      completedAt,
+    );
     return this;
   }
 

@@ -177,6 +177,12 @@ export function fileReadingTab(intent: Locator, name: "Purpose" | "Proof") {
     .getByRole("tab", { name, exact: true });
 }
 
+export const openFileProof = (page: Page) =>
+  fileReadingTab(parts(page).intent, "Proof").click();
+
+export const expectFileProofShown = (page: Page) =>
+  expect(proofRegion(parts(page).intent)).toBeVisible();
+
 // The notice that a newer revision than Intent's reading is available.
 export function revisionNotice(intent: Locator) {
   return intent
