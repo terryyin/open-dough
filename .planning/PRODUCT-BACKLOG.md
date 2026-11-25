@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Complete story-linked ad hoc sessions in the Dashboard](seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions) — SEED-439#complete-story-linked-ad-hoc-sessions ([plan](slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md))
 - [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries ([plan](slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md))
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files ([plan](slice-plans/838-filter-review-files/PLAN.md))
+- [Recognize Intent folders and read their proof](seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof) — SEED-420#recognize-intent-folders-and-read-proof ([plan](slice-plans/840-recognize-intent-folders-and-read-proof/PLAN.md))
 
 ## Backlog list
 
-- [Recognize Intent folders and read their proof](seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof) — SEED-420#recognize-intent-folders-and-read-proof
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision
 - [Open and refresh the published Board from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
