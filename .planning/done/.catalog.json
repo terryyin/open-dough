@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-345_load-execution-guidance-for-the-current-phase.json",
+      "identity": "SEED-345#load-execution-guidance-for-the-current-phase",
+      "completedAt": "2026-11-25T12:00:22.857Z",
+      "blob": "fdd1814aaa3169803ff61a0d8b5e789256b0d6d5"
+    },
+    {
       "fileName": "SEED-430_publish-moving-board-fixtures-through-git.json",
       "identity": "SEED-430#publish-moving-board-fixtures-through-git",
       "completedAt": "2026-11-25T11:32:15.768Z",
