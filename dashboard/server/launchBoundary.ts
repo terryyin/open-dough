@@ -58,9 +58,11 @@
 // unavailable is refused before native terminal attachment.
 
 import type { HttpServer } from "vite";
+import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { admittedAttach, launchBoundaryPaths } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { AgentTerminals } from "./agentTerminals.ts";
+import { configuredLimit } from "./configuredLimit.ts";
 import { NativeDoneMarks } from "./doneMarks.ts";
 import { launchHost } from "./launchHosts.ts";
 import { configuredProject } from "./projectConfiguration.ts";
@@ -125,6 +127,10 @@ export function installAgentLaunchMiddleware(
     () =>
       readMachineSessions(launches, () => alerts.availability(), maintenance),
     machineSessionInputs,
+    {
+      waitMs: configuredLimit("DOUGH_SESSIONS_WAIT_MS", readWaitLimitMs),
+      reuseMs: configuredLimit("DOUGH_SESSIONS_REUSE_MS", 1_000),
+    },
   );
   const alerts = new SessionAlerts(sessions, () => dashboardOrigin(httpServer));
   middlewares.use((req, res, next) => {

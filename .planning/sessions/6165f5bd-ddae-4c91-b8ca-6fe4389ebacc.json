@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "6165f5bd-ddae-4c91-b8ca-6fe4389ebacc",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T10:41:58.736Z",
+  "story": "SEED-345#load-execution-guidance-for-the-current-phase",
+  "ranges": [
+    {
+      "base": "3d9357c5e681f7089235f5572e2d79cdab78f691",
+      "candidate": "373fe4a8c906d4d780099439ca604005491de66f"
+    }
+  ]
+}

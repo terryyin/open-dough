@@ -204,25 +204,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   can recover on a new transition. Closing cancels a pending diagnosis or
   delivery. A click opens the story in an existing dashboard tab.
 
-<a id="pass-session-observation-limits-as-typed-values"></a>
-
-### Pass session observation limits as typed values
-
-**Identity:** SEED-413#pass-session-observation-limits-as-typed-values
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/834-pass-session-observation-limits-as-typed-values/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9dcbe49f03e9515a7207be78a560ebe880f1738e7b69a4f3f99a5aca0feeab70","plan":"1d78a4559d29daefe632bbd01beacf303e872cd371b3b03fb588a8fd6ebaff71"}}
-```
-
-- **Goal.** Developers proving the machine-session observation set its wait
-  and reuse window as typed values, so a Node Vitest case never stubs the
-  process environment to control timing.
-- **Scope.** A correction of
-  [machine-session reads](https://github.com/terryyin/open-dough/blob/0c7ad7e2c6019d0b736e8e04ff4218ee61944e10/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter)
-  ([plan](../slice-plans/834-pass-session-observation-limits-as-typed-values/PLAN.md)).
-  The observation receives its limits from the production adapter, which
-  alone reads the configured environment values. Started-server and E2E
-  cases keep configuring them through that environment.
-
 <a id="finish-backend-vitest-renovation-after-session-reads-and-alerts"></a>
 
 ### Finish the remaining backend Vitest renovation after session reads and alerts

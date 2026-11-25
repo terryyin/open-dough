@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "b727898b-875e-4067-8431-13afee8ae6b9",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T11:18:25.279Z",
+  "story": "SEED-430#recover-fixed-observation-at-its-published-pin",
+  "ranges": [
+    {
+      "base": "5d02421262879ca53650f787b9f34f83c558b14e",
+      "candidate": "67cb35e214d2def5a0a092385289be54fa360d85"
+    },
+    {
+      "base": "67cb35e214d2def5a0a092385289be54fa360d85",
+      "candidate": "cb3e07bd017c23670c5a7ae8118c3b1788361bc9"
+    },
+    {
+      "base": "cb3e07bd017c23670c5a7ae8118c3b1788361bc9",
+      "candidate": "0a44cba263ad269f07139c170dad292e26c69a54"
+    }
+  ]
+}

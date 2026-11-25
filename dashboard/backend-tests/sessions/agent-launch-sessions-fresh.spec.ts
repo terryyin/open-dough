@@ -4,7 +4,7 @@
 // revision, while an ordinary ask holding the prior revision is still answered
 // unchanged from the held observation, read through the shared reader
 // contract (../../src/machineSessionsRevision.ts).
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { offeredShape } from "../../src/commandOptions.ts";
 import { machineSessionsReadSchema } from "../../src/machineSessionsRevision.ts";
@@ -30,10 +30,6 @@ function codexOffering(flag: string) {
 }
 
 test("a fresh ask observes changed Codex options while an ordinary held ask is answered unchanged", async () => {
-  vi.stubEnv("DOUGH_SESSIONS_REUSE_MS", "60000");
-  onTestFinished(() => {
-    vi.unstubAllEnvs();
-  });
   let installed = codexOffering("--option-a");
   let observationsStarted = 0;
   const observation = new MachineSessionObservation(
@@ -42,6 +38,7 @@ test("a fresh ask observes changed Codex options while an ordinary held ask is a
       return Promise.resolve(installed);
     },
     () => Promise.resolve(["unchanged catalog and machine documents"]),
+    { waitMs: 30_000, reuseMs: 60_000 },
   );
   const ask = async (held: string | undefined, fresh: boolean) =>
     machineSessionsReadSchema.parse(

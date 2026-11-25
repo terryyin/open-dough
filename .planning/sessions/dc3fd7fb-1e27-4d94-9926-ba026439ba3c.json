@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "dc3fd7fb-1e27-4d94-9926-ba026439ba3c",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-25T10:41:07.237Z",
+  "story": "SEED-428#read-review-files-without-fetching",
+  "ranges": [
+    {
+      "base": "c21f52b55e2f23bb94feb86f3632d108b57f77e0",
+      "candidate": "0ba88c1678121d5c114995e434628e18728a2b8a"
+    }
+  ]
+}

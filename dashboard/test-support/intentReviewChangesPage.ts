@@ -20,6 +20,7 @@ import { reviewChanges } from "./storyCardControls.ts";
 import {
   intentDiffReading,
   showComparisonDetails,
+  storyHeaderReading,
   storyTitle,
 } from "./support/intentStoryPage.ts";
 import { reviewAfter } from "./support/launchLandingReview.ts";
@@ -72,6 +73,16 @@ class IntentReviewChanges {
 
   async expectStory(title: string) {
     await expect(storyTitle(this.#intent)).toHaveText(title);
+    return this;
+  }
+
+  async expectCompletedAt(completedAt: string) {
+    await this.#openDetails();
+    const { revisions } = storyHeaderReading(this.#intent);
+    await expect(revisions.locator("time")).toHaveAttribute(
+      "datetime",
+      completedAt,
+    );
     return this;
   }
 

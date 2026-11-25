@@ -64,38 +64,55 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
 **Identity:** SEED-345#load-execution-guidance-for-the-current-phase
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/835-load-execution-guidance-for-the-current-phase/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d97c12e2eb91023ff384d61f87185f5d78eaacbb3b6a5f0d89135628f511a226","plan":"6a74ffe33c5ffbac2f3427c7c252f6087a7807c755779f54da4f35e4c57bab83"}}
 ```
 
-- **Goal.** Developers using Execute Plan get the required decisions, refusals,
-  and proof with less startup retrieval. Two sources of excess output were
-  observed in one coordinator session. Its tool lookup matched broad terms
-  across the catalog even though the CI guide named the tools, and its full-file
-  startup reads overflowed even in a call with no tool lookup.
-  [Recorded occurrence](../../docs/maintainer/findings/ODF-264.md#odf-264)
-- **Integrate the guidance.** Rewrite the existing Execute Plan startup and
-  reading instructions as one concise procedure. Use the tools already named by
-  the workflow. When a tool is missing, look up the specific capability and
-  inspect only plausible matches. Retrieve the passages and prerequisites the
-  current decision needs. Put required workflow links where their steps use them.
-- **Remove the output-budget mechanism.** Delete the boundary-read table, the
-  one-response-per-row and separate skill-body requirements, the dedicated
-  30,000-byte test, and any instructions, scripts, tests, or documentation that
-  exist solely to enforce or work around this limit. Fold the budget-driven
-  `ci-completion-recovery.md` split into the completion guide and remove the old
-  file and its incoming references. Remove remaining dead links, helpers, and
-  obsolete copies through the ordinary payload update. CI observer recovery and
-  proof still have live callers and must work after the cleanup.
-- **Evaluation.** Compare representative native startup traces under
-  [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md). With a named
-  CI tool, the coordinator reaches delegation without a catalog dump or reading
-  ahead. With an unknown capability, the lookup is narrow. Missing required
-  context stops the affected step, and completion recovery remains reachable
-  when it applies. Check that the budget machinery and its references are gone
-  from the source and from an installation updated from the prior payload.
-- **Priority.** First at Terry's direction. The static review found the dedicated
-  test and confirmed that the [recovery documentation split](https://github.com/terryyin/open-dough/commit/607771fa60ce2902ec07da6abba1fd1d0865e083)
-  was driven by the byte budget.
+**Goal**
+
+Developers using Execute Plan get the required decisions, refusals, and proof
+with less startup retrieval. In the [recorded occurrence](../../docs/maintainer/findings/ODF-264.md#odf-264),
+the coordinator searched broadly despite having named CI tools, and full-file
+guidance reads overflowed independently of tool discovery.
+
+**Scope**
+
+- Integrate startup and reading into one concise procedure. Use tools the
+  workflow names when available. When a tool is missing, search for the specific
+  capability and inspect plausible matches. Retrieve the passages and linked
+  prerequisites needed for the decision at hand and reuse them while they apply.
+  Put required guidance links at the steps that need them. Preserve source and
+  authority checks, delegation and proof requirements, and live CI routes.
+- Retire the boundary-read table, its separate-response and skill-body rules,
+  the 30,000-byte test, and artifacts that exist solely for that limit. Bring
+  `ci-completion-recovery.md` into the completion guide, retarget the live
+  reference, and remove the old path. Verify removal in both managed skill
+  roots through an ordinary update from the preceding payload.
+- Evaluate the shared procedure on representative native traces, with Codex as
+  the lead host and a Claude Code check for the Bash output limit that motivated
+  the old rule. Compare equivalent outcomes and proof before retrieval effort,
+  under [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) and
+  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+  Release and client rollout, changes to host adapters or CI runtime, and the
+  separate Cursor implementer handoff are outside this story.
+
+**Key examples**
+
+1. A coordinator starts an execution with CI observation due and its named
+   tools available. It arms the applicable observer and reaches the first
+   delegation with the required inputs, without catalog discovery, truncated
+   guidance, or reading ahead to delivery and completion.
+2. A referenced tool is unavailable. The coordinator looks up the exact
+   capability and checks the likely matches. If an authoritative prerequisite
+   remains unavailable after targeted retrieval, it names the missing input and
+   stops the affected step before the dependent action.
+3. An owned CI observer has ended before a completion receipt. The completion
+   guide leads the coordinator to managed recovery for that owner, target, and
+   accepted revision, preserving the ordinary receipt and shutdown contract.
+   A project updated from a payload carrying the old split reaches the same
+   guidance with no obsolete companion file or incoming link.
+
+**Priority.** First at Terry's direction. The [original recovery split](https://github.com/terryyin/open-dough/commit/607771fa60ce2902ec07da6abba1fd1d0865e083)
+was driven by the byte budget.
 
 <a id="start-cursor-slices-from-complete-task-briefs"></a>
 
