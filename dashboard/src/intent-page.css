@@ -100,12 +100,16 @@
   margin-left: var(--space-1);
 }
 
-.intent-story-title-line:has(> .story-notes-problem) {
+.intent-story-title-line:has(> p) {
   display: grid;
-  grid-template-columns: minmax(0, max-content) max-content;
+  grid-template-columns: minmax(0, max-content) repeat(2, max-content);
 }
 
-.intent-story-title-line > .story-notes-problem {
+.intent-story-title-line > :is(.intent-story-title, .tooltip-control) {
+  grid-row: 1;
+}
+
+.intent-story-title-line > p {
   grid-column: 1 / -1;
 }
 

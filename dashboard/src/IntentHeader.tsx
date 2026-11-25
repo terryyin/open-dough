@@ -11,6 +11,7 @@ import {
 } from "./IntentStoryComparison.tsx";
 import type { StorySummary } from "./IntentStorySummary.tsx";
 import { shortRevision } from "./publishedWork.ts";
+import { StoryComparisonFollowUp } from "./StoryAnchoredFollowUp.tsx";
 import { StoryNotes } from "./StoryNotesControl.tsx";
 
 export function IntentHeader({
@@ -63,6 +64,10 @@ export function IntentHeader({
             title={story.title}
           />
         )}
+        {story?.completed === true &&
+          summary?.comparison.state === "compared" && (
+            <StoryComparisonFollowUp shown={summary.comparison.shown} />
+          )}
       </div>
       {story === undefined && browserRevision !== undefined && (
         <p

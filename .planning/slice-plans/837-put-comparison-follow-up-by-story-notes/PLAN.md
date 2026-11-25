@@ -75,10 +75,17 @@ diff when implementing.
 
 ## Ordered slices
 
+Execution uses the owned story branch `codex/put-comparison-follow-up-beside-story-notes`
+on `origin`, with the published Take at `332770259c712ac7467e71da9baf299a5243262e`
+and `main` as its closure target. Codex observes GitHub Actions workflow
+`ci.yml` for the execution branch through coordinator
+`comparison-notes-f478883b`, mailbox `/tmp/dough-ci-501/watch-Zg3lTm`,
+PID `72001`, session `3671`, cell `g362:9`.
+
 ### 1. Open the published comparison's follow-up beside Notes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The Done story's readable published comparison offers one
 accessible icon beside Notes. The keyboard opens the existing composer, which
@@ -101,6 +108,16 @@ observations, updating the button locator in
 Run `npm run test:dashboard:frontend -- intent/ review/ launches/` and
 `npm run test:e2e -- intent-story-follow-up story-review-follow-up intent-story-completed recently-done-sessions-select-ad-hoc-review`.
 Budget 15 active minutes.
+
+Accepted observations at the Take plus the slice changes. Mounted Intent
+and the shared Review and Launches surfaces passed 475 cases across 175
+files. Independent refactoring split the mounted comparison spec's keyboard
+and widened-launch observations, then its four cases passed. The selected
+native journeys passed eight cases, including the whole, file and line
+launch inputs, the landed-file composer, and the enclosing title and
+revision readers. Dashboard typecheck passed after the refactor. The
+comparison control follows the displayed pair while another comparison
+loads. Notes and launch feedback appear below the title controls.
 
 ### 2. Start a follow-up from the selected landed run
 
