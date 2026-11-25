@@ -194,3 +194,13 @@ authoring or changing proof.
   the cold open and Refresh moved to
   [plan 824](../824-open-published-board-from-local-git/PLAN.md), which
   carries the audit and its family inventory.
+
+## Execution complete
+
+Product advice: no priority change. Keep the queued order: the Board trunk
+story first, then published progress, then the Intent, CI and maintenance
+follow-ups. Before migrating another published reader to local Git, run the
+`ref` audit (plan 824) to size its fixture reach. This story's fixture work
+was about ten times the planned estimate. Its maintained proof of the
+routing rules is owed by plan 824 slice 6, and the load-sensitive Review
+sync test by plan 823 slice 5.

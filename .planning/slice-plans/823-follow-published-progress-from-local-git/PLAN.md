@@ -168,6 +168,10 @@ one advertised check per covered demand, fetch only changed or missing
 objects, and keep comparison pins from the admitted observation. Compare
 the established Review's case-specific status and timed-out origin behavior.
 Assert zero remote operations for file switches inside and outside admission.
+`story-review-offline-sync.spec.ts` timed out three cases at the 5 s
+default under a full backend run at load 11–13, while passing alone in
+2.3–3.2 s per case. Make its Review syncs independent of machine load at
+this boundary without weakening its assertions.
 
 ### 6. Confirm accepted publication at the shown revision
 

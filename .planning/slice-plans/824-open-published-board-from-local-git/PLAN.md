@@ -141,11 +141,17 @@ no remaining record for this family.
 
 Type: Structure
 Status: planned
-Change: A project a test adds or configures outside the seeded projects reaches the origin that answers it, through the same served-HOME routing. Enables slice 7.
+Change: A project a test adds or configures outside the seeded projects
+reaches the origin that answers it, through the same served-HOME routing.
+`publishCommittedOrigin` routes through the serve hook as `publishes()`
+does, leaving one named-route path. Enables slice 7.
 
-Proof: The migrated specs pass unchanged in observed behavior apart from
-revision sourcing, with both full suites. The reapplied `ref` audit reports
-no remaining record for this family.
+Proof: Maintained fixture tests cover the routing rules that the first
+story proved only with scratch scripts. A republication reaches the latest
+origin, a route the HOME fixture set up still wins, a seeded project
+resolves to the default origin, an added project resolves to its origin,
+and an unserved repository fails locally. The migrated specs pass with both
+full suites, and the reapplied `ref` audit reports no unrouted project.
 
 ### 7. Open the Board at verified published trunk
 
