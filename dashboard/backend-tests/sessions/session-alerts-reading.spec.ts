@@ -2,8 +2,8 @@
 // needing the developer: each alerting reading once, quiet through an
 // unreadable listing and Done, quiet for a restart that finds attention
 // already present, and one alert when a later reading first needs attention
-// or genuinely re-enters it. Delivery lifetime stays in
-// ./session-alerts.spec.ts until its owned slice moves it.
+// or genuinely re-enters it. Delivery lifetime lives in
+// ./session-alerts-lifetime.spec.ts.
 import { afterEach, beforeEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {

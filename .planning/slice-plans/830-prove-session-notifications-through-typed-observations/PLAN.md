@@ -129,7 +129,7 @@ E2E availability journey retains the dashboard status consumer.
 ### 6. Retire the alert loop and its owned child
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 
 Given a held startup probe or delivery, close SessionAlerts. Verify
@@ -237,6 +237,17 @@ baseline.
   `session-alerts-delivery.spec.ts`.
 - Slice 5: skipped fresh refactor — subject-spec rewrite plus
   unavailable-address helper case removal; no production change.
+- Slice 6: skipped fresh refactor — subject-spec lifetime relocation and
+  emptied Playwright file deletion; no production change; shared alert
+  fixtures retain other callers.
+
+### Slice 6 accepted proof
+
+- Vitest `session-alerts-lifetime.spec.ts` — close ends held startup
+  probe and held delivery children (SIGTERM), preserves last confirmed
+  availability, and stops further reads
+  (`slice6-vitest-lifetime.log.run.json`). Emptied
+  `session-alerts-helper.spec.ts` and `session-alerts.spec.ts` removed.
 
 ### Slice 4 accepted proof
 
