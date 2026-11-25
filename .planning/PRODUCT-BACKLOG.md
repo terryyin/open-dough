@@ -33,10 +33,10 @@ intent introduced or affected by a newly developed story.
 - [Put comparison follow-up beside story notes](seeds/SEED-420-unified-intent-review.md#put-comparison-follow-up-by-story-notes) — SEED-420#put-comparison-follow-up-by-story-notes ([plan](slice-plans/837-put-comparison-follow-up-by-story-notes/PLAN.md))
 - [Read CI comparison and Intent coverage from Story Home](seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home) — SEED-420#read-story-evidence-from-intent-home ([plan](slice-plans/837-read-story-evidence-from-intent-home/PLAN.md))
 - [Use sidebars consistently across the Dashboard](seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard) — SEED-417#use-sidebars-consistently-across-the-dashboard ([plan](slice-plans/837-use-sidebars-consistently-across-the-dashboard/PLAN.md))
+- [Browse and select folders in one story review tree](seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree) — SEED-420#browse-one-selectable-review-tree ([plan](slice-plans/838-browse-one-selectable-review-tree/PLAN.md))
 
 ## Backlog list
 
-- [Browse and select folders in one story review tree](seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree) — SEED-420#browse-one-selectable-review-tree
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files
 - [Recognize Intent folders and read their proof](seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof) — SEED-420#recognize-intent-folders-and-read-proof
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision
