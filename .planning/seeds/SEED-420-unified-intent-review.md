@@ -31,66 +31,6 @@ points are [IntentPage](../../dashboard/src/IntentPage.tsx),
 [IntentHeader](../../dashboard/src/IntentHeader.tsx), and
 [IntentTreeGroups](../../dashboard/src/IntentTreeGroups.tsx).
 
-<a id="compact-story-comparison-controls"></a>
-
-### Read and change the story comparison from one control bar
-
-**Identity:** SEED-420#compact-story-comparison-controls
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/833-compact-story-comparison-controls/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a1eca05b901b399dfb7e17be328824a37850231af209af3f93773625b1ffa894","plan":"13b53d4e8c0e50a27c3e7cc204edc90520d613c7ddcdfaf62252b6ef2d6787a1"}}
-```
-
-**Goal.** A developer reviewing a story in Intent can tell which comparison is
-active and change it from one compact toolbar row. The files and proof get the
-height the stacked comparison text and controls take today. This advances the
-seed's single review workspace without dropping any comparison capability.
-
-**Scope.** Keep the story title, its identity and Done mark, and the note
-button above the bar. The bar holds, in order:
-
-- the file sidebar's **Hide files** / **Show files** toggle;
-- the comparison controls that are available: the published comparison and
-  **Landed runs** choice when there is more than one choice, and
-  **Include merged changes** when the published comparison supports it;
-- a one-line summary of the active comparison. It names the comparison,
-  shows the recorded agent's portrait beside its attribution when an agent is
-  known, and opens the full comparison details.
-
-The details show what the stacked text shows today: the recorded time,
-branch, baseline and result revisions, and the attribution or the
-explanation of why a comparison is unavailable. The comparison follow-up
-is beside **Notes** in the story title. The details also hold **Refresh**,
-which re-reads the comparison while keeping the choice. The standalone
-**Refresh** button leaves the bar. Changing the
-comparison updates the summary and the details to describe the new choice.
-Reading, unavailable and failed states appear in the summary's place. A read
-failure keeps its **Retry** there. On a narrow window the bar wraps instead of
-overflowing. The **Sessions** control joins the bar through
-[session selection](SEED-418-review-published-session-changes.md#select-a-story-session-for-review),
-not this story.
-
-Out of scope: rereading automatically when newer work is published, and the
-follow-up button beside the notes.
-
-**Key examples.**
-
-- An unfinished story's published comparison by Kaoru-chan is open. The bar
-  shows the files toggle, the comparison choice, **Include merged changes**
-  and a summary with Kaoru-chan's portrait. Opening the summary shows the
-  branch, the baseline and result revisions, and **Refresh**. The file diff
-  starts directly below the bar.
-- The developer chooses a landed run. The summary and the details now
-  describe that run's time and landing revisions. **Include merged changes**
-  is not offered when that comparison does not support it.
-- New work is published while the story is open. **Refresh** in the details
-  re-reads it, keeps the landed run or published choice, and the summary
-  reports the refreshed comparison.
-- A comparison has no recorded agent. The summary shows the attribution text
-  without a portrait.
-- No comparison is available. The summary says so and the details explain
-  why. The comparison read fails: the summary reports the failure with
-  **Retry**.
-
 <a id="read-story-evidence-from-intent-home"></a>
 
 ### Read CI comparison and Intent coverage from Story Home
