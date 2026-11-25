@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Hibiki-chan",
-  "email": "hibiki-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-420#put-comparison-follow-up-by-story-notes",
-  "host": "codex",
-  "model": "gpt-6.2-sol"
-}
