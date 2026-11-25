@@ -128,6 +128,41 @@ export function routeFallbackThroughServedHomes(
   for (const home of known.homes) routeFallbackThroughHome(home, origin);
 }
 
+// A committed publication is what GitHub holds for `repository`, so every
+// HOME a dashboard served by `github` runs under drops its other routes for
+// that URL, including the one its own installed catalog project set up first
+// (./catalogProjectOrigin.ts), and reaches the publication's origin.
+export function routeServedHomesToPublication(
+  github: FakeGitHub,
+  repository: string,
+): void {
+  const known = served(github);
+  const published = known.origins.find(([, routed]) => routed === repository);
+  if (published === undefined)
+    throw new Error(`No origin is published by name for ${repository}.`);
+  const url = gitHubRepositoryUrl(repository);
+  for (const home of known.homes) {
+    const config = path.join(home, ".gitconfig");
+    const routes = execFileSync(
+      "git",
+      [
+        "config",
+        "--file",
+        config,
+        "--get-regexp",
+        String.raw`^url\..*\.insteadof$`,
+      ],
+      { encoding: "utf8" },
+    );
+    for (const route of routes.split("\n")) {
+      const at = route.lastIndexOf(" ");
+      const origin = route.slice("url.".length, at - ".insteadof".length);
+      if (route.slice(at + 1) === url && origin !== published[0])
+        unrouteOrigin(home, origin, repository);
+    }
+  }
+}
+
 // Fails unless Git under every HOME a dashboard served by `github` runs under
 // finds `revision` as `repository`'s `ref`, as routing its publication there
 // promises.

@@ -8,7 +8,10 @@ import { githubFor } from "./dashboardTest.ts";
 import type { ObservedRequest } from "./originObservation.ts";
 import { publishMovingFiles, type PublishedFiles } from "./publishedFiles.ts";
 import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
-import { expectServedHomesReach } from "./support/fixtureOriginRoute.ts";
+import {
+  expectServedHomesReach,
+  routeServedHomesToPublication,
+} from "./support/fixtureOriginRoute.ts";
 import { commitPublishedOrigin } from "./support/publishedOrigin.ts";
 import {
   keepingOrigin,
@@ -35,7 +38,9 @@ export function publishCommittedFiles(
     { ...published, revision },
     committedTo,
   );
-  expectServedHomesReach(githubFor(page), repository, revision, ref);
+  const github = githubFor(page);
+  routeServedHomesToPublication(github, repository);
+  expectServedHomesReach(github, repository, revision, ref);
   return { requests, revision };
 }
 
@@ -50,6 +55,7 @@ export function serveCommitted(
 ): string {
   const github = githubFor(page);
   github.serve(repository, keepingOrigin(answer, published));
+  routeServedHomesToPublication(github, repository);
   expectServedHomesReach(github, repository, published.revision);
   return published.revision;
 }
