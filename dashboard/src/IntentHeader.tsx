@@ -65,8 +65,12 @@ export function IntentHeader({
           />
         )}
         {story?.completed === true &&
+          story.record.state === "read" &&
           summary?.comparison.state === "compared" && (
-            <StoryComparisonFollowUp shown={summary.comparison.shown} />
+            <StoryComparisonFollowUp
+              shown={summary.comparison.shown}
+              story={story.record.story}
+            />
           )}
       </div>
       {story === undefined && browserRevision !== undefined && (

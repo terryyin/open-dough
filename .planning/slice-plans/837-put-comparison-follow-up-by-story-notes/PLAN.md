@@ -195,7 +195,7 @@ found no remaining slice-specific concern.
 ## Local gate
 
 Run the named checks and Dashboard typecheck for the changed boundaries.
-Run long checks under [`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Run long checks under `caffeinate -s -i` on AC power.
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 and apply the test conventions selected through [AGENTS.md](../../../AGENTS.md).
 
@@ -213,3 +213,12 @@ no correction to queue from the two delivered commits, `b816e8560` and
 Process review stays selected and continues in wrap-up with the Intent
 Coverage result. The moved launcher and rewritten landed-file observations
 qualify for its protection check.
+
+The branch CI failure on the unread Done-card review was traced to the
+landed title action adding a duplicate Done-body read. The repair reuses
+the lens's loaded record before showing the action. Twelve selected
+E2E cases, 476 mounted cases and Dashboard typecheck passed afterward.
+The unchanged one-shot journey exercised the same diff while the Done
+record was held and again through the failed and recovered read. The
+[diagnosis](diagnosis-one-shot-review-diff-reading.md) records the matching
+failure and the isolated cause. No recommendation changed after repair.

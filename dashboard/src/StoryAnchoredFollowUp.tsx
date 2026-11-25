@@ -4,6 +4,7 @@
 import { useContext } from "react";
 import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import type { DiffLineSide } from "./DiffLineNumber.tsx";
+import type { DoneStory } from "./doneRecord.ts";
 import type { FollowUpFile, FollowUpTarget } from "./followUpRequest.ts";
 import { StoryFollowUpSession } from "./FollowUp.tsx";
 import { LaunchesOnPage, usePageLaunches } from "./pageLaunches.ts";
@@ -16,9 +17,13 @@ import {
 import { reviewedFilePaths } from "./reviewedFileContext.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 
-export function useReviewedStoryFollowUp(reviewed: ReviewedWork) {
+export function useReviewedStoryFollowUp(
+  reviewed: ReviewedWork,
+  shownStory?: DoneStory,
+) {
   const story = useDoneStoryFollowUp(
     reviewedStoryIdentity(reviewed.subject) ?? reviewed.publishedStory,
+    shownStory,
   );
   return story?.sourceId === reviewed.subject.source ? story : undefined;
 }
@@ -48,18 +53,20 @@ export function fileFollowUpTarget(
 function DoneStoryAnchoredFollowUp({
   reviewed,
   target,
+  shownStory,
   autoOpen = false,
   showTrigger = true,
   onClosed,
 }: {
   readonly reviewed: ReviewedWork;
   readonly target: FollowUpTarget | undefined;
+  readonly shownStory?: DoneStory;
   readonly autoOpen?: boolean;
   readonly showTrigger?: boolean;
   readonly onClosed?: () => void;
 }) {
   const launches = usePageLaunches();
-  const story = useReviewedStoryFollowUp(reviewed);
+  const story = useReviewedStoryFollowUp(reviewed, shownStory);
   if (story === undefined || target === undefined) return null;
   return (
     <StoryFollowUpSession
@@ -75,8 +82,10 @@ function DoneStoryAnchoredFollowUp({
 
 export function StoryComparisonFollowUp({
   shown: { reviewed, comparison, tree },
+  story,
 }: {
   readonly shown: ShownStoryComparison;
+  readonly story: DoneStory;
 }) {
   const launches = useContext(LaunchesOnPage);
   const name = namedStoryComparison(reviewed);
@@ -84,6 +93,7 @@ export function StoryComparisonFollowUp({
   return (
     <DoneStoryAnchoredFollowUp
       reviewed={reviewed}
+      shownStory={story}
       target={{
         ...name,
         baseline: comparison.from,
