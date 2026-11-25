@@ -23,8 +23,14 @@ import { launchWorkspace, type WorkspaceChoice } from "./launchWorkspace.ts";
 import type { LocalFolder } from "./localFolder.ts";
 import { git, repositoryOf, takenSlugs } from "./startGit.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
-import type { StartRecord } from "./startStore.ts";
+import type { StartRecord, StartStore } from "./startStore.ts";
 import { launchStartContext } from "./launchRecord.ts";
+
+export type StoryStartRuntime = {
+  readonly store: StartStore;
+  readonly env: NodeJS.ProcessEnv;
+  readonly noteWorker?: ((pid: number) => Promise<void>) | undefined;
+};
 
 // What a workflow's start established: an execution's start or a refinement's
 // preparation, under the key its launch record keeps it by.
@@ -166,10 +172,12 @@ export function runStartCommand(
   project: LocalFolder,
   operation: "start" | "continue" | "draft" = "start",
   noteWorker: (pid: number) => Promise<void> = async () => {},
+  env: NodeJS.ProcessEnv = process.env,
 ): Promise<StartCommandOutput | undefined> {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, [script, operation, ...args], {
       cwd: project.path,
+      env,
       stdio: ["ignore", "pipe", "pipe"],
     });
     const noted =

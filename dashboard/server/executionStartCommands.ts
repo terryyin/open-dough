@@ -32,7 +32,8 @@ export async function runStartScript(
   args: readonly string[],
   project: LocalFolder,
   host: StoryLaunchRequest["host"],
-  noteWorker: (pid: number) => Promise<void>,
+  noteWorker?: (pid: number) => Promise<void>,
+  env?: NodeJS.ProcessEnv,
 ): Promise<StartResult> {
   const output = await runStartCommand(
     executePlanScript(project, host, startScript),
@@ -40,6 +41,7 @@ export async function runStartScript(
     project,
     "start",
     noteWorker,
+    env,
   );
   // A command that could not run leaves no result to read. Execution start
   // still reads stdout only; stderr is not part of its refusal wording.

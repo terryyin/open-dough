@@ -90,7 +90,10 @@ export type LaunchHost = {
     ...segments: readonly string[]
   ): string;
   // An unavailable native prerequisite for an installed execution that can publish a Take.
-  executionStartRefusal?(folder: LocalFolder): Promise<string | undefined>;
+  executionStartRefusal?(
+    folder: LocalFolder,
+    env: NodeJS.ProcessEnv,
+  ): Promise<string | undefined>;
   launch(
     source: PublishedSource,
     request: RecordedLaunchRequest,

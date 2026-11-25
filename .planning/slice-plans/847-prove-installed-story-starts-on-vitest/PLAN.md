@@ -43,35 +43,45 @@ have their own owners in the
   origin and installed skill source.
 - Assert publication on origin (`takenProfiles`, `originGit`), the returned
   start or refusal, and the kept start through the typed store reader. Model
-  "dispatched nothing" as a refused or not-established start result plus an
-  unchanged kept record; the retained E2E journeys observe the native
-  session in the workspace.
+  "dispatched nothing" as a stopped start result and verify the kept record
+  appropriate to its disposition. The retained E2E journeys observe the
+  native session in the workspace.
 - Use [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) for requests,
   repositories and kept start records. Damage a kept record by building it,
   not by editing JSON on disk. Add zero test-support wrappers. Remove
   `agentLaunchBoundary`, `preparationPage`, `codexStart` or server fixture
   helpers only when their last consumer has moved.
 
-## Decisive premises
+The [proof record](PROOF.md) holds the decisive premises, coverage map, local gate and accepted execution evidence.
 
-Observed in the owned preparation checkout at `cfd4a150c` on 26 November
-2026 with Node 24.21.0, one worker, locked dependencies installed by
-`scripts/setup-native.mjs`, and macOS on AC under `caffeinate -s -i`. Other
-work was running (load average 6–10). Use these runs for behavioral
-evidence and take a comparable pair for the execution's performance claim.
+## Execution context
 
-| Premise | Consuming operation and result |
-| --- | --- |
-| The maintained backend selector reaches all 15 legacy specs | The baseline command below passed all 48 Chromium cases on the first attempt, 98.994 s summed and 114.24 s wall, 131–5,836 ms per case, none at or below 100 ms. Per file: start-resume 5 cases 23.680 s, preparation-codex-retry 10 cases 16.310 s, preparation-resume 5 cases 13.077 s, the other twelve files 1–4 cases and 2.0–6.3 s each. |
-| The installed starts publish from Node Vitest with no Dashboard server | A scratch Vitest spec under `backend-tests/launches/`, run through `npm run test:dashboard:backend -- '<scratch>' --workers=1`, built `startOrigin(queuedReadyRepository())`, pointed `HOME` at its machine and called `beginStart` and `beginPreparation` with a `StartProgress().for(workflow)` view. Both attempts returned `established`. Origin held the Take profile (`host: claude`, `mode: story-branch`) and, separately, the Preparing profile (`activity: preparation`) with the workspace under `.worktrees/`. The cases took 1,307 ms and 1,130 ms. The scratch spec was removed. Slice 1 replaces the `HOME` assignment with the typed inputs above. |
-| Retained E2E journeys observe dispatch in the workspace, kept offers and Codex recovery | The E2E command below passed all seven Chromium cases on the first attempt, 50.007 s summed and 55.70 s wall (load rose to 17.8). Claude execution and Codex refinement traversed the real installed start, publication and native launch phases. The Taken card and the kept-preparation Backlog card each opened one session in the kept workspace with no second claim or profile. The Codex retry dialog surfaced the refusal once. Codex recovery resumed the uncertain first input across a restart in two cases. |
+- Story Branch Mode in the Dashboard-established worktree
+  `/Users/terryyin/git/open-dough/.worktrees/prove-installed-execution-and-refinement-starts`,
+  branch `codex/prove-installed-execution-and-refinement-starts`. The separate
+  integration checkout is `/Users/terryyin/git/open-dough`. The Dashboard
+  established the start for Anri-chan under
+  `dashboard-territory.local-open-dough`.
+- Starting revision `893c3042af69fe6b0aab824ee08d33425ee70c47`. The accepted Take
+  and initial candidate `52544c358a47df9019c163d45dcb0625b47b9271` were verified on
+  `origin/main` and the remote execution branch. Ordinary increments target the
+  remote execution branch. The Take has no observer receipt in this session.
+- Installed locked dependencies with `node scripts/setup-native.mjs npm` in
+  this worktree and passed `npm run typecheck:dashboard`. Native prerequisite
+  validation selected Chromium 158.0.8127.18.
+- CI observer for `terryyin/open-dough` on the remote execution branch uses
+  GitHub workflow `ci.yml` (CI), coordinator `Anri-chan-413-847`, directory
+  `/tmp/dough-ci-501/watch-zwlaMc`, PID 48676, session 35314, cell `g501:16`.
+  The stream finished with `observation_error` before the first increment
+  because `gh` lost authentication. Recover applicable CI at completion
+  once it can authenticate.
 
 ## Ordered slices
 
 ### 1. Publish the Take before an execution session is dispatched
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: For a queued ready story on a private origin, `started` with an
@@ -93,8 +103,11 @@ Estimate: 12–15 active minutes.
 Proof: Through the slice 1 entry, a story Taken by another agent names its
 owner, a story not queued is not started, an unrefined story points to
 refinement, and a command with no readable result is not trusted. Each
-leaves no kept start and publishes nothing. A refused first launch after a
-published claim names the Agent and workspace and keeps the start. A second
+publishes nothing on the test origin. Definite refusals leave no kept start.
+Unreadable command output leaves publication unknown and retains the draft
+without an established claim, as the legacy case and `keepsStart` require.
+A refused first launch after a published claim names the Agent and workspace
+and keeps the start. A second
 start while the first is held on origin's `pre-receive` hook is refused as
 already starting, and two concurrent starts leave one claim and one
 workspace. Retain the
@@ -184,45 +197,6 @@ landing prepares reporting. Applying the prepared updater to the exact kept
 worktree resumes the kept start once, and an updater refusal explains and
 dispatches nothing. Convert `agent-launch-incomplete-reporting-settlement`
 and `agent-launch-update-worktree-retry`.
-
-## Proof ownership and local gate
-
-Files in the following map are relative to `dashboard/backend-tests/launches/`.
-
-| Slice | Legacy selection | Observable proof |
-| --- | --- | --- |
-| 1 | `agent-launch-start.spec.ts` | Take on origin before establishment, kept start, catalog refusal, not-applicable start |
-| 2 | `agent-launch-start-refusal.spec.ts`, `agent-launch-start-taken-refused.spec.ts`, `agent-launch-start-duplicate.spec.ts` | Refusal wording, nothing published or kept, one claim and workspace under overlap |
-| 3 | `agent-launch-start-resume.spec.ts`, `agent-launch-start-codex-recovery.spec.ts` | Same claim and workspace after slow, stopped, lost and Codex-acknowledgment cases |
-| 4 | `agent-launch-preparation-start.spec.ts`, `agent-launch-preparation-stops.spec.ts` | Preparing on origin, kept preparation, stops with nothing kept |
-| 5 | `agent-launch-preparation-resume.spec.ts`, `agent-launch-preparation-continuation-refusal.spec.ts`, `agent-launch-preparation-store-failure.spec.ts` | One profile across slow, stopped, interrupted and refused starts; store failure preserves preparation |
-| 6 | `agent-launch-preparation-codex-continuation.spec.ts`, `agent-launch-preparation-codex-retry.spec.ts` | Git-verified continuation, refused damaged retry, origin unchanged |
-| 7 | `agent-launch-incomplete-reporting-settlement.spec.ts`, `agent-launch-update-worktree-retry.spec.ts` | Missing helper refused before dispatch, updater apply resumes once |
-
-For the first and final comparisons, use fresh absolute proof paths from
-the repo root and one worker. Repeat the baseline at the execution base if
-affected paths or the measurement conditions changed. If a replacement moves
-to a new filename, add its exact selector to the candidate run and record
-its proof owner. Confirm discrimination for any legacy assertion retired as
-redundant.
-
-```sh
-selection='launches/agent-launch-(start(-refusal|-taken-refused|-duplicate|-resume|-codex-recovery)?|preparation-(start|stops|resume|continuation-refusal|store-failure|codex-continuation|codex-retry)|incomplete-reporting-settlement|update-worktree-retry)\.spec\.ts$'
-caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
-caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/launches/agent-launch-(start-(phases|taken)|preparation-(phases|kept|codex-retry)|codex-recovery)\.spec\.ts$' --workers=1
-```
-
-Run affected consumers from the [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
-and `npm run typecheck:dashboard` for the changed start signatures. Record
-engine and case counts, per-case time against roughly 100 ms, summed case
-time, elapsed selection time, and the separate cost of proof retained in
-E2E. Account for every scoped legacy case before accepting zero Playwright
-selections for this boundary.
-
-Use awake macOS on AC under `caffeinate -s -i` for long local checks per
-[AGENTS.md](../../../AGENTS.md). Apply the shared
-[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
-to every failure and repair handoff. Keep default test timeouts.
 
 ## Plan review
 

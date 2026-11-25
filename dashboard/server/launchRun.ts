@@ -2,6 +2,7 @@
 // start, then the common native launch/recovery lifetime, which preserves the
 // original request and established facts while its host owns native input
 // and reconciliation.
+import { homedir } from "node:os";
 import {
   type PublicationReceipt,
   type LaunchAttemptRecord,
@@ -24,7 +25,7 @@ import { shownLaunchWorkspace } from "./launchWorkspace.ts";
 import { launchRecord } from "./launchRecord.ts";
 import { defaultLaunchStartFacts } from "./defaultLaunchStart.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
-import { removeLaunchedStart } from "./startStore.ts";
+import { removeLaunchedStart, startStore } from "./startStore.ts";
 import {
   publicationRecordingFailure,
   settleSessionResult,
@@ -101,6 +102,10 @@ async function startedRun(
           request,
           folder,
           progress,
+          {
+            store: (workflow) => startStore(workflow, homedir()),
+            env: process.env,
+          },
           attempt.id,
           noteSlow,
           (pid) => noteWorker(attemptWorker("start", pid)),

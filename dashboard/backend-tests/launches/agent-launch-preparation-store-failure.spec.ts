@@ -7,7 +7,7 @@ import path from "node:path";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { started } from "../../server/launchStart.ts";
 import { StartProgress } from "../../server/startProgress.ts";
-import { keptStart } from "../../server/startStore.ts";
+import { keptStart, startStore } from "../../server/startStore.ts";
 import { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
 const defaultSource = productionSeedProjects[0];
 if (defaultSource === undefined)
@@ -53,6 +53,7 @@ for (const expired of [false, true]) {
         request,
         project,
         progress,
+        { store: startStore, env: process.env },
         "attempt",
       );
       expect(outcome).toMatchObject({ kind: "established" });
@@ -108,6 +109,7 @@ for (const expired of [false, true]) {
         request,
         project,
         progress,
+        { store: startStore, env: process.env },
         "attempt",
       );
       expect(resumed).toMatchObject({ kind: "established" });
