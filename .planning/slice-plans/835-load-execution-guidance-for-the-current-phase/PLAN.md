@@ -53,7 +53,7 @@ startup are outside this plan.
 ### 1. Load startup guidance through the first delegation
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes, excluding instrumented commands.
 
 **Early probe before edits.** Follow the [native source-phase procedure](../../../Distribution/evaluation/guidance-checks.md#redo-the-source-phase-for-an-uncovered-finding).
@@ -66,9 +66,42 @@ Use a Codex profile with the named observer tools and native trace capture.
 Start with the normal startup case and reproduce the required decisions,
 observer owner and target coordinates, and first delegation. Inspect the actual
 tool calls and returned passages. Qualify the Claude Code Bash path with the
-same startup outcome. If the actual profile, authorization or trace is
+same startup outcome unless the developer waives that probe. If the actual
+required profile, authorization or trace is
 unavailable, stop dependent changes and record the missing observation and
 its owner. CLI help or a substitute trace alone leaves this probe open.
+
+**Startup probe, 25 November 2026.** The checkout's locked installation and
+payload link check passed. The pinned Codex baseline used the promoted
+`v0.3.114` payload (`3f2744b21b76931ef0d529b91cf25d23f3391cff`). One native
+run reached the first delegation with observation on `codex/greeting`, but
+the workspace sandbox refused the slice clock's Git metadata write. A
+retry using the repository's isolated native harness let the clock run and
+captured a provider request for `main`, which fails the story-branch
+observer criterion. Retain both traces and count the retry as rescue
+effort. The Claude Code native process returned `OAuth session expired and
+could not be refreshed` before any Bash call, and its auth status showed
+`loggedIn: false`. The developer owns completing the local Claude Code CLI
+sign-in. The coordinator then owns obtaining the Claude Code startup trace
+before editing the guidance. The native streams are
+`native-codex-startup.jsonl`, `native-codex-startup-retry.jsonl`, and
+`native-claude-profile.jsonl` under the directory reported by
+`git rev-parse --git-path open-dough/evidence`. The retry's provider
+requests are in `native-codex-startup-retry-provider.jsonl` and
+`native-profile-scratch.txt` gives the fixture path.
+
+**Codex qualification on continuation.** A fresh run in the same isolated
+harness explicitly supplied the ordinary slice publication destination in
+the prompt. The runtime observed `owner/project` on `codex/greeting`, ran the
+slice clock, and reached a native delegation with the planned proof. The
+observer stopped and both fixture remote refs stayed at the established
+revision. Retain future Codex pairs with this prompt and harness. The raw
+stream, provider requests, prompt and delegate report are under the same
+evidence directory with the prefix `native-codex-startup-qualified`.
+The Claude Code probe on continuation returned the same expired OAuth
+error. The CLI sign-in opened a browser and exited with `loggedIn: false`.
+The developer directed execution to skip the Claude Code native test for
+this story. Codex native startup and the other verification remain required.
 
 **Behavior.** With the plan and named CI tools available, startup reaches the
 first delegation with the required context and one applicable observer. When a
@@ -90,7 +123,7 @@ On Codex compare the matched normal starts. In a bounded Codex fixture hide a
 named tool while exposing a plausible replacement, and separately remove a
 required passage. Observe narrow discovery and a stop before the dependent
 operation when the passage cannot be recovered. On Claude Code compare the
-shared startup route through its affected Bash surface. Keep the assessor
+shared startup route through its affected Bash surface when in scope. Keep the assessor
 criteria outside the task prompt. Judge observer ownership, delegation inputs
 and the refusal before effort. The named-tool candidate uses no catalog query,
 the missing-tool candidate uses a bounded capability query, and neither
@@ -105,6 +138,34 @@ inconclusive or revise the guidance within scope. These traces describe the
 selected profiles and case. Also run the payload link check, inspect the
 moved anchors and search shipped guidance and active checks for budget-only
 references.
+
+**Accepted Slice 1 proof.** The installed link and phase-route walks passed
+in both roots with guide blob `b480d0d8f9e79c2ce1e993bec1edc164d9cd42cd`.
+The first candidate's startup response was truncated. The revision bounded
+reads by current step and required recovery of missing authoritative text.
+The revised normal Codex run reached the correct owned observer and first
+delegation, then received a stopped receipt. It made no catalog calls and
+returned no truncated output. It inspected a seven-line stop cross-reference
+before dispatch for the fixture's explicit stop. The missing-passage run
+stopped before setup and delegation. In the missing-tool arm, the fixture
+adapter named an unavailable continuation alias and exposed an output snapshot
+tool. The trace showed an initial wide filter and a narrower query that exposed
+both the snapshot description and `write_stdin`. The coordinator rejected the
+snapshot as a live bridge and delegated with coverage explicitly unavailable.
+The fixture exercises native discovery with an unavailable name.
+
+The matched runs returned 104,481 and 88,716 bytes in guidance-bearing
+requests through delegation, six and eight such requests, and one and zero
+truncated responses. The candidate revisited the CI runtime to inspect
+provider fields and read the delegation and planned proof references in
+stages. The Dashboard comparison of full coordinator and worker families
+found 899,064 and 1,147,501 inclusive tokens and 79,573 and 44,557 uncached
+input tokens. Retained comparisons include separate rescue runs and scope
+caveats. Total effort improvement is inconclusive for this pair.
+Proof and raw-run locations are under the checkout evidence directory in
+`slice1-worker-revision-return.md`, `native-codex-revised-retrieval.json`,
+`native-codex-revised-effort.json`, and the `native-codex-revised-*-scratch.txt`
+files. The Claude Code native probe was waived by the developer.
 
 ### 2. Reach managed recovery after an ordinary update
 
