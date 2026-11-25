@@ -88,9 +88,11 @@ export async function prepareAttemptReporting(
             attempt,
             launchFolder,
             // A story's start or preparation, or an unattached session.
-            establishedPlace(
-              pending ?? establishedLaunch(start)?.handoff.established ?? {},
-            ),
+            (start.kind === "session" ? start.nativeCheckout : undefined) ??
+              establishedPlace(
+                pending ?? establishedLaunch(start)?.handoff.established ?? {},
+              ),
+            start.kind === "session" ? start.admission : undefined,
           )
         : { reporting: kept };
     return prepared === undefined

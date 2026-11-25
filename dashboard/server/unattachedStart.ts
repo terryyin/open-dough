@@ -1,7 +1,3 @@
-// Resolve a session's workspace and require a published Take for independent
-// starts before handing the launch to its native host. Continue reuses the
-// start kept with the launch attempt.
-
 import {
   establishesSession,
   startsAdHocSession,
@@ -45,9 +41,6 @@ import {
 
 const formatterScript = "established-session.mjs";
 
-// Whether the selected host's installation in the project can establish an
-// unattached session: it ships the start, the shared policy that start reads,
-// and the formatter of the session's block.
 export async function establishesUnattached(
   project: LocalFolder,
   host: AgentLaunchRequest["host"],
@@ -175,7 +168,9 @@ export async function unattachedStarted(
         : unattachedStartWords.unreadable,
     );
   }
-  const claim = (await keptSessionStart(source.id, attempt))?.claim;
+  const settled = await keptSessionStart(source.id, attempt);
+  const claim = settled?.claim;
+  const checkout = settled?.claimCheckout;
   const publication: PublicationReceipt =
     claim?.publishedSha === undefined
       ? { kind: "none" }
@@ -241,6 +236,12 @@ export async function unattachedStarted(
       },
       workspace: chosen.workspace,
       publication,
+      ...(checkout && claim?.publishedSha
+        ? {
+            nativeCheckout: result,
+            admission: { ...checkout, publishedSha: claim.publishedSha },
+          }
+        : {}),
       ...(claim === undefined ? {} : { storyTitle: claim.draft.title }),
     };
   } catch {

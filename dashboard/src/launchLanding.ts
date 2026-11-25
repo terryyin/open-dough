@@ -3,6 +3,12 @@ import { z } from "zod";
 export const commitIdSchema = z
   .string()
   .regex(/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/);
+export const admittedClaimCheckoutSchema = z.object({
+  workspace: z.string().min(1),
+  branch: z.string().min(1),
+  publishedSha: commitIdSchema,
+});
+export type AdmittedClaimCheckout = z.infer<typeof admittedClaimCheckoutSchema>;
 export const landingRepositorySchema = z.object({
   repository: z.string().min(1),
   workspace: z.string().min(1),
@@ -10,12 +16,13 @@ export const landingRepositorySchema = z.object({
   // The story the launch names; a session with no story names none, and its
   // landing is kept by its launch reference alone.
   identity: z.string().min(1).optional(),
+  admission: admittedClaimCheckoutSchema.optional(),
   remote: z.string().min(1),
   target: z.string().startsWith("refs/heads/"),
 });
 export type LandingRepository = z.infer<typeof landingRepositorySchema>;
 export const launchLandingSchema = landingRepositorySchema
-  .omit({ workspace: true, branch: true })
+  .omit({ workspace: true, branch: true, admission: true })
   .extend({
     reference: z.uuid(),
     delivery: z.uuid(),

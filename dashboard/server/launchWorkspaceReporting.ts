@@ -9,6 +9,7 @@ import {
   type AgentLaunchRequest,
   type LaunchAttemptRecord,
 } from "../src/agentLaunch.ts";
+import { admitsAdHocStory } from "../src/launchRequest.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import type { LocalFolder } from "./localFolder.ts";
 
@@ -62,6 +63,8 @@ export function preparesReporting(
     attempt.reportingOrigin !== undefined &&
     (attempt.request.workflow !== "ad-hoc" ||
       sendsFirstInput(attempt.request) ||
+      (admitsAdHocStory(attempt.request) &&
+        attempt.publication.kind === "published") ||
       unattachedPolicyOf(attempt.request).landing === "auto-land")
   );
 }

@@ -7,23 +7,7 @@ import {
   severalLaunchesOpen,
 } from "./resolve-publication-landing-context.mjs";
 import { sessionRecordPath } from "./sealed-session-record.mjs";
-import {
-  parseSharedCheckoutNote,
-  sharedCheckoutNoteOnReadFailure,
-  sharedCheckoutNotePathBeside,
-} from "./shared-checkout-note.mjs";
-
-// The Dashboard's shared-checkout note beside the landing context, if any; a
-// note that exists but cannot be read is overlap of unknown start.
-async function sharedCheckoutNote(landingContext) {
-  try {
-    return parseSharedCheckoutNote(
-      await readFile(sharedCheckoutNotePathBeside(landingContext), "utf8"),
-    );
-  } catch (error) {
-    return sharedCheckoutNoteOnReadFailure(error);
-  }
-}
+import { readSharedCheckoutNote } from "./read-shared-checkout-note.mjs";
 
 async function namedSession(retained, landingContext, checkout) {
   if (landingContext) {
@@ -31,7 +15,7 @@ async function namedSession(retained, landingContext, checkout) {
     return {
       sessionId: launch.reference,
       story: launch.identity,
-      sharedCheckout: await sharedCheckoutNote(landingContext),
+      sharedCheckout: await readSharedCheckoutNote(landingContext),
     };
   }
   if (retained || (await severalLaunchesOpen(checkout))) return {};

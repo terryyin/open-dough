@@ -4,6 +4,7 @@ import {
   policyOf,
   unattachedPolicyOf,
   type AgentLaunchRequest,
+  type EstablishedSession,
   type ExistingChangesFound,
   type LaunchRecord,
   type LaunchResult,
@@ -11,6 +12,7 @@ import {
   type SessionPolicy,
 } from "../src/agentLaunch.ts";
 import type { BaseCiFound } from "../src/baseCiConfirmation.ts";
+import type { AdmittedClaimCheckout } from "../src/launchLanding.ts";
 import { existingChanges } from "./executionCheckoutChanges.ts";
 import { baseCiFound, judgeBranchCi } from "./baseCiJudgment.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -61,6 +63,8 @@ export type Started =
       readonly kind: "session";
       readonly storyTitle?: string;
       readonly publication: PublicationReceipt;
+      readonly admission?: AdmittedClaimCheckout;
+      readonly nativeCheckout?: EstablishedSession;
     } & EstablishedLaunch<UnattachedEstablished>)
   | {
       readonly kind: "stopped";

@@ -38,24 +38,36 @@ export function beginNativeSession(workspace, { story, workflow } = {}) {
   );
 }
 
+// Adopt already verified ranges from a borrowed native checkout.
+export function retainAdmittedSession(workspace, { sessionId, story, ranges }) {
+  return writeSessionEvidence(workspace, {
+    ...freshSession(sessionId, story),
+    ranges,
+  });
+}
+
 /**
  * Appends one accepted increment's exact pair. `reference` is the Dashboard
  * launch's landing-context reference when this publication carried one.
  * @param {string} workspace
- * @param {{ base: string, candidate: string, reference?: string }} accepted
+ * @param {{ base: string, candidate: string, reference?: string, story?: string, uncertainty?: string }} accepted
  */
 export function recordAcceptedIncrement(
   workspace,
-  { base, candidate, reference },
+  { base, candidate, reference, story, uncertainty },
 ) {
   const kept = readSessionEvidence(workspace);
   const evidence =
     reference && kept?.sessionId !== reference
-      ? freshSession(reference, kept?.story)
+      ? freshSession(reference, story ?? kept?.story)
       : (kept ?? freshSession(randomUUID()));
   const last = evidence.ranges.at(-1);
   if (last?.base !== base || last?.candidate !== candidate)
-    evidence.ranges.push({ base, candidate });
+    evidence.ranges.push({
+      base,
+      candidate,
+      ...(uncertainty && { uncertainty }),
+    });
   return writeSessionEvidence(workspace, evidence);
 }
 

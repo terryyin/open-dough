@@ -44,7 +44,7 @@ test("shared reporting instruction preserves host input grammar and truly blank 
   });
 });
 
-test("Claude native blank launch gains no reporting instruction despite an installed channel", async () => {
+test("Claude native blank launch gains no first input while its admitted claim keeps reporting context", async () => {
   const origin = await startOrigin(queuedReadyRepository().please());
   const server = await startDashboardServer({
     mode: "boundary",
@@ -70,7 +70,7 @@ test("Claude native blank launch gains no reporting instruction despite an insta
     expect(started).toBeDefined();
     expect(started).not.toHaveProperty("instruction");
     const [record] = (await recordsOf(server, "open-dough")) as LaunchRecord[];
-    expect(record?.request.reporting).toBeUndefined();
+    expect(record?.request.reporting?.landingContext).toBeDefined();
   } finally {
     await server.close();
     origin.cleanup();

@@ -17,7 +17,8 @@ their respective stories.
 
 This plan continues plan 813 of
 SEED-432#finish-story-linked-ad-hoc-sessions after the developer split it at
-its delivered slice 3 boundary. Slices 1–7 here were slices 4–10 there. The
+its delivered slice 3 boundary. The original seven slices here were slices
+4–10 there. The
 original's overrun history carries forward. Its slice 3 overran at 15 active
 minutes, and its fixture migration became
 [SEED-433](../../seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#run-dashboard-launch-tests-on-an-installed-project).
@@ -54,12 +55,12 @@ minutes, and its fixture migration became
   Reuse the installed bare-origin and native protocol seams, mount Start and
   review cues on Vitest, and keep real multi-boundary journeys in E2E.
 - Use Story Branch Mode so the production watcher can stay on compatible code
-  until the final cutover. Slice 7 defines the production checkpoint and
+  until the final cutover. Slice 8 defines the production checkpoint and
   retained landing. Preparation is limited to this plan and its evidence.
 - Wrapping up SEED-432 lands its isolated admission on trunk and in
   production ahead of this story. Its default, scheduled and follow-up
   starts stay standalone until this story's slices 1–3, and slice 6 retires
-  them before the slice 7 switch.
+  them before the slice 8 switch.
 
 ## Execution context
 
@@ -88,8 +89,8 @@ minutes, and its fixture migration became
 | Launch consumers run on an installed project | SEED-433 (plan 816), integrated at `672fc3210`, gives every fixture-created catalog project both installed host layouts and a matching bare origin. Its E2E gate passed 779 cases and its backend gate passed 1,984. | Slice 1 updates only story-dependent expectations. |
 | Default-choice admission production rule | Plan 813's first slice 3 attempt (`slice-3-attempts/attempt-1.patch` in the private evidence below) made every non-follow-up ad hoc launch admit its story. It published the claim from an owned claim checkout under `admission-worktrees`, kept the borrowed checkout's HEAD and branch, and ran the Codex and Cursor refusals before admission. With it, duplicate-launch backend cases passed 13 of 13 and Cursor E2E passed. The problems E2E failed only because the terminal panel stayed closed after a resumed Start. | Re-apply on current interfaces in slice 1. The start-command helpers now live in `executionStartCommands.ts`. |
 | Declared story-linked Land reaches a guard that needs repair | The v0.3.113 production case reproduced prepare at `c80f0559a` with a 409, `This is not the session's authorized branch landing.` `decideRetainedLanding` returned the same 409 from the archived record, and plan 813's slice 1 reproduced it again. Git retains `fe21e4639..0bdef6cb2`. | Slice 4 proves the supported open shape through the installed publisher with a real bare origin. A historical closed context stays archived. |
-| Production inventory and cutover inputs | Plan 813 slice 1 observed this at `2b0356a1e` (`slice-1/REPORT.md`):<br>- The deployed reader at `4283cb8d4` parsed a stable copy: 1,659 launch rows and 1,674 attempts.<br>- Seven records were open. Six were linked and stay open. One live Claude session without a story field continues as verified unbound.<br>- The Cursor timeout and the `bb509114` context are archived. The Lizard record stays closed and unlinked.<br>- Writers are the unmanaged watcher process and the Cursor and Claude launchd agents. A disposable-home tar rollback restored an identical tree. | Slice 7 repeats the inventory against a fresh copy and the candidate reader. Its owner performs the live writer hold and chooses how to restart the watcher. |
-| Legacy frontend removal and size comparison | At `c9b0f149a`, the legacy runner selected ten standalone cases across six specs. The private `baseline-counts-matched.log` at `46dd56241` records 52,374 Distribution lines (13,946 Markdown), 131,034 Dashboard source lines and 5,960 executable cases. | Slice 6 verifies zero standalone cases. Slice 7 compares like-for-like totals against its actual execution base. |
+| Production inventory and cutover inputs | Plan 813 slice 1 observed this at `2b0356a1e` (`slice-1/REPORT.md`):<br>- The deployed reader at `4283cb8d4` parsed a stable copy: 1,659 launch rows and 1,674 attempts.<br>- Seven records were open. Six were linked and stay open. One live Claude session without a story field continues as verified unbound.<br>- The Cursor timeout and the `bb509114` context are archived. The Lizard record stays closed and unlinked.<br>- Writers are the unmanaged watcher process and the Cursor and Claude launchd agents. A disposable-home tar rollback restored an identical tree. | Slice 8 repeats the inventory against a fresh copy and the candidate reader. Its owner performs the live writer hold and chooses how to restart the watcher. |
+| Legacy frontend removal and size comparison | At `c9b0f149a`, the legacy runner selected ten standalone cases across six specs. The private `baseline-counts-matched.log` at `46dd56241` records 52,374 Distribution lines (13,946 Markdown), 131,034 Dashboard source lines and 5,960 executable cases. | Slice 6 verifies zero standalone cases. Slice 8 compares like-for-like totals against its actual execution base. |
 
 Private evidence lives under the common Git directory:
 - `open-dough/evidence/SEED-439-complete-story-linked-ad-hoc-sessions`, holding plan 813's `slice-1`, `slice-2` and `slice-3-attempts` records;
@@ -251,7 +252,7 @@ Git evidence directory.
 
 ### 5. Return to completed ad hoc work in ordinary review
 Type: Behavior
-Status: planned
+Status: done
 Proof: Complete admitted work via the installed workflow, then read its
 story and exact session ranges in Recently done and Intent in a second clone
 with empty launch storage.
@@ -264,12 +265,15 @@ checkout remains available with its existing work. Add this admitted producer
 to the `recently-done-published-sessions` journey or reuse its fresh-reader
 observations where the input and endpoint contract match.
 
-Check how an invoked ordinary workflow can receive the retained landing
-selection after a blank borrowed Start. Slice 4 established discovery of the
-bound capture context once publication begins. The native startup has no
-first input, and the installed policy still comes from an explicit workflow
-choice or an Established session handoff. Verify the end-to-end policy
-handoff and preserve exact launch authorization if the workflow needs it.
+Accepted proof: Installed native publication and ordinary wrap-up produced
+the exact accepted native and closure ranges, including for no-change work.
+The owned claim retired and the borrowed checkout's HEAD, index and worktree
+were preserved, even when requested as the refresh checkout through a symlink.
+A second clone with empty launch storage read the Done story, both ranges
+and the original Intent completion after unrelated trunk advancement. The
+installed operation requires the original native evidence and stops before
+retirement if another launch displaced it. See `SLICE-5-REPORT.md` and
+`slice-5-consumer-dispositions.md` in the worktree's Git evidence directory.
 
 ### 6. Retire standalone startup, completion and review
 Type: Behavior
@@ -291,7 +295,31 @@ their durable published evidence readable by the common story path. Keep
 any interim standalone callers from slices 1–5 out of production until this
 slice and the cutover have passed.
 
-### 7. Switch production to the reconciled story-linked store
+### 7. Carry the landing selection into the workflow after blank Start
+Type: Behavior
+Status: planned
+Proof: The approved blank Start and invoked workflow behavior is observed at
+the native input and installed publication boundaries. The selected launch
+alone supplies any inherited landing authorization.
+
+The completion and review proof in slice 5 is independent of the policy
+delivery path. Slice 4 proved exact capture context discovery once publication
+starts. The installed workflow currently learns policy from explicit options
+or the Established session handoff, and blank native startup carries no such
+handoff. The developer needs to decide whether to preserve both behaviors with
+a session-bound handoff, require explicit policy on workflow invocation, or
+restore generated startup input for Automatically land. Before implementing,
+record that decision and its proof. A checkout-level capture pointer cannot
+authorize another caller in the same checkout. The production switch depends
+on settling this behavior.
+
+Use the same verified launch identity to test one borrowed checkout reused
+by a later independent launch before the earlier claim closes. Verify that
+each launch's accepted comparison remains recoverable through ordinary
+completion with no second push and no inferred range. Preserve the earlier
+claim when evidence is unavailable.
+
+### 8. Switch production to the reconciled story-linked store
 Type: Behavior
 Status: planned
 Proof: The production candidate reads a complete migrated private copy and
@@ -355,7 +383,7 @@ through slice 5, and slice 6 removes them before the production switch.
 ### G1. Live migration evidence needs disposition (first reported in plan 813 slice 1)
 Reported: slice 1 — "SEED-426 observed an open standalone Claude launch, a Cursor timeout without conclusive native binding, and one Lizard review with unavailable completion history."
 Story clause: "Switch production startup, completion and review together."
-Disposition: receiving slice 7
+Disposition: receiving slice 8
 
 ### G2. Default launch compatibility must be verified (first reported in plan 813 slice 2)
 Reported: slice 1 — "SEED-426 found nine duplicate-launch backend failures and eight browser problems, Codex or Cursor failures on the unpublished default route."
@@ -370,7 +398,7 @@ Disposition: proved by slice 4: the installed publisher reaches prepare and capt
 ### G4. Borrowed default claims need an ordinary closure path (first reported in plan 813 slice 2)
 Reported: slice 1 — "The unpublished default admission uses a separate owned claim worktree and leaves the borrowed session checkout intact."
 Story clause: "Ordinary completion and review use the story's membership and published session records."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: `admitted-session-completion.spec.ts` lands native work and closes the separate claim through installed operations, then reads both ranges from a second clone; the admitted no-change backend cases prove normal closure with unchanged borrowed checkout and the quiet receipt.
 
 ### G5. Blank automatic-landing Start uses its existing native handoff
 Reported: slice 1 — "A borrowed Automatically land Start with no developer text opens the terminal after submitting its generated established-session block, reporting context and Taken story binding as native first input."
@@ -380,4 +408,9 @@ Disposition: proved by slice 4: `agent-launch-start-session-landing.spec.ts` obs
 ### G6. The ordinary workflow needs the retained landing selection after blank Start
 Reported: slice 4 — "The Dashboard retains Automatically land after a blank borrowed Start, and the installed publisher discovers its capture context once invoked. The invoked workflow currently learns landing policy from explicit options or the native Established session handoff, which blank Start does not supply."
 Story clause: "Preserve native access and writer checks, the chosen checkout and landing policy, and the original first input."
-Disposition: receiving slice 5
+Disposition: receiving slice 7
+
+### G7. Retain each borrowed launch's evidence until its claim closes
+Reported: slice 5 — "Another accepted launch on the same checkout can replace the native worktree's session evidence. If the original launch landed and that exact evidence is absent during adoption, closure stops and keeps its claim checkout."
+Story clause: "Each published session keeps its own accepted comparison and supports reporting recovery without another push."
+Disposition: receiving slice 7

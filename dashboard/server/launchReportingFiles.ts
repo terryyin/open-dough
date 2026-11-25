@@ -48,7 +48,7 @@ export async function writeLandingContext(
     readonly host: AgentLaunchRequest["host"];
     readonly reference: string;
   },
-  { identity, remote, target }: LandingRepository,
+  { identity, remote, target, workspace, admission }: LandingRepository,
 ): Promise<string> {
   const landingContext = path.join(directory, "landing-context.json");
   await writeFile(
@@ -56,5 +56,20 @@ export async function writeLandingContext(
     `${JSON.stringify({ ...context, identity, remote, target }, null, 2)}\n`,
     { mode: 0o600 },
   );
+  if (admission !== undefined) {
+    const claim = {
+      ...context,
+      identity,
+      remote,
+      target,
+      nativeWorkspace: workspace,
+      admission,
+    };
+    await writeFile(
+      path.join(directory, "admitted-claim.json"),
+      `${JSON.stringify(claim, null, 2)}\n`,
+      { mode: 0o600 },
+    );
+  }
   return landingContext;
 }

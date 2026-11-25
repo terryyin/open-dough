@@ -6,7 +6,10 @@ import { defaultGitOutputLimit } from "./gitRunner.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { type LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import type { ReportingContext } from "../src/launchRequest.ts";
-import type { LandingRepository } from "../src/launchLanding.ts";
+import type {
+  AdmittedClaimCheckout,
+  LandingRepository,
+} from "../src/launchLanding.ts";
 import { landingStoryOfAttempt } from "./launchLandingRecord.ts";
 import { installedExports } from "./startLaunch.ts";
 import type { LocalFolder } from "./localFolder.ts";
@@ -38,6 +41,7 @@ export async function reportingContext(
   attempt: LaunchAttemptRecord,
   folder: LocalFolder,
   established?: EstablishedContext | EstablishedSession,
+  admission?: AdmittedClaimCheckout,
 ): Promise<PreparedReporting | undefined> {
   if (!preparesReporting(attempt)) return undefined;
   const files = await copyReportingFiles(
@@ -62,6 +66,7 @@ export async function reportingContext(
       workspace: established.workspace,
       branch: established.branch,
       ...(identity === undefined ? {} : { identity }),
+      ...(admission === undefined ? {} : { admission }),
       remote: established.remote,
       target: `refs/heads/${established.target}`,
     };
