@@ -30,6 +30,7 @@
   align-items: center;
   gap: var(--space-1);
   min-width: 0;
+  font-size: var(--text-sm);
 }
 
 .intent-comparison-bar > p {
@@ -38,6 +39,18 @@
 
 .intent-comparison-bar-name {
   font-weight: var(--weight-strong);
+}
+
+/* The recorded agent, its portrait at the summary's line height so the bar
+   stays one compact row. */
+.intent-comparison-bar-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.intent-comparison-bar-agent > .agent-portrait {
+  --portrait-size: 1.5rem;
 }
 
 /* Each choice keeps one line; a long landed-run label ends in an ellipsis,

@@ -6,17 +6,26 @@
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { controlsFit, fileLayout } from "./intent-file-layout-page.ts";
+import {
+  controlsFit,
+  expectOneRow,
+  fileLayout,
+} from "./intent-file-layout-page.ts";
 import {
   activateComparisonControl,
   intentStoryCompare,
 } from "./intent-story-compare-page.ts";
 import {
-  doneCompletion,
   openDoneStoryComparison,
   openStoryAComparison,
   publishedCompletion,
 } from "./intent-story-compare-stories.ts";
+import {
+  landedRun as run,
+  landedRunLaunched as launched,
+  oid,
+  openWithLandedRun,
+} from "./intent-story-landed-run-stories.ts";
 
 const branchReview = (...paths: string[]) =>
   paths
@@ -139,41 +148,6 @@ test("a failed read reports the failure with Retry in the summary", async () => 
     .toContain("Published completion — 1 changed file");
 });
 
-const oid = (digit: string) => digit.repeat(40);
-const run = makeMe.aReviewRun
-  .keyed("captured-landing")
-  .launchedAt("2026-11-01T01:00:00Z")
-  .comparing(oid("1"), oid("2"))
-  .please();
-const launched = new Date(run.launchedAt ?? "").toLocaleString();
-
-// A Done story whose published completion can include merged changes and
-// whose captured landed run cannot.
-const openWithLandedRun = () =>
-  openDoneStoryComparison({
-    review: (query) =>
-      Promise.resolve(
-        query.run === run.key
-          ? makeMe.aStoryReview
-              .landed()
-              .adding("landed.txt")
-              .onRun(run)
-              .please()
-          : {
-              ...makeMe.aStoryReview
-                .published(doneCompletion)
-                .adding("branch.ts")
-                .please({
-                  from: oid("8"),
-                  changes: makeMe.aStoryReview
-                    .adding("branch.ts")
-                    .adding("incoming.ts"),
-                }),
-              runs: [run],
-            },
-      ),
-  });
-
 test("the files toggle, the comparison choice, Include merged changes and the summary share one row under the title and views, directly above the files, that wraps without overflow when narrow", async () => {
   await openWithLandedRun();
   await page.viewport(1280, 800);
@@ -187,13 +161,8 @@ test("the files toggle, the comparison choice, Include merged changes and the su
     story.includeMerged,
     story.summary,
   ];
-  const boxes = row.map((control) => control.element().getBoundingClientRect());
+  const boxes = expectOneRow(...row);
 
-  expect(Math.max(...boxes.map((box) => box.top))).toBeLessThan(
-    Math.min(...boxes.map((box) => box.bottom)),
-  );
-  const lefts = boxes.map((box) => box.left);
-  expect(lefts).toEqual([...lefts].sort((a, b) => a - b));
   const title = story.header.element().querySelector("h2");
   expect(boxes[0]?.top).toBeGreaterThanOrEqual(
     title?.getBoundingClientRect().bottom ?? Infinity,

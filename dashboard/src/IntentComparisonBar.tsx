@@ -1,6 +1,7 @@
 // The selected story's comparison bar under its title: what `leading` holds
 // (the files toggle and the comparison choice), then a one-line summary
-// naming the active comparison, or its reading, unavailable or failed state
+// naming the active comparison and its recorded agent, with that agent's
+// portrait when the rotation knows it, or its reading, unavailable or failed state
 // with Retry, beside the eye that reveals the comparison details. The details
 // reuse Review changes' disclosure (`./StoryReviewDetailsSection.tsx`): they
 // start collapsed for each story, stay open across a new read, and hold
@@ -8,6 +9,7 @@
 
 import { useId, type ReactNode } from "react";
 import { RefreshCw } from "lucide-react";
+import { RecordedAgent } from "./AgentPortrait.tsx";
 import { IconButton } from "./Icon.tsx";
 import { comparisonName } from "./StoryReviewComparison.tsx";
 import {
@@ -39,6 +41,24 @@ export function comparisonSummaryName(
         );
   const count = comparison.shown.comparison.files.length;
   return `${name} — ${count} changed file${count === 1 ? "" : "s"}`;
+}
+
+// The agent a published comparison records, its portrait beside its name;
+// a landed run records none.
+function ComparisonAgent({
+  comparison,
+}: {
+  readonly comparison: Extract<LensComparison, { state: "compared" }>;
+}) {
+  const { review } = comparison;
+  if (review?.kind !== "published" && review?.kind !== "published-taken")
+    return null;
+  return (
+    <RecordedAgent
+      agent={review.agent}
+      className="intent-comparison-bar-agent"
+    />
+  );
 }
 
 function RefreshComparison({ compare }: { readonly compare: StoryCompare }) {
@@ -76,9 +96,12 @@ export function IntentComparisonBar({
           aria-label="Comparison summary"
         >
           {named && (
-            <span className="intent-comparison-bar-name">
-              {comparisonSummaryName(comparison)}
-            </span>
+            <>
+              <span className="intent-comparison-bar-name">
+                {comparisonSummaryName(comparison)}
+              </span>
+              <ComparisonAgent comparison={comparison} />
+            </>
           )}
           <CompactComparisonState
             comparison={comparison}

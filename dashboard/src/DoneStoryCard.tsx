@@ -24,8 +24,7 @@
 import { useId, type ReactNode } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
-import { agentNameOf } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { AgentPortrait } from "./AgentPortrait.tsx";
+import { RecordedAgent } from "./AgentPortrait.tsx";
 import { RecordedHost } from "./AssignmentRecords.tsx";
 import type { DoneStory } from "./doneRecord.ts";
 import { HumanName } from "./HumanCredit.tsx";
@@ -37,16 +36,6 @@ import { StoryNotes } from "./StoryNotesControl.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import "./agent-assignment.css";
 import "./agent-launch.css";
-
-function DoneAgent({ agent }: { agent: string }) {
-  const name = agentNameOf(agent);
-  return (
-    <span className="owner-fact owner-agent">
-      {name !== undefined && <AgentPortrait name={name} />}
-      {agent}
-    </span>
-  );
-}
 
 export function DoneStoryCard({
   identity,
@@ -91,7 +80,14 @@ export function DoneStoryCard({
   const facts = [
     ...(agent === undefined
       ? []
-      : [{ key: "agent", fact: <DoneAgent agent={agent} /> }]),
+      : [
+          {
+            key: "agent",
+            fact: (
+              <RecordedAgent agent={agent} className="owner-fact owner-agent" />
+            ),
+          },
+        ]),
     ...(developer === undefined
       ? []
       : [{ key: "developer", fact: <HumanName name={developer} /> }]),

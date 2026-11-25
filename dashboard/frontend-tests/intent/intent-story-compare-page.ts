@@ -192,6 +192,12 @@ export function intentStoryCompare() {
         .map(textOf)
         .join(" ")
         .trim(),
+    // The words the summary's agent portrait sits beside, or undefined
+    // while the summary shows no portrait.
+    summaryPortraitBeside: () => {
+      const portrait = summary.query()?.querySelector(".agent-portrait");
+      return portrait ? textOf(portrait.parentElement).trim() : undefined;
+    },
     refreshButton,
     refresh: async () => {
       await openDetails();

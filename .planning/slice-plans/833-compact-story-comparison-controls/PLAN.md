@@ -139,7 +139,7 @@ passed when rerun alone, and branch CI decides them.
 ### 3. Recognize the recorded agent in the summary
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `intent-story-comparison-summary.spec.ts`. A published
 comparison by a rotation agent shows that agent's portrait beside the
 attribution in the summary. A landed run, or an agent outside the roster,
@@ -149,6 +149,12 @@ folder. Budget 10 active minutes.
 Behavior: A published comparison with a known agent is open. The summary
 shows the agent's portrait beside the attribution. A comparison without a
 known agent shows the attribution alone. Seed examples 1 (portrait) and 4.
+
+Accepted: `intent-story-comparison-agent.spec.ts` proves the portrait
+beside a rotation agent, no portrait for a landed run or an agent outside
+the roster, and one row at 1280 px with the portrait and a landed run
+offered. The row fits with about 21 px to spare after a smaller summary
+text and a 1.5rem portrait; a longer agent name or run label may wrap it.
 
 ## Story obligations
 
