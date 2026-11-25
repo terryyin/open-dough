@@ -173,35 +173,3 @@ test("closing aborts a held delivery without changing the last successful availa
     .toBe(false);
   expect(alerts.availability()).toEqual({ available: true });
 });
-
-test("all leading characters use the native-proven literal text encoding", async ({
-  helper,
-}) => {
-  const alerts = helper.start(() => "http://127.0.0.1:49175");
-  await expect.poll(() => alerts.availability()).toEqual({ available: true });
-  await helper.further();
-  const texts = [
-    "[bracket]",
-    "(parenthesis)",
-    "{brace}",
-    '"quoted"',
-    "\\backslash",
-    "-leading-dash",
-    "'single-quote'",
-    "normal text",
-  ];
-  for (const [index, text] of texts.entries()) {
-    helper.state("working", text);
-    await helper.further();
-    helper.state("waiting", text, text);
-    await expect
-      .poll(() => helper.native.notifierCalls().length)
-      .toBe(index + 1);
-    const argv = helper.native.notifierCalls().at(-1)?.argv;
-    expect(argv?.[1]).toBe(`\\${text} · ${launchRequest.title}`);
-    expect(argv?.[3]).toBe(`\\Needs input: ${text}`);
-    expect(notificationActivation(argv ?? []).destination).toBe(
-      `http://127.0.0.1:49175/?${new URLSearchParams({ project: text, story: launchRequest.identity })}`,
-    );
-  }
-});

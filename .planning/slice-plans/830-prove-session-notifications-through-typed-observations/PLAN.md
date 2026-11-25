@@ -102,7 +102,7 @@ composed records and delivery observations.
 ### 4. Send literal content to the correct destination
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 6–9 active minutes.
 
 Given a quoted title, a backslash or a leading character, the helper
@@ -231,6 +231,18 @@ baseline.
   test-support and is retained for later snapshot cases.
 - Slice 3: skipped fresh refactor — subject-spec-only rewrite; same
   local observe harness; no production change.
+- Slice 4: skipped fresh refactor — subject-spec rewrite plus encoding
+  case removal from the helper Playwright file; no production change.
+  Ad hoc project-only destination surviving owner remains
+  `session-alerts-delivery.spec.ts`.
+
+### Slice 4 accepted proof
+
+- Vitest `session-alerts-delivery.spec.ts` — literal title/message and
+  story URL; encoding via real `sendTerminalNotification` + synthetic
+  executable; ad hoc project-only destination
+  (`slice4-vitest-delivery.log.run.json`). Remaining helper Playwright
+  cases still pass (`slice4-helper-remaining-proof.json`).
 
 ## Verification and delivery
 
