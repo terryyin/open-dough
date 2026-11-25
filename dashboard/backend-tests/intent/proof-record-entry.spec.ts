@@ -1,4 +1,7 @@
-import { expect, test } from "../../test-support/support/pageTest.ts";
+// Opt-in through the backend runner's normal npm command and a direct
+// Playwright config from another working directory. Nest target is the
+// backend group's quick Playwright case (QuietReporter moved to Vitest).
+import { afterAll, expect, test } from "vitest";
 import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
@@ -10,7 +13,11 @@ import {
   splitExcluding,
 } from "../../test-support/support/proofRecordRun.ts";
 
-test.afterAll(removeProofDirectories);
+afterAll(removeProofDirectories);
+
+const nestedSpec = "launches/agent-launch-options-rules.spec.ts";
+const nestedTitle = "accepts a definition with or without groups and focuses";
+const nestedTarget = path.join(repoRoot, "dashboard/backend-tests", nestedSpec);
 
 for (const entry of [
   "normal npm",
@@ -19,12 +26,7 @@ for (const entry of [
   test(`${entry} opts in through normal config and attributes nested runs to their outer invocation`, async () => {
     const directory = proofDirectory();
     const recordPath = path.join(directory, "outer-proof.json");
-    const selection = [
-      "quiet-reporter.spec.ts",
-      "--grep",
-      "a passing run prints nothing and succeeds",
-      "--workers=1",
-    ];
+    const selection = [nestedSpec, "--grep", nestedTitle, "--workers=1"];
     const direct = entry !== "normal npm";
     const args = direct
       ? [
@@ -40,10 +42,6 @@ for (const entry of [
     // Exercise that inherited condition even when this spec runs locally.
     const splitVariable = "OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT";
     const inheritedSplit = process.env[splitVariable];
-    const nestedTarget = path.join(
-      repoRoot,
-      "dashboard/backend-tests/runtime/quiet-reporter.spec.ts",
-    );
     const excludingSplit = splitExcluding(nestedTarget, {
       directory: "dashboard",
       root: "backend-tests",
@@ -86,20 +84,13 @@ for (const entry of [
     });
     expect(record.tests[0]).toMatchObject({
       project: "chromium",
-      location: {
-        file: path.join(
-          repoRoot,
-          "dashboard/backend-tests/runtime/quiet-reporter.spec.ts",
-        ),
-      },
+      location: { file: nestedTarget },
       attempts: [{ status: "passed" }],
     });
-    expect(record.tests[0]?.titlePath.at(-1)).toBe(
-      "a passing run prints nothing and succeeds",
-    );
+    expect(record.tests[0]?.titlePath.at(-1)).toBe(nestedTitle);
     expect(record.run.outputDirs.every((dir) => !existsSync(dir))).toBe(true);
-    // The outer selected spec ran an inner passing fixture under a custom
-    // config while inheriting the outer path. Its selection never replaced it.
+    // Fixture paths from other nested proof helpers must not replace this
+    // runner's selected outer invocation.
     expect(
       record.tests.some((selected) =>
         selected.location.file.endsWith("passing.proof.ts"),

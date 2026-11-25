@@ -257,7 +257,7 @@ disposition: skipped — subject spec only; 220 lines; production untouched.
 ### 5. Runner entry and interruption keep their nested proof on Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `proof-record-entry.spec.ts` and `proof-record-interruption.spec.ts`
 run on Node Vitest. The two entry cases and the graceful-interruption and
 forced-kill cases keep their nested runs, each within the default timeout.
@@ -278,6 +278,20 @@ leaves a readable snapshot with finished work kept apart from unfinished
 work.
 
 Estimated active work 12–15 minutes.
+
+Accepted proof: subject specs 8/8; remaining proofRecordRun callers 31/31;
+seven-file cohort 32/32 in 10.62s (25 directs under 100ms; nested entry
+~2.2–2.4s, graceful 875ms, kill 453ms, quiet nested 1.0s, deadline direct
+22ms) under load ~8–17 with `--workers=1`
+(`slice5-seven-file-cohort2.log.run.json`, `slice5-remaining-callers2`).
+`waitForProofState` moved into interruption on `expect.poll` (5s bound);
+export removed from `proofRecordRun.ts`. Deleted unused fixtures
+`hookReporter.ts`, `outputDirectorySetup.ts`, `record-write-failure.proof.ts`
+after path consumer confirmation. Entry nest target is now the backend quick
+Playwright case (`agent-launch-options-rules`) because `quiet-reporter` is
+Vitest-only — still proves normal npm and direct-config opt-in attribution.
+Refactor disposition: skipped — subject specs + support cleanup + orphan
+fixture deletes; files ≤250; no production QuietReporter edit.
 
 ## Concern evidence
 
