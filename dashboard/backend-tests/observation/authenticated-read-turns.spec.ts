@@ -43,6 +43,7 @@ import {
   turns,
   underWay,
 } from "../../test-support/support/turnReads.ts";
+import { gatewayTimeout } from "./revisionCheckBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -134,21 +135,27 @@ test("a request still waiting its turn at its bound is answered as timed out, an
   await onServerOfItsOwn(
     async (server) => {
       const revision = revisionOf("8c");
-      const opened = revisionOf("8d");
+      const nextRevision = revisionOf("8d");
       const isHeld = (request: GhRequest) =>
-        request.kind === "ref" || isSeed(request);
-      const published = publishedAt(opened);
+        request.kind === "matching-refs" || isSeed(request);
+      const published = publishedAt(nextRevision);
       server.github.serve(everyRepository, published);
       expect((await readAt(server, `&revision=${revision}`)).status).toBe(200);
-      const held = heldInTurn(published, isHeld);
+      const held = heldInTurn(
+        (call) =>
+          call.request.kind === "matching-refs"
+            ? Promise.resolve(gatewayTimeout)
+            : published(call),
+        isHeld,
+      );
       server.github.serve(everyRepository, held.answer);
       const before = server.github.calls.length;
 
-      // Opening the project resolves its ref, held, then reads its backlog
-      // at the revision found: by then every turn is taken by a read that
-      // began after this request, so none ends at its own bound first.
+      // The scheduled listing fails after the pinned requests take the
+      // remaining turns. The last pinned request gets the listing's turn
+      // before the configured-ref fallback can ask GitHub.
       let settled = false;
-      const opening = readAt(server, "").finally(() => {
+      const checking = readAt(server, `&since=${revision}`).finally(() => {
         settled = true;
       });
       await arrived(server, before, 1);
@@ -161,15 +168,16 @@ test("a request still waiting its turn at its bound is answered as timed out, an
       await arrived(server, before, turns + 1);
       expect(settled).toBe(false);
 
-      const answer = await opening;
+      const answer = await checking;
       expect(answer.status).toBe(502);
       expect(answer.body).toContain(
         "The local GitHub CLI did not answer within 6 seconds",
       );
-      expect(askedSince(server, before)).not.toContain(
-        `content .planning/PRODUCT-BACKLOG.md@${opened}`,
+      const [listing, ...details] = askedSince(server, before);
+      expect(listing).toBe("matching-refs");
+      expect(details.sort()).toEqual(
+        asked(revision, seedPaths.slice(0, turns)).sort(),
       );
-      expect(askedSince(server, before)[0]).toBe("ref main");
       held.releaseAll();
       await Promise.all(taking);
     },

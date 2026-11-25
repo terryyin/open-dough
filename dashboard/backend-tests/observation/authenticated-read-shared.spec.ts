@@ -165,6 +165,7 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
   test("reads differing in repository, revision, path, or kind are asked separately and answered for their own question", async () => {
     const revision = revisionOf("5e");
     const otherRevision = revisionOf("5f");
+    const check = `&since=${revision}`;
     const holding = await servedHolding(server, revision, () => true, [
       `&revision=${revision}`,
     ]);
@@ -172,8 +173,8 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
       server,
       holding,
       [
-        "",
-        { source: "pygardon", query: "" },
+        check,
+        { source: "pygardon", query: check },
         `&revision=${otherRevision}`,
         sharedSeedRead(revision),
         `&revision=${revision}&path=${encodeURIComponent(otherSeedPath)}`,
@@ -183,6 +184,9 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
     );
     expect(statuses(answers)).toEqual([200, 200, 200, 200, 200, 200]);
     const bodies = answers.map(({ body }) => JSON.parse(body) as unknown);
+    for (const check of bodies.slice(0, 2)) {
+      expect(check).toEqual({ revision, changed: false, branches: [] });
+    }
     expect(bodies[2]).toMatchObject({ revision: otherRevision });
     expect(bodies[3]).toMatchObject({ text: sharedSeedText });
     expect(bodies[4]).toMatchObject({ text: otherSeedText });
@@ -192,9 +196,8 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
     const ours = (asked: string) => `terryyin/open-dough ${asked}`;
     expect(askedSince(server, holding.before, true).sort()).toEqual(
       [
-        ours("ref main"),
-        "terryyin/pygardon ref main",
-        `terryyin/pygardon content .planning/PRODUCT-BACKLOG.md@${revision}`,
+        ours("matching-refs"),
+        "terryyin/pygardon matching-refs",
         ours(`content .planning/PRODUCT-BACKLOG.md@${otherRevision}`),
         ours(`content ${sharedSeedPath}@${revision}`),
         ours(`content ${otherSeedPath}@${revision}`),

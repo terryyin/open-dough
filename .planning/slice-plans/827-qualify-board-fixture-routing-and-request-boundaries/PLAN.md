@@ -282,7 +282,7 @@ rechecked the two budget cases and typecheck.
 ### 7. Drive waits and sharing through scheduled and detail reads
 
 Type: Behavior
-Status: planned
+Status: done
 
 Run the cooldown matrix against an explicit `since` read and a held
 `matching-refs` listing, plus explicit pinned detail requests. Keep the
@@ -295,6 +295,23 @@ ref. Hold the listing until the remaining turns are taken, fail it, and
 observe that the fallback times out without reaching GitHub.
 Keep pure REST membership dispatch assertions in the cutover disposition.
 Run the existing cooldown, shared-read, turns, and resumption checks.
+
+The cooldown matrix exercises scheduled checks and pinned details for both
+projects. Plain `since` lets the case hold and release the listing directly
+while the watched case retains its admission inputs. Sharing uses one
+listing per repository for independent requests and one shared listing for
+compatible requests. The saturated check observes the failed scheduled
+listing and all eight pinned upstream reads, returns the six-second HTTP
+502, and records no fallback ref call. The three subject specs already use
+the common held-answer and request-recording fixtures.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-{cooldown,cooldown-reach,shared,shared-failures,shared-listing,shared-listing-failures,shared-waiters,turns,turns-timing,resumption,wait-in-turn,directed-wait}.spec.ts --workers=1 --reporter=dot
+npm run typecheck:dashboard
+```
+
+All 42 selected backend tests and Dashboard typecheck passed. The shared
+Board-open REST dispatch proof stays with the cutover in plan 828.
 
 ### 8. Qualify both suites and retire the diagnostic
 
