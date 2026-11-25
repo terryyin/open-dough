@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Complete story-linked ad hoc sessions in the Dashboard](seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions) — SEED-439#complete-story-linked-ad-hoc-sessions ([plan](slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md))
 - [Read and change the story comparison from one control bar](seeds/SEED-420-unified-intent-review.md#compact-story-comparison-controls) — SEED-420#compact-story-comparison-controls ([plan](slice-plans/833-compact-story-comparison-controls/PLAN.md))
 - [Put comparison follow-up beside story notes](seeds/SEED-420-unified-intent-review.md#put-comparison-follow-up-by-story-notes) — SEED-420#put-comparison-follow-up-by-story-notes ([plan](slice-plans/837-put-comparison-follow-up-by-story-notes/PLAN.md))
+- [Read CI comparison and Intent coverage from Story Home](seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home) — SEED-420#read-story-evidence-from-intent-home ([plan](slice-plans/837-read-story-evidence-from-intent-home/PLAN.md))
 
 ## Backlog list
 
-- [Read CI comparison and Intent coverage from Story Home](seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home) — SEED-420#read-story-evidence-from-intent-home
 - [Use sidebars consistently across the Dashboard](seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard) — SEED-417#use-sidebars-consistently-across-the-dashboard
 - [Browse and select folders in one story review tree](seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree) — SEED-420#browse-one-selectable-review-tree
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files
