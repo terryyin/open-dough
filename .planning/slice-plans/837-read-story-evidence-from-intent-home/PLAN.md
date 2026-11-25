@@ -138,7 +138,7 @@ navigation contract changed.
   legacy Playwright consumers that use the shared review page object.
   Run focused type and lint checks for the changed Dashboard contracts.
   For long local runs on macOS use
-  [`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+  `caffeinate -s -i` on AC power.
   On battery use `caffeinate -i` with the lid open and check the sleep
   log afterwards.
 - Apply the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md),

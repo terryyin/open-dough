@@ -5,8 +5,8 @@ This manually invoked, paid check observes ordinary browser test work against
 profiles, owned native supervision and shared stream reader. Follow
 [maintainer guidance](../../AGENTS.md) and [native setup](native-setup.md).
 
-Prepare the current checkout's locked dependencies and browser first. Follow
-the maintained [macOS sleep guard and power condition](../tests/local-test-resources.md#machine-sleep-on-macos).
+Prepare the current checkout's locked dependencies and browser first. On macOS,
+start fully awake on AC power under `caffeinate -s -i`.
 Use Bash 5 on `PATH`; run one native session at a time after checking host load
 and competing work. Authentication
 must already work in each native CLI. A credential failure needs the developer;

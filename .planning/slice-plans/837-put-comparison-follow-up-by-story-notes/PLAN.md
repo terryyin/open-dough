@@ -159,6 +159,6 @@ found no remaining slice-specific concern.
 ## Local gate
 
 Run the named checks and Dashboard typecheck for the changed boundaries.
-Run long checks under [`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Run long checks under `caffeinate -s -i` on AC power.
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 and apply the test conventions selected through [AGENTS.md](../../../AGENTS.md).

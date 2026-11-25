@@ -38,9 +38,8 @@ Acceptance is explicit: publication uses `--native HOST --case CASE
 directory. Case selection and one journey are in the guidance-check guide; pair options,
 payload selection, refusals and recovery are in the comparison guide. These entries keep their existing supported hosts; listing
 a case or passing a controlled check does not qualify a native host.
-For long local runs follow the maintained [macOS sleep guard and power
-condition](../tests/local-test-resources.md#machine-sleep-on-macos) and shared
-full-suite admission. The focused command has the same silence, failure,
+Run long local checks on macOS from a fully awake machine on AC power under
+`caffeinate -s -i`. The focused command has the same silence, failure,
 deadline, named-file and reporting contracts as the [shared runner](../tests/README.md#runner).
 
 ## Write an evaluation check

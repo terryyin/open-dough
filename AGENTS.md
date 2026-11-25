@@ -47,5 +47,5 @@ Follow the shared
 as written, and carry it by link into every plan, delegation brief and repair
 handoff.
 
-A plan's local-gate line names the maintained macOS sleep guard and its power
-condition from [machine sleep on macOS](Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+A plan's local-gate line runs long macOS checks from a fully awake machine on
+AC power under `caffeinate -s -i`.

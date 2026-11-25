@@ -169,7 +169,7 @@ paths that the complete inventory needs, including deletions.
 - Local gate for changed reader contracts and UI behavior is the focused
   frontend, backend and real-Git browser proof mapped to each slice.
   On macOS use
-  [`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+  `caffeinate -s -i` on AC power.
   On battery use `caffeinate -i` with the lid open and inspect the sleep
   log after the run. Run the dashboard type and changed-file lint checks
   where their contracts are edited.

@@ -168,8 +168,7 @@ post-change refactor before each commit. No whole local suite is required:
 configuration, and hosted CI runs all four producers on the published
 candidate, which is the all-group proof. Local gate: from a fully awake macOS
 machine on AC use `caffeinate -s -i`; on battery plug in or use lid-open
-`caffeinate -i` and read the sleep log, per
-[machine sleep](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+`caffeinate -i` and read the sleep log.
 Inspect load and memory before the browser runs.
 
 ## Plan concern assessment
