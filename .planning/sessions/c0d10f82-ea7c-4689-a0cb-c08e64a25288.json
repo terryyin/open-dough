@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "c0d10f82-ea7c-4689-a0cb-c08e64a25288",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-25T09:27:56.367Z",
+  "story": "SEED-413#renovate-landed-ci-attempt-evidence",
+  "ranges": [
+    {
+      "base": "fa7ab8defa007c293b2295206b07ad875b416f20",
+      "candidate": "55c0318017ab6390fdbff32432455fbb0de44129"
+    }
+  ]
+}
