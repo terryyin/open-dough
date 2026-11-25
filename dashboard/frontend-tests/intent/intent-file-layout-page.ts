@@ -37,6 +37,7 @@ export function fileLayout() {
     reading: () => box(reading()),
     browser: () => box(browser()),
     readerVisible: () => reading()?.checkVisibility() ?? false,
+    shown: () => toggle.element().getAttribute("aria-expanded") === "true",
     async showsFiles(shown: boolean) {
       await expect
         .element(toggle)

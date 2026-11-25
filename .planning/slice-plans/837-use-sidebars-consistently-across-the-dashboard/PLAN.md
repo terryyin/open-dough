@@ -98,7 +98,7 @@ Follow changed helpers to their call sites. The initial proof selection is:
   `npm run typecheck:dashboard` and lint for affected Dashboard code.
   For long runs, start fully awake on AC with `caffeinate -s -i`. On battery
   start fully awake with the lid open under `caffeinate -i` and check the sleep
-  log afterwards. See [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+  log afterwards.
 - Follow the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   and [post-change refactoring](../../../.agents/skills/dough-post-change-refactor/SKILL.md)
   before each commit. Apply the configured MakeMe and page-object selection
@@ -113,7 +113,7 @@ Follow changed helpers to their call sites. The initial proof selection is:
 ### 1. Dismiss Sessions before acting on the page
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mounted frame with a real outside click and native touch tap, keyboard
 dismissal and return, and docked focus and main-content interaction. Run the
 Sessions and Board consumers above that read the changed interaction.
@@ -174,3 +174,36 @@ Slice-plan refinement was unnecessary after construction. Each slice owns an
 independent observable change and the three sidebar entry points use the same
 dismissal rule. The remaining Files surfaces adopt that same rule in their
 named slices. This review identified no remaining slice-specific concern.
+
+## Execution state
+
+- Mode: story-branch on `claude/use-sidebars-consistently-across-the-dashboard`
+  in `.worktrees/use-sidebars-consistently-across-the-dashboard`; target
+  `origin/main`. Claim published at `8a236ec9a` (start `e7c2d87fc`).
+- CI observation: GitHub Actions `ci.yml` (display name `CI`), observer
+  `/tmp/dough-ci-501/watch-7KGy14`.
+- Slice 1 learning: local `e2e/review/story-review-one-shot-choice-races.spec.ts`
+  timed out four times at load 30–35, including on unchanged `8a236ec9a`, and
+  passed at load 8–13 alongside the newly traced Intent and review e2e specs.
+  Main CI passed it at `f27d2cd6a`. It is a load-sensitive test defect that
+  predates this story. This story does not change its path.
+- Slice 1 delivered the shared drawer in `dashboard/src/SidebarDrawer.tsx`
+  and `sidebar-drawer.css`: `liesOverPage`, `useDrawerKeys` (Escape returns
+  focus to the toggle, Tab wraps, keys pressed inside an open dialog stay
+  with it) and `DrawerBackdrop` (whole window less the active toggle). Each
+  view's stylesheet shows its own backdrop where it places the sidebar over
+  the page, as `sessions-sidebar.css` does with
+  `.sidebar-drawer-backdrop:has(+ .sessions-sidebar)`. Slices 2 and 3 switch
+  on Files backdrops from their view stylesheets, by the Files panel's room.
+
+## Story obligations
+
+### G1. Focus moved by script is not pulled back into an open drawer
+Reported: slice 1 — "The boundary handles Tab and Escape only. Focus moved by script into the page is not pulled back."
+Story clause: "On a phone the drawer lets the developer browse without taking space from the reading area or activating another action on the way back to it."
+Disposition: no user cost "activating another action on the way back to it": the backdrop consumes every pointer gesture outside the drawer and its toggle, Tab and Shift+Tab wrap inside the drawer, and Escape closes it. The only script focus moves into the page come from session opening, which closes the drawer through `closeOverPage` first, so no page action activates while the drawer is open (`dashboard/frontend-tests/intent/intent-sessions-drawer.spec.ts`).
+
+### G2. Red-before-green was not rerun for the new drawer spec
+Reported: slice 1 — "No red-before-green run: the new spec was not run against the baseline."
+Story clause: "With a drawer open on a phone, tap an exposed point over an underlying button. The drawer closes and the button stays inactive."
+Disposition: proved by slice 1: the plan's baseline at `f4d03aae4` observed the native tap at x=352 toggling Files while Sessions stayed open, and `intent-sessions-drawer.spec.ts` (run `s1-drawer-5`) observes the same coordinates now close Sessions with Files unchanged, and the next tap toggles Files.

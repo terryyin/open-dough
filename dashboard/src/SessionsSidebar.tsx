@@ -58,6 +58,11 @@ import {
   workingCount,
   workingSummary,
 } from "./sessionCounts.ts";
+import {
+  DrawerBackdrop,
+  liesOverPage,
+  useDrawerKeys,
+} from "./SidebarDrawer.tsx";
 import "./agent-launch.css";
 import "./sessions-sidebar.css";
 import "./sessions-toggle.css";
@@ -123,16 +128,16 @@ export function useSessionsSidebar(
   }, []);
   const closeOverPage = () => {
     const sidebar = document.getElementById(sessionsSidebarId);
-    if (
-      !isOpen.current ||
-      sidebar === null ||
-      getComputedStyle(sidebar).position !== "fixed"
-    ) {
-      return undefined;
-    }
+    if (!isOpen.current || !liesOverPage(sidebar)) return undefined;
     toggle();
     return bannerSessionsButton() ?? undefined;
   };
+  useDrawerKeys({
+    open,
+    sidebarId: sessionsSidebarId,
+    toggle: shownSessionsButton,
+    close: toggle,
+  });
   useCommandShortcut(toggleShortcut, toggle);
   return { open, toggle, closeOverPage, records, alerts };
 }
@@ -189,10 +194,11 @@ export function SessionsButton({
 
 export function SessionsSidebar({
   open,
+  toggle,
   records,
   alerts,
   ...rows
-}: Pick<SessionsSidebarState, "open" | "records" | "alerts"> & {
+}: Pick<SessionsSidebarState, "open" | "toggle" | "records" | "alerts"> & {
   readonly onOpen: OpenSessionsSidebarSessionEntry;
   readonly recentlyDone: RecentlyDoneRowSelection;
 }) {
@@ -201,34 +207,41 @@ export function SessionsSidebar({
   const optional = useOptionalSidebarSectionState(aside, open);
   const host = useHostStatus(open);
   return (
-    <aside
-      ref={aside}
-      id={sessionsSidebarId}
-      className={optional.className}
-      style={optional.style}
-      aria-label="Sessions sidebar"
-      hidden={!open}
-    >
-      <div className="sessions-sidebar-title-row">
-        <h2 id="sessions-sidebar-heading">Sessions</h2>
-        <SessionsSidebarStatus sessions={sessions} host={host} />
-      </div>
-      <SessionsSidebarOpenList
-        records={records}
-        alerts={alerts}
+    <>
+      <DrawerBackdrop
         open={open}
-        onOpen={rows.onOpen}
+        toggle={shownSessionsButton}
+        onDismiss={toggle}
       />
-      <SessionsSidebarOptionalSections
-        sidebarOpen={open}
-        records={records}
-        {...rows}
-        recentlyDoneOpen={optional.recentlyDoneOpen}
-        onToggleRecentlyDone={optional.toggleRecentlyDone}
-        cursorOpen={optional.cursorOpen}
-        onToggleCursor={optional.toggleCursor}
-        heights={optional.heights}
-      />
-    </aside>
+      <aside
+        ref={aside}
+        id={sessionsSidebarId}
+        className={optional.className}
+        style={optional.style}
+        aria-label="Sessions sidebar"
+        hidden={!open}
+      >
+        <div className="sessions-sidebar-title-row">
+          <h2 id="sessions-sidebar-heading">Sessions</h2>
+          <SessionsSidebarStatus sessions={sessions} host={host} />
+        </div>
+        <SessionsSidebarOpenList
+          records={records}
+          alerts={alerts}
+          open={open}
+          onOpen={rows.onOpen}
+        />
+        <SessionsSidebarOptionalSections
+          sidebarOpen={open}
+          records={records}
+          {...rows}
+          recentlyDoneOpen={optional.recentlyDoneOpen}
+          onToggleRecentlyDone={optional.toggleRecentlyDone}
+          cursorOpen={optional.cursorOpen}
+          onToggleCursor={optional.toggleCursor}
+          heights={optional.heights}
+        />
+      </aside>
+    </>
   );
 }
