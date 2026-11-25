@@ -74,7 +74,7 @@ lock-identical integration checkout. The starting load average was approximately
 ### 1. Read attachment rules directly in Node
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 5–8 active minutes.
 Proof: Through the maintained backend command,
 `launch-attachment-refusals.spec.ts` runs on Node Vitest.
@@ -164,3 +164,29 @@ Slice-plan refinement was unnecessary. Shared rules, upload admission, and
 claim consumption have distinct observations and reuse the same attachment
 contract through all three slices. No remaining slice-specific concern was
 identified.
+
+## Execution evidence
+
+The established Story Branch execution uses publisher
+`dashboard-territory.local-open-dough`, agent Yumi-chan, and branch
+`codex/prove-launch-attachment-admission-in-node-vitest` on `origin`.
+The claim at `35f189e8610aeecc264a0faf291b103099c6fe99` was accepted on
+`origin/main` and initializes the remote execution branch. Locked native
+setup, the Chromium launch check, and Dashboard typecheck passed in this
+checkout. The Codex observer covers the execution branch on GitHub Actions
+`ci.yml`. Coordinator `yumi-842-4194758a`, mailbox
+`/tmp/dough-ci-501/watch-rgdDU3`, PID 92914, session 34591, cell `g401:19`.
+
+### Slice 1 proof
+
+`npm run test:dashboard:backend -- 'launches/launch-attachment-refusals\.spec\.ts$' --workers=1`
+selected two Vitest cases and both passed. The actual Node header round trip
+observes the unchanged Unicode filename. The production partition keeps the
+fifth File by identity and names the PDF, oversized image, and sixth-image
+refusals. This consolidates the old standalone rule assertions with the
+partition assertions. The single focused run took 2.76 s under local contention
+and leaves the planned cohort comparison to slice 3. The checkout-bound
+evidence directory holds `s1-backend.log.run.json` and `s1-return.md`.
+The independent refactoring pass was unnecessary after reviewing the changed
+spec and its production and fixture references. It introduces no shared
+representation or production change.
