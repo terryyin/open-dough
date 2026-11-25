@@ -20,8 +20,7 @@ establishes the shared observation, and the
 extends it to branches, records, and Review. The
 [Intent](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git),
 [CI](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git),
-[feedback maintenance](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git),
-and [project setup](seeds/SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git)
+and [feedback maintenance](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git)
 stories carry the remaining inventory. Retire this topic once all of those
 readers use the shared Git boundary where their scope requires it.
 

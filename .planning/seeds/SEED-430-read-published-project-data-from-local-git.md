@@ -34,8 +34,9 @@ and machine gh credential.
 **Follow-up stories.** The rest of the published read inventory is tracked
 in [Intent and attribution](SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git),
 [CI inputs](SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git),
-[scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git),
-and [Add Project](SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git).
+and [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git).
+[Add Project](../../dashboard/server/projectAddition.ts) resolves the default branch
+from origin's symbolic `HEAD` when configuring a project.
 
 <a id="qualify-board-fixture-routing-and-request-boundaries"></a>
 

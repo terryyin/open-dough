@@ -37,7 +37,7 @@ import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import {
   addedRepository,
-  addedRevision,
+  addedBranch,
   projectAddMachine,
 } from "../../dashboard/test-support/support/projectAddMachine.ts";
 import { addProjectThroughDialog } from "../../dashboard/test-support/support/projectAddPage.ts";
@@ -65,7 +65,8 @@ async function openedOnFirst(page: Page) {
   server.github.serve(
     addedRepository,
     publishes({
-      revision: addedRevision,
+      revision: fixture.revision,
+      defaultBranch: addedBranch,
       files: publishedWithCatalog(now, entries),
     }),
   );

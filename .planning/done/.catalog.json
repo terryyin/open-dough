@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-437_discover-project-default-branch-through-git.json",
+      "identity": "SEED-437#discover-project-default-branch-through-git",
+      "completedAt": "2026-11-25T15:20:25.653Z",
+      "blob": "5be32924e9e595a2cc8930650b48e8857cf9dd92"
+    },
+    {
       "fileName": "SEED-420_read-story-evidence-from-intent-home.json",
       "identity": "SEED-420#read-story-evidence-from-intent-home",
       "completedAt": "2026-11-25T14:56:33.407Z",
