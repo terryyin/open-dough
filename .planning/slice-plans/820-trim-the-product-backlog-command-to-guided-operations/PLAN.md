@@ -219,7 +219,7 @@ module and test the single schema supersedes, and check with a search that
 no shipped script, Dashboard source or test imports a removed name. Estimated active effort
 10–15 minutes.
 
-Accepted proof: A fresh installation measured 32,494 story-state bytes
+Accepted proof: A fresh installation measured 32,516 story-state bytes
 including the moved recorder receipt, against 36,317 at preparation. All
 23 CLI comparisons matched the pre-slice exits, receipts and file bytes.
 The Dashboard agreed on distinct and canonical plan cases, planless work,
@@ -233,3 +233,10 @@ observable result or directly enables the following behavior. The command
 uses the existing rule owners from guidance through the CLI, and both consumers
 of story-state share the same record meaning. Four slices fit the limit,
 with no remaining slice-specific concern identified in preparation.
+
+## Execution complete
+
+Product advice: Keep the current direction and queue order. The regression
+tests cover the checked maintenance operations and shared readiness meaning
+at their owning boundaries. Git reconciliation and publication remain
+separate backlog work.
