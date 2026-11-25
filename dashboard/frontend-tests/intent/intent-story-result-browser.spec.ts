@@ -60,7 +60,6 @@ test("switching comparisons changes the inventory, settings and file's exact rev
     },
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   await story.expandFolderPath("checks");
   await expect.element(story.file(currentTest)).toBeVisible();
   await story.expandFolderPath("docs");
@@ -104,7 +103,6 @@ test("a late inventory from the prior comparison cannot replace a captured run's
           }),
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   await expect.poll(oldInventory.asked).toBe(true);
   await story.chooseLatestLanding();
   await story.expandFolderPath("previous");
@@ -156,7 +154,6 @@ test("an inventory failure keeps the changed diff available while Retry restores
       ),
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   const failure = story.sidebar
     .getByRole("alert")
     .filter({ hasText: "Repository inventory could not be read" });
@@ -165,7 +162,6 @@ test("an inventory failure keeps the changed diff available while Retry restores
     .toContain("The tree listing failed.");
   await story.file(`Added ${changed}`).click();
   await expect.poll(story.diffCode).toContain("changed despite failure");
-  await story.browseFiles();
   await failure.getByRole("button", { name: "Retry" }).click();
   await story.expandFolderPath("docs");
   await story.file(guide).click();

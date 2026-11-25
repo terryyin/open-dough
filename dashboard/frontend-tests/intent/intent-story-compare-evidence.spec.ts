@@ -20,7 +20,6 @@ async function openProof(
   story: ReturnType<typeof intentStoryCompare>,
   file: ReturnType<typeof story.file>,
 ) {
-  await story.browseFiles();
   await activateComparisonControl(file);
   await story.chooseProof();
 }

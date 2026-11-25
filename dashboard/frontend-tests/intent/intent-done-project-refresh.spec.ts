@@ -74,7 +74,6 @@ test("Done Purpose and Proof keep their historical revision through tab changes 
   });
   const readingTab = (name: string) =>
     intentPage.getByRole("tab", { name, exact: true });
-  await story.browseFiles();
   await expect.element(selected).toBeVisible();
   await expect.poll(() => locations).toEqual([firstCompletion]);
   await chooseWholeProject();
@@ -83,7 +82,6 @@ test("Done Purpose and Proof keep their historical revision through tab changes 
   await expect
     .element(story.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");
-  await story.browseFiles();
   await selected.click();
   await expect.poll(story.diffCode).toContain("historical 120");
   const originalDiff = story.diffCode();

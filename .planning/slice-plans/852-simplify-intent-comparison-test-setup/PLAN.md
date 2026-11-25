@@ -48,7 +48,7 @@ specs and product code are out of scope.
 ### 1. Comparison specs start with Files docked
 
 Type: Structure
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Change: Default `mountStoryIntent` to 1280×800 and simplify its Story A and
@@ -77,6 +77,21 @@ specs and their shared mount, so hosted CI's Dashboard frontend group owns
 the full suite after publication. Apply the shared
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 to failures and to all repair handoffs.
+
+Accepted proof: the focused set (35 files, 91 tests) passed, and a consumer-trace
+run of 4 more specs (5 tests) passed too. Those specs are
+`intent-ci-history-chart-marks` and `intent-scope-timing-history-{reading,segments,units}`.
+They reach `openDoneStoryComparison` through `intent-done-scope-history.ts`.
+Both runs used the uncommitted candidate on `31f12483d`. The diff removed 53
+`browseFiles` steps; none of these specs used `showFiles`. It also removed one
+explicit 1280×800 viewport that now repeats the default
+(`intent-story-outside-proof`) and one import left unused
+(`intent-summary-story-comparison-gaps`). No assertion was removed.
+
+Learning: `exactOptionalPropertyTypes` requires `mountStoryIntent`'s
+`viewport` to accept `undefined` for the plain pass-through. The premise row's
+focused set missed the 4 consumers that reach the mount indirectly; the
+consumer trace found them.
 
 ## Concern evidence
 

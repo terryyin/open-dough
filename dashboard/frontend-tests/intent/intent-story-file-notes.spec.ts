@@ -40,7 +40,6 @@ async function saveFileNote(
       Promise.resolve({ kind: "text", baseline: null, tree: "changed\n" }),
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   await story.file(file).click();
   await expect.poll(story.diffName).toBe(file);
   await purpose.getByRole("button", { name: names.add, exact: true }).click();

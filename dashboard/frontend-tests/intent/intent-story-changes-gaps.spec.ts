@@ -66,7 +66,6 @@ test("a story with no published changes explains that no comparison is available
     .element(story.header.getByRole("button", { name: "Retry" }))
     .not.toBeInTheDocument();
   expect(story.revisions()).toBe("");
-  await story.browseFiles();
   await showsUsablePublishedTree();
 });
 
@@ -83,7 +82,6 @@ test("a failed comparison read explains itself with a retry that then shows the 
     },
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   await expect
     .poll(story.alertText)
     .toBe("The story's changes could not be read. Retry");

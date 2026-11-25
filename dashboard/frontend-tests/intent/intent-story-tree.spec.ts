@@ -22,7 +22,6 @@ test("folder names select a reading by keyboard independently of their disclosur
   });
   const story = intentStoryCompare();
   const tree = intentScopeTree();
-  await story.browseFiles();
   await story.file(changed.modified).click();
   await expect.poll(story.diffName).toBe(changed.modified);
   const revisions = story.revisions();
@@ -76,7 +75,6 @@ test("a configured root with no matching files still opens its Summary", async (
     revision: "e4".repeat(20),
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   await expect.element(story.folder(root)).toBeVisible();
   const tree = intentScopeTree();
   await (await tree.name(root).press("{Enter}")).isSelected(true);

@@ -4,7 +4,6 @@ import type { Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { ciReadingText } from "./intent-attempt-proof-page.ts";
 import { comparisonIn } from "./intent-ci-scope-page.tsx";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import { entryComparisonRows } from "./intent-summary-comparison-expected.ts";
 import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
 import {
@@ -103,7 +102,6 @@ test("a queued selection renders no previous Summary comparison or Baseline colu
   await expectComparisonRows(summary, entryComparisonRows);
 
   await selectStory(queued.identity, "Story B");
-  await intentStoryCompare().browseFiles();
   await openSummary(entry);
   await expectNoComparisonFraming(summary);
   await expect

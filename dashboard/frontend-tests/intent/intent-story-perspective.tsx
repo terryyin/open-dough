@@ -52,22 +52,24 @@ function StoryIntentLaunches({
   );
 }
 
-// Begin at the selected story. Story selection and the dashboard frame have
-// their own proofs; the case supplies the selection and Intent's read replies.
+// Begin at the selected story with Files docked unless `viewport` says
+// otherwise. Story selection and the dashboard frame have their own proofs; the
+// case supplies the selection and Intent's read replies.
 export async function mountStoryIntent({
   work,
   identity,
   machine = makeMe.aMachineAnswer.please(),
   launchSource = unansweredLaunches,
   reads,
-  viewport,
+  viewport = { width: 1280, height: 800 },
 }: {
   readonly work: PublishedWork;
   readonly identity: string;
   readonly machine?: MachineAnswer;
   readonly launchSource?: LaunchAttemptSource;
   readonly reads: Partial<PageReads>;
-  readonly viewport?: { readonly width: number; readonly height: number };
+  readonly viewport?:
+    { readonly width: number; readonly height: number } | undefined;
 }) {
   const { source } = work;
   const pageReads = pageReadsSupplying(
@@ -106,7 +108,7 @@ export async function mountStoryIntent({
     </PageReadsOnPage>
   );
   const mounted = await mountComponent(view(identity), {
-    ...(viewport === undefined ? {} : { viewport }),
+    viewport,
     fillsViewport: true,
   });
   return {
