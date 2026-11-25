@@ -219,7 +219,7 @@ and 15 E2E cases passed. `CI-REPAIR-45611041207-REPORT.md` holds the evidence.
 
 ### 4. Land under the bound story with the exact accepted comparison
 Type: Behavior
-Status: planned
+Status: done
 Proof: A declared-branch follow-up lands through the installed publisher.
 A retained or expired-attempt retry reads and reports the same pair without
 another push.
@@ -238,6 +238,17 @@ Start with Automatically land leaves the native terminal waiting for the
 developer's first input. Prove the blank launch and retained landing authority
 together for the case that slice 1 leaves on its existing native handoff.
 
+Accepted proof: The historical declared-branch shape reproduced a 409 on
+the installed publisher before push. The accepted candidate verifies the
+bound story and declared Git authority, pins the exact comparison before
+push, and reads the original pair after a reporting retry and retirement.
+The same boundary covers newly admitted and expired-attempt launches. A
+blank borrowed Automatically land Start leaves the terminal awaiting input,
+keeps the selected policy and authority, and the installed publisher finds
+the prepared context without a flag when publication is invoked. See
+`SLICE-4-REPORT.md` and `slice-4-consumer-dispositions.md` in the worktree's
+Git evidence directory.
+
 ### 5. Return to completed ad hoc work in ordinary review
 Type: Behavior
 Status: planned
@@ -252,6 +263,13 @@ after the established closure and containment checks. The borrowed native
 checkout remains available with its existing work. Add this admitted producer
 to the `recently-done-published-sessions` journey or reuse its fresh-reader
 observations where the input and endpoint contract match.
+
+Check how an invoked ordinary workflow can receive the retained landing
+selection after a blank borrowed Start. Slice 4 established discovery of the
+bound capture context once publication begins. The native startup has no
+first input, and the installed policy still comes from an explicit workflow
+choice or an Established session handoff. Verify the end-to-end policy
+handoff and preserve exact launch authorization if the workflow needs it.
 
 ### 6. Retire standalone startup, completion and review
 Type: Behavior
@@ -320,8 +338,7 @@ Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/r
 Run Dashboard typecheck for changed Dashboard contracts and installation proof
 for changed shipped operations. On macOS, start awake on AC under
 `caffeinate -s -i`. On battery plug in or start awake with the lid open under
-`caffeinate -i` and check the sleep log. Follow
-[local suite admission and machine sleep](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+`caffeinate -i` and check the sleep log.
 
 Default-route admission cost sizing twice: SEED-426 overran at 14.7 active
 minutes, and plan 813's slice 3 overran at 15. Both times the cost was moving
@@ -348,7 +365,7 @@ Disposition: proved by slice 1: `admitted-session-duplicate.spec.ts` holds the b
 ### G3. Retained Land must recognize the admitted story (first reported in plan 813 slice 1)
 Reported: slice 1 — "The preserved isolated Dashboard path uses legacy established-session landing authority."
 Story clause: "Land checks the bound story and declared Git authority before push."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: the installed publisher reaches prepare and capture in `declared-worktree-publication.spec.ts`; bound independent and expired-attempt launches preserve the accepted pair in the `agent-launch-start-session-landing` backend family.
 
 ### G4. Borrowed default claims need an ordinary closure path (first reported in plan 813 slice 2)
 Reported: slice 1 — "The unpublished default admission uses a separate owned claim worktree and leaves the borrowed session checkout intact."
@@ -358,4 +375,9 @@ Disposition: receiving slice 5
 ### G5. Blank automatic-landing Start uses its existing native handoff
 Reported: slice 1 — "A borrowed Automatically land Start with no developer text opens the terminal after submitting its generated established-session block, reporting context and Taken story binding as native first input."
 Story clause: "A blank start opens the terminal awaiting the developer's first input after admission, subject to the selected host's native input requirements."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `agent-launch-start-session-landing.spec.ts` observes zero native startup input, a visible terminal, retained policy and exact capture through the installed publisher with no explicit landing-context argument.
+
+### G6. The ordinary workflow needs the retained landing selection after blank Start
+Reported: slice 4 — "The Dashboard retains Automatically land after a blank borrowed Start, and the installed publisher discovers its capture context once invoked. The invoked workflow currently learns landing policy from explicit options or the native Established session handoff, which blank Start does not supply."
+Story clause: "Preserve native access and writer checks, the chosen checkout and landing policy, and the original first input."
+Disposition: receiving slice 5

@@ -7,6 +7,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 import { expect } from "@playwright/test";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { storyOf } from "../../src/launchWorkflow.ts";
 import { keptAttempts } from "../acceptedAttempts.ts";
 import { launch, recordsOf } from "../agentLaunchBoundary.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -44,7 +45,7 @@ export async function launched(dashboard: DashboardServer, body: object) {
 }
 
 // The first message's reporting context names the launch's landing context,
-// whose file names the launch and its trunk target and no identity, and the
+// whose file names the launch, story and trunk target, and the
 // attempt holds the capture authority for the session's workspace.
 export function expectLandingHandoff(
   record: LaunchRecord,
@@ -54,6 +55,7 @@ export function expectLandingHandoff(
   input: readonly string[] = [],
 ) {
   const { session, reporting, file, context } = landingHandoff(record);
+  const identity = storyOf(record.request);
   const [block, reportingBlock, ...extra] = sent.split("\n\n");
   expect(block).toBe(sessionBlock(session));
   expect(extra).toEqual(input);
@@ -64,6 +66,7 @@ export function expectLandingHandoff(
     source: "open-dough",
     host: "claude",
     reference: reporting.reference,
+    ...(identity === undefined ? {} : { identity }),
     remote: "origin",
     target: "refs/heads/main",
   });
@@ -74,6 +77,7 @@ export function expectLandingHandoff(
     repository: repositoryOf(project),
     workspace: session.workspace,
     branch: session.branch,
+    ...(identity === undefined ? {} : { identity }),
     remote: "origin",
     target: "refs/heads/main",
   });
@@ -103,7 +107,7 @@ export const keptRecord = async (
 
 // Commits a result in the session's workspace, lands it with the installed
 // publication given the launch's context, and expects the launch to keep
-// that comparison, prepared before the push, with no identity.
+// that story's comparison, prepared before the push.
 export async function expectCapturedLanding(
   dashboard: DashboardServer,
   origin: StartOrigin,
@@ -111,6 +115,7 @@ export async function expectCapturedLanding(
   name: string,
 ) {
   const { session, reporting } = landingHandoff(record);
+  const identity = storyOf(record.request);
   const base = await originMain(origin);
   expect(session.startingRevision).toBe(base);
   const revision = commit(session.workspace, name);
@@ -122,15 +127,16 @@ export async function expectCapturedLanding(
     receipt: { sha: revision },
     landing: { state: "recorded" },
   });
-  expect(delivered.landing.receipt).not.toHaveProperty("identity");
+  expect(delivered.landing.receipt.identity).toBe(identity);
   // The dashboard held the prepared comparison while trunk was still behind.
   expect(before.trunk).toBe(base);
   expect(before.preparations).toMatchObject([{ base, revision }]);
-  expect(before.preparations[0]).not.toHaveProperty("identity");
+  expect(before.preparations[0]).toMatchObject({ identity });
   expect(await originMain(origin)).toBe(revision);
 
   const kept = await keptRecord(dashboard, reporting.reference);
   expect(kept?.landing).toEqual({
+    identity,
     repository: repositoryOf(origin.project),
     remote: "origin",
     target: "refs/heads/main",

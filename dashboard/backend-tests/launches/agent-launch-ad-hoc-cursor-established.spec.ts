@@ -2,7 +2,7 @@
 // the real installed start (../../test-support/support/cursorStart.ts) and the fixture
 // `cursor-agent`: existing changes in the execution checkout are confirmed before
 // create-chat, and the first prompt is the "Established session" block, then
-// the reporting context, with no skill line and nothing of the developer's;
+// the reporting context and developer instruction, with no skill line;
 // an isolated session starts with its new worktree as Cursor's workspace.
 // ../../../e2e/launches/agent-launch-ad-hoc-cursor.spec.ts stays the proof of the unattached
 // Cursor session that establishes none, and of the blank start with a chosen
@@ -34,7 +34,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-test("existing changes are confirmed before Cursor creates anything, and an established session's block and reporting context are the whole first prompt", async ({
+test("existing changes are confirmed before Cursor creates anything, then the established session's block precedes the developer's instruction", async ({
   dashboard,
   origin,
   cursor,
@@ -46,6 +46,7 @@ test("existing changes are confirmed before Cursor creates anything, and an esta
     source: "open-dough",
     workflow: "ad-hoc",
     host: "cursor",
+    instruction: "Explain these changes",
     policy: { workspace: "default-checkout", landing: "auto-land" },
   };
   const found = JSON.parse((await launch(dashboard, asked)).body) as {
@@ -87,60 +88,38 @@ test("existing changes are confirmed before Cursor creates anything, and an esta
   const prompt = cursor.input(client.pid).replace(/\r$/u, "");
   const [block, reporting, ...extra] = prompt.split("\n\n");
   expect(block).toBe(sessionBlock(session));
-  expect(extra).toEqual([`Taken story: ${launchStoryIdentity(record)}`]);
+  expect(extra).toEqual([
+    `Taken story: ${launchStoryIdentity(record)}`,
+    asked.instruction,
+  ]);
   expectReportingBlock(reporting, record?.request, dashboard);
   expect(prompt).not.toContain("dough-execute-plan ");
   expect(status(origin.project)).toBe(changes);
 });
 
-test("with no text and a chosen model, a session that lands automatically starts on that model with its block, while the default choices stay refused", async ({
+test("Cursor refuses a chosen model on a blank start with either landing policy", async ({
   dashboard,
   origin,
   cursor,
 }) => {
-  const revision = (await origin.originGit("rev-parse", "main")).trim();
+  const before = (await origin.originGit("rev-parse", "main")).trim();
   const blank = {
     source: "open-dough",
     workflow: "ad-hoc",
     host: "cursor",
     model: "gpt-5.2",
   };
-  // The default choices have no first prompt to apply the model with.
-  expect(JSON.parse((await launch(dashboard, blank)).body)).toMatchObject({
-    kind: "failed",
-    reason: "refused",
-    explanation:
-      "Cursor applies a chosen model with the first instruction. Add an instruction, or use your Cursor setting. Nothing was launched.",
-  });
+  const policy = { workspace: "default-checkout", landing: "auto-land" };
+  for (const request of [blank, { ...blank, policy }])
+    expect(JSON.parse((await launch(dashboard, request)).body)).toMatchObject({
+      kind: "failed",
+      reason: "refused",
+      explanation:
+        "Cursor applies a chosen model with the first instruction. Add an instruction, or use your Cursor setting. Nothing was launched.",
+    });
   expect(cursor.calls()).toEqual([]);
   expect(await recordsOf(dashboard, "open-dough")).toEqual([]);
-
-  // The established session's block is a first prompt.
-  const policy = { workspace: "default-checkout", landing: "auto-land" };
-  expect(
-    JSON.parse((await launch(dashboard, { ...blank, policy })).body),
-  ).toMatchObject({ kind: "launched" });
-  const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  expect(record?.request).toMatchObject({ model: "gpt-5.2", policy });
-  expect(record?.request).not.toHaveProperty("instruction");
-  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
-  await expect.poll(() => cursor.attaches()).toHaveLength(1);
-  const client = cursor.attaches()[0];
-  if (client === undefined) throw new Error("Cursor started no client.");
-  expect(client.args).toEqual([
-    "--workspace",
-    origin.project,
-    "--resume",
-    cursor.sessionId,
-    "--model",
-    "gpt-5.2",
-  ]);
-  await expect.poll(() => cursor.input(client.pid)).toMatch(/\r$/u);
-  expect(cursor.input(client.pid).split("\n\n")[0]).toBe(
-    sessionBlock(
-      executionCheckoutSession(origin.project, "auto-land", revision),
-    ),
-  );
+  expect((await origin.originGit("rev-parse", "main")).trim()).toBe(before);
 });
 
 test("an isolated session starts Cursor with the new worktree as its workspace and the same block", async ({

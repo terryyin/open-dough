@@ -35,7 +35,6 @@ import {
   git,
   isolatedSession,
   recordStarts,
-  sessionBlock,
   worktree,
   worktrees,
 } from "../../test-support/support/startSessionLanding.ts";
@@ -168,9 +167,11 @@ test.describe("an execution checkout start that outlasts its wait", () => {
     const [call, ...others] = dashboard.claudeLaunchCalls();
     expect(others).toEqual([]);
     expect(call?.cwd).toBe(realpathSync(origin.project));
-    expect((call?.argv.at(-1) ?? "").split("\n\n")[0]).toBe(
-      sessionBlock(session),
-    );
+    expect(dashboard.claudeLaunches()[0]?.instruction).toBeUndefined();
+    expect(launched.record?.landingReporting?.authority).toMatchObject({
+      workspace: session.workspace,
+      branch: session.branch,
+    });
     expectBorrowedStarts(
       starts,
       origin.project,

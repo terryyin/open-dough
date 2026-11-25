@@ -137,7 +137,7 @@ export function unattachedWhere(
 ): string {
   return `The session runs ${startsIn(policy.workspace)}.${
     establishes
-      ? ` Its first message carries the established session: workspace, workspace role, branch, remote, target, landing, ${
+      ? ` If Start sends a first message, it carries the established session: workspace, workspace role, branch, remote, target, landing, ${
           policy.workspace === "default-checkout"
             ? "starting revision, and fetched trunk"
             : admitting

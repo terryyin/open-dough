@@ -3,7 +3,7 @@
 import { expect, onTestFinished, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { branchLandingContext } from "../../server/branchLandingContext.ts";
@@ -12,6 +12,7 @@ import { handleLanding } from "../../server/launchLandingReporting.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import { keep, source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import {
@@ -23,13 +24,14 @@ import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 const reference = "11111111-0000-4000-8000-000000000714";
 const otherReference = "11111111-0000-4000-8000-000000000715";
+const identity = "SEED-439#declared-follow-up";
 const reportingAs = (reference: string) => ({
   origin: dashboardOrigin,
   reference,
   command: "report",
 });
 
-test("the declared worktree's installed landing and exact retry stay with the original launch", async () => {
+test("a retained story-linked branch handoff lands and retries through the installed publisher", async () => {
   const branch = "draft";
   const {
     checkout,
@@ -41,7 +43,13 @@ test("the declared worktree's installed landing and exact retry stay with the or
     .withOrigin()
     .withWorkspace(branch)
     .withDeclaringLaunch("default-launch", { launched: 60 }, branch, (launch) =>
-      launch.reportingThrough(reportingAs(reference)),
+      launch
+        .adHoc({
+          title: "Follow up the declared change",
+          storyIdentity: identity,
+          followUp: { session: { host: "claude", sessionId: "source" } },
+        })
+        .reportingThrough(reportingAs(reference)),
     )
     .withCheckoutLaunch("other-launch", { launched: 60 }, (launch) =>
       launch.reportingThrough(reportingAs(otherReference)),
@@ -58,8 +66,18 @@ test("the declared worktree's installed landing and exact retry stay with the or
     source,
   });
   if (answered === undefined) throw new Error("Missing the landing context.");
-  const { record, file: context } = answered;
-  keep(record, other);
+  const { record: prepared, file: context } = answered;
+  // The retained open v0.3.113 declaration already named its story.
+  const payload: unknown = JSON.parse(readFileSync(context, "utf8"));
+  const record = {
+    ...prepared,
+    landingReporting: {
+      ...prepared.landingReporting,
+      authority: { ...prepared.landingReporting.authority, identity },
+    },
+  };
+  writeFileSync(context, JSON.stringify({ ...(payload as object), identity }));
+  const home = keep(record, other);
   for (const launch of [record, other])
     await keepAttempt(makeMe.anAcceptedAttempt.reportingFor(launch).please());
   const kept = (launch: LaunchRecord) => keptSession(source, launch.session);
@@ -94,6 +112,69 @@ test("the declared worktree's installed landing and exact retry stay with the or
   ).stdout.trim();
   const originalBefore = await kept(record);
   const otherBefore = await kept(other);
+  const submission = {
+    ...makeMe.aLandingSubmission
+      .forLaunch({ host: "claude", reference })
+      .comparing({ base, revision: candidate })
+      .please(),
+    identity,
+  };
+  for (const mismatch of [
+    { ...submission, identity: "SEED-439#other-story" },
+    { ...submission, host: "codex" as const },
+    { ...submission, remote: "foreign" },
+    { ...submission, target: "refs/heads/foreign" },
+    { ...submission, revision: wrongTip },
+  ]) {
+    await expect(
+      handleLanding(mismatch, dashboardOrigin, "prepare"),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(await trunk()).toBe(base);
+  }
+  const { landingReporting } = record;
+  for (const mismatch of [
+    { ...landingReporting.authority, repository: checkout.integration },
+    { ...landingReporting.authority, workspace: checkout.integration },
+    { ...landingReporting.authority, branch: "foreign" },
+  ]) {
+    keepLaunchStore(home, {
+      [source]: [
+        {
+          ...record,
+          landingReporting: { ...landingReporting, authority: mismatch },
+        },
+        other,
+      ],
+    });
+    await expect(
+      handleLanding(submission, dashboardOrigin, "prepare"),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(await trunk()).toBe(base);
+  }
+  const entry = record.branchEntry;
+  if (entry?.trunk === undefined) throw new Error("Missing declared trunk.");
+  keepLaunchStore(home, {
+    [source]: [
+      {
+        ...record,
+        branchEntry: {
+          ...entry,
+          trunk: { ...entry.trunk, revision: wrongTip },
+        },
+      },
+      other,
+    ],
+  });
+  await expect(
+    handleLanding(submission, dashboardOrigin, "prepare"),
+  ).rejects.toMatchObject({ status: 409 });
+  expect(await trunk()).toBe(base);
+  keepLaunchStore(home, { [source]: [{ ...record, doneAt: at(10) }, other] });
+  await expect(
+    handleLanding(submission, dashboardOrigin, "prepare"),
+  ).rejects.toMatchObject({ status: 409 });
+  expect(await trunk()).toBe(base);
+  keepLaunchStore(home, { [source]: [record, other] });
   await expect(
     handleLanding(
       makeMe.aLandingSubmission
@@ -140,6 +221,7 @@ test("the declared worktree's installed landing and exact retry stay with the or
   });
   expect(landing.receipt).toMatchObject({
     reference,
+    identity,
     base,
     revision: candidate,
     remote: "origin",

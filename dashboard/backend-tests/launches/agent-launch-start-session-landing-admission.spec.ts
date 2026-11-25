@@ -4,8 +4,8 @@
 // established a session carries the landing context, for a landing the
 // developer asks for later; a launch with the default choices establishes no
 // session, is handed no landing context, and has no landing admitted,
-// whatever a request names; a context naming a story is refused for a launch
-// that has none; and a Codex session's installed delivery
+// whatever a request names; a context naming the wrong story is refused;
+// and a Codex session's installed delivery
 // command, as a one-shot landing runs it, captures its landing. The handoff
 // and the capture themselves are in
 // ../../../e2e/launches/agent-launch-start-session-landing-context.spec.ts.
@@ -14,6 +14,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { storyOf } from "../../src/launchWorkflow.ts";
 import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { commit } from "../../test-support/support/launchLanding.ts";
@@ -43,7 +44,7 @@ const childPublication = test.extend({
 });
 
 childPublication(
-  "a Wait for review session carries the landing context too; a context naming no story is admitted only for the launch that established a session",
+  "an isolated Wait for review session carries its story's landing context",
   async ({ dashboard, origin }) => {
     // The default choices establish no session: the reporting context names
     // no landing context and no capture authority is kept.
@@ -91,7 +92,8 @@ childPublication(
     expect(block).toBe(sessionBlock(session));
     expectReportingBlock(reportingBlock, waiting.record.request, dashboard);
     expect(reportingBlock).toContain("--landing-context");
-    expect(context).not.toHaveProperty("identity");
+    const identity = storyOf(waiting.record.request);
+    expect(context.identity).toBe(identity);
 
     const base = await originMain(origin);
     const revision = commit(session.workspace, "later.txt");
@@ -101,12 +103,14 @@ childPublication(
         .forLaunch({ reference })
         .comparing({ base, revision })
         .please();
-    const waitingLanding = landingFor(reporting.reference);
+    const waitingLanding = { ...landingFor(reporting.reference), identity };
     for (const refused of [
-      // A story named for a launch that has none.
+      landingFor(reporting.reference),
       { ...waitingLanding, identity: "SEED-1#a" },
       { ...waitingLanding, identity: "" },
       { ...waitingLanding, remote: "foreign" },
+      { ...waitingLanding, target: "refs/heads/foreign" },
+      { ...waitingLanding, host: "codex" },
     ])
       expect((await post(dashboard, refused)).status).toBeGreaterThanOrEqual(
         400,
@@ -117,12 +121,17 @@ childPublication(
     ).toBe(409);
     for (const kept of keptAttempts(dashboard))
       expect(kept).not.toHaveProperty("landingPreparations");
+    expect(await originMain(origin)).toBe(base);
 
     // The developer later asks the waiting session to land: its own context
     // captures that landing.
     expect((await post(dashboard, waitingLanding)).status).toBe(200);
     const delivered = land(waiting.record, origin, dashboard.home).result;
-    expect(delivered.landing.receipt).toMatchObject({ base, revision });
+    expect(delivered.landing.receipt).toMatchObject({
+      identity,
+      base,
+      revision,
+    });
     expect(await originMain(origin)).toBe(revision);
     expect(
       (await keptRecord(dashboard, reporting.reference))?.landing,
@@ -139,7 +148,7 @@ test.describe("Codex", () => {
     liveServer: "synchronous delivery child blocks the mounted receiver",
   });
 
-  test("the installed delivery command a one-shot landing runs captures an isolated session's landing with no identity", async ({
+  test("the installed delivery command captures an isolated session's story-linked landing", async ({
     dashboard,
     codexProtocol,
     origin,
@@ -159,11 +168,13 @@ test.describe("Codex", () => {
     const record = answer.record;
     if (record === undefined) throw new Error("Missing launch record.");
     const { session, reporting, context } = landingHandoff(record);
+    const identity = storyOf(record.request);
     expect(context).toEqual({
       origin: dashboard.origin,
       source: "open-dough",
       host: "codex",
       reference: reporting.reference,
+      identity,
       remote: "origin",
       target: "refs/heads/main",
     });
@@ -186,11 +197,12 @@ test.describe("Codex", () => {
       observation: { state: "unobserved" },
       landing: { state: "recorded" },
     });
-    expect(delivered.landing.receipt).not.toHaveProperty("identity");
+    expect(delivered.landing.receipt.identity).toBe(identity);
     expect(await originMain(origin)).toBe(revision);
     expect((await keptRecord(dashboard, reporting.reference))?.landing).toEqual(
       {
         repository: repositoryOf(origin.project),
+        identity,
         remote: "origin",
         target: "refs/heads/main",
         reference: reporting.reference,

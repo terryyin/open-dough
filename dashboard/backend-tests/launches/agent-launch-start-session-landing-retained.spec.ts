@@ -2,16 +2,23 @@
 // startup attempt expires, as a story launch's does
 // (../review/one-shot-landing-recovery-retention.spec.ts), with the server's clock
 // advanced past the attempt's retention on a real start origin: the record
-// holds the capture authority of the session's workspace with no identity,
+// holds the capture authority of the session's workspace and story,
 // the installed delivery command given the launch's context still prepares
-// and records its landing, and a request naming a story is refused.
+// and records its landing, and a request naming a different story is refused.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { expect, stored, test } from "../../test-support/support/codexStart.ts";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { commit, git } from "../../test-support/support/launchLanding.ts";
+import {
+  quote,
+  reportingChild,
+} from "../../test-support/support/completionRecovery.ts";
+import { launchStoryIdentity } from "../../test-support/support/unattachedLaunchAssertions.ts";
 import {
   dropExpiredAttempts,
   landingRetentionClock,
@@ -27,7 +34,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-test("an unattached launch's kept record captures its landing after its startup attempt expired, with no identity", async ({
+test("an admitted launch's kept record captures and retries the same story landing after the attempt expires", async ({
   dashboard,
   origin,
   codexProtocol: native,
@@ -53,11 +60,13 @@ test("an unattached launch's kept record captures its landing after its startup 
     });
     const record = stored(receiver.home)[0];
     if (record === undefined) throw new Error("No bound launch");
-    const { session, reporting } = landingHandoff(record);
+    const { session, reporting, file } = landingHandoff(record);
+    const identity = launchStoryIdentity(record);
     const authority = {
       repository: repositoryOf(origin.project),
       workspace: session.workspace,
       branch: session.branch,
+      identity,
       remote: "origin",
       target: "refs/heads/main",
     };
@@ -80,7 +89,7 @@ test("an unattached launch's kept record captures its landing after its startup 
     expect(keptAttempts(receiver)).toHaveLength(0);
     expect(stored(receiver.home)).toHaveLength(1);
 
-    // A story named for the launch that has none is still refused.
+    // A different story cannot reuse the retained launch's authority.
     const refused = await postLanding(receiver, {
       ...makeMe.aLandingSubmission
         .forLaunch({ host: "codex", reference: reporting.reference })
@@ -89,6 +98,7 @@ test("an unattached launch's kept record captures its landing after its startup 
       identity: "SEED-1#a",
     });
     expect(refused.status).toBe(409);
+    expect(await originMain(origin)).toBe(base);
     expect(stored(receiver.home)[0]?.landingReporting?.preparations).toEqual(
       [],
     );
@@ -100,7 +110,7 @@ test("an unattached launch's kept record captures its landing after its startup 
       receipt: { sha: revision },
       landing: { state: "recorded" },
     });
-    expect(delivered.landing.receipt).not.toHaveProperty("identity");
+    expect(delivered.landing.receipt.identity).toBe(identity);
     expect(await originMain(origin)).toBe(revision);
     const kept = stored(receiver.home)[0];
     expect(kept?.landing).toEqual({
@@ -116,6 +126,19 @@ test("an unattached launch's kept record captures its landing after its startup 
     });
     expect(kept?.landingReporting?.preparations).toEqual([kept?.landing]);
     expect(keptAttempts(receiver)).toHaveLength(0);
+    const { pending } = JSON.parse(
+      readFileSync(
+        path.join(path.dirname(file), "landing-current.json"),
+        "utf8",
+      ),
+    ) as { pending: string };
+    const retry = await reportingChild(
+      `${reporting.command} --operation landing --retry ${quote(pending)}`,
+      origin.machine,
+    );
+    expect(retry.ok, retry.stderr).toBe(true);
+    expect(JSON.parse(retry.stdout)).toEqual(delivered.landing.receipt);
+    expect(await originMain(origin)).toBe(revision);
   } finally {
     await receiver.close();
   }

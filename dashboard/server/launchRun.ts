@@ -134,7 +134,7 @@ async function startedRun(
           : requested);
     const kept = pending?.request.reporting ?? attempt.reporting;
     const preparedReporting = await prepareAttemptReporting(
-      attempt,
+      owned.attempt,
       start,
       folder,
       pending,

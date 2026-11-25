@@ -5,6 +5,7 @@ import { access } from "node:fs/promises";
 import path from "node:path";
 import {
   sendsFirstInput,
+  unattachedPolicyOf,
   type AgentLaunchRequest,
   type LaunchAttemptRecord,
 } from "../src/agentLaunch.ts";
@@ -59,9 +60,9 @@ export function preparesReporting(
 ): attempt is LaunchAttemptRecord & { reportingOrigin: string } {
   return (
     attempt.reportingOrigin !== undefined &&
-    !(
-      attempt.request.workflow === "ad-hoc" && !sendsFirstInput(attempt.request)
-    )
+    (attempt.request.workflow !== "ad-hoc" ||
+      sendsFirstInput(attempt.request) ||
+      unattachedPolicyOf(attempt.request).landing === "auto-land")
   );
 }
 

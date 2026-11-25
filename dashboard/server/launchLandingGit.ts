@@ -11,6 +11,7 @@ import {
   type HeldPin,
 } from "./launchLandingPins.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { commonGitDirectory } from "./gitCommonDirectory.ts";
 
 export {
   heldPins,
@@ -124,13 +125,22 @@ async function verifyComparison({ repository, base, revision }: LaunchLanding) {
 
 export async function verifyLanding(
   landing: LaunchLanding,
-  prepare?: { workspace: string; branch: string },
+  prepare?: {
+    workspace: string;
+    branch: string;
+    declaredTrunk?: string | undefined;
+  },
 ): Promise<HeldPin[]> {
   const { repository, revision, remote, target } = landing;
   const prefix = landingDeliveryRefPrefix(landing);
   const expected = comparisonPins(prefix, landing);
   try {
     if (prepare !== undefined) {
+      if (
+        (await commonGitDirectory(landingGitCall(prepare.workspace))) !==
+        repository
+      )
+        throw new Error("The launch workspace is in a different repository.");
       await verifyComparison(landing);
       // The candidate is what the workspace holds and carries the launch's
       // branch: its tip, or a detached integration of that tip onto trunk.
@@ -145,6 +155,15 @@ export async function verifyLanding(
         `refs/heads/${prepare.branch}`,
         revision,
       ]);
+      // A replay can replace a declared branch's local tip. Its observed
+      // trunk must still be in the publication's history.
+      if (prepare.declaredTrunk !== undefined)
+        await git(repository, [
+          "merge-base",
+          "--is-ancestor",
+          prepare.declaredTrunk,
+          revision,
+        ]);
       return expected;
     }
     const held = await heldPins(repository, prefix);

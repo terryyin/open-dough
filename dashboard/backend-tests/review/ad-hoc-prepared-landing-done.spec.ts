@@ -70,6 +70,13 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
     },
   });
   expect(saved?.landing).toBeUndefined();
+  await expect(
+    handleLanding(
+      { ...submission, delivery: "11111111-0000-4000-8000-000000000738" },
+      dashboardOrigin,
+      "prepare",
+    ),
+  ).rejects.toMatchObject({ status: 409 });
 
   expect(await handleLanding(submission, dashboardOrigin, "record")).toEqual({
     ...receipt,

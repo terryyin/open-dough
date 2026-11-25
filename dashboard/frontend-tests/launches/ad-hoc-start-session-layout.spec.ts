@@ -84,7 +84,9 @@ test("both workspace policies keep the automatic landing actions in view when na
   await command.click();
   await expect
     .element(
-      dialog.getByText(/Its first message carries the established session/),
+      dialog.getByText(
+        /If Start sends a first message, it carries the established session/,
+      ),
     )
     .toBeVisible();
   const pairsWrap = (wrapped: boolean) =>

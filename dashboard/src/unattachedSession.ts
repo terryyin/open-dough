@@ -42,17 +42,13 @@ export const startsAdHocSession = (request: UnattachedChoices): boolean =>
   admitsAdHocStory(request) || establishesSession(request);
 
 // Whether an unattached launch sends a first input: the developer's text, any
-// attached images (their path list alone when text is blank), the block of
-// the session it establishes, or the context of the entry it follows up. One
-// that sends none stays a blank native launch. Admission alone does not
-// consume the session's first input.
+// attached images (their path list alone when text is blank), or the context
+// of the entry it follows up. Establishment accompanies that input.
 export function sendsFirstInput(request: UnattachedChoices): boolean {
   return (
     Boolean(request.instruction?.trim()) ||
     (request.attachments?.length ?? 0) > 0 ||
-    request.followUp !== undefined ||
-    (establishesSession(request) &&
-      unattachedPolicyOf(request).workspace === "default-checkout")
+    request.followUp !== undefined
   );
 }
 

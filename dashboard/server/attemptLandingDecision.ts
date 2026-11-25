@@ -1,6 +1,6 @@
 // Attempt-path prepare or record when no retained record owns the landing.
 import { storyOf } from "../src/launchWorkflow.ts";
-import { reportingAttempt } from "./completionAdmission.ts";
+import { isReportingRecord, reportingAttempt } from "./completionAdmission.ts";
 import type {
   LandingDecision,
   LandingDecisionInput,
@@ -8,6 +8,7 @@ import type {
 import {
   boundLandingReporting,
   changeBoundLandingRecord,
+  landingStoryOfAttempt,
   withLandingPreparations,
 } from "./launchLandingRecord.ts";
 import {
@@ -29,7 +30,7 @@ export async function decideAttemptLanding({
   const prepare = operation === "prepare";
   const attempt = reportingAttempt(attempts, report, origin);
   const authority = authorizedLanding(attempt.landingRepository, report);
-  if (storyOf(attempt.request) !== report.identity)
+  if (landingStoryOfAttempt(attempt) !== report.identity)
     throw new RefusedRequest(
       409,
       "This is not the established launch's authorized landing.",
@@ -37,6 +38,17 @@ export async function decideAttemptLanding({
   const bound = records.find(
     (record) => record.request.reporting?.reference === report.reference,
   );
+  if (
+    bound !== undefined &&
+    (!isReportingRecord(bound, report) ||
+      bound.request.host !== report.host ||
+      bound.request.reporting?.origin !== origin ||
+      storyOf(bound.request) !== authority.identity)
+  )
+    throw new RefusedRequest(
+      409,
+      "The retained session does not match the launch's landing authority.",
+    );
   if (bound?.landingReporting?.deletedAt !== undefined)
     throw new RefusedRequest(409, "The reporting session was deleted.");
   if (bound === undefined && attempt.outcome !== undefined)

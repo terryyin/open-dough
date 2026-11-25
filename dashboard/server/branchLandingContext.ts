@@ -2,7 +2,9 @@
 import { randomUUID } from "node:crypto";
 import type { LandingReporting } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
 import type { SessionBranchEntry } from "../src/sessionBranchResult.ts";
+import { declaredLandingAuthority } from "./launchLandingRecord.ts";
 import {
   copyReportingFiles,
   writeLandingContext,
@@ -33,6 +35,9 @@ export function acceptBranchLandingAnswer(
   if (
     current.launchedAt !== answered.launchedAt ||
     current.doneAt !== undefined ||
+    current.request.host !== answered.request.host ||
+    current.defaultStart?.repository !== answered.branchEntry?.repository ||
+    storyOf(current.request) !== storyOf(answered.request) ||
     current.landingReporting !== undefined ||
     answered.landingReporting === undefined ||
     !sameBranchEntry(current.branchEntry, answered.branchEntry)
@@ -63,20 +68,12 @@ export async function branchLandingContext(
   | undefined
 > {
   if (record.landingReporting !== undefined) return undefined;
-  const entry = record.branchEntry;
-  if (entry?.trunk === undefined || record.doneAt !== undefined)
-    return undefined;
-  const authority = {
-    repository: entry.repository,
-    workspace: entry.workspace,
-    branch: entry.branch,
-    remote: entry.trunk.remote,
-    target: entry.trunk.target,
-  };
+  const authority = declaredLandingAuthority(record);
+  if (authority === undefined || record.doneAt !== undefined) return undefined;
   const host = record.session.host;
   const files = await copyReportingFiles(
     host,
-    { path: entry.workspace, shown: entry.workspace },
+    { path: authority.workspace, shown: authority.workspace },
     directory,
   ).catch(() => undefined);
   if (files?.landingModule === undefined) return undefined;

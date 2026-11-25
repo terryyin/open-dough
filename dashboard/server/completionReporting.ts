@@ -2,11 +2,12 @@
 import type { IncomingMessage } from "node:http";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
-import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
+import { defaultGitOutputLimit } from "./gitRunner.ts";
+import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { type LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import type { ReportingContext } from "../src/launchRequest.ts";
 import type { LandingRepository } from "../src/launchLanding.ts";
-import { establishedStory } from "./launchRecord.ts";
+import { landingStoryOfAttempt } from "./launchLandingRecord.ts";
 import { installedExports } from "./startLaunch.ts";
 import type { LocalFolder } from "./localFolder.ts";
 import { deliverCompletion } from "./completionDelivery.ts";
@@ -48,19 +49,14 @@ export async function reportingContext(
   const { directory, script, landingModule, expectationModule } = files;
   let landingContext: string | undefined;
   let landingRepository: LandingRepository | undefined;
-  // Every established start, preparation or unattached session names its
-  // trunk target. A story workflow also names its story.
-  const identity = establishedStory(established);
+  // The established workspace names its trunk target. The accepted attempt
+  // supplies the story, including an admitted or follow-up ad hoc launch.
+  const identity = landingStoryOfAttempt(attempt);
   if (landingModule !== undefined && established !== undefined) {
-    const repository = (
-      await runGit(
-        ["rev-parse", "--path-format=absolute", "--git-common-dir"],
-        {
-          cwd: established.workspace,
-          maxBuffer: defaultGitOutputLimit,
-        },
-      )
-    ).stdout.trim();
+    const repository = await commonGitDirectory({
+      cwd: established.workspace,
+      maxBuffer: defaultGitOutputLimit,
+    });
     landingRepository = {
       repository,
       workspace: established.workspace,

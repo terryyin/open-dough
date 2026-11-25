@@ -2,11 +2,42 @@
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import type { CreationRecord } from "../src/launchCreation.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import type { LandingReporting, LaunchLanding } from "../src/launchLanding.ts";
+import type {
+  LandingReporting,
+  LandingRepository,
+  LaunchLanding,
+} from "../src/launchLanding.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 
 type StoredRecord = LaunchRecord | CreationRecord;
 export type LandingRecordChange = (records: StoredRecord[]) => StoredRecord[];
+
+export function landingStoryOfAttempt({
+  request,
+  publication,
+}: LaunchAttemptRecord): string | undefined {
+  if (request.workflow !== "ad-hoc") return storyOf(request);
+  return publication.kind === "published"
+    ? publication.identity
+    : request.followUp?.storyIdentity;
+}
+
+export function declaredLandingAuthority(
+  record: LaunchRecord,
+): LandingRepository | undefined {
+  const entry = record.branchEntry;
+  if (entry?.trunk === undefined) return undefined;
+  const identity = storyOf(record.request);
+  return {
+    repository: entry.repository,
+    workspace: entry.workspace,
+    branch: entry.branch,
+    ...(identity === undefined ? {} : { identity }),
+    remote: entry.trunk.remote,
+    target: entry.trunk.target,
+  };
+}
 
 // Apply the change to the same launch in the write's own retained records.
 export function changeBoundLandingRecord(

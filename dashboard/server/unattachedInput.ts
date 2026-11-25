@@ -8,10 +8,7 @@
 // Older story follow-ups and standalone session follow-ups save only context,
 // so they keep their separate instruction block.
 
-import {
-  unattachedPolicyOf,
-  type RecordedLaunchRequest,
-} from "../src/agentLaunch.ts";
+import type { RecordedLaunchRequest } from "../src/agentLaunch.ts";
 import { developerPart } from "../src/launchAttachments.ts";
 import { reportingInstruction } from "./reportingInstruction.ts";
 
@@ -27,15 +24,7 @@ export function unattachedInput(
   );
   const identity =
     request.workflow === "ad-hoc" ? request.storyIdentity : undefined;
-  if (
-    (block === undefined ||
-      (request.workflow === "ad-hoc" &&
-        identity !== undefined &&
-        unattachedPolicyOf(request).workspace === "isolated")) &&
-    own === undefined &&
-    context === undefined
-  )
-    return undefined;
+  if (own === undefined && context === undefined) return undefined;
   const story =
     identity === undefined || saved !== undefined
       ? undefined

@@ -1,6 +1,7 @@
 // Retained-record landings: declared branch handoffs and expired attempts.
 import { landingReportingReference } from "../src/launchLanding.ts";
 import { launchRetentionDays, type LaunchRecord } from "../src/launchRecord.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
@@ -11,6 +12,7 @@ import type {
 import { establishedStory } from "./launchRecord.ts";
 import {
   changeBoundLandingRecord,
+  declaredLandingAuthority,
   withLandingPreparations,
 } from "./launchLandingRecord.ts";
 import {
@@ -32,7 +34,7 @@ function declaredLandingRecord(
   );
   if (record === undefined) return undefined;
   const retained = record.landingReporting;
-  const entry = record.branchEntry;
+  const declared = declaredLandingAuthority(record);
   const authority = retained?.authority;
   if (
     record.request.workflow !== "ad-hoc" ||
@@ -40,13 +42,19 @@ function declaredLandingRecord(
     record.session.host !== report.host ||
     retained?.origin !== origin ||
     retained.deletedAt !== undefined ||
-    authority?.identity !== undefined ||
-    entry?.trunk === undefined ||
-    authority?.repository !== entry.repository ||
-    authority.workspace !== entry.workspace ||
-    authority.branch !== entry.branch ||
-    authority.remote !== entry.trunk.remote ||
-    authority.target !== entry.trunk.target
+    declared === undefined ||
+    authority?.identity !== declared.identity ||
+    authority?.repository !== declared.repository ||
+    record.defaultStart?.repository !== declared.repository ||
+    authority.workspace !== declared.workspace ||
+    authority.branch !== declared.branch ||
+    authority.remote !== declared.remote ||
+    authority.target !== declared.target ||
+    (record.doneAt !== undefined &&
+      record.landing === undefined &&
+      !retained.preparations.some(
+        ({ delivery }) => delivery === report.delivery,
+      ))
   )
     throw new RefusedRequest(
       409,
@@ -85,8 +93,8 @@ function expiredAttemptRecord({
     );
   if (retained.deletedAt !== undefined)
     throw new RefusedRequest(409, "The reporting session was deleted.");
-  // The workflow a record names decides which of its facts is its own; an
-  // unattached launch's is its established session, which names no story.
+  // The record's request binds the story. The workflow's established facts
+  // bind its workspace and branch.
   const established =
     record?.request.workflow === "execution"
       ? record.start
@@ -98,8 +106,9 @@ function expiredAttemptRecord({
     record?.request.host !== report.host ||
     record.request.reporting?.origin !== origin ||
     established === undefined ||
-    establishedStory(established) !== report.identity ||
-    establishedStory(established) !== authority.identity ||
+    storyOf(record.request) !== authority.identity ||
+    (record.request.workflow !== "ad-hoc" &&
+      establishedStory(established) !== authority.identity) ||
     established.workspace !== authority.workspace ||
     established.branch !== authority.branch ||
     established.remote !== authority.remote ||
@@ -143,6 +152,9 @@ export async function decideRetainedLanding(
     retained.preparations,
     receiptId,
     receivedAt,
+    retained.branchContext === undefined
+      ? undefined
+      : current.branchEntry?.trunk?.revision,
   );
   const { landing, isNew } = reservation;
   if (!isNew)

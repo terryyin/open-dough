@@ -55,7 +55,7 @@ import { startedSessionTerminal } from "../../dashboard/test-support/support/sta
 
 const inNew = "The session runs in a new workspace under .worktrees/";
 const carries =
-  "Its first message carries the established session: workspace, workspace role, branch, remote, target, landing, and the starting revision after admission.";
+  "If Start sends a first message, it carries the established session: workspace, workspace role, branch, remote, target, landing, and the starting revision after admission.";
 const text = "Tidy the README wording";
 const slug = "tidy-the-readme-wording";
 

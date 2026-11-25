@@ -55,6 +55,7 @@ export async function resolveLandingComparison(
   preparations: readonly LaunchLanding[] = [],
   receiptId: string,
   receivedAt: string,
+  declaredTrunk?: string,
 ): Promise<LandingReservation> {
   const prepared = preparations.find(
     (entry) => entry.delivery === report.delivery,
@@ -89,7 +90,7 @@ export async function resolveLandingComparison(
   };
   const pinWrites = await verifyLanding(
     landing,
-    prepare ? authority : undefined,
+    prepare ? { ...authority, declaredTrunk } : undefined,
   );
   return { landing, isNew: true, pinWrites };
 }

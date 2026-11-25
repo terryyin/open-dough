@@ -75,7 +75,7 @@ test("HTTP text preserves exact bytes once; completed blank launches permit anot
 // in the execution checkout are confirmed before anything is created, and a session
 // that lands automatically is handed its established session first.
 startTest(
-  "existing changes are confirmed before Codex creates anything, and an established session's block and reporting context are the whole first input",
+  "existing changes are confirmed before Codex creates anything, then the established session's block precedes the developer's instruction",
   async ({ dashboard, codexProtocol, origin }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture.");
@@ -84,6 +84,7 @@ startTest(
     const changes = status(origin.project);
     const asked = {
       ...request,
+      instruction: "Explain these changes",
       policy: { workspace: "default-checkout", landing: "auto-land" },
     };
     const found = JSON.parse((await launch(dashboard, asked)).body) as {
@@ -121,7 +122,10 @@ startTest(
     expect(input.map(({ type }) => type)).toEqual(["text"]);
     const [block, reporting, ...extra] = (input[0]?.text ?? "").split("\n\n");
     expect(block).toBe(sessionBlock(session));
-    expect(extra).toEqual([`Taken story: ${launchStoryIdentity(record)}`]);
+    expect(extra).toEqual([
+      `Taken story: ${launchStoryIdentity(record)}`,
+      asked.instruction,
+    ]);
     expectReportingBlock(reporting, record?.request, dashboard);
     expect(record?.firstInput?.instruction).toBe(input[0]?.text);
     expect(

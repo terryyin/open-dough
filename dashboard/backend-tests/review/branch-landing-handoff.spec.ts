@@ -27,6 +27,8 @@ import { keep, minutesAgo, source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
+const storyIdentity = "SEED-439#declared-story";
+
 async function aKeptBranchHandoff() {
   const branch = "declared-draft";
   const support = await reportingSupport("claude", {
@@ -51,7 +53,9 @@ async function aKeptBranchHandoff() {
     .withOrigin()
     .withBaseFiles(Object.fromEntries(files))
     .withWorkspace(branch)
-    .withDeclaringLaunch("default-launch", { launched: 60 }, branch)
+    .withDeclaringLaunch("default-launch", { launched: 60 }, branch, (launch) =>
+      launch.adHoc({ title: "Follow up the story", storyIdentity }),
+    )
     .please();
   const workspace = worktrees[branch];
   const creation = makeMe.aCreationRecord
@@ -122,7 +126,16 @@ test("a same-origin branch handoff without Origin answers with the publisher fil
     throw new Error("No saved context file.");
   expect(
     JSON.parse(await readFile(answer.landingContext, "utf8")),
-  ).toMatchObject({ source, reference: context?.reference });
+  ).toMatchObject({
+    source,
+    reference: context?.reference,
+    identity: storyIdentity,
+  });
+  expect(kept?.landingReporting?.authority).toMatchObject({
+    identity: storyIdentity,
+    workspace: submission.workspace,
+    branch: submission.branch,
+  });
 });
 
 test("a branch handoff saves its context alongside newer record evidence", async () => {

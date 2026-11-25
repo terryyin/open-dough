@@ -50,29 +50,28 @@ type BeforePush = {
 };
 
 // Lands the session's workspace on trunk through the installed shared
-// publication, as Dough Land runs it with no execution observer, given the
-// launch's context and no identity. Answers its result and what the
-// dashboard had kept, and origin held, just before the push.
+// publication, using the launch's explicit context or its first-landing
+// expectation. Also returns what the dashboard and origin held before push.
 export function land(
   record: LaunchRecord,
   origin: StartOrigin,
   home: string,
-  host: Host = "claude",
+  options: { discover?: boolean; previouslyPublishedBase?: string } = {},
 ) {
   const { session, reporting, file } = landingHandoff(record);
   return publishSessionLanding(
     {
       workspace: session.workspace,
       branch: session.branch,
-      previouslyPublishedBase: session.startingRevision,
+      previouslyPublishedBase:
+        options.previouslyPublishedBase ?? session.startingRevision,
       remote: session.remote,
       targetRef: `refs/heads/${session.target}`,
-      landingContext: file,
+      ...(options.discover ? {} : { landingContext: file }),
     },
     reporting.reference,
     origin,
     home,
-    { host },
   );
 }
 
@@ -83,7 +82,7 @@ function publishSessionLanding(
     readonly previouslyPublishedBase: string | undefined;
     readonly remote: string;
     readonly targetRef: string;
-    readonly landingContext: string;
+    readonly landingContext?: string;
   },
   reference: string,
   origin: StartOrigin,

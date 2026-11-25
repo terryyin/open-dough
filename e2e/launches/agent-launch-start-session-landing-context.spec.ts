@@ -1,13 +1,9 @@
-// An unattached Start session that establishes a session is handed its
-// launch's landing context, as a story launch is, and a landing made from
-// its workspace is captured for that launch with no story identity. With a
-// real bare origin (../../dashboard/test-support/support/startOrigin.ts), the installed start and
-// publication scripts, and the synthetic `claude`: the reporting context in
-// the first message names `--landing-context <file>`; that file names the
-// launch, its remote and trunk target and no identity; the installed shared
-// publication, as Dough Land runs it, given that file, prepares the
-// comparison before its push and records the accepted one, which the launch
-// record keeps. Default-main handoff belongs to the automatic-landing page
+// An isolated Start session keeps the admitted story in its landing context.
+// With a real bare origin, the installed start and publication scripts, and
+// synthetic Claude, the first message names `--landing-context <file>`. The
+// file binds the launch and story to its remote and trunk target. The publisher
+// prepares the comparison before push and the launch keeps the accepted pair
+// under that story. Default-main handoff belongs to the automatic-landing page
 // journey; shared capture variations belong to the one-shot landing suite. Which
 // launches a landing is captured for, and the installed delivery command,
 // are in ../../dashboard/backend-tests/launches/agent-launch-start-session-landing-admission.spec.ts.

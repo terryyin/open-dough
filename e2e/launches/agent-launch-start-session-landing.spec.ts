@@ -5,8 +5,9 @@
 // (../../dashboard/test-support/support/startOrigin.ts), the installed start recorded as it runs
 // (../../dashboard/test-support/support/startSessionLanding.ts), and the synthetic `claude`:
 // Automatically land retains the execution checkout policy and admits its
-// story from a separate claim checkout. The first input includes the
-// established-session block, reporting context and story. Raw requests are
+// story from a separate claim checkout. The blank terminal leaves first
+// input to the developer while the installed publisher can find the story's
+// landing context. Raw requests are
 // in ../../dashboard/backend-tests/launches/agent-launch-start-session-landing-boundary.spec.ts.
 
 import { execFileSync } from "node:child_process";
@@ -26,13 +27,17 @@ import {
   startSessionDialog,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { status } from "../../dashboard/test-support/support/executionCheckoutChanges.ts";
+import {
+  commit,
+  git,
+} from "../../dashboard/test-support/support/launchLanding.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
-import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   openBacklog,
   originMain,
@@ -41,9 +46,11 @@ import {
 import {
   executionCheckoutSession,
   recordStarts,
-  sessionBlock,
 } from "../../dashboard/test-support/support/startSessionLanding.ts";
-import { expectLandingHandoff } from "../../dashboard/test-support/support/startSessionLandingCapture.ts";
+import {
+  land,
+  landingHandoff,
+} from "../../dashboard/test-support/support/startSessionLandingContext.ts";
 import { admittedStory } from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
 import {
   expectBorrowedStarts,
@@ -73,7 +80,7 @@ async function startedSession(dashboard: DashboardServer, project: string) {
   return { sent: started?.instruction, record };
 }
 
-test("Automatically land with no text names the push beside Start, runs the installed start in the execution checkout, and hands the session its landing intent", async ({
+test("blank Automatically land Start opens a blank terminal and keeps the publisher's story authority", async ({
   page,
   dashboard,
   origin,
@@ -104,7 +111,7 @@ test("Automatically land with no text names the push beside Start, runs the inst
   );
   await expect(
     dialog.getByText(
-      "Its first message carries the established session: workspace, workspace role, branch, remote, target, landing, starting revision, and fetched trunk.",
+      "If Start sends a first message, it carries the established session: workspace, workspace role, branch, remote, target, landing, starting revision, and fetched trunk.",
     ),
   ).toBeAttached();
 
@@ -120,14 +127,9 @@ test("Automatically land with no text names the push beside Start, runs the inst
     record,
     dashboard.home,
   );
-  // The first message is the block, then the reporting context, and nothing
-  // of the developer's.
   const session = executionCheckoutSession(origin.project, "auto-land", before);
-  const [block, reporting, ...extra] = (sent ?? "").split("\n\n");
-  expect(block).toBe(sessionBlock(session));
-  const binding = `Taken story: ${launchStoryIdentity(record)}`;
-  expect(extra).toEqual([binding]);
-  expectReportingBlock(reporting, record.request, dashboard);
+  expect(sent).toBeUndefined();
+  await expect(terminalPanel(page)).toBeVisible();
 
   // Local evidence keeps the policy and what the start established.
   expect(record.request).toMatchObject({
@@ -136,9 +138,12 @@ test("Automatically land with no text names the push beside Start, runs the inst
   });
   expect(record.request).not.toHaveProperty("instruction");
   expect(record.establishedSession).toEqual(session);
-  expectLandingHandoff(record, sent ?? "", dashboard, origin.project, [
-    binding,
-  ]);
+  const { context } = landingHandoff(record);
+  expect(context).toMatchObject({
+    identity: launchStoryIdentity(record),
+    remote: session.remote,
+    target: `refs/heads/${session.target}`,
+  });
   for (const absent of ["start", "preparation"])
     expect(record).not.toHaveProperty(absent);
   // The session's entry names the execution checkout it was established in.
@@ -154,4 +159,19 @@ test("Automatically land with no text names the push beside Start, runs the inst
   expect(await keptStarts(dashboard)).toEqual([]);
   expect(worktrees(origin.project)).toContain(places);
   expect(status(origin.project)).toBe("");
+
+  // After the blank startup, make a result on the admitted trunk. The
+  // installed publisher discovers the first-landing context on its own.
+  const base = await originMain(origin);
+  git(origin.project, "fetch", "origin");
+  git(origin.project, "merge", "--ff-only", base);
+  const revision = commit(origin.project, "blank-start-result.txt");
+  const { result, before: beforePush } = land(record, origin, dashboard.home, {
+    discover: true,
+    previouslyPublishedBase: base,
+  });
+  const comparison = { identity: launchStoryIdentity(record), base, revision };
+  expect(beforePush).toMatchObject({ trunk: base, preparations: [comparison] });
+  expect(result.landing.receipt).toMatchObject(comparison);
+  expect(await originMain(origin)).toBe(revision);
 });
