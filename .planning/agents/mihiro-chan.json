@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Mihiro-chan",
+  "email": "mihiro-chan@example.org",
+  "identity": "SEED-437#discover-project-default-branch-through-git",
+  "mode": "story-branch",
+  "branch": "codex/discover-a-project-s-default-branch-through-git",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
