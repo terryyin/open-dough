@@ -30,6 +30,8 @@ import { refMoveComparisons } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import { isCiJudgmentCall, type CiAnswerer } from "./support/baseCiActions.ts";
 import { isActionsRequest } from "./support/ghActionsRequest.ts";
+import type { PublishedOrigin } from "./support/publishedOrigin.ts";
+import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
 
 // Configured ref (default `main`) names one revision of these published files:
 // contents, directory listings, and path commit lists/history answer as origin
@@ -71,13 +73,18 @@ export type MovingFiles = {
   failListing(): () => void;
 };
 
+export type PublishedFiles = PublishedRevision & {
+  readonly repository: string;
+  readonly ref?: string;
+  readonly branches?: Readonly<Record<string, PublishedRevision>>;
+};
+
 export function publishMovingFiles(
   page: Page,
-  published: PublishedRevision & {
-    readonly repository: string;
-    readonly ref?: string;
-    readonly branches?: Readonly<Record<string, PublishedRevision>>;
-  },
+  published: PublishedFiles,
+  // The real origin `published.revision` is committed to, when it is: serving
+  // these files then routes it for Git reads (./support/fakeGitHub.ts).
+  committedTo?: PublishedOrigin,
 ): MovingFiles {
   const requests: ObservedRequest[] = [];
   const { repository, ref = "main" } = published;
@@ -91,7 +98,7 @@ export function publishMovingFiles(
   let comparisonsHeld: Promise<void> = Promise.resolve();
   let ci: CiAnswerer | undefined;
   let listingFails = false;
-  githubFor(page).serve(repository, async (call) => {
+  const answerer: RepositoryAnswerer = async (call) => {
     const { request } = call;
     if (ci !== undefined && isCiJudgmentCall(call)) {
       const answer = await ci(call);
@@ -191,7 +198,8 @@ export function publishMovingFiles(
     return Promise.resolve(
       body === undefined ? notFoundAnswer() : rawFileAnswer(body),
     );
-  });
+  };
+  githubFor(page).serve(repository, Object.assign(answerer, committedTo));
   return {
     requests,
     moveTrunk(at, by) {
@@ -231,7 +239,7 @@ export function publishMovingFiles(
 
 export function publishFiles(
   page: Page,
-  published: Parameters<typeof publishMovingFiles>[1],
+  published: PublishedFiles,
 ): Promise<ObservedRequest[]> {
   return Promise.resolve(publishMovingFiles(page, published).requests);
 }

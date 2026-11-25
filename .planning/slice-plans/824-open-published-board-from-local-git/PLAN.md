@@ -60,7 +60,7 @@ own the other publication forms and the switch.
 ### 1. Publish fixed profile and clock records at a real pin
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: Add one fixed file-publication path using the existing commit,
 routing, and REST file answerers. Move the fixed cases in
@@ -73,6 +73,16 @@ check the profile facts, clock, missing listings and broken history. Run both
 specs. Budget 12 active minutes for the shared path and these four setups,
 including focused proof inspection and local delivery work.
 
+Learnings: `publishCommittedFiles` in
+[committedFiles.ts](../../../dashboard/test-support/committedFiles.ts) is
+the shared fixed path. It returns the real `revision` with the requests and
+checks every served HOME through `expectServedHomesReach`, so migrated specs
+add no routing assertion. A wrapper that fails one REST kind uses
+`publishes()` with `keepingOrigin` and calls `expectServedHomesReach` itself;
+`failListing()` fails only branch-head listings. Reusable proof: both specs
+(4 cases) and the nine direct `publishMovingFiles` consumer specs passed
+after refactoring.
+
 ### 2. Publish fixed roster and branch-progress records
 
 Type: Structure
@@ -81,8 +91,10 @@ Status: planned
 Change: Migrate fixed setups reached through `agentRosterRecords` and the
 fixed publication sites in `nerds-cartoon-portrait` and
 `branch-slice-progress`. Keep unknown-profile and absent-backlog fixtures
-at their original failure boundary. Leave a fixture that moves the same
-publication to the moving story.
+at their original failure boundary. `commitPublishedOrigin` inserts an
+empty backlog when none is given, so let the absent-backlog fixture commit
+without one. Leave a fixture that moves the same publication to the moving
+story.
 
 Proof: Run the reached roster, portrait and branch-progress cases.
 Observe the reported revision for each project and the advertised trunk via
