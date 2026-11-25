@@ -124,10 +124,9 @@ button above the bar. The bar holds, in order:
 The details show what the stacked text shows today: the recorded time,
 branch, baseline and result revisions, and the attribution or the
 explanation of why a comparison is unavailable. The comparison follow-up
-action stays in the details until
-[its own story](#put-comparison-follow-up-by-story-notes) moves it. The
-details also hold **Refresh**, which re-reads the comparison while keeping the
-choice. The standalone **Refresh** button leaves the bar. Changing the
+is beside **Notes** in the story title. The details also hold **Refresh**,
+which re-reads the comparison while keeping the choice. The standalone
+**Refresh** button leaves the bar. Changing the
 comparison updates the summary and the details to describe the new choice.
 Reading, unavailable and failed states appear in the summary's place. A read
 failure keeps its **Retry** there. On a narrow window the bar wraps instead of
@@ -156,50 +155,6 @@ follow-up button beside the notes.
 - No comparison is available. The summary says so and the details explain
   why. The comparison read fails: the summary reports the failure with
   **Retry**.
-
-<a id="put-comparison-follow-up-by-story-notes"></a>
-
-### Put comparison follow-up beside story notes
-
-**Identity:** SEED-420#put-comparison-follow-up-by-story-notes
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/837-put-comparison-follow-up-by-story-notes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"96da3defb19b7039b92767d67d2d22bffa5dc6a9e41d78d3aef63c7fb83b1d86","plan":"68357fe64e5653531bd08da83538fe25a7af7530efcf99f16b4409739cedd07b"}}
-```
-
-**Goal.** A developer reviewing a Done story in Intent can follow up on the
-comparison they are reading from the story title row. This keeps the action
-within reach while the developer reads a diff or other story evidence.
-
-**Scope.** Put one icon-only button beside **Notes** on the story title row.
-Its accessible name is **Follow up on comparison**. It opens the existing
-composer directly and returns focus to the button when cancelled. Comparison
-details no longer contain a second follow-up action.
-
-Keep the existing Done-story and readable-comparison requirements. Published
-completions retain their current availability, including **Include merged
-changes** when supported. Offer the same action for a readable landed run of
-that Done story. The composer names the story and the exact baseline and result
-of the comparison being shown. Starting the follow-up sends that same pair.
-Admission verifies the pair against the named completion or landed run so
-another story's run or a different pair cannot start a session.
-
-File and line follow-ups, optional attachments, the comparison controls, and
-published-session follow-up scope belong to their existing work.
-
-**Key examples.**
-
-- With a Done story's published completion showing, open **Follow up on
-  comparison** by keyboard beside **Notes**. The composer shows the published
-  comparison and its exact pair. Cancel to return focus to the icon. Starting
-  from the same button sends that pair, including the wider baseline when
-  **Include merged changes** is selected.
-- With a Done story's published comparison open, select a landed run with a
-  different pair. Open the same title-row action and start a follow-up. The
-  composer and the follow-up both name the landed run's pair.
-- With no readable comparison, no Done story, or no selected story, the
-  comparison action is absent. A submitted landed reference belonging to
-  another story, or a submitted pair differing from the selected run,
-  is refused before starting a session.
 
 <a id="read-story-evidence-from-intent-home"></a>
 
