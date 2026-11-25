@@ -156,6 +156,16 @@ the roster, and one row at 1280 px with the portrait and a landed run
 offered. The row fits with about 21 px to spare after a smaller summary
 text and a 1.5rem portrait; a longer agent name or run label may wrap it.
 
+## Execution complete
+
+Product advice: no change to the queue order. The comparison row fits
+1280 px with about 21 px to spare once a rotation portrait shows. The
+Sessions control from
+[session selection](../../seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review)
+joins this row, so its refinement should budget the row's width, for
+example by compacting the summary or the choice further, rather than
+letting the row wrap at desktop width.
+
 ## Story obligations
 
 ### G1. The bar wraps at 1280 px when landed runs are offered
