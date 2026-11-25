@@ -64,7 +64,7 @@ export async function opened(
     nestedIn,
     answering = (published) => published,
     at = revision,
-    open,
+    workspaceTaken = false,
     also,
     beside,
     history,
@@ -72,9 +72,7 @@ export async function opened(
     readonly nestedIn?: number;
     readonly answering?: Answering;
     readonly at?: string;
-    // The ad hoc entries' places kept open, and other sessions kept
-    // (`keepProgressiveSessions`).
-    readonly open?: readonly number[];
+    readonly workspaceTaken?: boolean;
     readonly also?: (now: number) => readonly LaunchRecord[];
     // Files published beside the list's (`publishedWithCatalog`).
     readonly beside?: Readonly<Record<string, string>>;
@@ -83,28 +81,40 @@ export async function opened(
 ) {
   const now = Date.now();
   keepProgressiveSessions(dashboard, now, list, nestedIn, {
-    ...(open === undefined ? {} : { open }),
     ...(also === undefined ? {} : { also: also(now) }),
   });
   const github = githubFor(page);
   const main =
     history === undefined
       ? undefined
-      : await movingMain(page, now, list, beside, history, answering);
+      : await movingMain(
+          page,
+          now,
+          list,
+          beside,
+          history,
+          answering,
+          workspaceTaken,
+        );
   if (main === undefined) {
     github.serve(
       repository,
       answering(
         publishes({
           revision: at,
-          files: publishedWithCatalog(now, list, beside),
+          files: publishedWithCatalog(now, list, beside, workspaceTaken),
         }),
         at,
       ),
     );
   }
   await page.goto("/");
-  await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+  await expectMembership(
+    page,
+    workspaceTaken
+      ? { taken: [queuedTitle], backlog: [] }
+      : { taken: [], backlog: [queuedTitle] },
+  );
   return { github, recent: parts(page).recentlyDone, main };
 }
 

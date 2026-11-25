@@ -15,7 +15,7 @@ import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.t
 import {
   entryName,
   keepProgressiveSessions,
-  progressiveEntries,
+  progressiveStories,
   publishedWithCatalog,
   repository,
   revision,
@@ -28,9 +28,9 @@ import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequest
 import {
   entries,
   firstTen,
-  shownWithoutSessions,
-  storiesOf,
-  thirteenth,
+  firstTenPaths,
+  nestedIn,
+  tenth,
 } from "../../dashboard/test-support/recentlyDoneSessionPlaced.ts";
 import { holdSessionReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
@@ -43,7 +43,7 @@ import {
 import { addProjectThroughDialog } from "../../dashboard/test-support/support/projectAddPage.ts";
 
 // The first project's list: three stories, no sessions.
-const first = progressiveEntries(3, []);
+const first = progressiveStories(3);
 // The added project's list is `entries` (../recentlyDoneSessionPlaced.ts).
 
 let fixture: ReturnType<typeof projectAddMachine>;
@@ -70,7 +70,7 @@ async function openedOnFirst(page: Page) {
       files: publishedWithCatalog(now, entries),
     }),
   );
-  keepProgressiveSessions(server, now, entries, undefined, {
+  keepProgressiveSessions(server, now, entries, nestedIn, {
     source: "sample-app",
     checkout: fixture.checkout,
   });
@@ -91,10 +91,8 @@ test("while the sessions read asked after a project's addition is under way, no 
   const sessions = await holdSessionReads(page);
   try {
     await addProjectThroughDialog(page);
-    // The added project's catalog answered: without its sessions, the
-    // thirteenth entry is placed among the first ten.
     await expect(
-      recent.getByRole("article", { name: thirteenth.identity }),
+      recent.getByRole("article", { name: tenth.identity }),
     ).toBeVisible();
     await expect(recent).toContainText("Reading sessions…");
     await untilPageReadsAnswered(page);
@@ -102,9 +100,9 @@ test("while the sessions read asked after a project's addition is under way, no 
 
     sessions.answer();
     await expectEntries(recent, firstTen.map(entryName));
-    expect(asked().toSorted()).toEqual(storiesOf(firstTen).toSorted());
+    expect(asked().toSorted()).toEqual(firstTenPaths);
     await untilPageRests(page);
-    expect(asked().toSorted()).toEqual(storiesOf(firstTen).toSorted());
+    expect(asked().toSorted()).toEqual(firstTenPaths);
   } finally {
     // A read still held would hold the page's teardown.
     sessions.answer();
@@ -130,16 +128,14 @@ test("when the sessions read asked after a project's addition cannot be read, th
   try {
     await addProjectThroughDialog(page);
     await expect(
-      recent.getByRole("article", { name: thirteenth.identity }),
+      recent.getByRole("article", { name: tenth.identity }),
     ).toBeVisible();
     await untilPageReadsAnswered(page);
     expect(asked()).toEqual([]);
 
     fail();
-    await expectEntries(recent, shownWithoutSessions.map(entryName));
-    expect(asked().toSorted()).toEqual(
-      storiesOf(shownWithoutSessions).toSorted(),
-    );
+    await expectEntries(recent, firstTen.map(entryName));
+    expect(asked().toSorted()).toEqual(firstTenPaths);
   } finally {
     fail();
   }

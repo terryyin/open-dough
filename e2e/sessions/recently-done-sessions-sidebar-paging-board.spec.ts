@@ -2,12 +2,16 @@
 // done-story details; Board keeps its own progressive range.
 import { rem } from "../../dashboard/test-support/boardPage.ts";
 import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { entryName } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
-  names,
-  openedWithHeldStory,
-  storiesThrough,
-} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
-import { recordsAsked } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
+  entries,
+  firstTen,
+  firstTenPaths,
+} from "../../dashboard/test-support/recentlyDoneSessionPlaced.ts";
+import {
+  opened,
+  recordsAsked,
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   preferShortRecentlyDoneBody,
   revealRecentlyDoneThrough,
@@ -32,32 +36,33 @@ test("scrolling Recently done does not eagerly read older Board done-story detai
   page,
   dashboard,
 }) => {
-  await page.setViewportSize({ width: 80 * rem, height: 900 });
-  await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
-  // Place the forty-five machine Dones older than Board's progressive entries
-  // so the Board's first ten stay the published stories already read.
-  const hour = 60 * 60_000;
-  const view = await openedWithHeldStory(page, dashboard, {
-    open: [],
-    also: (now) =>
-      fortyFiveDoneSessions(now - 40 * hour, ["open-dough"]).records,
+  await test.step("Given a short Recently done sidebar", async () => {
+    await page.setViewportSize({ width: 80 * rem, height: 900 });
+    await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
   });
-  try {
-    const { github, recent } = view;
-    await expectEntries(recent, names(10));
-    expect(recordsAsked(github).toSorted()).toEqual(
-      storiesThrough(10).toSorted(),
-    );
-    const shown = await showRecentlyDone(page);
-    await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
-    const before = recordsAsked(github).length;
-    await revealRecentlyDoneThrough(shown, 40);
-    await expect(shown.entries).toHaveCount(40);
-    expect(recordsAsked(github)).toHaveLength(before);
-    expect(recordsAsked(github).toSorted()).toEqual(
-      storiesThrough(10).toSorted(),
-    );
-  } finally {
-    view.release();
-  }
+  const { github, recent } =
+    await test.step("And forty-five retained sessions on an older Done story", () => {
+      const older = entries.at(-1);
+      if (!older) throw new Error("Missing an older Done story.");
+      return opened(page, dashboard, entries, {
+        also: (now) =>
+          fortyFiveDoneSessions(now, ["open-dough"], older.identity).records,
+      });
+    });
+  await test.step("And the Board initially reads its latest ten stories", async () => {
+    await expectEntries(recent, firstTen.map(entryName));
+    expect(recordsAsked(github).toSorted()).toEqual(firstTenPaths);
+  });
+  const shown =
+    await test.step("When the developer opens the sidebar's Recently done list", () =>
+      showRecentlyDone(page));
+  await test.step("Then the sidebar shows its initial page", () =>
+    expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit));
+  await test.step("When the developer scrolls to see more retained sessions", () =>
+    revealRecentlyDoneThrough(shown, 40));
+  await test.step("Then forty sessions are visible in the sidebar", () =>
+    expect(shown.entries).toHaveCount(40));
+  await test.step("And the Board still has read only its latest ten stories", () => {
+    expect(recordsAsked(github).toSorted()).toEqual(firstTenPaths);
+  });
 });

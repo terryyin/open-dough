@@ -40,7 +40,7 @@ import {
 } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
 import {
   entryName,
-  progressiveEntries,
+  progressiveStories,
 } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   isRecord,
@@ -50,27 +50,19 @@ import {
   untilPageRests,
 } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 
-// 35 entries: seven ad hoc sessions marked done among 28 done stories; the
-// story fourth in the list holds three sessions marked done.
-const sessionsAt = [2, 7, 11, 16, 23, 29, 34];
+// The fourth of the 35 published stories holds three retained sessions.
 const nestedIn = 4;
-const entries = progressiveEntries(35, sessionsAt);
+const entries = progressiveStories(35);
 const stories = (from: number, to: number) =>
-  entries
-    .slice(from - 1, to)
-    .flatMap((entry) => (entry.kind === "story" ? [entry.path] : []));
+  entries.slice(from - 1, to).map((entry) => entry.path);
 const names = (to: number) => entries.slice(0, to).map(entryName);
 // Entries `from` to `to` before their stories' records are read: each story
 // under its identity.
 const placedAt = (from: number, to: number) =>
-  entries
-    .slice(from - 1, to)
-    .map((entry) =>
-      entry.kind === "story" ? entry.identity : entryName(entry),
-    );
+  entries.slice(from - 1, to).map((entry) => entry.identity);
 const storyAt = (place: number) => {
   const entry = entries[place - 1];
-  if (entry?.kind !== "story") throw new Error(`No story at ${place}`);
+  if (!entry) throw new Error(`No story at ${place}`);
   return entry;
 };
 
@@ -218,7 +210,7 @@ test("six entries all show with no reveal action, and a project with no done ent
   dashboard,
 }) => {
   await test.step("six entries: all show, every story read, nothing more offered", async () => {
-    const six = progressiveEntries(6, [2, 5]);
+    const six = progressiveStories(6);
     const { github, recent } = await opened(page, dashboard, six, {
       nestedIn,
     });
@@ -227,9 +219,7 @@ test("six entries all show with no reveal action, and a project with no done ent
     await expect(revealAction(recent)).toHaveCount(0);
     await expect(recent).not.toContainText(/Showing|are shown/);
     expect(recordsAsked(github).toSorted()).toEqual(
-      six
-        .flatMap((entry) => (entry.kind === "story" ? [entry.path] : []))
-        .toSorted(),
+      six.map(({ path }) => path).toSorted(),
     );
   });
 

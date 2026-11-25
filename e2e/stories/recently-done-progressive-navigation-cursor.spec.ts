@@ -1,8 +1,8 @@
 import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // A Running Cursor sessions row the runner still holds, for a session whose
-// record is marked done and placed 27th in Recently done, chosen from another
+// retained Done record belongs to the published story at ordinal 27, chosen from another
 // project: Open Dough's stories show, Recently done extends exactly through
-// the entry, reading only the records before it, and the entry is brought
+// the entry, reading only the records through it, and the entry is brought
 // into view -- at once, as reduced motion asks -- only once they are read.
 // Closing its terminal with the row hidden returns the keyboard to that
 // entry. The terminal's connection is held, so attaching does not reopen the
@@ -10,7 +10,7 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // ../../../e2e/sessions/cursor-runner-sessions.spec.ts uses; the publication and the other
 // sessions are ../recentlyDoneProgressiveJourney.ts's. The page reads this
 // machine's sessions before the project's done catalog, so the first ten
-// entries are read once, merged.
+// published stories are read once.
 
 import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
@@ -20,10 +20,10 @@ import {
   chooseProject,
   expectProjectChoice,
   parts,
+  sessionEntryShowing,
   standaloneSessionName,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { rem } from "../../dashboard/test-support/boardPage.ts";
-import { placedAt } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   expectEntries,
   shownEntries,
@@ -31,9 +31,9 @@ import {
 import { recordsAsked } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   destination,
-  names,
-  openedWithHeldStory,
-  storiesThrough,
+  openedWithHeldPublishedStory,
+  publishedNames,
+  publishedPaths,
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   expectRevealsSince,
@@ -49,14 +49,13 @@ import {
 import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
 
 const instruction = "hold this done session";
-const entryName = standaloneSessionName("Ad hoc", instruction);
 
 test.use({
   projectFolders: ["open-dough"],
   cursorScreen: "working",
 });
 
-test("choosing a Running Cursor sessions row from Pygardon reveals its done entry 27 once entries 1 to 27 are read, and closing its terminal returns the keyboard there", async ({
+test("choosing a Running Cursor sessions row from Pygardon reveals its published Done story once entries 1 to 27 are read, and closing its terminal returns the keyboard to the session", async ({
   afterGitHubStops,
   page,
   dashboard,
@@ -94,17 +93,13 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
   );
   let release: () => void = releaseCatalog;
   try {
-    const view = await openedWithHeldStory(page, dashboard, {
-      open: [],
-      elsewhere: true,
-      also: (now) => [
-        {
-          ...held,
-          launchedAt: placedAt(now, destination),
-          doneAt: new Date(now - 10 * 60_000).toISOString(),
-        },
-      ],
-    });
+    const view = await openedWithHeldPublishedStory(
+      page,
+      dashboard,
+      afterGitHubStops,
+      instruction,
+      held,
+    );
     release = () => {
       releaseCatalog();
       view.release();
@@ -115,32 +110,35 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     releaseCatalog();
     const { github, recent } = view;
     const { backlog } = parts(page);
-    const entry = recent.getByRole("article", { name: entryName });
+    const entry = view.destinationCard;
+    const session = sessionEntryShowing(
+      entry,
+      `cursor:${held.session.sessionId}`,
+    );
     await expect(entry).toHaveCount(0);
     // The first ten entries' records are read before Pygardon is chosen:
     // leaving Open Dough abandons a read still under way, which returning
     // would otherwise ask for again.
-    await expectEntries(recent, names(10));
+    await expectEntries(recent, publishedNames(10));
     expect(recordsAsked(github).toSorted()).toEqual(
-      storiesThrough(10).toSorted(),
+      publishedPaths(10).toSorted(),
     );
     await chooseProject(page, "Pygardon");
     await expect(backlog).toContainText("A Pygardon story");
 
     const { button, heldRows } = await openRunningList(page);
     const row = heldRows(/Open Dough/);
-    await expect(row).toContainText("Ad hoc");
+    await expect(row).toContainText("Execution");
     const before = (await revealsOf(page)).length;
     await row.click();
 
     await test.step("Open Dough's Recently done lists entries through 27 at once, asking only for their records, and brings none into view while the held one is read", async () => {
       await expectProjectChoice(page, "Open Dough");
-      await expect(view.heldCard).toContainText("Reading done story…");
-      await expect(entry).toBeVisible();
+      await view.showsPendingDestination();
       await expect(shownEntries(recent)).toHaveCount(destination);
       await expect
         .poll(() => recordsAsked(github).toSorted())
-        .toEqual(storiesThrough(destination).toSorted());
+        .toEqual(publishedPaths(destination).toSorted());
       expect((await revealsOf(page)).slice(before)).toEqual([]);
     });
 
@@ -149,24 +147,29 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
       await expect
         .poll(async () => (await revealsOf(page)).length)
         .toBeGreaterThan(before);
-      await expectRevealsSince(page, before, entryName, "auto");
-      await expect(entry).toBeInViewport();
+      await expectRevealsSince(
+        page,
+        before,
+        standaloneSessionName("Execution", instruction),
+        "auto",
+      );
+      await expect(session).toBeInViewport();
       await expect(shownEntries(recent)).toHaveCount(destination);
       await expect(
         shownEntries(recent).nth(destination - 2),
-      ).toHaveAccessibleName(names(destination - 1).at(-1) ?? "");
+      ).toHaveAccessibleName(publishedNames(destination - 1).at(-1) ?? "");
       expect(recordsAsked(github).toSorted()).toEqual(
-        storiesThrough(destination).toSorted(),
+        publishedPaths(destination).toSorted(),
       );
     });
 
-    await test.step("with the row hidden, closing its terminal returns the keyboard to the entry", async () => {
+    await test.step("with the row hidden, closing its terminal returns the keyboard to the story’s retained session", async () => {
       await button.click();
       await expect(row).toHaveCount(0);
       const terminal = terminalPanel(page);
       await closeSidePanel(terminal, { using: "mouse" });
       await expect(terminal).toHaveCount(0);
-      await expect(entry).toBeFocused();
+      await expect(session).toBeFocused();
     });
   } finally {
     release();
