@@ -18,7 +18,9 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { keptSessionStarts } from "../../dashboard/test-support/support/keptSessionStart.ts";
 import {
   expect,
@@ -52,7 +54,8 @@ test("a failed established session is offered for recovery and the identical Sta
   const starts = recordStarts(origin);
   const before = await originMain(origin);
   dashboard.claudeScenario("refused");
-  await openBacklog(page, origin);
+  await openBacklog(page, origin, true);
+  expectServedHomesReach(dashboard.github, defaultRepository, before);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
   await radio(dialog, "Workspace", "Isolated workspace").check();
@@ -81,6 +84,11 @@ test("a failed established session is offered for recovery and the identical Sta
   ).toBeEnabled();
   const admitted = await admittedStory(origin, text);
   expect(admitted.revision).not.toBe(before);
+  expectServedHomesReach(
+    dashboard.github,
+    defaultRepository,
+    admitted.revision,
+  );
   const session = isolatedSession(
     origin.project,
     slug,

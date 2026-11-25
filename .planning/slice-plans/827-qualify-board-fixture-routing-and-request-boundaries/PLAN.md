@@ -222,6 +222,16 @@ npm run typecheck:dashboard
 
 All six E2E cases and Dashboard typecheck passed.
 
+The resumed audit repair gives session attribution and static Recently done
+opens real Board publications. Installed Story Card checks the native Git
+pin at first open and when `showPublished` advances the existing proof.
+The two Start cases that observe current native state follow their origin.
+Retained earlier REST snapshots keep their transition cues. All 71 E2E
+cases across 34 affected specs and Dashboard typecheck passed. Exact
+commands, proof and prior event attributions are in `resume-session-return.md`
+and `resume-session-*.log.run.json` in Git evidence. The independent review
+made no edits.
+
 ### 5. Preserve explicit read admission and detail results
 
 Type: Behavior

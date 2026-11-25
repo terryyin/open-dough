@@ -225,9 +225,7 @@ test("six entries all show with no reveal action, and a project with no done ent
 
   await test.step("no done record and no kept session: the existing empty state", async () => {
     const before = recordsAsked(githubFor(page)).length;
-    const { github, recent } = await opened(page, dashboard, [], {
-      at: "f8".repeat(20),
-    });
+    const { github, recent } = await opened(page, dashboard, []);
     await expect(recent).toContainText(
       "No sessions launched from this dashboard are kept.",
     );

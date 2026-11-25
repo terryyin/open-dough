@@ -9,6 +9,7 @@
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
+import { serveCommitted } from "./committedFiles.ts";
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import {
   expectMembership,
@@ -100,14 +101,13 @@ export async function openedWithHeldDoneRecord(
   ]);
   await pausePageClockAt(page, opened);
   const published = publishes({
-    revision,
     files: done.files,
     committed,
     history,
   });
   const { answer, release } = holdingAnswer(published, isHeld);
   const github = githubFor(page);
-  github.serve(repository, answer);
+  serveCommitted(page, repository, published, answer);
   await page.goto("/");
   await expectMembership(page, {
     taken: stories.map(({ title }) => title),
@@ -128,7 +128,7 @@ export async function openedWithHeldDoneRecord(
   // is part of the observation, so settle waits for the bound instead.
   if (isHeld !== isHeldCatalog) {
     await expect(readRevision).toContainText(
-      `Published work read at revision ${shortRevision(revision)}`,
+      `Published work read at revision ${shortRevision(published.revision)}`,
     );
     await expect(problem).toHaveCount(0);
   }
