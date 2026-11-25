@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_read-story-evidence-from-intent-home.json",
+      "identity": "SEED-420#read-story-evidence-from-intent-home",
+      "completedAt": "2026-11-25T14:56:33.407Z",
+      "blob": "f565e2f65c11c1e095ae08607ff7c4e16aa64a78"
+    },
+    {
       "fileName": "SEED-413_finish-backend-vitest-renovation-after-session-reads-and-alerts.json",
       "identity": "SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts",
       "completedAt": "2026-11-25T14:15:07.314Z",
