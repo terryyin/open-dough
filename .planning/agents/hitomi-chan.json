@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "identity": "SEED-413#prove-launch-starts-and-recovery-on-vitest",
+  "mode": "story-branch",
+  "branch": "cursor/prove-dashboard-launch-starts-and-recovery-in-no",
+  "host": "cursor",
+  "model": "auto"
+}
