@@ -18,13 +18,13 @@ import {
 } from "../intentScopeProofPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
 import { anyComparisonLabels } from "../ciEvidenceLabelsPage.ts";
-import { chooseStoryTab, expectStoryTab } from "./intentStoryPage.ts";
+import { browseStoryFiles, expectStoryTab } from "./intentStoryPage.ts";
 import { selectDoneStoryInIntent } from "./selectDoneStoryInIntent.ts";
 
 export async function selectDoneStoryForChanges(page: Page, title = "Story A") {
   const selected = await selectDoneStoryInIntent(page, title);
   await expectStoryTab(selected.intent, "CI comparison");
-  await chooseStoryTab(selected.intent, "Changes");
+  await browseStoryFiles(selected.intent);
   return selected;
 }
 
@@ -39,7 +39,7 @@ export async function selectDoneStoryForSummaryComparison(
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
   await expect(comparisonReading(panel).entryTable).toBeVisible();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   return selected;
 }
 
@@ -83,7 +83,7 @@ export async function selectTakenStoryForSummaryComparison(
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
   await expect(panel.locator(".intent-ci-comparison")).toBeVisible();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   return { intent, panel, card };
 }
 

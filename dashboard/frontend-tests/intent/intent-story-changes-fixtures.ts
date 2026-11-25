@@ -1,5 +1,6 @@
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
+import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
@@ -95,6 +96,8 @@ const workAt = (revision: string, hasWorkspace: boolean, title: string) => {
 export async function openStoryChanges({
   hasWorkspace = true,
   hasLocations = true,
+  locationAnswer,
+  revision = hasLocations ? initialRevision : "b2".repeat(20),
   title = storyA.title,
   review: readReview = () => Promise.resolve(storyChanges()),
   fileDiff = () =>
@@ -109,18 +112,23 @@ export async function openStoryChanges({
     }),
   storyNotes,
   machine,
+  ci,
 }: {
   readonly hasWorkspace?: boolean;
   readonly hasLocations?: boolean;
+  readonly locationAnswer?: IntentLocations;
+  readonly revision?: string;
   readonly title?: string;
   readonly machine?: MachineAnswer;
   readonly review?: ReviewSource["review"];
+  readonly ci?: Partial<PageReads["ci"]>;
 } & Partial<Pick<ReviewSource, "fileDiff" | "fileText">> &
   Partial<Pick<PageReads, "storyNotes">> = {}) {
-  const revision = hasLocations ? initialRevision : "b2".repeat(20);
-  const locations = hasLocations
-    ? configured()
-    : makeMe.anIntentLocationsAnswer.notConfigured().please();
+  const locations =
+    locationAnswer ??
+    (hasLocations
+      ? configured()
+      : makeMe.anIntentLocationsAnswer.notConfigured().please());
   const intent = intentReadsPublishing(locations, {
     [modifiedPath]: publishedText,
   });
@@ -165,6 +173,7 @@ export async function openStoryChanges({
           Promise.resolve(
             judgedStatus(branch, "pass", revision, "Published tests"),
           ),
+        ...ci,
       }),
       review: {
         ...review,

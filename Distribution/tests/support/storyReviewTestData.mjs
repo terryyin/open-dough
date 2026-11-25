@@ -23,6 +23,7 @@ export class StoryReviewBuilder {
   #selected;
   /** @type {string | undefined} */
   #completion;
+  #agent = "claude";
   /**
    * @param {string} path a file the comparison adds
    * @param {number} lines how many lines long
@@ -112,6 +113,12 @@ export class StoryReviewBuilder {
     return this;
   }
 
+  /** @param {string} agent the agent a published comparison records */
+  by(agent) {
+    this.#agent = agent;
+    return this;
+  }
+
   /**
    * Offers `runs`, selecting `selected`; a landed comparison is that run's.
    * @param {ReviewRunChoice} selected
@@ -155,6 +162,7 @@ export class StoryReviewBuilder {
         tree,
         files,
         completion: this.#completion,
+        agent: this.#agent,
         storyStart,
         widened,
       });
@@ -164,7 +172,7 @@ export class StoryReviewBuilder {
       kind: "published-taken",
       mode: "story-branch",
       head: storyReviewIds.head,
-      agent: "claude",
+      agent: this.#agent,
       remote: "origin",
       target: "claude/taken",
       baseline,

@@ -15,6 +15,7 @@ const threeProjects = ["open-dough", "doughnut", "pygardon"] as const;
 export function fortyFiveDoneSessions(
   now: number,
   sources: readonly string[] = threeProjects,
+  storyIdentity?: string,
 ): {
   readonly titles: readonly string[];
   readonly byProject: Record<string, LaunchRecord[]>;
@@ -31,8 +32,12 @@ export function fortyFiveDoneSessions(
       index === 5
         ? new Date(now - 5 * 60_000).toISOString()
         : new Date(now - (index + 1) * 60_000).toISOString();
-    return makeMe.aLaunchRecord
-      .adHoc({ instruction: title, title, source })
+    const launch = makeMe.aLaunchRecord;
+    const requested =
+      storyIdentity === undefined
+        ? launch.adHoc({ instruction: title, title, source })
+        : launch.executing({ identity: storyIdentity, title, source });
+    return requested
       .inClaudeSession({
         sessionId: `done-${String(index + 1).padStart(2, "0")}`,
       })

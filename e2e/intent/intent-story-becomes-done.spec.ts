@@ -12,11 +12,11 @@ import {
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { intentGroupToggle } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { keepUnusableCompletedCapture } from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
 import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentDiff,
   storySummary,
   storyHeaderReading,
@@ -113,8 +113,8 @@ test("a selected Taken story moves from published trunk to its published complet
   await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
   await expect(storyHeaderReading(intent).done).toHaveText("Done");
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
-  await chooseStoryTab(intent, "Changes");
-  await intentGroupToggle(intent, "dashboard/tests").click();
+  await browseStoryFiles(intent);
+  await expandIntentGroup(intent, "dashboard/tests");
   expect(await intentDiff(intent, modified)).toContain(
     "published completion after active selection",
   );

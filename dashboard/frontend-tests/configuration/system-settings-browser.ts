@@ -54,7 +54,7 @@ export async function enableSettingsTouch() {
     .toBe(true);
 }
 
-async function touchAt(x: number, y: number) {
+export async function touchAt(x: number, y: number) {
   const frame = window.frameElement?.getBoundingClientRect();
   const browser = chromium();
   await browser.send("Input.dispatchTouchEvent", {

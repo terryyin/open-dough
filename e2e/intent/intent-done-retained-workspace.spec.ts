@@ -4,7 +4,7 @@ import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePag
 // Both the banner and the Done card read the immutable completion even
 // while the retained workspace holds later uncommitted edits.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
+import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -27,10 +27,9 @@ import { retainedIntentCompletion } from "../../dashboard/test-support/support/r
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
 import { lines } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentDiff,
   intentFile,
-  storyTabPanel,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
@@ -89,28 +88,17 @@ test("a readable Done workspace cannot replace published locations, inventory, u
     origin,
     { implementation, later, local },
   );
-  const locations: string[] = [];
-  const sourceReads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "locations"
-    )
-      locations.push(url.searchParams.get("revision") ?? "");
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("path") === "dashboard/tests/boundary/kept.spec.ts"
-    )
-      sourceReads.push(url.searchParams.get("revision") ?? "");
-  });
+  const { inventory: locations, text: sourceReads } = trackStoryResultReads(
+    page,
+    "dashboard/tests/boundary/kept.spec.ts",
+  );
   const received = page.waitForResponse(
     (response) => new URL(response.url()).pathname === storyReviewEndpoint,
   );
   const { card, intent } = await selectDoneStoryInIntent(page);
   const answer = storyReviewSchema.parse(await (await received).json());
   expect(answer).toMatchObject({ kind: "published", completion });
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expandIntentGroup(intent, "dashboard/tests");
   await expect(intentFile(intent, modified)).toBeVisible();
   await expect(
@@ -189,11 +177,12 @@ test("unrecoverable history remains unavailable despite a readable Done workspac
     kind: "unavailable",
     explanation: expect.stringMatching(/claim|history/),
   });
-  await chooseStoryTab(intent, "Changes");
   await expect(filesColumn(intent)).toHaveCount(0);
-  await expect(storyTabPanel(intent, "Changes")).toContainText(
-    "The story's historical Intent locations and test source are unavailable",
-  );
+  await expect(
+    intent.getByText(
+      "The story's historical Intent locations and test source are unavailable",
+    ),
+  ).toBeVisible();
   await expect(intent).not.toContainText("readable local replacement");
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
 });

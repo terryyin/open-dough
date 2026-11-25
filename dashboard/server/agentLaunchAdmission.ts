@@ -123,8 +123,8 @@ async function attemptRequest(
   };
 }
 
-async function launchRequest(req: IncomingMessage): Promise<Admitted> {
-  const parsed = agentLaunchRequestSchema.safeParse(await jsonBody(req));
+export function admittedLaunchRequest(value: unknown): AgentLaunchRequest {
+  const parsed = agentLaunchRequestSchema.safeParse(value);
   if (!parsed.success) {
     throw new RefusedRequest(400, "The launch request is malformed.");
   }
@@ -141,6 +141,11 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   ) {
     throw new RefusedRequest(400, "The launch request is malformed.");
   }
+  return request;
+}
+
+async function launchRequest(req: IncomingMessage): Promise<Admitted> {
+  const request = admittedLaunchRequest(await jsonBody(req));
   const source = knownSource(request.source);
   const host = launchHost(request.host);
   if (host === undefined) {

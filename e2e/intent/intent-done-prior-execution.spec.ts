@@ -2,7 +2,7 @@
 // Done Intent must read that completion, not the earlier retained increment.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
-import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
+import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -18,7 +18,7 @@ import {
   test,
 } from "../../dashboard/test-support/support/codexStart.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentDiff,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
@@ -88,15 +88,7 @@ test("a Done story's later completion outranks its execution launch's first capt
     captured.revision,
   );
   expect(completion).not.toBe(captured.revision);
-  const locations: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "locations"
-    )
-      locations.push(url.searchParams.get("revision") ?? "");
-  });
+  const { inventory: locations } = trackStoryResultReads(page);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: later.tip,
@@ -115,13 +107,14 @@ test("a Done story's later completion outranks its execution launch's first capt
     kind: "published",
     completion,
   });
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expandIntentGroup(intent, "dashboard/tests");
   const original = await intentDiff(intent, modified);
   expect(original).toContain("the final completed execution");
   expect(original).not.toContain("earlier captured increment");
   expect(locations).toContain(completion);
   expect(locations).not.toContain(captured.revision);
+
   // If published history later becomes unavailable, the still-readable first
   // increment remains a pre-completion run, not the completed story's result.
   shallowPublishedHistory(origin);

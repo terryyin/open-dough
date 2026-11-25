@@ -1,6 +1,6 @@
 // Real browser, local Git checkout, loopback boundary and saved machine settings.
-// Fake GitHub supplies only repository/default-branch/published facts; the fake
-// host records the actual cwd chosen by the product. The Add dialog's refusal
+// Origin advertises the default branch over Git. Fake GitHub answers Board
+// reads and the fake host records the cwd. The Add dialog's refusal
 // linking and dismissal are ../../dashboard/frontend-tests/configuration/project-add-dialog.spec.ts.
 import { chmodSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
@@ -15,6 +15,7 @@ import {
   launchStoreFile,
 } from "../../dashboard/test-support/support/launchStore.ts";
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
+import { git } from "../../dashboard/test-support/support/launchLanding.ts";
 import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import {
@@ -27,7 +28,7 @@ import {
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   expectProjectChoice,
-  shortRevision,
+  expectPublishedRevision,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
@@ -46,25 +47,20 @@ test.afterEach(async () => fixture.close());
 test("Add selects, reads the repository's default branch, launches in its execution checkout and survives restart", async ({
   page,
 }) => {
+  expect(
+    git(fixture.checkout, "rev-parse", "--abbrev-ref", "@{upstream}"),
+  ).toBe("origin/local-checkout");
+  expect(git(fixture.checkout, "rev-parse", "HEAD")).not.toBe(fixture.revision);
   let server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
-  await expect(
-    page.getByRole("radio", { name: "Open Dough", exact: true }),
-  ).toBeChecked();
+  await expectProjectChoice(page, "Open Dough");
   fixture.expectAddedRef(server);
   await addProjectOnPage(page);
-  const { readRevision } = parts(page);
   await expectProjectChoice(page, "Sample App");
-  await expect(readRevision).toContainText(
-    shortRevision(fixture.addedRevision),
-  );
-  expect(server.ghCalls()).toContainEqual([
-    "api",
-    "--include",
-    `repos/${addedRepository}`,
-    "--jq",
-    ".default_branch",
-  ]);
+  await expectPublishedRevision(page, fixture.revision);
+  expect(
+    server.ghCalls().filter((call) => call.includes(".default_branch")),
+  ).toEqual([]);
   expect(server.ghCalls()).toContainEqual([
     "api",
     "--include",
@@ -107,12 +103,8 @@ test("Add selects, reads the repository's default branch, launches in its execut
   server = await fixture.start("preview");
   fixture.expectAddedRef(server);
   await openUntilRead(page, `${server.baseURL}/?project=sample-app`);
-  await expect(
-    page.getByRole("radio", { name: "Sample App", exact: true }),
-  ).toBeChecked();
-  await expect(parts(page).readRevision).toContainText(
-    shortRevision(fixture.addedRevision),
-  );
+  await expectProjectChoice(page, "Sample App");
+  await expectPublishedRevision(page, fixture.revision);
   expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
     saved,
   );

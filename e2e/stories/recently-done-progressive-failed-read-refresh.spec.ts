@@ -20,17 +20,15 @@ import {
   revealAction,
 } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
-import { doneDirectory } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
+import {
+  doneDirectory,
+  progressiveStories,
+} from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   isRecord,
   opened,
   untilPageRests,
 } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
-import {
-  entries,
-  entryAt,
-  names,
-} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   laterStory,
   namesOf,
@@ -43,6 +41,7 @@ import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJo
 
 test.use({ projectFolders: ["open-dough"] });
 
+const entries = progressiveStories(35);
 const newer = laterStory(0.5, "01", "Finish a newer progressive story");
 
 // A record file published beside the list whose text names another identity,
@@ -60,9 +59,7 @@ const beside = {
 
 // The stories among entries `from` to `to`.
 const storiesFrom = (from: number, to: number) =>
-  entries
-    .slice(from - 1, to)
-    .flatMap((entry) => (entry.kind === "story" ? [entry.path] : []));
+  entries.slice(from - 1, to).map((entry) => entry.path);
 
 type Demanded = { readonly revision: string; readonly path: string }[];
 
@@ -112,8 +109,8 @@ test("a newer revision asks once again for the failed records still shown, not f
   const atC = [newer, ...atB];
   // The thirteenth entry's record fails once at the first revision, and once
   // at the second.
-  const failing = entryAt(13);
-  if (failing.kind !== "story") throw new Error("No story at 13");
+  const failing = entries[12];
+  if (!failing) throw new Error("No story at 13");
   const failingPath = failing.path;
   let failingAgainAt = "";
   const view = await opened(page, dashboard, entries, {
@@ -135,7 +132,7 @@ test("a newer revision asks once again for the failed records still shown, not f
   const retry = recent.getByRole("button", { name: "Retry done stories" });
 
   await test.step("the first ten and the refused record file are read; the next ten's read fails, and the same revision asks nothing more on its own", async () => {
-    await expectEntries(recent, names(10));
+    await expectEntries(recent, namesOf(entries, 10));
     await expect(recent).toContainText(refusal);
     await revealAction(recent).click();
     await expect(recent).toContainText("Done stories could not be read.");

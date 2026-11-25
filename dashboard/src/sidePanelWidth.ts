@@ -11,18 +11,14 @@
 // page column (shown maximized) and offers no divider. A limit the room sets
 // never changes the preference, so more room recovers it.
 
-import {
-  createContext,
-  useContext,
-  useSyncExternalStore,
-  type RefObject,
-} from "react";
+import { createContext, useContext, type RefObject } from "react";
 import { useMeasuredRoom } from "./measuredRoom.ts";
 import {
   shareOfRoom,
   useChoiceWithin,
   usePreferredSize,
 } from "./sharedRoom.ts";
+import { useMediaQuery } from "./useMediaQuery.ts";
 
 // The frame's narrow window, where the Sessions sidebar overlays the page
 // (`./sessions-sidebar.css`) and the panel covers the page column.
@@ -68,15 +64,6 @@ function sidePanelLayout(
   return { arrangement: "split", width, minimum, maximum, step };
 }
 
-const narrowQuery = () => window.matchMedia(narrowWindow);
-const watchNarrow = (changed: () => void) => {
-  const query = narrowQuery();
-  query.addEventListener("change", changed);
-  return () => {
-    query.removeEventListener("change", changed);
-  };
-};
-
 // The room the page and the panel share in the frame: its width, less the
 // Sessions sidebar's column while the sidebar is open. Measured as soon as the
 // panel opens or the sidebar opens or closes, and whenever the frame changes
@@ -101,7 +88,7 @@ export function useSidePanelWidth(
   sessionsSidebarOpen: boolean,
 ): { covering: boolean; divider: PanelDividerState | undefined } {
   const [preferred, prefer] = usePreferredSize(preferredWidthKey);
-  const narrow = useSyncExternalStore(watchNarrow, () => narrowQuery().matches);
+  const narrow = useMediaQuery(narrowWindow);
   const room = useMeasuredRoom(frame, shown, readRoom, {
     remeasure: sessionsSidebarOpen,
   });

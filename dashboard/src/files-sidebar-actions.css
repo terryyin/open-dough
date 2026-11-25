@@ -1,0 +1,35 @@
+/* The Files sidebar's first row keeps Home, Intent only and Changes only
+   in one row; a filter whose label runs out of room wraps its label inside
+   the control instead of overflowing. Coarse pointers get 44px targets. */
+.files-actions {
+  flex: none;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-bottom: 1px solid var(--line);
+}
+
+.files-actions-filter {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  cursor: pointer;
+}
+
+.files-actions-filter > input {
+  flex: none;
+}
+
+@media (any-pointer: coarse) {
+  .files-actions > * {
+    min-height: 44px;
+  }
+
+  .files-actions .intent-home-button {
+    min-width: 44px;
+  }
+}

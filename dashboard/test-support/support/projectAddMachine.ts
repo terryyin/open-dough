@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -8,10 +7,11 @@ import {
   type DashboardServer,
   type DashboardServerMode,
 } from "./dashboardServer.ts";
-import type { FakeGhTransport } from "./fakeGh.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { publishes } from "./fakeGitHub.ts";
 import { expectServedHomesReach } from "./fixtureOriginRoute.ts";
+import { git } from "./launchLanding.ts";
+import { commitPublishedOrigin } from "./publishedOrigin.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -24,37 +24,49 @@ export const addedRepository = "example/sample-app";
 export const addedBranch = "release+stable";
 export const addedLocalPath = "~/work/private-checkout";
 
-export function projectAddMachine({
-  ghTransport,
-}: { ghTransport?: FakeGhTransport } = {}) {
+export function projectAddMachine() {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-project-add-"));
   const checkout = path.join(machine, "home/work/private-checkout");
-  mkdirSync(checkout, { recursive: true });
-  execFileSync("git", [
-    "init",
-    "--quiet",
-    "--initial-branch=local-checkout",
-    checkout,
-  ]);
-  execFileSync("git", [
-    "-C",
-    checkout,
-    "remote",
-    "add",
-    "origin",
-    `git@github.com:${addedRepository}.git`,
-  ]);
-  const servers: DashboardServer[] = [];
-  const serveSeeds = seededProjectPublications();
-  const added = publishes({
+  const facts = {
     defaultBranch: addedBranch,
     backlog: describedBacklog(makeMe.aRepository.please()),
+  };
+  const published = publishes(facts);
+  const localBranch = commitPublishedOrigin({
+    branch: "local-checkout",
+    backlog: null,
   });
+  git(
+    published.origin,
+    "fetch",
+    "--quiet",
+    localBranch.origin,
+    "local-checkout:local-checkout",
+  );
+  mkdirSync(path.dirname(checkout), { recursive: true });
+  git(
+    machine,
+    "clone",
+    "--quiet",
+    "--branch",
+    "local-checkout",
+    published.origin,
+    checkout,
+  );
+  git(
+    checkout,
+    "remote",
+    "set-url",
+    "origin",
+    `git@github.com:${addedRepository}.git`,
+  );
+  const servers: DashboardServer[] = [];
+  const serveSeeds = seededProjectPublications();
   const expectAddedRef = ({ github }: DashboardServer) => {
     expectServedHomesReach(
       github,
       addedRepository,
-      added.revision,
+      published.revision,
       addedBranch,
     );
   };
@@ -67,8 +79,8 @@ export function projectAddMachine({
   return {
     machine,
     checkout,
+    revision: published.revision,
     configurationFile,
-    addedRevision: added.revision,
     expectAddedRef,
     async start(
       mode: DashboardServerMode,
@@ -77,7 +89,6 @@ export function projectAddMachine({
     ): Promise<DashboardServer> {
       const server = await startDashboardServer({
         mode,
-        ghTransport,
         machine,
         configureDevelopmentProjects: false,
         prebuilt: sharedDashboardBuild,
@@ -86,8 +97,7 @@ export function projectAddMachine({
       });
       servers.push(server);
       serveSeeds(server.github);
-      server.github.serve(addedRepository, added);
-      expectAddedRef(server);
+      server.github.serve(addedRepository, published);
       return server;
     },
     async stop(server: DashboardServer) {

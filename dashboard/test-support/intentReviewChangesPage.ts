@@ -1,5 +1,5 @@
 // A story's review in Intent. Compare and commit controls use the shared
-// review components. File choices and the selected diff live in Changes.
+// review components. File choices and the selected diff share the Intent browser.
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
   storyReviewWaitMs,
@@ -10,8 +10,9 @@ import {
   expectFilesShown,
   filesColumn,
   filesToggle,
+  storyFilesReading,
   storySummary,
-  storyTabPanel,
+  goToStoryHome,
 } from "./intentModePage.ts";
 import { ReviewComparison } from "./reviewChangesComparison.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
@@ -20,6 +21,7 @@ import { reviewChanges } from "./storyCardControls.ts";
 import {
   intentDiffReading,
   intentStory,
+  showComparisonDetails,
   storyHeaderReading,
   storyTitle,
 } from "./support/intentStoryPage.ts";
@@ -42,7 +44,7 @@ class IntentReviewChanges {
   ) {
     this.#intent = parts(page).intent;
     this.#header = storySummary(this.#intent);
-    const reach = () => expect(this.#header).toBeVisible();
+    const reach = () => showComparisonDetails(this.#header);
     this.comparison = new ReviewComparison(this.#header, reach);
     this.landedRun = new ReviewLandedRun(this.#header, reach);
     this.files = new IntentReviewFiles(this.#intent);
@@ -81,6 +83,7 @@ class IntentReviewChanges {
   }
 
   async expectCompletedAt(completedAt: string) {
+    await this.#openDetails();
     const { revisions } = storyHeaderReading(this.#intent);
     await expect(revisions.locator("time")).toHaveAttribute(
       "datetime",
@@ -89,8 +92,10 @@ class IntentReviewChanges {
     return this;
   }
 
-  async expectChangesExplanation(message: string) {
-    await expect(storyTabPanel(this.#intent, "Changes")).toContainText(message);
+  async expectHistoricalSourceExplanation(message: string) {
+    await expect(
+      this.#intent.getByText(message, { exact: true }),
+    ).toBeVisible();
     return this;
   }
 
@@ -126,6 +131,7 @@ class IntentReviewChanges {
   }
 
   async refresh(using: "mouse" | "keyboard" = "mouse") {
+    await this.#openDetails();
     await (using === "keyboard"
       ? this.#refresh.press("Enter")
       : this.#refresh.click());
@@ -166,6 +172,11 @@ class IntentReviewChanges {
     return this;
   }
 
+  // Refresh sits in the comparison details the summary's eye reveals.
+  async #openDetails() {
+    await showComparisonDetails(this.#header);
+  }
+
   get #refresh() {
     return reviewRefresh(this.#header, { exact: true });
   }
@@ -179,6 +190,7 @@ class IntentReviewChanges {
 
   // Preserve the real snapshot response for assertions about Git's inputs.
   async refreshAndAnswer(using: "mouse" | "keyboard" = "mouse") {
+    await this.#openDetails();
     const answer = await reviewAfter(
       this.page,
       this.#refresh,
@@ -190,6 +202,20 @@ class IntentReviewChanges {
 }
 
 export type { IntentReviewChanges };
+
+export const expectIntentReviewOpened = (intent: Locator) =>
+  expect(storySummary(intent)).toBeVisible();
+
+export const expectIntentReviewFocused = (
+  intent: Locator,
+  target: "feedback" | "file" = "file",
+) =>
+  expect(
+    target === "file" ? storyFilesReading(intent) : storySummary(intent),
+  ).toBeFocused();
+
+export const returnToIntentReviewHome = (intent: Locator) =>
+  goToStoryHome(intent, "keyboard");
 
 // The card offers Review changes once its startup enables the fieldset.
 export async function expectReviewChangesOffered(card: Locator) {

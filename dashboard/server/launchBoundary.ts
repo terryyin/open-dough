@@ -75,6 +75,7 @@ import {
 import { answer } from "./launchBoundaryAnswer.ts";
 import { installRecordRemovalDispatch } from "./launchRecordRemoval.ts";
 import { installStoryNoteDelivery } from "./storyNoteDelivery.ts";
+import { machineStoryNotesFile } from "./storyNotes.ts";
 import type { BoundaryMiddlewares } from "./localBoundary.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 import {
@@ -96,7 +97,7 @@ export function installAgentLaunchMiddleware(
   // host-local state through the same dispatch as an explicit deletion.
   installRecordRemovalDispatch();
   // Confirmed first inputs mark attached story-note versions as sent.
-  installStoryNoteDelivery();
+  installStoryNoteDelivery(machineStoryNotesFile());
   // Admission reads the launches only once an upgrade arrives.
   const terminals: AgentTerminals = new AgentTerminals(httpServer, (req, url) =>
     admittedAttach(req, url, launches),

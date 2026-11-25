@@ -14,6 +14,10 @@ export * from "./dashboardParts.ts";
 export * from "./projectChoice.ts";
 export { expectSnapshotButtons } from "./snapshotButtons.ts";
 
+export async function expectPublishedRevision(page: Page, revision: string) {
+  await expect(parts(page).readRevision).toContainText(shortRevision(revision));
+}
+
 // Waits until no read of the published work is on its way, then tells
 // whether the page says that read failed with nothing read and that it reads
 // no more on its own: the line a failure shows only with no work, no

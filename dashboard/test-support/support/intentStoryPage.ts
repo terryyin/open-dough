@@ -1,11 +1,15 @@
 import { codePane, expectContextRead } from "./reviewPanes.ts";
 import {
+  browseStoryFiles,
   chooseStoryTab,
   expectStoryTab,
   filesColumn,
+  showIntentFiles,
   storySummary,
+  storyFilesReading,
   storyTabPanel,
   storyViews,
+  uncoverIntentReader,
 } from "../intentModePage.ts";
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
 // read of the page: the selected story's header and views, the contains-changes
@@ -15,7 +19,6 @@ import {
 // change-kind style: ./changeKindStyle.ts.
 
 import { expect, type Locator } from "@playwright/test";
-import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
 import {
@@ -37,8 +40,10 @@ export {
   storySummary,
   storyViews,
   storyTab,
+  storyFilesReading,
   storyTabPanel,
   expectStoryTab,
+  browseStoryFiles,
   chooseStoryTab,
 } from "../intentModePage.ts";
 
@@ -62,11 +67,25 @@ export function storyHeaderReading(intent: Locator) {
 export const storyTitle = (intent: Locator) =>
   storySummary(intent).getByRole("heading", { level: 2 });
 
+// The comparison details under the header's summary, revealed by its eye:
+// the revisions or full explanation, the follow-up action and Refresh.
+export async function showComparisonDetails(header: Locator) {
+  await expect(header).toBeVisible();
+  const eye = header.getByRole("button", {
+    name: "Show review details",
+    exact: true,
+  });
+  if ((await eye.count()) > 0) await eye.click();
+  await expect(
+    header.getByRole("button", { name: "Hide review details", exact: true }),
+  ).toBeVisible();
+  return header;
+}
+
 // What the header says beyond the title: the identity, and the revisions or
 // full explanation of the comparison.
 export async function storyHeaderDetail(intent: Locator) {
-  const header = storySummary(intent);
-  await expect(header).toBeVisible();
+  const header = await showComparisonDetails(storySummary(intent));
   await expect(
     header.getByRole("button", { expanded: false, name: /^(?!Branch )/ }),
   ).toHaveCount(0);
@@ -82,13 +101,33 @@ export const storyOnly = (intent: Locator) =>
 // comparison may append Proof's Counts and after-side words after a comma.
 const fileName = (name: string) =>
   new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:,|$)`);
-export const intentFile = (intent: Locator, name: string) =>
-  filesColumn(intent).getByRole("button", { name: fileName(name) });
+export const intentFile = (
+  intent: Locator,
+  name: string,
+  options: { readonly includeHidden?: boolean } = {},
+) =>
+  filesColumn(intent).getByRole("button", { ...options, name: fileName(name) });
 
-// The story's changed files outside every location, after the locations.
-export const outsideGroup = (intent: Locator) =>
-  filesColumn(intent).getByRole("region", {
-    name: "Outside Intent locations",
+// Chooses a file in Intent's tree, opening Files first where a narrow page
+// keeps it in a drawer, which the choice closes.
+export async function chooseIntentFile(intent: Locator, name: string) {
+  await showIntentFiles(intent);
+  await intentFile(intent, name).click();
+}
+
+// Intent's tree lists no file NAME, read with Files shown and then the reader
+// uncovered again where a narrow page lays Files over it as a drawer.
+export async function expectNoIntentFile(intent: Locator, name: string) {
+  await showIntentFiles(intent);
+  await expect(intentFile(intent, name)).toHaveCount(0);
+  await uncoverIntentReader(intent);
+}
+
+// The story's repository file tree.
+export const repositoryTree = (intent: Locator) =>
+  filesColumn(intent).getByRole("list", {
+    name: "Repository files",
+    exact: true,
   });
 
 // A folder's toggle in Intent, by the folder's name and whether it is open.
@@ -110,10 +149,10 @@ export const folderRow = (intent: Locator, name: string) =>
 export const folderItem = (intent: Locator, name: string) =>
   folderRow(intent, name).locator("xpath=..");
 
-// One configured location's group in Intent.
-export const locationGroup = (intent: Locator, locationPath: string) =>
-  intent.locator(
-    `section.intent-location:has(> .intent-location-header > [aria-controls="${intentLocationIdPrefix(locationPath)}-body"])`,
+// A repository folder, including a configured Intent root.
+export const repositoryFolder = (intent: Locator, path: string) =>
+  repositoryTree(intent).locator(
+    `li[data-folder-path=${JSON.stringify(path)}]`,
   );
 
 export const background = (row: Locator) =>
@@ -147,9 +186,6 @@ async function selectedDiff(intent: Locator, row: Locator, name: string) {
 export const intentDiff = (intent: Locator, name: string) =>
   selectedDiff(intent, intentFile(intent, name), name);
 
-const outsideFile = (intent: Locator, name: string) =>
-  outsideGroup(intent).getByRole("button", { name: fileName(name) });
-
 // Opens the Start session dialog from a Follow up control in Intent.
 async function followUpFrom(intent: Locator, control: Locator) {
   await control.click();
@@ -173,12 +209,26 @@ export function intentStory(intent: Locator) {
       folderToggle(intent, name, open),
     folderRow: (name: string) => folderRow(intent, name),
     folderItem: (name: string) => folderItem(intent, name),
-    locationGroup: (path: string) => locationGroup(intent, path),
-    outside: outsideGroup(intent),
-    groups: filesColumn(intent).locator(":scope section"),
-    outsideFile: (name: string) => outsideFile(intent, name),
-    // An outside file's row, which carries its change marker.
-    outsideRow: (name: string) => outsideFile(intent, name).locator("xpath=.."),
+    folderAt: (path: string) => repositoryFolder(intent, path),
+    folderRowAt: (path: string) =>
+      repositoryFolder(intent, path).locator(
+        ":scope > .story-review-folder-row",
+      ),
+    async expandFolderPath(path: string) {
+      let ancestor = "";
+      for (const segment of path.split("/")) {
+        ancestor = ancestor ? `${ancestor}/${segment}` : segment;
+        const toggle = repositoryFolder(intent, ancestor).locator(
+          ":scope > div > button[aria-expanded]",
+        );
+        await expect(toggle).toBeVisible();
+        if ((await toggle.getAttribute("aria-expanded")) === "false")
+          await toggle.click();
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+      }
+    },
+    tree: repositoryTree(intent),
+    files: filesColumn(intent),
     headerDetail: () => storyHeaderDetail(intent),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
       chooseStoryTab(intent, name),
@@ -186,6 +236,8 @@ export function intentStory(intent: Locator) {
       expectStoryTab(intent, name),
     panel: (name: Parameters<typeof storyTabPanel>[1]) =>
       storyTabPanel(intent, name),
+    browseFiles: () => browseStoryFiles(intent),
+    filesReading: storyFilesReading(intent),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     followUpComparison: () =>
       followUpFrom(
@@ -201,7 +253,5 @@ export function intentStory(intent: Locator) {
     followUpFile: (storyName: string) =>
       followUpFrom(intent, fileFollowUp(intent, storyName)),
     diff: (name: string) => intentDiff(intent, name),
-    outsideDiff: (name: string) =>
-      selectedDiff(intent, outsideFile(intent, name), name),
   };
 }

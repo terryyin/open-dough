@@ -2,7 +2,10 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { IntentLocationHeader } from "../../src/IntentLocationHeader.tsx";
 import { IntentTreeFileRow } from "../../src/IntentTreeFileRow.tsx";
-import { intentStoryOverlay } from "../../src/intentStoryOverlay.ts";
+import {
+  intentLocationFiles,
+  intentStoryOverlay,
+} from "../../src/intentStoryOverlay.ts";
 import { treeComparisonReadingOf } from "../../src/intentTreeComparison.ts";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
@@ -15,7 +18,7 @@ export function comparisonTreeMarkup(facts: ComparedStory) {
   const reading = treeComparisonReadingOf(preparedComparisonEvidence(facts));
   return renderToStaticMarkup(
     <nav className="intent-locations" aria-label="Intent files">
-      {scope.locations.map((location, at) => (
+      {scope.locations.map((location) => (
         <section key={location.path}>
           <IntentLocationHeader
             location={location}
@@ -26,19 +29,19 @@ export function comparisonTreeMarkup(facts: ComparedStory) {
             onToggle={() => {}}
             onSelect={() => {}}
           />
-          {overlay.locations[at]?.files.map((file) => (
-            <IntentTreeFileRow
-              key={file.path}
-              name={file.path}
-              selected={
-                scope.selection.path === `${location.path}/${file.path}`
-              }
-              reading={reading}
-              path={`${location.path}/${file.path}`}
-              treeFile={file}
-              onSelect={() => {}}
-            />
-          ))}
+          {[...intentLocationFiles(overlay.files, location)].map(
+            ([path, file]) => (
+              <IntentTreeFileRow
+                key={path}
+                name={path.slice(location.path.length + 1)}
+                selected={scope.selection.path === path}
+                reading={reading}
+                path={path}
+                treeFile={file}
+                onSelect={() => {}}
+              />
+            ),
+          )}
         </section>
       ))}
     </nav>,

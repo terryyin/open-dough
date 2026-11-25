@@ -11,12 +11,8 @@ import {
 // diff's heading in place; the code scrolls by keyboard. Selecting another
 // file shows its diff from the top and leaves the browser where it was;
 // Refresh, Maximize/Restore, and using the Panel divider keep both panes'
-// places. In a narrow panel the browser sits above the diff with a bounded
-// share of the height, and Hide files gives the diff the whole work area.
+// places. A narrow panel's Files drawer: ./story-review-narrow-files.spec.ts.
 
-import { sidePanelPages } from "../../dashboard/test-support/sidePanelPages.ts";
-import { expectCovering } from "../../dashboard/test-support/sidePanelFrame.ts";
-import { narrowWindow } from "../../dashboard/test-support/accessibleReading.ts";
 import {
   box,
   expectTopBarsShareHeight,
@@ -187,71 +183,4 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
     await expectWidth(shownPanel, Math.round(width + keyStep));
     await expectPanesKept();
   });
-});
-
-test("in a narrow panel the browser sits above the diff, each scrolling, and Hide files gives the diff the work area", async ({
-  page,
-  origin,
-}) => {
-  const {
-    browser,
-    diffOf,
-    codeOf,
-    opened: review,
-    session,
-  } = await openLargeReview(page, origin);
-  await page.setViewportSize(narrowWindow);
-  const { body, workarea, panel } = review.frame.partsToMeasure();
-  await expectCovering(panel);
-  const nameA = `Added ${longA}`;
-  const diff = diffOf(nameA);
-  const code = codeOf(nameA);
-
-  await test.step("the browser sits above the diff with a bounded share of the height", async () => {
-    // The panel lays itself out anew once it observes the narrower window.
-    const stacked = async () => {
-      const [shownBrowser, shownDiff] = await Promise.all([
-        box(browser),
-        box(diff),
-      ]);
-      return shownBrowser.y + shownBrowser.height <= shownDiff.y;
-    };
-    await expect.poll(stacked).toBe(true);
-    const [area, shownBrowser, shownDiff] = await Promise.all([
-      box(workarea),
-      box(browser),
-      box(diff),
-    ]);
-    expect(shownBrowser.height).toBeLessThanOrEqual(area.height * 0.4 + 1);
-    expect(shownDiff.y + shownDiff.height).toBeCloseTo(area.y + area.height, 0);
-    expect((await overflows(body)).down).toBe(false);
-  });
-
-  await test.step("each pane scrolls on its own", async () => {
-    expect((await overflows(browser)).down).toBe(true);
-    expect((await overflows(code)).down).toBe(true);
-    const browserAt = await scrollPane(browser, 80);
-    expect(browserAt).toBe(80);
-    const codeAt = await scrollPane(code, 600);
-    expect(codeAt).toBe(600);
-    expect(await scrollTopOf(browser)).toBe(browserAt);
-    await scrollPane(browser, 0);
-    expect(await scrollTopOf(code)).toBe(codeAt);
-  });
-
-  await test.step("Hide files gives the diff the whole work area", async () => {
-    const shownDiff = await box(diff);
-    await review.hideFiles();
-    await review.expectFilesShown(false);
-    const [area, alone] = await Promise.all([box(workarea), box(diff)]);
-    expect(alone.y).toBeCloseTo(area.y, 0);
-    expect(alone.height).toBeCloseTo(area.height, 0);
-    expect(alone.height).toBeGreaterThan(shownDiff.height);
-    expect((await overflows(code)).down).toBe(true);
-  });
-  await review.close("keyboard");
-  await sidePanelPages(page).phase(
-    "keyboard Close returns focus to the session entry",
-    ({ board }) => board.expectPublishedReviewFocused(session),
-  );
 });

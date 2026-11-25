@@ -6,10 +6,10 @@
 A developer can narrow one story-review file inventory to configured Intent
 paths, to the active comparison's changes, or to both. The tree and a
 folder's file list show that inventory. Both filters off still lists the
-repository at the selected revision. The story waits on
-[SEED-420#browse-one-selectable-review-tree](../../seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree)
-for that one tree. This plan filters it. It does not build the tree, folder
-selection, or proof explanations.
+repository at the selected revision. The
+[SEED-420#browse-one-selectable-review-tree](https://github.com/terryyin/open-dough/blob/07dad9d62ee48012ee757bf2e6858f2d7ebfeed6/.planning/seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree)
+story delivered the tree and folder selection. This plan filters that
+inventory. The folder-proof story owns the proof explanations.
 
 ## Current decisions
 
@@ -34,11 +34,10 @@ selection, or proof explanations.
   (`locationSelectsRepositoryPath`: a path matches a location's configured
   sources, not merely its directory) and the comparison's added, modified,
   removed, and renamed paths. A rename matches Intent when either path is
-  admitted. Replace `storyChangesOnly` and **Selected story only** with one
-  filter over the supplier's repository paths. Derive the folder file list
-  from that filtered inventory, as `filesOfSelection` derives today's summary
-  rows from the shown tree. Do not add a second browser, and do not keep the
-  location-group plus outside-group split the supplier retires.
+  admitted. Replace the kept `storyOnly` choice in `useIntentStoryTree` and
+  **Selected story only** with one filter over the repository paths
+  `storyRepositoryTree` uses. Derive the folder file list from that filtered
+  inventory, as `filesOfSelection` derives today's Summary rows.
 - A path the selected revision does not hold still uses the existing
   "not in revision" explanation. A path the revision holds, which the filter
   hides, stays open and does not use that explanation. The current missing
@@ -57,9 +56,9 @@ selection, or proof explanations.
   filters that are on match no path, the browser says so and the controls
   stay. With no configured locations, **Intent only** says that none are
   configured.
-- [The sidebar story](../../seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
+- [The sidebar story](https://github.com/terryyin/open-dough/blob/e4a350d35ee26dfe98375118520523dd1ca648f6/.planning/seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
   owns row fit. Supply the two controls after **Home**, **Intent only** then
-  **Changes only**. [Story Home](../../seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home)
+  **Changes only**. [Story Home](https://github.com/terryyin/open-dough/blob/295c96b89ac352f18060e24a5f983f219392da8d/.planning/seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home)
   owns Home's evidence. This plan only keeps an unchanged test's contribution
   visible there. Folder proof wording stays with its story. Session subsets
   stay with their story. The active comparison, including a landed run and
@@ -67,8 +66,8 @@ selection, or proof explanations.
 - At `f401a0d12f8dd590931bb938ace47e622dc7146d`, `IntentBrowser.tsx` is 246
   lines and `pageIntentReading.tsx` is 249. Neither exceeds 250. The slice
   that edits either file keeps it within 250 lines or makes that file's
-  cohesive split in the same slice. Recheck both after the supplier lands;
-  it will edit the browser.
+  cohesive split in the same slice. At the supplier integration, the browser
+  is 200 lines and the reading place is 249.
 
 ## Decisive premises and baseline
 
@@ -92,20 +91,21 @@ They are not acceptance of the new controls.
 
 ## Consumer trace and local gates
 
-Search for `Selected story only`, `onlyChangedFiles`, `storyOnly`, and
-`storyChangesOnly` before replacing the control. The current observers are
-the Intent story page object and `ciFollowUpReadingPage.ts`; the mounted
-specs `intent-story-changes-only`, `intent-story-changes-gaps`,
+Search for `Selected story only`, `onlyChangedFiles`, `storyOnly`,
+`StoryTreeScopeChoice`, and `storyRepositoryTree` before replacing the
+control. The page objects include the Intent story page object and
+`ciFollowUpReadingPage.ts`. The mounted specs include
+`intent-story-changes-only`, `intent-story-changes-gaps`,
 `intent-story-outside-locations`, `intent-reading-place`,
-`intent-sidebar-toggle`, and `story-card-selection`; the direct overlay
-spec; and e2e `intent-story-changes`, `intent-story-changes-moves`, and
-`intent-story-completed`. Slice 1 updates observers of the changes control
+`intent-sidebar-toggle`, and `story-card-selection`. Check the direct
+overlay spec and e2e `intent-story-changes`, `intent-story-changes-moves`,
+and `intent-story-completed`. Slice 1 updates observers of the changes control
 and which changed paths are listed. Slice 2 updates observers of the
 unfiltered tree, whole project, and outside files. Slice 3 updates observers
 of a missing comparison and of Home evidence. Re-run the installed consumer
 trace on the slice diff and give each new consumer `run`, `reused`, or
-`excluded` with a reason. The supplier may already have moved these tests;
-follow the tree it leaves.
+`excluded` with a reason. Include the Done branch comparison's exact folder
+counts in `intent-done-branch-contributions.spec.ts`.
 
 - Run changed mounted specs with `npm run test:dashboard:frontend -- <specs>`,
   the direct filter spec with `node scripts/test-backend.mjs <spec>`, and

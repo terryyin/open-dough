@@ -2,7 +2,7 @@
 // Both the refinement capture and the execution completion use real installed
 // publication; the Done reader chooses their meaning, not a fabricated answer.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
+import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -18,7 +18,7 @@ import {
 } from "../../dashboard/test-support/support/codexStart.ts";
 import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   folderToggle,
   intentDiff,
   intentFile,
@@ -66,16 +66,10 @@ test("a Done story reads its published execution instead of an earlier refinemen
     origin,
     intentTrunkCompletionOntoTip({ implementation }),
   );
-  const locations: string[] = [];
-  const sourceReads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname !== authenticatedReadEndpoint) return;
-    if (url.searchParams.get("intent") === "locations")
-      locations.push(url.searchParams.get("revision") ?? "");
-    if (url.searchParams.get("path") === unchanged)
-      sourceReads.push(url.searchParams.get("revision") ?? "");
-  });
+  const { inventory: locations, text: sourceReads } = trackStoryResultReads(
+    page,
+    unchanged,
+  );
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: completion,
@@ -92,7 +86,7 @@ test("a Done story reads its published execution instead of an earlier refinemen
   const answer = storyReviewSchema.parse(await (await received).json());
   expect(answer).toMatchObject({ kind: "published", completion });
   expect(answer.selectedRun).toBeUndefined();
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expandIntentGroup(intent, "dashboard/tests");
   const original = await intentDiff(intent, modified);
   expect(original).toContain("the completed execution test");

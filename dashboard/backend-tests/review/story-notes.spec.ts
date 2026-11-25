@@ -1,9 +1,7 @@
-// The typed notes handler in-process, against the machine store under a
-// temporary HOME: no server.
+// The typed notes handler in-process with a private notes file.
 import {
   chmodSync,
   existsSync,
-  mkdirSync,
   mkdtempSync,
   readFileSync,
   readdirSync,
@@ -21,7 +19,6 @@ import {
   type StoryNote,
   type StoryNotesAnswer,
 } from "../../src/storyNote.ts";
-import { storyNotesFile } from "../../test-support/support/storyNotesStore.ts";
 
 const project = "open-dough";
 const identity = "SEED-348#collect-notes-for-story-follow-ups";
@@ -37,26 +34,21 @@ const lineContext = {
   },
   line: { number: 7, side: "new", text: "return result;" },
 } as const;
-let home: string;
-const realHome = process.env.HOME;
-const notesFile = () => storyNotesFile(home);
+let directory: string;
+let notesFile: string;
 
 beforeEach(() => {
-  home = mkdtempSync(path.join(tmpdir(), "story-notes-"));
-  process.env.HOME = home;
+  directory = mkdtempSync(path.join(tmpdir(), "story-notes-"));
+  notesFile = path.join(directory, "story-notes.json");
 });
 afterEach(() => {
   vi.useRealTimers();
-  process.env.HOME = realHome;
-  rmSync(home, { recursive: true, force: true });
+  rmSync(directory, { recursive: true, force: true });
 });
 
-function writeStore(bytes: string) {
-  mkdirSync(path.dirname(notesFile()), { recursive: true });
-  writeFileSync(notesFile(), bytes);
-}
 const storeNotes = (notes: StoryNote[], story = identity) => {
-  writeStore(
+  writeFileSync(
+    notesFile,
     `${JSON.stringify(
       makeMe.aStoredStoryNotesDocument
         .withNotes(project, story, notes)
@@ -65,7 +57,7 @@ const storeNotes = (notes: StoryNote[], story = identity) => {
   );
 };
 const storedDocument = () =>
-  JSON.parse(readFileSync(notesFile(), "utf8")) as unknown;
+  JSON.parse(readFileSync(notesFile, "utf8")) as unknown;
 // A change as the shared schema admits it from the wire.
 const change = (body: unknown) =>
   storyNoteChangeSchema.parse({ identity, ...(body as object) });
@@ -93,6 +85,7 @@ describe("Given notes already saved for a story", () => {
   test("when a note is added, then it comes first with an assigned id and time, trimmed text and kept line context, and is stored", async () => {
     const notes = notesOf(
       await storyNotes(
+        notesFile,
         project,
         change({
           action: "add",
@@ -116,12 +109,13 @@ describe("Given notes already saved for a story", () => {
 
   test("when notes are added to another story, then each project and identity keeps its own and they are read again from the file", async () => {
     await storyNotes(
+      notesFile,
       project,
       change({ action: "add", identity: otherIdentity, text: "Other story" }),
     );
 
-    expect(notesOf(await storyNotes("doughnut"))).toEqual({});
-    const reread = notesOf(await storyNotes(project));
+    expect(notesOf(await storyNotes(notesFile, "doughnut"))).toEqual({});
+    const reread = notesOf(await storyNotes(notesFile, project));
     expect(reread[identity]).toEqual(saved());
     expect(reread[otherIdentity]?.map(({ text }) => text)).toEqual([
       "Other story",
@@ -133,6 +127,7 @@ describe("Given notes already saved for a story", () => {
     const [, first] = saved();
     const notes = notesOf(
       await storyNotes(
+        notesFile,
         project,
         change({ action: "edit", id: first?.id, text: "  Revised  " }),
       ),
@@ -147,26 +142,30 @@ describe("Given notes already saved for a story", () => {
 
   test("when an unknown or other-story note is edited or deleted, then the handler refuses it and nothing is written", async () => {
     const [, first] = saved();
-    const keptBytes = readFileSync(notesFile(), "utf8");
+    const keptBytes = readFileSync(notesFile, "utf8");
     for (const body of [
       { action: "edit", id: makeMe.aStoryNote.please().id, text: "Unknown" },
       { action: "delete", id: makeMe.aStoryNote.please().id },
       { action: "edit", identity: otherIdentity, id: first?.id, text: "Wrong" },
       { action: "delete", identity: otherIdentity, id: first?.id },
     ]) {
-      const refused = storyNotes(project, change(body));
+      const refused = storyNotes(notesFile, project, change(body));
       await expect(refused, JSON.stringify(body)).rejects.toBeInstanceOf(
         RefusedRequest,
       );
       await expect(refused).rejects.toMatchObject({ status: 404 });
-      expect(readFileSync(notesFile(), "utf8")).toBe(keptBytes);
+      expect(readFileSync(notesFile, "utf8")).toBe(keptBytes);
     }
   });
 
   test("when a note is deleted, then the other entries are kept and stored", async () => {
     const [second, first] = saved();
     const notes = notesOf(
-      await storyNotes(project, change({ action: "delete", id: first?.id })),
+      await storyNotes(
+        notesFile,
+        project,
+        change({ action: "delete", id: first?.id }),
+      ),
     );
 
     expect(notes[identity]).toEqual([second]);
@@ -195,12 +194,14 @@ test.each([
     const edit = change({ action: "edit", id: note.id, text: edited.text });
     vi.useFakeTimers({ now: new Date(editTime), toFake: ["Date"] });
     const [afterChange] =
-      notesOf(await storyNotes(project, edit))[identity] ?? [];
+      notesOf(await storyNotes(notesFile, project, edit))[identity] ?? [];
     const [afterSame] =
-      notesOf(await storyNotes(project, edit))[identity] ?? [];
+      notesOf(await storyNotes(notesFile, project, edit))[identity] ?? [];
     expect(afterChange).toEqual({ ...edited, editedAt: firstVersion });
     expect(afterSame).toEqual({ ...edited, editedAt: secondVersion });
-    expect(await waitingStoryNotes(project, identity)).toEqual([afterSame]);
+    expect(await waitingStoryNotes(notesFile, project, identity)).toEqual([
+      afterSame,
+    ]);
   },
 );
 
@@ -209,17 +210,23 @@ for (const [kind, bytes] of [
   ["wrong shape", '{"open-dough": ["lost note"]}\n'],
 ] as const)
   test(`Given an unreadable notes file (${kind}), when read and then added to, then it answers unreadable, refuses the add and keeps its bytes in place`, async () => {
-    writeStore(bytes);
+    writeFileSync(notesFile, bytes);
 
-    expect(await storyNotes(project)).toEqual({ kind: "unreadable" });
+    expect(await storyNotes(notesFile, project)).toEqual({
+      kind: "unreadable",
+    });
     await expect(
-      storyNotes(project, change({ action: "add", text: "Refused" })),
+      storyNotes(
+        notesFile,
+        project,
+        change({ action: "add", text: "Refused" }),
+      ),
     ).rejects.toThrow(
-      `Machine evidence is unreadable; writing is blocked: ${notesFile()}`,
+      `Machine evidence is unreadable; writing is blocked: ${notesFile}`,
     );
-    expect(readFileSync(notesFile(), "utf8")).toBe(bytes);
+    expect(readFileSync(notesFile, "utf8")).toBe(bytes);
     expect(
-      readdirSync(path.dirname(notesFile())).filter((name) =>
+      readdirSync(directory).filter((name) =>
         name.startsWith("story-notes.json"),
       ),
     ).toEqual(["story-notes.json"]);
@@ -227,16 +234,15 @@ for (const [kind, bytes] of [
 
 test("Given an unwritable store, when a note is added, then it is refused without a note and accepted once the store is writable", async () => {
   const add = change({ action: "add", text: "Saved once writable." });
-  mkdirSync(path.dirname(notesFile()), { recursive: true });
-  chmodSync(path.dirname(notesFile()), 0o555);
+  chmodSync(directory, 0o555);
   try {
-    await expect(storyNotes(project, add)).rejects.toThrow();
-    expect(existsSync(notesFile())).toBe(false);
+    await expect(storyNotes(notesFile, project, add)).rejects.toThrow();
+    expect(existsSync(notesFile)).toBe(false);
   } finally {
-    chmodSync(path.dirname(notesFile()), 0o755);
+    chmodSync(directory, 0o755);
   }
 
-  const notes = notesOf(await storyNotes(project, add));
+  const notes = notesOf(await storyNotes(notesFile, project, add));
   expect(notes[identity]?.map(({ text }) => text)).toEqual([
     "Saved once writable.",
   ]);

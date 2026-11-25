@@ -16,7 +16,8 @@ accepted the Take at `4f25aa5672565f1efc25d58165a5ab021b1d00ff`, based on
 `1935edc5c20ed181bdf276b973767ffef83ac292`. This Take is the first increment's
 published base. The checkout passed `npm ci` and `npm run typecheck:dashboard`.
 The Codex observer uses GitHub Actions `ci.yml` on the story branch with
-coordinator `Julia-chan-84a618be` and mailbox `/tmp/dough-ci-501/watch-A78W0t`.
+coordinator `Julia-chan-84a618be` and mailbox `/tmp/dough-ci-501/watch-tQjOqi`
+for the resumed execution.
 Replanning follows existing planning authority.
 
 ## Goal and scope
@@ -328,6 +329,85 @@ with the owning slice. Run full E2E Test and Dashboard Backend Test. Remove
 scratch source edits and the temporary diagnostic when its gate result is
 recorded. Keep only the evidence needed by plan 828 until the cutover has used
 it, and keep the maintained Git assertion.
+
+#### Qualification attempt at `6f977bf3`
+
+The full diagnostic replay used physical checkout-local dependencies and
+three browser workers followed by two backend workers on AC. E2E finished
+with 780 passes and three responsive-launch failures at the default deadline.
+The full backend run passed 1,074 Playwright cases and 951 Vitest cases, with
+one Playwright skip. The diagnostic recorded 342 E2E mismatches across 120
+spec files and 49 backend mismatches across 13 files. The raw rows include
+intentional scheduled, held and standalone REST reads as well as genuine
+Board fixture gaps. The worktree's Git evidence directory retains the full
+run records, captured failure traces, `slice-8-return.md`, and the event
+index `slice-8-audit-index.tsv` with each operation, route HOME and publisher.
+The scratch source edits were reversed. The patch and inventory remain
+available for the next qualification attempt.
+
+The E2E traces place the failures at the default deadline. Reconciliation
+and refinement continued making assertions near 30 seconds. Recovery
+reported a failed launch while test teardown was under way. The three cases
+passed in 26.6 seconds in one focused run with the diagnostic removed, one
+worker and tracing enabled (`slice-8-e2e-focused-runtime.log.run.json`).
+That run changes test selection, load and instrumentation together. The
+aggregate-run timing cause and the required full verdict are still open.
+
+Confirmed cold gaps include `launchStoryCardPage.openTakenBacklog`, where
+the REST Board publication differs from the installed catalog ref,
+`publishedFactsArrival.heldFactGroups`, which answers a synthetic Board pin,
+and the `serving-modes` browser requests, whose HAR opens see the catalog
+route rather than the served pin. Two shared helpers, `storyColumnsPage`
+and `launchStoryCardPage`, account for 198 audit events. Choose their
+publication authority at each actual open while preserving the native
+checkout and independent REST controls. The original replay predates the
+SEED-442 landing at `3328db809`, which now owns the verified published
+Recently done navigation fixtures. Recheck only the cases its integration
+affects before accepting a combined candidate.
+
+The selected source and plan were fresh against trunk `3033bda0`. A merge
+preview found overlapping changes from the landed SEED-437 and SEED-442 in
+`projectAddMachine.ts`, `project-add.spec.ts`, and
+`recently-done-progressive-added-project.spec.ts`. Reconcile the real pins
+with trunk's Git default-branch discovery and published Done fixture proof
+before the next full gate. The completed slices' story branch is preserved
+at `6f977bf308801717590a25837af53bdff9c5a99b`.
+
+#### Resumed qualification
+
+Trunk `0ce486cd7` includes the Git default-branch discovery and published
+Recently done navigation work. The merge keeps a single committed Add
+Project publication at `release+stable`, a distinct native local checkout
+branch, and the seeded fallback. The focused browser suite passed with
+the combined Add, session restore, Recently done, and Review cases. The
+backend repeat passed after moving the Git ref assertion out of fixture
+startup, allowing the deliberate invalid and stalled transport routes to
+reach the boundary. The affected backend tests and Dashboard typecheck
+passed (`resume-merge-*.log.run.json` in Git evidence).
+
+Continue the audit repairs through their existing owning slices. Address
+launch and reconciliation first by selecting the committed Board publication
+without changing the native checkout's publication semantics. Reuse
+`routeServedHomesToPublication` only at fixtures with a distinct Board and
+catalog origin. Route the direct-reader and authenticated cold fixtures at
+their actual refinements. Materialize successful browser publications before
+held details or scheduler events, leaving the explicit REST operation under
+proof. Keep this slice's full gate and both open obligations until a current
+audit and the two complete suites establish them.
+
+## Story obligations
+
+### G1. Cold Board fixtures still advertise a different pin from Git
+
+Reported: slice 8 — "The full ref audit confirmed cold Board opens in which the routed Git ref differs from the fixture publication."
+Story clause: "A successful open's configured repository and ref must reach its fixture commit in each HOME that uses it."
+Disposition: return
+
+### G2. The full E2E gate and mismatch attribution remain open
+
+Reported: slice 8 — "The full E2E run failed three responsive-launch cases. A focused repeat passed, and confirmed Board pin gaps and unattributed audit groups remain."
+Story clause: "Pass the full Dashboard Backend Test and E2E Test suites with every diagnostic mismatch explained, then remove the scratch diagnostic."
+Disposition: return
 
 ## Local gate
 

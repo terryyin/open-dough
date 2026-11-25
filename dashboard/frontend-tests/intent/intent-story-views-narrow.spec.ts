@@ -12,22 +12,23 @@ import {
 } from "./intent-file-layout-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
-test("narrow, a selected story's views and Hide files stay reachable by keyboard without widening the page", async () => {
+test("narrow, a selected story's views and the Files drawer stay reachable by keyboard without widening the page", async () => {
   await openIntentFileLayout({ viewport: { width: 390, height: 760 } });
   const story = intentStoryCompare();
   const files = fileLayout();
-  await story.chooseTab("Changes");
   await controlsFit(
     story.viewTab("CI comparison"),
-    story.viewTab("Changes"),
     story.viewTab("Intent coverage"),
     files.toggle,
   );
 
-  await toggleFilesFromKeyboard(story.viewTab("Changes"));
-  await userEvent.keyboard(" ");
+  await files.showsFiles(false);
+  focus(files.toggle);
+  await userEvent.keyboard("{Enter}");
   await files.showsFiles(true);
-  focus(story.viewTab("Changes"));
+  await userEvent.keyboard(" ");
+  await files.showsFiles(false);
+  focus(story.viewTab("Intent coverage"));
   await userEvent.keyboard("{Home}");
   await expect
     .element(story.viewTab("CI comparison"))
@@ -37,7 +38,7 @@ test("narrow, a selected story's views and Hide files stay reachable by keyboard
   await expect
     .element(story.viewTab("Intent coverage"))
     .toHaveAttribute("aria-selected", "true");
-  await expect.element(files.toggle).not.toBeInTheDocument();
+  await files.showsFiles(false);
 });
 
 test("without a story the shared header, project views and reader fit narrow and short reading with keyboard controls", async () => {
@@ -76,9 +77,7 @@ test("without a story the shared header, project views and reader fit narrow and
         ?.getAttribute("data-intent-context"),
     ).toBe("project");
     await expect
-      .element(
-        intentPage.getByRole("tablist", { name: "Selected story views" }),
-      )
+      .element(intentPage.getByRole("tablist", { name: "Story Home" }))
       .not.toBeInTheDocument();
     await controlsFit(
       intentPage.getByLabelText("Test browser revision", { exact: true }),
@@ -86,11 +85,13 @@ test("without a story the shared header, project views and reader fit narrow and
       candidates,
       files.toggle,
     );
+    await files.showsFiles(false);
     await toggleFilesFromKeyboard(status);
     await expect.element(ciStatus).toBeVisible();
+    await files.showsFullReader();
     expect(files.reading().height).toBeGreaterThan(height <= 256 ? 30 : 100);
     await userEvent.keyboard(" ");
-    await files.showsFiles(true);
+    await files.showsFiles(false);
     focus(status);
     await userEvent.keyboard("{End}");
     await expect.element(candidates).toHaveFocus();

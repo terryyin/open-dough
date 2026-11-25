@@ -67,7 +67,7 @@ async function openChangesWithNotes(
       ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   return story;
 }
 
@@ -167,7 +167,7 @@ test("a note saved from Intent → Changed tests still reads its view", async ()
 test("a line note can start from the diff of a file outside Intent locations", async () => {
   const notes = notesKept();
   const story = await openChangesWithNotes(notes.source);
-  await story.outsideFile(outsideFile).click();
+  await story.file(outsideFile).click();
   await expect.poll(story.diffName).toBe(outsideFile);
   await startLineNote(1, ["Intent → Changes", productPath, "Line 1 · new"]);
   await saveNote("Outside Intent locations");

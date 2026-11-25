@@ -42,6 +42,7 @@ import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { sessionBranchEntryEndpoint } from "../src/sessionBranchResult.ts";
 import { submitSessionBranchEntry } from "./sessionBranchEntry.ts";
 import type { ReviewInitialSync } from "./reviewInitialSync.ts";
+import { storyReviewResultResponse } from "./storyReviewResultRead.ts";
 
 // How long a wait for an attempt observation to change lasts. A test may
 // shorten it through `DOUGH_CHANGE_WAIT_MS`; production stays at 30 seconds.
@@ -147,6 +148,8 @@ export async function answer(
         return await storyReviewFileResponse(request, res);
       case "story-review-file-text":
         return await storyReviewFileTextResponse(request, res);
+      case "story-review-result":
+        return await storyReviewResultResponse(request, res);
       case "cursor-sessions":
         return { status: 200, body: await heldCursorSessions() };
       case "sessions":

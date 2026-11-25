@@ -31,7 +31,7 @@ export async function openDoneScopeHistory(
     },
   });
   if (phone) await page.viewport(390, 844);
-  await intentStoryCompare().chooseTab("Changes");
+  await intentStoryCompare().browseFiles();
   const summary = await openSummary("dashboard/tests");
   return { summary, history: scopeHistoryIn(summary) };
 }

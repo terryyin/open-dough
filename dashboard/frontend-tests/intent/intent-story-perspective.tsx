@@ -14,6 +14,7 @@ import type { PublishedWork } from "../../src/publishedWork.ts";
 import { RecentlyDoneLinkSources } from "../../src/recentlyDoneShownLinks.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
+import { withStoryResultFixture } from "../../test-support/component-mount/storyResultFixture.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { useMountedLaunchAttempts } from "../launches/mounted-launch-attempts.ts";
@@ -69,7 +70,9 @@ export async function mountStoryIntent({
   readonly viewport?: { readonly width: number; readonly height: number };
 }) {
   const { source } = work;
-  const pageReads = pageReadsSupplying(reads);
+  const pageReads = pageReadsSupplying(
+    withStoryResultFixture(reads, () => work),
+  );
   const projects = [source];
   const project = {
     mode: "ci",

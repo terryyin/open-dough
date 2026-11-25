@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-420#browse-one-selectable-review-tree",
+  "title": "Browse and select folders in one story review tree",
+  "completedAt": "2026-11-25T15:54:56.820Z",
+  "developer": "Terry Yin",
+  "agent": "Yuma-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** The maintained browser test caught an unreadable unchanged file while the accepted landing was still selected.\n\nThe check covers `SEED-420#browse-one-selectable-review-tree` at `b3e202ca62dff9efd60488acc27a6e0ae24362e5`. The story promises that opening an unchanged file reads source at the browsed revision. The existing real-Git fixture in `e2e/intent/intent-done-default-answer-selection.spec.ts` chooses the first story’s accepted landing, then opens `docs/notes.md` from Files. The later story rewrites that document.\n\nOne temporary change at `dashboard/src/useStoryResultRead.tsx:70` disabled text requests for landed pins and left comparison and inventory requests enabled. This narrower fault let the test reach the selected file and exercise the source assertion. Chromium recorded HTTP 200 for the chosen landing and its inventory. The recorded Purpose view showed “docs/notes.md could not be read” with Retry. The maintained assertion at `e2e/intent/intent-done-default-answer-selection.spec.ts:179` expected “notes 11” and failed on that text. The immediately preceding file selection and landing checks had passed. The wrong result is also recorded in `coverage-error-context.md`, `coverage-network-witness.txt`, and `coverage-fault-trace.zip` beside this report.\n\nThe same command exercised one test in each run. It passed at baseline, failed at the named assertion with the fault, and passed after byte-for-byte restoration. Git confirmed the detached scratch checkout was clean at the same SHA before removal.\n\n`env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/intent/intent-done-default-answer-selection.spec.ts --workers=1 --reporter=line`\n\n**Next proof action.** Keep the existing captured-source assertion for this transition.\n\n- **Test runtime.** Baseline 23.0 s and restored 16.8 s, measured by Playwright. The line reporter gave the failed result without a total runtime.\n- **Human effort.** Unavailable because no independent human effort measurement was recorded.\n- **Agent effort.** Unavailable because no independent active-effort measurement was recorded.\n\n\n- **Invocation-to-report elapsed.** 201514 ms (measured), from 1795621800296 to 1795622001810 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition for b3e202ca62dff9efd60488acc27a6e0ae24362e5. Caught. No follow-up.\n"
+  }
+}

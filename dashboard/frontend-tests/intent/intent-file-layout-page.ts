@@ -1,5 +1,6 @@
 import { expect, vi } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
+import { sidebarPlacement } from "../../test-support/sidebarPlacement.ts";
 
 export const intentPage = page.getByRole("main", {
   name: "Intent",
@@ -24,12 +25,25 @@ export function fileLayout() {
     name: /^(Hide|Show) files$/,
   });
   const column = () => withinIntent(".intent-locations");
-  const reading = () => withinIntent(".intent-reading");
+  // The reader the browser shows: the path reading, or a story's Home.
+  const reading = () =>
+    withinIntent(
+      ".intent-reading:not([hidden]), .intent-story-home:not([hidden])",
+    );
   const browser = () => withinIntent(".intent-browser");
   const bar = () => withinIntent(".intent-page-tabbar");
   const box = (element: HTMLElement | null | undefined) => {
     if (!element) throw new Error("Intent layout part is missing");
     return element.getBoundingClientRect();
+  };
+  const shown = () => toggle.element().getAttribute("aria-expanded") === "true";
+  const placement = () => {
+    const control = toggle.query();
+    return control === null ? "pending" : sidebarPlacement(control);
+  };
+  const settledPlacement = async () => {
+    await expect.poll(placement).not.toBe("pending");
+    return placement();
   };
   return {
     toggle,
@@ -37,6 +51,7 @@ export function fileLayout() {
     reading: () => box(reading()),
     browser: () => box(browser()),
     readerVisible: () => reading()?.checkVisibility() ?? false,
+    shown,
     async showsFiles(shown: boolean) {
       await expect
         .element(toggle)
@@ -46,6 +61,19 @@ export function fileLayout() {
         .toHaveAttribute("aria-expanded", String(shown));
       expect(column()?.id).toBe(toggle.element().getAttribute("aria-controls"));
       expect(column()?.checkVisibility()).toBe(shown);
+    },
+    // Files shown, whether it starts docked or as a closed drawer.
+    async showFiles() {
+      if ((await settledPlacement()) === "hidden") await toggle.click();
+      await this.showsFiles(true);
+    },
+    // The reader uncovered: an open Files drawer closes, docked Files stays,
+    // and a view without Files has nothing over its reader.
+    async uncoverReader() {
+      if (toggle.query() === null) return;
+      if ((await settledPlacement()) !== "drawer") return;
+      await toggle.click();
+      await this.showsFiles(false);
     },
     async showsFullReader() {
       await expect
@@ -86,13 +114,28 @@ export async function controlsFit(...controls: Locator[]) {
   );
 }
 
+// Asserts the controls share one row, left to right in the given order, and
+// returns their boxes.
+export function expectOneRow(...controls: Locator[]) {
+  const boxes = controls.map((control) =>
+    control.element().getBoundingClientRect(),
+  );
+  expect(Math.max(...boxes.map((box) => box.top))).toBeLessThan(
+    Math.min(...boxes.map((box) => box.bottom)),
+  );
+  const lefts = boxes.map((box) => box.left);
+  expect(lefts).toEqual([...lefts].sort((a, b) => a - b));
+  return boxes;
+}
+
 export async function toggleFilesFromKeyboard(after: Locator) {
   const files = fileLayout();
   await expect.element(after).toBeVisible();
+  const shown = files.shown();
   focus(after);
   await userEvent.keyboard("{Tab}");
   await expect.element(files.toggle).toHaveFocus();
   await userEvent.keyboard("{Enter}");
-  await files.showsFiles(false);
+  await files.showsFiles(!shown);
   await expect.element(files.toggle).toHaveFocus();
 }

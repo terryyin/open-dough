@@ -37,27 +37,13 @@ export async function capturedChoice(
   ]);
   return { ...run, receipt, key: receipt.reference, name };
 }
-// A legacy run, then each named captured run, beside an open live story A
-// workspace. Each run is marked done before the next can launch.
-export async function reviewChoicesNamed<const Name extends string>(
+// The named captured runs beside an open live story A workspace.
+export async function capturedReviewChoices<const Name extends string>(
   dashboard: DashboardServer,
   origin: StartOrigin,
   native: FakeCodex,
   names: readonly Name[],
 ) {
-  const nativeSession = native;
-  nativeSession.threadId = "review-legacy";
-  const legacy = await startReviewRun(dashboard);
-  retireReviewRun(legacy, origin, legacy.established.startingRevision ?? "");
-  // A real launch predating the reporting capability has no optional handoff.
-  const old = { ...legacy.record, request: { ...legacy.record.request } };
-  delete old.request.reporting;
-  keepLaunchRecords(dashboard, [old]);
-  await recordOperation(dashboard, "setRecordDoneAt", [
-    "open-dough",
-    old.session,
-    new Date().toISOString(),
-  ]);
   const captured = {} as Record<
     Name,
     Awaited<ReturnType<typeof capturedChoice>>
@@ -85,16 +71,37 @@ export async function reviewChoicesNamed<const Name extends string>(
   keepLaunchRecords(dashboard, [...stored(dashboard.home), live]);
   return {
     ...captured,
-    legacy: { ...old, key: sessionKey(old.session) },
     live,
     workspace,
   };
 }
-export const reviewChoices = (
+// The legacy-choice journey needs its uncaptured run before the captures.
+export async function reviewChoices(
   dashboard: DashboardServer,
   origin: StartOrigin,
   native: FakeCodex,
-) => reviewChoicesNamed(dashboard, origin, native, ["first", "second"]);
+) {
+  const nativeSession = native;
+  nativeSession.threadId = "review-legacy";
+  const legacy = await startReviewRun(dashboard);
+  retireReviewRun(legacy, origin, legacy.established.startingRevision ?? "");
+  // A real launch predating the reporting capability has no optional handoff.
+  const old = { ...legacy.record, request: { ...legacy.record.request } };
+  delete old.request.reporting;
+  keepLaunchRecords(dashboard, [old]);
+  await recordOperation(dashboard, "setRecordDoneAt", [
+    "open-dough",
+    old.session,
+    new Date().toISOString(),
+  ]);
+  return {
+    ...(await capturedReviewChoices(dashboard, origin, native, [
+      "first",
+      "second",
+    ])),
+    legacy: { ...old, key: sessionKey(old.session) },
+  };
+}
 export function addLiveEdit(workspace: string) {
   writeFileSync(
     path.join(workspace, "live-edit.txt"),

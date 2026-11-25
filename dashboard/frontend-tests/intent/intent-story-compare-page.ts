@@ -1,9 +1,9 @@
 // The selected story in a mounted Intent view
 // (./intent-story-compare-stories.ts) as a reader meets its comparison: the
-// header's revisions line and its Compare group (the comparison choice, the
-// story's commits, the uncommitted check, Refresh and the range read), the
-// story's views, the Changes file list, its folders and "Selected story
-// only" filter, and the selected file's diff in the reading pane.
+// header's comparison summary, the details its eye reveals (the revisions
+// and Refresh), its Compare group (the comparison choice, the story's commits,
+// the uncommitted check and the range read), Story Home's evidence tabs,
+// and the file list, folders, filter and diff in the story browser.
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import "../page-objects/cssLocator.ts";
@@ -11,6 +11,7 @@ import {
   intentReadingPane as readingPane,
   scrollReadingHalfway,
 } from "./intent-browser-page.ts";
+import { fileLayout } from "./intent-file-layout-page.ts";
 
 const escaped = (name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -48,12 +49,23 @@ export function intentStoryCompare() {
   const landingChoices = compare.getByRole("radio", { name: / — / });
   const runChoice = (key: string) =>
     landingChoices.and(page.getByCSS(`[value="${CSS.escape(key)}"]`));
-  type View = "Changes" | "CI comparison" | "Intent coverage";
+  type View = "CI comparison" | "Intent coverage";
   const storyViews = intent.getByRole("tablist", {
-    name: "Selected story views",
+    name: "Story Home",
   });
   const viewTab = (name: View) =>
     storyViews.getByRole("tab", { name, exact: true });
+  const sidebar = intent.getByCSS(".intent-locations");
+  const home = intent.getByRole("button", { name: "Home", exact: true });
+  const pathReading = intent.getByRole("region", { name: "Path reading" });
+  // Files shown without choosing a path, opening its drawer where the page
+  // is narrow: each newly entered view starts it closed, and choosing a file
+  // closes it.
+  const browseFiles = () => fileLayout().showFiles();
+  const goHome = async () => {
+    await browseFiles();
+    await activateComparisonControl(home);
+  };
   const view = (name: View) => {
     const id = viewTab(name).query()?.getAttribute("aria-controls");
     return id === undefined || id === null ? null : document.getElementById(id);
@@ -70,9 +82,28 @@ export function intentStoryCompare() {
       : view(name);
   const alert = header.getByRole("alert");
   const retryControl = alert.getByRole("button", { name: "Retry" });
-  const outsideGroup = intent.getByRole("region", {
-    name: "Outside Intent locations",
+  const tree = intent.getByRole("list", {
+    name: "Repository files",
+    exact: true,
   });
+  const folder = (path: string) =>
+    tree.getByCSS(`li[data-folder-path="${CSS.escape(path)}"]`);
+  const summary = header.getByRole("group", { name: "Comparison summary" });
+  const details = header.getByRole("group", { name: "Review details" });
+  const refreshButton = details.getByRole("button", { name: "Refresh" });
+  // The summary's eye, by the name it has now.
+  const detailsEye = (shown: boolean) =>
+    summary.getByRole("button", {
+      name: `${shown ? "Hide" : "Show"} review details`,
+      exact: true,
+    });
+  // The eye is reached past an open Files drawer, which closes first.
+  const openDetails = async () => {
+    await fileLayout().uncoverReader();
+    const eye = detailsEye(false);
+    if (eye.query() !== null) await userEvent.click(eye);
+    await expect.element(details).toBeVisible();
+  };
   return {
     header,
     filesToggle: intent.getByRole("button", { name: /^(Hide|Show) files$/ }),
@@ -88,9 +119,23 @@ export function intentStoryCompare() {
     chooseRun: (key: string) => activateComparisonControl(runChoice(key)),
     chooseLatestLanding: () =>
       activateComparisonControl(landingChoices.first()),
-    // The story's changed files outside every location.
-    outsideGroup,
-    outside: () => textOf(outsideGroup.query()),
+    tree,
+    treeText: () => textOf(tree.query()),
+    folder,
+    async expandFolderPath(path: string) {
+      await browseFiles();
+      let ancestor = "";
+      for (const segment of path.split("/")) {
+        ancestor = ancestor ? `${ancestor}/${segment}` : segment;
+        const toggle = folder(ancestor).getByCSS(
+          ":scope > div > button[aria-expanded]",
+        );
+        await expect.element(toggle).toBeVisible();
+        if (toggle.element().getAttribute("aria-expanded") === "false")
+          await userEvent.click(toggle);
+        await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+      }
+    },
     onlyChangedFiles: intent.getByRole("checkbox", {
       name: "Selected story only",
       exact: true,
@@ -112,9 +157,6 @@ export function intentStoryCompare() {
       activateComparisonControl(
         fileTabs.getByRole("tab", { name: "Purpose", exact: true }),
       ),
-    // A changed file outside every location, by its kind and path.
-    outsideFile: (name: string) =>
-      outsideGroup.getByRole("button", fileNamed(name)),
     // The CI comparison identity labels Proof reads for `identity`.
     proofLabels: (identity: string) =>
       [
@@ -136,10 +178,11 @@ export function intentStoryCompare() {
     // How many of Intent's controls are pressed, as a selected file is.
     pressedControlCount: () =>
       intent.element().querySelectorAll('[aria-pressed="true"]').length,
-    // Comparison facts can expand independently of the header.
+    // Comparison facts can expand independently of the header, apart from
+    // the summary's eye and the Files toggle, whose drawer starts closed.
     collapsedControl: header.getByRole("button", {
       expanded: false,
-      name: /^(?!Branch )/,
+      name: /^(?!Branch |Show review details$|Show files$)/,
     }),
     revisions: () =>
       textOf(header.element().querySelector(".intent-story-revisions")),
@@ -149,13 +192,49 @@ export function intentStoryCompare() {
     includeMerged: compare.getByRole("checkbox", {
       name: "Include merged changes",
     }),
-    refreshButton: compare.getByRole("button", { name: "Refresh" }),
-    refresh: () =>
-      userEvent.click(compare.getByRole("button", { name: "Refresh" })),
+    // The summary's eye and the details it reveals; opening shows the
+    // details, holding Refresh.
+    detailsEye,
+    openDetails,
+    details,
+    detailsText: () => textOf(details.query()),
+    summary,
+    // The summary's words, without its eye's tooltip.
+    summaryText: () =>
+      [
+        ...(summary
+          .query()
+          ?.querySelectorAll(
+            ":scope > :not([aria-controls], :has([aria-controls]))",
+          ) ?? []),
+      ]
+        .map(textOf)
+        .join(" ")
+        .trim(),
+    // The words the summary's agent portrait sits beside, or undefined
+    // while the summary shows no portrait.
+    summaryPortraitBeside: () => {
+      const portrait = summary.query()?.querySelector(".agent-portrait");
+      return portrait ? textOf(portrait.parentElement).trim() : undefined;
+    },
+    refreshButton,
+    refresh: async () => {
+      await openDetails();
+      await userEvent.click(refreshButton);
+    },
     viewTab,
-    chooseTab: (name: View) => activateComparisonControl(viewTab(name)),
+    chooseTab: async (name: View) => {
+      if (pathReading.query() !== null) await goHome();
+      await activateComparisonControl(viewTab(name));
+    },
+    browseFiles,
+    goHome,
+    home,
+    pathReading,
+    sidebar,
+    homeReading: intent.getByCSS(".intent-story-home"),
     // A listed file's control, named by its kind and path.
-    file: (name: string) => intent.getByRole("button", fileNamed(name)),
+    file: (name: string) => sidebar.getByRole("button", fileNamed(name)),
     // A location's or folder's toggle, by its name and whether it is open.
     folderToggle: (name: string, open: boolean) =>
       intent.getByRole("button", {
@@ -169,7 +248,7 @@ export function intentStoryCompare() {
     purposeText: () => textOf(purpose.element()),
     diffName: () =>
       textOf(
-        purpose.element().querySelector(".story-review-diff-heading h3"),
+        purpose.query()?.querySelector(".story-review-diff-heading h3"),
       ).trim(),
     diffCode: () =>
       textOf(purpose.element().querySelector(".story-review-code")),

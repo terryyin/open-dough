@@ -136,30 +136,25 @@ export function storyCiEvidenceOptionsOf(summary: StorySummary | undefined) {
   };
 }
 
-// "Selected story only" heading the Changes tree, with its message when
-// no location's test file changed.
-export function StoryTreeScopeChoice({
+// The Changes tree's "Selected story only" filter for the Files sidebar's
+// row, and its message when no location's test file changed.
+export function storyOnlyFilterOf(scope: StoryTreeScope) {
+  return {
+    label: "Selected story only",
+    checked: scope.only,
+    onToggle: scope.onOnly,
+  };
+}
+
+export function StoryTreeScopeNote({
   scope,
 }: {
   readonly scope: StoryTreeScope;
 }) {
+  if (!scope.only || !scope.noneInLocations) return null;
   return (
-    <div className="intent-story-scope">
-      <label className="intent-story-only">
-        <input
-          type="checkbox"
-          checked={scope.only}
-          onChange={(event) => {
-            scope.onOnly(event.target.checked);
-          }}
-        />{" "}
-        Selected story only
-      </label>
-      {scope.only && scope.noneInLocations && (
-        <p className="intent-story-none" role="status">
-          No test files in Intent locations changed in this story
-        </p>
-      )}
-    </div>
+    <p className="intent-story-none" role="status">
+      No test files in Intent locations changed in this story
+    </p>
   );
 }

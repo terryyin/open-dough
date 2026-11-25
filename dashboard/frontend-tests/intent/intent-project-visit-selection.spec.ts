@@ -7,6 +7,7 @@ import { intentCandidates, intentViewTab } from "./intent-candidates-page.ts";
 import { chooseWholeProject } from "./intent-recent-stories-page.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
+  deepSpec,
   development,
   intent,
   intentChoice,
@@ -29,9 +30,8 @@ test("each new selection opens the story at CI comparison, even one cleared and 
     .toHaveAttribute("aria-selected", "true");
   await development.click();
   const card = await selectTakenStoryInIntent();
-  await expect
-    .element(story.viewTab("Changes"))
-    .toHaveAttribute("aria-selected", "true");
+  await story.file(deepSpec).click();
+  await expect.element(story.pathReading).toBeVisible();
   const heading = card.getByRole("heading", {
     name: storyA.title,
     exact: true,

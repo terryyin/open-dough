@@ -3,7 +3,7 @@ import {
   test as base,
   expect,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import { reviewChoicesNamed } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
+import { capturedReviewChoices } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
 import { openCapturedReview } from "../../dashboard/test-support/support/oneShotReview.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
@@ -29,7 +29,7 @@ test("delayed run and file responses leave the later run selected through narrow
   codexProtocol,
 }) => {
   if (codexProtocol === undefined) throw new Error("No native fixture");
-  const { first, second, newest } = await reviewChoicesNamed(
+  const { first, second, newest } = await capturedReviewChoices(
     dashboard,
     origin,
     codexProtocol,
@@ -91,9 +91,11 @@ test("delayed run and file responses leave the later run selected through narrow
   }
   await page.setViewportSize({ width: 420, height: 900 });
   await review.landedRun.expectChosen(first.key);
+  // Narrow, Files starts as a closed drawer over the reader.
+  await review.setFilesShown(true);
   await review.hideFiles();
   await review.setFilesShown(true);
-  await files.expectOutsideFiles(1, ["Added first.txt"]);
+  await files.expectOnlyChangedFile("Added first.txt");
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(420);

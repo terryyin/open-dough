@@ -29,12 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Complete story-linked ad hoc sessions in the Dashboard](seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions) — SEED-439#complete-story-linked-ad-hoc-sessions ([plan](slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md))
-- [Read and change the story comparison from one control bar](seeds/SEED-420-unified-intent-review.md#compact-story-comparison-controls) — SEED-420#compact-story-comparison-controls ([plan](slice-plans/833-compact-story-comparison-controls/PLAN.md))
-- [Read CI comparison and Intent coverage from Story Home](seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home) — SEED-420#read-story-evidence-from-intent-home ([plan](slice-plans/837-read-story-evidence-from-intent-home/PLAN.md))
-- [Use sidebars consistently across the Dashboard](seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard) — SEED-417#use-sidebars-consistently-across-the-dashboard ([plan](slice-plans/837-use-sidebars-consistently-across-the-dashboard/PLAN.md))
-- [Browse and select folders in one story review tree](seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree) — SEED-420#browse-one-selectable-review-tree ([plan](slice-plans/838-browse-one-selectable-review-tree/PLAN.md))
-- [Prove installed launch options through typed backend requests](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-session-reads-and-alerts) — SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts ([plan](slice-plans/839-prove-installed-launch-options-on-vitest/PLAN.md))
-- [Prove launch attachment admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-options) — SEED-413#finish-backend-vitest-renovation-after-launch-options ([plan](slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md))
 - [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries ([plan](slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md))
 
 ## Backlog list
@@ -47,8 +41,15 @@ intent introduced or affected by a newly developed story.
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
-- [Discover a project's default branch through Git](seeds/SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git) — SEED-437#discover-project-default-branch-through-git
-- [Finish the remaining backend Vitest renovation after launch attachments](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-attachments) — SEED-413#finish-backend-vitest-renovation-after-launch-attachments
+- [Prove Dashboard launch starts and recovery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) — SEED-413#prove-launch-starts-and-recovery-on-vitest
+- [Prove installed execution and refinement starts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-installed-story-starts-on-vitest) — SEED-413#prove-installed-story-starts-on-vitest
+- [Prove Dashboard session workspace choices in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-workspace-starts-on-vitest) — SEED-413#prove-session-workspace-starts-on-vitest
+- [Prove host launch choices and first input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-first-input-on-vitest) — SEED-413#prove-native-first-input-on-vitest
+- [Prove retained follow-up context in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest) — SEED-413#prove-follow-up-context-on-vitest
+- [Prove retained launch records in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-kept-launch-records-on-vitest) — SEED-413#prove-kept-launch-records-on-vitest
+- [Prove native session and terminal lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest) — SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest
+- [Prove published Dashboard reads and evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest) — SEED-413#prove-published-dashboard-reads-on-vitest
+- [Prove Dashboard configuration and serving in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-dashboard-configuration-and-serving-on-vitest) — SEED-413#prove-dashboard-configuration-and-serving-on-vitest
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
@@ -57,6 +58,7 @@ intent introduced or affected by a newly developed story.
 - [Put story actions in the comment toolbar](seeds/SEED-416-put-story-actions-in-the-comment-toolbar.md#put-story-actions-in-the-comment-toolbar) — SEED-416#put-story-actions-in-the-comment-toolbar
 - [Review the combined changes of selected sessions](seeds/SEED-418-review-published-session-changes.md#review-selected-sessions-together) — SEED-418#review-selected-sessions-together
 - [Close the landed CI repeat checks' coverage gaps and tidy their support](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps) — SEED-324#close-landed-ci-repeat-check-gaps ([plan](slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md))
+- [Run the entire Dashboard backend unit suite on Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner) — SEED-413#retire-legacy-dashboard-backend-runner
 - [Start Cursor slices from complete Task briefs](seeds/SEED-345-session-token-efficiency.md#start-cursor-slices-from-complete-task-briefs) — SEED-345#start-cursor-slices-from-complete-task-briefs
 - [Retire Cursor exit-file proof wait](seeds/SEED-441-retire-cursor-exit-file-proof-wait.md#retire-cursor-exit-file-proof-wait) — SEED-441#retire-cursor-exit-file-proof-wait
 - [Wait for required conditions before load-sensitive proof](seeds/SEED-367-bounded-slice-active-time.md#wait-for-a-quiet-machine-before-load-sensitive-proof) — SEED-367#wait-for-a-quiet-machine-before-load-sensitive-proof

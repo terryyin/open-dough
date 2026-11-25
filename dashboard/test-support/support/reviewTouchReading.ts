@@ -131,8 +131,10 @@ export async function selectAddedFileByTouch(review: Locator, file: string) {
   // A long file list is ordinary independently scrolling content.
   await reachReviewControl(review, row);
   await tapWhereShown(row);
-  await expect(row).toHaveAttribute("aria-pressed", "true");
-  return fileDiff(review, `Added ${file}`);
+  // A Files drawer closes on the choice to expose its diff.
+  const diff = fileDiff(review, `Added ${file}`);
+  await expect(diff).toBeVisible();
+  return diff;
 }
 
 // The first long file has short lines above its one wide line.

@@ -17,6 +17,11 @@ import {
   runGitWithProgressUntilClosed,
 } from "./gitRunner.ts";
 import { whileGitProgresses } from "./gitFetchProgress.ts";
+import {
+  githubGitCredentials,
+  githubGitEnvironment,
+  githubGitOrigin,
+} from "./githubGitTransport.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 
 type ReviewRepositorySync = {
@@ -25,13 +30,6 @@ type ReviewRepositorySync = {
 };
 
 const fetches = new GitTargetFetches();
-const fetchEnvironment = { GIT_TERMINAL_PROMPT: "0" };
-const credentials = [
-  "-c",
-  "credential.helper=",
-  "-c",
-  "credential.helper=!gh auth git-credential",
-];
 
 export function reviewRepositoryPath(source: PublishedSource): string {
   return machineDashboardPath(
@@ -73,11 +71,7 @@ async function createIfMissing(
     await runGitUntilClosed(["init", "--quiet", "--bare"], call);
   }
   await runGitUntilClosed(
-    [
-      "config",
-      "remote.origin.url",
-      `https://github.com/${source.repository}.git`,
-    ],
+    ["config", "remote.origin.url", githubGitOrigin(source.repository)],
     call,
   );
 }
@@ -93,7 +87,7 @@ async function verifiedRef(
 ) {
   const result = await runGitUntilClosed(
     ["rev-parse", "--verify", `${trackingRef(ref)}^{commit}`],
-    { cwd: repository, signal, env: fetchEnvironment, maxBuffer },
+    { cwd: repository, signal, env: githubGitEnvironment, maxBuffer },
   );
   return commitIdSchema.parse(result.stdout.trim());
 }
@@ -120,11 +114,16 @@ async function fetchPublishedRef(
   progress?: (chunk: string) => void,
 ): Promise<string> {
   const previous = await lastSync(repository);
-  const call = { cwd: repository, signal, env: fetchEnvironment, maxBuffer };
+  const call = {
+    cwd: repository,
+    signal,
+    env: githubGitEnvironment,
+    maxBuffer,
+  };
   try {
     await createIfMissing(repository, source, signal);
     const args = [
-      ...credentials,
+      ...githubGitCredentials,
       "fetch",
       progress === undefined ? "--quiet" : "--progress",
       "origin",

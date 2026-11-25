@@ -4,50 +4,36 @@
 
 import type { ReactNode } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
-import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
+import type { FilesSidebar } from "./FilesSidebar.tsx";
+import { IntentBrowserFrame } from "./IntentBrowserFrame.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
-import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
-import { IntentTreeGroups } from "./IntentTreeGroups.tsx";
+import { useKeptFileReadingPlace } from "./IntentFileReading.tsx";
+import { IntentBrowserTree } from "./IntentBrowserTree.tsx";
+import type { StoryPath } from "./IntentStoryEvidence.tsx";
+import { IntentFilesActions } from "./FilesSidebarActions.tsx";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
+import type { IntentTabPanelAttributes } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
 import { useKeptArrangement, useKeptReading } from "./pageIntentReading.tsx";
-import {
-  owningLocation,
-  syntaxHintOfRepositoryPath,
-  treeHoldsSelection,
-} from "./intentSelectionCoverage.ts";
+import { owningLocation } from "./intentSelectionCoverage.ts";
 import {
   selectionScope,
   useIntentWorkspaceSelection,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
-import { FileMoves } from "./StoryReviewFileMoves.tsx";
-import {
-  intentChangedFileOrder,
-  overlayFilesByPath,
-} from "./intentStoryOverlay.ts";
+import { storyFileSelection } from "./intentStorySelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { intentStoryPathAttributes } from "./storyCardFocus.ts";
 import { useFirstStoryChangedFile } from "./useFirstStoryChangedFile.ts";
-import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
-import {
-  StoryTreeScopeChoice,
-  type ComparedStory,
-  type StorySummary,
-} from "./IntentStorySummary.tsx";
-import "./intent-browser.css";
-
-// The browser's tabpanel: its id, naming tab, and whether it is hidden.
-export type IntentBrowserPanel = {
-  readonly id: string;
-  readonly labelledBy: string;
-  readonly hidden: boolean;
-};
+import type { ComparedStory, StorySummary } from "./IntentStorySummary.tsx";
+import type { StoryResultBrowse } from "./useStoryResultRead.tsx";
 
 export function IntentBrowser({
   source,
   revision,
+  result,
   locations,
   lead,
   project,
@@ -56,9 +42,11 @@ export function IntentBrowser({
   reviewFileReady,
   files,
   panel,
+  storyPath,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
+  readonly result?: StoryResultBrowse | undefined;
   readonly locations: readonly IntentLocation[];
   readonly lead?: ReactNode;
   // The selected story with what is known of its comparison, and the
@@ -67,15 +55,25 @@ export function IntentBrowser({
   readonly story: ComparedStory | undefined;
   readonly reviewFileReady: boolean;
   // The locations column's id and whether Hide files / Show files shows it.
-  readonly files: FileBrowserPlace;
-  readonly panel: IntentBrowserPanel;
+  readonly files: FilesSidebar;
+  readonly panel: IntentTabPanelAttributes;
+  readonly storyPath: StoryPath | undefined;
   // Project Intent's chosen view and ids, in Project Intent: opening a test
   // from the record returns this browser to CI status.
   readonly project: ModeChoice | undefined;
 }) {
-  const { selection, setSelection } = useIntentWorkspaceSelection();
+  const { selection: keptSelection, setSelection } =
+    useIntentWorkspaceSelection();
+  const comparisonReading = storySummary?.comparison.state === "reading";
+  const storyTree = useIntentStoryTree({
+    locations,
+    story,
+    inventory: result?.paths,
+    comparisonReading,
+    resultKey: result?.key,
+  });
+  const selection = storyFileSelection(storyTree.overlay, keptSelection);
   const scope = selectionScope(selection);
-  const selectedPath = selection.path;
   const [returnEntrySlug, setReturnEntrySlug] = useKeptReading<
     string | undefined
   >("returnEntrySlug", () => undefined);
@@ -95,12 +93,6 @@ export function IntentBrowser({
   const fileReading = useKeptFileReadingPlace();
   const treeSelection: IntentSelection =
     project === undefined || project.mode === "ci" ? selection : { path: "" };
-  const storyTree = useIntentStoryTree({
-    locations,
-    story,
-    onExpandLocation: setExpandedPath,
-  });
-  const { overlay, scope: storyScope } = storyTree;
 
   function select(next: IntentSelection, entrySlug?: string) {
     setSelection(next);
@@ -113,134 +105,95 @@ export function IntentBrowser({
     setReveal({ path });
   }
 
+  function moveTo(path: string) {
+    select({ path, scope: "file" });
+    revealInTree(path, undefined);
+    fileReading.readingArea.current?.scrollTo({ top: 0 });
+  }
+
   // Directed file opens reveal their row and start a fresh Purpose reading.
   function openRevealed(next: IntentSelection, entrySlug?: string) {
+    const target = storyFileSelection(storyTree.overlay, next);
     select(
-      next.scope === undefined ? { ...next, scope: "file" } : next,
+      target.scope === undefined ? { ...target, scope: "file" } : target,
       entrySlug,
     );
     fileReading.setTab("purpose");
     setRevealedOpens((n) => n + 1);
-    revealInTree(next.path, owningLocation(locations, next)?.path);
+    revealInTree(target.path, owningLocation(locations, target)?.path);
   }
   useFirstStoryChangedFile({
     project: source.id,
     storyIdentity: storySummary?.story.identity,
-    locations,
-    canChooseFile: reviewFileReady && !panel.hidden,
-    overlay: storyTree.shownOverlay,
-    fileSelected: scope === "file",
+    canChooseFile: reviewFileReady,
+    changedFiles: storyTree.shown.changedFiles,
+    hasSelection: scope !== "none",
     open: openRevealed,
   });
 
-  const treeFiles = overlayFilesByPath(locations, overlay);
-  const selectedFile =
-    scope === "file" ? treeFiles.get(selectedPath) : undefined;
-  const selectedChange = storyDiffOf(story, selectedFile);
-  const moves =
-    selectedChange === undefined ? undefined : (
-      <FileMoves
-        order={intentChangedFileOrder(locations, storyTree.shownOverlay)}
-        selectedPath={selectedPath}
-        onMove={({ path, location }) => {
-          select({ path, scope: "file" });
-          revealInTree(path, location);
-          fileReading.readingArea.current?.scrollTo({ top: 0 });
-        }}
-      />
-    );
-  // A selected path the shown revision does not hold, as after moving to a
-  // revision that deleted it, is explained in Purpose, nothing else selected.
-  // A file the story's comparison adds may yet appear while it is read.
-  const missing =
-    scope !== "none" &&
-    storySummary?.comparison.state !== "reading" &&
-    !treeHoldsSelection(locations, treeFiles, selection);
-  // A file the published revision does not list has no published text, and
-  // one whose Purpose is the story's diff needs none; while the comparison is
-  // read, as when Intent reopens on a kept selection, that is not yet known.
-  const fileRead = useIntentFileRead({
-    source,
-    revision,
-    path: selectedPath,
-    file: scope === "file",
-    unread:
-      missing ||
-      selectedFile?.published === false ||
-      selectedChange !== undefined ||
-      storySummary?.comparison.state === "reading",
-  });
-
-  const selectedLocation = owningLocation(locations, selection);
-  const selectedSyntaxHint =
-    scope === "file"
-      ? syntaxHintOfRepositoryPath(selectedPath, locations)
-      : undefined;
+  const browser = (
+    <>
+      {files.backdrop}
+      <div className="intent-locations" id={files.id} hidden={!files.shown}>
+        <h3 className="visually-hidden">Purpose locations</h3>
+        <IntentFilesActions path={storyPath} scope={storyTree.scope} />
+        {lead}
+        <IntentBrowserTree
+          locations={locations}
+          tree={storyTree}
+          storySelected={storySummary !== undefined}
+          selection={treeSelection}
+          onSelect={(next) => {
+            select(next);
+            if (next.scope === "file") files.onFileChosen();
+          }}
+          reveal={reveal}
+          expandedPath={expandedPath}
+          onExpandedPath={setExpandedPath}
+        />
+      </div>
+      <div
+        ref={fileReading.readingArea}
+        className="intent-reading"
+        tabIndex={-1}
+        {...(storyPath &&
+          intentStoryPathAttributes(storyPath.id, storyPath.hidden))}
+      >
+        <IntentSelectionReading
+          source={source}
+          revision={revision}
+          result={result}
+          comparisonReading={comparisonReading}
+          locations={locations}
+          treeFiles={storyTree.overlay.files}
+          selection={selection}
+          story={story}
+          changedFiles={storyTree.shown.changedFiles}
+          onMove={moveTo}
+          onOpen={openRevealed}
+          readingKey={revealedOpens}
+          fileReading={fileReading.place}
+          storySelected={storySummary !== undefined}
+        />
+      </div>
+    </>
+  );
+  if (project === undefined) return browser;
 
   return (
     <>
-      <div
-        className={
-          files.shown ? "intent-browser" : "intent-browser intent-files-hidden"
-        }
-        role="tabpanel"
-        id={panel.id}
-        aria-labelledby={panel.labelledBy}
-        hidden={panel.hidden}
-      >
-        <div className="intent-locations" id={files.id} hidden={!files.shown}>
-          <h3 className="visually-hidden">Purpose locations</h3>
-          {lead}
-          {storyScope !== undefined && (
-            <StoryTreeScopeChoice scope={storyScope} />
-          )}
-          <IntentTreeGroups
-            locations={locations}
-            tree={storyTree}
-            selection={treeSelection}
-            onSelect={select}
-            reveal={reveal}
-            expandedPath={expandedPath}
-            onExpandedPath={setExpandedPath}
-          />
-        </div>
-        <div
-          ref={fileReading.readingArea}
-          className="intent-reading"
-          tabIndex={-1}
-        >
-          <IntentSelectionReading
-            revision={revision}
-            fileRevision={fileRead.revision ?? revision}
-            failedRevision={fileRead.failedRevision}
-            selection={selection}
-            missing={missing}
-            selectedLocation={selectedLocation}
-            selectedFile={selectedFile}
-            selectedSyntaxHint={selectedSyntaxHint}
-            treeFiles={treeFiles}
-            story={story}
-            moves={moves}
-            read={fileRead.read}
-            onFileRetry={fileRead.retry}
-            onOpen={openRevealed}
-            readingKey={revealedOpens}
-            fileReading={fileReading.place}
-            storySelected={storySummary !== undefined}
-          />
-        </div>
-      </div>
-      {project !== undefined && (
-        <IntentCandidatesPanel
-          source={source}
-          revision={revision}
-          locations={locations}
-          mode={project.mode}
-          modeIdPrefix={project.modeIdPrefix}
-          returnEntrySlug={returnEntrySlug}
-          onOpenLocation={openRevealed}
-        />
-      )}
+      <IntentBrowserFrame filesShown={files.shown} panel={panel}>
+        {browser}
+      </IntentBrowserFrame>
+      <IntentCandidatesPanel
+        source={source}
+        revision={revision}
+        locations={locations}
+        mode={project.mode}
+        modeIdPrefix={project.modeIdPrefix}
+        returnEntrySlug={returnEntrySlug}
+        onOpenLocation={openRevealed}
+      />
     </>
   );
 }

@@ -202,413 +202,332 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-<a id="finish-backend-vitest-renovation-after-session-reads-and-alerts"></a>
+<a id="prove-launch-starts-and-recovery-on-vitest"></a>
 
-### Prove installed launch options through typed backend requests
+### Prove Dashboard launch starts and recovery in Node Vitest
 
-**Identity:** SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts
+**Identity:** SEED-413#prove-launch-starts-and-recovery-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/839-prove-installed-launch-options-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ca055bf9a02ae08103eba3a3119b1a4bfb972fe4b0a4a287e7cbb79a309f444","plan":"469d73a330e69a3e7430f6227f0c15baa0bc6c121ec681df05a0843e85632d21"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/846-prove-launch-starts-and-recovery-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"25dd18ab6d0ff2c644deefa86552fb4dbea0f17f4fb7e8281ae5f83a26a1df56","plan":"519cf8aedb33724a238092ce00dc80232eb8ebed4c1a343af2476a4a8bd58a6c"}}
 ```
 
-- **Goal.** Developers changing installed launch options can check in Node
-  Vitest which flags a project accepts and in what order, with browser proof
-  that Start sends the selection and shows it again after reload.
-- **Scope.** Move the two HTTP-based launch option specs,
-  `agent-launch-options-boundary.spec.ts` and
-  `agent-launch-options-groups.spec.ts`, off backend Playwright. Exercise the
-  typed selection owner against the requesting project's real installed
-  definition. Keep failures distinct when their reason differs. Keep
-  command delivery and persisted selection with their observing proof,
-  including the existing browser journeys. Measure focused feedback before
-  and after and account for every former case.
-- **Key examples.** Given a definition with a free flag and two exclusive
-  flags, a request in a different order returns the selected flags in the
-  definition's order. Selecting two flags from the same group refuses the
-  request and names the group and both flags. Given the same flag installed
-  in one project and absent in another, only the project that defines it
-  accepts it. Given an unavailable definition, an empty selection still
-  allows the default launch, and a selected flag receives the reason the
-  definition cannot be used.
-- **Boundary.** Native host dispatch, the machine-session reader, and the
-  runner's direct Playwright specimen retain their existing owners. The
-  [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-options)
-  carries the remaining families, the Story Notes store and runner retirement.
+- **Goal.** Developers changing Dashboard Start and Continue get quick proof
+  that the Dashboard keeps one intended attempt before work starts, then
+  protects or recovers that attempt when a caller or worker disappears.
+- **Scope.** Move the 14 legacy specs owned by the plan's proof map off
+  backend Playwright. Exercise request refusal, kept-first admission, competing
+  starts and open sessions, worker handoff, continuation, change reads,
+  reconciliation, and drain through typed operations. Retain the process
+  boundaries that demonstrate restart, Git publication or actual native input.
+  The [coverage map](#backend-vitest-replacement-coverage) assigns the other
+  launch outcomes, notes, attachment admission, and test fixtures.
+- **Key examples.**
+  - Given overlapping launches for the same story, the first request is
+    durably kept before publication or host effects. Another workflow cannot
+    claim that story while it is held. A failed record write starts nothing.
+  - Given an interrupted attempt with its choices held, a fresh Start cannot
+    bypass it. Continue on the kept attempt reuses its identity, workspace and
+    input. An existing confirmed record settles the attempt without another
+    dispatch. A newer running or settled attempt cannot be overwritten.
+  - Given a pending accepted start when the updater requests drain, Start and
+    Continue are refused and drain waits through publication, native
+    confirmation and the final outcome write. A change reader sees the settled
+    result after the owner has released the write lock.
 
-<a id="finish-backend-vitest-renovation-after-launch-options"></a>
+<a id="prove-installed-story-starts-on-vitest"></a>
 
-### Prove launch attachment admission in Node Vitest
+### Prove installed execution and refinement starts in Node Vitest
 
-**Identity:** SEED-413#finish-backend-vitest-renovation-after-launch-options
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"76eea7b77b2647791949d6c80606e3cb84b9c22e84fd25bff8078999b5b8f50d","plan":"80048b7bed76a184b03a6c03907e7522f0f5f5bcf68dfd861e3f0e6ab685119d"}}
-```
-
-- **Goal.** Developers changing launch attachments get fast, typed feedback
-  on which uploads are refused and what a refused launch leaves on disk.
-  Existing browser journeys continue to show that accepted images reach the
-  agent and survive startup recovery.
-- **Scope.** Move `launch-attachment-boundary.spec.ts` and
-  `launch-attachment-refusals.spec.ts` to plain Node Vitest. Keep upload
-  type and size refusals, filename encoding, selection reasons, claim
-  cleanup and the response contract with their observing tests. Exercise
-  real files in a private dashboard directory. Account for all six former
-  cases and measure the focused command before and after.
-- **Key examples.** Given a PDF or a declared oversized PNG, posting it
-  returns the corresponding reason and an uncached refusal, with no new
-  claim. A name with non-Latin-1 characters can be sent in a header and
-  recovered on receipt. When a launch names six claims, or supplies a file
-  path alongside a posted claim, refusal clears the claims and leaves no
-  attempt files. With valid images, existing browser proof observes the
-  copied bytes in the order picked and the same path when startup continues.
-- **Boundary.** The
-  [launch-options story](#finish-backend-vitest-renovation-after-session-reads-and-alerts)
-  owns option admission. Session-terminal uploads and voice are consumers of
-  the shared reader and retain their coverage. The
-  [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-attachments)
-  carries the remaining families, Story Notes and runner retirement.
-
-<a id="finish-backend-vitest-renovation-after-launch-attachments"></a>
-
-### Finish the remaining backend Vitest renovation after launch attachments
-
-**Identity:** SEED-413#finish-backend-vitest-renovation-after-launch-attachments
+**Identity:** SEED-413#prove-installed-story-starts-on-vitest
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-This remainder carries the unselected scope split from
-[launch attachment admission](#finish-backend-vitest-renovation-after-launch-options).
-The maintained selector at `7a206c76e` on 25 November 2026 reports 309
-Playwright and 283 Node Vitest paths across 592 backend specs. Launch
-options is Taken. After the two options files and the two attachment files
-move, the projection is 305 Playwright paths if no other changes land.
+- **For / why.** A developer starting a queued story gets fast proof that execution or refinement publishes the right assignment before dispatch.
+- **Boundary.** Exercise the installed Start and Preparing commands, their receipts, and worktree-update retry. Keep real Git and a private origin where publication supplies the evidence.
+- **Evaluation.** A published Take or Preparing assignment resumes in its original workspace after a refusal, with one assignment and no duplicate dispatch. Unreadable command output cannot stand in for a publication.
+- **Effort hypothesis.** L, low confidence. Publication still needs the installed command and real Git.
+- **Mapped slices.** See the [provisional plan](../slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md).
+- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
 
-| Family | Playwright paths at `7a206c76e` | After launch options and attachments |
-| --- | ---: | ---: |
-| Launches | 93 | 89 |
-| Observation | 54 | 54 |
-| Sessions | 50 | 50 |
-| Runtime | 39 | 39 |
-| Review | 31 | 31 |
-| Intent | 17 | 17 |
-| Configuration | 13 | 13 |
-| Terminals | 12 | 12 |
-| **Total** | **309** | **305** |
+<a id="prove-session-workspace-starts-on-vitest"></a>
 
-The attachment increment can run independently of launch-option selection
-and the Taken work on story-linked sessions and Review. Its type, size, and
-claim-cleanup behavior has a distinct production owner. The new launch
-path since the `93d26816e` count is the landed-comparison follow-up admission
-spec. Recount before selecting the next cohort. Select an independent
-production boundary among the surviving higher-cost families, accounting
-for overlapping product changes first. The campaign remainder exceeds
-eight 15-minute slices. Keep runner retirement as its final increment.
+### Prove Dashboard session workspace choices in Node Vitest
 
-**Earlier sizing** (`4f107f7e7`, 25 November 2026). The maintained selector
-reports 320 Playwright and 269 Node Vitest paths across 589 backend specs.
-The change from 498 legacy paths at the systematic recount is a net reduction
-of 178 while the suite grew by nine. The direct rewrite and typed Usage
-History import converted 67 and 54 paths respectively. Their measurements
-show different effects. The direct rewrite reduced summed case time from
-37.308 s to 31.758 s while the mixed-engine command went from 36.842 s to
-40.582 s. The typed importer reduced focused elapsed time from 88.701 s to
-36.389 s and import/read CLI starts from 288 to six, with lower machine load
-during the candidate run. Use both measures to judge future moves.
-[Direct cohort proof](https://github.com/terryyin/open-dough/blob/34bb5e074f8613671d687d434192dad84e4a60e4/.planning/slice-plans/814-run-direct-backend-specs-on-vitest/PLAN.md),
-[Usage History measurements](https://github.com/terryyin/open-dough/blob/a542045b824e24e73490f7ecc3e733852b879f16/.planning/slice-plans/815-prove-usage-import-through-typed-importer/MEASUREMENTS.md).
+**Identity:** SEED-413#prove-session-workspace-starts-on-vitest
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
-| Family | Playwright paths | After the two planned cohorts | Sample CI seconds before |
-| --- | ---: | ---: | ---: |
-| Launches | 90 | 90 | 497.9 |
-| Sessions | 64 | 50 | 332.8 |
-| Observation | 54 | 54 | 276.6 |
-| Intent | 17 | 17 | 227.0 |
-| Runtime | 39 | 39 | 210.3 |
-| Review | 31 | 31 | 156.0 |
-| Terminals | 12 | 12 | 56.5 |
-| Configuration | 13 | 13 | 18.5 |
-| **Total** | **320** | **306** | **1,775.6** |
+- **For / why.** A developer choosing a workspace gets fast proof of the checkout, admission, and landing policy the host receives. Scheduled maintenance uses the supported admission path and reports attention once.
+- **Boundary.** Cover borrowed and isolated choices, explicit confirmation, admission receipts, retained landing evidence and expiry. Reconcile default-start, scheduled admission, and declared landing with [story-linked ad hoc sessions](SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions).
+- **Evaluation.** A refused publication or unconfirmed existing change prevents native start. A kept isolated start resumes with the same workspace and policy, and an accepted landing remains reportable after startup evidence expires.
+- **Effort hypothesis.** L, low confidence. Recount the changed paths and contract variants after the product cutover.
+- **Mapped slices.** See the [provisional plan](../slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md).
+- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
 
-CI seconds sum the file timings for the selected paths from
-[main CI run 45572446485 at `38f82dde3`](https://github.com/terryyin/open-dough/actions/runs/45572446485),
-across three shards. The six machine-session read paths account for 48.4 s
-and the eight notification paths account for 42.4 s. These are test times,
-not the duration of the CI job. The plans carry the exact file selections
-and before/after proof.
+<a id="prove-native-first-input-on-vitest"></a>
 
-**Effort hypothesis.** Allow roughly **15–28 active hours** from this baseline,
-including about 1.8–2.6 hours for the two plans and roughly 14–25 hours after them.
-For the projected 306 survivors, apply the earlier batch rates of 2.5–4.5
-minutes per spec to the 242 launch, session, observation, Intent and Review
-paths and 1.5–3 minutes to the 64 runtime, terminal and configuration paths.
-Allow 2–4 hours for runner cutover and the final proof audit. Confidence is
-low until another typed cohort lands. These are planning rates. Local-Git
-migrations and story-linked session changes can retire or replace cases,
-while separate-process proof and shared lifecycle changes can raise effort.
-Command and CI wait are outside active effort.
+### Prove host launch choices and first input in Node Vitest
 
-The durable launch admission cohort moved
-`launches/launch-attempt-admission-close.spec.ts` and
-`launches/agent-launch-cross-server-accept.spec.ts` to Node Vitest. The Intent
-CI reader cohort is complete (recoverable at
-`38f934ba:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission`).
-The browser reporter cohort is complete (recoverable at
-`fbfcca735:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-intent-ci-readers`).
-The scope below applies to the remaining inventory.
+**Identity:** SEED-413#prove-native-first-input-on-vitest
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
-Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
-kept the [completed Done capture family](https://github.com/terryyin/open-dough/blob/8f4cc9480ccb0b736e3b29c787ab49a6ac80d366/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests).
+- **For / why.** A developer choosing a native host gets fast proof that its model and effort reach the process and that a recovered conversation receives first input once.
+- **Boundary.** Cover discovery, refusal, creation, recovery and connection lifetime for Claude, Codex and Cursor. Retain actual process or protocol proof where that boundary observes dispatch, cancellation, loss or recovery.
+- **Evaluation.** A contradictory model or a failed durable identity write prevents first input. A matching acknowledgment settles the original input, and unrelated history cannot trigger a resend.
+- **Effort hypothesis.** L, low confidence. Count separate protocol outcomes and existing E2E owners before combining cases.
+- **Mapped slices.** See the [provisional plan](../slice-plans/849-prove-native-first-input-on-vitest/PLAN.md).
+- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
 
-- **Goal.** Developers changing `dashboard/server/` get fast feedback from
-  compile-time-checked cases. Keep the fewest clear, independent cases needed
-  to preserve behavioral coverage. Aim for about 100 ms per backend unit case
-  or faster.
-- **Scope.** Renovate each remaining family on plain Node Vitest. Call typed
-  production handlers directly with MakeMe domain state. Use real Git and file
-  collaborators where their behavior matters. The campaign ends when
-  `dashboard/backend.playwright.config.ts` and the backend request and server
-  wrappers in `dashboard/test-support/` are deleted.
-- **Remaining work.** Recount after launch options and overlapping product
-  changes. The automatic-repeat correction owns its assigned coverage and load
-  obligations. Count each legacy survivor once at runner cutover. The direct
-  launch-options rule spec still serves the backend proof-record and runner
-  ownership checks. Convert it when replacing or retiring those Playwright
-  checks, keeping their selection and reporting proof with the next owner.
-- **Family planning.** Split by a verifiable outcome and size each story to one
-  plan. Group closely related families when they use the same typed inputs
-  and arrangement. Recount the review families after
-  [Review published changes](https://github.com/terryyin/open-dough/blob/d0489607774ee6a3dd2c69b3fd5e0409288e68ab/.planning/seeds/SEED-427-review-published-changes.md#review-published-changes)
-  so migration covers the surviving published-review cases and fixtures.
-  For each family:
-  - Keep wire transport thin over exported strongly typed handlers sharing
-    one typed contract with `dashboard/src/`. At planning, name the production
-    entry and the data and collaborators each variant uses. Unit cases
-    [call that entry directly](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
-    with those inputs. Resolve request context and process-wide state in the
-    adapter. Keep each domain shape on its MakeMe builder.
-  - Give each behavior one owner. Move single-service cases to plain Node
-    Vitest through the handlers. Downgrade a wire check to a unit case of
-    the adapter's request admission with typed request values. Upgrade it to
-    an `e2e/` journey only when a started server is essential. Drop a case
-    another group already owns. No case in this collection starts a server,
-    mounts a boundary or runs on Playwright.
-  - State arrangement through MakeMe. Driving a launch to arrange a review
-    costs 6–13 s per case in CI against about 1 s from kept records, so the
-    handler seam alone leaves most of a launch-arranged family's time in
-    place.
-  - Delete retired `dashboard/test-support/` wrappers, add none, and leave no
-    behavioral regression gap.
+<a id="prove-follow-up-context-on-vitest"></a>
 
-**Speed and coverage for each family.** Apply the repository's test automation
-guidance when choosing the entry point, arranging state and writing assertions.
-Give each case one observable purpose and a concrete regression it catches.
-Use perpendicular coverage by varying one independent behavior with
-representative inputs. Keep a combined case when the interaction itself can
-change the outcome. Compare cases and assertions within the family and across
-test layers. Simplify or remove duplicates once a named surviving case catches
-the same regression at the required boundary. Keep distinct failure modes,
-contracts and interactions at their appropriate owners.
-[Backend test guidance](../../dashboard/backend-tests/README.md),
-[observable cases](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#write-observable-cases),
-[MakeMe](../../.agents/skills/dough-makeme/SKILL.md).
+### Prove retained follow-up context in Node Vitest
 
-Measure the selected family before and after with the maintained backend
-runner on comparable conditions. Record individual case times against the
-~100 ms target, case count and summed case time, plus elapsed time for the
-whole selection. Investigate slow survivors and record any cost still needed
-to exercise the behavior. Account for coverage moved to another suite so a
-smaller unit selection does not hide its cost or a lost regression check.
+**Identity:** SEED-413#prove-follow-up-context-on-vitest
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
-**Key examples.**
+- **For / why.** A developer continuing a follow-up gets fast proof that the correct source context reaches the receiving agent even after the original record expires.
+- **Boundary.** Cover ordinary story and session context, source identity, input order, and retry. Reconcile source-story binding with [story-linked ad hoc sessions](SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions). The coverage map assigns Story Notes and published comparison selectors to their owners.
+- **Evaluation.** Two source sessions with the same instruction remain distinct. Repeating one after expiry sends its saved context and preserves the developer's instruction.
+- **Effort hypothesis.** M, low confidence. Cover the retained context through the corresponding host inputs.
+- **Mapped slices.** See the [provisional plan](../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md).
+- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
 
-- When a typed reader case only needs an already-kept result, compose the
-  state with MakeMe and assert the read directly. Keep a separate collection
-  case that proves the real transition from an accepted landing to a saved
-  point.
-- When several variants repeat an assertion that is independent of what they
-  vary, keep the assertion with one representative case and remove the
-  repeated setup and checks. Retain a joint case when reopening the store can
-  change whether a pending proof recovers or a final proof is requested again.
+<a id="prove-kept-launch-records-on-vitest"></a>
 
-- **Revisit the completed Story Notes pilot.** The
-  [handler](../../dashboard/server/storyNotes.ts) chooses its file through the
-  machine home, so the [unit test suite](../../dashboard/backend-tests/review/story-notes.spec.ts)
-  changes `process.env.HOME` for every case. Let the production caller bind the
-  default notes store and the suite supply its own temporary notes file or
-  file-backed store explicitly. Run the existing persistence, isolation and
-  unreadable-file cases against real files with the process home untouched.
-  Its request admission is already a unit case (`story-notes-request.spec.ts`).
-- **Order.** Highest CI seconds first among the families whose seam the
-  earlier ones have shown, as a railway converts its busiest lines first
-  while both gauges run. The count of specs still on `@playwright/test` is
-  the campaign's progress, and the two-engine group run is its carrying cost
-  until that count is zero.
-  1. Ad hoc review handoffs (completed; recoverable at
-     `09a9cdc2:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-ad-hoc-review-handoffs-with-typed-handlers`)
-     retired the last two users of `adHocReview.ts` and moved the branch-entry
-     command case. The other converted cases already use typed entry points.
-     Remaining native Done cases belong to `sessions/`.
-  2. Landed CI [scoped test history](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof)
-     is complete. Wall-time history is complete too (recoverable at
-     `f4d594e5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof`).
-     Attempt evidence is complete (recoverable at
-     `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
-     [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete.
-  3. The Intent CI reader cohort is complete (recoverable at
-     `38f934ba:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission`).
-     The browser reporter cohort is complete (recoverable at
-     `fbfcca735:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-intent-ci-readers`).
-     Proceed from launch attachment admission to the next independent
-     boundary in the surviving runner inventory. Recount after Taken stories
-     land before selecting the launch, session or Review specs they change.
-     Intent still includes follow-up and lifecycle proof outside the
-     extracted spec lists, together with Intent location reads. Keep freshness, invalidation and closing with the production
-     lifetime owner. Keep the [automatic-repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
-     distinct. The earlier [collector close analysis](https://github.com/terryyin/open-dough/blob/6c628be4a/.planning/slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md)
-     remains relevant when that lifecycle is selected.
-- **Current inventory.** The backend runner's engine classification at
-  `177084da6` reports 509 Playwright-selected specs of 577, with 68 on Vitest.
-  The completed wall-time cohort accounts for 14. The two new cohorts account
-  for 29 combined. Once all three ship, their disjoint inventory leaves 466
-  legacy specs at this baseline: launches 103, sessions 76, Intent 69,
-  observation 56, usage history 54, runtime 43, Review 33, terminals 18 and
-  configuration 14. The number counts source specs subject to disposition.
-  Coverage can move or consolidate, and active stories may change the inventory.
-- **Recount by entry** (`4283cb8d4`, 24 November 2026). 498 of 580 backend
-  specs are Playwright-selected. Counted from each spec's text and imports:
-  - 207 take no Playwright fixture and start no server. A trial rewrite of
-    only their engine import ran them on Vitest at four workers: 164 files
-    and 596 of 667 cases passed. 122 of the passing files reach no
-    Playwright import at all: 76 outside `usage-history/` form the
-    [direct cohort](https://github.com/terryyin/open-dough/blob/34bb5e074f8613671d687d434192dad84e4a60e4/.planning/slice-plans/814-run-direct-backend-specs-on-vitest/PLAN.md), and 46 Usage History files moved
-    with the typed importer. Their command-bound cases had run up to 4.9 s
-    against the 5 s default. Of the 43 failing
-    files, 29 exceeded the default timeout.
-  - 291 start or mount a server, or reach one through support. They enter
-    through few boundaries: 122 import the launch boundary helpers, and 101
-    of those drive a launch; about 40 read through the authenticated read
-    boundary; 21 are Token Index and 16 landed CI history, both already
-    selected. 54 name a live server and 187 take Playwright fixtures.
-  - Plan the server-bound remainder by boundary instead of by folder: one
-    story leads each boundary with its typed entry, and its specs follow
-    with that entry already shown. The launch boundary is the largest.
-    `AgentLaunches` already offers typed `accept`, `changed`, `attempts`
-    and `machineSessions`, and
-    [one converted case](../../dashboard/backend-tests/sessions/agent-launch-codex-open-polling.spec.ts)
-    calls it in this process.
-- **Inventory after the direct cohort** (`38c6f4057`, 24 November 2026).
-  The maintained backend runner selects 421 of 580 specs for Playwright and
-  159 for Node Vitest. Playwright selection fell by 77 specs from the earlier
-  recount. The direct rewrite accounts for 67. Landed attempt evidence moved
-  ten more, including three on the original direct cohort list.
-  The subsequent Token Index landing at `bdb810ba0` moved 19 disjoint specs.
-  The maintained selector reports 402 Playwright and 178 Vitest on that
-  trunk snapshot with the direct rewrite applied.
-  [Per-case timing measurements](https://github.com/terryyin/open-dough/blob/34bb5e074f8613671d687d434192dad84e4a60e4/.planning/slice-plans/814-run-direct-backend-specs-on-vitest/case-times.tsv).
-  The six original cohort specs still selected by Playwright belong to the
-  later families:
-  - `intent/ci-comparison-client-identity.spec.ts`,
-    `intent/ci-proof-memory-github-gaps.spec.ts`,
-    `launches/launch-attempt-admission-close.spec.ts`, and
-    `launches/settled-attempt-reconciliation.spec.ts` need assertion changes
-    because assigning Vitest's asymmetric matcher result fails lint.
-  - `launches/agent-launch-options-rules.spec.ts` is the direct Playwright
-    specimen used by `runner-ownership.spec.ts`.
-  - `configuration/notifier-setup.spec.ts` uses Playwright's platform skip
-    overload, which fails Dashboard typecheck under Vitest.
-- **Inventory after the Usage History cohort** (`52ad3cb65656`, 24 November
-  2026). The maintained backend selector reports 348 Playwright specs and
-  232 Node Vitest specs across 580 paths. All 73 Usage History specs select
-  Node Vitest, including the 54 that moved with the typed importer. The
-  remaining Playwright paths are launches 91, sessions 64, observation 54,
-  Intent 45, runtime 40, Review 29, configuration 13 and terminals 12.
-  [Per-case Usage History measurements](https://github.com/terryyin/open-dough/blob/a542045b824e24e73490f7ecc3e733852b879f16/.planning/slice-plans/815-prove-usage-import-through-typed-importer/MEASUREMENTS.md).
-- **Inventory at launch-admission selection** (`a31b7eee9`, 24 November
-  2026). The maintained selector counts 583 backend specs, 350 Playwright
-  and 233 Node Vitest. The Playwright paths are launches 91, sessions 64,
-  observation 54, Intent 45, runtime 40, Review 31, configuration 13 and
-  terminals 12. Of these, 139 directly import a launch-boundary or
-  attempt/terminal arrangement helper (77 in launches, 40 in sessions, 10
-  each in Review and terminals, and two in runtime). These are import counts,
-  so they include setup-only use. Two Playwright files belong to the
-  durable admission cohort. Recount the survivors when selecting the next
-  bounded outcome.
-- **Inventory at Intent CI reader selection** (`2bf3fe927`, 25 November
-  2026). The engine rule counts 585 backend specs, 348 Playwright and 237
-  Node Vitest. The Playwright paths are launches 89, sessions 64,
-  observation 54, Intent 45, runtime 40, Review 31, configuration 13 and
-  terminals 12. CI run `45535651060` on `b127d984f` gave them 2,068 s:
-  launches 643, runtime 334, sessions 318, Intent 302, observation 262,
-  Review 144, terminals 49 and configuration 16. By imported boundary,
-  132 specs (913 s) use the launch boundary helpers and 144 (792 s) start a
-  dashboard server; these overlap. The Taken plans for
-  [installed-project launches](https://github.com/terryyin/open-dough/blob/9cd90fe67384e09bcdcb4f75cdb4c48a6857855b/.planning/slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md),
-  [story-linked ad hoc sessions](https://github.com/terryyin/open-dough/blob/03b6dc4abe9f49901a6119f8e2295d04165ef75d/.planning/slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md),
-  [local-Git Board and Review reads](../slice-plans/819-read-published-board-and-review/PLAN.md)
-  and [one publication loop](../slice-plans/820-publish-to-trunk-through-one-loop/PLAN.md)
-  change specs in those boundaries or every server caller's fixture, so the
-  Intent CI readers went first.
-- **Inventory at browser reporter selection** (`9464e9a0a`, 25 November
-  2026). The engine rule counts 584 backend specs, 326 Playwright and 258
-  Node Vitest. The Playwright paths are launches 89, sessions 64,
-  observation 54, runtime 40, Review 31, Intent 23, configuration 13 and
-  terminals 12. CI run `45557556997` on `1adca9f40` gave them 1,983 s:
-  launches 487, Intent 436, sessions 324, observation 266, runtime 253,
-  Review 150, terminals 50 and configuration 17. The local-Git Board and
-  Review read and publication-loop plans have landed. These owners still
-  hold most of the cost:
-  - The queued [story-linked ad hoc sessions](../slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md),
-    [installed-project launches](../slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md)
-    and [initial sync before review](../slice-plans/822-show-initial-sync-before-review/PLAN.md)
-    plans change launch, session and Review specs. Slice 8 of the
-    installed-project plan changes every fixture-created catalog project.
-  - The queued local-Git reading stories (SEED-430, SEED-434 to SEED-437)
-    move published reads off the GitHub REST boundary and retire
-    superseded reads as they lose their last caller. That covers 49 of
-    the 54 observation specs and the five `authenticated-read-intent-*`
-    specs. Migrate those once their reads settle.
-  - The landed CI repeat checks account for about 320 s of the Intent
-    seconds and stay with the
-    [repeat-check correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps).
-- **Family map** (2026-11-19; CI medians over five main runs, 555 files,
-  2,519 s; entry kinds counted from each spec's text, so approximate).
+### Prove retained launch records in Node Vitest
 
-  | Folder | Files | CI s | Through a server | Separate process | Direct or no server | Uses a page |
-  | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-  | `launches/` | 104 | 445 | 59 | 15 | 27 | 3 |
-  | `review/` | 64 | 429 | 44 | 11 | 8 | 1 |
-  | `intent/` | 110 | 411 | 40 | 13 | 55 | 2 |
-  | `usage-history/` | 70 | 349 | 0 | 0 | 70 | 0 |
-  | `sessions/` | 76 | 336 | 46 | 11 | 19 | 0 |
-  | `observation/` | 56 | 262 | 33 | 15 | 4 | 4 |
-  | `runtime/` | 43 | 221 | 6 | 3 | 26 | 8 |
-  | `terminals/` | 18 | 48 | 11 | 0 | 7 | 0 |
-  | `configuration/` | 14 | 18 | 9 | 0 | 5 | 0 |
+**Identity:** SEED-413#prove-kept-launch-records-on-vitest
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
-  - The original inventory undercounted transport in `usage-history/`.
-    The Token Index harness includes both direct cohort calls and mounted HTTP.
-    Reclassify each remaining usage cohort before sizing it.
-  - `runtime/` proves the test runtime itself, including the Playwright
-    runners. Those cases retire with the runner they prove; the rest change
-    engine.
-  - About 68 specs need a separate server process (a signal, a restart, a
-    preload, a held connection). Each is downgraded to a unit case of the
-    behavior beneath it or, when the process itself is essential, upgraded
-    to an `e2e/` journey. None stays in this collection.
-  - The 18 specs that open a page belong to `dashboard/frontend-tests/` or
-    `e2e/`.
-  - 43 of the 445 files in `dashboard/server/` import `node:http` types; the
-    domain beneath them is already typed (`AgentLaunches`, the review
-    answers), so most seams are an export and a split admission.
-- **Alternatives considered.** Changing every spec's engine first while it
-  keeps its HTTP entry would retire Playwright early, yet it rebuilds the
-  worker fixtures as new test support, gains no speed and touches the suite
-  twice. Calling handlers from the Playwright specs first keeps Playwright in
-  the group and also touches the suite twice.
-- **Safe stopping point.** Every completed family stands on its own with
-  faster checks, compile-time contract safety, and fewer `test-support`
-  files.
+- **For / why.** A developer reading the Dashboard gets fast proof that retained launches and their native session identities survive restart and reads from another server.
+- **Boundary.** Cover kept-start store behavior, host-qualified identities, concurrent record writes, replacement, and per-host observation. Retain true multiprocess or filesystem evidence where it supplies the result.
+- **Evaluation.** A second server sees a newly replaced record. An unreadable replacement remains recoverable. Equal native identifiers from different hosts retain separate reads and actions.
+- **Effort hypothesis.** M, low confidence. Existing typed store and observer seams can remove incidental native starts.
+- **Mapped slices.** See the [provisional plan](../slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md).
+- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+
+<a id="prove-native-session-and-terminal-lifecycle-on-vitest"></a>
+
+### Prove native session and terminal lifecycle in Node Vitest
+
+**Identity:** SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** Developers changing an existing agent session need fast
+  feedback on what the Dashboard discovers, keeps, reopens, attaches to,
+  stops, and completes. A session's terminal must still reflect actual input,
+  output, and lifecycle transitions.
+- **Evaluation.** Given a kept conversation that finishes or is reattached,
+  its status and terminal evidence agree with the retained record. A
+  confirmation, cancellation, or stopped input leaves the actual persisted
+  outcome and session ownership observable.
+- **Boundary.** Own surviving `sessions/` and `terminals/` cases, including
+  native discovery, reporting, Done/read/stop/recovery, input services,
+  attachment, connection lifecycle and terminal replay. Keep an actual host,
+  PTY or socket in E2E when that boundary supplies the proof. Recount after
+  [story-linked ad hoc sessions](../slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md)
+  changes the standalone paths. Launch admission and note delivery keep
+  their own stories.
+- **Effort hypothesis.** L, low confidence. Direct record arrangement should
+  replace many launch-as-setup cases. Essential process and socket journeys
+  determine how much proof still belongs in E2E.
+- **Safe stopping point.** Session and terminal feedback stays available
+  through the same observable outcomes with fewer incidental agent launches.
+
+<a id="prove-published-dashboard-reads-on-vitest"></a>
+
+### Prove published Dashboard reads and evidence in Node Vitest
+
+**Identity:** SEED-413#prove-published-dashboard-reads-on-vitest
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** Developers reviewing a story need quick proof that the Board,
+  Review and Intent return evidence for the published revision requested and
+  correctly disclose stale, refused, or unavailable data.
+- **Evaluation.** Given a retained comparison and a newer publication,
+  refreshing advances only to readable evidence. Review, Intent, and a
+  follow-up from a selected comparison preserve the requested endpoints,
+  paths, and session facts. A wrong story or comparison is refused.
+- **Boundary.** Own surviving observation, Review and Intent proof after
+  applying the coverage map. Include publication binding and recovery,
+  historical comparison and file admission, selected published follow-up
+  evidence, and all surviving read/cache/refresh lifecycle checks. Reconcile
+  with the [local Git North Star](../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads),
+  including retirement of superseded authenticated reads and retention of
+  real Git where the result depends on repository history. The automatic
+  repeat correction retains its proof and load obligations. After it lands,
+  take disposition of any of its product-unit cases still on Playwright.
+- **Effort hypothesis.** L, low confidence. The earlier overlap inventory
+  identified 49 observation and five Intent paths in moving local-Git
+  boundaries. The estimate depends on accounting for retirements and
+  consolidating proof under the surviving boundary during refinement.
+- **Safe stopping point.** The remaining published read, history, and
+  admission promises have one named owner each, including live refresh
+  checks that still require end-to-end observation.
+
+<a id="prove-dashboard-configuration-and-serving-on-vitest"></a>
+
+### Prove Dashboard configuration and serving in Node Vitest
+
+**Identity:** SEED-413#prove-dashboard-configuration-and-serving-on-vitest
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** A developer changing project or machine settings, or
+  updating the Dashboard, needs fast feedback about what configuration becomes
+  effective and what the running program actually serves.
+- **Evaluation.** Given a configured project and a staged production update,
+  accepted configuration applies to the selected service and a refused
+  change leaves the previous state usable. The installed, dev, and preview
+  entry points retain the relevant serving and lifecycle proof.
+- **Boundary.** Own `configuration/` and surviving product-facing `runtime/`
+  coverage, including setup, notifier, preferences, project membership,
+  serving, deployment, update selection and watcher lifetime. Recount
+  project-add coverage after the default-branch story. Keep a real process or
+  installed journey where the product contract involves it. The final runner
+  story owns test-harness-only runtime cases.
+- **Effort hypothesis.** L, low confidence. Existing configuration
+  owners expose typed inputs. Installed program and process cases determine
+  how much work remains.
+- **Safe stopping point.** Settings and lifecycle behavior remain visible
+  through typed checks and representative actual serving or installed proof.
+
+<a id="retire-legacy-dashboard-backend-runner"></a>
+
+### Run the entire Dashboard backend unit suite on Node Vitest
+
+**Identity:** SEED-413#retire-legacy-dashboard-backend-runner
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#retire-legacy-dashboard-backend-runner","dependencies":[{"supplier":{"identity":"SEED-413#finish-backend-vitest-renovation-after-launch-attachments","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-attachments"},"implementation":"Land the typed Story Notes and note-follow-up checks with native confirmation preserved in E2E.","rationale":"Runner cutover removes the legacy execution path. Disposition of these product checks belongs to their existing supplier before that removal.","condition":"No Story Notes or note-bearing follow-up unit case depends on the legacy backend runner.","state":"satisfied","resolution":{"revision":"dec37b6b829b7b5d20a57df4a3775e9c6a015faa","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-attachments","summary":"The exact five-spec backend selection passed all 41 cases in Node Vitest, covering 29 pilot cases, 11 previously mounted launch cases, and one valid Attach contrast. The twelfth original launch case passed in Chromium E2E in e2e/stories/recently-done-cursor-follow-up-notes.spec.ts with the same kept input confirmed and its admitted note version sent. The Dashboard sent-state journey passed separately. The archived plan records the selectors and timing checks. No Story Notes or note-bearing follow-up unit case depends on the legacy backend runner.\nCondition satisfied: No Story Notes or note-bearing follow-up unit case depends on the legacy backend runner.\nAccepted integration: 720879458315e6b86aa70f5d9a609274de119f31 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#prove-launch-starts-and-recovery-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest"},"implementation":"Land the proof disposition for launch admission, attempts and worker handoff.","rationale":"Runner cutover removes the legacy execution path. This supplier owns the disposition of these product observations before that removal.","condition":"No launch admission or recovery case in this supplier’s scope depends on the legacy backend runner.","state":"waiting"},{"supplier":{"identity":"SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest"},"implementation":"Land the session and terminal proof disposition.","rationale":"Runner cutover removes the legacy execution path. Disposition of these product checks belongs to their existing supplier before that removal.","condition":"No session or terminal unit case in this supplier’s scope depends on the legacy backend runner.","state":"waiting"},{"supplier":{"identity":"SEED-413#prove-published-dashboard-reads-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest"},"implementation":"Land the surviving published data and review proof disposition, including residual repeat unit cases after the correction.","rationale":"Runner cutover removes the legacy execution path. Disposition of these product checks belongs to their existing supplier before that removal.","condition":"No published evidence unit case in this supplier’s scope depends on the legacy backend runner.","state":"waiting"},{"supplier":{"identity":"SEED-413#prove-dashboard-configuration-and-serving-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-dashboard-configuration-and-serving-on-vitest"},"implementation":"Land the settings and product runtime proof disposition.","rationale":"Runner cutover removes the legacy execution path. Disposition of these product checks belongs to their existing supplier before that removal.","condition":"No configuration or serving unit case in this supplier’s scope depends on the legacy backend runner.","state":"waiting"},{"supplier":{"identity":"SEED-413#finish-backend-vitest-renovation-after-launch-options","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-options"},"implementation":"Land the typed upload and claim cleanup checks, with accepted delivery kept in E2E.","rationale":"Runner cutover removes the legacy execution path. Disposition of these product checks belongs to their existing supplier before that removal.","condition":"No launch attachment unit case depends on the legacy backend runner.","state":"satisfied","resolution":{"revision":"ee8d963f593e06a2a2ca518b8c4072e888b8bae6","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-options","summary":"The integrated backend selector classifies both selected launch attachment specs as Node Vitest. Six focused Node cases passed, covering the former upload, cleanup, filename and selection observations. The retained Chromium refinement and recovery journeys passed and verify accepted bytes at the ordered native paths and the reused recovery path. The archived slice plan records the commands and proof.\nCondition satisfied: No launch attachment unit case depends on the legacy backend runner.\nAccepted integration: fec5480484657266e715615024f3d6b630ad4b35 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-324#close-landed-ci-repeat-check-gaps","href":"seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps"},"implementation":"Land the retained repeat and load proof disposition for the correction.","rationale":"Runner cutover removes the legacy execution path. Disposition of these product checks belongs to their existing supplier before that removal.","condition":"All repeat correction proof and load obligations have maintained owners through cutover.","state":"waiting"},{"supplier":{"identity":"SEED-413#prove-installed-story-starts-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-installed-story-starts-on-vitest"},"implementation":"Land the proof disposition for installed execution and refinement starts.","rationale":"Runner cutover removes the legacy execution path. This supplier owns the disposition of these product observations before that removal.","condition":"No installed execution or refinement start case in this supplier’s scope depends on the legacy backend runner.","state":"waiting"},{"supplier":{"identity":"SEED-413#prove-session-workspace-starts-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-workspace-starts-on-vitest"},"implementation":"Land the proof disposition for workspace choice, admission and scheduled launch.","rationale":"Runner cutover removes the legacy execution path. This supplier owns the disposition of these product observations before that removal.","condition":"No workspace choice or scheduled launch case in this supplier’s scope depends on the legacy backend runner.","state":"waiting"},{"supplier":{"identity":"SEED-413#prove-native-first-input-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-first-input-on-vitest"},"implementation":"Land the proof disposition for host choices and first native input.","rationale":"Runner cutover removes the legacy execution path. This supplier owns the disposition of these product observations before that removal.","condition":"No host-choice or first-input case in this supplier’s scope depends on the legacy backend runner.","state":"waiting"},{"supplier":{"identity":"SEED-413#prove-follow-up-context-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest"},"implementation":"Land the proof disposition for ordinary follow-up context and retry.","rationale":"Runner cutover removes the legacy execution path. This supplier owns the disposition of these product observations before that removal.","condition":"No ordinary follow-up context case in this supplier’s scope depends on the legacy backend runner.","state":"waiting"},{"supplier":{"identity":"SEED-413#prove-kept-launch-records-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-kept-launch-records-on-vitest"},"implementation":"Land the proof disposition for retained launch record behavior.","rationale":"Runner cutover removes the legacy execution path. This supplier owns the disposition of these product observations before that removal.","condition":"No retained launch record case in this supplier’s scope depends on the legacy backend runner.","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** Maintainers running Dashboard Backend Test locally or in CI
+  get one Node Vitest execution path with the same selection, sharding,
+  timing, failure and proof-record contracts.
+- **Evaluation.** A full backend selection contains every surviving unit
+  check on Vitest, with each former legacy observation accounted for.
+  A filtered or sharded run reports the right cases and times. A deliberate
+  failing specimen is carried in the expected proof record and retains its
+  diagnostics.
+- **Boundary.** Own runtime specs solely about test runners and their harness
+  (selection, reporters, setup, fixtures, fake hosts and browser waiting),
+  the remaining Playwright launch-options runner specimen if still
+  present, and the four `start-origin-*` private fixture contracts. Replace harness contracts still in use and retire cases proving
+  removed setup. Remove the backend Playwright config, the backend dual-runner
+  path and unused backend request/server wrappers. Keep test contracts shared
+  by frontend or E2E until their own last consumer is gone.
+- **Prerequisite.** The product stories in the coverage map, attachment admission and the
+  repeat correction supply the product-proof disposition needed before
+  removing the legacy runner. Recount from fetched trunk and account for
+  all survivors, including any that were added after the split.
+- **Effort hypothesis.** M to L, low confidence, assuming product legacy
+  specs have reached their named owners before cutover.
+- **Safe stopping point.** The standalone backend command and CI producer both
+  run on Node Vitest, with full selection and proof-record discrimination
+  rechecked and the legacy backend entry point removed.
+
+<a id="backend-vitest-replacement-coverage"></a>
+
+#### Backend Vitest coverage and order
+
+Developers need the current mixed-runner backend tests to become fast,
+compile-time-checked evidence without losing native, Git, filesystem or
+process behavior. Manual spot checks would leave routine regression proof to
+the developer. Deferring keeps useful checks but prolongs their setup cost.
+An import-only migration would retain expensive HTTP and worker setup and
+move the same tests twice. These stories use typed production answers, kept records, and real
+collaborators at the boundary whose behavior the case observes.
+
+The maintained `groupFiles(backendGroup)` selector at `1e0e1f876` on
+25 November 2026 counted 592 backend specs, 307 Playwright and 285 Vitest.
+The 307 paths were launches 91, observation 54, sessions 50, runtime 39,
+Review 31, Intent 17, configuration 13, and terminals 12. Allocate legacy
+paths in the following order so each has one owner. A surviving file can be
+converted, consolidated with a named proof owner, moved to the correct suite,
+or removed once its behavior or duplicate is accounted for.
+
+| Selection at the recount | Proof disposition owner |
+| --- | --- |
+| Two `launch-attachment-*` specs | [Attachment admission](https://github.com/terryyin/open-dough/blob/ee8d963f593e06a2a2ca518b8c4072e888b8bae6/.planning/slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md), completed on Node Vitest |
+| Three `agent-launch-follow-up-notes*` specs, plus the two Vitest Story Notes pilot specs | [Story Notes](https://github.com/terryyin/open-dough/blob/dec37b6b829b7b5d20a57df4a3775e9c6a015faa/.planning/slice-plans/845-prove-story-notes-and-follow-up-delivery-on-vitest/PLAN.md), completed on Node Vitest with Cursor confirmation in E2E |
+| Six `agent-launch-follow-up-{file-admission,file,landed-comparison-admission,published-range-admission,published-sessions,selection}` specs | [Published reads and evidence](#prove-published-dashboard-reads-on-vitest) |
+| `agent-launch-options-rules.spec.ts` | [Runner cutover](#retire-legacy-dashboard-backend-runner), while it is a runner specimen |
+| 14 launch admission, attempt and worker specs | [Launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest) |
+| 15 installed execution and refinement specs | [Prove installed execution and refinement starts in Node Vitest](#prove-installed-story-starts-on-vitest) |
+| 18 workspace and scheduled launch specs | [Prove Dashboard session workspace choices in Node Vitest](#prove-session-workspace-starts-on-vitest) |
+| 15 native dispatch and first-input specs | [Prove host launch choices and first input in Node Vitest](#prove-native-first-input-on-vitest) |
+| 6 ordinary follow-up context specs | [Prove retained follow-up context in Node Vitest](#prove-follow-up-context-on-vitest) |
+| 7 retained launch record specs | [Prove retained launch records in Node Vitest](#prove-kept-launch-records-on-vitest) |
+| Four `start-origin-{default,demand,isolation,private}` specs | [Runner cutover](#retire-legacy-dashboard-backend-runner), preserving private installed fixture behavior wherever it remains in use |
+| 50 session and 12 terminal specs | [Native session and terminal lifecycle](#prove-native-session-and-terminal-lifecycle-on-vitest) |
+| Eleven Playwright Intent paths named in the [repeat proof selection](../slice-plans/607-close-landed-ci-repeat-check-gaps/proof-selection.txt) | [Automatic repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps), including its failure and load proof |
+| 54 observation, 31 Review, and six other Intent specs | [Published reads and evidence](#prove-published-dashboard-reads-on-vitest) |
+| 13 configuration specs and nine product-facing runtime specs listed below | [Configuration and serving](#prove-dashboard-configuration-and-serving-on-vitest) |
+| Other 30 runtime specs, which prove test infrastructure | [Runner cutover](#retire-legacy-dashboard-backend-runner) |
+
+The nine product-facing runtime specs are `boundary-server`,
+`dev-server-cache-ownership`, `production-deployment`,
+`production-qualification`, `production-update-selection`,
+`production-watcher-preview`, `production-watcher-refusals`,
+`production-watcher-setup-lifetime`, and `serving-modes`. Use the
+same distinction for newly added runtime cases according to what they observe.
+
+Story Notes used explicit store inputs and retained records to preserve
+receiving-input and note-version observations through typed operations.
+Next are launch and session families, which carry the largest
+historical setup cost, followed by published evidence after reconciling the
+moving local-Git boundaries. Configuration and serving can move up if that
+overlap is still active. Runner cutover is last. When pausing for product work,
+defer cutover first. Each earlier outcome can stop safely with the mixed
+runner still active.
+
+Measure each selected family with the maintained command under comparable
+conditions before and after. Record per-case times against roughly 100 ms,
+counts, summed case time, elapsed selection time, and the cost and named
+owner of any proof moved to E2E. Preserve distinct failures and interactions,
+compose state with MakeMe, add zero request or server wrappers to test support,
+and remove those with no remaining caller. Recount each boundary before
+refinement. The remaining unrefined product scopes are effort hypotheses. The old 14–25 active-hour estimate for the whole
+remainder assumed per-file migrations. At `07435ba0f` the selector picked 592 backend specs (305 Playwright and
+287 Vitest), including 89 launch Playwright specs. The original 79 launch
+specs spanned independent proof outcomes and exceeded one eight-slice plan.
+The six launch stories above account for 75 product specs. The other four
+exercise the private test-origin builder (installed fixture source, object
+isolation, failure cleanup and copy ownership), so runner cutover owns their
+disposition. Check those fixture contracts at their surviving consumers.
+Reconcile landed product work, consolidate equivalent assertions, and retain
+actual process proof where its result requires it.
+
+The original launch selection at `07435ba0f` excluded notes, published
+follow-up cases, attachments, and the options specimen. The maintained
+backend command with one worker passed 271 Chromium and 78 Node cases on
+their first attempt. It took 1,046.47 s wall and 972.027 s summed case time.
+The per-story plans carry the relevant excerpts. Take fresh scoped
+comparisons for execution under comparable load.
+
+Earlier direct conversion reduced summed case time from 37.308 s to 31.758 s
+while mixed-engine wall time rose from 36.842 s to 40.582 s. The typed Usage
+History importer reduced focused elapsed time from 88.701 s to 36.389 s and
+CLI starts from 288 to six. Keep both measures. The
+[original remainder](https://github.com/terryyin/open-dough/blob/1e0e1f8767e7cebaba46182d141d75d7fb026525/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-attachments)
+retains the earlier family counts, timing samples, overlap analysis and
+links to completed proof.
 
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 

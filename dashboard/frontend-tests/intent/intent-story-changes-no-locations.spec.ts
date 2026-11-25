@@ -1,6 +1,6 @@
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
   changed,
   openStoryChanges,
@@ -11,7 +11,7 @@ import {
   intentStoryCompare,
 } from "./intent-story-compare-page.ts";
 
-test("without configured Intent locations Changes lists the story's changed files with their diffs beside the explanation", async () => {
+test("without configured Intent locations the CI view offers the story's changed files and opens their diffs", async () => {
   const { reads } = await openStoryChanges({
     hasLocations: false,
     fileDiff: () =>
@@ -20,14 +20,15 @@ test("without configured Intent locations Changes lists the story's changed file
       ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-  const changes = page.getByRole("tabpanel", { name: "Changes", exact: true });
+  await expect.element(intentCiStatus().panel).toBeVisible();
   await expect
     .element(
-      changes.getByText(/^No Intent locations are configured for Open Dough\./),
+      story.sidebar.getByText(
+        /^No Intent locations are configured for Open Dough\./,
+      ),
     )
     .toBeVisible();
-  const outside = story.outsideGroup;
+  const outside = story.tree;
   await expect
     .element(
       outside.getByRole("button", {
@@ -45,10 +46,10 @@ test("without configured Intent locations Changes lists the story's changed file
     changed.notes,
     "Renamed dashboard/tests/between/moved.spec.ts → tests/moved.sh",
   ])
-    await expect.element(story.outsideFile(name)).toBeVisible();
+    await expect.element(story.file(name)).toBeVisible();
   await expect.element(story.folderToggle("docs", true)).toBeVisible();
 
-  await activateComparisonControl(story.outsideFile(changed.product));
+  await activateComparisonControl(story.file(changed.product));
   await expect.poll(story.diffName).toBe(changed.product);
   await expect.poll(story.diffCode).toContain("product change");
   expect(reads.diffs).toEqual([productPath]);
@@ -56,10 +57,11 @@ test("without configured Intent locations Changes lists the story's changed file
 
 async function showsUnavailableChanges(explanation: string) {
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect
     .element(story.header.getByRole("status"))
     .toHaveTextContent("No comparison is available.");
+  await story.openDetails();
   await expect
     .element(
       story.header.getByText(

@@ -10,7 +10,7 @@ import {
   chooseCiStatus,
   runUrl,
 } from "../../dashboard/test-support/intentCiStatusPage.ts";
-import { chooseStoryTab } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { browseStoryFiles } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { intentLocationName } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   childName,
@@ -110,7 +110,7 @@ test("a published CI summary for a sources location shows its group and file res
   const intent = parts(page).intent;
 
   await test.step("the location's Summary counts both files, each under its folder", async () => {
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
     await intentLocationName(intent, "scripts").click();
     const scripts = summaryRegion(intent);
     await expectScopeRows(scripts, "scripts", [

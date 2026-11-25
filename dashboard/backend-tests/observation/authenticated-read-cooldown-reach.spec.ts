@@ -3,7 +3,7 @@
 // authenticated read boundary over real HTTP with the synthetic `gh`
 // (../../test-support/support/sharedReads.ts publishes the revision): a rate-limited setting
 // file fails its read with the limit rather than being taken as absent; a
-// project added while the wait stands is held back like a read; and an unmarked
+// project can be added through Git while the API wait stands; and an unmarked
 // `403`, a `404`, a timeout, and an unreachable GitHub hold back nothing. How
 // the wait holds back every read of its process:
 // ./authenticated-read-cooldown.spec.ts. Shared-owner wiring belongs to
@@ -19,6 +19,7 @@ import {
 import {
   everyRepository,
   hangs,
+  publishes,
   type RepositoryAnswerer,
 } from "../../test-support/support/fakeGitHub.ts";
 import type { GhRequest } from "../../test-support/support/ghRequest.ts";
@@ -28,7 +29,12 @@ import {
   servedRefusing,
   timedRead,
 } from "../../test-support/support/heldBackReads.ts";
-import { projectAddMachine } from "../../test-support/support/projectAddMachine.ts";
+import {
+  addedBranch,
+  addedLocalPath,
+  addedRepository,
+  projectAddMachine,
+} from "../../test-support/support/projectAddMachine.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   noConnection,
@@ -77,58 +83,45 @@ test.describe("authenticated read boundary: adding a project while a directed ra
   });
   test.afterEach(async () => fixture.close());
 
-  test("a check GitHub limits says so, and later additions and reads are held back without asking GitHub", async () => {
+  test("Add discovers the branch through Git while API reads remain held back", async () => {
     await onServerOfItsOwn(
       async (server) => {
+        server.github.serve(
+          addedRepository,
+          publishes({ defaultBranch: addedBranch }),
+        );
         servedRefusing(server, revision, (request) =>
-          request.kind === "repository"
+          isContent(request, sharedSeedPath)
             ? rateLimitedAnswer(429, { "Retry-After": "600" })
             : undefined,
         );
-        const add = () =>
-          rawRequest({
-            url: `${server.baseURL}/__project-configuration/add`,
-            method: "POST",
-            headers: {
-              Origin: server.origin,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              githubUrl: "https://github.com/example/sample-app",
-              localPath: "~/work/private-checkout",
-            }),
-          });
-        const limited = await add();
-        expect(limited.status).toBe(400);
-        expect(JSON.parse(limited.body)).toEqual({
-          field: "githubUrl",
-          error:
-            "GitHub limited the rate of the local GitHub CLI's requests while checking the repository example/sample-app. Try again in 600 seconds.",
-        });
-        const limitedAt = Date.now();
+        const limited = await timedRead(server, sharedSeedRead(revision));
+        expect(limited.status).toBe(502);
+        expect(limited.body.retryAfterSeconds).toBe(600);
         const before = server.github.calls.length;
-
-        const heldBack = await add();
-        expect(heldBack.status).toBe(400);
-        const { field, error } = JSON.parse(heldBack.body) as {
-          field: string;
-          error: string;
-        };
-        expect(field).toBe("githubUrl");
-        const seconds = Number(
-          /^GitHub limited the rate of the local GitHub CLI's requests, so the repository example\/sample-app was not asked of GitHub\. Try again in (\d+) seconds\.$/.exec(
-            error,
-          )?.[1],
-        );
-        expect(seconds).toBeGreaterThan(590);
-        expect(seconds).toBeLessThanOrEqual(600);
+        const added = await rawRequest({
+          url: `${server.baseURL}/__project-configuration/add`,
+          method: "POST",
+          headers: {
+            Origin: server.origin,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            githubUrl: `https://github.com/${addedRepository}`,
+            localPath: addedLocalPath,
+          }),
+        });
+        expect(added.status).toBe(200);
+        expect(JSON.parse(added.body)).toMatchObject({
+          project: { repository: addedRepository, ref: addedBranch },
+        });
 
         const read = await timedRead(server, "");
         expect(read.status).toBe(502);
         expect(read.body.error).toMatch(heldBackPattern);
         expect(
           read.arrivedAt + (read.body.retryAfterSeconds ?? 0) * 1000,
-        ).toBeGreaterThanOrEqual(limitedAt + 599_000);
+        ).toBeGreaterThanOrEqual(limited.arrivedAt + 599_000);
         expect(askedSince(server, before)).toEqual([]);
       },
       { ...developmentBoundary, machine: fixture.machine },

@@ -1,185 +1,213 @@
-// Existing HTTP option cases run against published variants of the installed skill.
+// The requesting project's installed definition controls the selected flags.
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect } from "../../test-support/support/pageTest.ts";
-import { machineSessions } from "../../test-support/agentLaunchBoundary.ts";
 import {
-  expectStoryCommand,
-  launchClaude,
-  otherRefinement,
-  queuedExecution,
-  refinementDefinition,
-  refinementSkill,
-  refinementSkillFolder,
-  refuseOptions,
-  roughRefinement,
-  test,
-} from "../support/installedClaudeLaunch.ts";
+  roughStoryC,
+  storyA,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
+import { installedSkillPath } from "../../server/launchHosts.ts";
+import { withSelectedOptions } from "../../server/launchOptions.ts";
+import { localFolder, type LocalFolder } from "../../server/localFolder.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
 
-const explored = "--explore";
-const borrowed = "--borrow";
+const refinementSkill = "dough-story-refinement";
 
-const definitionOf = (command: string, flag: string) =>
-  JSON.stringify(
-    makeMe.anOptionsDefinition
-      .with({
-        command,
-        options: [makeMe.anOptionsEntry.with({ flag }).please()],
-      })
+async function newProject() {
+  const project = localFolder(
+    await mkdtemp(path.join(tmpdir(), "dough-options-")),
+  );
+  onTestFinished(() => rm(project.path, { recursive: true, force: true }));
+  return project;
+}
+
+function refinementWithOptions(...options: string[]) {
+  return makeMe.aLaunchRequest
+    .refining(roughStoryC)
+    .withOptions(options)
+    .please();
+}
+
+function optionsDefinition(
+  command: string,
+  options: string[],
+  focuses: string[] = [],
+) {
+  const entry = (flag: string) => makeMe.anOptionsEntry.with({ flag }).please();
+  return makeMe.anOptionsDefinition
+    .with({
+      command,
+      options: options.map(entry),
+      focuses: focuses.map(entry),
+    })
+    .please();
+}
+
+function optionsFile(project: LocalFolder) {
+  return installedSkillPath(
+    "claude",
+    project,
+    refinementSkill,
+    "references",
+    "refinement-options.json",
+  );
+}
+
+async function installOptions(project: LocalFolder, text: string) {
+  const file = optionsFile(project);
+  await mkdir(path.dirname(file), { recursive: true });
+  await writeFile(file, text);
+}
+
+async function expectRefusal(
+  refusal: Promise<AgentLaunchRequest>,
+  reason: string,
+) {
+  await expect(refusal).rejects.toHaveProperty("status", 400);
+  await expect(refusal).rejects.toThrow(reason);
+}
+
+test("orders selected options and a focus by the installed definition", async () => {
+  const project = await newProject();
+  const request = refinementWithOptions("--borrow", "--ux-ui", "--explore");
+  const definition = optionsDefinition(
+    refinementSkill,
+    ["--explore", "--borrow"],
+    ["--ux-ui"],
+  );
+  await installOptions(project, JSON.stringify(definition));
+
+  const selected = await withSelectedOptions(request, project);
+  expect(selected.options).toEqual(["--explore", "--borrow", "--ux-ui"]);
+});
+
+test.each([
+  {
+    kind: "omitted",
+    request: makeMe.aLaunchRequest.refining(roughStoryC).please(),
+  },
+  {
+    kind: "empty",
+    request: makeMe.aLaunchRequest
+      .refining(roughStoryC)
+      .withOptions([])
       .please(),
-  );
-const definitionRevision = (text: string) => ({
-  files: { [refinementDefinition]: text },
+  },
+])(
+  "preserves a request with $kind options without an installed definition",
+  async ({ request }) => {
+    const project = await newProject();
+
+    await expect(withSelectedOptions(request, project)).resolves.toEqual(
+      request,
+    );
+  },
+);
+
+test("names the unknown flag in a mixed selection", async () => {
+  const project = await newProject();
+  const definition = optionsDefinition(refinementSkill, ["--explore"]);
+  await installOptions(project, JSON.stringify(definition));
+
+  const request = refinementWithOptions("--explore", "--bogus");
+  const refusal = withSelectedOptions(request, project);
+  await expectRefusal(refusal, "Option --bogus is not one");
+  await expect(refusal).rejects.not.toThrow("--explore");
 });
 
-test("starts the session with the selected flags in the definition's order, then the developer's text, and keeps them", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude();
-  const instruction = "go";
-  const result = await launchClaude(server, {
-    ...roughRefinement,
-    options: [borrowed, explored],
-    instruction,
-  });
-
-  expectStoryCommand(
-    result.started,
-    `/${refinementSkill} ${roughRefinement.identity} ${explored} ${borrowed}`,
-    instruction,
+test("accepts the same flag only in the project whose definition offers it", async () => {
+  const offersExplore = await newProject();
+  const offersBorrow = await newProject();
+  await installOptions(
+    offersExplore,
+    JSON.stringify(optionsDefinition(refinementSkill, ["--explore"])),
   );
-  expect(result.record.request.options).toEqual([explored, borrowed]);
-  expect(await machineSessions(server)).toContainEqual(
-    expect.objectContaining({
-      request: expect.objectContaining({ options: [explored, borrowed] }),
-    }),
+  await installOptions(
+    offersBorrow,
+    JSON.stringify(optionsDefinition(refinementSkill, ["--borrow"])),
   );
-});
 
-test("selects a focus beside an option with the model before the instruction", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude();
-  const result = await launchClaude(server, {
-    ...roughRefinement,
-    model: "opus",
-    options: ["--ux-ui", explored],
-  });
-
-  expect(result.started.model).toBe("opus");
-  expectStoryCommand(
-    result.started,
-    `/${refinementSkill} ${roughRefinement.identity} ${explored} --ux-ui`,
+  const request = refinementWithOptions("--explore");
+  const accepted = await withSelectedOptions(request, offersExplore);
+  expect(accepted.options).toEqual(["--explore"]);
+  await expectRefusal(
+    withSelectedOptions(request, offersBorrow),
+    `Option --explore is not one the installed ${refinementSkill} skill in ${offersBorrow.shown} defines.`,
   );
 });
 
-test("starts as before with no options, and its record has none", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude();
-  for (const body of [roughRefinement, { ...otherRefinement, options: [] }]) {
-    const result = await launchClaude(server, body);
-    expectStoryCommand(result.started, `/${refinementSkill} ${body.identity}`);
-    expect(result.record.request.options ?? []).toEqual([]);
-  }
-});
+test.each([
+  {
+    kind: "malformed JSON",
+    contents: "{",
+    reason: "has an options file that is not valid",
+  },
+  {
+    kind: "a definition for another command",
+    contents: JSON.stringify(optionsDefinition("dough-other", ["--explore"])),
+    reason: "has an options file for another command",
+  },
+])(
+  "explains why options are refused with $kind",
+  async ({ contents, reason }) => {
+    const project = await newProject();
+    await installOptions(project, contents);
 
-test("refuses a flag the definition does not define, naming it", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude();
-  const error = await refuseOptions(server, {
-    ...roughRefinement,
-    options: [explored, "--bogus"],
-  });
-  expect(error).toContain("--bogus");
-  expect(error).not.toContain(explored);
-});
+    await expectRefusal(
+      withSelectedOptions(refinementWithOptions("--explore"), project),
+      reason,
+    );
+  },
+);
 
-test("refuses a flag the project's own definition lacks, and starts with one it has", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude(
-    {},
-    definitionRevision(definitionOf(refinementSkill, "--only")),
-  );
-  expect(
-    await refuseOptions(server, { ...roughRefinement, options: [explored] }),
-  ).toContain(explored);
-  const result = await launchClaude(server, {
-    ...roughRefinement,
-    options: ["--only"],
-  });
-  expectStoryCommand(
-    result.started,
-    `/${refinementSkill} ${roughRefinement.identity} --only`,
+test("reports a missing options file when the installed skill has no definition", async () => {
+  const project = await newProject();
+  await mkdir(path.dirname(optionsFile(project)), { recursive: true });
+
+  await expectRefusal(
+    withSelectedOptions(refinementWithOptions("--explore"), project),
+    "has no options file",
   );
 });
 
-for (const [kind, file, why] of [
-  ["not JSON", "{", "has an options file that is not valid"],
-  [
-    "another command",
-    definitionOf("dough-other", "--a"),
-    "has an options file for another command",
-  ],
-] as const) {
-  test(`refuses options when the definition is ${kind}, saying why`, async ({
-    installedClaude,
-  }) => {
-    const server = await installedClaude({}, definitionRevision(file));
-    expect(
-      await refuseOptions(server, { ...roughRefinement, options: ["--a"] }),
-    ).toContain(why);
-  });
-}
+test("reports a missing options file when the skill is absent", async () => {
+  const project = await newProject();
 
-for (const [kind, removed] of [
-  ["has no definition", refinementDefinition],
-  ["is not installed", refinementSkillFolder],
-] as const) {
-  test(`refuses options for a project whose skill ${kind}, saying so`, async ({
-    installedClaude,
-  }) => {
-    const server = await installedClaude({}, { remove: [removed] });
-    expect(
-      await refuseOptions(server, {
-        ...roughRefinement,
-        options: [explored],
-      }),
-    ).toContain("has no options file");
-  });
-}
-
-test("refuses an unreadable definition, saying so", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude(
-    {},
-    {
-      remove: [refinementDefinition],
-      files: {
-        [`${refinementDefinition}/fixture`]: "directory instead of a file\n",
-      },
-    },
+  await expectRefusal(
+    withSelectedOptions(refinementWithOptions("--explore"), project),
+    "has no options file",
   );
-  expect(
-    await refuseOptions(server, {
-      ...roughRefinement,
-      options: [explored],
-    }),
-  ).toContain("has an options file that could not be read");
 });
 
-for (const [kind, body] of [
-  ["an execution", queuedExecution],
-  ["an ad hoc", makeMe.aLaunchRequest.adHoc().please()],
-] as const) {
-  test(`refuses options on ${kind} request, which has no definition`, async ({
-    installedClaude,
-  }) => {
-    const server = await installedClaude();
-    expect(
-      await refuseOptions(server, { ...body, options: [explored] }),
-    ).toContain("has no options to select");
-  });
-}
+test("explains when the options file could not be read", async () => {
+  const project = await newProject();
+  await mkdir(optionsFile(project), { recursive: true });
+
+  await expectRefusal(
+    withSelectedOptions(refinementWithOptions("--explore"), project),
+    "has an options file that could not be read",
+  );
+});
+
+test.each([
+  {
+    workflow: "Execution",
+    request: makeMe.aLaunchRequest
+      .executing(storyA)
+      .withOptions(["--explore"])
+      .please(),
+  },
+  {
+    workflow: "Ad hoc",
+    request: makeMe.aLaunchRequest.adHoc().withOptions(["--explore"]).please(),
+  },
+])("refuses selected options for $workflow", async ({ workflow, request }) => {
+  const project = await newProject();
+
+  await expectRefusal(
+    withSelectedOptions(request, project),
+    `${workflow} has no options to select.`,
+  );
+});

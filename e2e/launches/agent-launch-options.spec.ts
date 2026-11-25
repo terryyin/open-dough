@@ -10,6 +10,7 @@ import {
 } from "../../dashboard/test-support/dashboardTest.ts";
 import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
+  instructionField,
   shippedRefinementDefinition,
   showOptions,
   showsRecordedRefinementOptions,
@@ -92,7 +93,7 @@ test("the refinement dialog offers the installed definition's entries with label
   await expect(choices.command).toHaveText(/ --zoom$/);
 });
 
-test("selecting Explore and Borrow sends those flags and the session's card shows them through reload", async ({
+test("Start sends selected flags with the chosen model and instruction, and the card keeps the flags through reload", async ({
   page,
   dashboard,
   origin,
@@ -102,10 +103,16 @@ test("selecting Explore and Borrow sends those flags and the session's card show
   const board = await openInstalledStoryBoard(page, origin);
   const { dialog, submit } = await board.open(notRefinedStory, "Refinement");
   const choices = storyLaunchChoices(dialog);
+  const instruction = "Compare the project views before refining this story.";
   await expect(dialog).toContainText(`Sent after ${sent}.`);
   await choices.chooseOption("Borrow");
+  await choices.chooseOption("UX/UI");
   await choices.chooseOption("Explore");
-  await expect(dialog).toContainText(`Sent after ${sent} --explore --borrow.`);
+  await choices.chooseModel("opus");
+  await instructionField(dialog).fill(instruction);
+  await expect(dialog).toContainText(
+    `Sent after ${sent} --explore --borrow --ux-ui.`,
+  );
 
   const before = dashboard.claudeLaunches().length;
   const acceptance = nextAcceptedAttemptId(page);
@@ -114,14 +121,20 @@ test("selecting Explore and Borrow sends those flags and the session's card show
   const launch = readClaudeLaunch(dashboard, outcome, before);
   await expect(dialog).toBeHidden();
   expectInstalledClaudeStory(dashboard, launch, {
-    invocation: `${sent} --explore --borrow`,
+    invocation: `${sent} --explore --borrow --ux-ui`,
     handoff: "Established preparation:",
     workspace: path.join(origin.project, ".worktrees", "story-c"),
     publishedSha: await originMain(origin),
+    instruction,
   });
-  expect(launch.record.request.options).toEqual(["--explore", "--borrow"]);
+  expect(launch.started.model).toBe("opus");
+  expect(launch.record.request.options).toEqual([
+    "--explore",
+    "--borrow",
+    "--ux-ui",
+  ]);
   const card = board.card(notRefinedStory);
-  const recorded = "Options: --explore --borrow (requested)";
+  const recorded = "Options: --explore --borrow --ux-ui (requested)";
   await passCheckPace(page);
   await showsRecordedRefinementOptions(card, recorded);
   await reloadUntilRead(page);

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#finish-backend-vitest-renovation-after-launch-attachments",
+  "title": "Prove Story Notes and follow-up delivery in Node Vitest",
+  "completedAt": "2026-11-25T16:35:04.466Z",
+  "developer": "Terry Yin",
+  "agent": "Rio-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** At `a1d6a0b693783435973de01888ebb4c0d00612ab`, the maintained Chromium journey caught loss of the admitted Story Note version when the same kept Cursor follow-up confirmed. The promise belongs to `SEED-413#finish-backend-vitest-renovation-after-launch-attachments` and slice 5 of plan 845.\n\nThe scratch fault omitted the Cursor runner’s delivery installation at `dashboard/server/hosts/cursor/runnerMain.ts:31`. The existing fake terminal held its paint until the test observed uncertain input, then released it. An independent read of the fixture’s two machine files observed the same session and instruction confirm, with the same admitted note ID and version still present and its delivered field absent. The maintained journey passed its input confirmation step and failed the delivered-version poll at `e2e/stories/recently-done-cursor-follow-up-notes.spec.ts:136`, receiving `undefined` for the expected version.\n\nThe one-worker selection of `uncertain Cursor first input leaves notes waiting until later confirmation` ran one Chromium case on the baseline, with the fault, and after byte-for-byte restoration. Outcomes were pass, fail at the intended assertion, and pass. The scratch Git status matched its initial clean state, and the scratch worktree was removed. This confirms the earlier slice 5 failure signal against the completed revision.\n\n**Next proof action.** Retain the current Cursor E2E assertion. This check found no need for stronger proof of the tested installation fault.\n\n- **Test runtime.** Measured 28.909 s across the three runner reports. Case times were 3.746 s, 7.606 s, and 2.848 s. The three commands took 30.68 s wall in total.\n- **Human effort.** Unavailable. No separately timed human work was recorded.\n- **Agent effort.** Unavailable. No separate active-effort measurement was recorded.\n\n\n- **Invocation-to-report elapsed.** 210323 ms (measured), from 1795624225545 to 1795624435868 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition: checked a1d6a0b693783435973de01888ebb4c0d00612ab, Caught, no follow-up.\n"
+  }
+}

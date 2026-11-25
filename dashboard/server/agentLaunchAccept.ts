@@ -13,7 +13,10 @@ import {
 import { hostDescription } from "../src/hostDescription.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { withFollowUpContext } from "./followUpAdmission.ts";
+import {
+  withFollowUpContext,
+  type FollowUpContextInput,
+} from "./followUpAdmission.ts";
 import {
   abandonAttachmentClaims,
   answerWithoutAttachmentClaims,
@@ -32,6 +35,7 @@ export async function acceptLaunchRequest(
   request: AgentLaunchRequest,
   run: AttemptRun,
   continueRequest: (id: string) => Promise<Acceptance>,
+  followUpInput: FollowUpContextInput,
   reportingOrigin?: string,
 ): Promise<Acceptance> {
   // Digests from claim bytes identify images before claims are consumed, so
@@ -62,7 +66,11 @@ export async function acceptLaunchRequest(
   // request that would otherwise be accepted as a new attempt.
   let resolved: AgentLaunchRequest;
   try {
-    resolved = await withFollowUpContext(withDefaultEffort(identified), source);
+    resolved = await withFollowUpContext(
+      withDefaultEffort(identified),
+      source,
+      followUpInput,
+    );
   } catch (error) {
     abandonAttachmentClaims(claims);
     throw error;

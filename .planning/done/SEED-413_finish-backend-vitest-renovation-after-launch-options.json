@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#finish-backend-vitest-renovation-after-launch-options",
+  "title": "Prove launch attachment admission in Node Vitest",
+  "completedAt": "2026-11-25T14:32:54.685Z",
+  "developer": "Terry Yin",
+  "agent": "Yumi-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** The migrated Vitest case detects claims left behind after a sixth-claim refusal.\n\n**Story and revision.** SEED-413#finish-backend-vitest-renovation-after-launch-options at `d105c9f1edba20127256b5e9c15a9cb69898eb7c`. The checked promise is that refusing six posted claims clears the claims and leaves no attempt files.\n\n**Fault and reach.** In an isolated checkout, I removed the single `abandonAttachmentClaims(claims, dashboardDirectory)` call from the count-refusal branch in `dashboard/server/launchAttachmentClaims.ts`. The maintained case posted six PNG claims in its private store and called materialization. A separate Node witness posted six claims in another temporary store and invoked the same operation. It received 400 with “At most 5 images”, found all six claims with their original bytes, and found no attempt output.\n\n**Maintained proof.** From the scratch checkout, I ran the same command before the fault, with the fault, and after restoration.\n\n```sh\ncaffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR npm run test:dashboard:backend -- 'launches/launch-attachment-boundary\\.spec\\.ts$' --grep 'materialize refuses a sixth claim' --workers=1\n```\n\nThe baseline passed the selected case. With the fault, the refusal and empty attempt store checks passed, and `expect(readdirSync(claimsDirectory)).toEqual([])` failed at `dashboard/backend-tests/launches/launch-attachment-boundary.spec.ts:128` with six claim IDs. The restored case passed. I compared Git status with the pre-probe state, confirmed the original revision, and retired the scratch worktree.\n\n**Next proof action.** Retain the existing claim-directory assertion for this refusal path.\n\n- **Test runtime.** Measured Vitest durations were 1.12 s baseline, 519 ms with the fault, and 523 ms restored, about 2.16 s total. The selected case took 10 ms, 16 ms, and 11 ms respectively.\n- **Human effort.** Unavailable. Human time was not separately measured.\n- **Agent effort.** Unavailable. Agent effort was not separately instrumented from elapsed time.\n\n\n- **Invocation-to-report elapsed.** 83352 ms (measured), from 1795616850821 to 1795616934173 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition: `d105c9f1edba20127256b5e9c15a9cb69898eb7c`, Caught, no follow-up.\n"
+  }
+}

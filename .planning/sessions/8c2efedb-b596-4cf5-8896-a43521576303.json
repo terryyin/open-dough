@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "sessionId": "8c2efedb-b596-4cf5-8896-a43521576303",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T16:53:01.572Z",
+  "story": "SEED-413#finish-backend-vitest-renovation-after-launch-attachments",
+  "ranges": [
+    {
+      "base": "dd22b9e1c0e9025ae4eeb18f6ebbfb7f488fba30",
+      "candidate": "8b3501eb41cc62f38c5f670fd1882892c5057108"
+    },
+    {
+      "base": "8b3501eb41cc62f38c5f670fd1882892c5057108",
+      "candidate": "e5625af87da4dd0d9631a5a2e86cf31d30fd1ef8"
+    },
+    {
+      "base": "e5625af87da4dd0d9631a5a2e86cf31d30fd1ef8",
+      "candidate": "0077bdb08734786c04c4253c8b0b838f721e2807"
+    },
+    {
+      "base": "0077bdb08734786c04c4253c8b0b838f721e2807",
+      "candidate": "58f1a461abc57485f603c5608530a93a9ed44a03"
+    },
+    {
+      "base": "58f1a461abc57485f603c5608530a93a9ed44a03",
+      "candidate": "023e4d9dc7631868fa7253bfb41e7f663e6ba989"
+    },
+    {
+      "base": "023e4d9dc7631868fa7253bfb41e7f663e6ba989",
+      "candidate": "9d5c27cb302d4aaedf84ec2feb8dfff95df0a36b"
+    },
+    {
+      "base": "9d5c27cb302d4aaedf84ec2feb8dfff95df0a36b",
+      "candidate": "a1d6a0b693783435973de01888ebb4c0d00612ab"
+    },
+    {
+      "base": "a1d6a0b693783435973de01888ebb4c0d00612ab",
+      "candidate": "80fcb9fc9312d651322a7d7cb840ac12868dd8b7"
+    },
+    {
+      "base": "720879458315e6b86aa70f5d9a609274de119f31",
+      "candidate": "af0085be17aa4d2425724d3b58e226b529e103ba"
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+# Prove Dashboard launch starts and recovery in Node Vitest
+
+**Identity:** SEED-413#prove-launch-starts-and-recovery-on-vitest
+
+**Source:** [Prove Dashboard launch starts and recovery in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest)
+
+## Goal and scope
+
+Give Dashboard maintainers fast typed proof that Start keeps an attempt
+before any effect and that Continue recovers the right attempt once. Move
+the 14 legacy backend specs below off Playwright. Preserve request refusals,
+attempt identity, worker ownership, reconciliation, and drain. Keep true
+process, Git, and native input observations with E2E. The other launch
+stories and runner cutover have their own proof in the
+[campaign coverage map](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage).
+
+## Current decisions
+
+- Follow the North Star on [directly testable production code](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support),
+  [plain Vitest for unit tests](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e),
+  and [acting as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows).
+  Use the [direct domain mapping in ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution),
+  [local operational state in ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state),
+  and [the proof and cost comparison in ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md#decision).
+- Reuse [wire admission](../../../dashboard/server/agentLaunchAdmission.ts)
+  and the [answer adapter](../../../dashboard/server/launchBoundaryAnswer.ts)
+  for method, origin, request parsing and dispatch. Use the existing
+  [launch owner](../../../dashboard/server/launchAttemptOwner.ts) and its
+  `AttemptRun` input for durable admission and handoff proof. Use the
+  [machine JSON store](../../../dashboard/server/machineJsonStore.ts) for
+  filesystem locking and replacement, and the existing
+  [continuation owner](../../../dashboard/server/launchAttemptContinuation.ts)
+  for selection under lock. Keep one meaning for each persisted state and
+  one authoritative check under the lock. Origin remains authoritative for
+  published story facts.
+- The direct Node [independent writers](../../../dashboard/backend-tests/launches/agent-launch-cross-server-accept.spec.ts)
+  and [admission-close](../../../dashboard/backend-tests/launches/launch-attempt-admission-close.spec.ts)
+  cases already exercise real isolated machine files. Extend that pattern with
+  `AgentLaunchRequest`, the real private attempt and record files, and
+  deferred typed handoffs at the effect being held. Bind stores to the same
+  private machine in both processes when independence is the observation.
+  Reuse the existing decision and storage owners. Avoid starting Vite,
+  mounting Chromium or preparing a Git origin for their unit cases.
+- Use [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) for requests,
+  stories and kept records. Use the Dashboard entry and existing
+  [page objects](../../../.agents/skills/dough-page-objects/SKILL.md) when
+  extending an E2E journey. Leave malformed wire inputs visible. Add zero
+  test-support wrappers. Remove support only when its last consumer has
+  moved and the replacement observes the same effect.
+
+## Decisive premises
+
+Observed in the owned preparation checkout at `07435ba0f` on 25 November
+2026 with Node 24.21.0 and Chromium, one worker, local locked dependencies,
+and macOS on AC under `caffeinate -s -i`. Other work was running on the host.
+Use these runs for behavioral evidence and take a comparable pair for the
+execution's performance claim.
+
+| Premise | Consuming operation and result |
+| --- | --- |
+| The maintained backend selector reaches the kept-first and interrupted paths | The exact first-plan backend command below passed all 60 cases on the first attempt (54 Chromium across 14 legacy specs and six Node across three controls). Chromium took 234.137 s summed, 1–20,939 ms per case, with 23 at or below 100 ms. The Node controls took 4.281 s summed, about 1–1,576 ms per case, with two at or below 100 ms. The whole selection took 268.66 s wall. It observed refused duplicate effects, real kept-first writes, retained-input replay and last-record checks under contention. |
+| Existing Node owners can observe admission before effects and across independent writers | The same backend command restricted to `agent-launch-cross-server-accept` and `launch-attempt-(admission-close|worker)` ran six Node cases, all passing on the first attempt in 18.01 s wall. Closing during the real file replacement kept the exact request without calling the run function. Distinct stories were admitted and concurrent requests for one story produced one winner across processes. |
+| Restart, handoff, verification and reconciliation reach their real consumers | The launch E2E command below passed all eight Chromium cases on the first attempt, in 101.80 s wall and 92.146 s summed. It recovered the original claim after the owner process exited, followed one session across servers, verified the session in the kept workspace, and reconciled after the completed report and published Take were read. |
+| The updater waits through settlement on its actual preview | The watcher E2E command below passed all ten Chromium deployment cases on the first attempt, in 89.41 s wall and 66.362 s summed. The held-update case observed 503 at closed admission while the old preview still served, then saw the accepted attempt settled in the first drain receipt before replacement. |
+
+## Ordered slices
+
+### 1. Refuse an invalid launch before dispatch
+
+Type: Behavior
+Status: planned
+Estimate: 8–12 active minutes.
+
+Proof: Malformed or disallowed inputs reach the production request admission
+and return their actual 400, 403, 404, or method-refusal answer without a
+Start or Continue call. Cover origin and Host, unknown project, malformed
+JSON, wrong workflow, identity, title, instruction, and change query.
+Supply an admitted origin, configured source lookup and tracked launch
+operations for the applicable checks. Verify real successful dispatch in
+the retained Start journeys. Convert `agent-launch-refusal.spec.ts`.
+
+### 2. Keep the exact request before starting work
+
+Type: Behavior
+Status: planned
+Estimate: 12–15 active minutes.
+
+Proof: Call the launch owner with a typed request, a private machine store
+and a held `AttemptRun`. Read kept request and publication before releasing
+work. Try a competing workflow for the same story while it is held and
+confirm only one effect. A store failure refuses without effect, and a
+later publication-receipt write failure preserves the known stop. Check
+that removal of the caller's wait does not stop settlement. Retain the
+independent-writer case for the cross-process lock and the installed
+baseline's first-input and Git publication signals through the retained
+E2E. Convert `agent-launch-acceptance.spec.ts`.
+
+### 3. Keep settlement observable while writing
+
+Type: Behavior
+Status: planned
+Estimate: 12–15 active minutes.
+
+Proof: Hold the actual write at reporting then at outcome replacement in a
+private store. The typed change reader shows a kept running attempt and the
+settled outcome after the owner releases the lock. Read again after a
+stale in-flight answer, including the gap when the replacement is readable
+but the writer still owns the lock. Use a real second Node process where
+the first process's lock supplies the condition. Keep the acquisition and
+release within test lifetime. Convert `agent-launch-acceptance-kept-first.spec.ts`
+and remove the temporary HTTP/Vite host in
+`accepted-attempt-settlement.spec.ts`. The two cleanup cases fault the
+retired Playwright fixture itself. Remove them together with its local
+server and held-push teardown after tracing the retained follower helper
+and its callers.
+
+### 4. Protect an open story and continue only its own launch
+
+Type: Behavior
+Status: planned
+Estimate: 12–15 active minutes.
+
+Proof: Pass the configured source, typed requests and real kept records
+through pre-acceptance and Continue. An unrelated open session or
+unreadable record refuses the effect, and another story can still start.
+An own confirmed record settles the same attempt with no second effect.
+With a competing writer holding and releasing the real lock, check that
+Continue sees the newer running or settled state and re-reads an own
+record that appeared after pre-acceptance. Assert that the refused paths
+preserve store bytes. Retire the three open-session and own-record cases
+only after observing all three results at the typed boundary.
+
+### 5. Resume an interrupted attempt once with the kept input
+
+Type: Behavior
+Status: planned
+Estimate: 12–15 active minutes.
+
+Proof: Arrange a kept interrupted attempt via its typed request and
+worker and record inputs. Start refuses and Continue reuses the same
+attempt, workspace and effort. Observe the kept first input when retry
+is warranted and refuse another dispatch once that input is confirmed.
+During a slow but live launch, keep Continue refused until the worker
+settles and read its eventual outcome.
+Use the [restart E2E](../../../e2e/launches/responsive-session-recovery-restart.spec.ts)
+for real server replacement and [recovery verification](../../../e2e/launches/responsive-session-recovery-verification.spec.ts)
+for recovery of uncertain first input. Run those journeys before removing
+the legacy process checks. Compare the actual receiving assertions with the legacy variants before
+removal. Carry a missing second-input, workspace or retained-effort
+observation into the smallest matching journey.
+Keep this slice scoped to the generic attempt owner and preserve the
+host-specific input rules via their coverage owners.
+
+### 6. Protect the transition to the native worker
+
+Type: Behavior
+Status: planned
+Estimate: 10–15 active minutes.
+
+Proof: Pass persisted server, child and native worker facts through the
+typed launch owner and production worker-state checks. Protect both sides
+of the handoff from a competing Start or Continue. The
+[second-server E2E](../../../e2e/launches/agent-launch-second-server.spec.ts)
+observes the live script through native confirmation. The
+[orphan E2E](../../../e2e/launches/agent-launch-second-server-orphan.spec.ts)
+kills the owner, sees its child still running, and resumes the same
+published claim after exit. Preserve those process signals while removing
+the duplicate backend server journey.
+
+### 7. Read changes and reconcile a settled attempt
+
+Type: Behavior
+Status: planned
+Estimate: 10–15 active minutes.
+
+Proof: With a held change count and typed attempt owner, observe a newer
+owned change immediately and an unchanged non-owner answer at its configured
+bound. An outcome or a later completed session report can justify
+reconciliation only when that evidence is current for the read. Verify the
+reconciled marker in the real attempt file and refusals for active and
+unresolved evidence. Keep the
+[completed-reconciliation E2E](../../../e2e/launches/responsive-session-reconciliation-completed.spec.ts)
+for the published Take read. Convert the change and reconciliation specs.
+
+### 8. Wait for durable settlement before replacing the Dashboard
+
+Type: Behavior
+Status: planned
+Estimate: 10–15 active minutes.
+
+Proof: Submit typed Start and Continue with an outstanding acceptance and
+run `drain` through the production composition of `LaunchAdmission` and
+`LaunchAttemptOwner`. Both new calls receive the 503 refusal. Hold the
+publication and native confirmation handoffs in turn, and verify that drain
+resolves only after the final outcome is readable. Run the existing
+[production updater E2E](../../../e2e/runtime/production-watcher-updates.spec.ts)
+through the existing held-update journey. The watcher requests drain while
+a session-store lock holds native startup, proves the current preview stays
+up and refuses new starts, and observes the same accepted attempt settled
+before replacement. Preserve that journey while removing
+`dashboard-update-drain.spec.ts`.
+
+## Proof ownership and local gate
+
+Files in the following map are relative to `dashboard/backend-tests/launches/`.
+
+| Slice | Legacy selection | Observable proof |
+| --- | --- | --- |
+| 1 | `agent-launch-refusal.spec.ts` | Typed refusal and zero dispatch |
+| 2 | `agent-launch-acceptance.spec.ts` | Kept exact request, no duplicate effect, refusal and receipt stops, and detached completion |
+| 3 | `agent-launch-acceptance-kept-first.spec.ts`, `agent-launch-acceptance-kept-first-cleanup.spec.ts`, `accepted-attempt-settlement.spec.ts` | Running while reporting or settlement is held, release before the follower's settled answer, and retirement of the old test-local teardown contract |
+| 4 | `agent-launch-open-session.spec.ts`, `agent-launch-open-session-continue.spec.ts`, `agent-launch-own-record-continuation-race.spec.ts` | Same-story block, own-record settlement, last evidence under lock, unreadable evidence preserved |
+| 5 | `agent-launch-continuation-interrupted.spec.ts`, `agent-launch-uncertain-continuation.spec.ts` | Same attempt, workspace, effort and input, observed once at native receipt |
+| 6 | `agent-launch-worker-handoff.spec.ts` | Durable handoff protects both sides and second process follows the same claim |
+| 7 | `agent-launch-change-wait.spec.ts`, `settled-attempt-reconciliation.spec.ts` | Change counts and bound, outcome or report freshness, reconciliation proof |
+| 8 | `dashboard-update-drain.spec.ts` | 503 refusals and pending drain up to durable native confirmation |
+
+For the first and final comparisons, use fresh absolute proof paths from
+the repo root and one worker. Repeat the baseline at the execution base if
+affected paths or the measurement conditions changed. Select the 14 mapped basenames plus the three
+existing Node controls. If a replacement moves to a new filename, add its
+exact selector to the candidate run and record the matching proof owner.
+Use the E2E selection below for retained process proof and include the
+production updater journey in slice 8. Its cases share a serial deployment,
+so run the whole spec. Confirm baseline discrimination
+for any legacy assertion retired as redundant. Use the same workload and
+machine conditions for a relative cost claim.
+
+```sh
+selection='launches/(accepted-attempt-settlement|agent-launch-(acceptance(-kept-first(-cleanup)?)?|change-wait|continuation-interrupted|cross-server-accept|open-session(-continue)?|own-record-continuation-race|refusal|uncertain-continuation|worker-handoff)|dashboard-update-drain|launch-attempt-(admission-close|worker)|settled-attempt-reconciliation)\.spec\.ts$'
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/launches/(agent-launch-second-server(-orphan)?|responsive-session-(recovery-(restart|verification)|reconciliation-completed))\.spec\.ts$' --workers=1
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$drain_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/runtime/production-watcher-updates\.spec\.ts$' --workers=1
+```
+
+Run affected consumers from the [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
+and `npm run typecheck:dashboard` for changed typed contracts. Record
+engine and case counts, per-case time against roughly 100 ms, summed case
+time, elapsed selection time, and the separate cost of proof retained or
+moved to E2E. Account for every scoped legacy case before accepting zero
+Playwright selections for this boundary.
+
+Use awake macOS on AC under `caffeinate -s -i` for long local checks per
+[AGENTS.md](../../../AGENTS.md). Apply the shared
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+to every failure and repair handoff. Keep default test timeouts.
+
+## Plan review
+
+Slice-plan refinement kept eight slices by retiring the test-local cleanup
+contract alongside its fixture and using the existing production watcher
+journey for the actual drain call. The slices build from admission and
+settlement to retained recovery and safe replacement. Prospective estimates
+assume the installed entry points keep their current typed boundaries.
+No unresolved slice-specific concern remained after this review.

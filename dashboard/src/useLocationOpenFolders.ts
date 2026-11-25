@@ -19,7 +19,7 @@ import {
 // A new set of folders for a location to open, asked for each time its round
 // changes.
 export type LocationExpansion = {
-  readonly round: number;
+  readonly round: number | string;
   readonly folders: readonly string[];
 };
 
@@ -64,7 +64,7 @@ export function useLocationOpenFolders<T extends PathBearing>({
     () => reveal?.request,
   );
   const [expandedRound, setExpandedRound] = useKeptArrangement<
-    number | undefined
+    LocationExpansion["round"] | undefined
   >(kept("expandedRound"), () => undefined);
   // The folders open in this render, after a new expansion, a moved
   // selection, and a new reveal request have all been applied.

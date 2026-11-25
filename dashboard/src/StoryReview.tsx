@@ -18,8 +18,10 @@ import {
 import {
   StoryReviewDetailsSection,
   reviewHoldsDetails,
+  useReviewDetailsPlace,
 } from "./StoryReviewDetailsSection.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
+import { useReviewFiles } from "./ReviewFilesDrawer.tsx";
 import { StoryReviewHeading } from "./StoryReviewHeading.tsx";
 import "./frame-controls.css";
 import "./side-panel.css";
@@ -47,19 +49,8 @@ export function StoryReview({
   const body = useRef<HTMLDivElement>(null);
   // How many times Refresh asked for a new snapshot.
   const [round, setRound] = useState(0);
-  const [browserShown, setBrowserShown] = useState(true);
-  const browser = { id: `${id}-files`, shown: browserShown };
-  const [detailsShown, setDetailsShown] = useState(false);
-  const eye = useRef<HTMLButtonElement>(null);
-  const details = {
-    id: `${id}-details`,
-    shown: detailsShown,
-    eye,
-    onShow: (show: boolean, focusEye = false) => {
-      setDetailsShown(show);
-      if (focusEye) eye.current?.focus();
-    },
-  };
+  const files = useReviewFiles(`${id}-files`, body);
+  const details = useReviewDetailsPlace(`${id}-details`);
   const { review, problem, reading, runKey, onRun } = useStoryReviewSelection({
     subject,
     round,
@@ -105,8 +96,8 @@ export function StoryReview({
       </p>
       <ReviewToolbar
         name={toolbarComparisonName(review)}
-        browser={reviewListsFiles(review) ? browser : undefined}
-        onShowBrowser={setBrowserShown}
+        browser={reviewListsFiles(review) ? files : undefined}
+        onShowBrowser={files.onShow}
         details={holdsDetails ? details : undefined}
       />
       <div className="story-review-above">
@@ -125,12 +116,14 @@ export function StoryReview({
           />
         </div>
       </div>
+      {files.backdrop}
       <div ref={body} className="story-review-body" tabIndex={-1}>
         <ReviewBody
           review={review}
           subject={subject}
           headingId={headingId}
-          browser={browser}
+          browser={files}
+          onFileChosen={files.onFileChosen}
         />
       </div>
     </section>

@@ -132,8 +132,13 @@
   font-size: var(--text-sm);
 }
 
-/* Narrow, the views and the files toggle share one row: smaller tabs, and
-   the toggle's icon alone, its words kept as its name. */
+/* A story's views span its header, between the title and comparison bar. */
+.intent-header > .intent-page-tabbar {
+  margin: var(--space-2) calc(-1 * clamp(0.75rem, 4vw, 1.5rem)) var(--space-2);
+}
+
+/* Narrow, the views keep one row with smaller tabs; Project Intent's files
+   toggle shares it with its icon alone, its words kept as its name. */
 @media (max-width: 36rem) {
   .intent-page-tabbar {
     flex-wrap: nowrap;
@@ -199,21 +204,13 @@
   overflow-wrap: anywhere;
 }
 
-/* "Selected story only" heading the Changes tree. */
-.intent-story-scope {
+/* The Changes tree's message when no location's test file changed. */
+.intent-story-none {
   flex: none;
+  margin: 0;
   padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--line);
   line-height: 1.5;
-}
-
-.intent-story-scope p {
-  margin: var(--space-1) 0 0;
-}
-
-.intent-story-only {
-  display: block;
-  cursor: pointer;
 }
 
 .intent-story-diff > .story-review-diff-heading {

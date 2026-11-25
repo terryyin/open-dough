@@ -2,6 +2,7 @@
 // this adapter owns pinned reads, provider failures and recovery.
 import { agentSettingsPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { DeclaredLocation } from "../../Distribution/src/skills/dough-makeme/scripts/intent-location-settings.mjs";
+import { sourceEntriesOf } from "../src/intentLocationSelection.ts";
 import { isNotFound, rateLimitStop } from "./ghFailure.ts";
 import type { PinnedReader } from "./reachablePaths.ts";
 import {
@@ -20,6 +21,19 @@ export type IntentLocation = DeclaredLocation & {
   readonly files: readonly string[];
   readonly problem?: IntentLocationProblem;
 };
+
+// A location's answer carries its declaration as settings gave it: a kind
+// with any include patterns, or its source entries with no kind.
+export function intentLocationAnswer(
+  location: DeclaredLocation,
+  files: string[],
+): IntentLocation & { readonly files: string[] } {
+  if (sourceEntriesOf(location) === undefined)
+    return { ...location, files: [], problem: "unsupported-kind" };
+  if (files.length === 0)
+    return { ...location, files, problem: "no-matching-files" };
+  return { ...location, files };
+}
 
 // Settings text for Intent: absent (missing file), readable text, or
 // unreadable (any failure other than not-found). Rate limits still fail the

@@ -7,38 +7,43 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
-import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import type { PageReads } from "../../src/pageReads.tsx";
 import { ReadProblem } from "../../src/readProblem.ts";
 import { ciReadsOf, heldReply } from "./intent-ci-evidence-page.tsx";
 import { shownComparison } from "./intent-ci-comparison-page.ts";
 import { mountDoneStory } from "./intent-done-story-page.tsx";
 
-const readingLocations = "Reading the story's historical Intent locations…";
+const readingLocations = "Reading repository files…";
 const landed = ["Baseline compared with Landed"];
-const locations: IntentLocations = {
-  status: "configured",
-  locations: [
-    makeMe.anIntentLocation
-      .at("dashboard/tests")
-      .ofKind("typescript")
-      .selecting("dashboard/tests/a.spec.ts")
-      .please(),
-  ],
-};
+const locations: NonNullable<
+  Extract<IntentLocations, { status: "configured" }>["locations"]
+> = [
+  makeMe.anIntentLocation
+    .at("dashboard/tests")
+    .ofKind("typescript")
+    .selecting("dashboard/tests/a.spec.ts")
+    .please(),
+];
 
 // Each locations revision read, every read held until the case answers it.
 function heldLocations() {
   const revisions: string[] = [];
   const replies: ReturnType<typeof heldReply<IntentLocations>>[] = [];
-  const reads: IntentReadSource = {
-    readLocations: (...[, revision]) => {
-      revisions.push(revision);
-      const reply = heldReply<IntentLocations>();
-      replies.push(reply);
-      return reply.promise;
-    },
-    readFile: () => Promise.resolve(""),
-    readCandidates: () => Promise.resolve({ status: "absent" }),
+  const reads: PageReads["storyResult"] = async ({ completion }) => {
+    if (completion === undefined)
+      throw new Error("Expected a published completion");
+    revisions.push(completion);
+    const reply = heldReply<IntentLocations>();
+    replies.push(reply);
+    const answer = await reply.promise;
+    const locations =
+      answer.status === "configured" ? [...answer.locations] : null;
+    return {
+      kind: "inventory",
+      revision: completion,
+      paths: locations?.flatMap(({ files }) => files) ?? [],
+      locations,
+    };
   };
   return { reads, revisions, replies };
 }
@@ -64,18 +69,21 @@ test("a selected story's CI comparison shows under its one header while the Inte
   expect(done.headers.elements()).toHaveLength(1);
   expect(walls).not.toEqual([]);
 
-  await done.tab("Changes").click();
-  await expect.element(done.changes).toHaveTextContent(readingLocations);
+  await expect
+    .element(done.files.getByText(readingLocations, { exact: true }))
+    .toBeVisible();
   expect(ci.asked.comparisons).toHaveLength(1);
-  held.replies[0]?.resolve(locations);
-  await expect.element(done.changes).not.toHaveTextContent(readingLocations);
+  held.replies[0]?.resolve({ status: "configured", locations });
+  await expect
+    .element(done.files.getByText(readingLocations, { exact: true }))
+    .not.toBeInTheDocument();
   await done.tab("CI comparison").click();
   await expect.poll(() => comparison.activeComparison()).toEqual(landed);
   expect(comparison.wallTimes()).toEqual(walls);
   expect(ci.asked.comparisons).toHaveLength(1);
 });
 
-test("a failed Intent locations read leaves the story's CI comparison shown while Changes explains the failure, and Retry reads the completion revision", async () => {
+test("a failed Intent locations read leaves the story's CI comparison shown alongside an explanation of the failure, and Retry reads the completion revision", async () => {
   const completion = "2".repeat(40);
   const { done, held, comparison, walls } =
     await doneStoryWithHeldLocations(completion);
@@ -83,11 +91,10 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
     new ReadProblem("locations read failed", undefined, "transient"),
   );
 
-  await done.tab("Changes").click();
   await expect
     .poll(() => done.failure.element().textContent)
     .toBe(
-      "Intent locations for Example at the story's landed revision 2222222 could not be read: locations read failed Retry",
+      "Repository inventory could not be read: locations read failed Retry",
     );
   await expect.element(done.retry).toBeVisible();
 
@@ -95,10 +102,11 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
   await expect.poll(() => comparison.activeComparison()).toEqual(landed);
   expect(comparison.wallTimes()).toEqual(walls);
 
-  await done.tab("Changes").click();
   await done.retry.click();
   await expect.poll(() => held.revisions).toEqual([completion, completion]);
-  held.replies[1]?.resolve(locations);
+  held.replies[1]?.resolve({ status: "configured", locations });
   await expect.element(done.failure).not.toBeInTheDocument();
-  await expect.element(done.changes).not.toHaveTextContent(readingLocations);
+  await expect
+    .element(done.files.getByText(readingLocations, { exact: true }))
+    .not.toBeInTheDocument();
 });
