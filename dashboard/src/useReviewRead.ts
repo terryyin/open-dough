@@ -13,6 +13,7 @@
 import { useEffect, useState } from "react";
 import { keptAnswer, memoizedAnswer } from "./answerMemo.ts";
 import { useReviewReads } from "./pageReads.tsx";
+import type { ReviewInitialSyncProgress } from "./reviewInitialSync.ts";
 import {
   type ReviewQuery,
   type ReviewRead,
@@ -27,6 +28,7 @@ export type ReviewReadState<Answer> = {
   readonly answer?: Answer;
   readonly problem?: string;
   readonly reading: boolean;
+  readonly initialSync?: ReviewInitialSyncProgress;
 };
 
 export function useReviewRead<Read extends keyof ReviewSource>(
@@ -36,10 +38,12 @@ export function useReviewRead<Read extends keyof ReviewSource>(
     round = 0,
     enabled = true,
     fixed,
+    readKey,
   }: {
     readonly round?: number;
     readonly enabled?: boolean;
     readonly fixed?: (answer: AnswerOf<Read>) => boolean;
+    readonly readKey?: string | undefined;
   } = {},
 ): ReviewReadState<AnswerOf<Read>> {
   type Answer = AnswerOf<Read>;
@@ -48,23 +52,33 @@ export function useReviewRead<Read extends keyof ReviewSource>(
     answer?: Answer;
     problem?: string;
     of?: string;
+    initialSync?: ReviewInitialSyncProgress;
   }>({});
   const search = new URLSearchParams(query).toString();
-  const of = `${search}#${String(round)}`;
+  const of = `${search}#${String(round)}#${readKey ?? ""}`;
   const key = `${endpoint}?${search}`;
   useEffect(() => {
     if (!enabled) return;
     const controller = new AbortController();
     const asked = Object.fromEntries(new URLSearchParams(search));
     const ask = (signal: AbortSignal) =>
-      (source[endpoint] as ReviewRead<Answer>)(asked, signal);
+      (source[endpoint] as ReviewRead<Answer>)(asked, signal, (initialSync) => {
+        if (!signal.aborted) setRead({ of, initialSync });
+      });
     void (
       fixed === undefined
         ? ask(controller.signal)
         : memoizedAnswer(key, ask, controller.signal, fixed)
     ).then(
       (answer) => {
-        if (!controller.signal.aborted) setRead({ answer, of });
+        if (!controller.signal.aborted)
+          setRead((current) => ({
+            answer,
+            of,
+            ...(current.of === of && current.initialSync?.kind === "failed"
+              ? { initialSync: current.initialSync }
+              : {}),
+          }));
       },
       (error: unknown) => {
         if (!controller.signal.aborted)
@@ -86,6 +100,10 @@ export function useReviewRead<Read extends keyof ReviewSource>(
   return {
     ...(read.answer === undefined ? {} : { answer: read.answer }),
     ...(read.problem === undefined ? {} : { problem: read.problem }),
-    reading: enabled && read.of !== of,
+    ...(enabled && read.of === of && read.initialSync !== undefined
+      ? { initialSync: read.initialSync }
+      : {}),
+    reading:
+      enabled && (read.of !== of || read.initialSync?.kind === "running"),
   };
 }

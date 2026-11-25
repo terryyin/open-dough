@@ -18,6 +18,7 @@ export function useStoryReviewSelection({
   historical: historicalComparison = false,
   keyedBy,
   followsDefault = false,
+  followInitialSync = false,
 }: {
   readonly subject: ReviewedWorkSubject;
   readonly round: number;
@@ -31,6 +32,7 @@ export function useStoryReviewSelection({
   readonly keyedBy?: string | undefined;
   // Until a run is chosen, each newer default answer's run is followed.
   readonly followsDefault?: boolean;
+  readonly followInitialSync?: boolean;
 }) {
   const defaultRead = useReviewRead(
     "review",
@@ -39,8 +41,9 @@ export function useStoryReviewSelection({
       completed,
       taken,
       historical: historicalComparison,
+      ...(followInitialSync ? { initialSync: true } : {}),
     }),
-    { round, enabled },
+    { round, enabled, readKey: followInitialSync ? keyedBy : undefined },
   );
   const {
     value: selection,
@@ -91,7 +94,11 @@ export function useStoryReviewSelection({
     selection.run !== undefined && answered !== selection.run;
   const runRead = useReviewRead(
     "review",
-    storyReviewQuery({ subject, run: selection.run ?? "" }),
+    storyReviewQuery({
+      subject,
+      run: selection.run ?? "",
+      ...(followInitialSync ? { initialSync: true } : {}),
+    }),
     {
       round,
       enabled: enabled && readsSelectedRun,
@@ -118,6 +125,9 @@ export function useStoryReviewSelection({
     runKey: selection.run,
     published: answer?.kind === "published" ? answer : undefined,
     reading: defaultRead.reading || runRead.reading,
+    initialSync: readsSelectedRun
+      ? runRead.initialSync
+      : defaultRead.initialSync,
     problem: !readsSelectedRun
       ? defaultRead.problem
       : runRead.reading

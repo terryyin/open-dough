@@ -7,6 +7,7 @@ import type {
   StoryReviewRead,
 } from "../src/storyReviewRead.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
+import { commitIdSchema } from "../src/launchLanding.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
   queriedPublishedSessionSubject,
@@ -47,6 +48,7 @@ function identityReviewRead(
   const completed = url.searchParams.get("completed");
   const taken = url.searchParams.get("taken");
   const historical = url.searchParams.get("historical");
+  const initialSync = url.searchParams.get("initialSync");
   requireExactQuery(
     url,
     [
@@ -57,6 +59,7 @@ function identityReviewRead(
       ...(completed === null ? [] : ["completed"]),
       ...(taken === null ? [] : ["taken"]),
       ...(historical === null ? [] : ["historical"]),
+      ...(initialSync === null ? [] : ["initialSync"]),
     ],
     "review",
   );
@@ -78,6 +81,15 @@ function identityReviewRead(
   const subject = queriedStorySubject(url);
   if (reference !== null && run !== null)
     throw new RefusedRequest(400, "The review names two run identities.");
+  if (
+    initialSync !== null &&
+    initialSync !== "true" &&
+    !commitIdSchema.safeParse(initialSync).success
+  )
+    throw new RefusedRequest(
+      400,
+      "The initial sync continuation is malformed.",
+    );
   return {
     subject,
     ...(reference === null ? {} : { reference }),
@@ -85,6 +97,11 @@ function identityReviewRead(
     ...(completed === null ? {} : { completed: true }),
     ...(taken === null ? {} : { taken: true }),
     ...(historical === null ? {} : { historical: true }),
+    ...(initialSync === null
+      ? {}
+      : {
+          initialSync: initialSync === "true" ? (true as const) : initialSync,
+        }),
   };
 }
 

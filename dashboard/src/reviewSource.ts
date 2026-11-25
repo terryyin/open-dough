@@ -6,6 +6,12 @@
 
 import type { z } from "zod";
 import {
+  reviewInitialSyncEndpoint,
+  reviewInitialSyncStatusSchema,
+  type ReviewInitialSyncProgress,
+} from "./reviewInitialSync.ts";
+import { readDeparture } from "./sharedRead.ts";
+import {
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
   storyReviewEndpoint,
@@ -22,6 +28,7 @@ export type ReviewQuery = Readonly<Record<string, string>>;
 export type ReviewRead<Answer> = (
   query: ReviewQuery,
   signal: AbortSignal,
+  onInitialSync?: (status: ReviewInitialSyncProgress) => void,
 ) => Promise<Answer>;
 
 export type ReviewSource = {
@@ -33,11 +40,12 @@ export type ReviewSource = {
 function endpointRead<Answer>(
   endpoint: string,
   schema: z.ZodType<Answer>,
+  method: "GET" | "POST" = "GET",
 ): ReviewRead<Answer> {
   return async (query, signal) => {
     const response = await fetch(
       `${endpoint}?${new URLSearchParams(query).toString()}`,
-      { signal, cache: "no-store" },
+      { method, signal, cache: "no-store" },
     );
     const answer: unknown = await response.json();
     if (!response.ok) {
@@ -50,8 +58,60 @@ function endpointRead<Answer>(
   };
 }
 
+const readReview = endpointRead(storyReviewEndpoint, storyReviewSchema);
+const startSync = endpointRead(
+  reviewInitialSyncEndpoint,
+  reviewInitialSyncStatusSchema,
+  "POST",
+);
+const readSync = endpointRead(
+  reviewInitialSyncEndpoint,
+  reviewInitialSyncStatusSchema,
+);
+
+async function waitForSyncPoll(signal: AbortSignal): Promise<void> {
+  if (signal.aborted) throw readDeparture(signal);
+  await new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", cancel);
+      resolve();
+    }, 250);
+    function cancel() {
+      clearTimeout(timer);
+      reject(readDeparture(signal));
+    }
+    signal.addEventListener("abort", cancel, { once: true });
+  });
+}
+
+async function reviewWithInitialSync(
+  query: ReviewQuery,
+  signal: AbortSignal,
+  report?: (status: ReviewInitialSyncProgress) => void,
+) {
+  let review = await readReview(query, signal);
+  const source = query["source"];
+  while (review.kind === "initial-sync-required" && source !== undefined) {
+    let status = await startSync({ source }, signal);
+    if (status.kind === "running") report?.(status);
+    while (status.kind === "running") {
+      await waitForSyncPoll(signal);
+      status = await readSync({ source }, signal);
+    }
+    if (status.kind === "failed") report?.(status);
+    if (status.kind === "idle")
+      throw new Error("The initial sync is no longer running.");
+    if (status.kind !== "ready") return review;
+    review = await readReview(
+      { ...query, initialSync: status.revision },
+      signal,
+    );
+  }
+  return review;
+}
+
 export const pageReviewSource: ReviewSource = {
-  review: endpointRead(storyReviewEndpoint, storyReviewSchema),
+  review: reviewWithInitialSync,
   fileDiff: endpointRead(storyReviewFileEndpoint, reviewedFileDiffSchema),
   fileText: endpointRead(storyReviewFileTextEndpoint, reviewedFileTextSchema),
 };

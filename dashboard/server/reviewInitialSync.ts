@@ -5,6 +5,7 @@ import type { ReviewInitialSyncStatus } from "../src/reviewInitialSync.ts";
 import { gitProblem } from "./gitRunner.ts";
 import {
   fetchInitialReviewTarget,
+  locallyReadableReviewTarget,
   reviewRepositoryPath,
 } from "./reviewRepositoryStorage.ts";
 
@@ -20,17 +21,37 @@ export class ReviewInitialSync {
 
   constructor(private readonly inactivityMs = 50_000) {}
 
+  // Only an observation for this exact configured source can be reused.
+  async forReview(
+    source: PublishedSource,
+    request: AbortSignal,
+    resume: true | string,
+  ) {
+    const read = { source, operation: "status" } as const;
+    const before = this.answer(read, request);
+    if (before.kind === "running" || before.kind === "failed") return "pending";
+    const current = await locallyReadableReviewTarget(source, request);
+    const status = this.answer(read, request);
+    if (status.kind === "running" || status.kind === "failed") return "pending";
+    if (current === undefined) {
+      if (status.kind === "ready" && status === before)
+        this.statuses.delete(keyOf(source));
+      return "pending";
+    }
+    return status.kind === "ready" &&
+      current === status.revision &&
+      current === resume
+      ? "verified"
+      : "warm";
+  }
+
   answer(
     { source, operation }: ReviewInitialSyncRequest,
     request: AbortSignal,
   ): ReviewInitialSyncStatus {
     request.throwIfAborted();
     this.shutdown.signal.throwIfAborted();
-    const key = JSON.stringify([
-      source.id,
-      reviewRepositoryPath(source),
-      source.ref,
-    ]);
+    const key = keyOf(source);
     const status = this.statuses.get(key);
     if (operation === "status") return status ?? { kind: "idle" };
     if (
@@ -64,3 +85,6 @@ export class ReviewInitialSync {
     this.statuses.clear();
   }
 }
+
+const keyOf = (source: PublishedSource) =>
+  JSON.stringify([source.id, reviewRepositoryPath(source), source.ref]);

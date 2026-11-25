@@ -14,7 +14,7 @@ type InFlight = {
 
 const inFlight = new Map<string, InFlight>();
 
-function departed(signal: AbortSignal): Error {
+export function readDeparture(signal: AbortSignal): Error {
   const reason: unknown = signal.reason;
   return reason instanceof Error
     ? reason
@@ -28,7 +28,7 @@ export function joinRead<T>(
   ask: (signal: AbortSignal) => Promise<T>,
   signal: AbortSignal,
 ): Promise<T> {
-  if (signal.aborted) return Promise.reject(departed(signal));
+  if (signal.aborted) return Promise.reject(readDeparture(signal));
   let shared = inFlight.get(key);
   if (shared === undefined) {
     const controller = new AbortController();
@@ -56,7 +56,7 @@ export function joinRead<T>(
     function depart() {
       if (!waiting) return;
       stopWaiting();
-      reject(departed(signal));
+      reject(readDeparture(signal));
       // A reader leaving and another arriving in the same turn (a remount)
       // keeps the read; it ends only when nobody waits after this turn.
       queueMicrotask(() => {

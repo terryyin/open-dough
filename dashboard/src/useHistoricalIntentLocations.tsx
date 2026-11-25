@@ -29,6 +29,8 @@ export function useHistoricalIntentLocations(
     false,
   );
   if (revision === undefined || intent === "loading") {
+    const initialSync =
+      comparison.state === "reading" ? comparison.initialSync : undefined;
     return {
       notice: undefined,
       ...(comparison.state === "reading" || revision !== undefined
@@ -38,7 +40,8 @@ export function useHistoricalIntentLocations(
       locations: undefined,
       unconfigured: false,
       explanation:
-        comparison.state === "reading" || revision !== undefined ? (
+        initialSync !== undefined ? undefined : comparison.state ===
+            "reading" || revision !== undefined ? (
           <p className="quiet">
             Reading the story&apos;s historical Intent locations…
           </p>

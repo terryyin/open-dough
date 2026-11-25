@@ -129,10 +129,16 @@ export function installAgentLaunchMiddleware(
       next();
       return;
     }
-    void answer(req, url, res, launches, doneMarks, sessions, landedCi).then(
-      (outcome) => respondToLaunch(req, res, outcome),
-      next,
-    );
+    void answer(
+      req,
+      url,
+      res,
+      launches,
+      doneMarks,
+      sessions,
+      landedCi,
+      reviewInitialSync,
+    ).then((outcome) => respondToLaunch(req, res, outcome), next);
   });
   return {
     // The runner outlives this server. `ready` settles before Vite listens,

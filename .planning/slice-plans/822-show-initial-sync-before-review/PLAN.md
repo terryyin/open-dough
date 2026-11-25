@@ -115,7 +115,7 @@ the child is active. Rerun the warm offline and deadline baselines.
 ### 3. Open the requested review when its initial sync completes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A cold story review answers promptly with the need for initial
 sync. Review changes presents **Running initial sync** while following the
@@ -183,6 +183,15 @@ retry after Git closes, and shutdown with an active transport. Forty focused
 backend cases and Dashboard typecheck passed. `s2-implementation.md` in the
 Git evidence directory holds commands and trace.
 
+### Slice 3 evidence
+
+The story branch accepted slice 2 at `8e639371a9790c200e19622a0c4ff91afe56ad1b`.
+`story-review-initial-sync.spec.ts` verifies the typed pending answer, retained
+failure, and exact continuation. The two-tab Chromium case verifies the original
+comparison, first changed file, and pinned historical source after one initial
+fetch. Focused backend and frontend checks, eight Chromium journeys, and
+Dashboard typecheck passed. See `s3-implementation.md` in the Git evidence directory.
+
 ## Story obligations
 
 ### G1. Replace the interim request-era cutoff and prove retry
@@ -195,7 +204,7 @@ Disposition: proved by slice 2: `review-initial-sync-progress.spec.ts` advancing
 
 Reported: slice 1 — "The new endpoint currently has no browser consumer."
 Story clause: "When the server confirms readable published history, the pane automatically resumes the same review request, including its story and comparison selection."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: typed exact-target continuation and two-tab Chromium observations in `story-review-initial-sync.spec.ts`
 
 ### G3. Provide the retry action in Review changes
 

@@ -1,7 +1,10 @@
 // Bounded reviews share the Review repository's exact fetch and can read
 // the last successful sync when origin stops answering.
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type { ReviewSyncFailure } from "../src/storyReviewContract.ts";
+import {
+  failedSyncExplanation,
+  type ReviewSyncFailure,
+} from "../src/storyReviewContract.ts";
 import { gitProblem } from "./gitRunner.ts";
 import {
   lastSync,
@@ -9,12 +12,12 @@ import {
   syncedReviewRepository,
 } from "./reviewRepositoryStorage.ts";
 
-export { lastSync, reviewRepositoryPath, syncedReviewRepository };
-
-// Why a review is unavailable when its sync failed and nothing synced earlier
-// can answer it.
-export const failedSyncExplanation = ({ problem }: ReviewSyncFailure) =>
-  `The review could not sync from origin, and nothing synced earlier holds this comparison: ${problem}`;
+export {
+  failedSyncExplanation,
+  lastSync,
+  reviewRepositoryPath,
+  syncedReviewRepository,
+};
 
 // A sync that failed with no earlier sync to read from.
 export class ReviewSyncFailed extends Error {
@@ -46,11 +49,26 @@ export const sessionSyncBounds: ReviewSyncBounds = {
 export class ReviewSyncDeadline {
   private readonly startedAt = Date.now();
   private started?: Promise<{ signal: AbortSignal; seconds: number }>;
+  private verifiedTrunk?: PublishedSource;
 
   constructor(private readonly bounds: ReviewSyncBounds = reviewSyncBounds) {}
 
   static forSession() {
     return new ReviewSyncDeadline(sessionSyncBounds);
+  }
+
+  reuseVerifiedTrunk(source: PublishedSource) {
+    this.verifiedTrunk = source;
+  }
+
+  covers(source: PublishedSource, ref: string) {
+    const verified = this.verifiedTrunk;
+    return (
+      verified?.id === source.id &&
+      verified.repository === source.repository &&
+      verified.ref === source.ref &&
+      ref === source.ref
+    );
   }
 
   of(source: PublishedSource) {
@@ -76,6 +94,7 @@ export async function reviewSyncFailure(
   syncDeadline: ReviewSyncDeadline,
   ref: string = source.ref,
 ): Promise<ReviewSyncFailure | undefined> {
+  if (syncDeadline.covers(source, ref)) return undefined;
   const deadline = await syncDeadline.of(source);
   try {
     await syncedReviewRepository(

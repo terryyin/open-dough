@@ -21,6 +21,7 @@ import { intentDiffReading, storyTitle } from "./support/intentStoryPage.ts";
 import { reviewAfter } from "./support/launchLandingReview.ts";
 import { reviewRefresh } from "./support/reviewControls.ts";
 import { IntentReviewFiles } from "./intentReviewFiles.ts";
+import { fileSource, sourceRevision } from "./intentCodeBrowsePage.ts";
 
 class IntentReviewChanges {
   readonly #intent: Locator;
@@ -80,6 +81,14 @@ class IntentReviewChanges {
     return this;
   }
 
+  async expectHistoricalSource(file: string, revision: string, text: string) {
+    await expect(fileSource(this.#intent, file)).toContainText(text);
+    await expect(sourceRevision(this.#intent, file)).toContainText(
+      `at revision ${revision.slice(0, 7)}`,
+    );
+    return this;
+  }
+
   async refresh(using: "mouse" | "keyboard" = "mouse") {
     await (using === "keyboard"
       ? this.#refresh.press("Enter")
@@ -127,7 +136,12 @@ class IntentReviewChanges {
 
   // Preserve the real snapshot response for assertions about Git's inputs.
   async refreshAndAnswer(using: "mouse" | "keyboard" = "mouse") {
-    const answer = await reviewAfter(this.page, this.#refresh, using);
+    const answer = await reviewAfter(
+      this.page,
+      this.#refresh,
+      using,
+      "settled",
+    );
     return new IntentReviewChanges(this.page, answer);
   }
 }
@@ -143,6 +157,12 @@ export async function openIntentReviewChanges(page: Page, card: Locator) {
   const action = reviewChanges(card);
   // The card can display the action before its startup enables the fieldset.
   await expectReviewChangesOffered(card);
-  const answer = await reviewAfter(page, action, "keyboard");
+  const answer = await reviewAfter(page, action, "keyboard", "settled");
+  return new IntentReviewChanges(page, answer);
+}
+
+export async function beginIntentReviewChanges(page: Page, card: Locator) {
+  await expectReviewChangesOffered(card);
+  const answer = await reviewAfter(page, reviewChanges(card), "keyboard");
   return new IntentReviewChanges(page, answer);
 }

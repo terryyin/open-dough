@@ -1,5 +1,6 @@
 import { renameSync } from "node:fs";
 import {
+  beginIntentReviewChanges,
   expectReviewChangesOffered,
   openIntentReviewChanges,
   type IntentReviewChanges,
@@ -88,7 +89,7 @@ test("a Taken review never synced on this machine is unavailable offline and nam
   await expectReviewChangesOffered(card);
   renameSync(origin.origin, `${origin.origin}-away`);
 
-  const review = await openIntentReviewChanges(page, card);
+  const review = await beginIntentReviewChanges(page, card);
 
   await review.expectText(
     "The review could not sync from origin, and nothing synced earlier holds this comparison: ",

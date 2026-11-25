@@ -86,6 +86,32 @@ async function createIfMissing(
 // wildcard, so nothing prunes refs another exact fetch brought in.
 const trackingRef = (ref: string) => `refs/remotes/origin/${ref}`;
 
+async function verifiedRef(
+  repository: string,
+  ref: string,
+  signal: AbortSignal,
+) {
+  const result = await runGitUntilClosed(
+    ["rev-parse", "--verify", `${trackingRef(ref)}^{commit}`],
+    { cwd: repository, signal, env: fetchEnvironment, maxBuffer },
+  );
+  return commitIdSchema.parse(result.stdout.trim());
+}
+
+export async function locallyReadableReviewTarget(
+  source: PublishedSource,
+  signal: AbortSignal,
+) {
+  const repository = reviewRepositoryPath(source);
+  if (!existsSync(path.join(repository, "HEAD"))) return undefined;
+  try {
+    return await verifiedRef(repository, source.ref, signal);
+  } catch {
+    signal.throwIfAborted();
+    return undefined;
+  }
+}
+
 async function fetchPublishedRef(
   repository: string,
   source: PublishedSource,
@@ -106,11 +132,7 @@ async function fetchPublishedRef(
     ];
     if (progress === undefined) await runGitUntilClosed(args, call);
     else await runGitWithProgressUntilClosed(args, call, progress);
-    const result = await runGitUntilClosed(
-      ["rev-parse", "--verify", `${trackingRef(ref)}^{commit}`],
-      call,
-    );
-    const revision = commitIdSchema.parse(result.stdout.trim());
+    const revision = await verifiedRef(repository, ref, signal);
     await record(repository, { lastSyncedAt: new Date().toISOString() });
     return revision;
   } catch (error) {

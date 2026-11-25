@@ -13,3 +13,8 @@ export const reviewInitialSyncStatusSchema = z.discriminatedUnion("kind", [
 export type ReviewInitialSyncStatus = z.infer<
   typeof reviewInitialSyncStatusSchema
 >;
+
+export type ReviewInitialSyncProgress = Extract<
+  ReviewInitialSyncStatus,
+  { kind: "running" | "failed" }
+>;
