@@ -6,6 +6,7 @@
 // ../../dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts.
 // Its dialog is covered by ../../dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts.
 
+import path from "node:path";
 import type { Page } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
@@ -137,8 +138,17 @@ installedTest.describe("installed catalog", () => {
         const [started] = dashboard.claudeLaunches();
         expect(started).not.toHaveProperty("instruction");
         const record = await expectBorrowedLaunch(dashboard);
-        for (const absent of ["instruction", "reporting"])
-          expect(record?.request).not.toHaveProperty(absent);
+        expect(record?.request).not.toHaveProperty("instruction");
+        const reporting = record?.request.reporting;
+        if (reporting === undefined) throw new Error("Missing reporting.");
+        expect(reporting.landingContext).toBe(
+          path.join(
+            dashboard.home,
+            ".open-dough/dashboard/reporting",
+            reporting.reference,
+            "landing-context.json",
+          ),
+        );
         expect(started?.name).toMatch(
           /^Open Dough · Ad hoc · Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/,
         );

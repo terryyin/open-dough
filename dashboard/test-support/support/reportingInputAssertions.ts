@@ -59,9 +59,18 @@ export function expectReportingBlock(
     request.workflow === "ad-hoc" &&
     unattachedPolicyOf(request).workspace === "default-checkout"
   ) {
-    expect(lines).toHaveLength(8);
     expect(lines[6]).toContain("run this command from that checkout on entry");
     expect(branchEntryCommand(lines[7])).toContain(quote(context.reference));
+    if (
+      request.followUp === undefined &&
+      request.storyIdentity !== undefined &&
+      context.landingContext !== undefined
+    ) {
+      expect(lines).toHaveLength(9);
+      expect(lines[8]).toBe(
+        "The admitted Taken claim is in admitted-claim.json beside landing-context.json. Follow Story Wrap Up's Dashboard admission instructions to complete it there and pass this landing context to finish as --admitted-launch-context.",
+      );
+    } else expect(lines).toHaveLength(8);
   } else expect(lines).toHaveLength(6);
   if (context.landingContext !== undefined) {
     expect(context.landingContext).toBe(

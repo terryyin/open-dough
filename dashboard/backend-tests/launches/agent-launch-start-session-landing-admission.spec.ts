@@ -2,16 +2,13 @@
 // origin (../../test-support/support/startOrigin.ts), the installed start and publication
 // scripts, and the synthetic hosts: a Wait for review session that
 // established a session carries the landing context, for a landing the
-// developer asks for later; a launch with the default choices establishes no
-// session, is handed no landing context, and has no landing admitted,
-// whatever a request names; a context naming the wrong story is refused;
-// and a Codex session's installed delivery
-// command, as a one-shot landing runs it, captures its landing. The handoff
+// developer asks for later. A launch borrowing the default checkout keeps
+// the context and separate claim for its own landing. A context naming the
+// wrong story is refused. A Codex session's installed delivery command
+// captures its landing when a one-shot landing runs it. The handoff
 // and the capture themselves are in
 // ../../../e2e/launches/agent-launch-start-session-landing-context.spec.ts.
 
-import { existsSync } from "node:fs";
-import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { storyOf } from "../../src/launchWorkflow.ts";
@@ -19,10 +16,14 @@ import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { commit } from "../../test-support/support/launchLanding.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
+import {
+  expectAdHocReportingInput,
+  expectReportingBlock,
+} from "../../test-support/support/reportingInputAssertions.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   adHocRequest as request,
+  expectBorrowedLandingArtifacts,
   keptRecord,
   launched,
   postLanding as post,
@@ -35,6 +36,7 @@ import {
   repositoryOf,
 } from "../../test-support/support/startSessionLandingContext.ts";
 import { sessionBlock } from "../../test-support/support/startSessionLanding.ts";
+import { launchStoryIdentity } from "../../test-support/support/unattachedLaunchAssertions.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
@@ -46,38 +48,24 @@ const childPublication = test.extend({
 childPublication(
   "an isolated Wait for review session carries its story's landing context",
   async ({ dashboard, origin }) => {
-    // The default choices establish no session: the reporting context names
-    // no landing context and no capture authority is kept.
-    const plain = await launched(dashboard, { instruction: "Say hello" });
-    const plainReporting = plain.record.request.reporting;
-    if (plainReporting === undefined) throw new Error("Missing reporting.");
+    const instruction = "Say hello";
+    const plain = await launched(dashboard, { instruction });
     expect(plain.record).not.toHaveProperty("establishedSession");
-    expect(plainReporting).not.toHaveProperty("landingContext");
-    expect(plain.sent).not.toContain("--landing-context");
-    expectReportingBlock(
-      plain.sent.split("\n\n")[1],
+    expectAdHocReportingInput(
+      plain.sent,
+      instruction,
       plain.record.request,
       dashboard,
     );
-    expect(
-      keptAttempts(dashboard).find(
-        (entry) => entry.id === plainReporting.reference,
-      ),
-    ).not.toHaveProperty("landingRepository");
-    // No prepared landing context means no first-landing expectation either.
-    const plainReportingDir = path.join(
-      dashboard.home,
-      ".open-dough/dashboard/reporting",
-      plainReporting.reference,
+    const plainReference = expectBorrowedLandingArtifacts(
+      dashboard,
+      plain.record,
+      {
+        workspace: origin.project,
+        identity: launchStoryIdentity(plain.record),
+        publishedSha: await originMain(origin),
+      },
     );
-    expect(
-      existsSync(path.join(plainReportingDir, "landing-context.json")),
-    ).toBe(false);
-    expect(
-      existsSync(
-        path.join(plainReportingDir, "first-landing-expectation.json"),
-      ),
-    ).toBe(false);
 
     const waiting = await launched(dashboard, {
       instruction: "Tidy the README wording",
@@ -115,9 +103,17 @@ childPublication(
       expect((await post(dashboard, refused)).status).toBeGreaterThanOrEqual(
         400,
       );
-    // The launch that established no session, whatever it names.
+    // The borrowed checkout's launch accepts only its own story identity.
+    expect((await post(dashboard, landingFor(plainReference))).status).toBe(
+      409,
+    );
     expect(
-      (await post(dashboard, landingFor(plainReporting.reference))).status,
+      (
+        await post(dashboard, {
+          ...waitingLanding,
+          reference: plainReference,
+        })
+      ).status,
     ).toBe(409);
     for (const kept of keptAttempts(dashboard))
       expect(kept).not.toHaveProperty("landingPreparations");
@@ -137,7 +133,7 @@ childPublication(
       (await keptRecord(dashboard, reporting.reference))?.landing,
     ).toMatchObject({ base, revision, reference: reporting.reference });
     expect(
-      (await keptRecord(dashboard, plainReporting.reference))?.landing,
+      (await keptRecord(dashboard, plainReference))?.landing,
     ).toBeUndefined();
   },
 );

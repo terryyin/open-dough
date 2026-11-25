@@ -1,4 +1,5 @@
 // Native connection ownership survives caller detachment and handles racing endings.
+import path from "node:path";
 import { agentAcceptEndpoint } from "../../src/agentLaunch.ts";
 import {
   test,
@@ -11,12 +12,12 @@ import {
   attempts,
   launch,
   machineSessions,
-  openDoughFolder,
   deleteRecord,
 } from "../../test-support/agentLaunchBoundary.ts";
 import { git } from "../../test-support/support/startOriginObservation.ts";
 import { launchStoryIdentity } from "../../test-support/support/unattachedLaunchAssertions.ts";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { expectedBorrowedLandingAuthority } from "../../test-support/support/startSessionLandingCapture.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.
@@ -87,6 +88,8 @@ shutdownTest(
       attempt?: { id: string; acceptedAt: string };
     };
     expect(answered).toMatchObject({ kind: "accepted", attempt: { request } });
+    const { attempt } = answered;
+    if (attempt === undefined) throw new Error("Missing accepted attempt.");
     // The caller has its answer; the owner goes on to submit the input.
     await expect
       .poll(
@@ -104,28 +107,32 @@ shutdownTest(
     const reporting = record?.request.reporting;
     expect(reporting).toMatchObject({
       origin: dashboard.origin,
-      reference: answered.attempt?.id,
+      reference: attempt.id,
       command: expect.any(String),
     });
-    const origin = await git(
-      openDoughFolder(dashboard),
-      "remote",
-      "get-url",
-      "origin",
-    );
+    const workspace = path.join(dashboard.home, "git", "open-dough");
+    const origin = await git(workspace, "remote", "get-url", "origin");
     const publication = {
       kind: "published",
       identity: launchStoryIdentity(record),
       revision: await git(origin, "rev-parse", "main"),
     };
+    const landingRepository = expectedBorrowedLandingAuthority({
+      home: dashboard.home,
+      workspace,
+      reference: attempt.id,
+      identity: publication.identity,
+      publishedSha: publication.revision,
+    });
     expect(await attempts(dashboard)).toEqual([
       {
-        id: answered.attempt?.id,
+        id: attempt.id,
         request,
-        acceptedAt: answered.attempt?.acceptedAt,
+        acceptedAt: attempt.acceptedAt,
         reportingOrigin: dashboard.origin,
         reporting,
         publication,
+        landingRepository,
         owned: true,
         running: true,
         changes: expect.any(Number) as unknown,
@@ -156,12 +163,13 @@ shutdownTest(
       // No server owns it now and nothing settled it: it needs reconciliation.
       expect(await attempts(restarted)).toEqual([
         {
-          id: answered.attempt?.id,
+          id: attempt.id,
           request,
-          acceptedAt: answered.attempt?.acceptedAt,
+          acceptedAt: attempt.acceptedAt,
           reportingOrigin: dashboard.origin,
           reporting,
           publication,
+          landingRepository,
           owned: false,
           running: false,
           worker: {
