@@ -22,6 +22,7 @@ import { test as base, expect } from "./support/pageTest.ts";
 import type { FixtureServerMode } from "./support/pageTest.ts";
 import { preholdRevisionStreamSlots } from "./support/revisionStreamSlots.ts";
 import type { FakeCodex } from "./support/fakeCodex.ts";
+import type { StartOriginLayout } from "./support/startOriginPreparation.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -94,11 +95,9 @@ export const test = base.extend<{
   // stalled read; the server's own bound when unset. A journey that waits
   // the bound out sets a short one with `test.use`.
   readTimeoutMs: number | undefined;
-  // Folders under this page's dashboard HOME's `git/`, as catalog projects'
-  // folders for its synthetic `claude`; none when unset. A journey that
-  // launches an agent, or marks done or reopens a kept session, names them
-  // with `test.use`, and may shorten the server's launch wait the same way.
+  // Catalog project folders under this page's dashboard HOME's `git/`.
   projectFolders: readonly string[] | undefined;
+  installedCatalog: StartOriginLayout | undefined;
   machine: string | undefined;
   codexProtocol: FakeCodex | undefined;
   launchTimeoutMs: number | undefined;
@@ -129,6 +128,7 @@ export const test = base.extend<{
 }>({
   readTimeoutMs: [undefined, { option: true }],
   projectFolders: [undefined, { option: true }],
+  installedCatalog: [undefined, { option: true }],
   machine: [undefined, { option: true }],
   codexProtocol: [undefined, { option: true }],
   launchTimeoutMs: [undefined, { option: true }],
@@ -165,6 +165,7 @@ export const test = base.extend<{
       github,
       readTimeoutMs,
       projectFolders,
+      installedCatalog,
       launchTimeoutMs,
       startTimeoutMs,
       machine,
@@ -187,6 +188,7 @@ export const test = base.extend<{
       github,
       readTimeoutMs,
       projectFolders,
+      installedCatalog,
       launchTimeoutMs,
       machine,
       codexProtocol,

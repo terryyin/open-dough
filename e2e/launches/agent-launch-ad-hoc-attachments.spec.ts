@@ -31,8 +31,9 @@ import {
   terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { claudeLaunch } from "../../dashboard/test-support/support/claudeLaunch.ts";
+import { adHocDeveloperInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+test.use({ projectFolders: ["open-dough"], installedCatalog: "claude" });
 
 const openJourney = (page: Page, launchJourney: LaunchJourney) =>
   openTakenBacklog(page, launchJourney);
@@ -78,7 +79,7 @@ test("attaching two images, removing Image 1, then Start sends the remaining cop
 
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   const [call] = dashboard.claudeLaunchCalls();
-  const prompt = call?.argv.at(-1) ?? "";
+  const prompt = adHocDeveloperInput(call?.argv.at(-1) ?? "");
   const expectedPrefix = `${text}\n\nAttached images:\n1. `;
   expect(prompt.startsWith(expectedPrefix)).toBe(true);
   const attachedPath = prompt.slice(expectedPrefix.length);
@@ -128,7 +129,7 @@ test("Start session with no text and one image sends the list alone, labels by t
 
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   const [call] = dashboard.claudeLaunchCalls();
-  const prompt = call?.argv.at(-1) ?? "";
+  const prompt = adHocDeveloperInput(call?.argv.at(-1) ?? "");
   const expectedPrefix = "Attached images:\n1. ";
   expect(prompt.startsWith(expectedPrefix)).toBe(true);
   const [attachedPath, ...rest] = prompt
@@ -184,7 +185,7 @@ test("pasting an image into the instruction field attaches it as pasted.png and 
 
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   const [call] = dashboard.claudeLaunchCalls();
-  const prompt = call?.argv.at(-1) ?? "";
+  const prompt = adHocDeveloperInput(call?.argv.at(-1) ?? "");
   const expectedPrefix = `${text}\n\nAttached images:\n1. `;
   expect(prompt.startsWith(expectedPrefix)).toBe(true);
   const attachedPath = prompt.slice(expectedPrefix.length);

@@ -9,6 +9,7 @@ import path from "node:path";
 import { installFakeClaude, type FakeClaudeControls } from "./fakeClaude.ts";
 import { dashboardServerEnvironment } from "./dashboardServerEnvironment.ts";
 import { routeUnroutedGitHubAway } from "./fixtureOriginRoute.ts";
+import { prepareCatalogProjects } from "./catalogProjectOrigin.ts";
 import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { readPid } from "./processGroup.ts";
 import {
@@ -48,15 +49,7 @@ export type {
   DashboardCursorRunner,
   DashboardServerOptions,
 } from "./dashboardServerOptions.ts";
-
-// The boundary server in the development project environment, for a
-// boundary spec whose fact belongs to that environment, not to Vite's dev
-// server. A page journey starts a dev server only for a fact of the
-// development environment; every other one runs under the built preview.
-export const developmentBoundary = {
-  mode: "boundary",
-  environment: "development",
-} as const;
+export { developmentBoundary } from "./dashboardServerOptions.ts";
 
 export type DashboardServer = {
   readonly baseURL: string;
@@ -177,6 +170,14 @@ async function start(
         )
       : undefined;
   const closeOwned = dashboardFixtureLifetime({ ...resources, standIn });
+  await prepareCatalogProjects(
+    resources.home,
+    options.projectFolders,
+    options.installedCatalog,
+  ).catch(async (error: unknown) => {
+    await closeOwned();
+    throw error;
+  });
 
   const launchLive = async () => {
     const { spawn, outDir } = await serverLaunch(

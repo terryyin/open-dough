@@ -29,7 +29,7 @@ import {
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+test.use({ projectFolders: ["open-dough"], installedCatalog: "claude" });
 
 test("a launched ad hoc start leaves the overview and its page presents the session from the history", async ({
   page,

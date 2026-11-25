@@ -22,9 +22,10 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
-test.use({ projectFolders: ["open-dough"] });
+test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
 
 for (const blank of [true, false]) {
   test(`lost ${blank ? "materialization" : "input"} acknowledgment/restart retains original ${blank ? "blank intent" : "predecessor uncertain input"} without resubmission`, async ({
@@ -68,6 +69,12 @@ for (const blank of [true, false]) {
     if (!blank) {
       // A genuine predecessor-shaped record is read through the actual store.
       expect(saved.firstInput).not.toHaveProperty("intent");
+      expectAdHocReportingInput(
+        saved.firstInput?.instruction ?? "",
+        "Keep this exact question.",
+        saved.request,
+        dashboard,
+      );
       keepLaunchStore(dashboard, { "open-dough": [saved] });
     }
     await reloadUntilRead(page);
@@ -109,7 +116,7 @@ for (const blank of [true, false]) {
           : {
               state: "confirmed",
               turnId: "native-turn-id",
-              instruction: "Keep this exact question.",
+              instruction: saved.firstInput?.instruction,
             },
       );
       expect(

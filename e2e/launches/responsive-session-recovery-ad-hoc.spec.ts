@@ -29,7 +29,7 @@ import {
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
-test.use({ projectFolders: ["open-dough"] });
+test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
 
 test("an unconfirmed blank ad hoc session is recovered under Startup recovery with no card, and continuing it submits no input", async ({
   page,

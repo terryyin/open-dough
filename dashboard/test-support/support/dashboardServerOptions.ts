@@ -4,8 +4,15 @@ import type { FakeCodex } from "./fakeCodex.ts";
 import type { FakeGhTransport } from "./fakeGh.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import type { DashboardServerMode } from "./serverAddress.ts";
+import type { StartOriginLayout } from "./startOriginPreparation.ts";
 
 export type DashboardCursorRunner = "real" | "stand-in";
+
+// The boundary server in the development project environment.
+export const developmentBoundary = {
+  mode: "boundary",
+  environment: "development",
+} as const;
 
 export type DashboardServerOptions = FakeClaudeOptions & {
   // `boundary` starts the local boundaries alone, on a plain HTTP server,
@@ -16,6 +23,7 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   readonly mountBoundary?: boolean;
   // Ask for a live server by naming the proof that needs it.
   readonly liveServer?: string | undefined;
+  readonly installedCatalog?: StartOriginLayout | undefined;
   // Dev only: one the test restarts in place by SIGUSR2 (./serverAddress.ts).
   readonly restartable?: boolean;
   // Boundary only: the project environment the server keeps its project

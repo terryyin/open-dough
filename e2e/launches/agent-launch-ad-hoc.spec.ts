@@ -37,7 +37,10 @@ import {
 } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
-test.use({ projectFolders: ["open-dough", "pygardon"] });
+test.use({
+  projectFolders: ["open-dough", "pygardon"],
+  installedCatalog: "claude",
+});
 
 const openJourney = (page: Page, launchJourney: LaunchJourney) =>
   openTakenBacklog(page, launchJourney);

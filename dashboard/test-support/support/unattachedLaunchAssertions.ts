@@ -8,7 +8,10 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { EstablishedSession } from "../../src/unattachedSession.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { expectReportingBlock } from "./reportingInputAssertions.ts";
+import {
+  adHocDeveloperInput,
+  expectReportingBlock,
+} from "./reportingInputAssertions.ts";
 import {
   executionCheckoutSession,
   executionCheckoutStart,
@@ -22,7 +25,12 @@ export function expectNamedAdHocCall(
   project: string,
   instruction: string,
 ) {
-  expect(dashboard.claudeLaunches()).toMatchObject([
+  expect(
+    dashboard.claudeLaunches().map((launch) => ({
+      ...launch,
+      instruction: adHocDeveloperInput(launch.instruction ?? ""),
+    })),
+  ).toMatchObject([
     {
       name: `${project} · Ad hoc · ${instruction}`,
       instruction,

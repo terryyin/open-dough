@@ -21,7 +21,7 @@ import {
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+test.use({ projectFolders: ["open-dough"], installedCatalog: "claude" });
 
 const failures = [
   {

@@ -3,6 +3,18 @@
 **Identity:** SEED-433#run-dashboard-launch-tests-on-an-installed-project
 **Source:** [Run Dashboard launch tests on an installed project](../../seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#run-dashboard-launch-tests-on-an-installed-project)
 
+## Execution context
+
+- Rio-chan, publisher `dashboard-territory.local-open-dough`, executes in
+  the established linked checkout
+  `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-launch-tests-on-an-installed-proje`,
+  branch `codex/run-dashboard-launch-tests-on-an-installed-proje`.
+- Story Branch Mode publishes increments to that branch on `origin` and
+  integrates the completed story on `origin/main`.
+- Starting revision `6838003df3b88fb6f42e9dfe8bab6929e2838d07`.
+  Claim `6e146d8ba709e5b3ca285238089ef95a9d618756` was accepted on
+  `origin/main` and on the execution branch as its first published base.
+
 ## Goal and scope
 
 Dashboard maintainers get backend and E2E launch results from installed Open
@@ -51,8 +63,8 @@ that launch.
   with SEED-413.
 - Slices 1–7 select the installed fixture for the consumers they move.
   Slice 8 makes installation the default for every catalog project and
-  removes the temporary selection. Trunk Mode keeps each increment
-  verifiable independently.
+  removes the temporary selection. Each increment remains independently
+  verifiable in the established Story Branch Mode.
 
 ## Preparation evidence
 
@@ -92,7 +104,7 @@ slice's preserved behavior.
 ### 1. Launch ad hoc work on an installed catalog project
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Backend `agent-launch-ad-hoc-boundary` and E2E `agent-launch-ad-hoc*`,
 `agent-launch-ad-hoc-terminal` and `responsive-session-recovery-ad-hoc`.
 Observe independent native input, its launch-reference reporting context
@@ -108,6 +120,27 @@ available to this slice's consumers. Pair the existing shared-machine
 startup case with one origin and a usable post-initialization checkout.
 Use the catalog project route for the matching origin and confirm the
 launch's configuration through the regular HTTP boundary.
+
+Accepted proof at the initial claim revision with the slice change applied:
+
+- The strict backend runner passed 36 cases. In
+  `agent-launch-ad-hoc-boundary.spec.ts`, the installed catalog supplies a
+  checkout and the HTTP launch must deliver the developer text, reference and
+  branch-entry command to Claude and keep the label. In
+  `agent-launch-records-shared-machine.spec.ts` the two startup results
+  expose one ready Doughnut checkout and its configured bare origin. The
+  actual launch record is visible on production and after restart.
+- The strict E2E runner passed 44 cases for the ad hoc journey and consumers
+  of the shared native input observer. The page journeys retain Pygardon,
+  attachment, host, problem and recovery observations. The one-case
+  refactor check passed after selecting the Codex installation for
+  `responsive-session-recovery-ad-hoc.spec.ts`.
+- Dashboard typecheck passed. The focused post-clone failure probe verified
+  cleanup and successful retry plus preservation of a caller-owned origin.
+  The commands, selectors, observations and terminal records are retained
+  under the checkout Git path `open-dough/evidence`, in
+  `s1-implementation-report.md`, its linked run records and
+  `s1-refactor-codex-recovery.log.run.json`.
 
 ### 2. Launch queued stories with their native command and refusal
 
@@ -264,6 +297,13 @@ clock to expire reuse before requesting a new read.
 Strict proof records, logs, and the tested patch are in the common Git
 directory under `open-dough/evidence/SEED-433-review-verification`. This
 establishes the baseline for the installed-catalog comparison in slice 8.
+
+## Story obligations
+
+### G1. Make the installed catalog the default
+Reported: slice 1 — "The temporary installation selection is the planned interim until slice 8."
+Story clause: "Every catalog project the harness creates has an installed Open Dough checkout and a matching bare origin."
+Disposition: receiving slice 8
 
 ## Verification and delivery
 

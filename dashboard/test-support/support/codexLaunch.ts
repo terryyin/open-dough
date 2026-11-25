@@ -12,6 +12,8 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test as base } from "../dashboardTest.ts";
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
+import { expectAdHocReportingInput } from "./reportingInputAssertions.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 export { expect } from "../dashboardTest.ts";
 
@@ -45,6 +47,36 @@ export function expectOneThreadStarted(native: FakeCodex, cwd: string) {
   expect(native.calls.filter((call) => call.method === "thread/start")).toEqual(
     [{ method: "thread/start", params: { cwd } }],
   );
+}
+
+export function expectCodexAdHocInput(
+  native: FakeCodex,
+  developerText: string,
+  record: LaunchRecord | undefined,
+  server: Pick<DashboardServer, "home" | "origin">,
+) {
+  const turns = native.calls.filter((call) => call.method === "turn/start");
+  if (developerText.trim() === "") {
+    expect(turns).toEqual([]);
+    return undefined;
+  }
+  const instruction = record?.firstInput?.instruction ?? "";
+  expectAdHocReportingInput(
+    instruction,
+    developerText,
+    record?.request,
+    server,
+  );
+  expect(turns).toEqual([
+    {
+      method: "turn/start",
+      params: {
+        threadId: native.threadId,
+        input: [{ type: "text", text: instruction }],
+      },
+    },
+  ]);
+  return instruction;
 }
 
 export const stored = (home: string): LaunchRecord[] =>

@@ -13,7 +13,7 @@ import {
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
-test.use({ projectFolders: ["open-dough"] });
+test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
 
 test("other read failures and mismatched context keep blank recovery uncertain; only the known refusal establishes persistence", async ({
   dashboard,

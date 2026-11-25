@@ -9,6 +9,7 @@ import path from "node:path";
 import {
   test,
   expect,
+  expectCodexAdHocInput,
   expectOneThreadStarted,
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
@@ -44,7 +45,10 @@ import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
 
-test.use({ projectFolders: ["open-dough", "pygardon"] });
+test.use({
+  projectFolders: ["open-dough", "pygardon"],
+  installedCatalog: "codex",
+});
 
 for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
   test(`Codex Start session ${JSON.stringify(text)} retains identity through reload/restart, navigation and done/reopen`, async ({
@@ -107,10 +111,11 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       blank ? "Opened without an instruction" : "First input accepted",
     );
     if (blank) await expect(recent).not.toContainText("First input accepted");
+    const instruction = expectCodexAdHocInput(native, text, saved, dashboard);
     expect(saved.firstInput).toEqual(
       blank
         ? { state: "not-requested", intent: "blank" }
-        : { state: "confirmed", instruction: text, turnId: "native-turn-id" },
+        : { state: "confirmed", instruction, turnId: "native-turn-id" },
     );
     expect(saved).not.toHaveProperty("start");
     expect(saved).not.toHaveProperty("preparation");
@@ -119,19 +124,6 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     const checkout = path.join(dashboard.home, "git", "open-dough");
     expectOneThreadStarted(native, checkout);
     const inputs = native.calls.filter((call) => call.method === "turn/start");
-    expect(inputs).toEqual(
-      blank
-        ? []
-        : [
-            {
-              method: "turn/start",
-              params: {
-                threadId: native.threadId,
-                input: [{ type: "text", text }],
-              },
-            },
-          ],
-    );
     if (blank)
       expect(
         native.calls.filter(
