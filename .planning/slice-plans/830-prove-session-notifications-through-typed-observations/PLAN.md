@@ -91,7 +91,7 @@ host's reader.
 ### 3. Alert on a newly unread report
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 6–9 active minutes.
 
 Given an unread report and a native reading, a kept open record produces
@@ -215,12 +215,22 @@ baseline.
   (`slice2-vitest-continuity-2.log.run.json`). Engine list shows `[node]`
   only. Production unchanged.
 
+### Slice 3 accepted proof
+
+- Vitest `backend-tests/sessions/session-alerts-unread-report.spec.ts` —
+  one case: unread report alerts in its own words beside the native
+  reading; Done suppresses a further report alert
+  (`slice3-vitest-unread.log.run.json`). Engine `[node]` only. Production
+  unchanged.
+
 ### Delivery dispositions
 
 - Slice 2: skipped fresh refactor — subject-spec-only rewrite; product
   search found no required refactor-check candidate beyond a local
   observe harness duplicated from slice 1, which must not move into
   test-support and is retained for later snapshot cases.
+- Slice 3: skipped fresh refactor — subject-spec-only rewrite; same
+  local observe harness; no production change.
 
 ## Verification and delivery
 
