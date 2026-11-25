@@ -54,14 +54,13 @@ test("Intent highlights a selected Taken story's test changes over the published
   const header = story.header;
   const column = filesColumn(intent);
 
-  await test.step("the story's view sits under the banner, one persistent header, led by the way to Project Intent, heading its views", async () => {
+  await test.step("the selected story's persistent header sits above its views", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(intent.locator(":scope > *").first()).toHaveClass(
       "intent-page-frame",
     );
     await expect(intentModeViews(intent)).toHaveCount(0);
-    await expect(header.crumb).toHaveText("Project Intent / Selected story");
-    await expect(header.leadingControl).toHaveAccessibleName("Project Intent");
+    await expect(header.crumb).toHaveText("Selected story");
     await expect(
       intent.getByRole("region", { name: "Selected story" }),
     ).toHaveCount(1);

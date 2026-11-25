@@ -81,7 +81,6 @@ export async function mountDoneStory(
     summary,
     selection: { project: story.source.id, identity: story.identity },
     compared: undefined,
-    onProjectIntent() {},
   };
   await mountComponent(
     <PageReadsOnPage reads={pageReadsSupplying({ intent: reads, ci })}>

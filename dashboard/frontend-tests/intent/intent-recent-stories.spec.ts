@@ -1,6 +1,5 @@
 // Recent stories in Intent (../../src/recentStoriesControl.tsx), on the
-// banner of the production page: from Project Intent the button returns to
-// the selected story's view at its start, a remembered row selects another
+// banner of the production page: a remembered row selects another
 // story while Intent stays, and a remembered story no longer on the Board is
 // selected with no story reference notice added. Browser history persistence
 // across fresh dashboard frames: ../navigation/recent-stories-storage.spec.ts.
@@ -47,19 +46,6 @@ const intentReads = {
   ci: inertCiReads(),
 };
 const recent = intentRecentStories(openDoughSource);
-
-test("Recent stories return from Project Intent to the selected story's start", async () => {
-  const mounted = await mountIntentCiPage({
-    work: storiesTakenWork,
-    reads: intentReads,
-  });
-  await mounted.selectStory(failingStory.identity, failingStory.title);
-  await recent.openProjectIntent();
-
-  await recent.choose();
-  await recent.showsStoryFromStart(failingStory.identity);
-  await recent.lists([{ identity: failingStory.identity, checked: true }]);
-});
 
 test("choosing another remembered story in Intent shows its start while Intent stays", async () => {
   const mounted = await mountIntentCiPage({

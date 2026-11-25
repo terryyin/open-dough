@@ -49,7 +49,6 @@ export function storyHeaderReading(intent: Locator) {
   return {
     region,
     crumb: region.locator(".intent-story-crumb"),
-    leadingControl: region.locator(":scope > *").first().getByRole("button"),
     identity: region.locator(".record-identity"),
     revisions,
     publishedBaseline: revisions.getByText(/^Baseline /).locator("code"),

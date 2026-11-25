@@ -28,6 +28,7 @@ import {
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   chooseStoryTab,
+  expectStoryTab,
   storyHeaderReading,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 
@@ -70,12 +71,15 @@ test("all Done tabs ignore project freshness while Whole project notices the lat
     expect(locations).toEqual([completion, published]);
     await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
   });
+  await test.step("When I reselect the Done story from the bookmark", () =>
+    chooseRecentStory(page, {
+      project: "Open Dough",
+      identity: queuedIdentity,
+    }));
+  await test.step("Then its fresh review opens CI comparison", () =>
+    expectStoryTab(intent, "CI comparison"));
   const { revisions, endpoints } =
-    await test.step("When I reselect the Done story and read its Changes", async () => {
-      await chooseRecentStory(page, {
-        project: "Open Dough",
-        identity: queuedIdentity,
-      });
+    await test.step("When I read Changes in the fresh review", async () => {
       await chooseStoryTab(intent, "Changes");
       return readDoneEndpoints(intent);
     });

@@ -2,8 +2,9 @@
 // (`./pageIntentReading.tsx`), Project Intent's or the selected story's: a
 // configured location, a folder under one, or a file (with an optional case
 // target Purpose positions on). Kept with that scope's reading place, so it
-// outlasts leaving Intent, a visit to the other scope and a new revision, and
-// starts empty for each project. The location tree and Purpose read and set it
+// outlasts leaving Intent and a new revision, and starts empty for each
+// project. Choosing Whole project clears its path to show project CI.
+// The location tree and Purpose read and set it
 // through this owner; Project Intent's candidate-record view shares it when
 // opening a recorded file; directly activating Project Intent's CI status tab
 // clears it to return home (`./IntentPage.tsx`). A missing `scope` with a
@@ -53,9 +54,55 @@ export type IntentWorkspaceSelection = {
 
 const emptySelection: IntentSelection = { path: "" };
 
+const ProjectIntentSelection = createContext<
+  IntentWorkspaceSelection | undefined
+>(undefined);
+
+export function ProjectIntentSelectionProvider({
+  project,
+  children,
+}: {
+  readonly project: string;
+  readonly children: ReactNode;
+}) {
+  const [kept, keep] = useState({ project, selection: emptySelection });
+  if (kept.project !== project) keep({ project, selection: emptySelection });
+  return createElement(ProjectIntentSelection.Provider, {
+    value: {
+      selection: kept.project === project ? kept.selection : emptySelection,
+      setSelection: (selection) => {
+        keep({ project, selection });
+      },
+      clearSelection: () => {
+        if (kept.selection.path !== "")
+          keep({ project, selection: emptySelection });
+      },
+    },
+    children,
+  });
+}
+
+export function useClearProjectIntentSelection() {
+  return useContext(ProjectIntentSelection)?.clearSelection;
+}
+
 const IntentSelectionContext = createContext<
   IntentWorkspaceSelection | undefined
 >(undefined);
+
+export function ProjectIntentWorkspaceSelectionProvider({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
+  const project = useContext(ProjectIntentSelection);
+  if (project === undefined)
+    return createElement(IntentWorkspaceSelectionProvider, { children });
+  return createElement(IntentSelectionContext.Provider, {
+    value: project,
+    children,
+  });
+}
 
 export function IntentWorkspaceSelectionProvider({
   children,

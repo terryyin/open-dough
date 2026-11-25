@@ -7,7 +7,8 @@ import { useContext, useEffect, useId, useRef, useState } from "react";
 import { Bookmark } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
-import { useReturnToVisitedStory } from "./intentStoryTabs.tsx";
+import { useClearProjectIntentSelection } from "./intentWorkspaceSelection.ts";
+import { useChooseProjectCi } from "./pageIntentMode.tsx";
 import { storyShown } from "./pageEntries.ts";
 import { keepInView, startIsReadable } from "./pageMovement.ts";
 import { useVisibleProjects } from "./projectList.tsx";
@@ -41,10 +42,11 @@ export function RecentStories({
   readonly onSelectProject: (next: PublishedSource) => void;
 }) {
   const selected = useSelectedStory();
+  const clearProjectPath = useClearProjectIntentSelection();
+  const chooseProjectCi = useChooseProjectCi(project);
   const recent = useRecentStories();
   const selection = useContext(StorySelectionOnPage);
   const navigation = useContext(StoryNavigationOnPage);
-  const returnToVisitedStory = useReturnToVisitedStory();
   const projects = useVisibleProjects();
   const choicesId = useId();
   const root = useRef<HTMLDivElement>(null);
@@ -63,14 +65,6 @@ export function RecentStories({
       const destination = projects.find((shown) => shown.id === entry.project);
       if (destination === undefined && !sameProject) return false;
       if (destination !== undefined) onSelectProject(destination);
-    }
-    if (
-      sameProject &&
-      sameSelectedStory(selected, entry) &&
-      intentStoryHeading(entry) === undefined &&
-      !returnToVisitedStory()
-    ) {
-      return false;
     }
     requestAnimationFrame(() => {
       const heading = intentStoryHeading(entry);
@@ -93,7 +87,8 @@ export function RecentStories({
     if (perspective === "intent") {
       const heading = intentStoryHeading(entry);
       return (
-        (heading === undefined || !startIsReadable(heading)) &&
+        (entry.project !== project ||
+          (heading !== undefined && !startIsReadable(heading))) &&
         revealInIntent(entry)
       );
     }
@@ -180,6 +175,10 @@ export function RecentStories({
           projects={projects}
           chooseStory={choose}
           chooseProject={() => {
+            if (perspective === "intent") {
+              chooseProjectCi();
+              clearProjectPath?.();
+            }
             selection?.clear();
             dismiss();
           }}

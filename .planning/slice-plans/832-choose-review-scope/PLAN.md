@@ -8,7 +8,7 @@
 
 - Rio-chan, publisher `dashboard-territory.local-open-dough`, Story Branch Mode.
 - Execution checkout `/Users/terryyin/git/open-dough/.worktrees/choose-the-whole-project-or-a-recent-story-from`, branch `codex/choose-the-whole-project-or-a-recent-story-from`. Default checkout `/Users/terryyin/git/open-dough`. Integration target `origin/main`.
-- Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch. Slices 1 and 2 accepted on the execution branch at `58af62fa9ebbc518faff700f74e14082fd5ccd3d` and `21991f88217a7e44759def9cd97edc10ecda864f`.
+- Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch. Story-branch receipts for slices 1 through 3 are `58af62fa9ebbc518faff700f74e14082fd5ccd3d`, `21991f88217a7e44759def9cd97edc10ecda864f` and `1b9c91da35433b20e669b7a63919bb02b54c77a2`.
 - Execution branch observation uses GitHub Actions `ci.yml` with coordinator `rio-chan-32284348` and stream `/tmp/dough-ci-501/watch-8RaTPQ` (PID 77649). The trunk claim preceded that observer.
 - Checkout setup passed with Node 24.21.0, the locked npm install, the locked Chromium launch, and `npm run typecheck:dashboard`.
 
@@ -31,19 +31,8 @@ have separate stories.
 
 ## Current decisions
 
-- [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts)
-  gives PageFrame one Selected story and the browser one recent history of
-  project and identity pairs. Use the existing select and clear operations in
-  [pageStorySelection](../../../dashboard/src/pageStorySelection.tsx). Keep
-  history keys, ordering and browser storage. Intent derives its scope for the
-  current project from its selection. Use the UI's reading bounds and
-  existing movement owners for reveal.
-- Follow [Dashboard UX/UI North Star, Review in Intent](../../../docs/dashboard-ux-ui-north-star.md#review-in-intent)
-  for the single chooser and compact mobile label, and
-  [Board interaction, Touch browsing and selection](../../../docs/dashboard-board-interaction.md#touch-browsing-and-selection)
-  for the first-reveal gesture, 44 px coarse-pointer target, and Board
-  story-reference journey. Keep the existing icon semantics and perspective
-  radio behavior. Project evidence retains its own meaning and revision owner.
+- [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts) gives PageFrame one Selected story and the browser one recent history of project and identity pairs. Use the existing [pageStorySelection](../../../dashboard/src/pageStorySelection.tsx) operations and preserve history keys, order and storage. Intent derives current-project scope from the selection, with reveal owned by the UI's bounds and movement.
+- Follow [Dashboard UX/UI North Star, Review in Intent](../../../docs/dashboard-ux-ui-north-star.md#review-in-intent) for the single chooser and compact mobile label, and [Board interaction, Touch browsing and selection](../../../docs/dashboard-board-interaction.md#touch-browsing-and-selection) for the first-reveal gesture, 44 px coarse-pointer target, and Board story-reference journey. Preserve the icon semantics, perspective radios, and project evidence and revision ownership.
 - Reuse and extend [RecentStories](../../../dashboard/src/recentStoriesControl.tsx)
   and the existing project switch path. The Board uses the story-reference
   journey, including its unavailable state. Intent uses its own visible
@@ -178,7 +167,7 @@ The strict proof records eight selected cases and eight passes, one attempt each
 ### 4. Give the bookmark sole ownership of scope selection
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 11–15 active minutes.
 
 From a story diff, choose Whole project, then reselect the story. The
@@ -192,6 +181,16 @@ fixtures to the chooser and retain their separate purpose, revision,
 filter, missing-locations and sidebar observations at the transitions
 those cases promise. Run the nine mounted Intent specs and the e2e
 arrival/CI cases that observe the cutover.
+
+Accepted proof on `1b9c91da` plus working changes. The mounted `intent-home-activation-scope.spec.ts` drives the chooser from a real Changes file with a nondefault comparison. It checks both retired controls absent, opens trunk CI even after remembering a project file, and observes default CI comparison and a reset comparison choice after reselect. Board and same-selection transitions independently preserve the appropriate file and project mode. The mounted and end-to-end Done refresh journeys reproduce and now pass the earlier fresh-view check. Direct and delayed Review changes still arrive at Changes with the expected file and keyboard focus. The candidate, revision, Purpose, Proof, sidebar, layout and filtering observations also passed on their supported navigation paths.
+
+```sh
+caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/intent/intent-recent-stories.spec.ts dashboard/frontend-tests/intent/intent-home-activation-scope.spec.ts dashboard/frontend-tests/intent/intent-ci-status-homepage.spec.ts dashboard/frontend-tests/intent/intent-done-project-refresh.spec.ts dashboard/frontend-tests/intent/intent-project-visit-selection.spec.ts dashboard/frontend-tests/intent/intent-project-visit.spec.ts dashboard/frontend-tests/intent/intent-sidebar-toggle.spec.ts dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts dashboard/frontend-tests/intent/intent-story-changes-only.spec.ts dashboard/frontend-tests/intent/intent-ci-comparison-locations.spec.ts dashboard/frontend-tests/configuration/dashboard-system-appearance.spec.ts
+caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/intent/intent-ci-status-kept.spec.ts dashboard/frontend-tests/intent/intent-home-activation-keys.spec.ts dashboard/frontend-tests/intent/intent-home-activation.spec.ts dashboard/frontend-tests/intent/intent-story-views-narrow.spec.ts dashboard/frontend-tests/intent/intent-reading-place.spec.ts dashboard/frontend-tests/review/story-review-action-mount.spec.ts dashboard/frontend-tests/navigation/recent-stories-scope.spec.ts dashboard/frontend-tests/intent/intent-done-source-selection.spec.ts dashboard/frontend-tests/intent/intent-story-dark-appearance.spec.ts dashboard/frontend-tests/intent/intent-ci-status-side-panel.spec.ts
+caffeinate -s -i env OPEN_DOUGH_E2E_PROOF_RECORD="$(git rev-parse --git-path open-dough/evidence)/slice4-e2e.proof.json" npm run test:e2e -- --workers=2 e2e/intent/intent-project-visit-ci.spec.ts e2e/intent/intent-project-scope-timing-refresh.spec.ts e2e/intent/intent-done-project-refresh.spec.ts e2e/intent/intent-ci-follow-up-return.spec.ts e2e/review/story-card-review-arrival-race.spec.ts e2e/intent/intent-story-changes.spec.ts e2e/review/story-card-review-intent.spec.ts
+caffeinate -s -i npm run typecheck:dashboard
+```
+All 53 mounted cases, ten strict E2E cases with a single passing attempt each, and typecheck passed. `slice4-implementation.md` in worktree Git evidence retains the transition setup and results. The independent `useStoryTab` refactor rechecked 13 mounted cases and three strict E2E cases covering fresh arrival and the existing Review changes path, plus typecheck. See `slice4-refactor.md` and its run records.
 
 ### 5. Name the active Intent scope in the banner
 
@@ -231,14 +230,14 @@ and keyboard reading order intact.
 ### G1. Temporary Intent visit controls
 Reported: slice 1 — "The retained Project Intent and Back to selected story controls still support the temporary visit."
 Story clause: "The bookmark replaces Intent's **Project Intent** and **Back to selected story** navigation."
-Disposition: interim until slices 2, 3, 4
+Disposition: proved by slice 4: intent-home-activation-scope.spec.ts checks both controls absent before and after clear and after choosing the same recent story through the bookmark.
 
 ### G2. Whole project arrival with a remembered project file
 Reported: slice 2 — "In that prior-project-path state clearing the story selects the project scope and existing CI mode, but a kept file path can occupy the reading pane and suppress visible CI."
 Story clause: "In Intent this reaches the existing project CI view."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: intent-home-activation-scope.spec.ts observes project trunk CI after the chooser clears a story and a remembered project file, and intent-project-visit-selection.spec.ts covers prior Candidates mode.
 
 ### G3. A recent choice can reuse the previous story tab
 Reported: slice 3 — "Clearing Done scope then choosing its recent currently restores the old Changes tab (CI comparison aria-selected=false)."
 Story clause: "Choosing a story again after clearing starts a new review at its default view."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: mounted and end-to-end intent-done-project-refresh.spec.ts observe CI comparison selected after clearing and reselecting the Done story. The nondefault comparison test in intent-home-activation-scope.spec.ts also observes the comparison reset.
