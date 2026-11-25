@@ -35,13 +35,13 @@ intent introduced or affected by a newly developed story.
 - [Browse and select folders in one story review tree](seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree) — SEED-420#browse-one-selectable-review-tree ([plan](slice-plans/838-browse-one-selectable-review-tree/PLAN.md))
 - [Prove installed launch options through typed backend requests](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-session-reads-and-alerts) — SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts ([plan](slice-plans/839-prove-installed-launch-options-on-vitest/PLAN.md))
 - [Prove launch attachment admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-options) — SEED-413#finish-backend-vitest-renovation-after-launch-options ([plan](slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md))
+- [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries ([plan](slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md))
 
 ## Backlog list
 
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files
 - [Recognize Intent folders and read their proof](seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof) — SEED-420#recognize-intent-folders-and-read-proof
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision
-- [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries
 - [Open and refresh the published Board from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
