@@ -125,7 +125,7 @@ specs found no refactor candidate.
 ### 3. Explain why the target project refuses a selection
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 11–15 active minutes.
 Proof: Both selected backend files finish on Node Vitest. The typed request
 gives the specific refusal. The stale-selection E2E retains the real adapter
@@ -142,6 +142,17 @@ offer and default-start proof. Finish converting
 `agent-launch-options-boundary.spec.ts`, remove only the unused
 `installedClaudeLaunch.ts` exports and verify the two legacy paths choose
 Vitest. Preserve consumers of the remaining installed-launch fixture.
+
+The maintained backend gate passed all 16 cases strictly in Node Vitest.
+The typed boundary distinguishes the nine former mounted refusal cases.
+The browser suite passed all 10 journeys strictly, including the named
+stale-selection refusal before native start and recovery with a valid flag.
+The maintained backend command also passed 48/48 cases across the four
+remaining fixture clients and the separate Playwright rules specimen.
+The run records are `slice3-backend-final.log.run.json`,
+`slice3-e2e.log.run.json`, and `slice3-consumers.log.run.json`.
+Independent refactor review confirmed the focused proof still applies to the
+accepted diff and found no further edits.
 
 ## Proof ownership and local gate
 
@@ -192,10 +203,40 @@ strictly in 63.14 s wall. The accepted launch journey took 7.369 s. Records
 are `backend-baseline.json` and `e2e-baseline.json` in this worktree's Git
 evidence directory.
 
+The final backend gate took 1.57 s wall and 92.52 ms summed case time.
+Every case took 0.74–40.22 ms. The full browser selection took 55.41 s wall
+and 48.886 s summed case time. The accepted journey took 4.474 s with the
+additional focus choice, model selection and instruction. The browser count
+stayed at ten. The paired browser runs started at load 16.66 and 17.54, with
+53.50% and 55.80% CPU idle. Individual browser durations moved in both
+directions, so the wall delta gives no isolated estimate of interaction cost.
+
+| Former backend observation | Legacy ms | Node ms | Current observation |
+| --- | ---: | ---: | --- |
+| Native flag order, instruction and kept options | 3,362 | 9.31 | Typed definition order and accepted browser journey through reload |
+| Option and focus with chosen model | 2,187 | same case | The same typed case and native acceptance observe the focus, Opus and instruction |
+| Default native launch and kept record | 4,228 | 2.00 and 2.71 | Omitted and empty typed pass-through, with default browser Start and record |
+| Unknown option beside a known companion | 1,098 | 40.22 | Named typed refusal, with browser stale-selection refusal before native start |
+| Definition varies by requesting project | 2,924 | 4.79 | The same flag is accepted and refused against two actual installed definitions |
+| Malformed JSON | 1,058 | 4.76 | Typed invalid-file reason |
+| Another command's definition | 1,303 | 2.26 | Typed command mismatch reason |
+| Installed skill lacks a file | 1,383 | 1.77 | Typed missing-file reason with an installed directory |
+| Skill is absent | 1,664 | 0.74 | Typed missing-file reason with an empty project |
+| Definition cannot be read | 1,303 | 3.43 | Typed unreadable reason with a directory at the file path |
+| Execution has no options | 1,390 | 1.08 | Named typed workflow refusal |
+| Ad hoc has no options | 1,027 | 0.82 | Named typed workflow refusal |
+| Group member with a free flag | 3,704 | 5.86 | Typed order and existing browser group selection through Start |
+| Member alone and free flag alone | 6,292 | 7.65 | Both typed requests are accepted |
+| Same-group conflict | 1,391 | 3.06 | Typed refusal names the group and both flags |
+| Independent groups | 4,146 | 2.06 | Distinct group IDs coexist with a shared label and keep separate conflicts |
+
 Story Branch Mode uses `origin/codex/prove-installed-launch-options-through-typed-bac`,
 with `origin/main` as the trunk target and `7e3a27c5e8129f9d667718839b4cd7ead9be2f7a`
 as the published claim and first publication base. Slice 1 was accepted at
-`d9cf4c7761ce06d130e8b56ae1d533a72d75fbbc` on the story branch. The CI observer uses
+`d9cf4c7761ce06d130e8b56ae1d533a72d75fbbc` and slice 2 at
+`77a69f7c9a87580121530fe348461dc4419eebcb`. The CI workflow cancelled the
+first slice's earlier attempt when the second slice was pushed.
+The CI observer uses
 GitHub Actions `ci.yml`, coordinator `kirara-839`, mailbox
 `/tmp/dough-ci-501/watch-BbXkps`, PID `8873`, Codex stream session `48890`
 and cell `g394:17` in this worktree.
