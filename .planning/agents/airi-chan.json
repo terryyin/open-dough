@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Airi-chan",
+  "email": "airi-chan@example.org",
+  "identity": "SEED-423#reconcile-the-backlog-through-one-git-adapter",
+  "mode": "story-branch",
+  "branch": "codex/reconcile-backlog-merges-and-rebases-through-one",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
