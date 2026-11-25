@@ -34,11 +34,11 @@ intent introduced or affected by a newly developed story.
 - [Pass session observation limits as typed values](seeds/SEED-413-renovate-dashboard-unit-tests.md#pass-session-observation-limits-as-typed-values) — SEED-413#pass-session-observation-limits-as-typed-values ([plan](slice-plans/834-pass-session-observation-limits-as-typed-values/PLAN.md))
 - [Recover a fixed observation at its published pin](seeds/SEED-430-read-published-project-data-from-local-git.md#recover-fixed-observation-at-its-published-pin) — SEED-430#recover-fixed-observation-at-its-published-pin ([plan](slice-plans/831-recover-fixed-observation-at-its-published-pin/PLAN.md))
 - [Choose the whole project or a recent story from the bookmark](seeds/SEED-420-unified-intent-review.md#choose-review-scope) — SEED-420#choose-review-scope ([plan](slice-plans/832-choose-review-scope/PLAN.md))
+- [Read and change the story comparison from one control bar](seeds/SEED-420-unified-intent-review.md#compact-story-comparison-controls) — SEED-420#compact-story-comparison-controls ([plan](slice-plans/833-compact-story-comparison-controls/PLAN.md))
 
 ## Backlog list
 
 - [Load execution guidance for the current phase](seeds/SEED-345-session-token-efficiency.md#load-execution-guidance-for-the-current-phase) — SEED-345#load-execution-guidance-for-the-current-phase
-- [Read and change the story comparison from one control bar](seeds/SEED-420-unified-intent-review.md#compact-story-comparison-controls) — SEED-420#compact-story-comparison-controls
 - [Put comparison follow-up beside story notes](seeds/SEED-420-unified-intent-review.md#put-comparison-follow-up-by-story-notes) — SEED-420#put-comparison-follow-up-by-story-notes
 - [Read CI comparison and Intent coverage from Story Home](seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home) — SEED-420#read-story-evidence-from-intent-home
 - [Use sidebars consistently across the Dashboard](seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard) — SEED-417#use-sidebars-consistently-across-the-dashboard
