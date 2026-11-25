@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#pass-session-observation-limits-as-typed-values",
+  "title": "Pass session observation limits as typed values",
+  "completedAt": "2026-11-25T10:30:53.347Z",
+  "developer": "Terry Yin",
+  "agent": "Mihiro-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

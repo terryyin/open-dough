@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_pass-session-observation-limits-as-typed-values.json",
+      "identity": "SEED-413#pass-session-observation-limits-as-typed-values",
+      "completedAt": "2026-11-25T10:30:53.347Z",
+      "blob": "169498e22a6cb567a102ebd5df34e3ce3ef03f0f"
+    },
+    {
       "fileName": "SEED-413_renovate-remaining-backend-families-after-browser-reporter.json",
       "identity": "SEED-413#renovate-remaining-backend-families-after-browser-reporter",
       "completedAt": "2026-11-25T10:03:30.279Z",
