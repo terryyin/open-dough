@@ -133,8 +133,9 @@ Use Git for earlier reviews and retired entries.
   `slice1-meta.txt`, `slice1-awaitshell-receipts.txt`,
   `slice1-nonzero-terminal.txt`, `slice1-nonzero.exit` (`42`),
   `slice1-deadline-terminal.txt` (still running after ~27s wait budget).
-- **Disposition.** retire (product removal of the Cursor exit-file loop is a
-  follow-up; this story does not patch Distribution guidance).
+- **Disposition.** retire. Product follow-up queued:
+  [SEED-441#retire-cursor-exit-file-proof-wait](../../.planning/seeds/SEED-441-retire-cursor-exit-file-proof-wait.md#retire-cursor-exit-file-proof-wait)
+  (this story does not patch Distribution guidance).
 - **Next review trigger.** Cursor agent or AwaitShell regression that drops
   durable background wait / exit delivery; otherwise the next scheduled
   maintainer workaround recheck.
@@ -277,3 +278,19 @@ Use Git for earlier reviews and retired entries.
 - **Last review.** 2026-11-25, keep for Cursor agent + hooks on CLI
   `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 4.
   [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
+
+## Cursor interrupted-delegation boundary (ODF-229)
+
+- **Not a Distribution workaround entry.** Reviews whether any Cursor-specific
+  cancellation or proof-return gap remains beyond the general
+  [interrupted-delegation recovery](../../Distribution/src/skills/dough-execute-plan/references/interrupted-delegation.md)
+  practice. Finding home: [ODF-229](findings/ODF-229.md#odf-229).
+- **2026-11-25 boundary (SEED-440 slice 5).** Build: agent CLI
+  `2026.11.22-e9042b2`; Cursor IDE `3.31.15` (`3eb8c133…`, arm64). Surface:
+  this Cursor session with native Task. Payload / HEAD:
+  `1ce7f1bc53061a6d1004dbbcf1089f8b72c3d937`. Slices 1–4 returned ordinary
+  Task proof reports; no deliberate Task interruption was run. Verdict: no
+  Cursor-specific product gap beyond the general recovery practice was
+  evidenced. ODF-229 stays open for pending native interruption observation.
+  No product follow-up queued from this boundary. Evidence: ODF-229 boundary
+  note; `slice5-full-report.md`.

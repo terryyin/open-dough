@@ -120,7 +120,7 @@ they support.
 ### 5. Check interrupted-delegation boundary and queue follow-ups
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–12 active minutes.
 
 **Behavior.** Starting from ODF-229, check whether any Cursor-specific
@@ -159,6 +159,7 @@ share a product model with those entries. No unbounded slice concern remains.
 - Slice 2: Shell still lacks `generation_id`; disabling the managed-generation adopt path misses delivery on the owning real hook; parent mailbox generation ≠ conversation. Register disposition **keep** (no product follow-up). Evidence: `slice2-full-report.md`. beforeSubmitPrompt / live parent hook stdin remain a next-review gap.
 - Slice 3: with both hook sets installed, Cursor runs matching hooks from every source; disabling `cursor_version` skip produced dual non-empty clock effects. Register disposition **keep**. Evidence: `slice3-full-report.md`.
 - Slice 4: live Shell `cwd` still empty in the linked worktree; `workspace_roots[0]` still required. Register disposition **keep**. Evidence: `slice4-full-report.md`. Parent live hook stdin and multi-root remain next-review gaps.
+- Slice 5: ODF-229 remains open (no Cursor-specific product gap beyond general interrupted-delegation recovery evidenced without a deliberate interrupt). Exit-file retire queued as **SEED-441#retire-cursor-exit-file-proof-wait**. Keep cases need no queue entries. Evidence: `slice5-full-report.md`.
 
 ## Verification and delivery
 
