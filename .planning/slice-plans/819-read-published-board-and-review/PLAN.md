@@ -1,4 +1,4 @@
-# Open and refresh the published Board from local Git
+# Publish Board test fixtures through real Git origins
 
 **Source:** [SEED-430](../../seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git)
 
@@ -6,10 +6,10 @@
 
 ## Goal and scope
 
-See the source story. A developer opens and refreshes the Board at verified
-published trunk with the execution checkout absent or behind. Reads other
-than the Board's trunk and backlog keep their current paths for
-[the published-progress story](../821-follow-published-progress-from-local-git/PLAN.md).
+See the source story. Test support routes committed origins, `publishes()`
+and the default answer through real Git origins. Product reads are
+unchanged; the cold open and Refresh moved to
+[plan 824](../824-open-published-board-from-local-git/PLAN.md).
 
 ## Current decisions
 
@@ -71,9 +71,7 @@ than the Board's trunk and backlog keep their current paths for
 
 | Consuming operation | Observation | Remainder |
 | --- | --- | --- |
-| Review transport probe of refusal, unavailability, and absence | On 2026-11-25 against this checkout at `75182dd87`, the Review transport's exact `ls-remote` (gh credential helper, `GIT_TERMINAL_PROMPT=0`, `LC_ALL=C`) exited 128 for loopback 401, 403, 404, 503, a held request aborted by its deadline, a closed port, and GitHub "Repository not found". Stderr separated 401 ("could not read Username") and 403 ("returned error: 403") from connection failure and 503. A missing branch exited 2 under `--exit-code`. One read-only probe reached the configured origin under the existing Review authority with the active gh account's `repo` scope. | A server-rejected credential ("Authentication failed") was not observed; slice 5 treats an unrecognized 128 as unavailable. |
 | Board fixture reach | At `75182dd87`, about 120 backend and e2e spec files use the fake GitHub; 52 use `publishes()` with synthetic revisions, 64 e2e files use `publishCommittedOrigin` with a real repository, and the e2e server routes every unrouted GitHub URL to a missing repository. | Slices 1–4 migrate the Board-opening ones; each slice's suite run is its proof. |
-| Board's recovery cues | At `1c0272d6f`, `caffeinate -s -i npm run test:e2e -- auto-refresh-branches.spec.ts auto-refresh-recovery.spec.ts --workers=1 --reporter=line` passed 3 cases. The Board preserved the last good snapshot during a failed check and recovered. | Slice 6 replaces the provider fixture at the Refresh boundary and counts Git operations against a real origin. |
 
 Use the
 [consumer trace procedure](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
@@ -87,7 +85,7 @@ Type: Structure
 Status: done
 Change: `publishCommittedOrigin` routes its repository through the fixture
 HOME, so a Git read of the configured project reaches that origin. Fake
-GitHub answers stay unchanged. Enables slice 5.
+GitHub answers stay unchanged. Enables the Board cold open in plan 824.
 
 Proof: The e2e specs using `publishCommittedOrigin` pass unchanged, and a
 focused check shows a Git `ls-remote` under the fixture HOME reaching the
@@ -103,7 +101,7 @@ Serving it under a repository name routes that origin through every HOME
 the fake GitHub serves, and a later publication of the same repository
 replaces the route. Backend specs that named a synthetic trunk revision take
 it from the fixture. Callers that still supply a revision are unchanged.
-Enables slice 5.
+Enables the Board cold open in plan 824.
 
 Proof: The migrated backend specs pass with assertions unchanged apart from
 revision sourcing. A routed check shows `ls-remote` following a
@@ -120,58 +118,23 @@ serve for every repository commits a real origin instead of the synthetic
 through each served HOME for the configured project's GitHub URL. Wrappers
 around a published answerer, such as `holdingAnswer`, keep its origin.
 Callers of `defaultBaseCiRevision` read the origin's revision instead.
-Enables slice 5.
+Enables the Board cold open in plan 824.
 
 Proof: Both full suites pass unchanged in observed behavior. A routed check
 shows `ls-remote` for a configured project reaching the default origin's
 `main`.
 
-### 4. Publish hand-answered Board fixtures through a real origin
+### 4. Keep committed origins' `main` at the answered revision
 
 Type: Structure
-Status: planned
-Change: Specs and support that hand-answer `ref`, and launch fixtures that
-already hold a real origin, publish their trunk through a named, routed
-real origin. `publishes()` accepts an existing origin. A journey that
-advances trunk moves the origin's real `main` too. Reads that pass an
-explicit revision and never ask for `ref`, such as the
-`describedRevisions.ts` specs, keep their answers. Enables slice 5.
+Status: done
+Change: `publishCommittedOrigin` moves the routed origin's real `main` to
+the revision it answers, on publish and on each `advanceTo`, except when it
+follows pushes or the checkout has `main` checked out.
 
-Proof: The migrated specs pass unchanged in observed behavior, with both
-full suites. A search shows no remaining Board-opening synthetic trunk or
-fallback-served project.
-
-### 5. Open the Board at verified published trunk
-
-Type: Behavior
-Status: planned
-Behavior: Given a configured project, a cold machine repository, and an
-accessible origin, open the Board without an execution checkout. After the
-bounded check the Board receives the backlog from the verified local trunk
-pin. A missing trunk or unreadable backlog cannot yield a confirmed Board.
-An explicit refusal keeps its refusal outcome; an ambiguous failure is
-unavailable.
-
-Proof: Drive cold Board open through the authenticated endpoint, using a
-real origin and a renamed checkout. Assert the exact revision and backlog
-and count subprocess and GitHub calls. Check refusal and unavailable origins
-at the same boundary, then run the dashboard backend and e2e suites.
-
-### 6. Refresh a warm Board and explain failure
-
-Type: Behavior
-Status: planned
-Behavior: Given a confirmed Board, Refresh while origin is slow or
-unavailable. Continue showing the confirmed revision and time, report the
-failure, and allow another Refresh. On successful recovery, confirm the same
-revision without a fetch or expose a newly verified revision. Distinguish
-cold failure and explicit access refusal.
-
-Proof: Drive real origin transitions through Board Refresh and check its
-rendered status, last confirmation, and recovery. Hold a fetch after
-candidate data arrives and interrupt the metadata update. The verified view
-survives that failure and a server restart. Capture the cold and warm
-request counts and elapsed time from this same entry point.
+Proof: Both full suites pass. The eight specs that advance a committed
+origin pass, and `git ls-remote` under the served HOME returns the answered
+revision.
 
 ## Local gate
 
@@ -188,7 +151,7 @@ authoring or changing proof.
   the transport and found that switching cold open moves every Board open.
   The assumption that other Board callers could keep REST was false. The
   developer approved a resplit: original slices 3–8 moved to
-  [plan 821](../821-follow-published-progress-from-local-git/PLAN.md), and
+  [plan 821](../823-follow-published-progress-from-local-git/PLAN.md), and
   fixture migration now precedes the switch here.
 - Slice 1 routes every origin published through one fake GitHub to every
   dashboard HOME it serves (`routeOriginThroughServedHomes`), which slices 2
@@ -224,3 +187,10 @@ authoring or changing proof.
   directory, so routes named by fixtures still win. Slice 5 must reach a
   project that a test adds and the default origin alone answers, and must
   move the origin's `main` where a journey advances trunk.
+- Slice 4's log-only audit of every `ref` answer through both suites found
+  about 150 e2e and 26 backend files still answering a synthetic trunk,
+  against an estimate of about 17. With the developer's decision, this story
+  closes at the delivered fixture routing. The remaining fixture families,
+  the cold open and Refresh moved to
+  [plan 824](../824-open-published-board-from-local-git/PLAN.md), which
+  carries the audit and its family inventory.

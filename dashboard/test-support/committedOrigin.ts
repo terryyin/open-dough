@@ -35,6 +35,7 @@ import {
   filesUnder,
   headsOf,
   listedAt,
+  publishMain,
   showAt,
 } from "./committedOriginRepo.ts";
 import { answerCommittedCommits } from "./committedOriginCommits.ts";
@@ -92,6 +93,7 @@ export function publishCommittedOrigin(
   const instead = new Map<string, OriginAnswer>();
   let actionsOverride: ActionsAnswerer | undefined;
   const history = committedHistoryAnswers(repoDir);
+  if (!follows) publishMain(repoDir, revision);
 
   routeOriginThroughServedHomes(githubFor(page), repoDir, repository);
   githubFor(page).serve(repository, async (call) => {
@@ -222,6 +224,7 @@ export function publishCommittedOrigin(
     },
     advanceTo(next) {
       revision = next;
+      if (!follows) publishMain(repoDir, next);
     },
   });
 }
