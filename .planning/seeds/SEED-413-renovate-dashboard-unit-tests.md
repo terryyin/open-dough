@@ -255,16 +255,49 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 ### Prove Dashboard session workspace choices in Node Vitest
 
 **Identity:** SEED-413#prove-session-workspace-starts-on-vitest
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#prove-session-workspace-starts-on-vitest","dependencies":[{"supplier":{"identity":"SEED-439#complete-story-linked-ad-hoc-sessions","href":"seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions"},"implementation":"Integrate the story-linked Dashboard start, scheduled feedback admission and landing contracts, including the settled blank-start policy and retirement of standalone startup.","rationale":"The mapped specs and their shared fixtures are already being rewritten or retired by this cutover. The first migration slice must inventory and baseline the surviving production paths on trunk. Porting today's standalone startup, reporting or landing expectations would migrate a retiring contract and would not give that baseline.","condition":"SEED-439 is integrated on trunk with story-linked default and isolated starts, scheduled feedback admission, and retained landing including the decided blank-start policy. Superseded standalone startup paths have their disposition recorded.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c78c3cd457d0dafb362a4a6dbddaa388a0882299b944677b6e49050dca8103c8","plan":"92e9ef662e4ea7ce21bd3a547fdf543a4605e9961b8661333a8195051c05663b"}}
 ```
 
-- **For / why.** A developer choosing a workspace gets fast proof of the checkout, admission, and landing policy the host receives. Scheduled maintenance uses the supported admission path and reports attention once.
-- **Boundary.** Cover borrowed and isolated choices, explicit confirmation, admission receipts, retained landing evidence and expiry. Reconcile default-start, scheduled admission, and declared landing with [story-linked ad hoc sessions](SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions).
-- **Evaluation.** A refused publication or unconfirmed existing change prevents native start. A kept isolated start resumes with the same workspace and policy, and an accepted landing remains reportable after startup evidence expires.
-- **Effort hypothesis.** L, low confidence. Recount the changed paths and contract variants after the product cutover.
-- **Mapped slices.** See the [provisional plan](../slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md).
-- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+**Goal.** Give Dashboard maintainers fast Node Vitest proof that a session
+launch uses the developer's selected checkout and landing policy, admits the
+story before dispatch, and can recover the same start and its accepted landing.
+Give scheduled feedback launches the same admission coverage and preserve
+their one-time attention notification.
+
+**Scope.** Account for all 18 mapped backend specs against the integrated
+[story-linked session cutover](SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions).
+Move surviving workspace, confirmation, admission, recovery, retention, and
+scheduled-launch unit cases to typed production entry points in Node Vitest.
+Keep installed command publication, native dispatch and input, and real Git
+comparisons at the boundary that observes them. Retire standalone-only
+expectations when their product path is gone and identify the maintained owner
+of every surviving observation. Use the landing policy delivered by SEED-439,
+including its blank-start behavior. The [coverage map](#backend-vitest-replacement-coverage)
+assigns shared attempt management, installed execution and refinement, host
+selection, follow-up context, retained launch views, and runner removal to
+their own stories.
+
+**Key examples.**
+
+- A developer selects the execution checkout with existing changes. Start
+  presents the current changes for confirmation and dispatches nothing until
+  they are confirmed. The accepted start preserves the borrowed checkout,
+  the chosen policy, and the original input.
+- A developer selects an isolated checkout. Refused admission opens no
+  native session. When a reply is lost after admission, Continue uses the
+  original attempt, worktree, story and policy, with one native start.
+- A declared landing is accepted. Once the settled startup attempt expires,
+  the session can report the same accepted comparison without another push.
+  Pruning removes only the expired attempt's local evidence.
+- An authorized feedback cycle comes due. It uses ordinary story admission,
+  opens one session, and an attention report notifies once while the session
+  stays open. Later checks on the same due date do not launch it again.
+
+**Split from.** [Launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
 
 <a id="prove-native-first-input-on-vitest"></a>
 
