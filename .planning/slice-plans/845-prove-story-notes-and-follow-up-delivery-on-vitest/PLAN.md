@@ -262,6 +262,13 @@ journey and the valid Attach contrast accounts for the additional Node
 case. Dashboard typecheck passed. Both E2E cases passed separately using
 the proof gate's file and title filters.
 
+## Execution complete
+
+Product advice: Keep the remaining backend runner migration in its planned
+order. The Story Notes cohort has maintained Node and native browser
+owners. Resolve its runner-cutover prerequisite after the proof is
+integrated on trunk.
+
 ## Plan review
 
 Refinement was unnecessary after the six slices were sized around separate
