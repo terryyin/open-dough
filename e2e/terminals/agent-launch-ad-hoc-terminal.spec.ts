@@ -12,6 +12,14 @@ import {
 // (./fixtures/fake-claude) echoes what is typed; the real one is never reached.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../Distribution/tests/support/published-backlog.mjs";
+import {
+  queuedReadyPlanning,
+  storyA,
+  storyB,
+} from "../../Distribution/tests/support/queued-repository.mjs";
+import { openDoughFolder } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
 import { keptLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
@@ -24,15 +32,50 @@ import {
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
+  expectSettledPage,
   parts,
   sessionNamedBy,
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { scrollYOf, wheelTo } from "../../dashboard/test-support/boardPage.ts";
+import {
+  bottomOf,
+  scrollYOf,
+  wheelTo,
+} from "../../dashboard/test-support/boardPage.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { openWhileStarting } from "../../dashboard/test-support/support/adHocTerminalStartup.ts";
+import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
+import {
+  commitAll,
+  writeAt,
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test.use({ projectFolders: ["open-dough"] });
+
+function publishScrollableBacklog(project: string) {
+  const additional = [1, 2, 3, 4, 5, 6].map((number) => {
+    return makeMe.aBacklogEntry
+      .with({
+        identity: `SEED-READING-${number}#terminal`,
+        href: `seeds/reading-${number}.md#terminal`,
+        title: `Backlog story ${number} for the reading position`,
+      })
+      .please();
+  });
+  const { backlog, files } = queuedReadyPlanning(additional);
+  const queued = [storyA, storyB, ...additional];
+  for (const [file, content] of Object.entries(files)) {
+    writeAt(project, file, content);
+  }
+  writeAt(
+    project,
+    ".planning/PRODUCT-BACKLOG.md",
+    renderPublishedBacklog({ ...backlog, queued }),
+  );
+  commitAll(project, "Publish a scrollable fixture backlog");
+  push(project);
+  return queued.map(({ title }) => title);
+}
 
 // Accepted cost: one real ad hoc launch, the only full proof that a session
 // started with nothing typed opens in the terminal at once with the keyboard
@@ -43,7 +86,10 @@ test("starting with nothing typed opens the session in the terminal with the key
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
+  const backlog = publishScrollableBacklog(openDoughFolder(dashboard));
+  await page.setViewportSize({ width: 1280, height: 480 });
   await openCatalogLaunchBoard(page, dashboard.home);
+  await expectSettledPage(page, { backlog, taken: [] });
   const button = page.getByRole("button", {
     name: "Start session in Open Dough",
   });
@@ -54,12 +100,10 @@ test("starting with nothing typed opens the session in the terminal with the key
   const { rows } = terminalScreenParts(panel);
   const { taken } = parts(page);
 
-  // A window short enough that the Board scrolls well past 40 px both
-  // before the launch and once the terminal shares the window with it,
-  // whatever the fonts make its length, so a kept position is the page's
-  // own and not one the window forces.
-  await page.setViewportSize({ width: 1280, height: 480 });
-  await wheelTo(page, 40);
+  // Keep a reading place away from either end of the published Board.
+  const readingPosition = 40;
+  await expect.poll(() => bottomOf(page)).toBeGreaterThan(readingPosition);
+  await wheelTo(page, readingPosition);
   await button.click();
   await expect(dialog).toBeVisible();
   // Where the page is once the dialog is open; the launch does not move it.
