@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-413#renovate-remaining-backend-families-after-launch-admission",
+  "host": "claude"
+}
