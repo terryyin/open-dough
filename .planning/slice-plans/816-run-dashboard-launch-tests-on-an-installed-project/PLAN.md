@@ -462,6 +462,30 @@ The full gates and case timing comparison are `s10-backend-full.json`,
 `s10-timing-summary.txt`. The candidate no longer has an installation
 selector.
 
+## Execution complete
+
+Product advice: No priority change. This story supplies SEED-432's
+installed-catalog prerequisite on integration. SEED-413 retains the
+backend runner migration. The sampled and full timing results are retained
+as separate observations because their conditions and effects differ.
+
+The review attributes the ten published execution slices through
+`be9e802fb66d358975c91a127a78ac4506a41d6e` to this story. The merge
+`a3be7bd6a` contributes its fixture-routing reconciliation. Its incoming
+trunk history is independent work. The developer approved the missing-Claude
+refusal and the saved-session Given migration during execution.
+
+The default fixture shares selection, installed contents and origin
+verification across both host layouts. The host boundary checks native
+availability before a new installed Take. The workflow remains the
+publication owner under ADR 0008. Browser journeys observe genuine
+launch and publication effects. The saved-session Givens retain direct
+state and keep the observed actions at their original boundaries.
+Review found no separate product or test correction supported by the
+accepted observations. The catalog installation check remains the risk
+selected for wrap-up's targeted Intent Coverage. Process review is deferred
+until that result. Story-branch CI remains pending at this review boundary.
+
 ## Review verification
 
 The preparation plan split the backend command and record lifecycles, the
