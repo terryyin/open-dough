@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_trim-the-product-backlog-command-to-guided-operations.json",
+      "identity": "SEED-423#trim-the-product-backlog-command-to-guided-operations",
+      "completedAt": "2026-11-25T00:08:23.420Z",
+      "blob": "85f7c0b729f4c4eacdeb33b42d6545b88d62fd70"
+    },
+    {
       "fileName": "SEED-413_renovate-later-dashboard-backend-unit-test-families.json",
       "identity": "SEED-413#renovate-later-dashboard-backend-unit-test-families",
       "completedAt": "2026-11-24T23:24:45.870Z",

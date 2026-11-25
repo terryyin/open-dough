@@ -1,6 +1,6 @@
 // @ts-check
 import { storyStateBlockLines } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-block.mjs";
-import { preparationPayload } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-preparation.mjs";
+import { preparationPayload } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-schema.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1]} Request */
 

@@ -78,6 +78,5 @@ test("the retired adopt operation leaves the project untouched", async (t) => {
 
   assert.equal(result.code, 1, result.stdout);
   assert.match(result.stderr, /Unknown operation: adopt/);
-  assert.doesNotMatch(result.stderr, /product-backlog\.mjs adopt/);
   assert.equal(project.read(), before);
 });

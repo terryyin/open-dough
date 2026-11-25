@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
 - [Read the published Board and Review from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git ([plan](slice-plans/819-read-published-board-and-review/PLAN.md))
-- [Trim the product backlog command to guided operations](seeds/SEED-423-shrink-the-installed-distribution.md#trim-the-product-backlog-command-to-guided-operations) — SEED-423#trim-the-product-backlog-command-to-guided-operations ([plan](slice-plans/820-trim-the-product-backlog-command-to-guided-operations/PLAN.md))
 
 ## Backlog list
 
