@@ -21,7 +21,7 @@ import { MessageSquarePlus, SquareTerminal } from "lucide-react";
 import type { FollowUpShown } from "./FollowUpSubject.tsx";
 import { sameFollowUpSource, type FollowUpSource } from "./followUpRequest.ts";
 import { StartSessionDialog } from "./StartSessionDialog.tsx";
-import { Icon } from "./Icon.tsx";
+import { Icon, IconButton } from "./Icon.tsx";
 import "./agent-launch.css";
 import "./frame-controls.css";
 
@@ -66,12 +66,10 @@ export function StartSession({
     admitting: boolean;
   }>();
   const subject = followUp?.source;
-  const followUpAction =
+  const followsComparison =
     subject !== undefined &&
     "story" in subject &&
-    subject.story.comparison !== undefined
-      ? "Follow up on comparison"
-      : "Follow up";
+    subject.story.comparison !== undefined;
   const refusedOpening = useRef<number>(undefined);
   const attempt = launches.adHocAttemptOf(
     sourceId,
@@ -122,35 +120,49 @@ export function StartSession({
     );
   };
 
+  const trigger = {
+    ref: launcher,
+    "aria-haspopup": "dialog" as const,
+    "aria-describedby": attempt !== undefined ? answerId : undefined,
+    disabled: starting,
+    ...openDialogFromActivation(() => {
+      onOpen?.();
+      openDialog();
+    }, starting),
+  };
   return (
     <>
-      <button
-        ref={launcher}
-        type="button"
-        className={showTrigger ? "frame-button" : "visually-hidden"}
-        aria-haspopup="dialog"
-        aria-label={
-          followUp === undefined
-            ? `Start session in ${project}`
-            : `${followUpAction} ${followUp.name}`
-        }
-        aria-describedby={attempt !== undefined ? answerId : undefined}
-        disabled={starting}
-        tabIndex={showTrigger ? undefined : -1}
-        {...openDialogFromActivation(() => {
-          onOpen?.();
-          openDialog();
-        }, starting)}
-      >
-        {showTrigger && (
-          <>
-            <Icon
-              icon={followUp === undefined ? SquareTerminal : MessageSquarePlus}
-            />
-            {followUp === undefined ? "Start session" : followUpAction}
-          </>
-        )}
-      </button>
+      {showTrigger && followsComparison ? (
+        <IconButton
+          {...trigger}
+          label="Follow up on comparison"
+          icon={MessageSquarePlus}
+          align="end"
+        />
+      ) : (
+        <button
+          {...trigger}
+          type="button"
+          className={showTrigger ? "frame-button" : "visually-hidden"}
+          aria-label={
+            followUp === undefined
+              ? `Start session in ${project}`
+              : `Follow up ${followUp.name}`
+          }
+          tabIndex={showTrigger ? undefined : -1}
+        >
+          {showTrigger && (
+            <>
+              <Icon
+                icon={
+                  followUp === undefined ? SquareTerminal : MessageSquarePlus
+                }
+              />
+              {followUp === undefined ? "Start session" : "Follow up"}
+            </>
+          )}
+        </button>
+      )}
       {attempt?.kind === "starting" && (
         <p
           ref={progress}

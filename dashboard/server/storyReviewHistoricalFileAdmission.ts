@@ -13,15 +13,23 @@ import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { reviewRepositoryPath } from "./reviewRepository.ts";
 import {
-  reviewedLandedRunByReference,
-  reviewedLandedRuns,
-} from "./storyReviewRunAdmission.ts";
+  admissionBound,
+  throwIfRequestAborted,
+} from "./storyReviewAdmissionBound.ts";
+import type { LandingReviewSource } from "./storyReviewLanded.ts";
 import {
-  landedFileReview,
-  type LandingReviewSource,
-} from "./storyReviewLanded.ts";
+  notOnCapturedRun,
+  readNamedLandedReview,
+  readRetainedLandedReview,
+  requireLandedPair,
+} from "./storyReviewLandedAdmission.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
-import { recordedLandingFileReview } from "./storyReviewPublishedLanding.ts";
+
+export {
+  admissionBound,
+  throwIfRequestAborted,
+} from "./storyReviewAdmissionBound.ts";
+export { notOnCapturedRun } from "./storyReviewLandedAdmission.ts";
 
 export type HistoricalReviewedFileFields = ReviewedPairFile;
 
@@ -89,26 +97,6 @@ export function belongsOnRetainedPair(
   return files.some((file) => matchesHistoricalPath(file, fields));
 }
 
-export const notOnCapturedRun = () =>
-  new RefusedRequest(
-    409,
-    "The file or comparison does not belong to this captured run.",
-  );
-
-// Combine an optional caller signal with the existing 30-second admission
-// deadline. Follow-up callers omit the request and keep timeout alone.
-export function admissionBound(request?: AbortSignal): AbortSignal {
-  const deadline = AbortSignal.timeout(30_000);
-  return request === undefined
-    ? deadline
-    : AbortSignal.any([request, deadline]);
-}
-
-// Prefer request cancellation over a deadline-shaped refusal.
-export function throwIfRequestAborted(request?: AbortSignal): void {
-  if (request?.aborted) throw request.reason;
-}
-
 async function requirePublishedCompletion(
   source: PublishedSource,
   identity: string,
@@ -133,11 +121,21 @@ async function requirePublishedCompletion(
   return review;
 }
 
-export async function admitPublishedStoryComparison(
+export async function admitStoryComparison(
   source: PublishedSource,
   identity: string,
-  { completion, baseline, tree }: FollowUpComparison,
+  comparison: FollowUpComparison,
 ): Promise<void> {
+  if ("reference" in comparison) {
+    const review = await readNamedLandedReview(
+      source,
+      identity,
+      comparison.reference,
+    );
+    requireLandedPair(review, comparison);
+    return;
+  }
+  const { completion, baseline, tree } = comparison;
   const review = await requirePublishedCompletion(source, identity, completion);
   if (
     tree !== review.tree ||
@@ -174,12 +172,8 @@ function requireLandingFile(
   review: Extract<StoryReview, { kind: "landed" }>,
   file: HistoricalReviewedFileFields,
 ): void {
-  if (
-    file.baseline !== review.baseline ||
-    file.tree !== review.tree ||
-    !belongsOnRetainedPair(review.files, file)
-  )
-    throw notOnCapturedRun();
+  requireLandedPair(review, file);
+  if (!belongsOnRetainedPair(review.files, file)) throw notOnCapturedRun();
 }
 
 // Admit a file against a landed run's exact retained pair and file list.
@@ -189,15 +183,7 @@ export async function admitLandedRun(
   signal: AbortSignal | undefined,
   source: PublishedSource,
 ): Promise<AdmittedReviewedFile> {
-  const review = await landedFileReview(run, admissionBound(signal), source);
-  throwIfRequestAborted(signal);
-  if (review.kind !== "landed")
-    throw new RefusedRequest(
-      409,
-      review.kind === "landing-unavailable"
-        ? review.explanation
-        : "The captured comparison is unavailable.",
-    );
+  const review = await readRetainedLandedReview(source, run, signal);
   requireLandingFile(review, file);
   return {
     repository: reviewRepositoryPath(source),
@@ -225,24 +211,12 @@ export async function admitHistoricalReviewedFile(
       file,
       signal,
     );
-  const recorded = await recordedLandingFileReview(
+  const review = await readNamedLandedReview(
     source,
     named.identity,
     named.reference,
-    admissionBound(signal),
-  );
-  throwIfRequestAborted(signal);
-  if (recorded !== undefined) {
-    if (recorded.kind === "landing-unavailable")
-      throw new RefusedRequest(409, recorded.explanation);
-    requireLandingFile(recorded, file);
-    return { repository: reviewRepositoryPath(source), ...file };
-  }
-  const { runs } = await reviewedLandedRuns(source, named.identity);
-  return admitLandedRun(
-    reviewedLandedRunByReference(runs, named.reference),
-    file,
     signal,
-    source,
   );
+  requireLandingFile(review, file);
+  return { repository: reviewRepositoryPath(source), ...file };
 }

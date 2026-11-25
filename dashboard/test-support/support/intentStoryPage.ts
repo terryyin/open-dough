@@ -201,13 +201,15 @@ export function intentStory(intent: Locator) {
     panel: (name: Parameters<typeof storyTabPanel>[1]) =>
       storyTabPanel(intent, name),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
-    followUpComparison: async (storyName: string) =>
+    followUpComparison: () =>
       followUpFrom(
         intent,
-        (await showComparisonDetails(storySummary(intent))).getByRole(
-          "button",
-          { name: `Follow up on comparison ${storyName}`, exact: true },
-        ),
+        storySummary(intent)
+          .locator(".intent-story-title-line")
+          .getByRole("button", {
+            name: "Follow up on comparison",
+            exact: true,
+          }),
       ),
     // The Follow up beside the selected diff's file path.
     followUpFile: (storyName: string) =>

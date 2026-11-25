@@ -179,48 +179,99 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
-<a id="prove-session-notifications-through-typed-observations"></a>
+<a id="renovate-remaining-backend-families-after-browser-reporter"></a>
 
-### Prove session notifications through typed observations
+### Prove machine-session reads through typed backend answers
 
-**Identity:** SEED-413#prove-session-notifications-through-typed-observations
+**Identity:** SEED-413#renovate-remaining-backend-families-after-browser-reporter
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/830-prove-session-notifications-through-typed-observations/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1a43877ac07c4a83c42f31c5b801536027c524d2ce994415789bdafd4483f60f","plan":"196f45086b25491b62c0880341c404365a8b08a7782f545d7e1ea8909de36012"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/829-prove-machine-session-reads-through-typed-answers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7946d5994d6f587cccc4994a439c3398155d1d8916d73d940d19be878bb27c02","plan":"81751012ddce35cfc985dee33074b83603aec6e3764a9a13d52a025ebbe4e1a3"}}
 ```
 
-- **Goal.** Developers changing session notifications can check alert
-  decisions and delivery lifetime quickly on Node Vitest with explicit
-  session readings and notifier results.
-- **Scope.** The eight remaining Playwright notification specs. Prove
-  transition and report eligibility, delivery and recovery, listener-derived
-  destinations, and cancellation through the production owners. Run the production browser
-  callback against its existing native API stand-ins. Keep representative
-  dashboard wiring in E2E and helper argument execution at the process boundary. Session reading, native host
-  classification and unrelated launch flows have their own owners.
-- **Key examples.** A startup baseline keeps an existing question quiet.
-  A later question alerts once through a missing or unknown observation and
-  rearms after working. An unread report alerts using its own words while
-  a Done session stays quiet. A failed notifier reports a safe reason and
-  can recover on a new transition. Closing cancels a pending diagnosis or
-  delivery. A click opens the story in an existing dashboard tab.
+- **Goal.** Developers changing the dashboard's machine-session read get fast,
+  typed Node Vitest feedback on what an overview or history reader receives.
+- **Scope.** The six legacy session-read specs listed in the plan. Exercise
+  host reading and record composition, the overview/history split, revision
+  reuse and fresh demand, and request admission and encoding. Keep native host
+  translation proof with that boundary. Start no server for the Node cases.
+  Session mutations, alerts, and other backend families have their own owners.
+- **Key examples.** With open records, retained Done records and settled
+  attempts, the overview gives the reader the compact listing and the history
+  restores the detail under its own revision. A reader holding the current
+  revision gets an unchanged answer. A fresh ask can see a changed Codex
+  observation while an ordinary ask still reuses a held observation. A full
+  answer accepted as gzip decodes to the plain response.
 
 <a id="finish-backend-vitest-renovation-after-session-reads-and-alerts"></a>
 
-### Finish the remaining backend Vitest renovation after session reads and alerts
+### Prove installed launch options through typed backend requests
 
 **Identity:** SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/839-prove-installed-launch-options-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ca055bf9a02ae08103eba3a3119b1a4bfb972fe4b0a4a287e7cbb79a309f444","plan":"469d73a330e69a3e7430f6227f0c15baa0bc6c121ec681df05a0843e85632d21"}}
+```
+
+- **Goal.** Developers changing installed launch options can check in Node
+  Vitest which flags a project accepts and in what order, with browser proof
+  that Start sends the selection and shows it again after reload.
+- **Scope.** Move the two HTTP-based launch option specs,
+  `agent-launch-options-boundary.spec.ts` and
+  `agent-launch-options-groups.spec.ts`, off backend Playwright. Exercise the
+  typed selection owner against the requesting project's real installed
+  definition. Keep failures distinct when their reason differs. Keep
+  command delivery and persisted selection with their observing proof,
+  including the existing browser journeys. Measure focused feedback before
+  and after and account for every former case.
+- **Key examples.** Given a definition with a free flag and two exclusive
+  flags, a request in a different order returns the selected flags in the
+  definition's order. Selecting two flags from the same group refuses the
+  request and names the group and both flags. Given the same flag installed
+  in one project and absent in another, only the project that defines it
+  accepts it. Given an unavailable definition, an empty selection still
+  allows the default launch, and a selected flag receives the reason the
+  definition cannot be used.
+- **Boundary.** Native host dispatch, the machine-session reader, and the
+  runner's direct Playwright specimen retain their existing owners. The
+  [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-options)
+  carries the remaining families, the Story Notes store and runner retirement.
+
+<a id="finish-backend-vitest-renovation-after-launch-options"></a>
+
+### Finish the remaining backend Vitest renovation after launch options
+
+**Identity:** SEED-413#finish-backend-vitest-renovation-after-launch-options
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-This campaign remainder carries the unselected work from
-[the original preparation identity](https://github.com/terryyin/open-dough/blob/0c7ad7e2c6019d0b736e8e04ff4218ee61944e10/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter).
-The two selected cohorts can land independently. Machine-session reads go
-first for their slightly higher measured cost and the reuse they establish
-at the observation boundary. Notifications already consume typed readings
-and can proceed independently.
+This remainder carries all unselected scope split from
+[the launch-options story](#finish-backend-vitest-renovation-after-session-reads-and-alerts).
+Machine-session reads and notifications have Done records. The maintained
+selector at `93d26816e` on 25 November 2026 reports 308 Playwright and 283 Node
+Vitest paths across 591 backend specs. At that revision, the two options files
+leave a projected 306 legacy paths if no other changes land.
 
-**Current sizing** (`4f107f7e7`, 25 November 2026). The maintained selector
+| Family | Playwright paths at `93d26816e` | After launch options at the same baseline |
+| --- | ---: | ---: |
+| Launches | 92 | 90 |
+| Observation | 54 | 54 |
+| Sessions | 50 | 50 |
+| Runtime | 39 | 39 |
+| Review | 31 | 31 |
+| Intent | 17 | 17 |
+| Configuration | 13 | 13 |
+| Terminals | 12 | 12 |
+| **Total** | **308** | **306** |
+
+The installed options admission already consumes a typed request and local
+project folder. It gives a bounded launch increment ahead of the larger
+handoff and record families, whose existing cases depend on more of the
+installed launch lifecycle. Each subsequent selection starts with a fresh
+runner count. The whole remainder exceeds eight 15-minute slices and stays
+campaign input. Select the next independent production boundary and carry the
+remaining scope forward again, with runner retirement as the final increment.
+
+**Earlier sizing** (`4f107f7e7`, 25 November 2026). The maintained selector
 reports 320 Playwright and 269 Node Vitest paths across 589 backend specs.
 The change from 498 legacy paths at the systematic recount is a net reduction
 of 178 while the suite grew by nine. The direct rewrite and typed Usage
@@ -284,11 +335,12 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   collaborators where their behavior matters. The campaign ends when
   `dashboard/backend.playwright.config.ts` and the backend request and server
   wrappers in `dashboard/test-support/` are deleted.
-- **Remaining work.** Recount the runner after the two selected cohorts and
-  the overlapping product changes. This story retains the other families,
-  the Story Notes store follow-up below, and final runner retirement. The
-  automatic-repeat correction owns its assigned coverage and load
-  obligations. Count each legacy survivor once at runner cutover.
+- **Remaining work.** Recount after launch options and overlapping product
+  changes. The automatic-repeat correction owns its assigned coverage and load
+  obligations. Count each legacy survivor once at runner cutover. The direct
+  launch-options rule spec still serves the backend proof-record and runner
+  ownership checks. Convert it when replacing or retiring those Playwright
+  checks, keeping their selection and reporting proof with the next owner.
 - **Family planning.** Split by a verifiable outcome and size each story to one
   plan. Group closely related families when they use the same typed inputs
   and arrangement. Recount the review families after

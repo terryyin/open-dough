@@ -30,8 +30,6 @@ Relative paths use the directory `scripts/test.sh` starts in; `npm test` starts
 at the repository root. Missing paths or unsupported file kinds fail the run
 before any check starts, naming the path.
 
-[Local resource use](local-test-resources.md): concurrency, cleanup, macOS sleep.
-
 ## Feature groups
 
 Put every check in its feature group. The `Distribution/tests/` root is for

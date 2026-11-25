@@ -1,13 +1,14 @@
 // @ts-check
 // A Follow-up a Start request names (`../../../dashboard/src/followUpRequest.ts`):
-// the retained Done session or done story it follows up, an optional file
-// anchor on that story's comparison, waiting notes asked for at admission,
+// the retained Done session or done story it follows up, an optional historical
+// comparison or file anchor, waiting notes asked for at admission,
 // and, once admission resolved them, the context and attached note versions
 // kept on the recorded request.
 
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUp} FollowUp */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpSessionChoice} FollowUpSessionChoice */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpFile} FollowUpFile */
+/** @typedef {import("../../../dashboard/src/followUpRequest.ts").FollowUpComparison} FollowUpComparison */
 /** @typedef {import("../../../dashboard/src/followUpRequest.ts").AttachedStoryNote} AttachedStoryNote */
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {import("../../../dashboard/src/sessionReference.ts").SessionReference} SessionReference */
@@ -22,6 +23,8 @@ export class FollowUpBuilder {
   #revision;
   /** @type {FollowUpFile | undefined} */
   #file;
+  /** @type {FollowUpComparison | undefined} */
+  #comparison;
   /** @type {boolean} */
   #attachNotes = false;
   /** @type {FollowUpSessionChoice[] | undefined} */
@@ -98,6 +101,12 @@ export class FollowUpBuilder {
     return this;
   }
 
+  /** @param {FollowUpComparison} comparison */
+  onComparison(comparison) {
+    this.#comparison = { ...comparison };
+    return this;
+  }
+
   /**
    * Context resolved from the source at admission, kept on the recorded request.
    * @param {NonNullable<FollowUp["context"]>} context
@@ -126,7 +135,8 @@ export class FollowUpBuilder {
         this.#attachNotes ||
         this.#sessions !== undefined ||
         this.#attached !== undefined ||
-        this.#file !== undefined
+        this.#file !== undefined ||
+        this.#comparison !== undefined
       )
         throw new Error("a session follow-up names only its session");
       return {
@@ -145,6 +155,9 @@ export class FollowUpBuilder {
         identity: this.#identity,
         revision: this.#revision,
         ...(this.#file === undefined ? {} : { file: { ...this.#file } }),
+        ...(this.#comparison === undefined
+          ? {}
+          : { comparison: { ...this.#comparison } }),
         ...(this.#attachNotes ? { notes: true } : {}),
         ...(this.#sessions === undefined
           ? {}

@@ -1,4 +1,4 @@
-// Page-level lookup of a Done story for file-anchored Follow up: the published
+// Page-level lookup of a Done story for review-anchored Follow up: the published
 // done record, the revision it was read at, and the sessions its card holds.
 // Review changes and Intent both reach it here (`./StoryAnchoredFollowUp.tsx`)
 // instead of threading the card's props through the diff.
@@ -33,6 +33,7 @@ const unreadSource: PublishedSource = {
 // undefined while its record is unread, missing, or not a Done story.
 export function useDoneStoryFollowUp(
   identity: string | undefined,
+  shownStory?: DoneStory,
 ): DoneStoryFollowUpTarget | undefined {
   const { projects, selected, work } = useContext(RecentlyDoneLinkSources);
   const launches = usePageLaunches();
@@ -56,13 +57,16 @@ export function useDoneStoryFollowUp(
     source,
     revision,
     record === undefined ? [] : [record],
-    readable,
+    readable && shownStory === undefined,
   );
   if (!readable) return undefined;
   const detail = detailOf(record);
-  if (detail.status !== "read") return undefined;
+  const story =
+    shownStory ?? (detail.status === "read" ? detail.story : undefined);
+  if (story === undefined || story.identity !== record.identity)
+    return undefined;
   return {
-    story: detail.story,
+    story,
     revision,
     sessions: storySessionsOf(launches.records, source.id, record.identity),
     project: source.label,

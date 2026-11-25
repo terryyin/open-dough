@@ -15,7 +15,6 @@
 }
 
 .intent-story-title-line > .story-notes-problem {
-  order: 1;
   font-size: var(--text-xs);
 }
 

@@ -2,6 +2,18 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_put-comparison-follow-up-by-story-notes.json",
+      "identity": "SEED-420#put-comparison-follow-up-by-story-notes",
+      "completedAt": "2026-11-25T13:05:19.968Z",
+      "blob": "065b9d6684abc173d894629643adb97ab4d5c0fd"
+    },
+    {
+      "fileName": "SEED-413_prove-session-notifications-through-typed-observations.json",
+      "identity": "SEED-413#prove-session-notifications-through-typed-observations",
+      "completedAt": "2026-11-25T12:38:18.512Z",
+      "blob": "b87ef4f1f76c9b760e2fe5a42f160eda6b792080"
+    },
+    {
       "fileName": "SEED-440_recheck-cursor-workarounds.json",
       "identity": "SEED-440#recheck-cursor-workarounds",
       "completedAt": "2026-11-25T12:28:14.018Z",

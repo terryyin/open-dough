@@ -91,50 +91,6 @@ follow-up button beside the notes.
   why. The comparison read fails: the summary reports the failure with
   **Retry**.
 
-<a id="put-comparison-follow-up-by-story-notes"></a>
-
-### Put comparison follow-up beside story notes
-
-**Identity:** SEED-420#put-comparison-follow-up-by-story-notes
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/837-put-comparison-follow-up-by-story-notes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"96da3defb19b7039b92767d67d2d22bffa5dc6a9e41d78d3aef63c7fb83b1d86","plan":"68357fe64e5653531bd08da83538fe25a7af7530efcf99f16b4409739cedd07b"}}
-```
-
-**Goal.** A developer reviewing a Done story in Intent can follow up on the
-comparison they are reading from the story title row. This keeps the action
-within reach while the developer reads a diff or other story evidence.
-
-**Scope.** Put one icon-only button beside **Notes** on the story title row.
-Its accessible name is **Follow up on comparison**. It opens the existing
-composer directly and returns focus to the button when cancelled. Comparison
-details no longer contain a second follow-up action.
-
-Keep the existing Done-story and readable-comparison requirements. Published
-completions retain their current availability, including **Include merged
-changes** when supported. Offer the same action for a readable landed run of
-that Done story. The composer names the story and the exact baseline and result
-of the comparison being shown. Starting the follow-up sends that same pair.
-Admission verifies the pair against the named completion or landed run so
-another story's run or a different pair cannot start a session.
-
-File and line follow-ups, optional attachments, the comparison controls, and
-published-session follow-up scope belong to their existing work.
-
-**Key examples.**
-
-- With a Done story's published completion showing, open **Follow up on
-  comparison** by keyboard beside **Notes**. The composer shows the published
-  comparison and its exact pair. Cancel to return focus to the icon. Starting
-  from the same button sends that pair, including the wider baseline when
-  **Include merged changes** is selected.
-- With a Done story's published comparison open, select a landed run with a
-  different pair. Open the same title-row action and start a follow-up. The
-  composer and the follow-up both name the landed run's pair.
-- With no readable comparison, no Done story, or no selected story, the
-  comparison action is absent. A submitted landed reference belonging to
-  another story, or a submitted pair differing from the selected run,
-  is refused before starting a session.
-
 <a id="read-story-evidence-from-intent-home"></a>
 
 ### Read CI comparison and Intent coverage from Story Home
@@ -195,73 +151,273 @@ project browsing, session selection, and new CI evidence are separate work.
 
 **Identity:** SEED-420#browse-one-selectable-review-tree
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/838-browse-one-selectable-review-tree/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"66d8ca4c205292d6c8d16d6fdb0bf9f3129f9c4c8b462d9a534c39f115520aa5","plan":"8102836c229acd4818db853667dd7b78bcb38286a71e0629837adeb03b895a1f"}}
 ```
 
-A developer can browse Intent paths and other paths together in one tree of
-repository paths at the story review's selected revision. Show each path in
-its repository folder. Retire the separate Intent section lists and
-**Outside Intent locations** section. Keep comparison paths for deleted and
-renamed files reachable and preserve the selected comparison when opening a
-path.
+**Goal.** A developer reviewing a story can navigate its repository folders,
+open source or a diff, and move to a folder's Intent proof while keeping
+the same story and comparison in view.
 
-Folder rows can become the current selection, with a separate expand and
-collapse control. Selecting a regular folder replaces the previous reading
-with an empty or minimal folder view. Selecting a configured Intent root or
-a folder under it opens the folder's proof summary. For example, a developer
-can expand `dashboard`, select a regular folder without leaving the tree,
-then select a frontend test folder and see its proof. The
-[folder proof story](#recognize-intent-folders-and-read-proof) owns the visual
-cues and section details. [Project browsing](#browse-the-project-at-a-revision)
-applies the shared tree to the whole-project scope.
+**Scope.** Show a single repository path tree in story review. When the
+comparison supplies a published revision, use its repository inventory and
+the Intent locations at that revision. Place tracked files, including files
+outside Intent, under their repository folders. Overlay the selected
+comparison on this inventory so deletions remain selectable at their former
+paths and a renamed file has one row at its destination with both paths
+available in the diff. Preserve the former path for baseline proof and
+existing links into the comparison. Retire the separate Intent section
+lists and **Outside Intent locations** section in story review.
+
+A folder name selects the folder and its disclosure control independently
+opens or closes its children. Both controls work by keyboard. Selecting a
+regular folder replaces the previous reading with a minimal view naming its
+path. Selecting a configured Intent root or folder within it opens its
+existing scope summary. Selecting an unchanged file reads its source at the
+browsed revision. Selecting a changed file uses the current comparison's
+diff and existing proof. Keep the comparison choice when moving among
+paths, and keep the directed **Review changes** entry and file navigation
+working with the paths shown in the tree.
+
+Keep **Selected story only** and its current meaning while the
+[filter story](#filter-review-files) owns its replacement. When repository
+inventory is unavailable, explain the gap and keep independently readable
+comparison paths available. Keep existing evidence and navigation for a
+story without a published comparison. The
+[folder proof story](#recognize-intent-folders-and-read-proof) owns new cues
+and summary details. [Project browsing](#browse-the-project-at-a-revision)
+owns the whole-project rollout.
+
+**Key examples.**
+
+- In a story comparison containing tests and production changes, expand
+  `dashboard` once to reach both kinds of paths. Select a production
+  folder to replace the previous diff with its folder view. Collapse it
+  without changing the selection, then select a frontend test folder and
+  read its proof summary with the same comparison still selected.
+- In a comparison with a deleted test and a test renamed into a
+  production folder, open the deletion at its old path and the rename at
+  its destination. The deletion and rename retain their change kinds and
+  diffs. The rename keeps its former path and baseline proof. File moves
+  traverse the visible changed paths in tree order. **Selected story only**
+  hides unchanged paths while preserving the ancestors needed for those
+  changes.
+- Choose a captured landed run whose repository has an unchanged document
+  that later trunk changes. Open the document from the tree and read the
+  text at that run's revision. Choose another published comparison and the
+  tree follows its revision. If the inventory read fails, explain the gap
+  and leave the available changed diffs reachable.
 
 <a id="filter-review-files"></a>
 
 ### Filter the file browser by Intent and by changes
 
 **Identity:** SEED-420#filter-review-files
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-420#filter-review-files","dependencies":[{"supplier":{"identity":"SEED-420#browse-one-selectable-review-tree","href":"seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree"},"implementation":"One story-review tree of repository paths","rationale":"These filters narrow that one inventory. The browser today lists configured Intent locations and changed files outside them, so both filters off cannot show the repository, and applying the filters to the sections that story retires would not leave this inventory. Building the repository tree here would take that story's outcome.","condition":"Story review shows Intent paths and other repository paths together in one tree at the selected revision, with each path in its repository folder, folder rows selectable, and comparison paths for deleted and renamed files reachable. The separate Intent section lists and Outside Intent locations section are retired.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/838-filter-review-files/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1edaa58471fa196c569c38828e1924c74c540165e2314462b7ab68cec74a2d36","plan":"485bffc4e77e4e13542b5f1b1bc1c4181a2c37a6505fb1daa7f7ef1224608e05"}}
 ```
 
-A developer sees the same filtered inventory in the unified tree and the
-folder file list. Replace **Selected story only** with two independent
-controls. **Intent only** means paths matching the selected revision's
-configured Intent locations. **Changes only** means added, modified, removed
-or renamed paths in the active story comparison. Both on shows changed specs
-that match Intent and hides untouched specs and changed production files.
-Either off widens the inventory along that dimension. Both off shows the
-repository inventory at the selected revision, with comparison paths for
-deletions and renames. Keep ancestors needed to navigate to matching paths.
+**Goal.** A developer reviewing a story, or browsing the published project
+without one, can narrow the file browser to configured Intent paths, to the
+active comparison's changes, or to both. The tree and a folder's file list
+show that same inventory, and both filters off still reaches the repository
+at the selected revision. This keeps one review workspace while the developer
+hides untouched Intent files or changed production files independently.
 
-Place the filters after **Home** in the sidebar. Keep Intent filtering usable
-without a story. In whole-project scope omit **Changes only**. If a story has
-no usable comparison, explain why its changes filter is unavailable. File
-filtering leaves Home's comparison evidence intact.
+**Scope.** Replace **Selected story only** with two independent checkboxes,
+**Intent only** and **Changes only**, after **Home** in that order. The
+[sidebar story](SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
+owns how that row fits. This story owns what the controls do to the inventory.
 
-**Effort hypothesis:** M, medium confidence, given the current story overlay.
+**Intent only** lists paths the selected revision's configured Intent
+locations admit. A deletion is admitted by its path. A rename is admitted
+when either path is, so a rename across a location boundary stays listed.
+**Changes only** lists added, modified, removed, and renamed paths in the
+active story comparison: the published comparison or the chosen landed run,
+including the wider baseline when **Include merged changes** is selected.
+Both on lists the paths in both sets. Turning one off widens only that
+dimension. Both off lists the repository inventory at the selected revision,
+including comparison paths for deletions and renames the revision no longer
+contains. An ancestor folder of a matching path stays listed so the path can
+be opened. A folder with no matching path is omitted.
+
+The unified tree and a selected folder's file list show these same paths. A
+folder view that lists no files stays as the
+[tree story](#browse-one-selectable-review-tree) left it. Where a folder
+lists files, those files are this inventory. The folder's proof explanation
+stays with
+[its story](#recognize-intent-folders-and-read-proof).
+
+On a story, with no kept choice, **Changes only** starts on and **Intent
+only** starts off. The choices stay with the reading place across leaving
+Intent, refreshing the comparison, and choosing another comparison. In
+whole-project scope **Changes only** is omitted, and a kept **Intent only**
+choice still applies; with no kept choice it starts off. Returning to a
+story restores the kept **Changes only** choice.
+
+**Intent only** works with no story selected. With no configured Intent
+locations, **Intent only** lists no paths and the browser says that no Intent
+locations are configured.
+
+When the story's comparison is still being read, has failed, or is
+unavailable, **Changes only** explains why it is unavailable and does not
+narrow the inventory. **Intent only** still applies. The comparison's
+existing retry reads it again. Once the comparison is usable, the kept
+**Changes only** choice applies. When the filters that are on match no path,
+the browser says that no files match, and the controls stay so the developer
+can widen the inventory.
+
+A filter removes paths from the browser and leaves the open reading and Story
+Home in place. Story Home's comparison and coverage evidence stay as the
+[Home story](#read-story-evidence-from-intent-home) defines them, including
+an unchanged test's contribution.
+
+The [tree story](#browse-one-selectable-review-tree) supplies the one
+repository tree, folder selection, and reachable deletions and renames.
+Project CI, opening a file at the project revision, and reading a repository
+with no Intent locations belong to
+[project browsing](#browse-the-project-at-a-revision). Session selection and
+session-subset comparisons belong to their existing work.
+
+**Key examples.**
+
+- A story's published comparison is open and nothing has been kept. The
+  browser lists a changed spec, a changed production file, and a deleted spec
+  under their folders, and omits an untouched spec. The selected folder's
+  file list shows those same changed paths. Turning **Intent only** on leaves
+  the changed and deleted specs and omits the production file. Both lists
+  agree. When the story changed only a production file, both filters on say
+  that no files match; turning **Intent only** off lists that file.
+- Both filters are off. An untouched production file at the selected revision
+  is listed, and a path the comparison deleted is listed though the revision
+  no longer contains it. Turning **Changes only** on leaves the deletion and
+  omits the untouched file.
+- The developer chooses a landed run, then selects **Include merged changes**
+  where that comparison supports it. **Changes only** lists that choice's
+  paths, and the comparison choice stays.
+- The comparison cannot be read. **Changes only** explains why, and the
+  revision's files stay listed, narrowed by **Intent only** when that is on.
+  After the comparison can be read, the kept **Changes only** choice narrows
+  the list.
+- With no story selected, **Changes only** is absent. **Intent only** off
+  lists the inventory that scope shows. **Intent only** on lists the paths
+  its configured locations admit. With no configured locations, **Intent
+  only** says so, and turning it off lists that inventory again.
+- **Changes only** is on and Home is showing. An unchanged failing test is
+  absent from the browser. Its result still contributes to the story's CI
+  evidence. A production file that is open stays open when **Intent only**
+  is turned on; it leaves the browser until **Intent only** is turned off.
 
 <a id="recognize-intent-folders-and-read-proof"></a>
 
 ### Recognize Intent folders and read their proof
 
 **Identity:** SEED-420#recognize-intent-folders-and-read-proof
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-420#recognize-intent-folders-and-read-proof","dependencies":[{"supplier":{"identity":"SEED-420#browse-one-selectable-review-tree","href":"seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree"},"implementation":"Shared selectable repository path tree in Intent","rationale":"Ancestor rollup cues and clean root folder rows apply to directories in the single selectable repository path tree. Today Intent renders flat location-group accordion sections without ancestor folder rows and with single-child compaction, while SEED-420#browse-one-selectable-review-tree is actively Taken to build that shared path tree and regular-versus-Intent folder selection.","condition":"Story review shows repository paths in one selectable folder tree without single-child compaction, routing regular folders to the minimal path view and configured Intent roots and nested folders to Summary, with the separate Intent section lists and Outside Intent locations section retired in story review.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/840-recognize-intent-folders-and-read-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b2421b0efbb179fd882aaae8a7d90ced699d7784cc6bcf67cb7b882b27684340","plan":"cca4fa48fdbf180ec4023afe92e56df4d3f463abe4fd78e0b7ecd96c4371fe5c"}}
 ```
 
-A developer can find configured Intent locations in the shared file tree.
-Style a collapsed ancestor containing one or more Intent locations with a
-cue related to the current Intent section style. Once expanded, style the
-visible Intent root itself. If an intervening folder still hides a root, its
-collapsed row carries the cue. Root rows stay visually distinct whether open
-or closed. The tree rows show folder names and state. Test types and
-configured folder and file patterns belong in the selected root's summary.
+**Goal.** A developer reviewing a story or browsing a published project in
+Intent can spot where configured Intent locations sit in the shared file tree
+without pattern clutter on folder rows, and read a root's test configuration
+or a nested folder's scoped CI proof with its evidence basis identified.
 
-Selecting the root shows its test type, configured patterns, matching files
-and proof. Selecting a folder inside that location shows proof scoped to that
-folder, with the evidence basis identified. The same tree cues and folder
-reading apply when browsing a published project without a selected story.
+**Scope.** Use the shared selectable repository folder tree both in story
+review and when browsing a published project without a selected story over
+its configured-location inventory at the browsed revision. Retire the
+separate Intent location accordion headers and exclusive single-location
+collapse. Configured Intent roots with no matching files or an unsupported
+kind remain selectable at their root paths except when hidden by a story
+changes-only filter.
+
+In the shown tree, style each configured Intent root row visually distinctly
+whether open or closed, building on the existing Intent location colour
+family so roots stand apart from regular folders and collapsed ancestors
+while preserving selection, story change marks, and CI comparison cues on
+compared entry roots. Style a collapsed non-root folder with a related,
+lighter cue when at least one configured Intent root is present beneath it in
+the shown tree. Once expanded, clear the cue on that folder; if an
+intervening child folder remains collapsed and still hides a shown Intent
+root, its collapsed row carries the cue until the root is visible.
+
+Tree folder rows show only the folder's name and state: open/closed
+disclosure, collapsed file count, selection, Intent root or collapsed-ancestor
+cue, story change mark, and compared-entry CI cues and words where
+applicable. Move configured labels, test types, and folder/file patterns out
+of tree rows into the selected root's Summary. Keep independent disclosure
+and selection by pointer and keyboard, and reveal ancestor folders when
+opening a path from CI links, Summary rows, or optimization candidates.
+
+Selecting a configured Intent root opens Summary with its optional label,
+repository path, declared test type (`kind`, or `sources` entries' declared
+`syntax` with their patterns), configured `include` patterns when present,
+matching Intent file count and immediate child breakdown (or the existing
+empty/unsupported explanation), and CI proof with its evidence basis
+identified. Non-matching files under a mixed-content root do not count as
+matching Intent files in Summary. Selecting a folder inside a configured
+Intent location opens Summary scoped to that folder — path, matching Intent
+files under it, and scoped CI proof with its evidence basis identified —
+without repeating root-only configuration metadata. Selecting a folder
+outside configured Intent locations, including an ancestor above an Intent
+root, shows the minimal folder view naming its path.
+
+[File filtering](#filter-review-files) owns **Intent only**, **Changes
+only**, and filtering Summary's file list. [Project browsing](#browse-the-project-at-a-revision)
+owns expanding whole-project inventory beyond configured Intent locations and
+repositories without Intent locations.
+
+**Key examples.**
+
+- **Collapsed ancestors, intervening folders, and persistent roots:** A
+  project configures Intent roots at `e2e`, `e2e_test/features`, and
+  `e2e_test/packaged/features`. With top-level folders collapsed, `e2e`
+  carries the Intent root style and `e2e_test` carries the collapsed-ancestor
+  cue; regular folders carry neither. Expanding `e2e_test` clears its cue,
+  shows `features` with the Intent root style, and leaves collapsed
+  `packaged` with the collapsed-ancestor cue until `packaged` is expanded to
+  reveal its `features` root. Expanding or collapsing a root keeps its root
+  style. Folder rows show names and state without inline types or patterns.
+- **Root Summary, mixed-content root, nested folder, and non-root ancestor:**
+  In a story comparison where `dashboard` holds `dashboard/src` and
+  `dashboard/frontend-tests` (`kind: "typescript"`, `include:
+  ["**/*.spec.ts"]`), and `Distribution` (`sources` with `shell` and
+  `javascript` patterns) also holds `Distribution/src/SKILL.md`: selecting
+  `dashboard` shows the minimal folder view naming `dashboard`. Selecting
+  `dashboard/frontend-tests` shows its label, path, `typescript`,
+  `**/*.spec.ts`, matching specs, and CI comparison proof with endpoints
+  identified. Selecting `Distribution` shows its `shell` and `javascript`
+  patterns and counts only matching tests, excluding `Distribution/src/SKILL.md`.
+  Selecting `dashboard/frontend-tests/intent` shows proof and matching files
+  scoped to that subfolder with the comparison basis identified and without
+  root configuration details.
+- **Change-filtered tree avoids false ancestor cues:** A story modifies
+  `dashboard/src/app.ts` and leaves `dashboard/frontend-tests` untouched.
+  With change filtering on (**Selected story only** or **Changes only**),
+  collapsed `dashboard` carries no Intent ancestor cue because no Intent root
+  is in the filtered tree; turning it off restores `dashboard/frontend-tests`
+  beneath `dashboard` and restores the collapsed-ancestor cue while
+  `dashboard` is closed.
+- **Project Intent without a selected story:** With no story selected,
+  Project Intent renders its configured locations in the same shared folder
+  tree starting collapsed, with independent folder disclosure. Selecting a
+  nested folder under a root shows single-run CI proof scoped to that folder
+  with the measured run, revision, branch, and any ancestor or newer-tree
+  qualification. Selecting an empty or unsupported-kind root shows `0 files`,
+  its declared type and patterns, and the existing problem explanation.
+
+**Architecture.** Following [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
+and [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#2-whole-product-focus),
+Project Intent and story review share one folder-tree representation and one
+Summary reader instead of keeping a separate location-group accordion. Root
+and collapsed-ancestor cues are derived presentation state over the shown
+tree and configured `IntentLocation` list, and Summary scopes matching files
+via `locationSelectsRepositoryPath` and proof from held `IntentCiEvidence`
+with no extra Git or CI requests.
 
 <a id="browse-the-project-at-a-revision"></a>
 

@@ -192,7 +192,7 @@ calls. Remove the superseded comparison path if it has no other caller.
 
 Use slice-focused checks and Dashboard typecheck for the changed boundary.
 Run long local checks fully awake under
-[`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+`caffeinate -s -i` on AC power.
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 Apply the test conventions in [AGENTS.md](../../../AGENTS.md) before
 authoring or changing proof.

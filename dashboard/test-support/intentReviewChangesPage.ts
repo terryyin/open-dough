@@ -19,6 +19,7 @@ import { ReviewDiffs } from "./reviewChangesDiffs.ts";
 import { reviewChanges } from "./storyCardControls.ts";
 import {
   intentDiffReading,
+  intentStory,
   showComparisonDetails,
   storyHeaderReading,
   storyTitle,
@@ -59,6 +60,10 @@ class IntentReviewChanges {
   async expectRead() {
     await expect(this.#refresh).toBeEnabled({ timeout: storyReviewWaitMs });
     return this;
+  }
+
+  followUpComparison() {
+    return intentStory(this.#intent).followUpComparison();
   }
 
   async expectText(text: string | RegExp) {

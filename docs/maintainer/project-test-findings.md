@@ -173,8 +173,8 @@ is recoverable at `d5b59b92b:DearDough.md`. The process execution release remain
 unknown.
 
 **Follow-up:** `b52c1d3bdad7369fc1042a5f2744e9ebedadecbe` (2026-11-04)
-delivered the instructions in
-[Machine sleep on macOS](../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+delivered the instructions, now carried by
+[AGENTS.md](../../AGENTS.md#failing-and-flaky-tests).
 In `SEED-241#load-intent-without-disruption-or-bulk-source-transfer`
 (`plan 477-load-intent-without-disruption`, 2026-11-05),
 the main-merge dashboard suite ran under `caffeinate -s -i` and reported

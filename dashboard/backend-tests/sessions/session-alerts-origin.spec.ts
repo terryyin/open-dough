@@ -1,62 +1,59 @@
-// Listening-address selection also has to reach existing local admission.
-// These servers use the real socket/Host/Origin guard, with no helper or host.
-import { createServer, type Server } from "node:http";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+// Listening-address selection has to name a destination the local admission
+// will accept. Typed address values drive dashboardOrigin; the real socket
+// reachability probe lives in e2e/sessions/session-alerts-origin.spec.ts.
+import { expect, test } from "vitest";
 import { dashboardOrigin } from "../../server/dashboardOrigin.ts";
-import { verifyLocalOrigin } from "../../server/localOrigin.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { verifySameOrigin } from "../../server/localOrigin.ts";
 
-function close(server: Server): Promise<void> {
-  return new Promise((resolve, reject) => {
-    server.close((error) => {
-      if (error === undefined) resolve();
-      else reject(error);
-    });
-  });
-}
+type AddressValue =
+  null | string | { address: string; port: number; family: string };
 
-for (const address of ["127.0.0.1", "0.0.0.0", "::1", "::"]) {
-  test(`an actual ${address} ephemeral listener yields a reachable admitted origin`, async () => {
-    const server = createServer((request, response) => {
-      try {
-        verifyLocalOrigin(request);
-        response.end("admitted");
-      } catch {
-        response.writeHead(403);
-        response.end("refused");
-      }
-    });
-    expect(dashboardOrigin(server)).toBeUndefined();
-    try {
-      await new Promise<void>((resolve, reject) => {
-        server.once("error", reject);
-        server.listen(0, address, resolve);
-      });
-      const origin = dashboardOrigin(server);
-      expect(origin).toBeDefined();
-      const actual = server.address();
-      if (actual === null || typeof actual === "string" || origin === undefined)
-        throw new Error("No listening TCP address");
-      expect(new URL(origin).port).toBe(String(actual.port));
-      expect(actual.port).not.toBe(4173);
-      for (const headers of [
-        { Origin: origin },
-        { "Sec-Fetch-Site": "same-origin" },
-      ]) {
-        // Exercise the actual listener family, retaining the computed URL and
-        // real Host/Origin admission even when default DNS drops IPv6 loopback.
-        const response = await rawRequest({
-          url: `${origin}/`,
-          family: actual.family === "IPv6" ? 6 : 4,
-          headers,
-        });
-        expect(response.status).toBe(200);
-        expect(response.body).toBe("admitted");
-      }
-    } finally {
-      await close(server);
-    }
-    expect(dashboardOrigin(server)).toBeUndefined();
+const serverOf = (value: AddressValue) => ({
+  address: () => value,
+});
+
+const usable: ReadonlyArray<{
+  address: string;
+  port: number;
+  family: string;
+  origin: string;
+}> = [
+  {
+    address: "127.0.0.1",
+    port: 49152,
+    family: "IPv4",
+    origin: "http://127.0.0.1:49152",
+  },
+  {
+    address: "0.0.0.0",
+    port: 49153,
+    family: "IPv4",
+    origin: "http://127.0.0.1:49153",
+  },
+  {
+    address: "::1",
+    port: 49154,
+    family: "IPv6",
+    origin: "http://localhost:49154",
+  },
+  {
+    address: "::",
+    port: 49155,
+    family: "IPv6",
+    origin: "http://localhost:49155",
+  },
+];
+
+for (const { address, port, family, origin } of usable) {
+  test(`a ${address} listener address yields ${origin} and admits that host and origin`, () => {
+    expect(dashboardOrigin(serverOf({ address, port, family }))).toBe(origin);
+    const host = new URL(origin).host;
+    expect(() => {
+      verifySameOrigin(origin, host);
+    }).not.toThrow();
+    expect(() => {
+      verifySameOrigin(null, host, "same-origin");
+    }).not.toThrow();
   });
 }
 
@@ -76,7 +73,7 @@ test("null, non-TCP, unusable explicit addresses, and invalid ports have no inve
       port: Number(port),
       family: "IPv4",
     })),
-  ]) {
-    expect(dashboardOrigin({ address: () => address })).toBeUndefined();
+  ] as const) {
+    expect(dashboardOrigin(serverOf(address))).toBeUndefined();
   }
 });
