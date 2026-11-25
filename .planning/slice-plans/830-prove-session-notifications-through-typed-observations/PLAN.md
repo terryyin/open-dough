@@ -63,7 +63,7 @@ a different path is given.
 ### 1. Alert when a session begins needing the developer
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 9–13 active minutes.
 
 Given a session already needing attention at startup, baseline it quietly.
@@ -177,6 +177,33 @@ have separate observable failures, so each has its own proof. Slice 6
 settles the temporary split of the main alert file from slice 1.
 No remaining slice-specific concern was identified against the observed
 baseline.
+
+## Execution context
+
+### Learnings
+
+- Slice 1 implementation and focused proof finished within the estimate;
+  the slice clock later reported 78 active minutes and `storyOverruns: 1`
+  because the delegated implementation call was interrupted without a
+  pause after proof. Treat that overrun as session-idle inflation, not a
+  failed slice size. Remaining slices keep their estimates.
+- `SessionAlerts` accepts an optional `SessionAlertNotifier`; production
+  keeps the branded helper. Reading/startup cases live in
+  `session-alerts-reading.spec.ts`; shutdown stays in
+  `session-alerts.spec.ts` until slice 6.
+
+### Slice 1 accepted proof
+
+- Vitest `backend-tests/sessions/session-alerts-reading.spec.ts` — 5
+  cases: five alerting readings, quiet unreadable listing observation,
+  quiet Done, quiet restart baseline then re-entry alert, first later
+  attention alert. Reproved after interrupted delegation
+  (`slice1-reprove-vitest.log.run.json`).
+- Playwright `backend-tests/sessions/session-alerts.spec.ts` — shutdown
+  lifetime only (`slice1-reprove-playwright-proof.json`).
+- Production: optional notifier dependency on `SessionAlerts`; shared
+  `TerminalNotificationContent`; MakeMe `unknownReason` for unrecognized
+  readings.
 
 ## Verification and delivery
 
