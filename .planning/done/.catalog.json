@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-remaining-backend-families-after-browser-reporter.json",
+      "identity": "SEED-413#renovate-remaining-backend-families-after-browser-reporter",
+      "completedAt": "2026-11-25T10:03:30.279Z",
+      "blob": "f20bb53a0cd1e810f7d93fbe66ef23dbff14d023"
+    },
+    {
       "fileName": "SEED-413_renovate-remaining-backend-families-after-intent-ci-readers.json",
       "identity": "SEED-413#renovate-remaining-backend-families-after-intent-ci-readers",
       "completedAt": "2026-11-25T07:57:50.372Z",

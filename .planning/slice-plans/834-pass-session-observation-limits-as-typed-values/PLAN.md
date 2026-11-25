@@ -6,7 +6,7 @@
 
 ## Goal and scope
 
-A correction of [machine-session reads](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter),
+A correction of [machine-session reads](https://github.com/terryyin/open-dough/blob/0c7ad7e2c6019d0b736e8e04ff4218ee61944e10/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter) ([plan](https://github.com/terryyin/open-dough/blob/0c7ad7e2c6019d0b736e8e04ff4218ee61944e10/.planning/slice-plans/829-prove-machine-session-reads-through-typed-answers/PLAN.md)),
 reviewed at commits `58c8cc033`..`97592f7a9` on
 `claude/prove-machine-session-reads-through-typed-backen`. Unit cases set
 the machine-session observation's wait and reuse window as typed values.
