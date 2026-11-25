@@ -9,10 +9,11 @@ collapsed-ancestor and persistent-root cues on clean folder-name rows, and read
 a root's test configuration and matching files or a nested folder's scoped CI
 proof with its evidence basis identified.
 
-This plan waits on
+The
 [SEED-420#browse-one-selectable-review-tree](https://github.com/terryyin/open-dough/blob/07dad9d62ee48012ee757bf2e6858f2d7ebfeed6/.planning/seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree)
-for the single uncompacted selectable repository path tree and regular-versus-Intent
-folder selection. Replacing **Selected story only** with **Intent only** and
+story delivered the single uncompacted repository path tree, with a path
+view for regular folders and Summary for Intent folders. Replacing
+**Selected story only** with **Intent only** and
 **Changes only** belongs to
 [SEED-420#filter-review-files](../../seeds/SEED-420-unified-intent-review.md#filter-review-files),
 and expanding whole-project inventory beyond configured Intent locations belongs
@@ -41,11 +42,10 @@ to
   to restrict Summary's matching-file inventory under mixed-content roots,
   reuse [IntentScopeProof](../../../dashboard/src/IntentScopeProof.tsx) and
   [intentTreeComparison](../../../dashboard/src/intentTreeComparison.ts) for
-  scoped proof and compared-entry root cues, and move Project Intent onto the
-  supplier's shared selectable folder tree so
-  `IntentTreeGroups.tsx`, `IntentLocationGroup.tsx`, `IntentLocationHeader.tsx`,
-  `IntentOutsideGroup.tsx`, and superseded rules in `intent-location-group.css`
-  are retired rather than maintained beside the tree.
+  scoped proof and compared-entry root cues. `IntentBrowserTree` renders
+  `IntentStoryFileTree` for stories and `IntentLocationGroup` for Project
+  Intent. Move Project Intent onto the selectable tree and migrate the
+  `IntentLocationHeader` metadata still used on story root rows.
 - Follow the [Architectural North Star](../../NORTH-STAR.md):
   - [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support):
     keep the ancestor/root cue rule in a small typed production module and pass
@@ -68,12 +68,11 @@ to
   on), and filter Summary's listed files by `locationSelectsRepositoryPath`
   (admitting a rename when either path matches) on top of whichever shown or
   overlaid inventory the browser supplies.
-- Keep edited files within the 250-line limit (`IntentBrowser.tsx` is 246
-  lines, `StoryReviewFileTree.tsx` 199 lines, and
-  `e2e/intent/intent-summary-ci-proof.spec.ts` 239 lines at `0b7b8984e011`;
-  recheck `IntentBrowser.tsx` and `StoryReviewFileTree.tsx` on startup after
-  the supplier lands, extracting Intent folder-row cue presentation into a
-  dedicated cohesive module if needed).
+- Keep edited files within the 250-line limit. At the supplier integration,
+  `IntentBrowser.tsx` is 200 lines, `IntentStoryFileTree.tsx` 162 lines,
+  and `StoryReviewFileTree.tsx` 218 lines. Recheck these files and the
+  affected proof at startup, extracting Intent folder-row cue presentation
+  into a cohesive module if needed.
 
 ## Decisive premises and baseline
 
@@ -193,9 +192,8 @@ ancestor minimal folder view, and root/subfolder Summary reading as story
 review. Preserve path reveal when opening a location, folder, or file from CI
 entry links, Summary child rows, and optimization candidates.
 
-Retire `IntentTreeGroups.tsx`, `IntentLocationGroup.tsx`,
-`IntentLocationHeader.tsx`, `IntentOutsideGroup.tsx` (if unused after the
-supplier lands), and superseded rules in `intent-location-group.css`,
+Retire `IntentLocationGroup.tsx`, any remaining use of
+`IntentLocationHeader.tsx`, and superseded rules in `intent-location-group.css`,
 `story-review-files.css`, `change-kinds.css`, and `intent-ci-cues.css`. Update
 the direct header and exclusive-collapse tests to assert clean folder rows,
 ancestor/root cues, independent disclosure, and root configuration in Summary.
@@ -204,7 +202,7 @@ ancestor/root cues, independent disclosure, and root configuration in Summary.
 
 - Run the installed
   [consumer-trace script](../../../.agents/skills/dough-execute-plan/scripts/consumer-trace.mjs)
-  before each slice commit with terms `IntentTreeGroups`,
+  before each slice commit with terms `IntentBrowserTree`, `IntentStoryFileTree`,
   `IntentLocationGroup`, `IntentLocationHeader`, `intent-location-header`,
   `intent-location-toggle`, `intent-location-name`, `intent-location-kind`,
   `intentGroupToggle`, `intentLocationName`, `expandIntentGroup`,
