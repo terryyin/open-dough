@@ -38,6 +38,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Exercise Board navigation on published story fixtures](seeds/SEED-442-exercise-board-navigation-on-published-story-fixtures.md#exercise-board-navigation-on-published-story-fixtures) — SEED-442#exercise-board-navigation-on-published-story-fixtures
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files
 - [Recognize Intent folders and read their proof](seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof) — SEED-420#recognize-intent-folders-and-read-proof
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision
