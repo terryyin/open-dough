@@ -8,6 +8,18 @@ latest review. Each review records its date, tested revisions, evidence,
 decision (keep, simplify, retire, or inconclusive), and next review trigger.
 Use Git for earlier reviews and retired entries.
 
+## Review order
+
+1. **Right problem.** Trace the observed failure to its cause. Check whether
+   it comes from the tool, the Distribution, or unnecessary work the workflow
+   asks the agent to do. Identify what would prevent it at its source.
+2. **Still necessary.** Exercise the real workflow on the current tool with a
+   pinned payload and the workaround disabled. Record the build, surface, and
+   outcome. Treat missing evidence as inconclusive.
+3. **Right solution.** If the problem persists, compare the workaround with the
+   simplest viable approach. Check that it preserves the outcome before
+   keeping, simplifying, or retiring the workaround.
+
 ## Codex wakes during supplier watches, proofs, and CI completion
 
 - **Symptom.** Early returns during a quiet supplier watch prompted excess model
@@ -45,6 +57,14 @@ Use Git for earlier reviews and retired entries.
   used prepatch `faddac224a` and the revised guidance in `5bbbc506a`.
   Recheck after a Codex release affecting command or cell waits, or in a
   periodic review once a newer Codex build is available.
+- **2026-11-25 review.** **Right problem:** an outer tool return can wake the
+  model while the same command is still running. **Still necessary:** in the
+  current Codex session a quiet 28-second command stayed live after a default
+  cell wait returned at 11 seconds. The next explicit wait received the
+  original exit status. This establishes the early return, with supplier and
+  CI retirement verdicts still pending. **Right solution:** keep the longer
+  same-cell wait for now. Check whether the shared recipe alone meets the
+  supplier limits before carrying a supplier-specific copy forward.
 
 ## Codex yielded CI notification bridge
 
@@ -58,8 +78,14 @@ Use Git for earlier reviews and retired entries.
   revision. Evaluate any native callback for correct recipient, one delivery
   at a safe boundary, and continued accounting for unread events. Retire the
   cell and manual handles if that route preserves those behaviors.
-- **Last review.** 2026-11-25, keep pending native evidence. Static review
-  against Codex `0.172.0`. Recheck when Codex changes background notifications.
+- **Last review.** 2026-11-25. **Right problem:** a failure must reach its
+  coordinator during ongoing work so it can act at a safe boundary.
+  **Still necessary:** the shipped bridge passed its controlled checks. The
+  ability of a native hook to deliver equivalent events in this workflow is
+  unverified. **Right solution:** keep the bridge pending that comparison.
+  Test native hook delivery against the same failure, recipient, and unread
+  event behavior before carrying forward the cell and manual handles. Static
+  host review used Codex `0.172.0`.
 
 ## Claude Code subagent identity in CI commands
 
@@ -71,8 +97,15 @@ Use Git for earlier reviews and retired entries.
 - **Recheck.** Arm a subagent-owned observer and run delivery, resume, and
   finish through the agent's own tool. Simplify when the command can obtain
   the hook's exact owner directly and a sibling cannot claim its events.
-- **Last review.** 2026-11-25, keep. Static review against Claude Code
-  `2.1.332`. Recheck when shell or hook identity fields change.
+- **Last review.** 2026-11-25, inconclusive. **Right problem:** event ownership
+  matters if a subagent actually owns the observer. First identify a supported
+  workflow that needs that ownership. **Still necessary:** Claude Code
+  `2.1.332` documentation distinguishes the shell session ID from the hook's
+  agent ID. The controlled check supplies both IDs itself. Native access to
+  the agent ID in the workflow remains unverified. **Right solution:** if
+  supported work always assigns observers to the top-level coordinator, review
+  whether the special case can go. Otherwise compare automatic identity
+  transfer with explicit JSON. [ODF-232](findings/ODF-232.md#odf-232)
 
 ## Cursor exit-file proof wait
 
