@@ -12,6 +12,9 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   terminalPanel,
   terminalScreenParts,
@@ -47,10 +50,9 @@ import {
 } from "../../dashboard/test-support/sessionNavigationJourney.ts";
 import {
   pygardonBacklogTitles,
+  pygardonRepository,
   pygardonStory,
 } from "../../dashboard/test-support/pygardonProject.ts";
-
-test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
 test.describe("opening a Sessions sidebar Session entry", () => {
   let columnsJourney: StoryColumnsJourney;
@@ -64,12 +66,15 @@ test.describe("opening a Sessions sidebar Session entry", () => {
   test("goes to its story and its session across projects, moves the marks, and gives the keyboard back to the entry once the terminal closes", async ({
     page,
     dashboard,
+    afterGitHubStops,
   }) => {
-    const { card, sessions, holdPygardonStories } = await openNavigationJourney(
-      page,
-      dashboard,
-      columnsJourney,
-    );
+    const { card, sessions, holdPygardonStories, pygardon } =
+      await openNavigationJourney(
+        page,
+        dashboard,
+        columnsJourney,
+        afterGitHubStops,
+      );
     const { button, entries, entry } = sessionsSidebarParts(page);
     const { roster } = rosterParts(page);
     const { backlog } = parts(page);
@@ -108,6 +113,20 @@ test.describe("opening a Sessions sidebar Session entry", () => {
         taken: [],
         backlog: pygardonBacklogTitles,
       });
+      expect(
+        await remoteBranchHead(
+          gitHubRepositoryUrl(pygardonRepository),
+          "refs/heads/main",
+          {
+            cwd: dashboard.home,
+            env: { HOME: dashboard.home },
+            maxBuffer: 4096,
+          },
+        ),
+      ).toBe(pygardon.revisions.published);
+      expect(pathsRead(pygardon)).toContain(
+        `PRODUCT-BACKLOG.md?ref=${pygardon.revisions.published}`,
+      );
       await expect(pygardonStoryCard).toBeInViewport();
       // Asked to be brought into view smoothly, and kept there as the page
       // settled.

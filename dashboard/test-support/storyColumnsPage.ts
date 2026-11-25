@@ -4,12 +4,15 @@
 // shows each later revision by reloading the page, by the page being seen
 // again, or in the open page once its own steady pace of page time passes.
 
+import { mkdir } from "node:fs/promises";
+import path from "node:path";
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   doughnutBacklog,
+  doughnutHistory,
   doughnutRecords,
   doughnutRepository,
   revisionDoughnut,
@@ -17,6 +20,7 @@ import {
 import type { StoryColumnsJourney } from "./launchJourney.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { publishMovingHistory } from "./publishedMovingOrigin.ts";
 import {
   openUntilRead,
   untilPageRequestsAnswered,
@@ -28,14 +32,40 @@ export type Workflow = "Execution" | "Refinement";
 export async function openStoryColumnsJourney(
   page: Page,
   columnsJourney: StoryColumnsJourney,
+  sessionNavigation?: {
+    home: string;
+    afterGitHubStops: (cleanup: () => Promise<void>) => void;
+  },
 ) {
   const origin = await publishCommittedOrigin(page, {
     repoDir: columnsJourney.origin,
     revision: columnsJourney.queued,
     repository: "terryyin/open-dough",
   });
-  const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
+  let doughnutRevision = revisionDoughnut;
+  if (sessionNavigation === undefined) {
+    // Launch journeys retain their own configured checkout and auxiliary data.
+    const doughnut = await publishMovingOrigin(page, doughnutRepository);
+    doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
+  } else {
+    // Existing sessions attach in their local folders. These journeys do
+    // not start workflows from a catalog-installed checkout.
+    await Promise.all(
+      ["open-dough", "doughnut", "pygardon"].map((project) =>
+        mkdir(path.join(sessionNavigation.home, "git", project), {
+          recursive: true,
+        }),
+      ),
+    );
+    const doughnut = await publishMovingHistory(
+      page,
+      doughnutHistory,
+      "published",
+      sessionNavigation.afterGitHubStops,
+      doughnutRepository,
+    );
+    doughnutRevision = doughnut.revisions.published;
+  }
   await openUntilRead(page);
   const { backlog, readRevision } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
@@ -46,6 +76,7 @@ export async function openStoryColumnsJourney(
     card,
     action,
     settled,
+    doughnutRevision,
     // Origin publishes the revision, and the page reads it: after a reload,
     // after being seen again (`reload: false`), or, given the `pace` that
     // lets the paused page clock pass its steady pace, in the open page by

@@ -15,8 +15,8 @@ export const coldInputPreparation = {
   timeout: 60_000,
 } as const;
 
-// npm exec of the pinned Codex package is larger than other cold inputs and
-// can miss a warm cache on CI; keep the same worker scope with a longer bound.
+// CI supplies a prepared executable. A local worker may acquire the package
+// on demand and keeps the separate cold preparation allowance.
 export const pinnedWatcherCodexPreparation = {
   scope: "worker",
   timeout: 180_000,
@@ -104,8 +104,8 @@ export const publishedMainWorkerFixtures: Fixtures<
     coldInputPreparation,
   ],
   // The pinned native Codex executable a published-main watcher journey
-  // drains through (./watcherNativeCodex.ts). Acquiring the package is the
-  // worker's; each journey starts and stops its own daemon from it.
+  // drains through (./watcherNativeCodex.ts). Each journey starts and stops
+  // its own daemon from the executable the worker resolves.
   pinnedWatcherCodex: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {

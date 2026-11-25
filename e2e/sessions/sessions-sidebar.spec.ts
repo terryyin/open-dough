@@ -42,7 +42,6 @@ import {
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 
 test.use({
-  projectFolders: ["open-dough", "doughnut", "pygardon"],
   extraEnv: briefDoneRenameWait,
 });
 
@@ -64,6 +63,7 @@ test.describe("the Sessions sidebar", () => {
   test("lists every project's open sessions with the ones needing attention first, and sits left of the page or over it", async ({
     page,
     dashboard,
+    afterGitHubStops,
   }) => {
     await pausePageClockAt(page, new Date());
     const { passOnePace } = await watchRecordReads(page);
@@ -100,6 +100,7 @@ test.describe("the Sessions sidebar", () => {
     const { settled, card } = await openStoryColumnsJourney(
       page,
       columnsJourney,
+      { home: dashboard.home, afterGitHubStops },
     );
     const {
       sidebar,

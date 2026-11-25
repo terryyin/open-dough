@@ -1,55 +1,28 @@
 // The watcher drains an actual native launch. A blank Codex conversation
 // proves successful durable settlement without credentials or model input.
 import { execFile } from "node:child_process";
-import {
-  mkdir,
-  mkdtemp,
-  readFile,
-  realpath,
-  rm,
-  symlink,
-} from "node:fs/promises";
+import { mkdir, mkdtemp, realpath, rm, symlink } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
+import {
+  acquirePinnedWatcherCodex,
+  readPinnedWatcherCodex,
+} from "../../../scripts/pinned-watcher-codex.mjs";
 import { repoRoot } from "./repositoryRoot.ts";
 import { processRunning } from "./processGroup.ts";
 
 const exec = promisify(execFile);
-const codexPackage = "@openai/codex";
-const codexVersion = "0.167.1";
-
-// The pinned Codex executable. Its package is large and absent from the
-// project's own install, so acquiring it is cold shared preparation a worker
-// does once (./publishedMainWorkerFixtures.ts) before a journey starts its daemon.
+// CI finishes native acquisition before starting Playwright. Local focused
+// runs can still acquire the same pinned executable on demand.
 export async function pinnedWatcherCodex(): Promise<string> {
-  const { stdout: command } = await exec(
-    "npm",
-    [
-      "exec",
-      "--yes",
-      "--prefer-offline",
-      "--package",
-      `${codexPackage}@${codexVersion}`,
-      "--",
-      "sh",
-      "-c",
-      "command -v codex",
-    ],
-    { cwd: repoRoot },
-  );
-  const shim = command.trim();
-  if (!path.isAbsolute(shim)) throw new Error("No pinned Codex executable");
-  const codex = await realpath(shim);
-  const manifest = JSON.parse(
-    await readFile(
-      path.resolve(path.dirname(codex), "../package.json"),
-      "utf8",
-    ),
-  ) as { name?: string; version?: string };
-  if (manifest.name !== codexPackage || manifest.version !== codexVersion) {
-    throw new Error(`Expected ${codexPackage}@${codexVersion} at ${codex}`);
+  const prepared = process.env["OPEN_DOUGH_WATCHER_CODEX"];
+  if (prepared) return readPinnedWatcherCodex(prepared);
+  if (process.env["GITHUB_ACTIONS"] === "true") {
+    throw new Error(
+      "Prepare Codex with node scripts/setup-native.mjs watcher-codex before running the production watcher tests in CI.",
+    );
   }
-  return codex;
+  return acquirePinnedWatcherCodex(repoRoot);
 }
 
 export async function startWatcherNativeCodex(

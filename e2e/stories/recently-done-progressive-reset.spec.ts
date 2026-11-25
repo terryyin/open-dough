@@ -25,10 +25,7 @@ import {
   openTerminalControl,
   terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
-import {
-  entryName,
-  revision as revisionA,
-} from "../../dashboard/test-support/recentlyDoneProgressive.ts";
+import { entryName } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   isRecord,
   opened,
@@ -45,7 +42,6 @@ import {
   storiesThrough,
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
-  movingMain,
   namesOf,
   recordsAskedAt,
   refreshedTo,
@@ -60,23 +56,26 @@ import { holding } from "../../dashboard/test-support/support/heldGitHubAnswer.t
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
 
-test.use({ projectFolders: ["open-dough", "pygardon"] });
+test.use({ projectFolders: ["open-dough"] });
 
 test("an old revision's late record answer changes nothing; the terminal, panel width, sidebar, and a narrow window keep twenty; a reload starts again at ten", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.clock.install();
-  const main = movingMain();
   const held = entryAt(13);
   if (held.kind !== "story") throw new Error("Entry 13 is no story.");
+  const changed = retitled(held);
+  const atB = entries.map((entry) => (entry.place === 13 ? changed : entry));
   let release: () => void = () => undefined;
   const view = await opened(page, dashboard, entries, {
     open: [destination],
-    answering: (published) => {
+    history: { afterGitHubStops, later: { B: atB } },
+    answering: (published, revisionA) => {
       const hold = holding(
-        main.answering(published),
+        published,
         ({ request }) =>
           isRecord(held.path)(request) &&
           "revision" in request &&
@@ -86,9 +85,9 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
       return hold.answer;
     },
   });
-  const { github, recent, now } = view;
-  const changed = retitled(held);
-  const atB = entries.map((entry) => (entry.place === 13 ? changed : entry));
+  const { github, recent, main } = view;
+  if (main === undefined) throw new Error("No progressive publication history");
+  const { firstRevision: revisionA } = main;
   const twenty = namesOf(atB, 20);
 
   await revealAction(recent).click();
@@ -100,7 +99,7 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
     .toEqual(storiesThrough(20).toSorted());
 
   await test.step("the new revision reads the changed record there, and the old revision's answer released afterwards changes nothing", async () => {
-    const revisionB = main.publish(now, atB);
+    const revisionB = main.publish("B");
     await refreshedTo(page, revisionB);
     await expectEntries(recent, twenty);
     expect(recordsAskedAt(github, revisionB)).toEqual([held.path]);
@@ -155,11 +154,12 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
 });
 
 test("choosing another project while a revealed batch is read shows that project, which the late answer leaves alone, and Open Dough starts again at ten", async ({
+  afterGitHubStops,
   page,
   dashboard,
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
-  await publishOnePygardonStory(page);
+  await publishOnePygardonStory(page, afterGitHubStops);
   const view = await openedWithHeldStory(page, dashboard, { open: [] });
   const { github, recent } = view;
   const { backlog } = parts(page);

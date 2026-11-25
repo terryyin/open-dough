@@ -12,7 +12,7 @@ import {
   projectIntentFrame,
   storyTab,
 } from "./intentModePage.ts";
-import { publishMovingFiles } from "./publishedFiles.ts";
+import { publishCommittedFiles } from "./committedFiles.ts";
 import type { Locator, Page } from "@playwright/test";
 
 // The trunk's served CI and the judgment's calls live page-free beside the
@@ -29,10 +29,9 @@ export function publishProject(
   project: CatalogPublication,
   extra: Readonly<Record<string, string>> = {},
 ) {
-  return publishMovingFiles(page, {
+  return publishCommittedFiles(page, {
     repository: project.repository,
     ref: project.ref,
-    revision: project.revision,
     files: { ...project.files, ...extra },
   });
 }

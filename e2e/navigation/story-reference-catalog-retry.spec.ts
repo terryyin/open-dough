@@ -13,7 +13,7 @@ import {
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { describedRevisions } from "../../dashboard/test-support/describedRevisions.ts";
+import { publishCommittedFileHistory } from "../../dashboard/test-support/committedFiles.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   agreement,
@@ -26,7 +26,7 @@ import {
   referenceNotice,
   retryReference,
 } from "../../dashboard/test-support/storyReference.ts";
-import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { doneRecordAt } from "../../dashboard/test-support/recentlyDoneRecords.ts";
 
 const supplier = makeMe.aBacklogEntry
@@ -38,37 +38,34 @@ const supplier = makeMe.aBacklogEntry
   .please();
 
 function publishedReference(now: Date) {
-  const { recorded } = describedRevisions(
-    queuedReadyRepository({ queued: [consumer] })
-      .withRevision("recorded", {
-        files: {
-          ".planning/seeds/A.md": queuedSeedWithDependencies(consumer, [
-            agreement({ supplier, state: "waiting" }),
-          ]),
-          ".planning/seeds/endpoint.md": storySeed(
-            supplier,
-            "Deliver the endpoint.",
-          ),
-        },
-        doneRecords: [
-          makeMe.aDoneRecord
-            .completed({ ...supplier, completedAt: now.toISOString() })
-            .please(),
-          makeMe.aDoneRecord
-            .completed({
-              identity: "SEED-222#old",
-              title: "Old endpoint",
-              completedAt: new Date(
-                now.getTime() - 31 * 86_400_000,
-              ).toISOString(),
-            })
-            .please(),
-        ],
+  const doneRecords = [
+    makeMe.aDoneRecord
+      .completed({ ...supplier, completedAt: now.toISOString() })
+      .please(),
+    makeMe.aDoneRecord
+      .completed({
+        identity: "SEED-222#old",
+        title: "Old endpoint",
+        completedAt: new Date(now.getTime() - 31 * 86_400_000).toISOString(),
       })
       .please(),
-    { base: "c1".repeat(20), recorded: "c2".repeat(20) },
-  );
-  return recorded;
+  ];
+  return queuedReadyRepository({ queued: [consumer] })
+    .withRevision("failed", {
+      files: {
+        ".planning/seeds/A.md": queuedSeedWithDependencies(consumer, [
+          agreement({ supplier, state: "waiting" }),
+        ]),
+        ".planning/seeds/endpoint.md": storySeed(
+          supplier,
+          "Deliver the endpoint.",
+        ),
+        [catalogFile]: "{broken",
+      },
+      doneRecords,
+    })
+    .withRevision("corrected", { doneRecords })
+    .please();
 }
 
 async function openReferenceBoard(page: Page) {
@@ -89,21 +86,31 @@ async function openReferenceBoard(page: Page) {
   };
 }
 
-async function publishCatalogFailure(page: Page) {
+async function publishCatalogFailure(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+) {
   const now = new Date();
   await pausePageClockAt(page, now);
   const github = githubFor(page);
-  const recovered = publishedReference(now);
-  const failed = {
-    revision: "c3".repeat(20),
-    files: { ...recovered.files, [catalogFile]: "{broken" },
-  };
-  github.serve(defaultRepository, publishes(failed));
+  const origin = await publishCommittedFileHistory(
+    page,
+    publishedReference(now),
+    {
+      repository: defaultRepository,
+      trunk: "failed",
+      afterGitHubStops,
+    },
+  );
+  const { failed, corrected } = origin.revisions;
+  expectServedHomesReach(github, defaultRepository, failed);
   return {
-    failedRevision: failed.revision,
-    correctedRevision: recovered.revision,
-    publishCorrection: () =>
-      github.serve(defaultRepository, publishes(recovered)),
+    failedRevision: failed,
+    correctedRevision: corrected,
+    publishCorrection: () => {
+      origin.moveTrunk(origin.at("corrected"));
+      expectServedHomesReach(github, defaultRepository, corrected);
+    },
     reads: () =>
       github.calls.flatMap(({ request }) =>
         request.kind === "content" && request.path.startsWith(".planning/done/")
@@ -115,10 +122,11 @@ async function publishCatalogFailure(page: Page) {
 
 test("Retry story reference refetches the failed Done catalog and reaches the named destination without reading expired records", async ({
   page,
+  afterGitHubStops,
 }) => {
   const catalog =
     await test.step("Given the clock is paused and the published Done catalog is unreadable", () =>
-      publishCatalogFailure(page));
+      publishCatalogFailure(page, afterGitHubStops));
   const reference =
     await test.step("When I follow a reference to the Done supplier", async () => {
       const board = await openReferenceBoard(page);

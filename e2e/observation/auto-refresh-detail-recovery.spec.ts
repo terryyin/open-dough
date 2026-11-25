@@ -8,6 +8,8 @@
 // (../../dashboard/test-support/support/fakeGitHub.ts) only publishes commits and holds answers. The
 // page's clock is paused and advanced by the test.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import type { Page } from "@playwright/test";
 import {
   expect,
@@ -28,13 +30,9 @@ import {
   headsChecks,
   openSettledAtA,
   passTimeUntilChecked,
-  recordsAt,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import {
-  backlogB,
-  revisionB,
-  titlesOfB,
-} from "../../dashboard/test-support/refreshJourney.ts";
+import { titlesOfB } from "../../dashboard/test-support/refreshJourney.ts";
+import { notFoundAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
 const claimsStory = "Publish shared backlog claims";
@@ -43,7 +41,7 @@ const gap = "The canonical record could not be read for preparation facts.";
 
 // Reloading the page reads the claims record at B and closes its gap,
 // reading nothing at any other revision.
-async function expectGapClosedAtB(page: Page) {
+async function expectGapClosedAtB(page: Page, revisionB: string) {
   const { backlog, problem, readRevision } = parts(page);
   const claimsCard = backlog.getByRole("article", { name: claimsStory });
   const from = githubFor(page).calls.length;
@@ -68,13 +66,13 @@ async function expectGapClosedAtB(page: Page) {
 
 test("auto refresh recovery: an unavailable detail of B stays labeled, is not read again while main stays at B, and a reload reads it at the same revision", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { B: revisionB } = origin.revisions;
   const { backlog, problem, readRevision } = parts(page);
-  const recordsB = recordsAt("B");
-  const { [claimsRecord]: claimsAtB, ...withoutClaims } = recordsB;
-  expect(claimsAtB).toBeDefined();
-  origin.push(revisionB, backlogB, withoutClaims);
+  const restoreClaims = origin.answerWith(claimsRecord, notFoundAnswer());
+  origin.advanceTo("B");
   const claimsCard = backlog.getByRole("article", { name: claimsStory });
 
   await test.step("B is shown, with the unavailable record labeled on its own card", async () => {
@@ -98,18 +96,42 @@ test("auto refresh recovery: an unavailable detail of B stays labeled, is not re
   });
 
   await test.step("a reload reads the record again at B, and the gap closes", async () => {
-    origin.push(revisionB, backlogB, recordsB);
-    await expectGapClosedAtB(page);
+    restoreClaims();
+    await expectGapClosedAtB(page, revisionB);
   });
 });
 
 test("auto refresh recovery: a detail of B still unread at the wait bound is labeled as a gap, the failed attempt says B's membership was read, and the page's recovery reads the detail at B without reload", async ({
   page,
+  afterGitHubStops,
+  dashboard,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { A: revisionA, B: revisionB } = origin.revisions;
+  expect(
+    await remoteBranchHead(
+      gitHubRepositoryUrl("terryyin/open-dough"),
+      "refs/heads/main",
+      {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      },
+    ),
+  ).toBe(revisionA);
   const { backlog, problem, readRevision } = parts(page);
-  const recordsB = recordsAt("B");
-  origin.push(revisionB, backlogB, recordsB);
+  origin.advanceTo("B");
+  expect(
+    await remoteBranchHead(
+      gitHubRepositoryUrl("terryyin/open-dough"),
+      "refs/heads/main",
+      {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      },
+    ),
+  ).toBe(revisionB);
   const releaseClaims = origin.hold(claimsRecord);
   const claimsCard = backlog.getByRole("article", { name: claimsStory });
   const readAtB = `after reading the published work at revision ${shortRevision(revisionB)}`;

@@ -15,7 +15,9 @@ import {
   pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
-import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { publishCommittedFileHistory } from "../../dashboard/test-support/committedFiles.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
 import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
@@ -23,20 +25,18 @@ import {
   startDashboardServer,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
-  atA,
-  atB,
   backlogPath,
   doneCatalogPath,
   donePath,
   expectSettledAt,
   opened,
   planPath,
-  productCodeCommit,
+  productCodeChange,
+  refreshHistory,
+  refreshDetails,
   profilePath,
   recordsReadAt,
   repository,
-  revisionA,
-  revisionB,
   seedPath,
   settingsPath,
 } from "../../dashboard/test-support/unchangedRecordsRefresh.ts";
@@ -44,9 +44,24 @@ import {
 test("a commit that changes no planning record is shown without reading the unchanged records again; a second tab and a restarted dashboard cost what they did", async ({
   page,
   github,
+  dashboard,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = publishMovingFiles(page, { repository, ...atA });
+  const origin = await publishCommittedFileHistory(page, refreshHistory(), {
+    repository,
+    trunk: "A",
+    details: refreshDetails,
+    afterGitHubStops,
+  });
+  const { A: revisionA, B: revisionB } = origin.revisions;
+  const routed = (home: string) =>
+    remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+      cwd: home,
+      env: { HOME: home },
+      maxBuffer: 4096,
+    });
+  expect(await routed(dashboard.home)).toBe(revisionA);
 
   await page.goto("/");
   await expectSettledAt(page, revisionA);
@@ -66,7 +81,10 @@ test("a commit that changes no planning record is shown without reading the unch
 
   await test.step("the check finds B and the page shows it after its backlog, one comparison, and one commit read, reading no other record, history, or commit time", async () => {
     const before = origin.requests.length;
-    origin.moveTrunk(atB, [productCodeCommit]);
+    origin.moveTrunk(origin.published.B, [
+      { ...productCodeChange, sha: revisionB },
+    ]);
+    expect(await routed(dashboard.home)).toBe(revisionB);
     await passTimeUntilChecked(page);
     await expectSettledAt(page, revisionB);
     const asked = readsBesideChecks(origin.requests.slice(before));
@@ -80,7 +98,7 @@ test("a commit that changes no planning record is shown without reading the unch
         ),
     ).toEqual([`${revisionA}...${revisionB}`]);
     expect(asked.filter((call) => call.startsWith("commit "))).toEqual([
-      `commit ${productCodeCommit.sha}`,
+      `commit ${revisionB}`,
     ]);
     expect(recordsReadAt(asked, revisionB)).toEqual([
       `content ${backlogPath}@${revisionB}`,
@@ -108,6 +126,7 @@ test("a commit that changes no planning record is shown without reading the unch
       github,
     });
     try {
+      expect(await routed(restarted.home)).toBe(revisionB);
       const before = origin.requests.length;
       await page.goto(restarted.baseURL);
       await expectSettledAt(page, revisionB);

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_publish-moving-board-fixtures-through-git.json",
+      "identity": "SEED-430#publish-moving-board-fixtures-through-git",
+      "completedAt": "2026-11-25T11:32:15.768Z",
+      "blob": "75353b87c67c5027221de9f2c7333fdad86d0729"
+    },
+    {
       "fileName": "SEED-430_recover-fixed-observation-at-its-published-pin.json",
       "identity": "SEED-430#recover-fixed-observation-at-its-published-pin",
       "completedAt": "2026-11-25T10:45:00.746Z",

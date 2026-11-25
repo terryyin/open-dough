@@ -32,21 +32,18 @@ const sharedStory = makeMe.aBacklogEntry
 
 // The shared story queued alone, with a readable canonical story that has no
 // dependency agreement.
-const doughnut = describedRevision(
-  makeMe.aRepository
-    .withRevision("published", {
-      backlog: {
-        queued: [sharedStory],
-      },
-      files: {
-        [sharedSeed]: `# Shared
+export const doughnutHistory = makeMe.aRepository
+  .withRevision("published", {
+    backlog: {
+      queued: [sharedStory],
+    },
+    files: {
+      [sharedSeed]: `# Shared\n\n${renderStorySection(sharedStory, { goal: doughnutSharedGoal })}`,
+    },
+  })
+  .please();
 
-${renderStorySection(sharedStory, { goal: doughnutSharedGoal })}`,
-      },
-    })
-    .please(),
-  revisionDoughnut,
-);
+const doughnut = describedRevision(doughnutHistory, revisionDoughnut);
 
 export const doughnutBacklog = publishedFile(doughnut, backlogPath);
 

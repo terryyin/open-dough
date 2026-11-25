@@ -10,6 +10,8 @@
 // ../../dashboard/test-support/assignmentCreditRecords.ts); the local read boundary, its memo, and the
 // page decide what is asked and shown.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import type { Page } from "@playwright/test";
 import {
   expect,
@@ -28,7 +30,7 @@ import {
   credit,
   detailHuman,
 } from "../../dashboard/test-support/agentCredit.ts";
-import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { publishCommittedFileHistory } from "../../dashboard/test-support/committedFiles.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
 import {
   untilPageReadsAnswered,
@@ -44,7 +46,9 @@ import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import {
   additionOf,
   agents,
-  atA,
+  creditHistory,
+  creditDetails,
+  creditMoves,
   human,
   opened,
   planned,
@@ -53,9 +57,6 @@ import {
   readder,
   repository,
   titleOf,
-  toB,
-  toC,
-  toD,
   type Move,
 } from "../../dashboard/test-support/assignmentCreditRecords.ts";
 
@@ -88,7 +89,7 @@ async function expectCreditedAt(
     );
   }
   await expect(storyCard(taken, titleOf(planned))).toContainText(clock);
-  await opener(`${agents[0] ?? ""}-chan`).click();
+  await opener(`${agents[0]}-chan`).click();
   for (const agent of agents) {
     await expect(credit(member(`${agent}-chan`)).human).toHaveText(
       `Human developer: ${credits[agent] ?? human}`,
@@ -110,16 +111,30 @@ const historyCalls = (asked: ReturnType<typeof readsBesideChecks>) =>
 test("seven assignments crediting one human keep their own credit after an unrelated publication without reading any history; a modified profile's walk and a re-added profile's credit are their own", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
   const github = githubFor(page);
   github.serveAvatars(avatarHost);
-  const origin = publishMovingFiles(page, { repository, ...atA });
+  const origin = await publishCommittedFileHistory(page, creditHistory, {
+    repository,
+    trunk: "A",
+    details: creditDetails,
+    afterGitHubStops,
+  });
+  const { toB, toC, toD } = creditMoves(origin);
+  const routed = () =>
+    remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+      cwd: dashboard.home,
+      env: { HOME: dashboard.home },
+      maxBuffer: 4096,
+    });
+  expect(await routed()).toBe(origin.revisions.A);
   const commitsAsked = (from: number) =>
     origin.requests
       .slice(from)
       .flatMap(({ request }) =>
-        request.kind === "commit" ? [request.sha.slice(0, 2)] : [],
+        request.kind === "commit" ? [request.sha] : [],
       );
   // Moves the ref, lets the check find it, and says what GitHub was asked
   // once the page shows it settled.
@@ -130,6 +145,7 @@ test("seven assignments crediting one human keep their own credit after an unrel
   ) => {
     const before = origin.requests.length;
     origin.moveTrunk(at, by);
+    expect(await routed()).toBe(at.revision);
     await passTimeUntilChecked(page);
     await expectCreditedAt(page, at.revision, credits, clock);
     const asked = readsBesideChecks(origin.requests.slice(before));
@@ -138,19 +154,19 @@ test("seven assignments crediting one human keep their own credit after an unrel
   };
 
   await page.goto("/");
-  await expectCreditedAt(page, atA.revision, {}, sincePlan);
+  await expectCreditedAt(page, origin.revisions.A, {}, sincePlan);
   // Each assignment's history was walked to its own addition.
   expect(historyCalls(readsBesideChecks(origin.requests)).sort()).toEqual(
     agents
-      .map((agent) => `commit-list ${profileOf(agent)}@${atA.revision}`)
-      .concat(`commit-list ${planPath}@${atA.revision}`)
+      .map((agent) => `commit-list ${profileOf(agent)}@${origin.revisions.A}`)
+      .concat(`commit-list ${planPath}@${origin.revisions.A}`)
       .sort(),
   );
 
   await test.step("an unrelated publication keeps every credit without listing any history or reading any addition commit", async () => {
     const { asked, commits } = await published(toB, {}, sincePlan);
     expect(historyCalls(asked)).toEqual([]);
-    expect(commits).toEqual(["81"]);
+    expect(commits).toEqual([origin.revisions.B]);
     // Each assignment's addition at B is still its own commit, answered
     // from what the boundary holds.
     const before = origin.requests.length;
@@ -162,7 +178,7 @@ test("seven assignments crediting one human keep their own credit after an unrel
       expect(JSON.parse(response.body)).toMatchObject({
         revision: toB.at.revision,
         added: {
-          commit: additionOf(agent).sha,
+          commit: additionOf(agent, origin.revisions).sha,
           committerName: human,
           login: "terryyin",
         },
@@ -184,7 +200,7 @@ test("seven assignments crediting one human keep their own credit after an unrel
     ]);
     // The walk passes the modifying commit, already read as the commit
     // between, to Kirara's own addition, already read at A.
-    expect(commits).toEqual(["82"]);
+    expect(commits).toEqual([origin.revisions.C]);
   });
 
   await test.step("a profile removed and re-added with identical text credits the re-adding commit's committer and time", async () => {
@@ -196,6 +212,8 @@ test("seven assignments crediting one human keep their own credit after an unrel
     expect(historyCalls(asked)).toEqual([
       `commit-list ${profileOf(planned)}@${toD.at.revision}`,
     ]);
-    expect(commits.sort()).toEqual(["83", "84"]);
+    expect(commits.sort()).toEqual(
+      [origin.revisions.removed, origin.revisions.D].sort(),
+    );
   });
 });

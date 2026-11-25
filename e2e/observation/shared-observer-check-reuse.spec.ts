@@ -9,6 +9,9 @@
 // server clock the journey runs ahead past that window between paces, so a
 // page's own next check still asks GitHub once under the fake page clock.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   expect,
   githubFor,
@@ -26,14 +29,11 @@ import {
   headsChecks,
   openSettledAtA,
   passTimeUntilChecked,
-  recordsAt,
   setPageVisibility,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { checkReuseMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import {
-  backlogB,
-  revisionB,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
@@ -42,6 +42,7 @@ test.use({ revisionCheckReuseMs: checkReuseMs, observationClock: true });
 
 test("staggered tabs share one listing per pace, see a new commit together, and a revealed tab reuses the other's listing", async ({
   page,
+  afterGitHubStops,
   dashboard,
 }) => {
   // Runs the server's clock past the reuse window so the next paced check
@@ -50,7 +51,19 @@ test("staggered tabs share one listing per pace, see a new commit together, and 
   const pastReuseWindow = () => {
     dashboard.advanceObservationClock(checkReuseMs);
   };
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { A: revisionA, B: revisionB } = origin.revisions;
+  expect(
+    await remoteBranchHead(
+      gitHubRepositoryUrl(defaultRepository),
+      "refs/heads/main",
+      {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      },
+    ),
+  ).toBe(revisionA);
   await page.clock.runFor(7_000);
   const other = await page.context().newPage();
   await other.goto("/");
@@ -77,7 +90,18 @@ test("staggered tabs share one listing per pace, see a new commit together, and 
 
   await test.step("a commit published before the next check appears on both within one pace after one backlog read", async () => {
     pastReuseWindow();
-    origin.push(revisionB, backlogB, recordsAt("B"));
+    origin.advanceTo("B");
+    expect(
+      await remoteBranchHead(
+        gitHubRepositoryUrl(defaultRepository),
+        "refs/heads/main",
+        {
+          cwd: dashboard.home,
+          env: { HOME: dashboard.home },
+          maxBuffer: 4096,
+        },
+      ),
+    ).toBe(revisionB);
     const before = githubFor(page).calls.length;
     await passTimeUntilChecked(page);
     await expectSettledPage(page, titlesOfB);

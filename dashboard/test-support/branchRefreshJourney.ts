@@ -6,6 +6,10 @@
 
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import type {
+  RepositoryBuilder,
+  RevisionFacts,
+} from "../../Distribution/tests/support/repositoryTestData.mjs";
 import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
@@ -13,7 +17,6 @@ import { storyCard } from "./storyCardControls.ts";
 import { sliceProgress } from "./storyCardFacts.ts";
 import {
   branches,
-  fromTrunk,
   onBranch,
   opened,
   planPath,
@@ -21,13 +24,8 @@ import {
   stories,
   trunk,
 } from "./branchProgressRecords.ts";
-import {
-  publishMovingFiles,
-  type PublishedRevision,
-} from "./publishedFiles.ts";
-
-// Where trunk moves to.
-export const trunkMoved = "d5".repeat(20);
+import { publishCommittedFileHistory } from "./committedFiles.ts";
+import type { PublishedRevision } from "./publishedFiles.ts";
 
 export const sevenDoneOnBranch = makeMe.aSlicePlan
   .withStatuses([
@@ -42,38 +40,85 @@ export const sevenDoneOnBranch = makeMe.aSlicePlan
   ])
   .please();
 
-// A branch revision with a new version of the recorded plan.
-export function branchPlanPublication(
-  revision: string,
-  committedAt: Date,
-  plan: Parameters<typeof renderSlicePlan>[0],
-): PublishedRevision {
-  const path = planPath("on-branch");
+// The plan bytes a branch progress publication changes.
+export function branchPlanChange(plan: Parameters<typeof renderSlicePlan>[0]) {
   return {
-    ...fromTrunk(revision, {
-      files: { [path]: renderSlicePlan(plan, { heading: "Slices" }) },
-    }),
-    committed: { [path]: committedAt },
+    [planPath("on-branch")]: renderSlicePlan(plan, { heading: "Slices" }),
   };
 }
 
-// Opens the page on `published` -- by default the records' trunk and
-// branches -- with the clock paused at the opening time, once every read has
-// settled; answers the moving origin and the branch story card's progress.
+type Advance = {
+  readonly name: string;
+  readonly parent: string;
+  readonly facts?: RevisionFacts;
+};
+
 export async function openedSettled(
   page: Page,
-  published: {
-    readonly trunk: PublishedRevision;
-    readonly branches: Readonly<Record<string, PublishedRevision>>;
-  } = { trunk, branches },
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+  {
+    published = { trunk, branches },
+    advances = [],
+    whenOpening,
+  }: {
+    readonly published?: {
+      readonly trunk: PublishedRevision;
+      readonly branches: Readonly<Record<string, PublishedRevision>>;
+    };
+    readonly advances?: readonly Advance[];
+    readonly whenOpening?: (revision: string) => Promise<unknown>;
+  } = {},
 ) {
   await pausePageClockAt(page, opened);
-  const origin = publishMovingFiles(page, {
+  let history: RepositoryBuilder<string> = makeMe.aRepository.withRevision(
+    "trunk",
+    {
+      files: published.trunk.files,
+      tags: ["fixture-trunk"],
+    },
+  );
+  for (const [branch, at] of Object.entries(published.branches)) {
+    history = history.withRevision(branch, {
+      parents: ["trunk"],
+      tags: [`fixture-${branch}`],
+      files: at.files,
+      remove: Object.keys(published.trunk.files).filter(
+        (path) => !Object.hasOwn(at.files, path),
+      ),
+    });
+  }
+  for (const { name, parent, facts } of advances)
+    history = history.withRevision(name, {
+      ...facts,
+      parents: [parent],
+      tags: [`fixture-${name}`],
+    });
+  const origin = await publishCommittedFileHistory(page, history.please(), {
     repository,
-    ...published.trunk,
-    branches: published.branches,
+    trunk: "trunk",
+    branches: Object.fromEntries(
+      Object.keys(published.branches).map((branch) => [branch, branch]),
+    ),
+    details: () =>
+      Object.fromEntries(
+        Object.entries({ trunk: published.trunk, ...published.branches }).map(
+          ([name, at]) => [
+            name,
+            {
+              ...(at.committed === undefined
+                ? {}
+                : { committed: at.committed }),
+              ...(at.history === undefined ? {} : { history: at.history }),
+            },
+          ],
+        ),
+      ),
+    afterGitHubStops,
   });
-  await page.goto("/");
+  await Promise.all([
+    whenOpening?.(origin.at("trunk").revision),
+    page.goto("/"),
+  ]);
   await expectMembership(page, {
     taken: stories.map(({ title }) => title),
     backlog: [],

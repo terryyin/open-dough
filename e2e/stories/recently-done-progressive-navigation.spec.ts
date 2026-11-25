@@ -14,6 +14,9 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // `gh` calls reaching the fake GitHub show which records were read.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   shownProjectControl,
   chooseProject,
@@ -42,9 +45,12 @@ import {
   storiesThrough,
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
-import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
+import {
+  publishOnePygardonStory,
+  pygardonRepository,
+} from "../../dashboard/test-support/pygardonProject.ts";
 
-test.use({ projectFolders: ["open-dough", "pygardon"] });
+test.use({ projectFolders: ["open-dough"] });
 
 test("Mark as done on a Taken entry lands on it as entry 27 once entries 1 to 27 are read, after a choice of it while open and a done entry already shown read nothing more", async ({
   page,
@@ -179,11 +185,12 @@ test("the developer's own move before the entries before it are read keeps the k
 });
 
 test("choosing another project before the entries before it are read shows that project, which nothing pulls back, and Open Dough starts again at ten", async ({
+  afterGitHubStops,
   page,
   dashboard,
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
-  await publishOnePygardonStory(page);
+  const pygardon = await publishOnePygardonStory(page, afterGitHubStops);
   const view = await openedWithHeldStory(page, dashboard);
   const { backlog } = parts(page);
   await view.markedDone(destination);
@@ -196,6 +203,20 @@ test("choosing another project before the entries before it are read shows that 
     .toEqual(storiesThrough(destination).toSorted());
   await chooseProject(page, "Pygardon");
   await expect(backlog).toContainText("A Pygardon story");
+  expect(
+    await remoteBranchHead(
+      gitHubRepositoryUrl(pygardonRepository),
+      "refs/heads/main",
+      {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      },
+    ),
+  ).toBe(pygardon.revisions.published);
+  expect(pathsRead(pygardon)).toContain(
+    `PRODUCT-BACKLOG.md?ref=${pygardon.revisions.published}`,
+  );
   view.release();
   await untilPageRests(page);
   await expect(shownProjectControl(page)).toBeFocused();

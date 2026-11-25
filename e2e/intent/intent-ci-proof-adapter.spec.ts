@@ -1,3 +1,4 @@
+import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   ciProofReading,
   expectNoProofRows,
@@ -45,18 +46,19 @@ import {
 
 import { running } from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
-  login,
   mainRun,
+  publishStoryCi,
   repository,
-  signup,
-  started,
   toggleOnDevelopment,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 
 test("missing proof is read through the project's adapter and recovered for the same passing attempt", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
+  const ci = await publishStoryCi(page, afterGitHubStops);
+  const { login } = ci.revisions;
   const adapter =
     await test.step("Given the project has a configured CI adapter", () =>
       adapterProject(dashboard.home));
@@ -69,13 +71,13 @@ test("missing proof is read through the project's adapter and recovered for the 
       });
       return discover;
     });
-  const { ci, panel, proof } =
+  const { panel, proof } =
     await test.step("When I open Intent's CI proof", () =>
       openAdapterProof(page));
 
   await test.step("Then the passing verdict and tested attempt are shown", async () => {
-    await expectCiAnswer(panel, verdict);
-    await expectAttemptAt(proof, "Attempt 1", "4774f60");
+    await expectCiAnswer(panel, verdict(login));
+    await expectAttemptAt(proof, "Attempt 1", shortSha(login));
     await expectAttemptLinked(proof, "Attempt 1", mainRun);
   });
   await test.step("And the adapter's reason is shown without counts", async () => {
@@ -91,8 +93,8 @@ test("missing proof is read through the project's adapter and recovered for the 
   await test.step("When I check again", () => checkCiAgain(panel));
   await test.step("Then counts appear for the same attempt under the same verdict", async () => {
     await expectProofRows(proof, [testsRow]);
-    await expectAttemptAt(proof, "Attempt 1", "4774f60");
-    await expectCiAnswer(panel, verdict);
+    await expectAttemptAt(proof, "Attempt 1", shortSha(login));
+    await expectCiAnswer(panel, verdict(login));
   });
   await test.step("And the unavailable reason is gone", async () => {
     await expect(ciProofReading(proof).unavailable).toHaveCount(0);
@@ -117,7 +119,11 @@ test("missing proof is read through the project's adapter and recovered for the 
 test("a running ciAdapter story branch shows its completed ancestor attempt's proof", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
+  const {
+    revisions: { signup, started },
+  } = await publishStoryCi(page, afterGitHubStops);
   await page.setViewportSize({ width: 1280, height: 800 });
   const adapter = adapterProject(dashboard.home);
   const ancestor = "a7c3e9d1-0000-4000-8000-000000000002";
@@ -142,15 +148,18 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
   const panel = await toggleOnDevelopment(page, running.title);
   const proof = proofOf(panel);
 
-  await expectCiAnswer(panel, "Running at 70a0001 (Start the story)");
-  await expectAttemptAt(proof, `Attempt ${ancestor}`, "d4e5f6a");
+  await expectCiAnswer(
+    panel,
+    `Running at ${shortSha(started)} (Start the story)`,
+  );
+  await expectAttemptAt(proof, `Attempt ${ancestor}`, shortSha(signup));
   await expectLabelInFull(
     proof,
     "Completed ancestor",
     "The completed ancestor of the running result",
   );
   await expectProofRows(proof, [testsRow]);
-  await expect(proof).not.toContainText("70a0001");
+  await expect(proof).not.toContainText(shortSha(started));
   expect(adapter.proofRequests().at(-1)).toEqual({
     operation: "proof",
     check: { repo: repository, branch: "main" },
@@ -166,7 +175,11 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
 test("a ciAdapter proof answer over 64 KiB with a by-file summary reaches Intent whole and is remembered", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
+  const {
+    revisions: { login },
+  } = await publishStoryCi(page, afterGitHubStops);
   const adapter = adapterProject(dashboard.home);
   const answer = byFileTestsSummary(uuid, login);
   const answerBytes = Buffer.byteLength(JSON.stringify(answer));
@@ -178,7 +191,7 @@ test("a ciAdapter proof answer over 64 KiB with a by-file summary reaches Intent
   });
   const { panel, proof } = await openAdapterProof(page);
 
-  await expectCiAnswer(panel, verdict);
+  await expectCiAnswer(panel, verdict(login));
   await expectProofRows(proof, [byFileTestsRow()]);
   await expect(ciProofReading(proof).unavailable).toHaveCount(0);
   expect(adapter.proofRequests()).toHaveLength(1);
@@ -192,7 +205,11 @@ test("a ciAdapter proof answer over 64 KiB with a by-file summary reaches Intent
 test("a slow adapter proof read never delays the verdict", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
+  const {
+    revisions: { login },
+  } = await publishStoryCi(page, afterGitHubStops);
   const adapter = adapterProject(dashboard.home);
   adapter.answer({
     discover: { main: [passed(uuid, uuid, login, "main")] },
@@ -201,13 +218,13 @@ test("a slow adapter proof read never delays the verdict", async ({
   });
   const { panel, proof } = await openAdapterProof(page);
 
-  await expectCiAnswer(panel, verdict);
+  await expectCiAnswer(panel, verdict(login));
   await expect(ciProofReading(proof).checking).toHaveText(
     "Checking the CI proof of this attempt…",
   );
   await expect.poll(() => adapter.proofRequests().length).toBeGreaterThan(0);
-  await expectCiAnswer(panel, verdict);
+  await expectCiAnswer(panel, verdict(login));
   adapter.releaseProof();
   await expectProofRows(proof, [testsRow]);
-  await expectCiAnswer(panel, verdict);
+  await expectCiAnswer(panel, verdict(login));
 });

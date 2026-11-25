@@ -19,8 +19,8 @@ import {
   run,
 } from "../../dashboard/test-support/intentCiProofPage.ts";
 import {
-  login,
   repository,
+  publishStoryCi,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 
 import { runArtifactsAnswer } from "../../dashboard/test-support/support/ciProofArtifacts.ts";
@@ -54,7 +54,11 @@ test("a version 1 summary from a GitHub Actions run is invalid and shows no resu
 test("a version 1 summary a ciAdapter answers is invalid and shows no results", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
+  const {
+    revisions: { login },
+  } = await publishStoryCi(page, afterGitHubStops);
   await test.step("Given the adapter publishes version 1 proof for a successful attempt", () => {
     adapterProject(dashboard.home).answer({
       discover: { main: [passed(uuid, uuid, login, "main")] },
@@ -75,6 +79,6 @@ test("a version 1 summary a ciAdapter answers is invalid and shows no results", 
     await expectNoProofRows(proof);
   });
   await test.step("And the run verdict remains successful", async () => {
-    await expectCiAnswer(panel, verdict);
+    await expectCiAnswer(panel, verdict(login));
   });
 });

@@ -134,15 +134,16 @@ test("where the window is too short for both floors, the divider offers no range
 });
 
 test.describe("with two projects", () => {
-  test.use({ projectFolders: ["open-dough", "pygardon"] });
+  test.use({ projectFolders: ["open-dough"] });
 
   test("the chosen split survives collapsing, project and view changes, and closing the sidebar", async ({
+    afterGitHubStops,
     page,
     origin,
     cursor,
   }) => {
     await page.setViewportSize(wide);
-    await publishOnePygardonStory(page);
+    await publishOnePygardonStory(page, afterGitHubStops);
     const asked = changesAsked(page);
     await showPage(page, origin);
     const shown = await openRunningList(page);

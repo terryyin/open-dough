@@ -1,3 +1,4 @@
+import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { showLatestRevision } from "../../dashboard/test-support/intentReadRecoveryPage.ts";
 import {
   expectCiScope,
@@ -22,8 +23,8 @@ import {
   failedRun,
   freshCiStatusReadSettled,
   mainRun,
-  revision,
   publishStoryCi,
+  repository,
   toggleOnDevelopment,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 import {
@@ -42,14 +43,30 @@ import { shortRevision } from "../../dashboard/test-support/dashboardParts.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { holdNextRevisionCheckBody } from "../../dashboard/test-support/support/heldRevisionCheckBody.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 
 test("a Project Intent visit reuses both CI readings, while hidden trunk and story heads each refresh only their own judgment", async ({
   page,
+  afterGitHubStops,
+  dashboard,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await pausePageClockAt(page, new Date());
-  const ci = publishStoryCi(page);
+  const ci = await publishStoryCi(page, afterGitHubStops);
+  const { trunkHead: revision, broken, nextTrunk, nextStory } = ci.revisions;
   const calls = ci.published.requests;
+  const routedHead = (branch: string) =>
+    remoteBranchHead(gitHubRepositoryUrl(repository), `refs/heads/${branch}`, {
+      cwd: dashboard.home,
+      env: { HOME: dashboard.home },
+      maxBuffer: 4096,
+    });
+  const expectHeads = async (trunk: string, story: string) => {
+    expect(await routedHead("main")).toBe(trunk);
+    expect(await routedHead(failing.branch)).toBe(story);
+  };
+  await expectHeads(revision, broken);
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const trunk = await chooseCiStatus(intent);
@@ -76,14 +93,14 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
   });
 
   await test.step("a trunk advance while the story shows reads exactly the trunk judgment", async () => {
-    const nextTrunk = "c0ffee3".padEnd(40, "0");
     ci.runs["main"] = [
       makeMe.aCiRun
         .with({ headSha: nextTrunk, conclusion: "success", url: mainRun })
         .please(),
     ];
     const before = calls.length;
-    ci.push("main", nextTrunk, "Advance the trunk");
+    ci.push("main", "nextTrunk");
+    await expectHeads(nextTrunk, broken);
     const trunkJudged = freshCiStatusReadSettled(page);
     await passTimeUntilChecked(page);
     await trunkJudged;
@@ -97,7 +114,7 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     await openProjectIntent(intent);
     await expectCiAnswer(
       ciPanel(intent),
-      "Passed at c0ffee3 (Advance the trunk)",
+      `Passed at ${shortSha(nextTrunk)} (Advance the trunk)`,
     );
     await expect(browserRevision(intent)).toContainText(
       shortRevision(revision),
@@ -113,14 +130,14 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
   await test.step("a story push during a Project Intent visit reads exactly the story judgment", async () => {
     await openProjectIntent(intent);
     await untilPageReadsAnswered(page);
-    const nextStory = "c0ffee4".padEnd(40, "0");
     ci.runs[failing.branch] = [
       makeMe.aCiRun
         .with({ headSha: nextStory, conclusion: "success", url: failedRun })
         .please(),
     ];
     const before = calls.length;
-    ci.push(failing.branch, nextStory, "Fix the story during a visit");
+    ci.push(failing.branch, "nextStory");
+    await expectHeads(nextTrunk, nextStory);
     const held = await holdNextRevisionCheckBody(page);
     const storyJudged = freshCiStatusReadSettled(page, failing.branch);
     let checkSettled = false;
@@ -152,16 +169,16 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     await returnToStory(intent);
     await expectCiAnswer(
       ciPanel(intent),
-      "Passed at c0ffee4 (Fix the story during a visit)",
+      `Passed at ${shortSha(nextStory)} (Fix the story during a visit)`,
     );
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toHaveLength(4);
   });
   await openProjectIntent(intent);
   await showLatestRevision(revisionNotice(intent)).click();
-  await expect(browserRevision(intent)).toContainText("c0ffee3");
+  await expect(browserRevision(intent)).toContainText(shortSha(nextTrunk));
   await expectCiAnswer(
     ciPanel(intent),
-    "Passed at c0ffee3 (Advance the trunk)",
+    `Passed at ${shortSha(nextTrunk)} (Advance the trunk)`,
   );
 });

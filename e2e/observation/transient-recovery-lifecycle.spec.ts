@@ -1,14 +1,8 @@
-// Recovery belongs to the current observation and obeys shared admission:
-// visibility and project selection decide whether a due recovery may ask or
-// publish; each leaving page releases only its wait. Provenance, check
-// exclusion, and rate-limit precedence during recovery:
-// ./transient-recovery-currentness.spec.ts. The page, local boundary, and
-// `gh` are production; only GitHub's answers are supplied. Page time is paused.
+// Recovery keeps its visibility, shared waiter, and project boundaries.
 
-import {
-  recordsAt,
-  setPageVisibility,
-} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { keepingOrigin } from "../../dashboard/test-support/support/publishedRepository.ts";
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
+import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expect,
   githubFor,
@@ -22,11 +16,9 @@ import {
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
-  doughnutBacklog,
-  doughnutRecords,
+  doughnutHistory,
   doughnutRepository,
   doughnutSharedTitle,
-  revisionDoughnut,
 } from "../../dashboard/test-support/doughnutProject.ts";
 import {
   failedAt,
@@ -40,7 +32,6 @@ import {
   filesBesideUnreachable,
   opened as limitedOpened,
   repository,
-  revision,
   titlesBesideUnreachable,
   withheldSeed,
   withheldTitle,
@@ -49,12 +40,10 @@ import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequest
 import {
   httpErrorAnswer,
   pathsRead,
-  publishMovingOrigin,
 } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
-  backlogA,
   inspectDashboardStory,
-  revisionA,
+  refreshHistory,
   titlesOfA,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
@@ -69,12 +58,15 @@ import {
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 
+const rawA = refreshHistory({ filesAtA: {} });
+
 test("a hidden page asks no recovery, retains its due time through hide/reveal, and recovers once when due", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA);
+  const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
+  const { A: revisionA } = origin.revisions;
   const restore = origin.answerWith("main", httpErrorAnswer(503));
   await page.goto("/");
   await expectProblemAndNoSnapshot(
@@ -122,10 +114,15 @@ test("a hidden page asks no recovery, retains its due time through hide/reveal, 
 
 test("two pages share a recovery read: one hides while the other finishes; the first recovers once when seen again", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA, recordsAt("A"));
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory(),
+    "A",
+    afterGitHubStops,
+  );
   const restore = origin.answerWith("main", httpErrorAnswer(503));
   await page.goto("/");
   await expectProblemAndNoSnapshot(
@@ -171,14 +168,14 @@ test("two pages share a recovery read: one hides while the other finishes; the f
 
 test("switching projects clears project-local recovery while a standing login limit remains", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, limitedOpened);
   const published = publishes({
-    revision,
     files: filesBesideUnreachable,
   });
   const answers = limiting(page, published, 2);
-  githubFor(page).serve(repository, answers.answer);
+  githubFor(page).serve(repository, keepingOrigin(answers.answer, published));
   answers.limit(isContent(withheldSeed));
   await page.goto("/");
   await expectSettledPage(page, titlesBesideUnreachable);
@@ -186,10 +183,15 @@ test("switching projects clears project-local recovery while a standing login li
   await expect(parts(page).problem).toContainText(limitSaid);
   const withheldCard = storyCard(parts(page).backlog, withheldTitle);
   await expect(preparationFacts(withheldCard)).toContainText(
-    `GitHub's rate limit withheld ${withheldSeed} at ${revision}.`,
+    `GitHub's rate limit withheld ${withheldSeed} at ${published.revision}.`,
   );
-  const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
+  await publishMovingHistory(
+    page,
+    doughnutHistory,
+    "published",
+    afterGitHubStops,
+    doughnutRepository,
+  );
   const beforeSwitch = githubFor(page).calls.length;
 
   await projectTab(page, "Doughnut").check();
@@ -208,13 +210,23 @@ test("switching projects clears project-local recovery while a standing login li
 
 test("an ordinary transient failure does not hold back another project's reads", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const openDough = await publishMovingOrigin(page);
-  openDough.push(revisionA, backlogA);
+  const openDough = await publishMovingHistory(
+    page,
+    rawA,
+    "A",
+    afterGitHubStops,
+  );
   openDough.answerWith("main", httpErrorAnswer(503));
-  const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
+  const doughnut = await publishMovingHistory(
+    page,
+    doughnutHistory,
+    "published",
+    afterGitHubStops,
+    doughnutRepository,
+  );
   await page.goto("/");
   await expectProblemAndNoSnapshot(
     page,
@@ -231,7 +243,7 @@ test("an ordinary transient failure does not hold back another project's reads",
   });
   await expect(parts(page).problem).toHaveCount(0);
   await expect(parts(page).readRevision).toContainText(
-    shortRevision(revisionDoughnut),
+    shortRevision(doughnut.revisions.published),
   );
   expect(pathsRead(doughnut).some((path) => path === "main")).toBe(true);
 });

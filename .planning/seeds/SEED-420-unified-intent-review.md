@@ -163,14 +163,43 @@ follow-up button beside the notes.
 
 **Identity:** SEED-420#put-comparison-follow-up-by-story-notes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/837-put-comparison-follow-up-by-story-notes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"96da3defb19b7039b92767d67d2d22bffa5dc6a9e41d78d3aef63c7fb83b1d86","plan":"68357fe64e5653531bd08da83538fe25a7af7530efcf99f16b4409739cedd07b"}}
 ```
 
-A developer can open **Follow up on comparison** from an icon-only button
-beside the existing note button on the story title row. Give the icon the
-accessible name **Follow up on comparison**. The action keeps its existing
-availability and opens the composer with the comparison currently under
-review, including a changed choice such as a landed run.
+**Goal.** A developer reviewing a Done story in Intent can follow up on the
+comparison they are reading from the story title row. This keeps the action
+within reach while the developer reads a diff or other story evidence.
+
+**Scope.** Put one icon-only button beside **Notes** on the story title row.
+Its accessible name is **Follow up on comparison**. It opens the existing
+composer directly and returns focus to the button when cancelled. Comparison
+details no longer contain a second follow-up action.
+
+Keep the existing Done-story and readable-comparison requirements. Published
+completions retain their current availability, including **Include merged
+changes** when supported. Offer the same action for a readable landed run of
+that Done story. The composer names the story and the exact baseline and result
+of the comparison being shown. Starting the follow-up sends that same pair.
+Admission verifies the pair against the named completion or landed run so
+another story's run or a different pair cannot start a session.
+
+File and line follow-ups, optional attachments, the comparison controls, and
+published-session follow-up scope belong to their existing work.
+
+**Key examples.**
+
+- With a Done story's published completion showing, open **Follow up on
+  comparison** by keyboard beside **Notes**. The composer shows the published
+  comparison and its exact pair. Cancel to return focus to the icon. Starting
+  from the same button sends that pair, including the wider baseline when
+  **Include merged changes** is selected.
+- With a Done story's published comparison open, select a landed run with a
+  different pair. Open the same title-row action and start a follow-up. The
+  composer and the follow-up both name the landed run's pair.
+- With no readable comparison, no Done story, or no selected story, the
+  comparison action is absent. A submitted landed reference belonging to
+  another story, or a submitted pair differing from the selected run,
+  is refused before starting a session.
 
 <a id="read-story-evidence-from-intent-home"></a>
 
@@ -178,25 +207,53 @@ review, including a changed choice such as a landed run.
 
 **Identity:** SEED-420#read-story-evidence-from-intent-home
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/837-read-story-evidence-from-intent-home/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"935c7d30231ec10ad78e75fd5a61747044fe969c8ba8cd8b0323e78196eb72d4","plan":"a8b891e0d8dbd7dd86af4c872d650fe0ea0447e7b33bda37b583d76d826ccbe2"}}
 ```
 
-A developer who opens a story in Intent with no file or folder selected sees
-the CI comparison by default. **Intent coverage** is another tab inside that
-Home view. The existing page-wide **CI comparison**, **Changes**, and
-**Intent coverage** tabs give way to Home and the selected path's reading.
-Opening a folder or file takes the reader directly to its summary, diff,
-Purpose, or Proof as applicable. **Review changes** continues to open the
-story's changed-file review directly.
+**Goal.** A developer reviewing a story in Intent can start with its CI
+evidence, open a path for detail, and get back to the same story's evidence
+without reselecting the comparison.
 
-The sidebar **Home** icon clears the path selection and opens the CI
-comparison by default, keeping the story, comparison, and session choices.
-Home remains reachable while a folder or file is selected. File filters leave
-Home's CI evidence intact, including evidence from unchanged tests. When a
-different comparison is chosen, the existing CI comparison and Intent
-coverage qualifications still identify the evidence basis where applicable.
+**Scope.** When no path is selected, the reading pane shows Story Home.
+A fresh story opens its **CI comparison** tab. **Intent coverage** is the
+other Home tab. The story-level tab row gives way to Home and direct path
+reading. Selecting a configured location, folder, or file shows its existing
+summary, diff, Purpose, or Proof as applicable. CI links to locations and the
+file Proof link back to story CI stay usable.
+
+The sidebar's **Home** icon is a keyboard-accessible button with the name
+**Home**. It clears the path and returns to **CI comparison**, keeping the
+selected story, comparison, and any session choices already offered. It stays
+reachable from a path, including through **Show files** when the sidebar is
+hidden. **Review changes** keeps its direct entry from the Board: where the
+comparison supplies changed files, open the remembered file for that story
+or the first changed file as applicable. Pending or unavailable review keeps
+its existing explanation and recovery where available.
+
+Use the existing evidence basis, including measured builds and whole-story
+qualifications where they apply. File filters affect the browser inventory
+only. Story Home still shows existing CI evidence from unchanged tests.
+
 The [sidebar story](SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
-owns the shared responsive layout.
+owns the shared responsive layout. The unified tree, new filter controls,
+project browsing, session selection, and new CI evidence are separate work.
+
+**Key examples.**
+
+- Open a story in Intent without a selected path. Read **CI comparison** and
+  switch to **Intent coverage** within Home. Select an available folder and
+  see its summary directly. Select a changed test and read its diff or Proof.
+  Activate **Home** to clear the selection and see **CI comparison** again.
+- With a Done story's landed run chosen, open a changed path, then return
+  Home. The landed run is still selected. CI identifies its measured builds
+  or explains the whole-story fallback. **Intent coverage** still qualifies
+  its whole-story basis when applicable.
+- Hide unchanged paths with the current file filter while CI has evidence
+  from an unchanged failing test. The unchanged path disappears from the
+  browser. Its contribution to CI evidence remains visible in Home.
+- From the Board, activate **Review changes** on a story with published
+  changes. The changed-file diff opens directly once the read settles.
+  If changes or their source are unavailable, the review explains the gap.
 
 <a id="browse-one-selectable-review-tree"></a>
 

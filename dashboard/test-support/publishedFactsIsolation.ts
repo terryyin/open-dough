@@ -3,6 +3,9 @@
 
 import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import { materializeRepository } from "../../Distribution/tests/support/repository-fixture.mjs";
+import { publishMain } from "./committedOriginRepo.ts";
+import { routeOriginThroughServedHomes } from "./support/fixtureOriginRoute.ts";
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { githubFor } from "./dashboardTest.ts";
@@ -24,7 +27,6 @@ export {
   type FactGroup,
 } from "./support/heldFactGroupAnswers.ts";
 export const revisionA = "e1".repeat(20);
-export const revisionB = "e2".repeat(20);
 export const takenTitle = "Keep the current published facts";
 export const canonicalPath = ".planning/seeds/SEED-777-shared.md";
 export const planPath = ".planning/slice-plans/777-facts/PLAN.md";
@@ -164,11 +166,34 @@ export function factGroupOfPath(path: string): FactGroup | undefined {
   return undefined;
 }
 
-export function publishFactsOrigin(page: Page) {
+export async function publishFactsOrigin(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+) {
+  const atA = factsAt("", "A");
+  const atB = factsAt("", "B");
+  const { origin, revisions, cleanup } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("A", { files: atA.files })
+      .withRevision("B", {
+        files: atB.files,
+        remove: Object.keys(atA.files).filter(
+          (path) => !Object.hasOwn(atB.files, path),
+        ),
+      })
+      .please(),
+  );
+  afterGitHubStops(cleanup);
+  const factsByRevision = {
+    A: { ...atA, revision: revisions.A },
+    B: { ...atB, revision: revisions.B },
+  };
   const publications: PublishedFacts[] = [];
   const answers = new Map<string, RepositoryAnswerer>();
   let current: PublishedFacts | undefined;
-  githubFor(page).serve(repository, (call) => {
+  const github = githubFor(page);
+  routeOriginThroughServedHomes(github, origin, repository);
+  github.serve(repository, (call) => {
     const { request } = call;
     if (request.kind === "commit") {
       return Promise.resolve(
@@ -181,7 +206,13 @@ export function publishFactsOrigin(page: Page) {
     return answer === undefined ? Promise.resolve(noConnection) : answer(call);
   });
   return {
-    push(facts: PublishedFacts, heldGroups: readonly FactGroup[] = []) {
+    facts: factsByRevision,
+    push(
+      label: keyof typeof factsByRevision,
+      heldGroups: readonly FactGroup[] = [],
+    ) {
+      const facts = factsByRevision[label];
+      publishMain(origin, facts.revision);
       publications.push(facts);
       current = facts;
       const held = holdFactGroupAnswers(publishes(facts), groupOf, heldGroups);

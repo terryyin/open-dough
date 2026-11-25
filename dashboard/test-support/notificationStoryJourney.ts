@@ -2,14 +2,13 @@
 // route, membership resolution, focus, and reveal.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { describedBacklog } from "./describedRevisions.ts";
-import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { doughnutRepository } from "./doughnutProject.ts";
+import { publishMovingHistory } from "./publishedMovingOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const notifiedIdentity = "SEED-777#shared-story";
 export const notifiedTitle = "Doughnut's renamed notified story";
 export const otherTitle = "Open Dough's different story with the same identity";
-export const targetRevision = "ba".repeat(20);
 
 export const storyUrl = (project = "doughnut", story = notifiedIdentity) =>
   `/?${new URLSearchParams({ project, story })}`;
@@ -48,33 +47,39 @@ const preceding = [...Array(12).keys()].map((index) =>
 
 // Doughnut's backlog, holding the notified story last in its Backlog list or
 // alone in Taken.
-const targetBacklog = (column: "Backlog list" | "Taken") => {
+const targetHistory = (column: "Backlog list" | "Taken") => {
   const notified = sharedIdentity(notifiedTitle);
-  return describedBacklog(
-    makeMe.aRepository
-      .withRevision("target", {
-        backlog:
-          column === "Taken"
-            ? { taken: [notified], queued: preceding }
-            : { queued: [...preceding, notified] },
-      })
-      .please(),
-  );
+  return makeMe.aRepository
+    .withRevision("target", {
+      backlog:
+        column === "Taken"
+          ? { taken: [notified], queued: preceding }
+          : { queued: [...preceding, notified] },
+    })
+    .please();
 };
 
-export async function notificationOrigins(page: Page, column?: "Taken") {
-  const other = await publishMovingOrigin(page);
-  other.push(
-    "cd".repeat(20),
-    describedBacklog(
-      makeMe.aRepository
-        .withRevision("other", {
-          backlog: { queued: [sharedIdentity(otherTitle)] },
-        })
-        .please(),
-    ),
+export async function notificationOrigins(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+  column: "Backlog list" | "Taken" = "Backlog list",
+) {
+  const other = await publishMovingHistory(
+    page,
+    makeMe.aRepository
+      .withRevision("other", {
+        backlog: { queued: [sharedIdentity(otherTitle)] },
+      })
+      .please(),
+    "other",
+    afterGitHubStops,
   );
-  const target = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  target.push(targetRevision, targetBacklog(column ?? "Backlog list"));
+  const target = await publishMovingHistory(
+    page,
+    targetHistory(column),
+    "target",
+    afterGitHubStops,
+    doughnutRepository,
+  );
   return { other, target };
 }
