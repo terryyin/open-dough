@@ -236,9 +236,10 @@ Side panel focus. The named compact comparison and comparison follow-up
 work reached trunk independently. The integrated checks cover their shared
 header and preserve their existing operations.
 
-The selected process review continues in wrap-up after the automatic
-Intent Coverage check. The Story Home change replaced prior tab and focus
-assertions, so the proposed break check targets directed review arrival.
+The automatic Intent Coverage check caught the directed first-file fault
+at `56c052899a22b24b32eafdb4a18ee4c711a798ae`. The restored test passed. No
+follow-up is needed for the checked path. The deferred process review
+recorded one occurrence under ODF-150 in `DearDough.md`.
 
 ## Execution complete
 
