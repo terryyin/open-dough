@@ -238,26 +238,32 @@ harness has an installed checkout and its own bare origin with matching
 every affected assertion. Full suites are the local gate because every
 fixture-created catalog project receives the new default.
 
-## Concern evidence
+## Review verification
 
 Slice-plan refinement split the backend command and record lifecycles, the
 E2E card and host outcomes, and dialog and voice submissions into eight
 slices. They share one installation path. Each slice verifies its own
 observable effect, and slice 8 removes the temporary fixture selection.
 
-- Slice 8's backend gate has an open reliability defect.
-  `review/story-review-offline-sync.spec.ts` timed out in two cases during
-  the full run. One timed out again in the six-case focused replay.
-  Its Review fixture constructs its own repository and never enters
-  `startDashboardServer` or the catalog installer.
-- Slice 8's E2E gate has an open navigation race.
-  `review/story-review-tree-collapse.spec.ts` lost the response body
-  after navigation in the full run and passed in isolation. It supplies an
-  installed origin through `preparationPage`, which the scratch installer
-  reused. The focused pass leaves the full-run failure open.
+- `review/story-review-offline-sync.spec.ts` prepares the synced refs
+  directly and expires the shared deadline after observing the trunk fetch
+  in the case that checks for a second fetch. The other hanging-origin cases
+  exercise the real deadline. All six cases passed in the full backend suite.
+- `review/story-review-tree-collapse.spec.ts` waits for visible refresh
+  confirmation before checking the collapsed rows and returning to
+  Development. It passed in the full E2E suite, including reopening Intent
+  and checking the selected diff.
 
-Resolve both under the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
-and establish a stable full-suite baseline before reassessing readiness.
+The existing harness passed both unfiltered suites at `4feb7b600` with
+these fixes on 25 November 2026. Both ran with four workers on macOS under
+the AC sleep guard. Backend passed 1,986 cases with the opt-in Sessions replay
+skipped. E2E passed all 779 cases. The first backend run also exposed a
+Codex observation race. The passing run used the test harness's observation
+clock to expire reuse before requesting a new read.
+
+Strict proof records, logs, and the tested patch are in the common Git
+directory under `open-dough/evidence/SEED-433-review-verification`. This
+establishes the baseline for the installed-catalog comparison in slice 8.
 
 ## Verification and delivery
 

@@ -112,6 +112,7 @@ test("a story's review folders collapse and expand", async ({
   await test.step("Refresh keeps the collapsed folder in the published pair", async () => {
     await files.folder("server").click();
     await review.refresh();
+    await review.expectFeedback(/^Review refreshed:/);
     await files.expectOutsideRows([
       "dashboard",
       "  server 1 file",

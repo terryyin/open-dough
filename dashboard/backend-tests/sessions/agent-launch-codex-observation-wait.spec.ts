@@ -23,6 +23,7 @@ test.use({
 });
 
 const waitMs = 1_500;
+const reuseMs = 1_000;
 
 const counts = (native: FakeCodex) =>
   ["initialized", "thread/read"].map(
@@ -58,7 +59,8 @@ test("waiters share a held observation, a departing one ends only its own wait, 
     machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,
-    sessionsReuseMs: 1,
+    sessionsReuseMs: reuseMs,
+    observationClock: true,
     extraEnv: { DOUGH_SESSIONS_WAIT_MS: String(waitMs) },
   });
   try {
@@ -78,7 +80,7 @@ test("waiters share a held observation, a departing one ends only its own wait, 
 
     // Held past the bound: told to ask again, with no second observation.
     holdReads(native, true);
-    await delay(50);
+    server.advanceObservationClock(reuseMs);
     const askedAt = Date.now();
     const late = [askSessions(server), askSessions(server)];
     abandonedRequest(sessionsRequest(server)).cutAfter(200);
@@ -95,6 +97,7 @@ test("waiters share a held observation, a departing one ends only its own wait, 
     holdReads(native, false);
     native.releaseReads();
     expect((await rejoined).status).toBe(200);
+    server.advanceObservationClock(reuseMs);
     const next = await askSessions(server);
     expect(next.status).toBe(200);
     expect(sessionStatesIn(next.body)).toEqual([review]);
