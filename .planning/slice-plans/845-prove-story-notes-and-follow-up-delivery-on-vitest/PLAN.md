@@ -123,7 +123,7 @@ passed on the retained Chromium runner in 29.26 s wall.
 ### 3. Send the requested waiting notes with their context
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 Proof: The typed Start path yields the first-input message and attached
 versions and the selected specs run on Vitest once migrated.
@@ -136,6 +136,11 @@ unreadable, required story and instruction content remains intact and no
 notes are attached. Complete the admission spec transition here. Keep
 the retained-start observations in their legacy spec until slice 4 moves
 it to Vitest with the new selection checks.
+
+Seven admission and content cases passed on Node, including attached
+versions on the recorded request and saved Review context in first input.
+The cohort passed 42 selections across both engines. The live Done-session
+and pending Codex input checks passed, as did Dashboard typecheck.
 
 ### 4. Reuse the chosen notes when the same start is retried
 

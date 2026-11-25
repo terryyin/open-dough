@@ -14,6 +14,7 @@ import { hostDescription } from "../src/hostDescription.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { withFollowUpContext } from "./followUpAdmission.ts";
+import { followUpStorySessions, publishedDoneStory } from "./followUpStory.ts";
 import {
   abandonAttachmentClaims,
   answerWithoutAttachmentClaims,
@@ -25,6 +26,7 @@ import {
   replacementWriterBlock,
 } from "./launchPreAcceptance.ts";
 import type { AttemptRun } from "./launchAttemptSettlement.ts";
+import { pendingInputOf } from "./launchRecordStore.ts";
 import { machineStoryNotesFile } from "./storyNotes.ts";
 
 export async function acceptLaunchRequest(
@@ -66,7 +68,12 @@ export async function acceptLaunchRequest(
     resolved = await withFollowUpContext(
       withDefaultEffort(identified),
       source,
-      machineStoryNotesFile(),
+      {
+        notesFile: machineStoryNotesFile(),
+        publishedDoneStory,
+        followUpStorySessions,
+        pendingInputOf,
+      },
     );
   } catch (error) {
     abandonAttachmentClaims(claims);

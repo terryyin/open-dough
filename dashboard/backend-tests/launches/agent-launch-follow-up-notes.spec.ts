@@ -1,13 +1,5 @@
-// A done story's follow-up with `notes: true` over raw HTTP, with a real bare
-// origin (../../test-support/support/startOrigin.ts), a synthetic `gh` answering from
-// the fake GitHub, and the synthetic `claude`: admission reads waiting notes
-// from the machine store, never the page, and puts them after the story's
-// context in the first input; without `notes: true` none are sent; a retried
-// start resends the saved notes after an in-flight edit; the opposite attach
-// choice is another launch. Refusals:
-// agent-launch-follow-up-notes-admission.spec.ts. Story facts without notes:
-// agent-launch-follow-up-story.spec.ts. Identity without notes:
-// agent-launch-follow-up-identity.spec.ts.
+// Retried or separate launches of one note-bearing story follow-up.
+// Selection and wire refusals are covered by the typed admission spec.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { attempts, launch } from "../../test-support/agentLaunchBoundary.ts";
@@ -19,20 +11,13 @@ import {
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { developerStoryNotesLabel } from "../../src/followUpStoryNotes.ts";
 import { storyNotesEndpoint, storyNoteVersion } from "../../src/storyNote.ts";
-import {
-  answerOf,
-  expectFollowUpInput,
-  request,
-} from "./followUpBoundaryCases.ts";
+import { answerOf, request } from "./followUpBoundaryCases.ts";
 import {
   completedAt,
   publishRecoverStory,
   seedNotes,
-  sentNote,
   waitingGeneral,
   waitingGeneralLine,
-  waitingLine,
-  waitingLineAndAnchor,
 } from "./followUpNotesCases.ts";
 
 test.use({ serverMode: "boundary" });
@@ -41,97 +26,6 @@ const notesSection = (...body: string[]) =>
   ["<line-notes>", "Developer's story notes", ...body, "</line-notes>"].join(
     "\n",
   );
-
-test("a story follow-up with notes: true sends only waiting notes with text and context after the story context", async ({
-  dashboard,
-  origin,
-}) => {
-  const revision = await publishRecoverStory(dashboard, origin);
-  // Newest first in the store, as Story notes lists them.
-  seedNotes(dashboard.home, {
-    [recoverStory.identity]: [waitingGeneral, waitingLine, sentNote],
-  });
-  dashboard.claudeScenario("launched");
-  const text = "Investigate the paste drop.";
-  const message = [
-    storyContextOf(recoverStory, completedAt, "no session", text),
-    notesSection(waitingGeneralLine, waitingLineAndAnchor),
-  ].join("\n\n");
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...request,
-      instruction: text,
-      followUp: makeMe.aFollowUp
-        .ofStory(recoverStory, revision)
-        .attachingNotes()
-        .please(),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  const [call] = dashboard.claudeLaunchCalls();
-  expectFollowUpInput(call?.argv.at(-1), {
-    context: message,
-    request: launched.record?.request,
-    server: dashboard,
-  });
-  expect(call?.argv.at(-1)).not.toContain(sentNote.text);
-  expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
-    instruction: text,
-    followUp: {
-      story: { identity: recoverStory.identity, notes: true },
-      context: { message },
-      notes: [
-        {
-          id: waitingGeneral.id,
-          version: storyNoteVersion(waitingGeneral),
-        },
-        {
-          id: waitingLine.id,
-          version: storyNoteVersion(waitingLine),
-        },
-      ],
-    },
-  });
-  // Notes live in the context block, not the instruction field.
-  expect(launched.record?.request.instruction).toBe(text);
-  expect(text.length).toBeLessThan(4_000);
-});
-
-test("a story follow-up without notes: true sends none of the story's notes", async ({
-  dashboard,
-  origin,
-}) => {
-  const revision = await publishRecoverStory(dashboard, origin);
-  seedNotes(dashboard.home, {
-    [recoverStory.identity]: [waitingGeneral, waitingLine, sentNote],
-  });
-  dashboard.claudeScenario("launched");
-  const text = "Continue without notes";
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...request,
-      instruction: text,
-      followUp: makeMe.aFollowUp.ofStory(recoverStory, revision).please(),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  const [call] = dashboard.claudeLaunchCalls();
-  expectFollowUpInput(call?.argv.at(-1), {
-    context: storyContextOf(recoverStory, completedAt, "no session", text),
-    request: launched.record?.request,
-    server: dashboard,
-  });
-  expect(call?.argv.at(-1)).not.toContain(waitingGeneral.text);
-  expect(call?.argv.at(-1)).not.toContain(developerStoryNotesLabel);
-  const kept = stored(dashboard.home).at(-1)?.request;
-  expect(kept?.workflow).toBe("ad-hoc");
-  if (kept?.workflow === "ad-hoc")
-    expect(kept.followUp).not.toHaveProperty("notes");
-});
 
 test("a retried start with notes: true resends the saved notes after an in-flight edit", async ({
   dashboard,
