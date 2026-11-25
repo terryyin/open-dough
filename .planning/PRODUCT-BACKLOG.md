@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
 - [Publish fixed Board test fixtures through real Git](seeds/SEED-430-read-published-project-data-from-local-git.md#open-published-board-from-local-git) — SEED-430#open-published-board-from-local-git ([plan](slice-plans/824-open-published-board-from-local-git/PLAN.md))
+- [Prove machine-session reads through typed backend answers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter) — SEED-413#renovate-remaining-backend-families-after-browser-reporter ([plan](slice-plans/829-prove-machine-session-reads-through-typed-answers/PLAN.md))
 
 ## Backlog list
 
@@ -50,7 +51,6 @@ intent introduced or affected by a newly developed story.
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
 - [Discover a project's default branch through Git](seeds/SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git) — SEED-437#discover-project-default-branch-through-git
-- [Prove machine-session reads through typed backend answers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter) — SEED-413#renovate-remaining-backend-families-after-browser-reporter
 - [Prove session notifications through typed observations](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-notifications-through-typed-observations) — SEED-413#prove-session-notifications-through-typed-observations
 - [Finish the remaining backend Vitest renovation after session reads and alerts](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-session-reads-and-alerts) — SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
