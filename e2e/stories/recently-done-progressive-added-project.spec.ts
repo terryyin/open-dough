@@ -18,7 +18,6 @@ import {
   progressiveEntries,
   publishedWithCatalog,
   repository,
-  revision,
 } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   recordsAsked,
@@ -35,9 +34,10 @@ import {
 import { holdSessionReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
+  addedBranch,
   addedRepository,
-  addedRevision,
   projectAddMachine,
 } from "../../dashboard/test-support/support/projectAddMachine.ts";
 import { addProjectThroughDialog } from "../../dashboard/test-support/support/projectAddPage.ts";
@@ -58,16 +58,19 @@ test.afterEach(async () => fixture.close());
 async function openedOnFirst(page: Page) {
   const server = await fixture.start("preview");
   const now = Date.now();
-  server.github.serve(
-    repository,
-    publishes({ revision, files: publishedWithCatalog(now, first) }),
-  );
-  server.github.serve(
+  const firstProject = publishes({ files: publishedWithCatalog(now, first) });
+  const added = publishes({
+    defaultBranch: addedBranch,
+    files: publishedWithCatalog(now, entries),
+  });
+  server.github.serve(repository, firstProject);
+  server.github.serve(addedRepository, added);
+  expectServedHomesReach(server.github, repository, firstProject.revision);
+  expectServedHomesReach(
+    server.github,
     addedRepository,
-    publishes({
-      revision: addedRevision,
-      files: publishedWithCatalog(now, entries),
-    }),
+    added.revision,
+    addedBranch,
   );
   keepProgressiveSessions(server, now, entries, undefined, {
     source: "sample-app",

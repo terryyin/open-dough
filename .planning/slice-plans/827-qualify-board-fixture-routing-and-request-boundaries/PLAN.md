@@ -114,7 +114,7 @@ The review found no independent refactor candidate.
 ### 2. Open a configured or added project from its configured ref
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use real named fixtures behind `projectAddMachine` and
 `projectConfigurationMachine`, with the actual `release+stable` or `trunk`
@@ -125,6 +125,25 @@ scenario sets it up. Prove the exact ref at Add, configured selection, and
 reopen in `project-add`, `project-configuration`, and the related
 configuration and project-restored-session cases in the inventory. Existing
 environment, selection, launch, and restart assertions must still run.
+
+`projectAddMachine` registers Sample App at `release+stable` under each
+server's HOME. The saved-configuration fixture keeps a publication per
+project at its configured ref and verifies it before opening. Both machines
+serve the seeded `main` fallback and a separate named `master` for Terry
+Talks. The Add and saved-selection tests match the displayed revision to the
+real Git pin across restart. The restored session test checks the Git pin
+alongside the existing passive-service and retained-session outcomes. The
+progressive catalog override now keeps `release+stable` when replacing the
+added project's publication.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/configuration/{project-add,project-configuration,project-hide,project-hide-sessions,project-remove,project-remove-selection,system-settings-running-session,system-settings-client-configuration}.spec.ts e2e/sessions/project-restored-session.spec.ts e2e/stories/recently-done-progressive-added-project.spec.ts --workers=2 --reporter=dot
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run test:dashboard:backend -- dashboard/backend-tests/configuration/project-add-boundary.spec.ts dashboard/backend-tests/observation/authenticated-read-cooldown-reach.spec.ts --workers=1 --reporter=dot
+npm run typecheck:dashboard
+```
+
+All 24 E2E cases, all 11 backend cases, and typecheck passed. The independent
+refactor review found no candidate and reused the proof.
 
 ### 3. Start a launch from the fixture's real publication
 

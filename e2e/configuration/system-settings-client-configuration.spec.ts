@@ -56,58 +56,56 @@ test("each Projects entry shows that project's Client configuration text or its 
   chmodSync(deltaFile, 0o000);
   writeClientConfiguration(home, "epsilon", invalidText);
   const beforeAlpha = readFileSync(alphaFile);
-  fixture.save(
-    JSON.stringify([
-      makeMe.aConfiguredProject
-        .with({
-          id: "alpha",
-          label: "Alpha",
-          repository: "example/alpha",
-          localPath: "~/git/alpha",
-        })
-        .please(),
-      makeMe.aConfiguredProject
-        .with({
-          id: "beta",
-          label: "Beta",
-          repository: "example/beta",
-          localPath: "~/git/beta",
-        })
-        .please(),
-      makeMe.aConfiguredProject
-        .with({
-          id: "gamma",
-          label: "Gamma",
-          repository: "example/gamma",
-          localPath: "~/git/gamma",
-        })
-        .please(),
-      makeMe.aConfiguredProject
-        .with({
-          id: "delta",
-          label: "Delta",
-          repository: "example/delta",
-          localPath: "~/git/delta",
-        })
-        .please(),
-      makeMe.aConfiguredProject
-        .with({
-          id: "epsilon",
-          label: "Epsilon",
-          repository: "example/epsilon",
-          localPath: "~/git/epsilon",
-        })
-        .please(),
-      makeMe.aConfiguredProject
-        .with({
-          id: "missing",
-          label: "Missing",
-          repository: "example/missing",
-          localPath: "~/git/missing-checkout",
-        })
-        .please(),
-    ]),
-  );
+  fixture.saveProjects([
+    makeMe.aConfiguredProject
+      .with({
+        id: "alpha",
+        label: "Alpha",
+        repository: "example/alpha",
+        localPath: "~/git/alpha",
+      })
+      .please(),
+    makeMe.aConfiguredProject
+      .with({
+        id: "beta",
+        label: "Beta",
+        repository: "example/beta",
+        localPath: "~/git/beta",
+      })
+      .please(),
+    makeMe.aConfiguredProject
+      .with({
+        id: "gamma",
+        label: "Gamma",
+        repository: "example/gamma",
+        localPath: "~/git/gamma",
+      })
+      .please(),
+    makeMe.aConfiguredProject
+      .with({
+        id: "delta",
+        label: "Delta",
+        repository: "example/delta",
+        localPath: "~/git/delta",
+      })
+      .please(),
+    makeMe.aConfiguredProject
+      .with({
+        id: "epsilon",
+        label: "Epsilon",
+        repository: "example/epsilon",
+        localPath: "~/git/epsilon",
+      })
+      .please(),
+    makeMe.aConfiguredProject
+      .with({
+        id: "missing",
+        label: "Missing",
+        repository: "example/missing",
+        localPath: "~/git/missing-checkout",
+      })
+      .please(),
+  ]);
   const server = await fixture.start("preview");
   await page.goto(`${server.baseURL}/?view=settings`);
   await expect(

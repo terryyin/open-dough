@@ -10,16 +10,17 @@ import {
 } from "./dashboardServer.ts";
 import type { FakeGhTransport } from "./fakeGh.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
-import { everyRepository, publishes } from "./fakeGitHub.ts";
+import { publishes } from "./fakeGitHub.ts";
+import { expectServedHomesReach } from "./fixtureOriginRoute.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   projectConfigurationFile,
   projectEnvironmentOf,
+  seededProjectPublications,
 } from "./projectConfiguration.ts";
 
 export const addedRepository = "example/sample-app";
-export const addedRevision = "b7".repeat(20);
 export const addedBranch = "release+stable";
 export const addedLocalPath = "~/work/private-checkout";
 
@@ -44,6 +45,19 @@ export function projectAddMachine({
     `git@github.com:${addedRepository}.git`,
   ]);
   const servers: DashboardServer[] = [];
+  const serveSeeds = seededProjectPublications();
+  const added = publishes({
+    defaultBranch: addedBranch,
+    backlog: describedBacklog(makeMe.aRepository.please()),
+  });
+  const expectAddedRef = ({ github }: DashboardServer) => {
+    expectServedHomesReach(
+      github,
+      addedRepository,
+      added.revision,
+      addedBranch,
+    );
+  };
   // The file a server of that mode keeps its projects in.
   const configurationFile = (mode: DashboardServerMode) =>
     projectConfigurationFile(
@@ -54,6 +68,8 @@ export function projectAddMachine({
     machine,
     checkout,
     configurationFile,
+    addedRevision: added.revision,
+    expectAddedRef,
     async start(
       mode: DashboardServerMode,
       readTimeoutMs?: number,
@@ -68,16 +84,10 @@ export function projectAddMachine({
         readTimeoutMs,
         codexProtocol,
       });
-      server.github.serve(
-        everyRepository,
-        publishes({
-          revision: addedRevision,
-          defaultBranch: addedBranch,
-          // The added project records no stories.
-          backlog: describedBacklog(makeMe.aRepository.please()),
-        }),
-      );
       servers.push(server);
+      serveSeeds(server.github);
+      server.github.serve(addedRepository, added);
+      expectAddedRef(server);
       return server;
     },
     async stop(server: DashboardServer) {

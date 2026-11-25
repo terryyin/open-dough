@@ -33,7 +33,6 @@ import {
 import {
   projectAddMachine,
   addedRepository,
-  addedRevision,
   addedBranch,
   addedLocalPath,
 } from "../../dashboard/test-support/support/projectAddMachine.ts";
@@ -52,10 +51,13 @@ test("Add selects, reads the repository's default branch, launches in its execut
   await expect(
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
+  fixture.expectAddedRef(server);
   await addProjectOnPage(page);
   const { readRevision } = parts(page);
   await expectProjectChoice(page, "Sample App");
-  await expect(readRevision).toContainText(shortRevision(addedRevision));
+  await expect(readRevision).toContainText(
+    shortRevision(fixture.addedRevision),
+  );
   expect(server.ghCalls()).toContainEqual([
     "api",
     "--include",
@@ -103,12 +105,13 @@ test("Add selects, reads the repository's default branch, launches in its execut
 
   await fixture.stop(server);
   server = await fixture.start("preview");
+  fixture.expectAddedRef(server);
   await openUntilRead(page, `${server.baseURL}/?project=sample-app`);
   await expect(
     page.getByRole("radio", { name: "Sample App", exact: true }),
   ).toBeChecked();
   await expect(parts(page).readRevision).toContainText(
-    shortRevision(addedRevision),
+    shortRevision(fixture.addedRevision),
   );
   expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
     saved,
