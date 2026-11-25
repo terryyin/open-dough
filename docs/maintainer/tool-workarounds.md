@@ -191,11 +191,45 @@ Use Git for earlier reviews and retired entries.
   Relevant revisions are `b2a046135`, `49e8e2416`, and `67672cc03`. Cursor
   documents third-party hook imports enabled by default.
   [Cursor's hook import behavior](https://prod.cursor.com/docs/reference/third-party-hooks)
-- **Recheck.** Install both sets of hooks with imports enabled. Observe which
-  handlers receive each event and which can produce effects. Simplify when
-  native dispatch or a scoped configuration ensures one effective handler
-  for each intended action.
-- **Last review.** 2026-11-25, keep pending the native check in SEED-440.
+- **Right problem.** Yes. With both hook sets installed, Cursor runs matching
+  hooks from every source (project `.cursor/hooks.json` and imported
+  `.claude/settings.json`). Claude-path adapters therefore receive the same
+  Cursor events that carry `cursor_version`, so without a guard both native and
+  imported adapters can act on one intended action.
+- **Still necessary.** Yes on this recorded surface. Live `postToolUse` for
+  Shell invoked both Cursor-native (`host=cursor` via `.agents` scripts) and
+  Claude-import (`host=claude` via `.claude` scripts) adapters on the same
+  payload with `cursor_version=2026.11.22-e9042b2`. With the skip enabled, the
+  Claude path no-ops. With the skip temporarily disabled (and a forced
+  dual-effect probe for the slice-clock intended action), both adapters emitted
+  non-empty additional context and both effects were delivered into the agent
+  turn. Native dispatch does not ensure one effective handler.
+- **Right solution.** Keep the `cursor_version` skip on Claude adapters so only
+  the native Cursor adapter produces effects for Cursor sessions. No simpler
+  native single-handler guard was observed; scoped uninstall of one hook set
+  would drop a supported host. No retire or simplify product change from this
+  review.
+- **Evidence.** Build: agent CLI `2026.11.22-e9042b2`; Cursor IDE `3.31.15`
+  (`3eb8c133…`, arm64). Surface: Cursor agent with hooks (this Task). Payload /
+  HEAD: `2579a9abfbb587292997850266c3152d69642d3f`. Install: project
+  `.cursor/hooks.json` and `.claude/settings.json` both present; third-party
+  imports documented as default-on
+  ([third-party hooks](https://cursor.com/docs/reference/third-party-hooks):
+  "All matching hooks from every source run"). Disable method: temporary
+  instrumentation and skip disable in loaded `.agents` / `.claude` hook copies
+  (reverted). Receipts under the worktree evidence dir:
+  `slice3-install-state.txt`, `slice3-receipts-skip-on.jsonl`,
+  `slice3-effects-skip-on.jsonl`, `slice3-receipts-skip-off.jsonl`,
+  `slice3-effects-skip-off.jsonl`, `slice3-dual-system-reminder.txt`,
+  `slice3-full-report.md`.
+- **Disposition.** keep (no follow-up product change).
+- **Next review trigger.** Cursor documents or exposes a native single-handler
+  dispatch / scoped import that prevents Claude-path hooks from running on
+  Cursor payloads; or a maintainer recheck after a third-party-hooks behavior
+  change.
+- **Last review.** 2026-11-25, keep for Cursor agent + dual hook sets on CLI
+  `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 3.
+  [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor tool hook with an empty working directory
 
