@@ -43,6 +43,17 @@ test("nested Summary renders precise endpoint rows for unchanged c.spec.ts", asy
   await expectComparisonRows(summary, nestedComparisonRows);
 });
 
+test("nested Summary identifies the evidence for its comparison endpoints", async () => {
+  const story = makeMe.aComparedStory.inSummaryScope().please();
+  const summary = await openNestedSummary(story);
+  await expectEvidenceLabels(comparisonLabels(summary, story.identity), [
+    "Baseline No build aaaaaaa",
+    "Branch bbbbbbb",
+    "Landed ccccccc",
+  ]);
+  await expectObservedBuildFraming(summary);
+});
+
 test("file Proof renders precise endpoint rows for unchanged c.spec.ts", async () => {
   const summary = await openNestedSummary();
   const proof = await openComparedFileProof(summary, "c.spec.ts");

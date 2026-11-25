@@ -94,13 +94,14 @@ test("renames have one destination row and keep their original change for the di
   ]);
 });
 
-test("a rename leaving Intent keeps its former proof scope independently of its tree row", () => {
+test("a rename leaving a location keeps its former proof scope independently of its tree row", () => {
   const overlay = intentStoryOverlay(locations, changes);
   expect(placed(overlay)).toEqual({
     features: ["board/select.feature"],
     "dashboard/tests": [
       "a.spec.ts",
       "arriving/arriving.spec.ts",
+      "between/moved.spec.ts",
       "deep/b.spec.ts",
       "gone.spec.ts",
       "leaving.spec.ts",

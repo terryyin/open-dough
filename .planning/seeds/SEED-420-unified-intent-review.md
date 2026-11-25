@@ -143,7 +143,7 @@ session-subset comparisons belong to their existing work.
 {"schemaVersion":1,"identity":"SEED-420#recognize-intent-folders-and-read-proof","dependencies":[{"supplier":{"identity":"SEED-420#browse-one-selectable-review-tree","href":"seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree"},"implementation":"Shared selectable repository path tree in Intent","rationale":"Ancestor rollup cues and clean root folder rows apply to directories in the single selectable repository path tree. Today Intent renders flat location-group accordion sections without ancestor folder rows and with single-child compaction, while SEED-420#browse-one-selectable-review-tree is actively Taken to build that shared path tree and regular-versus-Intent folder selection.","condition":"Story review shows repository paths in one selectable folder tree without single-child compaction, routing regular folders to the minimal path view and configured Intent roots and nested folders to Summary, with the separate Intent section lists and Outside Intent locations section retired in story review.","state":"satisfied","resolution":{"revision":"07dad9d62ee48012ee757bf2e6858f2d7ebfeed6","path":".planning/seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree","summary":"The mounted intent-story-tree cases show independently selectable, uncompacted ancestor folders and an empty configured root. They verify a regular folder's path reading and Summary for configured and nested Intent folders. IntentBrowserTree uses the shared selectable tree for story review in place of the separate location and Outside Intent locations groups. The folder-proof plan now identifies IntentLocationGroup and IntentLocationHeader as the remaining group/header consumers to migrate.\nCondition satisfied: Story review shows repository paths in one selectable folder tree without single-child compaction, routing regular folders to the minimal path view and configured Intent roots and nested folders to Summary, with the separate Intent section lists and Outside Intent locations section retired in story review.\nAccepted integration: b3b0704a7c76b994c9300d1ab8880ef0493f2854 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/840-recognize-intent-folders-and-read-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b2421b0efbb179fd882aaae8a7d90ced699d7784cc6bcf67cb7b882b27684340","plan":"cca4fa48fdbf180ec4023afe92e56df4d3f463abe4fd78e0b7ecd96c4371fe5c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/840-recognize-intent-folders-and-read-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cf3174c9bf98b8d61929b7c620d1e858ed6dea1721193df6ed456367cdd6e082","plan":"4207c95183fca04d6489dae6d7ccdd9b20c20aba9bc2073cebadb898ac192ca0"}}
 ```
 
 **Goal.** A developer reviewing a story or browsing a published project in
@@ -190,6 +190,11 @@ without repeating root-only configuration metadata. Selecting a folder
 outside configured Intent locations, including an ancestor above an Intent
 root, shows the minimal folder view naming its path.
 
+When Files is a drawer, choosing a configured Intent root or nested folder
+that opens Summary closes Files so the reader is immediately available.
+Using a folder's disclosure control keeps the drawer open. At docked widths,
+selecting a Summary leaves the Files sidebar visible.
+
 [File filtering](#filter-review-files) owns **Intent only**, **Changes
 only**, and filtering Summary's file list. [Project browsing](#browse-the-project-at-a-revision)
 owns expanding whole-project inventory beyond configured Intent locations and
@@ -233,6 +238,11 @@ repositories without Intent locations.
   with the measured run, revision, branch, and any ancestor or newer-tree
   qualification. Selecting an empty or unsupported-kind root shows `0 files`,
   its declared type and patterns, and the existing problem explanation.
+- **Read Summary in one tap at phone width:** In Project Intent and story
+  review, a developer opens Files and uses a folder's disclosure control.
+  Files stays open. Tapping the name of a configured root or a nested folder
+  inside it closes Files and shows that path's Summary. The same selection
+  at a docked width shows Summary beside the tree.
 
 **Architecture.** Following [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
 and [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#2-whole-product-focus),
