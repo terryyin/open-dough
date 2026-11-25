@@ -112,7 +112,7 @@ stay with the moving story.
 ### 3. Publish fixed Recently done records
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: Migrate fixed publications in `recently-done-stories` and
 `recently-done-follow-up`. Preserve missing, unreadable and malformed
@@ -121,6 +121,13 @@ record inputs at their REST detail boundaries.
 Proof: Run both files. Compare the origin trunk and REST pin, and verify
 each record gap and the follow-up event at its existing boundary.
 Budget 12 active minutes for the publisher substitutions and proof review.
+
+Learnings: only the two specs changed; each fixed publication, including
+each read-failure step, commits its own real revision. The record modules
+still name fixed revision ids, which `publishCommittedFiles` replaces with
+the real commit; session and moving consumers still read them.
+Refactor pass skipped: subject-spec publisher substitution only, adding no
+representation.
 
 ### 4. Publish fixed session and completion records
 
