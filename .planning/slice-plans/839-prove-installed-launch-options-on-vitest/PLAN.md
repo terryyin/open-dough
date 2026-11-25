@@ -90,7 +90,7 @@ callers found no refactor candidate. The run record is
 ### 2. Deliver selected flags with the developer's launch input
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 11–15 active minutes.
 Proof: Direct typed assertions for flag order and no selection. The existing
 accepted and default E2E cases observe the actual Claude input and record.
@@ -106,6 +106,21 @@ passes through and the default browser Start keeps no flags. Give these
 assertions their new owners before removing the corresponding mounted cases.
 The existing machine-session read cohort still owns general listing of
 machine-local records.
+
+Accepted proof: three Node cases passed for installed flag order and omitted
+and empty options. The import-based selector uses one runner per file, so
+the nine unchanged refusal cases pass on Playwright under the temporary
+`agent-launch-options-http-refusals.spec.ts` path until slice 3. The mixed
+backend selection passed 12/12 strictly. Both accepted and default E2E
+journeys passed strictly. The accepted case now observes Explore, Borrow
+and UX/UI in the native invocation and kept record, Opus and the developer
+instruction in native input, and the flags before and after reload. The
+default case observes a flagless launch and omitted options in the record.
+The focused run records are `slice2-backend.log.run.json` and
+`slice2-e2e.log.run.json`. The two loaded browser samples had different
+selections, and the unchanged default case also ran slower. Compare the
+full matching selections in slice 3. Review confined to the changed subject
+specs found no refactor candidate.
 
 ### 3. Explain why the target project refuses a selection
 
@@ -179,7 +194,8 @@ evidence directory.
 
 Story Branch Mode uses `origin/codex/prove-installed-launch-options-through-typed-bac`,
 with `origin/main` as the trunk target and `7e3a27c5e8129f9d667718839b4cd7ead9be2f7a`
-as the published claim and first publication base. The CI observer uses
+as the published claim and first publication base. Slice 1 was accepted at
+`d9cf4c7761ce06d130e8b56ae1d533a72d75fbbc` on the story branch. The CI observer uses
 GitHub Actions `ci.yml`, coordinator `kirara-839`, mailbox
 `/tmp/dough-ci-501/watch-BbXkps`, PID `8873`, Codex stream session `48890`
 and cell `g394:17` in this worktree.
