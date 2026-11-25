@@ -190,7 +190,7 @@ confirmation. Restoring it passed. The backend retains three mounted cases.
 ### 6. Mark only the confirmed version in the real notes store
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 Proof: The last delivery spec runs on Node Vitest and reads the private
 notes file. The Dashboard and Cursor E2E checks retain their installation
@@ -204,6 +204,9 @@ valid and the note stays waiting. Use the existing write refusal semantics
 with an immediate filesystem refusal or at the notes-write input, and
 keep real files for the version outcomes. Remove the last Playwright
 fixture from the cohort and retire its now-unused arrangement code.
+
+The three Node delivery cases passed through the real record writer and
+notes file. The former fixture had no other consumers and was removed.
 
 ## Proof ownership and local gate
 
@@ -222,6 +225,7 @@ record. Run from the repository root, with one worker for comparable timing.
 ```sh
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- 'launches/agent-launch-follow-up-notes(-admission|-delivery)?\.spec\.ts$' 'review/story-notes(-request)?\.spec\.ts$' --workers=1
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/stories/recently-done-follow-up\.spec\.ts$' --grep 'starting a follow-up with attached notes' --workers=1
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$cursor_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/stories/recently-done-cursor-follow-up-notes\.spec\.ts$' --grep 'uncertain Cursor first input leaves notes waiting until later confirmation$' --workers=1
 ```
 
 Run the new Cursor E2E selection by its exact file and title alongside the
@@ -238,6 +242,25 @@ Use awake macOS on AC under `caffeinate -s -i` for long local checks per
 [AGENTS.md](../../../AGENTS.md). Apply the shared
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 to the plan and all repair handoffs. Use the default test timeout.
+
+### Final local proof
+
+The five selected backend specs passed together in 3.27 s wall on the
+AC-powered Mac, with Node 24.21.0 and one worker. All 41 cases took under
+100 ms individually, with 275.19 ms summed. The preparation baseline
+selected 41 cases across both engines in 30.76 s wall.
+
+| Selection | Engine | Cases | Individual case time | Summed case time | Wall time |
+| --- | --- | ---: | --- | --- | --- |
+| Launch notes checks | Node Vitest | 12 | 0.15–45.07 ms | 149.82 ms | Part of backend run |
+| Story Notes pilot | Node Vitest | 29 | 0.06–29.53 ms | 125.37 ms | Part of backend run |
+| Cursor delayed confirmation | Playwright Chromium | 1 | 3.672 s | 3.672 s | 8.11 s |
+| Dashboard sent-state journey | Playwright Chromium | 1 | 3.195 s | 3.195 s | 5.90 s |
+
+Eleven original launch cases now run in Node. The twelfth is the Cursor
+journey and the valid Attach contrast accounts for the additional Node
+case. Dashboard typecheck passed. Both E2E cases passed separately using
+the proof gate's file and title filters.
 
 ## Plan review
 
