@@ -448,6 +448,28 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run typecheck:dashb
 Six focused cases and two final assertion cases passed. Dashboard typecheck
 passed. The independent review retained the accepted candidate.
 
+## Trunk reconciliation
+
+`0901293390103d854b601b9c4c8520d53c6161f1` preserves the trunk fix that waits
+for the first reopened revision stream and requires exactly that request.
+The merge takes its A revision from the real fixture history. The lost-stream
+case passed at the merged tree, followed by Dashboard typecheck.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/revision-stream-lost.spec.ts --workers=1 --reporter=line
+npm run typecheck:dashboard
+```
+
+## Execution complete
+
+Product advice: no change. The reviewed fixture histories preserve the
+published Git records and independent local session state required by
+[ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+The maintained browser cases exercise the cross-boundary observations.
+[Fixture qualification](../827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md)
+already owns the remaining configured-project, launch, direct backend, and
+whole-suite audit work. The Board membership cutover follows qualification.
+
 ## Boundary review and remaining concerns
 
 Slice-plan refinement applied. Each slice owns a consumer-visible
