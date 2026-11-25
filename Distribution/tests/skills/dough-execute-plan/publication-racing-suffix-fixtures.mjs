@@ -1,10 +1,6 @@
-// Git mechanics helpers for one rejected push of an owned backlog suffix:
-// replay that suffix once through the backlog rebase adapter, then one retry
-// push. A conflict or a second rejection returns without another replay.
 import assert from "node:assert/strict";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { makeMe } from "../../support/makeMe.mjs";
 import { backlogOf } from "../../support/product-backlog-fixture.mjs";
 import {
@@ -12,17 +8,8 @@ import {
   exec,
   git,
   lsRemoteSha,
-  pushCandidate,
-  revParse,
 } from "./publication-test-fixtures.mjs";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
-
-const rebaseCli = fileURLToPath(
-  new URL(
-    "../../../src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs",
-    import.meta.url,
-  ),
-);
 
 export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 export const itemA = "- [Item A](seeds/A.md#a)";
@@ -33,91 +20,11 @@ export const ownedD = "- [Item D, owned](seeds/D.md#d)";
 export const siblingB = "- [Item B, sibling](seeds/B.md#b)";
 export const otherD = "- [Item D, other writer](seeds/D.md#d)";
 
-export async function rebaseOwnedSuffix({ cwd, onto, upstream, branch }) {
-  try {
-    const { stdout, stderr } = await exec(process.execPath, [
-      rebaseCli,
-      "rebase",
-      "--onto",
-      onto,
-      "--ref",
-      upstream,
-      "--branch",
-      branch,
-      "--cwd",
-      cwd,
-    ]);
-    return { code: 0, stdout, stderr };
-  } catch (error) {
-    return {
-      code: error.code ?? 1,
-      stdout: error.stdout ?? "",
-      stderr: error.stderr ?? "",
-    };
-  }
-}
-
-export async function pushRejected(workspace, sha) {
-  try {
-    await pushCandidate(workspace, sha);
-    return false;
-  } catch (error) {
-    const text = `${error.message}\n${error.stderr ?? ""}`;
-    if (!/! \[rejected\]/.test(text)) {
-      throw error;
-    }
-    return true;
-  }
-}
-
-export async function publishRacingSuffix({
-  workspace,
-  origin,
-  candidateSha,
-  previouslyPublishedBase,
-  branch,
-  affectedCheck,
-}) {
-  if (!(await pushRejected(workspace, candidateSha))) {
-    return { status: "published", sha: candidateSha, replays: 0 };
-  }
-  await git(workspace, "fetch", "origin");
-  const fetched = await revParse(workspace, "origin/main");
-  const replay = await rebaseOwnedSuffix({
-    cwd: workspace,
-    onto: fetched,
-    upstream: previouslyPublishedBase,
-    branch,
-  });
-  if (replay.code !== 0) {
-    return {
-      status: "preserved",
-      reason: "conflict",
-      candidateSha,
-      remoteSha: await lsRemoteSha(origin, "refs/heads/main"),
-      replay,
-      replays: 1,
-    };
-  }
-  const rewritten = await revParse(workspace, branch);
-  await affectedCheck(rewritten);
-  if (await pushRejected(workspace, rewritten)) {
-    return {
-      status: "preserved",
-      reason: "persistent-contention",
-      localSha: rewritten,
-      remoteSha: await lsRemoteSha(origin, "refs/heads/main"),
-      replays: 1,
-    };
-  }
-  return { status: "published", sha: rewritten, replays: 1 };
-}
-
 // A trunk whose backlog holds items A to D beside unaffected `trunk.txt`
 // content, and a workspace on exec/story one unpublished commit ahead that
 // changes the backlog to `ownedBacklog` and adds `increment.txt`.
-export async function createBacklogSuffixFixture(ownedBacklog) {
-  const description = makeMe.aRepository
+export function backlogSuffixDescription(ownedBacklog) {
+  return makeMe.aRepository
     .withRevision("trunk", {
       files: {
         "trunk.txt": "base\n",
@@ -131,6 +38,10 @@ export async function createBacklogSuffixFixture(ownedBacklog) {
       message: "verified increment",
     })
     .please();
+}
+
+export async function createBacklogSuffixFixture(ownedBacklog) {
+  const description = backlogSuffixDescription(ownedBacklog);
   return { ...(await materializeRepository(description)), description };
 }
 

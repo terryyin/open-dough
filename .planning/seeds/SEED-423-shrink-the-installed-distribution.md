@@ -37,62 +37,6 @@ Dashboard and installed scripts share.
 
 ## Story decomposition
 
-<a id="publish-to-trunk-through-one-loop"></a>
-
-### Publish to trunk through one loop
-
-**Identity:** SEED-423#publish-to-trunk-through-one-loop
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/820-publish-to-trunk-through-one-loop/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c89f0c3b2ceb610d25c04ec79acc056becb6dc3e4d87414d5c14f9a3ea513d35","plan":"559455e189d2b37c67c7a378082cc61673f013bedaf689131175f7d453a48d6c"}}
-```
-
-**Goal.** Give developers consistent exact-revision publication and recovery
-with less installed code, less guidance for agents to read, and fewer tests
-for the same behavior.
-
-**Scope.** Share one fetch, publication, confirmation and bounded recovery
-loop across execution delivery, history-preserving landing, interrupted
-resume, execution startup claims and session-record publication. Keep each
-caller's ownership checks, way of preparing a candidate, proof, and receipt
-and stop contracts. Delivery consumes the publisher's result directly while
-preserving its own output contract. The Dashboard's first-landing comparison,
-CI handoff, maintenance and retirement retain their existing owners.
-
-Fold the shared procedure into existing installed guidance. Remove repeated
-instructions and keep the combined guidance no longer than before. Use direct
-instructions that select the correct action from the context and observed
-result. Remove superseded scripts, unused exports and test-only production
-paths once their callers are accounted for. Reduce both script lines and test
-lines, including helpers, and run fewer cases by removing duplicate coverage.
-Keep independent proof at the normal entry points. The preparation assignment
-protocol, other Distribution cleanup stories and public interface changes are
-outside this scope.
-
-**Key examples.**
-
-- A competing writer advances trunk during publication. Delivery replays only
-  its owned suffix and rechecks affected proof. A reviewed landing preserves
-  the published history. Startup rechecks claim ownership and selected source
-  before rebuilding or replaying its claim. Each applicable path gets at most
-  one retry. A conflict, failed recheck or second rejection leaves recoverable
-  work and returns the caller's existing stop.
-- A push loses its answer. Resume recognizes the retained candidate on the
-  authorized target even after that target advances. If the retained candidate
-  is absent, resume can try its exact SHA once without rewriting it. A
-  first Dashboard landing retains the candidate and base before each attempt
-  and reuses them to record acceptance. Capture failure can be retried without
-  another Git push.
-- A session close lands its work and publishes its sealed record separately.
-  Recovery after the record push is interrupted finds the same record or
-  reports a conflict without publishing the work again.
-- An agent using the shorter installed instructions can select the correct
-  publication and recovery actions for a fresh increment, a published-prefix
-  landing and a retained candidate. The delivered script and test reductions
-  are visible in the before-and-after counts.
-
-**Depends on.** None.
-
 <a id="read-test-leads-from-a-smaller-reader"></a>
 
 ### Read test optimization leads from a smaller reader
