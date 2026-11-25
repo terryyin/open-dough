@@ -12,7 +12,6 @@
 import type { Locator, Page } from "@playwright/test";
 import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
 import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import { standaloneSessionName } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   rem,
   scrollYOf,
@@ -22,7 +21,6 @@ import {
   untilBoardRests,
   watchBoardScroll,
 } from "../../dashboard/test-support/boardReading.ts";
-import { placedAt } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   expectEntries,
   revealAction,
@@ -41,7 +39,10 @@ import {
 import {
   destination,
   names,
+  openedWithHeldPublishedStory,
   openedWithHeldStory,
+  publishedNames,
+  publishedPaths,
   storiesThrough,
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
@@ -68,6 +69,7 @@ async function collapsedFromKeyboard(
   page: Page,
   recent: Locator,
   total: number,
+  latest: readonly string[],
 ) {
   await showLatestAction(recent).focus();
   const scrolled = await watchBoardScroll(page);
@@ -77,7 +79,7 @@ async function collapsedFromKeyboard(
   await expect(recent).toBeFocused();
   await expect(showLatestAction(recent)).toHaveCount(0);
   await expect(recent).toContainText(`Showing 10 of ${String(total)} entries.`);
-  await expectEntries(recent, names(10));
+  await expectEntries(recent, latest);
   await scrolled();
 }
 
@@ -115,7 +117,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   const asked = recordsAsked(github).length;
 
   await test.step("from the keyboard, Show latest 10 shows the first ten with the heading in view, reading nothing, the terminal still open", async () => {
-    await collapsedFromKeyboard(page, recent, 34);
+    await collapsedFromKeyboard(page, recent, 34, names(10));
     await expect(revealAction(recent)).toHaveText(
       "Show 10 of 24 older entries",
     );
@@ -154,14 +156,14 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   });
 });
 
-test("Show latest 10 while a Running Cursor sessions row's done entry 27 is still read supersedes the journey; once read nothing reveals it, and choosing the row again does", async ({
+test("Show latest 10 while a Running Cursor sessions row's published Done story is still read supersedes the journey; once read nothing reveals it, and choosing the row again does", async ({
+  afterGitHubStops,
   page,
   dashboard,
   cursor,
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   const instruction = "hold this done session";
-  const entryName = standaloneSessionName("Ad hoc", instruction);
   const launched = await launch(dashboard, {
     source: "open-dough",
     workflow: "ad-hoc",
@@ -174,19 +176,15 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
   // The terminal never connects, so the session stays done.
   await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
   await recordReveals(page);
-  const view = await openedWithHeldStory(page, dashboard, {
-    open: [],
-    elsewhere: true,
-    also: (now) => [
-      {
-        ...held,
-        launchedAt: placedAt(now, destination),
-        doneAt: new Date(now - 10 * 60_000).toISOString(),
-      },
-    ],
-  });
+  const view = await openedWithHeldPublishedStory(
+    page,
+    dashboard,
+    afterGitHubStops,
+    instruction,
+    held,
+  );
   const { github, recent } = view;
-  const entry = recent.getByRole("article", { name: entryName });
+  const entry = view.destinationCard;
   const terminal = terminalOf(page);
   const { sidebar, button } = sessionsSidebarParts(page);
   const choose = async () => {
@@ -199,14 +197,14 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
   await expect(shownEntries(recent)).toHaveCount(destination);
   await expect
     .poll(() => recordsAsked(github).toSorted())
-    .toEqual(storiesThrough(destination).toSorted());
+    .toEqual(publishedPaths(destination).toSorted());
   if (await sidebar.isVisible()) await button.click();
 
   await test.step("from the keyboard, Show latest 10 shows the first ten with the heading in view, reading nothing, the terminal still open", async () => {
-    await collapsedFromKeyboard(page, recent, 35);
+    await collapsedFromKeyboard(page, recent, 35, publishedNames(10));
     await expect(terminal).toHaveCount(1);
     expect(recordsAsked(github).toSorted()).toEqual(
-      storiesThrough(destination).toSorted(),
+      publishedPaths(destination).toSorted(),
     );
   });
 
@@ -216,13 +214,13 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
     const scrolled = await scrollYOf(page);
     view.release();
     await untilPageRests(page);
-    await expectEntries(recent, names(10));
+    await expectEntries(recent, publishedNames(10));
     await expect(entry).toHaveCount(0);
     await expect(recent).toBeFocused();
     expect((await revealsOf(page)).slice(before)).toEqual([]);
     expect(await scrollYOf(page)).toBe(scrolled);
     expect(recordsAsked(github)).toHaveLength(
-      storiesThrough(destination).length,
+      publishedPaths(destination).length,
     );
     await expect(terminal).toHaveCount(1);
   });
@@ -232,7 +230,7 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
     await expect(entry).toBeInViewport();
     await expect(shownEntries(recent)).toHaveCount(destination);
     expect(recordsAsked(github).toSorted()).toEqual(
-      storiesThrough(destination).toSorted(),
+      publishedPaths(destination).toSorted(),
     );
   });
 });

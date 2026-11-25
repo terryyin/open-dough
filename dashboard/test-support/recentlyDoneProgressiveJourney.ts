@@ -7,13 +7,17 @@
 // which entries show, or puts the keyboard anywhere.
 
 import type { Locator, Page } from "@playwright/test";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
 import { columnCountOf, parts } from "./dashboardPage.ts";
 import { expectEntries, shownEntries } from "./recentlyDoneColumn.ts";
+import { showRecentlyDone } from "./recentlyDoneSessionsSidebarPage.ts";
 import {
   entryName,
+  placedAt,
   progressiveEntries,
+  progressiveStories,
   type ProgressiveEntry,
 } from "./recentlyDoneProgressive.ts";
 import {
@@ -110,6 +114,95 @@ export async function openedWithHeldStory(
       idle(place);
       await markDoneAnyway(scope ?? taken(place));
       await expect(taken(place)).toHaveCount(0, { timeout: 30_000 });
+    },
+  };
+}
+
+// A published Done card can be revealed by its own retained native session.
+const publishedStories = progressiveStories(35);
+export const publishedNames = (to: number) =>
+  publishedStories.slice(0, to).map(entryName);
+export const publishedPaths = (to: number) =>
+  publishedStories.slice(0, to).map(({ path }) => path);
+
+export async function openedWithHeldPublishedStory(
+  page: Page,
+  dashboard: DashboardServer,
+  afterGitHubStops: ProgressiveHistory["afterGitHubStops"],
+  sessionTitle: string,
+  cursor?: LaunchRecord,
+) {
+  const story = publishedStories[destination - 1];
+  const held = publishedStories[heldPlace - 1];
+  if (story === undefined || held === undefined)
+    throw new Error("The published destination or held story is missing.");
+  const nativeCursor = cursor?.session;
+  if (nativeCursor !== undefined && nativeCursor.host !== "cursor")
+    throw new Error("The retained running session must be Cursor.");
+  let release: () => void = () => undefined;
+  const view = await opened(page, dashboard, publishedStories, {
+    history: { afterGitHubStops, later: {} },
+    also: (now) => {
+      const launchedAt = placedAt(now, destination);
+      const request = makeMe.aLaunchRecord.executing({
+        identity: story.identity,
+        title: sessionTitle,
+      });
+      return [
+        (nativeCursor === undefined
+          ? request.inClaudeSession({
+              sessionId: dashboard.claudeListsSession({
+                name: sessionTitle,
+                cwd: dashboard.home,
+                startedAt: Date.parse(launchedAt),
+              }),
+            })
+          : request.inCursorSession({
+              sessionId: nativeCursor.sessionId,
+              continuation: {
+                workspace: nativeCursor.continuation.workspace,
+                args: nativeCursor.continuation.args,
+                ...(nativeCursor.continuation.configScope === undefined
+                  ? {}
+                  : { configScope: nativeCursor.continuation.configScope }),
+              },
+            })
+        )
+          .launchedAt(launchedAt)
+          .markedDoneAt(new Date(now - 10 * 60_000).toISOString())
+          .please(),
+      ];
+    },
+    answering: (published) => {
+      const holding = holdingAnswer(published, isRecord(held.path));
+      release = holding.release;
+      return holding.answer;
+    },
+  });
+  const heldCard = view.recent.getByRole("article", { name: held.identity });
+  const pendingDestination = view.recent.getByRole("article", {
+    name: story.identity,
+    exact: true,
+  });
+  return {
+    ...view,
+    release: () => {
+      release();
+    },
+    heldCard,
+    async showsPendingDestination() {
+      await expect(heldCard).toContainText("Reading done story…");
+      await expect(pendingDestination).toBeVisible();
+    },
+    destinationCard: view.recent.getByRole("article", {
+      name: story.title,
+      exact: true,
+    }),
+    chooseSession: async () => {
+      const sidebar = await showRecentlyDone(page);
+      const row = sidebar.select(sessionTitle);
+      await row.click();
+      return row;
     },
   };
 }

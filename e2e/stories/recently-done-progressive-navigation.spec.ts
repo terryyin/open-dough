@@ -41,7 +41,10 @@ import {
   expectThroughDestination,
   expectThroughDestinationPending,
   names,
+  openedWithHeldPublishedStory,
   openedWithHeldStory,
+  publishedNames,
+  publishedPaths,
   storiesThrough,
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
@@ -167,20 +170,28 @@ test("marking the session done in its covering terminal, with Recently done page
   await expectThroughDestination(view.github, view.recent);
 });
 
-test("the developer's own move before the entries before it are read keeps the keyboard where it went", async ({
+test("selecting another story during a held session reveal preserves the new selection and keyboard", async ({
+  afterGitHubStops,
   page,
   dashboard,
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
-  const view = await openedWithHeldStory(page, dashboard);
-  await view.markedDone(destination);
-  await expect(view.done(destination)).toBeVisible();
+  const view = await openedWithHeldPublishedStory(
+    page,
+    dashboard,
+    afterGitHubStops,
+    "Done story session",
+  );
+  const selectedSession = await view.chooseSession();
+  await view.showsPendingDestination();
+  await expect(selectedSession).toHaveAttribute("aria-pressed", "true");
   const card = parts(page).backlog.getByRole("article").first();
   await card.click();
   await expect(card).toBeFocused();
   view.release();
-  await expectEntries(view.recent, names(destination));
+  await expectEntries(view.recent, publishedNames(destination));
   await untilPageRests(page);
+  await expect(selectedSession).toHaveAttribute("aria-pressed", "false");
   await expect(card).toBeFocused();
 });
 
@@ -191,16 +202,21 @@ test("choosing another project before the entries before it are read shows that 
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   const pygardon = await publishOnePygardonStory(page, afterGitHubStops);
-  const view = await openedWithHeldStory(page, dashboard);
+  const view = await openedWithHeldPublishedStory(
+    page,
+    dashboard,
+    afterGitHubStops,
+    "Done story session",
+  );
   const { backlog } = parts(page);
-  await view.markedDone(destination);
-  await expect(view.done(destination)).toBeVisible();
+  await view.chooseSession();
+  await view.showsPendingDestination();
   // The demand's records have all been asked for, the held one still
   // unanswered; leaving Open Dough abandons the read, which would otherwise
   // stop asking part way through.
   await expect
     .poll(() => recordsAsked(view.github).toSorted())
-    .toEqual(storiesThrough(destination).toSorted());
+    .toEqual(publishedPaths(destination).toSorted());
   await chooseProject(page, "Pygardon");
   await expect(backlog).toContainText("A Pygardon story");
   expect(
@@ -221,8 +237,8 @@ test("choosing another project before the entries before it are read shows that 
   await untilPageRests(page);
   await expect(shownProjectControl(page)).toBeFocused();
   await chooseProject(page, "Open Dough");
-  await expectEntries(view.recent, names(10));
+  await expectEntries(view.recent, publishedNames(10));
   expect(recordsAsked(view.github).toSorted()).toEqual(
-    storiesThrough(destination).toSorted(),
+    publishedPaths(destination).toSorted(),
   );
 });

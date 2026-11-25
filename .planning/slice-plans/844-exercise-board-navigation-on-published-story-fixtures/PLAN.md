@@ -93,7 +93,7 @@ See `SLICE-1-REPORT.md` in the worktree's Git evidence directory.
 
 ### 2. Reveal a published Done story from its native session
 Type: Behavior
-Status: planned
+Status: done
 Proof: Selecting the session of a later Done story reveals its card. Held
 details preserve the reading bound and keyboard target. A later selection,
 project change, or Show latest 10 supersedes the pending reveal. The terminal
@@ -104,6 +104,14 @@ including the Cursor and cross-project sidebar routes. Seed a Done catalog
 with retained sessions referencing the owning story. Account for read paths
 through the target ordinal. Keep the native run and the catalog revision
 separately observable. Use the existing focus and panel support.
+
+Accepted proof: The published identity opens the held destination through
+its exact 27-record bound. The nested Cursor session receives the reveal and
+terminal-close focus. A later project, story or Show latest 10 supersedes
+the pending reveal. Sixteen browser cases passed, including the retained
+terminal, report and refresh neighbors. Independent refactoring rechecked
+ten affected cases and Dashboard typecheck. See `SLICE-2-REPORT.md` and
+`SLICE-2-REFACTOR-REPORT.md` in this worktree's Git evidence directory.
 
 ### 3. Preserve native Done actions on linked sessions
 Type: Behavior
