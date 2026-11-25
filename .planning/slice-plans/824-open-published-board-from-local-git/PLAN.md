@@ -150,7 +150,10 @@ Proof: Maintained fixture tests cover the routing rules that the first
 story proved only with scratch scripts. A republication reaches the latest
 origin, a route the HOME fixture set up still wins, a seeded project
 resolves to the default origin, an added project resolves to its origin,
-and an unserved repository fails locally. The migrated specs pass with both
+and an unserved repository fails locally. Intent Coverage at `4baf31b4f`
+found the republication path missing from maintained checks: skipping the
+earlier origin's unroute left every examined check green while a scratch Git
+read reached the stale origin. The migrated specs pass with both
 full suites, and the reapplied `ref` audit reports no unrouted project.
 
 ### 7. Open the Board at verified published trunk
