@@ -201,7 +201,7 @@ subject spec + shared Vitest helpers only; files ≤250; no production candidate
 ### 3. Spec times attribute and sum from direct hooks
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `spec-times.spec.ts` runs on Node Vitest, with 5 cases under about
 100 ms each. Summed seconds are listed longest first by path under
 `rootDir`. Cases from an imported module count under the enclosing file
@@ -213,6 +213,16 @@ Behavior: given the run's results and hook steps, the times file names each
 spec file with its summed seconds, attributed to the spec that ran it.
 
 Estimated active work 10–13 minutes.
+
+Accepted proof: focused
+`caffeinate -s -i … npm run --silent test:dashboard:backend -- intent/spec-times.spec.ts`
+→ 5 passed, 1–2 ms (`slice3-backend-proof2.log.run.json`). typecheck and lint
+passed. Setup: MakeMe with `locationFile` for imported-module cases; durations
+and shared hook steps via aReporterResult/aReporterStep. Observations:
+longest-first under rootDir; imported location under enclosing suite; failed
+write keeps completed; listing writes none; beforeAll/afterAll once.
+Refactor disposition: skipped — subject spec + optional MakeMe field only;
+files ≤250; production SpecTimes untouched.
 
 ### 4. The console report stays quiet unless a run needs attention
 

@@ -14,7 +14,9 @@
 /**
  * @typedef {object} ReporterCaseFacts
  * @property {string} title
- * @property {string} file
+ * @property {string} file file-suite path (the spec that ran the case)
+ * @property {string} [locationFile] TestCase location when it differs from
+ *   `file` (an imported case module)
  * @property {number} [line]
  * @property {number} [column]
  * @property {string} [id]
@@ -206,6 +208,7 @@ export class ReporterRunBuilder {
       const outcome = facts.outcome ?? "expected";
       const line = facts.line ?? 1;
       const column = facts.column ?? 1;
+      const locationFile = facts.locationFile ?? facts.file;
       /** @type {TestCase} */
       const testCase = {
         type: "test",
@@ -213,7 +216,7 @@ export class ReporterRunBuilder {
         id,
         repeatEachIndex,
         expectedStatus,
-        location: { file: facts.file, line, column },
+        location: { file: locationFile, line, column },
         parent: suite,
         results: [],
         retries: facts.retries ?? 0,
