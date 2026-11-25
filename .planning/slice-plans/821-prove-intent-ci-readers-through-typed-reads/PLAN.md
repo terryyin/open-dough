@@ -59,10 +59,12 @@ status framing (such as a failed outcome's 502) with its existing owners.
   `LandingReceiptFacts`. `ci-comparison-finality-unanswered` already proves
   equivalent and later malformed listings and provider waits in process.
   `landed-ci-history-pending-proof` proves the pending history gap becoming a
-  point. `observation/shared-request-owner.spec.ts` proves that a provider
-  wait ends at the request owner. A server case is dropped only when every
-  one of its observations has a named surviving owner. An observation
-  without one becomes an in-process case.
+  point. `observation/authenticated-read-shared-listing-failures.spec.ts`
+  proves a directed wait ends when the request-owner clock advances (slice 5
+  discrimination); `observation/shared-request-owner.spec.ts` covers shared
+  owner waits by wall time. A server case is dropped only when every one of
+  its observations has a named surviving owner. An observation without one
+  becomes an in-process case.
 - Follow the North Star topics
   [make production code directly testable](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
   and [plain Vitest for unit tests](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).
@@ -222,7 +224,7 @@ skip — optional home mirrors historyStore; no new domain representation.
 ### 5. Pending proof keeps one owner for each observation
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: for each observation in `intent-ci-comparison-pending-proof`, name its
 owner. For each named owner, temporarily disable the behavior in production
 and show that the owner fails, then restore it. Observations: malformed
@@ -239,6 +241,24 @@ history still recover, and repeat no acquisition once final, with every
 regression check on Node Vitest or in a named owning family.
 
 Estimated active work 10–15 minutes.
+
+Accepted proof / dispositions (implementation; Status stays planned for
+coordinator delivery): every observation has a discriminating owner; deleted
+`dashboard/backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts`
+and unused `dashboard/test-support/support/pendingLandedComparison.ts`.
+Scratch discrimination at `/tmp/slice5-pending-proof-disc-*` on
+`fc5779c46`, then restored; evidence under
+`open-dough/evidence/slice5-disc-*-20261125-125015.*`.
+
+| Observation | Owner | Discrimination |
+| --- | --- | --- |
+| Malformed listing recovery beyond the landing hour | `ci-comparison-finality-unanswered` (`equivalent`/`later` `malformed listing` stays live beyond receipt and walk bounds…) | Break: `ciProofArtifact.ts` `unreadable-listing` returns without `unansweredAs`. Fail: `expected [1,0] to equal [2,0]` on second ask. Restore pass. Logs: `slice5-disc-obs1-malformed-{break,restore}-20261125-125015`. |
+| Final reuse with no further listing | `ci-comparison-finality-unanswered` (same family; `toBe(recovered)` / no further acquisitions) | Break: `isFinalCiComparisonAnswer` always `false`. Fail: Object.is on remembered recovered answer for all six unanswered cases. Restore pass. Logs: `slice5-disc-obs2-final-reuse-{break,restore}-20261125-125015`. |
+| Pending history gap becoming a point | `landed-ci-history-pending-proof` | Break: `landedCiHistoryEntries.ts` suppresses `points.push`. Fail: expected `kind: "point"` after GitHub answers; got gap-only. Restore pass. Logs: `slice5-disc-obs3-history-point-{break,restore}-20261125-125015`. |
+| Held provider wait for equivalent and later proof | `ci-comparison-finality-unanswered` (`equivalent`/`later` `provider wait`…) | Break: `GitHubAcquisitionHeld` in `unreadableBy` returns without `unansweredAs`. Fail: only the two provider-wait cases (`[1,0]` vs `[2,0]`); malformed/transient still pass. Restore pass. Logs: `slice5-disc-obs4-provider-wait-{break,restore}-20261125-125015`. |
+| Wait ending at the owner's clock | `observation/authenticated-read-shared-listing-failures` (rate-limited listing + `advanceOwnerClock`; same `listingReuseWithOwnerClock` seam as the retired server cases). Plan candidate `shared-request-owner` covers shared-owner wait ending by wall time, not the controlled owner clock. | Break: `ReadAdmission.heldBack` clamps `nowMs` so a directed wait never ends when the owner clock advances. Fail at `advanceOwnerClock` then `status).toBe(200)` → received 502. Restore pass. Logs: `slice5-disc-obs5c-owner-clock-{break,restore}-20261125-125015`. |
+
+No in-process comparison/history cases were added; coverage stays with the named owners.
 
 ## Concern evidence
 
