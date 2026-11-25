@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_publish-to-trunk-through-one-loop.json",
+      "identity": "SEED-423#publish-to-trunk-through-one-loop",
+      "completedAt": "2026-11-25T04:53:06.986Z",
+      "blob": "89d74d47e059a5859066e73246d6ac37e327130f"
+    },
+    {
       "fileName": "SEED-423_reconcile-the-backlog-through-one-git-adapter.json",
       "identity": "SEED-423#reconcile-the-backlog-through-one-git-adapter",
       "completedAt": "2026-11-25T02:42:06.488Z",
