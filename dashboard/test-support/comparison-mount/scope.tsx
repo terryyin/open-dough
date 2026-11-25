@@ -5,7 +5,7 @@ import { IntentFileProof } from "../../src/IntentFileProof.tsx";
 import { IntentLocationGroup } from "../../src/IntentLocationGroup.tsx";
 import {
   intentStoryOverlay,
-  overlayFilesByPath,
+  intentLocationFiles,
 } from "../../src/intentStoryOverlay.ts";
 import {
   owningLocation,
@@ -25,17 +25,26 @@ export function ComparisonMountScope({
     () => new Set(facts.locations.map(({ path }) => path)),
   );
   const overlay = intentStoryOverlay(facts.locations, facts.changed);
-  const treeFiles = overlayFilesByPath(facts.locations, overlay);
+  const treeFiles = overlay.files;
   const location = owningLocation(facts.locations, selection);
+  const scopeFiles =
+    location === undefined
+      ? treeFiles
+      : intentLocationFiles(treeFiles, location);
   return (
     <>
       <nav className="intent-locations" aria-label="Intent files">
-        {facts.locations.map((one, index) => (
+        {facts.locations.map((one) => (
           <IntentLocationGroup
             key={one.path}
             location={one}
-            files={overlay.locations[index]?.files ?? []}
-            containsChanges={overlay.locations[index]?.containsChanges ?? false}
+            files={[...intentLocationFiles(treeFiles, one)].map(
+              ([path, file]) => ({
+                ...file,
+                path: path.slice(one.path.length + 1),
+              }),
+            )}
+            containsChanges={overlay.changedLocations.has(one.path)}
             selection={selection}
             onSelect={setSelection}
             idPrefix={intentLocationIdPrefix(one.path)}
@@ -64,8 +73,8 @@ export function ComparisonMountScope({
           <IntentSummary
             key={`${facts.revision}:${selection.path}`}
             path={selection.path}
-            files={filesOfSelection(treeFiles, selection)}
-            treeFiles={treeFiles}
+            files={filesOfSelection(scopeFiles, selection)}
+            treeFiles={scopeFiles}
             location={location}
             revision={facts.revision}
             onOpen={setSelection}

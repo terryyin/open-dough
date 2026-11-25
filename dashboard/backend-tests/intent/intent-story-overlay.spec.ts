@@ -6,13 +6,13 @@ import { expect, test } from "vitest";
 import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
 import {
   intentStoryOverlay,
-  overlayFilesByPath,
-  storyChangesOnly,
+  intentLocationFiles,
+  storyFilePath,
+  storyRepositoryTree,
   storyOverlayExpansion,
   type StoryOverlay,
 } from "../../src/intentStoryOverlay.ts";
 import type { ReviewedFile } from "../../src/storyReviewFiles.ts";
-import { reviewFileTree } from "../../src/reviewFileTree.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const locations: readonly IntentLocation[] = [
@@ -61,103 +61,98 @@ const changes: readonly ReviewedFile[] = [
   { kind: "modified", path: "dashboard/src/app.ts" },
 ];
 
-// Each location's tree files as `path [kind] (unpublished)`, by location.
+// Scope projection keys are repository paths even when a rename moved out.
 const placed = (
-  { locations: shown }: StoryOverlay,
+  overlay: StoryOverlay,
   of: readonly IntentLocation[] = locations,
 ) =>
   Object.fromEntries(
-    shown.map(({ files, containsChanges }, index) => [
-      `${of[index]?.path ?? ""}${containsChanges ? " (changes)" : ""}`,
-      files.map(
-        (file) =>
-          `${file.path}${file.kind === undefined ? "" : ` [${file.kind}]`}${
-            file.published ? "" : " (unpublished)"
-          }`,
-      ),
+    of.map((location) => [
+      location.path,
+      [...intentLocationFiles(overlay.files, location).keys()]
+        .map((path) => path.slice(location.path.length + 1))
+        .sort(),
     ]),
   );
 
-// The changed files outside every location as `path [kind]`.
-const outside = ({ outside: files }: StoryOverlay) =>
-  files.map((file) => `${file.path} [${file.kind ?? ""}]`);
+const outside = ({ files }: StoryOverlay) =>
+  [...files.values()].flatMap(({ path, outside }) =>
+    outside === true ? [path] : [],
+  );
 
-test("each change sits where a location admits its path, else a rename's old path; the rest are listed once outside", () => {
+test("renames have one destination row and keep their original change for the diff", () => {
   const overlay = intentStoryOverlay(locations, changes);
-  expect(placed(overlay)).toEqual({
-    features: ["board/select.feature"],
-    "dashboard/tests (changes)": [
-      "a.spec.ts",
-      "deep/b.spec.ts [modified]",
-      // Out of the location: at its old path, which the published tree lists.
-      "leaving.spec.ts [renamed]",
-      "gone.spec.ts [deleted] (unpublished)",
-      // Into the location: inserted at its new path.
-      "arriving/arriving.spec.ts [renamed] (unpublished)",
-    ],
-    // Between locations: at its new path, its old entry gone from the first.
-    "tests (changes)": ["check.sh", "moved.sh [renamed] (unpublished)"],
-  });
-  // The rename neither path admits and the product change, once each.
+  for (const change of changes) {
+    expect(overlay.files.get(change.path)?.change).toBe(change);
+    if (change.kind !== "renamed") continue;
+    expect(overlay.files.has(change.oldPath)).toBe(false);
+    expect(storyFilePath(overlay, change.oldPath)).toBe(change.path);
+  }
   expect(outside(overlay)).toEqual([
-    "docs/renamed-notes.md [renamed]",
-    "dashboard/src/app.ts [modified]",
+    "docs/renamed-notes.md",
+    "dashboard/src/app.ts",
   ]);
-  // Each change keeps the comparison's file for its diff.
-  expect(overlay.outside[1]?.change).toBe(changes[6]);
-  const between = overlay.locations[2]?.files[1];
-  expect(between?.change).toBe(changes[4]);
 });
 
-test("the tree's files by repository path hold the outside files beside the located ones", () => {
+test("a rename leaving Intent keeps its former proof scope independently of its tree row", () => {
   const overlay = intentStoryOverlay(locations, changes);
-  const byPath = overlayFilesByPath(locations, overlay);
-  expect(byPath.get("dashboard/src/app.ts")?.change).toBe(changes[6]);
-  expect(byPath.get("dashboard/tests/deep/b.spec.ts")?.kind).toBe("modified");
-});
-
-test("without a story the trees are the published files alone", () => {
-  const overlay = intentStoryOverlay(locations, undefined);
-  expect(outside(overlay)).toEqual([]);
   expect(placed(overlay)).toEqual({
     features: ["board/select.feature"],
     "dashboard/tests": [
       "a.spec.ts",
-      "between/moved.spec.ts",
+      "arriving/arriving.spec.ts",
       "deep/b.spec.ts",
+      "gone.spec.ts",
       "leaving.spec.ts",
     ],
-    tests: ["check.sh"],
+    tests: ["check.sh", "moved.sh"],
   });
+  expect(overlay.changedLocations).toEqual(
+    new Set(["dashboard/tests", "tests"]),
+  );
+  expect(overlay.files.get("scripts/left.spec.ts")?.proofPath).toBe(
+    "dashboard/tests/leaving.spec.ts",
+  );
 });
 
-test("Selected story only keeps the changed entries, deletions and renames included", () => {
-  const only = storyChangesOnly(intentStoryOverlay(locations, changes));
-  expect(outside(only)).toEqual([
-    "docs/renamed-notes.md [renamed]",
-    "dashboard/src/app.ts [modified]",
-  ]);
-  expect(placed(only)).toEqual({
-    features: [],
-    "dashboard/tests (changes)": [
-      "deep/b.spec.ts [modified]",
-      "leaving.spec.ts [renamed]",
-      "gone.spec.ts [deleted] (unpublished)",
-      "arriving/arriving.spec.ts [renamed] (unpublished)",
-    ],
-    "tests (changes)": ["moved.sh [renamed] (unpublished)"],
-  });
+test("without a story the tree contains the published files alone", () => {
+  const overlay = intentStoryOverlay(locations, undefined);
+  expect([...overlay.files.keys()]).toEqual(
+    locations.flatMap(({ files }) => files),
+  );
+  expect(overlay.changedLocations.size).toBe(0);
+});
+
+test("Selected story only keeps the changed entries in the same repository order", () => {
+  const overlay = intentStoryOverlay(locations, changes);
+  const order = [
+    "dashboard/src/app.ts",
+    "dashboard/tests/arriving/arriving.spec.ts",
+    "dashboard/tests/deep/b.spec.ts",
+    "dashboard/tests/gone.spec.ts",
+    "docs/renamed-notes.md",
+    "scripts/left.spec.ts",
+    "tests/moved.sh",
+  ];
+  for (const only of [false, true]) {
+    const shown = storyRepositoryTree(locations, overlay, only);
+    expect(shown.changedFiles.map(({ path }) => path)).toEqual(order);
+    expect(shown.roots.has("features")).toBe(!only);
+  }
 });
 
 test("the story opens the first changed location and the folders holding changes, restricted or not", () => {
-  const overlay = intentStoryOverlay(locations, changes);
-  const opened = (overlay: StoryOverlay) => {
-    const files = [...overlayFilesByPath(locations, overlay)].map(
-      ([path, file]) => ({ ...file, path }),
+  const opened = (overlay: StoryOverlay, only: boolean) => {
+    const { nodes, changedFiles } = storyRepositoryTree(
+      locations,
+      overlay,
+      only,
     );
-    const tree = reviewFileTree(files, { compact: false });
-    return new Set(storyOverlayExpansion(locations, overlay, tree));
+    return new Set(
+      storyOverlayExpansion(locations, overlay, nodes, changedFiles),
+    );
   };
+  const overlay = intentStoryOverlay(locations, changes);
   const expansion = new Set([
     "dashboard",
     "dashboard/tests",
@@ -165,12 +160,12 @@ test("the story opens the first changed location and the folders holding changes
     "dashboard/tests/deep",
     "dashboard/src",
     "docs",
+    "scripts",
   ]);
-  expect(opened(overlay)).toEqual(expansion);
-  expect(opened(storyChangesOnly(overlay))).toEqual(expansion);
-  // A story changing nothing a location admits opens none.
+  expect(opened(overlay, false)).toEqual(expansion);
+  expect(opened(overlay, true)).toEqual(expansion);
   expect(
-    opened(intentStoryOverlay(locations, [changes[6] as ReviewedFile])),
+    opened(intentStoryOverlay(locations, [changes[6] as ReviewedFile]), false),
   ).toEqual(new Set(["dashboard", "dashboard/src"]));
 });
 
@@ -188,9 +183,13 @@ test("a sources location places a story's added matching file as added, and a no
     ],
   );
   expect(placed(overlay, [checks])).toEqual({
-    "checks (changes)": ["a.check", "b.check [added] (unpublished)"],
+    checks: ["a.check", "b.check"],
   });
-  expect(outside(overlay)).toEqual(["checks/notes.md [added]"]);
+  expect(outside(overlay)).toEqual(["checks/notes.md"]);
+  expect(overlay.files.get("checks/b.check")).toMatchObject({
+    kind: "added",
+    published: false,
+  });
 });
 
 test("Java changes use configured membership for placement, including unpublished additions and deletions", () => {
@@ -229,13 +228,21 @@ test("Java changes use configured membership for placement, including unpublishe
     ],
   );
   expect(placed(overlay, [java])).toEqual({
-    "backend/src/test/java (changes)": [
-      "com/example/CalculatorTest.java [modified]",
-      "com/example/NewTest.java [added] (unpublished)",
-      "com/example/OldTest.java [deleted] (unpublished)",
+    "backend/src/test/java": [
+      "com/example/CalculatorTest.java",
+      "com/example/NewTest.java",
+      "com/example/OldTest.java",
     ],
   });
   expect(outside(overlay)).toEqual([
-    "backend/src/test/java/com/example/Fixture.java [added]",
+    "backend/src/test/java/com/example/Fixture.java",
   ]);
+  for (const [path, kind, published] of [
+    ["CalculatorTest.java", "modified", true],
+    ["NewTest.java", "added", false],
+    ["OldTest.java", "deleted", false],
+  ] as const)
+    expect(
+      overlay.files.get(`backend/src/test/java/com/example/${path}`),
+    ).toMatchObject({ kind, published });
 });

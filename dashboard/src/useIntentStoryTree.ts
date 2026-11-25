@@ -1,9 +1,13 @@
 // The compared story's overlay and the kept scope of its file browser.
 
+import { useMemo } from "react";
 import { useKeptArrangement } from "./pageIntentReading.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { ComparedStory, StoryTreeScope } from "./IntentStorySummary.tsx";
-import { intentStoryOverlay, storyChangesOnly } from "./intentStoryOverlay.ts";
+import {
+  intentStoryOverlay,
+  storyRepositoryTree,
+} from "./intentStoryOverlay.ts";
 
 export function useIntentStoryTree({
   locations,
@@ -12,10 +16,17 @@ export function useIntentStoryTree({
   readonly locations: readonly IntentLocation[];
   readonly story: ComparedStory | undefined;
 }) {
-  const overlay = intentStoryOverlay(locations, story?.shown.comparison.files);
+  const changes = story?.shown.comparison.files;
+  const overlay = useMemo(
+    () => intentStoryOverlay(locations, changes),
+    [locations, changes],
+  );
   const [only, setOnly] = useKeptArrangement("storyOnly", () => false);
   const changesOnly = story !== undefined && only;
-  const shownOverlay = changesOnly ? storyChangesOnly(overlay) : overlay;
+  const shown = useMemo(
+    () => storyRepositoryTree(locations, overlay, changesOnly),
+    [locations, overlay, changesOnly],
+  );
   // The expansion the story's overlay last asked for here: when it first had
   // one, and at each toggle.
   const [round, setRound] = useKeptArrangement("storyExpansionRound", () => 0);
@@ -25,9 +36,7 @@ export function useIntentStoryTree({
       ? undefined
       : {
           only,
-          noneInLocations: !overlay.locations.some(
-            (each) => each.containsChanges,
-          ),
+          noneInLocations: overlay.changedLocations.size === 0,
           onOnly: (next) => {
             setOnly(next);
             setRound((previous) => previous + 1);
@@ -35,8 +44,7 @@ export function useIntentStoryTree({
         };
   return {
     overlay,
-    shownOverlay,
-    changesOnly,
+    shown,
     round,
     scope,
   };

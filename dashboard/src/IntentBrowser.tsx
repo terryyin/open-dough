@@ -22,10 +22,8 @@ import {
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
 import { FileMoves } from "./StoryReviewFileMoves.tsx";
-import {
-  intentChangedFileOrder,
-  overlayFilesByPath,
-} from "./intentStoryOverlay.ts";
+import { intentLocationFiles } from "./intentStoryOverlay.ts";
+import { storyFileSelection } from "./intentStorySelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useFirstStoryChangedFile } from "./useFirstStoryChangedFile.ts";
 import { useIntentFileRead } from "./useIntentFileRead.ts";
@@ -69,7 +67,10 @@ export function IntentBrowser({
   // from the record returns this browser to CI status.
   readonly project: ModeChoice | undefined;
 }) {
-  const { selection, setSelection } = useIntentWorkspaceSelection();
+  const { selection: keptSelection, setSelection } =
+    useIntentWorkspaceSelection();
+  const storyTree = useIntentStoryTree({ locations, story });
+  const selection = storyFileSelection(storyTree.overlay, keptSelection);
   const scope = selectionScope(selection);
   const selectedPath = selection.path;
   const [returnEntrySlug, setReturnEntrySlug] = useKeptReading<
@@ -91,7 +92,6 @@ export function IntentBrowser({
   const fileReading = useKeptFileReadingPlace();
   const treeSelection: IntentSelection =
     project === undefined || project.mode === "ci" ? selection : { path: "" };
-  const storyTree = useIntentStoryTree({ locations, story });
 
   function select(next: IntentSelection, entrySlug?: string) {
     setSelection(next);
@@ -106,36 +106,43 @@ export function IntentBrowser({
 
   // Directed file opens reveal their row and start a fresh Purpose reading.
   function openRevealed(next: IntentSelection, entrySlug?: string) {
+    const target = storyFileSelection(storyTree.overlay, next);
     select(
-      next.scope === undefined ? { ...next, scope: "file" } : next,
+      target.scope === undefined ? { ...target, scope: "file" } : target,
       entrySlug,
     );
     fileReading.setTab("purpose");
     setRevealedOpens((n) => n + 1);
-    revealInTree(next.path, owningLocation(locations, next)?.path);
+    revealInTree(target.path, owningLocation(locations, target)?.path);
   }
   useFirstStoryChangedFile({
     project: source.id,
     storyIdentity: storySummary?.story.identity,
-    locations,
     canChooseFile: reviewFileReady && !panel.hidden,
-    overlay: storyTree.shownOverlay,
+    changedFiles: storyTree.shown.changedFiles,
+    renamedSelection: selection === keptSelection ? undefined : selection,
     fileSelected: scope === "file",
     open: openRevealed,
   });
 
-  const treeFiles = overlayFilesByPath(locations, storyTree.overlay);
+  const treeFiles = storyTree.overlay.files;
+  const selectedLocation = owningLocation(locations, selection);
+  const scopeFiles =
+    selectedLocation !== undefined &&
+    (scope === "location" || scope === "folder")
+      ? intentLocationFiles(treeFiles, selectedLocation)
+      : treeFiles;
   const selectedFile =
     scope === "file" ? treeFiles.get(selectedPath) : undefined;
   const selectedChange = storyDiffOf(story, selectedFile);
   const moves =
     selectedChange === undefined ? undefined : (
       <FileMoves
-        order={intentChangedFileOrder(locations, storyTree.shownOverlay)}
+        order={storyTree.shown.changedFiles}
         selectedPath={selectedPath}
-        onMove={({ path, location }) => {
+        onMove={({ path }) => {
           select({ path, scope: "file" });
-          revealInTree(path, location);
+          revealInTree(path, undefined);
           fileReading.readingArea.current?.scrollTo({ top: 0 });
         }}
       />
@@ -146,7 +153,8 @@ export function IntentBrowser({
   const missing =
     scope !== "none" &&
     storySummary?.comparison.state !== "reading" &&
-    !treeHoldsSelection(locations, treeFiles, selection);
+    !treeHoldsSelection(locations, treeFiles, selection) &&
+    !treeHoldsSelection(locations, scopeFiles, selection);
   // A file the published revision does not list has no published text, and
   // one whose Purpose is the story's diff needs none; while the comparison is
   // read, as when Intent reopens on a kept selection, that is not yet known.
@@ -162,7 +170,6 @@ export function IntentBrowser({
       storySummary?.comparison.state === "reading",
   });
 
-  const selectedLocation = owningLocation(locations, selection);
   const selectedSyntaxHint =
     scope === "file"
       ? syntaxHintOfRepositoryPath(selectedPath, locations)
@@ -207,7 +214,7 @@ export function IntentBrowser({
             selectedLocation={selectedLocation}
             selectedFile={selectedFile}
             selectedSyntaxHint={selectedSyntaxHint}
-            treeFiles={treeFiles}
+            treeFiles={scopeFiles}
             story={story}
             moves={moves}
             read={fileRead.read}

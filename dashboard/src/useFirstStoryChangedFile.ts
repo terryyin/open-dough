@@ -1,11 +1,7 @@
 // One selection after a card arrival, made from the settled displayed tree.
 import { useEffect } from "react";
-import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
-import {
-  intentChangedFileOrder,
-  type StoryOverlay,
-} from "./intentStoryOverlay.ts";
+import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import {
   useFinishStoryReviewOpening,
@@ -38,16 +34,16 @@ export function useFirstStoryChangedFile({
   project,
   storyIdentity,
   canChooseFile,
-  locations,
-  overlay,
+  changedFiles,
   fileSelected,
+  renamedSelection,
   open,
 }: {
   readonly project: string;
   readonly storyIdentity: string | undefined;
   readonly canChooseFile: boolean;
-  readonly locations: readonly IntentLocation[];
-  readonly overlay: StoryOverlay;
+  readonly changedFiles: readonly IntentTreeFile[];
+  readonly renamedSelection: IntentSelection | undefined;
   readonly fileSelected: boolean;
   readonly open: (selection: IntentSelection) => void;
 }) {
@@ -55,9 +51,10 @@ export function useFirstStoryChangedFile({
   const finish = useFinishStoryReviewOpening();
   useEffect(() => {
     if (opening?.phase !== "read" || opening.identity !== storyIdentity) return;
-    if (!fileSelected) {
-      if (!canChooseFile) return;
-      const [first] = intentChangedFileOrder(locations, overlay);
+    if (!canChooseFile) return;
+    if (renamedSelection !== undefined) open(renamedSelection);
+    else if (!fileSelected) {
+      const [first] = changedFiles;
       if (first !== undefined) open({ path: first.path, scope: "file" });
     }
     finish?.(opening);
@@ -66,8 +63,8 @@ export function useFirstStoryChangedFile({
     finish,
     storyIdentity,
     canChooseFile,
-    locations,
-    overlay,
+    changedFiles,
+    renamedSelection,
     fileSelected,
     open,
   ]);

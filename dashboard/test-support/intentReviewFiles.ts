@@ -5,6 +5,7 @@ import {
   folderToggle,
   intentFile,
   repositoryTree,
+  repositoryFolder,
 } from "./support/intentStoryPage.ts";
 import { expectTreeRows, fileLineCounts } from "./support/reviewTreeRows.ts";
 
@@ -37,6 +38,14 @@ export class IntentReviewFiles {
         intentFile(this.#intent, name, { includeHidden: true }),
       ).toHaveCount(1);
     }
+    return this;
+  }
+
+  async expectFileInFolder(file: string, folder: string) {
+    const rows = repositoryFolder(this.#intent, folder).locator(
+      ":scope > ul > li > button",
+    );
+    await expect(this.row(file).and(rows)).toBeVisible();
     return this;
   }
 

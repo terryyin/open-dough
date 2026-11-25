@@ -60,6 +60,10 @@ Intent rollout, and new comparison or CI evidence are separate work.
   settings from the same published result and reuse the settings parser and
   source matcher. Keep the existing comparison-file admission and evidence
   rules for changed files. Shared Project Intent Git migration is separate.
+- The landed comparison follow-up adds
+  [named landing admission](../../../dashboard/server/storyReviewLandedAdmission.ts)
+  and [request bounds](../../../dashboard/server/storyReviewAdmissionBound.ts).
+  Reuse those owners when adding the story result read in slice 3.
 - Story Home and shared sidebar work can land before or after this plan.
   Work within the existing sidebar slot and path selection contract.
   On execution startup, use the version of that shell on the selected base
@@ -129,7 +133,7 @@ actions with their original observations.
 ### 2. Follow changed files in repository order
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Real-Git rename and move journey, CI drill-down and Board arrival from
 the proof map. Keep existing selected comparison counts and file diff proof.
 
@@ -140,6 +144,15 @@ Drive directed open, reveal, and file moves from the changed paths in the
 displayed tree. Exercise the same rule with **Selected story only** active.
 Replace the interim aliases in the displayed rows and the old two-part
 move order. Preserve the published comparison and file diff request fields.
+
+The real-Git moves journey checks exact destination rows, removed paths,
+both rename paths in each diff, the former-path Summary link, and both filter
+states. The renamed-file proof keeps the measured baseline at the former path.
+The Board arrives at the first repository row even when the configured roots
+are listed in the opposite order, and remembers a file on re-entry.
+The compact comparison controls landed during this slice. The story branch
+absorbed them and verified the combined tree, toolbar, Done selection, and
+follow-up with 52 mounted checks and eight real-Git cases.
 
 ### 3. Read the admitted story result tree
 
@@ -187,7 +200,7 @@ paths that the complete inventory needs, including deletions.
 ### G1. Renamed rows still use interim placement and movement
 Reported: slice 1 — "The delivered candidate still uses the previous alias and two-part move order where Slice 2 replaces those."
 Story clause: "a renamed file has one row at its destination with both paths available in the diff."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: [real-Git moves](../../../e2e/intent/intent-story-changes-moves.spec.ts) and [former-path CI proof](../../../e2e/intent/intent-summary-story-comparison-renamed.spec.ts)
 
 ### G2. The tree still uses the existing inventory
 Reported: slice 1 — "It uses the existing inventory requested by Slice 1."

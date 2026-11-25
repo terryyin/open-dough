@@ -6,6 +6,7 @@ import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentStoryFileTree } from "./IntentStoryFileTree.tsx";
 import { StoryTreeScopeChoice } from "./IntentStorySummary.tsx";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
+import { intentLocationFiles } from "./intentStoryOverlay.ts";
 import type { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
 
@@ -38,8 +39,8 @@ export function IntentBrowserTree({
         )}
         <IntentStoryFileTree
           locations={locations}
-          overlay={tree.shownOverlay}
-          changesOnly={tree.changesOnly}
+          overlay={tree.overlay}
+          shown={tree.shown}
           round={tree.round}
           selection={selection}
           onSelect={onSelect}
@@ -49,14 +50,17 @@ export function IntentBrowserTree({
     );
   return (
     <>
-      {locations.map((location, index) => {
-        const shown = tree.overlay.locations[index];
+      {locations.map((location) => {
+        const files = intentLocationFiles(tree.overlay.files, location);
         return (
           <IntentLocationGroup
             key={location.path}
             location={location}
-            files={shown?.files ?? []}
-            containsChanges={shown?.containsChanges ?? false}
+            files={[...files].map(([path, file]) => ({
+              ...file,
+              path: path.slice(location.path.length + 1),
+            }))}
+            containsChanges={tree.overlay.changedLocations.has(location.path)}
             selection={selection}
             onSelect={onSelect}
             reveal={reveal}

@@ -4,9 +4,9 @@ import { IntentLocationHeader } from "./IntentLocationHeader.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import {
-  overlayFilesByPath,
   storyOverlayExpansion,
   type StoryOverlay,
+  type storyRepositoryTree,
 } from "./intentStoryOverlay.ts";
 import { IntentTreeFileRow } from "./IntentTreeFileRow.tsx";
 import { treeComparisonReadingOf } from "./intentTreeComparison.ts";
@@ -14,7 +14,7 @@ import {
   selectionScope,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
-import { reviewFileTree, reviewFoldersHolding } from "./reviewFileTree.ts";
+import { reviewFoldersHolding } from "./reviewFileTree.ts";
 import { FileTree } from "./StoryReviewFileTree.tsx";
 import { useIntentRowReveal } from "./useIntentRowReveal.ts";
 import {
@@ -25,7 +25,7 @@ import {
 export function IntentStoryFileTree({
   locations,
   overlay,
-  changesOnly,
+  shown,
   round,
   selection,
   onSelect,
@@ -33,24 +33,13 @@ export function IntentStoryFileTree({
 }: {
   readonly locations: readonly IntentLocation[];
   readonly overlay: StoryOverlay;
-  readonly changesOnly: boolean;
+  readonly shown: ReturnType<typeof storyRepositoryTree>;
   readonly round: number;
   readonly selection: IntentSelection;
   readonly onSelect: (next: IntentSelection) => void;
   readonly reveal: TreeReveal | undefined;
 }) {
-  const filesByPath = overlayFilesByPath(locations, overlay);
-  const roots = new Map(
-    locations.flatMap((location, index) =>
-      !changesOnly || overlay.locations[index]?.containsChanges
-        ? [[location.path, location] as const]
-        : [],
-    ),
-  );
-  const tree = reviewFileTree(
-    [...filesByPath].map(([path, file]) => ({ ...file, path })),
-    { compact: false, folders: [...roots.keys()] },
-  );
+  const { nodes: tree, roots, changedFiles } = shown;
   const requested =
     reveal !== undefined && reveal.path === selection.path ? reveal : undefined;
   const section = useIntentRowReveal(requested);
@@ -61,7 +50,7 @@ export function IntentStoryFileTree({
     expansion: {
       round,
       folders: [
-        ...storyOverlayExpansion(locations, overlay, tree),
+        ...storyOverlayExpansion(locations, overlay, tree, changedFiles),
         ...(round === 0 ? [] : reviewFoldersHolding(tree, selection.path)),
       ],
     },

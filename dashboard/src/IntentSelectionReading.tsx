@@ -94,9 +94,7 @@ export function IntentSelectionReading({
           <IntentSummary
             key={`${revision}:${selection.path}`}
             path={selection.path}
-            files={filesOfSelection(treeFiles, selection).filter(
-              (path) => treeFiles.get(path)?.outside !== true,
-            )}
+            files={filesOfSelection(treeFiles, selection)}
             treeFiles={treeFiles}
             location={selectedLocation}
             revision={revision}

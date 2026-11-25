@@ -83,7 +83,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
   });
 
-  await test.step("the changed files outside every location are listed once each after the locations", async () => {
+  await test.step("the changed product and document files each have one repository row", async () => {
     await expect(story.tree.getByText("App.tsx")).toHaveCount(1);
     await expect(story.tree.getByText(/notes\.md/)).toHaveCount(1);
   });
@@ -122,7 +122,7 @@ test("Intent highlights a selected Taken story's test changes over the published
   await test.step("changed folders share the contains-changes background and changed locations remain marked", async () => {
     const marked = await background(story.folderRow("boundary"));
     expect(marked).not.toBe("rgba(0, 0, 0, 0)");
-    for (const name of ["arriving", "boundary", "out"]) {
+    for (const name of ["arriving", "boundary", "scripts"]) {
       await expect(story.folderItem(name)).toHaveAttribute(
         "data-contains-changes",
         "true",
