@@ -5,8 +5,11 @@ import { useEffect } from "react";
 export const boardScrollRegion = () =>
   document.querySelector<HTMLElement>(".board-scroll");
 
+export const readingRegionOf = (element: Element) =>
+  element.closest<HTMLElement>(".board-scroll, .roster-scroll, .intent-scroll");
+
 export function readingBounds(element: Element) {
-  const region = element.closest<HTMLElement>(".board-scroll, .roster-scroll");
+  const region = readingRegionOf(element);
   const at = region?.getBoundingClientRect();
   const padding = getComputedStyle(region ?? document.documentElement);
   return {

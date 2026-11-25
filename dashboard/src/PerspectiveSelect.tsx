@@ -18,9 +18,8 @@ const perspectives: readonly {
 // Which perspective the page shows of the selected project. Native radios
 // keep their own arrow keys, so page-wide project cycling leaves them alone
 // (./projectKeyboardNavigation.ts) and choosing a perspective never selects
-// another project. Each choice shows only its meaning mark; its name is the
-// radio's accessible name and the styled tooltip's text. Structure is not
-// offered.
+// another project. The active Intent choice also names the perspective when
+// the banner has room. Every radio keeps its accessible name and tooltip.
 export function PerspectiveSelect({
   perspective,
   onSelect,
@@ -48,6 +47,11 @@ export function PerspectiveSelect({
           />
           <span>
             <option.Mark />
+            {perspective === "intent" && option.id === "intent" && (
+              <span className="perspective-name" aria-hidden="true">
+                {option.label}
+              </span>
+            )}
           </span>
           <FrameTooltip>{option.label}</FrameTooltip>
         </label>

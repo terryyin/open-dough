@@ -6,27 +6,12 @@
 // (`./pageIntentReading.tsx`) together with the selection it was chosen for
 // (`./pageStorySelection.tsx`), so every new selection, even of a story
 // cleared and selected again while Intent is hidden, opens CI comparison;
-// returning from Development, Project Intent or another view keeps it. Every
+// returning from Development or another tab keeps it. Every
 // view stays mounted while another shows, so the Changes reader and
 // tree keep their place. A file's Proof returns directly to CI comparison
 // through `useStoryCiReturn`, which also focuses that tab.
-//
-// Intent shows either the selected story's views or **Project Intent**
-// (`useIntentScope`), kept in the same way. Each new selection shows its
-// story, and clearing it shows Project Intent; a visit to Project Intent
-// leaves the selection, the chosen view and the story's reading place
-// (`./pageIntentReading.tsx`) as they were, and coming back shows them again.
-// Without a selected story Intent shows Project Intent.
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  type ReactNode,
-  type RefObject,
-} from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { intentTabId, type IntentTabOption } from "./IntentTabs.tsx";
 import {
   useFinishStoryReviewOpening,
@@ -37,84 +22,25 @@ import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 
 export type IntentStoryTab = "ci" | "changes" | "coverage";
-export type IntentScope = "story" | "project";
-
-// Live chooseScope from the mounted Intent body. The banner sits above Intent,
-// so a downward context cannot reach it; PageFrame holds this ref bridge.
-export type IntentScopeChooser = (next: IntentScope) => void;
-
-const IntentScopeChooserRef = createContext<
-  RefObject<IntentScopeChooser | undefined> | undefined
->(undefined);
-
-export function IntentScopeBridgeProvider({
-  children,
-}: {
-  readonly children: ReactNode;
-}) {
-  const chooser = useRef<IntentScopeChooser | undefined>(undefined);
-  return (
-    <IntentScopeChooserRef value={chooser}>{children}</IntentScopeChooserRef>
-  );
-}
-
-export function useIntentScopeChooser(): IntentScopeChooser | undefined {
-  const chooser = useContext(IntentScopeChooserRef);
-  return chooser === undefined
-    ? undefined
-    : (next) => {
-        chooser.current?.(next);
-      };
-}
-
-// Intent registers its chooseScope while mounted so the banner can call it.
-export function useProvideIntentScopeChooser(
-  chooseScope: IntentScopeChooser,
-): void {
-  const chooser = useContext(IntentScopeChooserRef);
-  useLayoutEffect(() => {
-    if (chooser === undefined) return;
-    chooser.current = chooseScope;
-    return () => {
-      if (chooser.current === chooseScope) chooser.current = undefined;
-    };
-  }, [chooser, chooseScope]);
-}
-
 export const storyTabs: readonly IntentTabOption<IntentStoryTab>[] = [
   { value: "ci", label: "CI comparison" },
   { value: "changes", label: "Changes" },
   { value: "coverage", label: "Intent coverage" },
 ];
 
-// A choice kept with the reading place for the page's `selection`: `initial`
-// until one is made during that selection.
-function useChoiceFor<T>(
-  key: string,
-  selection: SelectedStory | undefined,
-  initial: T,
-) {
-  const [kept, keep] = useKeptReading<{
-    readonly selection: SelectedStory | undefined;
-    readonly choice: T;
-  }>(key, () => ({ selection, choice: initial }));
-  return {
-    choice: kept.selection === selection ? kept.choice : initial,
-    choose: (next: T) => {
-      keep({ selection, choice: next });
-    },
-  };
-}
-
 // The view chosen for `selection`, CI comparison until another is chosen for
 // it.
 export function useStoryTab(selection: SelectedStory | undefined) {
-  const { choice, choose } = useChoiceFor<IntentStoryTab>(
-    "storyTab",
-    selection,
-    "ci",
-  );
-  return { tab: choice, chooseTab: choose };
+  const [kept, keep] = useKeptReading<{
+    readonly selection: SelectedStory | undefined;
+    readonly tab: IntentStoryTab;
+  }>("storyTab", () => ({ selection, tab: "ci" }));
+  return {
+    tab: kept.selection === selection ? kept.tab : "ci",
+    chooseTab: (tab: IntentStoryTab) => {
+      keep({ selection, tab });
+    },
+  };
 }
 
 // Card arrivals choose Changes and take focus after the tab has mounted.
@@ -138,34 +64,6 @@ export function useStoryChangesArrival(
       finish?.(opening);
     }
   }, [opening, tabsIdPrefix, tab, chooseTab, canOpenFile, shown, finish]);
-}
-
-// What Intent shows for the page's `selection`, and the way to the other.
-// Project Intent shows only when chosen during this selection.
-export function useIntentScope(selection: SelectedStory | undefined) {
-  const opening = useStoryReviewOpening(selection?.project);
-  const finish = useFinishStoryReviewOpening();
-  const openingChanges = opening?.phase === "show";
-  const { choice, choose } = useChoiceFor<IntentScope>(
-    "scope",
-    selection,
-    "story",
-  );
-  useEffect(() => {
-    if (openingChanges && choice !== "story") choose("story");
-  }, [openingChanges, choice, choose]);
-  return {
-    scope:
-      selection === undefined
-        ? ("project" as const)
-        : openingChanges
-          ? ("story" as const)
-          : choice,
-    chooseScope: (next: IntentScope) => {
-      if (next === "project" && opening !== undefined) finish?.(opening);
-      choose(next);
-    },
-  };
 }
 
 // Back to the story's CI comparison, focusing its tab; absent outside the

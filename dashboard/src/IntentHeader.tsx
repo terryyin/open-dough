@@ -1,8 +1,7 @@
 // Intent's persistent header for project evidence or a selected story.
-// The common page supplies its navigation; story metadata and comparison
-// appear only in that story's evidence context: its views, then the
-// comparison bar whose row holds the files toggle, the comparison choice and
-// the summary, directly above the story's view.
+// Story metadata and comparison appear in that story's evidence context:
+// its views, then the comparison bar whose row holds the files toggle, the
+// comparison choice and the summary, directly above the story's view.
 
 import type { ReactNode } from "react";
 import { IntentStoryCompare } from "./IntentStoryCompare.tsx";
@@ -11,20 +10,17 @@ import { compareOf } from "./IntentStoryComparison.tsx";
 import type { StorySummary } from "./IntentStorySummary.tsx";
 import { shortRevision } from "./publishedWork.ts";
 import { StoryNotes } from "./StoryNotesControl.tsx";
+import { intentStoryHeadingMarks } from "./storyCardFocus.ts";
 
 export function IntentHeader({
   summary,
   source,
-  navigation,
-  projectVisit,
   browserRevision,
   filesToggle,
   tabBar,
 }: {
   readonly summary: StorySummary | undefined;
   readonly source: string;
-  readonly navigation: ReactNode;
-  readonly projectVisit: boolean;
   readonly browserRevision: string | undefined;
   // A story's files toggle, which leads its comparison bar.
   readonly filesToggle: ReactNode;
@@ -41,13 +37,6 @@ export function IntentHeader({
       data-state={summary?.comparison.state}
     >
       <p className="intent-story-crumb">
-        {navigation}
-        {navigation !== undefined && (
-          <>
-            {" "}
-            <span aria-hidden="true">/</span>{" "}
-          </>
-        )}
         {story === undefined ? "Project Intent" : "Selected story"}
       </p>
       {story !== undefined && (
@@ -57,9 +46,13 @@ export function IntentHeader({
         </p>
       )}
       <div className="intent-story-title-line">
-        <h2 className="intent-story-title">
-          {story?.title ??
-            (projectVisit ? "Project Intent" : "No story selected")}
+        <h2
+          className="intent-story-title"
+          {...(story === undefined
+            ? undefined
+            : intentStoryHeadingMarks(source, story.identity))}
+        >
+          {story?.title ?? "No story selected"}
         </h2>
         {story !== undefined && (
           <StoryNotes

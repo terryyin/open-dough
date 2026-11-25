@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "sessionId": "f962b49a-38c9-4c0f-ab66-0ce4a2d4770d",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T12:13:38.109Z",
+  "story": "SEED-430#publish-moving-board-fixtures-through-git",
+  "ranges": [
+    {
+      "base": "75de19e9cb5a12c7582daf922cf89b58181573cb",
+      "candidate": "d7513707b85b964bddca4b2d9a071bee46c6b3b4"
+    },
+    {
+      "base": "d7513707b85b964bddca4b2d9a071bee46c6b3b4",
+      "candidate": "f91d4ab58a788ab8b21a8c58710c11302af0c05a"
+    },
+    {
+      "base": "f91d4ab58a788ab8b21a8c58710c11302af0c05a",
+      "candidate": "b960c2f98d0f08147479db951feff40c748c0d71"
+    },
+    {
+      "base": "b960c2f98d0f08147479db951feff40c748c0d71",
+      "candidate": "8d95ff3d647fcd6dc30ed4f87d10fc1ae1ec6e00"
+    },
+    {
+      "base": "8d95ff3d647fcd6dc30ed4f87d10fc1ae1ec6e00",
+      "candidate": "2343db420212e45b2f20dfeac5769070c68ad287"
+    },
+    {
+      "base": "2343db420212e45b2f20dfeac5769070c68ad287",
+      "candidate": "b4c39f92ab70ef716cb9ab9f83f0950e05ddaa7f"
+    },
+    {
+      "base": "b4c39f92ab70ef716cb9ab9f83f0950e05ddaa7f",
+      "candidate": "6ab903bbdb663f59819f2976b15e319d07dfaad3"
+    },
+    {
+      "base": "6ab903bbdb663f59819f2976b15e319d07dfaad3",
+      "candidate": "9b3a0186a60d08d23031a844b8cf9a3b79144a8a"
+    },
+    {
+      "base": "9b3a0186a60d08d23031a844b8cf9a3b79144a8a",
+      "candidate": "038f16bde8bc03c539f8b678b0a9dff479ad2545"
+    },
+    {
+      "base": "038f16bde8bc03c539f8b678b0a9dff479ad2545",
+      "candidate": "0901293390103d854b601b9c4c8520d53c6161f1"
+    },
+    {
+      "base": "0901293390103d854b601b9c4c8520d53c6161f1",
+      "candidate": "eaeeec7ea4ccfbc5253ea88223e8895fa91c9082"
+    },
+    {
+      "base": "eaeeec7ea4ccfbc5253ea88223e8895fa91c9082",
+      "candidate": "471e30ed8dcf1eaa80661c626e242b672b25b697"
+    },
+    {
+      "base": "332770259c712ac7467e71da9baf299a5243262e",
+      "candidate": "f96b096d9b701bd74fb8ecf448845db55a2132f8"
+    }
+  ]
+}

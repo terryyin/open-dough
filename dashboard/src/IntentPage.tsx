@@ -1,10 +1,8 @@
 // Project evidence and selected-story Intent views share this page layout.
 // The browser stays mounted while another view shows.
 
-import { ArrowLeft, Layers } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FileBrowserToggle } from "./FileBrowserToggle.tsx";
-import { Icon } from "./Icon.tsx";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { intentBrowserSource } from "./intentBrowserSource.ts";
 import { focusReturnEntry } from "./IntentCandidatesSections.tsx";
@@ -12,7 +10,7 @@ import { IntentCiComparisonPreference } from "./IntentCiComparisonPreference.tsx
 import { IntentCiEntryNavigation } from "./IntentCiEntryLink.tsx";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import { IntentHeader } from "./IntentHeader.tsx";
-import { backToStoryId, projectTabs } from "./intentProjectTabs.ts";
+import { projectTabs } from "./intentProjectTabs.ts";
 import { IntentStoryCoverage } from "./IntentStoryCoverage.tsx";
 import { WholeStoryNote } from "./IntentStoryComparison.tsx";
 import {
@@ -36,15 +34,11 @@ import { intentHomeMarks } from "./storyCardFocus.ts";
 import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
 import { storyReviewFileReadiness } from "./useFirstStoryChangedFile.ts";
 import "./intent-page.css";
-import "./intent-open-link.css";
-
-export const toProjectIntentId = (idPrefix: string) => `${idPrefix}-to-project`;
 
 export type IntentPageStory = {
   readonly summary: StorySummary;
   readonly selection: SelectedStory | undefined;
   readonly compared: ComparedStory | undefined;
-  readonly onProjectIntent: () => void;
 };
 
 export function IntentPage({
@@ -52,13 +46,11 @@ export function IntentPage({
   shown,
   project,
   story,
-  onBackToStory,
 }: {
   readonly source: PublishedSource;
   readonly shown: ShownIntentLocations;
   readonly project: ModeChoice;
   readonly story?: IntentPageStory;
-  readonly onBackToStory?: (() => void) | undefined;
 }) {
   const { notice, locations, shownRevision } = shown;
   const {
@@ -106,30 +98,17 @@ export function IntentPage({
     "aria-labelledby": intentTabId(tabsIdPrefix, name),
     hidden: view !== name,
   });
-  const navigation =
-    story !== undefined ? (
-      <button
-        type="button"
-        id={toProjectIntentId(project.modeIdPrefix)}
-        className="intent-open-link intent-story-crumb-link"
-        onClick={story.onProjectIntent}
-      >
-        <Icon icon={Layers} /> Project Intent
-      </button>
-    ) : onBackToStory !== undefined ? (
-      <button
-        type="button"
-        id={backToStoryId(project.modeIdPrefix)}
-        className="intent-open-link intent-story-crumb-link"
-        onClick={onBackToStory}
-      >
-        <Icon icon={ArrowLeft} /> Back to selected story
-      </button>
-    ) : undefined;
-  const filesToggle = view === browserView &&
-    browserLocations !== undefined && (
-      <FileBrowserToggle icon browser={files} onShowBrowser={setFilesShown} />
-    );
+  const filesToggle = (
+    <FileBrowserToggle
+      icon
+      browser={
+        view === browserView && browserLocations !== undefined
+          ? files
+          : undefined
+      }
+      onShowBrowser={setFilesShown}
+    />
+  );
   // A story's views sit in its header, between its title and comparison bar.
   const tabBar = (
     <div className="intent-page-tabbar" {...intentHomeMarks}>
@@ -175,8 +154,6 @@ export function IntentPage({
         <IntentHeader
           summary={story?.summary}
           source={source.id}
-          navigation={navigation}
-          projectVisit={onBackToStory !== undefined}
           browserRevision={shownRevision}
           filesToggle={filesToggle}
           tabBar={story !== undefined && tabBar}

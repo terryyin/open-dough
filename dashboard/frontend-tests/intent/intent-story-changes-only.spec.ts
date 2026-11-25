@@ -11,6 +11,7 @@ import {
   productPath,
   storyB,
 } from "./intent-story-changes-fixtures.ts";
+import { chooseWholeProject } from "./intent-recent-stories-page.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
@@ -160,7 +161,7 @@ test("a product-only or empty comparison explains why no tests changed and keeps
   await intentFileReading(modifiedPath).shows("a 11");
 });
 
-test("Selected story only stays on through a new trunk revision and refreshing Project Intent", async () => {
+test("Selected story only stays on through a new trunk revision and tab changes, and Whole project can read the latest trunk", async () => {
   const mounted = await openStoryChanges();
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
@@ -177,17 +178,16 @@ test("Selected story only stays on through a new trunk revision and refreshing P
   await expect.element(story.onlyChangedFiles).toBeChecked();
   await showsStoryExpansion();
 
-  await story.projectIntent.click();
+  await story.chooseTab("Intent coverage");
+  await story.chooseTab("Changes");
+  await expect.element(story.onlyChangedFiles).toBeChecked();
+  await showsStoryExpansion();
+  await expect.element(story.file(otherPath)).not.toBeInTheDocument();
+
+  await chooseWholeProject();
   await intentBrowser().isAt(initialRevision);
   await showLatest.click();
   await intentBrowser().isAt(later);
   expect(mounted.locationRevisions.at(-1)).toBe(later);
   await expect.element(showLatest).not.toBeInTheDocument();
-  await story.backToStory.click();
-  await expect
-    .element(story.viewTab("Changes"))
-    .toHaveAttribute("aria-selected", "true");
-  await expect.element(story.onlyChangedFiles).toBeChecked();
-  await showsStoryExpansion();
-  await expect.element(story.file(otherPath)).not.toBeInTheDocument();
 });

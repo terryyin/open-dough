@@ -1,5 +1,5 @@
 /* The pinned banner: always one row. Sessions (Open Dough's mark as its
-   visual), the icon-only perspective choices, Recent stories, the project
+   visual), the perspective choices, Recent stories, the project
    choices, and System settings at the far end. Its height is the frame's top
    bars' (./styles.css). Every control is one control height, and
    the icon controls share one look (./icon-control.css). The flexible track
@@ -144,6 +144,35 @@
 .banner .settings-control {
   grid-column: 5;
   grid-row: 1;
+}
+
+/* The current perspective and scope appear together when the banner has room. */
+.perspective-name,
+.recent-stories-scope {
+  display: none;
+}
+
+@container page (width >= 48rem) {
+  .perspective-name {
+    display: inline;
+  }
+
+  .recent-stories-control > .icon-button:has(.recent-stories-scope) {
+    display: inline-flex;
+    width: auto;
+    align-items: center;
+    gap: var(--space-2);
+    padding-inline: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .recent-stories-scope {
+    display: block;
+    max-inline-size: min(20rem, 32cqi);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 @container page (max-width: 800px) {

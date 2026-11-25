@@ -13,7 +13,10 @@ export function parts(page: Page) {
   return {
     banner,
     // Compact title control where the tab list no longer fits the banner.
-    projectCompact: banner.getByRole("button", { name: "Project" }),
+    projectCompact: banner.getByRole("button", {
+      name: "Project",
+      exact: true,
+    }),
     projectCompactList: banner.getByRole("listbox", { name: "Project" }),
     project: page.getByRole("radiogroup", { name: "Project" }),
     // The banner's Development and Intent choices of the selected project.

@@ -14,6 +14,12 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewQuery } from "../../src/reviewSource.ts";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
 import {
+  tapWhereShown,
+  useTouchScreen,
+} from "../navigation/board-touch-page.ts";
+import { focus } from "../navigation/project-navigation-frame.ts";
+import { popover, recent } from "../navigation/recent-stories-frame.ts";
+import {
   browsed,
   fileControl,
   intentReadsRecording,
@@ -35,18 +41,18 @@ import {
 } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
-  backToStory,
-  projectIntentLink,
+  chooseWholeProject,
+  intentScroll,
+  intentRecentStories,
+  storyHeading,
+  storyHeadingIsReadable,
 } from "./intent-recent-stories-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 const intent = page.getByRole("main", { name: "Intent", exact: true });
 const story = intentStoryCompare();
 const ci = intentCiStatus();
-const frameContext = () =>
-  document
-    .querySelector(".intent-page-frame")
-    ?.getAttribute("data-intent-context");
+const scopes = intentRecentStories(openDoughSource);
 
 // The failing Taken story claimed on this machine, selected, with the browsed
 // spec read in its Changes; judged branches, review queries and Intent's file
@@ -71,7 +77,10 @@ async function readStoryChanges() {
         review: (query) => {
           reviews.push(query);
           return Promise.resolve(
-            makeMe.aStoryReview.modifying(browsed).please(),
+            makeMe.aStoryReview.modifying(browsed).please({
+              from: "e1".repeat(20),
+              changes: makeMe.aStoryReview.modifying(browsed),
+            }),
           );
         },
         fileDiff: unanswered,
@@ -91,7 +100,7 @@ async function readStoryChanges() {
   await mounted.selectStory(failingStory.identity, failingStory.title);
   await story.chooseTab("Changes");
   await selectBrowsedFile();
-  return { judgedBranches, reviews, fileReads };
+  return { judgedBranches, reviews, fileReads, mounted };
 }
 
 test("activating CI comparison from Changes judges the selected story's branch under its header, and Changes keeps its file", async () => {
@@ -108,15 +117,74 @@ test("activating CI comparison from Changes judges the selected story's branch u
   await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
 });
 
-test("Project Intent judges main and browses in a selection of its own, cleared by activating CI status", async () => {
-  const { judgedBranches, fileReads } = await readStoryChanges();
+// At phone width, the fold falls between the story heading's end and the start
+// of its Changes tab, which follows the heading closely.
+async function keepReadingOnShortViewport() {
+  await readStoryChanges();
+  await page.viewport(390, 320);
+  intentScroll().scrollTop = 0;
+  const end = storyHeading.element().getBoundingClientRect().bottom;
+  const start = story.viewTab("Changes").element().getBoundingClientRect().top;
+  await page.viewport(390, Math.floor((end + start) / 2));
+}
 
-  await userEvent.click(projectIntentLink);
+test("a touch opens the bookmark immediately when the story heading is readable above the fold of Changes", async () => {
+  await keepReadingOnShortViewport();
+  await useTouchScreen();
+  const scroll = intentScroll();
+  scroll.scrollTop = 0;
+  const reading = scroll.scrollTop;
+  await expect.poll(storyHeadingIsReadable).toBe(true);
+  expect(
+    story.viewTab("Changes").element().getBoundingClientRect().top,
+  ).toBeGreaterThan(scroll.getBoundingClientRect().bottom);
+
+  await tapWhereShown(recent.element());
+
+  await expect.element(popover).toBeVisible();
+  expect(scroll.scrollTop).toBe(reading);
+  await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
+});
+
+test("the bookmark first reveals a clipped story heading even when its Changes tab is in the reading region", async () => {
+  await keepReadingOnShortViewport();
+  const scroll = intentScroll();
+  const tab = story.viewTab("Changes").element();
+  tab.scrollIntoView({ block: "start", behavior: "instant" });
+  expect(storyHeading.element().getBoundingClientRect().bottom).toBeLessThan(
+    scroll.getBoundingClientRect().top,
+  );
+  expect(tab.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+    scroll.getBoundingClientRect().top,
+  );
+  expect(tab.getBoundingClientRect().bottom).toBeLessThan(
+    scroll.getBoundingClientRect().bottom,
+  );
+  focus(recent);
+
+  await userEvent.keyboard("{Enter}");
+  await expect.element(popover).not.toBeInTheDocument();
+  await expect.poll(storyHeadingIsReadable).toBe(true);
+  await userEvent.keyboard("{Enter}");
+
+  await expect.element(popover).toBeVisible();
+  await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
+});
+
+test("project file reading survives Board navigation and its own CI status returns home", async () => {
+  const { judgedBranches, fileReads, mounted } = await readStoryChanges();
+
+  await chooseWholeProject();
 
   await ci.judges("main");
   await ci.answers("Passed at 4774f60 (Add login)");
   expect(pressedFileCount()).toBe(0);
   await selectBrowsedFile();
+  await mounted.showDevelopment();
+  await chooseWholeProject();
+  await mounted.showIntent();
+  await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
+  await expect.element(purpose).toBeVisible();
   await activateChosenCiTab("Enter");
   await expect.element(fileControl()).toHaveAttribute("aria-pressed", "false");
   await ci.judges("main");
@@ -124,28 +192,43 @@ test("Project Intent judges main and browses in a selection of its own, cleared 
   expect(fileReads).toContain(`${browsed}@${storiesTakenWork.revision}`);
 });
 
-test("Project Intent and Back to selected story focus each other's control, and the story's Changes returns with its file", async () => {
+test("Whole project opens trunk CI from a story diff and a recent starts its default comparison", async () => {
   const { reviews } = await readStoryChanges();
-
-  await userEvent.click(projectIntentLink);
-  await expect.element(backToStory).toHaveFocus();
-  await expect
-    .element(intent)
-    .toHaveAttribute("data-selected-story", failingStory.identity);
-  await expect.poll(frameContext).toBe("project");
-  await selectBrowsedFile();
-  await userEvent.click(backToStory);
-
-  await expect.element(projectIntentLink).toHaveFocus();
-  await expect
-    .element(story.viewTab("Changes"))
-    .toHaveAttribute("aria-selected", "true");
+  const expectBookmarkOnly = async () => {
+    for (const name of ["Project Intent", "Back to selected story"]) {
+      await expect
+        .element(intent.getByRole("button", { name, exact: true }))
+        .not.toBeInTheDocument();
+    }
+  };
+  await expectBookmarkOnly();
+  await userEvent.click(story.includeMerged);
+  await expect.element(story.includeMerged).toBeChecked();
   await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
-  await expect.element(purpose).toBeVisible();
+
+  await chooseWholeProject();
+
+  await expect.element(recent).toHaveFocus();
+  await expect.element(intent).not.toHaveAttribute("data-selected-story");
+  await ci.judges(openDoughSource.ref);
+  await expectBookmarkOnly();
+  await selectBrowsedFile();
+  await scopes.chooseRow(failingStory.identity);
+  await scopes.showsStoryFromStart(failingStory.identity);
+  await expect
+    .element(story.viewTab("CI comparison"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect.element(story.includeMerged).not.toBeChecked();
+  await expectBookmarkOnly();
   expect(reviews).toContainEqual(
     expect.objectContaining({
       source: openDoughSource.id,
       identity: failingStory.identity,
     }),
   );
+
+  await chooseWholeProject();
+  await ci.judges(openDoughSource.ref);
+  await expect.element(fileControl()).toHaveAttribute("aria-pressed", "false");
+  await expect.element(purpose).not.toBeInTheDocument();
 });

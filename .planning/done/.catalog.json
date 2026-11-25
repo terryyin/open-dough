@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-440_recheck-cursor-workarounds.json",
+      "identity": "SEED-440#recheck-cursor-workarounds",
+      "completedAt": "2026-11-25T12:28:14.018Z",
+      "blob": "7707404d9cb4a0ec54cc523adc8f2e3da08fb18e"
+    },
+    {
+      "fileName": "SEED-420_choose-review-scope.json",
+      "identity": "SEED-420#choose-review-scope",
+      "completedAt": "2026-11-25T12:15:52.737Z",
+      "blob": "d251a71a1c6da3e6987293514c393c0b444f110b"
+    },
+    {
+      "fileName": "SEED-345_load-execution-guidance-for-the-current-phase.json",
+      "identity": "SEED-345#load-execution-guidance-for-the-current-phase",
+      "completedAt": "2026-11-25T12:00:22.857Z",
+      "blob": "fdd1814aaa3169803ff61a0d8b5e789256b0d6d5"
+    },
+    {
       "fileName": "SEED-430_publish-moving-board-fixtures-through-git.json",
       "identity": "SEED-430#publish-moving-board-fixtures-through-git",
       "completedAt": "2026-11-25T11:32:15.768Z",

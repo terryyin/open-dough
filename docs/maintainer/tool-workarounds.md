@@ -113,13 +113,35 @@ Use Git for earlier reviews and retired entries.
   waits for the exit file or deadline. Introduced in `9dba5f5bc` (`v0.3.101`).
   Cursor describes background completion wakeups and `AwaitShell` on a
   Cursor surface. [Cursor's explanation](https://forum.cursor.com/t/foreground-shell-commands-trigger-an-automatic-extra-agent-request-after-the-main-turn-finishes/172103)
-- **Recheck.** Run the normal proof workflow with a command that crosses the
-  foreground window and exits nonzero, then a command that reaches the
-  deadline. Assess whether native waiting delivers the real result once,
-  honors the deadline, and avoids needless model wakes.
-- **Last review.** 2026-11-25, inconclusive for Cursor CLI
-  `2026.11.22-e9042b2`. Static evidence only. Recheck in
-  [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
+- **Right problem.** Proof commands that outlive the Shell foreground window
+  needed a durable wait for the real exit status or a caller deadline; Cursor
+  historically lacked a reliable completion handback for background shells.
+- **Still necessary.** No on this recorded surface. With the exit-file loop
+  temporarily disabled and no hidden substitute, native `AwaitShell` delivered
+  a real nonzero exit once within the deadline without needless model wakes,
+  and returned a usable still-running observation when the wait budget ended
+  before the command finished.
+- **Right solution.** Prefer native `AwaitShell` (or foreground Shell when it
+  fits) on Cursor agent surfaces that expose it. The until/sleep/exit-file
+  polling loop is no longer the required wait on this build.
+- **Evidence.** Build: agent CLI `2026.11.22-e9042b2`; Cursor IDE `3.31.15`
+  (`3eb8c133…`, arm64). Surface: Cursor agent with Shell + AwaitShell (Task
+  subagent). Payload / HEAD: `76e8e0651496d17394f1f8fe4ae5b12797234599`.
+  Disable method: temporary edit of the Cursor bullet in
+  `.claude/skills/dough-execute-plan/references/wait-for-proof.md#by-host`
+  (reverted after the check). Receipts under the worktree evidence dir:
+  `slice1-meta.txt`, `slice1-awaitshell-receipts.txt`,
+  `slice1-nonzero-terminal.txt`, `slice1-nonzero.exit` (`42`),
+  `slice1-deadline-terminal.txt` (still running after ~27s wait budget).
+- **Disposition.** retire. Product follow-up queued:
+  [SEED-441#retire-cursor-exit-file-proof-wait](../../.planning/seeds/SEED-441-retire-cursor-exit-file-proof-wait.md#retire-cursor-exit-file-proof-wait)
+  (this story does not patch Distribution guidance).
+- **Next review trigger.** Cursor agent or AwaitShell regression that drops
+  durable background wait / exit delivery; otherwise the next scheduled
+  maintainer workaround recheck.
+- **Last review.** 2026-11-25, retire for Cursor agent + AwaitShell on CLI
+  `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 1.
+  [SEED-440](https://github.com/terryyin/open-dough/blob/e5dd182939036cacfad9c6ca9c432ad4361ae365/.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor generation identity for CI delivery
 
@@ -128,10 +150,38 @@ Use Git for earlier reviews and retired entries.
   hook generation. It adopts the real generation at the owning hook boundary.
   Introduced in `c02158fc3` (`v0.3.57`). Cursor `2026.10.19-6bbf2c4` verified
   ownership and registration. [ODF-154](findings/ODF-154.md#odf-154)
-- **Recheck.** Compare the identifiers exposed to Shell and hooks for a parent
-  and child, including across a new prompt. Remove the temporary generation if
-  a common native identity delivers the failure once to the correct agent.
-- **Last review.** 2026-11-25, keep pending the native check in SEED-440.
+- **Right problem.** Yes. Managed CI delivery runs from Shell, which exposes
+  conversation identity but not the hook `generation_id` the Cursor adapter
+  requires to bind a failure once to the owning agent.
+- **Still necessary.** Yes on this recorded surface. Disabling the
+  managed-generation adopt path leaves `recorded=managed-delivery` and gates
+  out the owning real hook (missed delivery). The coordinator owner's
+  generation file records a `generation_id` distinct from its
+  `conversation_id`, so Shell `CURSOR_CONVERSATION_ID` is not a native
+  substitute for hook generation. Child Shell still has no `generation_id`
+  env field; `CURSOR_REQUEST_ID` differs from hook `generation_id` and must
+  not be used as a substitute. A beforeSubmitPrompt / new-prompt boundary was
+  not exercised in this child Task (gap noted; does not overturn keep).
+- **Right solution.** Keep the temporary `managed-delivery` placeholder and
+  adopt-at-owning-hook bridge. No retire or simplify product change from this
+  review.
+- **Evidence.** Build: agent CLI `2026.11.22-e9042b2`; Cursor IDE `3.31.15`
+  (`3eb8c133…`, arm64). Surface: Cursor agent with Shell + hooks (Task child;
+  coordinator parent via transcript path and mailbox generation file).
+  Payload / HEAD: `abb6d3de8d3b202a54a219953638f0af76fecfae`. Diagnostic
+  wrapper on the loaded `.agents` `ci-host-hook.mjs` (reverted). Receipts
+  under the worktree evidence dir: `slice2-shell-identity-summary.txt`,
+  `slice2-hook-live-captures.jsonl`, `slice2-parent-generation-divergence.txt`,
+  `slice2-still-necessary-gate.json`, `slice2-owner-compare.json`,
+  `slice2-full-report.md`.
+- **Disposition.** keep (no follow-up product change).
+- **Next review trigger.** Cursor exposes a Shell-visible generation identity
+  equal to hook `generation_id` across parent, child, and new prompts; or a
+  maintainer recheck that captures a beforeSubmitPrompt generation change and
+  a live parent hook payload.
+- **Last review.** 2026-11-25, keep for Cursor agent + hooks on CLI
+  `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 2.
+  [SEED-440](https://github.com/terryyin/open-dough/blob/e5dd182939036cacfad9c6ca9c432ad4361ae365/.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor importing Claude Code hooks
 
@@ -142,11 +192,45 @@ Use Git for earlier reviews and retired entries.
   Relevant revisions are `b2a046135`, `49e8e2416`, and `67672cc03`. Cursor
   documents third-party hook imports enabled by default.
   [Cursor's hook import behavior](https://prod.cursor.com/docs/reference/third-party-hooks)
-- **Recheck.** Install both sets of hooks with imports enabled. Observe which
-  handlers receive each event and which can produce effects. Simplify when
-  native dispatch or a scoped configuration ensures one effective handler
-  for each intended action.
-- **Last review.** 2026-11-25, keep pending the native check in SEED-440.
+- **Right problem.** Yes. With both hook sets installed, Cursor runs matching
+  hooks from every source (project `.cursor/hooks.json` and imported
+  `.claude/settings.json`). Claude-path adapters therefore receive the same
+  Cursor events that carry `cursor_version`, so without a guard both native and
+  imported adapters can act on one intended action.
+- **Still necessary.** Yes on this recorded surface. Live `postToolUse` for
+  Shell invoked both Cursor-native (`host=cursor` via `.agents` scripts) and
+  Claude-import (`host=claude` via `.claude` scripts) adapters on the same
+  payload with `cursor_version=2026.11.22-e9042b2`. With the skip enabled, the
+  Claude path no-ops. With the skip temporarily disabled (and a forced
+  dual-effect probe for the slice-clock intended action), both adapters emitted
+  non-empty additional context and both effects were delivered into the agent
+  turn. Native dispatch does not ensure one effective handler.
+- **Right solution.** Keep the `cursor_version` skip on Claude adapters so only
+  the native Cursor adapter produces effects for Cursor sessions. No simpler
+  native single-handler guard was observed; scoped uninstall of one hook set
+  would drop a supported host. No retire or simplify product change from this
+  review.
+- **Evidence.** Build: agent CLI `2026.11.22-e9042b2`; Cursor IDE `3.31.15`
+  (`3eb8c133…`, arm64). Surface: Cursor agent with hooks (this Task). Payload /
+  HEAD: `2579a9abfbb587292997850266c3152d69642d3f`. Install: project
+  `.cursor/hooks.json` and `.claude/settings.json` both present; third-party
+  imports documented as default-on
+  ([third-party hooks](https://cursor.com/docs/reference/third-party-hooks):
+  "All matching hooks from every source run"). Disable method: temporary
+  instrumentation and skip disable in loaded `.agents` / `.claude` hook copies
+  (reverted). Receipts under the worktree evidence dir:
+  `slice3-install-state.txt`, `slice3-receipts-skip-on.jsonl`,
+  `slice3-effects-skip-on.jsonl`, `slice3-receipts-skip-off.jsonl`,
+  `slice3-effects-skip-off.jsonl`, `slice3-dual-system-reminder.txt`,
+  `slice3-full-report.md`.
+- **Disposition.** keep (no follow-up product change).
+- **Next review trigger.** Cursor documents or exposes a native single-handler
+  dispatch / scoped import that prevents Claude-path hooks from running on
+  Cursor payloads; or a maintainer recheck after a third-party-hooks behavior
+  change.
+- **Last review.** 2026-11-25, keep for Cursor agent + dual hook sets on CLI
+  `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 3.
+  [SEED-440](https://github.com/terryyin/open-dough/blob/e5dd182939036cacfad9c6ca9c432ad4361ae365/.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor tool hook with an empty working directory
 
@@ -155,7 +239,58 @@ Use Git for earlier reviews and retired entries.
   `67672cc03` (`v0.3.103`). A subagent tool call on Cursor
   `2026.11.13-eacade1` showed this input.
   [Native observation](https://github.com/terryyin/open-dough/blob/67672cc03b28bc6aaf4c127b1e39cf7327737e2d/.planning/slice-plans/667-count-slice-active-time-deterministically/PLAN.md)
-- **Recheck.** Capture the hook input from the coordinator and a subagent in
-  a linked worktree. Drop the fallback when the native event reliably identifies
-  the command's own checkout, including with multiple workspace roots.
-- **Last review.** 2026-11-25, keep pending the native check in SEED-440.
+- **Right problem.** Yes. Cursor `postToolUse` often delivers an empty `cwd`
+  (Shell default) or omits `cwd` (Read/Grep) while naming the workspace in
+  `workspace_roots`. Without a fallback, the slice-clock hook cannot take the
+  checkout from the native event and would rely on the loaded script's
+  `checkoutRoot`, which is not the command's declared working identity.
+- **Still necessary.** Yes on this recorded surface. Live Task-subagent
+  `postToolUse` in the linked worktree showed Shell `cwd: ""` with
+  `workspace_roots[0]` equal to the worktree; Read/Grep omitted `cwd` with the
+  same roots. Explicit Shell `working_directory` fills top-level `cwd` (including
+  to `/tmp`), so filled `cwd` is the tool working directory, not a reliable
+  checkout id. Temporarily disabling `workspace_roots[0]` (leaving
+  `cwd || checkoutRoot` only, no hidden cwd filler) still left empty `cwd` on
+  default Shell; native input alone does not identify the checkout. Multi-root
+  was not available; in this single-root case `roots[0]` matched the worktree
+  and would not mis-identify it, but empty `cwd` still requires the fallback.
+  Live coordinator/parent hook stdin was not captured from this child Task
+  (parent conversation inferred from the child transcript path only).
+- **Right solution.** Keep `cwd || workspace_roots?.[0] || checkoutRoot`. No
+  simpler native field reliably names the checkout when `cwd` is empty. No
+  retire or simplify product change from this review.
+- **Evidence.** Build: agent CLI `2026.11.22-e9042b2`; Cursor IDE `3.31.15`
+  (`3eb8c133…`, arm64). Surface: Cursor agent with hooks (this Task =
+  subagent in linked worktree). Payload / HEAD:
+  `33244f7cf23c7fee46528315c4078c388acf735f`. Disable method: temporary
+  removal of `workspace_roots[0]` in loaded `.agents` / `.claude`
+  `slice-clock-hook.mjs` copies (reverted). Receipts under the worktree
+  evidence dir: `slice4-hook-captures.jsonl`, `slice4-cwd-matrix.txt`,
+  `slice4-still-necessary-verdict.json`, `slice4-fallback-probe-on.json`,
+  `slice4-parent-coordinator-note.txt`, `slice4-multiroot-observation.txt`,
+  `slice4-full-report.md`.
+- **Disposition.** keep (no follow-up product change).
+- **Next review trigger.** Cursor fills `cwd` with the project checkout on
+  every tool hook (including default Shell and non-Shell tools) without
+  requiring an explicit `working_directory`; or a maintainer recheck that
+  captures live coordinator hook stdin and a multi-root workspace where
+  `workspace_roots[0]` differs from the command checkout.
+- **Last review.** 2026-11-25, keep for Cursor agent + hooks on CLI
+  `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 4.
+  [SEED-440](https://github.com/terryyin/open-dough/blob/e5dd182939036cacfad9c6ca9c432ad4361ae365/.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
+
+## Cursor interrupted-delegation boundary (ODF-229)
+
+- **Not a Distribution workaround entry.** Reviews whether any Cursor-specific
+  cancellation or proof-return gap remains beyond the general
+  [interrupted-delegation recovery](../../Distribution/src/skills/dough-execute-plan/references/interrupted-delegation.md)
+  practice. Finding home: [ODF-229](findings/ODF-229.md#odf-229).
+- **2026-11-25 boundary (SEED-440 slice 5).** Build: agent CLI
+  `2026.11.22-e9042b2`; Cursor IDE `3.31.15` (`3eb8c133…`, arm64). Surface:
+  this Cursor session with native Task. Payload / HEAD:
+  `1ce7f1bc53061a6d1004dbbcf1089f8b72c3d937`. Slices 1–4 returned ordinary
+  Task proof reports; no deliberate Task interruption was run. Verdict: no
+  Cursor-specific product gap beyond the general recovery practice was
+  evidenced. ODF-229 stays open for pending native interruption observation.
+  No product follow-up queued from this boundary. Evidence: ODF-229 boundary
+  note; `slice5-full-report.md`.

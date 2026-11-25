@@ -3,6 +3,11 @@ import { page } from "vitest/browser";
 import { scopeToggle } from "./intent-browser-page.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { developmentCard } from "./intent-ci-development-card-page.ts";
+import {
+  chooseWholeProject,
+  intentRecentStories,
+} from "./intent-recent-stories-page.ts";
+import { openDoughSource } from "./intent-ci-status-fixtures.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
 import {
   changed,
@@ -141,7 +146,7 @@ test("without configured Intent locations the header names the selected story, C
     )
     .not.toBeInTheDocument();
 
-  await story.projectIntent.click();
+  await chooseWholeProject();
   await expect.element(story.header).not.toBeInTheDocument();
   await showsExplanation("CI status");
   await expect
@@ -155,7 +160,8 @@ test("without configured Intent locations the header names the selected story, C
   await intentViewTab("Optimization Candidates").click();
   await showsExplanation("Optimization Candidates");
 
-  await story.backToStory.click();
+  await intentRecentStories(openDoughSource).chooseRow("SEED-A#a");
+  await story.chooseTab("Changes");
   await expect.element(story.header).toBeVisible();
   await showsExplanation("Changes");
 
@@ -165,7 +171,6 @@ test("without configured Intent locations the header names the selected story, C
   await card.isSelected(false);
   await mounted.showIntent();
   await expect.element(story.header).not.toBeInTheDocument();
-  await expect.element(story.backToStory).not.toBeInTheDocument();
   await expect
     .element(intentViewTab("CI status"))
     .toHaveAttribute("aria-selected", "true");

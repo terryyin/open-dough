@@ -1,10 +1,9 @@
 // Project Intent's chosen view (`./intentProjectTabs.ts`), **CI status** or
 // **Optimization Candidates**: disposable page state (ADR 0008), not part of
 // the URL, kept by the page (`./PageFrame.tsx`) beside story selection so it
-// outlasts Intent's own mount and a visit to the selected story. It belongs to
-// the project the page shows and to its selected story, if any: switching to
-// Development and back, or a new revision, keeps it, while a project change,
-// a new selection or clearing one starts again on CI status. It is
+// outlasts Intent's own mount. It belongs to the project the page shows and
+// to its current selection: switching to Development and back, or a new
+// revision, keeps it. A project or selection change starts on CI status. It is
 // not tied to a revision, so a choice made before the revision is read holds
 // once it is.
 
@@ -43,6 +42,11 @@ const IntentModeOnPage = createContext<
   | undefined
 >(undefined);
 
+export function useChooseProjectCi(project: string) {
+  const page = useContext(IntentModeOnPage);
+  return () => page?.keep({ project, selection: undefined, mode: "ci" });
+}
+
 export function IntentModeProvider({
   project,
   children,
@@ -51,13 +55,14 @@ export function IntentModeProvider({
   readonly project: string;
   readonly children: ReactNode;
 }) {
+  const { selection } = useStorySelection(project);
   const [kept, keep] = useState<Kept>({
     project,
-    selection: undefined,
+    selection,
     mode: "ci",
   });
-  if (kept.project !== project)
-    keep({ project, selection: undefined, mode: "ci" });
+  if (kept.project !== project || kept.selection !== selection)
+    keep({ project, selection, mode: "ci" });
   return <IntentModeOnPage value={{ kept, keep }}>{children}</IntentModeOnPage>;
 }
 

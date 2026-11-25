@@ -1,4 +1,7 @@
+import type { Page } from "@playwright/test";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { showLatestRevision } from "../../dashboard/test-support/intentReadRecoveryPage.ts";
 import {
   expectCiScope,
@@ -8,10 +11,9 @@ import {
   expectChecked,
 } from "../../dashboard/test-support/intentCiStatusPage.ts";
 
-// Project Intent visits keep the selected story and trunk CI followed
-// (../../dashboard/src/IntentPerspective.tsx). Switching scopes reuses each reading;
-// an observed hidden trunk or story head refreshes only its own judgment.
-// Reading-place restoration: ../../dashboard/frontend-tests/intent/intent-project-visit.spec.ts.
+// Whole project and recent story choices show each scope's own CI judgment.
+// An observed head refreshes the indicated branch while the project browser
+// stays pinned until the developer reads the latest revision.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
@@ -32,9 +34,13 @@ import {
   untilPageReadsAnswered,
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
-  openProjectIntent,
-  returnToStory,
+  chooseStoryTab,
+  expectStoryTab,
 } from "../../dashboard/test-support/intentModePage.ts";
+import {
+  chooseRecentStory,
+  chooseWholeProject,
+} from "../../dashboard/test-support/recentStoriesPage.ts";
 import {
   browserRevision,
   revisionNotice,
@@ -43,19 +49,62 @@ import { shortRevision } from "../../dashboard/test-support/dashboardParts.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { holdNextRevisionCheckBody } from "../../dashboard/test-support/support/heldRevisionCheckBody.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
-import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 
-test("a Project Intent visit reuses both CI readings, while hidden trunk and story heads each refresh only their own judgment", async ({
+const recentStory = {
+  project: "Open Dough",
+  identity: `SEED-219#${failing.anchor}`,
+};
+
+async function withHeldRevision(
+  page: Page,
+  observe: (settled: () => boolean) => Promise<void>,
+) {
+  const held = await holdNextRevisionCheckBody(page);
+  let checkSettled = false;
+  const checked = passTimeUntilChecked(page).then(() => {
+    checkSettled = true;
+  });
+  try {
+    await held.headersReceived;
+    await observe(() => checkSettled);
+  } finally {
+    held.release();
+    try {
+      await checked;
+    } finally {
+      await held.close();
+    }
+  }
+}
+
+type StoryCi = Awaited<ReturnType<typeof publishStoryCi>>;
+
+function publishPassingHead(
+  ci: StoryCi,
+  branch: string,
+  point: "nextTrunk" | "nextStory",
+  url: string,
+) {
+  const { runs, revisions } = ci;
+  const headSha = revisions[point];
+  runs[branch] = [
+    makeMe.aCiRun.with({ headSha, conclusion: "success", url }).please(),
+  ];
+  ci.push(branch, point);
+}
+
+test("the bookmark reads trunk and story judgments independently while observations follow their heads", async ({
   page,
   afterGitHubStops,
   dashboard,
 }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await pausePageClockAt(page, new Date());
-  const ci = await publishStoryCi(page, afterGitHubStops);
+  const ci =
+    await test.step("Given the project publishes tracked trunk and story heads", async () => {
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await pausePageClockAt(page, new Date());
+      return publishStoryCi(page, afterGitHubStops);
+    });
   const { trunkHead: revision, broken, nextTrunk, nextStory } = ci.revisions;
-  const calls = ci.published.requests;
   const routedHead = (branch: string) =>
     remoteBranchHead(gitHubRepositoryUrl(repository), `refs/heads/${branch}`, {
       cwd: dashboard.home,
@@ -66,52 +115,72 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     expect(await routedHead("main")).toBe(trunk);
     expect(await routedHead(failing.branch)).toBe(story);
   };
-  await expectHeads(revision, broken);
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const { intent } = parts(page);
-  const trunk = await chooseCiStatus(intent);
-  await expectCiScope(trunk, "main");
-  await expectChecked(trunk);
-  await expect(browserRevision(intent)).toContainText(shortRevision(revision));
-  const story = await toggleOnDevelopment(page, failing.title);
-  await expectCiScope(story, failing.branch);
-  await expectChecked(story);
-  await openProjectIntent(intent);
-  await expectCiScope(ciPanel(intent), "main");
-  await expectChecked(ciPanel(intent));
-  await returnToStory(intent);
-  await untilPageReadsAnswered(page);
-
-  await test.step("visiting Project Intent and returning asks CI nothing new", async () => {
-    const before = calls.length;
-    await openProjectIntent(intent);
+  await test.step("Then routed Git names the published trunk and story pins", () =>
+    expectHeads(revision, broken));
+  const { intent, calls } =
+    await test.step("And I read project CI on the published revision", async () => {
+      await openUntilRead(page, "/?project=open-dough&perspective=intent");
+      const { intent } = parts(page);
+      return { intent, calls: ci.published.requests };
+    });
+  await test.step("Then the project CI view judges the pinned trunk", async () => {
+    const trunk = await chooseCiStatus(intent);
+    await expectCiScope(trunk, "main");
+    await expectChecked(trunk);
+  });
+  await test.step("And the file browser names the published revision", () =>
+    expect(browserRevision(intent)).toContainText(shortRevision(revision)));
+  await test.step("When I select the story in Development and open Intent", async () => {
+    const story = await toggleOnDevelopment(page, failing.title);
+    await expectCiScope(story, failing.branch);
+    await expectChecked(story);
+  });
+  await test.step("And I read Whole project using the bookmark", async () => {
+    await chooseWholeProject(page);
     await expectCiScope(ciPanel(intent), "main");
-    await returnToStory(intent);
-    await expectCiScope(ciPanel(intent), failing.branch);
+    await expectChecked(ciPanel(intent));
+  });
+  const beforeTabs =
+    await test.step("And I reselect the recent story", async () => {
+      await chooseRecentStory(page, recentStory);
+      await untilPageReadsAnswered(page);
+      return calls.length;
+    });
+  await test.step("When I switch story views and return to CI comparison", async () => {
+    await chooseStoryTab(intent, "Intent coverage");
+    await chooseStoryTab(intent, "CI comparison");
     await untilPageReadsAnswered(page);
-    expect(branchJudgmentCalls(calls.slice(before))).toEqual([]);
+  });
+  await test.step("Then the story view reuses its branch judgment", async () => {
+    await expectCiScope(ciPanel(intent), failing.branch);
+    expect(branchJudgmentCalls(calls.slice(beforeTabs))).toEqual([]);
   });
 
-  await test.step("a trunk advance while the story shows reads exactly the trunk judgment", async () => {
-    ci.runs["main"] = [
-      makeMe.aCiRun
-        .with({ headSha: nextTrunk, conclusion: "success", url: mainRun })
-        .please(),
-    ];
-    const before = calls.length;
-    ci.push("main", "nextTrunk");
-    await expectHeads(nextTrunk, broken);
-    const trunkJudged = freshCiStatusReadSettled(page);
+  const beforeTrunk =
+    await test.step("When trunk advances while the story is shown", () => {
+      const before = calls.length;
+      publishPassingHead(ci, "main", "nextTrunk", mainRun);
+      return before;
+    });
+  await test.step("Then only the routed trunk pin advances", () =>
+    expectHeads(nextTrunk, broken));
+  await test.step("And the dashboard reads the new trunk judgment", async () => {
+    const judged = freshCiStatusReadSettled(page);
     await passTimeUntilChecked(page);
-    await trunkJudged;
+    await judged;
+  });
+  await test.step("Then only trunk's judgment refreshes while the story still shows", async () => {
     await untilPageReadsAnswered(page);
-    expect(branchJudgmentCalls(calls.slice(before))).toEqual([
+    expect(branchJudgmentCalls(calls.slice(beforeTrunk))).toEqual([
       "actions-runs main",
       "actions-workflow",
       "commit-list main",
     ]);
     await expectCiScope(ciPanel(intent), failing.branch);
-    await openProjectIntent(intent);
+  });
+  await test.step("When I choose Whole project to read its answer", () =>
+    chooseWholeProject(page));
+  await test.step("Then the trunk CI judgment advances while its file browser stays pinned", async () => {
     await expectCiAnswer(
       ciPanel(intent),
       `Passed at ${shortSha(nextTrunk)} (Advance the trunk)`,
@@ -122,63 +191,55 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     await expect(revisionNotice(intent)).toContainText(
       "New revision available",
     );
-    await returnToStory(intent);
-    await untilPageReadsAnswered(page);
-    expect(branchJudgmentCalls(calls.slice(before))).toHaveLength(3);
   });
-
-  await test.step("a story push during a Project Intent visit reads exactly the story judgment", async () => {
-    await openProjectIntent(intent);
+  await test.step("When I reselect the story from the bookmark", async () => {
+    await chooseRecentStory(page, recentStory);
+    await expectStoryTab(intent, "CI comparison");
     await untilPageReadsAnswered(page);
-    ci.runs[failing.branch] = [
-      makeMe.aCiRun
-        .with({ headSha: nextStory, conclusion: "success", url: failedRun })
-        .please(),
-    ];
+  });
+  const beforeStory = await test.step("And the story head advances", () => {
     const before = calls.length;
-    ci.push(failing.branch, "nextStory");
-    await expectHeads(nextTrunk, nextStory);
-    const held = await holdNextRevisionCheckBody(page);
-    const storyJudged = freshCiStatusReadSettled(page, failing.branch);
-    let checkSettled = false;
-    const checked = passTimeUntilChecked(page).then(() => {
-      checkSettled = true;
+    publishPassingHead(ci, failing.branch, "nextStory", failedRun);
+    return before;
+  });
+  await test.step("Then the routed story pin advances independently", () =>
+    expectHeads(nextTrunk, nextStory));
+  const { judged } =
+    await test.step("Then judgment waits for the full story head observation", async () => {
+      const judged = freshCiStatusReadSettled(page, failing.branch);
+      await withHeldRevision(page, async (settled) => {
+        await untilPageReadsAnswered(page);
+        expect(branchJudgmentCalls(calls.slice(beforeStory))).toEqual([]);
+        expect(settled(), "the revision check body is still held").toBe(false);
+      });
+      return { judged };
     });
-    try {
-      await held.headersReceived;
-      await untilPageReadsAnswered(page);
-      expect(branchJudgmentCalls(calls.slice(before))).toEqual([]);
-      expect(checkSettled, "the revision check body is still held").toBe(false);
-    } finally {
-      held.release();
-      try {
-        await checked;
-      } finally {
-        await held.close();
-      }
-    }
-    await storyJudged;
+  await test.step("And the full observation yields the story branch judgment", async () => {
+    await judged;
     await untilPageReadsAnswered(page);
-    expect(branchJudgmentCalls(calls.slice(before))).toEqual([
+    expect(branchJudgmentCalls(calls.slice(beforeStory))).toEqual([
       "actions-runs codex/example-story",
       "actions-runs main",
       "actions-workflow",
       "commit-list codex/example-story",
     ]);
-    await expectCiScope(ciPanel(intent), "main");
-    await returnToStory(intent);
+  });
+  await test.step("And the story CI panel reads the new head", async () => {
+    await expectCiScope(ciPanel(intent), failing.branch);
     await expectCiAnswer(
       ciPanel(intent),
       `Passed at ${shortSha(nextStory)} (Fix the story during a visit)`,
     );
-    await untilPageReadsAnswered(page);
-    expect(branchJudgmentCalls(calls.slice(before))).toHaveLength(4);
   });
-  await openProjectIntent(intent);
-  await showLatestRevision(revisionNotice(intent)).click();
-  await expect(browserRevision(intent)).toContainText(shortSha(nextTrunk));
-  await expectCiAnswer(
-    ciPanel(intent),
-    `Passed at ${shortSha(nextTrunk)} (Advance the trunk)`,
-  );
+  await test.step("When I choose Whole project and show its latest revision", async () => {
+    await chooseWholeProject(page);
+    await showLatestRevision(revisionNotice(intent)).click();
+  });
+  await test.step("Then the browser advances to the already judged trunk revision", async () => {
+    await expect(browserRevision(intent)).toContainText(shortSha(nextTrunk));
+    await expectCiAnswer(
+      ciPanel(intent),
+      `Passed at ${shortSha(nextTrunk)} (Advance the trunk)`,
+    );
+  });
 });
