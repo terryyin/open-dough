@@ -1,180 +1,220 @@
-// The dashboard runners' reporter (../../test-support/support/quietReporter.ts),
-// proven by running Playwright itself on a temporary config whose specs are
-// the substitutes in ../../test-support/fixtures/quiet-reporter: a passing run prints nothing
-// and leaves no output directory, a failure is named with its error and
-// trace and its report is kept in the run's output directory, output from
-// a passing spec or from the run itself fails the run, and a run that
-// reaches its deadline names it while keeping what completed.
-
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  existsSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+// QuietReporter: five direct hook cases with the stream seam, plus one nested
+// run for global-setup output that no reporter event carries.
+import { afterAll, expect, test } from "vitest";
+import type { Suite, TestCase, TestResult } from "@playwright/test/reporter";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
-import { runInnerPlaywright } from "../../test-support/support/innerPlaywright.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import QuietReporter from "../../test-support/support/quietReporter.ts";
+import { shown } from "../../test-support/support/quietReporterFormat.ts";
+import {
+  proofFixtures,
+  removeProofDirectories,
+  startProofRun,
+} from "../../test-support/support/proofRecordRun.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+import {
+  beginReporter,
+  collectingStream,
+  onlyCase,
+  temporaryProof,
+} from "../support/directProofRecord.ts";
 
-const substitutes = path.join(
-  repoRoot,
-  "dashboard",
-  "test-support",
-  "fixtures",
-  "quiet-reporter",
-);
-const reporter = path.join(
-  repoRoot,
-  "dashboard",
-  "test-support",
-  "support",
-  "quietReporter.ts",
-);
+afterAll(removeProofDirectories);
 
-type Run = {
-  readonly status: number | null;
-  readonly stdout: string;
-  readonly stderr: string;
-  readonly outputDir: string;
-  readonly reportDir: string;
-};
-
-const workDirs: string[] = [];
-
-test.afterAll(() => {
-  for (const dir of workDirs) {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-async function runSubstitute(options: {
-  readonly spec: string | readonly string[];
-  readonly globalSetup?: string;
-  readonly globalTimeout?: number;
-}): Promise<Run> {
-  const workDir = mkdtempSync(path.join(tmpdir(), "quiet-reporter-"));
-  workDirs.push(workDir);
-  const outputDir = path.join(workDir, "test-results");
-  const reportDir = path.join(workDir, "playwright-report");
-  const config = {
-    testDir: substitutes,
-    testMatch: options.spec,
-    outputDir,
-    retries: 0,
-    reporter: [[reporter]],
-    use: { trace: "retain-on-failure" },
-    ...(options.globalSetup
-      ? { globalSetup: path.join(substitutes, options.globalSetup) }
-      : {}),
-    // A deadline run, as on CI, also keeps the HTML report. One worker runs
-    // the substitutes in file order, so the failing one completes before the
-    // hanging one starts.
-    ...(options.globalTimeout
-      ? {
-          globalTimeout: options.globalTimeout,
-          workers: 1,
-          reporter: [
-            [reporter],
-            ["html", { open: "never", outputFolder: reportDir }],
-          ],
-        }
-      : {}),
-  };
-  const run = await runInnerPlaywright(workDir, config);
-  return { ...run, outputDir, reportDir };
+function quietRun(
+  directory: string,
+  outputDir: string,
+  file: string,
+  title: string,
+  outcome: "expected" | "unexpected",
+) {
+  return makeMe.aReporterRun
+    .withOutputDir(outputDir)
+    .withConfigFile(path.join(directory, "config.ts"))
+    .withRootDir(repoRoot)
+    .holdingCase({ title, file, line: 3, outcome })
+    .please();
 }
 
-function retainedTraces(outputDir: string): string[] {
-  if (!existsSync(outputDir)) {
-    return [];
-  }
-  return readdirSync(outputDir, { recursive: true, encoding: "utf8" }).filter(
-    (entry) => path.basename(entry) === "trace.zip",
-  );
+function openReporter() {
+  const stdout = collectingStream();
+  const stderr = collectingStream();
+  return {
+    stdout,
+    stderr,
+    reporter: new QuietReporter({}, { stdout, stderr }),
+  };
+}
+
+async function driveCase(
+  reporter: QuietReporter,
+  run: { config: unknown; suite: Suite },
+  testCase: TestCase,
+  result: TestResult,
+  endStatus: "passed" | "failed" | "timedout" = "failed",
+) {
+  beginReporter(reporter, run);
+  reporter.onTestBegin(testCase, result);
+  reporter.onTestEnd(testCase, result);
+  return reporter.onEnd({
+    status: endStatus,
+    duration: 1,
+    startTime: new Date(),
+  });
 }
 
 test("a passing run prints nothing and succeeds", async () => {
-  const run = await runSubstitute({ spec: "passing.proof.ts" });
-
-  expect(run).toMatchObject({ status: 0, stdout: "", stderr: "" });
-  expect(existsSync(run.outputDir)).toBe(false);
+  const { directory, outputDir } = temporaryProof("quiet-reporter-");
+  const file = path.join(proofFixtures, "passing.proof.ts");
+  const run = quietRun(directory, outputDir, file, "adds quietly", "expected");
+  const { stdout, stderr, reporter } = openReporter();
+  const end = await driveCase(
+    reporter,
+    run,
+    onlyCase(run.cases),
+    makeMe.aReporterResult.withStatus("passed").please(),
+    "passed",
+  );
+  await reporter.onExit();
+  expect(end).toBeUndefined();
+  expect(stdout.text()).toBe("");
+  expect(stderr.text()).toBe("");
+  expect(existsSync(outputDir)).toBe(false);
 });
 
-test("a failing spec is named with its error and keeps its trace", async () => {
-  const run = await runSubstitute({ spec: "failing.proof.ts" });
-
-  expect(run.status).not.toBe(0);
-  expect(run.stdout).toContain("failing.proof.ts");
-  expect(run.stdout).toContain("compares the wrong sum");
-  expect(run.stdout).toContain("the substitute's deliberate mismatch");
-  expect(run.stdout).toContain("trace.zip");
-  expect(retainedTraces(run.outputDir)).toHaveLength(1);
+test("a failing case is named with its error and its kept attachment paths", async () => {
+  const { directory, outputDir } = temporaryProof("quiet-reporter-");
+  const file = path.join(proofFixtures, "failing.proof.ts");
+  const run = quietRun(
+    directory,
+    outputDir,
+    file,
+    "compares the wrong sum",
+    "unexpected",
+  );
+  const tracePath = path.join(
+    outputDir,
+    "failing.proof.ts-retry0",
+    "trace.zip",
+  );
+  const { stdout, reporter } = openReporter();
+  const end = await driveCase(
+    reporter,
+    run,
+    onlyCase(run.cases),
+    makeMe.aReporterResult
+      .withStatus("failed")
+      .withError({ message: "the substitute's deliberate mismatch" })
+      .with({
+        attachments: [
+          { name: "trace", path: tracePath, contentType: "application/zip" },
+        ],
+      })
+      .please(),
+  );
+  expect(end).toEqual({ status: "failed" });
+  expect(stdout.text()).toContain("failing.proof.ts");
+  expect(stdout.text()).toContain("compares the wrong sum");
+  expect(stdout.text()).toContain("the substitute's deliberate mismatch");
+  expect(stdout.text()).toContain("trace.zip");
 });
 
-test("a failed run keeps what it printed in its output directory and names that directory last", async () => {
-  const run = await runSubstitute({ spec: "failing.proof.ts" });
-
-  const report = readFileSync(path.join(run.outputDir, "report.txt"), "utf8");
+test("a failed run writes report.txt and names its directory last", async () => {
+  const { directory, outputDir } = temporaryProof("quiet-reporter-");
+  const file = path.join(proofFixtures, "failing.proof.ts");
+  const run = quietRun(
+    directory,
+    outputDir,
+    file,
+    "compares the wrong sum",
+    "unexpected",
+  );
+  const { stdout, reporter } = openReporter();
+  await driveCase(
+    reporter,
+    run,
+    onlyCase(run.cases),
+    makeMe.aReporterResult
+      .withStatus("failed")
+      .withError({ message: "compares the wrong sum" })
+      .please(),
+  );
+  const report = readFileSync(path.join(outputDir, "report.txt"), "utf8");
   expect(report).toContain("compares the wrong sum");
-  expect(run.stdout).toBe(`${report}Kept: ${run.outputDir}\n`);
+  expect(stdout.text()).toBe(`${report}Kept: ${shown(outputDir)}\n`);
 });
 
-test("a passing spec that prints fails the run and shows its output", async () => {
-  const run = await runSubstitute({ spec: "printing.proof.ts" });
+test("a passing case that printed fails the run and shows its output", async () => {
+  const { directory, outputDir } = temporaryProof("quiet-reporter-");
+  const file = path.join(proofFixtures, "printing.proof.ts");
+  const run = quietRun(
+    directory,
+    outputDir,
+    file,
+    "passes but chatters",
+    "expected",
+  );
+  const { stdout, reporter } = openReporter();
+  const end = await driveCase(
+    reporter,
+    run,
+    onlyCase(run.cases),
+    makeMe.aReporterResult
+      .withStatus("passed")
+      .writing("stray chatter from a passing spec\n")
+      .please(),
+  );
+  expect(end).toEqual({ status: "failed" });
+  expect(stdout.text()).toContain("passes but chatters");
+  expect(stdout.text()).toContain("stray chatter from a passing spec");
+});
 
-  expect(run.status).not.toBe(0);
-  expect(run.stdout).toContain("passes but chatters");
-  expect(run.stdout).toContain("stray chatter from a passing spec");
+test("a deadline names it, shows the completed failure, and keeps the report", async () => {
+  const { directory, outputDir } = temporaryProof("quiet-reporter-");
+  const file = path.join(proofFixtures, "failing.proof.ts");
+  const run = quietRun(
+    directory,
+    outputDir,
+    file,
+    "compares the wrong sum",
+    "unexpected",
+  );
+  const { stdout, reporter } = openReporter();
+  beginReporter(reporter, run);
+  const failed = onlyCase(run.cases);
+  const result = makeMe.aReporterResult
+    .withStatus("failed")
+    .withError({ message: "compares the wrong sum" })
+    .please();
+  reporter.onTestBegin(failed, result);
+  reporter.onTestEnd(failed, result);
+  reporter.onError({ message: "Timed out waiting 8s for the test run" });
+  const end = await reporter.onEnd({
+    status: "timedout",
+    duration: 8000,
+    startTime: new Date(),
+  });
+  expect(end).toEqual({ status: "failed" });
+  expect(stdout.text()).toContain("Timed out waiting");
+  expect(stdout.text()).not.toContain("Test timeout of");
+  expect(stdout.text()).toContain("compares the wrong sum");
+  expect(existsSync(path.join(outputDir, "report.txt"))).toBe(true);
+  expect(stdout.text().trimEnd().split("\n").at(-1)).toBe(
+    `Kept: ${shown(outputDir)}`,
+  );
 });
 
 test("output from the run itself fails the run and is shown", async () => {
-  const run = await runSubstitute({
+  const run = startProofRun({
     spec: "passing.proof.ts",
-    globalSetup: "printingSetup.ts",
+    recordPath: false,
+    config: {
+      globalSetup: path.join(proofFixtures, "printingSetup.ts"),
+    },
   });
-
-  expect(run.status).not.toBe(0);
-  expect(run.stdout).toContain("outside any test");
-  expect(run.stdout).toContain("stray chatter from global setup");
-});
-
-test("a run that reaches its deadline names it, keeps completed failures' traces, and records unfinished tests", async ({
-  page,
-}) => {
-  const run = await runSubstitute({
-    spec: ["failing.proof.ts", "hanging.proof.ts"],
-    globalTimeout: 8_000,
-  });
-
-  expect(run.status).not.toBe(0);
-  // The run's deadline, not the hanging test's own case timeout, ended it.
-  expect(run.stdout).toContain("Timed out waiting");
-  expect(run.stdout).not.toContain("Test timeout of");
-  expect(run.stdout).toContain("compares the wrong sum");
-  // The completed failure keeps its diagnostics; the interrupted test may
-  // keep a trace of its own.
-  const failed = retainedTraces(run.outputDir).filter((trace) =>
-    trace.startsWith("failing.proof.ts-"),
-  );
-  expect(failed).toHaveLength(1);
-  const failedDir = path.join(run.outputDir, path.dirname(failed[0] ?? ""));
-  expect(existsSync(path.join(failedDir, "error-context.md"))).toBe(true);
-
-  // The HTML report names the deadline, the completed failure, and the
-  // interrupted test, which it lists with the skipped ones.
-  const report = pathToFileURL(path.join(run.reportDir, "index.html")).href;
-  await page.goto(report);
-  await expect(page.getByText(/Timed out waiting 8s/).first()).toBeVisible();
-  await page.getByRole("link", { name: "Failed1" }).click();
-  await expect(
-    page.getByRole("link", { name: "compares the wrong sum" }),
-  ).toBeVisible();
-  await page.getByRole("link", { name: "Skipped1" }).click();
-  await expect(
-    page.getByRole("link", { name: "waits past the deadline" }),
-  ).toBeVisible();
+  const result = await run.result;
+  expect(result.status).not.toBe(0);
+  expect(result.stdout).toContain("outside any test");
+  expect(result.stdout).toContain("stray chatter from global setup");
 });

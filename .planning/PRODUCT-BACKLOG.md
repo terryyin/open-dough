@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
-- [Prove the browser suites' reporter, proof record and spec times through their typed hooks](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-intent-ci-readers) — SEED-413#renovate-remaining-backend-families-after-intent-ci-readers ([plan](slice-plans/825-prove-browser-reporter-through-typed-hooks/PLAN.md))
 - [Publish fixed Board test fixtures through real Git](seeds/SEED-430-read-published-project-data-from-local-git.md#open-published-board-from-local-git) — SEED-430#open-published-board-from-local-git ([plan](slice-plans/824-open-published-board-from-local-git/PLAN.md))
 
 ## Backlog list

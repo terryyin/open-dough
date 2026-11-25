@@ -1,39 +1,122 @@
+// Nested graceful interruption and forced kill; direct timed-out ProofRecord;
+// readiness wait lives here on Vitest expect.poll (was proofRecordRun export).
+import { afterAll, expect, test } from "vitest";
 import { existsSync } from "node:fs";
+import path from "node:path";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { stoppedBodyMarker } from "../../test-support/fixtures/quiet-reporter/stoppedBody.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import type { DashboardProofRecord } from "../../test-support/support/proofRecordTypes.ts";
 import {
   proofDirectory,
   readProof,
   removeProofDirectories,
   startProofRun,
-  waitForProofState,
 } from "../../test-support/support/proofRecordRun.ts";
-
 import { processRunning } from "../../test-support/support/processGroup.ts";
+import {
+  openProof,
+  proofFixtures,
+  temporaryProof,
+} from "../support/directProofRecord.ts";
 
-test.afterAll(removeProofDirectories);
+afterAll(removeProofDirectories);
 
-test("a deadline preserves finished attempts separately from unfinished work", async () => {
-  const run = startProofRun({
-    spec: "ordered.proof.ts",
-    config: { globalTimeout: 8_000 },
-  });
-  const result = await run.result;
-  expect(result.status).toBe(1);
-  expect(result.stdout).toContain("Timed out waiting");
-  const record = readProof(run.recordPath);
+// Wait for the producer's actual progress before interrupting it. Bounded by
+// the case timeout. Observe progress or producer/error disposition, then throw
+// after polling stops so diagnostics never become a retried readiness predicate.
+async function waitForProofState(
+  run: ReturnType<typeof startProofRun>,
+  reached: (record: DashboardProofRecord) => boolean,
+): Promise<void> {
+  let ended: string | undefined;
+  const observation: { failure?: Error } = {};
+  const failed = (error: unknown) => {
+    observation.failure =
+      error instanceof Error
+        ? error
+        : new Error(`Proof readiness failed: ${String(error)}`);
+    return true;
+  };
+  void run.result.then(
+    (result) => {
+      ended = JSON.stringify({
+        ...result,
+        stdout: result.stdout.slice(-4_000),
+        stderr: result.stderr.slice(-4_000),
+      });
+    },
+    (error: unknown) => {
+      ended = String(error);
+    },
+  );
+  // Vitest poll defaults to 1s; bound to the default case timeout instead.
+  await expect
+    .poll(
+      () => {
+        let record: DashboardProofRecord | undefined;
+        try {
+          record = readProof(run.recordPath);
+        } catch (error) {
+          const code = (error as NodeJS.ErrnoException).code;
+          const incomplete =
+            error instanceof SyntaxError ||
+            (error instanceof Error &&
+              /Unexpected end of JSON input|Unexpected token/.test(
+                error.message,
+              ));
+          if (code !== "ENOENT" && !incomplete) return failed(error);
+        }
+        try {
+          if (record !== undefined && reached(record)) return true;
+        } catch (error) {
+          return failed(error);
+        }
+        if (ended !== undefined)
+          return failed(
+            new Error(`Proof runner ended before requested progress: ${ended}`),
+          );
+        return false;
+      },
+      { timeout: 5_000 },
+    )
+    .toBe(true);
+  if ("failure" in observation) throw observation.failure;
+}
+
+test("a deadline preserves finished attempts separately from unfinished work", () => {
+  const { directory, recordPath } = temporaryProof();
+  const ordered = path.join(proofFixtures, "ordered.proof.ts");
+  const run = makeMe.aReporterRun
+    .withOutputDir(path.join(directory, "test-results"))
+    .withConfigFile(path.join(directory, "config.ts"))
+    .withRootDir(directory)
+    .holdingCases([
+      { title: "finishes before the stopped test", file: ordered, line: 5 },
+      { title: "is still running when stopped", file: ordered, line: 10 },
+    ])
+    .please();
+  const [finished, unfinished] = run.cases;
+  if (finished === undefined || unfinished === undefined)
+    throw new Error("expected two selected cases");
+  const proof = openProof(recordPath, run);
+  const passed = makeMe.aReporterResult.withStatus("passed").please();
+  proof.begin(finished, passed);
+  proof.end(finished, passed);
+  const hanging = makeMe.aReporterResult.please();
+  proof.begin(unfinished, hanging);
+  proof.finish(
+    { status: "timedout", duration: 8_000, startTime: new Date() },
+    "failed",
+  );
+  const record = readProof(recordPath);
   expect(record).toMatchObject({
     phase: "completed",
     selectedCount: 2,
     terminal: { runnerStatus: "timedout", strictStatus: "failed" },
   });
   expect(record.tests[0]?.attempts[0]?.status).toBe("passed");
-  // Started, then stopped by the deadline before its own case timeout: it
-  // never ends on its own, so it has no status or an interrupted one.
   expect(record.tests[1]?.attempts).toHaveLength(1);
-  expect([undefined, "interrupted"]).toContain(
-    record.tests[1]?.attempts[0]?.status,
-  );
+  expect(record.tests[1]?.attempts[0]?.status).toBeUndefined();
 });
 
 test("graceful interruption records strict failure after one completed assertion", async () => {

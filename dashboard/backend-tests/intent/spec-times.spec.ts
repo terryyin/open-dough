@@ -1,20 +1,16 @@
-// The per-spec-file times a run writes when its runner's `<prefix>_TIMES`
-// names a file (support/specTimes.ts): the form, the order, the per-file sum, and
-// that a failed run still writes it while a listing does not.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+// SpecTimes attribution: summed seconds per enclosing file suite, longest
+// first under rootDir, shared hooks once, listings write nothing.
+import { expect, test } from "vitest";
+import type { TestCase } from "@playwright/test/reporter";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { SpecTimes } from "../../test-support/support/specTimes.ts";
 import {
-  proofDirectory,
+  asFullConfig,
   proofFixtures,
-  quietReporter,
-  readProof,
-  removeProofDirectories,
-  startProofRun,
-} from "../../test-support/support/proofRecordRun.ts";
-import type { DashboardProofRecord } from "../../test-support/support/proofRecordTypes.ts";
-
-test.afterAll(removeProofDirectories);
+  temporaryProof,
+} from "../support/directProofRecord.ts";
 
 type Line = { seconds: string; file: string };
 
@@ -22,7 +18,6 @@ function bytewise(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-// Each line of the times file as `<seconds><TAB><file>`, seconds to a tenth.
 function timesLines(timesPath: string): Line[] {
   const text = readFileSync(timesPath, "utf8");
   expect(text.endsWith("\n")).toBe(true);
@@ -37,56 +32,59 @@ function timesLines(timesPath: string): Line[] {
     });
 }
 
-// What the proof record says each spec file should show: the sum of its
-// attempts' durations, to a tenth, under its path relative to the testDir.
-// The spec file is the file suite's title (titlePath[2], after the root and
-// project titles), not the test's own location, which a case module owns for
-// the tests it registers.
-function recordedSeconds(record: DashboardProofRecord): Map<string, string> {
-  const totals = new Map<string, number>();
-  for (const selected of record.tests) {
-    const file = selected.titlePath[2];
-    if (file === undefined) throw new Error("a test without a file suite");
-    const attempts = selected.attempts.reduce(
-      (sum, attempt) => sum + (attempt.durationMs ?? 0),
-      0,
-    );
-    totals.set(file, (totals.get(file) ?? 0) + attempts);
-  }
-  return new Map(
-    [...totals].map(([file, total]) => [file, (total / 1000).toFixed(1)]),
-  );
+function fixture(...parts: string[]): string {
+  return path.join(proofFixtures, ...parts);
 }
 
-function expectTimesToMatchRecord(
-  lines: Line[],
-  record: DashboardProofRecord,
-): void {
-  expect(new Map(lines.map((line) => [line.file, line.seconds]))).toEqual(
-    recordedSeconds(record),
-  );
+function openTimes(
+  destination: string,
+  cases: Array<{
+    title: string;
+    file: string;
+    locationFile?: string;
+    line?: number;
+  }>,
+  argv: string[] = [],
+): { times: SpecTimes; cases: TestCase[] } {
+  const run = makeMe.aReporterRun
+    .withRootDir(proofFixtures)
+    .withArgv(argv)
+    .withConfigFile(path.join(proofFixtures, "unused.config.ts"))
+    .holdingCases(cases)
+    .please();
+  return {
+    times: new SpecTimes(destination, asFullConfig(run.config), () => {}),
+    cases: run.cases,
+  };
 }
 
-test("a run lists each spec file's summed seconds, longest first, by its path under the testDir", async () => {
-  const directory = proofDirectory();
+test("a run lists each spec file's summed seconds, longest first, by path under rootDir", () => {
+  const { directory } = temporaryProof();
   const timesPath = path.join(directory, "times.txt");
-  const run = startProofRun({
-    directory,
-    timesPath,
-    spec: ["passing.proof.ts", "selection.proof.ts", "nested/waiting.proof.ts"],
-  });
-  expect(await run.result).toMatchObject({ status: 0, stdout: "", stderr: "" });
-  expect(existsSync(run.outputDir)).toBe(false);
+  const waiting = fixture("nested", "waiting.proof.ts");
+  const passing = fixture("passing.proof.ts");
+  const selection = fixture("selection.proof.ts");
+  const { times, cases: selected } = openTimes(timesPath, [
+    { title: "waits 700ms", file: waiting, line: 3 },
+    { title: "waits 500ms", file: waiting, line: 6 },
+    { title: "adds quietly", file: passing, line: 3 },
+    { title: "selected alpha", file: selection, line: 5 },
+  ]);
+  const [wait700, wait500, pass, select] = selected;
+  if (!wait700 || !wait500 || !pass || !select)
+    throw new Error("expected four cases");
+  times.add(wait700, makeMe.aReporterResult.lasting(700).please());
+  times.add(wait500, makeMe.aReporterResult.lasting(500).please());
+  times.add(pass, makeMe.aReporterResult.lasting(40).please());
+  times.add(select, makeMe.aReporterResult.lasting(80).please());
+  times.write();
   const lines = timesLines(timesPath);
   expect(lines.map((line) => line.file).sort(bytewise)).toEqual([
     "nested/waiting.proof.ts",
     "passing.proof.ts",
     "selection.proof.ts",
   ]);
-  // Longest first, ahead of the bytewise order the others tie into; its two
-  // waits (700 and 500 ms) are summed, not taken as the longer one.
-  expect(lines[0]?.file).toBe("nested/waiting.proof.ts");
-  expect(Number(lines[0]?.seconds)).toBeGreaterThanOrEqual(1.2);
+  expect(lines[0]).toEqual({ seconds: "1.2", file: "nested/waiting.proof.ts" });
   expect(lines).toEqual(
     [...lines].sort(
       (left, right) =>
@@ -94,121 +92,132 @@ test("a run lists each spec file's summed seconds, longest first, by its path un
         bytewise(left.file, right.file),
     ),
   );
-  expectTimesToMatchRecord(lines, readProof(run.recordPath));
+  expect(new Map(lines.map((line) => [line.file, line.seconds]))).toEqual(
+    new Map([
+      ["nested/waiting.proof.ts", "1.2"],
+      ["selection.proof.ts", "0.1"],
+      ["passing.proof.ts", "0.0"],
+    ]),
+  );
 });
 
-test("tests registered from an imported case module count under the spec file that ran them", async () => {
-  const directory = proofDirectory();
+test("tests registered from an imported case module count under the spec file that ran them", () => {
+  const { directory } = temporaryProof();
   const timesPath = path.join(directory, "times.txt");
-  const run = startProofRun({
-    directory,
-    timesPath,
-    spec: ["nested/importing.proof.ts", "passing.proof.ts"],
-  });
-  expect(await run.result).toMatchObject({ status: 0, stdout: "", stderr: "" });
+  const importing = fixture("nested", "importing.proof.ts");
+  const casesModule = fixture("nested", "cases.ts");
+  const passing = fixture("passing.proof.ts");
+  const { times, cases: selected } = openTimes(timesPath, [
+    { title: "own test", file: importing, line: 7 },
+    {
+      title: "imported 300ms",
+      file: importing,
+      locationFile: casesModule,
+      line: 4,
+    },
+    {
+      title: "imported 200ms",
+      file: importing,
+      locationFile: casesModule,
+      line: 8,
+    },
+    { title: "adds quietly", file: passing, line: 3 },
+  ]);
+  const [own, imported300, imported200, pass] = selected;
+  if (!own || !imported300 || !imported200 || !pass)
+    throw new Error("expected four cases");
+  expect(imported300.location.file).toBe(casesModule);
+  expect(imported300.parent.type).toBe("file");
+  expect(imported300.parent.location?.file).toBe(importing);
+  times.add(own, makeMe.aReporterResult.lasting(10).please());
+  times.add(imported300, makeMe.aReporterResult.lasting(300).please());
+  times.add(imported200, makeMe.aReporterResult.lasting(200).please());
+  times.add(pass, makeMe.aReporterResult.lasting(40).please());
+  times.write();
   const lines = timesLines(timesPath);
   expect(lines.map((line) => line.file).sort(bytewise)).toEqual([
     "nested/importing.proof.ts",
     "passing.proof.ts",
   ]);
-  // The imported cases' waits (300 and 200 ms) are in the importing spec's
-  // sum, and the case module itself has no line.
-  expect(lines[0]?.file).toBe("nested/importing.proof.ts");
-  expect(Number(lines[0]?.seconds)).toBeGreaterThanOrEqual(0.5);
-  const record = readProof(run.recordPath);
+  expect(lines[0]).toEqual({
+    seconds: "0.5",
+    file: "nested/importing.proof.ts",
+  });
+  expect(lines.some((line) => line.file.includes("cases.ts"))).toBe(false);
+});
+
+test("a failed run still writes the times of what completed", () => {
+  const { directory } = temporaryProof();
+  const timesPath = path.join(directory, "times.txt");
+  const failing = fixture("failing.proof.ts");
+  const passing = fixture("passing.proof.ts");
+  const { times, cases: selected } = openTimes(timesPath, [
+    { title: "fails", file: failing, line: 3 },
+    { title: "adds quietly", file: passing, line: 3 },
+  ]);
+  const [fail, pass] = selected;
+  if (!fail || !pass) throw new Error("expected two cases");
+  times.add(
+    fail,
+    makeMe.aReporterResult.withStatus("failed").lasting(55).please(),
+  );
+  times.add(pass, makeMe.aReporterResult.lasting(40).please());
+  times.write();
   expect(
-    record.tests.filter((selected) =>
-      selected.location.file.endsWith("nested/cases.ts"),
-    ),
-  ).toHaveLength(2);
-  expectTimesToMatchRecord(lines, record);
+    timesLines(timesPath)
+      .map((line) => line.file)
+      .sort(bytewise),
+  ).toEqual(["failing.proof.ts", "passing.proof.ts"]);
 });
 
-test("a failed run still writes the times of what completed", async () => {
-  const directory = proofDirectory();
+test("a listing runs no test and writes no times file", () => {
+  const { directory } = temporaryProof();
   const timesPath = path.join(directory, "times.txt");
-  const run = startProofRun({
-    directory,
+  const { times } = openTimes(
     timesPath,
-    spec: ["failing.proof.ts", "passing.proof.ts"],
-  });
-  const result = await run.result;
-  expect(result.status).toBe(1);
-  expect(result.stdout).toContain("FAIL:");
-  const lines = timesLines(timesPath);
-  expect(lines.map((line) => line.file).sort(bytewise)).toEqual([
-    "failing.proof.ts",
-    "passing.proof.ts",
-  ]);
-  expectTimesToMatchRecord(lines, readProof(run.recordPath));
-});
-
-test("a listing runs no test and writes no times file", async () => {
-  const directory = proofDirectory();
-  const timesPath = path.join(directory, "times.txt");
-  const run = startProofRun({
-    directory,
-    timesPath,
-    spec: "passing.proof.ts",
-    args: ["--list"],
-  });
-  expect(await run.result).toMatchObject({ status: 0, stdout: "", stderr: "" });
+    [{ title: "adds quietly", file: fixture("passing.proof.ts"), line: 3 }],
+    ["--list"],
+  );
+  times.write();
   expect(existsSync(timesPath)).toBe(false);
-  expect(readProof(run.recordPath).phase).toBe("listed");
 });
 
-test("serial file hooks contribute once while test-scoped hooks stay inside each attempt", async () => {
-  const directory = proofDirectory();
+test("serial file hooks contribute once while test-scoped hooks stay inside each attempt", () => {
+  const { directory } = temporaryProof();
   const timesPath = path.join(directory, "times.txt");
-  const recordPath = path.join(directory, "proof.json");
-  const hooksPath = path.join(directory, "hooks.json");
-  const run = startProofRun({
-    directory,
-    timesPath,
-    recordPath,
-    spec: "shared-hooks.proof.ts",
-    config: {
-      reporter: [
-        [quietReporter, { proofRecord: recordPath, times: timesPath }],
-        [
-          path.join(proofFixtures, "hookReporter.ts"),
-          { destination: hooksPath },
-        ],
-      ],
-    },
-  });
-  expect(await run.result).toMatchObject({ status: 0, stdout: "", stderr: "" });
-  const record = readProof(recordPath);
-  expect(record.selectedCount).toBe(2);
-  const hooks = JSON.parse(readFileSync(hooksPath, "utf8")) as {
-    title: string;
-    duration: number;
-  }[];
-  const shared = hooks.filter((hook) =>
-    ["beforeAll hook", "afterAll hook"].includes(hook.title),
-  );
-  expect(shared.map((hook) => hook.title)).toEqual([
-    "beforeAll hook",
-    "afterAll hook",
+  const file = fixture("shared-hooks.proof.ts");
+  const { times, cases: selected } = openTimes(timesPath, [
+    { title: "first test with shared hooks", file, line: 19 },
+    { title: "second test with shared hooks", file, line: 22 },
   ]);
-  expect(hooks.filter((hook) => hook.title === "beforeEach hook")).toHaveLength(
-    2,
-  );
-  expect(hooks.filter((hook) => hook.title === "afterEach hook")).toHaveLength(
-    2,
-  );
-  const attempts = record.tests.flatMap((selected) => selected.attempts);
-  const attemptMs = attempts.reduce(
-    (total, attempt) => total + (attempt.durationMs ?? 0),
-    0,
-  );
-  const sharedMs = shared.reduce((total, hook) => total + hook.duration, 0);
-  expect(sharedMs).toBeGreaterThanOrEqual(500);
-  expect(attemptMs).toBeGreaterThanOrEqual(400);
+  const [first, second] = selected;
+  if (!first || !second) throw new Error("expected two cases");
+  // Attempt durations already include beforeEach/afterEach (100+100 each).
+  const firstAttempt = makeMe.aReporterResult.lasting(200).please();
+  const secondAttempt = makeMe.aReporterResult.lasting(200).please();
+  const beforeAll = makeMe.aReporterStep
+    .inCategory("hook")
+    .titled("beforeAll hook")
+    .lasting(200)
+    .please();
+  const afterAll = makeMe.aReporterStep
+    .inCategory("hook")
+    .titled("afterAll hook")
+    .lasting(300)
+    .please();
+  const beforeEach = makeMe.aReporterStep
+    .inCategory("hook")
+    .titled("beforeEach hook")
+    .lasting(100)
+    .please();
+  times.addSharedHook(first, beforeAll);
+  times.addSharedHook(first, beforeEach);
+  times.add(first, firstAttempt);
+  times.addSharedHook(second, beforeEach);
+  times.add(second, secondAttempt);
+  times.addSharedHook(second, afterAll);
+  times.write();
   expect(timesLines(timesPath)).toEqual([
-    {
-      seconds: ((attemptMs + sharedMs) / 1000).toFixed(1),
-      file: "shared-hooks.proof.ts",
-    },
+    { seconds: "0.9", file: "shared-hooks.proof.ts" },
   ]);
 });
