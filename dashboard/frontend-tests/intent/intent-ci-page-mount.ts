@@ -15,6 +15,7 @@ import type { DashboardRoute } from "../../src/dashboardRouteUrl.ts";
 import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
+import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { recentStoriesKey, type RecentStory } from "../../src/recentStories.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
@@ -72,7 +73,8 @@ function CommittedView({
 // them afterwards.
 export async function mountIntentCiPage({
   work,
-  projects = [work.source],
+  otherWork = [],
+  projects = [work.source, ...otherWork.map((snapshot) => snapshot.source)],
   machine = makeMe.aMachineAnswer.please(),
   viewport = { width: 1280, height: 800 },
   initialPerspective = "intent",
@@ -81,7 +83,8 @@ export async function mountIntentCiPage({
   reads,
 }: {
   readonly work: PublishedWork;
-  readonly projects?: readonly PublishedWork["source"][];
+  readonly otherWork?: readonly PublishedWork[];
+  readonly projects?: readonly PublishedSource[];
   readonly machine?: MachineAnswer;
   readonly viewport?: { readonly width: number; readonly height: number };
   readonly initialPerspective?: "development" | "intent";
@@ -98,11 +101,19 @@ export async function mountIntentCiPage({
     ...reads,
   });
   let shown: Shown = { work, showsIntent: initialPerspective === "intent" };
+  const observations = new Map(
+    [work, ...otherWork].map((snapshot) => [snapshot.source.id, snapshot]),
+  );
   let committed: Shown | undefined;
   const onCommit = (next: Shown) => {
     committed = next;
   };
   const noop = () => undefined;
+  const select = (project: PublishedSource | undefined) => {
+    if (project === undefined || project.id === shown.work.source.id) return;
+    const snapshot = observations.get(project.id);
+    if (snapshot !== undefined) void show({ ...shown, work: snapshot });
+  };
   const render = () => {
     const { source } = shown.work;
     const showsIntent = shown.showsIntent;
@@ -129,8 +140,8 @@ export async function mountIntentCiPage({
               stories: {
                 selected: source.id,
                 shown: showsBoard ? source.id : undefined,
-                show: noop,
-                select: noop,
+                show: select,
+                select,
                 development: showsBoard,
                 work: shown.work,
               },
@@ -140,7 +151,7 @@ export async function mountIntentCiPage({
                 work: shown.work,
                 reading: false,
                 failure: undefined,
-                show: noop,
+                show: select,
                 retry: retryReference,
                 suspended: showsIntent,
               },
@@ -148,7 +159,7 @@ export async function mountIntentCiPage({
                 source,
                 perspective: route.perspective,
                 onOpenSettings: noop,
-                onSelect: noop,
+                onSelect: select,
                 onSelectPerspective: (next) => {
                   void show({ ...shown, showsIntent: next === "intent" });
                 },
@@ -194,6 +205,7 @@ export async function mountIntentCiPage({
   });
   async function show(next: Shown) {
     shown = next;
+    observations.set(next.work.source.id, next.work);
     mounted.rerender(render());
     await expect.poll(() => committed).toBe(next);
   }

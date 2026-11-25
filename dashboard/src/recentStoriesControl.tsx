@@ -1,25 +1,17 @@
 // The banner's Recent stories control (`./recentStories.ts` shapes the list):
-// a bookmark that shows whether a story is selected, and a popover listing
-// recent selections (ADR 0008). Choosing a row, or clicking the button while
-// the selected story's start is out of view, reveals it in the current
-// perspective: Development via the story-reference journey and Intent at
-// the story heading.
+// a bookmark that shows whether a story is selected and offers the whole
+// project or a recent story. A story is revealed in the current perspective:
+// Development via the story-reference journey and Intent at the story heading.
 
-import {
-  useContext,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useContext, useEffect, useId, useRef, useState } from "react";
 import { Bookmark } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
 import { useReturnToVisitedStory } from "./intentStoryTabs.tsx";
 import { storyShown } from "./pageEntries.ts";
 import { keepInView, startIsReadable } from "./pageMovement.ts";
-import { projectLabel, useVisibleProjects } from "./projectList.tsx";
+import { useVisibleProjects } from "./projectList.tsx";
+import { RecentStoriesChoices } from "./RecentStoriesChoices.tsx";
 import {
   sameSelectedStory,
   StorySelectionOnPage,
@@ -54,19 +46,11 @@ export function RecentStories({
   const navigation = useContext(StoryNavigationOnPage);
   const returnToVisitedStory = useReturnToVisitedStory();
   const projects = useVisibleProjects();
-  const listId = useId();
+  const choicesId = useId();
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const label = recentStoriesLabel(selected);
-
-  useLayoutEffect(() => {
-    if (open) {
-      root.current
-        ?.querySelector<HTMLElement>(".recent-stories-popover")
-        ?.focus({ preventScroll: true });
-    }
-  }, [open]);
 
   const dismiss = () => {
     setOpen(false);
@@ -172,7 +156,7 @@ export function RecentStories({
         aria-label={label}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-controls={open ? listId : undefined}
+        aria-controls={open ? choicesId : undefined}
         onClick={onButtonClick}
       >
         {selected === undefined ? (
@@ -189,49 +173,17 @@ export function RecentStories({
       </button>
       <FrameTooltip>{label}</FrameTooltip>
       {open ? (
-        <div
-          id={listId}
-          className="recent-stories-popover"
-          role="dialog"
-          aria-label="Recent stories"
-          tabIndex={-1}
-        >
-          {recent.length === 0 ? (
-            <p className="recent-stories-empty">There are no recent stories.</p>
-          ) : (
-            <ul
-              className="recent-stories-list"
-              role="listbox"
-              aria-label="Recent stories"
-            >
-              {recent.map((entry) => {
-                const checked = sameSelectedStory(selected, entry);
-                return (
-                  <li
-                    key={`${entry.project}:${entry.identity}`}
-                    role="option"
-                    aria-selected={checked}
-                    className="recent-stories-row"
-                    data-checked={checked ? "true" : undefined}
-                    onClick={() => {
-                      choose(entry);
-                    }}
-                  >
-                    <span className="recent-stories-check" aria-hidden="true">
-                      {checked ? "✓" : ""}
-                    </span>
-                    <span className="recent-stories-project">
-                      {projectLabel(projects, entry.project)}
-                    </span>
-                    <span className="recent-stories-identity">
-                      {entry.identity}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+        <RecentStoriesChoices
+          id={choicesId}
+          selected={selected}
+          recent={recent}
+          projects={projects}
+          chooseStory={choose}
+          chooseProject={() => {
+            selection?.clear();
+            dismiss();
+          }}
+        />
       ) : null}
     </div>
   );

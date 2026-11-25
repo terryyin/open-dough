@@ -8,7 +8,7 @@
 
 - Rio-chan, publisher `dashboard-territory.local-open-dough`, Story Branch Mode.
 - Execution checkout `/Users/terryyin/git/open-dough/.worktrees/choose-the-whole-project-or-a-recent-story-from`, branch `codex/choose-the-whole-project-or-a-recent-story-from`. Default checkout `/Users/terryyin/git/open-dough`. Integration target `origin/main`.
-- Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch.
+- Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch. Slice 1 accepted on the execution branch at `58af62fa9ebbc518faff700f74e14082fd5ccd3d`.
 - Execution branch observation uses GitHub Actions `ci.yml` with coordinator `rio-chan-32284348` and stream `/tmp/dough-ci-501/watch-8RaTPQ` (PID 77649). The trunk claim preceded that observer.
 - Checkout setup passed with Node 24.21.0, the locked npm install, the locked Chromium launch, and `npm run typecheck:dashboard`.
 
@@ -133,28 +133,19 @@ each perspective. Keep Intent's current temporary project visit during this
 increment. Prove it through the desktop Board and the 390 × 320 Intent
 fixture, including native touch and the unavailable Board destination.
 
-Accepted proof on `9774e3021` plus this slice's working changes. The mounted
-Board checks in `navigation/recent-stories.spec.ts` observe scrolling and
-card focus, reopen after an unavailable reference, and distinguish identical
-IDs in two projects. The Changes fixture in `intent-home-activation-scope.spec.ts`
-selects a file before resizing to 390 × 320. It measures the heading and tabs
-against the scroll region, drives a native tap and Enter, and checks the
-pressed file and unchanged reading place for immediate opening. First Enter
-reveals a clipped heading and the next opens the dialog.
+Accepted proof on `9774e3021` plus working changes. The mounted Board checks in `navigation/recent-stories.spec.ts` observe scroll and card focus, reopen after an unavailable reference, and distinguish identical IDs across projects. The Changes fixture in `intent-home-activation-scope.spec.ts` selects a file before resizing to 390 × 320. It measures heading and tab geometry, drives native tap and Enter, and checks the pressed file, unchanged place for immediate opening, and reveal before opening from a clipped heading.
 
 ```sh
 caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/navigation/recent-stories.spec.ts dashboard/frontend-tests/navigation/accessible-board-keyboard.spec.ts dashboard/frontend-tests/navigation/story-reference-recovery.spec.ts dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts dashboard/frontend-tests/intent/intent-recent-stories.spec.ts dashboard/frontend-tests/intent/intent-home-activation-scope.spec.ts dashboard/frontend-tests/intent/intent-ci-status-homepage.spec.ts dashboard/frontend-tests/intent/intent-done-project-refresh.spec.ts dashboard/frontend-tests/intent/intent-project-visit-selection.spec.ts dashboard/frontend-tests/intent/intent-project-visit.spec.ts dashboard/frontend-tests/intent/intent-sidebar-toggle.spec.ts dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts dashboard/frontend-tests/intent/intent-story-changes-only.spec.ts
 caffeinate -s -i npm run typecheck:dashboard
 ```
 
-All 40 mounted cases and typecheck passed. The worktree Git evidence directory
-holds `slice1-implementation.md` and its terminal run records.
-The independent refactor replaced the chooser's styling dependency with an interaction marker. `caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/navigation/recent-stories.spec.ts dashboard/frontend-tests/navigation/story-reference-recovery.spec.ts dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts` passed 11 cases on the same frame boundaries, and `caffeinate -s -i npm run typecheck:dashboard` passed again. See `slice1-refactor.md` in Git evidence.
+All 40 mounted cases and typecheck passed. After the independent refactor separated the interaction marker from styling, `caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/navigation/recent-stories.spec.ts dashboard/frontend-tests/navigation/story-reference-recovery.spec.ts dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts` passed 11 cases and `caffeinate -s -i npm run typecheck:dashboard` passed again. Git evidence holds `slice1-implementation.md`, `slice1-refactor.md` and the terminal run records.
 
 ### 2. Use the bookmark to choose whole-project and story scope
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 With a story selected and the chooser open, activate **Whole project** to
@@ -167,6 +158,15 @@ available Whole project choice. Exercise cross-project Intent selection
 through the configured frame with a working project switch. Update shared recent-story assertions that
 observe menu contents and active-row semantics. The existing temporary
 visit controls remain usable until slice 4 replaces the old path.
+
+Accepted proof on `58af62fa9` plus working changes. The mounted `navigation/recent-stories-scope.spec.ts` activates Whole project and a recent with Enter, observes unchanged storage order and Board arrival focus, and proves the empty-history choice. `intent-recent-stories.spec.ts` supplies distinct project and story CI responses and two projects with the same story identity. It observes trunk CI after clear and the other project's published heading after selection. Native touch at 390 × 320 reaches the last row of an overflowing chooser after keyboard navigation. The temporary visit assertions also passed.
+
+```sh
+caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/navigation/recent-stories.spec.ts dashboard/frontend-tests/navigation/recent-stories-scope.spec.ts dashboard/frontend-tests/navigation/recent-stories-storage.spec.ts dashboard/frontend-tests/navigation/accessible-board-keyboard.spec.ts dashboard/frontend-tests/navigation/story-reference-recovery.spec.ts dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts dashboard/frontend-tests/intent/intent-recent-stories.spec.ts dashboard/frontend-tests/intent/intent-home-activation-scope.spec.ts dashboard/frontend-tests/intent/intent-ci-status-homepage.spec.ts dashboard/frontend-tests/intent/intent-ci-status-kept.spec.ts dashboard/frontend-tests/intent/intent-reading-place.spec.ts dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts
+caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/intent/intent-recent-stories.spec.ts
+caffeinate -s -i npm run typecheck:dashboard
+```
+Forty cases passed before the added short-viewport observation. All six Intent chooser cases and typecheck passed on the final change. See `slice2-implementation.md` in worktree Git evidence for terminal records and the scope trace.
 
 ### 3. Move project evidence journeys to the bookmark
 
@@ -243,3 +243,8 @@ and keyboard reading order intact.
 Reported: slice 1 — "The retained Project Intent and Back to selected story controls still support the temporary visit."
 Story clause: "The bookmark replaces Intent's **Project Intent** and **Back to selected story** navigation."
 Disposition: interim until slices 2, 3, 4
+
+### G2. Whole project arrival with a remembered project file
+Reported: slice 2 — "In that prior-project-path state clearing the story selects the project scope and existing CI mode, but a kept file path can occupy the reading pane and suppress visible CI."
+Story clause: "In Intent this reaches the existing project CI view."
+Disposition: receiving slice 4

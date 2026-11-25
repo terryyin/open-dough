@@ -6,20 +6,15 @@
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import type { PublishedSource } from "../../src/publishedSource.ts";
+import {
+  popover,
+  recent as button,
+  recentChoice,
+  showsBookmark,
+  showsHistory,
+} from "../navigation/recent-stories-frame.ts";
 
 const intent = page.getByRole("main", { name: "Intent", exact: true });
-const button = page.getByRole("button", { name: /^Recent stories, / });
-const popover = page.getByRole("dialog", {
-  name: "Recent stories",
-  exact: true,
-});
-const rows = () =>
-  [...(popover.query()?.querySelectorAll('[role="option"]') ?? [])].map(
-    (row) => ({
-      text: row.textContent,
-      checked: row.getAttribute("aria-selected") === "true",
-    }),
-  );
 const notice = page.getByRole("status", { name: "Story reference navigation" });
 // The selected story's header link to Project Intent, and Project Intent's
 // way back to the story.
@@ -66,22 +61,20 @@ export function intentRecentStories(project: PublishedSource) {
     // Clicks the button, which returns to a selected story out of view and
     // otherwise toggles the list.
     choose: () => userEvent.click(button),
-    async chooseRow(identity: string) {
+    async chooseRow(identity: string, source = project) {
       if (popover.query() === null) await userEvent.click(button);
-      await userEvent.click(
-        popover.getByRole("option").filter({ hasText: identity }),
-      );
+      await userEvent.click(recentChoice(source.label, identity));
       await expect.element(popover).not.toBeInTheDocument();
     },
     // The list, opened from the button, holds these rows in order.
     async lists(expected: readonly { identity: string; checked: boolean }[]) {
       if (popover.query() === null) await userEvent.click(button);
-      await expect.element(popover).toBeVisible();
-      expect(rows()).toEqual(
-        expected.map(({ identity, checked }) => ({
-          text: `${checked ? "✓" : ""}${project.label}${identity}`,
+      await showsHistory(
+        expected.map(({ identity, checked }) => [
+          project.label,
+          identity,
           checked,
-        })),
+        ]),
       );
     },
     async selects(identity: string) {
@@ -106,18 +99,7 @@ export function intentRecentStories(project: PublishedSource) {
     },
     // The button names the selected story and fills its bookmark, or names
     // none with an outline.
-    async isLabelled(selected: string | undefined) {
-      await expect
-        .element(button)
-        .toHaveAccessibleName(
-          selected === undefined
-            ? "Recent stories, no story selected"
-            : `Recent stories, ${selected} selected`,
-        );
-      expect(button.element().querySelector("svg")?.getAttribute("fill")).toBe(
-        selected === undefined ? "none" : "currentColor",
-      );
-    },
+    isLabelled: showsBookmark,
     noticeText: () => notice.element().textContent,
   };
   return recent;

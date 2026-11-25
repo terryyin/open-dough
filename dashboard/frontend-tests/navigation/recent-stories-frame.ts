@@ -9,6 +9,15 @@ export const popover = page.getByRole("dialog", {
   name: "Recent stories",
   exact: true,
 });
+export const wholeProject = popover.getByRole("button", {
+  name: "Whole project",
+  exact: true,
+});
+const history = popover.getByRole("list", {
+  name: "Recent stories",
+  exact: true,
+});
+const recentChoices = history.getByRole("button");
 export const roster = page.getByRole("region", {
   name: "Agent roster",
   exact: true,
@@ -43,41 +52,41 @@ export async function showsBookmark(identity?: string) {
 }
 
 export async function showsEmptyHistory() {
-  await expect
-    .element(popover.getByText("There are no recent stories.", { exact: true }))
-    .toBeVisible();
-  expect(popover.getByRole("option").elements()).toHaveLength(0);
+  await expect.element(wholeProject).toHaveAttribute("aria-current", "true");
+  await expect.element(history).not.toBeInTheDocument();
 }
 
 export async function showsHistory(
   rows: readonly [project: string, identity: string, selected: boolean][],
 ) {
-  const options = popover.getByRole("option");
-  await expect.poll(() => options.elements().length).toBe(rows.length);
+  await expect.poll(() => recentChoices.elements().length).toBe(rows.length);
   for (const [index, [project, identity, selected]] of rows.entries()) {
-    const row = options.nth(index);
+    const row = recentChoices.nth(index);
     await expect.element(row.getByText(project, { exact: true })).toBeVisible();
     await expect
       .element(row.getByText(identity, { exact: true }))
       .toBeVisible();
-    await expect
-      .element(row)
-      .toHaveAttribute("aria-selected", String(selected));
+    if (selected) {
+      await expect.element(row).toHaveAttribute("aria-current", "true");
+    } else {
+      await expect.element(row).not.toHaveAttribute("aria-current");
+    }
   }
 }
 
 export async function dismissWithEscape() {
   await userEvent.keyboard("{Escape}");
   await expect.element(popover).not.toBeInTheDocument();
+  await expect.element(recent).toHaveFocus();
 }
 
+export const recentChoice = (project: string, identity: string) =>
+  recentChoices
+    .filter({ has: page.getByText(project, { exact: true }) })
+    .filter({ has: page.getByText(identity, { exact: true }) });
+
 export async function chooseRecent(project: string, identity: string) {
-  await activate(
-    popover
-      .getByRole("option")
-      .filter({ has: page.getByText(project, { exact: true }) })
-      .filter({ has: page.getByText(identity, { exact: true }) }),
-  );
+  await activate(recentChoice(project, identity));
   await expect.element(popover).not.toBeInTheDocument();
 }
 
