@@ -116,7 +116,7 @@ example with the story-linked cutover and record its surviving owner.
 ### 5. Show and recover from notifier refusal
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 7–10 active minutes.
 
 Given a refused send, observe the safe availability reason without
@@ -235,6 +235,8 @@ baseline.
   case removal from the helper Playwright file; no production change.
   Ad hoc project-only destination surviving owner remains
   `session-alerts-delivery.spec.ts`.
+- Slice 5: skipped fresh refactor — subject-spec rewrite plus
+  unavailable-address helper case removal; no production change.
 
 ### Slice 4 accepted proof
 
@@ -243,6 +245,14 @@ baseline.
   executable; ad hoc project-only destination
   (`slice4-vitest-delivery.log.run.json`). Remaining helper Playwright
   cases still pass (`slice4-helper-remaining-proof.json`).
+
+### Slice 5 accepted proof
+
+- Vitest `session-alerts-refused.spec.ts` — refused send yields the safe
+  availability reason without stderr and recovers on a new transition;
+  missing origin yields no notification and the no-destination reason
+  (`slice5-vitest-refused-2.log.run.json`). Unavailable-address helper
+  case removed; remaining helper cases pass.
 
 ## Verification and delivery
 

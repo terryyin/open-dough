@@ -1,5 +1,6 @@
 // The actual alert owner with an isolated native executable, including states
-// that a normally listening server never exposes to a browser.
+// that a normally listening server never exposes to a browser. Unavailable-
+// address availability lives in ./session-alerts-refused.spec.ts.
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -12,7 +13,6 @@ import { processRunning } from "../../test-support/support/processGroup.ts";
 import { SessionAlerts } from "../../server/sessionAlerts.ts";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import { launchRequest } from "../../test-support/agentLaunchBoundary.ts";
-import { notificationActivation } from "../../test-support/support/notificationActivation.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // The kept launch the alert owner reads, in the project `source`.
@@ -106,39 +106,6 @@ const test = base.extend<{
       rmSync(temp, { recursive: true, force: true });
     }
   },
-});
-
-test("before a usable listening address, attention cannot emit a made-up click URL", async ({
-  helper,
-}) => {
-  const listening: { origin: string | undefined } = { origin: undefined };
-  const alerts = helper.start(() => listening.origin);
-  await helper.further();
-  await expect.poll(() => helper.native.notifierProbes().length).toBe(2);
-  // A recorded diagnostic has started; its answer establishes availability.
-  await expect
-    .poll(() => alerts.availability())
-    .toEqual({
-      available: false,
-      reason:
-        "The dashboard has no listening loopback HTTP address for notification clicks.",
-    });
-  helper.state("waiting");
-  await helper.further();
-  expect(helper.native.notifierCalls()).toEqual([]);
-  // A later valid address is read at send time, not captured before listen.
-  listening.origin = "http://127.0.0.1:49175";
-  helper.state("working");
-  await helper.further();
-  helper.state("waiting");
-  await expect.poll(() => helper.native.notifierCalls().length).toBe(1);
-  expect(
-    notificationActivation(helper.native.notifierCalls()[0]?.argv ?? [])
-      .destination,
-  ).toBe(
-    `${listening.origin}/?project=open-dough&story=SEED-052%23launch-claude-planned-execution`,
-  );
-  await expect.poll(() => alerts.availability()).toEqual({ available: true });
 });
 
 test("closing aborts a held startup diagnostic without reporting a helper refusal", async ({
