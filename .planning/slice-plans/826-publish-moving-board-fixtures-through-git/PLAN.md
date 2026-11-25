@@ -271,7 +271,7 @@ its four observing cases were unchanged by that correction and the CI repair.
 ### 4. Preserve session navigation while its published Board moves
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: A reader following an existing session through sidebar, story or
 Recently done navigation keeps the recorded session choice and reaches the
 right publication across project and Board changes. Update the first
@@ -284,6 +284,25 @@ panel or route. Keep machine-local session signals distinct from published
 records. Qualification owns cases whose proof is launch, terminal startup
 or reconciliation. Keep fixed auxiliary projects with the publisher that
 already owns their route.
+
+Accepted proof at `8d95ff3d647fcd6dc30ed4f87d10fc1ae1ec6e00` plus slice 4
+changes. Session navigation keeps its selected terminal while Pygardon's
+exact backlog is held and selects its story after release. The Done session
+case verifies queued and completed Open Dough pins while the session opens
+under local Taken. The Cursor, Recently done, and progressive journeys
+compare their selected Boards with the routed Git pin and exact REST read.
+The read-only role retains the local folders needed for attachment. The
+unchanged launch and keyboard role keeps its existing setup.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/sessions/{sessions-sidebar,sessions-sidebar-navigation,sessions-sidebar-navigation-cases,sessions-sidebar-touch,sessions-sidebar-stays-as-left,cursor-sessions-sidebar-navigation,cursor-sessions-sidebar-resize-lasting,cursor-sessions-sidebar-size-kept,recently-done-sessions-sidebar-navigation,recently-done-sessions-sidebar-reopen,recently-done-sessions-sidebar-paging-board}.spec.ts e2e/stories/recently-done-progressive-{navigation,navigation-cursor,reset}.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/sessions/{sessions-sidebar-stays-as-left,sessions-sidebar-keyboard}.spec.ts e2e/stories/recently-done-progressive-navigation.spec.ts --grep 'starts closed, and once open|choosing another project before|Command\+B|open launch dialog' --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run typecheck:dashboard
+```
+
+The browser runs passed 32 and 4 cases. Dashboard typecheck passed. The
+refactor shortened the binding of the same composed session identifier and
+kept its attach assertion.
 
 ### 5. Keep comparison and branch observations at their published pins
 

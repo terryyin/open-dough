@@ -28,7 +28,13 @@ import {
   back,
   settings,
 } from "../../dashboard/test-support/support/systemSettingsPage.ts";
-import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import {
+  publishOnePygardonStory,
+  pygardonRepository,
+} from "../../dashboard/test-support/pygardonProject.ts";
+import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { keyboardWithin } from "../../dashboard/test-support/pageShortcutsPage.ts";
 
 const wide = { width: 1440, height: 900 };
@@ -79,15 +85,17 @@ for (const { name, size } of [
 }
 
 test.describe("with two projects", () => {
-  test.use({ projectFolders: ["open-dough", "pygardon"] });
+  test.use({ projectFolders: ["open-dough"] });
 
   test("expansion survives project and view changes and closing the sidebar, and a reload starts collapsed", async ({
+    afterGitHubStops,
     page,
+    dashboard,
     origin,
     cursor,
   }) => {
     await page.setViewportSize(wide);
-    await publishOnePygardonStory(page);
+    const pygardon = await publishOnePygardonStory(page, afterGitHubStops);
     const asked = changesAsked(page);
     await showPage(page, origin);
     const { sidebar, button, header, body } = await openRunningList(page);
@@ -103,6 +111,20 @@ test.describe("with two projects", () => {
       await expect(backlog).toContainText("A Pygardon story");
       await expanded();
     });
+    expect(
+      await remoteBranchHead(
+        gitHubRepositoryUrl(pygardonRepository),
+        "refs/heads/main",
+        {
+          cwd: dashboard.home,
+          env: { HOME: dashboard.home },
+          maxBuffer: 4096,
+        },
+      ),
+    ).toBe(pygardon.revisions.published);
+    expect(pathsRead(pygardon)).toContain(
+      `PRODUCT-BACKLOG.md?ref=${pygardon.revisions.published}`,
+    );
 
     await test.step("System settings and back keeps it expanded", async () => {
       await settings(page).click();

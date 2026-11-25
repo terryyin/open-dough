@@ -60,7 +60,7 @@ import { holding } from "../../dashboard/test-support/support/heldGitHubAnswer.t
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
 
-test.use({ projectFolders: ["open-dough", "pygardon"] });
+test.use({ projectFolders: ["open-dough"] });
 
 test("an old revision's late record answer changes nothing; the terminal, panel width, sidebar, and a narrow window keep twenty; a reload starts again at ten", async ({
   page,
@@ -155,11 +155,12 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
 });
 
 test("choosing another project while a revealed batch is read shows that project, which the late answer leaves alone, and Open Dough starts again at ten", async ({
+  afterGitHubStops,
   page,
   dashboard,
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
-  await publishOnePygardonStory(page);
+  await publishOnePygardonStory(page, afterGitHubStops);
   const view = await openedWithHeldStory(page, dashboard, { open: [] });
   const { github, recent } = view;
   const { backlog } = parts(page);
