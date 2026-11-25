@@ -1,102 +1,58 @@
 import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
-// Mark as done in the Final report, on a session placed 27th in
-// Recently done once done: a refinement session of a story no list shows,
-// whose prepared workspace is gone, so Taken offers only its final report.
-// The panel closes, and Recently done extends exactly through the entry,
-// reading only the records before it; the keyboard lands on the entry once
-// they are read. The other journeys, the publication, and the held record
-// are ./recently-done-progressive-navigation.spec.ts and
-// ../recentlyDoneProgressiveJourney.ts. The synthetic `claude` lists the
-// session and takes its done mark (./fixtures/fake-claude).
-
-import path from "node:path";
-import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import {
-  parts,
-  standaloneSessionName,
-} from "../../dashboard/test-support/dashboardPage.ts";
 import { rem } from "../../dashboard/test-support/boardPage.ts";
-import { placedAt } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
-import { recordsAsked } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
+import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
-  destination,
-  expectThroughDestination,
-  expectThroughDestinationPending,
-  openedWithHeldStory,
-  storiesThrough,
+  recordsAsked,
+  untilPageRests,
+} from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
+import {
+  openedWithTakenNativeSession,
+  publishedNames,
+  publishedPaths,
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
-import {
-  idleBetweenSteps,
-  markDoneAnyway,
-} from "../../dashboard/test-support/support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-const retired = {
-  identity: "SEED-405#workspace-retired",
-  title: "Refine a story whose workspace was retired",
-};
-const entryName = standaloneSessionName("Refinement", retired.title);
-
-test("Mark as done in the Final report closes it and lands on entry 27 once entries 1 to 27 are read, never reading 28 to 35", async ({
+test("Mark as done in a retired-workspace report returns to the published Taken story", async ({
+  afterGitHubStops,
   page,
   dashboard,
 }) => {
-  await page.setViewportSize({ width: 80 * rem, height: 900 });
-  let sessionId = "";
-  const view = await openedWithHeldStory(page, dashboard, {
-    open: [],
-    elsewhere: true,
-    also: (now) => {
-      const launchedAt = placedAt(now, destination);
-      sessionId = dashboard.claudeListsSession({
-        name: retired.title,
-        cwd: dashboard.home,
-        startedAt: Date.parse(launchedAt),
-      });
-      return [
-        makeMe.aLaunchRecord
-          .refining(retired)
-          .inClaudeSession({ sessionId })
-          .onStoryBranch({
-            workspace: path.join(dashboard.home, "retired-workspace"),
-            branch: "story/workspace-retired",
-          })
-          .launchedAt(launchedAt)
-          .please(),
-      ];
-    },
-  });
-  const { github, recent } = view;
-  const taken = parts(page).taken.getByRole("article", { name: entryName });
-  const arrived = recent.getByRole("article", { name: entryName });
-  await expect(taken).toContainText("The saved workspace is missing.");
-
-  const { panel } = await readFinalReport(taken);
-  await expect(panel).toBeVisible();
-  idleBetweenSteps(dashboard, sessionId);
-  await markDoneAnyway(panel);
-
-  await test.step("the panel closes and Recently done lists entries through 27 at once, asking only for their records, while the keyboard waits for the held one", async () => {
-    await expect(panel).toHaveCount(0, { timeout: 30_000 });
-    await expect(taken).toHaveCount(0);
-    await expectThroughDestinationPending(
-      github,
-      recent,
-      view.heldCard,
-      arrived,
-    );
-  });
-
-  await test.step("once it is read, the entry has the keyboard and is in view, and nothing older was read", async () => {
-    view.release();
-    await expect(arrived).toBeFocused();
-    await expect(arrived).toBeInViewport();
+  const view =
+    await test.step("Given ten published Done stories and a Taken story with a retired workspace", async () => {
+      await page.setViewportSize({ width: 80 * rem, height: 900 });
+      return openedWithTakenNativeSession(
+        page,
+        dashboard,
+        afterGitHubStops,
+        true,
+      );
+    });
+  await test.step("And Recently done shows its first ten stories", () =>
+    expectEntries(view.recent, publishedNames(10)));
+  await test.step("And the Taken session says its workspace is missing", () =>
+    expect(view.activeSession).toContainText(
+      "The saved workspace is missing.",
+    ));
+  const { panel } =
+    await test.step("When I open Done history and the Final report", async () => {
+      await view.showDoneHistory();
+      return readFinalReport(view.activeSession);
+    });
+  await test.step("Then the Final report is visible", () =>
+    expect(panel).toBeVisible());
+  await test.step("When I mark the session Done in the report", () =>
+    view.markDone(panel));
+  await test.step("Then the report closes and focus returns to Done history", async () => {
     await expect(panel).toHaveCount(0);
-    await expectThroughDestination(github, recent, entryName);
-    expect(recordsAsked(github).toSorted()).toEqual(
-      storiesThrough(destination).toSorted(),
+    await view.showsFocusedDoneSession();
+  });
+  await test.step("And Recently done reads only the first ten stories", async () => {
+    await expectEntries(view.recent, publishedNames(10));
+    await untilPageRests(page);
+    expect(recordsAsked(view.github).toSorted()).toEqual(
+      publishedPaths(10).toSorted(),
     );
   });
 });

@@ -1,17 +1,6 @@
 import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-// A journey that lands on a done entry beyond Recently done's shown entries
-// extends the list exactly through that entry, reading only the records of
-// the stories before it; the entry shows in its place at once, and the
-// keyboard, or a sidebar choice's reveal, reaches it once the entries before
-// it are read, by the page's usual return and reveal rules. A longer list is
-// kept, a destination already shown or not in Recently done reads nothing
-// more, and the developer's own move or another project meanwhile keeps the
-// keyboard where they put it. The journeys are Mark as done on a Taken
-// entry, in its terminal, and on the entry while its terminal shows; a
-// Running Cursor sessions row is ./recently-done-progressive-navigation-cursor.spec.ts.
-// Publication, sessions, and held record: ../recentlyDoneProgressiveJourney.ts.
-// The synthetic `claude` takes the done marks (./fixtures/fake-claude); the
-// `gh` calls reaching the fake GitHub show which records were read.
+// Native Done returns to a published Taken story. A held reveal of a
+// published Done story yields to a later story or project choice.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
@@ -23,13 +12,10 @@ import {
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { rem, showColumn } from "../../dashboard/test-support/boardPage.ts";
-import {
-  expectEntries,
-  revealAction,
-} from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   openTerminalControl,
-  terminalScreenParts,
+  expectTerminalText,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   recordsAsked,
@@ -38,16 +24,13 @@ import {
 } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   destination,
-  expectThroughDestination,
-  expectThroughDestinationPending,
-  names,
   openedWithHeldPublishedStory,
-  openedWithHeldStory,
+  openedWithTakenNativeSession,
   publishedNames,
   publishedPaths,
-  storiesThrough,
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
+import { queuedTitle } from "../../dashboard/test-support/recentlyDoneRecords.ts";
 import {
   publishOnePygardonStory,
   pygardonRepository,
@@ -55,120 +38,105 @@ import {
 
 test.use({ projectFolders: ["open-dough"] });
 
-test("Mark as done on a Taken entry lands on it as entry 27 once entries 1 to 27 are read, after a choice of it while open and a done entry already shown read nothing more", async ({
+test("a Taken session can open from the sidebar and mark Done on its own card without reading older stories", async ({
+  afterGitHubStops,
   page,
   dashboard,
 }) => {
-  await page.setViewportSize({ width: 80 * rem, height: 900 });
-  const view = await openedWithHeldStory(page, dashboard, {
-    open: [2, destination],
-  });
-  const { github, recent } = view;
+  const view =
+    await test.step("Given a published Taken story with an active session", async () => {
+      await page.setViewportSize({ width: 80 * rem, height: 900 });
+      return openedWithTakenNativeSession(page, dashboard, afterGitHubStops);
+    });
+  await test.step("And the first ten published Done stories are shown", () =>
+    expectEntries(view.recent, publishedNames(10)));
 
-  await test.step("choosing the open session in the Sessions sidebar reveals its Taken entry, which Recently done does not hold, reading no older record", async () => {
+  await test.step("When I open the Taken session from the sidebar", async () => {
     const { button, entry } = sessionsSidebarParts(page);
     await button.click();
-    await entry("Ad hoc work 27").click();
-    await expect(terminalOf(page)).toHaveCount(1);
-    await expect(view.taken(destination)).toBeInViewport();
-    await closeSidePanel(terminalOf(page), { using: "mouse" });
-    await expect(terminalOf(page)).toHaveCount(0);
-    await button.click();
-    await expect
-      .poll(() => recordsAsked(github).toSorted())
-      .toEqual(storiesThrough(11).toSorted());
+    await entry(queuedTitle).click();
   });
-
-  await test.step("a session that lands among the first ten takes the keyboard there, reading nothing more", async () => {
-    await view.markedDone(2);
-    await expect(view.done(2)).toBeFocused();
-    await expectEntries(recent, names(10));
-    await untilPageRests(page);
-    expect(recordsAsked(github).toSorted()).toEqual(
-      storiesThrough(11).toSorted(),
-    );
-  });
-
-  await test.step("Mark as done on entry 27's Taken entry shows it in place at once, asking for exactly the records before it, and gives it the keyboard only once the held one is read", async () => {
-    await view.markedDone(destination);
-    await expectThroughDestinationPending(
-      github,
-      recent,
-      view.heldCard,
-      view.done(destination),
-    );
-    view.release();
-    await expect(view.done(destination)).toBeFocused();
-    await expect(view.done(destination)).toBeInViewport();
-    await expectThroughDestination(github, recent);
-    await expect(revealAction(recent)).toHaveText("Show the 8 older entries");
-  });
-
-  await test.step("with every entry shown, reopening it and marking it done in its terminal again lands on it, keeping the longer list and reading nothing again", async () => {
-    await revealAction(recent).click();
-    await expectEntries(recent, names(35));
-    const asked = recordsAsked(github).length;
-    await openTerminalControl(view.done(destination)).click();
-    const terminal = terminalOf(page);
-    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
-    await expect(view.taken(destination)).toHaveCount(1);
-    await view.markedDone(destination, terminal);
+  const terminal =
+    await test.step("Then its terminal is attached", async () => {
+      const terminal = terminalOf(page);
+      await expectTerminalText(terminal, "attached");
+      return terminal;
+    });
+  await test.step("And the Taken card is in view", () =>
+    expect(view.card).toBeInViewport());
+  await test.step("When I close the terminal and sidebar", async () => {
+    await closeSidePanel(terminal, { using: "mouse" });
     await expect(terminal).toHaveCount(0);
-    await expect(view.done(destination)).toBeFocused();
-    await expectEntries(recent, names(35));
-    expect(recordsAsked(github)).toHaveLength(asked);
+    await sessionsSidebarParts(page).button.click();
+  });
+  await test.step("And mark the session Done with its history open", async () => {
+    await view.showDoneHistory();
+    await view.markDone();
+  });
+  await test.step("Then the Taken card holds the focused Done session", async () => {
+    await view.showsFocusedDoneSession();
+    await expect(view.card).toBeVisible();
+  });
+  await test.step("And Recently done reads only the first ten stories", async () => {
+    await expectEntries(view.recent, publishedNames(10));
+    await untilPageRests(page);
+    expect(recordsAsked(view.github).toSorted()).toEqual(
+      publishedPaths(10).toSorted(),
+    );
   });
 });
 
-test("Mark as done in its terminal closes the panel and lands on entry 27 once entries 1 to 27 are read", async ({
-  page,
-  dashboard,
-}) => {
-  await page.setViewportSize({ width: 80 * rem, height: 900 });
-  const view = await openedWithHeldStory(page, dashboard);
-  const terminal = terminalOf(page);
-  await openTerminalControl(view.taken(destination)).click();
-  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
-  await view.markedDone(destination, terminal);
-  await expect(terminal).toHaveCount(0);
-  await expectThroughDestinationPending(
-    view.github,
-    view.recent,
-    view.heldCard,
-    view.done(destination),
-  );
-  view.release();
-  await expect(view.done(destination)).toBeFocused();
-  await expect(view.done(destination)).toBeInViewport();
-  await expectThroughDestination(view.github, view.recent);
-});
+const terminalLayouts = [
+  { name: "beside the Board", width: 80 * rem },
+  {
+    name: "covering the Taken column",
+    width: 40 * rem,
+    observe: (view: Awaited<ReturnType<typeof openedWithTakenNativeSession>>) =>
+      expect(view.recent).not.toBeInViewport(),
+  },
+];
 
-test("marking the session done in its covering terminal, with Recently done paged out of view, closes the panel and lands on entry 27 there", async ({
-  page,
-  dashboard,
-}) => {
-  // One Board column (40rem). Opening the terminal covers the page column, so
-  // Taken is not the reading surface; Mark as done is on the terminal.
-  await page.setViewportSize({ width: 40 * rem, height: 800 });
-  const view = await openedWithHeldStory(page, dashboard);
-  const terminal = terminalOf(page);
-  await showColumn(page, "Taken");
-  await openTerminalControl(view.taken(destination)).click();
-  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
-  await expect(view.recent).not.toBeInViewport();
-  await view.markedDone(destination, terminal);
-  await expect(terminal).toHaveCount(0);
-  await expectThroughDestinationPending(
-    view.github,
-    view.recent,
-    view.heldCard,
-    view.done(destination),
-  );
-  view.release();
-  await expect(view.done(destination)).toBeFocused();
-  await expect(view.done(destination)).toBeInViewport();
-  await expectThroughDestination(view.github, view.recent);
-});
+for (const { name, width, observe } of terminalLayouts) {
+  test(`Mark as done in a terminal ${name} returns to the Taken story`, async ({
+    afterGitHubStops,
+    page,
+    dashboard,
+  }) => {
+    const view =
+      await test.step("Given a published Taken story with an active session", async () => {
+        await page.setViewportSize({ width, height: 800 });
+        return openedWithTakenNativeSession(page, dashboard, afterGitHubStops);
+      });
+    await test.step("And the first ten published Done stories are shown", () =>
+      expectEntries(view.recent, publishedNames(10)));
+    await test.step("When I open the Taken story's history", async () => {
+      await showColumn(page, "Taken");
+      await view.showDoneHistory();
+    });
+    const terminal =
+      await test.step("And open the session terminal", async () => {
+        await openTerminalControl(view.activeSession).click();
+        return terminalOf(page);
+      });
+    await test.step("Then the terminal attaches in the selected layout", async () => {
+      await expectTerminalText(terminal, "attached");
+      await observe?.(view);
+    });
+    await test.step("When I mark the session Done in the terminal", () =>
+      view.markDone(terminal));
+    await test.step("Then the terminal closes and focus returns to Done history", async () => {
+      await expect(terminal).toHaveCount(0);
+      await view.showsFocusedDoneSession();
+      await expect(view.card).toBeInViewport();
+    });
+    await test.step("And Recently done reads only the first ten stories", async () => {
+      await untilPageRests(page);
+      expect(recordsAsked(view.github).toSorted()).toEqual(
+        publishedPaths(10).toSorted(),
+      );
+    });
+  });
+}
 
 test("selecting another story during a held session reveal preserves the new selection and keyboard", async ({
   afterGitHubStops,

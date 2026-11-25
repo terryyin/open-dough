@@ -38,10 +38,9 @@ import {
 } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
   destination,
-  entries as sessionEntries,
-  names,
-  openedWithHeldStory,
-  storiesThrough,
+  openedWithHeldPublishedStory,
+  publishedNames,
+  publishedPaths,
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   laterStory,
@@ -151,32 +150,42 @@ test("a refresh keeps twenty entries in their current order, reading only the ne
   });
 });
 
-test("a refresh while Mark as done's destination is read keeps it included in its new place, and lands on it once the entries before it are read", async ({
+test("a refresh keeps a pending published Done destination included when its position changes", async ({
   page,
   dashboard,
   afterGitHubStops,
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.clock.install();
-  const view = await openedWithHeldStory(page, dashboard, {
-    history: { afterGitHubStops, later: { B: [newest, ...sessionEntries] } },
-  });
+  const view = await openedWithHeldPublishedStory(
+    page,
+    dashboard,
+    afterGitHubStops,
+    "Done story session",
+    undefined,
+    { B: [newest, ...entries] },
+  );
   const { github, recent, main } = view;
   if (main === undefined) throw new Error("No progressive publication history");
-  await view.markedDone(destination);
-  await expect(view.done(destination)).toBeVisible();
+  const selected = await view.chooseSession();
+  await expect(selected).toBeFocused();
+  await view.showsPendingDestination();
   await expect(shownEntries(recent)).toHaveCount(destination);
 
   const revisionB = main.publish("B");
   await refreshedTo(page, revisionB);
   await expect(shownEntries(recent)).toHaveCount(destination + 1);
-  await expect(view.done(destination)).toBeVisible();
-  await expect(view.done(destination)).not.toBeFocused();
+  await expect(view.destinationEntry).toBeVisible();
+  await expect(view.heldCard).toContainText("Reading done story…");
   view.release();
-  await expect(view.done(destination)).toBeFocused();
-  await expect(view.done(destination)).toBeInViewport();
-  await expectEntries(recent, [entryName(newest), ...names(destination)]);
+  await expect(view.destinationCard).toBeInViewport();
+  await expect(selected).toBeFocused();
+  await expectEntries(recent, [
+    entryName(newest),
+    ...publishedNames(destination),
+  ]);
   await expect(recent).toContainText("Showing 28 of 36 entries.");
-  const allowed = new Set([...storiesThrough(destination), newest.path]);
-  expect(recordsAsked(github).filter((path) => !allowed.has(path))).toEqual([]);
+  expect([...new Set(recordsAsked(github))].toSorted()).toEqual(
+    [newest.path, ...publishedPaths(destination)].toSorted(),
+  );
 });

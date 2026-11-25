@@ -115,7 +115,7 @@ ten affected cases and Dashboard typecheck. See `SLICE-2-REPORT.md` and
 
 ### 3. Preserve native Done actions on linked sessions
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mark as done from the Board, terminal and final report settles a
 native session and preserves the applicable panel and keyboard behavior
 with a published story fixture.
@@ -126,6 +126,18 @@ where they make the same observations. Remove the assertion that a local
 Done mark creates a top-level Board item, and identify the remaining
 coverage by case in the return. Verify the affected families together and
 check the fixture paths for compatibility with SEED-439's paused candidate.
+
+Accepted proof: All 33 selected E2E cases passed on both the supplier
+checkout and the isolated parked Board composition. Browser-visible Done
+history receives focus after native Mark from the Board, terminal and Final
+report while the published story stays Taken. The refresh and reopen
+selection also passed on both candidates. The actual Done history call
+sites no longer use the mixed standalone test fixtures.
+
+A separate collapsed-history probe found focus falling to the document body
+on both product revisions. That pre-existing visible-return gap is owned by
+SEED-439 slice 7. See `SLICE-3-REPORT.md` and
+`SLICE-3-REFACTOR-REPORT.md` in the worktree's Git evidence directory.
 
 ## Proof gates
 
