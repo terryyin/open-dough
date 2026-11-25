@@ -228,6 +228,10 @@ recovery and the landing evidence handoff where agents need them. Remove
 repeated rules and obsolete recipes and verify the guidance, script and test
 deltas.
 
+## Execution complete
+
+Product advice: Keep current priorities. The installed entry points retain publication and recovery behavior with less guidance, code and duplicate proof.
+
 ## Story obligations
 
 ### G1. Invalid retained target reaches Git transport
