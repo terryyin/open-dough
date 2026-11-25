@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Shunka-chan",
-  "email": "shunka-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-345#load-execution-guidance-for-the-current-phase",
-  "host": "codex",
-  "model": "gpt-6.2-sol"
-}
