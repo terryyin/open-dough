@@ -212,6 +212,10 @@ This slice closes on the supplier's integrated proof. Slice 4 first reruns
 slice 2's admission families on the merged branch as its baseline. Branch CI
 on the merged revision covers the rest of the merged state.
 
+## Execution complete
+
+Product advice: retrospective skipped
+
 ## Proof gates and concern review
 
 Run the owning slice's focused checks and the installed
