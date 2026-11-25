@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sessionId": "980e7215-489c-438a-bf61-6bc42e789d8d",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T08:07:13.867Z",
+  "story": "SEED-413#renovate-remaining-backend-families-after-intent-ci-readers",
+  "ranges": [
+    {
+      "base": "fd022f5f14bb7269b02dc35871cf3446ec725783",
+      "candidate": "0689c03fdca52ca5b6126a35bcc8ad7b5c8f9fb3"
+    },
+    {
+      "base": "0689c03fdca52ca5b6126a35bcc8ad7b5c8f9fb3",
+      "candidate": "c70d05b9e15618c203a92d1629648b5f57fa2f0d"
+    },
+    {
+      "base": "c70d05b9e15618c203a92d1629648b5f57fa2f0d",
+      "candidate": "73ee9cc6947cf3c0c3168e4ae766b352d69f87ea"
+    },
+    {
+      "base": "73ee9cc6947cf3c0c3168e4ae766b352d69f87ea",
+      "candidate": "34542dbb5ef13270bbc984e200cbf11a6a327e4a"
+    },
+    {
+      "base": "34542dbb5ef13270bbc984e200cbf11a6a327e4a",
+      "candidate": "976a5a0ed77cbde5b0f476fcfbe0a43f3a7750fe"
+    },
+    {
+      "base": "976a5a0ed77cbde5b0f476fcfbe0a43f3a7750fe",
+      "candidate": "fbfcca735e975926c4f74836add84ba16385e588"
+    },
+    {
+      "base": "fbfcca735e975926c4f74836add84ba16385e588",
+      "candidate": "f0150da893e062beb303990a16ccc4b969c1b002"
+    }
+  ]
+}
