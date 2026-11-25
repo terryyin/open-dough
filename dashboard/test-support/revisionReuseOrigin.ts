@@ -6,6 +6,7 @@
 // answerer is ./revisionReuseAnswers.ts. The records a project shows at one
 // revision are makeMe.aProjectRevision.
 
+import { execFileSync } from "node:child_process";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { commitDeclaredRevision } from "../../Distribution/tests/support/repository-fixture.mjs";
 import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
@@ -15,6 +16,7 @@ import type {
   PathHistories,
 } from "./pathHistoryAnswers.ts";
 import { aheadBy, type Comparison } from "./comparisonAnswers.ts";
+import { publishBranch } from "./committedOriginRepo.ts";
 import { defaultRepository } from "./publishedOriginBasics.ts";
 import { answerFrom } from "./revisionReuseAnswers.ts";
 import type { FakeGitHub, RepositoryAnswerer } from "./support/fakeGitHub.ts";
@@ -133,6 +135,15 @@ export async function advanceReusePublication(
   });
   moved(published, revision, files, history, by);
   return revision;
+}
+
+export function restoreReusePublication(publication: ReusePublication): void {
+  const { origin, revision, trunk } = publication;
+  execFileSync("git", ["read-tree", "--reset", "-u", revision], {
+    cwd: origin,
+  });
+  publishBranch(origin, "main", revision);
+  trunk.revision = revision;
 }
 
 // The ref moves to `revision`, publishing `files` and `history` there, by the

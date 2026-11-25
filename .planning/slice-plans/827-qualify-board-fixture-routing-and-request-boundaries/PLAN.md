@@ -249,7 +249,7 @@ keep the same setup and checks.
 ### 6. Keep retained-answer proof on the reads that use it
 
 Type: Behavior
-Status: planned
+Status: done
 
 Qualify the shared retained-answer fixture's trunk histories where the cases
 open the project, keeping explicitly named branch pins, same/different HOME
@@ -260,6 +260,24 @@ second process and misses at a different HOME, a new pin, and a failed or
 unreadable detail. Preserve refusal and no retained-data leakage at the
 actual failing or unadmitted operation. Keep the supported former
 membership-only assertion with the cutover.
+
+The retained-answer fixture uses the same materialized publication for
+initial, advanced and revisited trunk pins. The three backend specs verify
+exact returned pins and recorded requests across process restarts, HOME
+changes, store controls and failures. The browser restart resolves the
+same pin from Git and renders the same cards with a new retrieval time.
+Explicit story branch answers still drive the pinned detail requests.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-retained-answers{,-bounded,-moved}.spec.ts --workers=1 --reporter=dot
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/authenticated-read-retained-answers-reload.spec.ts --workers=1 --reporter=dot
+npm run typecheck:dashboard
+```
+
+All nine backend cases, the browser restart and typecheck passed. All 24
+revision-reuse cases passed with the shared exact-SHA request descriptions.
+The independent refactor moved the revisit to `revisionReuseOrigin` and
+rechecked the two budget cases and typecheck.
 
 ### 7. Drive waits and sharing through scheduled and detail reads
 

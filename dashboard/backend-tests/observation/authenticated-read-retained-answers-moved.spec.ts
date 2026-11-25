@@ -38,13 +38,15 @@ import {
 
 const origin = makeMe.aProjectRevision;
 
-// What a process on a machine home of its own asks and answers reading
-// `branch`'s project.
-async function firstVisit(github: FakeGitHub, branch: string) {
+// What a process on a machine home of its own asks and answers.
+async function firstVisit(
+  github: FakeGitHub,
+  project: ReturnType<typeof published>,
+) {
   const elsewhere = mkdtempSync(path.join(tmpdir(), "dough-retained-"));
   try {
     return await onMachine(elsewhere, github, (server) =>
-      asked(github, () => readProject(server, branch)),
+      asked(github, () => readProject(server, project)),
     );
   } finally {
     rmSync(elsewhere, { recursive: true, force: true });
@@ -55,9 +57,9 @@ async function firstVisit(github: FakeGitHub, branch: string) {
 const atRevision = (calls: readonly string[]) =>
   calls.filter((call) => /^(content|listing|commit-list) /.test(call)).sort();
 
-// Every record, listing, and history a first visit reads at `pair`'s B,
+// Every record, listing, and history a first visit reads at the new pin,
 // but the listed profiles and done record, whose texts are kept by blob.
-const readAt = (pair: string) =>
+const readAt = (revision: string) =>
   [
     ...[
       origin.paths.backlog,
@@ -75,7 +77,7 @@ const readAt = (pair: string) =>
       origin.paths.seed,
     ].map((path) => `commit-list ${path}`),
   ]
-    .map((call) => `${call}@b${pair}`)
+    .map((call) => `${call}@${revision}`)
     .sort();
 
 test.describe("authenticated read reuse at a newly named revision across dashboard processes (development environment)", () => {
@@ -90,19 +92,19 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
   test("a later process whose ref names B, one commit after A that changed a seed, asks the ref, the backlog at B, the comparison, that commit, and the seed's text and history", async ({
     machine,
   }) => {
-    const [a, b] = [named("a6"), named("b6")];
-    const project = published("moved", a, named("c6"));
+    const project = published("moved", named("c6"));
+    const a = project.publication.revision;
     project.serve(github);
     const first = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     allAnswered(first.result.answers);
 
+    const original = origin.labeled("moved").please().files;
     const changed = origin.seedText("moved at B");
-    project.movedTo(
-      b,
+    const b = await project.movedTo(
       {
-        ...origin.labeled("moved").please().files,
+        ...original,
         [origin.paths.seed]: changed,
       },
       [
@@ -119,19 +121,19 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
       machine,
       github,
       async (server) => ({
-        second: await asked(github, () => readProject(server, project.branch)),
+        second: await asked(github, () => readProject(server, project)),
         pinned: await asked(github, () => read(server, pinnedAtA)),
       }),
     );
     allAnswered(second.result.answers);
     expect(second.calls).toEqual([
       "ref",
-      `content ${origin.paths.backlog}@b6`,
-      "compare a6...b6",
-      "commit d6",
-      `content ${origin.paths.seed}@b6`,
+      `content ${origin.paths.backlog}@${b}`,
+      `compare ${a}...${b}`,
+      `commit ${named("d6")}`,
+      `content ${origin.paths.seed}@${b}`,
       `branch ${project.branch}`,
-      `commit-list ${origin.paths.seed}@b6`,
+      `commit-list ${origin.paths.seed}@${b}`,
     ]);
     expect(second.result.answers[1]?.body).toEqual({
       revision: b,
@@ -140,13 +142,20 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
     });
 
     expect(pinned.calls).toEqual([
-      `content ${origin.paths.backlog}@a6`,
-      `content ${origin.paths.otherSeed}@a6`,
+      `content ${origin.paths.backlog}@${a}`,
+      `content ${origin.paths.otherSeed}@${a}`,
     ]);
-    expect(pinned.result.status).toBe(200);
+    expect(pinned.result).toEqual({
+      status: 200,
+      body: {
+        revision: a,
+        path: origin.paths.otherSeed,
+        text: original[origin.paths.otherSeed],
+      },
+    });
 
     // What it answers is what a first visit to B answers.
-    const fresh = await firstVisit(github, project.branch);
+    const fresh = await firstVisit(github, project);
     expect(second.result.answers).toEqual(fresh.result.answers);
   });
 
@@ -157,32 +166,35 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
     test(`when the comparison ${how}, the later process reads B as a first visit does`, async ({
       machine,
     }) => {
-      const [a, b] = [named(`a${pair}`), named(`b${pair}`)];
       const label = `unbounded-${pair}`;
-      const project = published(label, a, named(`c${pair}`));
+      const project = published(label, named(`c${pair}`));
+      const a = project.publication.revision;
       project.serve(github);
       await onMachine(machine, github, (server) =>
-        readProject(server, project.branch),
+        readProject(server, project),
       );
 
       const between = [...Array(11).keys()].map((n) =>
         madeBy(`${pair}${n.toString(16)}`, [modified("src/app.ts")]),
       );
-      project.movedTo(b, origin.labeled(label).please().files, between);
+      const b = await project.movedTo(
+        origin.labeled(label).please().files,
+        between,
+      );
       if (compared !== undefined) {
         project.publication.compared.set(`${a}...${b}`, compared);
       }
       const second = await onMachine(machine, github, (server) =>
-        asked(github, () => readProject(server, project.branch)),
+        asked(github, () => readProject(server, project)),
       );
       allAnswered(second.result.answers);
-      expect(second.calls).toContain(`compare a${pair}...b${pair}`);
-      for (const n of between.keys()) {
-        expect(second.calls).not.toContain(`commit ${pair}${n.toString(16)}`);
+      expect(second.calls).toContain(`compare ${a}...${b}`);
+      for (const { sha } of between) {
+        expect(second.calls).not.toContain(`commit ${sha}`);
       }
 
-      expect(atRevision(second.calls)).toEqual(readAt(pair));
-      const fresh = await firstVisit(github, project.branch);
+      expect(atRevision(second.calls)).toEqual(readAt(b));
+      const fresh = await firstVisit(github, project);
       expect(second.result.answers).toEqual(fresh.result.answers);
     });
   }
