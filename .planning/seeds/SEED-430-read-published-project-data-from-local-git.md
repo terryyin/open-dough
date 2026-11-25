@@ -37,32 +37,6 @@ in [Intent and attribution](SEED-434-browse-published-intent-from-local-git.md#b
 [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git),
 and [Add Project](SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git).
 
-<a id="recover-fixed-observation-at-its-published-pin"></a>
-
-### Recover a fixed observation at its published pin
-
-**Identity:** SEED-430#recover-fixed-observation-at-its-published-pin
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/831-recover-fixed-observation-at-its-published-pin/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5de1ee79ab67dbb4a3b786512f5ffbf46fce0a8940722932b8ca80e55df2d962","plan":"1c0f6c4b88e3a05f7b528f2f368999365b270ebeb1c99fa2d2f5974dc3b75a5e"}}
-```
-
-**Goal.** Give maintainers a regression check that the Board recovers
-at its already-read publication when local GitHub CLI access returns.
-
-**Scope.** Restore the original Doughnut publication in the authenticated
-observation test and clean up the stale fixture comment and unused export
-left by the fixed fixture migration. This correction covers test proof.
-Board reader changes and moving publications are outside its scope.
-
-**Key example.** The Board has opened Doughnut at a real routed trunk pin.
-When the local GitHub CLI loses access, selecting Doughnut shows the login
-failure and clears the cards. After access returns and the reader reloads,
-the Doughnut stories and the original revision reappear and the failure
-clears. The routed Git trunk resolves to that same pin throughout.
-
-**Plan.**
-[831](../slice-plans/831-recover-fixed-observation-at-its-published-pin/PLAN.md).
-
 <a id="publish-moving-board-fixtures-through-git"></a>
 
 ### Publish moving Board test fixtures through real Git

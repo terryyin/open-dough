@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_recover-fixed-observation-at-its-published-pin.json",
+      "identity": "SEED-430#recover-fixed-observation-at-its-published-pin",
+      "completedAt": "2026-11-25T10:45:00.746Z",
+      "blob": "b8979000e4b543a5b80ca0770b06489a2d0cde57"
+    },
+    {
       "fileName": "SEED-413_pass-session-observation-limits-as-typed-values.json",
       "identity": "SEED-413#pass-session-observation-limits-as-typed-values",
       "completedAt": "2026-11-25T10:30:53.347Z",
