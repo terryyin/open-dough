@@ -59,10 +59,9 @@ button above the bar. The bar holds, in order:
 The details show what the stacked text shows today: the recorded time,
 branch, baseline and result revisions, and the attribution or the
 explanation of why a comparison is unavailable. The comparison follow-up
-action stays in the details until
-[its own story](#put-comparison-follow-up-by-story-notes) moves it. The
-details also hold **Refresh**, which re-reads the comparison while keeping the
-choice. The standalone **Refresh** button leaves the bar. Changing the
+is beside **Notes** in the story title. The details also hold **Refresh**,
+which re-reads the comparison while keeping the choice. The standalone
+**Refresh** button leaves the bar. Changing the
 comparison updates the summary and the details to describe the new choice.
 Reading, unavailable and failed states appear in the summary's place. A read
 failure keeps its **Retry** there. On a narrow window the bar wraps instead of
