@@ -132,8 +132,8 @@ The Take `a260b60c349ad6db02fc5b1df5b4834fe029f83d` was accepted by
 The Codex `eimi-chan-seed-423` observer watches the story branch on
 `terryyin/open-dough` with GitHub Actions `ci.yml`, cell `g243:11`,
 session `71138`, directory `/tmp/dough-ci-501/watch-I57KEb`, and PID `19804`.
-Slices 1 and 2 were accepted there at `ef4a3644109c4bd008db80375ca339fe1b7963a8`
-and `50ad2d9858a496d78f09c4bcc83351edaf9aa977`.
+Slices 1–3 were accepted there at `ef4a3644109c4bd008db80375ca339fe1b7963a8`,
+`50ad2d9858a496d78f09c4bcc83351edaf9aa977` and `e8b93bf32dcb0bbb492952bb3d47d72a929b2aa4`.
 
 ### 1. Resume through the exact-candidate loop
 
@@ -184,8 +184,11 @@ Delete its separate retry loop.
 ### 4. Publish an execution claim through the same loop
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Competing startup and admission checks above.
+
+The 214 Distribution cases and 15 Dashboard and E2E files passed. Two CLI
+probes verified live-descendant confirmation and no retry after accepted timeout.
 
 When a startup competes for trunk, let existing claim policy check remote
 membership and provenance and reselect or replay as needed. Share the
