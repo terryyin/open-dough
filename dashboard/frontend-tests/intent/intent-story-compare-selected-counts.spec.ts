@@ -113,7 +113,7 @@ async function openCapturedRun({
 }
 
 const locationControl = () =>
-  intentStoryCompare().filesReading.getByRole("button", {
+  intentStoryCompare().sidebar.getByRole("button", {
     name: /^dashboard\/tests, /,
   });
 

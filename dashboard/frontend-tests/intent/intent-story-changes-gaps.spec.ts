@@ -26,7 +26,7 @@ async function showsUsablePublishedTree() {
   await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
   await expect.element(story.outsideGroup).not.toBeInTheDocument();
   await expect
-    .element(story.filesReading.getByText(/No test files|no changes/i))
+    .element(story.sidebar.getByText(/No test files|no changes/i))
     .not.toBeInTheDocument();
   await scopeToggle("dashboard/tests").click();
   await scopeToggle("boundary").click();
@@ -34,7 +34,7 @@ async function showsUsablePublishedTree() {
   await story.file(modifiedPath).click();
   await intentFileReading(modifiedPath).shows("a 11");
   expect(
-    story.filesReading
+    story.sidebar
       .element()
       .querySelectorAll("[data-kind], [data-contains-changes]"),
   ).toHaveLength(0);

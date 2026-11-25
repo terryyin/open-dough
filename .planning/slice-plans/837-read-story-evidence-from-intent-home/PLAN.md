@@ -98,7 +98,7 @@ story notes, and Board arrival checks then passed on the combined candidate.
 ### 2. Open a path directly from story evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mounted path and no-locations journeys plus the unchanged-test filter
 example in the proof map. Check existing narrow sidebar and CI recovery
 consumers that read the shared layout.
@@ -112,6 +112,16 @@ locations are unavailable. For this increment, the current Changes tab
 still leads to path reading and a sidebar open can select it internally.
 Slice 3 replaces that interim routing and removes the page-wide row. Keep
 the mounted evidence clients and qualification behavior during the move.
+
+406 frontend cases and 11 representative end-to-end cases passed, along
+with Dashboard typecheck. The mounted cases chose paths while CI and
+coverage were visible, read a diff from the comparison-only tree, and
+observed the same failed result and measured build after filtering away
+its unchanged file. The end-to-end cases covered the shared pane, directed
+arrival, historical source and its unavailable state, and CI proof links.
+After consolidating the tabpanel attributes, 27 frontend and three
+end-to-end cases reconfirmed labels, visibility, focus, and candidate
+navigation. Dashboard typecheck passed again.
 
 ### 3. Return to Story Home and keep Review changes direct
 
@@ -164,6 +174,14 @@ navigation contract changed.
   existing slice budget. This review found no remaining slice-specific
   concern.
 
+## Story obligations
+
+### G1. Page-wide tabs during direct file browsing
+
+Reported: slice 2 — "For this increment, the current Changes tab still leads to path reading and a sidebar open can select it internally."
+Story clause: "The story-level tab row gives way to Home and direct path reading."
+Disposition: interim until slices 3
+
 ## Execution context
 
 - Story Branch Mode on `codex/read-ci-comparison-and-intent-coverage-from-stor`, with
@@ -173,6 +191,7 @@ navigation contract changed.
   The claim was accepted as `e7c2d87fce1d73a62490cd8a25ed22c3f2f73f64`
   on `origin/main` and the story branch. Koharu-chan owns the execution
   under publisher `dashboard-territory.local-open-dough`.
+- Slice 1 was accepted on the story branch at `c5397d4790a70a32df073e6e3a0f3502399ff045`.
 - The Codex observer for the remote story branch tracks GitHub Actions
   `ci.yml` under coordinator `koharu-420-ed214235` at
   `/tmp/dough-ci-501/watch-fvhWBV`, stream session `30471`, cell `g375:14`.

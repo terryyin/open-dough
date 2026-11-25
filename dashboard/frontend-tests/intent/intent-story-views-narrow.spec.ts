@@ -37,7 +37,7 @@ test("narrow, a selected story's views and Hide files stay reachable by keyboard
   await expect
     .element(story.viewTab("Intent coverage"))
     .toHaveAttribute("aria-selected", "true");
-  await expect.element(files.toggle).not.toBeInTheDocument();
+  await files.showsFiles(true);
 });
 
 test("without a story the shared header, project views and reader fit narrow and short reading with keyboard controls", async () => {

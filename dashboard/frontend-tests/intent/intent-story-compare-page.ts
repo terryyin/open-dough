@@ -155,6 +155,7 @@ export function intentStoryCompare() {
     viewTab,
     chooseTab: (name: View) => activateComparisonControl(viewTab(name)),
     browseFiles: () => activateComparisonControl(viewTab("Changes")),
+    sidebar: intent.getByCSS(".intent-locations"),
     filesReading: intent.getByRole("tabpanel", {
       name: "Changes",
       exact: true,

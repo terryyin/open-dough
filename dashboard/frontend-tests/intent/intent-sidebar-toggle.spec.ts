@@ -71,7 +71,7 @@ test("Hide files gives the reading pane the width under the story's header; afte
 
   for (const view of ["Intent coverage", "CI comparison"] as const) {
     await story.chooseTab(view);
-    await expect.element(files.toggle).not.toBeInTheDocument();
+    await files.showsFiles(false);
     await expect.poll(files.readerVisible).toBe(false);
     await story.chooseTab("Changes");
     await files.showsFiles(false);

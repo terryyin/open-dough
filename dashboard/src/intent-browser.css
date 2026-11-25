@@ -22,8 +22,13 @@
   grid-template-rows: minmax(0, 1fr);
 }
 
-.intent-locations[hidden] {
+.intent-locations[hidden],
+.intent-reading[hidden] {
   display: none;
+}
+
+.intent-browser > .intent-page-panel {
+  border-top: 0;
 }
 
 /* Each pane scrolls on its own and keeps positioned screen-reader labels
