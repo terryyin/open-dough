@@ -46,6 +46,9 @@ to
   `IntentStoryFileTree` for stories and `IntentLocationGroup` for Project
   Intent. Move Project Intent onto the selectable tree and migrate the
   `IntentLocationHeader` metadata still used on story root rows.
+- Reuse the narrow-only dismissal that already exposes a chosen file in
+  [FilesSidebar](../../../dashboard/src/FilesSidebar.tsx) when a tree
+  selection opens Summary. Folder disclosure stays independent of selection.
 - Follow the [Architectural North Star](../../NORTH-STAR.md):
   - [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support):
     keep the ancestor/root cue rule in a small typed production module and pass
@@ -96,6 +99,7 @@ existing Summary, CI-cue, and Project Intent consumers this plan builds on.
 | Story review tree styles open/closed Intent roots distinctly, rolls a related cue onto collapsed non-root ancestors and intervening collapsed folders in the shown tree, suppresses false ancestor cues when change filtering hides Intent roots, and keeps tree rows to folder names and state | 2 | Pure Node Vitest check of the folder-cue derivation (`e2e`, `e2e_test/features`, `e2e_test/packaged/features`, nested roots, empty roots, filtered subtrees) plus mounted Vitest Browser Mode story-tree journey exercising collapsed ancestor → expanded ancestor + intervening collapsed folder → open/closed root, light/dark themes, narrow/desktop widths, coexistence with selection, `containsChanges`, and compared-entry CI cues/words, absence of inline types/patterns on rows, change-filter toggle removing/restoring the ancestor cue, and regular ancestor folder view vs root/subfolder Summary. |
 | Shared E2E Project Intent page-object helpers navigate nested locations without coupling unrelated journeys to `.intent-location-header` | 3 | Existing E2E callers (`intent-summary-ci-proof.spec.ts`, `intent-file-purpose-proof.spec.ts`, `intent-ci-proof-units.spec.ts`, `intent-scope-prior-build-states.spec.ts`) pass unchanged against current Project Intent while page-object helpers support ancestor expansion and path-based location lookup. |
 | Project Intent without a selected story uses the same shared folder tree, cues, independent disclosure, empty/unsupported roots, and root/subfolder proof reading, retiring the location-group accordion | 4 | Mounted Vitest Browser Mode Project Intent specs (`intent-entry-folder-summaries.spec.ts`, `intent-gherkin-groups.spec.ts` replaced/updated for shared tree cues and independent disclosure, `intent-candidates-open.spec.ts`) and E2E Project Intent journeys (`intent-code-browse.spec.ts`, `intent-code-browse-projects.spec.ts`, `intent-code-browse-sources.spec.ts`, `intent-gherkin-browse.spec.ts`, `intent-gherkin-unusable.spec.ts`, `intent-summary-ci-proof.spec.ts`) proving collapsed-ancestor and root cues, non-root ancestor minimal view, root config + matching files in Summary, nested folder single-run proof with run/revision/branch/ancestor/newer-tree labels, and candidate/CI-link reveal. |
+| Selecting a root or nested folder that opens Summary dismisses narrow Files in Project Intent and story review. Disclosure keeps Files open. A docked tree stays visible after selection. | 4 | Extend `intent-files-drawer.spec.ts` through the mounted Project Intent and story entry points. Exercise disclosure and path-name selection at phone width and verify the Summary and sidebar visibility at a docked width. |
 
 ## Slices
 
@@ -179,7 +183,8 @@ whose promised UI changed.
 Type: Behavior
 Status: planned
 Proof: Mounted Vitest Browser Mode Project Intent tree, cues, and candidate-open
-specs plus E2E Project Intent journeys (`intent-code-browse*.spec.ts`,
+specs, the Files drawer and docked selection checks above, and E2E Project
+Intent journeys (`intent-code-browse*.spec.ts`,
 `intent-gherkin-*.spec.ts`, `intent-summary-ci-proof.spec.ts`), dashboard
 typecheck, and lint.
 
@@ -191,6 +196,10 @@ Intent root and collapsed-ancestor cues, clean folder-name rows, non-root
 ancestor minimal folder view, and root/subfolder Summary reading as story
 review. Preserve path reveal when opening a location, folder, or file from CI
 entry links, Summary child rows, and optimization candidates.
+
+In both views, selecting a configured root or nested folder that opens Summary
+closes the Files drawer and exposes the selected Summary. Folder disclosure
+keeps the drawer open. In a docked view, Summary opens beside the sidebar.
 
 Retire `IntentLocationGroup.tsx`, any remaining use of
 `IntentLocationHeader.tsx`, and superseded rules in `intent-location-group.css`,
@@ -220,9 +229,3 @@ ancestor/root cues, independent disclosure, and root configuration in Summary.
   as written, apply `dough-makeme` to test data builders and
   `dough-page-objects` only where `pageObjects: true` (`e2e/`), and run
   `dough-post-change-refactor` before each slice commit.
-- No separate `dough-slice-plan-refinement` pass was needed: the four slices
-  stay well within the eight-slice cap and the 15-active-minute slice budget,
-  share one folder-cue and Summary membership rule across story review and
-  Project Intent, and isolate Project Intent page-object selectors before
-  retiring the location-group accordion. This review identified no remaining
-  slice-specific concern.
