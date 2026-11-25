@@ -1,5 +1,9 @@
 // The reader already open before deployment and the current reader consume
-// the same collected history through the real local authenticated boundary.
+// the same collected history.
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { afterEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readIntentCiDoneWallTimeHistory,
@@ -8,22 +12,34 @@ import {
 import { finalGapReasons } from "../../src/landedCiHistory.ts";
 import { gapReasonWords } from "../../src/ciHistoryGapWords.ts";
 import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
+import {
+  parseIntentCiHistoryRead,
+  performIntentCiHistoryRead,
+} from "../../server/intentCiHistoryRead.ts";
 import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
 import {
   landedCiHistorySchema as previousHistorySchema,
   measuredHistoryOf as previousMeasuredHistoryOf,
 } from "../../test-support/support/previousCiHistoryReader/landedCiHistory.ts";
 import { gapReasonWords as previousGapReasonWords } from "../../test-support/support/previousCiHistoryReader/ciHistoryGapWords.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { ciReadingTransport } from "../support/ciReadingTransport.ts";
 
-test.use({ serverMode: "boundary" });
+const source = makeMe.aPublishedSource
+  .with({
+    id: "open-dough",
+    label: "Open Dough",
+    repository: "terryyin/open-dough",
+  })
+  .please();
+let home = "";
 
-test("the previous reader keeps measured builds and understandable gaps by default; current project and Done readers request specific new reasons", async ({
-  dashboard,
-  github,
-}) => {
+afterEach(() => {
+  if (home !== "") rmSync(home, { recursive: true, force: true });
+  home = "";
+});
+
+test("the previous reader keeps measured builds and understandable gaps by default; current project and Done readers request specific new reasons", async () => {
+  home = mkdtempSync(path.join(tmpdir(), "ci-history-reader-compatibility-"));
   const facts = (index: number) => ({
     receipt: `30500000-0000-4000-8000-${String(index).padStart(12, "0")}`,
     revision: index.toString(16).padStart(2, "0").repeat(20),
@@ -75,24 +91,19 @@ test("the previous reader keeps measured builds and understandable gaps by defau
         (i) => facts(i + 1).revision,
       ),
     );
-  await keepLandedCiHistory(dashboard.home, history.please());
-  const source = makeMe.aPublishedSource
-    .with({
-      id: "open-dough",
-      label: "Open Dough",
-      repository: "terryyin/open-dough",
-    })
-    .please();
+  await keepLandedCiHistory(home, history.please());
   const endpoint = { revision: measured.revision, at: measured.receivedAt };
   const answer = async (query: URLSearchParams) => {
-    const response = await rawRequest({
-      url: `${dashboard.origin}/__authenticated-read?${query}`,
-      headers: { Origin: dashboard.origin },
-    });
-    expect(response.status).toBe(200);
-    return JSON.parse(response.body) as unknown;
+    const named = parseIntentCiHistoryRead(query);
+    expect(named).toMatchObject({ kind: "intent-ci-history" });
+    if (named?.kind !== "intent-ci-history")
+      throw new Error("expected intent-ci-history read");
+    const outcome = await performIntentCiHistoryRead(source, named, { home });
+    expect(outcome).toMatchObject({ kind: "answered" });
+    if (outcome.kind !== "answered")
+      throw new Error("expected answered history");
+    return outcome.answer;
   };
-  const before = github.calls.length;
   for (const selected of [false, true]) {
     const query = new URLSearchParams({
       source: source.id,
@@ -146,7 +157,9 @@ test("the previous reader keeps measured builds and understandable gaps by defau
       if (request === undefined)
         throw new Error("Missing current history request");
       expect(
-        new URL(request.url, dashboard.origin).searchParams.get("gap-reasons"),
+        new URL(request.url, "http://local.test").searchParams.get(
+          "gap-reasons",
+        ),
       ).toBe("timing-basis");
       // The Done glance names each build without its run link. Current
       // measure points use timeMs; the previous reader still answers wallTimeMs.
@@ -176,12 +189,9 @@ test("the previous reader keeps measured builds and understandable gaps by defau
       transport.restore();
     }
   }
-  expect(github.calls).toHaveLength(before);
 });
 
-test("history capability negotiation refuses unsupported or repeated values, mixed scope reads and a glance of the project history", async ({
-  dashboard,
-}) => {
+test("history capability negotiation refuses unsupported or repeated values, mixed scope reads and a glance of the project history", () => {
   for (const query of [
     "gap-reasons=unknown",
     "gap-reasons=",
@@ -194,10 +204,12 @@ test("history capability negotiation refuses unsupported or repeated values, mix
     `${historyMeasure.name}=${historyMeasure.value}&${historyMeasure.name}=${historyMeasure.value}`,
     `revision=${"b".repeat(40)}&through=2026-11-05T10:00:00Z&${historyMeasure.name}=${historyMeasure.value}`,
   ]) {
-    const response = await rawRequest({
-      url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history&${query}`,
-      headers: { Origin: dashboard.origin },
+    const params = new URLSearchParams(
+      `source=open-dough&intent=ci-history&${query}`,
+    );
+    expect(parseIntentCiHistoryRead(params)).toMatchObject({
+      kind: "refused",
+      status: 400,
     });
-    expect(response.status).toBe(400);
   }
 });

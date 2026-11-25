@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#renovate-remaining-backend-families-after-launch-admission",
+  "title": "Prove Intent CI comparison and landed history reads through their typed reads",
+  "completedAt": "2026-11-25T05:59:39.158Z",
+  "developer": "Terry Yin",
+  "agent": "Hibiki-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "# Dough Intent Coverage\n\n**Verdict:** Caught\n\n**Story:** SEED-413#renovate-remaining-backend-families-after-launch-admission\n**Revision:** 38f934ba97ebfd3576460c0a81c1ba0c4d1aad46\n\n**Promise:** After a malformed artifact listing for an equivalent landing, a later Intent CI comparison read in the same process recovers the completed proof and a further read reuses that final answer without asking the provider again.\n\n**Fault:** `ciProofArtifact.ts` `unreadable-listing` without `unansweredAs`.\n\n**Catching assertion:** `ci-comparison-finality-unanswered.spec.ts` `expect(artifacts.asked()).toEqual([2, 0])` (malformed listing cases).\n\n**Next proof action:** None required for this promise path.\n\n## Wrap-up disposition\n\nChecked revision: 38f934ba97ebfd3576460c0a81c1ba0c4d1aad46. Verdict: Caught. No follow-up.\n"
+  }
+}

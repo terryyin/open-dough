@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
 - [Run Dashboard launch tests on an installed project](seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#run-dashboard-launch-tests-on-an-installed-project) — SEED-433#run-dashboard-launch-tests-on-an-installed-project ([plan](slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md))
-- [Prove Intent CI comparison and landed history reads through their typed reads](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission) — SEED-413#renovate-remaining-backend-families-after-launch-admission ([plan](slice-plans/821-prove-intent-ci-readers-through-typed-reads/PLAN.md))
 - [Show initial sync and open the requested review when ready](seeds/SEED-438-show-initial-sync-before-review.md#show-initial-sync-before-review) — SEED-438#show-initial-sync-before-review ([plan](slice-plans/822-show-initial-sync-before-review/PLAN.md))
 
 ## Backlog list

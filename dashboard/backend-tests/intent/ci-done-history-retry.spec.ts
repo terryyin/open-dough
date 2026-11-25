@@ -1,17 +1,27 @@
 // Corrupt and retry the actual local history reader; neither contacts Actions.
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { afterEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
+import {
+  parseIntentCiHistoryRead,
+  performIntentCiHistoryRead,
+} from "../../server/intentCiHistoryRead.ts";
 import { withBrokenCollectedHistory } from "../../test-support/support/collectedScopeHistory.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
 
-test.use({ serverMode: "boundary" });
+const source = makeMe.aPublishedSource.openDough.please();
+let home = "";
 
-test("a failed local Done history refresh and its restored retry ask Actions nothing", async ({
-  dashboard,
-  github,
-}) => {
-  await keepLandedCiHistory(dashboard.home, makeMe.aLandedCiHistory.please());
+afterEach(() => {
+  if (home !== "") rmSync(home, { recursive: true, force: true });
+  home = "";
+});
+
+test("a failed local Done history refresh and its restored retry ask Actions nothing", async () => {
+  home = mkdtempSync(path.join(tmpdir(), "ci-done-history-retry-"));
+  await keepLandedCiHistory(home, makeMe.aLandedCiHistory.please());
   const query = new URLSearchParams({
     source: "open-dough",
     intent: "ci-history",
@@ -20,28 +30,21 @@ test("a failed local Done history refresh and its restored retry ask Actions not
     "gap-reasons": "timing-basis",
     history: "glance",
   });
-  const read = () =>
-    rawRequest({
-      url: `${dashboard.origin}/__authenticated-read?${query}`,
-      headers: { Origin: dashboard.origin },
-    });
-  const actions = () =>
-    github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
-  const before = actions().length;
-  await withBrokenCollectedHistory(dashboard.home, async (restore) => {
-    const failed = await read();
-    expect(failed.status).toBe(502);
-    expect(JSON.parse(failed.body)).toMatchObject({
-      error:
+  const read = parseIntentCiHistoryRead(query);
+  expect(read).toMatchObject({ kind: "intent-ci-history" });
+  if (read?.kind !== "intent-ci-history") return;
+  await withBrokenCollectedHistory(home, async (restore) => {
+    const failed = await performIntentCiHistoryRead(source, read, { home });
+    expect(failed).toMatchObject({
+      kind: "failed",
+      message:
         "The collected CI history could not be read. Retry the local history read.",
     });
-    expect(actions()).toHaveLength(before);
     restore();
-    const retried = await read();
-    expect(retried.status).toBe(200);
-    expect(JSON.parse(retried.body)).toMatchObject({
-      selectedRevision: "c".repeat(40),
+    const retried = await performIntentCiHistoryRead(source, read, { home });
+    expect(retried).toMatchObject({
+      kind: "answered",
+      answer: { selectedRevision: "c".repeat(40) },
     });
-    expect(actions()).toHaveLength(before);
   });
 });

@@ -1,59 +1,77 @@
-// Retained producer/acquisition connections: exact malformed local bytes go
-// through canonical parsing and the DEFAULT comparison source. Fast receipt
-// rules own eligibility/deadline decisions without materializing published Git.
+// Real unreadable launch-store or history bytes in a case home cannot supply
+// age or hide published completion; typed receipt variants stay with
+// ci-comparison-finality-receipts.
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { writeFileSync } from "node:fs";
+import { afterEach, expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-import { readLandedComparison } from "../../test-support/support/pendingLandedComparison.ts";
-import { missingLandedRun } from "../../test-support/support/missingLandedRun.ts";
+  finalityComparisonFacts,
+  finalityRun,
+} from "../support/finalityComparisonFacts.ts";
+import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
+import { test } from "../support/comparisonMemory.ts";
+import { comparisonProject, landing } from "../support/comparisonRead.ts";
+import { storyCiComparisonSource } from "../../server/storyCiComparisonSource.ts";
 import { keepLaunchStoreText } from "../../test-support/support/launchStore.ts";
 import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
-import { serveTrunkRuns } from "../../test-support/support/landedCiTrunk.ts";
+import { machineDocumentAt } from "../../server/machineHome.ts";
 
-test.use({ serverMode: "boundary" });
+const hour = 3_600_000;
+const receivedAt = "2026-11-05T15:00:00.000Z";
+let home = "";
+
+afterEach(() => {
+  if (home !== "") rmSync(home, { recursive: true, force: true });
+  home = "";
+});
 
 for (const capture of ["unreadable launch", "unreadable history"] as const) {
   test(`${capture} cannot supply age or hide published completion`, async ({
-    origin,
-    github,
-    startServer,
+    comparisonRead,
   }) => {
-    const setup = await missingLandedRun(origin);
-    const directory = path.join(origin.machine, "home");
+    home = mkdtempSync(path.join(tmpdir(), "intent-ci-comparison-receipt-"));
     if (capture === "unreadable launch") {
-      keepLaunchStoreText(directory, "unreadable capture");
+      keepLaunchStoreText(home, "unreadable capture");
     } else {
-      await keepLandedCiHistory(directory, makeMe.aLandedCiHistory.please());
+      await keepLandedCiHistory(home, makeMe.aLandedCiHistory.please());
       writeFileSync(
-        path.join(directory, ".open-dough/dashboard/landed-ci-history.json"),
+        machineDocumentAt("landed-ci-history.json", home),
         "unreadable history",
       );
     }
-    let runs = setup.runs;
-    serveTrunkRuns(github, origin, () => runs, { proofs: () => setup.proofs });
-    const server = await startServer({
-      environment: "development",
-      observationClock: true,
-      liveServer: "separate process",
-    });
-    server.setObservationClock(
-      new Date(Date.now() + 3 * 3_600_000).toISOString(),
+    const facts = finalityComparisonFacts("code");
+    const production = storyCiComparisonSource(
+      comparisonProject,
+      new AbortController().signal,
+      home,
     );
+    const evidence = storyCiComparisonEvidence({
+      ...facts,
+      now: () => Date.parse(receivedAt) + 3 * hour,
+    }).source;
     expect(
-      (await readLandedComparison(server, setup.identity)).landed.kind,
-    ).toBe("none");
-    runs = [...setup.runs, setup.exact];
-    expect(
-      (await readLandedComparison(server, setup.identity)).landed,
+      await comparisonRead({
+        ...evidence,
+        landingReceipts: () => production.landingReceipts(),
+      }),
     ).toMatchObject({
-      kind: "build",
-      selection: "exact",
-      revision: setup.landingMerge,
-      runId: 103,
+      landed: { kind: "none" },
+    });
+    facts.runs.push(finalityRun(landing, 103));
+    expect(
+      await comparisonRead({
+        ...evidence,
+        landingReceipts: () => production.landingReceipts(),
+      }),
+    ).toMatchObject({
+      landed: {
+        kind: "build",
+        selection: "exact",
+        revision: landing,
+        runId: 103,
+      },
     });
   });
 }
