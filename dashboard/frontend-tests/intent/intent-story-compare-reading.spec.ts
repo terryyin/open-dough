@@ -73,7 +73,10 @@ test("a pending landed run keeps the Done story's locations and CI endpoint", as
   await story.browseFiles();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
   const locationText = () =>
-    document.querySelector("button.intent-location-name")?.textContent ?? "";
+    story
+      .folder("dashboard/tests")
+      .query()
+      ?.querySelector(".story-review-folder-name")?.textContent ?? "";
   await expect.poll(locationText).not.toBe("");
   const location = locationText();
 

@@ -86,7 +86,7 @@ export function scopeCueRowAttrs(cues: ScopeComparisonCues): CueDataAttrs {
 export function scopeCueElementAttrs(
   baseClass: string,
   cues: ScopeComparisonCues | undefined,
-): CueDataAttrs {
+): CueDataAttrs & { readonly className: string } {
   if (cues === undefined) return { className: baseClass };
   const cueAttrs = scopeCueRowAttrs(cues);
   return {

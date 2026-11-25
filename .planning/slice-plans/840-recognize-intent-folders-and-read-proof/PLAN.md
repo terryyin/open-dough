@@ -98,6 +98,12 @@ Reported: slice 1 — "Trunk amendment f97792f9b requires Summary selection to e
 Story clause: "When Files is a drawer, choosing a configured Intent root or nested folder that opens Summary closes Files so the reader is immediately available."
 Disposition: receiving slice 4
 
+### G2. Select an ancestor of empty Intent roots
+
+Reported: slice 2 — "A visible ancestor containing only empty or unsupported configured roots incorrectly rendered a missing-revision notice."
+Story clause: "Selecting a folder outside configured Intent locations, including an ancestor above an Intent root, shows the minimal folder view naming its path."
+Disposition: proved by slice 2: `intent-story-folder-cues.spec.ts` selects the ancestor in a mounted story tree and reads its path. `intent-revision-apply.spec.ts` still observes the missing-revision notice for a removed file.
+
 ## Decisive premises and baseline
 
 Observed on 2026-11-25 at `0b7b8984e011e3bb6e8efbf590750c6b161d8f2b` in the
@@ -176,7 +182,7 @@ Accepted proof (checked from the execution worktree under the plan's macOS guard
 ### 2. Style collapsed ancestors and persistent Intent roots in the story review tree
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Direct Vitest unit cases for the folder-cue model and mounted Vitest
 Browser Mode story-tree specs for ancestor rollup, intervening collapsed
 folders, open/closed roots, change-filter cue suppression, and selection/change/CI
@@ -202,6 +208,30 @@ coexists with `aria-pressed` selection, `data-contains-changes`, and
 tree folder rows showing only folder names and state, with no inline labels,
 test types, or glob patterns. Selecting a non-root ancestor continues to show
 the minimal folder view naming its path.
+
+Accepted proof (focused runs on the Story Branch Mode checkout under
+`caffeinate -s -i`):
+
+- `intent-folder-cues.spec.ts` observes the derived cues on configured,
+  empty, unsupported, ordinary, and filtered paths. The two selected Node
+  suites passed all 8 tests.
+- `intent-story-folder-cues.spec.ts`, `intent-story-ci-cues.spec.ts`, and
+  `intent-sidebar-toggle.spec.ts` mount story and Project readings. They
+  observe root persistence, collapsed-ancestor clearing and transfer,
+  filter suppression, clean names and counts, independent selection, and
+  selection/change/CI cue coexistence at light/dark and narrow/docked widths.
+  The 62 selected mounted checks and 10 affected-locator checks passed.
+- The one-worker E2E retry passed all 8 cases, including changed-file
+  ordering, former-path reveal, exact root lookup at a pinned revision, and
+  the story-card journey. The story-card helper waits for the real configured
+  root before arranging nested disclosure, since the provisional tree can
+  otherwise be replaced while it works.
+- The independent refactor consolidated CI count styling and kept separate
+  mounted observations for empty ancestors and unsupported roots. The 21
+  focused checks in `refactor-2-folder-cues.log.run.json` passed.
+- Dashboard typecheck passed. Exact selections, setup, and observations are
+  in `slice-2-report.md` and `slice-2-*.log.run.json` under the worktree's
+  Git `open-dough/evidence` directory.
 
 ### 3. Isolate Project Intent page objects from location-group selectors
 

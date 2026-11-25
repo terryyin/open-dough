@@ -16,7 +16,7 @@ export const scopeToggle = (path: string) =>
 // The selectable name of the location or folder at `path`.
 export const scopeName = (path: string) =>
   page.getByRole("button", {
-    name: new RegExp(`^${path}(\\s|$)`),
+    name: new RegExp(`^${path}([,\\s]|$)`),
   });
 
 export const fileName = (path: string) =>

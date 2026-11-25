@@ -34,14 +34,14 @@ export function expectAddress(
 export function intentGroupToggle(intent: Locator, locationPath: string) {
   const bodyId = `${intentLocationIdPrefix(locationPath)}-body`;
   return intent.locator(
-    `button.intent-location-toggle[aria-controls="${bodyId}"], li[data-folder-path="${locationPath}"] > .intent-location-header > button.intent-location-toggle`,
+    `button.intent-location-toggle[aria-controls="${bodyId}"], li[data-folder-path="${locationPath}"] > [data-intent-folder-cue="root"] > button.story-review-folder`,
   );
 }
 
 // Selectable name for one configured Intent location path.
 export function intentLocationName(intent: Locator, locationPath: string) {
   return intent.locator(
-    `button.intent-location-name[data-location-path="${locationPath}"]`,
+    `button.intent-location-name[data-location-path="${locationPath}"], li[data-folder-path="${locationPath}"] > [data-intent-folder-cue="root"] > button.story-review-folder-name`,
   );
 }
 

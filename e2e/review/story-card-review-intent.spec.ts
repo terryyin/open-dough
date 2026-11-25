@@ -6,6 +6,7 @@ import {
   chooseStoryTab,
   expectStoryTab,
 } from "../../dashboard/test-support/intentModePage.ts";
+import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   emptyArea,
@@ -111,6 +112,7 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await browseStoryFiles(intent);
   await files.expectNoSelection();
   await files.expectChangedFiles(changedFiles);
+  await expandIntentGroup(intent, "a-tests");
   await intentStory(intent).expandFolderPath("a-tests/second-folder");
   await files.collapseFolder("second-folder");
   await files.collapseLocation("a-tests");

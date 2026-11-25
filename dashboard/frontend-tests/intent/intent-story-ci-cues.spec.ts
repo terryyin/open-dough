@@ -38,7 +38,7 @@ function selectionLook(element: Element) {
   return { background: style.backgroundColor, border: style.borderColor };
 }
 
-test("tree file rows and location headers show shared CI cues with distinct selection and focus", async () => {
+test("tree files and Intent root rows show shared CI cues with distinct selection and focus", async () => {
   const comparison = makeMe.aStoryReview
     .published(doneCompletion)
     .modifying(filePath)
@@ -68,7 +68,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
   await expect
     .element(name)
     .toHaveAccessibleName(
-      "dashboard/tests, typescript, **/*.spec.ts, 4 → 6 test cases (+2) → 5 test cases (+1), +6.5 s",
+      "dashboard/tests, 4 → 6 test cases (+2) → 5 test cases (+1), +6.5 s",
     );
   await expect
     .poll(() => cueState(file.query()))

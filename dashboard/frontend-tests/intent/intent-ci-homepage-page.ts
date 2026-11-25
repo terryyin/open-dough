@@ -73,7 +73,7 @@ export async function expandLocationAndFolders(locationPath: string) {
 
 const locationNameElement = (locationPath: string) =>
   document.querySelector<HTMLElement>(
-    `button.intent-location-name[data-location-path="${locationPath}"]`,
+    `button.intent-location-name[data-location-path="${CSS.escape(locationPath)}"], li[data-folder-path="${CSS.escape(locationPath)}"] > [data-intent-folder-cue="root"] > button.story-review-folder-name`,
   );
 
 export const locationNameControl = (locationPath: string) =>

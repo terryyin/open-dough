@@ -96,9 +96,9 @@
   border-color: var(--accent);
 }
 
-/* An Intent root keeps its selection background across the whole row. */
+/* A cued Intent folder shows selection across the whole row. */
 .intent-story-tree.story-review-files
-  .intent-location-header > button[aria-pressed="true"] {
+  [data-intent-folder-cue] > button[aria-pressed="true"] {
   border-color: transparent;
   background: transparent;
 }

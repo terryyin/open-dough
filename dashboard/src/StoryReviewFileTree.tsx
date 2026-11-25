@@ -55,14 +55,16 @@ function FolderCount({
 export type FolderSelection = {
   readonly selectedPath: string;
   readonly onSelect: (folderPath: string) => void;
-  readonly renderFolder?: (folder: {
-    readonly path: string;
-    readonly name: string;
-    readonly rowsId: string;
-    readonly expanded: boolean;
-    readonly selected: boolean;
-    readonly onToggle: () => void;
-  }) => ReactNode;
+  readonly present?: (path: string) =>
+    | {
+        readonly row: {
+          readonly className: string;
+          readonly [attribute: `data-${string}`]: string | undefined;
+        };
+        readonly nameLabel?: string;
+        readonly toggleLabel?: string;
+      }
+    | undefined;
 };
 
 // The browser's rows under one folder, or the top level: a folder's
@@ -122,48 +124,49 @@ export function FileTree<T extends PathBearing>({
         ) : null;
         if (folderSelection !== undefined) {
           const folderSelected = folderSelection.selectedPath === node.path;
+          const presentation = folderSelection.present?.(node.path);
+          const disclosure = folderCollapsed ? "Expand" : "Collapse";
           return (
             <li
               key={`folder:${node.path}`}
               data-folder-path={node.path}
               data-contains-changes={node.containsChanges || undefined}
             >
-              {folderSelection.renderFolder?.({
-                path: node.path,
-                name: node.name,
-                rowsId,
-                expanded: !folderCollapsed,
-                selected: folderSelected,
-                onToggle: () => {
-                  onToggle(node.path);
-                },
-              }) ?? (
-                <div className="story-review-folder-row">
-                  <button
-                    type="button"
-                    className="story-review-folder"
-                    aria-expanded={!folderCollapsed}
-                    aria-controls={rowsId}
-                    aria-label={`${folderCollapsed ? "Expand" : "Collapse"} ${node.name}`}
-                    onClick={() => {
-                      onToggle(node.path);
-                    }}
-                  >
-                    <FolderToggleIcon open={!folderCollapsed} />
-                  </button>
-                  <button
-                    type="button"
-                    className="story-review-folder-name"
-                    aria-pressed={folderSelected}
-                    onClick={() => {
-                      folderSelection.onSelect(node.path);
-                    }}
-                  >
-                    <code>{node.name}</code>
-                    {count}
-                  </button>
-                </div>
-              )}
+              <div
+                className="story-review-folder-row"
+                {...presentation?.row}
+                data-selected={folderSelected || undefined}
+              >
+                <button
+                  type="button"
+                  className="story-review-folder"
+                  aria-expanded={!folderCollapsed}
+                  aria-controls={rowsId}
+                  aria-label={`${disclosure} ${presentation?.toggleLabel ?? node.name}`}
+                  onClick={() => {
+                    onToggle(node.path);
+                  }}
+                >
+                  <FolderToggleIcon open={!folderCollapsed} />
+                </button>
+                <button
+                  type="button"
+                  className="story-review-folder-name"
+                  aria-pressed={folderSelected}
+                  aria-label={presentation?.nameLabel}
+                  aria-description={
+                    folderCollapsed && presentation?.nameLabel !== undefined
+                      ? `${node.fileCount} ${fileCountWords(node.fileCount)}`
+                      : undefined
+                  }
+                  onClick={() => {
+                    folderSelection.onSelect(node.path);
+                  }}
+                >
+                  <code>{node.name}</code>
+                  {count}
+                </button>
+              </div>
               <FileTree
                 nodes={node.children}
                 selectedPath={selectedPath}
