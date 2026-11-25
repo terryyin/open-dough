@@ -57,7 +57,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await expect.element(story.file(name)).not.toBeInTheDocument();
   await expect.element(scopeToggle("other")).not.toBeInTheDocument();
   for (const name of [changed.product, changed.notes])
-    await expect.element(story.outsideFile(name)).toBeVisible();
+    await expect.element(story.file(name)).toBeVisible();
   await expect.element(noTestChanges).not.toBeInTheDocument();
 
   const file = story.file(changed.modified);
@@ -124,19 +124,22 @@ test("a product-only or empty comparison explains why no tests changed and keeps
   await story.chooseTab("Changes");
   await expect.poll(story.revisions).toContain("Published story branch");
   await expect.element(story.onlyChangedFiles).not.toBeChecked();
-  await expect.element(story.outsideFile(changed.product)).toBeVisible();
+  await expect.element(story.file(changed.product)).toBeVisible();
   await expect.element(noTestChanges).not.toBeInTheDocument();
   await expect
     .element(scopeToggle("dashboard/tests"))
     .toHaveAttribute("aria-expanded", "false");
   expect(
-    document.querySelectorAll(".intent-location [data-kind]"),
+    document.querySelectorAll(
+      "li[data-folder-path='dashboard/tests'] [data-kind]",
+    ),
   ).toHaveLength(0);
 
   await story.onlyChangedFiles.click();
   await expect.element(noTestChanges).toBeVisible();
-  await expect.element(story.outsideFile(changed.product)).toBeVisible();
-  expect(document.querySelectorAll(".intent-location")).toHaveLength(0);
+  await expect.element(story.file(changed.product)).toBeVisible();
+  await expect.element(scopeToggle("dashboard/tests")).not.toBeInTheDocument();
+  await expect.element(scopeToggle("tests")).not.toBeInTheDocument();
 
   await story.onlyChangedFiles.click();
   await expect.element(noTestChanges).not.toBeInTheDocument();
@@ -149,9 +152,7 @@ test("a product-only or empty comparison explains why no tests changed and keeps
 
   review = makeMe.aStoryReview.please();
   await story.refresh();
-  await expect
-    .element(story.outsideFile(changed.product))
-    .not.toBeInTheDocument();
+  await expect.element(story.file(changed.product)).not.toBeInTheDocument();
   await story.onlyChangedFiles.click();
   await expect.element(noTestChanges).toBeVisible();
 

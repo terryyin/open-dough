@@ -15,12 +15,18 @@ import {
 } from "./intentTreeComparison.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 
-function LocationLabel({ location }: { readonly location: IntentLocation }) {
+function LocationLabel({
+  location,
+  folderName,
+}: {
+  readonly location: IntentLocation;
+  readonly folderName?: string | undefined;
+}) {
   const kind = declaredKindOf(location);
   return (
     <>
-      {location.label === undefined ? (
-        <code>{location.path}</code>
+      {folderName !== undefined || location.label === undefined ? (
+        <code>{folderName ?? location.path}</code>
       ) : (
         <span title={location.path}>{location.label}</span>
       )}
@@ -55,6 +61,7 @@ export function IntentLocationHeader({
   expanded,
   onToggle,
   onSelect,
+  folder,
 }: {
   readonly location: IntentLocation;
   readonly reading: TreeComparisonReading;
@@ -63,6 +70,7 @@ export function IntentLocationHeader({
   readonly expanded: boolean;
   readonly onToggle: () => void;
   readonly onSelect: (selection: IntentSelection) => void;
+  readonly folder?: { readonly name: string; readonly rowsId: string };
 }) {
   const compared = treeLocationComparisonOf(reading, location.path);
   const locationHeaderAttrs = scopeCueElementAttrs(
@@ -71,7 +79,9 @@ export function IntentLocationHeader({
   );
   const locationName =
     compared === undefined
-      ? undefined
+      ? folder === undefined
+        ? undefined
+        : `${location.label ?? location.path} ${selectionPhrase(location)}`
       : treeComparisonAccessibleName(locationBaseName(location), compared);
 
   return (
@@ -80,7 +90,7 @@ export function IntentLocationHeader({
         type="button"
         className="intent-location-toggle"
         aria-expanded={expanded}
-        aria-controls={`${idPrefix}-body`}
+        aria-controls={folder?.rowsId ?? `${idPrefix}-body`}
         aria-label={`${expanded ? "Collapse" : "Expand"} ${location.label ?? location.path}`}
         onClick={onToggle}
       >
@@ -94,14 +104,14 @@ export function IntentLocationHeader({
         aria-pressed={selected}
         {...(locationName === undefined ? {} : { "aria-label": locationName })}
         onClick={() => {
-          if (selected) {
+          if (selected && folder === undefined) {
             onToggle();
             return;
           }
           onSelect({ path: location.path, scope: "location" });
         }}
       >
-        <LocationLabel location={location} />
+        <LocationLabel location={location} folderName={folder?.name} />
       </button>
     </div>
   );

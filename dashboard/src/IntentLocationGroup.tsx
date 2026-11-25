@@ -29,7 +29,6 @@ import { reviewFileTree } from "./reviewFileTree.ts";
 import { FileTree } from "./StoryReviewFileTree.tsx";
 import {
   useLocationOpenFolders,
-  type LocationExpansion,
   type TreeReveal,
 } from "./useLocationOpenFolders.ts";
 import "./story-review-files.css";
@@ -41,7 +40,6 @@ export function IntentLocationGroup({
   location,
   files,
   containsChanges,
-  expansion,
   selection,
   onSelect,
   idPrefix,
@@ -53,7 +51,6 @@ export function IntentLocationGroup({
   // The location's tree files, relative to it (`./intentStoryOverlay.ts`).
   readonly files: readonly IntentTreeFile[];
   readonly containsChanges: boolean;
-  readonly expansion: LocationExpansion | undefined;
   readonly selection: IntentSelection;
   readonly onSelect: (next: IntentSelection) => void;
   readonly idPrefix: string;
@@ -84,7 +81,7 @@ export function IntentLocationGroup({
     location: location.path,
     tree,
     revealPath,
-    expansion,
+    expansion: undefined,
     reveal: revealHere
       ? { request: reveal, path: reveal.path.slice(prefix.length) }
       : undefined,

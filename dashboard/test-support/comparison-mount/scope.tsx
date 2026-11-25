@@ -36,7 +36,6 @@ export function ComparisonMountScope({
             location={one}
             files={overlay.locations[index]?.files ?? []}
             containsChanges={overlay.locations[index]?.containsChanges ?? false}
-            expansion={undefined}
             selection={selection}
             onSelect={setSelection}
             idPrefix={intentLocationIdPrefix(one.path)}

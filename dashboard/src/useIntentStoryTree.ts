@@ -1,37 +1,16 @@
-// The locations browser's trees over a selected story's comparison
-// (`./IntentBrowser.tsx`): its overlay on the published files
-// (`./intentStoryOverlay.ts`), or with "Selected story only" its changed
-// entries alone, locations without changes left out. The first time the
-// browser has a compared story, and at each toggle either way, it opens the
-// first changed location and the folders containing changes and collapses the
-// rest; the files outside every location open the same way. The toggle, off
-// at first, heads the Changes tree (`./IntentStorySummary.tsx`); the
-// story's header counts the changed files
-// outside every location from the same overlay (`./IntentPerspective.tsx`).
-// The toggle and the expansion it asked for are kept with the tree's arrangement
-// (`./pageIntentReading.tsx`), so leaving Intent and returning neither turns
-// it off nor expands the story again.
+// The compared story's overlay and the kept scope of its file browser.
 
 import { useKeptArrangement } from "./pageIntentReading.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { ComparedStory, StoryTreeScope } from "./IntentStorySummary.tsx";
-import {
-  intentStoryOverlay,
-  storyChangesOnly,
-  storyOverlayExpansion,
-  type StoryOverlayExpansion,
-} from "./intentStoryOverlay.ts";
-import type { LocationExpansion } from "./useLocationOpenFolders.ts";
+import { intentStoryOverlay, storyChangesOnly } from "./intentStoryOverlay.ts";
 
 export function useIntentStoryTree({
   locations,
   story,
-  onExpandLocation,
 }: {
   readonly locations: readonly IntentLocation[];
   readonly story: ComparedStory | undefined;
-  // Opens the location the story's expansion names, or collapses them all.
-  readonly onExpandLocation: (path: string | null) => void;
 }) {
   const overlay = intentStoryOverlay(locations, story?.shown.comparison.files);
   const [only, setOnly] = useKeptArrangement("storyOnly", () => false);
@@ -39,26 +18,8 @@ export function useIntentStoryTree({
   const shownOverlay = changesOnly ? storyChangesOnly(overlay) : overlay;
   // The expansion the story's overlay last asked for here: when it first had
   // one, and at each toggle.
-  const [expansion, setExpansion] = useKeptArrangement<
-    { readonly round: number; readonly plan: StoryOverlayExpansion } | undefined
-  >("storyExpansion", () => undefined);
-  function expandStory(round: number) {
-    const plan = storyOverlayExpansion(locations, overlay);
-    setExpansion({ round, plan });
-    onExpandLocation(plan.location ?? null);
-  }
-  if (story !== undefined && expansion === undefined) expandStory(1);
-  const locationExpansion = (index: number): LocationExpansion | undefined =>
-    expansion === undefined
-      ? undefined
-      : {
-          round: expansion.round,
-          folders: expansion.plan.folders[index] ?? [],
-        };
-  const outsideExpansion: LocationExpansion | undefined =
-    expansion === undefined
-      ? undefined
-      : { round: expansion.round, folders: expansion.plan.outsideFolders };
+  const [round, setRound] = useKeptArrangement("storyExpansionRound", () => 0);
+  if (story !== undefined && round === 0) setRound(1);
   const scope: StoryTreeScope | undefined =
     story === undefined
       ? undefined
@@ -69,15 +30,14 @@ export function useIntentStoryTree({
           ),
           onOnly: (next) => {
             setOnly(next);
-            expandStory((expansion?.round ?? 0) + 1);
+            setRound((previous) => previous + 1);
           },
         };
   return {
     overlay,
     shownOverlay,
     changesOnly,
-    locationExpansion,
-    outsideExpansion,
+    round,
     scope,
   };
 }

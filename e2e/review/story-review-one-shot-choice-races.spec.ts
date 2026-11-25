@@ -93,7 +93,7 @@ test("delayed run and file responses leave the later run selected through narrow
   await review.landedRun.expectChosen(first.key);
   await review.hideFiles();
   await review.setFilesShown(true);
-  await files.expectOutsideFiles(1, ["Added first.txt"]);
+  await files.expectOnlyChangedFile("Added first.txt");
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(420);

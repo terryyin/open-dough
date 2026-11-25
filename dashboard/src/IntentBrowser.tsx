@@ -7,7 +7,7 @@ import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
-import { IntentTreeGroups } from "./IntentTreeGroups.tsx";
+import { IntentBrowserTree } from "./IntentBrowserTree.tsx";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
 import { useKeptArrangement, useKeptReading } from "./pageIntentReading.tsx";
@@ -31,11 +31,7 @@ import { useFirstStoryChangedFile } from "./useFirstStoryChangedFile.ts";
 import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
-import {
-  StoryTreeScopeChoice,
-  type ComparedStory,
-  type StorySummary,
-} from "./IntentStorySummary.tsx";
+import type { ComparedStory, StorySummary } from "./IntentStorySummary.tsx";
 import "./intent-browser.css";
 
 // The browser's tabpanel: its id, naming tab, and whether it is hidden.
@@ -95,12 +91,7 @@ export function IntentBrowser({
   const fileReading = useKeptFileReadingPlace();
   const treeSelection: IntentSelection =
     project === undefined || project.mode === "ci" ? selection : { path: "" };
-  const storyTree = useIntentStoryTree({
-    locations,
-    story,
-    onExpandLocation: setExpandedPath,
-  });
-  const { overlay, scope: storyScope } = storyTree;
+  const storyTree = useIntentStoryTree({ locations, story });
 
   function select(next: IntentSelection, entrySlug?: string) {
     setSelection(next);
@@ -133,7 +124,7 @@ export function IntentBrowser({
     open: openRevealed,
   });
 
-  const treeFiles = overlayFilesByPath(locations, overlay);
+  const treeFiles = overlayFilesByPath(locations, storyTree.overlay);
   const selectedFile =
     scope === "file" ? treeFiles.get(selectedPath) : undefined;
   const selectedChange = storyDiffOf(story, selectedFile);
@@ -191,12 +182,10 @@ export function IntentBrowser({
         <div className="intent-locations" id={files.id} hidden={!files.shown}>
           <h3 className="visually-hidden">Purpose locations</h3>
           {lead}
-          {storyScope !== undefined && (
-            <StoryTreeScopeChoice scope={storyScope} />
-          )}
-          <IntentTreeGroups
+          <IntentBrowserTree
             locations={locations}
             tree={storyTree}
+            storySelected={storySummary !== undefined}
             selection={treeSelection}
             onSelect={select}
             reveal={reveal}

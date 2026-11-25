@@ -51,6 +51,6 @@ export function revealRow(pane: HTMLElement, row: Element) {
   const top = shown.top + pane.clientTop;
   const above = placed.top - top;
   const below = placed.bottom - (top + pane.clientHeight);
-  if (above < 0) pane.scrollBy({ top: above });
-  else if (below > 0) pane.scrollBy({ top: below });
+  if (above < 0) pane.scrollBy({ top: Math.floor(above) });
+  else if (below > 0) pane.scrollBy({ top: Math.ceil(below) });
 }

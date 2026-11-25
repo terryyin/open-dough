@@ -66,7 +66,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
     "origin/main",
   );
   const { files, diffs } = review;
-  await files.expectOutsideCount(5);
+  await files.expectChangedFileCount(5);
   await files.choose("Added added.txt");
   await files.expectLineCounts(
     "Added added.txt",

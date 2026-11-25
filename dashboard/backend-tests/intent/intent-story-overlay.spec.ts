@@ -1,16 +1,6 @@
-// A selected story's changes placed over Intent's published tree
-// (../../src/intentStoryOverlay.ts), with the locations of the moves journey
-// (../../test-support/support/intentStoryWorktree.ts) behind an unchanged
-// first location: a rename into a location sits at its new path, inserted;
-// one out of a location stays at its old path; one between locations sits at
-// its new path, its old entry gone. A deletion the published tree no longer
-// lists stays, unpublished. Each change no location admits, a rename by
-// either path, is listed once outside at its repository path. "Selected story
-// only" keeps just the changed entries, and the story opens the first changed
-// location in configured order with the folders holding changes, whether or
-// not it is restricted. A location declared by source entries places a story's added
-// file by the same rule. The integrated journeys: ../../../e2e/intent/intent-story-changes-moves.spec.ts
-// and ../../../e2e/intent/intent-story-completed.spec.ts.
+// Story comparison paths over the published Intent locations, modeled on
+// ../../../e2e/intent/intent-story-changes-moves.spec.ts with an unchanged
+// location first to distinguish configured order from expansion.
 
 import { expect, test } from "vitest";
 import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
@@ -22,6 +12,7 @@ import {
   type StoryOverlay,
 } from "../../src/intentStoryOverlay.ts";
 import type { ReviewedFile } from "../../src/storyReviewFiles.ts";
+import { reviewFileTree } from "../../src/reviewFileTree.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const locations: readonly IntentLocation[] = [
@@ -160,26 +151,27 @@ test("Selected story only keeps the changed entries, deletions and renames inclu
 
 test("the story opens the first changed location and the folders holding changes, restricted or not", () => {
   const overlay = intentStoryOverlay(locations, changes);
-  const expansion = {
-    location: "dashboard/tests",
-    folders: [[], ["arriving", "deep"], []],
-    outsideFolders: ["dashboard/src", "docs"],
+  const opened = (overlay: StoryOverlay) => {
+    const files = [...overlayFilesByPath(locations, overlay)].map(
+      ([path, file]) => ({ ...file, path }),
+    );
+    const tree = reviewFileTree(files, { compact: false });
+    return new Set(storyOverlayExpansion(locations, overlay, tree));
   };
-  expect(storyOverlayExpansion(locations, overlay)).toEqual(expansion);
-  expect(storyOverlayExpansion(locations, storyChangesOnly(overlay))).toEqual(
-    expansion,
-  );
+  const expansion = new Set([
+    "dashboard",
+    "dashboard/tests",
+    "dashboard/tests/arriving",
+    "dashboard/tests/deep",
+    "dashboard/src",
+    "docs",
+  ]);
+  expect(opened(overlay)).toEqual(expansion);
+  expect(opened(storyChangesOnly(overlay))).toEqual(expansion);
   // A story changing nothing a location admits opens none.
   expect(
-    storyOverlayExpansion(
-      locations,
-      intentStoryOverlay(locations, [changes[6] as ReviewedFile]),
-    ),
-  ).toEqual({
-    location: undefined,
-    folders: [[], [], []],
-    outsideFolders: ["dashboard/src"],
-  });
+    opened(intentStoryOverlay(locations, [changes[6] as ReviewedFile])),
+  ).toEqual(new Set(["dashboard", "dashboard/src"]));
 });
 
 test("a sources location places a story's added matching file as added, and a non-matching neighbor is listed once outside", () => {

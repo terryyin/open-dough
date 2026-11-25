@@ -34,6 +34,8 @@ import {
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 const firstFile = "Added z-tests/nested/first.spec.ts";
+const storyFile = "Added story.txt";
+const changedFiles = [firstFile, "Added a-tests/second.spec.ts", storyFile];
 
 test("the Taken Story card opens Changes beside its terminal and Back returns to that card", async ({
   page,
@@ -125,23 +127,24 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
 
   const review = await openIntentReviewChanges(page, card);
   await review.expectText("Published trunk");
-  await review.files.expectOutsideFiles(1, ["Added story.txt"]);
-  await review.files.choose("Added story.txt");
-  await expect(reading.name).toHaveText("Added story.txt");
+  await review.files.expectChangedFiles(changedFiles);
+  await expect(review.files.row(storyFile)).toBeVisible();
+  await review.files.choose(storyFile);
+  await expect(reading.name).toHaveText(storyFile);
 
   await development.click();
   await expectSelected(card, true);
   await openIntentReviewChanges(page, card);
   await expectStoryTab(intent, "Changes");
-  await review.files.expectSelected("Added story.txt");
-  await expect(reading.name).toHaveText("Added story.txt");
+  await review.files.expectSelected(storyFile);
+  await expect(reading.name).toHaveText(storyFile);
 
   await chooseStoryTab(intent, "Intent coverage");
   await development.click();
   await openIntentReviewChanges(page, card);
   await expectStoryTab(intent, "Changes");
-  await review.files.expectSelected("Added story.txt");
-  await expect(reading.name).toHaveText("Added story.txt");
+  await review.files.expectSelected(storyFile);
+  await expect(reading.name).toHaveText(storyFile);
 
   await development.click();
   await emptyArea(card).click();
@@ -151,6 +154,7 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
   await chooseStoryTab(intent, "Changes");
-  await review.files.expectOutsideFiles(1, ["Added story.txt"]);
+  await review.files.expectChangedFiles(changedFiles);
+  await expect(review.files.row(storyFile)).toBeVisible();
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
 });

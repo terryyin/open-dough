@@ -27,7 +27,7 @@ test("without configured Intent locations Changes lists the story's changed file
       changes.getByText(/^No Intent locations are configured for Open Dough\./),
     )
     .toBeVisible();
-  const outside = story.outsideGroup;
+  const outside = story.tree;
   await expect
     .element(
       outside.getByRole("button", {
@@ -45,10 +45,10 @@ test("without configured Intent locations Changes lists the story's changed file
     changed.notes,
     "Renamed dashboard/tests/between/moved.spec.ts → tests/moved.sh",
   ])
-    await expect.element(story.outsideFile(name)).toBeVisible();
+    await expect.element(story.file(name)).toBeVisible();
   await expect.element(story.folderToggle("docs", true)).toBeVisible();
 
-  await activateComparisonControl(story.outsideFile(changed.product));
+  await activateComparisonControl(story.file(changed.product));
   await expect.poll(story.diffName).toBe(changed.product);
   await expect.poll(story.diffCode).toContain("product change");
   expect(reads.diffs).toEqual([productPath]);

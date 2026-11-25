@@ -24,7 +24,13 @@ const panel = (name: string) =>
 async function showsUsablePublishedTree() {
   const story = intentStoryCompare();
   await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
-  await expect.element(story.outsideGroup).not.toBeInTheDocument();
+  await expect
+    .element(
+      story.tree.getByRole("button", {
+        name: /^(Modified|Renamed|Added|Deleted) /,
+      }),
+    )
+    .not.toBeInTheDocument();
   await expect
     .element(panel("Changes").getByText(/No test files|no changes/i))
     .not.toBeInTheDocument();
@@ -94,7 +100,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await expect.element(story.alert).not.toBeInTheDocument();
   await expect.element(story.onlyChangedFiles).not.toBeChecked();
   for (const name of [changed.product, changed.notes])
-    await expect.element(story.outsideFile(name)).toBeVisible();
+    await expect.element(story.file(name)).toBeVisible();
   for (const name of [changed.modified, changed.added])
     await expect.element(story.file(name)).toBeVisible();
   expect(attempts).toBe(2);

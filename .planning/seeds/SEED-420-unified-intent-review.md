@@ -29,7 +29,7 @@ an icon-only banner, stacked comparison details and actions, page-wide story
 tabs, and separate Intent sections and outside files. The current entry
 points are [IntentPage](../../dashboard/src/IntentPage.tsx),
 [IntentHeader](../../dashboard/src/IntentHeader.tsx), and
-[IntentTreeGroups](../../dashboard/src/IntentTreeGroups.tsx).
+[IntentBrowserTree](../../dashboard/src/IntentBrowserTree.tsx).
 
 <a id="compact-story-comparison-controls"></a>
 

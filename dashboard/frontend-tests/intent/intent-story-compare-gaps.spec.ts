@@ -101,7 +101,7 @@ test("a failed read of a chosen landed run offers Retry, which reads that run ag
   // Retry reads that run again and lists its changes.
   const asked = runAsks;
   await story.retry();
-  await expect.poll(story.outside).toContain("chosen.txt");
+  await expect.poll(story.treeText).toContain("chosen.txt");
   await expect.element(story.alert).not.toBeInTheDocument();
   expect(runAsks).toBeGreaterThan(asked);
   expect(outsideCalls()).toEqual([]);

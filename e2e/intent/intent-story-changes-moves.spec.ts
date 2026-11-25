@@ -18,7 +18,8 @@ import {
 import {
   intentDiff,
   intentFile,
-  outsideGroup,
+  repositoryFolder,
+  repositoryTree,
   storyOnly,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { intentReviewFiles } from "../../dashboard/test-support/reviewChangesPage.ts";
@@ -78,9 +79,9 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
         intentFile(intent, changed.outOf).locator("code"),
       ).toHaveText("leaving.spec.ts");
       // The rename between locations left its old folder behind.
-      await expect(intent.getByRole("button", { name: /between/ })).toHaveCount(
-        0,
-      );
+      await expect(
+        repositoryFolder(intent, "dashboard/tests/between"),
+      ).toHaveCount(0);
       await expandIntentGroup(intent, "tests");
       const between = intentFile(intent, changed.between);
       await expect(between).toHaveCount(1);
@@ -92,7 +93,9 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
     });
 
     await test.step(`Selected story only ${state}: a rename neither path admits is listed once outside`, async () => {
-      await expect(outsideGroup(intent).getByText(/notes\.md/)).toHaveCount(1);
+      await expect(repositoryTree(intent).getByText(/notes\.md/)).toHaveCount(
+        1,
+      );
     });
 
     await test.step(`Selected story only ${state}: each deletion and rename opens its diff, the same in both states`, async () => {

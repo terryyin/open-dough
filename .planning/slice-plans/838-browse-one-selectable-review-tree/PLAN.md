@@ -12,6 +12,13 @@ Intent rollout, and new comparison or CI evidence are separate work.
 
 ## Current decisions
 
+- Yuma-chan executes in Story Branch Mode from the owned
+  `codex/browse-and-select-folders-in-one-story-review-tr` worktree. Start
+  `1d5d4d2c289df6c592c81c4021302db7201d3ba0`; published claim and initial
+  candidate `be88ccf452421cf70fa9bd6b97c232928d3b0019`.
+- Codex observes the execution branch on `origin` through GitHub Actions
+  `ci.yml` (`CI`). Coordinator `yuma-seed420-review-tree`, directory
+  `/tmp/dough-ci-501/watch-2pkX5S`, PID `17805`, session `66817`, cell `g380:17`.
 - [Dashboard UX/UI North Star, Review in Intent](../../../docs/dashboard-ux-ui-north-star.md#review-in-intent)
   places file navigation in the sidebar, keeps repository paths for deletions
   and renames, and preserves the Board's direct cumulative diff entry.
@@ -89,7 +96,7 @@ in the preparation checkout. These results describe the existing product.
 ### 1. Select folders in one story tree
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mounted unified hierarchy and keyboard selection from the proof map.
 Run the existing project folder summary and affected story comparison cases.
 
@@ -107,6 +114,13 @@ story tree navigation and presentation out of the near-limit
 and candidate-return callers on their current behavior. Trace tests that
 address the old group labels or control names. Update the shared page-object
 interaction and keep assertions of the original proof, focus, and recovery.
+
+The mounted tree proof reads the regular folder path, the configured and
+nested summaries, and a configured root with zero matching files through the
+same comparison. The real-Git review checks preserve Board arrival, kept
+selection, collapse, and file movement. The shared reveal rounds its scroll
+delta outward after the unified pane exposed fractional clipping. See
+[the diagnosis](diagnosis-story-tree-reveal.md) for the reproduction and repair.
 
 ### 2. Follow changed files in repository order
 
@@ -164,12 +178,24 @@ to show the active comparison paths. With no compared result, keep the
 existing browsing and evidence behavior. Preserve all interim comparison
 paths that the complete inventory needs, including deletions.
 
+## Story obligations
+
+### G1. Renamed rows still use interim placement and movement
+Reported: slice 1 — "The delivered candidate still uses the previous alias and two-part move order where Slice 2 replaces those."
+Story clause: "a renamed file has one row at its destination with both paths available in the diff."
+Disposition: receiving slice 2
+
+### G2. The tree still uses the existing inventory
+Reported: slice 1 — "It uses the existing inventory requested by Slice 1."
+Story clause: "When the comparison supplies a published revision, use its repository inventory and the Intent locations at that revision."
+Disposition: receiving slice 4
+
 ## Verification and plan review
 
 - Local gate for changed reader contracts and UI behavior is the focused
   frontend, backend and real-Git browser proof mapped to each slice.
   On macOS use
-  [`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+  `caffeinate -s -i` on AC power.
   On battery use `caffeinate -i` with the lid open and inspect the sleep
   log after the run. Run the dashboard type and changed-file lint checks
   where their contracts are edited.

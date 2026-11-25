@@ -47,7 +47,8 @@ export function locationHeader(path: string) {
 
 export function locationHeaderLook(path: string) {
   const header = locationHeader(path);
-  const column = header.closest(".intent-locations") ?? header;
+  const column =
+    header.closest("li[data-folder-path], .intent-locations") ?? header;
   const box = header.getBoundingClientRect();
   const columnLeft = column.getBoundingClientRect().left + column.clientLeft;
   const label = header.querySelector(".intent-location-name > *") ?? header;

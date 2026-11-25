@@ -112,7 +112,9 @@ test("tree file rows and location headers show shared CI cues with distinct sele
 
   const header = locationHeader(location);
   expect(
-    header.closest(".intent-location")?.getAttribute("data-contains-changes"),
+    header
+      .closest("li[data-folder-path]")
+      ?.getAttribute("data-contains-changes"),
   ).toBe("true");
   const mark = locationHeaderLook(location);
   expect(mark.mark).toMatch(/rgb/);

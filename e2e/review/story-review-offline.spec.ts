@@ -59,7 +59,7 @@ test("a synced Taken review stays readable while origin is unreachable and advan
     openTaken(page, origin));
   await test.step("And I reviewed the Taken story while origin was reachable", async () => {
     const review = await openIntentReviewChanges(page, card);
-    await review.files.expectOutsideRows(["src", "  a.ts", "d.md"]);
+    await review.files.expectTreeRows(["src", "  a.ts", "d.md"]);
     await review.returnToDevelopment();
   });
   const away = await test.step("When origin becomes unreachable", () =>
@@ -69,7 +69,7 @@ test("a synced Taken review stays readable while origin is unreachable and advan
   await test.step("Then the last synced comparison appears with the sync notice", async () => {
     await review.expectFeedback(notSynced);
     await review.expectFeedback(lastSynced);
-    await review.files.expectOutsideRows(["src", "  a.ts", "d.md"]);
+    await review.files.expectTreeRows(["src", "  a.ts", "d.md"]);
   });
   await test.step("And the review offers no initial-sync retry", () =>
     review.expectRetrySyncUnavailable());
@@ -103,7 +103,7 @@ test("a synced Taken review stays readable while origin is unreachable and advan
   const online = await test.step("And I refresh the review", () =>
     offline.refreshAndAnswer());
   await test.step("Then the comparison advances and the notice clears", async () => {
-    await online.files.expectOutsideRows(["src", "  a.ts", "d.md", "more.md"]);
+    await online.files.expectTreeRows(["src", "  a.ts", "d.md", "more.md"]);
     await online.expectNoText(notSynced);
   });
   await test.step("And src/a.ts stays selected with its diff", async () => {

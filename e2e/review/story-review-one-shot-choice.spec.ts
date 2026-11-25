@@ -31,7 +31,7 @@ test("keyboard choices show each retained captured or legacy run from their reco
     await review.landedRun.choose(run.key, "keyboard");
     await review.landedRun.expectChosen(run.key);
 
-    await files.expectOutsideFiles(1, [`Added ${run.name}.txt`]);
+    await files.expectOnlyChangedFile(`Added ${run.name}.txt`);
     await files.choose(`Added ${run.name}.txt`);
     await diffs.expectLines("added", [`+${run.name}.txt`]);
     await landedRun.expectShown(

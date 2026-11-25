@@ -20,8 +20,9 @@ import { locationSelectsRepositoryPath } from "./intentLocationSelection.ts";
 import {
   reviewFileOrder,
   reviewFileTree,
-  reviewFoldersContainingChanges,
+  reviewFoldersHolding,
   type ChangeKind,
+  type PathTreeNode,
 } from "./reviewFileTree.ts";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
 
@@ -184,35 +185,32 @@ export function overlayFilesByPath(
   ]);
 }
 
-// Which tree the story opens: the first location, in configured order, that
-// contains changes, and in each location the folders that contain changes;
-// every other folder and location stays collapsed. Restricting the overlay to
-// its changes leaves this the same. Intent applies it when it opens with a
-// selected story's comparison and at each "Selected story only" toggle, never
-// on a live selection change.
-export type StoryOverlayExpansion = {
-  readonly location: string | undefined;
-  // Per location, in configured order, its folders to open by path relative
-  // to the location, as its tree names them (`./reviewFileTree.ts`).
-  readonly folders: readonly (readonly string[])[];
-  // The outside files' folders to open, by repository path.
-  readonly outsideFolders: readonly string[];
-};
-
+// Reveal configured roots and the folders holding changes. Only the first
+// changed configured root starts open unless it also holds an outside change.
 export function storyOverlayExpansion(
   locations: readonly IntentLocation[],
   overlay: StoryOverlay,
-): StoryOverlayExpansion {
+  tree: readonly PathTreeNode<IntentTreeFile>[],
+): readonly string[] {
   const first = overlay.locations.findIndex(
-    (location) => location.containsChanges,
+    ({ containsChanges }) => containsChanges,
   );
-  return {
-    location: first < 0 ? undefined : locations[first]?.path,
-    folders: overlay.locations.map((location) =>
-      reviewFoldersContainingChanges(reviewFileTree(location.files)),
-    ),
-    outsideFolders: reviewFoldersContainingChanges(
-      reviewFileTree(overlay.outside),
-    ),
-  };
+  const opened = new Set(
+    locations.flatMap(({ path }) => reviewFoldersHolding(tree, path)),
+  );
+  for (const [index, location] of locations.entries()) {
+    for (const file of overlay.locations[index]?.files ?? []) {
+      if (file.change === undefined) continue;
+      for (const folder of reviewFoldersHolding(
+        tree,
+        `${location.path}/${file.path}`,
+      )) {
+        if (folder !== location.path || index === first) opened.add(folder);
+      }
+    }
+  }
+  for (const file of overlay.outside)
+    for (const folder of reviewFoldersHolding(tree, file.path))
+      opened.add(folder);
+  return [...opened];
 }

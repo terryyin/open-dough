@@ -1,21 +1,18 @@
-// The locations column's groups (`./IntentBrowser.tsx`): each configured
-// location in configured order (`./IntentLocationGroup.tsx`), those without
-// changes left out under "Selected story only", then the selected story's
-// changed files outside every location (`./IntentOutsideGroup.tsx`), all from
-// one story tree (`./useIntentStoryTree.ts`). One location is expanded at a
-// time; its toggle collapses it or expands it instead of another.
+// The story's repository tree or Project Intent's configured location groups.
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
-import { IntentOutsideGroup } from "./IntentOutsideGroup.tsx";
+import { IntentStoryFileTree } from "./IntentStoryFileTree.tsx";
+import { StoryTreeScopeChoice } from "./IntentStorySummary.tsx";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import type { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
 
-export function IntentTreeGroups({
+export function IntentBrowserTree({
   locations,
   tree,
+  storySelected,
   selection,
   onSelect,
   reveal,
@@ -24,6 +21,7 @@ export function IntentTreeGroups({
 }: {
   readonly locations: readonly IntentLocation[];
   readonly tree: ReturnType<typeof useIntentStoryTree>;
+  readonly storySelected: boolean;
   readonly selection: IntentSelection;
   readonly onSelect: (next: IntentSelection) => void;
   readonly reveal: TreeReveal | undefined;
@@ -32,19 +30,33 @@ export function IntentTreeGroups({
     update: (was: string | null) => string | null,
   ) => void;
 }) {
-  const { shownOverlay, changesOnly, locationExpansion } = tree;
+  if (storySelected)
+    return (
+      <>
+        {tree.scope !== undefined && (
+          <StoryTreeScopeChoice scope={tree.scope} />
+        )}
+        <IntentStoryFileTree
+          locations={locations}
+          overlay={tree.shownOverlay}
+          changesOnly={tree.changesOnly}
+          round={tree.round}
+          selection={selection}
+          onSelect={onSelect}
+          reveal={reveal}
+        />
+      </>
+    );
   return (
     <>
       {locations.map((location, index) => {
-        const shown = shownOverlay.locations[index];
-        if (changesOnly && !shown?.containsChanges) return null;
+        const shown = tree.overlay.locations[index];
         return (
           <IntentLocationGroup
             key={location.path}
             location={location}
             files={shown?.files ?? []}
             containsChanges={shown?.containsChanges ?? false}
-            expansion={locationExpansion(index)}
             selection={selection}
             onSelect={onSelect}
             reveal={reveal}
@@ -58,13 +70,6 @@ export function IntentTreeGroups({
           />
         );
       })}
-      <IntentOutsideGroup
-        files={shownOverlay.outside}
-        expansion={tree.outsideExpansion}
-        reveal={reveal}
-        selection={selection}
-        onSelect={onSelect}
-      />
     </>
   );
 }

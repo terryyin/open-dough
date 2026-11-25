@@ -34,7 +34,7 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
   keepPublishedStoryReview(dashboard, origin, workspace);
   const card = await openBacklog(page, origin);
   const { files } = await openIntentReviewChanges(page, card);
-  await files.expectOutsideCount(8);
+  await files.expectChangedFileCount(8);
   const file = (name: string) => files.row(name);
 
   for (const [name, shown, words] of [

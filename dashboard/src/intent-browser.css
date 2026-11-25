@@ -51,6 +51,13 @@
   border-right: 1px solid var(--line);
 }
 
+.intent-locations > .intent-story-tree {
+  flex: none;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+}
+
 .intent-reading {
   display: flex;
   flex-direction: column;

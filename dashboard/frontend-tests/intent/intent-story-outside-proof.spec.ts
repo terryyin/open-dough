@@ -44,7 +44,7 @@ test("an outside file's Proof names the story's CI comparison, explains missing 
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
-  await activateComparisonControl(story.outsideFile(landingFile));
+  await activateComparisonControl(story.file(landingFile));
   await expect.poll(story.diffName).toBe(landingFile);
   await expect.poll(story.diffCode).toContain("landing line 199");
   const offset = await story.scrollReadingHalfway();

@@ -62,7 +62,7 @@ async function inspectDelivered(
   await review.expectChangesExplanation(
     "The story's historical Intent locations and test source are unavailable",
   );
-  await review.files.expectOutsideCount(answer.files.length);
+  await review.files.expectChangedFileCount(answer.files.length);
   expect(answer.files.map((file) => file.path)).toEqual(
     git(
       repository,

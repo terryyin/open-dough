@@ -94,7 +94,9 @@ export function IntentSelectionReading({
           <IntentSummary
             key={`${revision}:${selection.path}`}
             path={selection.path}
-            files={filesOfSelection(treeFiles, selection)}
+            files={filesOfSelection(treeFiles, selection).filter(
+              (path) => treeFiles.get(path)?.outside !== true,
+            )}
             treeFiles={treeFiles}
             location={selectedLocation}
             revision={revision}
@@ -119,7 +121,11 @@ export function IntentSelectionReading({
             onFileRetry={onFileRetry}
           />
         </StoryNoteView.Provider>
-      ) : null}
+      ) : (
+        <h3>
+          <code>{selection.path}</code>
+        </h3>
+      )}
     </>
   );
 }
