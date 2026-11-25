@@ -236,7 +236,7 @@ passed locally. The branch observer covers the hosted verification.
 ### 3. Follow real trunk rewinds through story navigation
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: When a published history returns to A or the reader changes
 project, the Board's direction and story navigation reflect that project's
 current real pin. A link or detail keeps the pin its journey establishes.
@@ -245,6 +245,28 @@ project navigation cases. Observe A/B/A with the same A commit, the visible
 direction change, and any detail requested at an earlier pin. Keep
 independent project origins distinct. Size from the retained raw rewind
 sample and the directly reached navigation setups.
+
+Accepted proof on the slice 2 branch plus slice 3 changes. The direction
+journey resolves A, B, and the original A under its served HOME, holds B's
+backlog, and shows B's direction followed by A's original text. The project
+switch journey retains separate commits and its exact returning A requests.
+Story URL history verifies two Git routes during the directed Doughnut 503,
+checks both exact REST backlog pins, and preserves Retry, reload, Back, and
+Forward. Dev and preview session alerts reach the routed Doughnut commit.
+The unrelated catalog checkout rewrite shadowed the fixture route and was
+removed from those read-only navigation setups.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/stories/direction-disclosure.spec.ts e2e/navigation/story-url-history.spec.ts e2e/sessions/session-alerts-navigation.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/navigation/story-url-history.spec.ts e2e/sessions/session-alerts-navigation.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- 'runtime/test-preparation-dev-notifications\.spec\.ts' --workers=1 --reporter=line
+npm run typecheck:dashboard
+```
+
+The first run passed all four direction cases and exposed the shadowed
+route. The corrected navigation run passed three cases, the dev preparation
+run passed one, and Dashboard typecheck passed. The direction fixture and
+its four observing cases were unchanged by that correction and the CI repair.
 
 ### 4. Preserve session navigation while its published Board moves
 
