@@ -96,5 +96,7 @@ for (const entry of [
         selected.location.file.endsWith("passing.proof.ts"),
       ),
     ).toBe(false);
-  });
+    // Each case starts a whole nested npm and Playwright run, which takes
+    // 4-5 s on CI; it keeps the 30 s budget it had on Playwright.
+  }, 30_000);
 }
