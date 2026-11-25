@@ -36,10 +36,7 @@ import {
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { openedSettled } from "../../dashboard/test-support/branchRefreshJourney.ts";
-import {
-  onBranch,
-  revision,
-} from "../../dashboard/test-support/branchProgressRecords.ts";
+import { onBranch } from "../../dashboard/test-support/branchProgressRecords.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { revisionStreamSilenceMs } from "../../dashboard/src/revisionStreamSchedule.ts";
 import {
@@ -224,10 +221,10 @@ stoppedStreamTest(
 
 fastStreamTest(
   "a 504 listing over the stream leaves the watched branch shown",
-  async ({ page }) => {
-    const streaming = untilStreamingAt(page, revision);
-    const { origin, progress } = await openedSettled(page);
-    await streaming;
+  async ({ page, afterGitHubStops }) => {
+    const { origin, progress } = await openedSettled(page, afterGitHubStops, {
+      whenOpening: (revision) => untilStreamingAt(page, revision),
+    });
     await expect(progress).not.toContainText("no longer published");
     const restore = origin.failListing();
     try {

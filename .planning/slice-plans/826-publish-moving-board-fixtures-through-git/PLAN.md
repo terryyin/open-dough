@@ -307,7 +307,7 @@ kept its attach assertion.
 ### 5. Keep comparison and branch observations at their published pins
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: After a file history advances, the Dashboard compares the
 actual trunk pins and keeps the correct record reuse, attribution, clock
 or branch progress result. A reopened Dashboard reads from the served
@@ -320,6 +320,28 @@ and profile history identity where asserted. Use the sampled file path and
 shared branch setup. Keep `publishedFiles.ts`'s publication and answer
 dispatch cohesive. If the near-limit file grows, simplify that seam
 without changing the request controls.
+
+Accepted proof at local merge `fbfc1662714740dbbad0d92389f2d9283d3e6630`
+plus slice 5 changes. That merge preserves the published slice 4 tip and
+trunk `e5b15f59`, including the fixed-file publisher which shares this
+seam. The named committed-file history moves actual refs and keeps the
+existing REST comparisons, holds, and history controls. A/B reuse checks
+the exact comparison, single changed commit, and full B read after restart
+under a new HOME. Credit and clock cases use actual profile-history commits.
+Branch cases independently observe real advances and deletion and retain
+the unusable listing and held comparison controls. Reopen keeps the story
+branch separate from trunk.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/{unchanged-*,story-cards-before-comparison,reopened-project-reads,auto-refresh-branches,auto-refresh-unusable-branch,revision-stream-stopped,steady-refresh-inspection,profile-addition-latency}.spec.ts e2e/stories/{agent-roster-avatar,branch-progress-reading,branch-slice-progress}.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/{auto-refresh,published-facts-isolation}.spec.ts e2e/sessions/sessions-sidebar-navigation-cases.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- 'runtime/committed-origin-actions\.spec\.ts' --workers=1 --reporter=line
+npm run typecheck:dashboard
+```
+
+The focused and compatibility runs passed 17 and 12 browser cases plus
+two backend cases. Refactoring compared the generated attribution answers
+for exact equality and passed typecheck.
 
 ### 6. Keep Intent CI evidence attached to its published head
 

@@ -19,10 +19,13 @@ import {
   expectSettledPage,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import type { MovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
 import {
-  publishMovingFiles,
-  type MovingFiles,
-} from "../../dashboard/test-support/publishedFiles.ts";
+  publishCommittedFileHistory,
+  publishCommittedFiles,
+} from "../../dashboard/test-support/committedFiles.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
@@ -39,24 +42,19 @@ import {
   doughnutRecords,
   doughnutRepository,
   doughnutSharedTitle,
-  revisionDoughnut,
 } from "../../dashboard/test-support/doughnutProject.ts";
 import {
-  atA,
-  atB,
   backlogPath,
   branch,
-  branchHead,
-  madeB,
   missingSeedPath,
-  onBranch,
   opened,
   planPath,
   queuedAgainTitle,
   queuedTitle,
   repository,
-  revisionA,
-  revisionB,
+  reopenedHistory,
+  reopenedDetails,
+  reopenedChange,
   seedPath,
   takenTitle,
 } from "../../dashboard/test-support/reopenedProject.ts";
@@ -65,16 +63,6 @@ import {
 // revision checks aside: they keep their own pace.
 const askedSince = (origin: MovingFiles, before: number) =>
   readsBesideChecks(origin.requests.slice(before)).sort();
-
-// What a reopen at revision A asks: which commit the ref and the branch name,
-// and the records GitHub answered as missing there. Nothing it read is asked
-// again.
-const reopenedAtA = [
-  `ref main`,
-  `branch ${branch}`,
-  `content .planning/open-dough.json@${revisionA}`,
-  `content ${missingSeedPath}@${revisionA}`,
-].sort();
 
 // The page once the project's membership and every fact its cards wait on are
 // read: with every read answered, no card says it is still reading any of
@@ -107,21 +95,36 @@ async function canonicalLinkOf(page: Page, title: string) {
 
 test("reopening an unchanged project asks only which commits its ref and story branch name and what was missing, and a new commit reads only what it changed", async ({
   page,
+  dashboard,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = publishMovingFiles(page, {
+  const origin = await publishCommittedFileHistory(page, reopenedHistory, {
     repository,
-    ...atA,
-    branches: { [branch]: onBranch },
+    trunk: "A",
+    branches: { [branch]: "head" },
+    details: reopenedDetails,
+    afterGitHubStops,
   });
-  publishMovingFiles(page, {
+  const { A: revisionA, B: revisionB, head: branchHead } = origin.revisions;
+  const reopenedAtA = [
+    "ref main",
+    `branch ${branch}`,
+    `content .planning/open-dough.json@${revisionA}`,
+    `content ${missingSeedPath}@${revisionA}`,
+  ].sort();
+  const { revision: revisionDoughnut } = publishCommittedFiles(page, {
     repository: doughnutRepository,
-    revision: revisionDoughnut,
-    files: {
-      ".planning/PRODUCT-BACKLOG.md": doughnutBacklog,
-      ...doughnutRecords,
-    },
+    files: { [backlogPath]: doughnutBacklog, ...doughnutRecords },
   });
+  const routed = (ref = "main") =>
+    remoteBranchHead(gitHubRepositoryUrl(repository), `refs/heads/${ref}`, {
+      cwd: dashboard.home,
+      env: { HOME: dashboard.home },
+      maxBuffer: 4096,
+    });
+  expect(await routed()).toBe(revisionA);
+  expect(await routed(branch)).toBe(branchHead);
   const { readRevision } = parts(page);
 
   await page.goto("/");
@@ -161,7 +164,10 @@ test("reopening an unchanged project asks only which commits its ref and story b
   });
 
   await test.step("after a new commit is published, a reload reads that commit's changed backlog and record, reuses the unchanged seed, and shows them", async () => {
-    origin.moveTrunk(atB, [madeB]);
+    origin.moveTrunk(origin.published.B, [
+      { ...reopenedChange, sha: revisionB },
+    ]);
+    expect(await routed()).toBe(revisionB);
     const before = origin.requests.length;
     await page.reload();
     await expectSettled(page, {
@@ -178,7 +184,7 @@ test("reopening an unchanged project asks only which commits its ref and story b
         "ref main",
         `branch ${branch}`,
         "compare",
-        `commit ${madeB.sha}`,
+        `commit ${revisionB}`,
         `content ${backlogPath}@${revisionB}`,
         `content ${missingSeedPath}@${revisionB}`,
       ]),

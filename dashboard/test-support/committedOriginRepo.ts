@@ -76,13 +76,18 @@ export function commitOf(repoDir: string, name: string): string | undefined {
 export function publishMain(repoDir: string, revision: string): void {
   if (commitOf(repoDir, "main") === revision) return;
   if (checkedOutMain(repoDir)) return;
-  execFileSync("git", [
-    "-C",
-    repoDir,
-    "update-ref",
-    "refs/heads/main",
-    revision,
-  ]);
+  publishBranch(repoDir, "main", revision);
+}
+
+// Move or delete a branch in a materialized bare fixture origin.
+export function publishBranch(
+  repoDir: string,
+  branch: string,
+  revision: string | undefined,
+): void {
+  const ref = `refs/heads/${branch}`;
+  const update = revision === undefined ? ["-d", ref] : [ref, revision];
+  execFileSync("git", ["-C", repoDir, "update-ref", ...update]);
 }
 
 // Whether `repoDir` is a checkout whose working tree holds `main`.

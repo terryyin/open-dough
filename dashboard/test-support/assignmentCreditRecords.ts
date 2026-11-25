@@ -10,25 +10,15 @@ import { renderSlicePlan } from "../../Distribution/tests/support/published-plan
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
-import {
-  pathChange,
-  type MadeCommit,
-  type PathChange,
-} from "./pathHistoryAnswers.ts";
+import { type MadeCommit, type PathChange } from "./pathHistoryAnswers.ts";
 import { onAvatarHost } from "./avatarAnswers.ts";
 import { creditedAvatar } from "./agentAttributionRecords.ts";
-import { describedRevisions } from "./describedRevisions.ts";
+import type { RepositoryBuilder } from "../../Distribution/tests/support/repositoryTestData.mjs";
 
 export const repository = "terryyin/open-dough";
 export const opened = new Date("2026-10-07T09:00:00.000Z");
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
-const revision = (pair: string) => pair.repeat(20);
-const revisionA = revision("8a");
-const revisionB = revision("8b");
-const revisionC = revision("8c");
-const revisionD = revision("8d");
-
 const seedPath = ".planning/seeds/SEED-281-credit.md";
 export const planPath = ".planning/slice-plans/281-credit/PLAN.md";
 export const profileOf = (agent: string) =>
@@ -41,7 +31,15 @@ export const readder = "Rhea Readder";
 
 // Seven Taken assignments, one agent each; Yua's story is planned, so its
 // card runs a slice clock from its Take.
-export const agents = ["Yui", "Akiho", "Yuma", "Sola", "Yua", "Ai", "Kirara"];
+export const agents = [
+  "Yui",
+  "Akiho",
+  "Yuma",
+  "Sola",
+  "Yua",
+  "Ai",
+  "Kirara",
+] as const;
 export const titleOf = (agent: string) => `Credit kept for ${agent}`;
 const anchorOf = (agent: string) => agent.toLowerCase();
 export const planned = "Yua";
@@ -72,118 +70,170 @@ const agentProfileOf = (agent: string, host = "claude") =>
 
 // A publishes the seven assignments, Yua's planned; C modifies Kirara's
 // profile, to Codex.
-const published = describedRevisions(
-  makeMe.aRepository
-    .withRevision("A", {
-      backlog: {
-        taken: entries,
-      },
-      files: {
-        [seedPath]: seed,
-        [planPath]: renderSlicePlan(
-          makeMe.aSlicePlan
-            .withStatuses(["done", "done", "planned", "planned", "planned"])
-            .please(),
-          { heading: "Slices" },
-        ),
-      },
-      storyStates: [
-        {
-          identity: `SEED-281#${anchorOf(planned)}`,
-          href: `seeds/SEED-281-credit.md#${anchorOf(planned)}`,
-          ...makeMe.aStoryPreparation
-            .plannedIn("../slice-plans/281-credit/PLAN.md")
-            .please(),
-        },
-      ],
-      agentProfiles: agents.map((agent) => agentProfileOf(agent)),
-    })
-    .withRevision("C", { agentProfiles: [agentProfileOf("Kirara", "codex")] })
-    .please(),
-  { A: revisionA, C: revisionC },
-);
+const appPath = "dashboard/src/app.ts";
+const creditCommitter = (name: string, date: Date) => ({
+  name,
+  email: "credit@example.test",
+  date: date.toISOString(),
+});
+let withAllocations: RepositoryBuilder<"base" | (typeof agents)[number]> =
+  makeMe.aRepository.withRevision("base");
+for (const [index, agent] of agents.entries()) {
+  withAllocations = withAllocations.withRevision(agent, {
+    agentProfiles: [agentProfileOf(agent)],
+    committer: creditCommitter(human, minutesBefore(120 + index)),
+  });
+}
 
-// Each profile's own addition by the same human, each by a commit of its
-// own, on the same account.
-export const additionOf = (agent: string): PathChange => ({
-  ...pathChange(0x91 + agents.indexOf(agent), "added", human, {
-    login: "terryyin",
-    avatarUrl: onAvatarHost(creditedAvatar),
-  }),
+export const creditHistory = withAllocations
+  .withRevision("A", {
+    backlog: {
+      taken: entries,
+    },
+    files: {
+      [seedPath]: seed,
+      [appPath]: "// Before refresh\n",
+      [planPath]: renderSlicePlan(
+        makeMe.aSlicePlan
+          .withStatuses(["done", "done", "planned", "planned", "planned"])
+          .please(),
+        { heading: "Slices" },
+      ),
+    },
+    storyStates: [
+      {
+        identity: `SEED-281#${anchorOf(planned)}`,
+        href: `seeds/SEED-281-credit.md#${anchorOf(planned)}`,
+        ...makeMe.aStoryPreparation
+          .plannedIn("../slice-plans/281-credit/PLAN.md")
+          .please(),
+      },
+    ],
+  })
+  .withRevision("B", { files: { [appPath]: "// After refresh\n" } })
+  .withRevision("C", {
+    agentProfiles: [agentProfileOf("Kirara", "codex")],
+    committer: creditCommitter(modifier, minutesBefore(20)),
+  })
+  .withRevision("removed", {
+    remove: [profileOf(planned)],
+    committer: creditCommitter(remover, minutesBefore(15)),
+  })
+  .withRevision("D", {
+    agentProfiles: [agentProfileOf(planned)],
+    committer: creditCommitter(readder, minutesBefore(10)),
+  })
+  .please();
+
+type Fixture = Readonly<
+  Record<(typeof creditHistory.revisions)[number]["name"], string>
+>;
+
+export const additionOf = (
+  agent: (typeof agents)[number],
+  shas: Fixture,
+): PathChange => ({
+  sha: shas[agent],
+  status: "added",
+  committer: human,
+  login: "terryyin",
+  avatarUrl: onAvatarHost(creditedAvatar),
   committedAt: minutesBefore(120 + agents.indexOf(agent)),
 });
 
-export const atA: PublishedRevision = {
-  ...published.A,
-  committed: { [planPath]: minutesBefore(30) },
-  history: Object.fromEntries(
-    agents.map((agent) => [profileOf(agent), [additionOf(agent)]]),
-  ),
-};
+const change = (
+  sha: string,
+  status: PathChange["status"],
+  committer: string,
+  minutes: number,
+): PathChange => ({
+  sha,
+  status,
+  committer,
+  committedAt: minutesBefore(minutes),
+});
+export function creditDetails(shas: Fixture) {
+  const a = {
+    committed: { [planPath]: minutesBefore(30) },
+    history: Object.fromEntries(
+      agents.map((agent) => [profileOf(agent), [additionOf(agent, shas)]]),
+    ),
+  };
+  const c = {
+    ...a,
+    history: {
+      ...a.history,
+      [profileOf("Kirara")]: [
+        change(shas.C, "modified", modifier, 20),
+        additionOf("Kirara", shas),
+      ],
+    },
+  };
+  const d = {
+    ...c,
+    history: {
+      ...c.history,
+      [profileOf(planned)]: [
+        change(shas.D, "added", readder, 10),
+        change(shas.removed, "removed", remover, 15),
+        additionOf(planned, shas),
+      ],
+    },
+  };
+  return { A: a, B: a, C: c, D: d };
+}
 
-// What B, C, and D publish, each with the commits a move to it is made by.
 export type Move = {
   readonly at: PublishedRevision;
   readonly by: readonly MadeCommit[];
 };
-const made = (change: PathChange, files: MadeCommit["files"]): MadeCommit => ({
-  ...change,
-  files,
+const made = (
+  sha: string,
+  committer: string,
+  filename: string,
+  status: MadeCommit["files"][number]["status"],
+  committedAt?: Date,
+): MadeCommit => ({
+  sha,
+  committer,
+  files: [{ filename, status }],
+  ...(committedAt === undefined ? {} : { committedAt }),
 });
 
-// B changes only product code.
-const atB: PublishedRevision = { ...atA, revision: revisionB };
-export const toB: Move = {
-  at: atB,
-  by: [
-    made(pathChange(0x81, null, "Fixture Committer"), [
-      { filename: "dashboard/src/app.ts", status: "modified" },
-    ]),
-  ],
-};
-
-// C modifies Kirara's profile, by someone else.
-const modifying = {
-  ...pathChange(0x82, "modified", modifier),
-  committedAt: minutesBefore(20),
-};
-const atC: PublishedRevision = {
-  ...atB,
-  ...published.C,
-  history: {
-    ...atB.history,
-    [profileOf("Kirara")]: [modifying, additionOf("Kirara")],
-  },
-};
-export const toC: Move = {
-  at: atC,
-  by: [
-    made(modifying, [{ filename: profileOf("Kirara"), status: "modified" }]),
-  ],
-};
-
-// D removes Yua's profile and re-adds it with identical text, by someone
-// else, later.
-const removing = {
-  ...pathChange(0x83, "removed", remover),
-  committedAt: minutesBefore(15),
-};
-const readding = {
-  ...pathChange(0x84, "added", readder),
-  committedAt: minutesBefore(10),
-};
-const atD: PublishedRevision = {
-  ...atC,
-  revision: revisionD,
-  history: {
-    ...atC.history,
-    [profileOf(planned)]: [readding, removing, additionOf(planned)],
-  },
-};
-export const toD: Move = {
-  at: atD,
-  by: [
-    made(removing, [{ filename: profileOf(planned), status: "removed" }]),
-    made(readding, [{ filename: profileOf(planned), status: "added" }]),
-  ],
-};
+export function creditMoves(origin: {
+  revisions: Fixture;
+  published: Readonly<Record<"B" | "C" | "D", PublishedRevision>>;
+}) {
+  const { revisions: shas, published } = origin;
+  return {
+    toB: {
+      at: published.B,
+      by: [made(shas.B, "Fixture Committer", appPath, "modified")],
+    },
+    toC: {
+      at: published.C,
+      by: [
+        made(
+          shas.C,
+          modifier,
+          profileOf("Kirara"),
+          "modified",
+          minutesBefore(20),
+        ),
+      ],
+    },
+    toD: {
+      at: published.D,
+      by: [
+        made(
+          shas.removed,
+          remover,
+          profileOf(planned),
+          "removed",
+          minutesBefore(15),
+        ),
+        made(shas.D, readder, profileOf(planned), "added", minutesBefore(10)),
+      ],
+    },
+  };
+}

@@ -23,7 +23,7 @@ import {
   parts,
   rosterParts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { publishCommittedFileHistory } from "../../dashboard/test-support/committedFiles.ts";
 import { avatarHost } from "../../dashboard/test-support/agentAttributionRecords.ts";
 import { inspectedDetail } from "../../dashboard/test-support/storyCardControls.ts";
 import { credit } from "../../dashboard/test-support/agentCredit.ts";
@@ -37,12 +37,13 @@ import {
 import { titlesOfB } from "../../dashboard/test-support/refreshJourney.ts";
 import {
   agents,
-  atA,
+  creditHistory,
+  creditDetails,
+  creditMoves,
   human,
   opened,
   repository,
   titleOf,
-  toB,
 } from "../../dashboard/test-support/assignmentCreditRecords.ts";
 
 const syncRecord = ".planning/seeds/SEED-008-sync.md";
@@ -62,7 +63,7 @@ const cardCredits = (page: Page) =>
 async function credits(page: Page) {
   const { member, opener, roster, back } = rosterParts(page);
   const cards = await cardCredits(page);
-  await opener(`${agents[0] ?? ""}-chan`).click();
+  await opener(`${agents[0]}-chan`).click();
   await expect(roster).toBeVisible();
   const members = await Promise.all(
     agents.map((agent) => member(`${agent}-chan`).innerText()),
@@ -73,10 +74,17 @@ async function credits(page: Page) {
 
 test("assignments keep their agents, credited humans, and portraits on cards and the roster while a new revision is read", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
   githubFor(page).serveAvatars(avatarHost);
-  const origin = publishMovingFiles(page, { repository, ...atA });
+  const origin = await publishCommittedFileHistory(page, creditHistory, {
+    repository,
+    trunk: "A",
+    details: creditDetails,
+    afterGitHubStops,
+  });
+  const { toB } = creditMoves(origin);
   await page.goto("/");
   await expectSettledPage(page);
   const { taken } = parts(page);
