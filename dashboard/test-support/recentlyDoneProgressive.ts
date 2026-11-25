@@ -36,6 +36,8 @@ export type ProgressiveEntry =
       readonly title: string;
     };
 
+type ProgressiveStory = Extract<ProgressiveEntry, { kind: "story" }>;
+
 // The list's name for an entry once its details are known.
 export const entryName = (entry: ProgressiveEntry) =>
   entry.kind === "story"
@@ -49,12 +51,23 @@ export function progressiveEntries(
   count: number,
   sessionsAt: readonly number[],
 ): ProgressiveEntry[] {
-  return [...Array(count).keys()].map((index): ProgressiveEntry => {
+  return progressiveStories(count).map((story) =>
+    sessionsAt.includes(story.place)
+      ? {
+          place: story.place,
+          kind: "session",
+          title: `Ad hoc work ${labelAt(story.place)}`,
+        }
+      : story,
+  );
+}
+
+const labelAt = (place: number) => String(place).padStart(2, "0");
+
+export function progressiveStories(count: number): ProgressiveStory[] {
+  return [...Array(count).keys()].map((index) => {
     const place = index + 1;
-    const label = String(place).padStart(2, "0");
-    if (sessionsAt.includes(place)) {
-      return { place, kind: "session", title: `Ad hoc work ${label}` };
-    }
+    const label = labelAt(place);
     const identity = `SEED-2${label}#progressive-${label}`;
     return {
       place,

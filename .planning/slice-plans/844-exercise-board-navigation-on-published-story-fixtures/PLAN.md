@@ -9,6 +9,21 @@ Use published story membership to verify Board paging, focused reveals, and
 native session actions. The supplier changes only the test suites and their
 fixture owners. SEED-439 consumes that proof when it retires standalone rows.
 
+## Execution context
+
+Story Branch Mode on `codex/exercise-board-navigation-on-published-story-fixtures`
+in the owned worktree of that name. Publisher
+`dashboard-territory.local-open-dough`, agent Maria-chan, and target
+`origin/main`. Starting revision `7a8c78b369bf0da3ea5c5e3b2f850e9c70d5d57e`.
+The accepted claim and first story-branch tip are
+`758efa5db911b7466bf258d1a3a9e35ff9a8498b`. The checkout's reused locked
+installation matches those inputs, and Dashboard typecheck passed there.
+
+Branch CI uses GitHub Actions `ci.yml`, display name `CI`. Codex observer
+`codex-seed-442-20261125` watches the execution branch at
+`/tmp/dough-ci-501/watch-N9QUs0`, PID `38215`, session `65850`,
+cell `g419:50`.
+
 ## Decisions and retained evidence
 
 - Keep the real, routed Git publications for progressive and moving Board
@@ -56,7 +71,7 @@ worktree's Git evidence directory.
 
 ### 1. Page and refresh published Done stories
 Type: Behavior
-Status: planned
+Status: done
 Proof: Recently done reads the displayed Done records for the actual published
 revision. Show latest 10 and a revision refresh preserve the selected range,
 read only the intended records and retain or recover focus.
@@ -67,6 +82,14 @@ publication helpers. Handle a held record and Retry through their existing
 route. Keep the observation that the first session inventory can delay the
 initial page read even when the top-level entries all come from Git. Verify
 the sidebar paging boundary and concrete case-specific consumers from the trace.
+
+Accepted proof: Published Done catalogs now own the tested top-level
+positions. The 17-case browser selection checks exact body-request bounds,
+Retry, revision refresh, focus, Show latest 10 and independent Sidebar
+paging. Eleven neighboring native/navigation cases and five mounted
+Sidebar cases passed alongside Dashboard typecheck. The remaining
+navigation-specific mixed fixtures belong to slices 2–3.
+See `SLICE-1-REPORT.md` in the worktree's Git evidence directory.
 
 ### 2. Reveal a published Done story from its native session
 Type: Behavior

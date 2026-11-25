@@ -1,12 +1,5 @@
-// The saved sessions decide which done stories Recently done's first ten
-// entries hold, so no done record is read while the page's first read of the
-// sessions is under way; once they answer, only the ten shown entries'
-// stories are read, and when they cannot be read, the stories shown without
-// them are. The fake GitHub publishes done records spelled by the shared
-// renderer and the catalog the real backlog CLI's `catalog-done` builds from
-// them (../recentlyDoneProgressive.ts); the synthetic `claude` lists the kept
-// sessions. The `gh` calls reaching the fake GitHub show which records were
-// read.
+// The Done catalog places the stories before the local session answer. A
+// held session read defers Done body reads until it answers or fails.
 
 import { agentLaunchEndpoint } from "../../dashboard/src/launchRequest.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
@@ -22,9 +15,9 @@ import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequest
 import {
   entries,
   firstTen,
-  shownWithoutSessions,
-  storiesOf,
-  thirteenth,
+  firstTenPaths,
+  nestedIn,
+  tenth,
 } from "../../dashboard/test-support/recentlyDoneSessionPlaced.ts";
 
 test("while the saved sessions are still being read after the done catalog answered, no done record is read, and once they answer only the ten shown entries' stories are", async ({
@@ -40,25 +33,21 @@ test("while the saved sessions are still being read after the done catalog answe
   });
   const sessions = await holdSessionReads(page);
   try {
-    const { github, recent } = await opened(page, dashboard, entries);
-    // The catalog answered: without the sessions, the thirteenth entry is
-    // placed among the first ten.
+    const { github, recent } = await opened(page, dashboard, entries, {
+      nestedIn,
+    });
     await expect(recent).toContainText("Reading sessions…");
     await expect(
-      recent.getByRole("article", { name: thirteenth.identity }),
+      recent.getByRole("article", { name: tenth.identity }),
     ).toBeVisible();
     await untilPageReadsAnswered(page);
     expect(bodiesAsked).toEqual([]);
 
     sessions.answer();
     await expectEntries(recent, firstTen.map(entryName));
-    expect(recordsAsked(github).toSorted()).toEqual(
-      storiesOf(firstTen).toSorted(),
-    );
+    expect(recordsAsked(github).toSorted()).toEqual(firstTenPaths);
     await untilPageRests(page);
-    expect(recordsAsked(github).toSorted()).toEqual(
-      storiesOf(firstTen).toSorted(),
-    );
+    expect(recordsAsked(github).toSorted()).toEqual(firstTenPaths);
   } finally {
     // A read still held would hold the page's teardown.
     sessions.answer();
@@ -77,10 +66,10 @@ test("when the saved sessions cannot be read, the ten done stories shown without
         : route.continue());
     },
   );
-  const { github, recent } = await opened(page, dashboard, entries);
-  await expectEntries(recent, shownWithoutSessions.map(entryName));
+  const { github, recent } = await opened(page, dashboard, entries, {
+    nestedIn,
+  });
+  await expectEntries(recent, firstTen.map(entryName));
   await expect(recent).toContainText("Reading sessions…");
-  expect(recordsAsked(github).toSorted()).toEqual(
-    storiesOf(shownWithoutSessions).toSorted(),
-  );
+  expect(recordsAsked(github).toSorted()).toEqual(firstTenPaths);
 });
