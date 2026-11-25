@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-442#exercise-board-navigation-on-published-story-fixtures
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/844-exercise-board-navigation-on-published-story-fixtures/PLAN.md","assessment":"not-ready","reasons":["Refine the provisional fixture mapping and confirm which retained story-linked journeys prove each applicable navigation and native control observation."],"basis":{"document":"db8f10cf58ea123854a8f7373a97ecb4c4e2578c1852013f9666b4815e7470f3","plan":"de5a984eace4c1968455dff70b017c1832281381723e9881235c380c2820589f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/844-exercise-board-navigation-on-published-story-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cd308ebb8f8aba17379a62a0dbb321756f04c7c21ad9f9f56763280e99533b7d","plan":"99d2d3e0aa1bc2acd3891860757175ff2bb5c6c58f75fc9790ead184df56df0d"}}
 ```
 
 **Goal.** Dashboard maintainers can verify Recently done paging, session
@@ -35,6 +35,11 @@ The same proof remains useful when the Board stops placing standalone rows.
 - Change test fixtures and assertions. The consuming story owns production
   Board retirement, the removal of the six named legacy frontend cases,
   and verification of exact published comparison ranges and warnings.
+
+**Fixture boundary.** Real routed Git publications advance the story's
+membership and catalog revision. Native session fixtures supply session
+state and controls. Keep both visible in the relevant tests, including
+when a local Done mark changes the session while its story stays Taken.
 
 **Key examples.**
 
