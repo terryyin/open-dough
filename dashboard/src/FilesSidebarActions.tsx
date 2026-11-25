@@ -1,7 +1,8 @@
 // The Files sidebar's first row: Home, then the Intent only and Changes only
-// filters, in that order on one line, each present only when its owner
-// supplies it. Whole-project scope has no Changes only. The row lays the
-// actions out; their owners keep what each action does.
+// filters, in that order in one row, each present only when its owner
+// supplies it; a crowded filter wraps its label within its own control.
+// Whole-project scope has no Changes only. The row lays the actions out;
+// their owners keep what each action does.
 import "./files-sidebar-actions.css";
 import { StoryHomeButton, type StoryPath } from "./IntentStoryEvidence.tsx";
 import {

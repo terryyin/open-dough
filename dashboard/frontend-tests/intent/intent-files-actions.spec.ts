@@ -1,6 +1,7 @@
 // The Files sidebar's first row at phone width: the supplied actions keep
-// Home and the Intent only and Changes only filters in order on one line
-// inside the sidebar, and each stays operable. Whole-project scope has no
+// Home and the Intent only and Changes only filters in order in one row
+// inside the sidebar, even with wider text, and each stays an operable
+// touch target. Whole-project scope has no
 // Changes only. On the story page the Files toggle opens the live row.
 import { createElement } from "react";
 import { describe, expect, test, vi } from "vitest";
@@ -20,14 +21,14 @@ import { intentStoryCompare } from "./intent-story-compare-page.ts";
 // The phone drawer's Files column at 320 CSS px.
 const sidebarWidth = 282;
 
-async function mountRow(actions: FilesSidebarActions) {
+async function mountRow(actions: FilesSidebarActions, fontSize = "100%") {
   await mountComponent(
     createElement(
       "div",
       {
         className: "intent-locations",
         "data-testid": "files-sidebar",
-        style: { width: `${sidebarWidth}px` },
+        style: { width: `${sidebarWidth}px`, fontSize },
       },
       createElement(FilesSidebarActionsRow, { actions }),
     ),
@@ -47,8 +48,9 @@ function rowNames(row: Locator) {
   );
 }
 
-// Home and the named filters share one line in order, inside the sidebar.
-function expectOneLineInside(
+// Home and the named filters share one row in order, inside the sidebar,
+// each a touch target of at least 44 px.
+function expectOneRowInside(
   { row, sidebar }: { readonly row: Locator; readonly sidebar: Locator },
   ...filters: string[]
 ) {
@@ -60,6 +62,8 @@ function expectOneLineInside(
   for (const box of boxes) {
     expect(box.left).toBeGreaterThanOrEqual(room.left);
     expect(box.right).toBeLessThanOrEqual(room.right);
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
   }
 }
 
@@ -70,7 +74,7 @@ const filter = (label: string) => ({
 });
 
 describe("the Files sidebar's first row at 320 px", () => {
-  test("story scope keeps Home, Intent only and Changes only on one line", async () => {
+  test("story scope keeps Home, Intent only and Changes only in one row", async () => {
     const shown = await mountRow({
       scope: "story",
       onHome: vi.fn<() => void>(),
@@ -83,10 +87,24 @@ describe("the Files sidebar's first row at 320 px", () => {
       "Intent only",
       "Changes only",
     ]);
-    expectOneLineInside(shown, "Intent only", "Changes only");
+    expectOneRowInside(shown, "Intent only", "Changes only");
   });
 
-  test("whole-project scope keeps Home and Intent only on one line without Changes only", async () => {
+  test("story scope keeps its row inside the sidebar with wider text", async () => {
+    const shown = await mountRow(
+      {
+        scope: "story",
+        onHome: vi.fn<() => void>(),
+        intentOnly: filter("Intent only"),
+        changesOnly: filter("Changes only"),
+      },
+      "115%",
+    );
+
+    expectOneRowInside(shown, "Intent only", "Changes only");
+  });
+
+  test("whole-project scope keeps Home and Intent only in one row without Changes only", async () => {
     const shown = await mountRow({
       scope: "project",
       onHome: vi.fn<() => void>(),
@@ -94,7 +112,7 @@ describe("the Files sidebar's first row at 320 px", () => {
     });
 
     expect(rowNames(shown.row)).toEqual(["Home", "Intent only"]);
-    expectOneLineInside(shown, "Intent only");
+    expectOneRowInside(shown, "Intent only");
   });
 
   test("each supplied action answers a tap or the keyboard", async () => {
@@ -121,7 +139,7 @@ describe("the Files sidebar's first row at 320 px", () => {
 
     await expect.element(row).toBeVisible();
     expect(rowNames(row)).toEqual(["Home", "Selected story only"]);
-    expectOneLineInside({ row, sidebar: story.sidebar }, "Selected story only");
+    expectOneRowInside({ row, sidebar: story.sidebar }, "Selected story only");
 
     await row.getByRole("button", { name: "Home", exact: true }).click();
     await expect

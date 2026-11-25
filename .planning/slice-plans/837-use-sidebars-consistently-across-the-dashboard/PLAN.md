@@ -248,7 +248,9 @@ named slices. This review identified no remaining slice-specific concern.
   "Selected story only" choice; project scope supplies nothing yet. The
   320 px premise did not reproduce with 44 px coarse-pointer targets: Home,
   Intent only and Changes only reach about 279 of 282 px with `--space-1`
-  padding and gap.
+  padding and gap. CI's Linux fonts reached 299 px (run 45661035502), so
+  each filter now shrinks and wraps its label inside its own control; a kept
+  case at 115% text proves the row stays inside the sidebar.
 - Slice 2 learning: `dashboard/frontend-tests/review/story-review-toolbar-truthful.spec.ts:39`
   failed once in a 39-file batch at load 16–30 ("expected undefined to be
   'Published changes'") and passed alone 5/5 at load 16, with no Review code
