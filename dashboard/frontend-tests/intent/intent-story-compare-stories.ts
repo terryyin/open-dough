@@ -8,6 +8,7 @@
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import type { PageReads } from "../../src/pageReads.tsx";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { recordOutsideCalls } from "./intent-outside-calls.ts";
@@ -148,9 +149,11 @@ export async function openDoneStoryComparison({
   otherDone,
   readFile = (...[, , revision]) => Promise.resolve(`${revision}\n`),
   viewport,
+  storyResult,
   ...review
 }: ReviewAnswers & {
   readonly ci?: Partial<IntentCiReadSource>;
+  readonly storyResult?: PageReads["storyResult"];
   readonly otherDone?: { readonly identity: string; readonly title: string };
   readonly readFile?: IntentReadSource["readFile"];
   readonly viewport?: { readonly width: number; readonly height: number };
@@ -199,6 +202,7 @@ export async function openDoneStoryComparison({
         ...ci,
       },
       review: answering(review),
+      ...(storyResult === undefined ? {} : { storyResult }),
       done: doneReads,
     },
   });

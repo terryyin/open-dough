@@ -29,69 +29,7 @@ an icon-only banner, stacked comparison details and actions, page-wide story
 tabs, and separate Intent sections and outside files. The current entry
 points are [IntentPage](../../dashboard/src/IntentPage.tsx),
 [IntentHeader](../../dashboard/src/IntentHeader.tsx), and
-[IntentTreeGroups](../../dashboard/src/IntentTreeGroups.tsx).
-
-<a id="browse-one-selectable-review-tree"></a>
-
-### Browse and select folders in one story review tree
-
-**Identity:** SEED-420#browse-one-selectable-review-tree
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/838-browse-one-selectable-review-tree/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"66d8ca4c205292d6c8d16d6fdb0bf9f3129f9c4c8b462d9a534c39f115520aa5","plan":"8102836c229acd4818db853667dd7b78bcb38286a71e0629837adeb03b895a1f"}}
-```
-
-**Goal.** A developer reviewing a story can navigate its repository folders,
-open source or a diff, and move to a folder's Intent proof while keeping
-the same story and comparison in view.
-
-**Scope.** Show a single repository path tree in story review. When the
-comparison supplies a published revision, use its repository inventory and
-the Intent locations at that revision. Place tracked files, including files
-outside Intent, under their repository folders. Overlay the selected
-comparison on this inventory so deletions remain selectable at their former
-paths and a renamed file has one row at its destination with both paths
-available in the diff. Preserve the former path for baseline proof and
-existing links into the comparison. Retire the separate Intent section
-lists and **Outside Intent locations** section in story review.
-
-A folder name selects the folder and its disclosure control independently
-opens or closes its children. Both controls work by keyboard. Selecting a
-regular folder replaces the previous reading with a minimal view naming its
-path. Selecting a configured Intent root or folder within it opens its
-existing scope summary. Selecting an unchanged file reads its source at the
-browsed revision. Selecting a changed file uses the current comparison's
-diff and existing proof. Keep the comparison choice when moving among
-paths, and keep the directed **Review changes** entry and file navigation
-working with the paths shown in the tree.
-
-Keep **Selected story only** and its current meaning while the
-[filter story](#filter-review-files) owns its replacement. When repository
-inventory is unavailable, explain the gap and keep independently readable
-comparison paths available. Keep existing evidence and navigation for a
-story without a published comparison. The
-[folder proof story](#recognize-intent-folders-and-read-proof) owns new cues
-and summary details. [Project browsing](#browse-the-project-at-a-revision)
-owns the whole-project rollout.
-
-**Key examples.**
-
-- In a story comparison containing tests and production changes, expand
-  `dashboard` once to reach both kinds of paths. Select a production
-  folder to replace the previous diff with its folder view. Collapse it
-  without changing the selection, then select a frontend test folder and
-  read its proof summary with the same comparison still selected.
-- In a comparison with a deleted test and a test renamed into a
-  production folder, open the deletion at its old path and the rename at
-  its destination. The deletion and rename retain their change kinds and
-  diffs. The rename keeps its former path and baseline proof. File moves
-  traverse the visible changed paths in tree order. **Selected story only**
-  hides unchanged paths while preserving the ancestors needed for those
-  changes.
-- Choose a captured landed run whose repository has an unchanged document
-  that later trunk changes. Open the document from the tree and read the
-  text at that run's revision. Choose another published comparison and the
-  tree follows its revision. If the inventory read fails, explain the gap
-  and leave the available changed diffs reachable.
+[IntentBrowserTree](../../dashboard/src/IntentBrowserTree.tsx).
 
 <a id="filter-review-files"></a>
 
@@ -131,7 +69,7 @@ be opened. A folder with no matching path is omitted.
 
 The unified tree and a selected folder's file list show these same paths. A
 folder view that lists no files stays as the
-[tree story](#browse-one-selectable-review-tree) left it. Where a folder
+[tree story](https://github.com/terryyin/open-dough/blob/07dad9d62ee48012ee757bf2e6858f2d7ebfeed6/.planning/seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree) left it. Where a folder
 lists files, those files are this inventory. The folder's proof explanation
 stays with
 [its story](#recognize-intent-folders-and-read-proof).
@@ -160,7 +98,7 @@ Home in place. Story Home's comparison and coverage evidence stay as the
 [Home story](https://github.com/terryyin/open-dough/blob/295c96b89ac352f18060e24a5f983f219392da8d/.planning/seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home) defines them, including
 an unchanged test's contribution.
 
-The [tree story](#browse-one-selectable-review-tree) supplies the one
+The [tree story](https://github.com/terryyin/open-dough/blob/07dad9d62ee48012ee757bf2e6858f2d7ebfeed6/.planning/seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree) supplies the one
 repository tree, folder selection, and reachable deletions and renames.
 Project CI, opening a file at the project revision, and reading a repository
 with no Intent locations belong to

@@ -2,7 +2,6 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { intentFileReading } from "./intent-file-reading-page.ts";
 import { heldRead } from "./intent-ci-status-fixtures.ts";
-import { scopeToggle } from "./intent-browser-page.ts";
 import {
   firstCompletion,
   locationsOf,
@@ -64,7 +63,7 @@ test("a newly selected Done story shows only its own historical source after hel
     .element(intentPage)
     .toHaveAttribute("data-selected-story", storyA.identity);
   await story.browseFiles();
-  await scopeToggle("dashboard/tests").click();
+  await story.expandFolderPath("dashboard/tests");
   await story.file(firstPath).click();
   const initial = intentFileReading(firstPath);
   await initial.shows("a 11");
@@ -100,14 +99,12 @@ test("a newly selected Done story shows only its own historical source after hel
 
   heldComparison.resolve(secondReview);
   await expect.poll(heldLocations.asked).toBe(true);
-  expect(files()).toBeNull();
+  await expect.element(story.file(firstPath)).not.toBeInTheDocument();
+  expect(files()?.textContent).toContain("Reading repository files");
   await expect.element(purpose).not.toBeInTheDocument();
   heldLocations.resolve(locationsOf("second/tests", secondPath));
 
-  const secondLocation = scopeToggle("second/tests");
-  await expect.element(secondLocation).toBeVisible();
-  if (secondLocation.element().getAttribute("aria-expanded") === "false")
-    await secondLocation.click();
+  await story.expandFolderPath("second/tests");
   await expect.element(story.file(firstPath)).not.toBeInTheDocument();
   await story.file(`Added ${secondPath}`).click();
   await expect.poll(story.diffCode).toContain(secondSource);

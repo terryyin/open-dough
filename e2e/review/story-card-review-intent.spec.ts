@@ -17,7 +17,10 @@ import {
   expectIntentReviewOpened,
   openIntentReviewChanges,
 } from "../../dashboard/test-support/reviewChangesPage.ts";
-import { intentDiffReading } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import {
+  intentDiffReading,
+  intentStory,
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
 import { intentReviewFiles } from "../../dashboard/test-support/intentReviewFiles.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
@@ -37,7 +40,13 @@ import {
   terminalPanel,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 
-const firstFile = "Added z-tests/nested/first.spec.ts";
+const firstFile = "Added a-tests/second-folder/second.spec.ts";
+const storyFile = "Added story.txt";
+const changedFiles = [
+  firstFile,
+  "Added z-tests/nested/first.spec.ts",
+  storyFile,
+];
 
 test("the Taken Story card opens the first changed file beside its terminal and Back returns to that card", async ({
   page,
@@ -81,12 +90,12 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   writeAt(
     workspace,
     "z-tests/nested/first.spec.ts",
-    "first in the displayed tree\n",
+    "first configured location\n",
   );
   writeAt(
     workspace,
-    "a-tests/second.spec.ts",
-    "second in the displayed tree\n",
+    "a-tests/second-folder/second.spec.ts",
+    "first by repository order\n",
   );
   commitAll(workspace, "Publish the story files");
   push(workspace);
@@ -101,8 +110,10 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await expectStoryTab(intent, "CI comparison");
   await browseStoryFiles(intent);
   await files.expectNoSelection();
-  await files.collapseFolder("nested");
-  await files.collapseLocation("z-tests");
+  await files.expectChangedFiles(changedFiles);
+  await intentStory(intent).expandFolderPath("a-tests/second-folder");
+  await files.collapseFolder("second-folder");
+  await files.collapseLocation("a-tests");
   await development.click();
 
   await openTerminalControl(card).click();
@@ -117,7 +128,7 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await files.expectSelected(firstFile);
   const reading = intentDiffReading(intent);
   await expect(reading.name).toHaveText(firstFile);
-  await expect(reading.container).toContainText("first in the displayed tree");
+  await expect(reading.container).toContainText("first by repository order");
   await expectIntentReviewFocused(intent);
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
   await page.goBack();
@@ -128,23 +139,24 @@ test("the Taken Story card opens the first changed file beside its terminal and 
 
   const review = await openIntentReviewChanges(page, card);
   await review.expectText("Published trunk");
-  await review.files.expectOutsideFiles(1, ["Added story.txt"]);
-  await review.files.choose("Added story.txt");
-  await expect(reading.name).toHaveText("Added story.txt");
+  await review.files.expectChangedFiles(changedFiles);
+  await expect(review.files.row(storyFile)).toBeVisible();
+  await review.files.choose(storyFile);
+  await expect(reading.name).toHaveText(storyFile);
 
   await development.click();
   await expectSelected(card, true);
   await openIntentReviewChanges(page, card);
   await expectIntentReviewOpened(intent);
-  await review.files.expectSelected("Added story.txt");
-  await expect(reading.name).toHaveText("Added story.txt");
+  await review.files.expectSelected(storyFile);
+  await expect(reading.name).toHaveText(storyFile);
 
   await chooseStoryTab(intent, "Intent coverage");
   await development.click();
   await openIntentReviewChanges(page, card);
   await expectIntentReviewOpened(intent);
-  await review.files.expectSelected("Added story.txt");
-  await expect(reading.name).toHaveText("Added story.txt");
+  await review.files.expectSelected(storyFile);
+  await expect(reading.name).toHaveText(storyFile);
 
   await development.click();
   await emptyArea(card).click();
@@ -154,6 +166,7 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
   await browseStoryFiles(intent);
-  await review.files.expectOutsideFiles(1, ["Added story.txt"]);
+  await review.files.expectChangedFiles(changedFiles);
+  await expect(review.files.row(storyFile)).toBeVisible();
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
 });

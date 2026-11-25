@@ -43,7 +43,11 @@ import {
   type SourceHighlighter,
 } from "./sourceHighlight.ts";
 import type { DoneLinkReads } from "./recentlyDoneLink.ts";
-import { pageReviewSource, type ReviewSource } from "./reviewSource.ts";
+import {
+  pageReviewSource,
+  readStoryReviewResult,
+  type ReviewSource,
+} from "./reviewSource.ts";
 import {
   authenticatedSessionServices,
   type SessionServices,
@@ -61,6 +65,7 @@ export type PageReads = {
   readonly intent: IntentReadSource;
   readonly ci: IntentCiReadSource;
   readonly review: ReviewSource;
+  readonly storyResult: typeof readStoryReviewResult;
   readonly sessions: SessionServices;
   readonly transcription: InstructionTranscriptionSource;
   readonly done: DoneRecordReadSource;
@@ -76,6 +81,7 @@ export const authenticatedPageReads: PageReads = {
   intent: authenticatedIntentReads,
   ci: authenticatedIntentCiReads,
   review: pageReviewSource,
+  storyResult: readStoryReviewResult,
   sessions: authenticatedSessionServices,
   transcription: instructionTranscription,
   done: authenticatedDoneRecordReads,
@@ -157,6 +163,7 @@ export function heldOnPage<T>(create: (reads: PageReads) => T): () => T {
 export const useIntentReads = (): IntentReadSource => usePageReads().intent;
 export const useIntentCiReads = (): IntentCiReadSource => usePageReads().ci;
 export const useReviewReads = (): ReviewSource => usePageReads().review;
+export const useStoryResultReads = () => usePageReads().storyResult;
 export const useSessionServices = (): SessionServices =>
   usePageReads().sessions;
 export const useInstructionTranscription = (): InstructionTranscriptionSource =>

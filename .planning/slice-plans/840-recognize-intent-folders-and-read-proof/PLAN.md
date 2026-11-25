@@ -10,7 +10,7 @@ a root's test configuration and matching files or a nested folder's scoped CI
 proof with its evidence basis identified.
 
 This plan waits on
-[SEED-420#browse-one-selectable-review-tree](../../seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree)
+[SEED-420#browse-one-selectable-review-tree](https://github.com/terryyin/open-dough/blob/07dad9d62ee48012ee757bf2e6858f2d7ebfeed6/.planning/seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree)
 for the single uncompacted selectable repository path tree and regular-versus-Intent
 folder selection. Replacing **Selected story only** with **Intent only** and
 **Changes only** belongs to

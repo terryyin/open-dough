@@ -76,7 +76,7 @@ test("Done Purpose and Proof keep their historical revision through tab changes 
     intentPage.getByRole("tab", { name, exact: true });
   await story.browseFiles();
   await expect.element(selected).toBeVisible();
-  expect(locations).toEqual([firstCompletion]);
+  await expect.poll(() => locations).toEqual([firstCompletion]);
   await chooseWholeProject();
   await browser.isAt(projectRevision);
   await intentRecentStories(openDoughSource).chooseRow(storyA.identity);

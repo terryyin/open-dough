@@ -51,11 +51,18 @@ function FolderCount({
   );
 }
 
-// Opt-in Intent path: folder icon toggles disclosure; name selects (or toggles
-// when already selected). Review changes omits this and keeps one row.
+// Opt-in Intent path: the icon discloses the folder and the name selects it.
 export type FolderSelection = {
   readonly selectedPath: string;
   readonly onSelect: (folderPath: string) => void;
+  readonly renderFolder?: (folder: {
+    readonly path: string;
+    readonly name: string;
+    readonly rowsId: string;
+    readonly expanded: boolean;
+    readonly selected: boolean;
+    readonly onToggle: () => void;
+  }) => ReactNode;
 };
 
 // The browser's rows under one folder, or the top level: a folder's
@@ -118,33 +125,45 @@ export function FileTree<T extends PathBearing>({
           return (
             <li
               key={`folder:${node.path}`}
+              data-folder-path={node.path}
               data-contains-changes={node.containsChanges || undefined}
             >
-              <div className="story-review-folder-row">
-                <button
-                  type="button"
-                  className="story-review-folder"
-                  aria-expanded={!folderCollapsed}
-                  aria-controls={rowsId}
-                  aria-label={`${folderCollapsed ? "Expand" : "Collapse"} ${node.name}`}
-                  onClick={() => {
-                    onToggle(node.path);
-                  }}
-                >
-                  <FolderToggleIcon open={!folderCollapsed} />
-                </button>
-                <button
-                  type="button"
-                  className="story-review-folder-name"
-                  aria-pressed={folderSelected}
-                  onClick={() => {
-                    folderSelection.onSelect(node.path);
-                  }}
-                >
-                  <code>{node.name}</code>
-                  {count}
-                </button>
-              </div>
+              {folderSelection.renderFolder?.({
+                path: node.path,
+                name: node.name,
+                rowsId,
+                expanded: !folderCollapsed,
+                selected: folderSelected,
+                onToggle: () => {
+                  onToggle(node.path);
+                },
+              }) ?? (
+                <div className="story-review-folder-row">
+                  <button
+                    type="button"
+                    className="story-review-folder"
+                    aria-expanded={!folderCollapsed}
+                    aria-controls={rowsId}
+                    aria-label={`${folderCollapsed ? "Expand" : "Collapse"} ${node.name}`}
+                    onClick={() => {
+                      onToggle(node.path);
+                    }}
+                  >
+                    <FolderToggleIcon open={!folderCollapsed} />
+                  </button>
+                  <button
+                    type="button"
+                    className="story-review-folder-name"
+                    aria-pressed={folderSelected}
+                    onClick={() => {
+                      folderSelection.onSelect(node.path);
+                    }}
+                  >
+                    <code>{node.name}</code>
+                    {count}
+                  </button>
+                </div>
+              )}
               <FileTree
                 nodes={node.children}
                 selectedPath={selectedPath}

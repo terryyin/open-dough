@@ -60,7 +60,7 @@ test("a locally kept receipt cannot replace a landing missing from published ori
   const receipt = captureReviewRun(run, origin);
   retireReviewRun(run, origin, receipt.revision);
   const review = await openCapturedReview(page, origin);
-  await review.files.expectOutsideCount(1);
+  await review.files.expectChangedFileCount(1);
 
   git(origin.origin, "update-ref", "refs/heads/main", receipt.base);
   const refreshed = await review.refreshAndAnswer();

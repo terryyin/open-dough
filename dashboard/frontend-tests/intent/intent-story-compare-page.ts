@@ -84,9 +84,12 @@ export function intentStoryCompare() {
       : view(name);
   const alert = header.getByRole("alert");
   const retryControl = alert.getByRole("button", { name: "Retry" });
-  const outsideGroup = intent.getByRole("region", {
-    name: "Outside Intent locations",
+  const tree = intent.getByRole("list", {
+    name: "Repository files",
+    exact: true,
   });
+  const folder = (path: string) =>
+    tree.getByCSS(`li[data-folder-path="${CSS.escape(path)}"]`);
   const summary = header.getByRole("group", { name: "Comparison summary" });
   const details = header.getByRole("group", { name: "Review details" });
   const refreshButton = details.getByRole("button", { name: "Refresh" });
@@ -116,9 +119,22 @@ export function intentStoryCompare() {
     chooseRun: (key: string) => activateComparisonControl(runChoice(key)),
     chooseLatestLanding: () =>
       activateComparisonControl(landingChoices.first()),
-    // The story's changed files outside every location.
-    outsideGroup,
-    outside: () => textOf(outsideGroup.query()),
+    tree,
+    treeText: () => textOf(tree.query()),
+    folder,
+    async expandFolderPath(path: string) {
+      let ancestor = "";
+      for (const segment of path.split("/")) {
+        ancestor = ancestor ? `${ancestor}/${segment}` : segment;
+        const toggle = folder(ancestor).getByCSS(
+          ":scope > div > button[aria-expanded]",
+        );
+        await expect.element(toggle).toBeVisible();
+        if (toggle.element().getAttribute("aria-expanded") === "false")
+          await userEvent.click(toggle);
+        await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+      }
+    },
     onlyChangedFiles: intent.getByRole("checkbox", {
       name: "Selected story only",
       exact: true,
@@ -140,9 +156,6 @@ export function intentStoryCompare() {
       activateComparisonControl(
         fileTabs.getByRole("tab", { name: "Purpose", exact: true }),
       ),
-    // A changed file outside every location, by its kind and path.
-    outsideFile: (name: string) =>
-      outsideGroup.getByRole("button", fileNamed(name)),
     // The CI comparison identity labels Proof reads for `identity`.
     proofLabels: (identity: string) =>
       [
@@ -234,7 +247,7 @@ export function intentStoryCompare() {
     purposeText: () => textOf(purpose.element()),
     diffName: () =>
       textOf(
-        purpose.element().querySelector(".story-review-diff-heading h3"),
+        purpose.query()?.querySelector(".story-review-diff-heading h3"),
       ).trim(),
     diffCode: () =>
       textOf(purpose.element().querySelector(".story-review-code")),

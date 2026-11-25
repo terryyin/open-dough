@@ -42,10 +42,11 @@ test("a story's changed files show by name under their folders", async ({
   keepPublishedStoryReview(dashboard, origin, workspace);
   const card = await openBacklog(page, origin);
   const { files, diffs } = await openIntentReviewChanges(page, card);
-  await files.expectOutsideCount(6);
+  await files.showOnlyChanged();
+  await files.expectChangedFileCount(6);
 
-  await test.step("files sit under their expanded folders, a chain as one row, the root file at the top level", async () => {
-    await files.expectOutsideRows(nestedTreeRows);
+  await test.step("files sit under their expanded folders, each folder in a chain separately, the root file at the top level", async () => {
+    await files.expectTreeRows(nestedTreeRows);
     for (const name of [
       "Deleted dashboard/server/c.ts",
       "Added dashboard/src/a.tsx",
@@ -58,13 +59,7 @@ test("a story's changed files show by name under their folders", async ({
       await expect(file).toBeVisible();
       await expect(file).toHaveAttribute("title", name);
     }
-    for (const name of [
-      "dashboard",
-      "server",
-      "src",
-      "docs/adrs/drafts",
-      "new",
-    ]) {
+    for (const name of ["dashboard", "server", "src", "drafts", "new"]) {
       await expect(files.folder(name)).toHaveAttribute("aria-expanded", "true");
     }
   });
@@ -72,9 +67,9 @@ test("a story's changed files show by name under their folders", async ({
   await test.step("selecting the first changed row opens its diff", async () => {
     await files.choose("Deleted dashboard/server/c.ts");
     await files.expectSelected("Deleted dashboard/server/c.ts");
-    await expect(
-      files.outsideList.locator('button[aria-pressed="true"]'),
-    ).toHaveCount(1);
+    await expect(files.tree.locator('button[aria-pressed="true"]')).toHaveCount(
+      1,
+    );
     const diff = diffs.toRead("Deleted dashboard/server/c.ts");
     await expect(diffHeading(diff, { level: 3 })).toHaveText(
       "Deleted dashboard/server/c.ts",
@@ -83,7 +78,7 @@ test("a story's changed files show by name under their folders", async ({
   });
 
   await test.step("each file's kind shows only in the style of its name", async () => {
-    const style = await kindStyles(files.outsideList);
+    const style = await kindStyles(files.tree);
     for (const [name, expected] of [
       ["Added dashboard/src/a.tsx", style.added],
       ["Added docs/adrs/drafts/0009-tree.md", style.added],
@@ -96,7 +91,7 @@ test("a story's changed files show by name under their folders", async ({
     }
     // Each row carries its kind from the shared change-kind model.
     await expect(
-      files.outsideList.getByRole("listitem").filter({
+      files.tree.getByRole("listitem").filter({
         has: page.getByRole("button", {
           name: "Modified README.md",
           exact: true,

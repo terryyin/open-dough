@@ -57,7 +57,7 @@ test.describe("from nested changes", () => {
     const card = await openBacklog(page, origin);
     const review = await openIntentReviewChanges(page, card);
     const { files } = review;
-    const browser = files.outsideToMeasure();
+    const browser = review.filesToMeasure();
     const previous = files.moveControl("Previous file");
     const next = files.moveControl("Next file");
     await files.choose(nestedOrder[0]);
@@ -91,12 +91,12 @@ test.describe("from nested changes", () => {
 
     await test.step("Next file into a collapsed folder expands it and brings its first file into view", async () => {
       await files.choose("Modified dashboard/src/b.ts");
-      await files.folder("docs/adrs/drafts").click();
-      const folder = files.folder("docs/adrs/drafts");
+      await files.folder("drafts").click();
+      const folder = files.folder("drafts");
       await expect(folder).toHaveAttribute("aria-expanded", "false");
       await next.click();
       const row = await expectSelected(review, nestedOrder[3]);
-      await expect(files.folder("docs/adrs/drafts")).toHaveAttribute(
+      await expect(files.folder("drafts")).toHaveAttribute(
         "aria-expanded",
         "true",
       );
@@ -136,7 +136,7 @@ test.describe("from a large comparison", () => {
       await openBacklog(page, origin),
     );
     const { files } = review;
-    const browser = files.outsideToMeasure();
+    const browser = review.filesToMeasure();
     const reading = review.readingToMeasure();
     const next = files.moveControl("Next file");
     const nameA = `Added ${longA}`;

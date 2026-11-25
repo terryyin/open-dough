@@ -61,7 +61,7 @@ test("Review changes reads a Taken story's published branch and keeps the select
     await review.comparison.includeMerged(true);
   });
   await test.step("Then I can read the published incoming file", async () => {
-    await review.files.expectOutsideLacks("draft.txt", "later.txt");
+    await review.files.expectTreeLacksText("draft.txt", "later.txt");
     await review.files.choose(incoming);
     await review.diffs.expectShows(incoming, "incoming trunk change");
   });

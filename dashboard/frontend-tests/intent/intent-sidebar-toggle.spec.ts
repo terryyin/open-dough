@@ -98,7 +98,7 @@ test("changed locations keep their own full-width header and change mark when se
     await expect.element(scopeName(path)).toBeVisible();
     expect(
       locationHeader(path)
-        .closest(".intent-location")
+        .closest("li[data-folder-path]")
         ?.getAttribute("data-contains-changes"),
     ).toBe("true");
     const marked = locationHeaderLook(path);

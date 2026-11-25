@@ -31,7 +31,8 @@ test("a story's review folders collapse and expand", async ({
   const card = await openBacklog(page, origin);
   const review = await openIntentReviewChanges(page, card);
   const { files, diffs } = review;
-  await files.expectOutsideCount(6);
+  await files.showOnlyChanged();
+  await files.expectChangedFileCount(6);
 
   await test.step("a collapsed folder hides its rows and tells its count, and expanding restores them as they were", async () => {
     // A nested folder collapsed first stays collapsed inside its parent.
@@ -46,10 +47,12 @@ test("a story's review folders collapse and expand", async ({
       "aria-expanded",
       "false",
     );
-    await files.expectOutsideRows([
+    await files.expectTreeRows([
       "dashboard 3 files",
-      "docs/adrs/drafts",
-      "  0009-tree.md",
+      "docs",
+      "  adrs",
+      "    drafts",
+      "      0009-tree.md",
       "new",
       "  a.ts",
       "README.md",
@@ -61,24 +64,24 @@ test("a story's review folders collapse and expand", async ({
     await expect(count).toHaveText("3 files");
     await expect(count.locator(".visually-hidden")).toHaveText(" files");
     await expect(files.row("Added dashboard/src/a.tsx")).toBeHidden();
-    await files.expectOutsideCount(6);
-    await expect(files.outsideList).toHaveAccessibleName(
-      "Changed files outside Intent locations",
-    );
+    await files.expectChangedFileCount(6);
+    await expect(files.tree).toHaveAccessibleName("Repository files");
 
     await files.folder("dashboard").press("Enter");
     await expect(files.folder("dashboard")).toHaveAttribute(
       "aria-expanded",
       "true",
     );
-    await files.expectOutsideRows([
+    await files.expectTreeRows([
       "dashboard",
       "  server 1 file",
       "  src",
       "    a.tsx",
       "    b.ts",
-      "docs/adrs/drafts",
-      "  0009-tree.md",
+      "docs",
+      "  adrs",
+      "    drafts",
+      "      0009-tree.md",
       "new",
       "  a.ts",
       "README.md",
@@ -88,7 +91,7 @@ test("a story's review folders collapse and expand", async ({
       "aria-expanded",
       "true",
     );
-    await files.expectOutsideRows(nestedTreeRows);
+    await files.expectTreeRows(nestedTreeRows);
   });
 
   await test.step("collapsing the folder holding the selected file keeps its diff", async () => {
@@ -113,14 +116,16 @@ test("a story's review folders collapse and expand", async ({
     await files.folder("server").click();
     await review.refresh();
     await review.expectFeedback(/^Review refreshed:/);
-    await files.expectOutsideRows([
+    await files.expectTreeRows([
       "dashboard",
       "  server 1 file",
       "  src",
       "    a.tsx",
       "    b.ts",
-      "docs/adrs/drafts",
-      "  0009-tree.md",
+      "docs",
+      "  adrs",
+      "    drafts",
+      "      0009-tree.md",
       "new",
       "  a.ts",
       "README.md",

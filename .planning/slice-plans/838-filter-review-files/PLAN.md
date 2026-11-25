@@ -7,7 +7,7 @@ A developer can narrow one story-review file inventory to configured Intent
 paths, to the active comparison's changes, or to both. The tree and a
 folder's file list show that inventory. Both filters off still lists the
 repository at the selected revision. The story waits on
-[SEED-420#browse-one-selectable-review-tree](../../seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree)
+[SEED-420#browse-one-selectable-review-tree](https://github.com/terryyin/open-dough/blob/07dad9d62ee48012ee757bf2e6858f2d7ebfeed6/.planning/seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree)
 for that one tree. This plan filters it. It does not build the tree, folder
 selection, or proof explanations.
 

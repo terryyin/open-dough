@@ -4,8 +4,9 @@ import { intentGroupToggle } from "./intentPerspectivePage.ts";
 import {
   folderToggle,
   intentFile,
-  intentStory,
-  outsideGroup,
+  repositoryTree,
+  repositoryFolder,
+  storyOnly,
 } from "./support/intentStoryPage.ts";
 import { expectTreeRows, fileLineCounts } from "./support/reviewTreeRows.ts";
 
@@ -16,44 +17,61 @@ export class IntentReviewFiles {
     this.#intent = intent;
   }
 
-  outsideToMeasure() {
-    return outsideGroup(this.#intent);
+  get tree() {
+    return repositoryTree(this.#intent);
   }
 
-  get outsideList() {
-    return this.outsideToMeasure().getByRole("list", {
-      name: "Changed files outside Intent locations",
-      exact: true,
-    });
-  }
-
-  async expectOutsideCount(count: number) {
-    await expect(this.outsideList.locator("li[data-kind]")).toHaveCount(count);
+  async expectInventoryNotice(message: string | RegExp) {
+    await expect(filesColumn(this.#intent).getByText(message)).toBeVisible();
     return this;
   }
 
-  async expectOutsideFiles(count: number, names: readonly string[]) {
-    await this.expectOutsideCount(count);
-    const story = intentStory(this.#intent);
+  async expectChangedFileCount(count: number) {
+    await expect(this.tree.locator("li[data-kind]")).toHaveCount(count);
+    return this;
+  }
+
+  async expectOnlyChangedFile(name: string) {
+    await this.expectChangedFileCount(1);
+    await expect(this.row(name)).toBeVisible();
+    return this;
+  }
+
+  async expectChangedFiles(names: readonly string[]) {
+    await this.expectChangedFileCount(names.length);
     for (const name of names) {
-      await expect(story.outsideFile(name)).toBeVisible();
+      await expect(
+        intentFile(this.#intent, name, { includeHidden: true }),
+      ).toHaveCount(1);
     }
     return this;
   }
 
-  async expectOutsideRows(rows: readonly string[]) {
-    await expectTreeRows(this.outsideList, rows);
+  async expectFileInFolder(file: string, folder: string) {
+    const rows = repositoryFolder(this.#intent, folder).locator(
+      ":scope > ul > li > button",
+    );
+    await expect(this.row(file).and(rows)).toBeVisible();
     return this;
   }
 
-  async expectNone() {
-    await expect(outsideGroup(this.#intent)).toHaveCount(0);
+  async showOnlyChanged() {
+    await storyOnly(this.#intent).check();
     return this;
   }
 
-  async expectOutsideLacks(...texts: readonly string[]) {
+  async expectTreeRows(rows: readonly string[]) {
+    await expectTreeRows(this.tree, rows);
+    return this;
+  }
+
+  expectNone() {
+    return this.expectChangedFileCount(0);
+  }
+
+  async expectTreeLacksText(...texts: readonly string[]) {
     for (const text of texts) {
-      await expect(this.outsideList).not.toContainText(text);
+      await expect(this.tree).not.toContainText(text);
     }
     return this;
   }
@@ -110,10 +128,10 @@ export class IntentReviewFiles {
   }
 
   folder(name: string) {
-    return this.outsideList
+    return this.tree
       .getByRole("button", { name: `Expand ${name}`, exact: true })
       .or(
-        this.outsideList.getByRole("button", {
+        this.tree.getByRole("button", {
           name: `Collapse ${name}`,
           exact: true,
         }),
@@ -121,7 +139,7 @@ export class IntentReviewFiles {
   }
 
   folderName(name: string) {
-    return this.outsideList.getByRole("button", { name, exact: true });
+    return this.tree.getByRole("button", { name, exact: true });
   }
 
   async expectFolderName(name: string) {

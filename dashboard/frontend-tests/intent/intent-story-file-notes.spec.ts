@@ -41,7 +41,7 @@ async function saveFileNote(
   });
   const story = intentStoryCompare();
   await story.browseFiles();
-  await story.outsideFile(file).click();
+  await story.file(file).click();
   await expect.poll(story.diffName).toBe(file);
   await purpose.getByRole("button", { name: names.add, exact: true }).click();
   expect(await expectComposerNames(context)).not.toMatch(/Line [0-9]+/);

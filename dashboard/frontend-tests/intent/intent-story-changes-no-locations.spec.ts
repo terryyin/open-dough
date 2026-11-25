@@ -28,7 +28,7 @@ test("without configured Intent locations the CI view offers the story's changed
       ),
     )
     .toBeVisible();
-  const outside = story.outsideGroup;
+  const outside = story.tree;
   await expect
     .element(
       outside.getByRole("button", {
@@ -46,10 +46,10 @@ test("without configured Intent locations the CI view offers the story's changed
     changed.notes,
     "Renamed dashboard/tests/between/moved.spec.ts → tests/moved.sh",
   ])
-    await expect.element(story.outsideFile(name)).toBeVisible();
+    await expect.element(story.file(name)).toBeVisible();
   await expect.element(story.folderToggle("docs", true)).toBeVisible();
 
-  await activateComparisonControl(story.outsideFile(changed.product));
+  await activateComparisonControl(story.file(changed.product));
   await expect.poll(story.diffName).toBe(changed.product);
   await expect.poll(story.diffCode).toContain("product change");
   expect(reads.diffs).toEqual([productPath]);

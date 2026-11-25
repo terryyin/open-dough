@@ -34,7 +34,7 @@ export function expectAddress(
 export function intentGroupToggle(intent: Locator, locationPath: string) {
   const bodyId = `${intentLocationIdPrefix(locationPath)}-body`;
   return intent.locator(
-    `button.intent-location-toggle[aria-controls="${bodyId}"]`,
+    `button.intent-location-toggle[aria-controls="${bodyId}"], li[data-folder-path="${locationPath}"] > .intent-location-header > button.intent-location-toggle`,
   );
 }
 
@@ -64,7 +64,9 @@ export async function expandIntentGroup(intent: Locator, locationPath: string) {
 // The folder toggles inside one expanded Intent location's body.
 function intentFolderToggles(intent: Locator, locationPath: string) {
   return intent
-    .locator(`[id="${intentLocationIdPrefix(locationPath)}-body"]`)
+    .locator(
+      `[id="${intentLocationIdPrefix(locationPath)}-body"], li[data-folder-path="${locationPath}"] > ul`,
+    )
     .locator("button.story-review-folder");
 }
 

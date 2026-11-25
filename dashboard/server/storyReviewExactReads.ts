@@ -4,6 +4,7 @@ import {
   storyReviewFileEndpoint,
   storyReviewFileTextEndpoint,
 } from "../src/storyReviewContract.ts";
+import { storyReviewResultEndpoint } from "../src/storyReviewResult.ts";
 import {
   fileDiffRequest,
   fileTextRequest,
@@ -13,9 +14,13 @@ import {
   storyReviewRequest,
   type AdmittedStoryReview,
 } from "./storyReviewRequest.ts";
+import {
+  storyReviewResultRequest,
+  type AdmittedStoryReviewResult,
+} from "./storyReviewResultRequest.ts";
 
 export type StoryReviewExactRead =
-  AdmittedStoryReview | AdmittedReviewedFileRead;
+  AdmittedStoryReview | AdmittedReviewedFileRead | AdmittedStoryReviewResult;
 
 export const storyReviewExactReads: ReadonlyArray<
   readonly [
@@ -26,4 +31,5 @@ export const storyReviewExactReads: ReadonlyArray<
   [storyReviewEndpoint, storyReviewRequest],
   [storyReviewFileEndpoint, fileDiffRequest],
   [storyReviewFileTextEndpoint, fileTextRequest],
+  [storyReviewResultEndpoint, storyReviewResultRequest],
 ];

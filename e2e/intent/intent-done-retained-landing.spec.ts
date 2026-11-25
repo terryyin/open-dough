@@ -5,7 +5,7 @@ import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePag
 // live Review and multiple retained choices stay covered in the review suite.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
-import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
+import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -103,16 +103,10 @@ for (const history of ["published", "shallow"] as const)
     expect(git(story.workspace, "status", "--porcelain")).toContain(
       "dashboard/tests/a.spec.ts",
     );
-    const locations: string[] = [];
-    const sourceReads: string[] = [];
-    page.on("request", (request) => {
-      const url = new URL(request.url());
-      if (url.pathname !== authenticatedReadEndpoint) return;
-      if (url.searchParams.get("intent") === "locations")
-        locations.push(url.searchParams.get("revision") ?? "");
-      if (url.searchParams.get("path") === unchanged)
-        sourceReads.push(url.searchParams.get("revision") ?? "");
-    });
+    const { inventory: locations, text: sourceReads } = trackStoryResultReads(
+      page,
+      unchanged,
+    );
     await publishCommittedOrigin(page, {
       repoDir: origin.origin,
       revision: published,

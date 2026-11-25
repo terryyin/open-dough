@@ -100,6 +100,7 @@ export const pageReadsSupplying = (
   intent: unreadIntentReads,
   ci: unreadCiReads,
   review: unreadReviewReads,
+  storyResult: unread("story result"),
   sessions: unreadSessionServices,
   transcription: {
     configured: unread("transcription configuration"),

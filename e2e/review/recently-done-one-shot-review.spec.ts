@@ -59,10 +59,17 @@ async function inspectDelivered(
     landing: { reference: receipt.reference },
   });
   if (answer.kind !== "landed") throw new Error("No delivered review");
-  await review.expectHistoricalSourceExplanation(
-    "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
+  await review.files.expectInventoryNotice(
+    /^No Intent locations are configured for Open Dough\./,
   );
-  await review.files.expectOutsideCount(answer.files.length);
+  const unchanged = "trunk.txt";
+  await review.files.choose(unchanged);
+  await review.expectHistoricalSource(
+    unchanged,
+    receipt.revision,
+    git(repository, "show", `${receipt.revision}:${unchanged}`),
+  );
+  await review.files.expectChangedFileCount(answer.files.length);
   expect(answer.files.map((file) => file.path)).toEqual(
     git(
       repository,

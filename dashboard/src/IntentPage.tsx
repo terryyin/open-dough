@@ -35,6 +35,7 @@ import {
   storyReviewFileReadiness,
   useStoryReviewArrival,
 } from "./useFirstStoryChangedFile.ts";
+import { useStoryResultBrowse } from "./useStoryResultRead.tsx";
 import "./intent-page.css";
 
 export type IntentPageStory = {
@@ -54,14 +55,23 @@ export function IntentPage({
   readonly project: ModeChoice;
   readonly story?: IntentPageStory;
 }) {
-  const { notice, locations, shownRevision } = shown;
+  const { notice, shownRevision } = shown;
+  const result = useStoryResultBrowse(story?.summary.comparison, source.label);
   const {
     comparisonSourceUnavailable,
     locations: browserLocations,
     revision: browserRevision,
     explanation,
     lead,
-  } = intentBrowserSource(shown, story?.summary.comparison);
+  } = result === undefined
+    ? intentBrowserSource(shown, story?.summary.comparison)
+    : {
+        comparisonSourceUnavailable: false,
+        locations: result.locations,
+        revision: result.pin.revision,
+        explanation: undefined,
+        lead: result.lead,
+      };
   const { tab, chooseTab } = useStoryTab(story?.selection);
   const hasBrowser =
     browserLocations !== undefined && browserRevision !== undefined;
@@ -72,7 +82,7 @@ export function IntentPage({
       : `${project.modeIdPrefix}-story`;
   const fileReadiness = storyReviewFileReadiness(
     story?.summary.comparison,
-    shown.reading === true,
+    result?.reading ?? shown.reading === true,
     hasBrowser,
   );
   const files = { id: `${tabsIdPrefix}-locations`, shown: filesShown };
@@ -121,6 +131,7 @@ export function IntentPage({
       revision={browserRevision}
       locations={browserLocations}
       lead={lead}
+      result={result}
       project={story === undefined ? project : undefined}
       storySummary={story?.summary}
       story={story?.compared}
@@ -198,7 +209,7 @@ export function IntentPage({
   );
   const navigablePage = (
     <IntentCiEntryNavigation
-      locations={locations}
+      locations={result?.locations ?? shown.locations}
       panelId={
         story === undefined ? intentTabPanelId(tabsIdPrefix, "ci") : readingId
       }

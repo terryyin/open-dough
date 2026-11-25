@@ -182,9 +182,10 @@ test("returning Home while review is pending keeps the late comparison from open
     await held.releaseAndDrain();
   }
   await test.step("Then Home stays visible when the comparison arrives", async () => {
-    await files.expectOutsideFiles(2, [
+    await files.expectChangedFiles([
       "Added a-first.txt",
       "Added a-kept.txt",
+      "Added tests/changed.spec.ts",
     ]);
     await files.expectNoSelection();
     await expectStoryTab(intent, "CI comparison");

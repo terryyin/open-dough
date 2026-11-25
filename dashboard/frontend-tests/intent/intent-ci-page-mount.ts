@@ -25,6 +25,7 @@ import {
 } from "../../test-support/component-mount/framePreferences.ts";
 import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { withStoryResultFixture } from "../../test-support/component-mount/storyResultFixture.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { developmentCard } from "./intent-ci-development-card-page.ts";
 
@@ -95,12 +96,17 @@ export async function mountIntentCiPage({
   withPagePreferences();
   withFramePreference(recentStoriesKey, JSON.stringify(recentStories));
   const launches = machineSessionsAnswering({ answer: machine });
-  const pageReads = pageReadsSupplying({
-    review: unavailableReviewSource,
-    sessions: unmeasuredHostSessions,
-    ...reads,
-  });
   let shown: Shown = { work, showsIntent: initialPerspective === "intent" };
+  const pageReads = pageReadsSupplying(
+    withStoryResultFixture(
+      {
+        review: unavailableReviewSource,
+        sessions: unmeasuredHostSessions,
+        ...reads,
+      },
+      () => shown.work,
+    ),
+  );
   const observations = new Map(
     [work, ...otherWork].map((snapshot) => [snapshot.source.id, snapshot]),
   );
