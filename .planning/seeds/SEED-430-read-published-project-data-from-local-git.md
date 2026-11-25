@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-24
 planted_during: Developer decision to extend shared Git refresh to published Dashboard reads
 trigger_when: selected from the product backlog after the Review repository is in use
-scope: three stories
+scope: two stories
 ---
 
 # SEED-430 — Read the published Board and Review from local Git
@@ -37,48 +37,13 @@ in [Intent and attribution](SEED-434-browse-published-intent-from-local-git.md#b
 [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git),
 and [Add Project](SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git).
 
-<a id="read-published-project-data-from-local-git"></a>
-
-### Publish Board test fixtures through real Git origins
-
-**Identity:** SEED-430#read-published-project-data-from-local-git
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-430#read-published-project-data-from-local-git","dependencies":[{"supplier":{"identity":"SEED-428#read-reviews-from-the-review-repository","href":"seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository"},"implementation":"Dashboard-owned Review repository for each project with shared, bounded Git fetches","rationale":"The next published reader extends that live storage and freshness boundary. A temporary store or checkout reader would duplicate it and could expose a second version of the same published state.","condition":"SEED-428 has landed on origin/main. Published comparisons can use the Dashboard-owned Review repository independently of the execution checkout, and their concurrent readers share a bounded fetch.","state":"satisfied","resolution":{"revision":"5813f8d95b5816e984540785e4e3d0e439c2c1ff","path":".planning/seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository","summary":"Origin main accepted b2b66a794f6a295e82e829ab446a6334e1fcc001. dashboard/server/reviewRepository.ts keeps one bare Review repository per configured project under the machine dashboard home, fetches published refs by exact refspec through GitTargetFetches with a bounded read, and records each sync. Done, Taken, landed and published-session review readers read it without calling executionCheckout. story-review-completed.spec.ts (backend and E2E) reads the same comparison and file diff with the execution checkout renamed and leaves its refs unchanged; story-review-published-taken.spec.ts reads Taken comparisons with no checkout; story-review-completed-shared-fetch.spec.ts records one fetch for two concurrent opens. Full backend, frontend and E2E suites passed on the merged state.\nCondition satisfied: SEED-428 has landed on origin/main; published comparisons use the Dashboard-owned Review repository independently of the execution checkout, and concurrent readers share a bounded fetch. The queued correction SEED-428#read-review-files-without-fetching removes remaining per-switch fetches on landed file reads; it does not affect this condition.\nCondition satisfied: SEED-428 has landed on origin/main. Published comparisons can use the Dashboard-owned Review repository independently of the execution checkout, and their concurrent readers share a bounded fetch.\nAccepted integration: b2b66a794f6a295e82e829ab446a6334e1fcc001 on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/819-read-published-board-and-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1b7d43fd1976efd016a7410301362df5de346a1aca31bc05584ddb6d3e141104","plan":"cabbf55b52231e9cd3de48d8f5588e2dfda82c2dc8d22b15397623ef490388da"}}
-```
-
-**Goal.** The Dashboard suites can prove Board opens against real Git. A
-test that opens the Board finds a real origin, routed through the fixture
-HOME, whose `main` holds the revision the fake GitHub answers.
-
-**Scope.** Committed-origin journeys route their repository through every
-dashboard HOME their fake GitHub serves and keep the origin's `main` at the
-answered revision. `publishes()` without a supplied revision commits a real
-origin, serving it by name routes it, and a republication replaces only its
-own earlier route. The default answer served for every repository commits a
-real origin that the seeded projects reach. Answer wrappers keep their
-origin. A route a HOME fixture sets up stays first. Product reads are
-unchanged.
-
-**Key examples.**
-
-- Given a journey that publishes a committed origin, `git ls-remote` of the
-  configured project under the dashboard HOME returns the revision the fake
-  GitHub answers, including after `advanceTo`.
-- Given a repository published twice through one fake GitHub, a Git read
-  reaches the latest origin while a route its HOME fixture set up still wins.
-- Given the default answer, a seeded project resolves to the default
-  origin's `main`, and a repository nobody serves still fails locally.
-
 <a id="open-published-board-from-local-git"></a>
 
 ### Open and refresh the published Board from local Git
 
 **Identity:** SEED-430#open-published-board-from-local-git
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/824-open-published-board-from-local-git/PLAN.md","assessment":"not-ready","reasons":["Six fixture-family slices are sized only from the audit's file counts; measure or refine their boundaries before Take."],"basis":{"document":"dc11d21cbfb5ff97f83d950a49d4decf36cf4d0f5e3434dda6b218465329378c","plan":"f5c83dd9e0e553ac23457a7a087c007c33ac0ff2880ad9804c6fba5ccc8d2adb"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/824-open-published-board-from-local-git/PLAN.md","assessment":"not-ready","reasons":["Six fixture-family slices are sized only from the audit's file counts; measure or refine their boundaries before Take."],"basis":{"document":"5d9d102b61be288b76899b8d89836fbea3ec543ae420623ef7df70d9ee782dad","plan":"2ccf7339bf92abf1c85e2eda7d09ff4ed715ecba8b03cc0931fbbb6d3a0e850d"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-430#open-published-board-from-local-git","dependencies":[{"supplier":{"identity":"SEED-430#read-published-project-data-from-local-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git"},"implementation":"Board-opening test fixtures that publish through real routed Git origins","rationale":"The Board's Git read can only be proved where the suites hold a real origin at the answered revision; switching it first would break every Board open in the suites.","condition":"SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.","state":"waiting"}]}

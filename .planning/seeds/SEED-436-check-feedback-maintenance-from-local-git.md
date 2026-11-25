@@ -36,5 +36,5 @@ warm Dashboard and unavailable origin, the same check leaves the launch
 unadmitted. Observe the shared Git check and zero separate Contents or Refs
 requests for the watch list.
 
-**Source.** Split from [SEED-430](SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git).
+**Source.** Split from [SEED-430](SEED-430-read-published-project-data-from-local-git.md).
 Begin with [scheduled maintenance](../../dashboard/server/feedbackMaintenanceCheck.ts).

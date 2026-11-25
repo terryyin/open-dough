@@ -42,7 +42,7 @@ judgment and observe that the cached evidence cannot establish a fresh
 result. Verify the published Git inputs make no separate provider history
 lookup or execution-checkout fetch.
 
-**Source.** Split from [SEED-430](SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git).
+**Source.** Split from [SEED-430](SEED-430-read-published-project-data-from-local-git.md).
 Begin with [branch history](../../dashboard/server/baseCiGitHubReads.ts),
 [CI judgment](../../dashboard/server/baseCiJudgment.ts),
 [Taken endpoints](../../dashboard/server/takenStoryEndpoints.ts),

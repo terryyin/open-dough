@@ -63,7 +63,7 @@ their current paths for
   resolves trunk through `resolveRevisionViaGh`. Switching it moves every
   Board open at once, so Board-opening fixtures first publish through a real
   origin routed by the fixture HOME (delivered by the
-  [fixture story](../819-read-published-board-and-review/PLAN.md) for
+  fixture story SEED-430#read-published-project-data-from-local-git for
   committed origins, `publishes()` and the default answer)
   ([fixture origin routes](../../../dashboard/test-support/support/fixtureOriginRoute.ts),
   [published main](../../../dashboard/test-support/support/publishedMainFixture.ts)).

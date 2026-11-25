@@ -33,5 +33,5 @@ Show that an access refusal leaves the project unconfigured and tells the
 developer how to retry. Verify both through Add Project without a repository
 metadata API call.
 
-**Source.** Split from [SEED-430](SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git).
+**Source.** Split from [SEED-430](SEED-430-read-published-project-data-from-local-git.md).
 Begin with [Add Project](../../dashboard/server/projectAddition.ts).

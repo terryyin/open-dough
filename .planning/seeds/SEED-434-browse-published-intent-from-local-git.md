@@ -39,7 +39,7 @@ evidence. Verify the exact paths and commits with zero GitHub API calls or
 remote Git operations for the Git data. Verify provider enrichment separately.
 Capture cold and warm counts and timings for the migrated entry points.
 
-**Source.** Split from [SEED-430](SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git).
+**Source.** Split from [SEED-430](SEED-430-read-published-project-data-from-local-git.md).
 Begin with [Intent locations](../../dashboard/server/intentLocationsRead.ts),
 [candidates](../../dashboard/server/intentCandidatesRead.ts),
 [path commit time](../../dashboard/server/ghCommitTime.ts),

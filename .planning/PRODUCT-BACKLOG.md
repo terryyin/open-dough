@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
 - [Prove durable launch admission through the typed attempt owner](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families ([plan](slice-plans/818-prove-durable-launch-admission/PLAN.md))
-- [Publish Board test fixtures through real Git origins](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git ([plan](slice-plans/819-read-published-board-and-review/PLAN.md))
 
 ## Backlog list
 

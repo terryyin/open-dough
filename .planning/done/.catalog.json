@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_read-published-project-data-from-local-git.json",
+      "identity": "SEED-430#read-published-project-data-from-local-git",
+      "completedAt": "2026-11-25T05:58:45.136Z",
+      "blob": "72ede0b6a2ce6cdedf33342cfb8bd2c6e0419eac"
+    },
+    {
       "fileName": "SEED-433_compose-existing-sessions-directly.json",
       "identity": "SEED-433#compose-existing-sessions-directly",
       "completedAt": "2026-11-24T17:35:26.572Z",
