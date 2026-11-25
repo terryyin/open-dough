@@ -202,31 +202,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-<a id="prove-session-notifications-through-typed-observations"></a>
-
-### Prove session notifications through typed observations
-
-**Identity:** SEED-413#prove-session-notifications-through-typed-observations
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/830-prove-session-notifications-through-typed-observations/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1a43877ac07c4a83c42f31c5b801536027c524d2ce994415789bdafd4483f60f","plan":"196f45086b25491b62c0880341c404365a8b08a7782f545d7e1ea8909de36012"}}
-```
-
-- **Goal.** Developers changing session notifications can check alert
-  decisions and delivery lifetime quickly on Node Vitest with explicit
-  session readings and notifier results.
-- **Scope.** The eight remaining Playwright notification specs. Prove
-  transition and report eligibility, delivery and recovery, listener-derived
-  destinations, and cancellation through the production owners. Run the production browser
-  callback against its existing native API stand-ins. Keep representative
-  dashboard wiring in E2E and helper argument execution at the process boundary. Session reading, native host
-  classification and unrelated launch flows have their own owners.
-- **Key examples.** A startup baseline keeps an existing question quiet.
-  A later question alerts once through a missing or unknown observation and
-  rearms after working. An unread report alerts using its own words while
-  a Done session stays quiet. A failed notifier reports a safe reason and
-  can recover on a new transition. Closing cancels a pending diagnosis or
-  delivery. A click opens the story in an existing dashboard tab.
-
 <a id="finish-backend-vitest-renovation-after-session-reads-and-alerts"></a>
 
 ### Finish the remaining backend Vitest renovation after session reads and alerts

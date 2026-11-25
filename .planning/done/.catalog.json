@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-session-notifications-through-typed-observations.json",
+      "identity": "SEED-413#prove-session-notifications-through-typed-observations",
+      "completedAt": "2026-11-25T12:38:18.512Z",
+      "blob": "b87ef4f1f76c9b760e2fe5a42f160eda6b792080"
+    },
+    {
       "fileName": "SEED-413_renovate-remaining-backend-families-after-intent-ci-readers.json",
       "identity": "SEED-413#renovate-remaining-backend-families-after-intent-ci-readers",
       "completedAt": "2026-11-25T07:57:50.372Z",
