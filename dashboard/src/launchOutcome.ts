@@ -113,6 +113,7 @@ export const publicationReceiptSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("published"),
     revision: z.string().min(1).optional(),
+    identity: z.string().min(1).optional(),
   }),
 ]);
 

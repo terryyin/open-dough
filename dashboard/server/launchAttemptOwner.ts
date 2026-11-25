@@ -3,6 +3,7 @@
 // reconciliation and verification settle them from retained evidence.
 
 import { randomUUID } from "node:crypto";
+import { startsStory } from "../src/launchRequest.ts";
 import {
   type Acceptance,
   type AgentLaunchRequest,
@@ -97,7 +98,7 @@ export class LaunchAttemptOwner {
           acceptedAt: new Date().toISOString(),
           ...(reportingOrigin === undefined ? {} : { reportingOrigin }),
           publication: {
-            kind: request.workflow === "ad-hoc" ? "none" : "unknown",
+            kind: startsStory(request) ? "unknown" : "none",
           },
         },
         run,

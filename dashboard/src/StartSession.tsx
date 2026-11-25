@@ -3,7 +3,11 @@
 // source and choose its attachments, and keeps the submitted source while
 // startup or recovery is shown beside the launcher.
 
-import type { AgentLaunchRequest, LaunchChoices } from "./agentLaunch.ts";
+import {
+  admitsIsolatedStory,
+  type AgentLaunchRequest,
+  type LaunchChoices,
+} from "./agentLaunch.ts";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { MachineSessions } from "./agentLaunches.ts";
 import {
@@ -59,6 +63,7 @@ export function StartSession({
   const [submitted, setSubmitted] = useState<{
     subject: FollowUpSource | undefined;
     source: FollowUpSource | undefined;
+    admitting: boolean;
   }>();
   const subject = followUp?.source;
   const followUpAction =
@@ -94,7 +99,14 @@ export function StartSession({
     choices: LaunchChoices,
     source: FollowUpSource | undefined,
   ) => {
-    setSubmitted({ subject, source });
+    setSubmitted({
+      subject,
+      source,
+      admitting: admitsIsolatedStory({
+        policy: choices.unattached,
+        followUp: source,
+      }),
+    });
     return launches.startAdHoc(
       sourceId,
       choices,
@@ -146,7 +158,10 @@ export function StartSession({
           tabIndex={-1}
           className="launch-answer quiet start-session-answer"
         >
-          Starting a session in {project}… Local startup in progress.
+          Starting a session in {project}…{" "}
+          {submitted?.admitting === true
+            ? "Admitting a story."
+            : "Local startup in progress."}
         </p>
       )}
       {attempt !== undefined && attempt.kind !== "starting" && (

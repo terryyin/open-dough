@@ -1,3 +1,4 @@
+import { isolatedAdmissionFlags } from "../../test-support/support/isolatedSessionAdmissionProof.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // What an unattached Start session keeps of its start, and when, over raw
 // HTTP with a real bare origin (../../test-support/support/startOrigin.ts) and the installed
@@ -33,7 +34,6 @@ import {
   executionCheckoutStart,
   git,
   isolatedSession,
-  isolatedStart,
   recordStarts,
   sessionBlock,
   worktree,
@@ -63,6 +63,12 @@ test("a start refused before any workspace existed keeps nothing, and a later St
   const starts = recordStarts(origin);
   const before = await originMain(origin);
   // Origin cannot be fetched, so the start stops before it makes a workspace.
+  const originalRemote = git(
+    origin.project,
+    "config",
+    "--get",
+    "remote.origin.url",
+  );
   git(origin.project, "remote", "set-url", "origin", `${origin.origin}-gone`);
   const refused = await answerOf(
     launch(dashboard, { ...request, policy: isolated }),
@@ -70,6 +76,8 @@ test("a start refused before any workspace existed keeps nothing, and a later St
   expect(refused).toMatchObject({ kind: "failed", reason: "start-refused" });
   expect(refused.explanation).toMatch(/Nothing was launched\.$/);
   expect(worktrees(origin.project)).toEqual([]);
+  expect(dashboard.claudeLaunchCalls()).toEqual([]);
+  expect(await originMain(origin)).toBe(before);
   expect(keptSessionStarts(origin)).toEqual({});
   // Nothing of it is left to continue.
   const [stopped] = await attempts(dashboard);
@@ -83,19 +91,20 @@ test("a start refused before any workspace existed keeps nothing, and a later St
   );
 
   // A later Start chooses again: another host's branch took the slug since.
-  git(origin.project, "remote", "set-url", "origin", origin.origin);
+  git(origin.project, "remote", "set-url", "origin", originalRemote);
   git(origin.project, "branch", "codex/session");
   dashboard.claudeScenario("launched");
   const launched = await answerOf(
     launch(dashboard, { ...request, policy: isolated }),
   );
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
+  const revision = await originMain(origin);
+  expect(revision).not.toBe(before);
   expect(launched.record?.establishedSession).toEqual(
-    isolatedSession(origin.project, "session-2", "review", before),
+    isolatedSession(origin.project, "session-2", "review", revision),
   );
   expect(starts().map(({ argv }) => argv)).toEqual([
-    isolatedStart(origin.project, "session", "review"),
-    isolatedStart(origin.project, "session-2", "review"),
+    expect.arrayContaining(isolatedAdmissionFlags(origin.project, "session-2")),
   ]);
   expect(worktrees(origin.project)).toEqual(["session-2"]);
   expect(keptSessionStarts(origin)).toEqual({});
@@ -178,17 +187,11 @@ test.describe("Codex", () => {
     if (native === undefined) throw new Error("Missing native fixture.");
     const starts = recordStarts(origin, "codex");
     const before = await originMain(origin);
-    const session = isolatedSession(
-      origin.project,
-      "session",
-      "review",
-      before,
-      "codex",
-    );
     native.hold = true;
     const starting = launch(dashboard, {
       ...request,
       host: "codex",
+      instruction: "Session",
       policy: isolated,
     });
     await expect.poll(() => native.history.length, { timeout: 30_000 }).toBe(1);
@@ -196,6 +199,15 @@ test.describe("Codex", () => {
     expect((await answerOf(starting)).kind).toBe("uncertain");
     const [uncertain] = await attempts(dashboard);
     const id = uncertain?.id ?? "";
+    const revision = await originMain(origin);
+    expect(revision).not.toBe(before);
+    const session = isolatedSession(
+      origin.project,
+      "session",
+      "review",
+      revision,
+      "codex",
+    );
     const saved = stored(dashboard.home)[0];
     expect(saved?.firstInput).toMatchObject({ state: "uncertain" });
     expect(saved?.establishedSession).toEqual(session);
@@ -215,7 +227,9 @@ test.describe("Codex", () => {
         native.calls.filter((call) => call.method === method),
       ).toHaveLength(1);
     expect(starts().map(({ argv }) => argv)).toEqual([
-      isolatedStart(origin.project, "session", "review", "codex"),
+      expect.arrayContaining(
+        isolatedAdmissionFlags(origin.project, "session", "codex"),
+      ),
     ]);
     expect(worktrees(origin.project)).toEqual(["session"]);
     expect(realpathSync(worktree(origin.project, "session"))).toBeTruthy();

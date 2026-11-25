@@ -88,6 +88,35 @@ test("an instructed Start session sends the draft, hands focus to progress, and 
   await expect.element(progress).not.toBeInTheDocument();
 });
 
+test("an Isolated workspace Start shows its story admission in progress", async () => {
+  const project = makeMe.aPublishedSource.openDough.please();
+  const launches = adHocLaunches("offered");
+  const view = () =>
+    createElement(StartSession, {
+      project: project.label,
+      sourceId: project.id,
+      launches,
+      presentTerminal: vi.fn(),
+    });
+  const { rerender } = await mountComponent(view());
+  const form = launchDialog("Start a session in Open Dough in Claude Code");
+  launches.startAdHoc.mockImplementation(() => {
+    launches.adHocAttemptOf.mockReturnValue({ kind: "starting" });
+    rerender(view());
+    return Promise.resolve(true);
+  });
+
+  await startSession(project.label).click();
+  await form.dialog.getByRole("radio", { name: "Isolated workspace" }).click();
+  await form.start.click();
+
+  await expect
+    .element(
+      page.getByText("Starting a session in Open Dough… Admitting a story."),
+    )
+    .toHaveFocus();
+});
+
 test("Enter on the launcher right after Cancel reopens the launch dialog", async () => {
   const project = makeMe.aPublishedSource.openDough.please();
   await mountComponent(

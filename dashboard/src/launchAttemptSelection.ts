@@ -56,6 +56,15 @@ export const laterAttempt = (
 ): AttemptObservation =>
   one === undefined || one.acceptedAt < other.acceptedAt ? other : one;
 
+// An ad hoc attempt learns its story from the accepted admission receipt.
+export function attemptStory({
+  request,
+  publication,
+}: Pick<AttemptObservation, "request" | "publication">): string | undefined {
+  if (request.workflow !== "ad-hoc") return request.identity;
+  return publication.kind === "published" ? publication.identity : undefined;
+}
+
 // An attempt's lane: its project's story, or its project's ad hoc sessions,
 // whose latest attempt the page's startup, reconciliation and recovery read.
 const laneOf = ({ request }: AttemptObservation) =>
@@ -123,8 +132,7 @@ export function attemptsNeedingAttention(
     if (
       open.length > 0 ||
       needsReconciliation(latest) ||
-      (latest.request.workflow !== "ad-hoc" &&
-        latest.reconciledAt === undefined)
+      (latest.reconciledAt === undefined && attemptStory(latest) !== undefined)
     ) {
       attending.add(latest);
       attending.add(ofLane[0] ?? latest);

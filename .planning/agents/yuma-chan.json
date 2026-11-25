@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yuma-chan",
-  "email": "yuma-chan@example.org",
-  "identity": "SEED-432#finish-story-linked-ad-hoc-sessions",
-  "mode": "story-branch",
-  "branch": "claude/finish-story-linked-ad-hoc-sessions-in-the-dashb",
-  "host": "claude"
-}

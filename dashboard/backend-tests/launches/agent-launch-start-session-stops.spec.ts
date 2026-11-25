@@ -1,3 +1,4 @@
+import { isolatedAdmissionFlags } from "../../test-support/support/isolatedSessionAdmissionProof.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // An unattached Start session whose choices cannot be honored starts no
 // native session and silently runs nowhere else, with a real bare origin
@@ -22,7 +23,6 @@ import { keptSessionStarts } from "../../test-support/support/keptSessionStart.t
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import {
   isolatedSession,
-  isolatedStart,
   recordStarts,
   worktrees,
 } from "../../test-support/support/startSessionLanding.ts";
@@ -110,11 +110,18 @@ test("a formatter failure keeps the established workspace and repairing it lets 
     reason: "start-refused",
     sessionStartKept: true,
     explanation:
-      "The session's place was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. The established start was kept in workspace ~/git/open-dough/.worktrees/session on branch claude/session, where Continue or the same Start request can resume it.",
+      "The session's place was established, but the installed skill's formatter could not be read, so no session was started. The Taken story was published. The established start was kept in workspace ~/git/open-dough/.worktrees/session on branch claude/session, where Continue or the same Start request can resume it.",
   });
   const [attempt] = await attempts(dashboard);
   const id = attempt?.id ?? "";
-  const session = isolatedSession(origin.project, "session", "review", before);
+  const admitted = await originMain(origin);
+  expect(admitted).not.toBe(before);
+  const session = isolatedSession(
+    origin.project,
+    "session",
+    "review",
+    admitted,
+  );
   expect(keptSessionStarts(origin)[id]?.["session"]).toEqual(session);
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(await recordsOf(dashboard, "open-dough")).toEqual([]);
@@ -127,7 +134,7 @@ test("a formatter failure keeps the established workspace and repairing it lets 
   });
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
   expect(starts().map(({ argv }) => argv)).toEqual([
-    isolatedStart(origin.project, "session", "review"),
+    expect.arrayContaining(isolatedAdmissionFlags(origin.project, "session")),
   ]);
   expect(worktrees(origin.project)).toEqual(["session"]);
   expect(keptSessionStarts(origin)).toEqual({});

@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import {
+  admitsIsolatedStory,
   sameUnattachedPolicy,
   unattachedPolicyOf,
   unattachedSessionPolicySchema,
@@ -39,13 +40,14 @@ export function establishesSession(request: UnattachedChoices): boolean {
 // Whether an unattached launch sends a first input: the developer's text, any
 // attached images (their path list alone when text is blank), the block of
 // the session it establishes, or the context of the entry it follows up. One
-// that sends none stays a blank native launch.
+// that sends none stays a blank native launch. Admission alone does not
+// consume the isolated session's first input.
 export function sendsFirstInput(request: UnattachedChoices): boolean {
   return (
     Boolean(request.instruction?.trim()) ||
     (request.attachments?.length ?? 0) > 0 ||
     request.followUp !== undefined ||
-    establishesSession(request)
+    (establishesSession(request) && !admitsIsolatedStory(request))
   );
 }
 
@@ -53,7 +55,7 @@ export function sendsFirstInput(request: UnattachedChoices): boolean {
 // reported it: where the session works (an isolated owned workspace or the
 // execution checkout taken as it is), its branch and trunk target, the landing
 // the developer chose, the revision its results build on, and the fetched trunk.
-// It names no tracking, identity, or agent: nothing was published or assigned.
+// It describes the workspace and landing policy; admission has its own receipt.
 export const establishedSessionSchema = z.object({
   workspace: z.string().min(1),
   role: unattachedSessionPolicySchema.shape.workspace,

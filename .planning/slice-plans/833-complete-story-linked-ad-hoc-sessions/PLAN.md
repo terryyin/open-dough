@@ -1,17 +1,26 @@
-# Finish story-linked ad hoc sessions in the Dashboard
+# Complete story-linked ad hoc sessions in the Dashboard
 
-**Identity:** SEED-432#finish-story-linked-ad-hoc-sessions
-**Source:** [Finish story-linked ad hoc sessions in the Dashboard](../../seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions)
+**Identity:** SEED-439#complete-story-linked-ad-hoc-sessions
+**Source:** [Complete story-linked ad hoc sessions in the Dashboard](../../seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions)
 
 ## Goal and boundaries
 
-An independent Dashboard start publishes a Taken story before opening its
-native session. Follow-ups start on their existing Taken or Done story.
-The same story and exact published session comparisons remain reviewable in
-Recently done and Intent after checkout retirement and from another clone.
-Ship one production switch. Keep review repository adoption, Intent session
+Every remaining independent Dashboard start publishes a Taken story before
+opening its native session. This covers default and scheduled starts, since
+isolated starts already do so through SEED-432. Follow-ups start on their
+existing Taken or Done story. The same story and exact published session
+comparisons remain reviewable in Recently done and Intent after checkout
+retirement and from another clone. Ship one production switch that retires
+standalone sessions. Keep review repository adoption, Intent session
 selection, follow-up context composition, and open follow-up card cues in
 their respective stories.
+
+This plan continues plan 813 of
+SEED-432#finish-story-linked-ad-hoc-sessions after the developer split it at
+its delivered slice 3 boundary. Slices 1–7 here were slices 4–10 there. The
+original's overrun history carries forward. Its slice 3 overran at 15 active
+minutes, and its fixture migration became
+[SEED-433](../../seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#run-dashboard-launch-tests-on-an-installed-project).
 
 ## Direction and current decisions
 
@@ -45,83 +54,85 @@ their respective stories.
   Reuse the installed bare-origin and native protocol seams, mount Start and
   review cues on Vitest, and keep real multi-boundary journeys in E2E.
 - Use Story Branch Mode so the production watcher can stay on compatible code
-  until the final cutover. Slice 8 defines the production checkpoint and
+  until the final cutover. Slice 7 defines the production checkpoint and
   retained landing. Preparation is limited to this plan and its evidence.
+- Wrapping up SEED-432 lands its isolated admission on trunk and in
+  production ahead of this story. Its default, scheduled and follow-up
+  starts stay standalone until this story's slices 1–3, and slice 6 retires
+  them before the slice 7 switch.
 
 ## Decisive premises and preparation evidence
 
 | Consuming operation | Observation and result | Remaining proof |
 | --- | --- | --- |
-| Dashboard independently publishes a story through installed admission | Supplier SEED-426 integrated at `96feeac0c`. Its installed bare-origin proof covers the first seed, lost reply, retained candidate retry on the same worktree, unrelated edits, and ordinary completion. The subsequent simplification at `cc52f5e3e` retains that contract. | Slice 1 checks the actual selected installed payload. Slices 2–3 prove the Dashboard adapter, its receipt gating, and the native dispatch ordering. |
-| Reuse the prior isolated and borrowed launch approach on current trunk | The isolated reference is `121b9158b`. The default candidate is `refs/dough/resplit/SEED-426-dashboard-admission` at `2ebb057d0`. At `c9b0f149a`, a dry three-way apply of the Dashboard and E2E delta between those two revisions found nine conflicts and three paths removed from trunk. In the private handoff, `slice-5-final-backend-e2e.log` and `slice-5-board-retry-and-refusal.log` show real publication before native dispatch, borrowed index preservation, receipt recovery, Board/Retry and scheduled feedback. `slice-5-remaining-consumers.log` records nine backend and eight browser compatibility failures against that candidate. | The plan uses the archived sequence and failure map as design input. Start from current interfaces. Slices 2–3 need fresh observations on the new candidate. |
-| Existing launch consumers can distinguish admission regressions | At `c9b0f149a`, `npm run test:dashboard:backend -- 'agent-launch-duplicate\.spec\.ts\|agent-launch-follow-up-identity\.spec\.ts\|story-branch-retained-landing\.spec\.ts' --workers=1 --reporter=line` passed 20 cases. It observes one conversation under contention, refusal and retry, follow-up recovery after expiry, and an existing claimed story's retained landing. E2E discovery with `--list --reporter=list` selected nine ad hoc problem/Codex/Cursor cases, two follow-up cases, and two published review cases. `npm run test:e2e -- recently-done-published-sessions.spec.ts --workers=1 --reporter=line` passed both, including the same ranges without local launch evidence and the shared-checkout warning. | Slice 3 runs the nine browser cases and the backend duplicate family against the new precondition. Slices 4–6 extend the distinct story, branch-context and fresh-reader proofs. |
-| Declared story-linked Land reaches a guard that needs repair | The v0.3.113 production case reproduced prepare at `c80f0559a` with a 409, `This is not the session's authorized branch landing.` The current `decideRetainedLanding` at `c9b0f149a` returned the same 409 from the archived record and matching authority, with the Git directory redirected to a missing scratch path. The closed record has no accepted Dashboard receipt. Git retains `fe21e4639..0bdef6cb2`. | Slice 5 proves the supported open shape through the installed publisher with a real bare origin. A historical closed context stays archived. |
-| Production inventory and the full migrated store can be read together | On 2026-11-24, the active preview at `4283cb8d4` read all 1,657 launch document entries using its own `readStoredRecords` under `node --experimental-transform-types`. Eight bound records were open, six with an explicit story field. The count is about stored shape. The two remaining rows need native and published correlation. The older private snapshot used the deployed reader and found an unresolved Cursor start and a Lizard record with missing completion history. | Slice 1 verifies live bindings, owned checkouts, installed payload, and the writer/activation sequence. Slice 8 uses a fresh snapshot and the candidate's real production reader before writes resume. |
-| Legacy frontend removal and size comparison | At `c9b0f149a`, `npm run test:dashboard:frontend -- --list` selected ten legacy standalone cases across six specs and eleven unrelated harness cases. `a2d149089` and `10581e20a` account for the difference from the original standalone count. The private `baseline-counts-matched.log` at `46dd56241` records 52,374 Distribution lines (13,946 Markdown), 131,034 Dashboard source lines, and 5,960 executable cases. | Slice 7 verifies zero standalone cases while preserving relevant story-linked proof. Slice 8 compares like-for-like totals and attributes story deltas against its actual execution base. |
+| Dashboard independently publishes a story through installed admission | SEED-426 integrated the installed owned-draft admission at `96feeac0c`. SEED-432 integrated isolated Dashboard admission through `dashboard/server/isolatedSessionAdmission.ts`. Its `admitted-session-retry` and `admitted-session-refusal` cases cover receipt refusal followed by one native start, and a competing claim or origin mismatch with no native start. The isolated E2E covers publication before dispatch, attachment bytes and one Session entry. | Slices 1–2 extend the same admission to default and scheduled starts. |
+| Launch consumers run on an installed project | SEED-433 (plan 816), integrated at `672fc3210`, gives every fixture-created catalog project both installed host layouts and a matching bare origin. Its E2E gate passed 779 cases and its backend gate passed 1,984. | Slice 1 updates only story-dependent expectations. |
+| Default-choice admission production rule | Plan 813's first slice 3 attempt (`slice-3-attempts/attempt-1.patch` in the private evidence below) made every non-follow-up ad hoc launch admit its story. It published the claim from an owned claim checkout under `admission-worktrees`, kept the borrowed checkout's HEAD and branch, and ran the Codex and Cursor refusals before admission. With it, duplicate-launch backend cases passed 13 of 13 and Cursor E2E passed. The problems E2E failed only because the terminal panel stayed closed after a resumed Start. | Re-apply on current interfaces in slice 1. The start-command helpers now live in `executionStartCommands.ts`. |
+| Declared story-linked Land reaches a guard that needs repair | The v0.3.113 production case reproduced prepare at `c80f0559a` with a 409, `This is not the session's authorized branch landing.` `decideRetainedLanding` returned the same 409 from the archived record, and plan 813's slice 1 reproduced it again. Git retains `fe21e4639..0bdef6cb2`. | Slice 4 proves the supported open shape through the installed publisher with a real bare origin. A historical closed context stays archived. |
+| Production inventory and cutover inputs | Plan 813 slice 1 observed this at `2b0356a1e` (`slice-1/REPORT.md`):<br>- The deployed reader at `4283cb8d4` parsed a stable copy: 1,659 launch rows and 1,674 attempts.<br>- Seven records were open. Six were linked and stay open. One live Claude session without a story field continues as verified unbound.<br>- The Cursor timeout and the `bb509114` context are archived. The Lizard record stays closed and unlinked.<br>- Writers are the unmanaged watcher process and the Cursor and Claude launchd agents. A disposable-home tar rollback restored an identical tree. | Slice 7 repeats the inventory against a fresh copy and the candidate reader. Its owner performs the live writer hold and chooses how to restart the watcher. |
+| Legacy frontend removal and size comparison | At `c9b0f149a`, the legacy runner selected ten standalone cases across six specs. The private `baseline-counts-matched.log` at `46dd56241` records 52,374 Distribution lines (13,946 Markdown), 131,034 Dashboard source lines and 5,960 executable cases. | Slice 6 verifies zero standalone cases. Slice 7 compares like-for-like totals against its actual execution base. |
 
-The private evidence lives under the common Git directory at
-`open-dough/evidence/SEED-426-ad-hoc-cutover-handoff`. Use the retained
-`.log.run.json` files for commands, revisions, and exact results. Keep
-production data, native identifiers, and restore copies out of Git.
+Private evidence lives under the common Git directory:
+- `open-dough/evidence/SEED-439-complete-story-linked-ad-hoc-sessions`, holding plan 813's `slice-1`, `slice-2` and `slice-3-attempts` records;
+- `open-dough/evidence/SEED-426-ad-hoc-cutover-handoff`.
+
+Keep production data, native identifiers and restore copies out of Git.
 
 ## Ordered slices
 
-### 1. Verify the production cutover inputs
-Type: Structure
-Status: planned
-Proof: A private copy parses through the deployed reader, and every open or
-interrupted record has a disposition backed by native and published evidence.
-
-Inspect the active watcher and deployment, and test the selected project's
-installed admission entry and native host availability. Check attempt-to-launch
-references, native binding or confirmed absence, workspace ownership and
-published story membership. Check the earlier Cursor timeout, the unbound
-rows, and the Lizard evidence if still present. Verify in a disposable home
-how to hold the watcher and all writers, including schedules, with a complete
-backup and rollback path. Capture a stable inventory with per-store counts
-before and after copying. Record exact host, reader and native observations
-before dependent work. The cutover owner supplies any live-only access and
-keeps production writes outside this probe. A missing native or ownership
-observation, unavailable installed capability, or unverified writer hold
-stops the dependent work and changes the migration plan. Repeat the inventory
-against the final candidate and fresh inputs in slice 8.
-
-### 2. Open an isolated Dashboard session on its admitted story
-Type: Behavior
-Status: planned
-Proof: An isolated Start session publishes one remote Taken story before native
-dispatch and then shows one ordinary Session entry, including after Continue.
-
-Use the owned worktree and its Take as the comparison base. Keep review and
-auto-land choices, native first input and attachment bytes. Observe a held push
-with zero native starts, receipt-write refusal or a lost reply followed by
-one native launch under the accepted identity, and a competing or mismatched
-claim that opens no native session. Reuse Start's current attempt recording
-and workspace selection. Exercise the real installed script and a moving
-bare origin. Keep removed files from the old isolated patch recoverable in Git.
-
-### 3. Open a default-checkout or scheduled session on its admitted story
+### 1. Open a default-checkout session on its admitted story
 Type: Behavior
 Status: planned
 Proof: The selected native checkout launches only after the installed claim
 reaches the bare origin. The borrowed HEAD, index and existing changes are
-intact and the Board carries the same admitted identity on Retry.
+intact and the Board carries the same admitted identity on Retry. A resumed
+Start opens its terminal.
 
-Extend the independent admission rule to the default choices and scheduled
-feedback. Publish from a separate owned claim workspace and use the borrowed
-checkout for native execution. Keep existing writer and checkout-change checks,
-native landing policy, and host requirements. Cover blank first input,
-attachment-only, explicit auto-land, scheduled invocation, and the Codex and
-Cursor refusals before admission. Mount Start through pending, refusal,
-accepted and Retry. Update affected positive fixtures to use the installed
-project and matching bare origin. Keep each distinct duplicate, history,
-reload, input and refusal assertion. Re-run `agent-launch-duplicate.spec.ts`
-and the `agent-launch-ad-hoc-{problems,codex,cursor}.spec.ts` E2E selection,
-plus any other reached launch consumers. Reuse slice 2's admission recovery
-proof where the same installed path is used. Attach owned claim cleanup to
-ordinary completion in slice 6.
+Apply the default-choice rule from the parked attempt (`slice-3-attempts/attempt-1.patch`). Every non-follow-up ad
+hoc launch is admitted, with its claim published from an owned claim checkout
+under `admission-worktrees`. The borrowed checkout keeps its HEAD and branch,
+and the Codex and Cursor refusals run before admission. Keep existing writer
+and checkout-change checks, native landing policy and host requirements.
+Update the migrated consumers' story-dependent expectations, such as the
+Session entry on the Taken story card and the "Ad hoc work" title. Keep each
+distinct duplicate, history, reload, input and refusal assertion. Cover blank
+first input, attachment-only, explicit auto-land and existing changes on the
+borrowed route. The attempt already showed these on this route:
+- duplicate-launch backend cases at 13 of 13, in
+  `admitted-session-duplicate`;
+- Cursor E2E passing;
+- the problems E2E failing only because the terminal panel stays closed after
+  a resumed Start.
 
-### 4. Follow up under the source story
+Codex E2E was not migrated. Before applying the rule, rerun SEED-432's
+`admitted-session-(retry|refusal)`, `agent-launch-start-session` and isolated
+E2E families on the base. Then rerun the duplicate family, the
+`agent-launch-ad-hoc-{problems,codex,cursor}` selection and the consumers the
+consumer trace reaches. A retained default start should not read as an
+"established start", so align its wording with the borrowed checkout. Owned
+claim cleanup attaches to ordinary completion in slice 5.
+
+SEED-432's Intent Coverage check at `03b6dc4ab` returned Insufficient
+evidence. A fault making `isolatedSessionAdmission.ts` report admitted without a
+confirmed publication still opened no native session. The kept-start guard in
+`unattachedStart.ts` refused it, so only the refusal wording changed. When this
+slice moves default starts onto that guard, also fault it. Confirm that
+`claudeLaunchCalls()` stays empty in `admitted-session-retry`, or add an
+assertion that does.
+
+### 2. Admit scheduled feedback and show Start's admission states
+Type: Behavior
+Status: planned
+Proof: Scheduled feedback publishes its story before the native start. Mounted
+Start shows pending, refusal, accepted and Retry for a default-choice
+admission.
+
+Scheduled feedback already dispatches through the common launch boundary.
+Add proof there without editing the 292-line scheduler. Mount Start on Vitest
+through pending, refusal, accepted and Retry. Reuse SEED-432's admission
+recovery proof where the same installed path is used.
+
+### 3. Follow up under the source story
 Type: Behavior
 Status: planned
 Proof: Card and session actions for published Taken and Done sources yield a
@@ -134,7 +145,7 @@ source session expires. Preserve composed context delivery and workspace and
 host rules. Extend the follow-up identity and published range admission
 families and the E2E session-origin action.
 
-### 5. Land under the bound story with the exact accepted comparison
+### 4. Land under the bound story with the exact accepted comparison
 Type: Behavior
 Status: planned
 Proof: A declared-branch follow-up lands through the installed publisher.
@@ -150,7 +161,7 @@ Observe trunk unchanged on refusal. Verify the same authority boundary for
 newly admitted independent work. Preserve the closed incident's Git
 comparison as history and grant no synthetic receipt.
 
-### 6. Return to completed ad hoc work in ordinary review
+### 5. Return to completed ad hoc work in ordinary review
 Type: Behavior
 Status: planned
 Proof: Complete admitted work via the installed workflow, then read its
@@ -165,7 +176,7 @@ checkout remains available with its existing work. Add this admitted producer
 to the `recently-done-published-sessions` journey or reuse its fresh-reader
 observations where the input and endpoint contract match.
 
-### 7. Retire standalone startup, completion and review
+### 6. Retire standalone startup, completion and review
 Type: Behavior
 Status: planned
 Proof: Only story-linked sessions reach active views, launch/reporting stores,
@@ -182,10 +193,10 @@ evidence and races specs, and the standalone cases in
 Protect the common published comparisons, including a story's session review
 after local expiry. Trace historic Git session records explicitly and keep
 their durable published evidence readable by the common story path. Keep
-any interim standalone callers from slices 2–6 out of production until this
+any interim standalone callers from slices 1–5 out of production until this
 slice and the cutover have passed.
 
-### 8. Switch production to the reconciled story-linked store
+### 7. Switch production to the reconciled story-linked store
 Type: Behavior
 Status: planned
 Proof: The production candidate reads a complete migrated private copy and
@@ -235,36 +246,34 @@ for changed shipped operations. On macOS, start awake on AC under
 `caffeinate -i` and check the sleep log. Follow
 [local suite admission and machine sleep](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 
-Plan refinement retained independent admission, follow-up, Land, completion,
-and retirement proofs. The earlier default route reached 14.7 active minutes
-with compatibility work still open. Slice 3 reuses the isolated protocol
-from slice 2 and limits its work to the borrowed and scheduled entry points
-and their reached consumers. Scheduled feedback already dispatches through
-the common launch boundary, so the plan adds proof there without editing
-the 292-line scheduler. The historical 312-line Codex input spec is 195
-lines at the preparation base. If it reaches the maintained size check,
-keep attachment/reporting proof separate from startup policy. The execution branch temporarily keeps the older paths through slice 6.
-Slice 7 removes them before the production switch. Slice 1 bounds the
-owner-held production premises before dependent work.
+Default-route admission cost sizing twice: SEED-426 overran at 14.7 active
+minutes, and plan 813's slice 3 overran at 15. Both times the cost was moving
+consumer fixtures, which SEED-433 has since delivered. Slices 1–2 reuse
+SEED-432's isolated admission protocol. Slice 1 starts by rerunning SEED-432's
+admission families on the current base as its baseline. The historical
+312-line Codex input spec was 195 lines at plan 813's preparation base. If it
+reaches the maintained size check, keep attachment and reporting proof
+separate from startup policy. The execution branch keeps the older paths
+through slice 5, and slice 6 removes them before the production switch.
 
 ## Story obligations
 
-### G1. Live migration evidence needs disposition
+### G1. Live migration evidence needs disposition (first reported in plan 813 slice 1)
 Reported: slice 1 — "SEED-426 observed an open standalone Claude launch, a Cursor timeout without conclusive native binding, and one Lizard review with unavailable completion history."
 Story clause: "Switch production startup, completion and review together."
-Disposition: receiving slice 8
+Disposition: receiving slice 7
 
-### G2. Default launch compatibility must be verified
-Reported: slice 2 — "SEED-426 found nine duplicate-launch backend failures and eight browser problems, Codex or Cursor failures on the unpublished default route."
+### G2. Default launch compatibility must be verified (first reported in plan 813 slice 2)
+Reported: slice 1 — "SEED-426 found nine duplicate-launch backend failures and eight browser problems, Codex or Cursor failures on the unpublished default route."
 Story clause: "A new independent start publishes one canonical story and its Taken assignment before opening a native session."
-Disposition: receiving slice 3
+Disposition: return
 
-### G3. Retained Land must recognize the admitted story
+### G3. Retained Land must recognize the admitted story (first reported in plan 813 slice 1)
 Reported: slice 1 — "The preserved isolated Dashboard path uses legacy established-session landing authority."
 Story clause: "Land checks the bound story and declared Git authority before push."
-Disposition: receiving slice 5
+Disposition: receiving slice 4
 
-### G4. Borrowed default claims need an ordinary closure path
-Reported: slice 2 — "The unpublished default admission uses a separate owned claim worktree and leaves the borrowed session checkout intact."
+### G4. Borrowed default claims need an ordinary closure path (first reported in plan 813 slice 2)
+Reported: slice 1 — "The unpublished default admission uses a separate owned claim worktree and leaves the borrowed session checkout intact."
 Story clause: "Ordinary completion and review use the story's membership and published session records."
-Disposition: receiving slice 6
+Disposition: receiving slice 5
