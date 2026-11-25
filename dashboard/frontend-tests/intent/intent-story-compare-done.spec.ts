@@ -1,7 +1,7 @@
 // A Done story whose worktree is retired chooses in Intent's Compare, through
 // Review changes' own selection, between its published completion and one of
-// its captured landed runs. Its Intent locations stay on the story's landed
-// result whatever is chosen. The case's review answers own the Git judgment.
+// its captured landed runs. Its Intent locations follow the
+// selected result. The case's review answers own the Git judgment.
 import { expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
@@ -45,7 +45,7 @@ const openDoneWithCapturedRuns = () =>
       ),
   });
 
-test("a Done story keeps its published locations when choosing captured changes and returning to Published completion", async () => {
+test("a Done story chooses each captured result and returns to Published completion", async () => {
   const { locationRevisions, outsideCalls } = await openDoneWithCapturedRuns();
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
@@ -68,8 +68,10 @@ test("a Done story keeps its published locations when choosing captured changes 
   await expect.poll(story.treeText).toContain("older.txt");
   await expect.poll(story.revisions).toContain(oid("2").slice(0, 7));
 
-  // Its locations stay at the published completion.
-  expect(new Set(locationRevisions)).toEqual(new Set([doneCompletion]));
+  // Each run reads locations from its accepted result.
+  expect(new Set(locationRevisions)).toEqual(
+    new Set([doneCompletion, oid("4"), oid("2")]),
+  );
 
   // Published completion again returns to it.
   await story.choose("Published completion");

@@ -2,16 +2,14 @@
 // (../../src/IntentPerspective.tsx), within Project Intent's followed reading
 // (../../src/ProjectIntentReading.tsx): the story's own CI evidence owner
 // (../../src/IntentCiEvidence.tsx) around its page (../../src/IntentPage.tsx),
-// whose historical Intent locations (../../src/useHistoricalIntentLocations.tsx)
-// are read at its published completion through a typed read source.
+// whose repository result is read at its published completion.
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import { IntentCiEvidenceProvider } from "../../src/IntentCiEvidence.tsx";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import { IntentPage, type IntentPageStory } from "../../src/IntentPage.tsx";
-import type { IntentReadSource } from "../../src/intentReadSource.ts";
-import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import type { StorySummary } from "../../src/IntentStorySummary.tsx";
 import { IntentWorkspaceSelectionProvider } from "../../src/intentWorkspaceSelection.ts";
@@ -73,7 +71,7 @@ function summaryOf(story: ComparedStory, completion: string): StorySummary {
 export async function mountDoneStory(
   story: ComparedStory,
   completion: string,
-  reads: IntentReadSource,
+  storyResult: PageReads["storyResult"],
   ci: IntentCiReadSource,
 ) {
   const summary = summaryOf(story, completion);
@@ -83,7 +81,7 @@ export async function mountDoneStory(
     compared: undefined,
   };
   await mountComponent(
-    <PageReadsOnPage reads={pageReadsSupplying({ intent: reads, ci })}>
+    <PageReadsOnPage reads={pageReadsSupplying({ storyResult, ci })}>
       <IntentReadingProvider project={story.source.id}>
         <ProjectIntentReadingPlace
           project={story.source.id}

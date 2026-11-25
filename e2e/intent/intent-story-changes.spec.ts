@@ -120,19 +120,27 @@ test("Intent highlights a selected Taken story's test changes over the published
   });
 
   await test.step("changed folders share the contains-changes background and changed locations remain marked", async () => {
-    const marked = await background(story.folderRow("boundary"));
+    const marked = await background(
+      story.folderRowAt("dashboard/tests/boundary"),
+    );
     expect(marked).not.toBe("rgba(0, 0, 0, 0)");
-    for (const name of ["arriving", "boundary", "scripts"]) {
-      await expect(story.folderItem(name)).toHaveAttribute(
+    for (const path of [
+      "dashboard/tests/arriving",
+      "dashboard/tests/boundary",
+      "scripts",
+    ]) {
+      await expect(story.folderAt(path)).toHaveAttribute(
         "data-contains-changes",
         "true",
       );
-      expect(await background(story.folderRow(name))).toBe(marked);
+      expect(await background(story.folderRowAt(path))).toBe(marked);
     }
-    await expect(story.folderItem("other")).not.toHaveAttribute(
+    await expect(story.folderAt("dashboard/tests/other")).not.toHaveAttribute(
       "data-contains-changes",
     );
-    expect(await background(story.folderRow("other"))).not.toBe(marked);
+    expect(
+      await background(story.folderRowAt("dashboard/tests/other")),
+    ).not.toBe(marked);
     for (const location of ["dashboard/tests", "tests"]) {
       await expect(story.folderAt(location)).toHaveAttribute(
         "data-contains-changes",

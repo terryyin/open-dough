@@ -188,7 +188,7 @@ their separate admission and signals.
 ### 4. Browse the selected revision's complete inventory
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mounted selection-switch and recovery cases plus a real-Git browser
 journey with historical unchanged text and a no-locations repository.
 
@@ -203,6 +203,11 @@ to show the active comparison paths. With no compared result, keep the
 existing browsing and evidence behavior. Preserve all interim comparison
 paths that the complete inventory needs, including deletions.
 
+Mounted review proves comparison switches, late inventory and text answers,
+and retry while a changed diff stays readable. Real-Git journeys read captured
+unchanged source after a later revision and read source and diffs when the
+published result has no Intent settings.
+
 ## Story obligations
 
 ### G1. Renamed rows still use interim placement and movement
@@ -213,7 +218,7 @@ Disposition: proved by slice 2: [real-Git moves](../../../e2e/intent/intent-stor
 ### G2. The tree still uses the existing inventory
 Reported: slice 1 — "It uses the existing inventory requested by Slice 1."
 Story clause: "When the comparison supplies a published revision, use its repository inventory and the Intent locations at that revision."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: [mounted comparison and retry](../../../dashboard/frontend-tests/intent/intent-story-result-browser.spec.ts) and [real-Git historical source](../../../e2e/intent/intent-done-default-answer-selection.spec.ts)
 
 ## Verification and plan review
 

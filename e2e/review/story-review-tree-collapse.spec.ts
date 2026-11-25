@@ -31,6 +31,7 @@ test("a story's review folders collapse and expand", async ({
   const card = await openBacklog(page, origin);
   const review = await openIntentReviewChanges(page, card);
   const { files, diffs } = review;
+  await files.showOnlyChanged();
   await files.expectChangedFileCount(6);
 
   await test.step("a collapsed folder hides its rows and tells its count, and expanding restores them as they were", async () => {

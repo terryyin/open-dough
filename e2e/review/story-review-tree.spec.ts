@@ -42,6 +42,7 @@ test("a story's changed files show by name under their folders", async ({
   keepPublishedStoryReview(dashboard, origin, workspace);
   const card = await openBacklog(page, origin);
   const { files, diffs } = await openIntentReviewChanges(page, card);
+  await files.showOnlyChanged();
   await files.expectChangedFileCount(6);
 
   await test.step("files sit under their expanded folders, each folder in a chain separately, the root file at the top level", async () => {

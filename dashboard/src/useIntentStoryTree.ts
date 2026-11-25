@@ -12,14 +12,20 @@ import {
 export function useIntentStoryTree({
   locations,
   story,
+  inventory,
+  comparisonReading,
+  resultKey,
 }: {
   readonly locations: readonly IntentLocation[];
   readonly story: ComparedStory | undefined;
+  readonly inventory?: readonly string[] | undefined;
+  readonly comparisonReading?: boolean;
+  readonly resultKey?: string | undefined;
 }) {
   const changes = story?.shown.comparison.files;
   const overlay = useMemo(
-    () => intentStoryOverlay(locations, changes),
-    [locations, changes],
+    () => intentStoryOverlay(locations, changes, inventory),
+    [locations, changes, inventory],
   );
   const [only, setOnly] = useKeptArrangement("storyOnly", () => false);
   const changesOnly = story !== undefined && only;
@@ -45,7 +51,12 @@ export function useIntentStoryTree({
   return {
     overlay,
     shown,
-    round,
+    round:
+      comparisonReading === true
+        ? undefined
+        : resultKey === undefined
+          ? round
+          : `${resultKey}:${String(round)}`,
     scope,
   };
 }

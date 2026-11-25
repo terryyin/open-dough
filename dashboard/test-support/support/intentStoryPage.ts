@@ -189,6 +189,10 @@ export function intentStory(intent: Locator) {
     folderRow: (name: string) => folderRow(intent, name),
     folderItem: (name: string) => folderItem(intent, name),
     folderAt: (path: string) => repositoryFolder(intent, path),
+    folderRowAt: (path: string) =>
+      repositoryFolder(intent, path).locator(
+        ":scope > .story-review-folder-row",
+      ),
     async expandFolderPath(path: string) {
       let ancestor = "";
       for (const segment of path.split("/")) {

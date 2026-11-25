@@ -43,6 +43,7 @@ export function IntentTreeFileRow({
   return (
     <button
       type="button"
+      data-repository-path={path}
       aria-label={accessible}
       aria-describedby={descriptionId}
       title={accessible}

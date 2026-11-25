@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { IntentLocationHeader } from "./IntentLocationHeader.tsx";
@@ -34,7 +35,7 @@ export function IntentStoryFileTree({
   readonly locations: readonly IntentLocation[];
   readonly overlay: StoryOverlay;
   readonly shown: ReturnType<typeof storyRepositoryTree>;
-  readonly round: number;
+  readonly round: number | string | undefined;
   readonly selection: IntentSelection;
   readonly onSelect: (next: IntentSelection) => void;
   readonly reveal: TreeReveal | undefined;
@@ -47,13 +48,18 @@ export function IntentStoryFileTree({
     location: "",
     tree,
     revealPath: selection.path,
-    expansion: {
-      round,
-      folders: [
-        ...storyOverlayExpansion(locations, overlay, tree, changedFiles),
-        ...(round === 0 ? [] : reviewFoldersHolding(tree, selection.path)),
-      ],
-    },
+    expansion:
+      round === undefined
+        ? undefined
+        : {
+            round,
+            folders: [
+              ...storyOverlayExpansion(locations, overlay, tree, changedFiles),
+              ...(round === 0
+                ? []
+                : reviewFoldersHolding(tree, selection.path)),
+            ],
+          },
     reveal:
       requested === undefined
         ? undefined
@@ -61,9 +67,43 @@ export function IntentStoryFileTree({
   });
   const comparison = treeComparisonReadingOf(useIntentCiEvidence());
   const scope = selectionScope(selection);
+  const focusedFile = useRef<HTMLButtonElement | undefined>(undefined);
+  // A selected file may temporarily leave the inventory while its pin is
+  // read. Recover that row's keyboard focus if the user stayed in place.
+  useLayoutEffect(() => {
+    const previous = focusedFile.current;
+    if (previous === undefined || previous.isConnected) return;
+    if (
+      scope !== "file" ||
+      previous.dataset.repositoryPath !== selection.path
+    ) {
+      focusedFile.current = undefined;
+      return;
+    }
+    if (document.activeElement !== document.body) return;
+    section.current
+      ?.querySelector<HTMLButtonElement>(
+        'button[data-repository-path][aria-pressed="true"]',
+      )
+      ?.focus({ preventScroll: true });
+  }, [scope, section, selection.path, tree]);
+
   if (tree.length === 0) return null;
   return (
-    <section className="intent-story-tree story-review-files" ref={section}>
+    <section
+      className="intent-story-tree story-review-files"
+      ref={section}
+      onFocus={({ target }) => {
+        focusedFile.current =
+          target instanceof HTMLButtonElement &&
+          target.dataset.repositoryPath !== undefined
+            ? target
+            : undefined;
+      }}
+      onBlur={({ relatedTarget }) => {
+        if (relatedTarget !== null) focusedFile.current = undefined;
+      }}
+    >
       <FileTree
         label="Repository files"
         nodes={tree}

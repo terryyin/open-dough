@@ -54,6 +54,7 @@ test("a Taken Trunk review opens attributed published files at touch width and k
     await review.expectText(`Head ${shortRevision(origin.revision("s2"))}.`);
   });
   await test.step("And the file list contains only the story's contribution", async () => {
+    await review.files.showOnlyChanged();
     await review.files.expectTreeRows(["src", "  a.ts", "d.md"]);
     expect(review.answer).toMatchObject({
       kind: "published-taken",

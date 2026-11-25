@@ -59,6 +59,7 @@ test("a synced Taken review stays readable while origin is unreachable and advan
     openTaken(page, origin));
   await test.step("And I reviewed the Taken story while origin was reachable", async () => {
     const review = await openIntentReviewChanges(page, card);
+    await review.files.showOnlyChanged();
     await review.files.expectTreeRows(["src", "  a.ts", "d.md"]);
     await review.returnToDevelopment();
   });

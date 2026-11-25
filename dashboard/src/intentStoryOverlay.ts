@@ -42,8 +42,11 @@ export function baselinePathOf(
 export function intentStoryOverlay(
   locations: readonly IntentLocation[],
   changed: readonly ReviewedFile[] | undefined,
+  inventory?: readonly string[],
 ): StoryOverlay {
-  const published = new Set(locations.flatMap(({ files }) => files));
+  const published = new Set(
+    inventory ?? locations.flatMap(({ files }) => files),
+  );
   const files = new Map<string, IntentTreeFile>();
   const renamedPaths = new Map<string, string>();
   const changedLocations = new Set<string>();
@@ -52,7 +55,8 @@ export function intentStoryOverlay(
       renamedPaths.set(change.oldPath, change.path);
   }
   for (const path of published) {
-    if (!renamedPaths.has(path)) files.set(path, { path, published: true });
+    if (inventory !== undefined || !renamedPaths.has(path))
+      files.set(path, { path, published: true });
   }
   const matching = (path: string) =>
     locations.filter((location) =>

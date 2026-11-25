@@ -94,7 +94,8 @@ test("a newly selected Done story shows only its own historical source after hel
 
   heldComparison.resolve(secondReview);
   await expect.poll(heldLocations.asked).toBe(true);
-  expect(files()).toBeNull();
+  await expect.element(story.file(firstPath)).not.toBeInTheDocument();
+  expect(files()?.textContent).toContain("Reading repository files");
   await expect.element(purpose).not.toBeInTheDocument();
   heldLocations.resolve(locationsOf("second/tests", secondPath));
 

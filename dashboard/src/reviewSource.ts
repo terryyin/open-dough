@@ -23,6 +23,16 @@ import {
   type StoryReview,
 } from "./storyReviewContract.ts";
 
+import {
+  storyReviewResultEndpoint,
+  storyReviewResultSchema,
+} from "./storyReviewResult.ts";
+
+export const readStoryReviewResult = endpointRead(
+  storyReviewResultEndpoint,
+  storyReviewResultSchema,
+);
+
 export type ReviewQuery = Readonly<Record<string, string>>;
 
 type ReviewReadOptions = {

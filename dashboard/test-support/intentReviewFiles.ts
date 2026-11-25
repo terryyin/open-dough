@@ -6,6 +6,7 @@ import {
   intentFile,
   repositoryTree,
   repositoryFolder,
+  storyOnly,
 } from "./support/intentStoryPage.ts";
 import { expectTreeRows, fileLineCounts } from "./support/reviewTreeRows.ts";
 
@@ -46,6 +47,11 @@ export class IntentReviewFiles {
       ":scope > ul > li > button",
     );
     await expect(this.row(file).and(rows)).toBeVisible();
+    return this;
+  }
+
+  async showOnlyChanged() {
+    await storyOnly(this.#intent).check();
     return this;
   }
 
