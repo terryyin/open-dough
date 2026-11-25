@@ -262,7 +262,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   attempt files. With valid images, existing browser proof observes the
   copied bytes in the order picked and the same path when startup continues.
 - **Boundary.** The
-  [launch-options story](#finish-backend-vitest-renovation-after-session-reads-and-alerts)
+  [launch-options story](https://github.com/terryyin/open-dough/blob/9ac6002b205bc324155f82e9b0f07901ed4d6a7e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-session-reads-and-alerts)
   owns option admission. Session-terminal uploads and voice are consumers of
   the shared reader and retain their coverage. The
   [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-attachments)
