@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Shunka-chan",
-  "email": "shunka-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-423#publish-to-trunk-through-one-loop",
-  "host": "codex",
-  "model": "gpt-6.2-sol"
-}
