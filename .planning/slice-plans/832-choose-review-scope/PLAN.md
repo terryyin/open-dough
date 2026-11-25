@@ -8,7 +8,7 @@
 
 - Rio-chan, publisher `dashboard-territory.local-open-dough`, Story Branch Mode.
 - Execution checkout `/Users/terryyin/git/open-dough/.worktrees/choose-the-whole-project-or-a-recent-story-from`, branch `codex/choose-the-whole-project-or-a-recent-story-from`. Default checkout `/Users/terryyin/git/open-dough`. Integration target `origin/main`.
-- Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch. Slice 1 accepted on the execution branch at `58af62fa9ebbc518faff700f74e14082fd5ccd3d`.
+- Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch. Slices 1 and 2 accepted on the execution branch at `58af62fa9ebbc518faff700f74e14082fd5ccd3d` and `21991f88217a7e44759def9cd97edc10ecda864f`.
 - Execution branch observation uses GitHub Actions `ci.yml` with coordinator `rio-chan-32284348` and stream `/tmp/dough-ci-501/watch-8RaTPQ` (PID 77649). The trunk claim preceded that observer.
 - Checkout setup passed with Node 24.21.0, the locked npm install, the locked Chromium launch, and `npm run typecheck:dashboard`.
 
@@ -90,32 +90,12 @@ reproduced the same visible-heading symptom under native layout and input.
 
 ### Consumer trace
 
-The installed consumer trace searched `Back to selected story`,
-`projectIntentLink`, `openProjectIntent`, `returnToStory`, `backToStory`,
-`Recent stories, no story selected`, `Recent stories`, and
-`intentStoryViewStart`. Recheck changed declarations and enclosing banner
-assertions during execution.
+The installed trace searched `Back to selected story`, `projectIntentLink`, `openProjectIntent`, `returnToStory`, `backToStory`, `Recent stories, no story selected`, `Recent stories`, and `intentStoryViewStart`. Recheck changed declarations and enclosing banner assertions during execution.
 
-- **Run** `navigation/recent-stories.spec.ts` and
-  `navigation/accessible-board-keyboard.spec.ts`. Inspect their
-  `recent-stories-frame.ts` and `dashboard-header-reading.ts` consumers.
-- **Run** the mounted Intent specs `intent-recent-stories`,
-  `intent-home-activation-scope`, `intent-ci-status-homepage`,
-  `intent-done-project-refresh`, `intent-project-visit-selection`,
-  `intent-project-visit`, `intent-sidebar-toggle`,
-  `intent-story-changes-gaps` and `intent-story-changes-only`.
-  Route changed journeys through their existing fixture and reading owners.
-- **Run** the e2e specs `intent-project-visit-ci`,
-  `intent-project-scope-timing-refresh`, `intent-done-project-refresh`,
-  `intent-ci-follow-up-return` and `story-card-review-arrival-race`.
-  Inspect the shared `intentModePage.ts`, `recentStoriesPage.ts` and
-  review helpers before changing selectors. The captured follow-up's pinned
-  scope and story arrival are independent proof.
-- **Excluded** historical mockups and retired plan/done prose because they
-  are archived evidence. The `backToStoryCi` match in `IntentFileReading.tsx`
-  returns from file Proof to story CI, a different action.
-  Planning-state schema and unrelated matches for `not-refined` only consume
-  the supported enum value.
+- **Run** `navigation/recent-stories.spec.ts` and `navigation/accessible-board-keyboard.spec.ts`. Inspect their `recent-stories-frame.ts` and `dashboard-header-reading.ts` consumers.
+- **Run** the mounted Intent specs `intent-recent-stories`, `intent-home-activation-scope`, `intent-ci-status-homepage`, `intent-done-project-refresh`, `intent-project-visit-selection`, `intent-project-visit`, `intent-sidebar-toggle`, `intent-story-changes-gaps` and `intent-story-changes-only`. Use their existing fixture and reading owners.
+- **Run** the e2e specs `intent-project-visit-ci`, `intent-project-scope-timing-refresh`, `intent-done-project-refresh`, `intent-ci-follow-up-return` and `story-card-review-arrival-race`. Inspect `intentModePage.ts`, `recentStoriesPage.ts` and the review helpers before changing selectors. The captured follow-up's pinned scope and story arrival are independent proof.
+- **Excluded** historical mockups and retired plan/done prose as archived evidence. `backToStoryCi` in `IntentFileReading.tsx` returns from file Proof to story CI. Planning-state schema and unrelated `not-refined` matches consume the supported enum value.
 
 ## Ordered slices
 
@@ -171,7 +151,7 @@ Forty cases passed before the added short-viewport observation. All six Intent c
 ### 3. Move project evidence journeys to the bookmark
 
 Type: Structure
-Status: planned
+Status: done
 Estimate: 11–15 active minutes.
 
 Use the existing e2e page abstractions to drive Whole project and recent-story
@@ -181,10 +161,19 @@ trunk CI refresh and branch identity, Done historical pins and collected
 timing, pinned follow-up arrivals, and late review results. Observe each
 scope's own evidence independently. Keep same-selection restoration checks
 inside supported transitions such as switching perspective or story tabs
-when that behavior is the promise. The cross-scope behavior delivered in
-slice 2 starts a new review. Run the five named e2e specs with their existing
+when that behavior is the promise. After reselecting through the chooser,
+enter the evidence tabs explicitly. Slice 4 owns the fresh default view.
+Run the five named e2e specs with their existing
 typed fixture inputs and Dashboard entry points. Product behavior stays as
 delivered by slice 2.
+
+Accepted proof on `21991f882` plus working changes. The five e2e specs drive the real configured dashboard and synthetic published services. They check exact trunk and story judgment requests and a held observation, Done location revision and timing against trunk, historical artifact acquisition, the captured follow-up route and its exit, and late Review changes response handling and focus. Same-selection reading proof moves through tabs or perspective. The three initial Done default-tab failures are retained in Git evidence and assigned to slice 4 by G3.
+
+```sh
+caffeinate -s -i env OPEN_DOUGH_E2E_PROOF_RECORD="$(git rev-parse --git-path open-dough/evidence)/slice3-e2e-final.proof.json" npm run test:e2e -- --workers=2 e2e/intent/intent-project-visit-ci.spec.ts e2e/intent/intent-project-scope-timing-refresh.spec.ts e2e/intent/intent-done-project-refresh.spec.ts e2e/intent/intent-ci-follow-up-return.spec.ts e2e/review/story-card-review-arrival-race.spec.ts
+caffeinate -s -i npm run typecheck:dashboard
+```
+The strict proof records eight selected cases and eight passes, one attempt each. The independent refactor removed unused temporary-visit E2E helpers and reused those observations. `caffeinate -s -i npm run typecheck:dashboard` passed on the refactor. See `slice3-implementation.md` and `slice3-refactor.md` in worktree Git evidence for terminal results and locations.
 
 ### 4. Give the bookmark sole ownership of scope selection
 
@@ -247,4 +236,9 @@ Disposition: interim until slices 2, 3, 4
 ### G2. Whole project arrival with a remembered project file
 Reported: slice 2 — "In that prior-project-path state clearing the story selects the project scope and existing CI mode, but a kept file path can occupy the reading pane and suppress visible CI."
 Story clause: "In Intent this reaches the existing project CI view."
+Disposition: receiving slice 4
+
+### G3. A recent choice can reuse the previous story tab
+Reported: slice 3 — "Clearing Done scope then choosing its recent currently restores the old Changes tab (CI comparison aria-selected=false)."
+Story clause: "Choosing a story again after clearing starts a new review at its default view."
 Disposition: receiving slice 4

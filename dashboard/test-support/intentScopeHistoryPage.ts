@@ -9,12 +9,27 @@ import type { Locator, Page } from "@playwright/test";
 import { historyChart, type InspectBy } from "./historyChartPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { compactReadout } from "./priorBuildReferencePage.ts";
+import { fileReadingTab } from "./intentPerspectivePage.ts";
+import { childName } from "./intentScopeProofPage.ts";
+import { openSummary } from "./intentSummaryCiProofFixtures.ts";
 
 export const scopeHistory = (scope: Locator | Page) =>
   scope.getByRole("region", {
     name: "Test execution time history",
     exact: true,
   });
+
+export async function openProjectFileTiming(
+  intent: Locator,
+  location: string,
+  folder: string,
+  file: string,
+) {
+  const summary = await openSummary(intent, location);
+  await childName(summary, folder).first().click();
+  await childName(summary, file).first().click();
+  await fileReadingTab(intent, "Proof").click();
+}
 
 export function scopeHistoryReading(history: Locator) {
   const units = history.getByRole("group", {

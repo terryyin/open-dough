@@ -3,6 +3,7 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
+import { storySummary } from "./intentModePage.ts";
 
 export function recentStoriesButton(page: Page): Locator {
   return parts(page).recentStories;
@@ -17,7 +18,7 @@ export function recentStoriesPopover(page: Page): Locator {
 async function startIsReadable(part: Locator): Promise<boolean> {
   return part.evaluate((element) => {
     const region = element.closest<HTMLElement>(
-      ".board-scroll, .roster-scroll",
+      ".board-scroll, .roster-scroll, .intent-scroll",
     );
     const at = element.getBoundingClientRect();
     const box = region?.getBoundingClientRect();
@@ -40,10 +41,12 @@ async function startIsReadable(part: Locator): Promise<boolean> {
   });
 }
 
-async function selectedCardStartReadable(page: Page): Promise<boolean> {
-  const selected = page.locator(".story-card-selected");
-  if ((await selected.count()) === 0) return true;
-  return startIsReadable(selected.first());
+async function selectedStoryStartReadable(page: Page): Promise<boolean> {
+  const { intent, intentChoice } = parts(page);
+  const start = (await intentChoice.isChecked())
+    ? storySummary(intent).getByRole("heading", { level: 2 })
+    : page.locator(".story-card-selected").first();
+  return (await start.count()) === 0 || startIsReadable(start);
 }
 
 export async function openRecentStories(page: Page): Promise<Locator> {
@@ -53,7 +56,7 @@ export async function openRecentStories(page: Page): Promise<Locator> {
   // When a selected story's start is out of view, the first click returns to
   // it and leaves the popover closed; wait for that settle, then open.
   if ((await popover.count()) === 0) {
-    await expect.poll(() => selectedCardStartReadable(page)).toBe(true);
+    await expect.poll(() => selectedStoryStartReadable(page)).toBe(true);
     await button.click();
   }
   await expect(popover).toBeVisible();
@@ -106,9 +109,10 @@ export function recentStoriesRow(
   },
 ): Locator {
   return recentStoriesPopover(page)
-    .getByRole("option")
-    .filter({ hasText: project })
-    .filter({ hasText: identity });
+    .getByRole("list", { name: "Recent stories", exact: true })
+    .getByRole("button")
+    .filter({ has: page.getByText(project, { exact: true }) })
+    .filter({ has: page.getByText(identity, { exact: true }) });
 }
 
 // Chooses the Recent stories row for that project and story identity, then
@@ -121,4 +125,13 @@ export async function chooseRecentStory(
   if ((await popover.count()) === 0) await openRecentStories(page);
   await recentStoriesRow(page, row).click();
   await expectRecentStoriesClosed(page);
+}
+
+export async function chooseWholeProject(page: Page) {
+  const choices = await openRecentStories(page);
+  await choices
+    .getByRole("button", { name: "Whole project", exact: true })
+    .click();
+  await expectRecentStoriesClosed(page);
+  return parts(page).intent;
 }
