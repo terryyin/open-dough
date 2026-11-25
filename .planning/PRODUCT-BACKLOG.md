@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 - [Prove Dashboard launch starts and recovery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) — SEED-413#prove-launch-starts-and-recovery-on-vitest ([plan](slice-plans/846-prove-launch-starts-and-recovery-on-vitest/PLAN.md))
 - [Prove installed execution and refinement starts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-installed-story-starts-on-vitest) — SEED-413#prove-installed-story-starts-on-vitest ([plan](slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md))
 - [Simplify Intent comparison test setup](seeds/SEED-443-simplify-intent-comparison-test-setup.md#simplify-intent-comparison-test-setup) — SEED-443#simplify-intent-comparison-test-setup ([plan](slice-plans/852-simplify-intent-comparison-test-setup/PLAN.md))
+- [with the new distribution installation, …](seeds/SEED-444-ad-hoc-work.md#ad-hoc-work) — SEED-444#ad-hoc-work
 
 ## Backlog list
 
