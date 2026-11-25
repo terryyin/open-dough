@@ -97,7 +97,7 @@ here. Convert `agent-launch-start.spec.ts`.
 ### 2. Refuse an execution start that cannot be established
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Through the slice 1 entry, a story Taken by another agent names its

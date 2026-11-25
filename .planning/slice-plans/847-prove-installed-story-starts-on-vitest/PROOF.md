@@ -82,3 +82,23 @@ immutable queued origin and each case copies it into a private origin.
 The focused confirmation passed all four cases at 189–1,889 ms
 (3.824 s summed, 7.068 s total including preparation) at load 16–19.
 See `847-s1-warmed-origin-focus.log.run.json` and its case record.
+Published as `bed7650074825e21554b2bf893895857b0edb04c` on
+`origin/codex/prove-installed-execution-and-refinement-starts`, above
+`52544c358a47df9019c163d45dcb0625b47b9271`. The publication receipt reports
+CI coverage as unobserved after the stream ended.
+
+### Slice 2
+
+All seven refusal and overlap cases passed in Node Vitest at default
+timeouts (13.733 s summed, 21.56 s elapsed), with zero Chromium selections
+in the three migrated specs. The final typed refusal checks, Dashboard
+typecheck, and existing native overlap/admission check passed. The unchanged
+Taken-card E2E owns native refusal and one successful retry in the kept
+workspace. Per-case preparation precedes timed behavior, and overlap cases
+always release their held push and drain pending starts before cleanup.
+The confirmation started at load 16.18, after a run at load 34.35 timed out.
+The commands, coverage map, and proof are in `847-s2-return.md`.
+
+The diff changed only the three migrated specs and this proof record. A
+review of their existing Git barrier, refusal wording and kept-start
+consumers found no additional refactor needed for delivery.

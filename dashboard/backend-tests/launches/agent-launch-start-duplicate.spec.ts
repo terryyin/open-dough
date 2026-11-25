@@ -1,116 +1,150 @@
-// A second start of a story this server is already starting is refused before
-// any second start runs (../../server/agentLaunches.ts), over raw HTTP
-// against the real installed `execution-start.mjs` and a real bare origin
-// (../../test-support/support/startOrigin.ts): the second launch is refused as already starting,
-// and origin holds one claim, the project one
-// workspace, and the synthetic `claude` at most one call. One case holds the
-// first start on origin's `pre-receive` hook so the two overlap
-// deterministically; the other sends the pair at once. A story Taken by
-// another agent stays ./agent-launch-start-refusal.spec.ts's refusal.
-
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { readdirSync } from "node:fs";
+import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeAll, beforeEach, expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
-  alreadyStarting,
-  launch,
-  recordsOf,
-  runningStarts,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  publicationOf,
+  started,
+  type Started,
+} from "../../server/launchStart.ts";
+import { localFolder } from "../../server/localFolder.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { startStore } from "../../server/startStore.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
 const request = makeMe.aLaunchRequest
   .executing({ identity: queuedIdentity, title: queuedTitle })
   .please();
 
-type Answer = { kind: string; reason?: string; explanation?: string };
+let origin: StartOrigin;
+let progress: StartProgress;
+let attempts: Promise<Started>[];
+let start: (attemptId: string) => ReturnType<typeof started>;
 
-test.describe("a second start of the same story", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
-
-  test.beforeEach(async () => {
-    origin = await startOrigin(queuedReadyRepository().please());
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-    });
-  });
-
-  test.afterEach(async () => {
-    await server.close();
-    origin.cleanup();
-  });
-
-  const answerOf = async (
-    pending: ReturnType<typeof launch>,
-  ): Promise<Answer> => JSON.parse((await pending).body) as Answer;
-
-  function workspaces(): string[] {
-    return readdirSync(path.join(origin.project, ".worktrees"));
+beforeAll(async () => {
+  const initial = await startOrigin(repository);
+  try {
+    keepStartedOrigin("claude", repository, initial);
+  } finally {
+    initial.cleanup();
   }
+});
 
-  test("is refused while the first is held, with no second claim or workspace", async () => {
-    const push = origin.holdPushes();
-    server.claudeScenario("launched");
+beforeEach(async () => {
+  origin = await startOrigin(repository);
+  progress = new StartProgress();
+  attempts = [];
+  const home = path.join(origin.machine, "home");
+  const bin = path.join(home, "bin");
+  mkdirSync(bin);
+  writeFileSync(path.join(bin, "claude"), "", { mode: 0o755 });
+  const folder = localFolder("~/git/open-dough", home);
+  const store = startStore("execution", home);
+  const inputs = {
+    store: () => store,
+    env: {
+      ...process.env,
+      HOME: home,
+      PATH: `${bin}${path.delimiter}${process.env["PATH"] ?? ""}`,
+    },
+  };
+  start = (attemptId) => {
+    const attempt = started(
+      source,
+      request,
+      folder,
+      progress,
+      inputs,
+      attemptId,
+    );
+    attempts.push(attempt);
+    return attempt;
+  };
+});
 
-    const first = launch(server, request);
-    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
-    expect(await runningStarts(server)).toEqual([
+afterEach(async () => {
+  await Promise.allSettled(attempts);
+  origin.cleanup();
+});
+
+test("refuses a second Start while the first awaits publication", async () => {
+  const push = origin.holdPushes();
+  const first = start("first");
+  let second: Promise<Started> | undefined;
+  try {
+    await expect.poll(() => push.isHeld(), { timeout: 2_500 }).toBe(true);
+    expect(progress.all()).toEqual([
       {
         workflow: "execution",
-        source: "open-dough",
+        source: source.id,
         identity: queuedIdentity,
         phase: "preparing",
         host: "claude",
       },
     ]);
 
-    const second = await answerOf(launch(server, request));
-    expect(second).toEqual(alreadyStarting);
-    expect(server.claudeCalls()).toEqual([]);
-    expect(workspaces()).toHaveLength(1);
-
-    push.release();
-    expect((await answerOf(first)).kind).toBe("launched");
-    expect(await origin.takenProfiles()).toHaveLength(1);
-    expect(workspaces()).toHaveLength(1);
-    expect(await recordsOf(server, "open-dough")).toHaveLength(1);
-    expect(await runningStarts(server)).toEqual([]);
-  });
-
-  test("two launches sent at once make one claim, one workspace, one session", async () => {
-    const push = origin.holdPushes();
-    server.claudeScenario("launched");
-    const pending = [launch(server, request), launch(server, request)];
-    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
-    push.release();
-    const answers = await Promise.all(pending.map((each) => answerOf(each)));
-    expect(answers.filter((answer) => answer.kind === "launched")).toHaveLength(
+    let answer: Started | undefined;
+    second = start("second").then((result) => {
+      answer = result;
+      return result;
+    });
+    await expect
+      .poll(() => answer)
+      .toMatchObject({
+        kind: "stopped",
+        result: {
+          kind: "failed",
+          reason: "already-starting",
+          explanation:
+            "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.",
+        },
+      });
+    expect(publicationOf(await second, undefined)).toEqual({ kind: "none" });
+    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(
+      origin.revision("base"),
+    );
+    expect(readdirSync(path.join(origin.project, ".worktrees"))).toHaveLength(
       1,
     );
-    expect(answers).toHaveLength(2);
-    const refused = answers.find((answer) => answer.kind !== "launched");
-    expect(refused).toMatchObject({
-      kind: "failed",
-      reason: "already-starting",
-    });
-    expect(await origin.takenProfiles()).toHaveLength(1);
-    expect(workspaces()).toHaveLength(1);
-    expect(await recordsOf(server, "open-dough")).toHaveLength(1);
-    expect(await runningStarts(server)).toEqual([]);
+  } finally {
+    push.release();
+    await Promise.all([first, second]);
+  }
+
+  expect(await first).toMatchObject({ kind: "established" });
+  expect(await origin.takenProfiles()).toHaveLength(1);
+  expect(readdirSync(path.join(origin.project, ".worktrees"))).toHaveLength(1);
+});
+
+test("concurrent Starts establish one launch handoff, one claim and one workspace", async () => {
+  const push = origin.holdPushes();
+  const first = start("first");
+  const second = start("second");
+  const pending = Promise.all([first, second]);
+  try {
+    await expect.poll(() => push.isHeld(), { timeout: 2_500 }).toBe(true);
+  } finally {
+    push.release();
+    await pending;
+  }
+
+  const answers = await pending;
+  expect(answers.map(({ kind }) => kind).sort()).toEqual([
+    "established",
+    "stopped",
+  ]);
+  expect(answers.find(({ kind }) => kind === "stopped")).toMatchObject({
+    result: { reason: "already-starting" },
   });
+  expect(await origin.takenProfiles()).toHaveLength(1);
+  expect(readdirSync(path.join(origin.project, ".worktrees"))).toHaveLength(1);
 });
