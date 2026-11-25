@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "7aacbb8e-64e5-466f-9533-6980ea3d3697",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T11:42:33.226Z",
+  "story": "SEED-420#put-comparison-follow-up-by-story-notes",
+  "ranges": [
+    {
+      "base": "1b8e67b3f8b2ebe4f0019d80339f57b555bb2817",
+      "candidate": "0ef3a0cebe6467aa568724f3a60f61e9375d93ac"
+    }
+  ]
+}
