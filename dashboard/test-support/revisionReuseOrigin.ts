@@ -7,6 +7,7 @@
 // revision are makeMe.aProjectRevision.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { commitDeclaredRevision } from "../../Distribution/tests/support/repository-fixture.mjs";
 import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 import type {
   ChangedFile,
@@ -14,6 +15,14 @@ import type {
   PathHistories,
 } from "./pathHistoryAnswers.ts";
 import { aheadBy, type Comparison } from "./comparisonAnswers.ts";
+import { defaultRepository } from "./publishedOriginBasics.ts";
+import { answerFrom } from "./revisionReuseAnswers.ts";
+import type { FakeGitHub, RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import { expectServedHomesReach } from "./support/fixtureOriginRoute.ts";
+import {
+  commitPublishedOrigin,
+  type PublishedOrigin,
+} from "./support/publishedOrigin.ts";
 
 const paths = makeMe.aProjectRevision.paths;
 
@@ -72,6 +81,60 @@ export type Publication = {
   readonly histories?: Map<string, PathHistories>;
 };
 
+export type ReusePublication = Publication & PublishedOrigin;
+
+export function reusePublication(
+  files: Files,
+  history: PathHistories = {},
+): ReusePublication {
+  const origin = commitPublishedOrigin({
+    branch: "main",
+    backlog: null,
+    files,
+  });
+  const { revision } = origin;
+  return {
+    ...origin,
+    trunk: { revision },
+    revisions: new Map([[revision, files]]),
+    branches: new Map(),
+    compared: new Map(),
+    made: new Map(),
+    histories: new Map([[revision, history]]),
+  };
+}
+
+export function serveReusePublication(
+  github: FakeGitHub,
+  published: ReusePublication,
+  answer: RepositoryAnswerer = (call) =>
+    Promise.resolve(answerFrom(published, call)),
+): void {
+  const { revision } = published.trunk;
+  github.serve(
+    defaultRepository,
+    Object.assign(answer, { origin: published.origin, revision }),
+  );
+  expectServedHomesReach(github, defaultRepository, revision);
+}
+
+export async function advanceReusePublication(
+  published: ReusePublication,
+  { files, history = {} }: { files: Files; history?: PathHistories },
+  by?: readonly MadeCommit[],
+): Promise<string> {
+  const previous = published.revisions.get(published.trunk.revision) ?? {};
+  const remove = Object.keys(previous).filter(
+    (path) => !Object.hasOwn(files, path),
+  );
+  const revision = await commitDeclaredRevision(published.origin, {
+    files,
+    remove,
+  });
+  moved(published, revision, files, history, by);
+  return revision;
+}
+
 // The ref moves to `revision`, publishing `files` and `history` there, by the
 // commits `by` after the revision it named when given.
 export function moved(
@@ -92,4 +155,4 @@ export function moved(
   trunk.revision = revision;
 }
 
-export { answerFrom } from "./revisionReuseAnswers.ts";
+export { answerFrom };

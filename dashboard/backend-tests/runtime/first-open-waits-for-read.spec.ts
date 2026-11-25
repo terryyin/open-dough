@@ -8,20 +8,20 @@
 import { expect, test } from "../../test-support/dashboardTest.ts";
 import { test as machineTest } from "../../test-support/support/pageTest.ts";
 import { expectMembership, parts } from "../../test-support/dashboardPage.ts";
-import { recordsAt } from "../../test-support/autoRefreshJourney.ts";
 import {
   givePageItsTurns,
   untilPublishedWorkRead,
 } from "../../test-support/pageRequestNotes.ts";
 import {
   commitAnswer,
-  publishMovingOrigin,
   publishOrigin,
   rawFileAnswer,
 } from "../../test-support/publishedOrigin.ts";
+import { publishMovingHistory } from "../../test-support/publishedMovingOrigin.ts";
 import {
   backlogA,
   dashboardStory,
+  refreshHistory,
   revisionA,
   titlesOfA,
 } from "../../test-support/refreshJourney.ts";
@@ -34,6 +34,8 @@ import {
   publishes,
 } from "../../test-support/support/fakeGitHub.ts";
 import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
+import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
 
 // Longer than an `expect` waits for a card (5 s, Playwright's default, which
 // playwright.config.ts leaves alone) and well inside a test's 30 s: how long
@@ -122,9 +124,16 @@ test("a published-work read that fails for good ends the wait, and the membershi
 
 test("a held detail read does not hold a membership check back", async ({
   page,
+  github,
+  afterGitHubStops,
 }) => {
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA, recordsAt("A"));
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory(),
+    "A",
+    afterGitHubStops,
+  );
+  expectServedHomesReach(github, defaultRepository, origin.revisions.A);
   const release = origin.hold(".planning/seeds/SEED-021-progress.md");
   try {
     await page.goto("/");

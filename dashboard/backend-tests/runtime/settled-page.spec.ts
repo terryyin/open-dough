@@ -12,13 +12,13 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "../../test-support/dashboardTest.ts";
 import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
-import { recordsAt } from "../../test-support/autoRefreshJourney.ts";
-import { publishMovingOrigin } from "../../test-support/publishedOrigin.ts";
+import { publishMovingHistory } from "../../test-support/publishedMovingOrigin.ts";
+import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
 import {
-  backlogA,
   dashboardStory,
-  revisionA,
+  refreshHistory,
 } from "../../test-support/refreshJourney.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 
 // Holds the page's local authenticated reads that `held` picks until
 // released, and says when the first of them reached its handler.
@@ -56,9 +56,16 @@ function observed(wait: Promise<void>) {
 
 test("the settled page waits for the cards, then for a card's held preparation read", async ({
   page,
+  github,
+  afterGitHubStops,
 }) => {
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA, recordsAt("A"));
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory(),
+    "A",
+    afterGitHubStops,
+  );
+  expectServedHomesReach(github, defaultRepository, origin.revisions.A);
   const snapshot = await holdReads(
     page,
     (query) => [...query.keys()].join() === "source",

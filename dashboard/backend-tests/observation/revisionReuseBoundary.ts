@@ -1,8 +1,7 @@
-// The local authenticated read boundary at a revision its configured ref
-// names next, as its specs (./authenticated-read-revision-reuse*.spec.ts)
-// drive it: a development-environment boundary server over real HTTP and the synthetic
-// `gh`, answered from one publication (../../test-support/revisionReuseOrigin.ts), with every
-// `gh` call GitHub received described by kind, path, and revision pair.
+// Revision reuse specs exercise authenticated reads over real HTTP in a
+// development-environment server. Fake GitHub answers from the same publication
+// reached by Git (../../test-support/revisionReuseOrigin.ts).
+// GitHub calls are described by kind, path, and full revision.
 
 import { z } from "zod";
 import { parseDoneCatalog } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
@@ -12,23 +11,25 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
-import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
+import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import type {
   MadeCommit,
   PathHistories,
 } from "../../test-support/pathHistoryAnswers.ts";
 import {
-  answerFrom,
+  advanceReusePublication,
   otherSeedPath,
   planPath,
+  reusePublication,
   seedPath,
+  serveReusePublication,
   sourceId,
-  moved,
   type Files,
-  type Publication,
+  type ReusePublication,
 } from "../../test-support/revisionReuseOrigin.ts";
-import { described } from "../../test-support/revisionReuseCalls.ts";
+import { describedExactly } from "../../test-support/revisionReuseCalls.ts";
 
 export type Answer = { readonly status: number; readonly body: unknown };
 
@@ -109,28 +110,16 @@ export function revisionReuseBoundary() {
   const asked = async (run: () => Promise<unknown>) => {
     const before = started().github.calls.length;
     await run();
-    return started().github.calls.slice(before).map(described);
+    return started().github.calls.slice(before).map(describedExactly);
   };
 
   // Publishes `files` at revision A as what the ref names, with `history`
   // as each path's history there when given, and has this process answer
   // everything there.
-  const publishedAt = async (
-    revision: string,
-    files: Files,
-    history: PathHistories = {},
-  ) => {
-    const published: Publication = {
-      trunk: { revision },
-      revisions: new Map([[revision, files]]),
-      branches: new Map(),
-      compared: new Map(),
-      made: new Map(),
-      histories: new Map([[revision, history]]),
-    };
-    started().github.serve(everyRepository, (call) =>
-      Promise.resolve(answerFrom(published, call)),
-    );
+  const publishedAt = async (files: Files, history: PathHistories = {}) => {
+    const published = reusePublication(files, history);
+    const { revision } = published;
+    serveReusePublication(started().github, published);
     const membership = await read("");
     expect(membership).toMatchObject({ status: 200, body: { revision } });
     for (const answer of await readEverything(revision)) {
@@ -143,20 +132,18 @@ export function revisionReuseBoundary() {
   // history there when given, by the commits `by` when given; a revision
   // check from `since` finds it.
   const movedTo = async (
-    published: Publication,
+    published: ReusePublication,
     since: string,
-    {
-      revision,
-      files,
-      history = {},
-    }: { revision: string; files: Files; history?: PathHistories },
+    next: { files: Files; history?: PathHistories },
     by?: readonly MadeCommit[],
   ) => {
-    moved(published, revision, files, history, by);
+    const revision = await advanceReusePublication(published, next, by);
+    expectServedHomesReach(started().github, defaultRepository, revision);
     expect(await read(`&since=${since}`)).toMatchObject({
       status: 200,
       body: { revision, changed: true },
     });
+    return revision;
   };
 
   return {

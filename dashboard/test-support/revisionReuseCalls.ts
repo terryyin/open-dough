@@ -4,22 +4,27 @@
 
 import type { GhCall } from "./support/fakeGitHub.ts";
 
-// Each `gh` call as `<kind> <path>@<revision pair>`, `compare <base
-// pair>...<head pair>`, or `commit <pair>`.
-export function described({ request }: GhCall): string {
-  const pair = (sha: string) => sha.slice(0, 2);
+// Each `gh` call as `<kind> <path>@<revision>`, `compare <base>...<head>`,
+// or `commit <revision>`.
+function describe({ request }: GhCall, pin: (sha: string) => string): string {
   switch (request.kind) {
     case "content":
     case "listing":
     case "commit-list":
-      return `${request.kind} ${request.path}@${pair(request.revision)}`;
+      return `${request.kind} ${request.path}@${pin(request.revision)}`;
     case "compare":
-      return `compare ${pair(request.base)}...${pair(request.head)}`;
+      return `compare ${pin(request.base)}...${pin(request.head)}`;
     case "commit":
-      return `commit ${pair(request.sha)}`;
+      return `commit ${pin(request.sha)}`;
     case "branch":
       return `branch ${request.branch}`;
     default:
       return request.kind;
   }
 }
+
+export const described = (call: GhCall): string =>
+  describe(call, (sha) => sha.slice(0, 2));
+
+export const describedExactly = (call: GhCall): string =>
+  describe(call, (sha) => sha);

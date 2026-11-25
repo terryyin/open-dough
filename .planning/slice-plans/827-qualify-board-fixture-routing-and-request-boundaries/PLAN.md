@@ -213,7 +213,7 @@ All six E2E cases and Dashboard typecheck passed.
 ### 5. Preserve explicit read admission and detail results
 
 Type: Behavior
-Status: planned
+Status: done
 
 Qualify the common cold-publication setup behind the authenticated admission
 and revision-boundary inventory, including `revisionReuseBoundary` and
@@ -226,6 +226,25 @@ first-open and settled-page cases while keeping the REST hold on the detail
 read. Refer cold membership-only delay/failure controls and tests to plan 828
 where their Git trigger is introduced. Prove the existing admission, pinned
 content/error, and rendered held-detail results against the prepared fixtures.
+
+Cold authenticated reads verify the routed Git ref and returned SHA before
+explicit pinned reads. Revision reuse publishes and advances the same Git
+history, including cold opens in a second process, while comparisons, detail
+requests, and bounds observe their exact REST inputs and answers. First-open
+and settled-page checks use real history and preserve the held preparation
+detail. The revision-check and stream-only fixtures start with explicit
+`since` or `at` values and retain their scheduled failure and fallback
+observations. Plan 828 owns the remaining membership-only controls.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-branch-read-boundary.spec.ts dashboard/backend-tests/observation/authenticated-read-{boundary,committed-last,diagnostics-bounds,incident-record,refusal,output-bound,revision-backlog,revision-check,revision-check-failures,revision-reuse,revision-reuse-bounds,revision-reuse-compared,revision-reuse-failures,revision-reuse-history,revision-stream,revision-stream-setup-departure}.spec.ts dashboard/backend-tests/runtime/{first-open-waits-for-read,settled-page}.spec.ts --workers=1 --reporter=dot
+npm run typecheck:dashboard
+```
+
+All 88 selected backend cases and typecheck passed. The independent refactor
+moved materialization, registration and advance to `revisionReuseOrigin` and
+rechecked all 24 revision-reuse cases and typecheck. The other observations
+keep the same setup and checks.
 
 ### 6. Keep retained-answer proof on the reads that use it
 
