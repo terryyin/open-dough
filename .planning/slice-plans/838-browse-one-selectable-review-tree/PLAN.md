@@ -205,8 +205,8 @@ paths that the complete inventory needs, including deletions.
 
 Mounted review proves comparison switches, late inventory and text answers,
 and retry while a changed diff stays readable. Real-Git journeys read captured
-unchanged source after a later revision and read source and diffs when the
-published result has no Intent settings.
+source and a result without Intent settings. Commit `301516b31` combines Story
+Home, renews the browser proofs, and repairs the six branch CI cases.
 
 ## Story obligations
 
@@ -238,9 +238,11 @@ Disposition: proved by slice 4: [mounted comparison and retry](../../../dashboar
   for `Outside Intent locations`, configured group helpers,
   `intentChangedFileOrder`, root comparison cues, diff and Summary
   navigation, and read contracts at the server and mounted fixture boundaries.
-- No separate refinement pass was needed. The four slices each have a
-  focused proof loop within the 15-active-minute budget. Each builds on
-  the repository path as the navigation key, with comparison metadata
-  carrying diff and proof identity. The admission slice limits integration
-  work in the last slice to joining a pinned inventory to the existing tree.
-  This review found no remaining slice-specific concern.
+- The four slices kept their planned boundaries. Slice 1 needed an evidence
+  round and focused repair after the unified pane exposed fractional clipping.
+  Each slice keeps the repository path as the navigation key and comparison
+  metadata as the diff and proof identity.
+
+## Execution complete
+
+Product advice: No backlog change. The existing filter, folder proof, and Project Intent stories cover the remaining scope.
