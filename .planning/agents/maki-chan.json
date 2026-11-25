@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Maki-chan",
-  "email": "maki-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-413#prove-session-workspace-starts-on-vitest",
-  "host": "codex",
-  "model": "gpt-6.2-sol"
-}
