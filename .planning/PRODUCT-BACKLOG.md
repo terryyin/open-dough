@@ -46,6 +46,11 @@ intent introduced or affected by a newly developed story.
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
 - [Prove Dashboard launch starts and recovery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) — SEED-413#prove-launch-starts-and-recovery-on-vitest
+- [Prove installed execution and refinement starts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-installed-story-starts-on-vitest) — SEED-413#prove-installed-story-starts-on-vitest
+- [Prove Dashboard session workspace choices in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-workspace-starts-on-vitest) — SEED-413#prove-session-workspace-starts-on-vitest
+- [Prove host launch choices and first input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-first-input-on-vitest) — SEED-413#prove-native-first-input-on-vitest
+- [Prove retained follow-up context in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest) — SEED-413#prove-follow-up-context-on-vitest
+- [Prove retained launch records in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-kept-launch-records-on-vitest) — SEED-413#prove-kept-launch-records-on-vitest
 - [Prove native session and terminal lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest) — SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest
 - [Prove published Dashboard reads and evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest) — SEED-413#prove-published-dashboard-reads-on-vitest
 - [Prove Dashboard configuration and serving in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-dashboard-configuration-and-serving-on-vitest) — SEED-413#prove-dashboard-configuration-and-serving-on-vitest
