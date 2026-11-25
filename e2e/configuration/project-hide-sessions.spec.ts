@@ -16,7 +16,6 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
-import { browseStoryFiles } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   openUntilRead,
   untilPublishedWorkRead,
@@ -162,7 +161,6 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await chooseProject(page, "Doughnut");
   await expectProjectChoice(page, "Doughnut");
   await expect(intentMain).toHaveAttribute("data-selected-story", identity);
-  await browseStoryFiles(intentMain);
   await expect(
     intentMain.getByText(
       "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",

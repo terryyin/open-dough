@@ -157,6 +157,7 @@ const filesPlacement = (intent: Locator) =>
   filesToggle(intent).evaluate(sidebarPlacement);
 
 async function settledFiles(intent: Locator) {
+  await expect(filesToggle(intent)).toBeVisible();
   await expect.poll(() => filesPlacement(intent)).not.toBe("pending");
   return filesPlacement(intent);
 }

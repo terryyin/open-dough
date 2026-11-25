@@ -216,6 +216,12 @@ named slices. This review identified no remaining slice-specific concern.
   `sidebar-drawer-opened`. Entering narrow room starts Files closed in both
   views. Placement blocks stay per view, because their CSS room queries are
   the settle signal `sidebarPlacement` reads.
+- Trunk merge `f75f75845` (Story Home): the story's Files drawer opens
+  inside `.intent-browser` under the header so its toggle stays reachable;
+  Story Home closes an open drawer as choosing a file does. CI run
+  45655938283 then failed `e2e/configuration/project-hide-sessions.spec.ts`,
+  which browsed files on a story with no browser; the call is gone and
+  `showIntentFiles` now fails at once on a view without Files.
 - Slice 3 learning: a "ResizeObserver loop completed" warning appeared on
   narrow Review mounts at load 19–24 and was not reproduced at load 11–16.
   The observer now commits only on a threshold crossing; CI's Review shard
