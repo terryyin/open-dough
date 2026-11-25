@@ -1,0 +1,53 @@
+/* The comparison bar (./IntentComparisonBar.tsx): the files toggle, the
+   comparison choice and Include merged changes, then the summary or its
+   state and the eye, on one row that wraps on a narrow window. */
+.intent-comparison-row,
+.intent-comparison-row > .intent-story-compare {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+}
+
+.intent-comparison-row > .start-launch-button {
+  flex: none;
+  font-size: var(--text-sm);
+}
+
+.intent-comparison-row .story-review-inclusion {
+  padding: 0;
+  border: 0;
+}
+
+.intent-comparison-row > .intent-story-compare > p {
+  margin: 0;
+}
+
+.intent-comparison-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.intent-comparison-bar > p {
+  margin: 0;
+}
+
+.intent-comparison-bar-name {
+  font-weight: var(--weight-strong);
+}
+
+/* Each choice keeps one line; a long landed-run label ends in an ellipsis,
+   its full words kept as the radio's name and its revisions in the details. */
+.intent-story-compare .story-review-comparison label {
+  display: inline-block;
+  max-width: 16rem;
+  padding: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}

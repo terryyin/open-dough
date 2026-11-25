@@ -1,6 +1,8 @@
 // Intent's persistent header for project evidence or a selected story.
 // The common page supplies its navigation; story metadata and comparison
-// appear only in that story's evidence context.
+// appear only in that story's evidence context: its views, then the
+// comparison bar whose row holds the files toggle, the comparison choice and
+// the summary, directly above the story's view.
 
 import type { ReactNode } from "react";
 import { IntentStoryCompare } from "./IntentStoryCompare.tsx";
@@ -16,12 +18,18 @@ export function IntentHeader({
   navigation,
   projectVisit,
   browserRevision,
+  filesToggle,
+  tabBar,
 }: {
   readonly summary: StorySummary | undefined;
   readonly source: string;
   readonly navigation: ReactNode;
   readonly projectVisit: boolean;
   readonly browserRevision: string | undefined;
+  // A story's files toggle, which leads its comparison bar.
+  readonly filesToggle: ReactNode;
+  // A story's views, between its title rows and its comparison bar.
+  readonly tabBar: ReactNode;
 }) {
   const story = summary?.story;
   const compare =
@@ -70,15 +78,21 @@ export function IntentHeader({
           <code title={browserRevision}>{shortRevision(browserRevision)}</code>
         </p>
       )}
+      {tabBar}
       {summary !== undefined && (
-        <>
-          <IntentComparisonBar
-            key={summary.story.identity}
-            summary={summary}
-            compare={compare}
-          />
-          {compare !== undefined && <IntentStoryCompare compare={compare} />}
-        </>
+        <IntentComparisonBar
+          key={summary.story.identity}
+          summary={summary}
+          compare={compare}
+          leading={
+            <>
+              {filesToggle}
+              {compare !== undefined && (
+                <IntentStoryCompare compare={compare} />
+              )}
+            </>
+          }
+        />
       )}
     </section>
   );

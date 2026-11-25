@@ -37,7 +37,7 @@ Project Intent's tab bar, which keeps its current layout.
 ## Current decisions
 
 - In a story view, the files toggle moves from the story tab bar to the
-  start of the comparison bar. The story tabs keep their own row until the
+  start of the comparison bar. The story tabs keep their own row, above the bar, until the
   Home story replaces them. Project Intent keeps its toggle in its tab bar.
 - Details are collapsed when a story opens. Opening them keeps them open
   across a comparison change and a Refresh, so the keyboard stays on the
@@ -111,7 +111,7 @@ proof runs through `npm run --silent test:e2e -- <files>`.
 ### 2. Change the comparison from the same row as the files toggle
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `intent-story-comparison-summary.spec.ts`. The files toggle,
 the comparison choice, **Include merged changes** and the summary share
 one row below the title at desktop width and wrap without horizontal
@@ -130,6 +130,12 @@ below the bar. Choosing a landed run updates the summary and details, and
 **Include merged changes** follows that comparison's support. Seed
 examples 1 (layout) and 2.
 
+Accepted: the story tabs now sit between the title rows and the bar, so
+the diff starts directly below the bar. The frontend `intent` folder and
+40 traced e2e specs passed; two e2e timeouts at load ~20–30
+(`intent-done-default-answer-selection`, `story-review-one-shot-choice-races`)
+passed when rerun alone, and branch CI decides them.
+
 ### 3. Recognize the recorded agent in the summary
 
 Type: Behavior
@@ -143,6 +149,18 @@ folder. Budget 10 active minutes.
 Behavior: A published comparison with a known agent is open. The summary
 shows the agent's portrait beside the attribution. A comparison without a
 known agent shows the attribution alone. Seed examples 1 (portrait) and 4.
+
+## Story obligations
+
+### G1. The bar wraps at 1280 px when landed runs are offered
+Reported: slice 2 — "At 1280 px a landed-run choice's long label (kind, launch time and revision) pushes the summary onto a second row."
+Story clause: "change it from one compact toolbar row"
+Disposition: proved by slice 2: intent-story-comparison-summary.spec.ts "the files toggle, the comparison choice, Include merged changes and the summary share one row…" asserts one row at 1280×800 with landed runs offered; the in-bar choice label is capped with an ellipsis and keeps its full accessible name
+
+### G2. Story tabs sit between the bar and the diff
+Reported: slice 2 — "The story tabs still sit between the bar and the diff, as the plan decided until the Home story replaces them."
+Story clause: "The file diff starts directly below the bar."
+Disposition: proved by slice 2: the same case asserts the story tabs sit above the bar and the file browser starts directly below it; story tabs keep their own row above the bar
 
 ## Proof map
 

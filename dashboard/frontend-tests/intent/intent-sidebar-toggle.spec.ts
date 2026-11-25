@@ -42,17 +42,6 @@ test("Hide files gives the reading pane the width under the story's header; afte
   await expect.element(proof).toBeVisible();
   const offset = await files.scrollFilesHalfway();
   const before = files.reading();
-
-  const toggleBounds = files.toggle.element().getBoundingClientRect();
-  const tabs = intentPage.getByRole("tablist", {
-    name: "Selected story views",
-  });
-  expect(toggleBounds.left).toBeGreaterThan(
-    tabs.element().getBoundingClientRect().right,
-  );
-  expect(
-    Math.abs(toggleBounds.right - files.tabBar().right),
-  ).toBeLessThanOrEqual(32);
   await expect.element(projectView("CI status")).not.toBeInTheDocument();
 
   await files.toggle.click();

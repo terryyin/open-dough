@@ -83,24 +83,6 @@
   font-size: var(--text-sm);
 }
 
-/* The comparison bar (./IntentComparisonBar.tsx): the summary or its state
-   and the eye on one row that wraps on a narrow window. */
-.intent-comparison-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-.intent-comparison-bar > p {
-  margin: 0;
-}
-
-.intent-comparison-bar-name {
-  font-weight: var(--weight-strong);
-}
-
 .intent-story-detail:empty {
   display: none;
 }
@@ -146,8 +128,13 @@
   font-size: var(--text-sm);
 }
 
-/* Narrow, the views and the files toggle share one row: smaller tabs, and
-   the toggle's icon alone, its words kept as its name. */
+/* A story's views span its header, between the title and comparison bar. */
+.intent-header > .intent-page-tabbar {
+  margin: var(--space-2) calc(-1 * clamp(0.75rem, 4vw, 1.5rem)) var(--space-2);
+}
+
+/* Narrow, the views keep one row with smaller tabs; Project Intent's files
+   toggle shares it with its icon alone, its words kept as its name. */
 @media (max-width: 36rem) {
   .intent-page-tabbar {
     flex-wrap: nowrap;
