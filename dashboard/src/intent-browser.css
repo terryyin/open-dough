@@ -42,11 +42,9 @@
 
 .intent-home-button {
   flex: none;
-  align-self: flex-start;
   display: grid;
   place-items: center;
   padding: var(--space-1);
-  margin: var(--space-2) var(--space-3);
   background: transparent;
   color: inherit;
   border: 1px solid var(--line);

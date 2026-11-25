@@ -8,7 +8,8 @@ import type { FilesSidebar } from "./FilesSidebar.tsx";
 import { IntentBrowserFrame } from "./IntentBrowserFrame.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
-import { StoryHomeButton, type StoryPath } from "./IntentStoryEvidence.tsx";
+import type { StoryPath } from "./IntentStoryEvidence.tsx";
+import { IntentFilesActions } from "./FilesSidebarActions.tsx";
 import { IntentTreeGroups } from "./IntentTreeGroups.tsx";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import type { IntentTabPanelAttributes } from "./IntentTabs.tsx";
@@ -36,7 +37,7 @@ import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
 import {
-  StoryTreeScopeChoice,
+  StoryTreeScopeNote,
   type ComparedStory,
   type StorySummary,
 } from "./IntentStorySummary.tsx";
@@ -180,11 +181,9 @@ export function IntentBrowser({
       {files.backdrop}
       <div className="intent-locations" id={files.id} hidden={!files.shown}>
         <h3 className="visually-hidden">Purpose locations</h3>
-        {storyPath && <StoryHomeButton onHome={storyPath.onHome} />}
+        <IntentFilesActions path={storyPath} scope={storyScope} />
         {lead}
-        {storyScope !== undefined && (
-          <StoryTreeScopeChoice scope={storyScope} />
-        )}
+        {storyScope && <StoryTreeScopeNote scope={storyScope} />}
         <IntentTreeGroups
           locations={locations}
           tree={storyTree}

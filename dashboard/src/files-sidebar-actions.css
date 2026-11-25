@@ -1,0 +1,29 @@
+/* The Files sidebar's first row keeps Home, Intent only and Changes only
+   on one line; coarse pointers get 44px targets. */
+.files-actions {
+  flex: none;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-bottom: 1px solid var(--line);
+}
+
+.files-actions-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+@media (any-pointer: coarse) {
+  .files-actions > * {
+    min-height: 44px;
+  }
+
+  .files-actions .intent-home-button {
+    min-width: 44px;
+  }
+}

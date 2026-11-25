@@ -157,7 +157,7 @@ files.
 ### 4. Keep the Files sidebar controls together on a phone
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mounted production row at phone width for both scope shapes. Measure
 the visible controls' bounds, observe accessible order, and operate the
 supplied actions. Confirm the Files toolbar affordance still opens the row.
@@ -226,6 +226,13 @@ named slices. This review identified no remaining slice-specific concern.
   narrow Review mounts at load 19–24 and was not reproduced at load 11–16.
   The observer now commits only on a threshold crossing; CI's Review shard
   is the next confirmation.
+- Slice 4 delivered `dashboard/src/FilesSidebarActions.tsx`: a typed
+  `FilesSidebarActions` input per scope (project scope has no Changes only)
+  laid out as the "Files actions" row. Today the story supplies Home and the
+  "Selected story only" choice; project scope supplies nothing yet. The
+  320 px premise did not reproduce with 44 px coarse-pointer targets: Home,
+  Intent only and Changes only reach about 279 of 282 px with `--space-1`
+  padding and gap.
 - Slice 2 learning: `dashboard/frontend-tests/review/story-review-toolbar-truthful.spec.ts:39`
   failed once in a 39-file batch at load 16–30 ("expected undefined to be
   'Published changes'") and passed alone 5/5 at load 16, with no Review code
@@ -253,3 +260,8 @@ Disposition: proved by slice 3: `dashboard/frontend-tests/review/story-review-fi
 Reported: slice 2 — "If the Sessions keyboard shortcut opens Sessions while the Files drawer is open, two drawers and two backdrops can be open at once."
 Story clause: "Use one active drawer input boundary when narrow surfaces meet."
 Disposition: proved by slice 3: `intent-files-drawer.spec.ts` (Meta+B over the open Files drawer leaves one backdrop; one tap closes Sessions with Files closed) and `dashboard/frontend-tests/navigation/side-panel-width-review.spec.ts` (Sessions over the Review Files drawer leaves one backdrop and one tap on Refresh closes it without a read; docking and closing the Review leave no backdrop and Tab moves freely), runs `s3-fix-5` and `s3-fix-8`
+
+### G5. The live "Selected story only" label does not fit beside Intent only at 320 px
+Reported: slice 4 — "the live checkbox is labelled \"Selected story only\". Next to Home and Intent only it does not fit on one 320 px line, so the stand-in cases use \"Changes only\"."
+Story clause: "owns the filter actions and their inventory and summary effects"
+Disposition: excluded "owns the filter actions and their inventory and summary effects"
