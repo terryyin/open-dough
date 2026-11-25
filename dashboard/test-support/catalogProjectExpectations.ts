@@ -1,4 +1,5 @@
-// Expected catalog observations, authored independently of the published files.
+// Expected catalog observations, authored independently of the published files;
+// each project's revision is the one its publication commits.
 
 import { expect } from "./dashboardTest.ts";
 import type { ObservedRequest } from "./publishedOrigin.ts";
@@ -9,7 +10,6 @@ export const catalogExpectations = {
     label: "Open Dough",
     repository: "terryyin/open-dough",
     ref: "main",
-    revision: "0d".repeat(20),
     taken: "Open Dough's own taken story",
     queued: "Open Dough's own queued story",
     direction: "Show Open Dough's own published direction through local gh.",
@@ -22,7 +22,6 @@ export const catalogExpectations = {
     label: "Doughnut",
     repository: "nerds-odd-e/doughnut",
     ref: "main",
-    revision: "d7".repeat(20),
     taken: "Doughnut's own taken story",
     queued: "Doughnut's own queued story",
     direction: "Show Doughnut's own published direction through local gh.",
@@ -35,7 +34,6 @@ export const catalogExpectations = {
     label: "Pygardon",
     repository: "terryyin/pygardon",
     ref: "main",
-    revision: "c1".repeat(20),
     taken: "Pygardon's own taken story",
     queued: "Pygardon's own queued story",
     direction: "Show Pygardon's own published direction through local gh.",
@@ -48,7 +46,6 @@ export const catalogExpectations = {
     label: "Terry Talks",
     repository: "terryyin/terry-talks",
     ref: "master",
-    revision: "a4".repeat(20),
     taken: "Terry Talks's own taken story",
     queued: "Terry Talks's own queued story",
     direction: "Show Terry Talks's own published direction through local gh.",
@@ -63,7 +60,7 @@ export type CatalogExpectation =
 
 export function expectPinnedGhCalls(
   calls: readonly ObservedRequest[],
-  expected: CatalogExpectation,
+  expected: CatalogExpectation & { readonly revision: string },
 ): void {
   const refResolution = [
     "api",

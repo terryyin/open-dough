@@ -171,7 +171,7 @@ for CI-status, CI-proof and read-recovery consumers outside this slice.
 ### 6. Publish fixed observations from the selected project
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: Migrate fixed `development-intent-history`,
 `authenticated-project-observation` and the fixed initial publication in
@@ -183,6 +183,14 @@ Proof: Run the reached fixed project-selection and history cases, preserving
 configured-source isolation and the existing record requests. Budget 10
 active minutes. Reassign an entire moving scenario to its owner before
 editing any of its pins.
+
+Learnings: `taken-agent-profile-refresh` has no distinct fixed setup; its
+one scenario moves the same trunk and stays with the moving story. The
+restored-access step republishes identical files, and fixed commit dates
+give the same SHA, so it remains a fixed publication. Catalog expectations
+no longer name revisions. Follow-up found by the refactor pass:
+`dashboard/test-support/support/frontendCatalogProjects.ts` has had no
+importer since trunk commit `1fdc0577d`.
 
 ## Local gate
 
