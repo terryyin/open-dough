@@ -18,6 +18,8 @@
   `902165eaf1870b425a00934a229c7b49a0580810`.
 - Slice 2 and the approved plan expansion were accepted at
   `344f64cb7e7fc7692f976015c6d905b81de1c919` on the execution branch.
+- Slice 3 was accepted on the execution branch at
+  `1c39c80dd843876b678fc965abbf1299d152a6db`.
 
 ## Goal and scope
 
@@ -206,7 +208,7 @@ checkout Git evidence path.
 ### 4. Preserve acceptance, continuation and launch-record writes
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Backend `agent-launch-change-wait`, `agent-launch-duplicate`,
 `agent-launch-uncertain-continuation`, `agent-launch-records`,
 `agent-launch-records-replaced` and
@@ -221,6 +223,17 @@ hold or launch-record write whose observation does not use story
 membership. Keep a Ready queued story when the assertion depends on its
 identity or the start's phase or policy. Exercise concurrent server starts
 on a shared machine with the shared initialization path from slice 1.
+
+The strict 39-case backend selection passed before and after the migration.
+The change-count case observed the Ready attempt progress into a held native
+launch and settle after release. The duplicate and continuation cases
+observed one conversation, independent submitted input and retained effort.
+The existing record-store and mounted HTTP cases observed actual writes
+and settlement. The unchanged shared-machine case passed across concurrent
+starts and restart. Dashboard typecheck passed. Commands and observation
+locations are in `s4-implementation-report.md` under the checkout's Git
+evidence path. Acceptance found no refactor candidate in the six subject
+specs. They reuse the installed fixture without changing its contract.
 
 ### 5. Start a story from its card and follow it through publication
 

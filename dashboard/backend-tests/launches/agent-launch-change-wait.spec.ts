@@ -18,11 +18,7 @@ import {
   agentChangedEndpoint,
   type AttemptObservation,
 } from "../../src/agentLaunch.ts";
-import {
-  accept,
-  attempts,
-  launchRequest,
-} from "../../test-support/agentLaunchBoundary.ts";
+import { accept, attempts } from "../../test-support/agentLaunchBoundary.ts";
 import { keepMoreAttemptsBesideServer } from "../../test-support/acceptedAttempts.ts";
 import { request } from "../../test-support/keptExecutionStart.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -32,6 +28,7 @@ import {
 } from "../../test-support/support/dashboardServer.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { startOrigin } from "../../test-support/support/startOrigin.ts";
+import { queuedExecution } from "../support/installedClaudeLaunch.ts";
 
 async function changedBody(server: DashboardServer, id: string, seen?: number) {
   const query =
@@ -56,12 +53,13 @@ test("a wait naming the changes its asker saw answers at once a change told whil
   const server = await startDashboardServer({
     mode: "boundary",
     projectFolders: ["open-dough"],
+    installedCatalog: "claude",
     launchTimeoutMs: 60_000,
   });
   try {
     server.claudeScenario("held");
     const { attempt: accepted } = JSON.parse(
-      (await accept(server, launchRequest)).body,
+      (await accept(server, queuedExecution)).body,
     ) as { attempt?: AttemptObservation };
     if (accepted === undefined) throw new Error("The launch was not accepted");
     expect(accepted).toMatchObject({ changes: 0, worker: { step: "start" } });
@@ -168,6 +166,7 @@ test("an unsettled attempt this server's own process works on is answered withou
     mode: "boundary",
     liveServer: "separate process",
     projectFolders: ["open-dough"],
+    installedCatalog: "claude",
     extraEnv: { DOUGH_CHANGE_WAIT_MS: String(nonOwnerBoundMs) },
   });
   try {
@@ -175,7 +174,7 @@ test("an unsettled attempt this server's own process works on is answered withou
     await keepMoreAttemptsBesideServer(server, [
       makeMe.anAcceptedAttempt
         .withId(id)
-        .requesting(launchRequest)
+        .requesting(queuedExecution)
         .workedBy({
           pid: server.pid,
           serverPid: server.pid,

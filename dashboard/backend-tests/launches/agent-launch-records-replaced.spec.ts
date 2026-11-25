@@ -26,7 +26,6 @@ import {
   recordsOf,
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { distinctStoryRequest } from "../../test-support/openStorySessionSetup.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -51,6 +50,7 @@ test.describe("launch records after the store a server read is replaced", () => 
       liveServer,
       machine,
       projectFolders: ["open-dough"],
+      installedCatalog: "claude",
       launchTimeoutMs: 4_000,
     });
     servers.push(server);
@@ -86,7 +86,7 @@ test.describe("launch records after the store a server read is replaced", () => 
     const writer = await serverOn("development", "separate process");
     writer.claudeScenario("launched");
     const { record } = JSON.parse(
-      (await launch(writer, distinctStoryRequest("cross-read"))).body,
+      (await launch(writer, makeMe.aLaunchRequest.adHoc().please())).body,
     ) as { record: { session: { sessionId: string } } };
     expect(
       (

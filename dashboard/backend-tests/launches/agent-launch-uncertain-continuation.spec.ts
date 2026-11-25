@@ -5,6 +5,8 @@
 // attempt identity.
 
 import { renameSync } from "node:fs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { ownRecordContinuation } from "./ownRecordContinuation.ts";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import {
@@ -12,7 +14,6 @@ import {
   attempts,
   continueAttempt,
   launchRequest,
-  refinementRequest,
   runningStarts,
 } from "../../test-support/agentLaunchBoundary.ts";
 import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
@@ -21,7 +22,11 @@ import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+test.use({
+  serverMode: "boundary",
+  projectFolders: ["open-dough"],
+  installedCatalog: "claude",
+});
 
 type Answer = {
   kind: string;
@@ -46,9 +51,16 @@ test.describe("a story start whose launch wait expired", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("hang");
-    const accepted = answerOf(
-      await accept(dashboard, { ...refinementRequest, effort: "max" }),
-    );
+    const request = makeMe.aLaunchRequest
+      .refining(storyA)
+      .withPolicy({
+        tracking: "one-shot",
+        workspace: "isolated",
+        landing: "review",
+      })
+      .withEffort("max")
+      .please();
+    const accepted = answerOf(await accept(dashboard, request));
     const id = accepted.attempt?.id ?? "";
     expect(await settledOutcome(dashboard, id)).toMatchObject({
       kind: "uncertain",
@@ -65,7 +77,7 @@ test.describe("a story start whose launch wait expired", () => {
 
     for (const workflow of ["refinement", "execution"])
       expect(
-        answerOf(await accept(dashboard, { ...launchRequest, workflow })),
+        answerOf(await accept(dashboard, { ...request, workflow })),
       ).toMatchObject(unresolvedStart);
     expect(await attempts(dashboard)).toEqual([uncertain]);
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);

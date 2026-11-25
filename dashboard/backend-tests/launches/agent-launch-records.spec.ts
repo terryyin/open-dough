@@ -28,7 +28,6 @@ import {
   recordsOf,
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { distinctStoryRequest } from "../../test-support/openStorySessionSetup.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -75,6 +74,7 @@ test.describe("launch records kept on this machine", () => {
       liveServer,
       machine,
       projectFolders: ["open-dough"],
+      installedCatalog: "claude",
       launchTimeoutMs: launchWaitMs,
     });
     servers.push(server);
@@ -177,7 +177,7 @@ test.describe("launch records kept on this machine", () => {
 
     server.claudeScenario("launched");
     const { record } = JSON.parse(
-      (await launch(server, distinctStoryRequest("retention-write"))).body,
+      (await launch(server, makeMe.aLaunchRequest.adHoc().please())).body,
     ) as {
       record: { session: { sessionId: string } };
     };

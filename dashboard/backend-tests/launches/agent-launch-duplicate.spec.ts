@@ -1,23 +1,24 @@
 // Real HTTP admission and launch lifetime, with only native answers held.
+import { rmSync } from "node:fs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
-  test,
+  test as base,
   expect,
-  codexSkill,
 } from "../../test-support/support/codexLaunch.ts";
 import {
   accept,
   launch,
   recordsOf,
-  identity,
-  title,
+  openDoughFolder,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { installRefinementSkill } from "../../test-support/launchStoryCardPage.ts";
+import { installedSkillPath } from "../../server/launchHosts.ts";
 import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 
-test.use({
+base.use({
   serverMode: "boundary",
   projectFolders: ["open-dough"],
   launchTimeoutMs: 30_000,
@@ -34,7 +35,21 @@ const answerOf = async (pending: ReturnType<typeof launch>) =>
 const callsTo = (native: FakeCodex, method: string) =>
   native.calls.filter((call) => call.method === method);
 
+function awaitingNativeCall(
+  host: "claude" | "codex",
+  dashboard: DashboardServer,
+  native: FakeCodex,
+  codexCommand = "turn/start",
+) {
+  const count = () =>
+    host === "claude"
+      ? dashboard.claudeLaunchCalls().length
+      : callsTo(native, codexCommand).length;
+  return expect.poll(count, { timeout: 0 }).toBe(1);
+}
+
 for (const host of ["claude", "codex"] as const) {
+  const test = base.extend({ installedCatalog: host });
   for (const subject of ["instruction", "blank", "start-less story"] as const) {
     test(`${host}: overlapping ${subject} launch makes one native conversation and input`, async ({
       dashboard,
@@ -42,9 +57,16 @@ for (const host of ["claude", "codex"] as const) {
     }) => {
       const native = codexProtocol;
       if (native === undefined) throw new Error("Missing native fixture.");
+      if (subject === "start-less story") {
+        const path = openDoughFolder(dashboard);
+        const skill = "dough-story-refinement";
+        const project = { path, shown: path };
+        const scripts = installedSkillPath(host, project, skill, "scripts");
+        rmSync(`${scripts}/preparation-assignment.mjs`);
+      }
       const request =
         subject === "start-less story"
-          ? makeMe.aLaunchRequest.refining({ identity, title, host }).please()
+          ? makeMe.aLaunchRequest.refining({ ...storyA, host }).please()
           : makeMe.aLaunchRequest
               .adHoc({
                 host,
@@ -55,18 +77,8 @@ for (const host of ["claude", "codex"] as const) {
       native.hold = true;
       native.holdCreation = subject === "blank";
       const first = launch(dashboard, request);
-      await expect
-        .poll(
-          () =>
-            host === "claude"
-              ? dashboard.claudeLaunchCalls().length
-              : callsTo(
-                  native,
-                  subject === "blank" ? "thread/start" : "turn/start",
-                ).length,
-          { timeout: 0 },
-        )
-        .toBe(1);
+      const command = subject === "blank" ? "thread/start" : "turn/start";
+      await awaitingNativeCall(host, dashboard, native, command);
       expect(await answerOf(launch(dashboard, request))).toEqual(duplicate);
       if (host === "claude")
         expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
@@ -79,7 +91,9 @@ for (const host of ["claude", "codex"] as const) {
       dashboard.releaseHeldClaude();
       native.release();
       expect((await answerOf(first)).kind).toBe("launched");
-      expect(await recordsOf(dashboard, "open-dough")).toHaveLength(1);
+      const records = await recordsOf(dashboard, "open-dough");
+      expect(records).toHaveLength(1);
+      expect(records[0]).not.toHaveProperty("preparation");
     });
   }
 
@@ -88,25 +102,16 @@ for (const host of ["claude", "codex"] as const) {
     codexProtocol,
   }) => {
     const native = codexProtocol;
+    const instruction = "Original intent.";
     if (native === undefined) throw new Error("Missing native fixture.");
-    if (host === "claude") installRefinementSkill(dashboard.home);
-    else codexSkill(dashboard.home, "--explore");
     const request = makeMe.aLaunchRequest
-      .refining({ identity, title, host })
-      .withInstruction("Original intent.")
+      .refining({ ...storyA, host })
+      .withInstruction(instruction)
       .please();
     dashboard.claudeScenario("held");
     native.hold = true;
     const first = launch(dashboard, request);
-    await expect
-      .poll(
-        () =>
-          host === "claude"
-            ? dashboard.claudeLaunchCalls().length
-            : callsTo(native, "turn/start").length,
-        { timeout: 0 },
-      )
-      .toBe(1);
+    await awaitingNativeCall(host, dashboard, native);
     expect(
       await answerOf(
         launch(dashboard, {
@@ -123,22 +128,19 @@ for (const host of ["claude", "codex"] as const) {
     expect((await answerOf(first)).kind).toBe("launched");
     const records = await recordsOf(dashboard, "open-dough");
     expect(records).toHaveLength(1);
-    expect(records[0]).toMatchObject({ request });
+    expect(records[0]).toMatchObject({
+      request,
+      preparation: { identity: storyA.identity },
+    });
     if (host === "claude") {
       expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-      expect(dashboard.claudeLaunches()[0]?.instruction).toContain(
-        "Original intent.",
-      );
+      expect(dashboard.claudeLaunches()[0]?.instruction).toContain(instruction);
     } else {
       expect(callsTo(native, "thread/start")).toHaveLength(1);
       const inputs = callsTo(native, "turn/start");
       expect(inputs).toHaveLength(1);
-      expect(inputs[0]?.params["input"]).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            text: expect.stringContaining("Original intent."),
-          }),
-        ]),
+      expect(inputs[0]?.params["input"]).toContainEqual(
+        expect.objectContaining({ text: expect.stringContaining(instruction) }),
       );
     }
   });
@@ -160,15 +162,7 @@ for (const host of ["claude", "codex"] as const) {
       attempt: AttemptObservation;
     };
     expect(first).toMatchObject({ kind: "accepted" });
-    await expect
-      .poll(
-        () =>
-          host === "claude"
-            ? dashboard.claudeLaunchCalls().length
-            : callsTo(native, "turn/start").length,
-        { timeout: 0 },
-      )
-      .toBe(1);
+    await awaitingNativeCall(host, dashboard, native);
     expect(await answerOf(launch(dashboard, request))).toEqual(duplicate);
     dashboard.releaseHeldClaude();
     native.release();
@@ -225,26 +219,28 @@ for (const host of ["claude", "codex"] as const) {
   });
 }
 
-test("distinct Claude instructions remain independent while both launches are held", async ({
-  dashboard,
-}) => {
-  dashboard.claudeScenario("held");
-  const request = makeMe.aLaunchRequest
-    .adHoc({ instruction: "First subject." })
-    .please();
-  const first = launch(dashboard, request);
-  await expect
-    .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
-    .toHaveLength(1);
-  const second = launch(dashboard, {
-    ...request,
-    instruction: "Second subject.",
-  });
-  await expect
-    .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
-    .toHaveLength(2);
-  dashboard.releaseHeldClaude();
-  expect((await answerOf(first)).kind).toBe("launched");
-  expect((await answerOf(second)).kind).toBe("launched");
-  expect(await recordsOf(dashboard, "open-dough")).toHaveLength(2);
-});
+const claudeTest = base.extend({ installedCatalog: "claude" });
+claudeTest(
+  "distinct Claude instructions remain independent while both launches are held",
+  async ({ dashboard }) => {
+    dashboard.claudeScenario("held");
+    const request = makeMe.aLaunchRequest
+      .adHoc({ instruction: "First subject." })
+      .please();
+    const first = launch(dashboard, request);
+    await expect
+      .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
+      .toHaveLength(1);
+    const second = launch(dashboard, {
+      ...request,
+      instruction: "Second subject.",
+    });
+    await expect
+      .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
+      .toHaveLength(2);
+    dashboard.releaseHeldClaude();
+    expect((await answerOf(first)).kind).toBe("launched");
+    expect((await answerOf(second)).kind).toBe("launched");
+    expect(await recordsOf(dashboard, "open-dough")).toHaveLength(2);
+  },
+);
