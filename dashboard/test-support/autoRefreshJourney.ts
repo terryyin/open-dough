@@ -3,21 +3,22 @@
 // ../../e2e/observation/auto-refresh.spec.ts.
 
 import { expect, type Page } from "@playwright/test";
-import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import { githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectOwnersNotRecorded, expectSettledPage } from "./dashboardPage.ts";
 import { headsEtag } from "./originAnswers.ts";
 import { isHeadsCheck } from "./originObservation.ts";
+import {
+  publishMovingHistory,
+  type MovingHistory,
+} from "./publishedMovingOrigin.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
 import {
   backlogA,
-  claimsEntry,
-  dashboardEntry,
-  queueEntry,
   queueStory,
+  recordsAt,
+  refreshHistory,
   revisionA,
   titlesOfA,
-  workspaceEntry,
 } from "./refreshJourney.ts";
 import {
   givePageItsTurns,
@@ -28,23 +29,8 @@ import {
 } from "./pageRequestNotes.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 
-export { queueStory };
+export { queueStory, recordsAt };
 const opened = new Date("2026-09-23T09:00:00.000Z");
-
-// The records the refresh journey's backlogs name, with a Goal that says at
-// which commit it was published, so a detail can only come from one.
-export function recordsAt(label: string): Record<string, string> {
-  const section = (entry: { identity: string; title: string; href: string }) =>
-    renderStorySection(entry, {
-      goal: `${entry.title}, as published at ${label}.`,
-    });
-  return {
-    ".planning/seeds/SEED-021-progress.md": `# Progress\n\n${section(dashboardEntry)}`,
-    ".planning/seeds/SEED-008-sync.md": `# Sync\n\n${section(workspaceEntry)}\n${section(queueEntry)}`,
-    ".planning/seeds/SEED-040-claims.md": `# Claims\n\n${section(claimsEntry)}`,
-    ".planning/slice-plans/059-installer-update-report/PLAN.md": `# Repair the installer's update report\n\nWhole-document correction home, as published at ${label}.\n`,
-  };
-}
 
 // The `gh` calls behind this page after the first `from` of them.
 export function callsSince(page: Page, from: number): readonly GhCall[] {
@@ -67,10 +53,30 @@ export async function pausePageClock(page: Page): Promise<void> {
 
 // Opens the page at A with its clock paused, and waits until the whole
 // snapshot, detail included, has been read.
-export async function openSettledAtA(page: Page): Promise<MovingOrigin> {
+export function openSettledAtA(page: Page): Promise<MovingOrigin>;
+export function openSettledAtA(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+  atB?: Parameters<typeof refreshHistory>[0],
+): Promise<MovingHistory<"A" | "B" | "C">>;
+export async function openSettledAtA(
+  page: Page,
+  afterGitHubStops?: (cleanup: () => Promise<void>) => void,
+  atB?: Parameters<typeof refreshHistory>[0],
+): Promise<MovingOrigin | MovingHistory<"A" | "B" | "C">> {
   await pausePageClock(page);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA, recordsAt("A"));
+  let origin;
+  if (afterGitHubStops === undefined) {
+    origin = await publishMovingOrigin(page);
+    origin.push(revisionA, backlogA, recordsAt("A"));
+  } else {
+    origin = await publishMovingHistory(
+      page,
+      refreshHistory(atB),
+      "A",
+      afterGitHubStops,
+    );
+  }
   await page.goto("/");
   await expectSettledPage(page, titlesOfA);
   // Preparation no longer implies that the independent profiles are read.

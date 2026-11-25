@@ -3,6 +3,9 @@
 // a replaced server across a new revision catches up; a 504 listing leaves the
 // watched branch shown. Both cases leave stream slots free.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { mkdtempSync, rmSync } from "node:fs";
 import { connect, createServer, type Socket } from "node:net";
 import { tmpdir } from "node:os";
@@ -17,10 +20,7 @@ import {
   parts,
   shortRevision,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  passPageMs,
-  recordsAt,
-} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { passPageMs } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expectLostFreshnessProblem,
   expectStreamOpenGapsAtLeastPace,
@@ -32,9 +32,6 @@ import {
   untilStreamingAt,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
 import {
-  backlogB,
-  revisionA,
-  revisionB,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
@@ -150,8 +147,27 @@ async function replacePreview(
 
 stoppedStreamTest(
   "a stopped stream shows lost freshness within 45s with R kept; reopens at the pace; a replaced server across R' catches up",
-  async ({ page, dashboard, github, machine, browserAddress }) => {
-    const origin = await openStreamingAtA(page);
+  async ({
+    page,
+    afterGitHubStops,
+    dashboard,
+    github,
+    machine,
+    browserAddress,
+  }) => {
+    const origin = await openStreamingAtA(page, afterGitHubStops);
+    const { A: revisionA, B: revisionB } = origin.revisions;
+    expect(
+      await remoteBranchHead(
+        gitHubRepositoryUrl(defaultRepository),
+        "refs/heads/main",
+        {
+          cwd: dashboard.home,
+          env: { HOME: dashboard.home },
+          maxBuffer: 4096,
+        },
+      ),
+    ).toBe(revisionA);
     await new ConnectionMark(page).shows("connected");
     const { problem, retrievedAt, readRevision } = parts(page);
     const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
@@ -179,9 +195,20 @@ stoppedStreamTest(
     let replacement: DashboardServer | undefined;
     try {
       await test.step("replaced server across R': first answer names R', page reads it, problem clears", async () => {
-        origin.push(revisionB, backlogB, recordsAt("B"));
+        origin.advanceTo("B");
         const caughtUp = untilStreamingAt(page, revisionB);
         replacement = await replacePreview(dashboard, github, machine);
+        expect(
+          await remoteBranchHead(
+            gitHubRepositoryUrl(defaultRepository),
+            "refs/heads/main",
+            {
+              cwd: replacement.home,
+              env: { HOME: replacement.home },
+              maxBuffer: 4096,
+            },
+          ),
+        ).toBe(revisionB);
         browserAddress.forwardTo(replacement);
         await passPageMs(page, checkIntervalMs);
         await expectSettledPage(page, titlesOfB);

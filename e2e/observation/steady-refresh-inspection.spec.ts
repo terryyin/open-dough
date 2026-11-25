@@ -33,13 +33,8 @@ import {
   openSettledAtA,
   passTimeUntilChecked,
   queueStory,
-  recordsAt,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import {
-  backlogB,
-  revisionB,
-  titlesOfB,
-} from "../../dashboard/test-support/refreshJourney.ts";
+import { titlesOfB } from "../../dashboard/test-support/refreshJourney.ts";
 import {
   agents,
   atA,
@@ -117,8 +112,10 @@ test("assignments keep their agents, credited humans, and portraits on cards and
 
 test("an inspection open at A keeps its purpose while B is read", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { B: revisionB } = origin.revisions;
   const queueCard = parts(page).board.getByRole("article", {
     name: queueStory,
   });
@@ -127,7 +124,7 @@ test("an inspection open at A keeps its purpose while B is read", async ({
   const toggle = queueCard.getByRole("button", { name: "Hide detail" });
   await toggle.focus();
   const release = origin.hold(syncRecord);
-  origin.push(revisionB, backlogB, recordsAt("B"));
+  origin.advanceTo("B");
   await passTimeUntilChecked(page);
 
   await test.step("while B's record is held, the inspection keeps A's purpose and focus", async () => {

@@ -18,7 +18,6 @@ import {
   streamServerEnv,
   untilMatchingRefsSince,
   untilStreamingAt,
-  revisionA,
   titlesOfA,
   routeFailingRevisionStreams,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
@@ -42,6 +41,7 @@ test.use({ preholdRevisionStreamSlots: false, extraEnv: streamServerEnv });
 
 test("focus return keeps the same stream and waits for a new unchanged message", async ({
   page,
+  afterGitHubStops,
 }) => {
   const opened: string[] = [];
   const checked: string[] = [];
@@ -50,7 +50,7 @@ test("focus return keeps the same stream and waits for a new unchanged message",
     else if (new URL(request.url()).searchParams.has("since"))
       checked.push(request.url());
   });
-  const origin = await openStreamingAtA(page);
+  const origin = await openStreamingAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("connected");
   await mark.capture("green");
@@ -92,8 +92,9 @@ test("focus return keeps the same stream and waits for a new unchanged message",
 
 test("revealing a released stream stays yellow through opening until its first answer", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openStreamingAtA(page);
+  const origin = await openStreamingAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("connected");
   const retrieved =
@@ -102,7 +103,7 @@ test("revealing a released stream stays yellow through opening until its first a
   const release = origin.hold("main");
   try {
     const beforeReveal = githubFor(page).calls.length;
-    const opened = untilStreamingAt(page, revisionA);
+    const opened = untilStreamingAt(page, origin.revisions.A);
     const established = page.waitForResponse((response) =>
       isRevisionStream(response.url()),
     );
@@ -127,8 +128,9 @@ test("revealing a released stream stays yellow through opening until its first a
 
 test("the existing silence deadline makes the border red and recovery restores green", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openStreamingAtA(page);
+  const origin = await openStreamingAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("connected");
   const retrieved =
@@ -153,9 +155,10 @@ test("the existing silence deadline makes the border red and recovery restores g
 
 test("failed stream transport is red and its paced recovery confirms only on data", async ({
   page,
+  afterGitHubStops,
 }) => {
   const stopFailing = await routeFailingRevisionStreams(page);
-  await openStreamingAtA(page);
+  await openStreamingAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("disconnected");
   await stopFailing();
@@ -167,8 +170,9 @@ test("failed stream transport is red and its paced recovery confirms only on dat
 
 test("an upstream failure message confirms delivery while keeping its own failure notice", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openStreamingAtA(page);
+  const origin = await openStreamingAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("connected");
   const retrieved =
@@ -192,8 +196,9 @@ test("an upstream failure message confirms delivery while keeping its own failur
 
 test("an old project's outstanding answer cannot confirm the newly selected project", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openStreamingAtA(page);
+  const origin = await openStreamingAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("connected");
   const releaseOld = origin.hold("main");

@@ -4,6 +4,21 @@
 
 **Identity:** SEED-430#publish-moving-board-fixtures-through-git
 
+## Execution context
+
+Story Branch Mode in the owned worktree
+`/Users/terryyin/git/open-dough/.worktrees/publish-moving-board-test-fixtures-through-real`
+on `codex/publish-moving-board-test-fixtures-through-real`, with integration
+checkout `/Users/terryyin/git/open-dough` and authorized trunk `origin/main`.
+The dashboard publisher `dashboard-territory.local-open-dough` assigned
+Tsukasa-chan. The Take and initial execution branch are published at
+`75de19e9cb5a12c7582daf922cf89b58181573cb`, based on
+`34cca84a20f27c3b3591aeb4ec7c46bd6def0380`.
+
+Checkout readiness passed with `node scripts/setup-native.mjs npm`,
+`node scripts/setup-native.mjs check`, and `npm run typecheck:dashboard`.
+GitHub Actions observes `ci.yml` on the remote execution branch.
+
 ## Goal and scope
 
 Give maintainers real trunk moves and rewinds in browser fixtures while
@@ -142,7 +157,7 @@ that discriminates its promise.
 ### 1. Publish scheduled backlog observations at real revisions
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: With a raw test Board open at A, publish B through the existing
 raw-history seam. A scheduled check discovers B and reads its backlog while
 the origin reports the same SHA. Use `autoRefreshJourney`,
@@ -152,6 +167,26 @@ Proof: Run `auto-refresh.spec.ts`, `steady-refresh*.spec.ts` and the
 setup. Keep the subscription, lost-stream fallback, and visible/hidden
 cadence assertions. Prove one moved real pin at the scheduled operation.
 Use the shared path for the repeated setups within the 15-minute budget.
+
+Accepted proof at the Take plus slice 1 changes. `publishMovingHistory`
+materializes the MakeMe history once per fixture, moves its `main`, and
+gives the raw REST controls the same revision. The scheduled `auto-refresh`
+held-backlog case independently checks A/B/C under the served HOME, sees the
+exact B request while C is already published, and then settles at C. The
+steady and shared-check cases check A/B and preserve held reads and shared
+listing counts. The stream cases check A/B, matching-refs reuse, fallback,
+visibility cadence, and the B pin from a restarted Dashboard HOME.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/{auto-refresh,auto-refresh-visibility,auto-refresh-detail-recovery,auto-refresh-project-isolation,auto-refresh-rate-limit,auto-refresh-recovery,steady-refresh*,revision-stream*,revision-check-return,shared-observer-check-reuse}.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/{owner-replacement-recovery,transient-recovery-currentness,transient-recovery-lifecycle}.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- 'runtime/(first-open-waits-for-read|settled-page)\.spec\.ts' --workers=1 --reporter=line
+npm run typecheck:dashboard
+```
+
+The browser runs passed 38 and 9 cases, the backend run passed 5, and the
+typecheck passed after refactoring. The compatibility runs retain the current
+raw fixture behavior for recovery callers while slice 2 migrates them.
 
 ### 2. Preserve scheduled and detail recovery on a moving origin
 

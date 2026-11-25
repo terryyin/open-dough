@@ -4,7 +4,11 @@
 // ./publishedOrigin.ts; both share default passing base-CI answers.
 
 import type { Page } from "@playwright/test";
+import { materializeRepository } from "../../Distribution/tests/support/repository-fixture.mjs";
+import type { RepositoryDescription } from "../../Distribution/tests/support/repositoryTestData.mjs";
+import { publishMain } from "./committedOriginRepo.ts";
 import { githubFor } from "./dashboardTest.ts";
+import { backlogApart, describedRevisions } from "./describedRevisions.ts";
 import {
   asHeadsListing,
   commitAnswer,
@@ -22,17 +26,18 @@ import {
 } from "./publishedOriginBasics.ts";
 import { defaultPassingBaseCi } from "./support/baseCiActions.ts";
 import type { FakeGitHub } from "./support/fakeGitHub.ts";
+import { routeOriginThroughServedHomes } from "./support/fixtureOriginRoute.ts";
 
 export type MovingOrigin = {
   readonly requests: ObservedRequest[];
   // Pushes a commit: `main` names it from now on, and the backlog (and any
   // record files given by repository path) stay readable at it, as at every
   // commit pushed before.
-  push(
+  push: (
     revision: string,
     backlog: string,
     files?: Readonly<Record<string, string>>,
-  ): void;
+  ) => void;
   // Holds back answers from now on until the returned release is called: for
   // "main" the ref answer, for a revision the backlog file read at it, and for
   // a record file's repository path its reads at any revision. A held answer
@@ -44,6 +49,36 @@ export type MovingOrigin = {
   // revision the backlog file read at it.
   answerWith(what: string, answer: OriginAnswer): () => void;
 };
+
+export type MovingHistory<Name extends string> = Omit<MovingOrigin, "push"> & {
+  readonly revisions: Readonly<Record<Name, string>>;
+  advanceTo(name: Name): void;
+};
+
+// Run the raw REST controls against the same named history Git advertises.
+// The raw answerer keeps each previously published revision readable when
+// main moves or rewinds. It still decides holds and refusals on arrival.
+export async function publishMovingHistory<Name extends string>(
+  page: Page,
+  description: RepositoryDescription<Name>,
+  first: Name,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+  repository: string = defaultRepository,
+): Promise<MovingHistory<Name>> {
+  const { origin, revisions, cleanup } =
+    await materializeRepository(description);
+  afterGitHubStops(cleanup);
+  const published = describedRevisions(description, revisions);
+  const { push, ...moving } = await publishMovingOrigin(page, repository);
+  const advanceTo = (name: Name) => {
+    const { revision, backlog, files } = backlogApart(published[name]);
+    publishMain(origin, revision);
+    push(revision, backlog, files);
+  };
+  advanceTo(first);
+  routeOriginThroughServedHomes(githubFor(page), origin, repository);
+  return { ...moving, revisions, advanceTo };
+}
 
 // Published to the page's dashboard, or to a fake GitHub a pageless test
 // gives its servers.
