@@ -13,6 +13,8 @@
   Starting revision `6e146d8ba709e5b3ca285238089ef95a9d618756`.
   Take accepted on `origin/main` and the story branch at
   `0b2306e5712c3a6993184dc31c999d748a12db3e`.
+- Slice 1 accepted on the story ref at
+  `30b432f2f118a6e1f8225f17e981b2ca95175594`, with the story observer reused.
 - GitHub Actions `ci.yml` (CI), observing the story branch as
   `seed-423-airi-421098b1` from this checkout. Observer directory
   `/tmp/dough-ci-501/watch-u95qvY`, PID 9875, cell `g229:14`,
@@ -153,7 +155,7 @@ lines compared with the Take.
 ### 2. Reconcile merge and rebase through the same adapter
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Exercise the installed merge and rebase forms, including continuation
 from a conflict and read-only validation after a disputed replay. The two
 removed endpoint flags disappear from help and are refused before Git
@@ -181,6 +183,26 @@ its sole rebase responsibility if it has no other live caller. Keep the
 stage and worktree equality rule and the before/after Git boundaries above.
 Shorten the existing guidance sections as the unused options go away.
 Estimated active effort 12–15 minutes.
+
+Accepted implementation proof at `30b432f2` with the slice changes.
+The 27 planned Distribution jobs passed with 77 Node cases. They cover
+the supported CLI forms and diagnostics, real driver lifetime, staged
+resolution, catalog commits and credit, both managed delivery paths,
+publication retry, startup races, Story Branch closure, preparation
+publication and native evidence identity. The named-branch tests assert
+the destination and original branch IDs, the cutoff-only file is absent,
+and a sibling edit survives. The removed flags are absent from help and
+refused before refs, index or driver configuration change. Three
+supplemental installed and checkout-boundary jobs passed. An installed
+walkthrough confirmed merge stop and continue and a clean disputed
+named-branch replay followed by read-only validation. The literal commands,
+assertions, candidate and consumer trace are in the worktree Git directory
+under `open-dough/evidence/slice-2-report.md`.
+
+The tracked scope for line counts includes all shipped Git adapter modules
+with their moved code, both guidance files and the installed guard. It
+measured 2,514 lines at preparation and 2,503 at the Take. The slice
+implementation measured 1,661 before selective formatting.
 
 ## Plan review
 

@@ -1,27 +1,5 @@
-// Slice 3's own claim: a multi-commit rebase that finishes with no Git
-// conflict at any step is still checked, before a managed caller could
-// publish it, against the whole-rebase aggregate comparison of the true
-// pre-rebase tip and the true destination-at-start. Every case here performs
-// a real, multi-commit `git rebase` in a scratch repository that Git itself
-// resolves without any conflict, then asserts on the gate's own outcome and
-// on real Git/file-system state — the rebase's local commits, the branch's
-// own ref, and the worktree's bytes — never a mocked function call.
-//
-// This file covers the gate's refusal path: the mechanism proved here
-// (confirmed empirically against this project's installed Git before this
-// was written) is that an earlier replayed commit changes a value to
-// coincidentally match the destination's own concurrent change — silently
-// absorbing the divergence, since that step's own three-way view sees the
-// destination and the replayed commit agreeing — and a later commit changes
-// the same value again, unopposed as far as that step alone can see.
-// Composed, this reaches a Git-conflict-free result the whole-rebase
-// aggregate comparison — the true pre-rebase tip against the true
-// destination-at-start — refuses as a genuine two-sided dispute. The gate's
-// acceptance path (a genuinely compatible clean replay, a human-resolved
-// earlier conflict whose clean suffix survives, and the disputed-result
-// recovery/`validate` path) is
-// `product-backlog-git-rebase-clean-accepted.test.mjs`'s claim, not
-// exercised here.
+// A replay can finish cleanly even when an early commit masks a dispute
+// and a later commit changes the same backlog entry or direction again.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
@@ -36,6 +14,7 @@ import {
   commitOn,
   isMidRebase,
   occurrences,
+  refSha,
   runRebase,
   unresolvedPaths,
 } from "./product-backlog-git-fixture.mjs";
@@ -65,15 +44,18 @@ test("rebase stops a clean direction dispute no single replayed commit ever conf
       .withRevision("ancestor", {
         backlog: { queued: linkedEntries("A"), direction: originalDirection },
       })
+      .withRevision("cutoff", { files: { "cutoff.txt": "Earlier work" } })
+      .withRevision("destination", {
+        parents: ["ancestor"],
+        backlog: {
+          queued: linkedEntries("A"),
+          direction: destinationDirection,
+        },
+      })
       .please(),
   );
 
-  // feature, from the original ancestor: commit1 sets the same direction
-  // text destination is about to set independently (accepted with no
-  // conflict, since the destination and this commit's own change agree);
-  // commit2 changes it again, which no single step ever sees as opposed by
-  // the destination.
-  repo.git(["checkout", "-q", "-b", "feature"]);
+  repo.git(["checkout", "-q", "-b", "feature", repo.revisions.cutoff]);
   commitOn(
     repo,
     backlogOf([], [itemA], branchFirstDirection),
@@ -85,15 +67,18 @@ test("rebase stops a clean direction dispute no single replayed commit ever conf
     "feature changes direction again",
   );
 
+  const originalTip = refSha(repo, "feature");
   checkout(repo, "main");
-  commitOn(
-    repo,
-    backlogOf([], [itemA], destinationDirection),
-    "destination changes direction",
-  );
-  checkout(repo, "feature");
 
-  const rebased = await runRebase(repo, ["rebase", "--ref", "main"]);
+  const rebased = await runRebase(repo, [
+    "rebase",
+    "--onto",
+    "HEAD",
+    "--ref",
+    repo.revisions.cutoff,
+    "--branch",
+    "feature",
+  ]);
 
   assert.equal(rebased.code, 1, rebased.stdout + rebased.stderr);
   assert.equal(
@@ -119,8 +104,16 @@ test("rebase stops a clean direction dispute no single replayed commit ever conf
     /"## Near-future direction": the versions give it different text/,
   );
 
-  // The completed, disputed local commits are left exactly where the rebase
-  // put them: unpublished and fully recoverable, not aborted or reset.
+  assert.ok(rebased.stdout.includes(`tip (${originalTip})`));
+  assert.ok(
+    rebased.stdout.includes(
+      `destination-at-start (${repo.revisions.destination})`,
+    ),
+  );
+  assert.equal(refSha(repo, "main"), repo.revisions.destination);
+  assert.equal(refSha(repo, "feature^"), repo.revisions.destination);
+  assert.equal(refSha(repo, "ORIG_HEAD"), originalTip);
+  assert.equal(repo.git(["ls-files", "--", "cutoff.txt"]), "");
   assert.equal(
     repo.read(),
     backlogOf([], [itemA], branchFinalDirection),
@@ -175,4 +168,45 @@ test("rebase stops the duplicate-move regression no single replayed commit ever 
     1,
     "the rebase's own local result names Item B once, not duplicated",
   );
+});
+
+test("rebase rejects retired endpoint overrides before registering drivers or changing Git state", async (t) => {
+  const repo = await checkoutOf(t, makeMe.aRepository.please(), {
+    gitTemplates: false,
+  });
+  const refs = repo.git(["show-ref"]);
+  const config = repo.git(["config", "--local", "--list"]);
+  const index = repo.git(["ls-files", "--stage"]);
+  const help = await runRebase(repo, ["--help"]);
+
+  assert.equal(help.code, 0, help.stderr);
+  assert.match(help.stdout, /--onto <newbase>.*--branch <branch>/);
+  for (const flag of ["--pre-rebase-tip", "--destination-at-start"]) {
+    assert.ok(!help.stdout.includes(flag));
+    const result = await runRebase(repo, [
+      "rebase",
+      "--ref",
+      "HEAD",
+      flag,
+      "HEAD",
+    ]);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /ERR_PARSE_ARGS_UNKNOWN_OPTION/);
+    assert.ok(result.stderr.includes(flag));
+    assert.equal(repo.git(["show-ref"]), refs);
+    assert.equal(repo.git(["config", "--local", "--list"]), config);
+    assert.equal(repo.git(["ls-files", "--stage"]), index);
+    assert.equal(repo.git(["status", "--porcelain"]), "");
+    assert.equal(isMidRebase(repo), false);
+    assert.match(
+      repo.git([
+        "check-attr",
+        "merge",
+        "--",
+        ".planning/PRODUCT-BACKLOG.md",
+        ".planning/done/.catalog.json",
+      ]),
+      /^.*: merge: unspecified\n.*: merge: unspecified\n$/,
+    );
+  }
 });
