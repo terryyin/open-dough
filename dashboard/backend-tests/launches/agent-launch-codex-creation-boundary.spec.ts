@@ -10,24 +10,16 @@ import path from "node:path";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
-  notRefinedIdentity,
-  notRefinedStory,
-} from "../../test-support/launchJourney.ts";
-import {
   launch,
   machineSessions,
 } from "../../test-support/agentLaunchBoundary.ts";
 import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest
-  .refining({
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-    host: "codex",
-  })
+  .adHoc({ host: "codex" })
   .withInstruction("Preserve this exact intent.")
   .please();
-test.use({ projectFolders: ["open-dough"] });
+test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
 
 type Answer = { kind: string; explanation: string };
 const answerOf = async (server: DashboardServer) =>

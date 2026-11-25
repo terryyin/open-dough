@@ -8,6 +8,7 @@ import {
   enteredInstruction,
   instructedCursorRequest,
   keptCursor,
+  expectKeptCursorInstruction,
   withInstructedCursor,
 } from "../../test-support/support/keptCursorTurn.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
@@ -69,7 +70,7 @@ test.describe(`Cursor client exit`, () => {
     const cursor = installFakeCursor({ screen: "trust" });
     const replacementId = "b1c2d3e4-f5a6-4789-abcd-ef0123456789";
     await withInstructedCursor(
-      { mode: "boundary" },
+      { mode: "boundary", installedCatalog: "codex" },
       cursor,
       instruction,
       async (server) => {
@@ -90,7 +91,7 @@ test.describe(`Cursor client exit`, () => {
           kind: "launched",
           record: {
             session: { sessionId: replacementId },
-            firstInput: { state: "confirmed", instruction },
+            firstInput: { state: "confirmed" },
           },
         });
         expect(cursor.calls().map((call) => call.args)).toEqual([
@@ -99,13 +100,12 @@ test.describe(`Cursor client exit`, () => {
         ]);
         const resumed = cursor.attaches().at(-1);
         expect(resumed?.sessionId).toBe(replacementId);
-        expect(enteredInstruction(cursor, resumed?.pid ?? 0)).toContain(
-          instruction,
+        expect(enteredInstruction(cursor, resumed?.pid ?? 0)).toBe(
+          expectKeptCursorInstruction(server, instruction),
         );
         expect(keptCursor(server.home).session.sessionId).toBe(replacementId);
         expect(keptCursor(server.home).firstInput).toMatchObject({
           state: "confirmed",
-          instruction,
         });
       },
     );

@@ -28,6 +28,8 @@
   `9cb22125f37e17265bc2465ed42505c159f496f4`.
 - Slice 7 was accepted on the execution branch at
   `9e653e3870f6658ef228cdb766acc7ca309a55a1`.
+- Slice 8 was accepted on the execution branch at
+  `42b8a23ec402a5ab2607b0c8ca004f62bad14278`.
 
 ## Goal and scope
 
@@ -76,8 +78,8 @@ that launch.
   and [unit tests and E2E](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).
   Reuse the existing fixture seam and page objects. Keep runner migration
   with SEED-413.
-- Slices 1–8 select the installed fixture for the consumers they move.
-  Slice 9 makes installation the default for every catalog project and
+- Slices 1–9 select the installed fixture for the consumers they move.
+  Slice 10 makes installation the default for every catalog project and
   removes the temporary selection. Each increment remains independently
   verifiable in the established Story Branch Mode.
 
@@ -106,7 +108,7 @@ during the full probe makes its elapsed times unsuitable for a cost baseline.
 | Backend story boundary and shell | With the original request seeded as Ready, `agent-launch-environment` passed. `agent-launch-boundary` reached the legacy checkout-scoped native command assertion. The no-Claude case answered `start-refused`. |
 | Page Start on a queued story | The seeded story-card run observed execution refuse a rough story with “Preparation is not recorded”. Refinement opened in `.worktrees/story-c` with the established preparation. The Ready control reached native execution in the same worktree with the established start and reporting context. |
 | Card placement after real publication | The seeded control kept the page fixture pinned and reached the session and focus assertions there. `agent-launch-start-phases`, which passed in the full probe, advances the page's displayed revision to the actual origin's accepted publication and observes the story in Taken. Slice 5 owns the corresponding final-state journeys. |
-| Every fixture-created catalog folder | The scratch wiring exercised the server seam. The direct fake-host calls in the two terminal-close files rely on the same project-folder option and are explicit verification in slice 9. |
+| Every fixture-created catalog folder | The scratch wiring exercised the server seam. The direct fake-host calls in the two terminal-close files rely on the same project-folder option and are explicit verification in slice 10. |
 
 The common Git directory retains the scratch inputs, literal commands,
 consumer trace, logs, and runner proof records under
@@ -352,7 +354,38 @@ The provider cases preserve failure, cancellation, deadline and recovery
 observations. Dashboard typecheck passed. Exact commands and observations
 are in `s8-implementation-report.md` under the checkout Git evidence path.
 
-### 9. Install every fixture-created catalog project
+### 9. Migrate the remaining installed Codex and Cursor launch cases
+
+Type: Behavior
+Status: done
+Proof: Select the 20 backend and seven E2E cases whose subjects require a
+new launch or a host skill becoming available. Compare their exact case
+manifest with the failing rows in `s9-failed-consumer-families.tsv` and the
+unchanged plain baseline. Observe the native creation, input, refusal,
+recovery and option or model choice each case owns, including the host
+option that appears after its first read.
+
+Install the appropriate layout for these consumers before flipping the
+shared default. Give genuine refinement or execution a published eligible
+story where the launch depends on that workflow. Use ad hoc work when a
+native startup or live client is the observation. Preserve held calls,
+distinct native identities and continuation, and the independent reporting
+context. In the skill-appearance case the origin starts without the specific
+skill and advances to the revision that supplies it.
+
+This is a new proof loop discovered during the first full dual-layout run.
+Use clock key `9-launch-consumers`. The earlier default installation
+attempt's elapsed time and evidence carry into slice 10.
+
+The strict focused runs passed 39 backend and eight E2E cases. The
+full title comparison matches all 27 failed launch and late-skill cases
+with passing results on the installed fixtures. Dashboard typecheck
+passed. The launch cases observe native input, real start or continuation,
+independent reporting and preferences, and the exact late skill after
+its origin revision changes. Exact commands, manifests and observations
+are in `s9-launches-implementation-report.md` under the Git evidence path.
+
+### 10. Install every fixture-created catalog project
 
 Type: Behavior
 Status: planned
@@ -372,13 +405,36 @@ harness has an installed checkout and its own bare origin with matching
 every affected assertion. Full suites are the local gate because every
 fixture-created catalog project receives the new default.
 
+The first dual-layout candidate passed 20 focused backend cases, typecheck
+and a caller-owned origin probe. The unfiltered run selected 1,987 backend
+cases, of which 45 failed and one was the baseline replay skip. E2E selected
+779 and 26 failed. The earlier preparation probe used the Claude layout.
+The dual-layout run reached 27 additional launch observations now owned by
+slice 9, and 44 existing-session preconditions across the two suites.
+Plan 817 owns session setup in the selected source. The disposition for the
+remaining 44 cases needs the developer's scope decision before the default
+can pass both full suites.
+
+The exact default changes are parked in `s9-installed-default.patch` under
+the checkout Git evidence path. That directory also holds the before/after
+consumer traces, strict manifests, timing and failure tables, and
+`s9-implementation-report.md`. The default attempt used 8.3 active minutes.
+Carry its clock record from key `9` when starting the rollout as slice 10.
+
+Trunk accepted SEED-430's Board fixture routing at `f05e15351` during the
+probe. Reconcile its changes to `dashboardServer`, `dashboardTest`, the
+fixture origin routes and the direct Claude terminal case before renewing
+the full gates. The focused slice 9 proof is on the story branch's existing
+fixture contract.
+
 ## Review verification
 
 The preparation plan split the backend command and record lifecycles, the
 E2E card and host outcomes, and dialog and voice submissions into eight
 slices. During execution, the developer expanded the story and its
-missing-Claude behavior became a separate slice. All nine slices share one
-installation path, and the final slice removes temporary fixture selection.
+missing-Claude behavior became a separate slice. The full dual-layout
+probe then identified additional launch consumers for an independent proof
+loop. The final slice removes temporary fixture selection.
 
 - `review/story-review-offline-sync.spec.ts` prepares the synced refs
   directly and expires the shared deadline after observing the trunk fetch
@@ -398,14 +454,14 @@ clock to expire reuse before requesting a new read.
 
 Strict proof records, logs, and the tested patch are in the common Git
 directory under `open-dough/evidence/SEED-433-review-verification`. This
-establishes the baseline for the installed-catalog comparison in slice 9.
+establishes the baseline for the installed-catalog comparison in slice 10.
 
 ## Story obligations
 
 ### G1. Make the installed catalog the default
 Reported: slice 1 — "The temporary installation selection is the planned interim until slice 8."
 Story clause: "Every catalog project the harness creates has an installed Open Dough checkout and a matching bare origin."
-Disposition: receiving slice 9
+Disposition: receiving slice 10
 
 ### G2. Settle missing-Claude behavior on an installed Ready launch
 Reported: slice 2 — "With Claude absent and Git fully available, the installed start published the Take. The native launch then returned `not-installed` and kept no launch record."
@@ -428,7 +484,7 @@ Disposition: proved by slice 3: `dashboard/backend-tests/launches/agent-launch-b
   npm run --silent test:dashboard:backend -- <files>` and the equivalent
   `test:e2e` command, with the respective
   `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD` and `OPEN_DOUGH_E2E_PROOF_RECORD`.
-  For slice 9 run both without file selectors under the AC guard. Run
+  For slice 10 run both without file selectors under the AC guard. Run
   Dashboard typecheck and lint. For changed Distribution test builders, run
   the existing affected MakeMe support tests through `scripts/test.sh`.
   Follow the repository's installed MakeMe and page-object selections.

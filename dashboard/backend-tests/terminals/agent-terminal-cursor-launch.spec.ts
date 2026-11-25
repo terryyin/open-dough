@@ -11,6 +11,7 @@ import {
   enteredInstruction,
   instructedCursorRequest,
   keptCursor,
+  expectKeptCursorInstruction,
   withInstructedCursor,
 } from "../../test-support/support/keptCursorTurn.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
@@ -109,7 +110,7 @@ test.describe(`Cursor launch turn`, () => {
     const cursor = installFakeCursor({ screen: "composer" });
     const story = `${instruction}\n${"line of the launch instruction. ".repeat(40)}`;
     await withInstructedCursor(
-      { mode: "boundary" },
+      { mode: "boundary", installedCatalog: "codex" },
       cursor,
       story,
       async (server) => {
@@ -117,8 +118,9 @@ test.describe(`Cursor launch turn`, () => {
         await expect
           .poll(() => keptCursor(server.home).firstInput?.state)
           .toBe("confirmed");
-        expect(enteredInstruction(cursor, pid)).toBe(story);
-        expect(keptCursor(server.home).firstInput?.instruction).toBe(story);
+        expect(enteredInstruction(cursor, pid)).toBe(
+          expectKeptCursorInstruction(server, story),
+        );
       },
     );
   });

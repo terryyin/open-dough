@@ -22,6 +22,7 @@ import {
   admit,
   codexResumeLog,
   keptCursor,
+  expectKeptCursorInstruction,
   startCursorDashboard,
   stayedUp,
   workingKeptCursorTest as test,
@@ -69,7 +70,7 @@ test.describe(`Cursor embedded terminal`, () => {
     let server: DashboardServer | undefined;
     try {
       server = await startCursorDashboard(
-        { mode: "boundary" },
+        { mode: "boundary", installedCatalog: "codex" },
         cursor,
         machine,
       );
@@ -86,10 +87,8 @@ test.describe(`Cursor embedded terminal`, () => {
       }
       const sessionId = recorded.session.sessionId;
       const workspace = recorded.session.continuation.workspace;
-      expect(recorded.firstInput).toMatchObject({
-        state: "confirmed",
-        instruction,
-      });
+      expect(recorded.firstInput?.state).toBe("confirmed");
+      expectKeptCursorInstruction(server, instruction);
       expect(recorded.session.continuation.args).toEqual([
         "cursor-agent",
         "--workspace",

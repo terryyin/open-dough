@@ -2,6 +2,7 @@ import {
   test,
   expect,
   stored,
+  expectCodexAdHocInput,
 } from "../../test-support/support/codexLaunch.ts";
 import {
   launch,
@@ -13,7 +14,11 @@ import { launchSubject, keptStartSchema } from "../../src/agentLaunch.ts";
 import { startRecordSchema } from "../../server/startStore.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+test.use({
+  serverMode: "boundary",
+  projectFolders: ["open-dough"],
+  installedCatalog: "codex",
+});
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 
@@ -96,12 +101,12 @@ test("model-only reaches creation and first input after durable identity; record
   expect(
     codexProtocol.calls.filter((c) => c.method === "thread/start")[0]?.params,
   ).toEqual({ cwd: codexProtocol.cwd, model: "native-sol" });
-  expect(
-    codexProtocol.calls.filter((c) => c.method === "turn/start")[0]?.params,
-  ).toEqual({
-    threadId: codexProtocol.threadId,
-    input: [{ type: "text", text: "Explain the build" }],
-  });
+  expectCodexAdHocInput(
+    codexProtocol,
+    "Explain the build",
+    stored(dashboard.home)[0],
+    dashboard,
+  );
   codexProtocol.models = [];
   expect(await machineSessions(dashboard)).toContainEqual(
     expect.objectContaining({

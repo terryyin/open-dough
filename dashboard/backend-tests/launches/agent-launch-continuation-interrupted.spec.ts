@@ -18,8 +18,6 @@ import {
   attempts,
   continueAttempt,
   noteReconciled,
-  identity,
-  title,
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
   keptAttempts,
@@ -34,9 +32,10 @@ import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
-test.use({ projectFolders: ["open-dough"] });
+test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
 
 type Answer = {
   kind: string;
@@ -58,14 +57,19 @@ test("an attempt a closed server left unsettled blocks a fresh start of its stor
   if (native === undefined) throw new Error("Missing native fixture.");
   native.hold = true;
   const request = makeMe.aLaunchRequest
-    .refining({ identity, title, host: "codex" })
+    .refining({ ...storyA, host: "codex" })
+    .withPolicy({
+      tracking: "one-shot",
+      workspace: "isolated",
+      landing: "review",
+    })
     .please();
   const accepted = answerOf(await accept(dashboard, request)).attempt;
   if (accepted === undefined) throw new Error("The launch was not accepted.");
   const inputs = () =>
     native.calls.filter((call) => call.method === "turn/start");
   await expect.poll(() => inputs().length).toBe(1);
-  // This project's refinement has no installed start to publish.
+  // The installed one-shot prepares its workspace without publishing.
   const [running] = await attempts(dashboard);
   expect(running).toMatchObject({ publication: { kind: "none" }, owned: true });
   await dashboard.close();

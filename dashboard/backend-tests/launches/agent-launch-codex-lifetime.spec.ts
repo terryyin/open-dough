@@ -4,13 +4,12 @@ import {
   test,
   expect,
   stored,
+  expectCodexAdHocInput,
 } from "../../test-support/support/codexLaunch.ts";
 import {
   accept,
   attempts,
   launch,
-  identity,
-  title,
   machineSessions,
   deleteRecord,
 } from "../../test-support/agentLaunchBoundary.ts";
@@ -18,12 +17,17 @@ import { startDashboardServer } from "../../test-support/support/dashboardServer
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+test.use({
+  serverMode: "boundary",
+  projectFolders: ["open-dough"],
+  installedCatalog: "codex",
+});
 
 const shutdownTest = test.extend({ liveServer: "separate process" });
 
-const codexRefinement = makeMe.aLaunchRequest
-  .refining({ identity, title, host: "codex" })
+const codexLaunch = makeMe.aLaunchRequest
+  .adHoc({ host: "codex" })
+  .withInstruction("Preserve this exact intent.")
   .please();
 
 test("an active detached caller still records acknowledgment and a later connection failure retains recovery/disposes resources", async ({
@@ -36,7 +40,7 @@ test("an active detached caller still records acknowledgment and a later connect
   const response = fetch(`${dashboard.baseURL}${agentAcceptEndpoint}`, {
     method: "POST",
     headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
-    body: JSON.stringify(codexRefinement),
+    body: JSON.stringify(codexLaunch),
     signal: AbortSignal.timeout(1000),
   }).catch(() => undefined);
   await expect
@@ -75,7 +79,7 @@ shutdownTest(
     const native = protocol;
     if (native === undefined) throw new Error("Missing native fixture.");
     native.hold = true;
-    const request = codexRefinement;
+    const request = codexLaunch;
     const answered = JSON.parse((await accept(dashboard, request)).body) as {
       kind: string;
       attempt?: { id: string; acceptedAt: string };
@@ -88,13 +92,26 @@ shutdownTest(
           native.calls.filter((call) => call.method === "turn/start").length,
       )
       .toBe(1);
+    const record = stored(dashboard.home)[0];
+    expectCodexAdHocInput(
+      native,
+      "Preserve this exact intent.",
+      record,
+      dashboard,
+    );
+    const reporting = record?.request.reporting;
+    expect(reporting).toMatchObject({
+      origin: dashboard.origin,
+      reference: answered.attempt?.id,
+      command: expect.any(String),
+    });
     expect(await attempts(dashboard)).toEqual([
       {
         id: answered.attempt?.id,
         request,
         acceptedAt: answered.attempt?.acceptedAt,
         reportingOrigin: dashboard.origin,
-        // This project's refinement has no installed start to publish.
+        reporting,
         publication: { kind: "none" },
         owned: true,
         running: true,
@@ -130,6 +147,7 @@ shutdownTest(
           request,
           acceptedAt: answered.attempt?.acceptedAt,
           reportingOrigin: dashboard.origin,
+          reporting,
           publication: { kind: "none" },
           owned: false,
           running: false,
@@ -159,7 +177,7 @@ for (const ending of ["complete", "disconnect"] as const) {
     const native = protocol;
     if (native === undefined) throw new Error("Missing native fixture.");
     native.afterAcceptance = ending;
-    const response = await launch(dashboard, codexRefinement);
+    const response = await launch(dashboard, codexLaunch);
     expect(JSON.parse(response.body)).toMatchObject({ kind: "launched" });
     await expect.poll(() => native.sockets.size).toBe(0);
     expect(stored(dashboard.home)[0]?.firstInput?.state).toBe("confirmed");
@@ -183,7 +201,7 @@ test("deleting an unreadable Codex record remains deleted after a later native c
   if (native === undefined) throw new Error("Missing native fixture.");
   expect(
     (
-      JSON.parse((await launch(dashboard, codexRefinement)).body) as {
+      JSON.parse((await launch(dashboard, codexLaunch)).body) as {
         kind: unknown;
       }
     ).kind,

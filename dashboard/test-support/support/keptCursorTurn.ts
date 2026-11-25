@@ -22,6 +22,7 @@ import {
   stopCursorRunner,
 } from "../../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./processGroup.ts";
+import { expectAdHocReportingInput } from "./reportingInputAssertions.ts";
 import {
   changeLaunchStore,
   keptLaunchStore,
@@ -36,6 +37,7 @@ import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 export type CursorServer = {
   readonly mode: "boundary";
   readonly environment?: ProjectEnvironment;
+  readonly installedCatalog?: DashboardServerOptions["installedCatalog"];
 };
 
 export function keptCursor(home: string): LaunchRecord {
@@ -48,6 +50,16 @@ export function keptCursor(home: string): LaunchRecord {
     throw new Error("Missing recorded Cursor session.");
   }
   return record;
+}
+
+export function expectKeptCursorInstruction(
+  server: DashboardServer,
+  developerText: string,
+) {
+  const record = keptCursor(server.home);
+  const instruction = record.firstInput?.instruction ?? "";
+  expectAdHocReportingInput(instruction, developerText, record.request, server);
+  return instruction;
 }
 
 // The kept Cursor record's first input state, or undefined before a launch
