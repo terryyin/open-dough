@@ -100,7 +100,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   expect(attempts).toBe(2);
 });
 
-test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changes the explanation, and Project Intent main's CI status beside it", async () => {
+test("without configured Intent locations the header names the selected story, Story Home shows CI status and the explanation, and Project Intent main's CI status beside it", async () => {
   const mounted = await openStoryChanges({
     hasWorkspace: false,
     hasLocations: false,
@@ -138,13 +138,13 @@ test("without configured Intent locations the header names the selected story, C
     )
     .toBeVisible();
 
-  await story.chooseTab("Changes");
-  await showsExplanation("Changes");
   await expect
     .element(
-      panel("Changes").getByRole("region", { name: "CI status", exact: true }),
+      story.homeReading.getByText(
+        /No Intent locations are configured for Open Dough/,
+      ),
     )
-    .not.toBeInTheDocument();
+    .toBeVisible();
 
   await chooseWholeProject();
   await expect.element(story.header).not.toBeInTheDocument();
@@ -161,9 +161,14 @@ test("without configured Intent locations the header names the selected story, C
   await showsExplanation("Optimization Candidates");
 
   await intentRecentStories(openDoughSource).chooseRow("SEED-A#a");
-  await story.chooseTab("Changes");
   await expect.element(story.header).toBeVisible();
-  await showsExplanation("Changes");
+  await expect
+    .element(
+      story.homeReading.getByText(
+        /No Intent locations are configured for Open Dough/,
+      ),
+    )
+    .toBeVisible();
 
   await mounted.showDevelopment();
   const card = developmentCard("Story A");

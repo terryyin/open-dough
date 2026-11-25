@@ -73,9 +73,11 @@ test("including merged changes leaves CI comparison and file Proof at the measur
 
   await comparisonRead(() => story.proofLabels(doneIdentity)).not.toEqual([]);
   await comparisonRead(() => story.noteBuild("Proof")).toBe(measured);
+  await story.goHome();
   expect(story.noteBuild("CI comparison")).toBe(measured);
-  expect(story.noteBuild("Intent coverage")).toBe(measured);
   expect(story.landedEndpoint()).toContain(measured);
+  await story.chooseTab("Intent coverage");
+  expect(story.noteBuild("Intent coverage")).toBe(measured);
   expect(
     proofReads.some(({ subject }) => subject.revision === measuredLanded),
   ).toBe(true);
@@ -183,6 +185,7 @@ test("a late branch comparison cannot replace another story's explanation or fil
     .element(story.outsideFile(`Added ${incomingPath}`))
     .toBeVisible();
   holdBranchRead = true;
+  await story.openDetails();
   await activateComparisonControl(story.refreshButton);
   await comparisonRead(held.asked).toBe(true);
 

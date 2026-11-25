@@ -141,7 +141,7 @@ test("Intent Follow up sends the reviewed whole comparison or one file as its re
         tree: git(origin.project, "rev-parse", `${completion}^{tree}`),
       };
     });
-  await test.step("When I open Changes", () => review.browseFiles());
+  await test.step("When I open the file browser", () => review.browseFiles());
   await test.step("Then the review shows the published baseline", () =>
     expect(review.header.publishedBaseline).toHaveText(baseline));
   await test.step("When I follow up on the whole comparison", async () => {

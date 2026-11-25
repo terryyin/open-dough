@@ -61,6 +61,7 @@ async function showsUnavailableChanges(explanation: string) {
   await expect
     .element(story.header.getByRole("status"))
     .toHaveTextContent("No comparison is available.");
+  await story.openDetails();
   await expect
     .element(
       story.header.getByText(

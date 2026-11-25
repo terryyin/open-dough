@@ -30,7 +30,6 @@ import {
   browseStoryFiles,
   intentDiff,
   intentFile,
-  storyFilesReading,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
@@ -191,9 +190,11 @@ test("unrecoverable history remains unavailable despite a readable Done workspac
   });
   await browseStoryFiles(intent);
   await expect(filesColumn(intent)).toHaveCount(0);
-  await expect(storyFilesReading(intent)).toContainText(
-    "The story's historical Intent locations and test source are unavailable",
-  );
+  await expect(
+    intent.getByText(
+      "The story's historical Intent locations and test source are unavailable",
+    ),
+  ).toBeVisible();
   await expect(intent).not.toContainText("readable local replacement");
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
 });

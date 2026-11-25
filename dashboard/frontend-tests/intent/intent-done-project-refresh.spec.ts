@@ -94,8 +94,6 @@ test("Done Purpose and Proof keep their historical revision through tab changes 
   const locationReads = [...locations];
 
   await done.showFreshWork();
-  for (const tab of ["CI comparison", "Intent coverage", "Changes"] as const)
-    await story.chooseTab(tab);
   await expect.element(showLatest).not.toBeInTheDocument();
   await expect
     .element(intentPage)
@@ -119,7 +117,7 @@ test("Done Purpose and Proof keep their historical revision through tab changes 
           ?.textContent,
     )
     .toBe(report);
-  await story.browseFiles();
+  await selected.click();
   await expect.element(selected).toHaveAttribute("aria-pressed", "true");
   await expect
     .element(readingTab("Proof"))

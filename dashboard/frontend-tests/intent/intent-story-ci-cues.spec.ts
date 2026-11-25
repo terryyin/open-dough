@@ -59,7 +59,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
     await folder.click();
   await expect.element(folder).toHaveAttribute("aria-expanded", "true");
 
-  const name = intentPage.getByRole("button", {
+  const name = story.sidebar.getByRole("button", {
     name: /^dashboard\/tests(?:,|$)/,
   });
   await expect

@@ -52,6 +52,7 @@ export {
   beginIntentReviewChanges,
   expectIntentReviewFocused,
   expectIntentReviewOpened,
+  returnToIntentReviewHome,
   expectReviewChangesOffered,
   openIntentReviewChanges,
   type IntentReviewChanges,

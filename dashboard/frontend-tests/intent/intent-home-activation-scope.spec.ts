@@ -103,26 +103,35 @@ async function readStoryChanges() {
   return { judgedBranches, reviews, fileReads, mounted };
 }
 
-test("activating CI comparison from Changes judges the selected story's branch under its header, and Changes keeps its file", async () => {
+test("Home clears the path and judges the selected story's branch under its header", async () => {
   await readStoryChanges();
 
-  await story.chooseTab("CI comparison");
+  await story.goHome();
 
   await ci.judges(failingStory.branch);
   await ci.answers("Failed at fa11ed0 (Break the login)");
   await ci.notes("Story branch.");
   expect(ci.panel.element().textContent).not.toContain(failingStory.title);
   await expect.element(story.header).toBeVisible();
-  await story.chooseTab("Changes");
-  await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
+  await expect.element(fileControl()).toHaveAttribute("aria-pressed", "false");
+  await expect.element(story.viewTab("CI comparison")).toHaveFocus();
+  await expect.element(story.pathReading).not.toBeInTheDocument();
+  await expect
+    .element(intent.getByRole("tab", { name: "Changes", exact: true }))
+    .not.toBeInTheDocument();
 });
 
+// Put the fold between the story heading and its file toolbar.
 async function keepReadingOnShortViewport() {
   await readStoryChanges();
   await page.viewport(390, 320);
+  intentScroll().scrollTop = 0;
+  const end = storyHeading.element().getBoundingClientRect().bottom;
+  const start = story.filesToggle.element().getBoundingClientRect().top;
+  await page.viewport(390, Math.floor((end + start) / 2));
 }
 
-test("a touch opens the bookmark immediately when the story heading is readable above the fold of Changes", async () => {
+test("a touch opens the bookmark immediately when the story heading is readable above the fold of the path reading", async () => {
   await keepReadingOnShortViewport();
   await useTouchScreen();
   const scroll = intentScroll();
@@ -130,7 +139,7 @@ test("a touch opens the bookmark immediately when the story heading is readable 
   const reading = scroll.scrollTop;
   await expect.poll(storyHeadingIsReadable).toBe(true);
   expect(
-    story.viewTab("Changes").element().getBoundingClientRect().top,
+    story.filesToggle.element().getBoundingClientRect().top,
   ).toBeGreaterThan(scroll.getBoundingClientRect().bottom);
 
   await tapWhereShown(recent.element());
@@ -140,18 +149,19 @@ test("a touch opens the bookmark immediately when the story heading is readable 
   await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
 });
 
-test("the bookmark first reveals a clipped story heading even when its Changes tab is in the reading region", async () => {
+test("the bookmark first reveals a clipped story heading even when the file toolbar is in the reading region", async () => {
   await keepReadingOnShortViewport();
   const scroll = intentScroll();
-  const tab = story.viewTab("Changes").element();
-  tab.scrollIntoView({ block: "start", behavior: "instant" });
+  const toggle = story.filesToggle.element();
+  const top = scroll.getBoundingClientRect().top;
+  scroll.scrollTop += Math.floor(toggle.getBoundingClientRect().top - top);
   expect(storyHeading.element().getBoundingClientRect().bottom).toBeLessThan(
     scroll.getBoundingClientRect().top,
   );
-  expect(tab.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+  expect(toggle.getBoundingClientRect().top).toBeGreaterThanOrEqual(
     scroll.getBoundingClientRect().top,
   );
-  expect(tab.getBoundingClientRect().bottom).toBeLessThan(
+  expect(toggle.getBoundingClientRect().bottom).toBeLessThan(
     scroll.getBoundingClientRect().bottom,
   );
   focus(recent);

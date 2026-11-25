@@ -67,13 +67,9 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await expect
     .element(page.getByRole("tabpanel", { name: "Intent coverage" }))
     .toBeVisible();
-  await expect
-    .element(
-      page.getByRole("tabpanel", { name: "Changes", includeHidden: true }),
-    )
-    .not.toBeVisible();
-  await story.chooseTab("Changes");
-  await expect.element(file).toHaveAttribute("aria-pressed", "true");
+  await expect.element(story.pathReading).not.toBeInTheDocument();
+  await expect.element(file).toHaveAttribute("aria-pressed", "false");
+  await file.click();
   await expect.poll(story.diffName).toBe(changed.modified);
   await expect.element(story.onlyChangedFiles).toBeChecked();
   await showsStoryExpansion();

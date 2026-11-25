@@ -29,25 +29,25 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Complete story-linked ad hoc sessions in the Dashboard](seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions) — SEED-439#complete-story-linked-ad-hoc-sessions ([plan](slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md))
-- [Read and change the story comparison from one control bar](seeds/SEED-420-unified-intent-review.md#compact-story-comparison-controls) — SEED-420#compact-story-comparison-controls ([plan](slice-plans/833-compact-story-comparison-controls/PLAN.md))
 - [Read CI comparison and Intent coverage from Story Home](seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home) — SEED-420#read-story-evidence-from-intent-home ([plan](slice-plans/837-read-story-evidence-from-intent-home/PLAN.md))
 - [Use sidebars consistently across the Dashboard](seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard) — SEED-417#use-sidebars-consistently-across-the-dashboard ([plan](slice-plans/837-use-sidebars-consistently-across-the-dashboard/PLAN.md))
 - [Browse and select folders in one story review tree](seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree) — SEED-420#browse-one-selectable-review-tree ([plan](slice-plans/838-browse-one-selectable-review-tree/PLAN.md))
+- [Prove launch attachment admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-options) — SEED-413#finish-backend-vitest-renovation-after-launch-options ([plan](slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md))
+- [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries ([plan](slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md))
+- [Exercise Board navigation on published story fixtures](seeds/SEED-442-exercise-board-navigation-on-published-story-fixtures.md#exercise-board-navigation-on-published-story-fixtures) — SEED-442#exercise-board-navigation-on-published-story-fixtures ([plan](slice-plans/844-exercise-board-navigation-on-published-story-fixtures/PLAN.md))
 
 ## Backlog list
 
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files
 - [Recognize Intent folders and read their proof](seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof) — SEED-420#recognize-intent-folders-and-read-proof
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision
-- [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries
 - [Open and refresh the published Board from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
 - [Discover a project's default branch through Git](seeds/SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git) — SEED-437#discover-project-default-branch-through-git
-- [Prove installed launch options through typed backend requests](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-session-reads-and-alerts) — SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts
-- [Finish the remaining backend Vitest renovation after launch options](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-options) — SEED-413#finish-backend-vitest-renovation-after-launch-options
+- [Finish the remaining backend Vitest renovation after launch attachments](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-attachments) — SEED-413#finish-backend-vitest-renovation-after-launch-attachments
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof

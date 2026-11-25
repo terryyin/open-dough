@@ -85,8 +85,13 @@ test("a newly selected Done story shows only its own historical source after hel
   await expect.poll(heldComparison.asked).toBe(true);
   await story.browseFiles();
   await expect
-    .element(story.filesReading)
-    .toHaveTextContent("Reading the story's historical Intent locations…");
+    .element(
+      story.homeReading.getByText(
+        "Reading the story's historical Intent locations…",
+        { exact: true },
+      ),
+    )
+    .toBeVisible();
   expect(files()).toBeNull();
   await expect.element(purpose).not.toBeInTheDocument();
   expect(revisions.filter((revision) => revision !== projectRevision)).toEqual([

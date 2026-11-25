@@ -59,7 +59,7 @@ export function useBoardScrolling(suspended: boolean) {
         return;
       document
         .querySelector<HTMLElement>(
-          ".board-scroll .board, .roster-scroll h2, .intent-scroll .intent-browser:not([hidden]) .intent-reading, .intent-scroll .intent-candidates-panel:not([hidden])",
+          ".board-scroll .board, .roster-scroll h2, .intent-scroll .intent-browser:not([hidden]) .intent-reading:not([hidden]), .intent-scroll .intent-story-home:not([hidden]) [role='tabpanel']:not([hidden]), .intent-scroll .intent-candidates-panel:not([hidden])",
         )
         ?.focus({ preventScroll: true });
     };

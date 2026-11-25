@@ -132,7 +132,7 @@ and both cases passed with the corrected assertion.
 ### 3. Return to Story Home and keep Review changes direct
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Run the Home, captured-run, coverage and Board arrival cases mapped
 above, including cold sync, gaps, and keyboard focus. Re-run affected
 project-scope, reading-place and CI drill-down consumers.
@@ -152,6 +152,20 @@ the developer goes Home or changes story. Remove the temporary routing
 from slice 2 and the obsolete Changes tab and focus selectors in the same
 slice. Update only the page object interactions and assertions whose
 navigation contract changed.
+
+The split frontend runs and focused corrections covered Home, path
+clearing, file Proof return, coverage retry, CI drill-down, kept reading,
+and the captured-run and whole-story evidence bases. All 22 selected
+end-to-end cases passed, including cold sync, unavailable sources,
+remembered files, and Home cancellation. Typecheck passed.
+
+Trunk's compact comparison toolbar was integrated from `67242e1615`.
+The file toggle stays in that toolbar beside the comparison controls,
+above Story Home and path detail. The compact toolbar, viewport,
+focus, Home, and directed Board review checks passed on the integrated
+candidate. The independent observations for browsing and CI evidence
+still apply. Nine mounted and seven end-to-end cases passed after the
+final reading-focus refactor.
 
 ## Verification and plan review
 
@@ -186,7 +200,7 @@ navigation contract changed.
 
 Reported: slice 2 — "For this increment, the current Changes tab still leads to path reading and a sidebar open can select it internally."
 Story clause: "The story-level tab row gives way to Home and direct path reading."
-Disposition: interim until slices 3
+Disposition: proved by slice 3: intent-home-activation-scope.spec.ts observes the cleared path, focused CI comparison, and absent Changes tab. intent-story-evidence-browsing.spec.ts opens a summary and diff directly from Home.
 
 ## Execution context
 
@@ -198,6 +212,8 @@ Disposition: interim until slices 3
   on `origin/main` and the story branch. Koharu-chan owns the execution
   under publisher `dashboard-territory.local-open-dough`.
 - Slice 1 was accepted on the story branch at `c5397d4790a70a32df073e6e3a0f3502399ff045`.
+- Slice 2 was accepted on the story branch at `0293284e56d6a2e96c004f27c99dc67e0c54fd11`.
+- The Slice 2 CI repair was accepted at `d9278674b19374468b3aff773c700f144f6c912a`.
 - The Codex observer for the remote story branch tracks GitHub Actions
   `ci.yml` under coordinator `koharu-420-ed214235` at
   `/tmp/dough-ci-501/watch-fvhWBV`, stream session `30471`, cell `g375:14`.

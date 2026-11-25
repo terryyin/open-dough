@@ -1,4 +1,5 @@
-// A story opens its published comparison with available landing choices.
+// A story opens its published comparison with available landing choices;
+// Refresh sits in the comparison details (`./IntentComparisonBar.tsx`).
 import {
   ComparisonChoices,
   ComparisonInclusion,
@@ -7,8 +8,6 @@ import {
 } from "./StoryReviewComparison.tsx";
 import { launchKindName } from "./launchWorkflow.ts";
 import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
-import { RefreshCw } from "lucide-react";
-import { IconButton } from "./Icon.tsx";
 
 export type StoryCompare = {
   readonly shown: ComparisonChoice | undefined;
@@ -24,6 +23,16 @@ export type StoryCompare = {
   readonly reading: boolean;
 };
 
+// A landed run's name: its launch kind and, when known, when it launched.
+export function landedRunName(run: ReviewRunChoice) {
+  return [
+    launchKindName(run.workflow),
+    ...(run.launchedAt === undefined
+      ? []
+      : [new Date(run.launchedAt).toLocaleString()]),
+  ].join(" — ");
+}
+
 export function IntentStoryCompare({
   compare,
 }: {
@@ -36,10 +45,7 @@ export function IntentStoryCompare({
     ...compare.runs.map((run) => ({
       key: run.key,
       label: [
-        launchKindName(run.workflow),
-        ...(run.launchedAt === undefined
-          ? []
-          : [new Date(run.launchedAt).toLocaleString()]),
+        landedRunName(run),
         run.comparison?.revision.slice(0, 8) ?? "No published comparison",
       ].join(" — "),
     })),
@@ -59,14 +65,6 @@ export function IntentStoryCompare({
           }}
         />
       )}
-      <IconButton
-        label="Refresh"
-        icon={RefreshCw}
-        aria-disabled={compare.reading}
-        onClick={() => {
-          if (!compare.reading) compare.onRefresh();
-        }}
-      />
       {compare.selectedRun?.comparison === undefined &&
         compare.selectedRun?.launchedAt !== undefined && (
           <p>

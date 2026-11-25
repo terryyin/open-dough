@@ -70,11 +70,4 @@ test("an outside file's Proof names the story's CI comparison, explains missing 
   await story.choosePurpose();
   await expect.poll(story.diffName).toBe(landingFile);
   await expect.poll(story.readingOffset).toBe(offset);
-  await story.chooseTab("CI comparison");
-  await story.chooseTab("Changes");
-  await expect
-    .element(page.getByRole("tab", { name: "Purpose", exact: true }))
-    .toHaveAttribute("aria-selected", "true");
-  await expect.poll(story.diffName).toBe(landingFile);
-  await expect.poll(story.readingOffset).toBe(offset);
 });

@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import {
+  agentNameOf,
   agentNames,
   nerdAgentNames,
 } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -97,6 +98,24 @@ export function AgentPortrait({
         } as CSSProperties
       }
     />
+  );
+}
+
+// A recorded agent's name, its portrait beside it when the rotation knows the
+// agent.
+export function RecordedAgent({
+  agent,
+  className,
+}: {
+  agent: string;
+  className: string;
+}) {
+  const name = agentNameOf(agent);
+  return (
+    <span className={className}>
+      {name !== undefined && <AgentPortrait name={name} />}
+      {agent}
+    </span>
   );
 }
 

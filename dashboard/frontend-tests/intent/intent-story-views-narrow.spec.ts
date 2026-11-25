@@ -16,18 +16,18 @@ test("narrow, a selected story's views and Hide files stay reachable by keyboard
   await openIntentFileLayout({ viewport: { width: 390, height: 760 } });
   const story = intentStoryCompare();
   const files = fileLayout();
-  await story.chooseTab("Changes");
   await controlsFit(
     story.viewTab("CI comparison"),
-    story.viewTab("Changes"),
     story.viewTab("Intent coverage"),
     files.toggle,
   );
 
-  await toggleFilesFromKeyboard(story.viewTab("Changes"));
+  focus(files.toggle);
+  await userEvent.keyboard("{Enter}");
+  await files.showsFiles(false);
   await userEvent.keyboard(" ");
   await files.showsFiles(true);
-  focus(story.viewTab("Changes"));
+  focus(story.viewTab("Intent coverage"));
   await userEvent.keyboard("{Home}");
   await expect
     .element(story.viewTab("CI comparison"))
@@ -76,9 +76,7 @@ test("without a story the shared header, project views and reader fit narrow and
         ?.getAttribute("data-intent-context"),
     ).toBe("project");
     await expect
-      .element(
-        intentPage.getByRole("tablist", { name: "Selected story views" }),
-      )
+      .element(intentPage.getByRole("tablist", { name: "Story Home" }))
       .not.toBeInTheDocument();
     await controlsFit(
       intentPage.getByLabelText("Test browser revision", { exact: true }),

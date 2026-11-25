@@ -132,7 +132,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     expect(inIntent.get(changed.added)).toContain("added");
   });
 
-  await test.step("the Done card opens Changes and keeps its Board Highlight until cleared", async () => {
+  await test.step("the Done card opens path reading and keeps its Board Highlight until cleared", async () => {
     const { development, intentChoice } = parts(page);
     await development.click();
     await showColumn(page, "Recently done");

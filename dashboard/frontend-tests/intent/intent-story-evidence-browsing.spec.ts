@@ -1,9 +1,16 @@
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
+import { boardWork, story as workStory } from "../navigation/board-work.ts";
 import { intentCiProof } from "./intent-attempt-proof-page.ts";
 import { scopeName } from "./intent-browser-page.ts";
-import { judgedStatus } from "./intent-ci-status-fixtures.ts";
+import {
+  inertCiReads,
+  judgedStatus,
+  mainPassed,
+} from "./intent-ci-status-fixtures.ts";
+import { intentReadsPublishing } from "./intent-revision-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
   changed,
@@ -97,4 +104,44 @@ test("Selected story only hides the unchanged failing file but keeps its result 
 
   await expect.element(story.file(keptPath)).not.toBeInTheDocument();
   await showsFailingBuild();
+});
+
+test("reading keys move from the document to the visible Story Home or path reading", async () => {
+  const locations = makeMe.anIntentLocationsAnswer
+    .locating(
+      makeMe.anIntentLocation
+        .at(location)
+        .ofKind("typescript", ["*.spec.ts"])
+        .selecting(keptPath)
+        .please(),
+    )
+    .please();
+  const selected = workStory("Keep story reading reachable by keyboard", 566);
+  const work = boardWork([], { taken: [selected] });
+  await mountBoardFrame(
+    work,
+    { width: 1280, height: 800 },
+    "stories",
+    {},
+    {
+      intentReads: intentReadsPublishing(locations, {}),
+      ci: inertCiReads({ readStatus: () => Promise.resolve(mainPassed) }),
+    },
+  );
+  await page
+    .getByRole("article", { name: selected.title })
+    .getByRole("heading", { name: selected.title })
+    .click();
+  await page.getByRole("radio", { name: "Intent", exact: true }).click();
+  await expect.element(story.viewTab("CI comparison")).toBeVisible();
+  (document.activeElement as HTMLElement | null)?.blur();
+  await userEvent.keyboard("{PageDown}");
+  await expect
+    .element(page.getByRole("tabpanel", { name: "CI comparison" }))
+    .toHaveFocus();
+
+  await activateComparisonControl(scopeName(location));
+  (document.activeElement as HTMLElement | null)?.blur();
+  await userEvent.keyboard("{PageDown}");
+  await expect.element(story.pathReading).toHaveFocus();
 });

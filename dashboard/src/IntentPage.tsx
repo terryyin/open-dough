@@ -16,9 +16,8 @@ import { IntentStoryEvidence } from "./IntentStoryEvidence.tsx";
 import type { ComparedStory, StorySummary } from "./IntentStorySummary.tsx";
 import {
   StoryCiReturnProvider,
-  storyTabs,
   useStoryTab,
-  useStoryChangesArrival,
+  useReturnToStoryCi,
 } from "./intentStoryTabs.tsx";
 import {
   IntentTabs,
@@ -32,7 +31,10 @@ import type { SelectedStory } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { intentHomeMarks } from "./storyCardFocus.ts";
 import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
-import { storyReviewFileReadiness } from "./useFirstStoryChangedFile.ts";
+import {
+  storyReviewFileReadiness,
+  useStoryReviewArrival,
+} from "./useFirstStoryChangedFile.ts";
 import "./intent-page.css";
 
 export type IntentPageStory = {
@@ -73,15 +75,26 @@ export function IntentPage({
     shown.reading === true,
     hasBrowser,
   );
-  useStoryChangesArrival(
+  const files = { id: `${tabsIdPrefix}-locations`, shown: filesShown };
+  const { selection, clearSelection, setSelection } =
+    useIntentWorkspaceSelection();
+  const readingId = `${tabsIdPrefix}-path-reading`;
+  const headerId = `${tabsIdPrefix}-review-feedback`;
+  const pathVisible =
+    story !== undefined && hasBrowser && selection.path !== "";
+  useStoryReviewArrival({
+    project: story?.selection?.project,
+    readiness: fileReadiness,
+    pathVisible,
+    headerId,
+    readingId,
+  });
+  const returnToCi = useReturnToStoryCi(
     story?.selection?.project,
     tabsIdPrefix,
-    tab,
     chooseTab,
-    fileReadiness !== "unavailable",
+    clearSelection,
   );
-  const files = { id: `${tabsIdPrefix}-locations`, shown: filesShown };
-  const { clearSelection, setSelection } = useIntentWorkspaceSelection();
   const [entryReturns, setEntryReturns] = useState(0);
   useEffect(() => {
     if (entryReturns === 0) return;
@@ -89,13 +102,19 @@ export function IntentPage({
       document.getElementById(intentTabPanelId(tabsIdPrefix, "candidates")),
     );
   }, [entryReturns, tabsIdPrefix]);
-  const view = story === undefined ? project.mode : tab;
-  const browserView = story === undefined ? "ci" : "changes";
   const panel = (name: string) =>
-    intentTabPanelAttributes(tabsIdPrefix, name, view);
-  const openStoryPath = () => {
-    chooseTab("changes");
-  };
+    intentTabPanelAttributes(tabsIdPrefix, name, project.mode);
+  const filesToggle = (
+    <FileBrowserToggle
+      icon
+      browser={
+        hasBrowser && (story !== undefined || project.mode === "ci")
+          ? files
+          : undefined
+      }
+      onShowBrowser={setFilesShown}
+    />
+  );
   const browser = hasBrowser && (
     <IntentBrowser
       source={source}
@@ -107,8 +126,12 @@ export function IntentPage({
       story={story?.compared}
       reviewFileReady={fileReadiness === "ready"}
       files={files}
-      panel={panel(browserView)}
-      {...(story === undefined ? {} : { onSelectPath: openStoryPath })}
+      panel={panel("ci")}
+      storyPath={
+        story === undefined
+          ? undefined
+          : { id: readingId, hidden: !pathVisible, onHome: returnToCi }
+      }
     />
   );
   const page = (
@@ -124,9 +147,11 @@ export function IntentPage({
           summary={story?.summary}
           source={source.id}
           browserRevision={shownRevision}
+          filesToggle={filesToggle}
+          reviewFeedbackId={story === undefined ? undefined : headerId}
         />
-        <div className="intent-page-tabbar" {...intentHomeMarks}>
-          {story === undefined ? (
+        {story === undefined && (
+          <div className="intent-page-tabbar" {...intentHomeMarks}>
             <IntentTabs
               options={projectTabs}
               selected={project.mode}
@@ -138,29 +163,17 @@ export function IntentPage({
               label="Project Intent views"
               idPrefix={tabsIdPrefix}
             />
-          ) : (
-            <IntentTabs
-              options={storyTabs}
-              selected={tab}
-              onSelect={chooseTab}
-              label="Selected story views"
-              idPrefix={tabsIdPrefix}
-            />
-          )}
-          <FileBrowserToggle
-            icon
-            browser={
-              hasBrowser && (story !== undefined || view === browserView)
-                ? files
-                : undefined
-            }
-            onShowBrowser={setFilesShown}
-          />
-        </div>
+            {filesToggle}
+          </div>
+        )}
         {story === undefined && notice}
         {story === undefined &&
           (explanation !== undefined || comparisonSourceUnavailable) && (
-            <div className="intent-page-panel" tabIndex={-1} {...panel(view)}>
+            <div
+              className="intent-page-panel"
+              tabIndex={-1}
+              {...panel(project.mode)}
+            >
               {explanation}
               {project.mode === "ci" && <IntentCiStatus />}
             </div>
@@ -171,19 +184,13 @@ export function IntentPage({
       ) : (
         <IntentBrowserFrame filesShown={hasBrowser && filesShown}>
           {browser}
-          {!hasBrowser && (
-            <div
-              className="intent-page-panel"
-              tabIndex={-1}
-              {...panel("changes")}
-            >
-              {explanation}
-            </div>
-          )}
           <IntentStoryEvidence
             story={story.summary}
             idPrefix={tabsIdPrefix}
             tab={tab}
+            onTab={chooseTab}
+            hidden={pathVisible}
+            explanation={explanation}
           />
         </IntentBrowserFrame>
       )}
@@ -192,11 +199,12 @@ export function IntentPage({
   const navigablePage = (
     <IntentCiEntryNavigation
       locations={locations}
-      panelId={intentTabPanelId(tabsIdPrefix, browserView)}
+      panelId={
+        story === undefined ? intentTabPanelId(tabsIdPrefix, "ci") : readingId
+      }
       onOpen={(path) => {
         setSelection({ path, scope: "location" });
         if (story === undefined) project.onModeChange("ci");
-        else openStoryPath();
       }}
     >
       {page}
@@ -205,7 +213,7 @@ export function IntentPage({
   return story === undefined ? (
     navigablePage
   ) : (
-    <StoryCiReturnProvider idPrefix={tabsIdPrefix} chooseTab={chooseTab}>
+    <StoryCiReturnProvider value={returnToCi}>
       <IntentCiComparisonPreference>
         {navigablePage}
       </IntentCiComparisonPreference>

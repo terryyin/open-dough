@@ -39,7 +39,7 @@ import {
 
 const firstFile = "Added z-tests/nested/first.spec.ts";
 
-test("the Taken Story card opens Changes beside its terminal and Back returns to that card", async ({
+test("the Taken Story card opens the first changed file beside its terminal and Back returns to that card", async ({
   page,
   dashboard,
   origin,
@@ -114,7 +114,6 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await expect(intent).toBeVisible();
   await expect(intent).toHaveAttribute("data-selected-story", queuedIdentity);
   await expectIntentReviewOpened(intent);
-  await expectIntentReviewFocused(intent);
   await files.expectSelected(firstFile);
   const reading = intentDiffReading(intent);
   await expect(reading.name).toHaveText(firstFile);

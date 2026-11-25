@@ -101,12 +101,8 @@ test("all Done tabs ignore project freshness while Whole project notices the lat
         })
         .please().revisions[0],
     ));
-  await test.step("Then each Done tab keeps the historical comparison", async () => {
-    for (const tab of [
-      "CI comparison",
-      "Intent coverage",
-      "Changes",
-    ] as const) {
+  await test.step("Then each Story Home tab keeps the historical comparison", async () => {
+    for (const tab of ["CI comparison", "Intent coverage"] as const) {
       await chooseStoryTab(intent, tab);
       await expect(revisions).toHaveText(endpoints, { useInnerText: true });
       await expectNoProjectFreshness(intent);

@@ -8,6 +8,7 @@ import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
 import { IntentBrowserFrame } from "./IntentBrowserFrame.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
+import { StoryHomeButton } from "./IntentStoryEvidence.tsx";
 import { IntentTreeGroups } from "./IntentTreeGroups.tsx";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import type { IntentTabPanelAttributes } from "./IntentTabs.tsx";
@@ -29,6 +30,7 @@ import {
   overlayFilesByPath,
 } from "./intentStoryOverlay.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { intentStoryPathAttributes } from "./storyCardFocus.ts";
 import { useFirstStoryChangedFile } from "./useFirstStoryChangedFile.ts";
 import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
@@ -50,7 +52,7 @@ export function IntentBrowser({
   reviewFileReady,
   files,
   panel,
-  onSelectPath,
+  storyPath,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
@@ -64,7 +66,13 @@ export function IntentBrowser({
   // The locations column's id and whether Hide files / Show files shows it.
   readonly files: FileBrowserPlace;
   readonly panel: IntentTabPanelAttributes;
-  readonly onSelectPath?: () => void;
+  readonly storyPath:
+    | {
+        readonly id: string;
+        readonly hidden: boolean;
+        readonly onHome: () => void;
+      }
+    | undefined;
   // Project Intent's chosen view and ids, in Project Intent: opening a test
   // from the record returns this browser to CI status.
   readonly project: ModeChoice | undefined;
@@ -102,7 +110,6 @@ export function IntentBrowser({
     setSelection(next);
     setReturnEntrySlug(entrySlug);
     project?.onModeChange("ci");
-    onSelectPath?.();
   }
 
   function revealInTree(path: string, location: string | undefined) {
@@ -124,9 +131,9 @@ export function IntentBrowser({
     project: source.id,
     storyIdentity: storySummary?.story.identity,
     locations,
-    canChooseFile: reviewFileReady && !panel.hidden,
+    canChooseFile: reviewFileReady,
     overlay: storyTree.shownOverlay,
-    fileSelected: scope === "file",
+    hasSelection: scope !== "none",
     open: openRevealed,
   });
 
@@ -178,6 +185,7 @@ export function IntentBrowser({
     <>
       <div className="intent-locations" id={files.id} hidden={!files.shown}>
         <h3 className="visually-hidden">Purpose locations</h3>
+        {storyPath && <StoryHomeButton onHome={storyPath.onHome} />}
         {lead}
         {storyScope !== undefined && (
           <StoryTreeScopeChoice scope={storyScope} />
@@ -196,7 +204,8 @@ export function IntentBrowser({
         ref={fileReading.readingArea}
         className="intent-reading"
         tabIndex={-1}
-        {...(project === undefined ? panel : undefined)}
+        {...(storyPath &&
+          intentStoryPathAttributes(storyPath.id, storyPath.hidden))}
       >
         <IntentSelectionReading
           revision={revision}
