@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sessionId": "4b42549c-4dac-47fd-8679-b31ab5f43d27",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T16:01:13.471Z",
+  "story": "SEED-442#exercise-board-navigation-on-published-story-fixtures",
+  "ranges": [
+    {
+      "base": "758efa5db911b7466bf258d1a3a9e35ff9a8498b",
+      "candidate": "2aa7d3c9ac8269d5da9d3ca37e507dd9e3e4f789"
+    },
+    {
+      "base": "2aa7d3c9ac8269d5da9d3ca37e507dd9e3e4f789",
+      "candidate": "d690f989daf1fca9f2bc6bb41fda2994d3c5a917"
+    },
+    {
+      "base": "d690f989daf1fca9f2bc6bb41fda2994d3c5a917",
+      "candidate": "d311b0a96230db7eac64f1004fbfad6ef637ad76"
+    },
+    {
+      "base": "d311b0a96230db7eac64f1004fbfad6ef637ad76",
+      "candidate": "73f8f092a64131231bdb43927610432efbfe8db8"
+    },
+    {
+      "base": "73f8f092a64131231bdb43927610432efbfe8db8",
+      "candidate": "916f1967633bc07d30cdde12d2ffafdf214b6dbb"
+    },
+    {
+      "base": "3328db809564f4f41f72f955b6df7025f66f108a",
+      "candidate": "856f35e315ced8f3653278521035b2ef9561419f"
+    }
+  ]
+}
