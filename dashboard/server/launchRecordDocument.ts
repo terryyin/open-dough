@@ -26,7 +26,7 @@ import {
   replaceMachineJson,
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
-import { machineDashboardPath } from "./machineHome.ts";
+import { machineDocumentAt } from "./machineHome.ts";
 import {
   newlyDeliveredEntries,
   notifyRecordsDelivered,
@@ -45,17 +45,18 @@ type LeavingRecord = {
   readonly record: LaunchRecord;
 };
 
-function launchStore(): MachineJsonStore<StoredRecords> {
+// `home` names the machine whose document a caller reads; absent, this one.
+function launchStore(home?: string): MachineJsonStore<StoredRecords> {
   return {
-    file: machineDashboardPath("agent-launches.json"),
+    file: machineDocumentAt("agent-launches.json", home),
     schema: storeSchema,
     empty: {},
   };
 }
 
 // Reads the single shared document without changing retained evidence.
-export function readStoredRecords() {
-  return readMachineJson(launchStore());
+export function readStoredRecords(home?: string) {
+  return readMachineJson(launchStore(home));
 }
 
 // Session records a retention drop removed, surfaced to the listener the

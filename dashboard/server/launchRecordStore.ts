@@ -14,17 +14,18 @@ import {
 import { withinRetention } from "./launchRecordRetention.ts";
 
 // Every project's records still kept, by project id, each oldest first.
-export async function keptRecordsByProject(): Promise<
-  ReadonlyMap<string, readonly LaunchRecord[]>
-> {
-  return (await readableRecordsByProject()) ?? new Map();
+export async function keptRecordsByProject(
+  home?: string,
+): Promise<ReadonlyMap<string, readonly LaunchRecord[]>> {
+  return (await readableRecordsByProject(home)) ?? new Map();
 }
 
 // The same, or undefined when the record file could not be read.
-export async function readableRecordsByProject(): Promise<
-  ReadonlyMap<string, readonly LaunchRecord[]> | undefined
-> {
-  const read = await readStoredRecords();
+// `home` names the machine whose store a caller reads; absent, this one.
+export async function readableRecordsByProject(
+  home?: string,
+): Promise<ReadonlyMap<string, readonly LaunchRecord[]> | undefined> {
+  const read = await readStoredRecords(home);
   if (read.kind === "unreadable") {
     return undefined;
   }

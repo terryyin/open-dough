@@ -193,7 +193,7 @@ Refactor disposition: skip — subject specs + cohort helper only.
 ### 4. Unreadable captures are read from the case's own home
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: add the launch-store `home` seam, then replace
 `intent-ci-comparison-receipt` with a Node Vitest case. Write unreadable
 bytes into a temporary home's launch store or history document. Read the
@@ -210,6 +210,14 @@ machine home the read names, the comparison takes no age from it and still
 reports published completion.
 
 Estimated active work 12–15 minutes.
+
+Accepted proof (coordinator): Vitest receipt 2/2; finality-receipts 6/6;
+launch-record Playwright consumers 7/7; typecheck/eslint exit 0. Evidence:
+`open-dough/evidence/slice4-unreadable-captures-home-20261125-123742-report.md`.
+Optional `home` on launchStore/readStoredRecords/readableRecordsByProject and
+`storyCiComparisonSource(..., home?)`. `missingLandedRun.ts` kept — still used
+by `e2e/intent/intent-ci-comparison-missing-run.spec.ts`. Refactor disposition:
+skip — optional home mirrors historyStore; no new domain representation.
 
 ### 5. Pending proof keeps one owner for each observation
 
