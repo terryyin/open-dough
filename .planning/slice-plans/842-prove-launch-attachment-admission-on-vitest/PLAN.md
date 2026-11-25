@@ -91,7 +91,7 @@ loading the Playwright picker fixture. Keep invalid inputs visible.
 ### 2. Reject an upload before creating a claim
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 Proof: Typed launch-upload admission, with a real Node stream and temporary
 directory, observes the 415 and 413 JSON answers and no-store metadata
@@ -126,7 +126,9 @@ path, `recordedRequestWithMaterializedAttachments` refuses and abandons
 the claim before writing an attempt folder. Give these calls a private
 directory and retain the machine-local default at production callers.
 Remove the cases' temporary-home override and retain existing fixture
-exports used by other cohorts.
+exports used by other cohorts. Read the bytes at each ordered native-input
+path in the existing refinement E2E case, keeping its current path and kept
+record assertions. The recovery E2E continues to check bytes and path reuse.
 
 ## Proof ownership and local gate
 
@@ -190,3 +192,31 @@ evidence directory holds `s1-backend.log.run.json` and `s1-return.md`.
 The independent refactoring pass was unnecessary after reviewing the changed
 spec and its production and fixture references. It introduces no shared
 representation or production change.
+
+### Slice 2 proof
+
+Four Node Vitest cases passed. The one former mounted upload case is now two
+typed cases observing 415 and 413 with the respective JSON messages,
+`application/json`, `no-store`, no consumed bytes, and no entries in the
+private dashboard directory. Start has its own endpoint. The upload returns
+its typed answer from the read and claim operation without starting a native
+session. The live adapter still owns origin, method, abort, and connection
+framing. The two cleanup cases passed with temporary HOME pending slice 3.
+
+The 16 retained backend cases passed for terminal images, instruction voice,
+and direct follow-up uploads. Dashboard typechecking passed. Both planned
+E2E cases and the existing-changes attachment abandonment journey passed.
+The refinement journey showed ordered copied paths in the first input and in
+the kept record. The recovery journey showed the exact bytes and the same path
+after continuing. The implementation report and exact commands are retained
+under the checkout's Git evidence directory in `s2-return.md` and its run
+records. Slice 1 was accepted on the execution branch at
+`a0bf56a8cc52d5eebc733c5da7c0740ee1307ded`.
+
+## Story obligations
+
+### G1. Observe both copies in the ordered refinement launch
+
+Reported: slice 2 — "The existing refinement browser test asserts ordered native paths but does not read the bytes at those paths."
+Story clause: "existing browser proof observes the copied bytes in the order picked"
+Disposition: receiving slice 3

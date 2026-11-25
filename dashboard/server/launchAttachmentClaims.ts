@@ -18,15 +18,20 @@ import {
   withoutConfirmation,
   type AgentLaunchRequest,
 } from "../src/launchRequest.ts";
-import { machineDashboardPath } from "./machineHome.ts";
+import {
+  machineDashboardDirectory,
+  machineDashboardPath,
+} from "./machineHome.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 function contentDigest(bytes: Buffer): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-const claimsRoot = (...segments: string[]) =>
-  machineDashboardPath("launch-attachment-claims", ...segments);
+const claimsRoot = (
+  id: string,
+  dashboardDirectory = machineDashboardDirectory(),
+) => path.join(dashboardDirectory, "launch-attachment-claims", id);
 
 const attachmentsRoot = (...segments: string[]) =>
   machineDashboardPath("launch-attachments", ...segments);
@@ -40,10 +45,11 @@ export function claimLaunchAttachment(
   bytes: Buffer,
   type: string,
   name: string,
+  dashboardDirectory = machineDashboardDirectory(),
 ): string {
   const imageType = checkedImageAttachmentType(type, bytes.length);
   const id = randomUUID();
-  const directory = claimsRoot(id);
+  const directory = claimsRoot(id, dashboardDirectory);
   mkdirSync(directory, { recursive: true });
   const meta: ClaimMeta = {
     name: sanitizeImageAttachmentName(name, imageType),

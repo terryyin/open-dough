@@ -1,5 +1,4 @@
 // Rules shared by the launch and terminal image upload boundaries.
-import type { IncomingMessage } from "node:http";
 import path from "node:path";
 import {
   isImageAttachmentType,
@@ -13,7 +12,7 @@ import {
   launchAttachmentUnsupportedType,
   type ImageAttachmentType,
 } from "../src/launchAttachments.ts";
-import { readBoundedRawBody } from "./boundedRawBody.ts";
+import { readBoundedRawBody, type RawBodyRequest } from "./boundedRawBody.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 export function checkedImageAttachmentType(
@@ -44,7 +43,7 @@ export function sanitizeImageAttachmentName(
 }
 
 export async function readImageAttachment(
-  req: IncomingMessage,
+  req: RawBodyRequest,
   signal: AbortSignal,
 ) {
   const { bytes, type } = await readBoundedRawBody(req, signal, {

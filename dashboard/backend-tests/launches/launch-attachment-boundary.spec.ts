@@ -1,33 +1,28 @@
-// Attachment boundary refusals: unsupported type, oversized body and too many
-// claims write no claim or attempt folder and start nothing. A launch the
-// boundary refuses after claims are posted also leaves no attempt folder.
-
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { PassThrough } from "node:stream";
+import { expect, test } from "vitest";
 import {
-  launchAttachmentEndpoint,
   launchAttachmentLimitBytes,
   launchAttachmentNameHeader,
   launchAttachmentTooLarge,
   launchAttachmentTooMany,
   launchAttachmentUnsupportedType,
 } from "../../src/launchAttachments.ts";
+import { answerLaunchAttachmentUpload } from "../../server/launchAttachmentBoundary.ts";
 import {
   claimLaunchAttachment,
   materializeLaunchAttachments,
   recordedRequestWithMaterializedAttachments,
 } from "../../server/launchAttachmentClaims.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import {
-  launchAttachmentClaimsRoot,
-  launchAttachmentsRoot,
-  listedMachineDirs,
-  pngA,
-} from "../../test-support/support/launchAttachmentFixtures.ts";
+import { machineDashboardDirectory } from "../../server/machineHome.ts";
+
+const png = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64",
+);
 
 function withTempHome(prefix: string, run: (home: string) => void): void {
   const previousHome = process.env["HOME"];
@@ -42,59 +37,68 @@ function withTempHome(prefix: string, run: (home: string) => void): void {
   }
 }
 
-test("the attachment boundary refuses a PDF and an oversized PNG without writing a claim", async () => {
-  const server = await startDashboardServer({ mode: "boundary" });
-  const url = new URL(launchAttachmentEndpoint, server.baseURL).href;
-  const origin = new URL(server.baseURL).origin;
-  try {
-    for (const request of [
-      {
-        headers: {
-          Origin: origin,
-          "Content-Type": "application/pdf",
-          [launchAttachmentNameHeader]: "notes.pdf",
-        },
-        body: "%PDF-1.4",
-        status: 415,
-        error: launchAttachmentUnsupportedType,
-      },
-      {
-        headers: {
-          Origin: origin,
-          "Content-Type": "image/png",
-          [launchAttachmentNameHeader]: "huge.png",
-          "Content-Length": String(launchAttachmentLimitBytes + 1),
-        },
-        status: 413,
-        error: launchAttachmentTooLarge,
-      },
-    ]) {
-      const response = await rawRequest({
-        url,
-        method: "POST",
-        headers: request.headers,
-        ...(request.body === undefined ? {} : { body: request.body }),
-      });
-      expect(response.status).toBe(request.status);
-      expect(JSON.parse(response.body)).toEqual({ error: request.error });
-      expect(response.headers["cache-control"]).toBe("no-store");
-    }
-    expect(listedMachineDirs(launchAttachmentClaimsRoot(server.home))).toEqual(
-      [],
+test.each([
+  {
+    label: "a PDF",
+    headers: {
+      "content-type": "application/pdf",
+      [launchAttachmentNameHeader]: "notes.pdf",
+    },
+    bytes: Buffer.from("%PDF-1.4"),
+    status: 415,
+    error: launchAttachmentUnsupportedType,
+  },
+  {
+    label: "a PNG declared over the size limit",
+    headers: {
+      "content-type": "image/png",
+      [launchAttachmentNameHeader]: "huge.png",
+      "content-length": String(launchAttachmentLimitBytes + 1),
+    },
+    bytes: png,
+    status: 413,
+    error: launchAttachmentTooLarge,
+  },
+])(
+  "upload admission refuses $label before writing a claim",
+  async ({ headers, bytes, status, error }) => {
+    const dashboardDirectory = mkdtempSync(
+      path.join(tmpdir(), "dough-launch-upload-"),
     );
-    expect(listedMachineDirs(launchAttachmentsRoot(server.home))).toEqual([]);
-    expect(server.claudeLaunchCalls()).toEqual([]);
-  } finally {
-    await server.close();
-  }
-});
+    const request = Object.assign(new PassThrough(), { headers });
+    try {
+      request.end(bytes);
+      const answer = await answerLaunchAttachmentUpload(
+        request,
+        new AbortController().signal,
+        dashboardDirectory,
+      );
+      expect(answer).toEqual({
+        status,
+        body: { error },
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+        },
+      });
+      expect(request.readableDidRead).toBe(false);
+      expect(readdirSync(dashboardDirectory)).toEqual([]);
+    } finally {
+      request.destroy();
+      rmSync(dashboardDirectory, { recursive: true, force: true });
+    }
+  },
+);
 
 test("materialize refuses a sixth claim without writing an attempt folder", () => {
   withTempHome("dough-launch-attach-", (home) => {
+    const dashboard = machineDashboardDirectory(home);
+    const claimsDirectory = path.join(dashboard, "launch-attachment-claims");
+    const attemptsDirectory = path.join(dashboard, "launch-attachments");
     const claims = [...Array(6).keys()].map((index) =>
-      claimLaunchAttachment(pngA, "image/png", `n${String(index)}.png`),
+      claimLaunchAttachment(png, "image/png", `n${String(index)}.png`),
     );
-    expect(listedMachineDirs(launchAttachmentClaimsRoot(home))).toHaveLength(6);
+    expect(readdirSync(claimsDirectory)).toHaveLength(6);
     const attemptId = "attempt-too-many";
     try {
       materializeLaunchAttachments(attemptId, claims);
@@ -106,17 +110,20 @@ test("materialize refuses a sixth claim without writing an attempt folder", () =
         message: launchAttachmentTooMany,
       });
     }
-    expect(listedMachineDirs(launchAttachmentsRoot(home))).toEqual([]);
-    expect(listedMachineDirs(launchAttachmentClaimsRoot(home))).toEqual([]);
+    expect(
+      existsSync(attemptsDirectory) ? readdirSync(attemptsDirectory) : [],
+    ).toEqual([]);
+    expect(readdirSync(claimsDirectory)).toEqual([]);
   });
 });
 
 test("a refused launch abandons claims and writes no attachment folder", () => {
   withTempHome("dough-launch-attach-refuse-", (home) => {
-    const claim = claimLaunchAttachment(pngA, "image/png", "card.png");
-    expect(listedMachineDirs(launchAttachmentClaimsRoot(home))).toEqual([
-      claim,
-    ]);
+    const dashboard = machineDashboardDirectory(home);
+    const claimsDirectory = path.join(dashboard, "launch-attachment-claims");
+    const attemptsDirectory = path.join(dashboard, "launch-attachments");
+    const claim = claimLaunchAttachment(png, "image/png", "card.png");
+    expect(readdirSync(claimsDirectory)).toEqual([claim]);
     // Wire paths are recorded only after admission; naming them on the request
     // is refused and abandons the claims without creating an attempt folder.
     try {
@@ -136,7 +143,9 @@ test("a refused launch abandons claims and writes no attachment folder", () => {
         message: "The launch request is malformed.",
       });
     }
-    expect(listedMachineDirs(launchAttachmentsRoot(home))).toEqual([]);
-    expect(listedMachineDirs(launchAttachmentClaimsRoot(home))).toEqual([]);
+    expect(
+      existsSync(attemptsDirectory) ? readdirSync(attemptsDirectory) : [],
+    ).toEqual([]);
+    expect(readdirSync(claimsDirectory)).toEqual([]);
   });
 });
