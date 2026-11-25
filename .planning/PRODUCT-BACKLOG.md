@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 - [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries ([plan](slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md))
 - [Exercise Board navigation on published story fixtures](seeds/SEED-442-exercise-board-navigation-on-published-story-fixtures.md#exercise-board-navigation-on-published-story-fixtures) — SEED-442#exercise-board-navigation-on-published-story-fixtures ([plan](slice-plans/844-exercise-board-navigation-on-published-story-fixtures/PLAN.md))
 - [Discover a project's default branch through Git](seeds/SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git) — SEED-437#discover-project-default-branch-through-git ([plan](slice-plans/843-discover-project-default-branch-through-git/PLAN.md))
+- [Prove Story Notes and follow-up delivery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-attachments) — SEED-413#finish-backend-vitest-renovation-after-launch-attachments ([plan](slice-plans/845-prove-story-notes-and-follow-up-delivery-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -46,7 +47,6 @@ intent introduced or affected by a newly developed story.
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
-- [Prove Story Notes and follow-up delivery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-attachments) — SEED-413#finish-backend-vitest-renovation-after-launch-attachments
 - [Prove Dashboard launch starts and recovery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) — SEED-413#prove-launch-starts-and-recovery-on-vitest
 - [Prove native session and terminal lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest) — SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest
 - [Prove published Dashboard reads and evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest) — SEED-413#prove-published-dashboard-reads-on-vitest

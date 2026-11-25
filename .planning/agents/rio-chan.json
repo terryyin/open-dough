@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rio-chan",
+  "email": "rio-chan@example.org",
+  "identity": "SEED-413#finish-backend-vitest-renovation-after-launch-attachments",
+  "mode": "story-branch",
+  "branch": "codex/prove-story-notes-and-follow-up-delivery-in-node",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
