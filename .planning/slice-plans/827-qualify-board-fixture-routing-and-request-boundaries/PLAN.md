@@ -181,6 +181,17 @@ All 17 E2E and three scheduler cases passed. Dashboard typecheck passed again
 after the read capability was narrowed. The scheduler's intentional failed ref
 and off/due results are exercised at the REST watch-list operation.
 
+The resumed audit repair selects each independent Board publication in
+`openTakenBacklog` and `openStoryColumnsJourney` after server startup. Git
+checks the queued, taken, advancing, and auxiliary Doughnut refs under the
+served HOMEs. The latter publishes the existing Doughnut records at a real
+commit. The native checkout configuration and installed-origin Take cases
+retain their own publication paths. All 141 cases across the 77 affected
+E2E specs passed at three workers, and Dashboard typecheck passed. The
+literal commands and consumer dispositions are in `resume-launch-return.md`
+and `resume-launch-*.log.run.json` under Git evidence. The independent review
+reused this proof without edits.
+
 ### 4. Reconcile the real publication across session views
 
 Type: Behavior
