@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maki-chan",
+  "email": "maki-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-413#renovate-remaining-backend-families-after-intent-ci-readers",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
