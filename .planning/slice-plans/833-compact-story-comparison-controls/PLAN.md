@@ -44,25 +44,26 @@ Project Intent's tab bar, which keeps its current layout.
   pressed control.
 - Reading, unavailable, failed and unreadable states replace the summary
   text in the bar. **Retry** stays in the bar with the failure.
-- [IntentPage.tsx](../../../dashboard/src/IntentPage.tsx) (247 lines) and
-  [IntentStoryComparison.tsx](../../../dashboard/src/IntentStoryComparison.tsx)
-  (237 lines) are near the 250-line check. The bar and its summary go in a
-  new `IntentComparisonBar.tsx`. IntentHeader keeps the title rows and
-  places the bar under them (slice 1): placing it from IntentPage would
-  pass 250 lines, and every Intent page object finds the comparison in the
-  "Selected story" header. Slice 2 passes IntentPage's files-toggle state
-  into IntentHeader, or moves the bar, keeping both files under 250 lines.
+- Delivered placement: IntentHeader places the bar under the title rows
+  and the story tabs; IntentPage passes it the files toggle and tab bar.
+  Placing the bar from IntentPage would pass 250 lines, and every Intent
+  page object finds the comparison in the "Selected story" header.
 - Intent's comparison details reuse Review changes' `ReviewDetails` and
   the extracted `ReviewDetailsEye`. E2E journeys open them through the
   shared `showComparisonDetails` in
   [intentStoryPage.ts](../../../dashboard/test-support/support/intentStoryPage.ts);
   readers of the details (landed-run heading, follow-up, revisions) use it,
   not only Refresh.
-- [Plan 832](../832-choose-review-scope/PLAN.md) removes the header's
-  scope crumb controls and also edits `intent-story-changes-gaps`,
-  `intent-story-changes-only` and `intent-sidebar-toggle`. Neither story
-  depends on the other. Whichever executes second builds on the header the
-  first one landed and reruns those specs.
+- [IntentPage.tsx](../../../dashboard/src/IntentPage.tsx) (247 lines) and
+  [IntentStoryComparison.tsx](../../../dashboard/src/IntentStoryComparison.tsx)
+  (237 lines) are near the 250-line check. The bar and its summary go in a
+  new `IntentComparisonBar.tsx`. IntentHeader keeps the title rows.
+  IntentPage only places the bar. No reorganization of the existing files
+  is required.
+- The bookmark story removed the header's scope controls and updated
+  `intent-story-changes-gaps`, `intent-story-changes-only` and
+  `intent-sidebar-toggle`. Check the delivered header and rerun those specs
+  for the comparison bar change. [Bookmarked scope proof](https://github.com/terryyin/open-dough/blob/01b3833c9ee0c38fbd54345ea1d90748311bf0f7/.planning/slice-plans/832-choose-review-scope/PLAN.md).
 
 ## Decisive premises and baseline
 
@@ -153,13 +154,19 @@ known agent shows the attribution alone. Seed examples 1 (portrait) and 4.
 Accepted: `intent-story-comparison-agent.spec.ts` proves the portrait
 beside a rotation agent, no portrait for a landed run or an agent outside
 the roster, and one row at 1280 px with the portrait and a landed run
-offered. The row fits with about 21 px to spare after a smaller summary
-text and a 1.5rem portrait; a longer agent name or run label may wrap it.
+offered.
+
+CI repair (run 45612070402): Linux fonts wrapped the row that fit macOS
+with 21 px to spare. The summary now takes the rest of the row and its
+name ends in an ellipsis, keeping its full words as a title, so the row
+holds whatever the font metrics; below 800 px the name wraps instead.
+Proof: a scratch letter-spacing widening reproduced the CI failure and
+passed with the repair; the frontend `intent` folder passed.
 
 ## Execution complete
 
-Product advice: no change to the queue order. The comparison row fits
-1280 px with about 21 px to spare once a rotation portrait shows. The
+Product advice: no change to the queue order. The comparison row holds
+1280 px by shortening the summary name with an ellipsis. The
 Sessions control from
 [session selection](../../seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review)
 joins this row, so its refinement should budget the row's width, for

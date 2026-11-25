@@ -43,6 +43,16 @@ export function comparisonSummaryName(
   return `${name} — ${count} changed file${count === 1 ? "" : "s"}`;
 }
 
+// The active comparison's name, its full words kept as its title where the
+// bar shortens it.
+function ComparisonName({ name }: { readonly name: string }) {
+  return (
+    <span className="intent-comparison-bar-name" title={name}>
+      {name}
+    </span>
+  );
+}
+
 // The agent a published comparison records, its portrait beside its name;
 // a landed run records none.
 function ComparisonAgent({
@@ -97,9 +107,7 @@ export function IntentComparisonBar({
         >
           {named && (
             <>
-              <span className="intent-comparison-bar-name">
-                {comparisonSummaryName(comparison)}
-              </span>
+              <ComparisonName name={comparisonSummaryName(comparison)} />
               <ComparisonAgent comparison={comparison} />
             </>
           )}

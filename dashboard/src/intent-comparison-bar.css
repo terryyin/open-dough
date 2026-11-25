@@ -1,6 +1,8 @@
 /* The comparison bar (./IntentComparisonBar.tsx): the files toggle, the
    comparison choice and Include merged changes, then the summary or its
-   state and the eye, on one row that wraps on a narrow window. */
+   state and the eye, on one row that wraps on a narrow window. The summary
+   takes the row's remaining width and wraps below only when less than its
+   minimum remains. */
 .intent-comparison-row,
 .intent-comparison-row > .intent-story-compare {
   display: flex;
@@ -26,6 +28,7 @@
 
 .intent-comparison-bar {
   display: flex;
+  flex: 1 1 14rem;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-1);
@@ -37,14 +40,33 @@
   margin: 0;
 }
 
+/* The summary's name fills what its line leaves, up to its full width, and
+   ends in an ellipsis where the line is shorter, its full words kept as its
+   title. */
 .intent-comparison-bar-name {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: max-content;
+  overflow: hidden;
   font-weight: var(--weight-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* On a narrow window, where the bar wraps anyway, the name keeps all its
+   words and wraps with them. */
+@media (max-width: 800px) {
+  .intent-comparison-bar-name {
+    flex: 0 1 auto;
+    white-space: normal;
+  }
 }
 
 /* The recorded agent, its portrait at the summary's line height so the bar
    stays one compact row. */
 .intent-comparison-bar-agent {
   display: inline-flex;
+  flex: none;
   align-items: center;
   gap: var(--space-1);
 }
