@@ -5,12 +5,8 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "./pageTest.ts";
 import { ciFollowUpEndpoint } from "../../src/ciFollowUp.ts";
 import { parts } from "../dashboardPage.ts";
-import {
-  browseStoryFiles,
-  chooseStoryTab,
-  intentFile,
-  storyOnly,
-} from "./intentStoryPage.ts";
+import { showIntentFiles, uncoverIntentReader } from "../intentModePage.ts";
+import { chooseStoryTab, intentFile, storyOnly } from "./intentStoryPage.ts";
 import {
   expandIntentGroup,
   intentLocationName,
@@ -143,9 +139,10 @@ export async function expectOriginalProofNavigation(
   },
 ) {
   const { intent } = parts(page);
-  await browseStoryFiles(intent);
+  await showIntentFiles(intent);
   if (await storyOnly(intent).isChecked()) await storyOnly(intent).uncheck();
   await intentLocationName(intent, expected.location).click();
+  await uncoverIntentReader(intent);
   const summary = summaryRegion(intent);
   await expect(
     attemptLink(evidenceLabels(summary), expected.originalAttempt),
@@ -161,6 +158,7 @@ export async function expectOriginalProofNavigation(
   await expect(evidenceLabels(summary), "no story framing").not.toContainText(
     expected.absentFraming,
   );
+  await showIntentFiles(intent);
   await expandIntentGroup(intent, expected.location);
   await intentFile(intent, expected.file).click();
   await fileReadingTab(intent, "Proof").click();

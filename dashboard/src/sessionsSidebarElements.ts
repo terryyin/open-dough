@@ -1,15 +1,12 @@
 // The Sessions sidebar and its toggle in the banner or side panel header.
 
+import { shownToggleOf } from "./SidebarDrawer.tsx";
+
 export const sessionsSidebarId = "sessions-sidebar";
 
 const sessionsButtonSelector = `[aria-controls="${sessionsSidebarId}"]`;
 
-export const shownSessionsButton = () =>
-  [...document.querySelectorAll<HTMLElement>(sessionsButtonSelector)].find(
-    (button) =>
-      button.getClientRects().length > 0 &&
-      getComputedStyle(button).visibility === "visible",
-  );
+export const shownSessionsButton = () => shownToggleOf(sessionsSidebarId);
 
 // After the panel closes, the banner's button is the focus return target.
 export const bannerSessionsButton = () =>

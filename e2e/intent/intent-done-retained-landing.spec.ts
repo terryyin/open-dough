@@ -129,7 +129,6 @@ for (const history of ["published", "shallow"] as const)
           /published .*history|published completion/i,
         ),
       });
-      await browseStoryFiles(intent);
       await expect(filesColumn(intent)).toHaveCount(0);
       expect(locations).not.toContain(accepted);
       expect(sourceReads).toEqual([]);

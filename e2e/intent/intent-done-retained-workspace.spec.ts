@@ -177,7 +177,6 @@ test("unrecoverable history remains unavailable despite a readable Done workspac
     kind: "unavailable",
     explanation: expect.stringMatching(/claim|history/),
   });
-  await browseStoryFiles(intent);
   await expect(filesColumn(intent)).toHaveCount(0);
   await expect(
     intent.getByText(

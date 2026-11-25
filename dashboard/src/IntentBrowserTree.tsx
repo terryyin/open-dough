@@ -4,7 +4,7 @@ import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentStoryFileTree } from "./IntentStoryFileTree.tsx";
-import { StoryTreeScopeChoice } from "./IntentStorySummary.tsx";
+import { StoryTreeScopeNote } from "./IntentStorySummary.tsx";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import { intentLocationFiles } from "./intentStoryOverlay.ts";
 import type { useIntentStoryTree } from "./useIntentStoryTree.ts";
@@ -34,9 +34,7 @@ export function IntentBrowserTree({
   if (storySelected)
     return (
       <>
-        {tree.scope !== undefined && (
-          <StoryTreeScopeChoice scope={tree.scope} />
-        )}
+        {tree.scope && <StoryTreeScopeNote scope={tree.scope} />}
         <IntentStoryFileTree
           locations={locations}
           overlay={tree.overlay}

@@ -55,7 +55,9 @@ const [first, second, third] = [
 ];
 
 test("a session review opens on the diff and keeps its place while the eye reveals and hides its details", async () => {
-  const review = await mountReviewChanges(sessionSource, adHocSession);
+  const review = await mountReviewChanges(sessionSource, adHocSession, {
+    viewport: { width: 1024, height: 768 },
+  });
   // Compact opening: toggle, name, eye; files and the first diff readable.
   await review.expectListed("3 changed files");
   await review.expectDiffShows(first, "+alpha");
@@ -110,7 +112,9 @@ test("the chosen session run survives Refresh and Escape returns focus to the ey
 });
 
 test("another session's review opens collapsed with the files shown, whatever the last one left", async () => {
-  const review = await mountReviewChanges(sessionSource, adHocSession);
+  const review = await mountReviewChanges(sessionSource, adHocSession, {
+    viewport: { width: 1024, height: 768 },
+  });
   // Details collapsed, third file selected: the sidebar toggle works.
   await review.chooseFile(third);
   await review.expectSelected(third);

@@ -129,7 +129,9 @@ test("the files toggle stays independent of whether details are offered", async 
       ),
     makeMe.aReviewedFileDiff.adding("toggle.txt", "toggle").please(),
   );
-  const review = await mountReviewChanges(source, adHocSession);
+  const review = await mountReviewChanges(source, adHocSession, {
+    viewport: { width: 1024, height: 768 },
+  });
   await review.expectFilesToggleNamed("Hide files");
   await review.expectDetailsCollapsed();
   await review.hideFiles();

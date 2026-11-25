@@ -4,10 +4,12 @@ import {
   chooseStoryTab,
   expectStoryTab,
   filesColumn,
+  showIntentFiles,
   storySummary,
   storyFilesReading,
   storyTabPanel,
   storyViews,
+  uncoverIntentReader,
 } from "../intentModePage.ts";
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
 // read of the page: the selected story's header and views, the contains-changes
@@ -105,6 +107,21 @@ export const intentFile = (
   options: { readonly includeHidden?: boolean } = {},
 ) =>
   filesColumn(intent).getByRole("button", { ...options, name: fileName(name) });
+
+// Chooses a file in Intent's tree, opening Files first where a narrow page
+// keeps it in a drawer, which the choice closes.
+export async function chooseIntentFile(intent: Locator, name: string) {
+  await showIntentFiles(intent);
+  await intentFile(intent, name).click();
+}
+
+// Intent's tree lists no file NAME, read with Files shown and then the reader
+// uncovered again where a narrow page lays Files over it as a drawer.
+export async function expectNoIntentFile(intent: Locator, name: string) {
+  await showIntentFiles(intent);
+  await expect(intentFile(intent, name)).toHaveCount(0);
+  await uncoverIntentReader(intent);
+}
 
 // The story's repository file tree.
 export const repositoryTree = (intent: Locator) =>

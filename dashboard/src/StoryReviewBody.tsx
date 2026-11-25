@@ -11,11 +11,13 @@ export function ReviewBody({
   subject,
   headingId,
   browser,
+  onFileChosen,
 }: {
   readonly review: StoryReview | undefined;
   readonly subject: SessionReviewSubject;
   readonly headingId: string;
   readonly browser: FileBrowserPlace;
+  readonly onFileChosen: () => void;
 }) {
   const shown = storyComparisonShown({
     subject,
@@ -31,6 +33,7 @@ export function ReviewBody({
       tree={shown.tree}
       headingId={headingId}
       browser={browser}
+      onFileChosen={onFileChosen}
       {...(settingsRevision === undefined ? {} : { settingsRevision })}
     />
   );

@@ -9,6 +9,14 @@ import { IntentTabs, intentTabPanelAttributes } from "./IntentTabs.tsx";
 import { storyTabs, type IntentStoryTab } from "./intentStoryTabs.tsx";
 import { intentHomeMarks } from "./storyCardFocus.ts";
 
+// A story's path reading: its element's id, whether Story Home covers it,
+// and the return to Home that its Files column offers.
+export type StoryPath = {
+  readonly id: string;
+  readonly hidden: boolean;
+  readonly onHome: () => void;
+};
+
 export function StoryHomeButton({ onHome }: { readonly onHome: () => void }) {
   return (
     <button

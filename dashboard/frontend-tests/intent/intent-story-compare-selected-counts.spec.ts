@@ -165,6 +165,7 @@ test("Changes, Summary and file Proof share the captured attempts and restore th
 
   await story.choosePurpose();
   await comparisonRead(story.diffName).toContain("a.spec.ts");
+  await story.browseFiles();
   await expect.element(file).toHaveAttribute("aria-pressed", "true");
   await expect.element(story.runChoice(run.key)).toBeChecked();
 

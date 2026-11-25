@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-417_use-sidebars-consistently-across-the-dashboard.json",
+      "identity": "SEED-417#use-sidebars-consistently-across-the-dashboard",
+      "completedAt": "2026-11-25T17:30:25.522Z",
+      "blob": "5ab78afa1fda236b60a41d6d0925fac5ab94d005"
+    },
+    {
       "fileName": "SEED-413_finish-backend-vitest-renovation-after-launch-attachments.json",
       "identity": "SEED-413#finish-backend-vitest-renovation-after-launch-attachments",
       "completedAt": "2026-11-25T16:35:04.466Z",

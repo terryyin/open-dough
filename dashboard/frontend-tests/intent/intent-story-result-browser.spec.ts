@@ -165,6 +165,7 @@ test("an inventory failure keeps the changed diff available while Retry restores
     .toContain("The tree listing failed.");
   await story.file(`Added ${changed}`).click();
   await expect.poll(story.diffCode).toContain("changed despite failure");
+  await story.browseFiles();
   await failure.getByRole("button", { name: "Retry" }).click();
   await story.expandFolderPath("docs");
   await story.file(guide).click();

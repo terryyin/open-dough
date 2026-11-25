@@ -4,6 +4,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { shortRevision } from "./dashboardParts.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { sidebarPlacement } from "./sidebarPlacement.ts";
 import { emptyArea, expectSelected } from "./storyCardSelection.ts";
 
 // Open the board, select the named card and enter its initial Intent view.
@@ -88,10 +89,10 @@ export async function chooseStoryTab(intent: Locator, name: StoryTabName) {
   await expectStoryTab(intent, name);
 }
 
-// Reach the file browser without selecting a location, folder or file.
+// Reach the file browser without selecting a location, folder or file,
+// opening its drawer where the page is narrow.
 export async function browseStoryFiles(intent: Locator) {
-  const show = intent.getByRole("button", { name: "Show files", exact: true });
-  if (await show.isVisible()) await show.click();
+  await showIntentFiles(intent);
 }
 
 export const storyHomeButton = (intent: Locator) =>
@@ -150,4 +151,30 @@ export async function expectFilesShown(intent: Locator, shown: boolean) {
   );
   if (shown) await expect(column).toBeVisible();
   else await expect(column).toBeHidden();
+}
+
+const filesPlacement = (intent: Locator) =>
+  filesToggle(intent).evaluate(sidebarPlacement);
+
+async function settledFiles(intent: Locator) {
+  await expect(filesToggle(intent)).toBeVisible();
+  await expect.poll(() => filesPlacement(intent)).not.toBe("pending");
+  return filesPlacement(intent);
+}
+
+// Files shown, opening its drawer where the page is narrow: each newly
+// entered view starts it closed, and choosing a file closes it.
+export async function showIntentFiles(intent: Locator) {
+  if ((await settledFiles(intent)) === "hidden")
+    await filesToggle(intent).click();
+  await expectFilesShown(intent, true);
+}
+
+// The reader uncovered: an open Files drawer closes, docked Files stays,
+// and a view without Files has nothing over its reader.
+export async function uncoverIntentReader(intent: Locator) {
+  if ((await filesToggle(intent).count()) === 0) return;
+  if ((await settledFiles(intent)) !== "drawer") return;
+  await filesToggle(intent).click();
+  await expectFilesShown(intent, false);
 }

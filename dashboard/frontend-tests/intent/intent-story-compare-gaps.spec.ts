@@ -60,7 +60,6 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
       .poll(() => story.noteBuild(name))
       .toBe(doneCompletion.slice(0, 7));
   }
-  await story.browseFiles();
 
   // Published completion again names the completion.
   await story.choose("Published completion");
@@ -101,6 +100,7 @@ test("a failed read of a chosen landed run offers Retry, which reads that run ag
   // Retry reads that run again and lists its changes.
   const asked = runAsks;
   await story.retry();
+  await story.browseFiles();
   await expect.poll(story.treeText).toContain("chosen.txt");
   await expect.element(story.alert).not.toBeInTheDocument();
   expect(runAsks).toBeGreaterThan(asked);

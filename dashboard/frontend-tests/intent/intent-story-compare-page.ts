@@ -11,6 +11,7 @@ import {
   intentReadingPane as readingPane,
   scrollReadingHalfway,
 } from "./intent-browser-page.ts";
+import { fileLayout } from "./intent-file-layout-page.ts";
 
 const escaped = (name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -55,15 +56,12 @@ export function intentStoryCompare() {
   const viewTab = (name: View) =>
     storyViews.getByRole("tab", { name, exact: true });
   const sidebar = intent.getByCSS(".intent-locations");
-  const showFiles = intent.getByRole("button", {
-    name: "Show files",
-    exact: true,
-  });
   const home = intent.getByRole("button", { name: "Home", exact: true });
   const pathReading = intent.getByRole("region", { name: "Path reading" });
-  const browseFiles = async () => {
-    if (showFiles.query() !== null) await activateComparisonControl(showFiles);
-  };
+  // Files shown without choosing a path, opening its drawer where the page
+  // is narrow: each newly entered view starts it closed, and choosing a file
+  // closes it.
+  const browseFiles = () => fileLayout().showFiles();
   const goHome = async () => {
     await browseFiles();
     await activateComparisonControl(home);
@@ -99,7 +97,9 @@ export function intentStoryCompare() {
       name: `${shown ? "Hide" : "Show"} review details`,
       exact: true,
     });
+  // The eye is reached past an open Files drawer, which closes first.
   const openDetails = async () => {
+    await fileLayout().uncoverReader();
     const eye = detailsEye(false);
     if (eye.query() !== null) await userEvent.click(eye);
     await expect.element(details).toBeVisible();
@@ -123,6 +123,7 @@ export function intentStoryCompare() {
     treeText: () => textOf(tree.query()),
     folder,
     async expandFolderPath(path: string) {
+      await browseFiles();
       let ancestor = "";
       for (const segment of path.split("/")) {
         ancestor = ancestor ? `${ancestor}/${segment}` : segment;
@@ -178,10 +179,10 @@ export function intentStoryCompare() {
     pressedControlCount: () =>
       intent.element().querySelectorAll('[aria-pressed="true"]').length,
     // Comparison facts can expand independently of the header, apart from
-    // the summary's eye.
+    // the summary's eye and the Files toggle, whose drawer starts closed.
     collapsedControl: header.getByRole("button", {
       expanded: false,
-      name: /^(?!Branch |Show review details$)/,
+      name: /^(?!Branch |Show review details$|Show files$)/,
     }),
     revisions: () =>
       textOf(header.element().querySelector(".intent-story-revisions")),

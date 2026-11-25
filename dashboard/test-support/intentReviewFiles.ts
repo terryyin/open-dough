@@ -1,5 +1,5 @@
 import { expect, type Locator } from "@playwright/test";
-import { filesColumn } from "./intentModePage.ts";
+import { filesColumn, showIntentFiles } from "./intentModePage.ts";
 import { intentGroupToggle } from "./intentPerspectivePage.ts";
 import {
   folderToggle,
@@ -17,11 +17,18 @@ export class IntentReviewFiles {
     this.#intent = intent;
   }
 
+  // Files shown to read or act on its tree: a narrow page keeps it in a
+  // drawer that starts closed and closes once a file is chosen.
+  shown() {
+    return showIntentFiles(this.#intent);
+  }
+
   get tree() {
     return repositoryTree(this.#intent);
   }
 
   async expectInventoryNotice(message: string | RegExp) {
+    await this.shown();
     await expect(filesColumn(this.#intent).getByText(message)).toBeVisible();
     return this;
   }
@@ -32,12 +39,14 @@ export class IntentReviewFiles {
   }
 
   async expectOnlyChangedFile(name: string) {
+    await this.shown();
     await this.expectChangedFileCount(1);
     await expect(this.row(name)).toBeVisible();
     return this;
   }
 
   async expectChangedFiles(names: readonly string[]) {
+    await this.shown();
     await this.expectChangedFileCount(names.length);
     for (const name of names) {
       await expect(
@@ -48,6 +57,7 @@ export class IntentReviewFiles {
   }
 
   async expectFileInFolder(file: string, folder: string) {
+    await this.shown();
     const rows = repositoryFolder(this.#intent, folder).locator(
       ":scope > ul > li > button",
     );
@@ -56,11 +66,13 @@ export class IntentReviewFiles {
   }
 
   async showOnlyChanged() {
+    await this.shown();
     await storyOnly(this.#intent).check();
     return this;
   }
 
   async expectTreeRows(rows: readonly string[]) {
+    await this.shown();
     await expectTreeRows(this.tree, rows);
     return this;
   }
@@ -70,6 +82,7 @@ export class IntentReviewFiles {
   }
 
   async expectTreeLacksText(...texts: readonly string[]) {
+    await this.shown();
     for (const text of texts) {
       await expect(this.tree).not.toContainText(text);
     }
@@ -77,6 +90,7 @@ export class IntentReviewFiles {
   }
 
   async expectSelected(file: string) {
+    await this.shown();
     await expect(intentFile(this.#intent, file)).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -85,6 +99,7 @@ export class IntentReviewFiles {
   }
 
   async expectNoSelection() {
+    await this.shown();
     await expect(
       filesColumn(this.#intent).locator(
         'li[data-kind] button[aria-pressed="true"]',
@@ -94,18 +109,21 @@ export class IntentReviewFiles {
   }
 
   async expandFolder(name: string) {
+    await this.shown();
     await folderToggle(this.#intent, name, false).click();
     await expect(folderToggle(this.#intent, name, true)).toBeVisible();
     return this;
   }
 
   async collapseFolder(name: string) {
+    await this.shown();
     await folderToggle(this.#intent, name, true).click();
     await expect(folderToggle(this.#intent, name, false)).toBeVisible();
     return this;
   }
 
   async collapseLocation(path: string) {
+    await this.shown();
     const toggle = intentGroupToggle(this.#intent, path);
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await toggle.click();
@@ -114,6 +132,7 @@ export class IntentReviewFiles {
   }
 
   async expectNotShown(file: string) {
+    await this.shown();
     await expect(intentFile(this.#intent, file)).toHaveCount(0);
     return this;
   }
@@ -143,11 +162,13 @@ export class IntentReviewFiles {
   }
 
   async expectFolderName(name: string) {
+    await this.shown();
     await expect(this.folderName(name)).toBeVisible();
     return this;
   }
 
   async expectLineCounts(file: string, visible: string, description?: string) {
+    await this.shown();
     const row = this.row(file);
     const counts = fileLineCounts(row);
     await expect(counts).toBeVisible();
@@ -157,6 +178,7 @@ export class IntentReviewFiles {
   }
 
   async expectTrunkQualifier(file: string) {
+    await this.shown();
     await expect(
       this.row(file).getByText("includes trunk's changes", { exact: true }),
     ).toBeVisible();
@@ -182,6 +204,7 @@ export class IntentReviewFiles {
   }
 
   async choose(file: string, using: "mouse" | "keyboard" | "touch" = "mouse") {
+    await this.shown();
     const control = intentFile(this.#intent, file);
     if (using === "touch") await control.tap();
     else

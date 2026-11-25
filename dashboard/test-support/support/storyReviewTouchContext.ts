@@ -9,7 +9,13 @@ import {
 // which viewport owns what no arrangement changes.
 import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 
-import { reviewRefresh, detailsToggle, filesToggle } from "./reviewControls.ts";
+import {
+  reviewRefresh,
+  detailsToggle,
+  filesToggle,
+  showFilesByTouch,
+  uncoverDiffByTouch,
+} from "./reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -47,6 +53,8 @@ async function expectKept(
   { browser, review }: TouchReview,
   { selected, code, codeAt, browserAt }: ChosenFile,
 ) {
+  // A newly narrow review starts on its diff; reopening Files recovers it.
+  await showFilesByTouch(review);
   await expect(selected).toHaveAttribute("aria-pressed", "true");
   await expect(review).toContainText("Published changes");
   expect(await scrollTopOf(code)).toBe(codeAt);
@@ -73,6 +81,7 @@ export async function keepReviewContextThroughTouch(
   await expect(code).toContainText("+first 0");
   await scrollByTouch(page, code, -300, "vertical", undefined, code);
   await expect.poll(() => scrollTopOf(code)).toBeGreaterThan(0);
+  await showFilesByTouch(review);
   const browserBefore = await scrollTopOf(browser);
   await scrollByTouch(page, browser, 100, "vertical", undefined, browser);
   await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserBefore);
@@ -93,9 +102,12 @@ export async function keepReviewContextThroughTouch(
     expect(await pageFits(page)).toBe(true);
     if (viewport.width <= 800) await expectCovering(review);
     else {
+      // An open Files drawer takes the first tap outside it.
+      await uncoverDiffByTouch(review);
       await maximizeSidePanel(review, "touch");
       await expect(control(review, "Restore")).toBeVisible();
       await expectKept(opened, chosen);
+      await uncoverDiffByTouch(review);
       await restoreSidePanel(review, "touch");
       await expect(control(review, "Maximize")).toBeVisible();
       await expectKept(opened, chosen);
@@ -127,6 +139,7 @@ async function keepReviewContextThroughPanelControls(
   expect(await box(filesToggle(review, "Show files"))).toEqual(toggleAt);
   await tapWhereShown(filesToggle(review, "Show files"));
   await expectKept(opened, chosen);
+  await uncoverDiffByTouch(review);
   await tapWhereShown(control(review, "Next file"));
   const next = fileDiff(review, `Added ${longB}`);
   await expect(codePane(next)).toContainText("+second 0");
@@ -136,10 +149,12 @@ async function keepReviewContextThroughPanelControls(
   await expect(reviewFeedback(review)).toHaveText(
     `Review refreshed: ${String(changedFiles)} changed files in the published changes.`,
   );
+  await showFilesByTouch(review);
   await expect(listedFile(browser, `Added ${longB}`)).toHaveAttribute(
     "aria-pressed",
     "true",
   );
+  await uncoverDiffByTouch(review);
   await closeSidePanel(review, { using: "touch" });
   await expect(review).toHaveCount(0);
   await expect(action).toBeFocused();

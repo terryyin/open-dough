@@ -25,7 +25,9 @@ test("a published session names the toolbar Published changes", async () => {
     .publishedSession()
     .modifying("committed.txt")
     .please();
-  const review = await mountReviewChanges(sourceOf(commits), adHocSession);
+  const review = await mountReviewChanges(sourceOf(commits), adHocSession, {
+    viewport: { width: 1024, height: 768 },
+  });
   await review.expectComparisonNamed("Published changes");
   await review.expectDetailsCollapsed();
   await review.expectFilesToggleNamed("Hide files");

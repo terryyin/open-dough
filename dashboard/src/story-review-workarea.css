@@ -2,8 +2,8 @@
    sidebar takes the reviewer's width (./reviewFileSidebarWidth.ts), that
    module's default until it is measured, and the Files divider
    (./resize-divider.css) covers the gap between the panes, at the sidebar's
-   trailing edge. Where the panes stack (./story-review.css) the sidebar takes
-   the whole width and there is no divider. */
+   trailing edge. Narrow, the sidebar is a drawer over the diff and there is
+   no divider. */
 .story-review-workarea {
   position: relative;
 }
@@ -27,10 +27,20 @@
   left: calc(50% - 2px);
 }
 
+/* Narrow, Files lies over the work area as a drawer
+   (./ReviewFilesDrawer.tsx), leaving the diff its whole room and the drawer's
+   trailing side for dismissal; the tree keeps its own scroll. */
 @container story-review-body (width < 34.75rem) {
   .story-review-workarea > .story-review-files {
-    flex: none;
-    max-height: 40%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 8;
+    width: min(20rem, 85%);
+    background: var(--raised-surface);
+    border-color: var(--edge);
+    box-shadow: var(--shadow-2);
   }
 
   .story-review-files-divider {

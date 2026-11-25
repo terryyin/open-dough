@@ -3,7 +3,7 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { emulateMedia } from "../review/browser-session.ts";
 import { scopeName, scopeToggle } from "./intent-browser-page.ts";
-import { intentPage } from "./intent-file-layout-page.ts";
+import { fileLayout, intentPage } from "./intent-file-layout-page.ts";
 import {
   locationHeader,
   locationHeaderLook,
@@ -151,6 +151,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
       .toBe(true);
     for (const width of [1280, 390]) {
       await page.viewport(width, 844);
+      await fileLayout().showFiles();
       await expect.element(name).toBeVisible();
       await expect.element(file).toBeVisible();
       expect(locationHeaderLook(location).fullWidth).toBe(true);

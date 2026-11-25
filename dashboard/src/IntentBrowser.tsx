@@ -4,12 +4,13 @@
 
 import type { ReactNode } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
-import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
+import type { FilesSidebar } from "./FilesSidebar.tsx";
 import { IntentBrowserFrame } from "./IntentBrowserFrame.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { useKeptFileReadingPlace } from "./IntentFileReading.tsx";
 import { IntentBrowserTree } from "./IntentBrowserTree.tsx";
-import { StoryHomeButton } from "./IntentStoryEvidence.tsx";
+import type { StoryPath } from "./IntentStoryEvidence.tsx";
+import { IntentFilesActions } from "./FilesSidebarActions.tsx";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import type { IntentTabPanelAttributes } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
@@ -54,15 +55,9 @@ export function IntentBrowser({
   readonly story: ComparedStory | undefined;
   readonly reviewFileReady: boolean;
   // The locations column's id and whether Hide files / Show files shows it.
-  readonly files: FileBrowserPlace;
+  readonly files: FilesSidebar;
   readonly panel: IntentTabPanelAttributes;
-  readonly storyPath:
-    | {
-        readonly id: string;
-        readonly hidden: boolean;
-        readonly onHome: () => void;
-      }
-    | undefined;
+  readonly storyPath: StoryPath | undefined;
   // Project Intent's chosen view and ids, in Project Intent: opening a test
   // from the record returns this browser to CI status.
   readonly project: ModeChoice | undefined;
@@ -138,16 +133,20 @@ export function IntentBrowser({
 
   const browser = (
     <>
+      {files.backdrop}
       <div className="intent-locations" id={files.id} hidden={!files.shown}>
         <h3 className="visually-hidden">Purpose locations</h3>
-        {storyPath && <StoryHomeButton onHome={storyPath.onHome} />}
+        <IntentFilesActions path={storyPath} scope={storyTree.scope} />
         {lead}
         <IntentBrowserTree
           locations={locations}
           tree={storyTree}
           storySelected={storySummary !== undefined}
           selection={treeSelection}
-          onSelect={select}
+          onSelect={(next) => {
+            select(next);
+            if (next.scope === "file") files.onFileChosen();
+          }}
           reveal={reveal}
           expandedPath={expandedPath}
           onExpandedPath={setExpandedPath}

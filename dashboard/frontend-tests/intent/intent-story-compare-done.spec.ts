@@ -62,6 +62,7 @@ test("a Done story chooses each captured result and returns to Published complet
   // Landed runs and the older run list its changes and name its tree.
   await story.chooseLatestLanding();
   await expect.element(story.runChoice(newer.key)).toBeChecked();
+  await story.browseFiles();
   await expect.poll(story.treeText).toContain("newer.txt");
   await story.chooseRun(older.key);
   await expect.element(story.runChoice(older.key)).toBeChecked();
@@ -107,7 +108,6 @@ test("Intent names the launch, destination and captured revisions of the landed 
 test("Landed runs lists the captured runs as read, newest first, and the keyboard moves to the older run's changes", async () => {
   await openDoneWithCapturedRuns();
   const story = intentStoryCompare();
-  await story.browseFiles();
   await story.chooseLatestLanding();
   await expect.element(story.runChoice(newer.key)).toBeChecked();
   const listed = story.landingChoices
@@ -123,6 +123,7 @@ test("Landed runs lists the captured runs as read, newest first, and the keyboar
   await userEvent.click(story.runChoice(newer.key));
   await userEvent.keyboard("{ArrowDown}");
   await expect.element(story.runChoice(older.key)).toBeChecked();
+  await story.browseFiles();
   await expect.poll(story.treeText).toContain("older.txt");
 });
 

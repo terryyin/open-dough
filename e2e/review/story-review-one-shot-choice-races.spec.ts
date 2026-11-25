@@ -91,6 +91,8 @@ test("delayed run and file responses leave the later run selected through narrow
   }
   await page.setViewportSize({ width: 420, height: 900 });
   await review.landedRun.expectChosen(first.key);
+  // Narrow, Files starts as a closed drawer over the reader.
+  await review.setFilesShown(true);
   await review.hideFiles();
   await review.setFilesShown(true);
   await files.expectOnlyChangedFile("Added first.txt");
