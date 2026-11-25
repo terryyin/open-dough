@@ -31,6 +31,7 @@ import {
   type StartOriginFixtures,
 } from "./support/startOrigin.ts";
 import { serveOriginBaseCi } from "./support/serveOriginBaseCi.ts";
+import { expectServedHomesReach } from "./support/fixtureOriginRoute.ts";
 import {
   openUntilRead,
   reloadUntilRead,
@@ -81,11 +82,14 @@ export async function reachKeptStart(
     queued: [storyA],
     mode: "story-branch",
   });
+  const before = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    revision: before,
     repository: "terryyin/open-dough",
+    follows: true,
   });
+  expectServedHomesReach(dashboard.github, published.repository, before);
   await openUntilRead(page);
   const { backlog, taken, readRevision } = parts(page);
   const backlogCard = backlog.getByRole("article", { name: "Story A" });
@@ -106,7 +110,7 @@ export async function reachKeptStart(
   const attemptId = await acceptance;
   await settledOutcome(dashboard, attemptId);
   await untilPageRequestsAnswered(page);
-  await expect(backlogCard.locator(".launch-problem")).toContainText(
+  await expect(takenStoryCard.locator(".launch-problem")).toContainText(
     `Launch failed: Claude Code refused to start a session in ${workspaceShown}.`,
     { timeout: launchWaitMs },
   );
@@ -114,7 +118,7 @@ export async function reachKeptStart(
     (each) => each["identity"] === queuedIdentity,
   );
   const agent = String(profile?.["agent"]);
-  await expect(backlogCard.locator(".launch-problem")).toContainText(
+  await expect(takenStoryCard.locator(".launch-problem")).toContainText(
     `Taken by ${agent}; no session started. Workspace ${workspaceShown}.`,
   );
   const workspace = path.join(origin.project, ".worktrees", "story-a");
@@ -122,7 +126,7 @@ export async function reachKeptStart(
 
   // Origin shows the story Taken; after a reload its Taken card shows.
   const revision = (await origin.originGit("rev-parse", "main")).trim();
-  published.advanceTo(revision);
+  expectServedHomesReach(dashboard.github, published.repository, revision);
   await reloadUntilRead(page);
   await expect(readRevision).toContainText(shortRevision(revision));
   await expect(takenStoryCard).toBeVisible();

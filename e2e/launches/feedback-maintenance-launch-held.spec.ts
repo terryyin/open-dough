@@ -6,13 +6,11 @@ import path from "node:path";
 import { openDoughFolder } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 
-import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
-
 import { dayFromToday } from "../../dashboard/test-support/support/feedbackMaintenanceDue.ts";
 import {
   afterFurtherChecks,
   launchedInput,
-  pushWatchList,
+  serveWatchListHistory,
   serverOn,
   turnOn,
   watchListDue,
@@ -31,9 +29,9 @@ test("a launch held because Open Dough's execution checkout has existing changes
   github,
 }) => {
   const origin = await startOrigin(queuedReadyRepository().please());
-  const moving = await publishMovingOrigin(github);
+  const moving = await serveWatchListHistory(origin, github);
   const due = dayFromToday(-1);
-  pushWatchList(moving, watchListDue(due));
+  const revision = await moving.publish(watchListDue(due));
   const server = await serverOn(origin, github, "preview");
   const leftover = path.join(openDoughFolder(server), "notes.txt");
   try {
@@ -45,7 +43,7 @@ test("a launch held because Open Dough's execution checkout has existing changes
     expect(server.claudeLaunchCalls()).toEqual([]);
 
     const reason = "execution checkout has existing changes (1 changed path)";
-    await openDashboard(page, server);
+    await openDashboard(page, server, revision);
     await expect(row(page)).toHaveText(
       `Feedback maintenance due since ${due}; not started: ${reason}`,
     );
@@ -56,7 +54,7 @@ test("a launch held because Open Dough's execution checkout has existing changes
 
     rmSync(leftover);
     await launchedInput(server);
-    await openDashboard(page, server);
+    await openDashboard(page, server, revision);
     await expect(row(page)).toHaveText("Feedback maintenance is running");
     expect(server.notifierCalls()).toEqual([]);
   } finally {

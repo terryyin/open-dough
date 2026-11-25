@@ -19,14 +19,13 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
 import { dayFromToday } from "../../dashboard/test-support/support/feedbackMaintenanceDue.ts";
 import {
   afterFurtherChecks,
   invocation,
   launchedInput,
   maintenanceRecords,
-  pushWatchList,
+  serveWatchListHistory,
   serverOn,
   turnOn,
   watchListDue,
@@ -46,16 +45,16 @@ test("the row says running while the automatic session is open and, once it ends
   github,
 }) => {
   const origin = await startOrigin(queuedReadyRepository().please());
-  const moving = await publishMovingOrigin(github);
+  const moving = await serveWatchListHistory(origin, github);
   const due = dayFromToday(-1);
-  const served = pushWatchList(moving, watchListDue(due));
+  const served = await moving.publish(watchListDue(due));
   const server = await serverOn(origin, github, "preview");
   try {
     server.claudeScenario("launched");
     turnOn(origin);
     const input = await launchedInput(server);
 
-    await openDashboard(page, server);
+    await openDashboard(page, server, served);
     await expect(row(page)).toHaveText("Feedback maintenance is running");
     await openSettings(page, server);
     await expect(settingsLine(page)).toHaveText(
@@ -68,7 +67,7 @@ test("the row says running while the automatic session is open and, once it ends
       .poll(async () => (await maintenanceRecords(server))[0]?.doneAt)
       .toEqual(expect.any(String));
     await afterFurtherChecks(moving);
-    await openDashboard(page, server);
+    await openDashboard(page, server, served);
     await expect(row(page)).toHaveText(
       `Feedback maintenance due since ${due}; its automatic session did not complete`,
     );
@@ -78,7 +77,7 @@ test("the row says running while the automatic session is open and, once it ends
     );
 
     // The developer starts the cycle by hand through the ordinary dialog.
-    await openDashboard(page, server);
+    await openDashboard(page, server, served);
     await startSession(page, "Open Dough").click();
     const dialog = startSessionDialog(page, "Open Dough");
     await startSessionField(dialog).fill(invocation);
@@ -96,7 +95,7 @@ test("the row says running while the automatic session is open and, once it ends
       workflow: "ad-hoc",
       instruction: invocation,
     });
-    await openDashboard(page, server);
+    await openDashboard(page, server, served);
     await expect(row(page)).toHaveText("Feedback maintenance is running");
 
     // The manual run is marked done and the cycle's advanced date published.
@@ -109,10 +108,10 @@ test("the row says running while the automatic session is open and, once it ends
       ).status,
     ).toBe(200);
     const next = dayFromToday(6);
-    const advanced = pushWatchList(moving, watchListDue(next));
+    const advanced = await moving.publish(watchListDue(next));
     await expect.poll(() => watchListReads(moving)).toEqual([served, advanced]);
     await afterFurtherChecks(moving);
-    await openDashboard(page, server);
+    await openDashboard(page, server, advanced);
     await expect(row(page)).toHaveCount(0);
     await openSettings(page, server);
     await expect(settingsLine(page)).toHaveText(
@@ -131,9 +130,9 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
   github,
 }) => {
   const origin = await startOrigin(queuedReadyRepository().please());
-  const moving = await publishMovingOrigin(github);
+  const moving = await serveWatchListHistory(origin, github);
   const due = dayFromToday(-1);
-  const served = pushWatchList(moving, watchListDue(due));
+  const served = await moving.publish(watchListDue(due));
   // Authorized before the server starts, so its first check launches; the
   // next check comes after the test.
   turnOn(origin);
@@ -148,7 +147,7 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
     server.claudeScenario("launched");
     const input = await launchedInput(server);
 
-    pushWatchList(moving, watchListDue(dayFromToday(6)));
+    const advanced = await moving.publish(watchListDue(dayFromToday(6)));
     await reportingThrough(origin, input)({ message: "" });
     await expect
       .poll(async () => (await maintenanceRecords(server))[0]?.doneAt)
@@ -160,7 +159,7 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
     );
     // The done session's card in Recently done comes from the same sessions
     // answer as the row.
-    await openDashboard(page, server);
+    await openDashboard(page, server, advanced);
     await expect(
       page.getByRole("article", {
         name: "Ad hoc session for Feedback maintenance",
@@ -180,9 +179,9 @@ test("an automatic session that ended unavailable without a done mark is, after 
   github,
 }) => {
   const origin = await startOrigin(queuedReadyRepository().please());
-  const moving = await publishMovingOrigin(github);
+  const moving = await serveWatchListHistory(origin, github);
   const due = dayFromToday(-1);
-  pushWatchList(moving, watchListDue(due));
+  const served = await moving.publish(watchListDue(due));
   let server = await serverOn(origin, github, "preview");
   try {
     server.claudeScenario("launched");
@@ -200,7 +199,7 @@ test("an automatic session that ended unavailable without a done mark is, after 
     server.claudeScenario("launched");
     await afterFurtherChecks(moving);
 
-    await openDashboard(page, server);
+    await openDashboard(page, server, served);
     await expect(row(page)).toHaveText(
       `Feedback maintenance due since ${due}; its automatic session did not complete`,
     );

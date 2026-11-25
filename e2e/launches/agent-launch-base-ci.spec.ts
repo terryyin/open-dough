@@ -19,6 +19,7 @@ import {
 import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { actionsForRuns } from "../../dashboard/test-support/support/baseCiActions.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 
 const baseCiFailedHeading = "Base CI failed";
 
@@ -37,6 +38,7 @@ test("a passing nearest result starts with no question when the head has none", 
       makeMe.aCiRun.with({ headSha: ancestor, conclusion: "success" }).please(),
     ]),
   );
+  expectServedHomesReach(dashboard.github, published.repository, head);
   await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", { name: "Story A" });
   await card.getByRole("button", { name: "Start execution" }).click();
@@ -54,6 +56,11 @@ test("a passing nearest result starts with no question when the head has none", 
     .toHaveLength(1);
   expect(head).not.toBe(ancestor);
   expect(await origin.takenProfiles()).toHaveLength(1);
+  expectServedHomesReach(
+    dashboard.github,
+    published.repository,
+    await originMain(origin),
+  );
 });
 
 test("a failed base asks; Back starts nothing; Continue starts", async ({
@@ -75,6 +82,7 @@ test("a failed base asks; Back starts nothing; Continue starts", async ({
         .please(),
     ]),
   );
+  expectServedHomesReach(dashboard.github, published.repository, head);
   await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", { name: "Story A" });
   await card.getByRole("button", { name: "Start execution" }).click();
@@ -122,6 +130,11 @@ test("a failed base asks; Back starts nothing; Continue starts", async ({
     .toHaveLength(1);
   expect(await origin.takenProfiles()).toHaveLength(1);
   expect(before).not.toBe(head);
+  expectServedHomesReach(
+    dashboard.github,
+    published.repository,
+    await originMain(origin),
+  );
 });
 
 test("a kept start resumed is not asked even with a failing base", async ({

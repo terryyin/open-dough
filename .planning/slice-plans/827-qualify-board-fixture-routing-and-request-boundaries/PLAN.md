@@ -148,7 +148,7 @@ refactor review found no candidate and reused the proof.
 ### 3. Start a launch from the fixture's real publication
 
 Type: Behavior
-Status: planned
+Status: done
 
 For Prepare and Start, check the route selected by the fixture HOME before
 opening. Keep the base-CI and Codex/phase journeys' native request evidence.
@@ -159,6 +159,26 @@ new pin. Cover the base-CI, effort, preparation/start phase and Taken launch
 cases under the committed-origin inventory. Keep scheduled feedback checks
 at the watch-list REST request, including failed ref and due/off outcomes.
 Only qualify their origin when the case uses it to open a Board.
+
+The installed Prepare and Start fixtures follow the bare origin their native
+workflows publish. The tests resolve the initial, accepted and restarted pins
+under the served HOMEs. Held pushes still leave the story queued. After the
+real Take, refusal and workspace evidence appears on the moved card. The stale
+effort case has a distinct Board publication and explicitly routes it while
+launching in the installed checkout. Feedback browser cases commit the watch
+list to the native origin and still assert the scheduler's REST reads. The
+independent refactor limited the Git-backed publisher to publication and its
+request log.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/launches/agent-launch-{base-ci,codex-effort,codex-stale-effort,preparation-codex,preparation-phases,start-codex,start-phases,start-taken}.spec.ts e2e/launches/feedback-maintenance-{due-row,launch-held,launch}.spec.ts --workers=2 --reporter=dot
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run test:dashboard:backend -- dashboard/backend-tests/launches/feedback-maintenance-launch.spec.ts --workers=1 --reporter=dot
+npm run typecheck:dashboard
+```
+
+All 17 E2E and three scheduler cases passed. Dashboard typecheck passed again
+after the read capability was narrowed. The scheduler's intentional failed ref
+and off/due results are exercised at the REST watch-list operation.
 
 ### 4. Reconcile the real publication across session views
 

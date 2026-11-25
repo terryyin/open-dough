@@ -5,6 +5,7 @@ import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { keptStarts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { expectStartNote } from "../../dashboard/test-support/storyCardControls.ts";
 import { expectCodexRetryProgress } from "../../dashboard/test-support/support/codexRetryPage.ts";
 import {
@@ -58,8 +59,10 @@ test("Codex card start publishes one claim and retries its retained workspace be
     repoDir: origin.origin,
     revision: original,
     repository: "terryyin/open-dough",
+    follows: true,
   });
   await pausePageClockAt(page, new Date());
+  expectServedHomesReach(dashboard.github, published.repository, original);
   await openUntilRead(page);
   const { backlog, taken, readRevision } = parts(page);
   const queued = backlog.getByRole("article", { name: "Story A", exact: true });
@@ -94,7 +97,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
   await settledOutcome(dashboard, attemptId);
   await untilPageRequestsAnswered(page);
   // The answer follows the Take's real publication and Codex's refusal.
-  await expect(queued.locator(".launch-problem")).toContainText(
+  await expect(claimed.locator(".launch-problem")).toContainText(
     "Codex refused to create a conversation.",
   );
   const [profile] = await origin.takenProfiles();
@@ -106,7 +109,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
   });
   expect(profile).not.toHaveProperty("model");
   const workspace = path.join(origin.project, ".worktrees", "story-a");
-  await expect(queued.locator(".launch-problem")).toContainText(
+  await expect(claimed.locator(".launch-problem")).toContainText(
     `Taken by ${String(profile?.["agent"])}; no session started. Workspace ~/git/open-dough/.worktrees/story-a.`,
   );
   const revision = (await origin.originGit("rev-parse", "main")).trim();
@@ -145,7 +148,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
     },
   ]);
 
-  published.advanceTo(revision);
+  expectServedHomesReach(dashboard.github, published.repository, revision);
   // Read the Take here; the final reload still proves persistence.
   await passCheckPace(page);
   await untilPageRequestsAnswered(page);

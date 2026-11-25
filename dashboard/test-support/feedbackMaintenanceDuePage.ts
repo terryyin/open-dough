@@ -3,6 +3,8 @@ import type { Page } from "@playwright/test";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect } from "./dashboardTest.ts";
 import { startSession } from "./launchStoryCardPage.ts";
+import { defaultRepository } from "./publishedOriginBasics.ts";
+import { expectServedHomesReach } from "./support/fixtureOriginRoute.ts";
 
 // What Open Dough's project row says of feedback maintenance.
 export const row = (page: Page) =>
@@ -15,7 +17,12 @@ export const settingsLine = (page: Page) =>
     .getByRole("status")
     .filter({ hasText: "Last automatic launch" });
 
-export async function openDashboard(page: Page, server: DashboardServer) {
+export async function openDashboard(
+  page: Page,
+  server: DashboardServer,
+  revision: string,
+) {
+  expectServedHomesReach(server.github, defaultRepository, revision);
   await page.goto(server.baseURL);
   await expect(startSession(page, "Open Dough")).toBeVisible();
 }
