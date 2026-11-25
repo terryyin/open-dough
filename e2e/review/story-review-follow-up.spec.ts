@@ -76,7 +76,7 @@ test.describe("published file Follow up", () => {
     await review.expectText("Published completion");
     await review.files.choose(sharedFile);
     const dialog = fileFollowUpDialog(page);
-    // Key-example wording; Kept short enough for Taken's accessible name.
+    // Key-example wording; Kept short enough for the session's accessible name.
     const instruction = "Check pinned revision on project switch";
 
     await test.step("Follow up opens the existing dialog with the story and file context", async () => {
@@ -101,7 +101,7 @@ test.describe("published file Follow up", () => {
       await expect(dialog).toBeHidden();
       await review.returnToDevelopment();
       await expect(
-        parts(page).taken.getByRole("article", {
+        parts(page).recentlyDone.getByRole("article", {
           name: standaloneSessionName("Ad hoc", instruction),
         }),
       ).toBeVisible({ timeout: 30_000 });

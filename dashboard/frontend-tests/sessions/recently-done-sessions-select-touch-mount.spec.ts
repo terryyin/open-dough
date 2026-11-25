@@ -14,7 +14,6 @@ import {
 import { doneCard } from "./recently-done-column-page.ts";
 import { sidebarButton } from "./session-card-page.ts";
 import {
-  adHocTitle,
   development,
   intent,
   linked,
@@ -52,9 +51,9 @@ test("on a phone's touch screen Select keeps the Sessions overlay and opens noth
     await tapWhereShown(element);
   };
 
-  await tap(shown.select(adHocTitle));
+  await tap(shown.select(linked.title));
   await expect
-    .element(shown.select(adHocTitle))
+    .element(shown.select(linked.title))
     .toHaveAttribute("aria-pressed", "true");
   await expect.element(shown.sidebar).toBeVisible();
   expect(terminal().query()).toBeNull();

@@ -1,9 +1,6 @@
-// A story follow-up's Recently done membership follows the machine's next
-// answer on the mounted Board: Done moves it from Taken onto its source card,
-// and reopening returns it to Taken.
+// A follow-up's native state changes in place on its published Done card.
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { boardReading } from "../navigation/board-reading-page.ts";
 import {
   catalogs,
   followUp,
@@ -16,7 +13,7 @@ import {
   pollNow,
 } from "./recently-done-sidebar-mount-page.ts";
 
-test("a follow-up answered Done moves from Taken onto its source card, and reopened returns to Taken", async () => {
+test("a follow-up stays on its source Done card as its local state changes", async () => {
   vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
   onTestFinished(() => {
     vi.useRealTimers();
@@ -27,12 +24,11 @@ test("a follow-up answered Done moves from Taken onto its source card, and reope
     makeMe.aMachineAnswer.observingOpen(open).please(),
   );
   await mountSessions(machine, catalogs({ "open-dough": [source] }));
-  const taken = boardReading
-    .column("Taken")
-    .getByRole("article", { name: standaloneName(title), exact: true });
-
-  await expect.element(taken).toBeVisible();
-  expect(heldSessions(source.title).all()).toHaveLength(0);
+  const nested = heldSessions(source.title);
+  await expect.element(nested).toHaveAccessibleName(standaloneName(title));
+  await expect
+    .element(nested.getByText("Working", { exact: true }))
+    .toBeVisible();
 
   machine.answer(
     makeMe.aMachineAnswer
@@ -40,10 +36,7 @@ test("a follow-up answered Done moves from Taken onto its source card, and reope
       .please(),
   );
   pollNow();
-  await expect
-    .element(heldSessions(source.title))
-    .toHaveAccessibleName(standaloneName(title));
-  expect(taken.all()).toHaveLength(0);
+  await expect.element(nested.getByText("Done", { exact: true })).toBeVisible();
 
   const readsBeforeReopen = machine.reads();
   machine.answer(makeMe.aMachineAnswer.observingOpen(open).please());
@@ -54,6 +47,7 @@ test("a follow-up answered Done moves from Taken onto its source card, and reope
       return machine.reads();
     })
     .toBeGreaterThan(readsBeforeReopen);
-  await expect.element(taken).toBeVisible();
-  expect(heldSessions(source.title).all()).toHaveLength(0);
+  await expect
+    .element(nested.getByText("Working", { exact: true }))
+    .toBeVisible();
 });

@@ -30,12 +30,12 @@ test("a held association is superseded by a later choice, whose project stands w
 
   await shown.select(adHocTitle).click();
   await expect.poll(() => shown.choiceStatus(adHocTitle)).toBeTruthy();
-  await shown.select(takenTitle).click();
+  await shown.select(linked.title).click();
   await expect.element(projectShown()).toHaveAccessibleName("Pygardon");
   answer({ kind: "linked", identity: "SEED-9#doughnut-done" });
 
   await expect
-    .element(shown.select(takenTitle))
+    .element(shown.select(linked.title))
     .toHaveAttribute("aria-pressed", "true");
   await expect
     .element(shown.select(adHocTitle))
@@ -45,7 +45,11 @@ test("a held association is superseded by a later choice, whose project stands w
 
 test("an unanswered catalog check says checking until a later choice supersedes it, and a failed one is said apart from a miss, leaving project and Open usable", async () => {
   const catalog = pygardonCatalog();
-  const shown = await openSelection({ doneCatalog: catalog.read });
+  const shown = await openSelection({
+    doneCatalog: catalog.read,
+    association: () =>
+      Promise.resolve({ kind: "linked", identity: "SEED-9#doughnut-done" }),
+  });
 
   catalog.hold();
   await shown.select(linked.title).click();

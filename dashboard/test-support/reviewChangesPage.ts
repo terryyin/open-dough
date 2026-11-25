@@ -230,3 +230,13 @@ export async function assumeReviewChanges(page: Page) {
   await expect(reviewRegion(page)).toBeVisible();
   return new ReviewChanges(page);
 }
+
+export const publishedSessionReviewControl = (entry: Locator) =>
+  entry.getByRole("button", { name: "Review session changes", exact: true });
+
+export async function openPublishedSessionReviewChanges(
+  page: Page,
+  entry: Locator,
+) {
+  return reviewChangesAfter(page, publishedSessionReviewControl(entry));
+}

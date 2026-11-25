@@ -2,21 +2,17 @@
 // (../../e2e/stories/recently-done-stories.spec.ts,
 // ../../e2e/sessions/recently-done-story-sessions-expired.spec.ts,
 // ../../e2e/sessions/recently-done-published-sessions.spec.ts):
-// the names of the sessions outside any done story, a published session's
-// entry, those sessions as the synthetic `claude` lists them, the column's own
-// entries in order, and its two range actions. Its count is `columnCountOf`
+// synthetic session listing, published sessions on their Done cards, the
+// column's story order and its two range actions. Its count is `columnCountOf`
 // (./dashboardParts.ts).
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { standaloneSessionName } from "./dashboardPage.ts";
+import { publishedSessionReviewControl } from "./reviewChangesPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { at, placed, queuedTitle } from "./recentlyDoneRecords.ts";
 import { keptSessions } from "./recentlyDoneSessions.ts";
-import { reviewChanges } from "./storyCardControls.ts";
-
-export const adHocEntry = standaloneSessionName("Ad hoc", "Open Dough session");
-export const queuedEntry = standaloneSessionName("Execution", queuedTitle);
+import { storyCard } from "./storyCardControls.ts";
 
 // A session the synthetic `claude` lists, started `before` `now`.
 export const listed = (
@@ -50,8 +46,7 @@ export const sessionsOutsideDoneStories = (
     },
   );
 
-// The column's own entries, newest first: done cards and sessions of no
-// shown done story, not the sessions inside a card.
+// The column's Done story cards, newest first.
 export const shownEntries = (recent: Locator) =>
   recent.locator(":scope > ol > li > article");
 
@@ -74,15 +69,6 @@ export const revealAction = (recent: Locator) =>
 export const showLatestAction = (recent: Locator) =>
   recent.getByRole("button", { name: "Show latest 10" });
 
-// The standalone ad hoc session's action in the column.
-export const sessionReviewChanges = (recent: Locator, title: string) =>
-  reviewChanges(
-    recent.getByRole("article", {
-      name: standaloneSessionName("Ad hoc", title),
-      exact: true,
-    }),
-  );
-
 // The entry of a session the project published and this machine never launched.
 export const publishedSessionEntry = (recent: Locator, sessionId: string) =>
   recent.getByRole("article", {
@@ -93,4 +79,10 @@ export const publishedSessionEntry = (recent: Locator, sessionId: string) =>
 export const publishedSessionReviewChanges = (
   recent: Locator,
   sessionId: string,
-) => reviewChanges(publishedSessionEntry(recent, sessionId));
+) => publishedSessionReviewControl(publishedSessionEntry(recent, sessionId));
+
+export const publishedSessionOnDoneStory = (
+  recent: Locator,
+  title: string,
+  sessionId: string,
+) => publishedSessionEntry(storyCard(recent, title), sessionId);

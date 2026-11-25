@@ -76,7 +76,7 @@ test("another story's and another project's closed follow-ups stay off the card"
   expect(standaloneEntry(otherProjectTitle).all()).toHaveLength(0);
 });
 
-test("a closed follow-up whose source card is not listed stays standalone", async () => {
+test("a closed follow-up whose source card is not listed leaves no Board entry", async () => {
   const title = "Follow-up of an unlisted source";
   await mountSessions(
     makeMe.aMachineAnswer
@@ -89,7 +89,7 @@ test("a closed follow-up whose source card is not listed stays standalone", asyn
     catalogs({ "open-dough": [source] }),
   );
 
-  await expect.element(standaloneEntry(title)).toBeVisible();
+  expect(standaloneEntry(title).all()).toHaveLength(0);
   await expect.element(doneCard(source.title)).toBeVisible();
   expect(heldSessions(source.title).all()).toHaveLength(0);
 });
@@ -173,12 +173,16 @@ test("a card holding a closed follow-up offers only the story's own sessions as 
 
 test("a follow-up published from another machine while its kept counterpart is Done here shows one entry, on its source card", async () => {
   const record = publishedSessionRecordSchema.parse(
-    makeMe.aSessionRecord.closedAt(minutesAgo(5)).please(),
+    makeMe.aSessionRecord
+      .forStory(source.identity)
+      .closedAt(minutesAgo(5))
+      .please(),
   );
   const kept = makeMe.aLaunchRecord
     .adHoc({
       instruction: "Counterpart here",
       title: "Counterpart here",
+      storyIdentity: source.identity,
       followUp: makeMe.aFollowUp.ofStory(source, "a".repeat(40)).please(),
     })
     .reportingThrough({
@@ -213,4 +217,16 @@ test("a follow-up published from another machine while its kept counterpart is D
     .element(heldSessions(source.title))
     .toHaveAccessibleName(standaloneName("Counterpart here"));
   expect(topLevelEntries()).toHaveLength(1);
+  expect(
+    doneCard(source.title)
+      .getByRole("list", { name: "Published sessions" })
+      .query(),
+  ).toBeNull();
+  await expect
+    .element(
+      heldSessions(source.title).getByRole("button", {
+        name: "Review session changes",
+      }),
+    )
+    .toBeVisible();
 });

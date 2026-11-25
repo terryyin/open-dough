@@ -1,9 +1,3 @@
-// A marked-done session whose published done card is past the 30-day window
-// stays a standalone Recently done entry. With the synthetic Claude host still
-// listing it, that entry reads Working — a live-boundary reading Frontend
-// substitutes cannot supply. Nesting of other done-story sessions lives in
-// ../../dashboard/frontend-tests/sessions/recently-done-story-sessions.spec.ts.
-
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
@@ -15,13 +9,12 @@ import { keepLaunchRecords } from "../../dashboard/test-support/support/launchSt
 import { doneStorySessions } from "../../dashboard/test-support/recentlyDoneSessions.ts";
 import { doneStories } from "../../dashboard/test-support/recentlyDoneRecords.ts";
 import {
-  adHocEntry,
   expectEntries,
   listed,
   sessionsOutsideDoneStories,
 } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 
-test("a session of a done record past the window is its own Recently done entry and still reads Working while Claude lists it", async ({
+test("a session of a Done story outside the window creates no Recently done entry", async ({
   page,
   dashboard,
 }) => {
@@ -63,11 +56,9 @@ test("a session of a done record past the window is its own Recently done entry 
     doneStories.expired.title,
   );
   await expectEntries(recent, [
-    adHocEntry,
     doneStories.executed.title,
     doneStories.removed.title,
     doneStories.lastWeek.title,
-    expiredSession,
   ]);
   await expect(
     recent.getByRole("article", {
@@ -77,5 +68,5 @@ test("a session of a done record past the window is its own Recently done entry 
   ).toHaveCount(0);
   await expect(
     recent.getByRole("article", { name: expiredSession }),
-  ).toHaveText(/Working/);
+  ).toHaveCount(0);
 });

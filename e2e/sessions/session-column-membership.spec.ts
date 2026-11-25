@@ -13,7 +13,6 @@ import {
   terminalPanel,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
-  localEntries,
   publishMembership,
   queuedStoryTaken,
   savedLocalSessionRecords as savedRecords,
@@ -45,15 +44,19 @@ import {
   placed,
   queuedIdentity,
   queuedTitle,
+  publishedFiles,
+  repository,
 } from "../../dashboard/test-support/recentlyDoneRecords.ts";
 import { keptSessions } from "../../dashboard/test-support/recentlyDoneSessions.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 test.use({
   projectFolders: ["open-dough", "doughnut"],
   extraEnv: briefDoneRenameWait,
 });
-test("one Taken story with two sessions and one local session means two entries; published ordering precedes newest local launches, and another project's session is excluded", async ({
+test("Taken counts published stories, with their own sessions nested and unmatched launches excluded", async ({
   page,
   dashboard,
 }) => {
@@ -85,77 +88,33 @@ test("one Taken story with two sessions and one local session means two entries;
   await page.setViewportSize({ width: 40 * rem, height: 900 });
   await page.goto("/");
   await expectMembership(page, { taken: [queuedTitle], backlog: [] });
-  await expect(columnPagingControl(page, "Taken")).toHaveText(
-    "Taken 2 entries",
-  );
+  await expect(columnPagingControl(page, "Taken")).toHaveText("Taken 1 entry");
   await showColumn(page, "Taken");
   const { taken, recentlyDone } = parts(page);
-  await expect(columnCountOf(taken)).toHaveText("2 entries");
+  await expect(columnCountOf(taken)).toHaveText("1 entry");
   await expect(
     sessionEntriesIn(taken.locator("[data-story-card]")),
   ).toHaveCount(2);
-  await expect(localEntries(page)).toHaveCount(1);
-  for (const [index, name] of [
-    queuedTitle,
-    "Ad hoc session for Open Dough session",
-  ].entries())
-    await expect(
-      taken.locator(":scope > ol > li > article").nth(index),
-    ).toHaveAccessibleName(name);
-  await expect(
-    localEntries(page).locator(".story-card-meta, .slice-progress"),
-  ).toHaveCount(0);
+  await expect(taken.locator(":scope > ol > li > article")).toHaveCount(1);
+  await expect(storyCard(taken, queuedTitle)).toBeVisible();
   await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
-  await expect(taken).not.toContainText("No Taken entries");
   await publishMembership(page, { at: "d3".repeat(20) });
   await page.reload();
   await expectMembership(page, { taken: [], backlog: [] });
-  for (const [index, key] of [
-    `claude:${local.session.sessionId}`,
-    `claude:${story.session.sessionId}`,
-    `claude:${secondId}`,
-  ].entries())
-    await expect(localEntries(page).nth(index)).toHaveAttribute(
-      "data-shows-session",
-      key,
-    );
-  await expect(columnCountOf(taken)).toHaveText("3 entries");
-  await showColumn(page, "Taken");
-  for (const session of [
-    local.session.sessionId,
-    story.session.sessionId,
-    secondId,
-  ]) {
-    await showColumn(page, "Taken");
-    const entry = sessionEntryShowing(parts(page).taken, `claude:${session}`);
-    idleBetweenSteps(dashboard, session);
-    await markDoneAnyway(entry);
-    await expect(entry).toHaveCount(0);
-  }
-  await expect(localEntries(page)).toHaveCount(0);
+  await expect(sessionEntriesIn(taken)).toHaveCount(0);
   await expect(columnCountOf(taken)).toHaveText("0 entries");
   await expect(taken).toContainText("No Taken entries are recorded.");
-  await expect(sessionEntriesIn(recentlyDone)).toHaveCount(3);
+  await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
   await expect(parts(page).readRevision).toContainText(
     shortRevision("d3".repeat(20)),
   );
-  expect(
-    (await savedRecords(dashboard)).every(
-      (record) => record.doneAt !== undefined,
-    ),
-  ).toBe(true);
-  expect(
-    (await savedRecords(dashboard))
-      .filter((record) => record.request.workflow !== "ad-hoc")
-      .every(
-        (record) =>
-          "identity" in record.request &&
-          record.request.identity === queuedIdentity,
-      ),
-  ).toBe(true);
 });
 
-function keepLocalSession(dashboard: DashboardServer, title: string) {
+function keepLocalSession(
+  dashboard: DashboardServer,
+  title: string,
+  storyIdentity: string,
+) {
   const startedAt = Date.now();
   const sessionId = dashboard.claudeListsSession({
     name: title,
@@ -164,40 +123,53 @@ function keepLocalSession(dashboard: DashboardServer, title: string) {
   });
   keepLaunchRecords(dashboard, [
     makeMe.aLaunchRecord
-      .adHoc({ title })
+      .adHoc({ title, storyIdentity })
       .inClaudeSession({ sessionId })
       .launchedAt(new Date(startedAt).toISOString())
       .please(),
   ]);
 }
 
-test("a retained standalone session stays Taken after a Done refusal, receives focus when Done, and retains Done if reopening is refused", async ({
+test("a session on a Done story retains its state if marking Done or reopening is refused", async ({
   page,
   dashboard,
 }) => {
-  keepLocalSession(dashboard, "inspect local work");
-  await publishMembership(page);
+  const identity = "SEED-190#inspect-local-work";
+  const title = "Inspect the completed work";
+  keepLocalSession(dashboard, "inspect local work", identity);
+  publishCommittedFiles(page, {
+    repository,
+    files: publishedFiles({
+      doneRecords: [
+        makeMe.aDoneRecord
+          .completed({
+            identity,
+            title,
+            completedAt: new Date(Date.now() - 120_000).toISOString(),
+          })
+          .please(),
+      ],
+    }),
+  });
   await page.goto("/");
   const terminal = terminalPanel(page);
-  const active = localEntries(page);
+  const active = sessionEntriesIn(storyCard(parts(page).recentlyDone, title));
   await expect(active).toHaveCount(1);
   const native = await sessionNamedBy(active);
   const key = `claude:${native}`;
   const recent = sessionEntryShowing(parts(page).recentlyDone, key);
-  await expect(columnCountOf(parts(page).taken)).toHaveText("1 entry");
-  await expect(parts(page).taken).not.toContainText("No Taken entries");
-  await expect(recent).toHaveCount(0);
+  await expect(columnCountOf(parts(page).taken)).toHaveText("0 entries");
+  await expect(recent).toHaveCount(1);
   const folder = path.join(dashboard.home, "git", "open-dough");
   renameSync(folder, `${folder}.away`);
   await markDoneAnyway(active);
   await expect(active).toContainText("The session could not be marked done.");
   await expect(await sessionAction(active, "Mark as done")).toBeFocused();
   expect((await savedRecords(dashboard))[0]?.doneAt).toBeUndefined();
-  await expect(recent).toHaveCount(0);
+  await expect(recent).toHaveCount(1);
   renameSync(`${folder}.away`, folder);
   idleBetweenSteps(dashboard, native);
   await markDoneAnyway(active);
-  await expect(active).toHaveCount(0);
   await expect(recent).toBeFocused();
   await expect(sessionStateOf(recent)).toHaveText("Done");
   expect((await savedRecords(dashboard))[0]?.doneAt).toBeDefined();
@@ -216,28 +188,27 @@ test("a retained standalone session stays Taken after a Done refusal, receives f
   expect((await savedRecords(dashboard))[0]?.doneAt).toBe(doneAt);
   expect(dashboard.claudeAttaches()).toHaveLength(beforeReopen);
   await expect(recent).toHaveCount(1);
-  await expect(active).toHaveCount(0);
   await closeSidePanel(terminal);
   await expect(openTerminalControl(recent)).toBeFocused();
 });
 
-test("deleting its last local Taken entry returns the keyboard to Taken and settles its empty count", async ({
+test("deleting a Taken story's last session returns the keyboard to its card and keeps the story counted", async ({
   page,
   dashboard,
 }) => {
-  keepLocalSession(dashboard, "the only local session");
-  await publishMembership(page);
+  keepLocalSession(dashboard, "the only local session", queuedIdentity);
+  await publishMembership(page, { backlog: queuedStoryTaken });
   await page.goto("/");
   dashboard.claudeListingFails(true);
   await reloadUntilRead(page);
-  const entry = localEntries(page);
+  const { taken } = parts(page);
+  const card = storyCard(taken, queuedTitle);
+  const entry = sessionEntriesIn(card);
   await expect(sessionStateOf(entry)).toContainText("State unknown");
   await showColumn(page, "Taken");
   await (await askToDeleteRecord(entry)).confirm.click();
   await expect(entry).toHaveCount(0);
-  const { taken } = parts(page);
-  await expect(taken).toBeFocused();
-  await expect(columnCountOf(taken)).toHaveText("0 entries");
-  await expect(taken).toContainText("No Taken entries are recorded.");
+  await expect(card).toBeFocused();
+  await expect(columnCountOf(taken)).toHaveText("1 entry");
   expect(await savedRecords(dashboard)).toEqual([]);
 });

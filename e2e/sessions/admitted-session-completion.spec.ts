@@ -13,8 +13,8 @@ import {
 } from "../../dashboard/test-support/support/admittedSessionCompletion.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { publishedSessionEntry } from "../../dashboard/test-support/recentlyDoneColumn.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { publishedSessionOnDoneStory } from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { openPublishedSessionReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -156,10 +156,11 @@ test("a fresh clone reads the retired admission's story and its exact published 
     await test.step("When the reader opens that Recently done session's review", async () => {
       await page.setViewportSize({ width: 1600, height: 900 });
       await page.goto(reader.baseURL);
-      return openReviewChanges(
+      return openPublishedSessionReviewChanges(
         page,
-        publishedSessionEntry(
+        publishedSessionOnDoneStory(
           parts(page).recentlyDone,
+          title,
           admitted.reporting.reference,
         ),
       );

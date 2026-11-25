@@ -1,7 +1,7 @@
 // Reveal the chosen session's actual entry or containing active card once its
 // project's stories are shown, keeping it visible until the developer moves.
 // A Recently done sessions row selected in Development goes the same way to
-// its selected session, or to its linked done story's card
+// its linked Done story's card
 // (`./recentlyDoneSelection.ts`), leaving the keyboard on the row. Moving
 // around the Sessions sidebar, or closing it over the page, is not a move
 // on the page, so the going holds through it.
@@ -34,8 +34,8 @@ export function useSessionNavigation(
   // Going to a session: its project's stories, its terminal where it opens
   // one, and, once that project's membership is known, its actual session
   // entry brought into view. An active story card holds its open sessions and
-  // its Done disclosure; standalone entries and other closed sessions are
-  // revealed in their current home, which for a saved Done session beyond
+  // its Done disclosure; other sessions are revealed on their story's Done
+  // card, which for a saved session beyond
   // Recently done's shown entries the page's range first extends through
   // (`./recentlyDoneRange.ts`). Each going is its own, so going again to the
   // same session reveals again.

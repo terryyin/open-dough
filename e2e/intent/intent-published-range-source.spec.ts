@@ -2,8 +2,8 @@ import type { Page } from "@playwright/test";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { trunkAdvancedWith } from "../../dashboard/test-support/originatingMachine.ts";
-import { publishedSessionEntry } from "../../dashboard/test-support/recentlyDoneColumn.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { publishedSessionOnDoneStory } from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { openPublishedSessionReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import { followUpComposer } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
 import { storyNameOf } from "../../dashboard/test-support/support/followUpStories.ts";
@@ -46,9 +46,13 @@ async function openSecondPublishedRange(page: Page, origin: StartOrigin) {
   });
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/");
-  const review = await openReviewChanges(
+  const review = await openPublishedSessionReviewChanges(
     page,
-    publishedSessionEntry(parts(page).recentlyDone, published.record.sessionId),
+    publishedSessionOnDoneStory(
+      parts(page).recentlyDone,
+      story.title,
+      published.record.sessionId,
+    ),
   );
   await review.comparison.choosePublishedRange("Published range 2 of 2");
   await review.files.chooseShown(changed);

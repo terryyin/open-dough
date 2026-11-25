@@ -2,7 +2,7 @@
 // published Done story (../../dashboard/src/recentlyDoneSelection.ts) without rewriting
 // the Ad hoc label or request identity. Perspective, Side panel, and Open stay
 // as for story-linked rows (../../dashboard/frontend-tests/sessions/recently-done-sessions-select.spec.ts). Absent
-// evidence stays standalone. Development reveal of an older Done card lives in
+// evidence leaves the row unselected. Development reveal of an older Done card lives in
 // ./recently-done-sessions-select-ad-hoc-development.spec.ts.
 import path from "node:path";
 import { randomUUID } from "node:crypto";
@@ -35,7 +35,7 @@ const sessionTitle = "Ad hoc completed session";
 const reportTitle = "Open Dough reported session";
 const reportMessage = "Landed the reported change on main.";
 
-test("selecting a completed ad hoc session from Intent selects its Done story, keeps Intent and Ad hoc, and leaves a miss standalone", async ({
+test("selecting a completed ad hoc session from Intent selects its Done story, keeps Intent and Ad hoc, and leaves a miss unselected", async ({
   page,
   dashboard,
   origin,
@@ -174,7 +174,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     );
   });
 
-  await test.step("a session without matching claim stays standalone and keeps the story", async () => {
+  await test.step("a session without matching claim stays unselected and keeps the story", async () => {
     const alone = makeMe.aLaunchRecord
       .adHoc({
         instruction: "Standalone miss",
@@ -202,7 +202,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     await after.select("Standalone miss").click();
     await expect(after.select("Standalone miss")).toHaveAttribute(
       "aria-pressed",
-      "true",
+      "false",
     );
     await expect(intent).toHaveAttribute(
       "data-selected-story",

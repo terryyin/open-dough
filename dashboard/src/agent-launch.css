@@ -122,20 +122,11 @@
 /* "Shown in terminal" identifies the session the Side panel shows. Its
    session entry also has the shown outline; every card has the accent left
    edge. */
-.recently-done .session-entry.in-side-panel,
-.column > .story-cards > li > .session-entry.in-side-panel {
+.recently-done .session-entry.in-side-panel {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* The session chosen as a standalone Recently done sessions row: an inset
-   accent ring, as a selected Story card has, inside the Side panel's
-   outline. */
-.session-entry.selected-session {
-  box-shadow: inset 0 0 0 2px var(--accent);
-}
-
-.selected-session-content,
 .shown-session-content {
   font-weight: 600;
   color: var(--accent);

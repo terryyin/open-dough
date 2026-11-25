@@ -20,7 +20,7 @@ export function followUp(
     identity = source.identity,
     project = "open-dough",
     file = false,
-    bound = false,
+    bound = true,
   }: {
     identity?: string;
     project?: string;

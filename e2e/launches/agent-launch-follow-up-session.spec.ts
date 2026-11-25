@@ -5,7 +5,6 @@ import {
   openTerminalControl,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
-  parts,
   sessionStateOf,
   standaloneSessionName,
 } from "../../dashboard/test-support/dashboardPage.ts";
@@ -108,9 +107,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
   const text = "Is it still slow?";
   await board.submit(text);
 
-  const started = parts(page).taken.getByRole("article", {
-    name: standaloneSessionName("Ad hoc", text),
-  });
+  const started = board.session(done, standaloneSessionName("Ad hoc", text));
   await expect(started).toBeVisible();
   await expect(dialog).toBeHidden();
   await expect(started).not.toContainText(retiredTitle);

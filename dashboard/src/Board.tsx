@@ -49,25 +49,15 @@ export function Board({
     unfinishedIdentities,
   );
   const read = launches.records !== undefined;
-  const sessions = {
-    ...placed,
-    taken: read ? placed.taken : undefined,
-    done: read ? placed.done : undefined,
-    noneKept: read && placed.noneKept,
-  };
-  const columns = columnsOf(work, sessions.taken);
+  const columns = columnsOf(work);
   const { selectedIdentity } = useStorySelection(sourceId);
   const recent = useRecentlyDone({
     sourceId,
     work,
     creations: launches.creations,
     // Unread until a sessions read for the current project list has ended.
-    records: launches.sessionsSettled ? sessions.done : undefined,
-    // Every kept launch on this machine, so a live one stands for its
-    // published record the same way a Done one does. Empty until the
-    // sessions read for this project list has ended.
-    keptLaunches: launches.sessionsSettled ? launches.launched : [],
-    noneKept: sessions.noneKept,
+    records: launches.sessionsSettled && read ? placed.forDoneCards : undefined,
+    noneKept: read && placed.noneKept,
     sessionsSettled: launches.sessionsSettled,
     includeIdentity: selectedIdentity,
   });
@@ -135,7 +125,7 @@ export function Board({
             work={work}
             columns={columns}
             launches={launches}
-            doneOnCard={sessions.doneOnCard}
+            doneOnCard={placed.doneOnCard}
             onOpenRoster={onOpenRoster}
           />
           <RecentlyDone

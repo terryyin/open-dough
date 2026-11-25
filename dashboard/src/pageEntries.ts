@@ -47,8 +47,7 @@ function entryOf(element: Element | null | undefined): Entry | undefined {
 }
 
 // The entry beside the one a control is in, in the same list: a card's
-// sessions, a done story's sessions, or either standalone column list, where
-// a story card is an entry as a session is. The nearest after it, else the
+// sessions or a Done story's sessions. The nearest after it, else the
 // nearest before it; with none, the done story's card holding the list, for
 // the last of its sessions. A list item's entry is its first marked element,
 // which for a done story's card is the card, not a session inside it.

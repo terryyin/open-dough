@@ -6,7 +6,7 @@ import {
   parts,
   standaloneSessionName,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openPublishedSessionReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   addedOnBranch,
@@ -17,7 +17,7 @@ import {
 import {
   expectEntries,
   listed,
-  publishedSessionEntry,
+  publishedSessionOnDoneStory,
 } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import { openTerminalControl } from "../../dashboard/test-support/sessionEntryAccess.ts";
@@ -26,6 +26,10 @@ import type { StartOrigin } from "../../dashboard/test-support/support/startOrig
 import { publishSessionClose } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { defaultBacklogPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-store.mjs";
+import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
+import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
@@ -34,6 +38,7 @@ const otherSession = "6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c";
 const otherFile = "published-session-edit.txt";
 const laterFile = "after-publication.txt";
 const title = "Originating session";
+const storyTitle = "Story A";
 const ownEntry = standaloneSessionName("Ad hoc", title);
 const minutesAgo = (minutes: number) => Date.now() - minutes * 60_000;
 
@@ -49,7 +54,7 @@ async function closed(
   const machine = addedOnBranch(origin, branch, file);
   const close = await publishSessionClose({
     workspace: machine.workspace,
-    session: { sessionId, workflow: "ad-hoc", story: undefined },
+    session: { sessionId, workflow: "ad-hoc", story: queuedIdentity },
     ...(landingContext === undefined ? {} : { landingContext }),
     ...makeMe.anIncrementPublication
       .with({
@@ -70,7 +75,7 @@ const doneLaunch = (
   published: string,
 ) =>
   makeMe.aLaunchRecord
-    .adHoc({ title })
+    .adHoc({ title, storyIdentity: queuedIdentity })
     .inClaudeSession({ sessionId })
     .reportingThrough({
       origin: dashboardOrigin,
@@ -93,6 +98,7 @@ function publishedInTwoRanges(origin: StartOrigin) {
   trunkAdvancedWith(origin, betweenFile);
   const second = publishedPairAdding(origin, secondRangeFile);
   const record = makeMe.aSessionRecord
+    .forStory(queuedIdentity)
     .closing(first)
     .andClosing(second)
     .please();
@@ -109,6 +115,7 @@ test("Recently done reads the same published ranges with and without this machin
   dashboard,
   origin,
 }) => {
+  await publishDeclaredTrunk(origin, intentTrunkCompletionOntoTip());
   const session =
     await test.step("Given another machine published a session's two pairs with another writer's work between them, and its close record", () =>
       publishedInTwoRanges(origin));
@@ -124,9 +131,13 @@ test("Recently done reads the same published ranges with and without this machin
     await test.step("When this machine, with no launch of it, opens Review changes on that session", async () => {
       await page.setViewportSize({ width: 1600, height: 900 });
       await page.goto("/");
-      return openReviewChanges(
+      return openPublishedSessionReviewChanges(
         page,
-        publishedSessionEntry(parts(page).recentlyDone, session),
+        publishedSessionOnDoneStory(
+          parts(page).recentlyDone,
+          storyTitle,
+          session,
+        ),
       );
     });
   await test.step("Then the first range shows only its own file", async () => {
@@ -149,14 +160,22 @@ test("Recently done reads the same published ranges with and without this machin
       "open-dough": [doneLaunch(nativeSession, dashboard.origin, session)],
     });
     await page.reload();
-    await expectEntries(parts(page).recentlyDone, [ownEntry]);
-    const entry = parts(page).recentlyDone.getByRole("article", {
+    await expectEntries(parts(page).recentlyDone, [storyTitle]);
+    const card = storyCard(parts(page).recentlyDone, storyTitle);
+    const entry = card.getByRole("article", {
       name: ownEntry,
       exact: true,
     });
+    await expect(
+      publishedSessionOnDoneStory(
+        parts(page).recentlyDone,
+        storyTitle,
+        session,
+      ),
+    ).toHaveCount(0);
     await expect(sessionDetailsControl(entry)).toBeVisible();
     await expect(openTerminalControl(entry)).toBeVisible();
-    const localReview = await openReviewChanges(page, entry);
+    const localReview = await openPublishedSessionReviewChanges(page, entry);
     await localReview.files.chooseShown(`Added ${firstRangeFile}`);
     await localReview.comparison.choosePublishedRange("Published range 2 of 2");
     await localReview.files.chooseShown(`Added ${secondRangeFile}`);
@@ -174,6 +193,7 @@ test("Recently done warns that another machine's published session may include a
   page,
   origin,
 }) => {
+  await publishDeclaredTrunk(origin, intentTrunkCompletionOntoTip());
   await test.step("Given another machine closed a session while another session was open in its checkout", async () =>
     closed(
       origin,
@@ -203,17 +223,17 @@ test("Recently done warns that another machine's published session may include a
       return parts(page).recentlyDone;
     });
   await test.step("Then the shared session's review warns that its comparison may include that session's work", async () => {
-    const review = await openReviewChanges(
+    const review = await openPublishedSessionReviewChanges(
       page,
-      publishedSessionEntry(recent, sharedSession),
+      publishedSessionOnDoneStory(recent, storyTitle, sharedSession),
     );
     await review.context.expectSharedCheckoutWarning(true);
     await review.close();
   });
   await test.step("And the other session's review carries no warning", async () => {
-    const review = await openReviewChanges(
+    const review = await openPublishedSessionReviewChanges(
       page,
-      publishedSessionEntry(recent, otherSession),
+      publishedSessionOnDoneStory(recent, storyTitle, otherSession),
     );
     await review.expectText(otherFile);
     await review.context.expectSharedCheckoutWarning(false);

@@ -1,5 +1,6 @@
 // The page's one Side panel review belongs to an ad hoc or published session.
 import { createContext, useContext } from "react";
+import type { SelectedStory } from "./pageStorySelection.tsx";
 import {
   reviewedWorkKey,
   type ReviewedPublishedSessionSubject,
@@ -13,6 +14,7 @@ export type SessionReviewSubject =
 export type SessionReviewRequest = {
   readonly subject: SessionReviewSubject;
   readonly title: string;
+  readonly story?: SelectedStory;
   readonly control: HTMLElement;
 };
 

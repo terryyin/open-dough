@@ -3,7 +3,6 @@
 // the real dashboard's entry placement, counts, focus, and persistence.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
-import { parts } from "./dashboardPage.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { backlogPath, publishFiles } from "./publishedOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -33,8 +32,6 @@ export const publishMembership = (
     revision: at,
     files: { [backlogPath]: backlog },
   });
-export const localEntries = (page: Parameters<typeof parts>[0]) =>
-  parts(page).taken.locator(":scope > ol > li > .session-entry");
 export const savedLocalSessionRecords = async (
   dashboard: Parameters<typeof recordsOf>[0],
 ) => (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];

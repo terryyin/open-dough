@@ -145,13 +145,10 @@ test("a done story's Follow up sends only the retained session selected through 
   });
   await test.step("Start sends the selection and the new session names the source story", async () => {
     await composer.start(text);
-    const taken = parts(page).taken.getByRole("article", {
+    const session = card.getByRole("article", {
       name: standaloneSessionName("Ad hoc", text),
     });
-    await expect(taken).toBeVisible();
-    await expect(
-      taken.getByRole("link", { name: recoverStory.title, exact: true }),
-    ).toBeVisible();
+    await expect(session).toBeVisible();
     await expect(dialog).toBeHidden();
     const [started, ...others] = dashboard.claudeLaunches();
     expect(others).toEqual([]);
@@ -165,8 +162,8 @@ test("a done story's Follow up sends only the retained session selected through 
     expect(started?.instruction).not.toContain(execution.report);
   });
 
-  await test.step("the card stays in Recently done as it was, and its sessions as kept", async () => {
-    await expect(sessionEntriesIn(card)).toHaveCount(2);
+  await test.step("the card stays in Recently done and keeps its earlier sessions beside the new one", async () => {
+    await expect(sessionEntriesIn(card)).toHaveCount(3);
     await expect(followUp(card, recoverStory)).toBeVisible();
     const [refinement, execution, reopened, launched] = stored(dashboard.home);
     expect([refinement, execution, reopened]).toEqual([...quiet, reopenable]);
@@ -215,7 +212,7 @@ test("starting a follow-up with attached notes marks them sent on the card and i
   await startSessionField(dialog).fill(text);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(
-    parts(page).taken.getByRole("article", {
+    card.getByRole("article", {
       name: standaloneSessionName("Ad hoc", text),
     }),
   ).toBeVisible();

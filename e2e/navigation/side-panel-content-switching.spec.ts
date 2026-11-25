@@ -125,7 +125,7 @@ test("review and terminal take turns in the one side panel beside a usable Board
   expect(await keptSession(dashboard, sessionA)).toEqual(keptA);
 
   await journey.phase(
-    "inspecting a card or reopening the standalone review leaves both stories unselected",
+    "inspecting a card or reopening the published session review leaves the active stories unselected",
     (pages) => {
       const { board } = pages;
       board

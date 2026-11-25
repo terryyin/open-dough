@@ -53,15 +53,14 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(badge).toHaveCount(0);
     await expect(workingBadge).toHaveCount(0);
     await button.click();
-    await expect(columnCountOf(taken)).toHaveText("Entry count incomplete");
-    await expect(taken).toContainText("Reading sessions…");
-    await expect(taken).not.toContainText("No Taken entries");
+    await expect(columnCountOf(taken)).toHaveText("0 entries");
+    await expect(taken).toContainText("No Taken entries are recorded.");
     for (const place of [sidebar, recentlyDone]) {
       await expect(place).toContainText("Reading sessions…");
       await expect(place).not.toContainText("No sessions launched");
     }
     await expect(columnPagingControl(page, "Taken")).toHaveText(
-      "Taken Entry count incomplete",
+      "Taken 0 entries",
     );
     await showColumn(page, "Taken");
     await expect(taken.locator(".column-header")).toBeInViewport({

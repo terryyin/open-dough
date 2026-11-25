@@ -2,11 +2,11 @@
 // published membership. Native activity and local launch evidence never
 // choose a story's column. An unfinished Backlog or Taken card holds its
 // story's open sessions and its own Done sessions (keyed by identity); the
-// remaining Done sessions are what Recently done lists, on a published done
-// card or standing alone (`./recentlyDoneListing.ts`).
+// remaining sessions can appear on their published Done cards.
 import {
   isOpen,
   projectSessionsOf,
+  storyOf,
   storySessionsOf,
   type LaunchWithState,
 } from "./agentLaunch.ts";
@@ -19,7 +19,9 @@ export function columnSessionsOf(
   records: readonly LaunchWithState[] | undefined,
   unfinishedIdentities: readonly string[],
 ) {
-  const project = projectSessionsOf(records, sourceId);
+  const project = projectSessionsOf(records, sourceId)?.filter(
+    ({ request }) => storyOf(request) !== undefined,
+  );
   const onCards = new Map(
     unfinishedIdentities.map((identity) => [
       identity,
@@ -30,12 +32,7 @@ export function columnSessionsOf(
   const doneOnCard: DoneOnCard = (identity) =>
     (onCards.get(identity) ?? []).filter((record) => !isOpen(record));
   return {
-    taken: project
-      ?.filter((record) => isOpen(record) && !held.has(record))
-      .toReversed()
-      .toSorted((a, b) => Date.parse(b.launchedAt) - Date.parse(a.launchedAt)),
-    // Done sessions of no unfinished card, for Recently done.
-    done: project?.filter((record) => !isOpen(record) && !held.has(record)),
+    forDoneCards: project?.filter((record) => !held.has(record)),
     doneOnCard,
     noneKept: project?.length === 0,
   };

@@ -5,14 +5,8 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
+import { doneCard } from "./recently-done-column-page.ts";
 import {
-  doneCard,
-  recentlyDone,
-  standaloneEntry,
-  standaloneName,
-} from "./recently-done-column-page.ts";
-import {
-  adHocTitle,
   development,
   intent,
   linked,
@@ -20,7 +14,6 @@ import {
   projectShown,
   readInIntent,
   report,
-  takenTitle,
   terminal,
 } from "./recently-done-selection-mount-page.ts";
 
@@ -38,31 +31,9 @@ test("selecting a linked done row in Development shows its project's Board with 
   expect(terminal().query()).toBeNull();
 });
 
-test("selecting a standalone row in Development shows its project's Board with its entry marked selected and opens no terminal", async () => {
-  const shown = await openSelection();
-
-  await shown.select(adHocTitle).click();
-
-  await expect.element(projectShown()).toHaveAccessibleName("Doughnut");
-  await expect
-    .element(shown.select(adHocTitle))
-    .toHaveAttribute("aria-pressed", "true");
-  const entry = standaloneEntry(adHocTitle);
-  await expect.element(entry).toHaveClass(/\bselected-session\b/);
-  await expect.element(entry.getByText("Selected session")).toBeVisible();
-  expect(terminal().query()).toBeNull();
-});
-
-test("selecting a linked done row from Intent shows that project's story in Intent; a standalone row keeps the project and Selected story", async () => {
+test("selecting a linked done row from Intent shows that project's story in Intent", async () => {
   const shown = await openSelection();
   await readInIntent();
-
-  await shown.select(takenTitle).click();
-  await expect
-    .element(shown.select(takenTitle))
-    .toHaveAttribute("aria-pressed", "true");
-  await expect.element(projectShown()).toHaveAccessibleName("Open Dough");
-  await expect.element(intent()).not.toHaveAttribute("data-selected-story");
 
   await shown.select(linked.title).click();
   await expect.element(projectShown()).toHaveAccessibleName("Pygardon");
@@ -75,13 +46,10 @@ test("selecting a linked done row from Intent shows that project's story in Inte
   await expect
     .element(shown.select(linked.title))
     .toHaveAttribute("aria-pressed", "true");
-  await expect
-    .element(shown.select(takenTitle))
-    .toHaveAttribute("aria-pressed", "false");
   expect(terminal().query()).toBeNull();
 });
 
-test("a linked row's Select in Development brings its selected done card, beyond Pygardon's first ten, into view and keeps it on a second Select; Tab reaches its separate Open terminal, which an ad hoc row lacks", async () => {
+test("a linked row's Select in Development brings its selected done card, beyond Pygardon's first ten, into view and keeps it on a second Select; Tab reaches its separate Open terminal", async () => {
   const shown = await openSelection({}, { pygardonNewer: 10 });
 
   await shown.select(linked.title).click();
@@ -106,35 +74,18 @@ test("a linked row's Select in Development brings its selected done card, beyond
   await expect
     .element(shown.open(linked.title))
     .toHaveAccessibleDescription(linked.title);
-  expect(shown.open(adHocTitle).query()).toBeNull();
 });
 
-test("selecting an older standalone session in Development reveals and marks its entry beyond Doughnut's first ten", async () => {
-  const shown = await openSelection({}, { doughnutNewer: 10 });
-
-  await shown.select(adHocTitle).click();
-
-  await expect.element(projectShown()).toHaveAccessibleName("Doughnut");
-  const entry = standaloneEntry(adHocTitle);
-  await expect.element(entry).toHaveClass(/\bselected-session\b/);
-  await expect.element(entry).toBeInViewport();
-  await expect
-    .element(recentlyDone().getByRole("article").nth(10))
-    .toHaveAccessibleName(standaloneName(adHocTitle));
-});
-
-test("selecting a standalone session from Development's agent roster shows its project's Board with the entry selected in view", async () => {
-  const shown = await openSelection({ view: "roster" }, { doughnutNewer: 10 });
+test("selecting a linked row from the agent roster shows its Done card in Development", async () => {
+  const shown = await openSelection({ view: "roster" }, { pygardonNewer: 10 });
   const roster = page.getByRole("region", { name: "Agent roster" });
   await expect.element(roster).toBeVisible();
 
-  await shown.select(adHocTitle).click();
+  await shown.select(linked.title).click();
 
-  await expect.element(projectShown()).toHaveAccessibleName("Doughnut");
+  await expect.element(projectShown()).toHaveAccessibleName("Pygardon");
   expect(roster.query()).toBeNull();
-  const entry = standaloneEntry(adHocTitle);
-  await expect.element(entry).toHaveClass(/\bselected-session\b/);
-  await expect.element(entry).toBeInViewport();
+  await expect.element(doneCard(linked.title)).toBeInViewport();
 });
 
 test("selecting a linked row from Intent keeps the opened final report in the Side panel, its row current but not chosen", async () => {

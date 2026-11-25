@@ -1,22 +1,18 @@
-// One entry Recently done lists (`./RecentlyDone.tsx`): a session outside
-// any done story, a published session this machine never launched, or a done
-// story's card (`./DoneStoryCard.tsx`) with what the
-// card holds beside its record's facts -- its own sessions, closed story
-// follow-ups, its CI follow-up, its Follow up, and its review state -- or,
-// until its record is read, what it says instead.
-
 import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { isOpen } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { CiFollowUpCard } from "./CiFollowUpViews.tsx";
 import type { CiFollowUpAnswer } from "./ciFollowUp.ts";
 import { readingDoneStory, type DoneDetail } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
-import { AdHocSessionReviewAction } from "./AdHocSessionReviewAction.tsx";
 import { SessionFollowUp, StoryFollowUp } from "./FollowUp.tsx";
-import { PublishedSessionEntry } from "./PublishedSessionEntry.tsx";
+import {
+  PublishedSessionEntry,
+  PublishedSessionReviewAction,
+} from "./PublishedSessionEntry.tsx";
+import { reportingReferenceOf } from "./sessionListing.ts";
 import type { Listed } from "./recentlyDoneView.ts";
-import { SessionEntry } from "./SessionEntry.tsx";
 import { StoryReviewStateAction } from "./StoryReviewStateAction.tsx";
 import type { StoryReviewStates } from "./storyReviewStates.ts";
 
@@ -61,34 +57,13 @@ export function ListedEntry({
   readonly selectedIdentity: string | undefined;
   readonly onSelect: (identity: string) => void;
 }) {
-  if ("published" in each) {
-    return (
-      <PublishedSessionEntry record={each.published} sourceId={sourceId} />
-    );
-  }
-  if (!("record" in each)) {
-    return (
-      <SessionEntry
-        record={each.session}
-        onStoryCard={false}
-        followUp={
-          <>
-            <AdHocSessionReviewAction
-              record={each.session}
-              sourceId={sourceId}
-            />
-            <SessionFollowUp
-              record={each.session}
-              project={project}
-              sourceId={sourceId}
-              launches={launches}
-            />
-          </>
-        }
-      />
-    );
-  }
-  const { record, sessions, followUps } = each;
+  const { record, sessions, followUps, published } = each;
+  const retained = new Set(
+    [...sessions, ...followUps].map(reportingReferenceOf),
+  );
+  const byReference = new Map(
+    published.map((session) => [session.sessionId, session]),
+  );
   const detail = detailOf(record);
   return (
     <DoneStoryCard
@@ -100,14 +75,34 @@ export function ListedEntry({
       followUps={followUps}
       sourceId={sourceId}
       launchRecords={launches.records}
-      followUpOf={(session) => (
-        <SessionFollowUp
-          record={session}
-          project={project}
-          sourceId={sourceId}
-          launches={launches}
-        />
-      )}
+      actionsOf={(session) => {
+        const reference = reportingReferenceOf(session);
+        const comparison =
+          reference === undefined ? undefined : byReference.get(reference);
+        return (
+          <>
+            {comparison !== undefined && (
+              <PublishedSessionReviewAction
+                record={comparison}
+                sourceId={sourceId}
+              />
+            )}
+            <SessionFollowUp
+              record={session}
+              project={project}
+              sourceId={sourceId}
+              launches={launches}
+            />
+          </>
+        );
+      }}
+      publishedSessions={published
+        .filter((session) => !retained.has(session.sessionId))
+        .map((session) => (
+          <li key={session.sessionId}>
+            <PublishedSessionEntry record={session} sourceId={sourceId} />
+          </li>
+        ))}
       selected={selectedIdentity === record.identity}
       onSelect={onSelect}
       ciFollowUp={
@@ -128,7 +123,7 @@ export function ListedEntry({
           <StoryFollowUp
             story={detail.story}
             revision={revision}
-            sessions={sessions}
+            sessions={sessions.filter((session) => !isOpen(session))}
             project={project}
             sourceId={sourceId}
             launches={launches}

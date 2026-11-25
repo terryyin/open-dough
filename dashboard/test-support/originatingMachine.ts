@@ -59,9 +59,18 @@ export function trunkAdvancedWith(
   file: string,
   text = "trunk moved on\n",
 ) {
+  return advanceOriginTrunk(origin, (workspace) => {
+    writeAt(workspace, file, text);
+  });
+}
+
+export function advanceOriginTrunk(
+  origin: StartOrigin,
+  write: (workspace: string) => void,
+) {
   const workspace = originatingClone(origin);
   git(workspace, "switch", "--quiet", "--detach", "origin/main");
-  writeAt(workspace, file, text);
+  write(workspace);
   commitAll(workspace, "Advance trunk after the session");
   git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
   return git(origin.origin, "rev-parse", "main");

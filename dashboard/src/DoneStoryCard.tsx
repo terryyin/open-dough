@@ -7,7 +7,7 @@
 // the identity and completion time the done catalog names, saying the record
 // is being read, or why it was not. It is a story fact, published for every
 // machine. Inside it, read or not, are the marked-done sessions this machine
-// keeps for the story and its closed story follow-ups, newest first, each the
+// keeps for the story and its follow-ups, newest first, each the
 // entry Recently done shows (`./SessionEntry.tsx`); a machine that keeps none
 // shows none. The card holds the keyboard when the last of them is deleted
 // (`deletedEntryHome`).
@@ -49,7 +49,8 @@ export function DoneStoryCard({
   selected,
   onSelect,
   followUp,
-  followUpOf,
+  actionsOf,
+  publishedSessions,
   ciFollowUp,
   reviewState,
 }: {
@@ -62,7 +63,7 @@ export function DoneStoryCard({
   readonly said: { readonly words: string; readonly gap: boolean } | undefined;
   // This machine's own sessions for the story, oldest first.
   readonly sessions: readonly LaunchWithState[];
-  // Closed ad hoc follow-ups of this story, oldest first.
+  // Ad hoc follow-ups of this story, oldest first.
   readonly followUps: readonly LaunchWithState[];
   // Full retained launches, independently of which sessions are marked done.
   readonly launchRecords: readonly LaunchRecord[] | undefined;
@@ -71,7 +72,8 @@ export function DoneStoryCard({
   readonly onSelect: (identity: string) => void;
   // The story's Follow up, when it offers one.
   readonly followUp?: ReactNode;
-  readonly followUpOf?: (record: LaunchWithState) => ReactNode;
+  readonly actionsOf?: (record: LaunchWithState) => ReactNode;
+  readonly publishedSessions: readonly ReactNode[];
   readonly ciFollowUp?: ReactNode;
   // The story's review state and its action.
   readonly reviewState?: ReactNode;
@@ -97,7 +99,7 @@ export function DoneStoryCard({
       ? []
       : [{ key: "host", fact: <RecordedHost host={host} /> }]),
   ];
-  // Own sessions and closed story follow-ups, oldest first for StorySessions.
+  // Own sessions and story follow-ups, oldest first for StorySessions.
   const nested = [...sessions, ...followUps].toSorted(
     (one, other) => Date.parse(one.launchedAt) - Date.parse(other.launchedAt),
   );
@@ -138,8 +140,13 @@ export function DoneStoryCard({
         sessions={nested}
         className="done-story-sessions"
         onStoryCard={false}
-        followUpOf={followUpOf}
+        followUpOf={actionsOf}
       />
+      {publishedSessions.length > 0 && (
+        <ol className="done-story-sessions" aria-label="Published sessions">
+          {publishedSessions}
+        </ol>
+      )}
       <div
         className="story-card-action-group story-card-inspection-group"
         role="group"

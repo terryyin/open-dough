@@ -35,7 +35,6 @@ import { doneStories } from "../../dashboard/test-support/recentlyDoneRecords.ts
 import { doneStoryReadFailures } from "../../dashboard/test-support/recentlyDoneReadFailures.ts";
 import { hostDescriptions } from "../../dashboard/src/hostDescription.ts";
 import {
-  adHocEntry,
   expectEntries,
   sessionsOutsideDoneStories,
 } from "../../dashboard/test-support/recentlyDoneColumn.ts";
@@ -74,7 +73,7 @@ function keepSessions(dashboard: DashboardServer, now: number) {
   );
 }
 
-test("Recently done lists published done stories among the sessions, newest first, with each card's facts", async ({
+test("Recently done lists published Done stories, newest first, with each card's facts", async ({
   page,
   dashboard,
 }) => {
@@ -90,9 +89,8 @@ test("Recently done lists published done stories among the sessions, newest firs
   const card = (title: string) =>
     recent.getByRole("article", { name: title, exact: true });
 
-  await test.step("a done story at 10:00 follows an ad hoc session launched at 11:00; the queued story's open session stays on its card", async () => {
+  await test.step("Done stories order by completion, and the queued story's open session stays on its card", async () => {
     await expectEntries(recent, [
-      adHocEntry,
       doneStories.executed.title,
       doneStories.removed.title,
     ]);
@@ -143,7 +141,7 @@ test("Recently done lists published done stories among the sessions, newest firs
   });
 });
 
-test("a revision with no done records lists the sessions as before, and one whose done records cannot be read, or are malformed, says so and still lists them", async ({
+test("missing and malformed Done records show their respective gaps while open sessions keep their own story card", async ({
   page,
   dashboard,
 }) => {
@@ -151,20 +149,20 @@ test("a revision with no done records lists the sessions as before, and one whos
   keepSessions(dashboard, now);
   const { recentlyDone: recent } = parts(page);
 
-  await test.step("no done-record directory: only the sessions, with no error", async () => {
+  await test.step("no Done record directory: no Done story cards, with no error", async () => {
     publishCommittedFiles(page, doneStories.publishedWithoutRecords());
     await page.goto("/");
     await expectMembership(page, {
       taken: [],
       backlog: [doneStories.queued.title],
     });
-    await expectEntries(recent, [adHocEntry]);
+    await expectEntries(recent, []);
     await expect(sessionEntriesIn(parts(page).backlog)).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
     await expect(recent).not.toContainText(/could not be read|unreadable/);
   });
 
-  await test.step("a done catalog read that fails: the column says done stories could not be read and still lists the sessions, with its count incomplete", async () => {
+  await test.step("a done catalog read that fails: the column says done stories could not be read, with its count incomplete", async () => {
     publishCommittedFiles(page, doneStoryReadFailures.unansweredCatalog(now));
     await page.reload();
     await expectMembership(page, {
@@ -173,13 +171,13 @@ test("a revision with no done records lists the sessions as before, and one whos
     });
     await expect(recent).toContainText("Done stories could not be read.");
     await expect(recent).not.toContainText("catalog-done");
-    await expectEntries(recent, [adHocEntry]);
+    await expectEntries(recent, []);
     await expect(sessionEntriesIn(parts(page).backlog)).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
     await expect(columnCountOf(recent)).toHaveText("Entry count incomplete");
   });
 
-  await test.step("done records published without a catalog: the column names the gap and its repair, reads no record, and still lists the sessions", async () => {
+  await test.step("done records published without a catalog: the column names the gap and its repair, reads no record,", async () => {
     const { requests } = publishCommittedFiles(
       page,
       doneStoryReadFailures.withoutCatalog(now),
@@ -192,12 +190,12 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expect(recent).toContainText(
       "Done stories could not be read. The done catalog does not describe the published done records: done catalog is not published beside the 3 done records. Run the product backlog's `catalog-done` to rebuild it from the done records, then publish the rebuilt catalog.",
     );
-    await expectEntries(recent, [adHocEntry]);
+    await expectEntries(recent, []);
     await expect(columnCountOf(recent)).toHaveText("Entry count incomplete");
     expect(doneRecordsRead(requests)).toEqual([]);
   });
 
-  await test.step("a done record published beside a catalog that does not list it: the column names the stale catalog and the same repair, reads no record, and still lists the sessions", async () => {
+  await test.step("a done record published beside a catalog that does not list it: the column names the stale catalog and the same repair, reads no record,", async () => {
     const { requests } = publishCommittedFiles(
       page,
       doneStoryReadFailures.staleCatalog(now),
@@ -210,12 +208,12 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expect(recent).toContainText(
       `Done stories could not be read. The done catalog does not describe the published done records: done catalog does not list done/${doneStories.lastWeek.file}. Run the product backlog's \`catalog-done\` to rebuild it from the done records, then publish the rebuilt catalog.`,
     );
-    await expectEntries(recent, [adHocEntry]);
+    await expectEntries(recent, []);
     await expect(recent.locator(".done-story")).toHaveCount(0);
     expect(doneRecordsRead(requests)).toEqual([]);
   });
 
-  await test.step("malformed done records beside readable ones: the column names each file with its problem, and still shows the readable cards and the sessions", async () => {
+  await test.step("malformed done records beside readable ones: the column names each file with its problem, and still shows the readable cards", async () => {
     publishCommittedFiles(page, doneStoryReadFailures.malformed.published(now));
     await page.reload();
     await expectMembership(page, {
@@ -231,7 +229,6 @@ test("a revision with no done records lists the sessions as before, and one whos
       `Done record ${doneStoryReadFailures.malformed.misnamedFile} is unreadable: done record names another identity.`,
     ]);
     await expectEntries(recent, [
-      adHocEntry,
       doneStories.executed.title,
       doneStories.removed.title,
     ]);

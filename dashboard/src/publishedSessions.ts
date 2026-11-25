@@ -4,6 +4,7 @@
 // done catalog (`./publishedWorkDetails.ts`). Loading until it answers; a
 // failed read is a gap, never an empty set.
 
+import { isCurrentSessionRecord } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { z } from "zod";
 import {
   authenticatedGet,
@@ -85,3 +86,13 @@ export async function readPublishedSessions(
     );
   }
 }
+
+export const currentPublishedSessions = (
+  publishedSessions: PublishedSessions | undefined,
+  now: Date,
+) =>
+  publishedSessions?.status === "listed"
+    ? publishedSessions.sessions.filter((record) =>
+        isCurrentSessionRecord(record, now),
+      )
+    : [];

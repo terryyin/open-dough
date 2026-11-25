@@ -128,7 +128,12 @@ test("Recently done reads, reveals 20, 40 and 45 newest first, keeps that range 
     makeMe.aMachineAnswer.observingUnavailable(...records).please(),
   );
   const releaseFirst = machine.hold();
-  const shown = await mountSessions(machine, { awaitSessionsRead: false });
+  const selectStory = "SEED-401#older-cross-project";
+  const shown = await mountSessions(machine, {
+    awaitSessionsRead: false,
+    association: () =>
+      Promise.resolve({ kind: "linked", identity: selectStory }),
+  });
   await shown.header.click();
   await expect
     .poll(() => shown.region.element().textContent)
@@ -157,6 +162,9 @@ test("Recently done reads, reveals 20, 40 and 45 newest first, keeps that range 
   await expect
     .element(shown.select(olderCrossProject))
     .toHaveAttribute("aria-pressed", "true");
+  await expect
+    .element(page.getByRole("radio", { name: "Doughnut" }))
+    .toBeChecked();
   expect(shown.titles()).toEqual(titles);
 
   const removed = titles[24] ?? "";

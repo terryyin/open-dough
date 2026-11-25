@@ -7,13 +7,10 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
 import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
-import { boardReading } from "../navigation/board-reading-page.ts";
 import { boardWork } from "../navigation/board-work.ts";
 import {
   doneCard,
   heldSessions,
-  recentlyDone,
-  standaloneEntry,
   topLevelEntries,
 } from "./recently-done-column-page.ts";
 
@@ -43,7 +40,7 @@ const executed = { identity: "SEED-302#executed", title: "Card shows avatar" };
 const lastWeek = { identity: "SEED-303#last-week", title: "Done last week" };
 const removed = { identity: "SEED-304#removed", title: "Removed queued" };
 
-test("a done story's card holds this machine's closed sessions for it, newest first, while its open session stays local Taken, and done cards order by completion", async () => {
+test("a done story's card holds this machine's open and closed sessions for it, newest first, and done cards order by completion", async () => {
   const catalog = makeMe.aDoneCatalog
     .holding(
       [
@@ -102,23 +99,23 @@ test("a done story's card holds this machine's closed sessions for it, newest fi
   await expect.element(doneCard(lastWeek.title)).toBeVisible();
   expect(topLevelEntries()).toEqual(
     [
-      standaloneEntry("Open Dough session"),
       doneCard(executed.title),
       doneCard(removed.title),
       doneCard(lastWeek.title),
     ].map((entry) => entry.element()),
   );
 
-  await expect.poll(() => heldSessions(executed.title).all()).toHaveLength(2);
+  await expect.poll(() => heldSessions(executed.title).all()).toHaveLength(3);
   expect(
     heldSessions(executed.title)
       .all()
       .map((entry) => entry.element().getAttribute("data-shows-session")),
   ).toEqual([
+    "claude:executed-open",
     "claude:newer-closed-card-session",
     "claude:older-closed-card-session",
   ]);
-  for (const closed of heldSessions(executed.title).all()) {
+  for (const closed of heldSessions(executed.title).all().slice(1)) {
     await expect
       .element(closed)
       .toHaveAccessibleName(`Execution session for ${executed.title}`);
@@ -144,9 +141,9 @@ test("a done story's card holds this machine's closed sessions for it, newest fi
     const local = closed.element().querySelector(".launch-local");
     expect(local && getComputedStyle(local).color).toBe(quiet);
   }
-  const local = boardReading
-    .column("Taken")
-    .getByRole("article", { name: `Refinement session for ${executed.title}` });
+  const local = doneCard(executed.title).getByRole("article", {
+    name: `Refinement session for ${executed.title}`,
+  });
   await expect
     .element(local.getByText("Working", { exact: true }))
     .toBeVisible();
@@ -157,14 +154,6 @@ test("a done story's card holds this machine's closed sessions for it, newest fi
   await expect
     .element(local.getByRole("button", { name: "More session actions" }))
     .toBeVisible();
-  expect(
-    recentlyDone()
-      .getByRole("article", {
-        name: `Refinement session for ${executed.title}`,
-      })
-      .all(),
-  ).toHaveLength(0);
-
   await expect
     .element(heldSessions(lastWeek.title))
     .toHaveAccessibleName(`Execution session for ${lastWeek.title}`);

@@ -55,12 +55,12 @@ minutes, and its fixture migration became
   Reuse the installed bare-origin and native protocol seams, mount Start and
   review cues on Vitest, and keep real multi-boundary journeys in E2E.
 - Use Story Branch Mode so the production watcher can stay on compatible code
-  until the final cutover. Slice 8 defines the production checkpoint and
+  until the final cutover. Slice 10 defines the production checkpoint and
   retained landing. Preparation is limited to this plan and its evidence.
 - Wrapping up SEED-432 lands its isolated admission on trunk and in
   production ahead of this story. Its default, scheduled and follow-up
-  starts stay standalone until this story's slices 1–3, and slice 6 retires
-  them before the slice 8 switch.
+  starts stay standalone until this story's slices 1–3. Slices 6–8 retire
+  standalone behavior before the slice 10 switch.
 
 ## Execution context
 
@@ -74,6 +74,12 @@ minutes, and its fixture migration became
 - Branch CI uses GitHub Actions `ci.yml`, display name `CI`. Codex coordinator
   `codex-3590fff6-1048-4858-86f6-c5ed59686e1c` owns the stream in
   `/tmp/dough-ci-501/watch-x0NEyR`, PID `97432`, session `39948`, cell `g308:10`.
+- After SEED-442 closed, execution merged its integrated fixture history
+  and the current Add Project and Intent contracts at `a6b3b62e`. Dashboard
+  typecheck, nine E2E and twelve backend cases passed the reconciliation.
+  The previous observer's stop was confirmed. The same coordinator rearmed
+  for this branch in `/tmp/dough-ci-501/watch-4GogZe`, PID `82162`, session
+  `40845`, cell `g419:219`.
 - On the unchanged claim revision, the backend admission retry, refusal and
   `agent-launch-start-session` selection and the isolated Start E2E selection
   passed 21 backend cases and three E2E cases under the macOS sleep guard. Run
@@ -89,12 +95,19 @@ minutes, and its fixture migration became
 | Launch consumers run on an installed project | SEED-433 (plan 816), integrated at `672fc3210`, gives every fixture-created catalog project both installed host layouts and a matching bare origin. Its E2E gate passed 779 cases and its backend gate passed 1,984. | Slice 1 updates only story-dependent expectations. |
 | Default-choice admission production rule | Plan 813's first slice 3 attempt (`slice-3-attempts/attempt-1.patch` in the private evidence below) made every non-follow-up ad hoc launch admit its story. It published the claim from an owned claim checkout under `admission-worktrees`, kept the borrowed checkout's HEAD and branch, and ran the Codex and Cursor refusals before admission. With it, duplicate-launch backend cases passed 13 of 13 and Cursor E2E passed. The problems E2E failed only because the terminal panel stayed closed after a resumed Start. | Re-apply on current interfaces in slice 1. The start-command helpers now live in `executionStartCommands.ts`. |
 | Declared story-linked Land reaches a guard that needs repair | The v0.3.113 production case reproduced prepare at `c80f0559a` with a 409, `This is not the session's authorized branch landing.` `decideRetainedLanding` returned the same 409 from the archived record, and plan 813's slice 1 reproduced it again. Git retains `fe21e4639..0bdef6cb2`. | Slice 4 proves the supported open shape through the installed publisher with a real bare origin. A historical closed context stays archived. |
-| Production inventory and cutover inputs | Plan 813 slice 1 observed this at `2b0356a1e` (`slice-1/REPORT.md`):<br>- The deployed reader at `4283cb8d4` parsed a stable copy: 1,659 launch rows and 1,674 attempts.<br>- Seven records were open. Six were linked and stay open. One live Claude session without a story field continues as verified unbound.<br>- The Cursor timeout and the `bb509114` context are archived. The Lizard record stays closed and unlinked.<br>- Writers are the unmanaged watcher process and the Cursor and Claude launchd agents. A disposable-home tar rollback restored an identical tree. | Slice 8 repeats the inventory against a fresh copy and the candidate reader. Its owner performs the live writer hold and chooses how to restart the watcher. |
-| Legacy frontend removal and size comparison | At `c9b0f149a`, the legacy runner selected ten standalone cases across six specs. The private `baseline-counts-matched.log` at `46dd56241` records 52,374 Distribution lines (13,946 Markdown), 131,034 Dashboard source lines and 5,960 executable cases. | Slice 6 verifies zero standalone cases. Slice 8 compares like-for-like totals against its actual execution base. |
+| Production inventory and cutover inputs | Plan 813 slice 1 observed this at `2b0356a1e` (`slice-1/REPORT.md`):<br>- The deployed reader at `4283cb8d4` parsed a stable copy: 1,659 launch rows and 1,674 attempts.<br>- Seven records were open. Six were linked and stay open. One live Claude session without a story field continues as verified unbound.<br>- The Cursor timeout and the `bb509114` context are archived. The Lizard record stays closed and unlinked.<br>- Writers are the unmanaged watcher process and the Cursor and Claude launchd agents. A disposable-home tar rollback restored an identical tree. | Slice 10 repeats the inventory against a fresh copy and the candidate reader. Its owner performs the live writer hold and chooses how to restart the watcher. |
+| Legacy frontend removal and size comparison | At `c9b0f149a`, the legacy runner selected ten standalone cases across six specs. The private `baseline-counts-matched.log` at `46dd56241` records 52,374 Distribution lines (13,946 Markdown), 131,034 Dashboard source lines and 5,960 executable cases. | Slice 6 verifies zero standalone cases. Slice 10 compares like-for-like totals against its actual execution base. |
 
 Private evidence lives under the common Git directory:
 - `open-dough/evidence/SEED-439-complete-story-linked-ad-hoc-sessions`, holding plan 813's `slice-1`, `slice-2` and `slice-3-attempts` records;
 - `open-dough/evidence/SEED-426-ad-hoc-cutover-handoff`.
+
+The actual execution base and accepted claim have identical test inputs.
+The baseline is 50,784 Distribution lines, 130,720 Dashboard lines, and
+5,767 executable cases. The Distribution Node leaf proof is CI
+`45590106112` at `3edf13a3f`, which has the same test inputs as the
+execution base. Local runner discovery and case summaries are in
+`story-833-base-*` in this worktree's Git evidence directory.
 
 Keep production data, native identifiers and restore copies out of Git.
 
@@ -275,27 +288,86 @@ installed operation requires the original native evidence and stops before
 retirement if another launch displaced it. See `SLICE-5-REPORT.md` and
 `slice-5-consumer-dispositions.md` in the worktree's Git evidence directory.
 
-### 6. Retire standalone startup, completion and review
+### 6. Retire standalone Board entries and review selection
+Type: Behavior
+Status: done
+Proof: Taken and Recently done list story cards and their sessions.
+Story-linked selection, review and warnings pass, including published
+comparisons after local expiry. The legacy runner discovers zero standalone
+cases in the named selection.
+
+Remove standalone row, selection and review affordances through their
+frontend owners. Remove the two remaining `recently-done-ad-hoc-*` specs,
+the review cue evidence and races specs, and the standalone cases in
+`recently-done-sessions-select` and `recently-done-story-sessions`. Settle
+affected mounted callers through the common story route. Nest the existing
+published comparison under the matching Done story so both the native and
+closure range are reachable. Preserve the published reader, warnings and
+Startup recovery entry for the receiving slices.
+
+At the paused checkpoint, the nested comparison, fresh-clone exact ranges,
+warnings, and linked frontend, sidebar and native control selections passed.
+Two additional browser cases failed because the shared progressive fixture
+still places an unbound session directly in Taken and Recently done. Keep
+applicable story paging, held-read, focus and panel behavior while migrating
+that fixture. The clock paused at 14.4 active minutes. A second proof loop
+needs more time than the current slice has available. The developer split
+that proof work into [SEED-442, plan 844](https://github.com/terryyin/open-dough/blob/900ddc3d840c0283c1b36e49d95dd1dad9107f92/.planning/slice-plans/844-exercise-board-navigation-on-published-story-fixtures/PLAN.md).
+Resume from its accepted fixture proof. Reconcile the verified
+`slice-6-paused.patch` from `aed91f904`, then recheck the combined Board
+candidate and close G8 before publishing the increment. See
+`SLICE-6-REPORT.md`, `slice-6-consumer-dispositions.md` and
+`slice-6-remaining-journey-check.log.run.json` in the worktree's Git evidence
+directory.
+
+The full parked Board composition with SEED-442's fixture revision
+`d311b0a9` passed Dashboard typecheck, 34 browser cases and 60 frontend
+cases on a detached merge of `aed91f904` and trunk `68d6f8fc`. It
+reused the six migrated fixture paths from the supplier. The verified
+`board-composed.patch` and run records are under
+`seed-442-consumer-proof` in the worktree's Git evidence directory.
+The restored Board change preserves the six integrated supplier fixture paths.
+On `846d13b66`, the combined change passed Dashboard typecheck, 34 browser
+cases and 60 mounted frontend cases. The legacy runner found 11 harness
+cases in three files and zero retired standalone cases. The run records
+are `slice-6-restored-{types,e2e,frontend,legacy-list}.log.run.json` in the
+worktree's Git evidence directory. The slice finished implementation at
+14.5 active minutes. The independent refactor kept the published-session
+review locator in the shared review page object. All 15 affected browser
+cases and the static gate passed. See `slice-6-board-refactor-e2e.proof.json`
+and `slice-6-board-refactor-static.log.run.json`.
+
+### 7. Retire standalone startup and inventory
 Type: Behavior
 Status: planned
-Proof: Only story-linked sessions reach active views, launch/reporting stores,
-and review routes. Ordinary selection, review and warnings pass and the
-legacy runner discovers zero standalone cases.
+Proof: New and retained admitted starts only settle into an active session
+with verified story membership. The original verified unbound attempt can
+Continue with its original reference and checkout through recovery.
 
-Trace admissions, follow-ups, Land, Done, review and their installed callers.
-Remove the superseded startup and completion paths in Dashboard and
-Distribution, the standalone row/selection and published-session review
-branches, supported fixture shapes that represent them, and their guidance.
-Remove the two remaining `recently-done-ad-hoc-*` specs, the review cue
-evidence and races specs, and the standalone cases in
-`recently-done-sessions-select` and `recently-done-story-sessions`.
-Protect the common published comparisons, including a story's session review
-after local expiry. Trace historic Git session records explicitly and keep
-their durable published evidence readable by the common story path. Keep
-any interim standalone callers from slices 1–5 out of production until this
-slice and the cutover have passed.
+Trace independent and follow-up admission, native adapters, Continue and
+active inventory. Remove superseded standalone startup and native handoffs
+and fixture shapes specific to them. Keep unbound recovery as an attempt
+and preserve its distinct verified recovery transition for the production
+reader. Preserve blank Start, selected policy and the same native input.
+When a linked session becomes Done while its history disclosure is
+collapsed, keep keyboard focus on a visible control or entry on its story.
+Prove the default terminal return as well as the existing visible-history
+path.
 
-### 7. Carry the landing selection into the workflow after blank Start
+### 8. Retire standalone completion and review routes
+Type: Behavior
+Status: planned
+Proof: Land, completion and review use story-bound authority and common
+published reads. Historic exact story comparisons remain readable.
+
+Trace Land, Done, review and installed callers. Remove superseded
+standalone completion and review routes and reporting shapes in Dashboard
+and Distribution, their obsolete tests and guidance. Trace historic Git
+session records explicitly and protect their supported durable evidence
+under the common story path. Preserve the story-bound retained publication
+and reporting evidence needed by slice 9.
+
+### 9. Carry the landing selection into the workflow after blank Start
 Type: Behavior
 Status: planned
 Proof: The approved blank Start and invoked workflow behavior is observed at
@@ -319,7 +391,7 @@ each launch's accepted comparison remains recoverable through ordinary
 completion with no second push and no inferred range. Preserve the earlier
 claim when evidence is unavailable.
 
-### 8. Switch production to the reconciled story-linked store
+### 10. Switch production to the reconciled story-linked store
 Type: Behavior
 Status: planned
 Proof: The production candidate reads a complete migrated private copy and
@@ -376,14 +448,17 @@ admission families on the current base as its baseline. The historical
 312-line Codex input spec was 195 lines at plan 813's preparation base. If it
 reaches the maintained size check, keep attachment and reporting proof
 separate from startup policy. The execution branch keeps the older paths
-through slice 5, and slice 6 removes them before the production switch.
+through slice 5. The removal has independent frontend, startup/inventory,
+and completion/review proof loops, so slices 6–8 execute them separately
+on the story branch. Land only after those loops and the production
+rehearsal pass.
 
 ## Story obligations
 
 ### G1. Live migration evidence needs disposition (first reported in plan 813 slice 1)
 Reported: slice 1 — "SEED-426 observed an open standalone Claude launch, a Cursor timeout without conclusive native binding, and one Lizard review with unavailable completion history."
 Story clause: "Switch production startup, completion and review together."
-Disposition: receiving slice 8
+Disposition: receiving slice 10
 
 ### G2. Default launch compatibility must be verified (first reported in plan 813 slice 2)
 Reported: slice 1 — "SEED-426 found nine duplicate-launch backend failures and eight browser problems, Codex or Cursor failures on the unpublished default route."
@@ -408,9 +483,19 @@ Disposition: proved by slice 4: `agent-launch-start-session-landing.spec.ts` obs
 ### G6. The ordinary workflow needs the retained landing selection after blank Start
 Reported: slice 4 — "The Dashboard retains Automatically land after a blank borrowed Start, and the installed publisher discovers its capture context once invoked. The invoked workflow currently learns landing policy from explicit options or the native Established session handoff, which blank Start does not supply."
 Story clause: "Preserve native access and writer checks, the chosen checkout and landing policy, and the original first input."
-Disposition: receiving slice 7
+Disposition: receiving slice 9
 
 ### G7. Retain each borrowed launch's evidence until its claim closes
 Reported: slice 5 — "Another accepted launch on the same checkout can replace the native worktree's session evidence. If the original launch landed and that exact evidence is absent during adoption, closure stops and keeps its claim checkout."
 Story clause: "Each published session keeps its own accepted comparison and supports reporting recovery without another push."
+Disposition: receiving slice 9
+
+### G8. Progressive Board fixtures still rely on standalone placement
+Reported: slice 6 — "Two browser journeys failed when their shared fixture expected an unbound launch at ordinal 27 to appear in Taken or Recently done."
+Story clause: "Remove the remaining legacy standalone frontend cases and keep applicable story-linked selection, review and warning coverage."
+Disposition: proved by slice 6: `slice-6-restored-e2e.proof.json` records the published Done catalog's progressive demand and refresh, held linked destination reveal, ordinary native and final report returns, and nested exact session review. It uses SEED-442's integrated fixtures and the restored Board change. `slice-6-restored-frontend.proof.json` and the legacy listing verify the replacement of standalone board and review coverage.
+
+### G9. Keyboard return can target a hidden Done session
+Reported: slice 6 — "The supplier and the parked Board candidate both finish a terminal Mark as done with the linked Done history collapsed. The nested session is attached but hidden and focus falls to the body."
+Story clause: "Remove the remaining legacy standalone frontend cases and keep applicable story-linked selection, review and warning coverage."
 Disposition: receiving slice 7

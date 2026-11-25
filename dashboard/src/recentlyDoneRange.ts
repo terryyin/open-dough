@@ -42,7 +42,7 @@ type Destination = {
 };
 
 // The Recently done entry holding the keyboard: a done story's card, or a
-// session's entry, standalone or on a done story's card.
+// session's entry on a Done story's card.
 export type HeldEntry =
   | { readonly story: string; readonly session?: never }
   | { readonly session: string; readonly story?: never };

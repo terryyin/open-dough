@@ -1,6 +1,6 @@
 // The Board's one placement rule (`columnSessionsOf`) decides where each Done
 // session lives: on its unfinished Backlog or Taken card, on a listed
-// published done card (`newestFirst`), or standing alone in Recently done.
+// published done card (`newestFirst`), if one exists.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { CataloguedDoneRecord } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
@@ -96,16 +96,13 @@ const placedOnBoard = (records: readonly LaunchWithState[]) =>
 const recentlyDone = (records: readonly LaunchWithState[]) =>
   newestFirst(
     [catalogued(unfinished.identity, 4), catalogued(completed.identity, 3)],
-    placedOnBoard(records).done ?? [],
+    placedOnBoard(records).forDoneCards ?? [],
     sourceId,
-    records,
   );
 
 const nestedOn = (listed: ReturnType<typeof newestFirst>, identity: string) =>
   listed.flatMap((each) =>
-    "record" in each && each.record.identity === identity
-      ? keys(each.sessions)
-      : [],
+    each.record.identity === identity ? keys(each.sessions) : [],
   );
 
 test("an unfinished card holds its own Done sessions, oldest first", () => {
@@ -117,7 +114,7 @@ test("an unfinished card holds its own Done sessions, oldest first", () => {
 
 test("Recently done receives none of an unfinished card's Done sessions", () => {
   const { records, unfinishedOlder, unfinishedNewer } = boardSessions();
-  const left = keys(placedOnBoard(records).done);
+  const left = keys(placedOnBoard(records).forDoneCards);
   expect(left).not.toContain(sessionKey(unfinishedOlder.session));
   expect(left).not.toContain(sessionKey(unfinishedNewer.session));
 });
@@ -134,24 +131,19 @@ test("a completed story's Done sessions nest on its done card", () => {
   );
 });
 
-test("Done sessions of no card stand alone in Recently done", () => {
-  const { records, unrelated } = boardSessions();
-  const standalone = recentlyDone(records).flatMap((each) =>
-    "session" in each ? keys([each.session]) : [],
-  );
-  expect(standalone).toEqual(keys([unrelated]));
+test("sessions with no listed card do not create a Recently done entry", () => {
+  const { records } = boardSessions();
+  expect(recentlyDone(records).map(({ record }) => record.identity)).toEqual([
+    completed.identity,
+    unfinished.identity,
+  ]);
 });
 
-test("another project's session with the same identity stands alone there", () => {
+test("an identical story identity from another project does not match the card", () => {
   const { records, otherProject } = boardSessions();
   const elsewhere = columnSessionsOf("other-project", records, []);
-  expect(keys(elsewhere.done)).toEqual(keys([otherProject]));
+  expect(keys(elsewhere.forDoneCards)).toEqual(keys([otherProject]));
   expect(
     keys(placedOnBoard(records).doneOnCard(unfinished.identity)),
   ).not.toContain(sessionKey(otherProject.session));
-});
-
-test("open sessions of no unfinished card stay in the Taken column", () => {
-  const { records, goneOpen } = boardSessions();
-  expect(keys(placedOnBoard(records).taken)).toEqual(keys([goneOpen]));
 });

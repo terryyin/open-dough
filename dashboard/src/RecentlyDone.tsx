@@ -3,8 +3,7 @@
 // done story's card holding its sessions, the gaps in what could be read, the
 // one action that shows the next ten older entries, and, beside the heading
 // while more than ten show, the one that shows only the latest ten again
-// (`./RecentlyDoneRangeActions.tsx`). Each entry is a session or a done
-// story's card (`./RecentlyDoneEntry.tsx`); the cards share the project's CI
+// (`./RecentlyDoneRangeActions.tsx`). The cards share the project's CI
 // follow-ups and story review states, each read once per project. The
 // keyboard in the list keeps a useful place across a refresh
 // (`./recentlyDoneFocus.ts`).
@@ -23,7 +22,6 @@ import { useHeldEntryFocus } from "./recentlyDoneFocus.ts";
 import { recentlyDoneName, type RecentlyDoneView } from "./recentlyDoneView.ts";
 import { ListedEntry } from "./RecentlyDoneEntry.tsx";
 import { SessionList } from "./SessionLists.tsx";
-import { sessionKey } from "./sessionReference.ts";
 import { useStoryReviewStates } from "./storyReviewStates.ts";
 import "./agent-launch.css";
 import "./recently-done.css";
@@ -111,8 +109,8 @@ export function RecentlyDone({
         </div>
       </header>
       <p className="quiet">
-        Recently done stories and sessions launched from this dashboard for this
-        project, newest first. Sessions are kept on this machine.
+        Done stories for this project, newest first. Local sessions appear on
+        their story cards.
       </p>
       <RecentlyDoneReadGaps
         problems={view.problems}
@@ -133,15 +131,7 @@ export function RecentlyDone({
       {shown.length > 0 && (
         <ol {...focus}>
           {shown.map((each) => (
-            <li
-              key={
-                "record" in each
-                  ? `done ${each.record.identity}`
-                  : "published" in each
-                    ? `published ${each.published.sessionId}`
-                    : sessionKey(each.session.session)
-              }
-            >
+            <li key={each.record.identity}>
               <ListedEntry
                 each={each}
                 ciFollowUps={ciFollowUps}

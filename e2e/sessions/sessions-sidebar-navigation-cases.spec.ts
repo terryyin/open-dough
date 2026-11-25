@@ -53,7 +53,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  test("a story on no card reveals and marks its Taken entry, and a Session unavailable entry reveals its card and opens no terminal", async ({
+  test("a retained session without a published card opens no Board row, and a Session unavailable entry reveals its card", async ({
     page,
     dashboard,
     afterGitHubStops,
@@ -69,20 +69,18 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     const panel = terminalPanel(page);
     await button.click();
 
-    await test.step("the story on no card opens its session and reveals and marks its Taken entry", async () => {
+    await test.step("a retained session without a card can open from the sidebar without a Board row", async () => {
       const sessionName = standaloneSessionName(
         "Execution",
         removedStory.title,
       );
       const local = taken.getByRole("article", { name: sessionName });
       await page.setViewportSize({ width: 1000, height: 900 });
-      await expect(local).not.toBeInViewport();
+      await expect(local).toHaveCount(0);
       await entry(removedStory.title).click();
       await expect(panel.getByRole("heading")).toHaveText(removedStory.title);
-      await expect(local).toBeInViewport();
-      await expectRevealsSince(page, 0, sessionName, "smooth");
-      await expect(local.getByText("Shown in terminal")).toBeVisible();
-      await expect(local).toHaveCSS("outline-style", "solid");
+      await expect(local).toHaveCount(0);
+      expect(await revealsOf(page)).toEqual([]);
       await expectCurrentEntry(page, removedStory.title);
       for (const title of [takenStory, readyStory, notRefinedStory]) {
         await expect(card(title)).toHaveCSS("outline-style", "none");
@@ -114,7 +112,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     });
   });
 
-  test("a done story's session opens from the sidebar and reveals and marks its entry as a local Taken entry", async ({
+  test("a Done story's session opens from the sidebar and reveals its nested entry", async ({
     page,
     dashboard,
     afterGitHubStops,
@@ -148,8 +146,8 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     const { recentlyDone, board } = parts(page);
     const panel = terminalPanel(page);
     const sessionName = standaloneSessionName("Refinement", notRefinedStory);
-    const local = parts(page).taken.getByRole("article", { name: sessionName });
-    await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
+    const local = recentlyDone.getByRole("article", { name: sessionName });
+    await expect(sessionEntriesIn(recentlyDone)).toHaveCount(1);
     await expect(
       board.locator("[data-story-card]").filter({
         has: page.getByRole("heading", {
@@ -159,7 +157,6 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       }),
     ).toHaveCount(0);
     await expect(local).toBeVisible();
-    await expect(local).not.toBeInViewport();
     await button.click();
     const revealed = (await revealsOf(page)).length;
 

@@ -1,6 +1,6 @@
 // Follow up on an entry in Recently done whose earlier conversation can no
-// longer be continued (`offersFollowUp`): a standalone Done session, or a
-// done story's card with the sessions it holds. Each opens the project's
+// longer be continued (`offersFollowUp`): a Done story or a session on its
+// card. Each opens the project's
 // Start session dialog, naming the entry and listing the context the server
 // will send with the request (`./followUpContext.ts`). The source stays as it
 // is: only a new ad hoc session is started. A Done story's file diff also
@@ -23,7 +23,7 @@ import {
   storyFollowUpSessions,
 } from "./followUpSessions.ts";
 import { usePageSessions } from "./pageSessions.ts";
-import { currentPublishedSessions } from "./recentlyDoneListing.ts";
+import { currentPublishedSessions } from "./publishedSessions.ts";
 import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { offersFollowUp } from "./sessionAccess.ts";

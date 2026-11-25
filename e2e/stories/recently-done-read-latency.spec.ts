@@ -7,11 +7,7 @@ import {
   storyCardSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { sliceBar } from "../../dashboard/test-support/storyCardFacts.ts";
-import {
-  adHocEntry,
-  expectEntries,
-  queuedEntry,
-} from "../../dashboard/test-support/recentlyDoneColumn.ts";
+import { expectEntries } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   executed,
   removedQueued,
@@ -37,16 +33,11 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
       sliceBar(card, "1 of 2 slices recorded complete"),
     ).toBeVisible();
     await expect(card).toContainText("Current slice started 12 min ago");
-    await expectEntries(recent, [
-      adHocEntry,
-      executed.identity,
-      queuedEntry,
-      removedQueued.identity,
-    ]);
+    await expectEntries(recent, [executed.identity, removedQueued.identity]);
     await expect(
       recent.getByRole("article", { name: executed.identity }),
     ).toContainText("Reading done story…");
-    await expect(columnCountOf(recent)).toHaveText("4 entries");
+    await expect(columnCountOf(recent)).toHaveText("2 entries");
     await expect(closed).toHaveCount(1);
     await expect(
       storyCardSessions(
@@ -58,12 +49,7 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
 
   await test.step("the record's answer shows the done cards, with no read problem", async () => {
     release();
-    await expectEntries(recent, [
-      adHocEntry,
-      executed.title,
-      queuedEntry,
-      removedQueued.title,
-    ]);
+    await expectEntries(recent, [executed.title, removedQueued.title]);
     await expect(closed).toHaveCount(1);
     await expect(
       storyCardSessions(recent.getByRole("article", { name: executed.title })),
@@ -89,12 +75,7 @@ test("a done-record read still unanswered at the wait bound is the Recently done
   await expect(
     recent.getByRole("button", { name: "Retry done stories" }),
   ).toBeVisible();
-  await expectEntries(recent, [
-    adHocEntry,
-    executed.identity,
-    queuedEntry,
-    removedQueued.identity,
-  ]);
+  await expectEntries(recent, [executed.identity, removedQueued.identity]);
   const unread = recent.getByRole("article", { name: executed.identity });
   await expect(unread).toContainText("This done story could not be read.");
   await expect(storyCardSessions(unread)).toHaveCount(1);
@@ -121,7 +102,7 @@ test("a done catalog read still unanswered at the wait bound is the Recently don
   await expect(recent).toContainText(
     "Done stories could not be read. GitHub did not answer within 30 seconds while reading the done catalog.",
   );
-  await expect(openTerminalControl(closed)).toBeEnabled();
+  await expect(closed).toHaveCount(0);
   await expect(credit(card).line).toContainText(
     "Akiho-chan · Fixture Committer · Claude Code",
   );

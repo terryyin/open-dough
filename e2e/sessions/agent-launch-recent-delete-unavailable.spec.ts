@@ -81,21 +81,24 @@ test.describe("deleting an unavailable session's record from its current home", 
     ).toBe(becameKnown);
     dashboard.claudeSessionBecomes(gone, "forgotten");
     dashboard.claudeSessionBecomes(becameKnown, "forgotten");
-    // The completed story has no active card, so its open session retains
-    // its local Taken home while the other session follows Taken.
+    // Each open session follows its story's published card.
     await show(columnsJourney.completed);
     await sidebar.button.click();
     const unavailable = storyCardSessionOf(
       parts(page).taken.getByRole("article", { name: readyStory, exact: true }),
       "Execution",
     );
-    const becomesKnown = page.locator(".board").getByRole("article", {
+    const becomesKnown = recent.getByRole("article", {
       name: standaloneSessionName("Refinement", notRefinedStory),
     });
     const recordFile = launchStoreFile(dashboard.home);
     const stored = () => readFileSync(recordFile, "utf8");
 
-    for (const entry of [unavailable, becomesKnown]) {
+    for (const [column, entry] of [
+      ["Taken", unavailable],
+      ["Recently done", becomesKnown],
+    ] as const) {
+      await showColumn(page, column);
       await expect(sessionStateOf(entry)).toHaveText("Session unavailable");
       await expect(await sessionAction(entry, "Delete record…")).toBeVisible();
     }
@@ -107,7 +110,7 @@ test.describe("deleting an unavailable session's record from its current home", 
     await test.step("a session whose state became known since the page read it keeps its record and says so", async () => {
       // Marked done elsewhere, it no longer reads Session unavailable.
       await markDone(dashboard, { source: "open-dough", session: becameKnown });
-      await showColumn(page, "Taken");
+      await showColumn(page, "Recently done");
       await (await askToDeleteRecord(becomesKnown)).confirm.click();
 
       await expect(sessionEntriesIn(recent)).toHaveCount(1);

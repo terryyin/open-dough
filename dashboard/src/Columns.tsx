@@ -1,6 +1,3 @@
-import { SessionEntry } from "./SessionEntry.tsx";
-import { sessionKey } from "./sessionReference.ts";
-import type { LaunchWithState } from "./agentLaunch.ts";
 import { useLayoutEffect } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork.ts";
 import {
@@ -8,7 +5,6 @@ import {
   type OpenRoster,
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
-import { FollowUpSourceReference } from "./FollowUpSourceReference.tsx";
 import { revealStory } from "./pageEntries.ts";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import { useStoryInspection } from "./pageStoryInspection.tsx";
@@ -22,33 +18,17 @@ import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 type ColumnView = {
   readonly column: ColumnSummary;
   readonly entries: readonly WorkEntry[];
-  readonly localSessions: readonly LaunchWithState[] | undefined;
 };
 
-// Each column's stories, standalone sessions, and completeness feed both its
-// rendered list and the heading/paging-control summary. Published order stays intact.
-export function columnsOf(
-  work: PublishedWork,
-  localTaken: readonly LaunchWithState[] | undefined,
-) {
-  const column = (
-    name: string,
-    entries: readonly WorkEntry[],
-    localSessions: readonly LaunchWithState[] | undefined,
-  ): ColumnView => ({
-    column: {
-      name,
-      entries:
-        localSessions === undefined
-          ? undefined
-          : entries.length + localSessions.length,
-    },
+// Published story counts feed both the headings and the paging controls.
+export function columnsOf(work: PublishedWork) {
+  const column = (name: string, entries: readonly WorkEntry[]): ColumnView => ({
+    column: { name, entries: entries.length },
     entries,
-    localSessions,
   });
   return [
-    column("Backlog", work.backlog, []),
-    column("Taken", work.taken, localTaken),
+    column("Backlog", work.backlog),
+    column("Taken", work.taken),
   ] as const;
 }
 
@@ -84,7 +64,6 @@ function Column({
   const {
     column: { name, entries: count },
     entries,
-    localSessions,
   } = view;
   const headingId = `column-${name.toLowerCase()}`;
   return (
@@ -99,9 +78,6 @@ function Column({
         <p className="column-count">{entryCount(count)}</p>
       </header>
       <UnreadableProfiles profiles={unreadableProfiles} />
-      {localSessions === undefined && (
-        <p className="quiet">Reading sessions…</p>
-      )}
       {count === 0 ? (
         <p className="quiet column-empty">No {name} entries are recorded.</p>
       ) : (
@@ -121,17 +97,6 @@ function Column({
                 inspected={inspected.includes(entry.identity)}
                 onInspect={onInspect}
                 onOpenRoster={onOpenRoster}
-              />
-            </li>
-          ))}
-          {localSessions?.map((record) => (
-            <li key={sessionKey(record.session)}>
-              <SessionEntry
-                record={record}
-                onStoryCard={false}
-                followUp={
-                  <FollowUpSourceReference record={record} work={work} />
-                }
               />
             </li>
           ))}

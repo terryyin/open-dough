@@ -12,7 +12,6 @@ import { boardWork, story } from "../navigation/board-work.ts";
 import {
   doneCard,
   recentlyDone,
-  standaloneEntry,
   topLevelEntries,
 } from "./recently-done-column-page.ts";
 
@@ -82,10 +81,9 @@ test("an active story owns its open and Done sessions even with a matching done 
   for (const key of [openKey, closedKey])
     expect(showing(board.element(), key)).toBe(1);
   const topLevel = topLevelEntries();
-  expect(topLevel).toHaveLength(2);
+  expect(topLevel).toHaveLength(1);
   expect(topLevel).toContain(doneCard(active.title).element());
-  expect(topLevel).toContain(standaloneEntry("Open Dough session").element());
   await expect
-    .element(page.getByRole("button", { name: "Recently done 2 entries" }))
+    .element(page.getByRole("button", { name: "Recently done 1 entry" }))
     .toBeVisible();
 });

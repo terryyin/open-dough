@@ -48,9 +48,12 @@ export function useKeyboardReturn<Shown>(
       element.focus({ preventScroll: true });
       if (bringHomeIntoView) stopKeeping = keepInView(element);
     };
-    // A control the page no longer shows, as in a hidden sidebar, cannot
+    // A hidden control or a disabled answer to a settled action cannot
     // take the keyboard.
-    if (returning.control.getClientRects().length > 0) {
+    if (
+      returning.control.getClientRects().length > 0 &&
+      !returning.control.matches(":disabled")
+    ) {
       give(returning.control, false);
       return () => stopKeeping?.();
     }

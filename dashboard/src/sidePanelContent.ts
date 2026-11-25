@@ -27,7 +27,7 @@ export const shownSessionOf = (sidePanel: SidePanel | undefined) =>
 // The story the shown content belongs to; none for a session attached to no
 // story.
 export function shownStory(shown: Shown): SelectedStory | undefined {
-  if (!("record" in shown)) return undefined;
+  if (!("record" in shown)) return shown.story;
   const { request } = shown.record;
   const identity = launchSubject(request).identity;
   return identity === undefined

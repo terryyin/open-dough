@@ -1,10 +1,4 @@
-// A standalone Recently done entry for a session the project published a
-// close record for (`./publishedSessionRecord.ts`) and this machine never
-// launched: named by its UUID, closed when the record says, and offering
-// Review changes on the record's published comparison in the page's one
-// review panel (`./StoryReview.tsx`), as a kept ad hoc entry does
-// (`./AdHocSessionReviewAction.tsx`). It has no native controls.
-
+// A published comparison without a retained launch on this Done card.
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import { useOpenSessionReview } from "./pageSessionReviews.ts";
 import { ReviewChangesButton } from "./ReviewChangesButton.tsx";
@@ -20,7 +14,6 @@ export function PublishedSessionEntry({
   readonly record: PublishedSessionRecord;
   readonly sourceId: string;
 }) {
-  const openSessionReview = useOpenSessionReview();
   const { sessionId, closedAt } = record;
   const name = `${publishedSessionTitle} ${sessionId}`;
   return (
@@ -30,15 +23,32 @@ export function PublishedSessionEntry({
       <p className="quiet">
         Closed <time dateTime={closedAt}>{closedAt}</time>
       </p>
-      <ReviewChangesButton
-        onClick={(event) => {
-          openSessionReview({
-            subject: { source: sourceId, published: sessionId },
-            title: name,
-            control: event.currentTarget,
-          });
-        }}
-      />
+      <PublishedSessionReviewAction record={record} sourceId={sourceId} />
     </article>
+  );
+}
+
+export function PublishedSessionReviewAction({
+  record,
+  sourceId,
+}: {
+  readonly record: PublishedSessionRecord;
+  readonly sourceId: string;
+}) {
+  const openSessionReview = useOpenSessionReview();
+  if (record.story === undefined) return null;
+  const story = { project: sourceId, identity: record.story };
+  return (
+    <ReviewChangesButton
+      label="Review session changes"
+      onClick={(event) => {
+        openSessionReview({
+          subject: { source: sourceId, published: record.sessionId },
+          story,
+          title: `${publishedSessionTitle} ${record.sessionId}`,
+          control: event.currentTarget,
+        });
+      }}
+    />
   );
 }

@@ -1,5 +1,6 @@
 // Native final reports and published session reviews replace each other in
 // the Side panel. A held Git comparison must not answer a later session.
+import { publishedReviewStory } from "../../dashboard/test-support/support/publishedReviewSession.ts";
 import { expect } from "@playwright/test";
 import { keyStep } from "../../dashboard/test-support/sidePanelWidthPage.ts";
 import { holdPublishedReviewOf } from "../../dashboard/test-support/support/holdReviewResponse.ts";
@@ -132,14 +133,16 @@ test("a review and a final report stay shown with their selection while the page
   const reads = reviewReads.length;
   await journey.phase(
     "the review keeps its session, chosen file and diff on Intent",
-    ({ perspective }) =>
+    ({ perspective, intent }) => {
       perspective
         .choose("Intent")
         .expectChosen("Intent")
         .sidePanel.storyReview.expectStory(`Published session ${first}`)
         .expectFileChosen("2 changed files", "Added second.txt")
         .expectFileDiff("Added second.txt")
-        .sidePanel.expectItems(1),
+        .sidePanel.expectItems(1);
+      intent.expectSelectedStory(publishedReviewStory.identity);
+    },
   );
   await page.goBack();
   await journey.phase(
@@ -154,7 +157,7 @@ test("a review and a final report stay shown with their selection while the page
       intent.expectNotShown();
     },
   );
-  expect(reviewReads.slice(reads)).toEqual([]);
+  expect(reviewReads.slice(reads)).toEqual([publishedReviewStory.identity]);
 
   await journey.phase(
     "the final report keeps its session's report on Intent",

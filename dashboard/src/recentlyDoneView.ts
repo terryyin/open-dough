@@ -1,24 +1,6 @@
-// What Recently done lists for the project shown. It combines published
-// stories by completion time and the saved Done sessions the Board's
-// placement leaves to it (`./columnSessions.ts`) by launch time; listed
-// cards nest their own closed sessions and closed story follow-ups
-// (`./recentlyDoneListing.ts`), and unknown or failed published details
-// leave their standalone access intact. The done catalog places every done
-// story before its record is read, so the combined list, its count, and where
-// each session belongs are known at once. Only the first ten entries show
-// until the developer asks for the next ten, or a journey lands on an entry
-// beyond them, and the developer can return to the latest ten
-// (`./recentlyDoneRange.ts`), and only the records of the stories shown are
-// read (`./doneDetails.ts`); a story shown before its record answers keeps its
-// place, with its sessions, under its identity.
-// The saved sessions decide which stories the first entries hold, so no
-// record is read before the page's first read of them ends; a read that ends
-// unanswered lets the stories shown without them be read.
-// A refresh of the project keeps the list the last revision's catalog placed
-// until the new revision's catalog answers, since the snapshot carries it
-// (`./carriedFacts.ts`), so the list neither empties nor loses the keyboard
-// meanwhile; each record is still read at the revision whose catalog lists
-// it. `./RecentlyDone.tsx` presents it.
+// Recently done lists the published catalog in completion order. It reads
+// details only for shown stories and keeps the prior catalog during refresh.
+// Local closed sessions nest inside their stories.
 
 import { useLayoutEffect } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
@@ -27,12 +9,8 @@ import { useDoneDetails } from "./doneDetails.ts";
 import { recentDoneRecords } from "./doneStories.ts";
 import type { CreationView } from "./launchCreation.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import {
-  currentPublishedSessions,
-  holdsEntry,
-  newestFirst,
-  type Listed,
-} from "./recentlyDoneListing.ts";
+import { currentPublishedSessions } from "./publishedSessions.ts";
+import { holdsEntry, newestFirst, type Listed } from "./recentlyDoneListing.ts";
 import {
   shownPrefix,
   usePageRange,
@@ -105,7 +83,6 @@ export function useRecentlyDone({
   work,
   creations,
   records,
-  keptLaunches,
   noneKept,
   sessionsSettled,
   // A selected Done story this list must still place, even outside the
@@ -117,9 +94,6 @@ export function useRecentlyDone({
   readonly work: PublishedWork;
   readonly creations: readonly CreationView[];
   readonly records: readonly LaunchWithState[] | undefined;
-  // The machine's kept launches (Done or live). A launch whose reporting
-  // reference equals a published record UUID stands for that record.
-  readonly keptLaunches: readonly LaunchWithState[];
   readonly noneKept: boolean;
   // Whether a read of the machine's sessions asked after the latest change
   // of the project list has ended, answered or not.
@@ -158,7 +132,6 @@ export function useRecentlyDone({
     included,
     records ?? [],
     sourceId,
-    keptLaunches,
     currentPublishedSessions(publishedSessions, now),
   );
   // The entry holding the keyboard stays shown wherever it now stands.
@@ -180,10 +153,7 @@ export function useRecentlyDone({
   const details = useDoneDetails(
     work.source,
     revision,
-    [
-      ...shown.flatMap((each) => ("record" in each ? [each.record] : [])),
-      ...unreadable,
-    ],
+    [...shown.map(({ record }) => record), ...unreadable],
     sessionsSettled,
   );
   useDestinationAnswer(
@@ -193,14 +163,10 @@ export function useRecentlyDone({
     sessionsSettled,
     done,
     listed,
-    (each) =>
-      "record" in each
-        ? details.detailOf(each.record).status !== "reading"
-        : true,
+    ({ record }) => details.detailOf(record).status !== "reading",
   );
   const refused = shown.some(
-    (each) =>
-      "record" in each && details.detailOf(each.record).status === "unreadable",
+    ({ record }) => details.detailOf(record).status === "unreadable",
   );
   const column: ColumnSummary = {
     name: recentlyDoneName,

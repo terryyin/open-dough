@@ -40,7 +40,6 @@ import { StoryInspectionProvider } from "./pageStoryInspection.tsx";
 import { RetainedHistoryOnPage } from "./retainedHistory.ts";
 import { useSessionNavigation } from "./sessionNavigation.ts";
 import {
-  ChosenSessionOnPage,
   useRecentlyDoneSelection,
   type RecentlyDoneProjects,
 } from "./recentlyDoneSelection.ts";
@@ -182,18 +181,14 @@ export function PageFrame({
                           recentlyDone={recentlyDone.row}
                         />
                         <RecentlyDoneRangeOnPage value={range}>
-                          <ChosenSessionOnPage
-                            value={recentlyDone.chosenSession}
+                          <div
+                            className="page-column"
+                            aria-hidden={shownMaximized ? true : undefined}
                           >
-                            <div
-                              className="page-column"
-                              aria-hidden={shownMaximized ? true : undefined}
-                            >
-                              <IntentPageProviders project={stories.selected}>
-                                {children}
-                              </IntentPageProviders>
-                            </div>
-                          </ChosenSessionOnPage>
+                            <IntentPageProviders project={stories.selected}>
+                              {children}
+                            </IntentPageProviders>
+                          </div>
                         </RecentlyDoneRangeOnPage>
                         {finalReport && (
                           <FinalReport

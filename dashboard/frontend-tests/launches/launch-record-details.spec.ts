@@ -51,9 +51,10 @@ function executionRecords() {
 }
 
 const adHocTitle = "8 Jan, 10:00";
+const admitted = story(adHocTitle, 754);
 const adHocRecord = () =>
   makeMe.aLaunchRecord
-    .adHoc({ title: adHocTitle })
+    .adHoc({ title: adHocTitle, storyIdentity: admitted.identity })
     .inClaudeSession({ sessionId: "ad-hoc-model" })
     .requestingModel("sonnet")
     .please();
@@ -162,7 +163,7 @@ test("execution and ad hoc entries show the requested model and disclose effort 
   );
 });
 
-test("the Board lists each launch with its own story or in Taken, and the sidebar names its own requested model", async () => {
+test("the Board lists each launch with its own story, and the sidebar names its own requested model", async () => {
   const refinements = refinementRecords().filter(
     ({ model, options }) => model === options,
   );
@@ -171,7 +172,12 @@ test("the Board lists each launch with its own story or in Taken, and the sideba
   const examples = [...refinements, ...executions];
   const records = observed([...examples.map(({ record }) => record), adHoc]);
   await mountBoard(
-    [boardWork(examples.map(({ work }) => work))],
+    [
+      boardWork(
+        examples.map(({ work }) => work),
+        { taken: [admitted] },
+      ),
+    ],
     { width: window.innerWidth, height: window.innerHeight },
     { records, launched: records },
   );
@@ -186,10 +192,10 @@ test("the Board lists each launch with its own story or in Taken, and the sideba
     await expect.element(entries).toHaveAccessibleName(`${workflow} session`);
     await expect.element(sessionIdentity(entries, record)).toBeInTheDocument();
   }
-  const adHocEntry = board.column("Taken").getByRole("article", {
-    name: `Ad hoc session for ${adHocTitle}`,
-    exact: true,
-  });
+  const adHocEntry = board
+    .column("Taken")
+    .getByRole("article", { name: adHocTitle, exact: true })
+    .getByRole("article", { name: "Ad hoc session", exact: true });
   await expect.element(adHocEntry).toHaveLength(1);
   await expect.element(sessionIdentity(adHocEntry, adHoc)).toBeInTheDocument();
   const recentlyDone = board.column("Recently done");
