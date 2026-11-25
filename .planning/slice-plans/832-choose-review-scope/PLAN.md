@@ -12,6 +12,7 @@
 - Execution branch observation uses GitHub Actions `ci.yml` with coordinator `rio-chan-32284348` and stream `/tmp/dough-ci-501/watch-8RaTPQ` (PID 77649). The trunk claim preceded that observer.
 - Checkout setup passed with Node 24.21.0, the locked npm install, the locked Chromium launch, and `npm run typecheck:dashboard`.
 - Slice 5 was accepted on the story branch at `cba809fb31e2a319f0e347a0fcab1880df9c7d05`. The completed slice 4 Actions attempt `45604866927/1` had one failed shard. Its checkout could not connect to GitHub on three consecutive fetch attempts, before any test ran. The final accepted state has its own applicable CI check.
+- The slice 5 Actions attempt `45606754690/1` exposed an ambiguous Playwright project-button name. The exact project locator repaired all four reproduced failures and passed eight E2E cases and one retained frontend case. See [the repair record](diagnosis-final-branch-ci.md).
 
 ## Goal and scope
 
