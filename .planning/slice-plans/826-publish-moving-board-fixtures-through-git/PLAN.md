@@ -417,7 +417,7 @@ refactor removed an unused return field from the progressive opener.
 ### 8. Keep custom observation faults at the consuming request
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Where an inline browser answerer controls a moving publication,
 the real trunk remains available at the announced pin while the explicit
 scheduled, detail or comparison fault still reaches the existing consumer.
@@ -430,6 +430,23 @@ membership proofs with cutover, fixed publications with their fixed owner
 and configured-project cases with qualification. Budget 8–12 active minutes
 for the three confirmed mixed cases and the remaining inline substitutions
 already assigned to this slice.
+
+Accepted proof at `9b3a0186a60d08d23031a844b8cf9a3b79144a8a` plus slice 8
+changes. The pinned detail reaches the exact 429 and two-second wait and
+both tabs recover at its real commit. Both admitted projects resolve
+distinct real SHAs, and their exact pinned requests occupy eight turns at
+the shared boundary. The scheduled case observes one held matching-refs
+request before moving Git from A to B, resolves B from the served HOME,
+then receives and reads the exact B backlog after releasing the listing.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/limit-recovery-tabs.spec.ts e2e/observation/read-turns-across-tabs.spec.ts e2e/observation/shared-observer-reads.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/read-turns-across-tabs.spec.ts e2e/observation/shared-observer-reads.spec.ts --grep 'two tabs opening different projects|revision checks from two tabs' --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run typecheck:dashboard
+```
+
+Six focused cases and two final assertion cases passed. Dashboard typecheck
+passed. The independent review retained the accepted candidate.
 
 ## Boundary review and remaining concerns
 

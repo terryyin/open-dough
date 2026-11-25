@@ -7,26 +7,35 @@
 // ../../dashboard/backend-tests/observation/authenticated-read-turns.spec.ts.
 
 import type { Page, Request } from "@playwright/test";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import {
   expect,
   githubFor,
   pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
-import { expectSettledPage } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  expectSettledPage,
+  parts,
+  shortRevision,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import { doughnutRepository } from "../../dashboard/test-support/doughnutProject.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
-import { describedRevision } from "../../dashboard/test-support/describedRevisions.ts";
-import { backlogPath } from "../../dashboard/test-support/publishedOrigin.ts";
+import { describedFiles } from "../../dashboard/test-support/describedRevisions.ts";
+import {
+  backlogPath,
+  defaultRepository,
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
 import { heldInTurn } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { noteRequestsInEveryPage } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 
 // A project whose backlog names six stories, each in a seed of its own.
-function project(name: string, revision: string) {
+function project(name: string) {
   const titles = Array.from(
     Array(6).keys(),
     (index) => `${name} story ${String(index + 1)}`,
@@ -52,19 +61,10 @@ ${renderStorySection(entry, {
   goal: `${entry.title} is read once its turn comes.`,
 })}`;
   });
-  const published = describedRevision(
-    makeMe.aRepository
-      .withRevision("published", {
-        backlog: {
-          queued,
-        },
-        files,
-      })
-      .please(),
-    revision,
-  );
   return {
-    published: publishes(published),
+    published: publishes({
+      files: describedFiles({ backlog: { queued }, files }),
+    }),
     membership: { taken: [], backlog: titles },
   };
 }
@@ -104,12 +104,24 @@ test("two tabs opening different projects while GitHub holds its answers never h
   const at = new Date("2026-10-07T09:00:00.000Z");
   await pausePageClockAt(page, at);
   const github = githubFor(page);
-  const openDough = project("Dough", "9a".repeat(20));
-  const doughnut = project("Doughnut", "9b".repeat(20));
+  const openDough = project("Dough");
+  const doughnut = project("Doughnut");
   const heldDough = heldInTurn(openDough.published, isRecordRead);
   const heldDoughnut = heldInTurn(doughnut.published, isRecordRead);
-  github.serve("terryyin/open-dough", heldDough.answer);
+  github.serve(defaultRepository, heldDough.answer);
   github.serve(doughnutRepository, heldDoughnut.answer);
+  const routedTrunk = (repository: string) =>
+    remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+      cwd: dashboard.home,
+      env: { HOME: dashboard.home },
+      maxBuffer: 4096,
+    });
+  expect(await routedTrunk(defaultRepository)).toBe(
+    openDough.published.revision,
+  );
+  expect(await routedTrunk(doughnutRepository)).toBe(
+    doughnut.published.revision,
+  );
   const most = github.observeUnanswered();
 
   const otherContext = await browser.newContext({ baseURL: dashboard.baseURL });
@@ -129,11 +141,28 @@ test("two tabs opening different projects while GitHub holds its answers never h
     expect(heldDough.held() + heldDoughnut.held()).toBe(8);
     expect(heldDough.held()).toBeGreaterThan(0);
     expect(heldDoughnut.held()).toBeGreaterThan(0);
+    const pinnedReads = github.calls.flatMap(({ request }) =>
+      request.kind === "content" && isRecordRead(request)
+        ? [`${request.repository}@${request.revision}`]
+        : [],
+    );
+    expect(new Set(pinnedReads)).toEqual(
+      new Set([
+        `${defaultRepository}@${openDough.published.revision}`,
+        `${doughnutRepository}@${doughnut.published.revision}`,
+      ]),
+    );
 
     heldDough.releaseAll();
     heldDoughnut.releaseAll();
     await expectSettledPage(page, openDough.membership);
     await expectSettledPage(other, doughnut.membership);
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(openDough.published.revision),
+    );
+    await expect(parts(other).readRevision).toContainText(
+      shortRevision(doughnut.published.revision),
+    );
     expect(most()).toBe(8);
   } finally {
     await otherContext.close();
