@@ -79,7 +79,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     await expect(result).toHaveCSS("white-space", "pre-wrap");
     expect(await result.textContent()).toBe(report);
     await expect(result.locator("img")).toHaveCount(0);
-    await story.chooseTab("Changes");
+    await story.browseFiles();
   });
 
   await test.step("the compared revisions are the published comparison's, not Intent's published revision", async () => {
@@ -139,7 +139,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     await emptyArea(card).click();
     await expectSelected(card, false);
     await reviewChanges(card).press("Enter");
-    await expect(story.panel("Changes")).toBeVisible();
+    await expect(story.filesReading).toBeVisible();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(story.title).toHaveText("Story A");
     await development.click();

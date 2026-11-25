@@ -13,7 +13,7 @@ test("a long story title shows once in full above the story's views, whichever i
     title: long,
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   const title = story.header.getByRole("heading", { name: long, exact: true });
   await expect.element(title).toBeVisible();
   expect(intentPage.getByText(long, { exact: true }).all()).toHaveLength(1);

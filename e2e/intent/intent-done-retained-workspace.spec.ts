@@ -27,10 +27,10 @@ import { retainedIntentCompletion } from "../../dashboard/test-support/support/r
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
 import { lines } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentDiff,
   intentFile,
-  storyTabPanel,
+  storyFilesReading,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
@@ -110,7 +110,7 @@ test("a readable Done workspace cannot replace published locations, inventory, u
   const { card, intent } = await selectDoneStoryInIntent(page);
   const answer = storyReviewSchema.parse(await (await received).json());
   expect(answer).toMatchObject({ kind: "published", completion });
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expandIntentGroup(intent, "dashboard/tests");
   await expect(intentFile(intent, modified)).toBeVisible();
   await expect(
@@ -189,9 +189,9 @@ test("unrecoverable history remains unavailable despite a readable Done workspac
     kind: "unavailable",
     explanation: expect.stringMatching(/claim|history/),
   });
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expect(filesColumn(intent)).toHaveCount(0);
-  await expect(storyTabPanel(intent, "Changes")).toContainText(
+  await expect(storyFilesReading(intent)).toContainText(
     "The story's historical Intent locations and test source are unavailable",
   );
   await expect(intent).not.toContainText("readable local replacement");

@@ -10,8 +10,10 @@ import {
   expectFilesShown,
   filesColumn,
   filesToggle,
+  expectStoryTab,
+  storyFilesReading,
   storySummary,
-  storyTabPanel,
+  storyTab,
 } from "./intentModePage.ts";
 import { ReviewComparison } from "./reviewChangesComparison.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
@@ -90,7 +92,7 @@ class IntentReviewChanges {
   }
 
   async expectChangesExplanation(message: string) {
-    await expect(storyTabPanel(this.#intent, "Changes")).toContainText(message);
+    await expect(storyFilesReading(this.#intent)).toContainText(message);
     return this;
   }
 
@@ -190,6 +192,12 @@ class IntentReviewChanges {
 }
 
 export type { IntentReviewChanges };
+
+export const expectIntentReviewOpened = (intent: Locator) =>
+  expectStoryTab(intent, "Changes");
+
+export const expectIntentReviewFocused = (intent: Locator) =>
+  expect(storyTab(intent, "Changes")).toBeFocused();
 
 // The card offers Review changes once its startup enables the fieldset.
 export async function expectReviewChangesOffered(card: Locator) {

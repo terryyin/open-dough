@@ -154,6 +154,11 @@ export function intentStoryCompare() {
       userEvent.click(compare.getByRole("button", { name: "Refresh" })),
     viewTab,
     chooseTab: (name: View) => activateComparisonControl(viewTab(name)),
+    browseFiles: () => activateComparisonControl(viewTab("Changes")),
+    filesReading: intent.getByRole("tabpanel", {
+      name: "Changes",
+      exact: true,
+    }),
     // A listed file's control, named by its kind and path.
     file: (name: string) => intent.getByRole("button", fileNamed(name)),
     // A location's or folder's toggle, by its name and whether it is open.

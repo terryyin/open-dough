@@ -5,7 +5,12 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "./pageTest.ts";
 import { ciFollowUpEndpoint } from "../../src/ciFollowUp.ts";
 import { parts } from "../dashboardPage.ts";
-import { chooseStoryTab, intentFile, storyOnly } from "./intentStoryPage.ts";
+import {
+  browseStoryFiles,
+  chooseStoryTab,
+  intentFile,
+  storyOnly,
+} from "./intentStoryPage.ts";
 import {
   expandIntentGroup,
   intentLocationName,
@@ -138,7 +143,7 @@ export async function expectOriginalProofNavigation(
   },
 ) {
   const { intent } = parts(page);
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   if (await storyOnly(intent).isChecked()) await storyOnly(intent).uncheck();
   await intentLocationName(intent, expected.location).click();
   const summary = summaryRegion(intent);

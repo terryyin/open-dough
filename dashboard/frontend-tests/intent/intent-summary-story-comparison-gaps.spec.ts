@@ -103,7 +103,7 @@ test("a queued selection renders no previous Summary comparison or Baseline colu
   await expectComparisonRows(summary, entryComparisonRows);
 
   await selectStory(queued.identity, "Story B");
-  await intentStoryCompare().chooseTab("Changes");
+  await intentStoryCompare().browseFiles();
   await openSummary(entry);
   await expectNoComparisonFraming(summary);
   await expect

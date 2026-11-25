@@ -26,7 +26,7 @@ async function showsUsablePublishedTree() {
   await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
   await expect.element(story.outsideGroup).not.toBeInTheDocument();
   await expect
-    .element(panel("Changes").getByText(/No test files|no changes/i))
+    .element(story.filesReading.getByText(/No test files|no changes/i))
     .not.toBeInTheDocument();
   await scopeToggle("dashboard/tests").click();
   await scopeToggle("boundary").click();
@@ -34,7 +34,7 @@ async function showsUsablePublishedTree() {
   await story.file(modifiedPath).click();
   await intentFileReading(modifiedPath).shows("a 11");
   expect(
-    panel("Changes")
+    story.filesReading
       .element()
       .querySelectorAll("[data-kind], [data-contains-changes]"),
   ).toHaveLength(0);
@@ -60,7 +60,7 @@ test("a story with no published changes explains that no comparison is available
     .element(story.header.getByRole("button", { name: "Retry" }))
     .not.toBeInTheDocument();
   expect(story.revisions()).toBe("");
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await showsUsablePublishedTree();
 });
 
@@ -77,7 +77,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect
     .poll(story.alertText)
     .toBe("The story's changes could not be read. Retry");

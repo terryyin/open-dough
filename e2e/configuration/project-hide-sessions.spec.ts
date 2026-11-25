@@ -17,8 +17,8 @@ import {
 import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import {
-  chooseStoryTab,
-  storyTabPanel,
+  browseStoryFiles,
+  storyFilesReading,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   openUntilRead,
@@ -165,8 +165,8 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await chooseProject(page, "Doughnut");
   await expectProjectChoice(page, "Doughnut");
   await expect(intentMain).toHaveAttribute("data-selected-story", identity);
-  await chooseStoryTab(intentMain, "Changes");
-  await expect(storyTabPanel(intentMain, "Changes")).toContainText(
+  await browseStoryFiles(intentMain);
+  await expect(storyFilesReading(intentMain)).toContainText(
     "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
   );
   await expect(filesColumn(intentMain)).toHaveCount(0);

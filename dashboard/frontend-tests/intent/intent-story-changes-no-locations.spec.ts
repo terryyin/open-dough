@@ -1,6 +1,5 @@
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
 import {
   changed,
   openStoryChanges,
@@ -20,11 +19,12 @@ test("without configured Intent locations Changes lists the story's changed file
       ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-  const changes = page.getByRole("tabpanel", { name: "Changes", exact: true });
+  await story.browseFiles();
   await expect
     .element(
-      changes.getByText(/^No Intent locations are configured for Open Dough\./),
+      story.filesReading.getByText(
+        /^No Intent locations are configured for Open Dough\./,
+      ),
     )
     .toBeVisible();
   const outside = story.outsideGroup;
@@ -56,7 +56,7 @@ test("without configured Intent locations Changes lists the story's changed file
 
 async function showsUnavailableChanges(explanation: string) {
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect
     .element(story.header.getByRole("status"))
     .toHaveTextContent("No comparison is available.");

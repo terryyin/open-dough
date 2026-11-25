@@ -70,7 +70,7 @@ baseline evidence. The Home assertions above are execution proof.
 ### 1. Isolate story reading journeys from the page-wide tabs
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Existing mounted story and review journeys keep their current UI
 observations. Run the affected Intent files and review helpers' consumers.
 
@@ -86,6 +86,14 @@ tab for focus. Inspect [storyCardFocus](../../../dashboard/src/storyCardFocus.ts
 and banner and Side panel callers before changing those marks in slice 3.
 This enables slice 2 to change the reading arrangement without rewriting
 the same setup across specs.
+
+All 400 mounted and retained frontend cases passed. Of the
+152 end-to-end cases, 151 passed on the first run. The retained-run race
+case passed after its setup dropped an unused legacy launch, and the legacy
+case passed with its original setup. The ad hoc review and TypeScript check
+passed. The landed comparison-follow-up changes were integrated at
+`ddeb643502a6`. Focused story follow-up, ancestor CI evidence, narrow views,
+story notes, and Board arrival checks then passed on the combined candidate.
 
 ### 2. Open a path directly from story evidence
 
@@ -155,3 +163,16 @@ navigation contract changed.
   the empty-path rule. Each supplies its own focused proof within the
   existing slice budget. This review found no remaining slice-specific
   concern.
+
+## Execution context
+
+- Story Branch Mode on `codex/read-ci-comparison-and-intent-coverage-from-stor`, with
+  `origin/main` as the integration target. The launch owns the isolated
+  worktree for this branch under the repository's `.worktrees/` directory.
+- Starting revision `3b465056d9add188eb2603b0e1c2802998205bba`.
+  The claim was accepted as `e7c2d87fce1d73a62490cd8a25ed22c3f2f73f64`
+  on `origin/main` and the story branch. Koharu-chan owns the execution
+  under publisher `dashboard-territory.local-open-dough`.
+- The Codex observer for the remote story branch tracks GitHub Actions
+  `ci.yml` under coordinator `koharu-420-ed214235` at
+  `/tmp/dough-ci-501/watch-fvhWBV`, stream session `30471`, cell `g375:14`.

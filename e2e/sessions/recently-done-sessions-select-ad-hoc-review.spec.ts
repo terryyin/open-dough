@@ -11,6 +11,7 @@ import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
 import {
+  browseStoryFiles,
   chooseStoryTab,
   storyHeaderReading,
   storyTitle,
@@ -81,7 +82,7 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
   });
 
   await test.step("historical comparison names its own baseline and completion", async () => {
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
     const { publishedBaseline, publishedCompletion } =
       storyHeaderReading(intent);
     await expect(publishedCompletion).toHaveText(linked.completion);

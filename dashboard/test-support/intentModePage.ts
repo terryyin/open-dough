@@ -75,6 +75,9 @@ export const storyTab = (intent: Locator, name: StoryTabName) =>
 export const storyTabPanel = (intent: Locator, name: StoryTabName) =>
   intent.getByRole("tabpanel", { name, exact: true });
 
+export const storyFilesReading = (intent: Locator) =>
+  storyTabPanel(intent, "Changes");
+
 export async function expectStoryTab(intent: Locator, name: StoryTabName) {
   await expect(storyTab(intent, name)).toHaveAttribute("aria-selected", "true");
 }
@@ -83,6 +86,10 @@ export async function chooseStoryTab(intent: Locator, name: StoryTabName) {
   await storyTab(intent, name).click();
   await expectStoryTab(intent, name);
 }
+
+// Reach the file browser without selecting a location, folder or file.
+export const browseStoryFiles = (intent: Locator) =>
+  chooseStoryTab(intent, "Changes");
 
 type IntentModeName = "CI status" | "Optimization Candidates";
 

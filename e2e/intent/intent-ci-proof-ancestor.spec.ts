@@ -27,7 +27,7 @@ import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 
 import { intentLocationName } from "../../dashboard/test-support/intentPerspectivePage.ts";
-import { chooseStoryTab } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { browseStoryFiles } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   scopeFigures,
   summaryRegion,
@@ -170,7 +170,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
 
   await test.step("a Summary names that story branch's ancestor evidence and its counts", async () => {
     const intent = parts(page).intent;
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
     await intentLocationName(intent, "tests").click();
     const summary = summaryRegion(intent);
     await expectLeadingEvidenceLabels(evidenceLabels(summary), [

@@ -17,7 +17,7 @@ import {
   selectCompletedStoryInIntent,
 } from "../../dashboard/test-support/support/intentCompletedStory.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentFile,
   intentDiffReading,
   intentStory,
@@ -69,7 +69,7 @@ test("Intent Changes old line 85 Follow up starts blank and opens the terminal w
       },
     },
   });
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expandIntentGroup(intent, "dashboard/tests");
   await intentFile(intent, changed.modified).click();
   const reading = intentDiffReading(intent);
@@ -141,7 +141,7 @@ test("Intent Follow up sends the reviewed whole comparison or one file as its re
         tree: git(origin.project, "rev-parse", `${completion}^{tree}`),
       };
     });
-  await test.step("When I open Changes", () => review.chooseTab("Changes"));
+  await test.step("When I open Changes", () => review.browseFiles());
   await test.step("Then the review shows the published baseline", () =>
     expect(review.header.publishedBaseline).toHaveText(baseline));
   await test.step("When I follow up on the whole comparison", async () => {

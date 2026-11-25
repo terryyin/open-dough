@@ -51,7 +51,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
     review: () => Promise.resolve(comparison),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   const file = story.file(fileLabel);
   const folder = scopeToggle("folder");
   await expect.element(folder).toBeVisible();

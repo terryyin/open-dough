@@ -63,7 +63,7 @@ test("a newly selected Done story shows only its own historical source after hel
   await expect
     .element(intentPage)
     .toHaveAttribute("data-selected-story", storyA.identity);
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await scopeToggle("dashboard/tests").click();
   await story.file(firstPath).click();
   const initial = intentFileReading(firstPath);
@@ -83,9 +83,9 @@ test("a newly selected Done story shows only its own historical source after hel
     .element(story.header.getByRole("heading", { name: storyB.title }))
     .toBeVisible();
   await expect.poll(heldComparison.asked).toBe(true);
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect
-    .element(intentPage.getByRole("tabpanel", { name: "Changes", exact: true }))
+    .element(story.filesReading)
     .toHaveTextContent("Reading the story's historical Intent locations…");
   expect(files()).toBeNull();
   await expect.element(purpose).not.toBeInTheDocument();

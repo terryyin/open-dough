@@ -67,7 +67,7 @@ async function openChangesWithNotes(
       ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   return story;
 }
 

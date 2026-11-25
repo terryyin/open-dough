@@ -38,7 +38,7 @@ test("Hide files gives the reading pane the width under the story's header; afte
   });
   const files = fileLayout();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await story.onlyChangedFiles.click();
   const selected = story.file(deepFile);
   await selected.click();
@@ -94,7 +94,7 @@ test("changed locations keep their own full-width header and change mark when se
   const mounted = await openIntentFileLayout({
     viewport: { width: 1280, height: 800 },
   });
-  await intentStoryCompare().chooseTab("Changes");
+  await intentStoryCompare().browseFiles();
   const folder = scopeToggle("boundary");
   await expect.element(folder).toBeVisible();
   const markedFolder = folder.element().closest(".story-review-folder-row");
@@ -165,7 +165,7 @@ test("the hidden column stays hidden across scopes and Development, with its own
   });
   const files = fileLayout();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await files.toggle.click();
   await files.showsFiles(false);
 
@@ -174,7 +174,7 @@ test("the hidden column stays hidden across scopes and Development, with its own
   await projectView("Optimization Candidates").click();
   await expect.element(files.toggle).not.toBeInTheDocument();
   await intentRecentStories(openDoughSource).chooseRow("SEED-A#a");
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await files.showsFiles(false);
 
   await mounted.showDevelopment();
@@ -193,7 +193,7 @@ test("the hidden column stays hidden across scopes and Development, with its own
       story.header.getByRole("heading", { name: "Story A", exact: true }),
     )
     .toBeVisible();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await files.showsFiles(true);
 });
 

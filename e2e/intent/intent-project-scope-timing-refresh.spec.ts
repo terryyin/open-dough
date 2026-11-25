@@ -31,6 +31,7 @@ import {
   test,
 } from "../../dashboard/test-support/support/projectScopeHistoryFixture.ts";
 import {
+  browseStoryFiles,
   chooseStoryTab,
   intentFile,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
@@ -106,8 +107,7 @@ test("the bookmark distinguishes collected trunk timing from a Done landing whil
       await chooseStoryTab(intent, "Intent coverage");
       return offset;
     });
-  await test.step("And I return to Changes", () =>
-    chooseStoryTab(intent, "Changes"));
+  await test.step("And I return to Changes", () => browseStoryFiles(intent));
   await test.step("Then the selected file, Proof and scroll position remain", async () => {
     await intentReviewFiles(intent).expectSelected(`Modified ${path}`);
     await expect(fileReadingTab(intent, "Proof")).toHaveAttribute(

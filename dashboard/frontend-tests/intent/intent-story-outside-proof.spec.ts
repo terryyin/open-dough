@@ -43,7 +43,7 @@ test("an outside file's Proof names the story's CI comparison, explains missing 
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await activateComparisonControl(story.outsideFile(landingFile));
   await expect.poll(story.diffName).toBe(landingFile);
   await expect.poll(story.diffCode).toContain("landing line 199");

@@ -132,7 +132,7 @@ async function openStoryChanges() {
       .please(),
   });
   await mounted.selectStory(storyA.identity, storyA.title);
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   return { ...mounted, reads };
 }
 
@@ -210,7 +210,7 @@ test("another project shows none of the reading place, and choosing the project 
     .toHaveAttribute("aria-selected", "true");
   const ciPanel = intentCiStatus().panel;
   await expect.element(ciPanel).toBeVisible();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect
     .poll(story.readingText)
     .toContain(

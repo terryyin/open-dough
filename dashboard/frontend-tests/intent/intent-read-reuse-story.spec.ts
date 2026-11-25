@@ -13,7 +13,7 @@ import { intentStoryCompare } from "./intent-story-compare-page.ts";
 test("with a selected story, browsing reads nothing and a changed file's diff is read once, without its published text", async () => {
   const { reads } = await openStoryChanges();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   const purpose = page.getByRole("region", { name: "Purpose", exact: true });
   const summary = page.getByRole("region", { name: "Summary", exact: true });
 
