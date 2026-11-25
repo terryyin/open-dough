@@ -76,6 +76,21 @@ superseded REST membership path, move to
 [the verified Board story](#open-and-refresh-board-at-verified-trunk).
 These retain the original selected outcome in delivery order.
 
+<a id="recover-fixed-observation-at-its-published-pin"></a>
+
+### Recover a fixed observation at its published pin
+
+**Identity:** SEED-430#recover-fixed-observation-at-its-published-pin
+
+**Goal.** A maintainer relying on the authenticated observation journey
+again proves that restored access shows the same published revision the
+Board read before the login failure.
+
+**Scope.** Correct the restored-access step left publishing a new commit
+by [the fixed fixture story](#open-published-board-from-local-git), and the
+residue it left. Plan:
+[831](../slice-plans/831-recover-fixed-observation-at-its-published-pin/PLAN.md).
+
 <a id="publish-moving-board-fixtures-through-git"></a>
 
 ### Publish moving Board test fixtures through real Git

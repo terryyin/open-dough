@@ -186,11 +186,27 @@ editing any of its pins.
 
 Learnings: `taken-agent-profile-refresh` has no distinct fixed setup; its
 one scenario moves the same trunk and stays with the moving story. The
-restored-access step republishes identical files, and fixed commit dates
-give the same SHA, so it remains a fixed publication. Catalog expectations
+restored-access step was accepted on a false premise: `commitPublishedOrigin`
+numbers each commit, so republishing identical files moves the trunk. The
+[correction](../831-recover-fixed-observation-at-its-published-pin/PLAN.md)
+restores the already-read pin. Catalog expectations
 no longer name revisions. Follow-up found by the refactor pass:
 `dashboard/test-support/support/frontendCatalogProjects.ts` has had no
 importer since trunk commit `1fdc0577d`.
+
+## Execution complete
+
+Product advice: The fixed fixtures still answer `committed` and `history`
+path times and branch heads, as in `branch-slice-progress` and Taken
+completion, only through REST. Their real commits carry one fixed date and
+no branches. Before the
+[Board cutover](../828-open-and-refresh-board-at-verified-trunk/PLAN.md)
+reads clocks or branches from Git, materialize those times and branches in
+the fixture origins. Moving cases left here for
+[the moving story](../826-publish-moving-board-fixtures-through-git/PLAN.md):
+`taken-agent-profile-refresh`, the first cases of
+`recently-done-returned-sessions` and `session-column-membership`, and the
+Open Dough roster in `agent-roster-avatar`.
 
 ## Local gate
 
