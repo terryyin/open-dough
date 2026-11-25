@@ -50,7 +50,7 @@ entries unchanged. Inconclusive is a valid disposition when evidence is missing.
 ### 1. Recheck Cursor exit-file proof wait
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes, excluding instrumented waits.
 
 **Behavior.** On the recorded Cursor build and surface, with the Distribution
@@ -141,6 +141,21 @@ need no new queue entry.
 Slice-plan refinement was unnecessary. Each register case is one independent
 outside-in proof loop matching one key example; the boundary check does not
 share a product model with those entries. No unbounded slice concern remains.
+
+## Execution context
+
+- Workspace: `/Users/terryyin/git/open-dough/.worktrees/recheck-cursor-workarounds`
+- Branch: `cursor/recheck-cursor-workarounds`
+- Mode: story-branch; remote `origin`; target `main`
+- publishedSha (claim / first-increment base): `76e8e0651496d17394f1f8fe4ae5b12797234599`
+- Agent: Honoka-chan
+- Replanning permission: preserve existing planning authority
+- Builds at slice 1: agent CLI `2026.11.22-e9042b2`; Cursor IDE `3.31.15` (`3eb8c133…`, arm64)
+- Refactor disposition (slice 1): skipped — change edits only the maintainer tool-workaround register
+
+## Learnings
+
+- Slice 1: on Cursor agent + AwaitShell (`2026.11.22-e9042b2` / IDE `3.31.15`), with the exit-file loop disabled and no hidden substitute, native waiting met the Still-necessary bar (nonzero exit 42 once; usable still-running observation at a 25s wait budget). Register disposition **retire**; product removal of the Cursor exit-file loop is a slice-5 follow-up. Evidence under the worktree `open-dough/evidence/` (`slice1-full-report.md` and receipts).
 
 ## Verification and delivery
 

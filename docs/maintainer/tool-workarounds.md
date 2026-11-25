@@ -113,12 +113,33 @@ Use Git for earlier reviews and retired entries.
   waits for the exit file or deadline. Introduced in `9dba5f5bc` (`v0.3.101`).
   Cursor describes background completion wakeups and `AwaitShell` on a
   Cursor surface. [Cursor's explanation](https://forum.cursor.com/t/foreground-shell-commands-trigger-an-automatic-extra-agent-request-after-the-main-turn-finishes/172103)
-- **Recheck.** Run the normal proof workflow with a command that crosses the
-  foreground window and exits nonzero, then a command that reaches the
-  deadline. Assess whether native waiting delivers the real result once,
-  honors the deadline, and avoids needless model wakes.
-- **Last review.** 2026-11-25, inconclusive for Cursor CLI
-  `2026.11.22-e9042b2`. Static evidence only. Recheck in
+- **Right problem.** Proof commands that outlive the Shell foreground window
+  needed a durable wait for the real exit status or a caller deadline; Cursor
+  historically lacked a reliable completion handback for background shells.
+- **Still necessary.** No on this recorded surface. With the exit-file loop
+  temporarily disabled and no hidden substitute, native `AwaitShell` delivered
+  a real nonzero exit once within the deadline without needless model wakes,
+  and returned a usable still-running observation when the wait budget ended
+  before the command finished.
+- **Right solution.** Prefer native `AwaitShell` (or foreground Shell when it
+  fits) on Cursor agent surfaces that expose it. The until/sleep/exit-file
+  polling loop is no longer the required wait on this build.
+- **Evidence.** Build: agent CLI `2026.11.22-e9042b2`; Cursor IDE `3.31.15`
+  (`3eb8c133…`, arm64). Surface: Cursor agent with Shell + AwaitShell (Task
+  subagent). Payload / HEAD: `76e8e0651496d17394f1f8fe4ae5b12797234599`.
+  Disable method: temporary edit of the Cursor bullet in
+  `.claude/skills/dough-execute-plan/references/wait-for-proof.md#by-host`
+  (reverted after the check). Receipts under the worktree evidence dir:
+  `slice1-meta.txt`, `slice1-awaitshell-receipts.txt`,
+  `slice1-nonzero-terminal.txt`, `slice1-nonzero.exit` (`42`),
+  `slice1-deadline-terminal.txt` (still running after ~27s wait budget).
+- **Disposition.** retire (product removal of the Cursor exit-file loop is a
+  follow-up; this story does not patch Distribution guidance).
+- **Next review trigger.** Cursor agent or AwaitShell regression that drops
+  durable background wait / exit delivery; otherwise the next scheduled
+  maintainer workaround recheck.
+- **Last review.** 2026-11-25, retire for Cursor agent + AwaitShell on CLI
+  `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 1.
   [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor generation identity for CI delivery
