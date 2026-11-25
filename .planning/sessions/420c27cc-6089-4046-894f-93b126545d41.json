@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "420c27cc-6089-4046-894f-93b126545d41",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-25T12:50:02.825Z",
+  "story": "SEED-430#publish-moving-board-fixtures-through-git",
+  "ranges": [
+    {
+      "base": "0b7b8984e011e3bb6e8efbf590750c6b161d8f2b",
+      "candidate": "f27d2cd6a1f7886b7f1a16af0cc82d5c3856e427"
+    }
+  ]
+}

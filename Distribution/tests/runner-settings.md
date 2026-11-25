@@ -36,9 +36,10 @@ time the runner finds every slot occupied with a job still queued, so a check
 can observe the runner holding queued work.
 `OPEN_DOUGH_TEST_ADMISSION_GATE=<file>` receives each changed admission record
 id of the live owner, outside the run's ancestry, that keeps a full local run
-waiting for [shared admission](local-test-resources.md). Each whole-file
+waiting for shared admission. Each whole-file
 replacement lets a check identify the current blocking owner, including a
-successor to an earlier observed owner.
+successor to an earlier observed owner. A full run's shell wall time includes
+any admission wait; compare runs by the runner's own reported duration.
 Each scheduled job also carries a fixed 180-second wall-clock safety deadline
 from its start; see [the runner](README.md#runner). That limit stops hung work
 and frees admission when a whole run ends.

@@ -84,6 +84,7 @@ test("Intent names the launch, destination and captured revisions of the landed 
   await story.chooseTab("Changes");
   await story.chooseLatestLanding();
   await story.chooseRun(older.key);
+  await story.openDetails();
 
   await expect
     .element(

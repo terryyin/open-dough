@@ -98,6 +98,44 @@ export function IntentPage({
     "aria-labelledby": intentTabId(tabsIdPrefix, name),
     hidden: view !== name,
   });
+  const filesToggle = (
+    <FileBrowserToggle
+      icon
+      browser={
+        view === browserView && browserLocations !== undefined
+          ? files
+          : undefined
+      }
+      onShowBrowser={setFilesShown}
+    />
+  );
+  // A story's views sit in its header, between its title and comparison bar.
+  const tabBar = (
+    <div className="intent-page-tabbar" {...intentHomeMarks}>
+      {story === undefined ? (
+        <IntentTabs
+          options={projectTabs}
+          selected={project.mode}
+          onSelect={project.onModeChange}
+          onActivate={(activated) => {
+            if (activated === "ci") clearSelection();
+            else setEntryReturns((n) => n + 1);
+          }}
+          label="Project Intent views"
+          idPrefix={tabsIdPrefix}
+        />
+      ) : (
+        <IntentTabs
+          options={storyTabs}
+          selected={tab}
+          onSelect={chooseTab}
+          label="Selected story views"
+          idPrefix={tabsIdPrefix}
+        />
+      )}
+      {story === undefined && filesToggle}
+    </div>
+  );
   const page = (
     <>
       <div
@@ -117,39 +155,10 @@ export function IntentPage({
           summary={story?.summary}
           source={source.id}
           browserRevision={shownRevision}
+          filesToggle={filesToggle}
+          tabBar={story !== undefined && tabBar}
         />
-        <div className="intent-page-tabbar" {...intentHomeMarks}>
-          {story === undefined ? (
-            <IntentTabs
-              options={projectTabs}
-              selected={project.mode}
-              onSelect={project.onModeChange}
-              onActivate={(activated) => {
-                if (activated === "ci") clearSelection();
-                else setEntryReturns((n) => n + 1);
-              }}
-              label="Project Intent views"
-              idPrefix={tabsIdPrefix}
-            />
-          ) : (
-            <IntentTabs
-              options={storyTabs}
-              selected={tab}
-              onSelect={chooseTab}
-              label="Selected story views"
-              idPrefix={tabsIdPrefix}
-            />
-          )}
-          <FileBrowserToggle
-            icon
-            browser={
-              view === browserView && browserLocations !== undefined
-                ? files
-                : undefined
-            }
-            onShowBrowser={setFilesShown}
-          />
-        </div>
+        {story === undefined && tabBar}
         {story === undefined && notice}
         {story !== undefined && (
           <div {...panel("ci")}>

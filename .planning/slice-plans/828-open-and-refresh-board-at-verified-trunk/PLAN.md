@@ -398,6 +398,6 @@ proof that owns them.
 ## Local gate
 
 Run focused checks and Dashboard typecheck for each changed boundary.
-Run long checks under [`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Run long checks under `caffeinate -s -i` on AC power.
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 and select test conventions through [AGENTS.md](../../../AGENTS.md).

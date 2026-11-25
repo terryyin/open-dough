@@ -110,10 +110,11 @@ export async function chooseOptimizationCandidates(intent: Locator) {
 }
 
 // Hide files / Show files for the locations column: in Project Intent's strip
-// on CI status, or ending a selected story's view row on Changes.
+// on CI status, or leading a selected story's comparison bar, under its
+// views, on Changes.
 export const filesToggle = (intent: Locator) =>
   intent
-    .locator(".intent-page-tabbar")
+    .locator(".intent-page-tabbar, .intent-comparison-row")
     .getByRole("button", { name: /^(Hide|Show) files$/ });
 
 // The toggle names what it does and states whether the column is shown.

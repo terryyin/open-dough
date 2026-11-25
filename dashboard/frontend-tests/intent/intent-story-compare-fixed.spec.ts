@@ -181,6 +181,7 @@ test("a late branch comparison cannot replace another story's explanation or fil
   await activateComparisonControl(story.includeMerged);
   await expect.element(story.file(`Added ${incomingPath}`)).toBeVisible();
   holdBranchRead = true;
+  await story.openDetails();
   await activateComparisonControl(story.refreshButton);
   await comparisonRead(held.asked).toBe(true);
 

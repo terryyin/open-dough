@@ -98,7 +98,7 @@ Follow changed helpers to their call sites. The initial proof selection is:
   `npm run typecheck:dashboard` and lint for affected Dashboard code.
   For long runs, start fully awake on AC with `caffeinate -s -i`. On battery
   start fully awake with the lid open under `caffeinate -i` and check the sleep
-  log afterwards. See [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+  log afterwards.
 - Follow the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   and [post-change refactoring](../../../.agents/skills/dough-post-change-refactor/SKILL.md)
   before each commit. Apply the configured MakeMe and page-object selection

@@ -147,13 +147,16 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     );
     await expectAttemptLinked(proof, "Run 12 · attempt 2", mainRun);
     // A screen reader in browse mode hears each label from its content.
+    // Quote the revision code: Playwright's aria YAML quotes hex-like
+    // values in CI while leaving them bare locally; both forms match a
+    // double-quoted expected string.
     await expect(evidenceLabels(proof)).toMatchAriaSnapshot(`
       - list "CI evidence":
         - listitem:
           - link "Run 12 · attempt 2"
         - listitem:
           - text: Revision
-          - code: ${shortSha(signup)}
+          - code: "${shortSha(signup)}"
         - listitem: Completed ancestor , The completed ancestor of the running result
         - listitem: CI wall time not recorded , This attempt's CI read has no start and completion times.
     `);

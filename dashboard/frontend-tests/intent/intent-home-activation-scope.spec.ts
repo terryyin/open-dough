@@ -117,9 +117,15 @@ test("activating CI comparison from Changes judges the selected story's branch u
   await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
 });
 
+// At phone width, the fold falls between the story heading's end and the start
+// of its Changes tab, which follows the heading closely.
 async function keepReadingOnShortViewport() {
   await readStoryChanges();
   await page.viewport(390, 320);
+  intentScroll().scrollTop = 0;
+  const end = storyHeading.element().getBoundingClientRect().bottom;
+  const start = story.viewTab("Changes").element().getBoundingClientRect().top;
+  await page.viewport(390, Math.floor((end + start) / 2));
 }
 
 test("a touch opens the bookmark immediately when the story heading is readable above the fold of Changes", async () => {

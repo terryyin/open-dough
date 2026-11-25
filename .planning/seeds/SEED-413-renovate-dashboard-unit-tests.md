@@ -204,21 +204,108 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 <a id="finish-backend-vitest-renovation-after-session-reads-and-alerts"></a>
 
-### Finish the remaining backend Vitest renovation after session reads and alerts
+### Prove installed launch options through typed backend requests
 
 **Identity:** SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/839-prove-installed-launch-options-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ca055bf9a02ae08103eba3a3119b1a4bfb972fe4b0a4a287e7cbb79a309f444","plan":"469d73a330e69a3e7430f6227f0c15baa0bc6c121ec681df05a0843e85632d21"}}
+```
+
+- **Goal.** Developers changing installed launch options can check in Node
+  Vitest which flags a project accepts and in what order, with browser proof
+  that Start sends the selection and shows it again after reload.
+- **Scope.** Move the two HTTP-based launch option specs,
+  `agent-launch-options-boundary.spec.ts` and
+  `agent-launch-options-groups.spec.ts`, off backend Playwright. Exercise the
+  typed selection owner against the requesting project's real installed
+  definition. Keep failures distinct when their reason differs. Keep
+  command delivery and persisted selection with their observing proof,
+  including the existing browser journeys. Measure focused feedback before
+  and after and account for every former case.
+- **Key examples.** Given a definition with a free flag and two exclusive
+  flags, a request in a different order returns the selected flags in the
+  definition's order. Selecting two flags from the same group refuses the
+  request and names the group and both flags. Given the same flag installed
+  in one project and absent in another, only the project that defines it
+  accepts it. Given an unavailable definition, an empty selection still
+  allows the default launch, and a selected flag receives the reason the
+  definition cannot be used.
+- **Boundary.** Native host dispatch, the machine-session reader, and the
+  runner's direct Playwright specimen retain their existing owners. The
+  [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-options)
+  carries the remaining families, the Story Notes store and runner retirement.
+
+<a id="finish-backend-vitest-renovation-after-launch-options"></a>
+
+### Prove launch attachment admission in Node Vitest
+
+**Identity:** SEED-413#finish-backend-vitest-renovation-after-launch-options
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"76eea7b77b2647791949d6c80606e3cb84b9c22e84fd25bff8078999b5b8f50d","plan":"80048b7bed76a184b03a6c03907e7522f0f5f5bcf68dfd861e3f0e6ab685119d"}}
+```
+
+- **Goal.** Developers changing launch attachments get fast, typed feedback
+  on which uploads are refused and what a refused launch leaves on disk.
+  Existing browser journeys continue to show that accepted images reach the
+  agent and survive startup recovery.
+- **Scope.** Move `launch-attachment-boundary.spec.ts` and
+  `launch-attachment-refusals.spec.ts` to plain Node Vitest. Keep upload
+  type and size refusals, filename encoding, selection reasons, claim
+  cleanup and the response contract with their observing tests. Exercise
+  real files in a private dashboard directory. Account for all six former
+  cases and measure the focused command before and after.
+- **Key examples.** Given a PDF or a declared oversized PNG, posting it
+  returns the corresponding reason and an uncached refusal, with no new
+  claim. A name with non-Latin-1 characters can be sent in a header and
+  recovered on receipt. When a launch names six claims, or supplies a file
+  path alongside a posted claim, refusal clears the claims and leaves no
+  attempt files. With valid images, existing browser proof observes the
+  copied bytes in the order picked and the same path when startup continues.
+- **Boundary.** The
+  [launch-options story](#finish-backend-vitest-renovation-after-session-reads-and-alerts)
+  owns option admission. Session-terminal uploads and voice are consumers of
+  the shared reader and retain their coverage. The
+  [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-attachments)
+  carries the remaining families, Story Notes and runner retirement.
+
+<a id="finish-backend-vitest-renovation-after-launch-attachments"></a>
+
+### Finish the remaining backend Vitest renovation after launch attachments
+
+**Identity:** SEED-413#finish-backend-vitest-renovation-after-launch-attachments
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-This campaign remainder carries the unselected work from
-[the original preparation identity](https://github.com/terryyin/open-dough/blob/0c7ad7e2c6019d0b736e8e04ff4218ee61944e10/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter).
-The two selected cohorts can land independently. Machine-session reads go
-first for their slightly higher measured cost and the reuse they establish
-at the observation boundary. Notifications already consume typed readings
-and can proceed independently.
+This remainder carries the unselected scope split from
+[launch attachment admission](#finish-backend-vitest-renovation-after-launch-options).
+The maintained selector at `7a206c76e` on 25 November 2026 reports 309
+Playwright and 283 Node Vitest paths across 592 backend specs. Launch
+options is Taken. After the two options files and the two attachment files
+move, the projection is 305 Playwright paths if no other changes land.
 
-**Current sizing** (`4f107f7e7`, 25 November 2026). The maintained selector
+| Family | Playwright paths at `7a206c76e` | After launch options and attachments |
+| --- | ---: | ---: |
+| Launches | 93 | 89 |
+| Observation | 54 | 54 |
+| Sessions | 50 | 50 |
+| Runtime | 39 | 39 |
+| Review | 31 | 31 |
+| Intent | 17 | 17 |
+| Configuration | 13 | 13 |
+| Terminals | 12 | 12 |
+| **Total** | **309** | **305** |
+
+The attachment increment can run independently of launch-option selection
+and the Taken work on story-linked sessions and Review. Its type, size, and
+claim-cleanup behavior has a distinct production owner. The new launch
+path since the `93d26816e` count is the landed-comparison follow-up admission
+spec. Recount before selecting the next cohort. Select an independent
+production boundary among the surviving higher-cost families, accounting
+for overlapping product changes first. The campaign remainder exceeds
+eight 15-minute slices. Keep runner retirement as its final increment.
+
+**Earlier sizing** (`4f107f7e7`, 25 November 2026). The maintained selector
 reports 320 Playwright and 269 Node Vitest paths across 589 backend specs.
 The change from 498 legacy paths at the systematic recount is a net reduction
 of 178 while the suite grew by nine. The direct rewrite and typed Usage
@@ -282,11 +369,12 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   collaborators where their behavior matters. The campaign ends when
   `dashboard/backend.playwright.config.ts` and the backend request and server
   wrappers in `dashboard/test-support/` are deleted.
-- **Remaining work.** Recount the runner after the two selected cohorts and
-  the overlapping product changes. This story retains the other families,
-  the Story Notes store follow-up below, and final runner retirement. The
-  automatic-repeat correction owns its assigned coverage and load
-  obligations. Count each legacy survivor once at runner cutover.
+- **Remaining work.** Recount after launch options and overlapping product
+  changes. The automatic-repeat correction owns its assigned coverage and load
+  obligations. Count each legacy survivor once at runner cutover. The direct
+  launch-options rule spec still serves the backend proof-record and runner
+  ownership checks. Convert it when replacing or retiring those Playwright
+  checks, keeping their selection and reporting proof with the next owner.
 - **Family planning.** Split by a verifiable outcome and size each story to one
   plan. Group closely related families when they use the same typed inputs
   and arrangement. Recount the review families after
@@ -371,9 +459,9 @@ smaller unit selection does not hide its cost or a lost regression check.
      `38f934ba:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission`).
      The browser reporter cohort is complete (recoverable at
      `fbfcca735:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-intent-ci-readers`).
-     Select the next launch or other boundary cohort from the surviving
-     runner inventory and measured CI cost, once the Taken stories that
-     change the same launch, session and Review specs have landed.
+     Proceed from launch attachment admission to the next independent
+     boundary in the surviving runner inventory. Recount after Taken stories
+     land before selecting the launch, session or Review specs they change.
      Intent still includes follow-up and lifecycle proof outside the
      extracted spec lists, together with Intent location reads. Keep freshness, invalidation and closing with the production
      lifetime owner. Keep the [automatic-repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)

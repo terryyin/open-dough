@@ -107,8 +107,8 @@ To refresh or investigate the contract:
 5. Check the repaired current journey with its normal stack and its retained
    injection, removing the injection only in an owned disposable copy. Restore
    scratch edits afterwards. Finally run `scripts/ci-container.sh --dashboard`
-   to cover all dashboard consumers of the image's system fonts. Apply the
-   [local resource and sleep policy](../local-test-resources.md) to long runs.
+   to cover all dashboard consumers of the image's system fonts. Run it
+   under `caffeinate -s -i` on AC power.
 
 This is observed fallback/layout parity for these journeys, not pixel-identical
 rendering or a promise to reproduce every hosted-platform difference. The

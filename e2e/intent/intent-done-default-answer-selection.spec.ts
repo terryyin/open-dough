@@ -28,6 +28,7 @@ import { holdNextReviewResponse } from "../../dashboard/test-support/support/hol
 import {
   chooseStoryTab,
   intentStory,
+  showComparisonDetails,
   storySummary,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
@@ -153,7 +154,7 @@ test("selecting another Done story opens its published default after reading the
     );
   });
   const landing = new ReviewLandedRun(storySummary(intent), () =>
-    expect(storySummary(intent)).toBeVisible(),
+    showComparisonDetails(storySummary(intent)),
   );
   await landing.choose(first.reporting.reference);
   expect(

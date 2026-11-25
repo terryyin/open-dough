@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "c576b3d9-7b8c-4f14-935a-b4daede3acee",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T13:58:54.007Z",
+  "story": "SEED-437#discover-project-default-branch-through-git",
+  "ranges": [
+    {
+      "base": "2cb391382257306be11cf53e4cf4a4bdaa258595",
+      "candidate": "0630beda6b1a654f9d0e5997aab1b82d3c763083"
+    }
+  ]
+}
