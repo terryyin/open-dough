@@ -217,3 +217,23 @@ Disposition: proved by slice 3: intent-home-activation-scope.spec.ts observes th
 - The Codex observer for the remote story branch tracks GitHub Actions
   `ci.yml` under coordinator `koharu-420-ed214235` at
   `/tmp/dough-ci-501/watch-fvhWBV`, stream session `30471`, cell `g375:14`.
+- Slice 3 was accepted on the story branch at `6bf9fb9b85d960b81e13e6277ccb30e82a01a4e8`.
+
+## Retrospective
+
+The delivered changes follow ADR 0008's story, comparison, and path scope.
+Mounted tests exercise evidence navigation and attribution. End-to-end
+tests cover directed review through real sync, historical reads, and
+Side panel focus. The named compact comparison and comparison follow-up
+work reached trunk independently. The integrated checks cover their shared
+header and preserve their existing operations.
+
+The selected process review continues in wrap-up after the automatic
+Intent Coverage check. The Story Home change replaced prior tab and focus
+assertions, so the proposed break check targets directed review arrival.
+
+## Execution complete
+
+Product advice: no change. Story Home lets developers read comparison and
+Intent coverage in context with the existing file inventory. The delivered
+behavior and proof support the current direction.
