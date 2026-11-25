@@ -36,19 +36,19 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(page, doughnut, doughnutSettings, {
+  publishIntentProject(page, doughnut, doughnutSettings, {
     "scripts/backend-test-worktree-admission.test.mjs": nodeTest,
     "scripts/backend-test-worktree-admission-fixtures.mjs":
       "export const fixtures = [];\n",
   });
-  await publishIntentProject(page, pygardon, pygardonSettings, {
+  const pygardonPin = publishIntentProject(page, pygardon, pygardonSettings, {
     "frontend/src/pages/AspyPage.devices.spec.tsx": devicesSpec,
     "frontend/src/pages/AspyPage.tsx": aspyPage,
     "frontend/src/pages/AspyPage.spec.helpers.tsx":
       "export const helpers = {};\n",
     "tests/test_example.py": pythonTest,
     "tests/worktree_check_support.py": "SUPPORT = True\n",
-  });
+  }).revision;
 
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
@@ -127,7 +127,7 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
     const pythonSource = fileSource(intent, "tests/test_example.py");
     await expect(pythonSource).toContainText("def test_example():");
     await expect(intent).toContainText(
-      `at revision ${shortRevision(pygardon.revision)}`,
+      `at revision ${shortRevision(pygardonPin)}`,
     );
     await expectKeywordAndStringColours(pythonSource, /^def$/, /^"ok"$/);
   });

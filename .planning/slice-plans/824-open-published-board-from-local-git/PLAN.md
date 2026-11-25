@@ -152,7 +152,7 @@ latter, `publishMembership` can go.
 ### 5. Publish fixed Intent sources and purpose at the real pin
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: Migrate fixed `publishIntentProject` sites for code browsing,
 Gherkin and recorded Purpose. Share the real advertised pin through source
@@ -162,6 +162,11 @@ Proof: Run the six fixed Intent files named in the audit. Observe the
 configured ref for each project, exact source, configuration bytes and
 unsupported source handling. Budget 14 active minutes to update the shared
 entry point and its explicit revision expectations.
+
+Learnings: `publishIntentProject` commits through `publishCommittedFiles`
+and returns the real revision synchronously; no `publishIntentProject` site
+moved. The `b2`/`c3`/`d4` revisions in `intentCodeBrowseFixtures.ts` remain
+for CI-status, CI-proof and read-recovery consumers outside this slice.
 
 ### 6. Publish fixed observations from the selected project
 

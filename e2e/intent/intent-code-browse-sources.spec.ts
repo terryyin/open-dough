@@ -61,7 +61,7 @@ test("Intent lists sources locations' Bash, Node and Java files, opens each with
   const shellTest = "scripts/test/worktree_setup.sh.test";
   const nodeTestPath = "scripts/ci/ci-proof-outcomes.test.mjs";
   const plainCheck = 'echo "plain"\n';
-  await publishIntentProject(page, doughnut, settings, {
+  publishIntentProject(page, doughnut, settings, {
     [shellTest]: shellCheck,
     [nodeTestPath]: nodeTest,
     "scripts/ci/ci-proof-fixtures.mjs": "export const fixtures = [];\n",

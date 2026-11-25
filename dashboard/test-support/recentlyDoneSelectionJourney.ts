@@ -63,12 +63,12 @@ export const readSpec = "dashboard/tests/browse.spec.ts";
 // Publishes the three projects; given `unreadableLinkedRecord`, Pygardon's
 // done story's record names another identity, so its catalog names that
 // record unreadable.
-export async function publishSelectionProjects(
+export function publishSelectionProjects(
   page: Page,
   now: number,
   unreadableLinkedRecord = false,
 ) {
-  await publishIntentProject(page, openDough, openDoughSettings, {
+  publishIntentProject(page, openDough, openDoughSettings, {
     [readSpec]: browseSpec,
   });
   const { pygardon, doughnut } = catalogPublications;
@@ -216,7 +216,7 @@ export async function openSelectionPage(
   const now = Date.now();
   if (tap === undefined)
     await page.setViewportSize({ width: 1600, height: 900 });
-  await publishSelectionProjects(page, now, unreadableLinkedRecord);
+  publishSelectionProjects(page, now, unreadableLinkedRecord);
   keepSelectionSessions(dashboard, now, newer);
   await openUntilRead(page, address);
   const shown = recentlyDoneParts(page);

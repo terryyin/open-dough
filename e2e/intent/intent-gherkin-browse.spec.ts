@@ -44,14 +44,14 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(page, doughnut, doughnutSettings, {
+  const doughnutPin = publishIntentProject(page, doughnut, doughnutSettings, {
     "e2e_test/features/recall/recall_note.feature": recallFeature,
     "e2e_test/features/recall/__image_snapshots__/recall.png": "png-bytes",
-  });
-  await publishIntentProject(page, pygardon, pygardonSettings, {
+  }).revision;
+  const pygardonPin = publishIntentProject(page, pygardon, pygardonSettings, {
     "e2e_test/features/smoke/smoke.feature": "Feature: Smoke\n",
     "e2e_test/packaged/features/packaged.feature": packagedFeature,
-  });
+  }).revision;
 
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
@@ -90,7 +90,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     await expect(source).toContainText("Given a notebook with a note titled");
     await expect(sourceLineNumbers(source).first()).toHaveText("1");
     await expect(intent).toContainText(
-      `at revision ${shortRevision(doughnut.revision)}`,
+      `at revision ${shortRevision(doughnutPin)}`,
     );
   });
 
@@ -156,7 +156,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
       fileSource(intent, "e2e_test/packaged/features/packaged.feature"),
     ).toContainText("Feature: Packaged feature");
     await expect(intent).toContainText(
-      `at revision ${shortRevision(pygardon.revision)}`,
+      `at revision ${shortRevision(pygardonPin)}`,
     );
     expectAddress(page, { project: "pygardon", perspective: "intent" });
   });
