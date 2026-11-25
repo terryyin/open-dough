@@ -238,7 +238,42 @@ Use Git for earlier reviews and retired entries.
   `67672cc03` (`v0.3.103`). A subagent tool call on Cursor
   `2026.11.13-eacade1` showed this input.
   [Native observation](https://github.com/terryyin/open-dough/blob/67672cc03b28bc6aaf4c127b1e39cf7327737e2d/.planning/slice-plans/667-count-slice-active-time-deterministically/PLAN.md)
-- **Recheck.** Capture the hook input from the coordinator and a subagent in
-  a linked worktree. Drop the fallback when the native event reliably identifies
-  the command's own checkout, including with multiple workspace roots.
-- **Last review.** 2026-11-25, keep pending the native check in SEED-440.
+- **Right problem.** Yes. Cursor `postToolUse` often delivers an empty `cwd`
+  (Shell default) or omits `cwd` (Read/Grep) while naming the workspace in
+  `workspace_roots`. Without a fallback, the slice-clock hook cannot take the
+  checkout from the native event and would rely on the loaded script's
+  `checkoutRoot`, which is not the command's declared working identity.
+- **Still necessary.** Yes on this recorded surface. Live Task-subagent
+  `postToolUse` in the linked worktree showed Shell `cwd: ""` with
+  `workspace_roots[0]` equal to the worktree; Read/Grep omitted `cwd` with the
+  same roots. Explicit Shell `working_directory` fills top-level `cwd` (including
+  to `/tmp`), so filled `cwd` is the tool working directory, not a reliable
+  checkout id. Temporarily disabling `workspace_roots[0]` (leaving
+  `cwd || checkoutRoot` only, no hidden cwd filler) still left empty `cwd` on
+  default Shell; native input alone does not identify the checkout. Multi-root
+  was not available; in this single-root case `roots[0]` matched the worktree
+  and would not mis-identify it, but empty `cwd` still requires the fallback.
+  Live coordinator/parent hook stdin was not captured from this child Task
+  (parent conversation inferred from the child transcript path only).
+- **Right solution.** Keep `cwd || workspace_roots?.[0] || checkoutRoot`. No
+  simpler native field reliably names the checkout when `cwd` is empty. No
+  retire or simplify product change from this review.
+- **Evidence.** Build: agent CLI `2026.11.22-e9042b2`; Cursor IDE `3.31.15`
+  (`3eb8c133…`, arm64). Surface: Cursor agent with hooks (this Task =
+  subagent in linked worktree). Payload / HEAD:
+  `33244f7cf23c7fee46528315c4078c388acf735f`. Disable method: temporary
+  removal of `workspace_roots[0]` in loaded `.agents` / `.claude`
+  `slice-clock-hook.mjs` copies (reverted). Receipts under the worktree
+  evidence dir: `slice4-hook-captures.jsonl`, `slice4-cwd-matrix.txt`,
+  `slice4-still-necessary-verdict.json`, `slice4-fallback-probe-on.json`,
+  `slice4-parent-coordinator-note.txt`, `slice4-multiroot-observation.txt`,
+  `slice4-full-report.md`.
+- **Disposition.** keep (no follow-up product change).
+- **Next review trigger.** Cursor fills `cwd` with the project checkout on
+  every tool hook (including default Shell and non-Shell tools) without
+  requiring an explicit `working_directory`; or a maintainer recheck that
+  captures live coordinator hook stdin and a multi-root workspace where
+  `workspace_roots[0]` differs from the command checkout.
+- **Last review.** 2026-11-25, keep for Cursor agent + hooks on CLI
+  `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 4.
+  [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).

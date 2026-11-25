@@ -103,7 +103,7 @@ a simpler native guard keep the skip.
 ### 4. Recheck Cursor empty-`cwd` slice-clock fallback
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–12 active minutes.
 
 **Behavior.** Capture slice-clock (or equivalent tool-hook) input from the
@@ -158,6 +158,7 @@ share a product model with those entries. No unbounded slice concern remains.
 - Slice 1: on Cursor agent + AwaitShell (`2026.11.22-e9042b2` / IDE `3.31.15`), with the exit-file loop disabled and no hidden substitute, native waiting met the Still-necessary bar (nonzero exit 42 once; usable still-running observation at a 25s wait budget). Register disposition **retire**; product removal of the Cursor exit-file loop is a slice-5 follow-up. Evidence under the worktree `open-dough/evidence/` (`slice1-full-report.md` and receipts).
 - Slice 2: Shell still lacks `generation_id`; disabling the managed-generation adopt path misses delivery on the owning real hook; parent mailbox generation ≠ conversation. Register disposition **keep** (no product follow-up). Evidence: `slice2-full-report.md`. beforeSubmitPrompt / live parent hook stdin remain a next-review gap.
 - Slice 3: with both hook sets installed, Cursor runs matching hooks from every source; disabling `cursor_version` skip produced dual non-empty clock effects. Register disposition **keep**. Evidence: `slice3-full-report.md`.
+- Slice 4: live Shell `cwd` still empty in the linked worktree; `workspace_roots[0]` still required. Register disposition **keep**. Evidence: `slice4-full-report.md`. Parent live hook stdin and multi-root remain next-review gaps.
 
 ## Verification and delivery
 
