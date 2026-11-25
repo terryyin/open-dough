@@ -285,3 +285,17 @@ identified.
   for consumers of every deleted helper before deleting it. Slice 4 changes
   a shared production store, so its slice reruns the launch-record consumers
   the trace lists.
+
+## Execution complete
+
+Product advice: No backlog or priority change. Outcome matches the story:
+comparison/history Intent CI readers now prove through typed
+`performIntentCiComparisonRead` / `performIntentCiHistoryRead` on Node Vitest;
+pending-proof server cases retired only after discriminating owners; optional
+`home` on launch/receipt reads mirrors the history store without changing
+default production behavior; `pendingLandedComparison` removed and
+`missingLandedRun` correctly kept for `e2e`. Aligns with North Star (plain
+Vitest / directly testable production) and ADR 0010. Leave
+SEED-413#renovate-remaining-backend-families-after-intent-ci-readers as the
+next campaign item and reuse named-home + discrimination-before-delete there.
+Process review deferred into wrap-up for Dough Intent Coverage.
