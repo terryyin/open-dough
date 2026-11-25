@@ -1,170 +1,198 @@
-// The launch boundary joins stored sessions from every project with a
-// single native listing. Reading activity changes no stored record, and an
-// empty store requires no native listing.
-import { readFileSync } from "node:fs";
-import {
-  keptLaunchRecords,
-  launchStoreFile,
-} from "../../test-support/support/launchStore.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  machineFolder,
-  machineSessions,
-  projectRecords,
-  recordsOf,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import type { ClaudeSessionChange } from "../../test-support/support/fakeClaude.ts";
+// The launch boundary joins kept sessions from every project with a single
+// Claude Code listing, translated from the synthetic `claude agents` output.
+// Reading activity changes no kept record, and an empty store requires no
+// native listing.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { ClaudeListingAppearance } from "../../../Distribution/tests/support/claudeListingTestData.mjs";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
+import { parsedListing } from "../../server/hosts/claude/listing.ts";
+import { claudeObservations } from "../../server/hosts/claude/runtime.ts";
+import { withStates, type HostSessions } from "../../server/launchStates.ts";
+import { localFolder } from "../../server/localFolder.ts";
 
-type WithState = {
-  session: { sessionId: string };
-  sessionState: unknown;
-};
-
+const machine = localFolder("/machine");
+const startedAt = Date.parse("2026-11-25T09:00:00Z");
 const working = {
   kind: "available",
   availability: "loaded",
   activity: "working",
 };
 
-test.describe("the machine's sessions, each joined with its state", () => {
-  test.describe.configure({ mode: "serial" });
-  let server: DashboardServer;
+function keptSession(sessionId: string, source = "open-dough"): LaunchRecord {
+  return makeMe.aLaunchRecord
+    .executing({ identity: `SEED-001#${sessionId}`, title: sessionId, source })
+    .inClaudeSession({ sessionId })
+    .please();
+}
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer({
-      mode: "boundary",
-      projectFolders: ["open-dough", "pygardon"],
-    });
-  });
+function listed(sessionId: string, appearance: ClaudeListingAppearance) {
+  return makeMe.aClaudeListingRow
+    .background({ sessionId, name: sessionId, startedAt })
+    .as(appearance);
+}
 
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  async function statesOf(): Promise<Map<string, unknown>> {
-    const kept = (await recordsOf(server, "open-dough")) as WithState[];
-    return new Map(
-      kept.map((record) => [record.session.sessionId, record.sessionState]),
-    );
-  }
-
-  test("answers no records and runs no claude while none are kept", async () => {
-    expect(await recordsOf(server, "open-dough")).toEqual([]);
-    expect(server.claudeCalls()).toEqual([]);
-  });
-
-  test("answers each session as Claude Code lists it: working busy or idle, blocked with what it waits for when it says, done running or exited, failed, stopped, or no longer listed, keeping none of it", async () => {
-    // Each session's change and the reason a blocked one gives, if any.
-    const changes = [
-      ["working"],
-      ["working-idle"],
-      ["blocked"],
-      ["blocked", "permission to run npm test"],
-      ["done-live"],
-      ["done-exited"],
-      ["failed"],
-      ["stopped"],
-      ["forgotten"],
-    ] as const satisfies readonly (readonly [ClaudeSessionChange, string?])[];
-    const sessions: string[] = [];
-    while (sessions.length < changes.length) {
-      sessions.push((await composeSession(server)).sessionId);
-    }
-    const initial = await statesOf();
-    expect(sessions.map((id) => initial.get(id))).toEqual(
-      changes.map(() => working),
-    );
-    const stored = readFileSync(launchStoreFile(server), "utf8");
-    for (const [index, [change, waitingFor]] of changes.entries()) {
-      server.claudeSessionBecomes(sessions[index] ?? "?", change, waitingFor);
-    }
-    const callsBefore = server.claudeCalls().length;
-
-    const states = await statesOf();
-    expect(sessions.map((id) => states.get(id))).toEqual([
-      working,
-      working,
-      { kind: "available", availability: "loaded", activity: "waiting" },
-      {
-        kind: "available",
-        availability: "loaded",
-        activity: "waiting",
-        waitingFor: "permission to run npm test",
-      },
-      { kind: "available", availability: "loaded", activity: "review" },
-      { kind: "available", availability: "retained", activity: "review" },
-      { kind: "available", availability: "retained", activity: "failed" },
-      { kind: "available", availability: "retained", activity: "interrupted" },
-      { kind: "unavailable" },
-    ]);
-    expect(server.claudeCalls().slice(callsBefore)).toEqual([
-      { argv: ["agents", "--json", "--all"], cwd: machineFolder(server) },
-    ]);
-    // The records read kept nothing of what it answered.
-    expect(readFileSync(launchStoreFile(server), "utf8")).toBe(stored);
-  });
-
-  test.describe("with an existing working session", () => {
-    let sessionId: string;
-
-    test.beforeAll(async () => {
-      ({ sessionId } = await composeSession(server));
-    });
-
-    test("answers a resumed session without the reason it waited for", async () => {
-      server.claudeSessionBecomes(sessionId, "blocked", "input needed");
-      expect((await statesOf()).get(sessionId)).toEqual({
-        kind: "available",
-        availability: "loaded",
-        activity: "waiting",
-        waitingFor: "input needed",
-      });
-
-      server.claudeSessionBecomes(sessionId, "working");
-      expect((await statesOf()).get(sessionId)).toEqual(working);
-    });
-
-    test("answers every session unknown while the listing fails, and as listed once it answers again", async () => {
-      server.claudeListingFails(true);
-      try {
-        const unknown = await statesOf();
-        expect(unknown.has(sessionId)).toBe(true);
-        for (const state of unknown.values()) {
-          expect(state).toEqual({ kind: "unknown" });
+// Claude Code as the read reaches it: each listing printed as the synthetic
+// `claude` prints it, or none when the listing fails, and the folders it
+// listed in.
+function claudeListing(initial: readonly object[]) {
+  let printed: string | undefined = JSON.stringify(initial);
+  const listedIn: string[] = [];
+  const hostSessions: HostSessions = (host) =>
+    host === "claude"
+      ? (records, folder) => {
+          listedIn.push(folder.path);
+          return Promise.resolve(
+            claudeObservations(
+              records,
+              printed === undefined ? undefined : parsedListing(printed),
+            ),
+          );
         }
-      } finally {
-        server.claudeListingFails(false);
-      }
+      : undefined;
+  return {
+    listedIn,
+    prints(rows: readonly object[] | undefined) {
+      printed = rows === undefined ? undefined : JSON.stringify(rows);
+    },
+    read(records: readonly LaunchRecord[]) {
+      return withStates(machine, records, "on-demand", hostSessions);
+    },
+    async statesOf(records: readonly LaunchRecord[]) {
+      return (await this.read(records)).map(({ sessionState }) => sessionState);
+    },
+  };
+}
 
-      expect((await statesOf()).get(sessionId)).toEqual(working);
-    });
+test("answers no records and lists no sessions while none are kept", async () => {
+  const claude = claudeListing([]);
 
-    test("answers each session as listed while Claude Code also lists an interactive session", async () => {
-      server.claudeListsInteractiveSession();
+  expect(await claude.statesOf([])).toEqual([]);
+  expect(claude.listedIn).toEqual([]);
+});
 
-      expect((await statesOf()).get(sessionId)).toEqual(working);
-    });
+test("answers each session as Claude Code lists it: working busy or idle, blocked with what it waits for when it says, done running or exited, failed, stopped, or no longer listed, keeping none of it", async () => {
+  const appearances = [
+    ["working", listed("working", "working")],
+    ["working-idle", listed("working-idle", "working-idle")],
+    ["blocked", listed("blocked", "blocked")],
+    [
+      "blocked-why",
+      listed("blocked-why", "blocked").waitingFor("permission to run npm test"),
+    ],
+    ["done-live", listed("done-live", "done-live")],
+    ["done-exited", listed("done-exited", "done-exited")],
+    ["failed", listed("failed", "failed")],
+    ["stopped", listed("stopped", "stopped")],
+  ] as const;
+  const records = [
+    ...appearances.map(([sessionId]) => keptSession(sessionId)),
+    keptSession("forgotten"),
+  ];
+  const kept = structuredClone(records);
+  const claude = claudeListing(appearances.map(([, row]) => row.please()));
 
-    test("answers every project's records, each naming its project, from one listing", async () => {
-      await composeSession(server, "pygardon");
-      const [pygardon] = keptLaunchRecords(server, "pygardon");
-      const callsBefore = server.claudeCalls().length;
+  expect(await claude.statesOf(records)).toEqual([
+    working,
+    working,
+    { kind: "available", availability: "loaded", activity: "waiting" },
+    {
+      kind: "available",
+      availability: "loaded",
+      activity: "waiting",
+      waitingFor: "permission to run npm test",
+    },
+    { kind: "available", availability: "loaded", activity: "review" },
+    { kind: "available", availability: "retained", activity: "review" },
+    { kind: "available", availability: "retained", activity: "failed" },
+    { kind: "available", availability: "retained", activity: "interrupted" },
+    { kind: "unavailable" },
+  ]);
+  expect(records).toEqual(kept);
+});
 
-      const sessions = await machineSessions(server);
-      expect(projectRecords(sessions, "pygardon")).toEqual([
-        { ...pygardon, sessionState: working },
-      ]);
-      const openDough = projectRecords(sessions, "open-dough");
-      expect(openDough.length).toBeGreaterThan(0);
-      expect(sessions).toHaveLength(openDough.length + 1);
-      expect(server.claudeCalls().slice(callsBefore)).toEqual([
-        { argv: ["agents", "--json", "--all"], cwd: machineFolder(server) },
-      ]);
-    });
-  });
+test("answers each session as listed while Claude Code also lists an interactive session", async () => {
+  const claude = claudeListing([
+    listed("listed", "working").please(),
+    makeMe.aClaudeListingRow
+      .interactive({
+        sessionId: "interactive",
+        name: "interactive",
+        cwd: "/elsewhere",
+        startedAt,
+      })
+      .please(),
+  ]);
+
+  expect(await claude.statesOf([keptSession("listed")])).toEqual([working]);
+});
+
+test("answers a resumed session without the reason it waited for", async () => {
+  const records = [keptSession("resumed")];
+  const claude = claudeListing([
+    listed("resumed", "blocked").waitingFor("input needed").please(),
+  ]);
+  expect(await claude.statesOf(records)).toEqual([
+    {
+      kind: "available",
+      availability: "loaded",
+      activity: "waiting",
+      waitingFor: "input needed",
+    },
+  ]);
+
+  claude.prints([listed("resumed", "working").please()]);
+  expect(await claude.statesOf(records)).toEqual([working]);
+});
+
+test("answers every session unknown while the listing fails, and as listed once it answers again", async () => {
+  const records = [keptSession("listed"), keptSession("other")];
+  const rows = [
+    listed("listed", "working").please(),
+    listed("other", "working").please(),
+  ];
+  const claude = claudeListing(rows);
+
+  claude.prints(undefined);
+  expect(await claude.statesOf(records)).toEqual([
+    { kind: "unknown" },
+    { kind: "unknown" },
+  ]);
+
+  claude.prints(rows);
+  expect(await claude.statesOf(records)).toEqual([working, working]);
+});
+
+test("answers every project's records, each naming its project, from one listing", async () => {
+  const records = [
+    keptSession("open-dough-session"),
+    keptSession("pygardon-session", "pygardon"),
+  ];
+  const claude = claudeListing([
+    listed("open-dough-session", "working").please(),
+    listed("pygardon-session", "working").please(),
+  ]);
+
+  const joined = await claude.read(records);
+  expect(
+    joined.map(
+      ({ request: { source }, session: { sessionId }, sessionState }) => ({
+        source,
+        sessionId,
+        sessionState,
+      }),
+    ),
+  ).toEqual([
+    {
+      source: "open-dough",
+      sessionId: "open-dough-session",
+      sessionState: working,
+    },
+    {
+      source: "pygardon",
+      sessionId: "pygardon-session",
+      sessionState: working,
+    },
+  ]);
+  expect(claude.listedIn).toEqual([machine.path]);
 });

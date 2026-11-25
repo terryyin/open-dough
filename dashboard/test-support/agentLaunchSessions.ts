@@ -70,7 +70,7 @@ export async function establishingPreparation(
 }
 
 // One project's records among the machine's sessions.
-export function projectRecords(
+function projectRecords(
   sessions: readonly unknown[],
   source: string,
 ): unknown[] {

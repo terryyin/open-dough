@@ -23,7 +23,6 @@ import {
   machineFolder,
   machineSessions,
   openDoughFolder,
-  projectRecords,
   recordsOf,
   runningStarts,
 } from "./agentLaunchSessions.ts";
@@ -44,7 +43,6 @@ export {
   machineFolder,
   machineSessions,
   openDoughFolder,
-  projectRecords,
   recordsOf,
   runningStarts,
 };

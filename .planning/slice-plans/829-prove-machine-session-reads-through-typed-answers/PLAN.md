@@ -62,7 +62,7 @@ The filenames below are under `dashboard/backend-tests/sessions/`.
 ### 1. Read the kept machine sessions with their host states
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Given kept Claude records across projects alongside unrelated native
@@ -72,6 +72,13 @@ available states, and unknown readings when the host fails followed by
 recovery. Preserve clearing the waiting reason when a session resumes.
 Move `agent-launch-session-listing.spec.ts` to Node Vitest. Compose records
 with MakeMe and use the synthetic Claude output for translation evidence.
+
+Proof (25 November 2026, load ~5–6): six Node cases pass in
+`agent-launch-session-listing.spec.ts`, each well under 100 ms, through
+`withStates` with a typed `HostSessions` and the production
+`parsedListing` and `claudeObservations`. The six-file gate passed 16/16
+at two workers (44.654 s summed, 25.731 s elapsed); five paths remain
+Playwright selections.
 
 ### 2. Separate compact overview from retained detail
 
@@ -142,6 +149,13 @@ loops with one observation and one shared contract. Slice 3 exposes the
 answer values first used there and reused by slice 4. Any interim mixed
 selection converges at slice 5. No remaining slice-specific concern was
 identified against the observed baseline.
+
+## Story obligations
+
+### G1. Machine read's listing command no longer asserted in the session read
+Reported: slice 1 — "Nothing remaining asserts the command and folder for the machine read"
+Story clause: "Developers changing the dashboard's machine-session read get fast, typed Node Vitest feedback on what an overview or history reader receives."
+Disposition: no user cost "Developers changing the dashboard's machine-session read get fast, typed Node Vitest feedback on what an overview or history reader receives.": the listing argv is the shared `listingArgs` of `claudeSessions` (dashboard/server/hosts/claude/runtime.ts), asserted as `agents --json --all` by dashboard/backend-tests/launches/agent-launch-boundary.spec.ts; `--all` lists every folder's sessions, so the folder changes no reader's answer; `withStates` passing its folder is asserted by `listedIn` in agent-launch-session-listing.spec.ts; the default host wiring stays exercised through the synthetic `claude` by e2e/sessions/agent-launch-retained-history.spec.ts.
 
 ## Verification and delivery
 
