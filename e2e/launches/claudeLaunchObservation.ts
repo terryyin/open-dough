@@ -2,10 +2,12 @@
 import { realpathSync } from "node:fs";
 import { sessionRecord } from "../../dashboard/server/launchRecordStore.ts";
 import type { AttemptOutcome } from "../../dashboard/src/launchOutcome.ts";
+import { openDoughFolder } from "../../dashboard/test-support/agentLaunchSessions.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import { keptLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
+  expectAdHocReportingInput,
   expectReportingBlock,
   installedStoryLaunchInput,
 } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
@@ -39,6 +41,7 @@ export function expectInstalledClaudeStory(
     handoff: "Established start:" | "Established preparation:";
     workspace: string;
     publishedSha: string;
+    instruction?: string;
   },
 ) {
   const input = installedStoryLaunchInput(started.instruction);
@@ -46,7 +49,24 @@ export function expectInstalledClaudeStory(
   expect(input.handoff).toContain(expected.handoff);
   expect(input.handoff).toContain(`- workspace: ${expected.workspace}`);
   expect(input.handoff).toContain(`- publishedSha: ${expected.publishedSha}`);
-  expect(input.instruction).toBe("");
+  expect(input.instruction).toBe(expected.instruction ?? "");
   expect(started.cwd).toBe(realpathSync(expected.workspace));
   expectReportingBlock(input.reporting, record.request, dashboard);
+}
+
+export function expectClaudeAdHocDraft(
+  dashboard: DashboardServer,
+  outcome: AttemptOutcome,
+  draft: string,
+  name: string,
+) {
+  const { started, record } = readClaudeLaunch(dashboard, outcome, 0);
+  expect(started.name).toBe(name);
+  expect(started.cwd).toBe(openDoughFolder(dashboard));
+  expectAdHocReportingInput(
+    started.instruction ?? "",
+    draft,
+    record.request,
+    dashboard,
+  );
 }

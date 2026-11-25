@@ -4,6 +4,9 @@ import {
   test,
   expect,
 } from "../../dashboard/test-support/support/voiceTest.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
+import { expectClaudeAdHocDraft } from "./claudeLaunchObservation.ts";
 import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   observeMicrophone,
@@ -13,7 +16,6 @@ import {
 import {
   openVoiceDraft,
   recovered,
-  typedStart,
   voiceBrowserOptions,
   originalDraft,
 } from "../../dashboard/test-support/support/voiceRecovery.ts";
@@ -27,6 +29,7 @@ import {
 } from "../../dashboard/src/openAIConfiguration.ts";
 test.use({
   ...voiceBrowserOptions,
+  installedCatalog: "claude",
   extraEnv: async ({ provider }, use) => {
     await use({
       ...provider.extraEnv,
@@ -44,7 +47,12 @@ test("missing saved key never consumes an environment key and permits typed Star
   provider,
   launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, dashboard, launchJourney, false);
+  const { dialog, submit } = await openVoiceDraft(
+    page,
+    dashboard,
+    launchJourney,
+    false,
+  );
   await dialog.getByRole("button", { name: "Record", exact: true }).click();
   await recovered(
     page,
@@ -58,7 +66,20 @@ test("missing saved key never consumes an environment key and permits typed Star
   await expect(
     dialog.getByRole("button", { name: "Open OpenAI settings" }),
   ).toBeVisible();
-  await typedStart(dashboard, dialog);
+  const edited = `${originalDraft}\n\nReview before implementing`;
+  await startSessionField(dialog).fill(edited);
+  expect(dashboard.claudeCalls()).toEqual([]);
+  dashboard.claudeScenario("launched");
+  const accepted = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await accepted);
+  await expect(dialog).toBeHidden();
+  expectClaudeAdHocDraft(
+    dashboard,
+    outcome,
+    edited,
+    "Open Dough · Ad hoc · Keep this work local Review before imple…",
+  );
   expect(provider.calls).toHaveLength(0);
 });
 
@@ -68,7 +89,11 @@ test("the same running server consumes a replacement afresh, and removal during 
   provider,
   launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, dashboard, launchJourney);
+  const { dialog, submit } = await openVoiceDraft(
+    page,
+    dashboard,
+    launchJourney,
+  );
   await recordClip(page, dialog);
   await expect(startSessionField(dialog)).toHaveValue(
     `${originalDraft}\n\nDo not implement yet`,
@@ -117,7 +142,20 @@ test("the same running server consumes a replacement afresh, and removal during 
   expect(dashboard.output()).not.toContain(
     "synthetic-environment-key-must-not-be-used",
   );
-  await typedStart(dashboard, dialog);
+  const edited = `${originalDraft}\n\nReview before implementing`;
+  await startSessionField(dialog).fill(edited);
+  expect(dashboard.claudeCalls()).toEqual([]);
+  dashboard.claudeScenario("launched");
+  const accepted = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await accepted);
+  await expect(dialog).toBeHidden();
+  expectClaudeAdHocDraft(
+    dashboard,
+    outcome,
+    edited,
+    "Open Dough · Ad hoc · Keep this work local Review before imple…",
+  );
   expect(provider.calls).toHaveLength(2);
 });
 
@@ -127,7 +165,11 @@ test("unreadable saved key before or during capture preserves the draft and supp
   provider,
   launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, dashboard, launchJourney);
+  const { dialog, submit } = await openVoiceDraft(
+    page,
+    dashboard,
+    launchJourney,
+  );
   const file = path.join(
     dashboard.home,
     ".open-dough/dashboard/credentials/openai.json",
@@ -169,6 +211,19 @@ test("unreadable saved key before or during capture preserves the draft and supp
   );
   expect(provider.calls).toHaveLength(1);
   expect(provider.calls[0]?.authorization).toBe(`Bearer ${voiceKey}`);
-  await typedStart(dashboard, dialog);
+  const edited = `${originalDraft}\n\nReview before implementing`;
+  await startSessionField(dialog).fill(edited);
+  expect(dashboard.claudeCalls()).toEqual([]);
+  dashboard.claudeScenario("launched");
+  const accepted = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await accepted);
+  await expect(dialog).toBeHidden();
+  expectClaudeAdHocDraft(
+    dashboard,
+    outcome,
+    edited,
+    "Open Dough · Ad hoc · Keep this work local Review before imple…",
+  );
   expect(provider.calls).toHaveLength(1);
 });

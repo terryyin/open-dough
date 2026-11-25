@@ -26,6 +26,8 @@
   `e86c9fa362b2737602a88e9e6658af43763bcc75`.
 - Slice 6 was accepted on the execution branch at
   `9cb22125f37e17265bc2465ed42505c159f496f4`.
+- Slice 7 was accepted on the execution branch at
+  `9e653e3870f6658ef228cdb766acc7ca309a55a1`.
 
 ## Goal and scope
 
@@ -329,7 +331,7 @@ under the checkout Git evidence path.
 ### 8. Send voice input through the installed launch
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: E2E `session-instruction-voice`,
 `session-instruction-voice-key-failures` and
 `session-instruction-voice-provider-failures`.
@@ -340,6 +342,15 @@ The launch uses the final draft from the composer. Use a real start where
 the case asserts its command and ad hoc work where the promise is the
 native submission. Observe the visible voice state and exact draft, then the complete native
 instruction with the appropriate established and reporting context.
+
+The nine voice cases passed on the baseline. The final strict selection
+passed 24 cases, including option and model consumers of the shared native
+assertion. The voice tests check the exact edited composer draft against
+the native instruction and that same attempt's kept record. The Ready
+launches also check the actual published receipt and linked worktree.
+The provider cases preserve failure, cancellation, deadline and recovery
+observations. Dashboard typecheck passed. Exact commands and observations
+are in `s8-implementation-report.md` under the checkout Git evidence path.
 
 ### 9. Install every fixture-created catalog project
 

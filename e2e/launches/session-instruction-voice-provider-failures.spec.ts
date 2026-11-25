@@ -2,6 +2,9 @@ import {
   test,
   expect,
 } from "../../dashboard/test-support/support/voiceTest.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
+import { expectClaudeAdHocDraft } from "./claudeLaunchObservation.ts";
 import { startSessionField } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   observeMicrophone,
@@ -10,12 +13,11 @@ import {
 import {
   openVoiceDraft,
   recovered,
-  typedStart,
   voiceBrowserOptions,
   originalDraft,
 } from "../../dashboard/test-support/support/voiceRecovery.ts";
 import { instructionProblems } from "../../dashboard/src/instructionTranscription.ts";
-test.use(voiceBrowserOptions);
+test.use({ ...voiceBrowserOptions, installedCatalog: "claude" });
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });
@@ -26,7 +28,11 @@ test("explicit retry after refusal appends once without failed text, then editab
   provider,
   launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, dashboard, launchJourney);
+  const { dialog, submit } = await openVoiceDraft(
+    page,
+    dashboard,
+    launchJourney,
+  );
   provider.reply(
     403,
     JSON.stringify({
@@ -52,7 +58,20 @@ test("explicit retry after refusal appends once without failed text, then editab
   await expect(dialog.getByRole("alert")).toHaveCount(0);
   expect(provider.calls).toHaveLength(2);
   expect(dashboard.claudeCalls()).toEqual([]);
-  await typedStart(dashboard, dialog);
+  const edited = `${originalDraft}\n\nReview before implementing`;
+  await startSessionField(dialog).fill(edited);
+  expect(dashboard.claudeCalls()).toEqual([]);
+  dashboard.claudeScenario("launched");
+  const accepted = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await accepted);
+  await expect(dialog).toBeHidden();
+  expectClaudeAdHocDraft(
+    dashboard,
+    outcome,
+    edited,
+    "Open Dough · Ad hoc · Keep this work local Review before imple…",
+  );
   expect(provider.calls).toHaveLength(2);
 });
 
@@ -62,7 +81,7 @@ test("Cancel while transcribing ends the held provider request and launches noth
   provider,
   launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, dashboard, launchJourney);
+  const { dialog } = await openVoiceDraft(page, dashboard, launchJourney);
   provider.hold();
   await recordClip(page, dialog);
   await expect.poll(() => provider.calls.length).toBe(1);
@@ -79,7 +98,11 @@ test.describe("deadline", () => {
     provider,
     launchJourney,
   }) => {
-    const dialog = await openVoiceDraft(page, dashboard, launchJourney);
+    const { dialog, submit } = await openVoiceDraft(
+      page,
+      dashboard,
+      launchJourney,
+    );
     provider.hold();
     await recordClip(page, dialog);
     await recovered(
@@ -94,7 +117,20 @@ test.describe("deadline", () => {
     expect(provider.deadlines()).toHaveLength(1);
     expect(provider.deadlines()[0]?.milliseconds).toBe(60_000);
     expect(provider.deadlines()[0]?.stack).toContain("withResponseSignal");
-    await typedStart(dashboard, dialog);
+    const edited = `${originalDraft}\n\nReview before implementing`;
+    await startSessionField(dialog).fill(edited);
+    expect(dashboard.claudeCalls()).toEqual([]);
+    dashboard.claudeScenario("launched");
+    const accepted = nextAcceptedAttemptId(page);
+    await submit();
+    const outcome = await settledOutcome(dashboard, await accepted);
+    await expect(dialog).toBeHidden();
+    expectClaudeAdHocDraft(
+      dashboard,
+      outcome,
+      edited,
+      "Open Dough · Ad hoc · Keep this work local Review before imple…",
+    );
     expect(provider.calls).toHaveLength(1);
   });
 });
