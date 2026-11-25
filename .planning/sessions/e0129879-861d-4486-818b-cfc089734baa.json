@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "sessionId": "e0129879-861d-4486-818b-cfc089734baa",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T10:09:22.848Z",
+  "story": "SEED-430#open-published-board-from-local-git",
+  "ranges": [
+    {
+      "base": "f4e55eeb5711e704589c952b18344885dc43e21c",
+      "candidate": "f2c1452ff0d13eb41d650ef5a2820b081472aac9"
+    },
+    {
+      "base": "f2c1452ff0d13eb41d650ef5a2820b081472aac9",
+      "candidate": "490225c32d32d19e27a8f71bdeaa16119241e8b4"
+    },
+    {
+      "base": "490225c32d32d19e27a8f71bdeaa16119241e8b4",
+      "candidate": "20161e1493256ccdad280f64540eb41d2bd891cb"
+    },
+    {
+      "base": "20161e1493256ccdad280f64540eb41d2bd891cb",
+      "candidate": "cd160aaa54bf6e0ec3fd3586bd4df9d853a3222c"
+    },
+    {
+      "base": "cd160aaa54bf6e0ec3fd3586bd4df9d853a3222c",
+      "candidate": "b6def54f33d170a9a1fea1814366b3889ea350cd"
+    },
+    {
+      "base": "b6def54f33d170a9a1fea1814366b3889ea350cd",
+      "candidate": "851fc0199d39b68d3b9a1ed977106eb728dc5b67"
+    },
+    {
+      "base": "851fc0199d39b68d3b9a1ed977106eb728dc5b67",
+      "candidate": "46d4fbf32a64ed78e4cd431944dc35849fad0374"
+    },
+    {
+      "base": "46d4fbf32a64ed78e4cd431944dc35849fad0374",
+      "candidate": "27aa26172354050c838a0d78c586bc8fb5042b30"
+    },
+    {
+      "base": "79b86d132478ef60f372d4ec86290ff22b8ab149",
+      "candidate": "3694a077cce3fc4381f92ba17b28863ff3d0be23"
+    }
+  ]
+}
