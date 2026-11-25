@@ -72,7 +72,7 @@ EOF
 
 guard_run_deterministic() {
   local source_dir=$1
-  local target
+  local target root scripts
   # Not `local`: the EXIT trap below still reads this after the function
   # returns, once the caller's script itself exits.
   temporary_dir=$(mktemp -d)
@@ -84,6 +84,15 @@ guard_run_deterministic() {
   bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
     --platform claude > /dev/null
   guard_assert_registered "${target}"
+  for root in "${target}/.agents/skills" "${target}/.claude/skills"; do
+    scripts="${root}/dough-product-backlog/scripts"
+    if compgen -G "${scripts}/product-backlog-git-cherry-pick*.mjs" > /dev/null; then
+      echo "FAIL: Fresh install shipped a retired backlog adapter under ${scripts}." >&2
+      return 1
+    fi
+    node "${scripts}/product-backlog-git-merge.mjs" --help > /dev/null
+    node "${scripts}/product-backlog-git-rebase.mjs" --help > /dev/null
+  done
   guard_assert_decision_logic \
     "${target}/.claude/skills/dough-product-backlog/scripts" "${target}"
   guard_assert_cursor_cli \
@@ -110,8 +119,10 @@ guard_assert_cursor_cli() {
     }));
   ' "${project_dir}")
   output=$(printf '%s' "${payload}" | node "${hook}" "${project_dir}" cursor)
-  if ! printf '%s' "${output}" | grep -Fq '"permission":"deny"'; then
-    echo "FAIL: Cursor native CLI did not deny a Write to the backlog." >&2
+  if [[ "${output}" != *'"permission":"deny"'* ||
+    "${output}" != *'product-backlog.mjs and its Git merge and rebase adapters'* ||
+    "${output}" == *'cherry-pick'* ]]; then
+    echo "FAIL: Cursor native CLI did not deny a Write with the supported backlog tools." >&2
     echo "${output}" >&2
     return 1
   fi

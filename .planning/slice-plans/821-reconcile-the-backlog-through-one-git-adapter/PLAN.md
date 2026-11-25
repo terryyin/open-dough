@@ -3,6 +3,24 @@
 **Identity:** SEED-423#reconcile-the-backlog-through-one-git-adapter
 **Source:** [Reconcile backlog merges and rebases through one Git adapter](../../seeds/SEED-423-shrink-the-installed-distribution.md#reconcile-the-backlog-through-one-git-adapter)
 
+## Execution context
+
+- Story Branch Mode in the Dashboard-established worktree
+  `/Users/terryyin/git/open-dough/.worktrees/reconcile-backlog-merges-and-rebases-through-one`,
+  branch `codex/reconcile-backlog-merges-and-rebases-through-one`.
+  The separate integration checkout is `/Users/terryyin/git/open-dough`.
+- Airi-chan, publisher `dashboard-territory.local-open-dough`.
+  Starting revision `6e146d8ba709e5b3ca285238089ef95a9d618756`.
+  Take accepted on `origin/main` and the story branch at
+  `0b2306e5712c3a6993184dc31c999d748a12db3e`.
+- GitHub Actions `ci.yml` (CI), observing the story branch as
+  `seed-423-airi-421098b1` from this checkout. Observer directory
+  `/tmp/dough-ci-501/watch-u95qvY`, PID 9875, cell `g229:14`,
+  session `73711`.
+- Replanning permission follows the existing plan. The retirement and the
+  later merge/rebase slice are compatible. Git's ongoing-operation checks
+  still serve landing and checkout maintenance.
+
 ## Goal and scope
 
 Maintain one Git reconciliation path behind the installed merge and rebase
@@ -86,7 +104,7 @@ from this checkout. The affected cases passed with the original source
 restored, and `git diff --exit-code HEAD -- Distribution/src` confirmed
 pristine product source.
 
-## Slices and outside-in proof
+## Slices
 
 Trace each affected command, link, exported symbol and receipt through
 [consumer tracing](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace).
@@ -100,7 +118,7 @@ Apply the [failing and flaky test policy](../../../Distribution/src/skills/dough
 ### 1. Install and update without the backlog cherry-pick adapter
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Install the candidate in a disposable repository and update a
 disposable installation from a release fixture containing all three retired
 modules. Verify their absence in both installed roots, usable merge and
@@ -117,6 +135,20 @@ comments. Keep shared catalog and Git state readers used by merge, rebase
 or checkout maintenance. Review the installed instructions under the
 [skill authoring behavior review](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review).
 Estimated active effort 8–12 minutes.
+
+Accepted implementation proof at `0b2306e57` with the slice changes:
+`update-removes-dropped-files.sh` observed all three names before update
+and their removal from both installed roots. `product-backlog-native.sh`
+proved fresh absence, both remaining entries' help, and the installed
+guard's denial. Payload links and rebase catalog cases passed. The installed
+merge walkthrough stopped on a disputed title, then committed a third
+title supplied by the developer with two parents and empty success stderr.
+The focused rebase and refresh checks passed, including the real worktree
+rebase stop and `CHERRY_PICK_HEAD` refresh deferral.
+Proof and consumer trace are under `open-dough/evidence/slice-1-report.md`
+in the execution worktree's Git directory. At this boundary the shipped
+Git scripts went from 1,862 to 1,397 lines and guidance from 471 to 446
+lines compared with the Take.
 
 ### 2. Reconcile merge and rebase through the same adapter
 

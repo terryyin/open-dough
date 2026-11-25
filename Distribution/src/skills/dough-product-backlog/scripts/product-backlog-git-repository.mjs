@@ -7,7 +7,7 @@
 // here knows about the backlog's own content or invariants;
 // `product-backlog-git-merge.mjs` and its driver own that, as
 // `product-backlog-git-done-catalog.mjs` owns the done catalog's. A stopped
-// rebase's or cherry-pick's own state is read in
+// rebase's own state is read in
 // `product-backlog-git-operation-state.mjs`.
 import { AsyncLocalStorage } from "node:async_hooks";
 import { spawnSync } from "node:child_process";
@@ -179,19 +179,4 @@ export function ensureDriverRegistered(repoRoot, file) {
     description: "Reconcile the product backlog through its shared resolver",
     script: driverScript,
   });
-}
-
-// The recoverable shape of a stop neither adapter itself decided: something
-// other than this path is still unresolved, so nothing about this path's own
-// content is judged. `product-backlog-git-rebase.mjs` and
-// `product-backlog-git-cherry-pick-stop.mjs` independently reached this exact
-// wording, differing only in the operation noun, once cherry-pick's own
-// "blocked" case existed alongside rebase's; expressed once here rather than
-// duplicated a second time.
-export function blockedStopMessage(operationNoun, file, stderr) {
-  return (
-    `The ${operationNoun} stopped, but ${file} is not the unresolved path; ` +
-    `something unrelated needs human resolution first. This gate leaves ` +
-    `the ${operationNoun} exactly as it is.\n${stderr}`
-  );
 }

@@ -45,7 +45,6 @@ import {
 } from "./product-backlog-git-done-catalog.mjs";
 import { rebaseState } from "./product-backlog-git-operation-state.mjs";
 import {
-  blockedStopMessage,
   ensureDriverRegistered,
   gitLine,
   gitOutcome,
@@ -100,7 +99,10 @@ function interpretStop(repoRoot, file, outcome) {
   }
   return {
     status: "blocked",
-    message: blockedStopMessage("rebase", file, outcome.stderr),
+    message:
+      `The rebase stopped, but ${file} is not the unresolved path; ` +
+      `something unrelated needs human resolution first. This gate leaves ` +
+      `the rebase exactly as it is.\n${outcome.stderr}`,
   };
 }
 

@@ -3,7 +3,7 @@
 // rebuilt from the final record files by the producer's own rebuild, and a
 // change to the catalog alone never stops it, through a self-registered
 // driver whose provisional result that rebuild settles. A merge stages the
-// rebuilt catalog into its own commit; an accepted rebase or cherry-pick
+// rebuilt catalog into its own commit; an accepted rebase
 // gains one catalog-only commit at its tip when the rebuild changed the
 // catalog. An operation that changed no done path leaves the catalog's bytes
 // as they are.
@@ -114,7 +114,7 @@ export function stageRebuiltDoneCatalog(repoRoot, file) {
 
 const catalogCommitSubject = "Rebuild the done catalog from its record files\n";
 
-// Concludes a rebase or cherry-pick whose replay Git completed and this
+// Concludes a rebase whose replay Git completed and this
 // adapter accepted, its result `accepted`, onto the commit `base` it
 // replayed onto. When the replayed commits changed the done directory beside
 // `file`, the catalog rebuilt from the tip's record files is committed at
