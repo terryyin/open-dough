@@ -167,6 +167,14 @@ candidate. The independent observations for browsing and CI evidence
 still apply. Nine mounted and seven end-to-end cases passed after the
 final reading-focus refactor.
 
+CI run `45634835240` caught two E2E callers of retired tab navigation.
+The ancestor proof uses sidebar Home before checking its cached evidence.
+The Done timing journey checks the preserved file, Proof tab, and scroll
+position after returning from Development. Both failures reproduced on
+the delivered code, and all three focused cases passed after updating
+the tests. An independent refactor was unnecessary for these two
+test-only changes using the existing page objects and observations.
+
 ## Verification and plan review
 
 - Run the changed mounted Intent and review specs with

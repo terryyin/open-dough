@@ -10,7 +10,6 @@ import {
 import {
   ciStatusReading,
   expectCiAnswer,
-  activateIntentHome,
   chooseCiStatus,
   runUrl,
 } from "../../dashboard/test-support/intentCiStatusPage.ts";
@@ -27,7 +26,10 @@ import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 
 import { intentLocationName } from "../../dashboard/test-support/intentPerspectivePage.ts";
-import { browseStoryFiles } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import {
+  browseStoryFiles,
+  goToStoryHome,
+} from "../../dashboard/test-support/intentModePage.ts";
 import {
   scopeFigures,
   summaryRegion,
@@ -188,8 +190,10 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
       scopeFigures(summary, "tests").getByRole("definition"),
     ).toHaveText([...checksRow.slice(1), "1 of 1 part present"]);
     expect(proofCalls(calls).slice(before)).toHaveLength(2);
-    await activateIntentHome(intent);
   });
+
+  await test.step("When I go back to Story Home", () =>
+    goToStoryHome(parts(page).intent));
 
   await test.step("shown again, the tab judges again and shows the remembered proof without asking GitHub for it", async () => {
     const judgedBefore = calls.filter(

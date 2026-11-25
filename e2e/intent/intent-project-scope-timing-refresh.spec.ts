@@ -30,11 +30,7 @@ import {
   readKeptProjectHistory,
   test,
 } from "../../dashboard/test-support/support/projectScopeHistoryFixture.ts";
-import {
-  browseStoryFiles,
-  chooseStoryTab,
-  intentFile,
-} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { intentFile } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { expect } from "../../dashboard/test-support/support/preparationPage.ts";
 
 const landings = (["baseline", "completion", "latest"] as const).map(
@@ -71,7 +67,7 @@ async function readDoneFileProof(intent: Locator) {
   await fileReadingTab(intent, "Proof").click();
 }
 
-test("the bookmark distinguishes collected trunk timing from a Done landing while story tabs keep the reading place", async ({
+test("the bookmark distinguishes collected trunk timing from a Done landing and returning to Intent keeps the reading place", async ({
   page,
   dashboard,
   origin,
@@ -101,13 +97,12 @@ test("the bookmark distinguishes collected trunk timing from a Done landing whil
     await expect(doneChart.mark("Nov 5 · 8.0 s")).toHaveCount(1);
     await expect(history).not.toContainText(shortSha(latest));
   });
-  const offset =
-    await test.step("When I scroll Proof and switch tabs", async () => {
-      const offset = await scrollIntentReadingHalfway(intent);
-      await chooseStoryTab(intent, "Intent coverage");
-      return offset;
-    });
-  await test.step("And I return to Changes", () => browseStoryFiles(intent));
+  const offset = await test.step("When I scroll the Proof reading", () =>
+    scrollIntentReadingHalfway(intent));
+  await test.step("And I show Development", () =>
+    parts(page).development.click());
+  await test.step("And I return to Intent", () =>
+    parts(page).intentChoice.click());
   await test.step("Then the selected file, Proof and scroll position remain", async () => {
     await intentReviewFiles(intent).expectSelected(`Modified ${path}`);
     await expect(fileReadingTab(intent, "Proof")).toHaveAttribute(
