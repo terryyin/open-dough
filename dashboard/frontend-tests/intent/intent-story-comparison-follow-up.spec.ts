@@ -175,12 +175,16 @@ test("an unreadable comparison, a Taken story and Project Intent offer no compar
     ),
   );
   const story = intentStoryCompare();
+  await expect.poll(story.summaryText).toContain("No comparison is available.");
+  await story.openDetails();
   await expect
-    .element(story.header.getByText(unavailable, { exact: false }))
+    .element(story.details.getByText(unavailable, { exact: false }))
     .toBeVisible();
   await expect.element(action).not.toBeInTheDocument();
 
   await intent.selectStory(taken.identity);
+  await expect.poll(story.summaryText).toContain("1 changed file");
+  await story.openDetails();
   await expect
     .element(
       story.header.getByRole("heading", {

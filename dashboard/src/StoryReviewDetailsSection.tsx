@@ -1,5 +1,5 @@
 // The session comparison choices, run pickers and context in review details.
-import type { ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { ReviewContext } from "./StoryReviewContext.tsx";
 import { PublishedRangeSwitch } from "./StoryReviewSessionRuns.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
@@ -9,9 +9,25 @@ export function reviewHoldsDetails(review: StoryReview | undefined) {
   return review?.kind === "landed" || review?.kind === "published-session";
 }
 
+// The review details' place under the given id: collapsed at first, and
+// hiding them on request returns the keyboard to their eye.
+export function useReviewDetailsPlace(id: string): ReviewDetailsPlace {
+  const [shown, setShown] = useState(false);
+  const eye = useRef<HTMLButtonElement>(null);
+  return {
+    id,
+    shown,
+    eye,
+    onShow: (show, focusEye = false) => {
+      setShown(show);
+      if (focusEye) eye.current?.focus();
+    },
+  };
+}
+
 // The details the eye reveals: the comparison choices and context. Escape from
 // inside hides them and returns the keyboard to the eye.
-function ReviewDetails({
+export function ReviewDetails({
   details,
   children,
 }: {

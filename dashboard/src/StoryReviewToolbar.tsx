@@ -76,18 +76,27 @@ export function ReviewToolbar({
         />
       )}
       {name !== "" && <span className="story-review-toolbar-name">{name}</span>}
-      {details !== undefined && (
-        <IconButton
-          ref={details.eye}
-          label={details.shown ? "Hide review details" : "Show review details"}
-          icon={details.shown ? EyeOff : Eye}
-          aria-controls={details.id}
-          aria-expanded={details.shown}
-          onClick={() => {
-            details.onShow(!details.shown);
-          }}
-        />
-      )}
+      {details !== undefined && <ReviewDetailsEye details={details} />}
     </div>
+  );
+}
+
+// The eye that reveals or hides the review details it controls.
+export function ReviewDetailsEye({
+  details,
+}: {
+  readonly details: ReviewDetailsPlace;
+}) {
+  return (
+    <IconButton
+      ref={details.eye}
+      label={details.shown ? "Hide review details" : "Show review details"}
+      icon={details.shown ? EyeOff : Eye}
+      aria-controls={details.id}
+      aria-expanded={details.shown}
+      onClick={() => {
+        details.onShow(!details.shown);
+      }}
+    />
   );
 }

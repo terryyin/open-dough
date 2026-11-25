@@ -21,7 +21,7 @@ export const storyReviewIds = Object.freeze({
 
 /**
  * A completed story's published comparison and represented landing.
- * @param {Compared & { completion: string | undefined, storyStart?: string | undefined, widened?: ReviewedFile[] | undefined }} compared
+ * @param {Compared & { completion: string | undefined, agent: string, storyStart?: string | undefined, widened?: ReviewedFile[] | undefined }} compared
  * @returns {StoryReview}
  */
 export function publishedComparison({
@@ -29,6 +29,7 @@ export function publishedComparison({
   tree,
   files,
   completion,
+  agent,
   storyStart,
   widened,
 }) {
@@ -37,7 +38,7 @@ export function publishedComparison({
     completion: completion ?? storyReviewIds.completion,
     ...(completion === undefined ? {} : { landingRevision: completion }),
     completedAt: "2026-01-01T00:00:00.000Z",
-    agent: "claude",
+    agent,
     remote: "origin",
     target: "main",
     baseline,

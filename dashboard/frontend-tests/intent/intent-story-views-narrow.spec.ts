@@ -24,6 +24,7 @@ test("narrow, a selected story's views and Hide files stay reachable by keyboard
     files.toggle,
   );
 
+  // The toggle leads the comparison bar, after the views.
   await toggleFilesFromKeyboard(story.viewTab("Changes"));
   await userEvent.keyboard(" ");
   await files.showsFiles(true);

@@ -20,6 +20,7 @@ import { reviewChanges } from "./storyCardControls.ts";
 import {
   intentDiffReading,
   intentStory,
+  showComparisonDetails,
   storyHeaderReading,
   storyTitle,
 } from "./support/intentStoryPage.ts";
@@ -42,7 +43,7 @@ class IntentReviewChanges {
   ) {
     this.#intent = parts(page).intent;
     this.#header = storySummary(this.#intent);
-    const reach = () => expect(this.#header).toBeVisible();
+    const reach = () => showComparisonDetails(this.#header);
     this.comparison = new ReviewComparison(this.#header, reach);
     this.landedRun = new ReviewLandedRun(this.#header, reach);
     this.files = new IntentReviewFiles(this.#intent);
@@ -81,6 +82,7 @@ class IntentReviewChanges {
   }
 
   async expectCompletedAt(completedAt: string) {
+    await this.#openDetails();
     const { revisions } = storyHeaderReading(this.#intent);
     await expect(revisions.locator("time")).toHaveAttribute(
       "datetime",
@@ -126,6 +128,7 @@ class IntentReviewChanges {
   }
 
   async refresh(using: "mouse" | "keyboard" = "mouse") {
+    await this.#openDetails();
     await (using === "keyboard"
       ? this.#refresh.press("Enter")
       : this.#refresh.click());
@@ -166,6 +169,11 @@ class IntentReviewChanges {
     return this;
   }
 
+  // Refresh sits in the comparison details the summary's eye reveals.
+  async #openDetails() {
+    await showComparisonDetails(this.#header);
+  }
+
   get #refresh() {
     return reviewRefresh(this.#header, { exact: true });
   }
@@ -179,6 +187,7 @@ class IntentReviewChanges {
 
   // Preserve the real snapshot response for assertions about Git's inputs.
   async refreshAndAnswer(using: "mouse" | "keyboard" = "mouse") {
+    await this.#openDetails();
     const answer = await reviewAfter(
       this.page,
       this.#refresh,
