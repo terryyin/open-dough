@@ -36,10 +36,12 @@ export function intentReadsRecording(fileReads: string[]): IntentReadSource {
 }
 
 const intent = page.getByRole("main", { name: "Intent", exact: true });
-// The browsed spec's control, named by its path after any change kind.
+// The browsed spec's control, named by its path after any change kind; it
+// keeps its state while a closed Files drawer hides it.
 export const fileControl = () =>
   intent.getByRole("button", {
     name: new RegExp(`(^|\\s)${browsed.replaceAll(".", "\\.")}(,|$)`),
+    includeHidden: true,
   });
 export const purpose = intent.getByRole("region", {
   name: "Purpose",

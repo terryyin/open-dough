@@ -31,13 +31,14 @@ export function fileLayout() {
     if (!element) throw new Error("Intent layout part is missing");
     return element.getBoundingClientRect();
   };
+  const shown = () => toggle.element().getAttribute("aria-expanded") === "true";
   return {
     toggle,
     tabBar: () => box(bar()),
     reading: () => box(reading()),
     browser: () => box(browser()),
     readerVisible: () => reading()?.checkVisibility() ?? false,
-    shown: () => toggle.element().getAttribute("aria-expanded") === "true",
+    shown,
     async showsFiles(shown: boolean) {
       await expect
         .element(toggle)
@@ -47,6 +48,11 @@ export function fileLayout() {
         .toHaveAttribute("aria-expanded", String(shown));
       expect(column()?.id).toBe(toggle.element().getAttribute("aria-controls"));
       expect(column()?.checkVisibility()).toBe(shown);
+    },
+    // Files shown, whether it starts docked or as a closed drawer.
+    async showFiles() {
+      if (!shown()) await toggle.click();
+      await this.showsFiles(true);
     },
     async showsFullReader() {
       await expect
@@ -90,10 +96,11 @@ export async function controlsFit(...controls: Locator[]) {
 export async function toggleFilesFromKeyboard(after: Locator) {
   const files = fileLayout();
   await expect.element(after).toBeVisible();
+  const shown = files.shown();
   focus(after);
   await userEvent.keyboard("{Tab}");
   await expect.element(files.toggle).toHaveFocus();
   await userEvent.keyboard("{Enter}");
-  await files.showsFiles(false);
+  await files.showsFiles(!shown);
   await expect.element(files.toggle).toHaveFocus();
 }

@@ -127,7 +127,7 @@ placement, open/close and input-boundary mechanics needed here.
 ### 2. Browse Intent files in a drawer when room is tight
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mounted Intent Project and story entry points at phone and docked widths,
 using existing location and published comparison fixtures.
 
@@ -188,13 +188,29 @@ named slices. This review identified no remaining slice-specific concern.
   Main CI passed it at `f27d2cd6a`. It is a load-sensitive test defect that
   predates this story. This story does not change its path.
 - Slice 1 delivered the shared drawer in `dashboard/src/SidebarDrawer.tsx`
-  and `sidebar-drawer.css`: `liesOverPage`, `useDrawerKeys` (Escape returns
-  focus to the toggle, Tab wraps, keys pressed inside an open dialog stay
-  with it) and `DrawerBackdrop` (whole window less the active toggle). Each
+  and `sidebar-drawer.css`: `liesOverPage`, `shownToggleOf(sidebarId)`,
+  `useDrawerKeys` (Escape returns focus to the toggle, Tab wraps, keys
+  pressed inside an open dialog stay with it) and `DrawerBackdrop` (whole
+  window less the active toggle), both keyed by the sidebar id. Each
   view's stylesheet shows its own backdrop where it places the sidebar over
   the page, as `sessions-sidebar.css` does with
   `.sidebar-drawer-backdrop:has(+ .sessions-sidebar)`. Slices 2 and 3 switch
   on Files backdrops from their view stylesheets, by the Files panel's room.
+- Slice 2 delivered `dashboard/src/IntentFilesDrawer.tsx` (`useIntentFiles`):
+  below 52rem each Intent view has its own drawer state starting closed;
+  docked keeps the kept per-scope choice. Narrowing a wide view also starts
+  Files closed, so narrow consumers that read the tree open Files first.
+- Slice 3 refactor lead: the drawer placement block (fixed, banner-height
+  top, z-index 8 over the backdrop's 7, edge and shadow) and its
+  `.sidebar-drawer-backdrop:has(+ …)` rule repeat in `sessions-sidebar.css`
+  and `intent-browser.css` under different room conditions. Review Files
+  decides by measured panel room, so let each sidebar apply a shared
+  over-page class from `sidebar-drawer.css` once it knows its placement.
+- Slice 2 learning: `dashboard/frontend-tests/review/story-review-toolbar-truthful.spec.ts:39`
+  failed once in a 39-file batch at load 16–30 ("expected undefined to be
+  'Published changes'") and passed alone 5/5 at load 16, with no Review code
+  changed. Slice 3 reruns the Review toolbar consumers and repairs the case
+  if it recurs.
 
 ## Story obligations
 
@@ -207,3 +223,13 @@ Disposition: no user cost "activating another action on the way back to it": the
 Reported: slice 1 — "No red-before-green run: the new spec was not run against the baseline."
 Story clause: "With a drawer open on a phone, tap an exposed point over an underlying button. The drawer closes and the button stays inactive."
 Disposition: proved by slice 1: the plan's baseline at `f4d03aae4` observed the native tap at x=352 toggling Files while Sessions stayed open, and `intent-sessions-drawer.spec.ts` (run `s1-drawer-5`) observes the same coordinates now close Sessions with Files unchanged, and the next tap toggles Files.
+
+### G3. The Files drawer's outside dismissal was not observed with a native tap
+Reported: slice 2 — "There is no native-touch run for the Files drawer; the pointer path was checked with the mouse."
+Story clause: "With a drawer open on a phone, tap an exposed point over an underlying button. The drawer closes and the button stays inactive. A second tap can activate the button."
+Disposition: receiving slice 3
+
+### G4. The Sessions shortcut can open a second drawer over an open Files drawer
+Reported: slice 2 — "If the Sessions keyboard shortcut opens Sessions while the Files drawer is open, two drawers and two backdrops can be open at once."
+Story clause: "Use one active drawer input boundary when narrow surfaces meet."
+Disposition: receiving slice 3

@@ -62,16 +62,28 @@
   outline-offset: -3px;
 }
 
-/* Narrow, the browser sits above the reading pane and keeps part of the
-   height; each still scrolls on its own. */
+/* Narrow, Files lies over the full-size reader as a drawer
+   (./IntentFilesDrawer.tsx), below the banner row, with its backdrop
+   (./sidebar-drawer.css); the list keeps its own scroll. */
 @media (max-width: 52rem) {
   .intent-browser {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 40%) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
   }
 
   .intent-locations {
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
+    position: fixed;
+    top: var(--banner-height, 0px);
+    bottom: 0;
+    left: 0;
+    z-index: 8;
+    width: min(20rem, 85vw);
+    background: var(--raised-surface);
+    border-right: 1px solid var(--edge);
+    box-shadow: var(--shadow-2);
+  }
+
+  .sidebar-drawer-backdrop:has(+ .intent-locations) {
+    display: block;
   }
 }

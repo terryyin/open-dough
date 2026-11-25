@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { FileBrowserToggle } from "./FileBrowserToggle.tsx";
 import { IntentBrowser } from "./IntentBrowser.tsx";
+import { useIntentFiles } from "./IntentFilesDrawer.tsx";
 import { intentBrowserSource } from "./intentBrowserSource.ts";
 import { focusReturnEntry } from "./IntentCandidatesSections.tsx";
 import { IntentCiComparisonPreference } from "./IntentCiComparisonPreference.tsx";
@@ -27,7 +28,6 @@ import {
 import { IntentTabs, intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";
 import type { ModeChoice } from "./pageIntentMode.tsx";
-import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { intentHomeMarks } from "./storyCardFocus.ts";
@@ -62,7 +62,6 @@ export function IntentPage({
   } = intentBrowserSource(shown, story?.summary.comparison);
   const { tab, chooseTab } = useStoryTab(story?.selection);
   const wholeStory = wholeStoryOf(story?.summary);
-  const [filesShown, setFilesShown] = useKeptReading("filesShown", () => true);
   const tabsIdPrefix =
     story === undefined
       ? project.modeIdPrefix
@@ -79,7 +78,7 @@ export function IntentPage({
     chooseTab,
     fileReadiness !== "unavailable",
   );
-  const files = { id: `${tabsIdPrefix}-locations`, shown: filesShown };
+  const files = useIntentFiles(`${tabsIdPrefix}-locations`);
   const { clearSelection, setSelection } = useIntentWorkspaceSelection();
   const [entryReturns, setEntryReturns] = useState(0);
   useEffect(() => {
@@ -147,7 +146,7 @@ export function IntentPage({
                 ? files
                 : undefined
             }
-            onShowBrowser={setFilesShown}
+            onShowBrowser={files.onShow}
           />
         </div>
         {story === undefined && notice}

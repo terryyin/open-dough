@@ -132,12 +132,7 @@ export function useSessionsSidebar(
     toggle();
     return bannerSessionsButton() ?? undefined;
   };
-  useDrawerKeys({
-    open,
-    sidebarId: sessionsSidebarId,
-    toggle: shownSessionsButton,
-    close: toggle,
-  });
+  useDrawerKeys({ open, sidebarId: sessionsSidebarId, close: toggle });
   useCommandShortcut(toggleShortcut, toggle);
   return { open, toggle, closeOverPage, records, alerts };
 }
@@ -210,7 +205,7 @@ export function SessionsSidebar({
     <>
       <DrawerBackdrop
         open={open}
-        toggle={shownSessionsButton}
+        sidebarId={sessionsSidebarId}
         onDismiss={toggle}
       />
       <aside

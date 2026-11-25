@@ -18,6 +18,19 @@ import "./sidebar-drawer.css";
 export const liesOverPage = (sidebar: HTMLElement | null) =>
   sidebar !== null && getComputedStyle(sidebar).position === "fixed";
 
+// The toggle that answers for the sidebar where it is shown, among copies of
+// its control, such as the banner's and the side panel header's.
+export const shownToggleOf = (sidebarId: string) =>
+  [
+    ...document.querySelectorAll<HTMLElement>(
+      `[aria-controls="${sidebarId}"][aria-expanded]`,
+    ),
+  ].find(
+    (button) =>
+      button.getClientRects().length > 0 &&
+      getComputedStyle(button).visibility === "visible",
+  );
+
 const focusableSelector =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
@@ -29,25 +42,18 @@ const tabbableWithin = (sidebar: HTMLElement) =>
 export type SidebarDrawer = {
   readonly open: boolean;
   readonly sidebarId: string;
-  // The toggle that answers for the drawer where it is shown.
-  readonly toggle: () => HTMLElement | undefined;
   readonly close: () => void;
 };
 
 // Escape and Tab containment for an open drawer over the page.
-export function useDrawerKeys({
-  open,
-  sidebarId,
-  toggle,
-  close,
-}: SidebarDrawer) {
+export function useDrawerKeys({ open, sidebarId, close }: SidebarDrawer) {
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (event: KeyboardEvent) => {
       if (event.defaultPrevented || isInsideOpenDialog(event.target)) return;
       const sidebar = document.getElementById(sidebarId);
       if (sidebar === null || !liesOverPage(sidebar)) return;
-      const button = toggle();
+      const button = shownToggleOf(sidebarId);
       if (event.key === "Escape") {
         event.preventDefault();
         close();
@@ -77,17 +83,16 @@ export function useDrawerKeys({
     return () => {
       document.removeEventListener("keydown", onKey);
     };
-  }, [open, sidebarId, toggle, close]);
+  }, [open, sidebarId, close]);
 }
 
 // The backdrop's clip: the whole window less the toggle's box.
-function useToggleHole(open: boolean, toggle: () => HTMLElement | undefined) {
+function useToggleHole(open: boolean, sidebarId: string) {
   const [hole, setHole] = useState<string | undefined>(undefined);
   useLayoutEffect(() => {
     if (!open) return undefined;
     const measure = () => {
-      const button = toggle();
-      const box = button?.getBoundingClientRect();
+      const box = shownToggleOf(sidebarId)?.getBoundingClientRect();
       const width = String(innerWidth);
       const height = String(innerHeight);
       const outer = `M0 0H${width}V${height}H0Z`;
@@ -100,27 +105,27 @@ function useToggleHole(open: boolean, toggle: () => HTMLElement | undefined) {
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(document.documentElement);
-    const button = toggle();
+    const button = shownToggleOf(sidebarId);
     if (button !== undefined) observer.observe(button);
     addEventListener("resize", measure);
     return () => {
       observer.disconnect();
       removeEventListener("resize", measure);
     };
-  }, [open, toggle]);
+  }, [open, sidebarId]);
   return hole;
 }
 
 export function DrawerBackdrop({
   open,
-  toggle,
+  sidebarId,
   onDismiss,
 }: {
   readonly open: boolean;
-  readonly toggle: () => HTMLElement | undefined;
+  readonly sidebarId: string;
   readonly onDismiss: () => void;
 }) {
-  const hole = useToggleHole(open, toggle);
+  const hole = useToggleHole(open, sidebarId);
   if (!open) return null;
   // The click ends the gesture its press began, so nothing beneath acts.
   return (

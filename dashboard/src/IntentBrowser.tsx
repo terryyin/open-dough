@@ -4,7 +4,7 @@
 
 import type { ReactNode } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
-import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
+import type { IntentFilesPlace } from "./IntentFilesDrawer.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
 import { IntentTreeGroups } from "./IntentTreeGroups.tsx";
@@ -67,7 +67,7 @@ export function IntentBrowser({
   readonly story: ComparedStory | undefined;
   readonly reviewFileReady: boolean;
   // The locations column's id and whether Hide files / Show files shows it.
-  readonly files: FileBrowserPlace;
+  readonly files: IntentFilesPlace;
   readonly panel: IntentBrowserPanel;
   // Project Intent's chosen view and ids, in Project Intent: opening a test
   // from the record returns this browser to CI status.
@@ -188,6 +188,7 @@ export function IntentBrowser({
         aria-labelledby={panel.labelledBy}
         hidden={panel.hidden}
       >
+        {files.backdrop}
         <div className="intent-locations" id={files.id} hidden={!files.shown}>
           <h3 className="visually-hidden">Purpose locations</h3>
           {lead}
@@ -198,7 +199,10 @@ export function IntentBrowser({
             locations={locations}
             tree={storyTree}
             selection={treeSelection}
-            onSelect={select}
+            onSelect={(next) => {
+              select(next);
+              if (next.scope === "file") files.onFileChosen();
+            }}
             reveal={reveal}
             expandedPath={expandedPath}
             onExpandedPath={setExpandedPath}

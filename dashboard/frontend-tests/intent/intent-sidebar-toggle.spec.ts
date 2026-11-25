@@ -213,19 +213,19 @@ test("with no story, the toggle is reached by Tab after the tabs, works with Ent
   await files.showsFiles(true);
 });
 
-test("narrow, the hidden column gives the reading pane the height under the strip", async () => {
+test("narrow, Files opens as a drawer over the reading pane, which keeps the height under the strip", async () => {
   await openIntentFileLayout({
     viewport: { width: 640, height: 720 },
     selected: false,
   });
   const files = fileLayout();
-  await files.showsFiles(true);
-  const before = files.reading();
-  expect(before.height).toBeLessThan(files.browser().height - 40);
-
-  await files.toggle.click();
   await files.showsFiles(false);
   await files.showsFullReader();
-  expect(files.reading().height).toBeGreaterThan(before.height);
+  const before = files.reading();
+
+  await files.toggle.click();
+  await files.showsFiles(true);
+  await files.showsFullReader();
+  expect(files.reading().height).toBe(before.height);
   expect(files.reading().top).toBeGreaterThanOrEqual(files.tabBar().bottom);
 });
