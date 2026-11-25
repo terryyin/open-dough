@@ -19,7 +19,7 @@ The [interactive design example](SEED-420-unified-intent-review/preview.html)
 uses illustrative sessions. Narrow the window to see the icon-only bookmark.
 
 Keep the existing owners for [published session records and session selection](SEED-418-review-published-session-changes.md),
-[sidebar behavior](SEED-417-use-sidebars-consistently-across-the-dashboard.md),
+[sidebar behavior](https://github.com/terryyin/open-dough/blob/e4a350d35ee26dfe98375118520523dd1ca648f6/.planning/seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md),
 [Board actions](SEED-416-put-story-actions-in-the-comment-toolbar.md) and
 [outgoing follow-up context](https://github.com/terryyin/open-dough/blob/9d70e5741139db0443e0cf37f16c0881c7b1b55f/.planning/seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context).
 
@@ -114,7 +114,7 @@ hides untouched Intent files or changed production files independently.
 
 **Scope.** Replace **Selected story only** with two independent checkboxes,
 **Intent only** and **Changes only**, after **Home** in that order. The
-[sidebar story](SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
+[sidebar story](https://github.com/terryyin/open-dough/blob/e4a350d35ee26dfe98375118520523dd1ca648f6/.planning/seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
 owns how that row fits. This story owns what the controls do to the inventory.
 
 **Intent only** lists paths the selected revision's configured Intent

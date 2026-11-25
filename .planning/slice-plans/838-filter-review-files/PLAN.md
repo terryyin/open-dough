@@ -57,7 +57,7 @@ selection, or proof explanations.
   filters that are on match no path, the browser says so and the controls
   stay. With no configured locations, **Intent only** says that none are
   configured.
-- [The sidebar story](../../seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
+- [The sidebar story](https://github.com/terryyin/open-dough/blob/e4a350d35ee26dfe98375118520523dd1ca648f6/.planning/seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
   owns row fit. Supply the two controls after **Home**, **Intent only** then
   **Changes only**. [Story Home](https://github.com/terryyin/open-dough/blob/295c96b89ac352f18060e24a5f983f219392da8d/.planning/seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home)
   owns Home's evidence. This plan only keeps an unchanged test's contribution
