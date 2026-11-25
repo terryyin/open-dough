@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_open-published-board-from-local-git.json",
+      "identity": "SEED-430#open-published-board-from-local-git",
+      "completedAt": "2026-11-25T08:42:26.637Z",
+      "blob": "cd96877954539adb7cf4babf648d2022965b10cd"
+    },
+    {
       "fileName": "SEED-438_show-initial-sync-before-review.json",
       "identity": "SEED-438#show-initial-sync-before-review",
       "completedAt": "2026-11-25T07:01:35.592Z",

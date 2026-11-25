@@ -7,8 +7,8 @@
 ## Source and provenance
 
 Retrospective correction of
-[SEED-430#open-published-board-from-local-git](../../seeds/SEED-430-read-published-project-data-from-local-git.md#open-published-board-from-local-git),
-plan 824, executed from Take `f4e55eeb5` through `851fc01` on branch
+SEED-430#open-published-board-from-local-git (`548a3814652df8782da71457ac3acffd973a2f08:.planning/seeds/SEED-430-read-published-project-data-from-local-git.md`),
+plan 824 (`548a3814652df8782da71457ac3acffd973a2f08:.planning/slice-plans/824-open-published-board-from-local-git/PLAN.md`), executed from Take `f4e55eeb5` through `851fc01` on branch
 `claude/publish-fixed-board-test-fixtures-through-real-g`. Its slice 6
 (`851fc01`) moved the authenticated observation journey to real commits.
 Its contract kept fixed publications with this owner and a publication that
