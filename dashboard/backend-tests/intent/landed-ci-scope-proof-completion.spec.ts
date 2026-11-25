@@ -5,18 +5,15 @@ import { githubApi } from "../../../Distribution/tests/skills/dough-execute-plan
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import { readCiAdapterProof } from "../../server/ciAdapterProof.ts";
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
-import { readIntentCiProof } from "../../server/intentCiProofRead.ts";
 import {
   LandedCiCollection,
   machineLifecycle,
 } from "../../server/landedCiCollection.ts";
 import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
-import { passRead } from "../../server/landedCiPassRead.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { deliverLanding } from "../../server/launchLandingReporting.ts";
 import { replaceRecords } from "../../server/launchRecordDocument.ts";
@@ -126,16 +123,8 @@ test("retrying a completion delivery preserves its landing's one scoped measurem
   });
   const collection = new LandedCiCollection(
     machineLifecycle({
-      read: (project, folder, stopped) =>
-        passRead(project, folder, stopped, {
-          providers: { github },
-          readArtifact: artifact,
-        }),
-      readProof: (project, attempt, signal) =>
-        readIntentCiProof(project, attempt, signal, () => repository, {
-          artifact,
-          adapter: readCiAdapterProof,
-        }),
+      runs: { github },
+      proofs: { artifact },
     }),
   );
   onTestFinished(() => {
