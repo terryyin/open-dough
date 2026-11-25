@@ -108,7 +108,7 @@ malformed-audience case moved unchanged into the legacy encoding spec.
 ### 3. Read a held revision until the answer changes
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 9–13 active minutes.
 
 Given a viewer holding an overview or history revision, ask for that
@@ -119,6 +119,13 @@ observed input changes. In
 setup with an updated observed record. Call the answer owner with typed
 audience, held revision and abort signal. Bind response close in the
 production HTTP adapter.
+
+Proof (25 November 2026, load ~14.8): six Node cases, 0–7 ms each,
+through `MachineSessionObservation(read, inputs)` and
+`answerFor(ask, signal)` over the real `SharedObservation`; the HTTP
+adapter binds response close through `withResponseSignal`. The six-file
+selection passed 26/26 (28.1 s elapsed); the trace-selected observation,
+alert and closure consumers passed 16/16.
 
 ### 4. Fresh demand observes after the ask
 
@@ -178,7 +185,7 @@ Disposition: excluded "Session mutations, alerts, and other backend families hav
 ### G4. Held-revision answers from the old history case
 Reported: slice 2 — "The answers to a held revision (unchanged, and full across audiences) from the old history case belong to slice 3."
 Story clause: "A reader holding the current revision gets an unchanged answer."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: dashboard/backend-tests/sessions/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current {overview,history} revision is answered unchanged" and "a viewer of the {overview,history} holding the other audience's revision or a stale one is answered in full"
 
 ## Verification and delivery
 

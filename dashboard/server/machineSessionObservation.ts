@@ -26,7 +26,6 @@
 // wait, then is told to ask again; one leaving never ends the observation for
 // the others.
 
-import type { ServerResponse } from "node:http";
 import type {
   Alerts,
   AttemptObservation,
@@ -63,7 +62,7 @@ const unanswered = `The machine's sessions were not observed within ${readWaitLi
 
 // The machine's sessions answer after its records.
 type MachineSessionsRest = {
-  readonly feedbackMaintenance?: FeedbackMaintenanceState;
+  readonly feedbackMaintenance?: FeedbackMaintenanceState | undefined;
   readonly attempts: readonly AttemptObservation[];
   readonly attemptsReadable: boolean;
   readonly hostOperations: ReturnType<typeof hostOperations>;
@@ -107,12 +106,24 @@ const observedAnswer = ({
   revision,
 });
 
-async function observeMachineSessions(
+// What one observation reads: the records and the answer after them.
+export type MachineSessionsReading = {
+  readonly records: readonly LaunchWithState[];
+  readonly rest: MachineSessionsRest;
+};
+
+// The inputs an observation stands for: the project catalog and the
+// machine-document revision.
+export async function machineSessionInputs(): Promise<readonly unknown[]> {
+  return [configuredProjects(), await machineDocumentsRevision()];
+}
+
+// The machine's sessions as `launches` and the server's state read them now.
+export async function readMachineSessions(
   launches: AgentLaunches,
   alerts: () => Alerts,
   maintenance: Pick<FeedbackMaintenanceCheck, "state">,
-  fragments: SessionsAnswerFragments,
-): Promise<ObservedMachineSessions> {
+): Promise<MachineSessionsReading> {
   const { attempts, readable } = await launches.attempts();
   const records = await launches.machineSessions();
   const feedbackMaintenance = maintenance.state(records, attempts);
@@ -132,13 +143,13 @@ async function observeMachineSessions(
     sessionPolicies: await launches.sessionPolicies(),
     workspaces: await localWorkspaces(),
   };
-  const { overview, history } = fragments.answers(records, rest);
-  return {
-    ...observedAnswer(overview),
-    records,
-    history: observedAnswer(history),
-  };
+  return { records, rest };
 }
+
+// Who asks for the machine's sessions: the audience, the revision of its
+// answer the viewer holds, and whether an observation begun after the ask
+// must answer it.
+export type SessionsAsk = Omit<AdmittedSessions, "kind">;
 
 export class MachineSessionObservation {
   private readonly shared: SharedObservation<ObservedMachineSessions>;
@@ -148,16 +159,21 @@ export class MachineSessionObservation {
     history: new SharedGzip(),
   };
 
+  // Each observation reads through `read` under the current `inputs`.
   constructor(
-    launches: AgentLaunches,
-    alerts: () => Alerts,
-    maintenance: Pick<FeedbackMaintenanceCheck, "state">,
+    read: () => Promise<MachineSessionsReading>,
+    private readonly inputs: () => Promise<readonly unknown[]>,
   ) {
     const fragments = new SessionsAnswerFragments();
-    this.shared = new SharedObservation(
-      () => observeMachineSessions(launches, alerts, maintenance, fragments),
-      reuseMs,
-    );
+    this.shared = new SharedObservation(async () => {
+      const { records, rest } = await read();
+      const { overview, history } = fragments.answers(records, rest);
+      return {
+        ...observedAnswer(overview),
+        records,
+        history: observedAnswer(history),
+      };
+    }, reuseMs);
   }
 
   // The shared observation, or a retryable refusal past the read wait. A
@@ -169,7 +185,7 @@ export class MachineSessionObservation {
     fresh = false,
   ): Promise<ObservedMachineSessions> {
     const demanded = await this.shared.demand(
-      [configuredProjects(), await machineDocumentsRevision()],
+      await this.inputs(),
       waitMs(),
       signal,
       fresh,
@@ -179,30 +195,21 @@ export class MachineSessionObservation {
   }
 
   // The serialized answer the viewer's audience asks for, whose wait ends
-  // when it leaves: only that it is unchanged when the viewer holds that
+  // with `signal`: only that it is unchanged when the viewer holds that
   // answer's revision, and otherwise in full with its gzip encoding, shared
   // by every viewer of that revision. When `fresh`, the answer comes from an
   // observation begun after this ask.
   async answerFor(
-    res: ServerResponse,
-    { audience, held, fresh }: Omit<AdmittedSessions, "kind">,
+    { audience, held, fresh }: SessionsAsk,
+    signal: AbortSignal,
   ): Promise<SharedAnswer> {
-    const departed = new AbortController();
-    const leave = () => {
-      departed.abort();
+    const observed = await this.observed(signal, fresh);
+    const asked = audience === "history" ? observed.history : observed;
+    if (asked.revision === held) return { serialized: asked.unchanged };
+    return {
+      serialized: asked.serialized(),
+      gzipped: this.encoded[audience].of(asked.revision, asked.serialized),
     };
-    res.on("close", leave);
-    try {
-      const observed = await this.observed(departed.signal, fresh);
-      const asked = audience === "history" ? observed.history : observed;
-      if (asked.revision === held) return { serialized: asked.unchanged };
-      return {
-        serialized: asked.serialized(),
-        gzipped: this.encoded[audience].of(asked.revision, asked.serialized),
-      };
-    } finally {
-      res.off("close", leave);
-    }
   }
 
   // The observation's records, for the notification observer.
