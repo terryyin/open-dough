@@ -175,6 +175,19 @@ export function intentStory(intent: Locator) {
     folderRow: (name: string) => folderRow(intent, name),
     folderItem: (name: string) => folderItem(intent, name),
     folderAt: (path: string) => repositoryFolder(intent, path),
+    async expandFolderPath(path: string) {
+      let ancestor = "";
+      for (const segment of path.split("/")) {
+        ancestor = ancestor ? `${ancestor}/${segment}` : segment;
+        const toggle = repositoryFolder(intent, ancestor).locator(
+          ":scope > div > button[aria-expanded]",
+        );
+        await expect(toggle).toBeVisible();
+        if ((await toggle.getAttribute("aria-expanded")) === "false")
+          await toggle.click();
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+      }
+    },
     tree: repositoryTree(intent),
     headerDetail: () => storyHeaderDetail(intent),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>

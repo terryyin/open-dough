@@ -11,10 +11,7 @@ import {
 } from "../../dashboard/src/storyReviewContract.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  expandIntentGroup,
-  purposeRegion,
-} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { purposeRegion } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { recentlyDoneParts } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { ReviewLandedRun } from "../../dashboard/test-support/reviewChangesLandedRun.ts";
 import { openSessionsSidebar } from "../../dashboard/test-support/sessionsSidebarPage.ts";
@@ -30,8 +27,7 @@ import {
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
   chooseStoryTab,
-  intentDiff,
-  intentFile,
+  intentStory,
   storySummary,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
@@ -211,11 +207,10 @@ test("selecting another Done story opens its published default after reading the
       "compared",
     );
     await chooseStoryTab(intent, "Changes");
-    await expandIntentGroup(intent, "second/tests");
-    await expect(intentFile(intent, "dashboard/tests/a.spec.ts")).toHaveCount(
-      0,
-    );
-    expect(await intentDiff(intent, "Added second/tests/b.spec.ts")).toContain(
+    const story = intentStory(intent);
+    await story.expandFolderPath("second/tests");
+    await expect(story.file("dashboard/tests/a.spec.ts")).toHaveCount(0);
+    expect(await story.diff("Added second/tests/b.spec.ts")).toContain(
       "second story published source",
     );
     expect(runRequests).toEqual([]);

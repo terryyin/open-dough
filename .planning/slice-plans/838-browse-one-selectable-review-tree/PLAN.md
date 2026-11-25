@@ -121,6 +121,10 @@ same comparison. The real-Git review checks preserve Board arrival, kept
 selection, collapse, and file movement. The shared reveal rounds its scroll
 delta outward after the unified pane exposed fractional clipping. See
 [the diagnosis](diagnosis-story-tree-reveal.md) for the reproduction and repair.
+The [branch CI repair](diagnosis-ci-45625567929.md) confirmed that test readers
+need to disclose the actual ancestors before reaching a configured root.
+All seven failed mounted and real-Git checks passed using the shared path
+actions with their original observations.
 
 ### 2. Follow changed files in repository order
 

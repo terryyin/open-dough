@@ -94,6 +94,19 @@ export function intentStoryCompare() {
     tree,
     treeText: () => textOf(tree.query()),
     folder,
+    async expandFolderPath(path: string) {
+      let ancestor = "";
+      for (const segment of path.split("/")) {
+        ancestor = ancestor ? `${ancestor}/${segment}` : segment;
+        const toggle = folder(ancestor).getByCSS(
+          ":scope > div > button[aria-expanded]",
+        );
+        await expect.element(toggle).toBeVisible();
+        if (toggle.element().getAttribute("aria-expanded") === "false")
+          await userEvent.click(toggle);
+        await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+      }
+    },
     onlyChangedFiles: intent.getByRole("checkbox", {
       name: "Selected story only",
       exact: true,
