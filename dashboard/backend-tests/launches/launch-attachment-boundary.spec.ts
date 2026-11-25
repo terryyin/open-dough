@@ -1,8 +1,15 @@
-import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { PassThrough } from "node:stream";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   launchAttachmentLimitBytes,
   launchAttachmentNameHeader,
@@ -17,25 +24,11 @@ import {
   recordedRequestWithMaterializedAttachments,
 } from "../../server/launchAttachmentClaims.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { machineDashboardDirectory } from "../../server/machineHome.ts";
 
 const png = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
   "base64",
 );
-
-function withTempHome(prefix: string, run: (home: string) => void): void {
-  const previousHome = process.env["HOME"];
-  const home = mkdtempSync(path.join(tmpdir(), prefix));
-  process.env["HOME"] = home;
-  try {
-    run(home);
-  } finally {
-    if (previousHome === undefined) delete process.env["HOME"];
-    else process.env["HOME"] = previousHome;
-    rmSync(home, { recursive: true, force: true });
-  }
-}
 
 test.each([
   {
@@ -91,61 +84,88 @@ test.each([
 );
 
 test("materialize refuses a sixth claim without writing an attempt folder", () => {
-  withTempHome("dough-launch-attach-", (home) => {
-    const dashboard = machineDashboardDirectory(home);
-    const claimsDirectory = path.join(dashboard, "launch-attachment-claims");
-    const attemptsDirectory = path.join(dashboard, "launch-attachments");
-    const claims = [...Array(6).keys()].map((index) =>
-      claimLaunchAttachment(png, "image/png", `n${String(index)}.png`),
-    );
-    expect(readdirSync(claimsDirectory)).toHaveLength(6);
-    const attemptId = "attempt-too-many";
-    try {
-      materializeLaunchAttachments(attemptId, claims);
-      expect(false, "expected materialize to refuse").toBe(true);
-    } catch (error) {
-      expect(error).toBeInstanceOf(RefusedRequest);
-      expect(error).toMatchObject({
-        status: 400,
-        message: launchAttachmentTooMany,
-      });
-    }
-    expect(
-      existsSync(attemptsDirectory) ? readdirSync(attemptsDirectory) : [],
-    ).toEqual([]);
-    expect(readdirSync(claimsDirectory)).toEqual([]);
+  const dashboardDirectory = mkdtempSync(
+    path.join(tmpdir(), "dough-launch-attach-"),
+  );
+  onTestFinished(() => {
+    rmSync(dashboardDirectory, { recursive: true, force: true });
   });
+  const claimsDirectory = path.join(
+    dashboardDirectory,
+    "launch-attachment-claims",
+  );
+  const attemptsDirectory = path.join(dashboardDirectory, "launch-attachments");
+  const claims = [...Array(6).keys()].map((index) =>
+    claimLaunchAttachment(
+      png,
+      "image/png",
+      `n${String(index)}.png`,
+      dashboardDirectory,
+    ),
+  );
+
+  for (const claim of claims) {
+    expect(readFileSync(path.join(claimsDirectory, claim, "bytes"))).toEqual(
+      png,
+    );
+  }
+  expect(() =>
+    materializeLaunchAttachments(
+      "attempt-too-many",
+      claims,
+      dashboardDirectory,
+    ),
+  ).toThrow(
+    expect.objectContaining({
+      constructor: RefusedRequest,
+      status: 400,
+      message: launchAttachmentTooMany,
+    }),
+  );
+  expect(
+    existsSync(attemptsDirectory) ? readdirSync(attemptsDirectory) : [],
+  ).toEqual([]);
+  expect(readdirSync(claimsDirectory)).toEqual([]);
 });
 
 test("a refused launch abandons claims and writes no attachment folder", () => {
-  withTempHome("dough-launch-attach-refuse-", (home) => {
-    const dashboard = machineDashboardDirectory(home);
-    const claimsDirectory = path.join(dashboard, "launch-attachment-claims");
-    const attemptsDirectory = path.join(dashboard, "launch-attachments");
-    const claim = claimLaunchAttachment(png, "image/png", "card.png");
-    expect(readdirSync(claimsDirectory)).toEqual([claim]);
-    // Wire paths are recorded only after admission; naming them on the request
-    // is refused and abandons the claims without creating an attempt folder.
-    try {
-      recordedRequestWithMaterializedAttachments("attempt-refused", {
-        source: "open-dough",
-        workflow: "ad-hoc",
-        host: "claude",
-        instruction: "Why is this card clipped?",
-        attachments: ["/tmp/not-allowed.png"],
-        attachmentClaims: [claim],
-      });
-      expect(false, "expected refusal").toBe(true);
-    } catch (error) {
-      expect(error).toBeInstanceOf(RefusedRequest);
-      expect(error).toMatchObject({
-        status: 400,
-        message: "The launch request is malformed.",
-      });
-    }
-    expect(
-      existsSync(attemptsDirectory) ? readdirSync(attemptsDirectory) : [],
-    ).toEqual([]);
-    expect(readdirSync(claimsDirectory)).toEqual([]);
+  const dashboardDirectory = mkdtempSync(
+    path.join(tmpdir(), "dough-launch-attach-refuse-"),
+  );
+  onTestFinished(() => {
+    rmSync(dashboardDirectory, { recursive: true, force: true });
   });
+  const claimsDirectory = path.join(
+    dashboardDirectory,
+    "launch-attachment-claims",
+  );
+  const attemptsDirectory = path.join(dashboardDirectory, "launch-attachments");
+  const claim = claimLaunchAttachment(
+    png,
+    "image/png",
+    "card.png",
+    dashboardDirectory,
+  );
+  expect(readFileSync(path.join(claimsDirectory, claim, "bytes"))).toEqual(png);
+  const request = makeMe.aLaunchRequest
+    .adHoc({ attachmentClaims: [claim] })
+    .please();
+
+  expect(() =>
+    recordedRequestWithMaterializedAttachments(
+      "attempt-refused",
+      { ...request, attachments: ["/tmp/not-allowed.png"] },
+      dashboardDirectory,
+    ),
+  ).toThrow(
+    expect.objectContaining({
+      constructor: RefusedRequest,
+      status: 400,
+      message: "The launch request is malformed.",
+    }),
+  );
+  expect(
+    existsSync(attemptsDirectory) ? readdirSync(attemptsDirectory) : [],
+  ).toEqual([]);
+  expect(readdirSync(claimsDirectory)).toEqual([]);
 });

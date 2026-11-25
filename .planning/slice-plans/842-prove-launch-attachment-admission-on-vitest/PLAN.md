@@ -113,7 +113,7 @@ shared terminal upload and voice request consumers of the reader.
 ### 3. Remove claims when the launch cannot use them
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 Proof: Both selected files run on Node Vitest. Real-file assertions observe
 claims before the call and absence of claims and attempt files after refusal.
@@ -213,10 +213,49 @@ under the checkout's Git evidence directory in `s2-return.md` and its run
 records. Slice 1 was accepted on the execution branch at
 `a0bf56a8cc52d5eebc733c5da7c0740ee1307ded`.
 
+### Slice 3 proof
+
+The two claim refusals now use separate private dashboard directories. The
+tests read the posted bytes, observe the 400 count or malformed-request
+answer, and check both stores after the call. The claim owner uses the same
+directory through materialization and compensation. Production paths use the
+machine dashboard directory. The malformed example supplies the posted claim
+through MakeMe and states the caller-supplied path in the test.
+
+| Measure | Recorded Playwright baseline | Node Vitest candidate |
+| --- | ---: | ---: |
+| Completed cases | 6 | 6 |
+| Cases under approximately 100 ms | 5 | 6 |
+| Summed case time | 1,345 ms | 20.36 ms |
+| Selection wall time | 6.63 s | 1.90 s |
+
+Candidate case times were 2.03 ms for PDF, 0.32 ms for the oversized
+declaration, 3.86 ms for the sixth claim, 0.90 ms for the caller path,
+11.19 ms for the filename round trip, and 2.06 ms for selection. The two
+upload refusals replace the single mounted case. The partition case observes
+the shared type, size, count, and valid-file rules formerly checked separately.
+Both samples used one worker on macOS with Node 24.21.0 and AC power. The
+workload and checkout setup differed slightly, so the comparison describes
+these runs.
+
+The existing two Chromium journeys both passed in 10.13 s wall, versus the
+baseline's 18.68 s and the restored-source repeat's 13.96 s. The refinement
+journey now reads the exact bytes of both images at the two paths taken from
+native input. It also verifies their order and the kept request. The recovery
+journey verifies that continuing sends the same path and retains the bytes.
+The browser selection still contains two cases. The added work is two local
+file reads. Twelve backend claim consumers, the existing-changes browser
+case, and Dashboard typecheck passed. The earlier terminal and voice proof
+still applies. Exact commands and selections are in `s3-return.md` and its
+run records in the checkout's Git evidence directory. Slice 2 was accepted
+on the execution branch at `5930174c01cdd767b89c7c4365e231902ce11cd6`.
+Its push superseded the earlier branch CI attempt under the workflow's
+concurrency rule.
+
 ## Story obligations
 
 ### G1. Observe both copies in the ordered refinement launch
 
 Reported: slice 2 — "The existing refinement browser test asserts ordered native paths but does not read the bytes at those paths."
 Story clause: "existing browser proof observes the copied bytes in the order picked"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `e2e/launches/agent-launch-story-attachments.spec.ts` reads both numbered native paths and compares their contents to the two distinct picked PNGs. The `s3-e2e` proof record has the passing refinement attempt.
