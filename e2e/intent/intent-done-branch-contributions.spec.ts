@@ -49,6 +49,9 @@ test("a Done branch shows its contribution and widens to the same completion", a
     await review.files.expectNotShown(incoming);
   });
   await test.step("And with Selected story only, the guides folder reports one changed file", async () => {
+    await review.files.expectInventoryNotice(
+      /^No Intent locations are configured for Open Dough\./,
+    );
     await review.files.showOnlyChanged();
     await (
       await review.files.collapseFolder("guides")
