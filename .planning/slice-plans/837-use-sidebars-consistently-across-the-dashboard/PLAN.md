@@ -168,6 +168,22 @@ has an accessible name and the actions remain touch and keyboard operable.
 Whole-project scope leaves Changes only out of the row. Preserve live controls
 and their original action owners as they are supplied.
 
+## Execution complete
+
+Product advice:
+- Decide whether pressing a location or folder name in a narrow Files
+  drawer should close the drawer, as choosing a file and Story Home now do.
+  Today its Summary opens under the open drawer. Recommendation: close it,
+  so every choice of a reading exposes that reading.
+- When the file filtering story (SEED-420#filter-review-files) supplies
+  Intent only, it should name the story filter "Changes only". The current
+  "Selected story only" label does not fit beside Home and Intent only at
+  320 px (story obligation G5).
+- About 18 Intent comparison specs mount at Vitest's default 390 px without
+  meaning a phone layout, so they now open Files before every tree read. A
+  later test-cost correction could mount them at a docked width on purpose,
+  keeping the width-dependent assertions narrow.
+
 ## Plan review
 
 Slice-plan refinement was unnecessary after construction. Each slice owns an
