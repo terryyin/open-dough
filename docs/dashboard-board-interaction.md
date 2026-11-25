@@ -29,13 +29,9 @@ they do not establish physical-device keyboard or remote-connectivity behavior.
 
 The selected story's card is highlighted with an inset accent ring and pale blue fill; inspecting a card opens its detail without it. Opening a story's terminal or final report in the Side panel selects that story, and showing a session attached to no story clears it. Closing the Side panel, including through **Mark as done** or deleting the shown session's record, keeps the story selected at that moment, so Intent stays on it; with no story selected, Intent stays at project scope. A Session entry the Side panel shows keeps its own outline and "Shown in" mark, which identifies the session.
 
-The pinned banner places a **Recent stories** icon button in its own group immediately after the Development/Intent Perspective choice and before the project control. That button shows whether a Selected story is set and opens the Recent stories list. Clicking it reveals the Selected story in the current perspective when its start is out of view, and otherwise opens the list. Choosing a Recent stories row sets the Selected story, closes the list, and reveals that story in the current perspective: in Development through the same story-reference journey a dependency link uses (switching project when needed, leaving Roster for Columns, focusing and cueing the card, or reporting an unavailable story); in Intent by showing the story's view from its start (leaving Project Intent when it was chosen), selecting with nothing new added when the story is no longer on the Board.
+The pinned banner places the **Recent stories** bookmark after the Perspective choice and before the project control. Activating it reveals an offscreen Selected story's start in the current perspective. Once the start is readable, or the story has been reported unavailable, activation opens the list. Choosing a recent sets the Selected story and reveals it. The Board uses its story-reference journey to switch projects, leave the Roster, and focus and cue the card when available. Intent brings the story heading into view.
 
-Under the [unified review design](dashboard-ux-ui-north-star.md#review-in-intent),
-**Review changes** selects the card's story and opens its Changes tab in Intent, keeping any open Side panel in place. The bookmark
-offers **Whole project** alongside recent stories. Choosing it clears the
-selection and preserves the recent list. On mobile the bookmark presents an
-icon-only target with the selected story or project scope in its accessible name.
+**Whole project** clears the selection and keeps the recent list. On a narrow screen, the bookmark shows its icon and keeps the scope in its accessible name. **Review changes** selects the card's story and opens Changes in Intent, keeping any open Side panel in place.
 
 Use one navigable Board containing connected Columns. Initially,
 show **Backlog → Taken**, with Story cards placed inside their recorded region.

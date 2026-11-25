@@ -50,11 +50,10 @@ Project Intent's tab bar, which keeps its current layout.
   new `IntentComparisonBar.tsx`. IntentHeader keeps the title rows.
   IntentPage only places the bar. No reorganization of the existing files
   is required.
-- [Plan 832](../832-choose-review-scope/PLAN.md) removes the header's
-  scope crumb controls and also edits `intent-story-changes-gaps`,
-  `intent-story-changes-only` and `intent-sidebar-toggle`. Neither story
-  depends on the other. Whichever executes second builds on the header the
-  first one landed and reruns those specs.
+- The bookmark story removed the header's scope controls and updated
+  `intent-story-changes-gaps`, `intent-story-changes-only` and
+  `intent-sidebar-toggle`. Check the delivered header and rerun those specs
+  for the comparison bar change. [Bookmarked scope proof](https://github.com/terryyin/open-dough/blob/01b3833c9ee0c38fbd54345ea1d90748311bf0f7/.planning/slice-plans/832-choose-review-scope/PLAN.md).
 
 ## Decisive premises and baseline
 
