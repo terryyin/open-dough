@@ -22,7 +22,7 @@ import {
   recordsAsked,
 } from "./recentlyDoneProgressivePage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import type { ProgressiveHistory } from "./recentlyDoneRefresh.ts";
 import { holdingAnswer } from "./support/heldGitHubAnswer.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
@@ -50,7 +50,7 @@ export const names = (to: number) => entries.slice(0, to).map(entryName);
 // Opens the page with the session at each of `open` kept open, the held
 // story's record answering only once `release` is called, and `also` kept;
 // `elsewhere` leaves the destination's place to a session `also` keeps;
-// `moving` answers for later publications too (./recentlyDoneRefresh.ts).
+// `history` supplies later publications too (./recentlyDoneRefresh.ts).
 export async function openedWithHeldStory(
   page: Page,
   dashboard: DashboardServer,
@@ -58,12 +58,12 @@ export async function openedWithHeldStory(
     open = [destination],
     also,
     elsewhere = false,
-    moving = (published) => published,
+    history,
   }: {
     readonly open?: readonly number[];
     readonly also?: (now: number) => readonly LaunchRecord[];
     readonly elsewhere?: boolean;
-    readonly moving?: (published: RepositoryAnswerer) => RepositoryAnswerer;
+    readonly history?: ProgressiveHistory;
   } = {},
 ) {
   const held = entryAt(heldPlace);
@@ -75,8 +75,9 @@ export async function openedWithHeldStory(
   const view = await opened(page, dashboard, list, {
     open,
     ...(also === undefined ? {} : { also }),
+    ...(history === undefined ? {} : { history }),
     answering: (published) => {
-      const holding = holdingAnswer(moving(published), isRecord(held.path));
+      const holding = holdingAnswer(published, isRecord(held.path));
       release = holding.release;
       return holding.answer;
     },

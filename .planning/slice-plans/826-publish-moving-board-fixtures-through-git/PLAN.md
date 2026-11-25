@@ -384,7 +384,7 @@ assertion values.
 ### 7. Follow moving Recently done and published session histories
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Moving a published story through queue, re-Take and Done, or
 refreshing a progressive Done catalog, updates the browser at the correct
 commit while earlier admitted details keep their record and session links.
@@ -394,6 +394,25 @@ and catalog retry where it replaces a publication. Check the exact pins,
 session relationship and request order, including a failed listing or
 record read where the journey holds it. Preserve one publication history
 for each scenario and its earlier pins.
+
+Accepted proof at `6ab903bbdb663f59819f2976b15e319d07dfaad3` plus slice 7
+changes. Returned sessions retain independently composed session IDs and
+assert the exact queued, re-Take, and Done publication pins. Progressive
+refresh reads the actual A–E refs under the served HOME, keeps its range
+and focus, and requests only the intended changed records. Older held
+reads and the refusal at B remain pinned. Catalog retry replaces its broken
+commit with the corrected one and reads its catalog before only the named
+supplier's record.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/stories/recently-done-progressive*.spec.ts e2e/stories/{recently-done-review-state-refresh,branch-slice-progress}.spec.ts e2e/sessions/recently-done-returned-sessions.spec.ts e2e/navigation/story-reference-catalog-retry.spec.ts e2e/observation/auto-refresh-branches.spec.ts e2e/intent/intent-project-visit-ci.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/stories/recently-done-progressive-refresh.spec.ts --grep 'a refresh keeps twenty entries' --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/sessions/recently-done-sessions-sidebar-{navigation,paging-board}.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run typecheck:dashboard
+```
+
+The browser runs passed 28, 1, and 3 cases. Typecheck passed after the
+refactor removed an unused return field from the progressive opener.
 
 ### 8. Keep custom observation faults at the consuming request
 

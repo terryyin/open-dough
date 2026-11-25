@@ -8,7 +8,11 @@
 // ../../dashboard/backend-tests/sessions/agent-completion-returned-closure.spec.ts.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  expect,
+  githubFor,
+  test,
+} from "../../dashboard/test-support/dashboardTest.ts";
 import { rem } from "../../dashboard/test-support/boardPage.ts";
 import {
   expectMembership,
@@ -19,9 +23,11 @@ import {
   storyCardDoneDisclosure,
   storyCardSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { describedRevisions } from "../../dashboard/test-support/describedRevisions.ts";
-import { publishCommittedFiles } from "../../dashboard/test-support/committedFiles.ts";
-import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import {
+  publishCommittedFileHistory,
+  publishCommittedFiles,
+} from "../../dashboard/test-support/committedFiles.ts";
+import { pathsRead } from "../../dashboard/test-support/originObservation.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   at,
@@ -29,7 +35,6 @@ import {
   queuedIdentity,
   queuedTitle,
   repository,
-  revision,
   workspaceEntry,
 } from "../../dashboard/test-support/recentlyDoneRecords.ts";
 import {
@@ -40,6 +45,7 @@ import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessi
 import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { expectSessionsSidebarSessionEntryShown } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   idleBetweenSteps,
   markDoneAnyway,
@@ -64,6 +70,7 @@ const returnedLaunch = (now: number, sessionId: string) =>
 test("a launch returned to the backlog reads Returned to backlog under the unfinished card while queued or taken again, and inside the done-story card beside the later launch that completes it", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
   const now = Date.now();
   const returnedId = listed(dashboard, now, queuedTitle, 5 * hour);
@@ -77,7 +84,8 @@ test("a launch returned to the backlog reads Returned to backlog under the unfin
       .launchedAt(at(now, 2 * hour))
       .please(),
   ]);
-  const published = describedRevisions(
+  const origin = await publishCommittedFileHistory(
+    page,
     makeMe.aRepository
       .withRevision("queued", { backlog: { queued: [workspaceEntry] } })
       .withRevision("retaken", { backlog: { taken: [workspaceEntry] } })
@@ -94,12 +102,10 @@ test("a launch returned to the backlog reads Returned to backlog under the unfin
         ],
       })
       .please(),
-    { queued: revision, retaken: "d6".repeat(20), done: "d7".repeat(20) },
+    { repository, trunk: "queued", afterGitHubStops },
   );
-  const origin = publishMovingFiles(page, {
-    repository,
-    ...published.queued,
-  });
+  const { queued, retaken, done } = origin.revisions;
+  expectServedHomesReach(githubFor(page), repository, queued);
   await page.goto("/");
   const { board, backlog, taken, recentlyDone: recent } = parts(page);
   const returnedKey = `claude:${returnedId}`;
@@ -123,18 +129,22 @@ test("a launch returned to the backlog reads Returned to backlog under the unfin
 
   await test.step("while the story is queued, the returned launch sits in the card's Done disclosure and the queued card holds the later launch", async () => {
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
+    expect(pathsRead(origin)).toContain(`PRODUCT-BACKLOG.md?ref=${queued}`);
     await expectApartFrom(backlog);
   });
 
   await test.step("when the story is taken again, the later launch sits in its Taken card and the returned launch stays in that card's Done disclosure", async () => {
-    origin.moveTrunk(published.retaken);
+    origin.moveTrunk(origin.at("retaken"));
+    expectServedHomesReach(githubFor(page), repository, retaken);
     await reloadUntilRead(page);
     await expectMembership(page, { taken: [queuedTitle], backlog: [] });
+    expect(pathsRead(origin)).toContain(`PRODUCT-BACKLOG.md?ref=${retaken}`);
     await expectApartFrom(taken);
   });
 
   await test.step("once the later launch completes the story and is marked done, the done-story card holds both: the later reads Done, the earlier Returned to backlog", async () => {
-    origin.moveTrunk(published.done);
+    origin.moveTrunk(origin.at("done"));
+    expectServedHomesReach(githubFor(page), repository, done);
     await reloadUntilRead(page);
     await expectMembership(page, { taken: [], backlog: [] });
     const later = sessionEntryShowing(taken, laterKey);
@@ -142,6 +152,7 @@ test("a launch returned to the backlog reads Returned to backlog under the unfin
     idleBetweenSteps(dashboard, laterId);
     await markDoneAnyway(later);
     await expectEntries(recent, [queuedTitle]);
+    expect(pathsRead(origin)).toContain(`.catalog.json?ref=${done}`);
     const inside = storyCardSessions(storyCard(recent, queuedTitle));
     await expect(inside).toHaveCount(2);
     await expect(inside.nth(0)).toHaveAttribute("data-shows-session", laterKey);

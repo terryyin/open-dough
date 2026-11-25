@@ -32,6 +32,10 @@ type HistoryOptions<Name extends string> = {
   readonly trunk: Name;
   readonly branches?: Readonly<Record<string, Name>>;
   readonly afterGitHubStops: (cleanup: () => Promise<void>) => void;
+  readonly wrapAnswer?: (
+    answer: RepositoryAnswerer,
+    initialRevision: string,
+  ) => RepositoryAnswerer;
   readonly details?: (
     shas: Readonly<Record<Name, string>>,
   ) => Partial<Record<Name, Omit<PublishedRevision, "revision" | "files">>>;
@@ -48,6 +52,7 @@ export async function publishCommittedFileHistory<Name extends string>(
     branches = {},
     details,
     afterGitHubStops,
+    wrapAnswer,
   }: HistoryOptions<Name>,
 ) {
   const ref = description.trunkBranch ?? "main";
@@ -76,6 +81,9 @@ export async function publishCommittedFileHistory<Name extends string>(
       ),
     },
     { origin, revision: revisions[trunk] },
+    wrapAnswer === undefined
+      ? undefined
+      : (answer) => wrapAnswer(answer, revisions[trunk]),
   );
   routeServedHomesToPublication(githubFor(page), repository);
   return {
