@@ -120,11 +120,13 @@ export function historyDiscoverAttempts({
 
 // A `gh` that counts its calls in CI_TEST_GH_CALLS and lists no runs.
 const countingGithubCommand = `#!${process.execPath}
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 if (process.argv[2] === 'auth') process.exit(1);
 const path = process.env.CI_TEST_GH_CALLS;
 const count = existsSync(path) ? Number(readFileSync(path, 'utf8')) + 1 : 1;
-writeFileSync(path, String(count));
+// Replace the count whole, so a reader never sees it truncated mid-write.
+writeFileSync(path + '.' + process.pid, String(count));
+renameSync(path + '.' + process.pid, path);
 process.stdout.write('[]');
 `;
 
@@ -142,14 +144,15 @@ export function projectFixture(t, configuration) {
   writeFileSync(
     adapter,
     `#!${process.execPath}
-import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
 appendFileSync(${JSON.stringify(requests)}, JSON.stringify(request) + '\\n');
 const path = ${JSON.stringify(calls)};
 const call = existsSync(path) ? Number(readFileSync(path, 'utf8')) + 1 : 1;
-writeFileSync(path, String(call));
+writeFileSync(path + '.' + process.pid, String(call));
+renameSync(path + '.' + process.pid, path);
 if (call === 1) writeFileSync('.planning/open-dough.json', JSON.stringify({ ciAdapter: [] }));
 const attempts = ${JSON.stringify(controlledDiscoverAttempts)};
 const attempt = attempts[Math.min(call, attempts.length) - 1];
