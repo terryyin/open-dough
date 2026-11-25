@@ -157,7 +157,7 @@ The notification E2E owns the default dashboard listener and emitted URL.
 ### 8. Activate the selected dashboard tab
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 7–10 active minutes.
 
 Given the production callback source and a story destination, execute it
@@ -243,6 +243,19 @@ baseline.
 - Slice 7: skipped fresh refactor — subject-spec origin Vitest rewrite
   plus E2E socket probe; no production change; probe is not a browser
   journey so no page-object seam.
+- Slice 8: skipped fresh refactor — subject-spec activation Vitest
+  rewrite; no production change.
+
+### Slice 8 accepted proof
+
+- Vitest `session-alerts-activation.spec.ts` — production callback source
+  against Safari/Chrome stand-ins: reuse/raise, cold launch, ineligible,
+  denied automation (`slice8-vitest-activation.log.run.json`).
+- Activation-command Vitest retained. Eight legacy paths: none select
+  backend Playwright.
+- Final cohort: 24 Node Vitest cases in 3.79 s
+  (`slice8-cohort-before.log.run.json`); E2E alerts + unavailable +
+  origin socket probe 10/10 in 19.6 s (`slice8-e2e-alerts.log.run.json`).
 
 ### Slice 6 accepted proof
 
