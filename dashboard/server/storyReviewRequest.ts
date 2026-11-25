@@ -3,7 +3,6 @@
 // handler (`storyReview` in `./storyReview.ts`).
 import type {
   PublishedSessionReviewRead,
-  SessionReviewRead,
   StoryReviewRead,
 } from "../src/storyReviewRead.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
@@ -11,9 +10,7 @@ import { commitIdSchema } from "../src/launchLanding.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
   queriedPublishedSessionSubject,
-  queriedSessionSubject,
   queriedStorySubject,
-  reviewedWorkSubjectQuery,
 } from "./reviewedWorkSubjectAdmission.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
 
@@ -21,23 +18,7 @@ export interface AdmittedStoryReview {
   readonly kind: "story-review";
   readonly read:
     | (StoryReviewRead & { readonly subject: ReviewedStorySubject })
-    | SessionReviewRead
     | PublishedSessionReviewRead;
-}
-
-function sessionReviewRead(url: URL): SessionReviewRead {
-  const named = url.searchParams.get("run");
-  requireExactQuery(
-    url,
-    ["source", "host", "session", ...(named === null ? [] : ["run"])],
-    "review",
-  );
-  if (named !== null && !/^(0|[1-9]\d*)$/.test(named))
-    throw new RefusedRequest(400, "The review run is malformed.");
-  return {
-    subject: queriedSessionSubject(url),
-    ...(named === null ? {} : { run: named }),
-  };
 }
 
 function identityReviewRead(
@@ -106,12 +87,11 @@ function identityReviewRead(
 }
 
 export function storyReviewRequest(url: URL): AdmittedStoryReview {
-  const subject = reviewedWorkSubjectQuery(url);
-  if (subject.kind === "published") {
+  if (url.searchParams.has("published")) {
     const run = url.searchParams.get("run");
     requireExactQuery(
       url,
-      [...subject.keys, ...(run === null ? [] : ["run"])],
+      ["source", "identity", "published", ...(run === null ? [] : ["run"])],
       "review",
     );
     if (run !== null && !/^(0|[1-9]\d*)$/.test(run))
@@ -124,9 +104,5 @@ export function storyReviewRequest(url: URL): AdmittedStoryReview {
       },
     };
   }
-  const read =
-    subject.kind === "session"
-      ? sessionReviewRead(url)
-      : identityReviewRead(url);
-  return { kind: "story-review", read };
+  return { kind: "story-review", read: identityReviewRead(url) };
 }

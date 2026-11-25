@@ -17,11 +17,13 @@ import { reviewInput } from "../../server/storyReviewInput.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
+  storyReviewFileTextEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 import {
   aNeverSyncedPublishedSessionOffline,
   aSyncedPublishedSession,
+  publishedIdentity,
 } from "../support/publishedSessionCase.ts";
 import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
 import {
@@ -30,7 +32,11 @@ import {
   timedOutSync,
 } from "../support/hangingOrigin.ts";
 
-const published = { source: "open-dough", published: randomUUID() };
+const published = {
+  source: "open-dough",
+  identity: publishedIdentity,
+  published: randomUUID(),
+};
 const file = { baseline: "a".repeat(40), tree: "b".repeat(40), path: "a.txt" };
 
 const routed = (endpoint: string, query: Record<string, string>) => {
@@ -67,13 +73,37 @@ test("Given a published session's UUID and a range position not spelled canonica
 });
 
 for (const [endpoint, query] of [
+  [
+    storyReviewEndpoint,
+    { source: "open-dough", published: published.published },
+  ],
+  [
+    storyReviewFileEndpoint,
+    { source: "open-dough", published: published.published, ...file },
+  ],
+  [
+    storyReviewFileTextEndpoint,
+    { source: "open-dough", published: published.published, ...file },
+  ],
+  [
+    storyReviewEndpoint,
+    { source: "open-dough", session: "ad-hoc", host: "claude" },
+  ],
+  [
+    storyReviewFileEndpoint,
+    { source: "open-dough", session: "ad-hoc", host: "claude", ...file },
+  ],
+  [
+    storyReviewFileTextEndpoint,
+    { source: "open-dough", session: "ad-hoc", host: "claude", ...file },
+  ],
   [storyReviewEndpoint, { ...published, session: "ad-hoc", host: "claude" }],
   [storyReviewEndpoint, { ...published, published: "../PRODUCT-BACKLOG" }],
   [storyReviewEndpoint, { ...published, reference: randomUUID() }],
   [storyReviewFileEndpoint, { ...published, ...file, reference: randomUUID() }],
   [storyReviewFileEndpoint, { ...published, ...file, completion: file.tree }],
 ] as const)
-  test(`Given a published session query ${JSON.stringify(Object.keys(query))} naming more than its UUID, when it is routed, then it is refused as malformed`, async () => {
+  test(`Given a published session query ${JSON.stringify(Object.keys(query))} outside the story and its published session, when it is routed, then it is refused as malformed`, async () => {
     await expect(
       Promise.resolve().then(() => routed(endpoint, query)),
     ).rejects.toMatchObject({ status: 400 });
@@ -144,7 +174,11 @@ const reviewed = async (
   syncDeadline = new ReviewSyncDeadline(),
 ) => {
   const signal = newSignal();
-  const subject = { source: "open-dough", published: session };
+  const subject = {
+    source: "open-dough",
+    identity: publishedIdentity,
+    published: session,
+  };
   return storyReviewSchema.parse(
     await storyReview(
       await reviewInput({ subject }, signal, syncDeadline),

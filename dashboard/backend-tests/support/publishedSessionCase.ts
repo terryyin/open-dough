@@ -1,4 +1,4 @@
-// A checkout whose trunk published a standalone session's close record, and
+// A checkout whose trunk published a story-linked session's close record, and
 // the typed review and file reads of that session on a machine with no launch
 // history, for the published-session review specs
 // (../review/published-session-review.spec.ts,
@@ -22,6 +22,8 @@ import { storyReview } from "../../server/storyReview.ts";
 import { reviewInput } from "../../server/storyReviewInput.ts";
 import { aDoneCaptureCase } from "./doneCaptureCaseBuilder.ts";
 import { fixtureRepository, stubFixtureHome } from "./fixtureHome.ts";
+
+export const publishedIdentity = "SEED-021#review-published-session";
 
 type Pair = { readonly base: string; readonly candidate: string };
 
@@ -59,7 +61,10 @@ export async function aPublishedSession(range?: Pair) {
     files: { "notes.md": "edited\n" },
   });
   const recorded = range ?? { base: checkout.base, candidate };
-  const record = makeMe.aSessionRecord.closing(recorded).please();
+  const record = makeMe.aSessionRecord
+    .closing(recorded)
+    .forStory(publishedIdentity)
+    .please();
   await recordPublished(repository, record);
   const revision = await commitDeclaredRevision(repository, {
     files: { "later.md": "later\n" },
@@ -75,13 +80,14 @@ export const read = (
   published: PublishedSession,
   {
     session = published.sessionId,
+    identity = publishedIdentity,
     run,
-  }: { session?: string; run?: string } = {},
+  }: { session?: string; run?: string; identity?: string } = {},
 ) =>
   storyReview(
     {
       read: {
-        subject: { source: "open-dough", published: session },
+        subject: { source: "open-dough", identity, published: session },
         ...(run === undefined ? {} : { run }),
       },
       published: published.source,
@@ -94,12 +100,19 @@ export const read = (
 // named.
 export const readFile = (
   published: PublishedSession,
-  file: { baseline?: string; tree?: string; path: string },
+  {
+    identity = publishedIdentity,
+    ...file
+  }: { identity?: string; baseline?: string; tree?: string; path: string },
 ) =>
   reviewedFileDiff(
     {
       read: {
-        subject: { source: "open-dough", published: published.sessionId },
+        subject: {
+          source: "open-dough",
+          identity,
+          published: published.sessionId,
+        },
         baseline: published.base,
         tree: published.candidate,
         ...file,
@@ -128,7 +141,10 @@ async function aConfiguredPublishedSession() {
     files: { "notes.md": "edited\n" },
   });
   const recorded = { base: checkout.base, candidate };
-  const record = makeMe.aSessionRecord.closing(recorded).please();
+  const record = makeMe.aSessionRecord
+    .closing(recorded)
+    .forStory(publishedIdentity)
+    .please();
   const recordedAt = await recordPublished(integration, record);
   await git(integration, "push", "--quiet", "origin", "main");
   appendConfiguredProject(
@@ -174,7 +190,10 @@ export async function aSyncedPublishedSession() {
     new AbortController().signal,
   );
   const { base, candidate } = configured;
-  const unsynced = makeMe.aSessionRecord.closing({ base, candidate }).please();
+  const unsynced = makeMe.aSessionRecord
+    .closing({ base, candidate })
+    .forStory(publishedIdentity)
+    .please();
   await recordPublished(integration, unsynced);
   const advanced = await commitDeclaredRevision(integration, {
     files: { "later.md": "later\n" },
@@ -199,7 +218,11 @@ export const readAdmittedFile = async (
   const signal = new AbortController().signal;
   const input = await reviewInput(
     {
-      subject: { source: "open-dough", published: session },
+      subject: {
+        source: "open-dough",
+        identity: publishedIdentity,
+        published: session,
+      },
       baseline: pair.base,
       tree: pair.candidate,
       path,

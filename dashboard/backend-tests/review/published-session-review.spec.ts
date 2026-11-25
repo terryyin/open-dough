@@ -1,4 +1,4 @@
-// A standalone session's published close record admits its review on a
+// A story session's published close record admits its review on a
 // machine with no launch history: the typed review and file handlers take the
 // published subject and its configured project source, and the recorded pair
 // is read from that project's Git at a later published revision. Records of
@@ -122,4 +122,20 @@ test("Given a session record published after the last sync, when a file of its r
     message: "This project published no such session.",
   });
   expect(recording.requests()).toEqual([]);
+});
+
+test("review and file admission refuse a published session belonging to another story", async () => {
+  const published = await aPublishedSession();
+  const identity = "SEED-022#different-story";
+
+  await expect(read(published, { identity })).rejects.toMatchObject({
+    status: 409,
+    message: "The published session does not belong to this story.",
+  });
+  await expect(
+    readFile(published, { identity, path: "notes.md" }),
+  ).rejects.toMatchObject({
+    status: 409,
+    message: "The published session does not belong to this story.",
+  });
 });

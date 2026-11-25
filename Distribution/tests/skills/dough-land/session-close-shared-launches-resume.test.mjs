@@ -26,6 +26,7 @@ import {
 } from "../dough-execute-plan/dashboard-landing-test-fixtures.mjs";
 import {
   closedAt,
+  closingStory,
   oneUnpublishedEdit,
   publishedRecord,
   targetRef,
@@ -55,6 +56,7 @@ async function twoOpenLaunches(t, fixture) {
       t,
       makeMe.aLandingContext
         .referencing(reference)
+        .namingStory(closingStory)
         .reportingTo((await landingReceiver(t)).origin)
         .please(),
       expectation,

@@ -1,7 +1,7 @@
 // Details and their focus behavior in a published session review.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
+import type { ReviewedPublishedSessionSubject } from "../../src/reviewedWorkSubject.ts";
 import { frontendReviewIds } from "../../test-support/support/frontendStoryReview.ts";
 import {
   adHocSession,
@@ -44,9 +44,9 @@ const sessionSource = reviewSourceAnswering({
       makeMe.aReviewedFileDiff.adding(path, ...(linesOf[path] ?? [])).please(),
     ),
 });
-const otherSession: ReviewedWorkSubject = {
+const otherSession: ReviewedPublishedSessionSubject = {
   ...adHocSession,
-  session: "00000000-0000-4000-8000-000000000003",
+  published: "00000000-0000-4000-8000-000000000003",
 };
 const [first, second, third] = [
   "Added first.txt",

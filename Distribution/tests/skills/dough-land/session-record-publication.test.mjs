@@ -14,6 +14,7 @@ import { sharedCheckoutNotePathBeside } from "../../../src/skills/dough-execute-
 import {
   aLaunchLandingContext,
   closedAt,
+  closingStory,
   landed,
   nativeSession,
   publishedRecord,
@@ -38,6 +39,7 @@ test("a Dashboard-launched Land publishes the session record of its accepted com
     version: 1,
     sessionId: reportingReference,
     workflow: "ad-hoc",
+    story: closingStory,
     closedAt: closedAt.toISOString(),
     ranges: [{ base: fixture.trunkSha, candidate: closed.work.receipt.sha }],
   });
@@ -69,6 +71,7 @@ test("a close noted as sharing its checkout publishes its range marked, with a c
     version: 1,
     sessionId: reportingReference,
     workflow: "ad-hoc",
+    story: closingStory,
     closedAt: closedAt.toISOString(),
     ranges: [
       {
@@ -142,6 +145,35 @@ test("a close with no kept session identity publishes nothing", async (t) => {
   assert.equal(closed.record.status, "not-published");
   assert.equal(await lsRemoteSha(fixture.origin, targetRef), fixture.trunkSha);
 });
+
+test("a native session without a bound story publishes nothing", async (t) => {
+  const { fixture, closed } = await landed(t, {
+    sessionId: nativeSession,
+    story: undefined,
+  });
+  assert.equal(closed.work.status, "session-story-missing");
+  assert.equal(closed.record.status, "not-published");
+  assert.equal(await lsRemoteSha(fixture.origin, targetRef), fixture.trunkSha);
+});
+
+for (const [description, story] of [
+  ["a different story", "SEED-022#another-story"],
+  ["an empty retained story", ""],
+]) {
+  test(`a caller cannot close a Dashboard launch for ${description}`, async (t) => {
+    const { fixture, closed } = await landed(
+      t,
+      { story },
+      { landingContext: await aLaunchLandingContext(t) },
+    );
+    assert.equal(closed.work.status, "session-story-conflict");
+    assert.equal(closed.record.status, "not-published");
+    assert.equal(
+      await lsRemoteSha(fixture.origin, targetRef),
+      fixture.trunkSha,
+    );
+  });
+}
 
 async function refusingPushes({ origin }) {
   const hook = join(origin, "hooks", "pre-receive");

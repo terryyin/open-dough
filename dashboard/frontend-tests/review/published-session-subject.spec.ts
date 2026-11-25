@@ -21,7 +21,6 @@ import { ReviewFeedback } from "../../src/StoryReviewFeedback.tsx";
 import { StoryReviewHeading } from "../../src/StoryReviewHeading.tsx";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
 import {
-  reviewedStoryIdentity,
   reviewedWorkKey,
   reviewedWorkQuery,
   sameReviewedWorkSubject,
@@ -34,20 +33,19 @@ import {
 
 const source = "review-project";
 const uuid = "6b1f0c2e-8d4a-4c1e-9f3b-2a7d5e0c9b11";
-const published = { source, published: uuid };
 const story = { source, identity: "SEED-001#review" };
-const session = { source, host: "codex", session: uuid } as const;
+const published = { ...story, published: uuid };
+const anotherStory = { ...published, identity: "SEED-002#review" };
 const revision = "c".repeat(40);
 
-test("a published session is its own review subject, never a story", () => {
-  expect(reviewedStoryIdentity(published)).toBeUndefined();
-  expect(reviewedWorkQuery(published)).toEqual({ source, published: uuid });
+test("a published session review identifies both its story and its session", () => {
+  expect(reviewedWorkQuery(published)).toEqual({ ...story, published: uuid });
   expect(sameReviewedWorkSubject(published, { ...published })).toBe(true);
-  expect(sameReviewedWorkSubject(published, session)).toBe(false);
+  expect(sameReviewedWorkSubject(published, anotherStory)).toBe(false);
   expect(sameReviewedWorkSubject(story, published)).toBe(false);
-  expect(new Set([published, session, story].map(reviewedWorkKey)).size).toBe(
-    3,
-  );
+  expect(
+    new Set([published, anotherStory, story].map(reviewedWorkKey)).size,
+  ).toBe(3);
 });
 
 test("a published session's review heading names its UUID", async () => {

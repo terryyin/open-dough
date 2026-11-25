@@ -55,8 +55,8 @@ export function storyComparisonShown({
   return undefined;
 }
 
-// Fixed comparison facts beside the subject, including the story associated
-// with a published session when its Git record names one.
+// Fixed comparison facts beside the subject. A published session already
+// names its owning story and session record in that subject.
 function fixedComparisonName(
   review: Extract<
     StoryReview,
@@ -68,8 +68,6 @@ function fixedComparisonName(
   if (review.kind === "published") return { completion: review.completion };
   if (review.kind === "published-taken") return { publishedHead: review.head };
   if (review.kind === "landed") return { reference: review.landing.reference };
-  if (review.session.story !== undefined)
-    return { publishedStory: review.session.story };
   return {};
 }
 

@@ -3,7 +3,7 @@ import { createContext, useContext, useRef, useState } from "react";
 import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
 import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import { fileComparisonName } from "./followUpContext.ts";
-import { reviewedStoryIdentity } from "./reviewedWorkSubject.ts";
+import { isReviewedPublishedSessionSubject } from "./reviewedWorkSubject.ts";
 import {
   reviewedComparison,
   reviewedFilePaths,
@@ -26,7 +26,9 @@ export function useDiffStoryNote(
   tree: string,
   file: ReviewedFile,
 ) {
-  const identity = reviewedStoryIdentity(reviewed.subject);
+  const identity = isReviewedPublishedSessionSubject(reviewed.subject)
+    ? undefined
+    : reviewed.subject.identity;
   const done = useDoneStoryFollowUp(identity);
   const { work } = useContext(RecentlyDoneLinkSources);
   const active =

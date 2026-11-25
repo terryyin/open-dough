@@ -1,12 +1,10 @@
 // One file diff or file text read: the reviewed subject, the historical
 // comparison it names when any, and the file within its pair. The page builds
 // its file queries from this shape and the boundary parses them back into it.
-// Session handler inputs use the narrower SessionFileRead; the page query still
-// emits from ReviewedFileRead.
+// Published session files name the owning story and the exact range.
 import {
   reviewedWorkQuery,
   type ReviewedPublishedSessionSubject,
-  type ReviewedSessionSubject,
   type ReviewedWorkSubject,
 } from "./reviewedWorkSubject.ts";
 
@@ -20,8 +18,6 @@ export interface ReviewedWork {
   readonly completion?: string;
   // A Taken story branch head pinned by its published comparison.
   readonly publishedHead?: string;
-  // Owning story from a published session record, for Follow up.
-  readonly publishedStory?: string;
 }
 
 // One file within a retained pair: the trees the comparison reads between.
@@ -35,13 +31,6 @@ export interface ReviewedPairFile {
 }
 
 export interface ReviewedFileRead extends ReviewedWork, ReviewedPairFile {}
-
-// What a session file handler reads: the session subject, optional landing
-// reference, and the file within its pair — never a Published completion.
-export interface SessionFileRead extends ReviewedPairFile {
-  readonly subject: ReviewedSessionSubject;
-  readonly reference?: string;
-}
 
 // A published session's file read: its subject and one recorded pair's file.
 export interface PublishedSessionFileRead extends ReviewedPairFile {

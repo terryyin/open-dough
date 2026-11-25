@@ -372,7 +372,7 @@ and `slice-7-refactor-static-v2.log.run.json`.
 
 ### 8. Retire standalone completion and review routes
 Type: Behavior
-Status: planned
+Status: done
 Proof: Land, completion and review use story-bound authority and common
 published reads. Historic exact story comparisons remain readable.
 
@@ -382,6 +382,21 @@ and Distribution, their obsolete tests and guidance. Trace historic Git
 session records explicitly and protect their supported durable evidence
 under the common story path. Preserve the story-bound retained publication
 and reporting evidence needed by slice 9.
+
+Session comparison, diff and file-text reads now require the owning story
+and exact published session UUID. The common route reads the same prior
+accepted comparison for a retired established checkout when its stored
+landing names the requested story. Installed ad hoc closure requires a
+matching story before push and preserves a retry of an identical published
+record. Generic native wrap-up remains supported. The targeted gate passed
+83 backend, 16 mounted, 22 browser and 32 installed cases. Evidence is
+`slice-8-final-{backend,frontend,e2e}.proof.json`,
+`slice-8-post-ci-distribution.log.run.json`, and
+`slice-8-consumer-dispositions.md` in the worktree's Git evidence directory.
+Implementation finished at 11.4 active minutes. The independent refactor
+unified the validation and sealing story value. Its added case proves an
+explicit empty story is refused before trunk changes. All 33 installed
+and two affected browser cases passed in the `slice-8-refactor` records.
 
 ### 9. Carry the landing selection into the workflow after blank Start
 Type: Behavior
@@ -515,3 +530,8 @@ Disposition: proved by slice 6: `slice-6-restored-e2e.proof.json` records the pu
 Reported: slice 6 — "The supplier and the parked Board candidate both finish a terminal Mark as done with the linked Done history collapsed. The nested session is attached but hidden and focus falls to the body."
 Story clause: "Remove the remaining legacy standalone frontend cases and keep applicable story-linked selection, review and warning coverage."
 Disposition: proved by slice 7: `recently-done-progressive-navigation.spec.ts` marks the linked native session Done with history collapsed, verifies terminal closure, and observes focus on the owning visible story card. Its existing open-history journey keeps focus on the linked session entry. Both cases passed in the focused inventory and refactor browser runs.
+
+### G10. The current source totals still exceed the baseline
+Reported: slice 8 — "Against the shared trunk base at 856f35e31, the refactored candidate through slice 8 adds 265 Distribution source lines and 53 Dashboard source lines. The measurement uses tracked UTF-8 source and Markdown plus the slice 8 working diff, before cutover-only cleanup. See slice-8-inflight-shared-base-counts.json and slice-8-refactored-source-delta.txt."
+Story clause: "Record comparable source and executable case counts to show that both production surfaces and their combined proof footprint shrink."
+Disposition: receiving slice 10

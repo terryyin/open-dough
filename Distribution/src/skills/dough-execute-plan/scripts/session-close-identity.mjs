@@ -8,6 +8,7 @@ import {
 } from "./resolve-publication-landing-context.mjs";
 import { sessionRecordPath } from "./sealed-session-record.mjs";
 import { readSharedCheckoutNote } from "./read-shared-checkout-note.mjs";
+import { hasSessionStory } from "./session-record.mjs";
 
 async function namedSession(retained, landingContext, checkout) {
   if (landingContext) {
@@ -35,7 +36,11 @@ export async function closeTarget({
     ...request,
   });
   const named = await namedSession(retained, landingContext, request);
-  const refusal = identityRefusal(retained, named.sessionId);
+  const boundStory =
+    landingContext === undefined ? (named.story ?? story) : named.story;
+  const refusal =
+    identityRefusal(retained, named.sessionId) ??
+    storyRefusal(story, named.story, boundStory);
   if (refusal) {
     return {
       refused: {
@@ -49,7 +54,7 @@ export async function closeTarget({
   sessionRecordPath(sessionId, backlogPath);
   return {
     sessionId,
-    story: story ?? named.story,
+    story: boundStory,
     native: named.native === true,
     landingContext,
     sharedCheckout: named.sharedCheckout,
@@ -70,5 +75,24 @@ function identityRefusal(retained, named) {
         "no landing context reference or retained session id names this session",
     };
   }
+  return undefined;
+}
+
+function storyRefusal(retained, named, bound) {
+  if (
+    named &&
+    retained !== undefined &&
+    retained !== null &&
+    named !== retained
+  )
+    return {
+      status: "session-story-conflict",
+      error: `retained story ${retained} differs from the session's story ${named}`,
+    };
+  if (!hasSessionStory(bound))
+    return {
+      status: "session-story-missing",
+      error: "no story identity is bound to this session",
+    };
   return undefined;
 }

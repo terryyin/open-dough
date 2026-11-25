@@ -8,13 +8,18 @@ import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   aNeverSyncedPublishedSessionOffline,
   aSyncedPublishedSession,
+  publishedIdentity,
 } from "../support/publishedSessionCase.ts";
 
 const storyOpen = {
   subject: { source: "open-dough", identity: queuedIdentity },
 };
 const sessionOpen = {
-  subject: { source: "open-dough", published: crypto.randomUUID() },
+  subject: {
+    source: "open-dough",
+    identity: publishedIdentity,
+    published: crypto.randomUUID(),
+  },
 };
 
 const deadlineSeconds = async (read: typeof storyOpen | typeof sessionOpen) =>

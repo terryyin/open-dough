@@ -91,6 +91,7 @@ export async function launchSharingCheckout(
   origin: StartOrigin,
   page: Page,
   sessionId: string,
+  identity: string,
   since: Date,
 ) {
   const receiver = await landingReceiver({
@@ -105,6 +106,7 @@ export async function launchSharingCheckout(
       makeMe.aLandingContext
         .reportingTo(receiver.origin)
         .referencing(sessionId)
+        .namingStory(identity)
         .please(),
     ),
   );

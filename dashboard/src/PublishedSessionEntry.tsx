@@ -43,7 +43,11 @@ export function PublishedSessionReviewAction({
       label="Review session changes"
       onClick={(event) => {
         openSessionReview({
-          subject: { source: sourceId, published: record.sessionId },
+          subject: {
+            source: sourceId,
+            identity: story.identity,
+            published: record.sessionId,
+          },
           story,
           title: `${publishedSessionTitle} ${record.sessionId}`,
           control: event.currentTarget,

@@ -3,7 +3,7 @@ import { createElement, type ReactElement } from "react";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
-import type { ReviewedSessionSubject } from "../../src/reviewedWorkSubject.ts";
+import type { ReviewedPublishedSessionSubject } from "../../src/reviewedWorkSubject.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
 import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
@@ -21,10 +21,10 @@ const doughnut = makeMe.aPublishedSource
   })
   .please();
 
-export const adHocSession: ReviewedSessionSubject = {
+export const adHocSession: ReviewedPublishedSessionSubject = {
   source: doughnut.id,
-  host: "claude",
-  session: "74800000-0000-4000-8000-0000000000aa",
+  identity: "SEED-001#review",
+  published: "74800000-0000-4000-8000-0000000000aa",
 };
 
 const sidebar: SessionsSidebarState = {

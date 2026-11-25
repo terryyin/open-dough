@@ -5,7 +5,6 @@ import { z } from "zod";
 import type {
   PublishedSessionFileRead,
   ReviewedFileRead,
-  SessionFileRead,
 } from "../src/reviewedFileRead.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import {
@@ -15,9 +14,7 @@ import {
 import { RefusedRequest } from "./localOrigin.ts";
 import {
   queriedPublishedSessionSubject,
-  queriedSessionSubject,
   queriedStorySubject,
-  reviewedWorkSubjectQuery,
 } from "./reviewedWorkSubjectAdmission.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
 
@@ -25,7 +22,6 @@ export interface AdmittedReviewedFileRead {
   readonly kind: "story-review-file" | "story-review-file-text";
   readonly read:
     | (ReviewedFileRead & { readonly subject: ReviewedStorySubject })
-    | SessionFileRead
     | PublishedSessionFileRead;
 }
 
@@ -41,16 +37,17 @@ function reviewedFileRead(
   label: "file diff" | "file text",
 ):
   | (ReviewedFileRead & { readonly subject: ReviewedStorySubject })
-  | SessionFileRead
   | PublishedSessionFileRead {
-  const subject = reviewedWorkSubjectQuery(url);
+  const published = url.searchParams.has("published");
   const reference = url.searchParams.get("reference");
   const completion = url.searchParams.get("completion");
   const publishedHead = url.searchParams.get("publishedHead");
   requireExactQuery(
     url,
     [
-      ...subject.keys,
+      "source",
+      "identity",
+      ...(published ? ["published"] : []),
       "baseline",
       "tree",
       "path",
@@ -78,14 +75,14 @@ function reviewedFileRead(
   };
   if (
     publishedHead !== null &&
-    (subject.kind !== "story" ||
+    (published ||
       reference !== null ||
       completion !== null ||
       !objectIdSchema.safeParse(publishedHead).success)
   )
     throw new RefusedRequest(400, "The published branch head is malformed.");
   // A published session names its pair alone, never a run or completion.
-  if (subject.kind === "published") {
+  if (published) {
     if (reference !== null || completion !== null)
       throw new RefusedRequest(400, `The ${label} request is malformed.`);
     return { subject: queriedPublishedSessionSubject(url), ...file };
@@ -98,34 +95,18 @@ function reviewedFileRead(
       400,
       "The published comparison identity is malformed.",
     );
-  if (
-    subject.kind === "story" &&
-    completion === null &&
-    reference === null &&
-    publishedHead === null
-  )
+  if (completion === null && reference === null && publishedHead === null)
     throw new RefusedRequest(
       400,
       `The ${label} must name a published comparison.`,
     );
-  // A Published completion names a story, whichever subject keys came with it.
-  if (completion !== null || subject.kind === "story")
-    return {
-      subject: queriedStorySubject(url),
-      ...(reference === null ? {} : { reference }),
-      ...(completion === null ? {} : { completion }),
-      ...(publishedHead === null ? {} : { publishedHead }),
-      ...file,
-    };
-  const session = queriedSessionSubject(url);
-  if (reference !== null && !z.uuid().safeParse(reference).success)
-    throw new RefusedRequest(400, "The review launch reference is malformed.");
-  const sessionFile: SessionFileRead = {
-    subject: session,
+  return {
+    subject: queriedStorySubject(url),
     ...(reference === null ? {} : { reference }),
+    ...(completion === null ? {} : { completion }),
+    ...(publishedHead === null ? {} : { publishedHead }),
     ...file,
   };
-  return sessionFile;
 }
 
 export function fileDiffRequest(url: URL): AdmittedReviewedFileRead {

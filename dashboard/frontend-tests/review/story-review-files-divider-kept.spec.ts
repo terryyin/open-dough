@@ -6,7 +6,7 @@
 // ./story-review-files-divider.spec.ts.
 import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
+import type { ReviewedPublishedSessionSubject } from "../../src/reviewedWorkSubject.ts";
 import {
   forgetFilesWidth,
   keepFilesWidth,
@@ -30,9 +30,9 @@ const oneFile = reviewSourceAnswering({
     ),
 });
 const desktop = { viewport: { width: 1280, height: 720 } };
-const otherSession: ReviewedWorkSubject = {
+const otherSession: ReviewedPublishedSessionSubject = {
   ...adHocSession,
-  session: "00000000-0000-4000-8000-000000000002",
+  published: "00000000-0000-4000-8000-000000000002",
 };
 
 // Each case starts and ends with nothing kept, and collects the page's

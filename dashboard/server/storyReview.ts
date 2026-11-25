@@ -30,7 +30,6 @@ import {
   type KeptStoryReview,
 } from "./storyReviewRecordAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
-import { legacySessionReview } from "./storyReviewSessionAdmission.ts";
 import {
   publishedSessionReview,
   unsyncedSessionReview,
@@ -63,9 +62,8 @@ export async function storyReviewResponse(
   return { status: 200, body };
 }
 
-// Answer one review read for a story or an ad hoc session. A local session
-// uses its admitted launch record. A published session uses its fetched
-// project source, or names the sync that failed to bring its record.
+// Answer a review for a story or one of its published sessions. A session
+// uses the fetched project source, or names the sync that failed.
 // Refusals carry their status in `RefusedRequest`. Every sync of the open
 // shares its deadline, so the answer keeps within the response bound.
 export async function storyReview(
@@ -79,18 +77,11 @@ export async function storyReview(
   if ("published" in input)
     return publishedSessionReview(
       input.published,
+      input.read.subject.identity,
       input.read.subject.published,
       input.read.run,
       input.now,
       signal,
-    );
-  if ("record" in input)
-    return legacySessionReview(
-      input.source,
-      input.record,
-      input.read.run,
-      signal,
-      reader,
     );
   const handoff = async (source: PublishedSource) => {
     if (initialSync === undefined || input.read.initialSync === undefined)

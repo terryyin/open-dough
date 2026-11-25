@@ -20,6 +20,7 @@ import {
 } from "../dough-execute-plan/publication-test-fixtures.mjs";
 import {
   closedAt,
+  closingStory,
   nativeSession,
   targetRef,
 } from "./session-close-test-fixtures.mjs";
@@ -72,7 +73,11 @@ async function closing(t, before = async () => {}) {
       .please(),
     now: () => closedAt,
     workspace: fixture.execution,
-    session: { workflow: "ad-hoc", sessionId: nativeSession },
+    session: {
+      workflow: "ad-hoc",
+      story: closingStory,
+      sessionId: nativeSession,
+    },
   });
   return { fixture, closed };
 }

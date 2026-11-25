@@ -1,14 +1,12 @@
-// The page's one Side panel review belongs to an ad hoc or published session.
+// The page's Side panel review opens a story's published session.
 import { createContext, useContext } from "react";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 import {
   reviewedWorkKey,
   type ReviewedPublishedSessionSubject,
-  type ReviewedSessionSubject,
 } from "./reviewedWorkSubject.ts";
 
-export type SessionReviewSubject =
-  ReviewedSessionSubject | ReviewedPublishedSessionSubject;
+export type SessionReviewSubject = ReviewedPublishedSessionSubject;
 
 // The session and the control that takes focus when its review closes.
 export type SessionReviewRequest = {

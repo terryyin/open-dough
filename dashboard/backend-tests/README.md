@@ -42,13 +42,12 @@ reads process-wide stores: `storyReview` (`dashboard/server/storyReview.ts`)
 and `reviewedFileDiff` and `reviewedFileText`
 (`dashboard/server/storyReviewFileResponse.ts`) take a `ReviewInput`
 (`dashboard/server/storyReviewInput.ts`) that carries the published source
-and selected range or literal file fields. The shared adapter resolves a
-host-qualified launch to its published UUID, or admits its legacy accepted
-landing, and directs story launches to their story. The
+and selected range or literal file fields. The shared adapter admits the
+requested story and any named published session of that story. The
 `review/published-session-review.spec.ts` and
 `review/ad-hoc-review-landed.spec.ts` specs prove exact comparisons against
-configured Git. `review/ad-hoc-review-request.spec.ts` exercises standalone
-launch routes and their subject refusals with an isolated kept store.
+configured Git. `review/published-session-review-request.spec.ts` checks
+query admission and the refusal of standalone selectors.
 The branch result and its handoff are independent producer tests:
 `review/ad-hoc-branch-result-supersession.spec.ts`,
 `review/ad-hoc-session-branch-entry.spec.ts` and

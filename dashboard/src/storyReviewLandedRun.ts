@@ -26,7 +26,12 @@ export function reviewLandedRunsOf(
 ): ReviewLandedRun[] {
   return (records ?? [])
     .flatMap((record): ReviewLandedRun[] => {
-      const established = record.start ?? record.preparation;
+      const established =
+        record.start ??
+        record.preparation ??
+        (record.landing?.identity === identity
+          ? record.establishedSession
+          : undefined);
       if (
         established === undefined ||
         record.request.source !== source ||

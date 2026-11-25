@@ -2,8 +2,6 @@
 // completion, or the retained pair and literal file list of a landed run.
 // URL adapters and follow-up admission share this check; callers name source,
 // story identity and a completion or a reference — never a repository path.
-// A done session's kept result follows the same pair rule in
-// `./storyReviewSessionFileAdmission.ts`.
 import type { FollowUpComparison } from "../src/followUpRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ReviewedPairFile } from "../src/reviewedFileRead.ts";

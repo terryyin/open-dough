@@ -1,11 +1,10 @@
 // One review read: the reviewed subject and, when it names more, which
 // comparison. The page builds its review query from this shape and the
 // boundary parses the query back into it. Session handler inputs use the
-// narrower SessionReviewRead; the page query still emits from StoryReviewRead.
+// published session read names the owning story and the selected range.
 import {
   reviewedWorkQuery,
   type ReviewedPublishedSessionSubject,
-  type ReviewedSessionSubject,
   type ReviewedWorkSubject,
 } from "./reviewedWorkSubject.ts";
 
@@ -23,12 +22,6 @@ export interface StoryReviewRead {
   readonly historical?: boolean;
   // The story pane can follow an owned sync, then resume its exact read.
   readonly initialSync?: true | string;
-}
-
-// What a session review handler reads: the session subject and optional run.
-export interface SessionReviewRead {
-  readonly subject: ReviewedSessionSubject;
-  readonly run?: string;
 }
 
 // What a published session review reads: its subject and, for a record of

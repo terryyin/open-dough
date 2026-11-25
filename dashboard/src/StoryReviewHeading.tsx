@@ -15,10 +15,7 @@ export function StoryReviewHeading({
     <div className="side-panel-names">
       <SidePanelTitle title={title} id={headingId} />
       <p className="quiet">
-        Session review{" "}
-        <code>
-          {"session" in subject ? subject.session : subject.published}
-        </code>
+        Session review <code>{subject.published}</code>
       </p>
     </div>
   );

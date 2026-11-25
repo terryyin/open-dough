@@ -2,6 +2,7 @@
 // Taken: completed when it left the backlog, returned when it went back to
 // the queue. The launch only reads that membership; it never moves the story.
 import type { LaunchRecord } from "../src/launchRecord.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
 import {
   completedWithoutAttention,
   type CompletionReport,
@@ -78,7 +79,11 @@ export async function completionClosure(
   record: Pick<LaunchRecord, "request" | "start" | "landing">,
   report: Pick<CompletionReport, "outcome" | "message">,
 ): Promise<PublishedClosure> {
-  if (!completedWithoutAttention(report)) return "open";
+  if (
+    !completedWithoutAttention(report) ||
+    storyOf(record.request) === undefined
+  )
+    return "open";
   if (!claimedTrackedExecution(record)) return "completed";
   return trackedExecutionClosure(record);
 }

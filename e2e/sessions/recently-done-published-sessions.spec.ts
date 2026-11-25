@@ -203,6 +203,7 @@ test("Recently done warns that another machine's published session may include a
         origin,
         page,
         sharedSession,
+        queuedIdentity,
         new Date(minutesAgo(60)),
       ),
     ));

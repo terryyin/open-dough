@@ -47,6 +47,7 @@ test("a published file Follow up requires the exact recorded range, literal path
   // The follow-up starts from a file the session review open showed.
   const opened = await getReview(http, dashboard, storyReviewEndpoint, {
     source: "open-dough",
+    identity: recoverStory.identity,
     published: record.sessionId,
   });
   expect(await opened.json()).toMatchObject({ kind: "published-session" });

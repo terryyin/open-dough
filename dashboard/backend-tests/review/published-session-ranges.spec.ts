@@ -1,4 +1,4 @@
-// A standalone session's published close record of several ordered ranges:
+// A story's session has a published close record of several ordered ranges:
 // each range is reviewed and read on its own recorded pair, and a range the
 // publisher marked shared-checkout carries the shared Done warning while its
 // unmarked sibling does not.
@@ -8,6 +8,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import {
   publishedAt,
+  publishedIdentity,
   read,
   readFile,
   recordPublished,
@@ -24,7 +25,10 @@ async function aTwoRangeSession({ secondSharesCheckout = false } = {}) {
   const first = { base: checkout.base, candidate: await added("notes.md") };
   const between = await added("other.md");
   const second = { base: between, candidate: await added("second.md") };
-  const closing = makeMe.aSessionRecord.closing(first).andClosing(second);
+  const closing = makeMe.aSessionRecord
+    .closing(first)
+    .andClosing(second)
+    .forStory(publishedIdentity);
   const record = (
     secondSharesCheckout ? closing.sharingCheckout() : closing
   ).please();

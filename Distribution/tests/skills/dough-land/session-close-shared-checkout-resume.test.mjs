@@ -21,6 +21,7 @@ import {
 import {
   aLaunchLandingContext,
   closedAt,
+  closingStory,
   nativeSession,
   oneUnpublishedEdit,
   publishedRecord,
@@ -34,7 +35,7 @@ const close = (fixture, session, publication) =>
   publishSessionClose({
     now: () => closedAt,
     workspace: fixture.execution,
-    session: { workflow: "ad-hoc", ...session },
+    session: { workflow: "ad-hoc", story: closingStory, ...session },
     ...makeMe.anIncrementPublication.with(landBranch).please(),
     ...publication,
   });
@@ -115,7 +116,11 @@ test("two closes interrupted in one checkout each resume from their own saved st
   await rm(join(fixture.origin, "refuse-records"));
 
   const nativeResumed = await resume(fixture, {
-    session: { sessionId: nativeSession, workflow: "ad-hoc" },
+    session: {
+      sessionId: nativeSession,
+      workflow: "ad-hoc",
+      story: closingStory,
+    },
   });
   assert.equal(
     nativeResumed.record.status,

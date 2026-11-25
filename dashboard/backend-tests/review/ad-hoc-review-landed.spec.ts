@@ -12,6 +12,7 @@ import { storyReview } from "../../server/storyReview.ts";
 import { reviewInput } from "../../server/storyReviewInput.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
+const identity = "SEED-021#historical-delivery";
 const reference = "60000000-0000-4000-8000-000000000001";
 const file = "delivered[1].txt";
 
@@ -26,9 +27,20 @@ async function aDoneSessionReportingThroughReference() {
       .please(),
   );
   const { base, accepted } = repository.revisions;
+  const unavailable = path.join(repository.fixture, "gone");
   const record = makeMe.aLaunchRecord
-    .adHoc({ source: "open-dough", title: "Delivered work" })
+    .adHoc({
+      source: "open-dough",
+      title: "Delivered work",
+      storyIdentity: identity,
+    })
     .inClaudeSession({ sessionId: "retired-delivery" })
+    .inIsolatedWorkspace({
+      workspace: unavailable,
+      branch: "review/historical-delivery",
+      startingRevision: base,
+      repository: unavailable,
+    })
     .reportingThrough({
       origin: "http://localhost:4173",
       reference,
@@ -37,7 +49,10 @@ async function aDoneSessionReportingThroughReference() {
     .markedDone()
     .withLanding(
       makeMe.aLaunchLanding
-        .capturedFrom({ repository: path.join(repository.fixture, "gone") })
+        .capturedFrom({
+          repository: unavailable,
+          identity,
+        })
         .forLaunch(reference)
         .comparing({ base, revision: accepted })
         .please(),
@@ -46,18 +61,17 @@ async function aDoneSessionReportingThroughReference() {
   keepLaunchRecords(home, [record]);
   const subject = {
     source: record.request.source,
-    host: record.session.host,
-    session: record.session.sessionId,
+    identity,
   };
   return { repository, subject, base, accepted };
 }
 
-test("a Done session reads a legacy accepted pair through origin without its capture repository", async () => {
+test("a story-linked Done session reads a legacy accepted pair through origin without its capture repository", async () => {
   const { repository, subject, base, accepted } =
     await aDoneSessionReportingThroughReference();
   const signal = new AbortController().signal;
   const snapshot = async () =>
-    storyReview(await reviewInput({ subject }, signal), signal);
+    storyReview(await reviewInput({ subject, reference }, signal), signal);
   await expect(snapshot()).resolves.toMatchObject({
     kind: "landed",
     baseline: base,
@@ -91,12 +105,15 @@ test("a Done session reads a legacy accepted pair through origin without its cap
   await expect(text()).rejects.toMatchObject({ status: 409 });
 });
 
-test("a Done session whose reference never synced, opened while origin is unreachable, names the failed sync", async () => {
+test("a story-linked Done session whose reference never synced, opened while origin is unreachable, names the failed sync", async () => {
   const { repository, subject } = await aDoneSessionReportingThroughReference();
   renameSync(repository.origin, `${repository.origin}-unreachable`);
   const signal = new AbortController().signal;
 
-  const review = storyReview(await reviewInput({ subject }, signal), signal);
+  const review = storyReview(
+    await reviewInput({ subject, reference }, signal),
+    signal,
+  );
 
   await expect(review).resolves.toMatchObject({
     kind: "landing-unavailable",

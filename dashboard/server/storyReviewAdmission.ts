@@ -8,14 +8,12 @@ import {
 } from "./storyReviewHistoricalFileAdmission.ts";
 import type { ReviewedFileInput } from "./storyReviewInput.ts";
 import { admitPublishedSessionFile } from "./publishedSessionReview.ts";
-import { admitSessionReviewedFile } from "./storyReviewSessionFileAdmission.ts";
 import { reviewRepositoryPath } from "./reviewRepository.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { publishedTakenReview } from "./storyReviewPublishedTaken.ts";
 
 // Admit the read file against its subject's comparison: a story's
-// Published completion or landed run, a local session's admitted launch
-// record, or a published session's fetched project source.
+// published completion, landed run, or published session.
 export async function admitReviewedFile(
   input: ReviewedFileInput,
   signal: AbortSignal,
@@ -28,16 +26,7 @@ export async function admitReviewedFile(
       file,
       input.now,
       signal,
-    );
-  }
-  if ("record" in input) {
-    const { reference, ...file } = input.read;
-    return admitSessionReviewedFile(
-      input.source,
-      input.record,
-      reference,
-      file,
-      signal,
+      subject.identity,
     );
   }
   const { subject, reference, completion, publishedHead, ...file } = input.read;

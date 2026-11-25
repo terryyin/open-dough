@@ -212,7 +212,7 @@ for (const quiet of [false, true])
       }
     });
 
-test("binding preserves a quiet completion carried by a legacy record without a reporting attempt", async () => {
+test("binding preserves a legacy quiet receipt without closing an unbound session", async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-legacy-completion-"));
   try {
     const completion = makeMe.aCompletionReport.saying("").please();
@@ -239,7 +239,7 @@ test("binding preserves a quiet completion carried by a legacy record without a 
     if (bound && !("session" in bound))
       throw new Error("Expected a bound launch");
     expect(bound?.completion).toEqual(completion);
-    expect(bound?.doneAt).toBe(completion.receivedAt);
+    expect(bound?.doneAt).toBeUndefined();
   } finally {
     rmSync(machine, { recursive: true, force: true });
   }

@@ -1,4 +1,4 @@
-// A standalone session's review read from its published close record: the
+// A story's session review read from its published close record: the
 // UUID resolves through the configured project's published revision, and the
 // recorded pair is read from that project's Git objects alone. No launch
 // history is needed. A record is read as valid only at its own UUID's path,
@@ -113,12 +113,14 @@ function selectedRange(
 
 export async function publishedSessionReview(
   source: PublishedSessionSource,
+  identity: string,
   session: string,
   run: string | undefined,
   now: Date,
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const record = await publishedSessionRecord(source, session, now, signal);
+  requireStoryMembership(record, identity);
   const range = selectedRange(record, run);
   const read = await recordedPairFiles(source, range, signal);
   if ("missing" in read)
@@ -137,7 +139,7 @@ export async function publishedSessionReview(
     kind: "published-session",
     session: {
       closedAt: record.closedAt,
-      ...(record.story === undefined ? {} : { story: record.story }),
+      story: identity,
       ...(range.uncertainty === sharedCheckoutUncertainty && { shared: true }),
     },
     ...(record.ranges.length === 1
@@ -152,6 +154,17 @@ export async function publishedSessionReview(
   };
 }
 
+function requireStoryMembership(
+  record: PublishedSessionRecord,
+  identity: string,
+): void {
+  if (record.story !== identity)
+    throw new RefusedRequest(
+      409,
+      "The published session does not belong to this story.",
+    );
+}
+
 // A file read admits only the literal path of one of this session's recorded
 // pairs.
 export async function admitPublishedSessionFile(
@@ -160,14 +173,10 @@ export async function admitPublishedSessionFile(
   file: HistoricalReviewedFileFields,
   now: Date,
   signal: AbortSignal,
-  expectedStory?: string,
+  expectedStory: string,
 ): Promise<AdmittedReviewedFile> {
   const record = await publishedSessionRecord(source, session, now, signal);
-  if (expectedStory !== undefined && record.story !== expectedStory)
-    throw new RefusedRequest(
-      409,
-      "The published session does not belong to this story.",
-    );
+  requireStoryMembership(record, expectedStory);
   const range = record.ranges.find(
     ({ base, candidate }) => base === file.baseline && candidate === file.tree,
   );

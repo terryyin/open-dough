@@ -14,6 +14,8 @@ import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReview.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
+import { publishedIdentity } from "../support/publishedSessionCase.ts";
+
 const day = 24 * 60 * 60 * 1000;
 const closedAt = "2026-10-01T10:00:00.000Z";
 const atWindowEnd = new Date(Date.parse(closedAt) + 30 * day);
@@ -30,6 +32,7 @@ async function aSessionRecordedLaterThanItsClose() {
   const record = makeMe.aSessionRecord
     .closing({ base: checkout.base, candidate })
     .closedAt(closedAt)
+    .forStory(publishedIdentity)
     .please();
   const recordedLater = new Date(Date.parse(closedAt) + 10 * day).toISOString();
   const revision = await commitDeclaredRevision(repository, {
@@ -52,7 +55,13 @@ type Published = Awaited<ReturnType<typeof aSessionRecordedLaterThanItsClose>>;
 const review = ({ source, session }: Published, now: Date) =>
   storyReview(
     {
-      read: { subject: { source: "open-dough", published: session } },
+      read: {
+        subject: {
+          source: "open-dough",
+          identity: publishedIdentity,
+          published: session,
+        },
+      },
       published: source,
       now,
     },
@@ -63,7 +72,11 @@ const readFile = ({ source, session, baseline, tree }: Published, now: Date) =>
   reviewedFileDiff(
     {
       read: {
-        subject: { source: "open-dough", published: session },
+        subject: {
+          source: "open-dough",
+          identity: publishedIdentity,
+          published: session,
+        },
         baseline,
         tree,
         path: "notes.md",

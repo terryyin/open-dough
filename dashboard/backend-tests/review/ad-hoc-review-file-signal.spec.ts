@@ -1,7 +1,10 @@
 // Admission cancellation and its independent deadline at a published file.
 import { expect, test } from "vitest";
 import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
-import { aPublishedSession } from "../support/publishedSessionCase.ts";
+import {
+  aPublishedSession,
+  publishedIdentity,
+} from "../support/publishedSessionCase.ts";
 
 async function withImmediateAdmissionDeadline<T>(
   observe: (waits: number[]) => Promise<T>,
@@ -26,7 +29,11 @@ async function publishedFile() {
   const published = await aPublishedSession();
   return {
     read: {
-      subject: { source: "open-dough", published: published.sessionId },
+      subject: {
+        source: "open-dough",
+        identity: publishedIdentity,
+        published: published.sessionId,
+      },
       baseline: published.base,
       tree: published.candidate,
       path: "notes.md",

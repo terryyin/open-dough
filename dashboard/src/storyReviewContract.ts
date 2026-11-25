@@ -102,7 +102,7 @@ export const storyReviewSchema = z
       ...fixedComparison,
       syncFailure: reviewSyncFailureSchema.optional(),
     }),
-    // A standalone session's published close record: the selected recorded
+    // A story session's published close record: the selected recorded
     // pair and the session's close time. A record of several ordered ranges
     // names how many and which position is shown; launch history is not
     // required (`../server/publishedSessionReview.ts`).

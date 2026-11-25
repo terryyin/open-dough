@@ -7,7 +7,6 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { reportingReference } from "../../support/launchLandingTestData.mjs";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
-import { resumeSessionClose } from "../../../src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import {
   advanceOriginFromAnotherWriter,
   git,
@@ -17,10 +16,12 @@ import {
 import {
   aLaunchLandingContext,
   closedAt,
+  closingStory,
   landed,
   nativeSession,
   oneUnpublishedEdit,
   publishedRecord,
+  resumeInLandCheckout,
   targetRef,
 } from "./session-close-test-fixtures.mjs";
 import {
@@ -34,15 +35,7 @@ const sessionFiles = async ({ origin }) =>
     .stdout;
 
 const resumeFor = async (fixture, record, validatedCandidate) =>
-  (
-    await resumeSessionClose({
-      record,
-      validatedCandidate,
-      workspace: fixture.execution,
-      branch: "land/ad-hoc",
-      targetRef,
-    })
-  ).record;
+  (await resumeInLandCheckout(fixture, { record, validatedCandidate })).record;
 
 const isOnTrunk = ({ origin }, sha) =>
   git(origin, "merge-base", "--is-ancestor", sha, "main").then(
@@ -117,14 +110,15 @@ test("a close whose accepted work push lost its result resumes from the retained
     `${workSha}:${targetRef}`,
   );
 
-  const resumed = await resumeSessionClose({
-    session: { sessionId: nativeSession, workflow: "ad-hoc" },
+  const resumed = await resumeInLandCheckout(fixture, {
+    session: {
+      sessionId: nativeSession,
+      workflow: "ad-hoc",
+      story: closingStory,
+    },
     candidateSha: workSha,
     suffixBase: fixture.trunkSha,
     now: () => closedAt,
-    workspace: fixture.execution,
-    branch: "land/ad-hoc",
-    targetRef,
   });
 
   assert.equal(resumed.work.pushCount, 0, JSON.stringify(resumed.work));
@@ -137,6 +131,7 @@ test("a close whose accepted work push lost its result resumes from the retained
     version: 1,
     sessionId: nativeSession,
     workflow: "ad-hoc",
+    story: closingStory,
     closedAt: closedAt.toISOString(),
     ranges: [{ base: fixture.trunkSha, candidate: workSha }],
   });
@@ -147,13 +142,10 @@ test("a lost work result with no kept session identity resumes nothing", async (
   t.after(fixture.cleanup);
   const workSha = await revParse(fixture.execution, "HEAD");
 
-  const resumed = await resumeSessionClose({
+  const resumed = await resumeInLandCheckout(fixture, {
     session: { workflow: "ad-hoc" },
     candidateSha: workSha,
     suffixBase: fixture.trunkSha,
-    workspace: fixture.execution,
-    branch: "land/ad-hoc",
-    targetRef,
   });
 
   assert.equal(resumed.work.status, "session-identity-missing");
@@ -199,6 +191,7 @@ test("a refused record push resumes after trunk advances with the original recor
     version: 1,
     sessionId: nativeSession,
     workflow: "ad-hoc",
+    story: closingStory,
     closedAt: closedAt.toISOString(),
     ranges: [{ base: fixture.trunkSha, candidate: workSha }],
   });

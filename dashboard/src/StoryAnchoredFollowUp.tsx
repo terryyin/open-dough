@@ -10,10 +10,7 @@ import { StoryFollowUpSession } from "./FollowUp.tsx";
 import { LaunchesOnPage, usePageLaunches } from "./pageLaunches.ts";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
 import type { ReviewedWork } from "./reviewedFileRead.ts";
-import {
-  isReviewedPublishedSessionSubject,
-  reviewedStoryIdentity,
-} from "./reviewedWorkSubject.ts";
+import { isReviewedPublishedSessionSubject } from "./reviewedWorkSubject.ts";
 import { reviewedFilePaths } from "./reviewedFileContext.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 
@@ -21,10 +18,7 @@ export function useReviewedStoryFollowUp(
   reviewed: ReviewedWork,
   shownStory?: DoneStory,
 ) {
-  const story = useDoneStoryFollowUp(
-    reviewedStoryIdentity(reviewed.subject) ?? reviewed.publishedStory,
-    shownStory,
-  );
+  const story = useDoneStoryFollowUp(reviewed.subject.identity, shownStory);
   return story?.sourceId === reviewed.subject.source ? story : undefined;
 }
 

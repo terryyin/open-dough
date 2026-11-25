@@ -66,7 +66,7 @@ test("a refinement and a later follow-up of its story each publish their own ses
   const prepared = refinement.work.receipt.sha;
   const refinementRecordCommit = await lsRemoteSha(trunk.origin, targetRef);
 
-  // The ad hoc follow-up's launch names no story; its follow-up context does.
+  // The follow-up's launch and its instruction name the same story.
   const followUp = await createWorkspace(trunk, "follow-up");
   writeFileSync(join(followUp.workspace, "c-follow-up.txt"), "follow-up\n");
   const followed = await landSession(t, followUp, {
@@ -76,6 +76,7 @@ test("a refinement and a later follow-up of its story each publish their own ses
       makeMe.aLandingContext
         .reportingTo(origin)
         .referencing(followUpLaunch)
+        .namingStory(identityC)
         .please(),
   });
   assert.equal(followed.record.status, "published", JSON.stringify(followed));

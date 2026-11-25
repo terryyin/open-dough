@@ -77,7 +77,10 @@ test("a quiet report after confirmed native Done keeps the Done mark without pin
         .committing("second", { at: at(20) }),
     )
     .withCheckoutLaunch("default-launch", times, (launch) =>
-      launch.reportingThrough(dashboardReporting).completedWith(completion),
+      launch
+        .adHoc({ title: "Story A", storyIdentity: "SEED-021#reviewed-session" })
+        .reportingThrough(dashboardReporting)
+        .completedWith(completion),
     )
     .kept()
     .please();
@@ -123,6 +126,7 @@ test("retrying the same quiet delivery resumes native Done from the recorded rec
   } = await aDoneCaptureCase()
     .withCheckoutLaunch("default-launch", times, (launch) =>
       launch
+        .adHoc({ title: "Story A", storyIdentity: "SEED-021#reviewed-session" })
         .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
         .reportingThrough(dashboardReporting)
         .completedWith(completion),
@@ -162,6 +166,7 @@ test("a retry during a failing native Done resumes it once that Done settles", a
   } = await aDoneCaptureCase()
     .withCheckoutLaunch("default-launch", times, (launch) =>
       launch
+        .adHoc({ title: "Story A", storyIdentity: "SEED-021#reviewed-session" })
         .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
         .reportingThrough(dashboardReporting)
         .completedWith(completion),
