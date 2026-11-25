@@ -12,17 +12,19 @@ import {
   summarize,
 } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { shortSha } from "../src/baseCiWording.ts";
 import { parts } from "./dashboardPage.ts";
 import { chooseCiStatus } from "./intentCiStatusPage.ts";
 import { proofOf } from "./intentCiProofPage.ts";
-import { mainRun, publishStoryCi, repository } from "./intentCiStoryRecords.ts";
+import { mainRun, repository } from "./intentCiStoryRecords.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { proofSummaryForEntries } from "./support/ciProofArtifacts.ts";
 
 export const uuid = "9f1c2d3e-0000-4000-8000-000000000001";
 
 // The judged trunk result every main attempt at `login` gives.
-export const verdict = "Passed at 4774f60 (Add login)";
+export const verdict = (login: string) =>
+  `Passed at ${shortSha(login)} (Add login)`;
 
 // The one row of `testsSummary` (older summary shape: no durations).
 export const testsRow = [
@@ -176,8 +178,7 @@ export const byFileTestsRow = (files = 1_213) =>
 
 // Intent's CI status tab opened on trunk's judged result, and its Proof.
 export async function openAdapterProof(page: Page) {
-  const ci = publishStoryCi(page);
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const panel = await chooseCiStatus(parts(page).intent);
-  return { ci, panel, proof: proofOf(panel) };
+  return { panel, proof: proofOf(panel) };
 }

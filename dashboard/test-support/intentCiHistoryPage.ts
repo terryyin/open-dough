@@ -118,8 +118,9 @@ export async function chooseProjectCiStatus(page: Page) {
 // Intent's CI status opened on it beside the history the journey keeps: its
 // panel.
 export async function openJudgedCiStatus(page: Page) {
-  publishProject(page, openDough).serveCi(
-    trunkCi(openDough.revision, () => [
+  const project = publishProject(page, openDough);
+  project.serveCi(
+    trunkCi(project.revision, () => [
       makeMe.aCiRun
         .with({
           headSha: judged,

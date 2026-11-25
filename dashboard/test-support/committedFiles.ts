@@ -9,13 +9,13 @@ import type { RepositoryDescription } from "../../Distribution/tests/support/rep
 import { publishBranch } from "./committedOriginRepo.ts";
 import { githubFor } from "./dashboardTest.ts";
 import { describedRevisions } from "./describedRevisions.ts";
-import type { ObservedRequest } from "./originObservation.ts";
 import {
   publishMovingFiles,
   type MovingFiles,
   type PublishedFiles,
   type PublishedRevision,
 } from "./publishedFiles.ts";
+import type { CiAnswerer } from "./support/baseCiActions.ts";
 import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import {
   expectServedHomesReach,
@@ -81,6 +81,7 @@ export async function publishCommittedFileHistory<Name extends string>(
   return {
     ...moving,
     revisions,
+    repoDir: origin,
     published,
     at,
     moveTrunk(...args: Parameters<MovingFiles["moveTrunk"]>) {
@@ -101,7 +102,7 @@ export async function publishCommittedFileHistory<Name extends string>(
 export function publishCommittedFiles(
   page: Page,
   published: Omit<PublishedFiles, "revision">,
-): { readonly requests: ObservedRequest[]; readonly revision: string } {
+) {
   const { repository, ref = "main" } = published;
   const committedTo = commitPublishedOrigin({
     branch: ref,
@@ -109,7 +110,7 @@ export function publishCommittedFiles(
     files: published.files,
   });
   const { revision } = committedTo;
-  const { requests } = publishMovingFiles(
+  const moving = publishMovingFiles(
     page,
     { ...published, revision },
     committedTo,
@@ -117,7 +118,13 @@ export function publishCommittedFiles(
   const github = githubFor(page);
   routeServedHomesToPublication(github, repository);
   expectServedHomesReach(github, repository, revision, ref);
-  return { requests, revision };
+  return {
+    requests: moving.requests,
+    revision,
+    serveCi: (answer: CiAnswerer) => {
+      moving.serveCi(answer);
+    },
+  };
 }
 
 // Serves `repository` from `published`'s real commit, each call answered by

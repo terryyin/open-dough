@@ -18,97 +18,49 @@ import {
   failing,
   planningOnly,
   running,
-  storyBoardFiles,
+  storyCiHistory,
 } from "./intentCiStoryBoard.ts";
-import { notFoundAnswer, type OriginAnswer } from "./originAnswers.ts";
-import { publishMovingFiles, type MovingFiles } from "./publishedFiles.ts";
+import { notFoundAnswer } from "./originAnswers.ts";
+import { commitOf } from "./committedOriginRepo.ts";
+import { publishCommittedFileHistory } from "./committedFiles.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   actionsRunsAnswer,
   actionsWorkflowAnswer,
-  headCommitListAnswer,
+  targetHistoryAnswer,
   type CiAnswerer,
   type CiRunAnswer,
 } from "./support/baseCiActions.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 
 export const repository = "terryyin/open-dough";
-export const revision = "e1".repeat(20);
-const sha = (prefix: string) => prefix.padEnd(40, "0");
-
-export const trunkHead = sha("e1e1e1e");
-export const login = sha("4774f60");
-export const signup = sha("d4e5f6a");
-export const broken = sha("fa11ed0");
-const planned = sha("91a0001");
-const plannedAgain = sha("91a0002");
-export const started = sha("70a0001");
-
 export const mainRun = "https://ci.invalid/runs/main-login";
 export const failedRun = "https://ci.invalid/runs/example-failed";
 export const runningRun = "https://ci.invalid/runs/running";
 
-type Commit = {
-  readonly sha: string;
-  readonly message: string;
-  readonly parents: readonly string[];
-};
-const trunkHistory: readonly Commit[] = [
-  { sha: trunkHead, message: "Plan the next story", parents: [login] },
-  { sha: login, message: "Add login", parents: [signup] },
-  { sha: signup, message: "Add signup", parents: [] },
-];
-// Each published branch's history, newest first.
-const histories: Readonly<Record<string, readonly Commit[]>> = {
-  main: trunkHistory,
-  [failing.branch]: [
-    { sha: broken, message: "Break the login", parents: [login] },
-    ...trunkHistory.slice(1),
-  ],
-  [planningOnly.branch]: [
-    { sha: plannedAgain, message: "Plan slice 2", parents: [planned] },
-    { sha: planned, message: "Plan the story", parents: [login] },
-    ...trunkHistory.slice(1),
-  ],
-  [running.branch]: [
-    { sha: started, message: "Start the story", parents: [signup] },
-    ...trunkHistory.slice(2),
-  ],
-};
-
-export type StoryCi = {
-  readonly published: MovingFiles;
-  // The CI answers served, for a journey that serves more beside them.
-  readonly answer: CiAnswerer;
-  // Push runs per branch, as listed now.
-  readonly runs: Record<string, readonly CiRunAnswer[]>;
-  // Holds `branch`'s history listing until the returned release; `served`
-  // says whether the held answer has since been given.
-  hold(branch: string): { release: () => void; served: () => boolean };
-  // Pushes a commit of `sha` and `message` onto `branch`, a published branch
-  // or a new one from the trunk, moving its head to it with the board's
-  // files.
-  push(branch: string, sha: string, message: string): void;
-};
-
-// The board published for Open Dough, with `extra` files on every branch,
-// and its CI served.
-export function publishStoryCi(
+// The board and its judgments read one published Git history.
+export async function publishStoryCi(
   page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
   extra: Readonly<Record<string, string>> = {},
-): StoryCi {
-  const files = { ...storyBoardFiles, ...extra };
-  const published = publishMovingFiles(page, {
-    repository,
-    revision,
-    files,
-    branches: Object.fromEntries(
-      [failing, planningOnly, running].map(({ branch }) => [
-        branch,
-        { revision: histories[branch]?.[0]?.sha ?? "", files },
-      ]),
-    ),
-  });
+) {
+  const branches = {
+    [failing.branch]: "broken",
+    [planningOnly.branch]: "plannedAgain",
+    [running.branch]: "started",
+  } as const;
+  const published = await publishCommittedFileHistory(
+    page,
+    storyCiHistory(extra),
+    {
+      repository,
+      trunk: "trunkHead",
+      branches,
+      afterGitHubStops,
+    },
+  );
+  const { revisions, repoDir } = published;
+  const { broken, login, signup, started } = revisions;
   const ciRun = (facts: Parameters<(typeof makeMe.aCiRun)["with"]>[0]) =>
     makeMe.aCiRun.with(facts).please();
   const runs: Record<string, readonly CiRunAnswer[]> = {
@@ -124,30 +76,28 @@ export function publishStoryCi(
     ],
   };
   const held = new Map<string, Promise<void>>();
-  const branchHistories: Record<string, readonly Commit[]> = {
-    ...histories,
-  };
-  const historyOf = async (branch: string): Promise<OriginAnswer> => {
+  const historyOf = async (branch: string, perPage?: number) => {
     await held.get(branch);
-    const history = branchHistories[branch];
-    return history === undefined
+    const tip = commitOf(repoDir, `refs/heads/${branch}`);
+    return tip === undefined
       ? notFoundAnswer()
-      : headCommitListAnswer(history);
+      : targetHistoryAnswer(repoDir, tip, perPage);
   };
   const answer: CiAnswerer = ({ request }) => {
     if (request.kind === "actions-workflow") return actionsWorkflowAnswer();
     if (request.kind === "actions-runs")
       return actionsRunsAnswer(runs[request.branch] ?? [], request.branch);
     return request.kind === "commit-list"
-      ? historyOf(request.revision)
+      ? historyOf(request.revision, request.perPage)
       : undefined;
   };
   published.serveCi(answer);
   return {
     published,
+    revisions,
     answer,
     runs,
-    hold(branch) {
+    hold(branch: string) {
       let release: () => void = () => undefined;
       let served = false;
       held.set(
@@ -161,14 +111,10 @@ export function publishStoryCi(
       );
       return { release, served: () => served };
     },
-    push(branch, pushed, message) {
-      const history = branchHistories[branch] ?? trunkHistory;
-      branchHistories[branch] = [
-        { sha: pushed, message, parents: [history[0]?.sha ?? ""] },
-        ...history,
-      ];
-      if (branch === "main") published.moveTrunk({ revision: pushed, files });
-      else published.moveBranch(branch, { revision: pushed, files });
+    push(branch: string, name: "fixed" | "tidied" | "nextTrunk" | "nextStory") {
+      const at = published.at(name);
+      if (branch === "main") published.moveTrunk(at);
+      else published.moveBranch(branch, at);
     },
   };
 }

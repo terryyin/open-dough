@@ -346,7 +346,7 @@ for exact equality and passed typecheck.
 ### 6. Keep Intent CI evidence attached to its published head
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: When a project or story's published head changes during an
 Intent visit, the existing judgment reads that head's CI evidence and
 retains the previously admitted browse revision where the case requires it.
@@ -362,6 +362,24 @@ advertising them. Supply the fixed project head through its shared
 publisher and reuse `intentCiHistoryPage`'s real-origin path where already
 active. Budget 12–15 active minutes for the two shared entry points,
 the remaining caller substitutions, and focused proof review.
+
+Accepted proof at `b4c39f92ab70ef716cb9ab9f83f0950e05ddaa7f` plus slice 6
+changes. The shared story graph publishes actual trunk and divergent story
+heads. Project Intent checks both refs from the served HOME at the initial,
+trunk-only, and story-only publications. It keeps the admitted browse SHA,
+waits for the held revision-check body, and then shows the exact moved
+story's passing SHA. The ancestor and native adapter cases retain the
+real completed ancestor, run 12 attempt 2, and proof source checks. The
+fixed publisher gives the Board view and current CI result the same head.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/intent/{intent-ci-measure-history,intent-ci-prior-build-states,intent-ci-proof-adapter,intent-ci-proof-ancestor,intent-ci-proof-legacy-results,intent-ci-proof-reasons,intent-ci-proof-sources,intent-ci-proof-units,intent-ci-status-reads,intent-ci-status-story-gaps,intent-ci-status-story,intent-ci-status-wall-time,intent-ci-status,intent-file-purpose-proof,intent-project-visit-ci,intent-summary-ci-proof}.spec.ts e2e/{observation/auto-refresh-branches,stories/branch-slice-progress}.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run typecheck:dashboard
+```
+
+35 browser cases passed, including the original fixed and moving publisher
+consumers. Dashboard typecheck passed. The refactor kept identical SHA
+assertion values.
 
 ### 7. Follow moving Recently done and published session histories
 

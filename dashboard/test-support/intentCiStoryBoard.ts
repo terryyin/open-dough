@@ -107,7 +107,7 @@ const seed = `# Story CI fixture
 
 ${membership.map((story) => renderStorySection(story)).join("\n")}`;
 
-export const storyBoardFiles: Record<string, string> = describedFiles({
+const storyBoardFiles = describedFiles({
   backlog: {
     taken: membership.slice(0, taken.length),
     queued: membership.slice(taken.length),
@@ -152,3 +152,49 @@ export const storyBoardFiles: Record<string, string> = describedFiles({
       .please(),
   ],
 });
+
+// The two moving scenarios fork their story advances from the failing branch.
+export function storyCiHistory(extra: Readonly<Record<string, string>>) {
+  return makeMe.aRepository
+    .withRevision("signup", {
+      message: "Add signup",
+      files: { ...storyBoardFiles, ...extra },
+    })
+    .withRevision("login", { message: "Add login", parents: ["signup"] })
+    .withRevision("trunkHead", {
+      message: "Plan the next story",
+      parents: ["login"],
+    })
+    .withRevision("broken", {
+      message: "Break the login",
+      parents: ["login"],
+      tags: ["fixture-broken"],
+    })
+    .withRevision("planned", { message: "Plan the story", parents: ["login"] })
+    .withRevision("plannedAgain", {
+      message: "Plan slice 2",
+      parents: ["planned"],
+      tags: ["fixture-planned"],
+    })
+    .withRevision("started", {
+      message: "Start the story",
+      parents: ["signup"],
+      tags: ["fixture-started"],
+    })
+    .withRevision("fixed", { message: "Fix the login", parents: ["broken"] })
+    .withRevision("tidied", {
+      message: "Tidy the login",
+      parents: ["fixed"],
+      tags: ["fixture-tidied"],
+    })
+    .withRevision("nextStory", {
+      message: "Fix the story during a visit",
+      parents: ["broken"],
+      tags: ["fixture-next-story"],
+    })
+    .withRevision("nextTrunk", {
+      message: "Advance the trunk",
+      parents: ["trunkHead"],
+    })
+    .please();
+}

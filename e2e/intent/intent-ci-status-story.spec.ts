@@ -1,27 +1,17 @@
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
+import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   expectCiScope,
   ciStatusReading,
+  ciPanel,
   expectCiAnswer,
   chooseCiStatus,
   expectChecked,
 } from "../../dashboard/test-support/intentCiStatusPage.ts";
 
-// Intent's CI status follows the page's selected story
-// (../../dashboard/src/intentCiTarget.ts): a Taken Story Branch Mode story selected on
-// Development is judged on its published story branch, named as such, with
-// trunk runs of shared commits counting and the run's branch named; another
-// selection replaces the judgment, never showing an earlier branch's result
-// under the new name, even when that answer arrives late; clearing the
-// selection returns to `main` (SEED-219 examples 2, 3, 4, 6, 7), with no
-// selected-story header, which belongs to the story's view. A running
-// head shows its nearest completed ancestor with its run, and Check again
-// after it finishes shows Passed. A push to the shown story branch, seen by
-// the page's revision check, reads its judgment again by itself; time alone,
-// and a branch not shown moving, read none. Stories without a branch to
-// judge: ./intent-ci-status-story-gaps.spec.ts.
-
 import {
   expect,
+  githubFor,
   pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
@@ -39,8 +29,8 @@ import {
   freshCiStatusReadSettled,
   mainRun,
   publishStoryCi,
+  repository,
   runningRun,
-  started,
   toggleOnDevelopment,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 import {
@@ -55,15 +45,20 @@ import {
 
 test("CI status judges the selected story's branch, counts trunk runs of shared commits, replaces the judgment on a new selection, and returns to main when cleared", async ({
   page,
+  afterGitHubStops,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const ci = publishStoryCi(page);
+  const ci = await publishStoryCi(page, afterGitHubStops);
+  const { login, signup, broken, started } = ci.revisions;
+  const mainPassed = `Passed at ${shortSha(login)} (Add login)`;
+  const storyFailed = `Failed at ${shortSha(broken)} (Break the login)`;
+  const storyRunning = `Running at ${shortSha(started)} (Start the story)`;
   const calls = ci.published.requests;
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const trunkPanel = await chooseCiStatus(intent);
   await expectCiScope(trunkPanel, "main");
-  await expectCiAnswer(trunkPanel, "Passed at 4774f60 (Add login)");
+  await expectCiAnswer(trunkPanel, mainPassed);
 
   await test.step("a Taken Story Branch Mode story: CI comparison names its branch, Failed with its run while main passes", async () => {
     const before = calls.length;
@@ -75,7 +70,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     await expect(intent.getByText(failing.title, { exact: true })).toHaveCount(
       1,
     );
-    await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
+    await expectCiAnswer(panel, storyFailed);
     // The selected story's persistent header stays above its CI comparison tab.
     await expect(storySummary(intent)).toBeVisible();
     await expect(panel.getByRole("link", { name: failedRun })).toBeVisible();
@@ -93,12 +88,12 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
   await test.step("only planning commits over main: the shared ancestor's main run counts, named, and the branch's commits have no result", async () => {
     const panel = await toggleOnDevelopment(page, planningOnly.title);
     await expectCiScope(panel, planningOnly.branch);
-    await expectCiAnswer(panel, "Passed at 4774f60 (Add login), run on main");
+    await expectCiAnswer(panel, `${mainPassed}, run on main`);
     await expect(panel).toContainText(
       "2 later commits have no result of their own.",
     );
     await expect(panel.getByRole("link", { name: mainRun })).toBeVisible();
-    await expect(panel).not.toContainText("fa11ed0");
+    await expect(panel).not.toContainText(shortSha(broken));
     await expect(panel).not.toContainText(failing.branch);
   });
 
@@ -110,7 +105,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     const lateRead = freshCiStatusReadSettled(page, failing.branch);
     let panel = await toggleOnDevelopment(page, failing.title);
     await expectCiScope(panel, failing.branch);
-    await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
+    await expectCiAnswer(panel, storyFailed);
     await expect(ciStatusReading(panel).freshness).toContainText(
       "Previously retrieved",
     );
@@ -119,7 +114,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     );
     panel = await toggleOnDevelopment(page, running.title);
     await expectCiScope(panel, running.branch);
-    await expectCiAnswer(panel, "Running at 70a0001 (Start the story)");
+    await expectCiAnswer(panel, storyRunning);
     late.release();
     await expect.poll(late.served).toBe(true);
     await lateRead;
@@ -130,14 +125,11 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
   });
 
   await test.step("a running head shows its nearest completed ancestor, on main; Check again after it finishes shows Passed", async () => {
-    const panel = parts(page).intent.getByRole("region", {
-      name: "CI status",
-      exact: true,
-    });
-    await expectCiAnswer(panel, "Running at 70a0001 (Start the story)");
+    const panel = ciPanel(intent);
+    await expectCiAnswer(panel, storyRunning);
     await expect(panel.getByRole("link", { name: runningRun })).toBeVisible();
     await expect(panel).toContainText(
-      "Nearest completed ancestor: d4e5f6a (Add signup) — passed. Run on main.",
+      `Nearest completed ancestor: ${shortSha(signup)} (Add signup) — passed. Run on main.`,
     );
     // The ancestor's own run link.
     await expect(panel.getByRole("link", { name: mainRun })).toBeVisible();
@@ -147,7 +139,10 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
         .please(),
     ];
     await panel.getByRole("button", { name: "Check again" }).click();
-    await expectCiAnswer(panel, "Passed at 70a0001 (Start the story)");
+    await expectCiAnswer(
+      panel,
+      `Passed at ${shortSha(started)} (Start the story)`,
+    );
     await expect(panel).not.toContainText("Nearest completed ancestor");
   });
 
@@ -155,7 +150,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     const panel = await toggleOnDevelopment(page, running.title);
     await expectCiScope(panel, "main");
     await expect(panel.locator(".intent-ci-story")).toHaveCount(0);
-    await expectCiAnswer(panel, "Passed at 4774f60 (Add login)");
+    await expectCiAnswer(panel, mainPassed);
     await expect(panel).toContainText(
       "One later commit has no result of its own.",
     );
@@ -167,16 +162,25 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
 
 test("a push to the shown story branch, seen by the revision check, reads its judgment again without Check again; time alone and a branch not shown moving read none", async ({
   page,
+  afterGitHubStops,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await pausePageClockAt(page, new Date());
-  const ci = publishStoryCi(page);
+  const ci = await publishStoryCi(page, afterGitHubStops);
+  const { login, broken, fixed, tidied } = ci.revisions;
+  const expectStoryHead = (head: string) => {
+    expectServedHomesReach(githubFor(page), repository, head, failing.branch);
+  };
+  expectStoryHead(broken);
   const calls = ci.published.requests;
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   await chooseCiStatus(parts(page).intent);
   const panel = await toggleOnDevelopment(page, failing.title);
   await expectCiScope(panel, failing.branch);
-  await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
+  await expectCiAnswer(
+    panel,
+    `Failed at ${shortSha(broken)} (Break the login)`,
+  );
   await expectChecked(panel);
   const firstCheck =
     await ciStatusReading(panel).checkedTime.getAttribute("datetime");
@@ -195,16 +199,16 @@ test("a push to the shown story branch, seen by the revision check, reads its ju
   });
 
   await test.step("a push to the shown branch reads its judgment once more, by itself", async () => {
-    const fixed = "c0ffee1".padEnd(40, "0");
     ci.runs[failing.branch] = [
       makeMe.aCiRun
         .with({ headSha: fixed, conclusion: "success", url: failedRun })
         .please(),
     ];
-    ci.push(failing.branch, fixed, "Fix the login");
+    ci.push(failing.branch, "fixed");
+    expectStoryHead(fixed);
     const before = calls.length;
     await passTimeUntilChecked(page);
-    await expectCiAnswer(panel, "Passed at c0ffee1 (Fix the login)");
+    await expectCiAnswer(panel, `Passed at ${shortSha(fixed)} (Fix the login)`);
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([
       "actions-runs codex/example-story",
@@ -221,10 +225,13 @@ test("a push to the shown story branch, seen by the revision check, reads its ju
   await test.step("with main shown, the watched story branch moving reads no judgment", async () => {
     const trunkPanel = await toggleOnDevelopment(page, failing.title);
     await expectCiScope(trunkPanel, "main");
-    await expectCiAnswer(trunkPanel, "Passed at 4774f60 (Add login)");
+    await expectCiAnswer(
+      trunkPanel,
+      `Passed at ${shortSha(login)} (Add login)`,
+    );
     await untilPageReadsAnswered(page);
-    const tidied = "c0ffee2".padEnd(40, "0");
-    ci.push(failing.branch, tidied, "Tidy the login");
+    ci.push(failing.branch, "tidied");
+    expectStoryHead(tidied);
     const before = calls.length;
     await passTimeUntilChecked(page);
     await untilPageReadsAnswered(page);
