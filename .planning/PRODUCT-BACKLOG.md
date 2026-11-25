@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files ([plan](slice-plans/838-filter-review-files/PLAN.md))
 - [Recognize Intent folders and read their proof](seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof) — SEED-420#recognize-intent-folders-and-read-proof ([plan](slice-plans/840-recognize-intent-folders-and-read-proof/PLAN.md))
 - [Prove Dashboard launch starts and recovery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) — SEED-413#prove-launch-starts-and-recovery-on-vitest ([plan](slice-plans/846-prove-launch-starts-and-recovery-on-vitest/PLAN.md))
+- [Prove installed execution and refinement starts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-installed-story-starts-on-vitest) — SEED-413#prove-installed-story-starts-on-vitest ([plan](slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -43,7 +44,6 @@ intent introduced or affected by a newly developed story.
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
-- [Prove installed execution and refinement starts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-installed-story-starts-on-vitest) — SEED-413#prove-installed-story-starts-on-vitest
 - [Prove Dashboard session workspace choices in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-workspace-starts-on-vitest) — SEED-413#prove-session-workspace-starts-on-vitest
 - [Prove host launch choices and first input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-first-input-on-vitest) — SEED-413#prove-native-first-input-on-vitest
 - [Prove retained follow-up context in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest) — SEED-413#prove-follow-up-context-on-vitest
