@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "47a9dd7a-289c-48ba-a4ed-a0dbc9c71953",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T22:51:12.047Z",
+  "story": "SEED-413#prove-installed-story-starts-on-vitest",
+  "ranges": [
+    {
+      "base": "dab76cbabb788dc6052d71c0975d136c4eba5590",
+      "candidate": "91ba10d52a47c1f16285419e18b749692d579b80"
+    }
+  ]
+}
