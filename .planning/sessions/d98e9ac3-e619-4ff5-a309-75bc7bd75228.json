@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sessionId": "d98e9ac3-e619-4ff5-a309-75bc7bd75228",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T12:33:45.205Z",
+  "story": "SEED-440#recheck-cursor-workarounds",
+  "ranges": [
+    {
+      "base": "76e8e0651496d17394f1f8fe4ae5b12797234599",
+      "candidate": "abb6d3de8d3b202a54a219953638f0af76fecfae"
+    },
+    {
+      "base": "abb6d3de8d3b202a54a219953638f0af76fecfae",
+      "candidate": "2579a9abfbb587292997850266c3152d69642d3f"
+    },
+    {
+      "base": "2579a9abfbb587292997850266c3152d69642d3f",
+      "candidate": "33244f7cf23c7fee46528315c4078c388acf735f"
+    },
+    {
+      "base": "33244f7cf23c7fee46528315c4078c388acf735f",
+      "candidate": "1ce7f1bc53061a6d1004dbbcf1089f8b72c3d937"
+    },
+    {
+      "base": "1ce7f1bc53061a6d1004dbbcf1089f8b72c3d937",
+      "candidate": "d7c052d2dcd438ac84bfbf2e2d2f8c795f6c977a"
+    },
+    {
+      "base": "d7c052d2dcd438ac84bfbf2e2d2f8c795f6c977a",
+      "candidate": "e5dd182939036cacfad9c6ca9c432ad4361ae365"
+    },
+    {
+      "base": "e5dd182939036cacfad9c6ca9c432ad4361ae365",
+      "candidate": "4c15095ad3afaa8cee57068e15b8a4206f11d9fb"
+    }
+  ]
+}
