@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yua-chan",
+  "email": "yua-chan@example.org",
+  "identity": "SEED-430#open-published-board-from-local-git",
+  "mode": "story-branch",
+  "branch": "claude/publish-fixed-board-test-fixtures-through-real-g",
+  "host": "claude"
+}
