@@ -198,3 +198,18 @@ Run the named checks and Dashboard typecheck for the changed boundaries.
 Run long checks under [`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 and apply the test conventions selected through [AGENTS.md](../../../AGENTS.md).
+
+## Execution complete
+
+Product advice: no change. The title action serves the comparison Intent is
+showing and keeps the source story, following ADR 0008. Keep the planned
+comparison bar and Story Home work in their current order. The mounted tests
+observe placement, keyboard focus and pending reads. The E2E journey joins
+actual review selection, Git evidence and the first host input. HTTP tests
+cover the exact-pair and story-ownership refusals independently. Review found
+no correction to queue from the two delivered commits, `b816e8560` and
+`e2e7f3f33`. Branch CI remains subject to the applicable completion receipt.
+
+Process review stays selected and continues in wrap-up with the Intent
+Coverage result. The moved launcher and rewritten landed-file observations
+qualify for its protection check.
