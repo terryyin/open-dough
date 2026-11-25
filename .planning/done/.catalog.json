@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-440_recheck-cursor-workarounds.json",
+      "identity": "SEED-440#recheck-cursor-workarounds",
+      "completedAt": "2026-11-25T12:28:14.018Z",
+      "blob": "7707404d9cb4a0ec54cc523adc8f2e3da08fb18e"
+    },
+    {
       "fileName": "SEED-420_choose-review-scope.json",
       "identity": "SEED-420#choose-review-scope",
       "completedAt": "2026-11-25T12:15:52.737Z",
