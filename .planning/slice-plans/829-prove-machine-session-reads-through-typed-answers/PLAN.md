@@ -171,6 +171,18 @@ case took about 1.1 s under load), 6.1 s elapsed against 54.358 s. The
 retained-history E2E passed, and the started-server observation-wait,
 session-alerts-origin and session-refusal specs passed 8/8.
 
+## Execution complete
+
+Product advice: no change to priorities. The six machine-session read specs
+now run on Node Vitest in about 1.2 s of summed case time, against 43.5 s
+before, and the typed `MachineSessionObservation(read, inputs)` and
+`answerFor(ask, signal)` give the notifications story
+(SEED-413#prove-session-notifications-through-typed-observations) the
+observation boundary it consumes. One correction is planned:
+[pass session observation limits as typed values](../834-pass-session-observation-limits-as-typed-values/PLAN.md),
+because the fresh-demand case still stubs the process environment for its
+reuse window.
+
 ## Concern evidence
 
 Slice-plan refinement was unnecessary. The six paths map to five proof
