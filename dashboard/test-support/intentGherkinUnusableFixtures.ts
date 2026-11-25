@@ -5,10 +5,7 @@
 import { catalogPublications } from "./catalogProjectRecords.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
-export const doughnut = {
-  ...catalogPublications.doughnut,
-  revision: "e8".repeat(20),
-};
+export const doughnut = catalogPublications.doughnut;
 
 export const usableFeature = `Feature: Usable
   Scenario: Still browses

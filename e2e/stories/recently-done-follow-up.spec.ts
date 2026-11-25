@@ -9,12 +9,11 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
 import { listed } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import {
   publishedFiles,
   repository,
-  revision,
 } from "../../dashboard/test-support/recentlyDoneRecords.ts";
 import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
@@ -78,9 +77,8 @@ test("a done story's Follow up sends only the retained session selected through 
     .markedDoneAt(doneAt.toISOString())
     .please();
   keepLaunchRecords(dashboard, [...quiet, reopenable]);
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository,
-    revision,
     files: publishedFiles({
       doneRecords: doneStoryRecords(
         [recoverStory, otherStory, reopenableStory],
@@ -189,9 +187,8 @@ test("starting a follow-up with attached notes marks them sent on the card and i
     .savedAt("2026-11-17T12:00:00.000Z")
     .please();
   seedStoryNotes(dashboard.home, { [recoverStory.identity]: [waiting] });
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository,
-    revision,
     files: publishedFiles({
       doneRecords: doneStoryRecords([recoverStory], completedAt),
     }),

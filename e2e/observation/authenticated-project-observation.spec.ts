@@ -22,8 +22,7 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notLoggedIn,
-  publishFiles,
-  type ObservedRequest,
+  publishCommittedFiles,
 } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   catalogExpectations,
@@ -71,15 +70,21 @@ test("authenticated project observation: each catalog project opens and reloads 
         // A non-text body carries no text a credential marker could hide in.
       });
   });
-  const observed = new Map<string, ObservedRequest[]>();
-  for (const published of Object.values(catalogPublications)) {
-    observed.set(published.repository, await publishFiles(page, published));
-  }
+  const observed = new Map(
+    Object.values(catalogPublications).map((published) => [
+      published.repository,
+      publishCommittedFiles(page, published),
+    ]),
+  );
   await page.goto(server.baseURL);
   const { direction, problem, readRevision } = parts(page);
 
-  for (const expected of Object.values(catalogExpectations)) {
-    const calls = observed.get(expected.repository) ?? [];
+  const pinned = Object.values(catalogExpectations).map((expectation) => ({
+    ...expectation,
+    revision: observed.get(expectation.repository)?.revision ?? "",
+  }));
+  for (const expected of pinned) {
+    const calls = observed.get(expected.repository)?.requests ?? [];
     await test.step(`${expected.label} renders its own backlog and detail read through local gh`, async () => {
       await projectTab(page, expected.label).check();
       await expectMembership(page, {
@@ -92,9 +97,7 @@ test("authenticated project observation: each catalog project opens and reloads 
       await expect(readRevision).toContainText(
         shortRevision(expected.revision),
       );
-      for (const other of Object.values(catalogExpectations).filter(
-        (p) => p !== expected,
-      )) {
+      for (const other of pinned.filter((p) => p !== expected)) {
         await expect(page.locator("body")).not.toContainText(other.taken);
         await expect(readRevision).not.toContainText(
           shortRevision(other.revision),
@@ -160,13 +163,16 @@ test("authenticated project observation: each catalog project opens and reloads 
 
   await test.step("after access is restored, reloading shows the selected project's published work", async () => {
     const { doughnut } = catalogExpectations;
-    await publishFiles(page, catalogPublications.doughnut);
+    const { revision } = publishCommittedFiles(
+      page,
+      catalogPublications.doughnut,
+    );
     await page.reload();
     await expectMembership(page, {
       taken: [doughnut.taken],
       backlog: [doughnut.queued],
     });
-    await expect(readRevision).toContainText(shortRevision(doughnut.revision));
+    await expect(readRevision).toContainText(shortRevision(revision));
     await expect(problem).toHaveCount(0);
   });
 

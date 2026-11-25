@@ -37,44 +37,20 @@ in [Intent and attribution](SEED-434-browse-published-intent-from-local-git.md#b
 [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git),
 and [Add Project](SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git).
 
-<a id="open-published-board-from-local-git"></a>
+<a id="recover-fixed-observation-at-its-published-pin"></a>
 
-### Publish fixed Board test fixtures through real Git
+### Recover a fixed observation at its published pin
 
-**Identity:** SEED-430#open-published-board-from-local-git
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/824-open-published-board-from-local-git/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5bf56a4ccc41bc22d3f10fe775c1ac7b3431d68c5fb0b61a9ae7544cc2587385","plan":"cb958e5145f257a4c7996a6c34e2d04ae6fd2bd3c2eb373a96a05aea2514b27c"}}
-```
+**Identity:** SEED-430#recover-fixed-observation-at-its-published-pin
 
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-430#open-published-board-from-local-git","dependencies":[{"supplier":{"identity":"SEED-430#read-published-project-data-from-local-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git"},"implementation":"Board-opening test fixtures that publish through real routed Git origins","rationale":"The Board's Git read can only be proved where the suites hold a real origin at the answered revision; switching it first would break every Board open in the suites.","condition":"SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.","state":"satisfied","resolution":{"revision":"1e2edf48ff3abdb521ad2bef8828b47dafa80eef","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git","summary":"Origin main accepted f05e15351e85617fab1bf8fa97b8f7f6c0eb7568. At the before-cleanup revision, plan 819 slices 1-4 are done: publishCommittedOrigin routes its origin through every dashboard HOME its fake GitHub serves and keeps the origin's main at the answered revision; publishes() without a revision commits a real origin that serving by name routes, with a republication replacing only its own earlier route; the default answer commits a real origin linked for the seeded projects; answer wrappers keep their origin. committed-origin-actions.spec.ts checks ls-remote under the dashboard HOME, and both full suites passed on each slice. Intent Coverage at 4baf31b4f found the republication path missing from maintained checks; plan 824 slice 6 owns that proof.\nCondition satisfied: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nCondition satisfied: SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nAccepted integration: f05e15351e85617fab1bf8fa97b8f7f6c0eb7568 on origin/refs/heads/main."}}]}
-```
+**Goal.** A maintainer relying on the authenticated observation journey
+again proves that restored access shows the same published revision the
+Board read before the login failure.
 
-**Goal.** A maintainer can exercise a fixed test publication through the
-Board or Intent and confirm the routed Git origin and the REST detail reads
-use the same revision and record bytes.
-
-**Scope.** Convert fixed file publications and their wrappers, including
-MakeMe-backed profile, clock, Recently done, session and Intent records.
-Preserve each case's visible behavior and deliberately unreadable detail.
-Moving histories, project routing and direct backend readers remain with
-the succeeding fixture stories.
-
-**Key example.** Given a fixed publication with a readable backlog and an
-unavailable profile listing, open its test Board. The configured origin's
-Git ref points to the advertised revision, while the retained profile
-request still reports the deliberate listing failure.
-
-**Split trace.** Original plan 824's fixed parts of slices 1, 3 and 4 stay
-here. Its moving browser publications from slices 1–4 move to
-[the moving fixture story](#publish-moving-board-fixtures-through-git).
-Direct backend and configured projects from slices 5–6, plus the
-pre-cutover audit and live REST proof moves, belong to
-[the fixture qualification story](#qualify-board-fixture-routing-and-request-boundaries).
-The original cold-open and Refresh slices 7–8, and deletion of the
-superseded REST membership path, move to
-[the verified Board story](#open-and-refresh-board-at-verified-trunk).
-These retain the original selected outcome in delivery order.
+**Scope.** Correct the restored-access step left publishing a new commit
+by the fixed fixture story SEED-430#open-published-board-from-local-git, and the
+residue it left. Plan:
+[831](../slice-plans/831-recover-fixed-observation-at-its-published-pin/PLAN.md).
 
 <a id="publish-moving-board-fixtures-through-git"></a>
 

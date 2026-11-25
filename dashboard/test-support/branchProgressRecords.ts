@@ -165,8 +165,8 @@ export const fromTrunk = (sha: string, facts: RevisionFacts) =>
 
 const trunkFiles = fromTrunk(revision, {}).files;
 
-export const trunk: PublishedRevision = {
-  revision,
+// Trunk's publication apart from its revision, for a journey that commits it.
+export const trunkPublication = {
   files: trunkFiles,
   committed: {
     [planPath("on-branch")]: minutesBefore(3 * 24 * 60),
@@ -177,7 +177,8 @@ export const trunk: PublishedRevision = {
     [profilePath("Akiho")]: [addedAt(0x61, minutesBefore(60))],
     [profilePath("Yuma")]: [addedAt(0x62, minutesBefore(30))],
   },
-};
+} satisfies Omit<PublishedRevision, "revision">;
+export const trunk: PublishedRevision = { revision, ...trunkPublication };
 
 export const branchHead = "e5".repeat(20);
 // Named for the story taken before profiles, but recorded by nothing.

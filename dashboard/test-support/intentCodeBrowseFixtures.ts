@@ -89,7 +89,7 @@ assert.equal(1, 1);
 // How many times the page read `path`'s content from a project published by
 // `publishIntentProject`.
 export function contentReadsOf(
-  requests: Awaited<ReturnType<typeof publishIntentProject>>,
+  { requests }: ReturnType<typeof publishIntentProject>,
   path: string,
 ) {
   return requests.filter(

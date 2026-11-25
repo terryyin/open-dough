@@ -8,13 +8,13 @@ import {
   expectMembership,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   enlargedView,
   expectPortrait,
 } from "../../dashboard/test-support/agentPortrait.ts";
 import { avatarPng } from "../../dashboard/test-support/avatarAnswers.ts";
-import { describedRevision } from "../../dashboard/test-support/describedRevisions.ts";
+import { describedFiles } from "../../dashboard/test-support/describedRevisions.ts";
 import { credit } from "../../dashboard/test-support/agentCredit.ts";
 
 const nerdStory = "See who owns Taken work";
@@ -37,37 +37,32 @@ const profile = (name: string, identity: string) =>
     .please();
 
 async function openBoard(page: Page) {
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository: "terryyin/open-dough",
-    ...describedRevision(
-      makeMe.aRepository
-        .withRevision("portraits", {
-          backlog: {
-            taken: [
-              makeMe.aBacklogEntry
-                .with({
-                  title: nerdStory,
-                  identity: nerdIdentity,
-                  href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
-                })
-                .please(),
-              makeMe.aBacklogEntry
-                .with({
-                  title: atlasStory,
-                  identity: atlasIdentity,
-                  href: "seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar",
-                })
-                .please(),
-            ],
-          },
-          agentProfiles: [
-            profile("stanly", nerdIdentity),
-            profile("Rina", atlasIdentity),
-          ],
-        })
-        .please(),
-      "a1".repeat(20),
-    ),
+    files: describedFiles({
+      backlog: {
+        taken: [
+          makeMe.aBacklogEntry
+            .with({
+              title: nerdStory,
+              identity: nerdIdentity,
+              href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
+            })
+            .please(),
+          makeMe.aBacklogEntry
+            .with({
+              title: atlasStory,
+              identity: atlasIdentity,
+              href: "seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar",
+            })
+            .please(),
+        ],
+      },
+      agentProfiles: [
+        profile("stanly", nerdIdentity),
+        profile("Rina", atlasIdentity),
+      ],
+    }),
   });
   await page.goto("/");
   await expectMembership(page, { taken: [nerdStory, atlasStory], backlog: [] });

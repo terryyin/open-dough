@@ -21,7 +21,7 @@ import {
   expectCatalogStories,
   openDoughProject,
 } from "../../dashboard/test-support/projectKeyboardNavigationJourney.ts";
-import { publishFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/committedFiles.ts";
 import { sidePanelPages } from "../../dashboard/test-support/sidePanelPages.ts";
 import {
   back,
@@ -42,7 +42,7 @@ test("Back, Forward, reload and System settings return to the chosen project and
         catalogPublications.openDough,
         catalogPublications.doughnut,
       ])
-        await publishFiles(page, publication);
+        publishCommittedFiles(page, publication);
       await page.goto("/");
       await expectCatalogStories(page, openDoughProject);
       return sidePanelPages(page);

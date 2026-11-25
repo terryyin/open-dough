@@ -127,3 +127,25 @@ export function routeFallbackThroughServedHomes(
   known.fallback = origin;
   for (const home of known.homes) routeFallbackThroughHome(home, origin);
 }
+
+// Fails unless Git under every HOME a dashboard served by `github` runs under
+// finds `revision` as `repository`'s `ref`, as routing its publication there
+// promises.
+export function expectServedHomesReach(
+  github: FakeGitHub,
+  repository: string,
+  revision: string,
+  ref = "main",
+): void {
+  for (const home of served(github).homes) {
+    const [reached = ""] = execFileSync(
+      "git",
+      ["ls-remote", gitHubRepositoryUrl(repository), `refs/heads/${ref}`],
+      { env: { ...process.env, HOME: home }, encoding: "utf8" },
+    ).split("\t");
+    if (reached !== revision)
+      throw new Error(
+        `Git under ${home} finds ${repository} ${ref} at "${reached}", not the published ${revision}.`,
+      );
+  }
+}

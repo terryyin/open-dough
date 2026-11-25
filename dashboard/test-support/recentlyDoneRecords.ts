@@ -207,12 +207,10 @@ function withLastWeekRecord(now: number): RevisionFacts {
 }
 
 export const doneStoryPublication = (
-  revisionId: string,
   facts?: RevisionFacts,
   unanswered?: readonly string[],
 ) => ({
   repository,
-  revision: revisionId,
   files: publishedFiles(facts),
   ...(unanswered === undefined ? {} : { unanswered }),
 });
@@ -242,9 +240,8 @@ export const doneStories = {
   },
   doneDirectory,
   catalogPath: catalogFile,
-  published: (now: number) =>
-    doneStoryPublication(revision, doneRecordFacts(now)),
+  published: (now: number) => doneStoryPublication(doneRecordFacts(now)),
   publishedWithLastWeek: (now: number) =>
-    doneStoryPublication(revision, withLastWeekRecord(now)),
-  publishedWithoutRecords: () => doneStoryPublication(revision),
+    doneStoryPublication(withLastWeekRecord(now)),
+  publishedWithoutRecords: () => doneStoryPublication(),
 };

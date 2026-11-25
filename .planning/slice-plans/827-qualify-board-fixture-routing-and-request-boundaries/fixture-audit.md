@@ -26,7 +26,7 @@ The audited worktree used a symlink. The runtime assertions compare
 Node’s resolved module path with the configured literal path. A focused
 recheck with a physical directory recovered those cases.
 
-The [fixed](../824-open-published-board-from-local-git/PLAN.md),
+The fixed (done plan 824, `548a3814652df8782da71457ac3acffd973a2f08`),
 [moving](../826-publish-moving-board-fixtures-through-git/PLAN.md) and
 [routing and request-boundary](PLAN.md) plans assign the families.
 Plan 827 owns the final backend and E2E qualification and removing
