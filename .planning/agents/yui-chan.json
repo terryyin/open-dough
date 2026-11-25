@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-413#renovate-remaining-backend-families-after-intent-ci-readers",
+  "mode": "story-branch",
+  "branch": "cursor/prove-the-browser-suites-reporter-proof-record-a",
+  "host": "cursor",
+  "model": "auto"
+}

@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
 - [Run Dashboard launch tests on an installed project](seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#run-dashboard-launch-tests-on-an-installed-project) — SEED-433#run-dashboard-launch-tests-on-an-installed-project ([plan](slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md))
 - [Show initial sync and open the requested review when ready](seeds/SEED-438-show-initial-sync-before-review.md#show-initial-sync-before-review) — SEED-438#show-initial-sync-before-review ([plan](slice-plans/822-show-initial-sync-before-review/PLAN.md))
+- [Prove the browser suites' reporter, proof record and spec times through their typed hooks](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-intent-ci-readers) — SEED-413#renovate-remaining-backend-families-after-intent-ci-readers ([plan](slice-plans/825-prove-browser-reporter-through-typed-hooks/PLAN.md))
 
 ## Backlog list
 
@@ -40,7 +41,6 @@ intent introduced or affected by a newly developed story.
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
 - [Discover a project's default branch through Git](seeds/SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git) — SEED-437#discover-project-default-branch-through-git
-- [Prove the browser suites' reporter, proof record and spec times through their typed hooks](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-intent-ci-readers) — SEED-413#renovate-remaining-backend-families-after-intent-ci-readers
 - [Renovate the remaining dashboard backend unit-test families after the browser reporter](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter) — SEED-413#renovate-remaining-backend-families-after-browser-reporter
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
