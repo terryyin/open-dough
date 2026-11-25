@@ -123,6 +123,12 @@ After consolidating the tabpanel attributes, 27 frontend and three
 end-to-end cases reconfirmed labels, visibility, focus, and candidate
 navigation. Dashboard typecheck passed again.
 
+CI run `45626623251` exposed two missed consumers of the historical
+source explanation. Both published one-shot journeys now verify the
+visible explanation in Intent while retaining their captured range,
+inventory, and diff checks. The failing observation was reproduced,
+and both cases passed with the corrected assertion.
+
 ### 3. Return to Story Home and keep Review changes direct
 
 Type: Behavior

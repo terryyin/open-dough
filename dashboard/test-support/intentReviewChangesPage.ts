@@ -11,7 +11,6 @@ import {
   filesColumn,
   filesToggle,
   expectStoryTab,
-  storyFilesReading,
   storySummary,
   storyTab,
 } from "./intentModePage.ts";
@@ -91,8 +90,10 @@ class IntentReviewChanges {
     return this;
   }
 
-  async expectChangesExplanation(message: string) {
-    await expect(storyFilesReading(this.#intent)).toContainText(message);
+  async expectHistoricalSourceExplanation(message: string) {
+    await expect(
+      this.#intent.getByText(message, { exact: true }),
+    ).toBeVisible();
     return this;
   }
 
