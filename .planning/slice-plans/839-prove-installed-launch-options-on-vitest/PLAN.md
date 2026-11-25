@@ -63,7 +63,7 @@ sample. Use a new proof-record path each run.
 ### 1. Apply exclusive groups to an installed selection
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–13 active minutes.
 Proof: Focused backend command selects `agent-launch-options-groups.spec.ts`
 on Node Vitest. Its assertions observe the returned request or typed refusal.
@@ -75,6 +75,17 @@ group and both flags. Cover the variant where choosing no member of a group
 still permits an independent flag. Use `withSelectedOptions` with a MakeMe
 refinement request and the real installed file. Preserve the group and free
 choice browser case as the separate UI and native-input owner.
+
+Accepted proof: the four Node Vitest cases passed strictly on the maintained
+backend command with `launches/agent-launch-options-groups\.spec\.ts$` and
+one worker. The typed requests proved order, independent free selection,
+and named 400 refusals for both groups. The two groups kept their separate IDs
+and shared label. All four cases met 100 ms, at 3.67–11.64 ms per case and
+28.47 ms summed. The focused run took 2.49 s wall. The refreshed legacy group
+cases took 1,391–6,292 ms each and 15,533 ms summed. The unchanged browser group
+journey passed in the refreshed baseline. Review of the subject spec and its
+callers found no refactor candidate. The run record is
+`groups-typed-matchers.log.run.json` in the worktree Git evidence directory.
 
 ### 2. Deliver selected flags with the developer's launch input
 
@@ -154,3 +165,21 @@ gates.
 Slice-plan refinement was unnecessary. Each slice has its own observation of
 the same installed-option rule, with one final removal per former proof.
 No remaining slice-specific concern was identified.
+
+## Execution evidence
+
+The checkout at `7e3a27c5e` refreshed the baseline on Node 24.21.0. The Mac
+was awake on AC power, with one worker per suite, sequential backend and
+browser runs, and other worktrees running independent checks. These are
+single measurements. Backend passed 16/16 strictly in 43.65 s wall, with
+38.460 s summed case time and 0/16 at or below 100 ms. Browser passed 10/10
+strictly in 63.14 s wall. The accepted launch journey took 7.369 s. Records
+are `backend-baseline.json` and `e2e-baseline.json` in this worktree's Git
+evidence directory.
+
+Story Branch Mode uses `origin/codex/prove-installed-launch-options-through-typed-bac`,
+with `origin/main` as the trunk target and `7e3a27c5e8129f9d667718839b4cd7ead9be2f7a`
+as the published claim and first publication base. The CI observer uses
+GitHub Actions `ci.yml`, coordinator `kirara-839`, mailbox
+`/tmp/dough-ci-501/watch-BbXkps`, PID `8873`, Codex stream session `48890`
+and cell `g394:17` in this worktree.
