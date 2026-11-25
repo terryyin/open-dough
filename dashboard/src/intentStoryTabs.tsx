@@ -39,12 +39,9 @@ import type { SelectedStory } from "./pageStorySelection.tsx";
 export type IntentStoryTab = "ci" | "changes" | "coverage";
 export type IntentScope = "story" | "project";
 
-// Live chooseScope from the mounted Intent body. The banner sits above Intent,
-// so a downward context cannot reach it; PageFrame holds this ref bridge.
-export type IntentScopeChooser = (next: IntentScope) => void;
-
-const IntentScopeChooserRef = createContext<
-  RefObject<IntentScopeChooser | undefined> | undefined
+// The banner can end a temporary visit to Project Intent while it is shown.
+const IntentStoryReturnRef = createContext<
+  RefObject<(() => void) | undefined> | undefined
 >(undefined);
 
 export function IntentScopeBridgeProvider({
@@ -52,33 +49,36 @@ export function IntentScopeBridgeProvider({
 }: {
   readonly children: ReactNode;
 }) {
-  const chooser = useRef<IntentScopeChooser | undefined>(undefined);
+  const returnToStory = useRef<(() => void) | undefined>(undefined);
   return (
-    <IntentScopeChooserRef value={chooser}>{children}</IntentScopeChooserRef>
+    <IntentStoryReturnRef value={returnToStory}>
+      {children}
+    </IntentStoryReturnRef>
   );
 }
 
-export function useIntentScopeChooser(): IntentScopeChooser | undefined {
-  const chooser = useContext(IntentScopeChooserRef);
-  return chooser === undefined
-    ? undefined
-    : (next) => {
-        chooser.current?.(next);
-      };
+export function useReturnToVisitedStory(): () => boolean {
+  const destination = useContext(IntentStoryReturnRef);
+  return () => {
+    const returnToStory = destination?.current;
+    if (returnToStory === undefined) return false;
+    returnToStory();
+    return true;
+  };
 }
 
-// Intent registers its chooseScope while mounted so the banner can call it.
-export function useProvideIntentScopeChooser(
-  chooseScope: IntentScopeChooser,
+export function useProvideIntentStoryReturn(
+  returnToStory: (() => void) | undefined,
 ): void {
-  const chooser = useContext(IntentScopeChooserRef);
+  const destination = useContext(IntentStoryReturnRef);
   useLayoutEffect(() => {
-    if (chooser === undefined) return;
-    chooser.current = chooseScope;
+    if (destination === undefined) return;
+    destination.current = returnToStory;
     return () => {
-      if (chooser.current === chooseScope) chooser.current = undefined;
+      if (destination.current === returnToStory)
+        destination.current = undefined;
     };
-  }, [chooser, chooseScope]);
+  }, [destination, returnToStory]);
 }
 
 export const storyTabs: readonly IntentTabOption<IntentStoryTab>[] = [

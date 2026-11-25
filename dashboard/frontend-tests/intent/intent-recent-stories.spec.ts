@@ -57,7 +57,7 @@ test("choosing another remembered story in Intent shows its start while Intent s
   await recent.isLabelled(runningStory.identity);
 });
 
-test("a remembered story no longer on the Board is selected in Intent with no story reference notice", async () => {
+test("a remembered story unavailable in Intent keeps the chooser reachable with no Board notice", async () => {
   const gone = "GONE-1#nope";
   await mountIntentCiPage({
     work: storiesTakenWork,
@@ -74,4 +74,8 @@ test("a remembered story no longer on the Board is selected in Intent with no st
   await recent.isLabelled(gone);
   await recent.intentStays();
   expect(recent.noticeText()).toBe("");
+  await recent.lists([
+    { identity: gone, checked: true },
+    { identity: failingStory.identity, checked: false },
+  ]);
 });

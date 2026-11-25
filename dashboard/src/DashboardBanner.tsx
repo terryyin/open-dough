@@ -58,7 +58,11 @@ export function DashboardBanner({
             perspective={perspective}
             onSelect={onSelectPerspective}
           />
-          <RecentStories perspective={perspective} onSelectProject={onSelect} />
+          <RecentStories
+            perspective={perspective}
+            project={source.id}
+            onSelectProject={onSelect}
+          />
           <ProjectSelect source={source} onSelect={onSelect} />
         </>
       )}

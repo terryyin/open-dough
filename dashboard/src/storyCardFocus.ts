@@ -1,4 +1,5 @@
 import { readingBounds } from "./boardScroll.ts";
+import type { SelectedStory } from "./pageStorySelection.tsx";
 import type { PublishedWork } from "./publishedWork.ts";
 export { keepInView, untilOwnMove } from "./pageMovement.ts";
 
@@ -146,11 +147,23 @@ const shown = (element: HTMLElement | null | undefined) =>
     ? element
     : undefined;
 
-// The selected story's Intent view start (its tabbar), while Intent shows it.
-export function intentStoryViewStart(): HTMLElement | undefined {
+const intentHeadingAttribute = "data-intent-story-heading";
+const intentProjectAttribute = "data-intent-story-project";
+
+// Intent starts at the selected story's heading, above its view tabs.
+export function intentStoryHeadingMarks(project: string, identity: string) {
+  return {
+    [intentHeadingAttribute]: identity,
+    [intentProjectAttribute]: project,
+  };
+}
+
+export function intentStoryHeading(
+  story: SelectedStory,
+): HTMLElement | undefined {
   return shown(
     document.querySelector<HTMLElement>(
-      `.intent-page-frame[data-intent-context="story"] [${intentHomeAttribute}]`,
+      `[${intentHeadingAttribute}="${CSS.escape(story.identity)}"][${intentProjectAttribute}="${CSS.escape(story.project)}"]`,
     ),
   );
 }

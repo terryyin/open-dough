@@ -1,9 +1,9 @@
 // The banner's Recent stories control (`./recentStories.ts` shapes the list):
 // a bookmark that shows whether a story is selected, and a popover listing
 // recent selections (ADR 0008). Choosing a row, or clicking the button while
-// the selected story's start is out of view, selects and reveals it in the
-// current perspective: Development via the story-reference journey, Intent via
-// chooseScope("story") and the Intent view start (`intentHomeMarks`).
+// the selected story's start is out of view, reveals it in the current
+// perspective: Development via the story-reference journey and Intent at
+// the story heading.
 
 import {
   useContext,
@@ -16,7 +16,8 @@ import {
 import { Bookmark } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
-import { useIntentScopeChooser } from "./intentStoryTabs.tsx";
+import { useReturnToVisitedStory } from "./intentStoryTabs.tsx";
+import { storyShown } from "./pageEntries.ts";
 import { keepInView, startIsReadable } from "./pageMovement.ts";
 import { projectLabel, useVisibleProjects } from "./projectList.tsx";
 import {
@@ -27,8 +28,9 @@ import {
   type SelectedStory,
 } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
-import { intentStoryViewStart, storyCard } from "./storyCardFocus.ts";
+import { intentStoryHeading } from "./storyCardFocus.ts";
 import { StoryNavigationOnPage } from "./storyNavigation.tsx";
+import { storyReferenceChoices } from "./StoryReferenceNotice.tsx";
 import "./recent-stories.css";
 
 function recentStoriesLabel(selected: SelectedStory | undefined): string {
@@ -39,16 +41,18 @@ function recentStoriesLabel(selected: SelectedStory | undefined): string {
 
 export function RecentStories({
   perspective,
+  project,
   onSelectProject,
 }: {
   readonly perspective: DashboardPerspective;
+  readonly project: string;
   readonly onSelectProject: (next: PublishedSource) => void;
 }) {
   const selected = useSelectedStory();
   const recent = useRecentStories();
   const selection = useContext(StorySelectionOnPage);
   const navigation = useContext(StoryNavigationOnPage);
-  const chooseIntentScope = useIntentScopeChooser();
+  const returnToVisitedStory = useReturnToVisitedStory();
   const projects = useVisibleProjects();
   const listId = useId();
   const root = useRef<HTMLDivElement>(null);
@@ -60,62 +64,74 @@ export function RecentStories({
     if (open) {
       root.current
         ?.querySelector<HTMLElement>(".recent-stories-popover")
-        ?.focus();
+        ?.focus({ preventScroll: true });
     }
   }, [open]);
 
   const dismiss = () => {
     setOpen(false);
-    button.current?.focus();
+    button.current?.focus({ preventScroll: true });
   };
 
-  const bringIntentStartIntoView = () => {
+  const revealInIntent = (entry: SelectedStory, chosen = false) => {
+    const sameProject = entry.project === project;
+    if (!sameProject || chosen) {
+      const destination = projects.find((shown) => shown.id === entry.project);
+      if (destination === undefined && !sameProject) return false;
+      if (destination !== undefined) onSelectProject(destination);
+    }
+    if (
+      sameProject &&
+      sameSelectedStory(selected, entry) &&
+      intentStoryHeading(entry) === undefined &&
+      !returnToVisitedStory()
+    ) {
+      return false;
+    }
     requestAnimationFrame(() => {
-      const start = intentStoryViewStart();
-      if (start !== undefined) keepInView(start);
+      const heading = intentStoryHeading(entry);
+      if (heading !== undefined) keepInView(heading);
     });
-  };
-
-  // Intent: select, keep the perspective, choose the story scope, and bring
-  // the Intent view start into view. A new selection already opens on story.
-  const revealInIntent = (entry: SelectedStory) => {
-    const same = sameSelectedStory(selected, entry);
-    selection?.select(entry);
-    const project = projects.find((shown) => shown.id === entry.project);
-    if (project !== undefined) onSelectProject(project);
-    if (same) chooseIntentScope?.("story");
-    bringIntentStartIntoView();
+    return true;
   };
 
   const choose = (entry: SelectedStory) => {
+    selection?.select(entry);
     if (perspective === "intent") {
-      revealInIntent(entry);
+      revealInIntent(entry, true);
     } else {
-      selection?.select(entry);
       navigation?.follow(entry);
     }
     dismiss();
   };
 
-  // When the selected story's start is not in the region's readingBounds
-  // (same rule keepInView uses for readable), return via choose and leave the
-  // popover closed; otherwise toggle the list.
-  const selectedStartOutOfView = () => {
-    if (selected === undefined) return false;
+  const revealSelected = (entry: SelectedStory) => {
     if (perspective === "intent") {
-      const start = intentStoryViewStart();
-      return start === undefined || !startIsReadable(start);
+      const heading = intentStoryHeading(entry);
+      return (
+        (heading === undefined || !startIsReadable(heading)) &&
+        revealInIntent(entry)
+      );
     }
-    const card = storyCard(selected.identity);
-    return card === undefined || !startIsReadable(card);
+    const card = entry.project === project ? storyShown(entry.identity) : null;
+    if (
+      navigation === undefined ||
+      (card !== null && startIsReadable(card)) ||
+      sameSelectedStory(navigation.unavailable, entry)
+    ) {
+      return false;
+    }
+    navigation.follow(entry);
+    return true;
   };
 
   const onButtonClick = () => {
-    if (selected !== undefined && selectedStartOutOfView()) {
-      choose(selected);
+    if (open) {
+      dismiss();
       return;
     }
-    setOpen((was) => !was);
+    if (selected !== undefined && revealSelected(selected)) return;
+    setOpen(true);
   };
 
   useEffect(() => {
@@ -147,6 +163,7 @@ export function RecentStories({
     <div
       className="tooltip-control tooltip-center recent-stories-control"
       ref={root}
+      {...storyReferenceChoices}
     >
       <button
         type="button"

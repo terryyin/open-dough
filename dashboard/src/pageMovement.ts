@@ -1,6 +1,6 @@
 // Keep a chosen part of the page readable while layout and native scrolling
 // settle, until the developer moves around the page themselves.
-import { readingBounds } from "./boardScroll.ts";
+import { readingBounds, readingRegionOf } from "./boardScroll.ts";
 import { showColumnHolding } from "./columnPaging.ts";
 import { prefersReducedMotion } from "./reducedMotion.ts";
 
@@ -10,6 +10,7 @@ const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 // Whether the element's start lies inside the scroll region's readingBounds
 // (./boardScroll.ts), including when a tall card's end runs below the fold.
 export function startIsReadable(element: Element): boolean {
+  if (element.getClientRects().length === 0) return false;
   const at = element.getBoundingClientRect();
   const bounds = readingBounds(element);
   const visibleOn = (start: number, end: number, low: number, high: number) =>
@@ -35,17 +36,14 @@ export function keepInView(
   except?: (event: Event) => boolean,
 ): () => void {
   const content = element.closest(".board-row") ?? element;
-  const region = element.closest(".board-scroll, .roster-scroll");
+  const region = readingRegionOf(element);
   const show = () => {
     window.addEventListener("scroll", progressed, true);
     window.addEventListener("scrollend", settled, true);
     showColumnHolding(element);
     const behavior = prefersReducedMotion() ? "auto" : "smooth";
-    const regionEl = element.closest<HTMLElement>(
-      ".board-scroll, .roster-scroll",
-    );
     if (
-      regionEl !== null &&
+      region?.matches(".board-scroll, .roster-scroll") &&
       document.querySelector(".page-maximized") !== null
     ) {
       // While maximized/covering, prefer scrollTop so the reading edge is set
@@ -56,9 +54,9 @@ export function keepInView(
         Number.parseFloat(getComputedStyle(element).scrollMarginTop) || 0;
       const top = Math.max(
         0,
-        regionEl.scrollTop + (at.top - bounds.top - margin),
+        region.scrollTop + (at.top - bounds.top - margin),
       );
-      regionEl.scrollTop = top;
+      region.scrollTop = top;
       element.scrollIntoView({ block: "nearest", behavior: "auto" });
     } else {
       element.scrollIntoView({ block: "start", behavior });

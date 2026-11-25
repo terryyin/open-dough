@@ -12,6 +12,7 @@ import {
 import type { StorySummary } from "./IntentStorySummary.tsx";
 import { shortRevision } from "./publishedWork.ts";
 import { StoryNotes } from "./StoryNotesControl.tsx";
+import { intentStoryHeadingMarks } from "./storyCardFocus.ts";
 
 export function IntentHeader({
   summary,
@@ -52,7 +53,12 @@ export function IntentHeader({
         </p>
       )}
       <div className="intent-story-title-line">
-        <h2 className="intent-story-title">
+        <h2
+          className="intent-story-title"
+          {...(story === undefined
+            ? undefined
+            : intentStoryHeadingMarks(source, story.identity))}
+        >
           {story?.title ??
             (projectVisit ? "Project Intent" : "No story selected")}
         </h2>

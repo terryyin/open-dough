@@ -36,7 +36,7 @@ import {
 } from "./IntentStorySummary.tsx";
 import {
   useIntentScope,
-  useProvideIntentScopeChooser,
+  useProvideIntentStoryReturn,
   type IntentScope,
 } from "./intentStoryTabs.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
@@ -89,7 +89,13 @@ function IntentBody({
   readonly story: ComparedStory | undefined;
 }) {
   const { scope, chooseScope } = useIntentScope(selection);
-  useProvideIntentScopeChooser(chooseScope);
+  useProvideIntentStoryReturn(
+    scope === "project" && storySummary !== undefined
+      ? () => {
+          chooseScope("story");
+        }
+      : undefined,
+  );
   const storyShown = storySummary !== undefined && scope === "story";
   // Project Intent's trunk evidence is read from its first showing on.
   const [projectVisited, setProjectVisited] = useState(!storyShown);

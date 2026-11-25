@@ -4,6 +4,14 @@
 
 **Source:** [Choose the whole project or a recent story from the bookmark](../../seeds/SEED-420-unified-intent-review.md#choose-review-scope)
 
+## Execution context
+
+- Rio-chan, publisher `dashboard-territory.local-open-dough`, Story Branch Mode.
+- Execution checkout `/Users/terryyin/git/open-dough/.worktrees/choose-the-whole-project-or-a-recent-story-from`, branch `codex/choose-the-whole-project-or-a-recent-story-from`. Default checkout `/Users/terryyin/git/open-dough`. Integration target `origin/main`.
+- Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch.
+- Execution branch observation uses GitHub Actions `ci.yml` with coordinator `rio-chan-32284348` and stream `/tmp/dough-ci-501/watch-8RaTPQ` (PID 77649). The trunk claim preceded that observer.
+- Checkout setup passed with Node 24.21.0, the locked npm install, the locked Chromium launch, and `npm run typecheck:dashboard`.
+
 ## Goal and scope
 
 A developer can identify Intent and its scope in the banner and use the
@@ -114,7 +122,7 @@ assertions during execution.
 ### 1. Open the chooser when the selected story is readable
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 With the Board card or Intent heading readable, opening the chooser leaves
@@ -124,6 +132,24 @@ open the chooser. Use the shared motion owner and actual reading region for
 each perspective. Keep Intent's current temporary project visit during this
 increment. Prove it through the desktop Board and the 390 × 320 Intent
 fixture, including native touch and the unavailable Board destination.
+
+Accepted proof on `9774e3021` plus this slice's working changes. The mounted
+Board checks in `navigation/recent-stories.spec.ts` observe scrolling and
+card focus, reopen after an unavailable reference, and distinguish identical
+IDs in two projects. The Changes fixture in `intent-home-activation-scope.spec.ts`
+selects a file before resizing to 390 × 320. It measures the heading and tabs
+against the scroll region, drives a native tap and Enter, and checks the
+pressed file and unchanged reading place for immediate opening. First Enter
+reveals a clipped heading and the next opens the dialog.
+
+```sh
+caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/navigation/recent-stories.spec.ts dashboard/frontend-tests/navigation/accessible-board-keyboard.spec.ts dashboard/frontend-tests/navigation/story-reference-recovery.spec.ts dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts dashboard/frontend-tests/intent/intent-recent-stories.spec.ts dashboard/frontend-tests/intent/intent-home-activation-scope.spec.ts dashboard/frontend-tests/intent/intent-ci-status-homepage.spec.ts dashboard/frontend-tests/intent/intent-done-project-refresh.spec.ts dashboard/frontend-tests/intent/intent-project-visit-selection.spec.ts dashboard/frontend-tests/intent/intent-project-visit.spec.ts dashboard/frontend-tests/intent/intent-sidebar-toggle.spec.ts dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts dashboard/frontend-tests/intent/intent-story-changes-only.spec.ts
+caffeinate -s -i npm run typecheck:dashboard
+```
+
+All 40 mounted cases and typecheck passed. The worktree Git evidence directory
+holds `slice1-implementation.md` and its terminal run records.
+The independent refactor replaced the chooser's styling dependency with an interaction marker. `caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/navigation/recent-stories.spec.ts dashboard/frontend-tests/navigation/story-reference-recovery.spec.ts dashboard/frontend-tests/navigation/story-reference-done-recovery.spec.ts` passed 11 cases on the same frame boundaries, and `caffeinate -s -i npm run typecheck:dashboard` passed again. See `slice1-refactor.md` in Git evidence.
 
 ### 2. Use the bookmark to choose whole-project and story scope
 
@@ -210,3 +236,10 @@ and keyboard reading order intact.
   one selection and reveal rule, the temporary overlap has an explicit
   replacement, and the evidence migration directly enables that replacement.
   This review identified no remaining slice-specific concern.
+
+## Story obligations
+
+### G1. Temporary Intent visit controls
+Reported: slice 1 — "The retained Project Intent and Back to selected story controls still support the temporary visit."
+Story clause: "The bookmark replaces Intent's **Project Intent** and **Back to selected story** navigation."
+Disposition: interim until slices 2, 3, 4

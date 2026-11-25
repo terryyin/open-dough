@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { recentStoriesKey } from "../../src/recentStories.ts";
 import { withFramePreference } from "../../test-support/component-mount/framePreferences.ts";
@@ -104,11 +104,10 @@ test("the Recent stories bookmark tracks card and Side panel selections, order, 
   await boardReading.expectStoryHighlight(storyCard(queued.title));
 });
 
-test("choosing Recent stories rows returns from the roster to another project's story and reports an unavailable identity", async () => {
-  const gone = "GONE-1#nope";
+test("choosing a recent story returns from the roster to another project's Board", async () => {
   withFramePreference(recentStoriesKey, null);
   controlDestinationCueTime();
-  const frame = await mountBoardFrame(
+  await mountBoardFrame(
     boardWork([queued], { taken: [taken] }),
     viewport,
     "stories",
@@ -145,40 +144,53 @@ test("choosing Recent stories rows returns from the roster to another project's 
     [openDough, taken.identity, false],
   ]);
   await dismissWithEscape();
+});
 
-  localStorage.setItem(
+test("the bookmark opens choices after the Board reports the selected story unavailable", async () => {
+  const gone = "GONE-1#nope";
+  withFramePreference(
     recentStoriesKey,
     JSON.stringify([
-      { project: "doughnut", identity: gone },
-      { project: "doughnut", identity: doughnutTaken.identity },
+      { project: "open-dough", identity: gone },
       { project: "open-dough", identity: taken.identity },
     ]),
   );
-  frame.remount();
-  await showsBookmark();
-  await expect.element(projectRadio("Doughnut")).toBeChecked();
-  await activate(recent);
-  await chooseRecent("Doughnut", gone);
+  await mountBoardFrame(boardWork([queued], { taken: [taken] }), viewport);
+  await userEvent.click(recent);
+  await chooseRecent(openDough, gone);
   const referenceNotice = page.getByRole("status", {
     name: "Story reference navigation",
   });
   await expect
     .element(
       referenceNotice.getByText(
-        `${gone} is unavailable in Doughnut's dashboard.`,
+        `${gone} is unavailable in Open Dough's dashboard.`,
         { exact: true },
       ),
     )
     .toBeVisible();
   await showsBookmark(gone);
+  await expect.element(recent).toHaveFocus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(popover).toBeVisible();
+  await dismissWithEscape();
+  await userEvent.click(recent);
+  await expect.element(popover).toBeVisible();
+  await chooseRecent(openDough, taken.identity);
+  await boardReading.expectStoryHighlight(storyCard(taken.title));
+  await expect.element(storyCard(taken.title)).toHaveFocus();
 });
 
 test("the bookmark reveals a selected card before opening the list and returns across projects", async () => {
   withFramePreference(recentStoriesKey, null);
   controlDestinationCueTime();
   const target = story("Return target story", 850);
+  const otherProjectStory = story(
+    "An Open Dough story with a shared identity",
+    903,
+  );
   await mountBoardFrame(
-    boardWork([...longBacklog, target], { taken: [taken] }),
+    boardWork([otherProjectStory, ...longBacklog, target], { taken: [taken] }),
     viewport,
     "stories",
     {},
@@ -195,8 +207,10 @@ test("the bookmark reveals a selected card before opening the list and returns a
   await activate(recent);
   await expect.element(popover).not.toBeInTheDocument();
   await showsRevealed(card);
-  await activate(recent);
+  const position = scroll.scrollTop;
+  await userEvent.click(recent);
   await showsHistory([[openDough, target.identity, true]]);
+  expect(scroll.scrollTop).toBe(position);
   await dismissWithEscape();
 
   const longCard = card.element();
@@ -215,6 +229,11 @@ test("the bookmark reveals a selected card before opening the list and returns a
   await activate(projectRadio("Doughnut"));
   await selectCard(doughnutTaken.title);
   await activate(projectRadio(openDough));
+  const otherCard = storyCard(otherProjectStory.title);
+  await expect.element(otherCard).toBeVisible();
+  const otherStart = otherCard.element().getBoundingClientRect().top;
+  expect(otherStart).toBeGreaterThan(boardReading.room().top);
+  expect(otherStart).toBeLessThan(boardReading.room().bottom);
   await showsBookmark(doughnutTaken.identity);
   await activate(recent);
   await expect.element(projectRadio("Doughnut")).toBeChecked();

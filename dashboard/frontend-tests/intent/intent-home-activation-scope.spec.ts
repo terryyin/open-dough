@@ -14,6 +14,12 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewQuery } from "../../src/reviewSource.ts";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
 import {
+  tapWhereShown,
+  useTouchScreen,
+} from "../navigation/board-touch-page.ts";
+import { focus } from "../navigation/project-navigation-frame.ts";
+import { popover, recent } from "../navigation/recent-stories-frame.ts";
+import {
   browsed,
   fileControl,
   intentReadsRecording,
@@ -36,7 +42,10 @@ import {
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
   backToStory,
+  intentScroll,
   projectIntentLink,
+  storyHeading,
+  storyHeadingIsReadable,
 } from "./intent-recent-stories-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
@@ -105,6 +114,54 @@ test("activating CI comparison from Changes judges the selected story's branch u
   expect(ci.panel.element().textContent).not.toContain(failingStory.title);
   await expect.element(story.header).toBeVisible();
   await story.chooseTab("Changes");
+  await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
+});
+
+async function keepReadingOnShortViewport() {
+  await readStoryChanges();
+  await page.viewport(390, 320);
+}
+
+test("a touch opens the bookmark immediately when the story heading is readable above the fold of Changes", async () => {
+  await keepReadingOnShortViewport();
+  await useTouchScreen();
+  const scroll = intentScroll();
+  scroll.scrollTop = 0;
+  const reading = scroll.scrollTop;
+  await expect.poll(storyHeadingIsReadable).toBe(true);
+  expect(
+    story.viewTab("Changes").element().getBoundingClientRect().top,
+  ).toBeGreaterThan(scroll.getBoundingClientRect().bottom);
+
+  await tapWhereShown(recent.element());
+
+  await expect.element(popover).toBeVisible();
+  expect(scroll.scrollTop).toBe(reading);
+  await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
+});
+
+test("the bookmark first reveals a clipped story heading even when its Changes tab is in the reading region", async () => {
+  await keepReadingOnShortViewport();
+  const scroll = intentScroll();
+  const tab = story.viewTab("Changes").element();
+  tab.scrollIntoView({ block: "start", behavior: "instant" });
+  expect(storyHeading.element().getBoundingClientRect().bottom).toBeLessThan(
+    scroll.getBoundingClientRect().top,
+  );
+  expect(tab.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+    scroll.getBoundingClientRect().top,
+  );
+  expect(tab.getBoundingClientRect().bottom).toBeLessThan(
+    scroll.getBoundingClientRect().bottom,
+  );
+  focus(recent);
+
+  await userEvent.keyboard("{Enter}");
+  await expect.element(popover).not.toBeInTheDocument();
+  await expect.poll(storyHeadingIsReadable).toBe(true);
+  await userEvent.keyboard("{Enter}");
+
+  await expect.element(popover).toBeVisible();
   await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
 });
 

@@ -5,7 +5,6 @@
 // notice.
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
-import { startIsReadable } from "../../src/pageMovement.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 
 const intent = page.getByRole("main", { name: "Intent", exact: true });
@@ -24,20 +23,35 @@ const rows = () =>
 const notice = page.getByRole("status", { name: "Story reference navigation" });
 // The selected story's header link to Project Intent, and Project Intent's
 // way back to the story.
-export const projectIntentLink = intent
-  .getByRole("region", { name: "Selected story", exact: true })
-  .getByRole("button", { name: "Project Intent", exact: true });
+const story = intent.getByRole("region", {
+  name: "Selected story",
+  exact: true,
+});
+export const projectIntentLink = story.getByRole("button", {
+  name: "Project Intent",
+  exact: true,
+});
 export const backToStory = intent.getByRole("button", {
   name: "Back to selected story",
   exact: true,
 });
 
-// The story view's start, marked as Intent's home, is readable.
-const storyStartReadable = () => {
-  const start = document.querySelector(
-    '.intent-page-frame[data-intent-context="story"] [data-intent-home]',
+export const storyHeading = story.getByRole("heading", { level: 2 });
+
+export function intentScroll() {
+  const scroll = intent.element().closest<HTMLElement>(".intent-scroll");
+  if (scroll === null) throw new Error("Expected Intent's reading region.");
+  return scroll;
+}
+
+export const storyHeadingIsReadable = () => {
+  const heading = storyHeading.query()?.getBoundingClientRect();
+  const room = intentScroll().getBoundingClientRect();
+  return (
+    heading !== undefined &&
+    heading.top >= room.top &&
+    heading.bottom <= room.bottom
   );
-  return start !== null && startIsReadable(start);
 };
 
 // Every remembered row is in `project`.
@@ -88,7 +102,7 @@ export function intentRecentStories(project: PublishedSource) {
       await recent.intentStays();
       await expect.element(backToStory).not.toBeInTheDocument();
       await expect.element(popover).not.toBeInTheDocument();
-      await expect.poll(storyStartReadable).toBe(true);
+      await expect.poll(storyHeadingIsReadable).toBe(true);
     },
     // The button names the selected story and fills its bookmark, or names
     // none with an outline.
