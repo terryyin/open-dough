@@ -4,6 +4,8 @@
 // pace, still reading trunk when it moves. Recorded branches the boundary can
 // use: ./auto-refresh-branches.spec.ts.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -22,13 +24,11 @@ import {
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   branches,
+  repository,
   fromTrunk,
   trunk,
 } from "../../dashboard/test-support/branchProgressRecords.ts";
-import {
-  openedSettled,
-  trunkMoved,
-} from "../../dashboard/test-support/branchRefreshJourney.ts";
+import { openedSettled } from "../../dashboard/test-support/branchRefreshJourney.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
 import type { PublishedRevision } from "../../dashboard/test-support/publishedFiles.ts";
 
@@ -52,6 +52,8 @@ function branchesNamedByPage(page: Page): string[] {
 
 test("a recorded branch whose name cannot be used is that card's gap, is never read or watched, and trunk moving is still read", async ({
   page,
+  dashboard,
+  afterGitHubStops,
 }) => {
   const named = branchesNamedByPage(page);
   const onUnusable: PublishedRevision = {
@@ -70,13 +72,22 @@ test("a recorded branch whose name cannot be used is that card's gap, is never r
       ],
     }),
   };
-  const { origin, progress } = await openedSettled(page, {
-    trunk: onUnusable,
-    branches: {
-      ...branches,
-      [unusable]: { revision: "f7".repeat(20), files: trunk.files },
+  const { origin, progress } = await openedSettled(page, afterGitHubStops, {
+    published: {
+      trunk: onUnusable,
+      branches: { ...branches, [unusable]: trunk },
     },
+    advances: [{ name: "nextTrunk", parent: "trunk" }],
   });
+  const routed = (ref: string) =>
+    remoteBranchHead(gitHubRepositoryUrl(repository), `refs/heads/${ref}`, {
+      cwd: dashboard.home,
+      env: { HOME: dashboard.home },
+      maxBuffer: 4096,
+    });
+  expect(await routed("main")).toBe(origin.at("trunk").revision);
+  expect(await routed(unusable)).toBe(origin.at(unusable).revision);
+  const trunkMoved = origin.at("nextTrunk").revision;
   const { readRevision } = parts(page);
   await expect(progress).toContainText(
     `The recorded branch ${unusable} has a name this dashboard cannot use, so its slice progress cannot be read. Trunk's copy is not its progress.`,
@@ -91,7 +102,8 @@ test("a recorded branch whose name cannot be used is that card's gap, is never r
   });
 
   await test.step("trunk moving is read within the check pace, still never naming the unusable branch", async () => {
-    origin.moveTrunk({ ...onUnusable, revision: trunkMoved });
+    origin.moveTrunk({ ...origin.at("trunk"), revision: trunkMoved });
+    expect(await routed("main")).toBe(trunkMoved);
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
     await expect(readRevision).toContainText(shortRevision(trunkMoved));

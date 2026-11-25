@@ -15,6 +15,8 @@
 // each directed wait passes when the test moves owner and page time to it,
 // and a check the page's time reaches first is refused by the owner unasked.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import type { Page } from "@playwright/test";
 import {
   expect,
@@ -35,7 +37,6 @@ import {
   pageTimeStepMs,
   passTimeUntilAsked,
   passTimeUntilChecked,
-  recordsAt,
   setPageVisibility,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
@@ -44,10 +45,7 @@ import {
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { rateLimitedAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
-  backlogB,
   inspectDashboardStory,
-  revisionA,
-  revisionB,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
@@ -86,9 +84,23 @@ async function passTimeUntilLimited(page: Page) {
 
 test("auto refresh rate limit: a rate-limited check waits as GitHub directs before checking again, offers no Retry, and the check at the directed time reads B, clears the failure, and restores the steady pace", async ({
   page,
+  dashboard,
+  afterGitHubStops,
   owner,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { A: revisionA, B: revisionB } = origin.revisions;
+  expect(
+    await remoteBranchHead(
+      gitHubRepositoryUrl("terryyin/open-dough"),
+      "refs/heads/main",
+      {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      },
+    ),
+  ).toBe(revisionA);
   const { problem, retrievedAt } = parts(page);
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   await inspectDashboardStory(page);
@@ -180,7 +192,18 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
 
   await test.step("restored access, the check at the directed time reads B and clears the failure", async () => {
     restoreLimit();
-    origin.push(revisionB, backlogB, recordsAt("B"));
+    origin.advanceTo("B");
+    expect(
+      await remoteBranchHead(
+        gitHubRepositoryUrl("terryyin/open-dough"),
+        "refs/heads/main",
+        {
+          cwd: dashboard.home,
+          env: { HOME: dashboard.home },
+          maxBuffer: 4096,
+        },
+      ),
+    ).toBe(revisionB);
     owner.advanceOwnerClock(resetMs);
     expectAtDirectedTime(
       resetMs - 250,

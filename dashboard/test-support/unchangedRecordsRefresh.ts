@@ -12,13 +12,9 @@ import {
   untilPageReadsAnswered,
   untilPublishedWorkRead,
 } from "./pageRequestNotes.ts";
-import type { PublishedRevision } from "./publishedFiles.ts";
-import { describedRevisions } from "./describedRevisions.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
 
 export const repository = "terryyin/open-dough";
-export const revisionA = "7a".repeat(20);
-export const revisionB = "7b".repeat(20);
 export const opened = new Date("2026-10-07T09:00:00.000Z");
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
@@ -63,71 +59,68 @@ const refreshPlanned = {
 
 // What A publishes, and a later revision whose backlog queues one more story
 // in the same seed.
-const published = describedRevisions(
-  makeMe.aRepository
-    .withRevision("A", {
-      backlog: {
-        taken: [refreshEntry],
-        queued: [queuedEntry],
-      },
-      files: {
-        [seedPath]: seedProse,
-        [planPath]: renderSlicePlan(
-          makeMe.aSlicePlan
-            .withStatuses(["done", "done", "planned", "planned", "planned"])
-            .please(),
-          { heading: "Slices" },
-        ),
-        [settingsPath]: "{}\n",
-        // An earlier story's record whose text is no done record, so the
-        // catalog lists it as one it could not read and Recently done shows
-        // no card the refresh waits on.
-        [donePath]: `{"note":"an earlier story's done record"}\n`,
-      },
-      storyStates: [refreshPlanned],
-      agentProfiles: [
-        makeMe.anAgentProfile
-          .executing({
-            name: "Akiho",
-            identity: "SEED-271#refresh",
-            mode: "trunk",
-            branch: "main",
-            host: "claude",
-          })
-          .please(),
-      ],
-      // The catalog completion rebuilds beside that record.
-      doneRecords: [],
-    })
-    .withRevision("added", {
-      backlog: {
-        taken: [refreshEntry],
-        queued: [queuedEntry, addedEntry],
-      },
-      files: {
-        [seedPath]: `${seedProse}\n${renderStorySection(addedEntry)}`,
-      },
-      storyStates: [refreshPlanned],
-    })
-    .please(),
-  { A: revisionA, added: revisionB },
-);
+const starting = makeMe.aRepository.withRevision("A", {
+  backlog: {
+    taken: [refreshEntry],
+    queued: [queuedEntry],
+  },
+  files: {
+    [seedPath]: seedProse,
+    "dashboard/src/app.ts": "// Before refresh\n",
+    [planPath]: renderSlicePlan(
+      makeMe.aSlicePlan
+        .withStatuses(["done", "done", "planned", "planned", "planned"])
+        .please(),
+      { heading: "Slices" },
+    ),
+    [settingsPath]: "{}\n",
+    // An earlier story's record whose text is no done record, so the
+    // catalog lists it as one it could not read and Recently done shows
+    // no card the refresh waits on.
+    [donePath]: `{"note":"an earlier story's done record"}\n`,
+  },
+  storyStates: [refreshPlanned],
+  agentProfiles: [
+    makeMe.anAgentProfile
+      .executing({
+        name: "Akiho",
+        identity: "SEED-271#refresh",
+        mode: "trunk",
+        branch: "main",
+        host: "claude",
+      })
+      .please(),
+  ],
+  // The catalog completion rebuilds beside that record.
+  doneRecords: [],
+});
 
-export const { files } = published.A;
-// What a revision B that queues `addedTitle` publishes.
-export const filesWithAddedStory = published.added.files;
+export const refreshHistory = (addStory = false) =>
+  starting
+    .withRevision(
+      "B",
+      addStory
+        ? {
+            backlog: {
+              taken: [refreshEntry],
+              queued: [queuedEntry, addedEntry],
+            },
+            files: {
+              [seedPath]: `${seedProse}\n${renderStorySection(addedEntry)}`,
+            },
+            storyStates: [refreshPlanned],
+          }
+        : { files: { "dashboard/src/app.ts": "// After refresh\n" } },
+    )
+    .please();
 
-export const atA: PublishedRevision = {
-  revision: revisionA,
-  files,
+const readDetails = {
   committed: { [planPath]: minutesBefore(30) },
   history: { [profilePath]: [addedAt(0x71, minutesBefore(60))] },
 };
+export const refreshDetails = () => ({ A: readDetails, B: readDetails });
 
-// B changes only product code.
-export const atB: PublishedRevision = { ...atA, revision: revisionB };
-export const productCodeCommit: MadeCommit = {
-  sha: "7c".repeat(20),
+export const productCodeChange: Omit<MadeCommit, "sha"> = {
   committer: "Fixture Committer",
   files: [{ filename: "dashboard/src/app.ts", status: "modified" }],
 };

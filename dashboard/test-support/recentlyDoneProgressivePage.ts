@@ -15,7 +15,12 @@ import { expectMembership, parts } from "./dashboardPage.ts";
 import { shownEntries } from "./recentlyDoneColumn.ts";
 import { queuedTitle } from "./recentlyDoneRecords.ts";
 import { untilPageAnsweredButChangeWaits } from "./pageRequestNotes.ts";
-import { publishes, type FakeGitHub } from "./support/fakeGitHub.ts";
+import {
+  publishes,
+  type FakeGitHub,
+  type RepositoryAnswerer,
+} from "./support/fakeGitHub.ts";
+import { movingMain, type ProgressiveHistory } from "./recentlyDoneRefresh.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { terminalPanel } from "./terminalScreenPage.ts";
 import {
@@ -43,8 +48,9 @@ export const isRecord = (path: string) => (request: GhRequest) =>
   request.kind === "content" && request.path === path;
 
 type Answering = (
-  published: ReturnType<typeof publishes>,
-) => ReturnType<typeof publishes>;
+  published: RepositoryAnswerer,
+  revision: string,
+) => RepositoryAnswerer;
 
 // Opens the page over the list published at `at`, the story at `nestedIn`
 // holding three sessions, GitHub answering through `answering`. The boundary
@@ -61,6 +67,7 @@ export async function opened(
     open,
     also,
     beside,
+    history,
   }: {
     readonly nestedIn?: number;
     readonly answering?: Answering;
@@ -71,6 +78,7 @@ export async function opened(
     readonly also?: (now: number) => readonly LaunchRecord[];
     // Files published beside the list's (`publishedWithCatalog`).
     readonly beside?: Readonly<Record<string, string>>;
+    readonly history?: ProgressiveHistory;
   } = {},
 ) {
   const now = Date.now();
@@ -79,18 +87,25 @@ export async function opened(
     ...(also === undefined ? {} : { also: also(now) }),
   });
   const github = githubFor(page);
-  github.serve(
-    repository,
-    answering(
-      publishes({
-        revision: at,
-        files: publishedWithCatalog(now, list, beside),
-      }),
-    ),
-  );
+  const main =
+    history === undefined
+      ? undefined
+      : await movingMain(page, now, list, beside, history, answering);
+  if (main === undefined) {
+    github.serve(
+      repository,
+      answering(
+        publishes({
+          revision: at,
+          files: publishedWithCatalog(now, list, beside),
+        }),
+        at,
+      ),
+    );
+  }
   await page.goto("/");
   await expectMembership(page, { taken: [], backlog: [queuedTitle] });
-  return { github, recent: parts(page).recentlyDone, now };
+  return { github, recent: parts(page).recentlyDone, main };
 }
 
 // The side panel's open terminal.

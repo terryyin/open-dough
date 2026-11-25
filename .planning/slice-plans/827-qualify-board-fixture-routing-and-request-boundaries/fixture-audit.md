@@ -27,7 +27,7 @@ Node’s resolved module path with the configured literal path. A focused
 recheck with a physical directory recovered those cases.
 
 The fixed (done plan 824, `548a3814652df8782da71457ac3acffd973a2f08`),
-[moving](../826-publish-moving-board-fixtures-through-git/PLAN.md) and
+moving (done plan 826, `cd6d91fc619c03d5e6f988fcbe5dd4ecd162eb1c`) and
 [routing and request-boundary](PLAN.md) plans assign the families.
 Plan 827 owns the final backend and E2E qualification and removing
 the patch and this inventory once its evidence is spent.

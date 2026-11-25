@@ -8,6 +8,9 @@
 // as GitHub does, and records every `gh` call. The page's clock is paused
 // and advanced by the test, so "within 30 seconds" is observed in page time.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   expect,
   githubFor,
@@ -28,18 +31,12 @@ import {
   openSettledAtA,
   passTimeUntilChecked,
   queueStory,
-  recordsAt,
   headsCheckArgv,
   headsChecks,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
-  backlogB,
-  backlogC,
   dashboardStory,
   inspectDashboardStory,
-  revisionA,
-  revisionB,
-  revisionC,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
@@ -51,8 +48,10 @@ import {
 
 test("auto refresh: quiet main is only checked, and newly published main appears with its own detail and keeps focus", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { A: revisionA, B: revisionB } = origin.revisions;
   const { status, problem, taken, backlog, notice, retrievedAt, readRevision } =
     parts(page);
   const retrievedA = await retrievedAt.getAttribute("datetime");
@@ -78,7 +77,9 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     await expect(retrievedAt).toHaveAttribute("datetime", retrievedA ?? "");
     await expect(problem).toHaveCount(0);
     await expect(status).toHaveText(
-      /^Published work read at revision a1a1a1a, retrieved /,
+      new RegExp(
+        `^Published work read at revision ${shortRevision(revisionA)}, retrieved `,
+      ),
     );
   });
 
@@ -92,7 +93,7 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     .getByRole("button", { name: "Inspect story" });
   await queueControl.focus();
   const beforeB = githubFor(page).calls.length;
-  origin.push(revisionB, backlogB, recordsAt("B"));
+  origin.advanceTo("B");
 
   await test.step("B is found by the next check, within 30 seconds, and read at exactly B", async () => {
     expect(await passTimeUntilChecked(page)).toBeLessThanOrEqual(15_250);
@@ -151,19 +152,55 @@ test("auto refresh: quiet main is only checked, and newly published main appears
 
 test("auto refresh: main moving again while B's backlog is read leaves one snapshot pinned to B, and the next check finds C", async ({
   page,
+  afterGitHubStops,
+  dashboard,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { A: revisionA, B: revisionB, C: revisionC } = origin.revisions;
+  expect(
+    await remoteBranchHead(
+      gitHubRepositoryUrl(defaultRepository),
+      "refs/heads/main",
+      {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      },
+    ),
+  ).toBe(revisionA);
   const { problem, readRevision } = parts(page);
   await inspectDashboardStory(page);
   const beforeB = githubFor(page).calls.length;
-  origin.push(revisionB, backlogB, recordsAt("B"));
+  origin.advanceTo("B");
   const releaseBacklogAtB = origin.hold(revisionB);
+  expect(
+    await remoteBranchHead(
+      gitHubRepositoryUrl(defaultRepository),
+      "refs/heads/main",
+      {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      },
+    ),
+  ).toBe(revisionB);
 
   await passTimeUntilChecked(page);
   await expect
     .poll(() => contentReads(callsSince(page, beforeB)))
     .toEqual([`.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`]);
-  origin.push(revisionC, backlogC, recordsAt("C"));
+  origin.advanceTo("C");
+  expect(
+    await remoteBranchHead(
+      gitHubRepositoryUrl(defaultRepository),
+      "refs/heads/main",
+      {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      },
+    ),
+  ).toBe(revisionC);
   releaseBacklogAtB();
 
   await test.step("B's membership, detail, and evidence are all B's", async () => {

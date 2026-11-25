@@ -26,15 +26,13 @@ import {
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   backlogA,
-  backlogB,
   dashboardStory,
-  revisionB,
   titlesOfA,
   titlesOfB,
   workspaceStory,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { givePageItsTurns } from "../../dashboard/test-support/pageRequestNotes.ts";
-import type { MovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
+import type { MovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import {
   notePlaceholders,
   shownCards,
@@ -49,9 +47,10 @@ const claimsStory = "Publish shared backlog claims";
 // B's membership is shown, and the held record has been asked for at B.
 async function untilBShownWhileHeld(
   page: Page,
-  origin: MovingOrigin,
+  origin: MovingHistory<"B">,
   held: string,
 ) {
+  const { B: revisionB } = origin.revisions;
   await expect(parts(page).readRevision).toContainText(
     shortRevision(revisionB),
   );
@@ -63,12 +62,17 @@ async function untilBShownWhileHeld(
 
 test("an unchanged revision keeps every card's content and place while it is read", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops, {
+    backlog: backlogA,
+    files: recordsAt("A"),
+  });
+  const { B: revisionB } = origin.revisions;
   const before = await shownCards(page);
   const placeholders = await notePlaceholders(page);
   const release = origin.hold(dashboardRecord);
-  origin.push(revisionB, backlogA, recordsAt("A"));
+  origin.advanceTo("B");
   await passTimeUntilChecked(page);
 
   await test.step("while B's record is held, every card shows what it showed, where it showed it", async () => {
@@ -92,16 +96,27 @@ test("an unchanged revision keeps every card's content and place while it is rea
 
 // The open detail's pinned links name the revision shown, which is B's as
 // soon as its membership is: those links are part of B's membership.
-const pinnedAtB = (shown: readonly ShownCard[]) =>
+const pinnedAtB = (shown: readonly ShownCard[], revision: string) =>
   shown.map((card) => ({
     ...card,
-    text: card.text.replace(/at revision [0-9a-f]{7}/g, "at revision b2b2b2b"),
+    text: card.text.replace(
+      /at revision [0-9a-f]{7}/g,
+      `at revision ${shortRevision(revision)}`,
+    ),
   }));
 
 test("only the story B changed updates, when B answers for it", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops, {
+    backlog: backlogA,
+    files: {
+      ...recordsAt("A"),
+      [dashboardRecord]: recordsAt("B")[dashboardRecord] ?? "",
+    },
+  });
+  const { B: revisionB } = origin.revisions;
   const { board } = parts(page);
   const dashboardCard = board.getByRole("article", { name: dashboardStory });
   const detail = await inspectedDetail(dashboardCard);
@@ -109,16 +124,15 @@ test("only the story B changed updates, when B answers for it", async ({
   const before = await shownCards(page);
   const placeholders = await notePlaceholders(page);
   const releaseDashboard = origin.hold(dashboardRecord);
-  origin.push(revisionB, backlogA, {
-    ...recordsAt("A"),
-    [dashboardRecord]: recordsAt("B")[dashboardRecord] ?? "",
-  });
+  origin.advanceTo("B");
   await passTimeUntilChecked(page);
 
   await test.step("while B's record is held, the inspected purpose is still A's and no card changes", async () => {
     await untilBShownWhileHeld(page, origin, dashboardRecord);
     await expect(detail).toContainText(`${dashboardStory}, as published at A.`);
-    expect(pinnedAtB(await shownCards(page))).toEqual(pinnedAtB(before));
+    expect(pinnedAtB(await shownCards(page), revisionB)).toEqual(
+      pinnedAtB(before, revisionB),
+    );
   });
 
   await test.step("B's answer for the changed story updates its purpose in place; the others keep theirs", async () => {
@@ -145,8 +159,12 @@ test("only the story B changed updates, when B answers for it", async ({
 
 test("a new entry reads as on a first visit, a removed one leaves, and the rest keep their facts", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops, {
+    files: recordsAt("A"),
+  });
+  const { B: revisionB } = origin.revisions;
   const { board, taken, backlog } = parts(page);
   // The queue card's text but for its priority, which B changes.
   const queueText = async () =>
@@ -159,7 +177,7 @@ test("a new entry reads as on a first visit, a removed one leaves, and the rest 
   const releaseClaims = origin.hold(claimsRecord);
   const releaseDashboard = origin.hold(dashboardRecord);
   const releaseSync = origin.hold(syncRecord);
-  origin.push(revisionB, backlogB, recordsAt("A"));
+  origin.advanceTo("B");
   await passTimeUntilChecked(page);
 
   await test.step("B's membership shows at once: the new claims card reads, the workspace card leaves, and the others keep their facts", async () => {

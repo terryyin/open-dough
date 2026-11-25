@@ -1,16 +1,5 @@
-// Two tabs of one dashboard ask GitHub once for what they both need while it
-// is outstanding: opening one project together resolves its ref once and
-// reads each record once, and both show its facts; a tab that closes or
-// switches project before an answer arrives leaves the other's read to
-// finish; and revision checks from both tabs share one head listing, which
-// still answers the tab left showing when the other is hidden. The fake
-// GitHub holds answers until both tabs wait on them: each tab's request is
-// seen sent, then each tab sends a marker the boundary refuses without
-// asking GitHub, and the answer is released once the markers are answered.
-// The page, its local read boundary, and the `gh` invocation are the
-// production ones.
-
 import type { Page, Request } from "@playwright/test";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import {
   expect,
   githubFor,
@@ -22,28 +11,32 @@ import {
   expectMembership,
   expectSettledPage,
   parts,
+  shortRevision,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRecords,
   doughnutRepository,
   doughnutSharedTitle,
-  revisionDoughnut,
 } from "../../dashboard/test-support/doughnutProject.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
-import { isCheck } from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  isCheck,
+  passCheckPace,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
-import { describedRevision } from "../../dashboard/test-support/describedRevisions.ts";
-import { backlogPath } from "../../dashboard/test-support/publishedOrigin.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
+import {
+  backlogPath,
+  defaultRepository as repository,
+} from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
-import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
 import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 
-const repository = "terryyin/open-dough";
-const revision = "7a".repeat(20);
 const seedPath = ".planning/seeds/SEED-263-shared.md";
 const title = "A story both tabs show";
 const goal = "Both tabs show this goal, read from GitHub once.";
@@ -55,20 +48,20 @@ const story = makeMe.aBacklogEntry
     href: "seeds/SEED-263-shared.md#shared",
   })
   .please();
-const published = describedRevision(
-  makeMe.aRepository
-    .withRevision("published", {
-      backlog: { queued: [story] },
-      files: {
-        [seedPath]: `# Shared
+const history = makeMe.aRepository
+  .withRevision("A", {
+    backlog: { queued: [story] },
+    files: {
+      [seedPath]: `# Shared
 
 ${renderStorySection(story, { goal })}`,
-        ".planning/open-dough.json": "{}\n",
-      },
-    })
-    .please(),
-  revision,
-);
+      ".planning/open-dough.json": "{}\n",
+    },
+  })
+  .withRevision("B", {
+    files: { "product.txt": "Updated during a shared check\n" },
+  })
+  .please();
 
 const readOf =
   (picked: (params: URLSearchParams) => boolean) => (request: Request) => {
@@ -84,13 +77,8 @@ const isSeedRead = readOf(
   (params) => params.get("path") === seedPath && !params.has("committed"),
 );
 
-// Once each tab's request is seen sent, each tab asks the boundary for
-// something it refuses without GitHub; once both are answered, both requests
-// wait on GitHub's held answer.
-async function waitingTogether(
-  tabs: readonly Page[],
-  sent: readonly Promise<Request>[],
-): Promise<void> {
+// A rejected marker after each read confirms both tabs wait at the boundary.
+async function waitingTogether(tabs: Page[], sent: Promise<Request>[]) {
   await Promise.all(sent);
   for (const tab of tabs) {
     const status = await tab.evaluate(
@@ -101,7 +89,6 @@ async function waitingTogether(
   }
 }
 
-// What Open Dough's repository was asked, revision checks aside.
 const askedOfOpenDough = (page: Page) =>
   readsBesideChecks(
     githubFor(page).calls.filter(
@@ -110,34 +97,40 @@ const askedOfOpenDough = (page: Page) =>
     ),
   );
 
-const card = (page: Page, name: string) =>
-  parts(page).backlog.getByRole("article", { name });
-
 async function expectGoalShown(page: Page) {
   await expectSettledPage(page, titles);
-  await card(page, title)
-    .getByRole("button", { name: "Inspect story" })
-    .click();
-  await expect(card(page, title)).toContainText(goal);
+  const card = parts(page).backlog.getByRole("article", { name: title });
+  await card.getByRole("button", { name: "Inspect story" }).click();
+  await expect(card).toContainText(goal);
 }
 
-// Opens Open Dough in this page and a second tab of the same browser, with
-// its ref and then its seed held until both tabs wait on each; the seed is
-// left held.
-async function openedTogether(page: Page) {
+async function openedTogether(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+  holdListing = false,
+) {
   await pausePageClockAt(page, new Date("2026-10-06T09:00:00.000Z"));
-  const github = githubFor(page);
-  const isSeed = (request: GhRequest) =>
-    request.kind === "content" && request.path === seedPath;
-  const seed = holdingAnswer(publishes(published), isSeed);
-  const ref = holdingAnswer(seed.answer, ({ kind }) => kind === "ref");
-  github.serve(repository, ref.answer);
-  github.serve(
+  let releaseListing: () => void = () => undefined;
+  const origin = await publishMovingHistory(
+    page,
+    history,
+    "A",
+    afterGitHubStops,
+    repository,
+    (answer) => {
+      const listing = holdingAnswer(
+        answer,
+        ({ kind }) => holdListing && kind === "matching-refs",
+      );
+      releaseListing = listing.release;
+      return listing.answer;
+    },
+  );
+  const releaseRef = origin.hold("main");
+  const releaseSeed = origin.hold(seedPath);
+  githubFor(page).serve(
     doughnutRepository,
-    publishes({
-      revision: revisionDoughnut,
-      files: { [backlogPath]: doughnutBacklog, ...doughnutRecords },
-    }),
+    publishes({ backlog: doughnutBacklog, files: doughnutRecords }),
   );
   const other = await page.context().newPage();
   const tabs = [page, other];
@@ -145,11 +138,9 @@ async function openedTogether(page: Page) {
   const seedRead = tabs.map((tab) => tab.waitForRequest(isSeedRead));
   await Promise.all(tabs.map((tab) => tab.goto("/")));
   await waitingTogether(tabs, opened);
-  ref.release();
+  releaseRef();
   await waitingTogether(tabs, seedRead);
-  // While the seed is held, its read and every earlier one reached GitHub
-  // once.
-  const seedAsked = `content ${seedPath}@${revision}`;
+  const seedAsked = `content ${seedPath}@${origin.revisions.A}`;
   await expect
     .poll(() => askedOfOpenDough(page).includes(seedAsked))
     .toBe(true);
@@ -157,12 +148,12 @@ async function openedTogether(page: Page) {
   expect(whileHeld).toEqual([...new Set(whileHeld)]);
   expect(whileHeld.slice(0, 2)).toEqual([
     "ref main",
-    `content ${backlogPath}@${revision}`,
+    `content ${backlogPath}@${origin.revisions.A}`,
   ]);
-  return { other, releaseSeed: seed.release };
+  return { other, origin, releaseSeed, releaseListing };
 }
 
-const askedOnce = (page: Page) => {
+const askedOnce = (page: Page, revision: string) => {
   const asked = askedOfOpenDough(page);
   expect(asked).toEqual([...new Set(asked)]);
   expect(asked.filter((read) => read === "ref main")).toHaveLength(1);
@@ -171,78 +162,86 @@ const askedOnce = (page: Page) => {
 
 test("two tabs opening one project resolve its ref once and read each record once, and both show its facts", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const { other, releaseSeed } = await openedTogether(page);
+  const opened = await openedTogether(page, afterGitHubStops);
+  const { other, origin, releaseSeed } = opened;
   releaseSeed();
-  await expectSettledPage(page, titles);
-  await expectSettledPage(other, titles);
-  askedOnce(page);
   await expectGoalShown(page);
   await expectGoalShown(other);
+  askedOnce(page, origin.revisions.A);
 });
 
 test("a tab closed before the seed is answered leaves the other tab's read to finish", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const { other, releaseSeed } = await openedTogether(page);
+  const opened = await openedTogether(page, afterGitHubStops);
+  const { other, origin, releaseSeed } = opened;
   await other.close();
   releaseSeed();
-  await expectSettledPage(page, titles);
-  askedOnce(page);
   await expectGoalShown(page);
+  askedOnce(page, origin.revisions.A);
   await expect(parts(page).problem).toHaveCount(0);
 });
 
 test("a tab switched to another project before the seed is answered leaves the other tab's read to finish", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const { other, releaseSeed } = await openedTogether(page);
+  const opened = await openedTogether(page, afterGitHubStops);
+  const { other, origin, releaseSeed } = opened;
   await projectTab(other, "Doughnut").check();
   await expectMembership(other, { taken: [], backlog: [doughnutSharedTitle] });
   releaseSeed();
-  await expectSettledPage(page, titles);
-  askedOnce(page);
   await expectGoalShown(page);
+  askedOnce(page, origin.revisions.A);
   await expect(parts(page).problem).toHaveCount(0);
   await expectMembership(other, { taken: [], backlog: [doughnutSharedTitle] });
 });
 
 test("revision checks from two tabs share one head listing, which still answers the tab left showing when the other is hidden", async ({
   page,
+  dashboard,
+  afterGitHubStops,
 }) => {
-  const { other, releaseSeed } = await openedTogether(page);
+  const opened = await openedTogether(page, afterGitHubStops, true);
+  const { other, origin, releaseSeed, releaseListing } = opened;
+  const { A, B } = origin.revisions;
+  const routedTrunk = () =>
+    remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+      cwd: dashboard.home,
+      env: { HOME: dashboard.home },
+      maxBuffer: 4096,
+    });
+  expect(await routedTrunk()).toBe(A);
   releaseSeed();
   await expectSettledPage(page, titles);
   await expectSettledPage(other, titles);
   const github = githubFor(page);
-  const listing = holdingAnswer(
-    publishes(published),
-    ({ kind }) => kind === "matching-refs",
-  );
-  github.serve(repository, listing.answer);
   const before = github.calls.length;
   const tabs = [page, other];
-  let seen = 0;
   const checks = tabs.map((tab) =>
-    tab
-      .waitForRequest((request) => isCheck(request.url()))
-      .then((sent) => {
-        seen += 1;
-        return sent;
-      }),
+    tab.waitForRequest((request) => isCheck(request.url())),
   );
-  for (let passed = 0; seen < tabs.length && passed <= 60_000; passed += 250) {
-    await page.clock.runFor(250);
-  }
+  await passCheckPace(page);
   await waitingTogether(tabs, checks);
+  const checksAsked = () =>
+    github.calls.slice(before).map(({ request }) => request.kind);
+  await expect.poll(checksAsked).toEqual(["matching-refs"]);
+  origin.advanceTo("B");
+  expect(await routedTrunk()).toBe(B);
   const answered = page.waitForResponse((response) => isCheck(response.url()));
   await setPageVisibility(other, "hidden");
-  listing.release();
-  expect((await answered).status()).toBe(200);
-  // Answered from that one listing, not from asking the ref alone.
-  expect(github.calls.slice(before).map(({ request }) => request.kind)).toEqual(
-    ["matching-refs"],
-  );
+  releaseListing();
+  const response = await answered;
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toMatchObject({ changed: true, revision: B });
   await expectSettledPage(page, titles);
+  expect(
+    checksAsked().filter((kind) => kind === "matching-refs" || kind === "ref"),
+  ).toEqual(["matching-refs"]);
+  expect(askedOfOpenDough(page)).toContain(`content ${backlogPath}@${B}`);
+  await expect(parts(page).readRevision).toContainText(shortRevision(B));
   await expect(parts(page).problem).toHaveCount(0);
 });

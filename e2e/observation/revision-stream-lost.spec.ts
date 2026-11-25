@@ -23,7 +23,6 @@ import {
   checksAskedWhilePassing,
   pageTimeStepMs,
   passPageMs,
-  recordsAt,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   isRevisionStream,
@@ -34,9 +33,6 @@ import {
   untilStreamingAt,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
 import {
-  backlogB,
-  revisionA,
-  revisionB,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
@@ -56,7 +52,7 @@ test.use({
 
 ownerClockTest(
   "a rate-limited stream answer shows today's notice, closes the stream, waits until T, then reopens",
-  async ({ page, owner }) => {
+  async ({ page, afterGitHubStops, owner }) => {
     // Retry-After long enough that an observation-start arm would leave the
     // post-wait bound short of a full silence: such an arm reports lost
     // freshness 45 seconds of page time after the limited answer, before the
@@ -64,7 +60,8 @@ ownerClockTest(
     // E3.2 needs a full bound from reopen. The owner holds reads for this span
     // of its own time.
     const retryAfterSeconds = 6;
-    const origin = await openStreamingAtA(page);
+    const origin = await openStreamingAtA(page, afterGitHubStops);
+    const { A: revisionA, B: revisionB } = origin.revisions;
     const { problem, retrievedAt } = parts(page);
     const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
     const restoreMain = origin.answerWith(
@@ -132,7 +129,7 @@ ownerClockTest(
     });
 
     await stopFailing();
-    origin.push(revisionB, backlogB, recordsAt("B"));
+    origin.advanceTo("B");
     const resumed = untilStreamingAt(page, revisionB);
     await passPageMs(page, checkIntervalMs);
     await expectSettledPage(page, titlesOfB);

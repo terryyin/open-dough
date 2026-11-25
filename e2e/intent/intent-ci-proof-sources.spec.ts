@@ -23,8 +23,6 @@ import {
   mainRun,
   publishStoryCi,
   repository,
-  signup,
-  started,
   toggleOnDevelopment,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -38,11 +36,9 @@ import { intentSettingsText } from "../../dashboard/test-support/support/intentS
 
 test("a published CI summary for a sources location shows its group and file results at their paths", async ({
   page,
+  afterGitHubStops,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const ancestor = makeMe.aCiProofCollectorRun
-    .with({ repository, runId: 12, attempt: 2, revision: signup })
-    .please();
   const shellTest = "scripts/test/worktree_setup.sh.test";
   const nodeTest = "scripts/ci/ci-proof-outcomes.test.mjs";
   const settings = makeMe.intentSettings
@@ -56,11 +52,15 @@ test("a published CI summary for a sources location shows its group and file res
         .please(),
     )
     .please();
-  const ci = publishStoryCi(page, {
+  const ci = await publishStoryCi(page, afterGitHubStops, {
     ".planning/open-dough.json": intentSettingsText(settings),
     [shellTest]: "#!/usr/bin/env bash\n",
     [nodeTest]: "export {};\n",
   });
+  const { signup, started } = ci.revisions;
+  const ancestor = makeMe.aCiProofCollectorRun
+    .with({ repository, runId: 12, attempt: 2, revision: signup })
+    .please();
   ci.runs.main = [
     makeMe.aCiRun
       .with({

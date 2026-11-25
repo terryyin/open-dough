@@ -1,3 +1,7 @@
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
+import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
+import { pygardonRepository } from "../../dashboard/test-support/pygardonProject.ts";
 import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Cursor reopen from Recently done sessions: held attach keeps membership;
 // successful attach clears the Done row; narrow overlay returns focus.
@@ -22,13 +26,13 @@ import {
 import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
 
 test.use({
-  projectFolders: ["open-dough", "doughnut", "pygardon"],
   cursorScreen: "working",
 });
 
 test("a held Cursor attach from Recently done keeps Done membership", async ({
   page,
   dashboard,
+  afterGitHubStops,
   origin,
   cursor,
 }) => {
@@ -52,7 +56,21 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
   // only patches pages loaded after registration. A post-load route lets the
   // real attach win the race, clear Done, and flake this assertion.
   await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
-  await showThreeProjectPage(page, origin);
+  const pygardon = await showThreeProjectPage(page, origin, afterGitHubStops);
+  expect(
+    await remoteBranchHead(
+      gitHubRepositoryUrl(pygardonRepository),
+      "refs/heads/main",
+      {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      },
+    ),
+  ).toBe(pygardon.revisions.published);
+  expect(pathsRead(pygardon)).toContain(
+    `PRODUCT-BACKLOG.md?ref=${pygardon.revisions.published}`,
+  );
   const shown = await showRecentlyDone(page);
   await shown.open(title).click();
   await expect(terminalPanel(page)).toBeVisible();
@@ -62,6 +80,7 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
 test("a successful Cursor attach from Recently done removes the Done row", async ({
   page,
   dashboard,
+  afterGitHubStops,
   origin,
   cursor,
 }) => {
@@ -81,7 +100,7 @@ test("a successful Cursor attach from Recently done removes the Done row", async
       { ...held, doneAt: new Date(Date.now() - 60_000).toISOString() },
     ],
   });
-  await showThreeProjectPage(page, origin);
+  await showThreeProjectPage(page, origin, afterGitHubStops);
   const shown = await showRecentlyDone(page);
   await expect(shown.select(title)).toHaveCount(1);
   await shown.open(title).click();
@@ -96,6 +115,7 @@ test("a successful Cursor attach from Recently done removes the Done row", async
 test("on a narrow window, closing the panel after a successful reopen returns focus to Sessions", async ({
   page,
   dashboard,
+  afterGitHubStops,
   origin,
   cursor,
 }) => {
@@ -116,7 +136,7 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
       { ...held, doneAt: new Date(Date.now() - 60_000).toISOString() },
     ],
   });
-  await showThreeProjectPage(page, origin);
+  await showThreeProjectPage(page, origin, afterGitHubStops);
   const shown = await showRecentlyDone(page);
   const reopened = pageReadReopened(page, held);
   await shown.open(title).click();

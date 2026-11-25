@@ -5,6 +5,8 @@
 // (../../dashboard/test-support/publishedFiles.ts); the local read boundary and the page decide what is
 // shown.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import type { Page } from "@playwright/test";
 import {
   expect,
@@ -16,26 +18,20 @@ import {
   shortRevision,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  publishMovingFiles,
-  type PublishedRevision,
-} from "../../dashboard/test-support/publishedFiles.ts";
+import { publishCommittedFileHistory } from "../../dashboard/test-support/committedFiles.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
 import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
-  atA,
   addedTitle,
-  atB,
   backlogPath,
   expectSettledAt,
-  filesWithAddedStory,
   opened,
-  productCodeCommit,
+  productCodeChange,
+  refreshHistory,
+  refreshDetails,
   queuedTitle,
   recordsReadAt,
   repository,
-  revisionA,
-  revisionB,
   seedPath,
   takenTitle,
 } from "../../dashboard/test-support/unchangedRecordsRefresh.ts";
@@ -57,17 +53,36 @@ async function expectCardsBeforeDetailsAt(
   ).toHaveText([...reading]);
 }
 
+const routedTrunk = (home: string) =>
+  remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+    cwd: home,
+    env: { HOME: home },
+    maxBuffer: 4096,
+  });
+
 test("while the comparison is held, B's cards show under B keeping the details shown at A, and released, the details are A's as B's own", async ({
   page,
+  dashboard,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = publishMovingFiles(page, { repository, ...atA });
+  const origin = await publishCommittedFileHistory(page, refreshHistory(), {
+    repository,
+    trunk: "A",
+    details: refreshDetails,
+    afterGitHubStops,
+  });
+  const { A: revisionA, B: revisionB } = origin.revisions;
+  expect(await routedTrunk(dashboard.home)).toBe(revisionA);
   await page.goto("/");
   await expectSettledAt(page, revisionA);
 
   const before = origin.requests.length;
   const release = origin.holdComparisons();
-  origin.moveTrunk(atB, [productCodeCommit]);
+  origin.moveTrunk(origin.published.B, [
+    { ...productCodeChange, sha: revisionB },
+  ]);
+  expect(await routedTrunk(dashboard.home)).toBe(revisionB);
   await passTimeUntilChecked(page);
   await expectCardsBeforeDetailsAt(page, revisionB, {
     taken: [takenTitle],
@@ -81,34 +96,40 @@ test("while the comparison is held, B's cards show under B keeping the details s
     `content ${backlogPath}@${revisionB}`,
   ]);
   expect(asked.filter((call) => call.startsWith("commit "))).toEqual([
-    `commit ${productCodeCommit.sha}`,
+    `commit ${revisionB}`,
   ]);
 });
 
 test("while the comparison is held, B's changed backlog shows its new membership at once, and released, only what B changed is read", async ({
   page,
+  dashboard,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = publishMovingFiles(page, { repository, ...atA });
+  const origin = await publishCommittedFileHistory(page, refreshHistory(true), {
+    repository,
+    trunk: "A",
+    details: refreshDetails,
+    afterGitHubStops,
+  });
+  const { A: revisionA, B: revisionB } = origin.revisions;
+  expect(await routedTrunk(dashboard.home)).toBe(revisionA);
   await page.goto("/");
   await expectSettledAt(page, revisionA);
 
-  const atChanged: PublishedRevision = {
-    ...atA,
-    revision: revisionB,
-    files: filesWithAddedStory,
-  };
   const before = origin.requests.length;
   const release = origin.holdComparisons();
-  origin.moveTrunk(atChanged, [
+  origin.moveTrunk(origin.published.B, [
     {
-      ...productCodeCommit,
+      ...productCodeChange,
+      sha: revisionB,
       files: [
         { filename: backlogPath, status: "modified" },
         { filename: seedPath, status: "modified" },
       ],
     },
   ]);
+  expect(await routedTrunk(dashboard.home)).toBe(revisionB);
   await passTimeUntilChecked(page);
   await expectCardsBeforeDetailsAt(
     page,

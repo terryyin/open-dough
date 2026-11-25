@@ -85,6 +85,7 @@ export function publishMovingFiles(
   // The real origin `published.revision` is committed to, when it is: serving
   // these files then routes it for Git reads (./support/fakeGitHub.ts).
   committedTo?: PublishedOrigin,
+  wrapAnswer?: (answer: RepositoryAnswerer) => RepositoryAnswerer,
 ): MovingFiles {
   const requests: ObservedRequest[] = [];
   const { repository, ref = "main" } = published;
@@ -199,7 +200,10 @@ export function publishMovingFiles(
       body === undefined ? notFoundAnswer() : rawFileAnswer(body),
     );
   };
-  githubFor(page).serve(repository, Object.assign(answerer, committedTo));
+  githubFor(page).serve(
+    repository,
+    Object.assign(wrapAnswer?.(answerer) ?? answerer, committedTo),
+  );
   return {
     requests,
     moveTrunk(at, by) {

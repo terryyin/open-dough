@@ -53,11 +53,12 @@ import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonPr
 import { finalReportParts } from "../../dashboard/test-support/finalReportPages.ts";
 
 test.use({
-  projectFolders: ["open-dough", "doughnut", "pygardon"],
+  projectFolders: ["open-dough"],
   cursorScreen: "working",
 });
 
 test("choosing a Done session beyond Board's first ten from Pygardon reveals its Board entry", async ({
+  afterGitHubStops,
   page,
   dashboard,
   cursor,
@@ -76,7 +77,7 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   const held = keptRecord(dashboard.home);
   await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
-  await publishOnePygardonStory(page);
+  await publishOnePygardonStory(page, afterGitHubStops);
   await recordReveals(page);
   let releaseCatalog: () => void = () => undefined;
   const catalogHeld = new Promise<void>((resolve) => {

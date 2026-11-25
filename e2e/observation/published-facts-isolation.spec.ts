@@ -2,6 +2,8 @@
 // answers are held behind the built preview's actual local gh boundary; page
 // selections, revision checks, interpretation, and displayed facts are real.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   expect,
   githubFor,
@@ -24,12 +26,7 @@ import {
   opened,
   repository,
 } from "../../dashboard/test-support/sliceClockRecords.ts";
-import {
-  factsAt,
-  publishFactsOrigin,
-  revisionA,
-  revisionB,
-} from "../../dashboard/test-support/publishedFactsIsolation.ts";
+import { publishFactsOrigin } from "../../dashboard/test-support/publishedFactsIsolation.ts";
 import {
   expectCurrentFacts,
   expectCurrentRoster,
@@ -56,17 +53,25 @@ import {
 } from "../../dashboard/test-support/storyCardControls.ts";
 import { preparationFacts } from "../../dashboard/test-support/storyCardFacts.ts";
 
-const factsA = factsAt(revisionA, "A");
-const factsB = factsAt(revisionB, "B");
 const pendingB = ["preparation", "done"] as const;
 
 test("new membership and fast B assignments replace a complete A's, while B's held preparation keeps A's facts for the same story until B answers it", async ({
   page,
+  afterGitHubStops,
+  dashboard,
 }) => {
   const errors = watchPageErrors(page);
   await pausePageClockAt(page, opened);
-  const origin = publishFactsOrigin(page);
-  origin.push(factsA);
+  const origin = await publishFactsOrigin(page, afterGitHubStops);
+  const { A: factsA, B: factsB } = origin.facts;
+  const routedTrunk = () =>
+    remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+      cwd: dashboard.home,
+      env: { HOME: dashboard.home },
+      maxBuffer: 4096,
+    });
+  origin.push("A");
+  expect(await routedTrunk()).toBe(factsA.revision);
   await page.goto("/");
   await expectMembership(page, factsA.membership);
   const link = await focusCanonical(page, factsA);
@@ -80,7 +85,8 @@ test("new membership and fast B assignments replace a complete A's, while B's he
   );
   await expect(cardsA.taken).toContainText("Current slice started 5 min ago");
   const beforeB = githubFor(page).calls.length;
-  const current = origin.push(factsB, pendingB);
+  const current = origin.push("B", pendingB);
+  expect(await routedTrunk()).toBe(factsB.revision);
   await passTimeUntilChecked(page);
   await expectMembership(page, factsB.membership);
   await expectHeldGroups(page, factsB, pendingB);
@@ -103,15 +109,16 @@ test("new membership and fast B assignments replace a complete A's, while B's he
     await expectNoEarlierFacts(page, factsA);
     await expect(link).toBeFocused();
   });
-  await expectNextProjectCheck(page, repository, revisionB);
-  expectOnlyProjectAsked(page, beforeB, repository, revisionB);
+  await expectNextProjectCheck(page, repository, factsB.revision);
+  expectOnlyProjectAsked(page, beforeB, repository, factsB.revision);
   expect(errors).toEqual([]);
 });
 
 test("the settled alternate project finishes its independent reads before a return checkpoint starts", async ({
   page,
+  afterGitHubStops,
 }) => {
-  await openHeldPublication(page, factsA);
+  await openHeldPublication(page, afterGitHubStops);
   let profilesRead = false;
   let doneRead = false;
   page.on("response", (response) => {
@@ -146,9 +153,14 @@ test("the settled alternate project finishes its independent reads before a retu
 for (const outcome of ["success", "failure"] as const) {
   test(`switching projects abandons every unfinished fact group, including its late ${outcome}`, async ({
     page,
+    afterGitHubStops,
   }) => {
     const errors = watchPageErrors(page);
-    const { abandoned } = await openHeldPublication(page, factsA);
+    const { origin, abandoned } = await openHeldPublication(
+      page,
+      afterGitHubStops,
+    );
+    const { A: factsA } = origin.facts;
     const atSwitch = githubFor(page).calls.length;
     const shown = await selectSettledDoughnut(page);
     const saved = await publishedReadState(page);
@@ -170,11 +182,16 @@ for (const outcome of ["success", "failure"] as const) {
 
   test(`returning reads partial B afresh while the same project's abandoned A still owes a ${outcome}`, async ({
     page,
+    afterGitHubStops,
   }) => {
     const errors = watchPageErrors(page);
-    const { origin, abandoned } = await openHeldPublication(page, factsA);
+    const { origin, abandoned } = await openHeldPublication(
+      page,
+      afterGitHubStops,
+    );
+    const { A: factsA, B: factsB } = origin.facts;
     await selectSettledDoughnut(page);
-    const current = origin.push(factsB, pendingB);
+    const current = origin.push("B", pendingB);
     const atReturn = githubFor(page).calls.length;
     await projectTab(page, "Open Dough").check();
     await expectMembership(page, factsB.membership);
@@ -207,7 +224,7 @@ for (const outcome of ["success", "failure"] as const) {
       await expect(link).toBeFocused();
     });
     await expectNextProjectCheck(page, repository);
-    expectOnlyProjectAsked(page, atReturn, repository, revisionB);
+    expectOnlyProjectAsked(page, atReturn, repository, factsB.revision);
     await expectCurrentFacts(page, factsB);
     await expect(link).toBeFocused();
     expect(errors).toEqual([]);

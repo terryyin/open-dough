@@ -52,11 +52,12 @@ const instruction = "hold this done session";
 const entryName = standaloneSessionName("Ad hoc", instruction);
 
 test.use({
-  projectFolders: ["open-dough", "pygardon"],
+  projectFolders: ["open-dough"],
   cursorScreen: "working",
 });
 
 test("choosing a Running Cursor sessions row from Pygardon reveals its done entry 27 once entries 1 to 27 are read, and closing its terminal returns the keyboard there", async ({
+  afterGitHubStops,
   page,
   dashboard,
   cursor,
@@ -74,7 +75,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
   const held = keptRecord(dashboard.home);
   // The terminal never connects, so the session stays done.
   await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
-  await publishOnePygardonStory(page);
+  await publishOnePygardonStory(page, afterGitHubStops);
   await recordReveals(page);
   // The project's done catalog answers only once this machine's sessions
   // are read into the sidebar.

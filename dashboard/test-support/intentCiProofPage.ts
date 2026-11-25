@@ -53,17 +53,17 @@ export async function openFailedRun(
       .please(),
   ],
 ) {
-  const judgment = trunkCi(openDough.revision, runs);
+  const published = publishProject(page, openDough, {
+    ".planning/open-dough.json": intentSettingsText(openDoughSettings),
+    "dashboard/tests/browse.spec.ts": browseSpec,
+  });
+  const judgment = trunkCi(published.revision, runs);
   const ci: CiAnswerer = (call) => {
     const { request } = call;
     if (request.kind === "actions-run-artifacts") return artifacts();
     if (request.kind === "actions-artifact-zip") return zip();
     return judgment(call);
   };
-  const published = publishProject(page, openDough, {
-    ".planning/open-dough.json": intentSettingsText(openDoughSettings),
-    "dashboard/tests/browse.spec.ts": browseSpec,
-  });
   published.serveCi(ci);
   await openUntilRead(page);
   const { intent, intentChoice } = parts(page);

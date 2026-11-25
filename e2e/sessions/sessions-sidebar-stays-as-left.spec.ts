@@ -7,6 +7,8 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   expectTerminalText,
@@ -19,8 +21,12 @@ import {
   expectMembership,
   parts,
   rosterParts,
+  shortRevision,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
+import {
+  doughnutRepository,
+  doughnutSharedTitle,
+} from "../../dashboard/test-support/doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
@@ -36,8 +42,6 @@ import {
   sessionsSidebarParts,
 } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
-
-test.use({ projectFolders: ["open-dough", "doughnut"] });
 
 const queued = {
   taken: [],
@@ -56,16 +60,18 @@ test.describe("the Sessions sidebar as left", () => {
   test("starts closed, and once open stays open across a project switch, the roster and back, the terminal, and reloads", async ({
     page,
     dashboard,
+    afterGitHubStops,
   }) => {
     const errors = watchPageErrors(page);
     const { shortId } = await composeSession(dashboard, "open-dough", {
       identity: readyIdentity,
       title: readyStory,
     });
-    const { settled, card, show } = await openStoryColumnsJourney(
-      page,
-      columnsJourney,
-    );
+    const { doughnutRevision, settled, card, show } =
+      await openStoryColumnsJourney(page, columnsJourney, {
+        home: dashboard.home,
+        afterGitHubStops,
+      });
     const { button } = sessionsSidebarParts(page);
     const { taken } = parts(page);
     const panel = terminalPanel(page);
@@ -83,6 +89,20 @@ test.describe("the Sessions sidebar as left", () => {
         backlog: [doughnutSharedTitle],
       });
       await expectOpen();
+      await expect(parts(page).readRevision).toContainText(
+        shortRevision(doughnutRevision),
+      );
+      expect(
+        await remoteBranchHead(
+          gitHubRepositoryUrl(doughnutRepository),
+          "refs/heads/main",
+          {
+            cwd: dashboard.home,
+            env: { HOME: dashboard.home },
+            maxBuffer: 4096,
+          },
+        ),
+      ).toBe(doughnutRevision);
       await chooseProject(page, "Open Dough");
       await expectMembership(page, queued);
       await expectOpen();
@@ -131,8 +151,13 @@ test.describe("the Sessions sidebar as left", () => {
 
   test("a former Sessions sidebar preference is recovered once, then the new key owns subsequent choices", async ({
     page,
+    dashboard,
+    afterGitHubStops,
   }) => {
-    await openStoryColumnsJourney(page, columnsJourney);
+    await openStoryColumnsJourney(page, columnsJourney, {
+      home: dashboard.home,
+      afterGitHubStops,
+    });
     const { button } = sessionsSidebarParts(page);
     await page.evaluate(() => {
       localStorage.removeItem("open-dough.sessionsSidebar.open");
@@ -163,6 +188,8 @@ test.describe("the Sessions sidebar as left", () => {
 
   test("starts closed without error, and still toggles, when browser storage cannot be used", async ({
     page,
+    dashboard,
+    afterGitHubStops,
   }) => {
     const errors = watchPageErrors(page);
     await page.addInitScript(() => {
@@ -174,7 +201,10 @@ test.describe("the Sessions sidebar as left", () => {
         get: refused,
       });
     });
-    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
+    const { settled } = await openStoryColumnsJourney(page, columnsJourney, {
+      home: dashboard.home,
+      afterGitHubStops,
+    });
     const { button } = sessionsSidebarParts(page);
     await expectMembership(page, queued);
     await settled();

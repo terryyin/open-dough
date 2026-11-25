@@ -21,25 +21,21 @@ import {
   openSettledAtA,
   passTimeUntilChecked,
   queueStory,
-  recordsAt,
   setPageVisibility,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import {
-  backlogA,
-  revisionB,
-} from "../../dashboard/test-support/refreshJourney.ts";
+import { backlogA } from "../../dashboard/test-support/refreshJourney.ts";
 import { givePageItsTurns } from "../../dashboard/test-support/pageRequestNotes.ts";
-import {
-  noConnection,
-  type MovingOrigin,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { noConnection } from "../../dashboard/test-support/publishedOrigin.ts";
+
+import type { MovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 
 const syncRecord = ".planning/seeds/SEED-008-sync.md";
 const gap = "The canonical record could not be read for preparation facts.";
 const unpinned = (text: string) => text.replace(/at revision [0-9a-f]{7}/g, "");
 
 // B's membership is shown, and the held record has been asked for at B.
-async function untilBShownWhileHeld(page: Page, origin: MovingOrigin) {
+async function untilBShownWhileHeld(page: Page, origin: MovingHistory<"B">) {
+  const { B: revisionB } = origin.revisions;
   await expect(parts(page).readRevision).toContainText(
     shortRevision(revisionB),
   );
@@ -51,8 +47,12 @@ async function untilBShownWhileHeld(page: Page, origin: MovingOrigin) {
 
 test("a story's shown facts give way to the gap when the read of its record at B is given up", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops, {
+    backlog: backlogA,
+  });
+  const { B: revisionB } = origin.revisions;
   const { board, problem } = parts(page);
   const queueCard = board.getByRole("article", { name: queueStory });
   const detail = await inspectedDetail(queueCard);
@@ -60,7 +60,7 @@ test("a story's shown facts give way to the gap when the read of its record at B
   await expect(detail).toContainText(atA);
   const shownAtA = await queueCard.innerText();
   origin.hold(syncRecord);
-  origin.push(revisionB, backlogA, recordsAt("B"));
+  origin.advanceTo("B");
   await passTimeUntilChecked(page);
 
   await test.step("while B's read of the record is under way, the story shows what it showed at A", async () => {
@@ -89,14 +89,18 @@ test("a story's shown facts give way to the gap when the read of its record at B
 
 test("a story's shown facts give way to what the read itself read when a hidden page lets go of its recovery read of B", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops, {
+    backlog: backlogA,
+  });
+  const { B: revisionB } = origin.revisions;
   const { board, problem, readRevision } = parts(page);
   const queueCard = board.getByRole("article", { name: queueStory });
   const detail = await inspectedDetail(queueCard);
   const atA = `${queueStory}, as published at A.`;
   const restoreBacklogAtB = origin.answerWith(revisionB, noConnection);
-  origin.push(revisionB, backlogA, recordsAt("B"));
+  origin.advanceTo("B");
   await passTimeUntilChecked(page);
   await expect(problem).toContainText("this page reads it");
   restoreBacklogAtB();

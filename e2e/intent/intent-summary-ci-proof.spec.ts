@@ -140,7 +140,7 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
       // A measured zero stays zero.
       ["b.spec.ts", "1 passed test case", "0 ms"],
     ]);
-    await expectAncestorEvidence(summary);
+    await expectAncestorEvidence(summary, project.revision);
     await expect(intentFolderName(intent, "folder")).toHaveAttribute(
       "aria-pressed",
       "true",

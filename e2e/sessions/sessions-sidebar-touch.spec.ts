@@ -32,7 +32,6 @@ import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColum
 import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
 import { sidePanelNamesOf } from "../../dashboard/test-support/sidePanelFrame.ts";
 
-test.use({ projectFolders: ["open-dough", "doughnut"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   journey = await publishStoryColumnsJourney();
@@ -53,6 +52,7 @@ test.describe(`${name} session discovery`, () => {
   test("reads full session context without hover, then chooses the exact session and project through rotation", async ({
     page,
     dashboard,
+    afterGitHubStops,
   }) => {
     const startedAt = Date.now();
     await composeSession(dashboard, "open-dough", {
@@ -66,7 +66,10 @@ test.describe(`${name} session discovery`, () => {
       model: "opus",
     });
     dashboard.claudeSessionBecomes(sessionId, "blocked", inputNote);
-    const opened = await openStoryColumnsJourney(page, journey);
+    const opened = await openStoryColumnsJourney(page, journey, {
+      home: dashboard.home,
+      afterGitHubStops,
+    });
     await opened.settled();
     const { sidebar, button, badge, entries, entry, row } =
       sessionsSidebarParts(page);

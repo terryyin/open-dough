@@ -7,16 +7,11 @@
 import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import type { PublishedRevision } from "./publishedFiles.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
-import { describedRevisions } from "./describedRevisions.ts";
 import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 
 export const repository = "terryyin/open-dough";
-export const revisionA = "6a".repeat(20);
-export const revisionB = "6b".repeat(20);
 export const branch = "story/reopen";
-export const branchHead = "6c".repeat(20);
 export const opened = new Date("2026-10-06T09:00:00.000Z");
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
@@ -100,44 +95,36 @@ const atTrunk = {
   ],
 } satisfies RevisionFacts;
 
-// B renames the queued story and publishes its record.
-const published = describedRevisions(
-  makeMe.aRepository
-    .withRevision("A", atTrunk)
-    .withRevision("B", {
-      backlog: backlogNaming(queuedAgainTitle),
-      files: { [missingSeedPath]: missingSeed },
-    })
-    .please(),
-  { A: revisionA, B: revisionB },
-);
+// The story branch forks from A, and B renames the queued story and
+// publishes its record on trunk.
+export const reopenedHistory = makeMe.aRepository
+  .withRevision("A", atTrunk)
+  .withRevision("head", {
+    parents: ["A"],
+    tags: ["reopened-story-head"],
+    files: { [planPath]: planDone(6) },
+  })
+  .withRevision("B", {
+    parents: ["A"],
+    backlog: backlogNaming(queuedAgainTitle),
+    files: { [missingSeedPath]: missingSeed },
+  })
+  .please();
 
-export const atA: PublishedRevision = {
-  ...published.A,
+const trunkDetails = {
   committed: { [planPath]: minutesBefore(3 * 24 * 60) },
   history: { [profilePath]: [addedAt(0x61, minutesBefore(60))] },
 };
+export const reopenedDetails = () => ({
+  A: trunkDetails,
+  B: trunkDetails,
+  head: { committed: { [planPath]: minutesBefore(7) } },
+});
 
-export const atB: PublishedRevision = { ...atA, ...published.B };
-
-// The commit B was made by.
-export const madeB: MadeCommit = {
-  sha: "6d".repeat(20),
+export const reopenedChange: Omit<MadeCommit, "sha"> = {
   committer: "Fixture Committer",
   files: [
     { filename: backlogPath, status: "modified" },
     { filename: missingSeedPath, status: "added" },
   ],
-};
-
-// The story branch, from A, records six of the plan's slices done.
-export const onBranch: PublishedRevision = {
-  ...describedRevisions(
-    makeMe.aRepository
-      .withRevision("A", atTrunk)
-      .withRevision("head", { files: { [planPath]: planDone(6) } })
-      .please(),
-    { A: revisionA, head: branchHead },
-  ).head,
-  committed: { [planPath]: minutesBefore(7) },
 };

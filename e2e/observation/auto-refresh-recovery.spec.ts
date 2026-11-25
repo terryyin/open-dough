@@ -11,6 +11,8 @@
 // (../../dashboard/test-support/support/fakeGitHub.ts) only publishes commits and fails answers. The
 // page's clock is paused and advanced by the test.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   expect,
   githubFor,
@@ -30,7 +32,6 @@ import {
   expectSteadyPace,
   openSettledAtA,
   passTimeUntilChecked,
-  recordsAt,
   headsChecks,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -50,10 +51,8 @@ import {
 import {
   backlogB,
   dashboardStory,
+  recordsAt,
   inspectDashboardStory,
-  revisionA,
-  revisionB,
-  revisionC,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
@@ -65,8 +64,10 @@ const unexplainedFailure: OriginAnswer = {
 
 test("auto refresh recovery: a failed check keeps A at the steady pace; an eligible backlog failure of B recovers on its own without a check", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { A: revisionA, B: revisionB } = origin.revisions;
   const { board, problem, retrievedAt } = parts(page);
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   await inspectDashboardStory(page);
@@ -92,7 +93,7 @@ test("auto refresh recovery: a failed check keeps A at the steady pace; an eligi
   });
 
   restoreMain();
-  origin.push(revisionB, backlogB, recordsAt("B"));
+  origin.advanceTo("B");
   const restoreBacklogAtB = origin.answerWith(revisionB, noConnection);
   const beforeB = githubFor(page).calls.length;
 
@@ -137,18 +138,33 @@ test("auto refresh recovery: a failed check keeps A at the steady pace; an eligi
 });
 test("auto refresh recovery: a newly published backlog listing the same work twice keeps A whole, without taking focus or changing its controls, until a check finds the repaired B", async ({
   page,
+  afterGitHubStops,
+  dashboard,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops, {
+    backlog: backlogB.replace(/^(- .*)$/m, "$1\n$1"),
+    files: recordsAt("C"),
+    atC: { backlog: backlogB, files: recordsAt("B") },
+  });
+  const {
+    A: revisionA,
+    B: malformedRevision,
+    C: repairedRevision,
+  } = origin.revisions;
+  const routedTrunk = () =>
+    remoteBranchHead(
+      gitHubRepositoryUrl("terryyin/open-dough"),
+      "refs/heads/main",
+      { cwd: dashboard.home, env: { HOME: dashboard.home }, maxBuffer: 4096 },
+    );
+  expect(await routedTrunk()).toBe(revisionA);
   const { board, problem, retrievedAt } = parts(page);
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   const canonicalOfDashboardStory = await focusCanonicalRecord(
     storyCard(board, dashboardStory),
   );
-  origin.push(
-    revisionC,
-    backlogB.replace(/^(- .*)$/m, "$1\n$1"),
-    recordsAt("C"),
-  );
+  origin.advanceTo("B");
+  expect(await routedTrunk()).toBe(malformedRevision);
 
   await test.step("the failed read of C is told apart from snapshot A, without taking focus", async () => {
     await passTimeUntilChecked(page);
@@ -170,7 +186,7 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
     await expectWholeSnapshot(
       page,
       { revision: revisionA, titles: titlesOfA },
-      [revisionB, revisionC],
+      [repairedRevision, malformedRevision],
     );
     await expectEarlierSnapshotKept(page, retrievedA);
     // The Board has three Columns; the inspected story's detail is a region of its card.
@@ -185,19 +201,20 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
   });
 
   await test.step("the next check finds the repaired B, publishes it whole, and withdraws the failure", async () => {
-    origin.push(revisionB, backlogB, recordsAt("B"));
+    origin.advanceTo("C");
+    expect(await routedTrunk()).toBe(repairedRevision);
     await passTimeUntilChecked(page);
     await expectSettledPage(page, titlesOfB);
     await expectWholeSnapshot(
       page,
-      { revision: revisionB, titles: titlesOfB },
-      [revisionA, revisionC],
+      { revision: repairedRevision, titles: titlesOfB },
+      [revisionA, malformedRevision],
     );
     await expect(
       slicePlanLink(storyCard(board, dashboardStory)),
     ).toHaveAttribute(
       "href",
-      `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/slice-plans/061-published-story-dashboard/PLAN.md`,
+      `https://github.com/terryyin/open-dough/blob/${repairedRevision}/.planning/slice-plans/061-published-story-dashboard/PLAN.md`,
     );
     await expect(problem).toHaveCount(0);
     await expectSnapshotButtons(page, {

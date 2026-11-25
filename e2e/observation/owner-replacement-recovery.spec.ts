@@ -9,6 +9,9 @@
 // ../../Distribution/tests/skills/dough-execute-plan/github-request-owner-replacement.test.mjs;
 // the page's recovery from an eligible failure: ./auto-refresh-recovery.spec.ts.
 
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   expect,
   githubFor,
@@ -27,26 +30,16 @@ import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   pausePageClock,
-  recordsAt,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { isCheck } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { backlogPath } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
-  backlogPath,
-  publishMovingOrigin,
-} from "../../dashboard/test-support/publishedOrigin.ts";
-import {
-  backlogA,
-  backlogB,
   inspectDashboardStory,
-  revisionA,
-  revisionB,
+  refreshHistory,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
-import type {
-  FakeGitHub,
-  GhCall,
-} from "../../dashboard/test-support/support/fakeGitHub.ts";
+import type { GhCall } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
 import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
 import {
@@ -68,23 +61,33 @@ const heldRevisions = Array.from(Array(turns).keys(), (index) =>
 const isHeldRead = (request: GhRequest) =>
   "revision" in request && heldRevisions.includes(request.revision);
 const isHeld = ({ request }: GhCall) => isHeldRead(request);
-const backlogAtB = `${backlogPath}?ref=${revisionB}`;
 
 test("a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask", async ({
   page,
   dashboard,
+  afterGitHubStops,
   requestOwner,
   sent,
 }) => {
   const github = githubFor(page);
   await pausePageClock(page);
-  const origin = await publishMovingOrigin({
-    ...github,
-    serve: (repository, answerer) => {
-      github.serve(repository, holdingAnswer(answerer, isHeldRead).answer);
-    },
-  } satisfies FakeGitHub);
-  origin.push(revisionA, backlogA, recordsAt("A"));
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory(),
+    "A",
+    afterGitHubStops,
+    undefined,
+    (answerer) => holdingAnswer(answerer, isHeldRead).answer,
+  );
+  const { A: revisionA, B: revisionB } = origin.revisions;
+  const backlogAtB = `${backlogPath}?ref=${revisionB}`;
+  const routedTrunk = () =>
+    remoteBranchHead(
+      gitHubRepositoryUrl("terryyin/open-dough"),
+      "refs/heads/main",
+      { cwd: dashboard.home, env: { HOME: dashboard.home }, maxBuffer: 4096 },
+    );
+  expect(await routedTrunk()).toBe(revisionA);
   await page.goto("/");
   await expectSettledPage(page, titlesOfA);
   const { board, problem, retrievedAt } = parts(page);
@@ -99,7 +102,8 @@ test("a read queued behind a killed request owner fails as local, keeps A labell
   page.on("framenavigated", (frame) => {
     if (frame === page.mainFrame()) navigations.push(frame.url());
   });
-  origin.push(revisionB, backlogB, recordsAt("B"));
+  origin.advanceTo("B");
+  expect(await routedTrunk()).toBe(revisionB);
   const before = github.calls.length;
   const heldSince = () => callsSince(page, before).filter(isHeld).length;
   const holding: ReturnType<typeof readAt>[] = [];

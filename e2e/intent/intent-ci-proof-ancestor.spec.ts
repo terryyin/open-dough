@@ -1,3 +1,4 @@
+import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   ciProofReading,
   artifactId,
@@ -41,12 +42,9 @@ import {
 
 import { running } from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
-  login,
   mainRun,
   publishStoryCi,
   repository,
-  signup,
-  started,
   toggleOnDevelopment,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -62,12 +60,10 @@ const checksRow: ProofRow = ["tests", "5 passed test files", "No timings"];
 
 test("a running story branch shows its completed ancestor's run's proof, and showing the tab again for that run attempt downloads nothing again", async ({
   page,
+  afterGitHubStops,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const ancestor = makeMe.aCiProofCollectorRun
-    .with({ repository, runId: 12, attempt: 2, revision: signup })
-    .please();
-  const ci = publishStoryCi(page, {
+  const ci = await publishStoryCi(page, afterGitHubStops, {
     ".planning/open-dough.json": intentSettingsText(
       makeMe.intentSettings
         .withLocations(
@@ -80,6 +76,10 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     ),
     "tests/a.sh": "#!/usr/bin/env bash\n",
   });
+  const { login, signup, started } = ci.revisions;
+  const ancestor = makeMe.aCiProofCollectorRun
+    .with({ repository, runId: 12, attempt: 2, revision: signup })
+    .please();
   ci.runs.main = [
     makeMe.aCiRun
       .with({
@@ -124,17 +124,20 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
   // The trunk's homepage shows its own run 11 and reads that run's proof;
   // its read settles before the story's proof calls are counted.
   const trunkProof = proofOf(await chooseCiStatus(parts(page).intent));
-  await expectAttemptAt(trunkProof, "Run 11 · attempt 1", "4774f60");
+  await expectAttemptAt(trunkProof, "Run 11 · attempt 1", shortSha(login));
   await expect(ciProofReading(trunkProof).unavailable).toBeVisible();
   const before = proofCalls(calls).length;
   const panel = await toggleOnDevelopment(page, running.title);
   const proof = proofOf(panel);
 
   await test.step("Proof names the ancestor's revision and run, not the running commit", async () => {
-    await expectCiAnswer(panel, "Running at 70a0001 (Start the story)");
+    await expectCiAnswer(
+      panel,
+      `Running at ${shortSha(started)} (Start the story)`,
+    );
     await expectLeadingEvidenceLabels(evidenceLabels(proof), [
       "Run 12 · attempt 2",
-      "Revision d4e5f6a",
+      `Revision ${shortSha(signup)}`,
       "Completed ancestor",
     ]);
     await expectLabelInFull(
@@ -150,12 +153,12 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
           - link "Run 12 · attempt 2"
         - listitem:
           - text: Revision
-          - code: d4e5f6a
+          - code: ${shortSha(signup)}
         - listitem: Completed ancestor , The completed ancestor of the running result
         - listitem: CI wall time not recorded , This attempt's CI read has no start and completion times.
     `);
     await expectProofRows(proof, [checksRow]);
-    await expect(proof).not.toContainText("70a0001");
+    await expect(proof).not.toContainText(shortSha(started));
     expect(proofCalls(calls).slice(before)).toEqual([
       "artifacts of run 12: ci-proof-summary-attempt-2",
       `zip ${String(artifactId)}`,
@@ -169,7 +172,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     const summary = summaryRegion(intent);
     await expectLeadingEvidenceLabels(evidenceLabels(summary), [
       "Run 12 · attempt 2",
-      "Revision d4e5f6a",
+      `Revision ${shortSha(signup)}`,
       `Branch ${running.branch}`,
       "Completed ancestor",
     ]);
@@ -196,7 +199,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     // Kept answer shows the proof at once; wait for the fresh judgment so
     // the re-read's actions-runs are counted before asserting.
     await expectProofRows(proof, [checksRow]);
-    await expectAttemptAt(proof, "Run 12 · attempt 2", "d4e5f6a");
+    await expectAttemptAt(proof, "Run 12 · attempt 2", shortSha(signup));
     await expect(ciStatusReading(panel).checking).toHaveCount(0);
     await expect(ciStatusReading(panel).freshness).toContainText("Checked at");
     expect(

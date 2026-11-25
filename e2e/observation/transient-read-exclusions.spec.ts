@@ -2,6 +2,8 @@
 // automatic recovery loop. Switching project cancels an unresolved empty-page
 // wait. Eligible recovery timing lives in ./transient-read-recovery.spec.ts.
 
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
+import { backlogPath } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import {
   expect,
   githubFor,
@@ -17,7 +19,6 @@ import {
   doughnutBacklog,
   doughnutRepository,
   doughnutSharedTitle,
-  revisionDoughnut,
 } from "../../dashboard/test-support/doughnutProject.ts";
 import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -30,7 +31,7 @@ import {
 } from "../../dashboard/test-support/publishedOrigin.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
-  backlogA,
+  refreshHistory,
   revisionA,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
@@ -122,12 +123,26 @@ test("a malformed backlog stays a reload problem and is not asked again", async 
 
 test("switching project cancels the unresolved recovery wait", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  doughnut.push(revisionDoughnut, doughnutBacklog);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA);
+  await publishMovingHistory(
+    page,
+    makeMe.aRepository
+      .withRevision("published", {
+        files: { [backlogPath]: doughnutBacklog },
+      })
+      .please(),
+    "published",
+    afterGitHubStops,
+    doughnutRepository,
+  );
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory({ filesAtA: {} }),
+    "A",
+    afterGitHubStops,
+  );
   origin.answerWith("main", httpErrorAnswer(503));
   await page.goto("/");
   await expectProblemAndNoSnapshot(

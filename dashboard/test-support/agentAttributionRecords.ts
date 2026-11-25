@@ -15,11 +15,10 @@
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
-  openDough,
   openDoughFacts,
   takenIdentity,
+  queuedIdentity,
 } from "./agentRosterRecords.ts";
-import { describedRevisions } from "./describedRevisions.ts";
 import {
   avatarPng,
   avatarServerError,
@@ -63,33 +62,51 @@ const retired = (name: string) =>
 
 // The roster's records with the retired profiles beside them at the first
 // revision; at the second, Akiho allocated again, in Codex.
-const published = describedRevisions(
-  makeMe.aRepository
-    .withRevision("first", {
-      ...openDoughFacts,
-      agentProfiles: [
-        ...openDoughFacts.agentProfiles,
-        retired("Sola"),
-        retired("Rina"),
-        retired("Nana"),
-      ],
-    })
-    .withRevision("second", {
-      agentProfiles: [
-        makeMe.anAgentProfile
-          .executing({
-            name: "Akiho",
-            identity: takenIdentity,
-            mode: "trunk",
-            branch: "origin/main",
-            host: "codex",
-          })
-          .please(),
-      ],
-    })
-    .please(),
-  { first: "c1".repeat(20), second: "c2".repeat(20) },
-);
+export const attributionHistory = makeMe.aRepository
+  .withRevision("first", {
+    ...openDoughFacts,
+    agentProfiles: [
+      ...openDoughFacts.agentProfiles,
+      retired("Sola"),
+      retired("Rina"),
+      retired("Nana"),
+    ],
+  })
+  .withRevision("releasedAkiho", {
+    remove: [`${agents}/akiho-chan.json`],
+    committer: { name: credited, email: "credit@example.test" },
+  })
+  .withRevision("reallocatedAkiho", {
+    committer: { name: reallocator, email: "nova@example.test" },
+    agentProfiles: [
+      makeMe.anAgentProfile
+        .executing({
+          name: "Akiho",
+          identity: takenIdentity,
+          mode: "trunk",
+          branch: "origin/main",
+          host: "codex",
+        })
+        .please(),
+    ],
+  })
+  .withRevision("releasedKirara", {
+    remove: [`${agents}/kirara-chan.json`],
+    committer: { name: preparer, email: "pat@example.test" },
+  })
+  .withRevision("second", {
+    committer: { name: credited, email: "credit@example.test" },
+    agentProfiles: [
+      makeMe.anAgentProfile
+        .preparing({
+          name: "Kirara",
+          identity: queuedIdentity,
+          host: "cursor",
+        })
+        .please(),
+    ],
+  })
+  .please();
 
 // Akiho's allocation for the Taken work, after an older allocation of the
 // same name was added by someone else and released.
@@ -133,35 +150,41 @@ const history: PathHistories = {
   [`${agents}/nana-chan.json`]: null,
 };
 
-export const firstRevision = {
-  ...openDough,
-  ...published.first,
-  history,
-};
-
-export const secondRevision = {
-  ...firstRevision,
-  ...published.second,
-  history: {
-    ...history,
-    [`${agents}/akiho-chan.json`]: [
-      pathChange(0x45, "added", reallocator, {
-        login: "nova",
-        avatarUrl: onAvatarHost(reallocatorAvatar),
-      }),
-      pathChange(0x46, "removed", credited),
-      ...akihoHistory,
-    ],
-    [`${agents}/kirara-chan.json`]: [
-      pathChange(0x52, "added", credited, {
-        login: "terryyin",
-        avatarUrl: onAvatarHost(creditedAvatar),
-      }),
-      pathChange(0x53, "removed", preparer),
-      pathChange(0x51, "added", preparer),
-    ],
-  },
-};
+export const attributionDetails = (
+  shas: Readonly<
+    Record<(typeof attributionHistory.revisions)[number]["name"], string>
+  >,
+) =>
+  ({
+    first: { history },
+    second: {
+      history: {
+        ...history,
+        [`${agents}/akiho-chan.json`]: [
+          {
+            sha: shas.reallocatedAkiho,
+            status: "added",
+            committer: reallocator,
+            login: "nova",
+            avatarUrl: onAvatarHost(reallocatorAvatar),
+          },
+          { sha: shas.releasedAkiho, status: "removed", committer: credited },
+          ...akihoHistory,
+        ],
+        [`${agents}/kirara-chan.json`]: [
+          {
+            sha: shas.second,
+            status: "added",
+            committer: credited,
+            login: "terryyin",
+            avatarUrl: onAvatarHost(creditedAvatar),
+          },
+          { sha: shas.releasedKirara, status: "removed", committer: preparer },
+          pathChange(0x51, "added", preparer),
+        ],
+      },
+    },
+  }) satisfies Record<"first" | "second", { history: PathHistories }>;
 
 // What GitHub's avatar host answers; the off-host avatar would be found if
 // it were ever asked for, so only its refusal keeps it off the page.

@@ -21,7 +21,6 @@ async function serveAlerts(
     mode,
     ...(mode === "preview" ? { prebuilt: sharedDashboardBuild } : {}),
     github,
-    projectFolders: ["open-dough", "doughnut"],
     alertCheckMs: 100,
   });
   await use(server);

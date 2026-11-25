@@ -16,11 +16,10 @@ import {
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { composeSession } from "./agentTerminalBoundary.ts";
-import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { publishMovingHistory } from "./publishedMovingOrigin.ts";
 import {
-  pygardonBacklog,
+  pygardonHistory,
   pygardonRepository,
-  pygardonRevision,
   pygardonStory,
 } from "./pygardonProject.ts";
 import { keyboardWithin } from "./pageShortcutsPage.ts";
@@ -136,6 +135,7 @@ export async function openNavigationJourney(
   page: Page,
   dashboard: DashboardServer,
   columnsJourney: StoryColumnsJourney,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
 ) {
   const sessions: NavigationSessions = {
     doughnut: (
@@ -160,16 +160,25 @@ export async function openNavigationJourney(
     ).sessionId,
   };
   dashboard.claudeSessionBecomes(sessions.doughnut, "forgotten");
-  const pygardon = await publishMovingOrigin(page, pygardonRepository);
-  pygardon.push(pygardonRevision, pygardonBacklog);
+  const pygardon = await publishMovingHistory(
+    page,
+    pygardonHistory,
+    "published",
+    afterGitHubStops,
+    pygardonRepository,
+  );
   await recordReveals(page);
-  const journey = await openStoryColumnsJourney(page, columnsJourney);
+  const journey = await openStoryColumnsJourney(page, columnsJourney, {
+    home: dashboard.home,
+    afterGitHubStops,
+  });
   await journey.settled();
   return {
     ...journey,
     sessions,
+    pygardon,
     // Holds Pygardon's stories back until the returned release is called.
-    holdPygardonStories: () => pygardon.hold(pygardonRevision),
+    holdPygardonStories: () => pygardon.hold(pygardon.revisions.published),
   };
 }
 

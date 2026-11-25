@@ -9,7 +9,6 @@ import { expectSettledPage } from "../../dashboard/test-support/dashboardPage.ts
 import {
   matchingRefsSince,
   openStreamingAtA,
-  revisionA,
   setPageVisibility,
   streamPaceMs,
   streamServerEnv,
@@ -22,10 +21,10 @@ test.use({ preholdRevisionStreamSlots: false, extraEnv: streamServerEnv });
 
 test("hiding closes the stream; with no other stream listings stop; revealing answers at once", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const streaming = untilStreamingAt(page, revisionA);
-  const origin = await openStreamingAtA(page);
-  const stream = await streaming;
+  const origin = await openStreamingAtA(page, afterGitHubStops);
+  const { stream } = origin;
   const release = origin.hold("main");
   try {
     const beforeHide = githubFor(page).calls.length;
@@ -43,7 +42,7 @@ test("hiding closes the stream; with no other stream listings stop; revealing an
     await page.waitForTimeout(streamPaceMs * 4);
     expect(matchingRefsSince(page, afterHide)).toBe(0);
     const beforeReveal = githubFor(page).calls.length;
-    const revealed = untilStreamingAt(page, revisionA);
+    const revealed = untilStreamingAt(page, origin.revisions.A);
     await setPageVisibility(page, "visible");
     await revealed;
     await untilMatchingRefsSince(page, beforeReveal, 1);

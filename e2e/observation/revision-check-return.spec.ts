@@ -38,13 +38,14 @@ import { ConnectionMark } from "./connectionMark.ts";
 
 test("fallback focus waits for an already outstanding response without adding a request", async ({
   page,
+  afterGitHubStops,
 }) => {
   const requests: string[] = [];
   page.on("request", (request) => {
     if (isCheck(request.url()) || isRevisionStream(request.url()))
       requests.push(request.url());
   });
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("awaiting");
   await passTimeUntilChecked(page);
@@ -80,8 +81,9 @@ test("fallback focus waits for an already outstanding response without adding a 
 
 test("fallback reveal keeps one prompt check and waits for its successful response", async ({
   page,
+  afterGitHubStops,
 }) => {
-  await openSettledAtA(page);
+  await openSettledAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await passTimeUntilChecked(page);
   await mark.shows("connected");
@@ -117,8 +119,9 @@ test("fallback reveal keeps one prompt check and waits for its successful respon
 
 test("a failed fallback check is red and its ordinary next success restores green", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await passTimeUntilChecked(page);
   await mark.shows("connected");
@@ -141,9 +144,10 @@ test.describe("stream-slot handover", () => {
   test.use({ preholdRevisionStreamSlots: false, extraEnv: streamServerEnv });
   test("a cancelled fallback answer cannot confirm a page waiting for its new stream", async ({
     page,
+    afterGitHubStops,
   }) => {
-    const origin = await openStreamingAtA(page);
-    const second = await openSecondStreamingAtA(page);
+    const origin = await openStreamingAtA(page, afterGitHubStops);
+    const second = await openSecondStreamingAtA(page, origin.revisions.A);
     const checker = await page.context().newPage();
     let releaseStream = () => {};
     const heldStream = new Promise<void>((resolve) => {
