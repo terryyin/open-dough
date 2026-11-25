@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Shunka-chan",
+  "email": "shunka-chan@example.org",
+  "identity": "SEED-420#filter-review-files",
+  "mode": "story-branch",
+  "branch": "claude/filter-the-file-browser-by-intent-and-by-changes",
+  "host": "claude"
+}
