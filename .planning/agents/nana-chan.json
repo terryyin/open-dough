@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Nana-chan",
-  "email": "nana-chan@example.org",
-  "identity": "SEED-443#simplify-intent-comparison-test-setup",
-  "mode": "story-branch",
-  "branch": "claude/simplify-intent-comparison-test-setup",
-  "host": "claude"
-}

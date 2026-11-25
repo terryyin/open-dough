@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-443_simplify-intent-comparison-test-setup.json",
+      "identity": "SEED-443#simplify-intent-comparison-test-setup",
+      "completedAt": "2026-11-25T23:38:10.142Z",
+      "blob": "816d8ca1ffc2faabe923e4039ba64214dfdc7636"
+    },
+    {
       "fileName": "SEED-417_use-sidebars-consistently-across-the-dashboard.json",
       "identity": "SEED-417#use-sidebars-consistently-across-the-dashboard",
       "completedAt": "2026-11-25T17:30:25.522Z",
