@@ -235,3 +235,11 @@ remains.
   guidance paths and preserved command behavior without a broad local suite.
 - Use the existing selective commit checks, independent refactoring and
   delivery gates. Hosted CI retains ownership of its usual checks.
+
+## Execution complete
+
+Product advice: Keep the phase-scoped guidance and the ordinary updater
+proof. Codex startup returned fewer guidance bytes without truncation in
+the selected case. The comparison did not establish a reduction in total
+effort. The developer waived the Claude Code native test. No product
+correction is indicated by the delivered behavior or focused proof.
