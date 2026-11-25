@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "85a1a813-c8eb-4228-ad61-69212e9454e7",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T09:03:35.406Z",
+  "story": "SEED-420#compact-story-comparison-controls",
+  "ranges": [
+    {
+      "base": "866e85527992b4897538d5c406cd4af7f1963730",
+      "candidate": "dcab3399815332b59ea6a1bb04ebecfc647db4a1"
+    }
+  ]
+}
