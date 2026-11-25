@@ -7,7 +7,16 @@ import { askToDeleteRecord } from "../../dashboard/test-support/support/sessionE
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { test } from "../../dashboard/test-support/support/startOriginTest.ts";
+import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+  storyA,
+  storyB,
+  takeRevision,
+} from "../../Distribution/tests/support/queued-repository.mjs";
+import { integrationDeveloper } from "../../Distribution/tests/support/repository-fixture.mjs";
 import {
   storyCardSessionOf,
   storyCardSessions,
@@ -20,16 +29,17 @@ import { sessionOpenExplanation } from "../../dashboard/src/launchOutcome.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   notRefinedStory,
-  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
 import {
   expectStartsBlocked,
   describedBy,
 } from "../../dashboard/test-support/storyCardSessionListing.ts";
-import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import {
+  installedStoryBoard,
+  openInstalledStoryBoard,
+} from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
   expectStartNote,
   launchGroup,
@@ -48,24 +58,18 @@ const openSessionNote =
 test.use({
   projectFolders: ["open-dough"],
   extraEnv: briefDoneRenameWait,
+  originRepository: queuedRepositoryWithRoughStory(roughStoryC).please(),
 });
 
 test.describe("a story's card while its session is open", () => {
-  let columnsJourney: StoryColumnsJourney;
-  test.beforeAll(async () => {
-    columnsJourney = await publishStoryColumnsJourney();
-  });
-  test.afterAll(() =>
-    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
-  );
-
   test("disables both Starts until Mark as done or Delete record, keeps another story's Starts, blocks a Taken kept start, and refuses a dialog opened beforehand", async ({
     page,
     dashboard,
+    origin,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, action, settled, show, launch } =
-      await openStoryColumnsJourney(page, columnsJourney);
+    const board = await openInstalledStoryBoard(page, origin);
+    const { card, action, settled } = board;
     const { taken } = parts(page);
     const queued = {
       taken: [],
@@ -80,7 +84,9 @@ test.describe("a story's card while its session is open", () => {
     };
 
     await test.step("an open session disables both Starts and leaves another story's Starts", async () => {
-      await launch(readyStory, "Execution");
+      const launch = await board.open(readyStory, "Execution");
+      await launch.chooseOneShot();
+      await launch.submit();
       await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
       await expectStartsBlocked(action, [readyStory], openSessionNote);
       await expectOffered(notRefinedStory);
@@ -157,13 +163,19 @@ test.describe("a story's card while its session is open", () => {
             .please(),
         ],
       });
-      await show(columnsJourney.taken);
+      await origin.publishRevision(
+        takeRevision({
+          story: storyB,
+          queued: [storyA, roughStoryC],
+          agent: "Akiho",
+          committer: integrationDeveloper,
+        }),
+      );
+      await page.reload();
       await expectMembership(page, {
         taken: [readyStory],
         backlog: [takenStory, notRefinedStory],
       });
-      // Machine store writes are picked up on a full reload of the page.
-      await page.reload();
       await settled();
       const takenStoryCard = taken.getByRole("article", { name: readyStory });
       const keptStart = launchGroup(takenStoryCard).getByRole("button", {
@@ -183,47 +195,31 @@ test.describe("a story's card while its session is open", () => {
     });
 
     await test.step("a Start dialog opened before another page launched answers with the session-open refusal", async () => {
-      // Clear the Taken kept start and open session so Backlog Starts return.
-      const storeDir = path.join(dashboard.home, ".open-dough", "dashboard");
-      writeFileSync(
-        path.join(storeDir, "execution-starts.json"),
-        JSON.stringify({ "open-dough": {} }),
-      );
-      keepLaunchStore(dashboard, { "open-dough": [] });
-      await show(columnsJourney.queued);
-      await expectMembership(page, queued);
-      await page.reload();
-      await settled();
-      await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
-      await expectOffered(readyStory);
-
-      await action(readyStory, "Execution").click();
-      const dialog = page.getByRole("dialog", {
-        name: "Start execution in Claude Code",
-      });
-      await expect(dialog).toBeVisible();
+      // Story A is still independently queued after Story B's Take.
+      await expect(storyCardSessions(card(takenStory))).toHaveCount(0);
+      await expectOffered(takenStory);
+      const dialog = await board.open(takenStory, "Execution");
+      await expect(dialog.dialog).toBeVisible();
 
       const other = await page.context().newPage();
       await other.goto("/");
-      const otherCard = parts(other).backlog.getByRole("article", {
-        name: readyStory,
-      });
       await expectSettledPage(other);
-      await otherCard.getByRole("button", { name: "Start execution" }).click();
-      await other
-        .getByRole("dialog", { name: "Start execution in Claude Code" })
-        .getByRole("button", { name: "Start" })
-        .click();
-      await expect(storyCardSessions(otherCard)).toHaveCount(1);
+      const otherBoard = installedStoryBoard(other);
+      const competing = await otherBoard.open(takenStory, "Execution");
+      await competing.chooseOneShot();
+      await competing.submit();
+      await expect(storyCardSessions(otherBoard.card(takenStory))).toHaveCount(
+        1,
+      );
       const launchesBefore = dashboard.claudeLaunchCalls().length;
 
-      await dialog.getByRole("button", { name: "Start" }).click();
-      await expect(dialog).toBeHidden();
-      await expect(card(readyStory)).toContainText(
+      await dialog.submit();
+      await expect(dialog.dialog).toBeHidden();
+      await expect(card(takenStory)).toContainText(
         `Launch failed: ${sessionOpenExplanation}`,
       );
-      await expect(action(readyStory, "Execution")).toBeDisabled();
-      await expect(action(readyStory, "Execution")).toHaveAccessibleDescription(
+      await expect(action(takenStory, "Execution")).toBeDisabled();
+      await expect(action(takenStory, "Execution")).toHaveAccessibleDescription(
         describedBy(openSessionNote),
       );
       expect(dashboard.claudeLaunchCalls()).toHaveLength(launchesBefore);

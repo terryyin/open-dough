@@ -115,6 +115,17 @@ export function adHocDeveloperInput(input: string): string {
   return reporting < 0 ? input : input.slice(0, reporting);
 }
 
+export function installedStoryLaunchInput(input: string | undefined) {
+  const [invocation, handoff, reporting, ...developer] =
+    input?.split("\n\n") ?? [];
+  return {
+    invocation,
+    handoff,
+    reporting,
+    instruction: developer.join("\n\n"),
+  };
+}
+
 // The workspace's installed reporting script is the one this release ships.
 export function expectInstalledReportingScript(workspace: string) {
   const script = "dough-execute-plan/scripts/dashboard-completion.mjs";

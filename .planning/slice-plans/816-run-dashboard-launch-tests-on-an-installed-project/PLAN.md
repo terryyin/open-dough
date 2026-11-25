@@ -20,6 +20,8 @@
   `344f64cb7e7fc7692f976015c6d905b81de1c919` on the execution branch.
 - Slice 3 was accepted on the execution branch at
   `1c39c80dd843876b678fc965abbf1299d152a6db`.
+- Slice 4 was accepted on the execution branch at
+  `e98c81b6cd2153168dead084e5e1432a4f54112d`.
 
 ## Goal and scope
 
@@ -238,7 +240,7 @@ specs. They reuse the installed fixture without changing its contract.
 ### 5. Start a story from its card and follow it through publication
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: E2E `agent-launch-story-card`, `agent-launch-story-card-open-session`,
 `agent-launch-story-card-problems`,
 `sessions/sessions-sidebar-reading` and `terminals/agent-terminal`.
@@ -255,6 +257,16 @@ each phase. Retain the phone's exact-draft and held-native checks. For
 journeys that later exercise an independent published transition, declare it
 on the fixture origin and observe the corresponding card or standalone
 entry. Preserve the source identity and the terminal attach target.
+
+The strict eight-case E2E selection passed before and after the migration.
+The Ready, rough and touch cases observe native commands and actual origin
+publication. The focus cases pin the current Board read until the focused
+session is visible, then advance to the same origin's accepted revision and
+verify card placement and session identity. The problem, open-session,
+sidebar and terminal cases keep their original actions and outcomes on
+that origin. Dashboard typecheck passed. Commands, observed cases and
+the initial focus and recovery failures are in `s5-implementation-report.md`
+under the checkout's Git evidence path.
 
 ### 6. Observe verified or continued launches in the page
 
