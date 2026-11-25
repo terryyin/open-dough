@@ -202,39 +202,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-<a id="finish-backend-vitest-renovation-after-launch-options"></a>
-
-### Prove launch attachment admission in Node Vitest
-
-**Identity:** SEED-413#finish-backend-vitest-renovation-after-launch-options
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"76eea7b77b2647791949d6c80606e3cb84b9c22e84fd25bff8078999b5b8f50d","plan":"80048b7bed76a184b03a6c03907e7522f0f5f5bcf68dfd861e3f0e6ab685119d"}}
-```
-
-- **Goal.** Developers changing launch attachments get fast, typed feedback
-  on which uploads are refused and what a refused launch leaves on disk.
-  Existing browser journeys continue to show that accepted images reach the
-  agent and survive startup recovery.
-- **Scope.** Move `launch-attachment-boundary.spec.ts` and
-  `launch-attachment-refusals.spec.ts` to plain Node Vitest. Keep upload
-  type and size refusals, filename encoding, selection reasons, claim
-  cleanup and the response contract with their observing tests. Exercise
-  real files in a private dashboard directory. Account for all six former
-  cases and measure the focused command before and after.
-- **Key examples.** Given a PDF or a declared oversized PNG, posting it
-  returns the corresponding reason and an uncached refusal, with no new
-  claim. A name with non-Latin-1 characters can be sent in a header and
-  recovered on receipt. When a launch names six claims, or supplies a file
-  path alongside a posted claim, refusal clears the claims and leaves no
-  attempt files. With valid images, existing browser proof observes the
-  copied bytes in the order picked and the same path when startup continues.
-- **Boundary.** The
-  [launch-options story](https://github.com/terryyin/open-dough/blob/9ac6002b205bc324155f82e9b0f07901ed4d6a7e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-session-reads-and-alerts)
-  owns option admission. Session-terminal uploads and voice are consumers of
-  the shared reader and retain their coverage. The
-  [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-attachments)
-  carries the remaining families, Story Notes and runner retirement.
-
 <a id="finish-backend-vitest-renovation-after-launch-attachments"></a>
 
 ### Prove Story Notes and follow-up delivery in Node Vitest
@@ -463,7 +430,7 @@ or removed once its behavior or duplicate is accounted for.
 
 | Selection at the recount | Proof disposition owner |
 | --- | --- |
-| Two `launch-attachment-*` specs | [Attachment admission](#finish-backend-vitest-renovation-after-launch-options), already Taken |
+| Two `launch-attachment-*` specs | [Attachment admission](https://github.com/terryyin/open-dough/blob/ee8d963f593e06a2a2ca518b8c4072e888b8bae6/.planning/slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md), completed on Node Vitest |
 | Three `agent-launch-follow-up-notes*` specs, plus the two Vitest Story Notes pilot specs | [Story Notes](#finish-backend-vitest-renovation-after-launch-attachments) |
 | Six `agent-launch-follow-up-{file-admission,file,landed-comparison-admission,published-range-admission,published-sessions,selection}` specs | [Published reads and evidence](#prove-published-dashboard-reads-on-vitest) |
 | `agent-launch-options-rules.spec.ts` | [Runner cutover](#retire-legacy-dashboard-backend-runner), while it is a runner specimen |
