@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { ProofRecord } from "../../test-support/support/proofRecord.ts";
 import type { DashboardProofRecord } from "../../test-support/support/proofRecordTypes.ts";
+import QuietReporter from "../../test-support/support/quietReporter.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 export const proofFixtures = path.join(
@@ -39,15 +40,47 @@ export function onlyCase(cases: TestCase[]): TestCase {
   return selected;
 }
 
-// MakeMe's JSDoc FullConfig erases to FullConfig<any, any>; ProofRecord wants {}.
+export function collectingStream(): {
+  write: typeof process.stdout.write;
+  text: () => string;
+} {
+  const chunks: string[] = [];
+  return {
+    write(chunk: unknown): boolean {
+      chunks.push(
+        typeof chunk === "string"
+          ? chunk
+          : Buffer.isBuffer(chunk)
+            ? chunk.toString("utf8")
+            : String(chunk),
+      );
+      return true;
+    },
+    text: () => chunks.join(""),
+  };
+}
+
+// MakeMe's JSDoc FullConfig erases to FullConfig<any, any>; typed hooks want {}.
+export function asFullConfig(config: unknown): FullConfig {
+  return config as FullConfig;
+}
+
+export function beginReporter(
+  reporter: QuietReporter,
+  run: { config: unknown; suite: Suite },
+): void {
+  reporter.onBegin(asFullConfig(run.config), run.suite);
+}
+
 export function openProof(
   destination: string,
   run: { config: unknown; suite: Suite },
+  diagnostic: (message: string) => void = () => {},
 ): ProofRecord {
   return new ProofRecord(
     destination,
-    run.config as FullConfig,
+    asFullConfig(run.config),
     run.suite,
-    () => {},
+    diagnostic,
   );
 }

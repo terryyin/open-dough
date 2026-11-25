@@ -169,7 +169,7 @@ MakeMe shared `TestCase` instances and writable stream stand-ins. Observations:
 ### 2. Proof record storage refusals and snapshots hold from direct hooks
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `proof-record-storage.spec.ts` runs on Node Vitest, with 5 cases
 under about 100 ms each, over real temporary paths. An alias into an
 existing output directory is refused. An existing path stays byte-for-byte
@@ -187,6 +187,16 @@ claimed, absolute path outside every output directory, and a recording
 failure never changes the test verdict.
 
 Estimated active work 10–14 minutes.
+
+Accepted proof: focused
+`caffeinate -s -i … npm run --silent test:dashboard:backend -- intent/proof-record-storage.spec.ts`
+→ 5 passed, 1–3 ms (`slice2-backend-proof2.log.run.json`). typecheck and lint on
+owned paths passed. Setup: real temp paths, MakeMe shared cases, collectingStream
+stand-ins; snapshot case mkdir-obstructs `<record>.<run id>.tmp` after begin.
+Observations: alias/existing/invalid destinations unavailable without changing
+verdict; running snapshot retained; no-record run clears outputDir on onExit.
+Production QuietReporter/ProofRecord untouched. Refactor disposition: skipped —
+subject spec + shared Vitest helpers only; files ≤250; no production candidate.
 
 ### 3. Spec times attribute and sum from direct hooks
 
