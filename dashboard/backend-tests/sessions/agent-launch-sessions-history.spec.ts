@@ -1,249 +1,130 @@
-// Session history returns full Done records and reconciled attempts. Its
-// revision moves when sessions enter history, independently of open sessions.
-import { randomUUID } from "node:crypto";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
+// The overview lists retained Done sessions compactly beside the attempts that
+// still need attention; the history holds those sessions in full with the
+// settled attempts under its own revision, which the overview names and which
+// moves only when the history does (../../server/machineSessionsFragments.ts),
+// read through the shared reader contract (../../src/machineSessionsRevision.ts).
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { launchRecordsSchema } from "../../src/agentLaunch.ts";
-import { attemptsNeedingAttention } from "../../src/launchAttemptSelection.ts";
-import type { AttemptObservation } from "../../src/launchOutcome.ts";
+import type {
+  AttemptObservation,
+  LaunchRecord,
+  LaunchWithState,
+} from "../../src/agentLaunch.ts";
 import {
   machineSessionsReadSchema,
-  sessionsRevisionHeader,
+  sessionsHistoryReadSchema,
 } from "../../src/machineSessionsRevision.ts";
-import {
-  launchRequest,
-  markDone,
-  noteReconciled,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
-import { keepMoreAttemptsBesideServer } from "../../test-support/acceptedAttempts.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { SessionsAnswerFragments } from "../../server/machineSessionsFragments.ts";
 import {
   type AnsweredEntry,
   withoutRetainedDetail,
 } from "../../test-support/support/retainedDetail.ts";
 
-type Entry = {
-  readonly session: { readonly sessionId: string };
-  readonly doneAt?: string;
-};
-type Answer = {
-  readonly revision: string;
-  readonly unchanged?: true;
-  readonly historyRevision?: string;
-  readonly records?: readonly Entry[];
-  readonly attempts?: readonly AttemptObservation[];
-};
+const now = "2026-11-25T09:00:00.000Z";
 
-async function ask(
-  server: DashboardServer,
-  options: { readonly audience?: string; readonly held?: string } = {},
-) {
-  const response = await rawRequest({
-    url: `${server.baseURL}/__agent-launch${options.audience === undefined ? "" : `?audience=${options.audience}`}`,
-    headers: {
-      Origin: server.origin,
-      ...(options.held === undefined
-        ? {}
-        : { [sessionsRevisionHeader]: options.held }),
-    },
-  });
-  return { ...response, answer: JSON.parse(response.body) as Answer };
+const uuid = (n: number) => `00000000-0000-4000-8000-00000000000${String(n)}`;
+const unknown = makeMe.aSessionState.unknown().please();
+const working = makeMe.aSessionState.loaded("working").please();
+
+function observed(sessionId: string, reference: string): LaunchWithState {
+  const record = makeMe.aLaunchRecord
+    .executing({ identity: `SEED-052#${sessionId}`, title: sessionId })
+    .inClaudeSession({ sessionId })
+    .reportingThrough({
+      origin: "http://127.0.0.1:5173/",
+      reference,
+      command: "node report.mjs",
+    })
+    .launchedAt(now)
+    .withFirstInput({ state: "confirmed", instruction: `Execute ${sessionId}` })
+    .please();
+  return makeMe.anObservedLaunch.of(record).withSessionState(unknown).please();
 }
 
-const history = (server: DashboardServer, held?: string) =>
-  ask(server, { audience: "history", ...(held === undefined ? {} : { held }) });
+const open = observed("open", uuid(1));
+const done: LaunchWithState = { ...observed("done", uuid(2)), doneAt: now };
 
-// Each entry of a full answer body as it was sent, by session id.
-const entriesIn = (body: string) =>
-  new Map(
-    (JSON.parse(body) as { records: Entry[] }).records.map((entry) => [
-      entry.session.sessionId,
-      JSON.stringify(entry),
-    ]),
+const ids = { doneStart: uuid(3), openStart: uuid(4), unsettled: uuid(5) };
+const attempt = (record: LaunchRecord, id: string) =>
+  makeMe.anAcceptedAttempt.withId(id).requesting(record.request);
+const started = (record: LaunchRecord, id: string) =>
+  attempt(record, id)
+    .launched({ host: "claude", sessionId: record.session.sessionId })
+    .settledAt(now);
+const asObserved = (kept: ReturnType<ReturnType<typeof attempt>["please"]>) =>
+  makeMe.anAttemptObservation.of(kept).owned(false).running(false).please();
+// The done session's start shares its story with a copy that never settled,
+// so both still need attention; a page reconciled the open session's start.
+const attempts: readonly AttemptObservation[] = [
+  started(done, ids.doneStart).please(),
+  started(open, ids.openStart).reconciledAt(now).please(),
+  attempt(done, ids.unsettled).please(),
+].map(asObserved);
+
+function read(
+  records: readonly LaunchWithState[],
+  fragments = new SessionsAnswerFragments(),
+) {
+  const { records: observing, ...rest } = makeMe.aMachineAnswer
+    .observing(...records)
+    .answeringAttempts(...attempts)
+    .please();
+  const { overview, history } = fragments.answers(observing, rest);
+  const overviewRead = machineSessionsReadSchema.parse(
+    JSON.parse(overview.serialized()),
   );
+  const historyRead = sessionsHistoryReadSchema.parse(
+    JSON.parse(history.serialized()),
+  );
+  if ("unchanged" in overviewRead || "unchanged" in historyRead)
+    throw new Error("Expected full answers");
+  return { overview: overviewRead, history: historyRead };
+}
 
-const attemptIds = (answer: Answer) =>
-  (answer.attempts ?? []).map(({ id }) => id).toSorted();
+const sessionIds = (records: readonly { session: { sessionId: string } }[]) =>
+  records.map(({ session }) => session.sessionId);
+const attemptIds = (answered: readonly AttemptObservation[]) =>
+  answered.map(({ id }) => id).toSorted();
 
-test.describe("the sessions history ask", () => {
-  let machine: string;
-  let server: DashboardServer;
+test("the overview lists the Done session compactly and the history holds it in full", () => {
+  const { overview, history } = read([done, open]);
+  expect(sessionIds(overview.records)).toEqual(["done", "open"]);
+  expect(sessionIds(history.records)).toEqual(["done"]);
+  expect(history.records[0]).toEqual(done);
+  expect(overview.records[0]).toEqual(
+    withoutRetainedDetail(structuredClone(done) as unknown as AnsweredEntry),
+  );
+  expect(overview.records[1]).toEqual(open);
+});
 
-  test.beforeEach(async () => {
-    machine = mkdtempSync(path.join(tmpdir(), "dough-sessions-history-"));
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine,
-      projectFolders: ["open-dough"],
-    });
-  });
+test("the overview carries only attempts still needing attention and the history the settled ones", () => {
+  const { overview, history } = read([done, open]);
+  expect(attemptIds(overview.attempts)).toEqual(
+    [ids.doneStart, ids.unsettled].toSorted(),
+  );
+  expect(attemptIds(history.attempts)).toEqual([ids.openStart]);
+});
 
-  test.afterEach(async () => {
-    await server.close();
-    rmSync(machine, { recursive: true, force: true });
-  });
+test("the overview names the history's own revision", () => {
+  const { overview, history } = read([done, open]);
+  expect(overview.historyRevision).toBe(history.revision);
+  expect(history.revision).toMatch(/^[0-9a-f]{64}$/);
+  expect(overview.revision).not.toBe(history.revision);
+});
 
-  test("answers retained done sessions and attempts no longer needing attention under its own revision, which the regular answer names", async () => {
-    const doneStory = { ...launchRequest, identity: "SEED-052#done" };
-    const openStory = { ...launchRequest, identity: "SEED-052#open" };
-    const now = Date.now();
-    const done = await composeSession(server, "open-dough", {
-      ...doneStory,
-      startedAt: now - 1_000,
-    });
-    const open = await composeSession(server, "open-dough", {
-      ...openStory,
-      startedAt: now,
-    });
-    const accepted = (story: typeof launchRequest) =>
-      makeMe.anAcceptedAttempt.withId(randomUUID()).requesting(story);
-    const settled = (story: typeof launchRequest, sessionId: string) =>
-      accepted(story)
-        .launched({ host: "claude", sessionId })
-        .settledAt(new Date(now).toISOString())
-        .please();
-    const doneStart = settled(doneStory, done.sessionId);
-    const openStart = settled(openStory, open.sessionId);
-    const pending = accepted(doneStory).please();
-    await keepMoreAttemptsBesideServer(server, [doneStart, openStart, pending]);
-    const { id: unsettled } = pending;
-    const mark = (session: string) =>
-      markDone(server, { source: "open-dough", session });
-    expect((await mark(done.sessionId)).status).toBe(200);
-    // Neither settled attempt has been reconciled with the published snapshot.
-    const before = await ask(server);
-    const { id: doneAttempt } = doneStart;
-    const { id: openAttempt } = openStart;
-    expect(attemptIds(before.answer)).toEqual(
-      [doneAttempt, openAttempt, unsettled].toSorted(),
-    );
-    for (const { id, outcome } of [doneStart, openStart])
-      expect(
-        before.answer.attempts?.find((attempt) => attempt.id === id)?.outcome,
-      ).toEqual(outcome);
-    // A page reconciles the open session's start: it no longer needs
-    // attention. The done session's start shares its story with the
-    // unsettled copy, which no server runs, so it still does.
-    expect((await noteReconciled(server, openAttempt)).status).toBe(200);
-    await expect
-      .poll(async () => attemptIds((await ask(server)).answer))
-      .toEqual([doneAttempt, unsettled].toSorted());
+test("an open session's change moves the overview revision only", () => {
+  const fragments = new SessionsAnswerFragments();
+  const before = read([done, open], fragments);
+  const after = read([done, { ...open, sessionState: working }], fragments);
+  expect(after.overview.revision).not.toBe(before.overview.revision);
+  expect(after.history.revision).toBe(before.history.revision);
+});
 
-    const regular = await ask(server);
-    expect(regular.status).toBe(200);
-    const historyRevision = regular.answer.historyRevision ?? "";
-    expect(historyRevision).toMatch(/^[0-9a-f]{64}$/);
-    expect(
-      regular.body.endsWith(
-        `,"historyRevision":${JSON.stringify(historyRevision)}}`,
-      ),
-    ).toBe(true);
-    expect(machineSessionsReadSchema.safeParse(regular.answer).success).toBe(
-      true,
-    );
-    const regularRecords = launchRecordsSchema.parse(regular.answer).records;
-    expect(regularRecords.map(({ session }) => session.sessionId)).toEqual([
-      done.sessionId,
-      open.sessionId,
-    ]);
-    expect(attemptIds(regular.answer)).toContain(unsettled);
-
-    const asked = await history(server);
-    expect(asked.status).toBe(200);
-    expect(asked.answer.revision).toBe(historyRevision);
-    expect(asked.answer.revision).not.toBe(regular.answer.revision);
-    expect(
-      asked.body.startsWith(
-        `{"revision":${JSON.stringify(historyRevision)},"records":[`,
-      ),
-    ).toBe(true);
-    // The done session's entry in full, which the regular answer lists
-    // without its reporting handoff, first input's text and landing evidence
-    // (agent-launch-sessions-listing.spec.ts).
-    const full = entriesIn(asked.body).get(done.sessionId) ?? "{}";
-    expect([...entriesIn(asked.body).keys()]).toEqual([done.sessionId]);
-    expect(entriesIn(regular.body).get(done.sessionId)).toBe(
-      JSON.stringify(withoutRetainedDetail(JSON.parse(full) as AnsweredEntry)),
-    );
-    // Each attempt is in exactly one of the two answers, as the selection
-    // over all of them puts it.
-    expect(attemptIds(asked.answer)).toEqual([openAttempt]);
-    const all = [
-      ...(regular.answer.attempts ?? []),
-      ...(asked.answer.attempts ?? []),
-    ];
-    const attending = attemptsNeedingAttention(all);
-    expect(attemptIds({ ...regular.answer, attempts: [...attending] })).toEqual(
-      attemptIds(regular.answer),
-    );
-    expect(asked.answer.attempts?.[0]?.reconciledAt).toEqual(
-      expect.any(String),
-    );
-    expect(Object.keys(asked.answer)).toEqual([
-      "revision",
-      "records",
-      "attempts",
-    ]);
-
-    for (let repeat = 0; repeat < 2; repeat += 1)
-      expect((await history(server, historyRevision)).answer).toEqual({
-        revision: historyRevision,
-        unchanged: true,
-      });
-    expect((await history(server, regular.answer.revision)).body).toBe(
-      asked.body,
-    );
-    expect((await ask(server, { held: historyRevision })).body).toBe(
-      regular.body,
-    );
-
-    // An open session's change moves the regular revision only.
-    server.claudeSessionBecomes(open.sessionId, "blocked");
-    await expect
-      .poll(async () => (await ask(server)).answer.revision)
-      .not.toBe(regular.answer.revision);
-    expect((await ask(server)).answer.historyRevision).toBe(historyRevision);
-    expect((await history(server, historyRevision)).answer.unchanged).toBe(
-      true,
-    );
-
-    // A session marked done moves the history, which the regular answer names.
-    expect((await mark(open.sessionId)).status).toBe(200);
-    const moved = await history(server, historyRevision);
-    expect(moved.answer.unchanged).toBeUndefined();
-    expect(moved.answer.revision).not.toBe(historyRevision);
-    expect([...entriesIn(moved.body).keys()]).toEqual([
-      done.sessionId,
-      open.sessionId,
-    ]);
-    expect((await ask(server)).answer.historyRevision).toBe(
-      moved.answer.revision,
-    );
-  });
-
-  test("refuses an audience other than the history, as other malformed requests", async () => {
-    for (const query of [
-      "audience=overview",
-      "audience=History",
-      "audience=",
-      "audience=history&audience=history",
-    ]) {
-      const response = await rawRequest({
-        url: `${server.baseURL}/__agent-launch?${query}`,
-        headers: { Origin: server.origin },
-      });
-      expect(response.status, query).toBe(400);
-      expect(JSON.parse(response.body), query).toEqual({
-        error: "The sessions request is malformed.",
-      });
-    }
-  });
+test("a session marked Done moves the history revision the overview names", () => {
+  const fragments = new SessionsAnswerFragments();
+  const before = read([done, open], fragments);
+  const after = read([done, { ...open, doneAt: now }], fragments);
+  expect(after.history.revision).not.toBe(before.history.revision);
+  expect(sessionIds(after.history.records)).toEqual(["done", "open"]);
+  expect(after.overview.historyRevision).toBe(after.history.revision);
 });

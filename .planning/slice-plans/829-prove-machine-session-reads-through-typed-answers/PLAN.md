@@ -85,7 +85,7 @@ the stream reopen it asserted right after the clock pass.
 ### 2. Separate compact overview from retained detail
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 11–15 active minutes.
 
 Given open and Done sessions, settled attempts and a retained follow-up,
@@ -98,6 +98,12 @@ and the settled attempts. Move
 projection and shared schemas. Keep one many-record example for the
 compact payload property. Compose saved state and move malformed-audience
 proof to slice 5.
+
+Proof (25 November 2026, load ~11.6): seven Node cases pass through
+`SessionsAnswerFragments.answers` and the shared read schemas; the
+1,029-record compact example takes about 400 ms, the rest under 10 ms.
+The six-file gate passed 21/21 at two workers (27.7 s elapsed). The
+malformed-audience case moved unchanged into the legacy encoding spec.
 
 ### 3. Read a held revision until the answer changes
 
@@ -158,6 +164,21 @@ identified against the observed baseline.
 Reported: slice 1 — "Nothing remaining asserts the command and folder for the machine read"
 Story clause: "Developers changing the dashboard's machine-session read get fast, typed Node Vitest feedback on what an overview or history reader receives."
 Disposition: no user cost "Developers changing the dashboard's machine-session read get fast, typed Node Vitest feedback on what an overview or history reader receives.": the listing argv is the shared `listingArgs` of `claudeSessions` (dashboard/server/hosts/claude/runtime.ts), asserted as `agents --json --all` by dashboard/backend-tests/launches/agent-launch-boundary.spec.ts; `--all` lists every folder's sessions, so the folder changes no reader's answer; `withStates` passing its folder is asserted by `listedIn` in agent-launch-session-listing.spec.ts; the default host wiring stays exercised through the synthetic `claude` by e2e/sessions/agent-launch-retained-history.spec.ts.
+
+### G2. Overview and history body layout no longer asserted
+Reported: slice 2 — "No session-read spec now asserts the wire byte layout"
+Story clause: "A full answer accepted as gzip decodes to the plain response."
+Disposition: receiving slice 5
+
+### G3. Mark-Done and reconcile routes no longer drive the read cases
+Reported: slice 2 — "The HTTP mark-Done and page-reconcile routes are no longer exercised here"
+Story clause: "Session mutations, alerts, and other backend families have their own owners."
+Disposition: excluded "Session mutations, alerts, and other backend families have their own owners."
+
+### G4. Held-revision answers from the old history case
+Reported: slice 2 — "The answers to a held revision (unchanged, and full across audiences) from the old history case belong to slice 3."
+Story clause: "A reader holding the current revision gets an unchanged answer."
+Disposition: receiving slice 3
 
 ## Verification and delivery
 

@@ -1,213 +1,166 @@
 // The story's example 5 at its scale: with 1,000 retained done sessions and
-// five open ones, the regular sessions answer holds the open sessions in full
-// and each done session only as its listing facts -- the whole entry except
-// the launch's reporting handoff past its reference, the first input's text,
-// and the landing evidence -- while a history ask answers every done session in full
-// (../../src/sessionListing.ts,
-// ../../server/machineSessionsFragments.ts). The machine state is the
-// Sessions replay's (../../test-support/support/sessionsReplaySeed.ts).
-
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
+// five open ones, the overview holds the open sessions in full and each done
+// session only as its listing facts -- the whole entry except the launch's
+// reporting handoff past its reference, the first input's text, and the
+// landing evidence -- while the history holds every done session in full
+// (../../src/sessionListing.ts, ../../server/machineSessionsFragments.ts).
+// The kept state is the Sessions replay's
+// (../../test-support/support/sessionsReplayRecords.ts).
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  launchRecordsSchema,
-  type LaunchRecord,
+import type {
+  AttemptObservation,
+  LaunchRecord,
+  LaunchWithState,
 } from "../../src/agentLaunch.ts";
-import { sessionsHistoryReadSchema } from "../../src/machineSessionsRevision.ts";
+import {
+  machineSessionsReadSchema,
+  sessionsHistoryReadSchema,
+} from "../../src/machineSessionsRevision.ts";
 import { withRetainedDetail } from "../../src/sessionListing.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
+import { SessionsAnswerFragments } from "../../server/machineSessionsFragments.ts";
 import {
   followUpContextOf,
   quietSession,
   quietTitle,
 } from "../../test-support/support/followUpSources.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  replayProjectIds,
-  seedReplayProjects,
-} from "../../test-support/support/sessionsReplayProjects.ts";
-import { seedReplaySessions } from "../../test-support/support/sessionsReplaySeed.ts";
 import {
   type AnsweredEntry,
   withoutRetainedDetail,
 } from "../../test-support/support/retainedDetail.ts";
-import { askSessions } from "../../test-support/support/sessionsReplayMeasures.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { replayRecords } from "../../test-support/support/sessionsReplayRecords.ts";
 
-const entriesOf = (body: string) =>
-  new Map(
-    (JSON.parse(body) as { records: AnsweredEntry[] }).records.map((entry) => [
-      entry.session.sessionId,
-      entry,
-    ]),
+// A kept record as the machine observed it, its host state unconfirmed.
+const observed = (record: LaunchRecord): LaunchWithState =>
+  makeMe.anObservedLaunch
+    .of(record)
+    .withSessionState(makeMe.aSessionState.unknown().please())
+    .please();
+
+function read(
+  records: readonly LaunchWithState[],
+  attempts: readonly AttemptObservation[] = [],
+) {
+  const { records: observing, ...rest } = makeMe.aMachineAnswer
+    .observing(...records)
+    .answeringAttempts(...attempts)
+    .please();
+  const { overview, history } = new SessionsAnswerFragments().answers(
+    observing,
+    rest,
   );
+  const overviewRead = machineSessionsReadSchema.parse(
+    JSON.parse(overview.serialized()),
+  );
+  const historyRead = sessionsHistoryReadSchema.parse(
+    JSON.parse(history.serialized()),
+  );
+  if ("unchanged" in overviewRead || "unchanged" in historyRead)
+    throw new Error("Expected full answers");
+  return { overview: overviewRead.records, history: historyRead.records };
+}
 
-// The detail a seeded record holds, as the four parts the overview leaves out.
-const detailOf = (record: LaunchRecord | AnsweredEntry) => ({
-  reporting: (record.request as { reporting?: unknown }).reporting,
-  instruction: (record.firstInput as { instruction?: unknown } | undefined)
-    ?.instruction,
-  landing: (record as { landing?: unknown }).landing,
-  landingReporting: (record as { landingReporting?: unknown }).landingReporting,
+// The detail a kept record holds, as the four parts the overview leaves out.
+const detailOf = (record: LaunchWithState) => ({
+  reporting: record.request.reporting,
+  instruction: record.firstInput?.instruction,
+  landing: record.landing,
+  landingReporting: record.landingReporting,
 });
 
-test("the regular answer lists 1,000 done sessions by their listing facts beside five open ones in full; the history answers them in full", async () => {
-  const machine = mkdtempSync(path.join(tmpdir(), "dough-sessions-listing-"));
-  const codex = await installFakeCodex(
-    machine,
-    process.env["PATH"] ?? "",
-    true,
+const asAnswered = (record: LaunchWithState) =>
+  structuredClone(record) as unknown as AnsweredEntry;
+
+test("the overview lists 1,000 done sessions by their listing facts beside five open ones in full; the history holds them in full", () => {
+  const replay = replayRecords(
+    "/home",
+    "unix://unused",
+    Date.parse("2026-11-25T09:00:00Z"),
   );
-  seedReplayProjects(path.join(machine, "home"));
-  const seed = seedReplaySessions(machine, codex);
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    projectFolders: replayProjectIds,
-    codexProtocol: codex,
-  });
-  try {
-    const seeded = new Map(
-      seed.records.map((record) => [record.session.sessionId, record]),
-    );
-    const regular = entriesOf((await askSessions(server)).body);
-    const history = entriesOf(
-      (await askSessions(server, undefined, true)).body,
-    );
-    const open = [...regular.values()].filter(
-      ({ doneAt }) => doneAt === undefined,
-    );
-    const done = [...regular.values()].filter(
-      ({ doneAt }) => doneAt !== undefined,
-    );
-    expect(open.map(({ session }) => session.sessionId).toSorted()).toEqual(
-      seed.openSessions.toSorted(),
-    );
-    expect(done).toHaveLength(1_000);
-    expect(history.size).toBe(1_000);
+  const records = replay.records.map(observed);
+  const attempts = replay.attempts.map((attempt) =>
+    makeMe.anAttemptObservation
+      .of(attempt)
+      .owned(false)
+      .running(false)
+      .please(),
+  );
+  const { overview, history } = read(records, attempts);
+  const open = records.filter(({ doneAt }) => doneAt === undefined);
+  const done = records.filter(({ doneAt }) => doneAt !== undefined);
+  expect(open).toHaveLength(5);
+  expect(done).toHaveLength(1_000);
+  for (const record of done)
+    expect(Object.values(detailOf(record))).not.toContain(undefined);
 
-    // Open sessions in full: their reporting handoff and first input's text.
-    for (const entry of open) {
-      const record = seeded.get(entry.session.sessionId);
-      if (record === undefined) throw new Error("An unseeded open session");
-      const detail = detailOf(entry);
-      expect(detail.reporting).toEqual(record.request.reporting);
-      expect(detail.instruction).toEqual(record.firstInput?.instruction);
-    }
-
-    // Done sessions: the history's full entry less exactly those four parts,
-    // which the seed gives every done record and the history keeps.
-    for (const entry of done) {
-      const { sessionId } = entry.session;
-      const full = history.get(sessionId);
-      const record = seeded.get(sessionId);
-      if (full === undefined || record === undefined)
-        throw new Error(`No full entry for ${sessionId}`);
-      expect(JSON.stringify(entry)).toBe(
-        JSON.stringify(withoutRetainedDetail(full)),
-      );
-      expect(detailOf(entry)).toEqual({
-        reporting: undefined,
-        instruction: undefined,
-        landing: undefined,
-        landingReporting: undefined,
-      });
-      expect(entry["reportingReference"]).toBe(
-        record.request.reporting?.reference,
-      );
-      const kept = detailOf(record);
-      expect(Object.values(kept).every((part) => part !== undefined)).toBe(
-        true,
-      );
-      expect(detailOf(full)).toEqual(kept);
-    }
-  } finally {
-    await server.close();
-    await codex.close();
-    rmSync(machine, { recursive: true, force: true });
-  }
+  expect(history).toEqual(done);
+  expect(overview).toEqual(
+    records.map((record) =>
+      record.doneAt === undefined
+        ? record
+        : withoutRetainedDetail(asAnswered(record)),
+    ),
+  );
 });
 
-test("lists open and Done follow-ups by source and restores the Done context from history", async () => {
-  const machine = mkdtempSync(path.join(tmpdir(), "dough-follow-up-listing-"));
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    projectFolders: ["open-dough"],
-  });
-  try {
-    const now = new Date();
-    const source = quietSession("follow-up-source", now);
-    const followUpSource = makeMe.aFollowUp.ofSession(source).please();
-    const context = followUpContextOf(quietTitle, [
-      `- Original request: ${quietTitle}`,
-      "- Final report: No final report was submitted.",
-    ]);
-    const recordedFollowUp = () =>
-      makeMe.aFollowUp.ofSession(source).withContext(context).please();
-    const recorded = recordedFollowUp();
-    const instruction = "Check the changelog again";
-    const firstInput = `${context}\n\n${instruction}`;
-    const followUp = (sessionId: string) =>
-      makeMe.aLaunchRecord
-        .adHoc({
-          instruction,
-          title: "Follow up on the changelog",
-          followUp: recordedFollowUp(),
-        })
-        .inCodexSession({
-          sessionId,
-          continuation: { workspace: server.home, endpoint: "unix://unused" },
-        })
-        .launchedAt(now.toISOString())
-        .withFirstInput({ state: "confirmed", instruction: firstInput });
-    const open = followUp("open-follow-up").please();
-    const done = followUp("done-follow-up")
-      .markedDoneAt(now.toISOString())
-      .please();
-    keepLaunchRecords(server, [source, open, done]);
+test("the overview lists open and Done follow-ups by source and the history restores the Done context", () => {
+  const now = new Date("2026-11-25T09:00:00Z");
+  const source = quietSession("follow-up-source", now);
+  const context = followUpContextOf(quietTitle, [
+    `- Original request: ${quietTitle}`,
+    "- Final report: No final report was submitted.",
+  ]);
+  const recorded = makeMe.aFollowUp
+    .ofSession(source)
+    .withContext(context)
+    .please();
+  const instruction = "Check the changelog again";
+  const firstInput = `${context}\n\n${instruction}`;
+  const followUp = (sessionId: string) =>
+    makeMe.aLaunchRecord
+      .adHoc({
+        instruction,
+        title: "Follow up on the changelog",
+        followUp: recorded,
+      })
+      .inCodexSession({
+        sessionId,
+        continuation: { workspace: "/home", endpoint: "unix://unused" },
+      })
+      .launchedAt(now.toISOString())
+      .withFirstInput({ state: "confirmed", instruction: firstInput });
+  const open = observed(followUp("open-follow-up").please());
+  const done = observed(
+    followUp("done-follow-up").markedDoneAt(now.toISOString()).please(),
+  );
 
-    const overview = await askSessions(server);
-    const listed = launchRecordsSchema.parse(JSON.parse(overview.body)).records;
-    expect(listed).toEqual(
-      expect.arrayContaining(
-        [open, done].map(({ session }) =>
-          expect.objectContaining({
-            session,
-            request: expect.objectContaining({ followUp: followUpSource }),
-            firstInput: { state: "confirmed" },
-          }),
-        ),
-      ),
-    );
-    expect(overview.body).not.toContain("Follow-up context:");
-
-    const retained = await askSessions(server, undefined, true);
-    const read = sessionsHistoryReadSchema.parse(JSON.parse(retained.body));
-    if ("unchanged" in read) throw new Error("Expected full history");
-    const full = read.records.find(
-      ({ session }) => session.sessionId === done.session.sessionId,
-    );
-    expect(full).toMatchObject(done);
-    const doneListing = listed.find(
-      ({ session }) => session.sessionId === done.session.sessionId,
-    );
-    if (doneListing === undefined) throw new Error("Missing Done listing");
-    const title = "Current listing title";
-    expect(
-      withRetainedDetail(
-        { ...doneListing, request: { ...doneListing.request, title } },
-        full,
-      ),
-    ).toMatchObject({
-      request: { title, followUp: recorded },
-      firstInput: { instruction: firstInput },
+  const { overview, history } = read([observed(source), open, done]);
+  const bySource = makeMe.aFollowUp.ofSession(source).please();
+  const [, openListing, doneListing] = overview;
+  for (const [listing, record] of [
+    [openListing, open],
+    [doneListing, done],
+  ] as const)
+    expect(listing).toMatchObject({
+      session: record.session,
+      request: { followUp: bySource },
+      firstInput: { state: "confirmed" },
     });
-  } finally {
-    await server.close();
-    rmSync(machine, { recursive: true, force: true });
-  }
+  expect(JSON.stringify(overview)).not.toContain("Follow-up context:");
+
+  const full = history.find(
+    ({ session }) => session.sessionId === done.session.sessionId,
+  );
+  expect(full).toEqual(done);
+  if (doneListing === undefined) throw new Error("Missing Done listing");
+  const title = "Current listing title";
+  expect(
+    withRetainedDetail(
+      { ...doneListing, request: { ...doneListing.request, title } },
+      full,
+    ),
+  ).toMatchObject({
+    request: { title, followUp: recorded },
+    firstInput: { instruction: firstInput },
+  });
 });

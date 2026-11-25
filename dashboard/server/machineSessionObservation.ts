@@ -38,7 +38,6 @@ import type {
 import type { FeedbackMaintenanceState } from "../src/feedbackMaintenanceState.ts";
 import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
-import { attemptsNeedingAttention } from "../src/launchAttemptSelection.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import { type SharedAnswer, SharedGzip } from "./agentLaunchResponse.ts";
 import { configuredLimit } from "./configuredLimit.ts";
@@ -133,11 +132,7 @@ async function observeMachineSessions(
     sessionPolicies: await launches.sessionPolicies(),
     workspaces: await localWorkspaces(),
   };
-  const { overview, history } = fragments.answers(
-    records,
-    rest,
-    attemptsNeedingAttention(attempts),
-  );
+  const { overview, history } = fragments.answers(records, rest);
   return {
     ...observedAnswer(overview),
     records,

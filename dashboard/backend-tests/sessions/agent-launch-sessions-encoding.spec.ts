@@ -157,4 +157,22 @@ test.describe("the sessions answer's transfer encoding", () => {
       });
     }
   });
+
+  test("refuses an audience other than the history, as other malformed requests", async () => {
+    for (const query of [
+      "audience=overview",
+      "audience=History",
+      "audience=",
+      "audience=history&audience=history",
+    ]) {
+      const response = await rawRequest({
+        url: `${server.baseURL}${agentLaunchEndpoint}?${query}`,
+        headers: { Origin: server.origin },
+      });
+      expect(response.status, query).toBe(400);
+      expect(JSON.parse(response.body), query).toEqual({
+        error: "The sessions request is malformed.",
+      });
+    }
+  });
 });

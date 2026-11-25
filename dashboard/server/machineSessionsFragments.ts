@@ -20,6 +20,7 @@ import type {
   AttemptObservation,
   LaunchWithState,
 } from "../src/agentLaunch.ts";
+import { attemptsNeedingAttention } from "../src/launchAttemptSelection.ts";
 import { sessionListing } from "../src/sessionListing.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 
@@ -132,14 +133,10 @@ export class SessionsAnswerFragments {
 
   // The regular answer of `records` as listings,
   // followed by `rest`'s fields and the history's revision as
-  // `historyRevision`, carrying only the attempts of `rest` that are
-  // `attending`; and the history of the retained done `records` in full and
-  // the other attempts of `rest`.
-  answers(
-    records: readonly LaunchWithState[],
-    rest: Rest,
-    attending: ReadonlySet<AttemptObservation>,
-  ): SessionsAnswers {
+  // `historyRevision`, carrying only the attempts of `rest` that still need
+  // attention (`../src/launchAttemptSelection.ts`); and the history of the
+  // retained done `records` in full and the other attempts of `rest`.
+  answers(records: readonly LaunchWithState[], rest: Rest): SessionsAnswers {
     const previous = this.entries;
     const entries = new Map<string, HeldEntry>();
     const held = records.map((entry) => {
@@ -156,6 +153,7 @@ export class SessionsAnswerFragments {
       return kept;
     });
     this.entries = entries;
+    const attending = attemptsNeedingAttention(rest.attempts);
     const attempts = rest.attempts.map((attempt) => ({
       attempt,
       digest: digestOf(JSON.stringify(attempt)),
