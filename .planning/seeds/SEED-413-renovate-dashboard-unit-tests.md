@@ -179,30 +179,28 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
-<a id="prove-session-notifications-through-typed-observations"></a>
+<a id="renovate-remaining-backend-families-after-browser-reporter"></a>
 
-### Prove session notifications through typed observations
+### Prove machine-session reads through typed backend answers
 
-**Identity:** SEED-413#prove-session-notifications-through-typed-observations
+**Identity:** SEED-413#renovate-remaining-backend-families-after-browser-reporter
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/830-prove-session-notifications-through-typed-observations/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1a43877ac07c4a83c42f31c5b801536027c524d2ce994415789bdafd4483f60f","plan":"196f45086b25491b62c0880341c404365a8b08a7782f545d7e1ea8909de36012"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/829-prove-machine-session-reads-through-typed-answers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7946d5994d6f587cccc4994a439c3398155d1d8916d73d940d19be878bb27c02","plan":"81751012ddce35cfc985dee33074b83603aec6e3764a9a13d52a025ebbe4e1a3"}}
 ```
 
-- **Goal.** Developers changing session notifications can check alert
-  decisions and delivery lifetime quickly on Node Vitest with explicit
-  session readings and notifier results.
-- **Scope.** The eight remaining Playwright notification specs. Prove
-  transition and report eligibility, delivery and recovery, listener-derived
-  destinations, and cancellation through the production owners. Run the production browser
-  callback against its existing native API stand-ins. Keep representative
-  dashboard wiring in E2E and helper argument execution at the process boundary. Session reading, native host
-  classification and unrelated launch flows have their own owners.
-- **Key examples.** A startup baseline keeps an existing question quiet.
-  A later question alerts once through a missing or unknown observation and
-  rearms after working. An unread report alerts using its own words while
-  a Done session stays quiet. A failed notifier reports a safe reason and
-  can recover on a new transition. Closing cancels a pending diagnosis or
-  delivery. A click opens the story in an existing dashboard tab.
+- **Goal.** Developers changing the dashboard's machine-session read get fast,
+  typed Node Vitest feedback on what an overview or history reader receives.
+- **Scope.** The six legacy session-read specs listed in the plan. Exercise
+  host reading and record composition, the overview/history split, revision
+  reuse and fresh demand, and request admission and encoding. Keep native host
+  translation proof with that boundary. Start no server for the Node cases.
+  Session mutations, alerts, and other backend families have their own owners.
+- **Key examples.** With open records, retained Done records and settled
+  attempts, the overview gives the reader the compact listing and the history
+  restores the detail under its own revision. A reader holding the current
+  revision gets an unchanged answer. A fresh ask can see a changed Codex
+  observation while an ordinary ask still reuses a held observation. A full
+  answer accepted as gzip decodes to the plain response.
 
 <a id="finish-backend-vitest-renovation-after-session-reads-and-alerts"></a>
 

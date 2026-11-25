@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Prove session notifications through typed observations](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-notifications-through-typed-observations) — SEED-413#prove-session-notifications-through-typed-observations ([plan](slice-plans/830-prove-session-notifications-through-typed-observations/PLAN.md))
 - [Complete story-linked ad hoc sessions in the Dashboard](seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions) — SEED-439#complete-story-linked-ad-hoc-sessions ([plan](slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md))
 - [Read and change the story comparison from one control bar](seeds/SEED-420-unified-intent-review.md#compact-story-comparison-controls) — SEED-420#compact-story-comparison-controls ([plan](slice-plans/833-compact-story-comparison-controls/PLAN.md))
 - [Put comparison follow-up beside story notes](seeds/SEED-420-unified-intent-review.md#put-comparison-follow-up-by-story-notes) — SEED-420#put-comparison-follow-up-by-story-notes ([plan](slice-plans/837-put-comparison-follow-up-by-story-notes/PLAN.md))
