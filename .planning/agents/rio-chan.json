@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rio-chan",
+  "email": "rio-chan@example.org",
+  "identity": "SEED-420#choose-review-scope",
+  "mode": "story-branch",
+  "branch": "codex/choose-the-whole-project-or-a-recent-story-from",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
