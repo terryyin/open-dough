@@ -3,7 +3,6 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ReviewInitialSyncStatus } from "../src/reviewInitialSync.ts";
 import { gitProblem } from "./gitRunner.ts";
-import { reviewSyncBounds } from "./reviewRepository.ts";
 import {
   fetchInitialReviewTarget,
   reviewRepositoryPath,
@@ -11,13 +10,15 @@ import {
 
 export type ReviewInitialSyncRequest = {
   readonly source: PublishedSource;
-  readonly operation: "status" | "start";
+  readonly operation: "status" | "start" | "retry";
 };
 
 export class ReviewInitialSync {
   private readonly shutdown = new AbortController();
   private readonly attempts = new Set<Promise<void>>();
   private readonly statuses = new Map<string, ReviewInitialSyncStatus>();
+
+  constructor(private readonly inactivityMs = 50_000) {}
 
   answer(
     { source, operation }: ReviewInitialSyncRequest,
@@ -31,22 +32,25 @@ export class ReviewInitialSync {
       source.ref,
     ]);
     const status = this.statuses.get(key);
-    if (status !== undefined) return status;
-    if (operation === "status") return { kind: "idle" };
+    if (operation === "status") return status ?? { kind: "idle" };
+    if (
+      status !== undefined &&
+      !(operation === "retry" && status.kind === "failed")
+    )
+      return status;
 
     const running = { kind: "running" } as const;
     this.statuses.set(key, running);
-    const deadline = AbortSignal.timeout(reviewSyncBounds.neverSyncedMs);
-    const lifetime = AbortSignal.any([deadline, this.shutdown.signal]);
-    const attempt = fetchInitialReviewTarget(source, lifetime).then(
+    const attempt = fetchInitialReviewTarget(
+      source,
+      this.shutdown.signal,
+      this.inactivityMs,
+    ).then(
       (revision) => {
         this.statuses.set(key, { kind: "ready", revision });
       },
       (error: unknown) => {
-        const problem = deadline.aborted
-          ? `origin did not answer within ${reviewSyncBounds.neverSyncedMs / 1000} seconds`
-          : gitProblem(error);
-        this.statuses.set(key, { kind: "failed", problem });
+        this.statuses.set(key, { kind: "failed", problem: gitProblem(error) });
       },
     );
     this.attempts.add(attempt);

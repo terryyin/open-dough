@@ -16,11 +16,24 @@ export function admitReviewInitialSync(
 ): ReviewInitialSyncRequest {
   if (method !== "GET" && method !== "POST")
     throw new RefusedRequest(405, "Only GET and POST are accepted.");
-  requireExactQuery(url, ["source"], "initial sync");
+  const retry = url.searchParams.has("retry");
+  requireExactQuery(
+    url,
+    retry ? ["source", "retry"] : ["source"],
+    "initial sync",
+  );
+  if (retry && (method !== "POST" || url.searchParams.get("retry") !== "true"))
+    throw new RefusedRequest(
+      400,
+      "The initial sync retry request is malformed.",
+    );
   const source = lookup(url.searchParams.get("source") ?? "");
   if (source === undefined)
     throw new RefusedRequest(404, "Unknown catalog source.");
-  return { source, operation: method === "POST" ? "start" : "status" };
+  return {
+    source,
+    operation: retry ? "retry" : method === "POST" ? "start" : "status",
+  };
 }
 
 export function installReviewInitialSyncMiddleware(

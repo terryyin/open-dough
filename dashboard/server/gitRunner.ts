@@ -6,6 +6,7 @@
 
 import { execFile, type ExecException } from "node:child_process";
 import { gitExecutable } from "../../Distribution/src/skills/dough-execute-plan/scripts/git-executable.mjs";
+import { ownedProcess } from "./productionProcess.mjs";
 
 export type GitCall = {
   // The folder git runs in; the server's own folder when absent.
@@ -69,6 +70,38 @@ export async function runGitUntilClosed(
   call: GitCall,
 ): Promise<GitOutput> {
   return gitOutput(args, call, true);
+}
+
+// A long fetch drains progress continuously and retains only bounded
+// diagnostics. Cancellation ends Git and its transport before returning.
+export async function runGitWithProgressUntilClosed(
+  args: readonly string[],
+  { cwd, env, signal }: Pick<GitCall, "cwd" | "env" | "signal">,
+  report: (chunk: string) => void,
+): Promise<void> {
+  const directory = cwd ?? process.cwd();
+  const callEnv = { ...process.env, ...env, LC_ALL: "C" };
+  const executable = await gitExecutable({ cwd: directory, env: callEnv });
+  const running = ownedProcess(executable, [...args], {
+    cwd: directory,
+    env: callEnv,
+    ...(signal === undefined ? {} : { signal }),
+  });
+  running.child.stderr.setEncoding("utf8").on("data", report);
+  const result = await running.exited;
+  signal?.throwIfAborted();
+  if (result.code !== 0) {
+    const diagnostics = running.output().slice(-4096).replaceAll("\r", "\n");
+    const errorLine = diagnostics
+      .split("\n")
+      .findLast((line) => /^(fatal|error): /.test(line));
+    throw new GitFailure(
+      Object.assign(new Error("Git could not fetch the published history."), {
+        cmd: "git fetch",
+      }),
+      { stdout: "", stderr: errorLine ?? diagnostics },
+    );
+  }
 }
 
 async function gitOutput(

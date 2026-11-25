@@ -14,7 +14,9 @@ import {
   gitProblem,
   runGit,
   runGitUntilClosed,
+  runGitWithProgressUntilClosed,
 } from "./gitRunner.ts";
+import { whileGitProgresses } from "./gitFetchProgress.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 
 type ReviewRepositorySync = {
@@ -89,22 +91,22 @@ async function fetchPublishedRef(
   source: PublishedSource,
   ref: string,
   signal: AbortSignal,
+  progress?: (chunk: string) => void,
 ): Promise<string> {
   const previous = await lastSync(repository);
   const call = { cwd: repository, signal, env: fetchEnvironment, maxBuffer };
   try {
     await createIfMissing(repository, source, signal);
-    await runGitUntilClosed(
-      [
-        ...credentials,
-        "fetch",
-        "--quiet",
-        "origin",
-        `+refs/heads/${ref}:${trackingRef(ref)}`,
-      ],
-      call,
-    );
-    const result = await runGit(
+    const args = [
+      ...credentials,
+      "fetch",
+      progress === undefined ? "--quiet" : "--progress",
+      "origin",
+      `+refs/heads/${ref}:${trackingRef(ref)}`,
+    ];
+    if (progress === undefined) await runGitUntilClosed(args, call);
+    else await runGitWithProgressUntilClosed(args, call, progress);
+    const result = await runGitUntilClosed(
       ["rev-parse", "--verify", `${trackingRef(ref)}^{commit}`],
       call,
     );
@@ -144,6 +146,7 @@ export async function syncedReviewRepository(
 export function fetchInitialReviewTarget(
   source: PublishedSource,
   lifetime: AbortSignal,
+  inactivityMs: number,
 ): Promise<string> {
   const repository = reviewRepositoryPath(source);
   return fetches.fetchOwned(
@@ -151,7 +154,16 @@ export function fetchInitialReviewTarget(
     "origin",
     source.ref,
     lifetime,
-    (signal) => fetchPublishedRef(repository, source, source.ref, signal),
+    (signal) =>
+      whileGitProgresses(signal, inactivityMs, (fetchSignal, progress) =>
+        fetchPublishedRef(
+          repository,
+          source,
+          source.ref,
+          fetchSignal,
+          progress,
+        ),
+      ),
   );
 }
 

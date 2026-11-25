@@ -30,11 +30,13 @@ cross-restart job resumption, and the Board migration are deferred.
   failures alone cannot answer the initial-sync status contract. Keep one
   owner for that status, the active attempt, and its verified result. Do not
   add a second repository, independent writer, or new refresh scheduler.
-- Coordinate that seam with [SEED-430, Board and Review shared refresh](../819-read-published-board-and-review/PLAN.md).
-  If either story lands first, build on the resulting shared boundary. The
-  current Review repository can support this increment without the Board
-  migration. Recheck project, origin, and relevant ref when deciding whether
-  a verified observation covers the request.
+- Coordinate that seam with [SEED-430, Board and Review shared refresh](../../seeds/SEED-430-read-published-project-data-from-local-git.md).
+  Its fixture-routing work landed at `f05e15351`. The explicit Git origin
+  route used by Review fixtures keeps precedence. The published-progress
+  successor carries the remaining shared Board and Review work. Use the
+  current Review repository for this increment and recheck project, origin,
+  and relevant ref when deciding whether a verified observation covers
+  the request.
 - A state-changing start or retry uses the existing Dashboard local request
   admission, accepts a configured project identity, and resolves the origin
   and target on the server. Status reads observe the same attempt. Publish
@@ -94,7 +96,7 @@ slice 2. The existing Review consumer switches to this contract in slice 3.
 ### 2. Continue a progressing initial sync and recover a stopped attempt
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A first sync that advances past the old review deadline stays
 running. A quiet stall or origin refusal settles as failed. Status reports
@@ -165,19 +167,21 @@ check that neither displays the initial-sync action.
 
 ### Slice 1 evidence
 
-The admitted endpoint owns one target attempt independently of request
-cancellation. `review-initial-sync.spec.ts` holds the real fixture Git fetch,
-checks late status and the exact published target, and observes ordinary
-same-target joins and other-ref writer ordering. Its wrong-ref case establishes
-that a successful Git exit alone cannot report readiness.
-`review-initial-sync-admission.spec.ts` observes the cross-site refusal at
-the registered endpoint without creating a Review repository.
+`review-initial-sync.spec.ts` observes late status after cancellation, shared
+writer order, exact ref readiness and failure when Git fetched a different ref.
+`review-initial-sync-admission.spec.ts` verifies cross-site refusal with the
+Review repository absent. Focused backend and existing Intent CI browser
+checks and Dashboard typecheck passed. `s1-implementation.md` in the Git
+evidence directory holds commands and trace. Story-branch observer registered
+the accepted revision `04fb36330b917d44d5808bb3d7b5138d8b8265af`.
 
-Focused backend proof passed, including Done and Taken offline comparisons,
-published sessions, branch entry, generic Git writer, and launch shutdown
-callers. Two existing Done and Taken Intent CI journeys and Dashboard
-typecheck passed. Literal commands, run records and consumer trace are in
-the checkout's Git evidence directory under `s1-implementation.md`.
+### Slice 2 evidence
+
+`review-initial-sync-progress.spec.ts` observes Git object and byte increments
+past the scaled former limit, a stall under repeated output, refusal and shared
+retry after Git closes, and shutdown with an active transport. Forty focused
+backend cases and Dashboard typecheck passed. `s2-implementation.md` in the
+Git evidence directory holds commands and trace.
 
 ## Story obligations
 
@@ -185,13 +189,19 @@ the checkout's Git evidence directory under `s1-implementation.md`.
 
 Reported: slice 1 — "Slice 2 replaces the interim original 50-second bound with Git progress-inactivity handling and explicit retry."
 Story clause: "The sync outlives its review and status requests and keeps running while Git makes progress, including beyond the former per-open budget."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `review-initial-sync-progress.spec.ts` advancing-transfer, stall/retry, origin-refusal, and process-shutdown observations
 
 ### G2. Connect the review opening to the verified target
 
 Reported: slice 1 — "The new endpoint currently has no browser consumer."
 Story clause: "When the server confirms readable published history, the pane automatically resumes the same review request, including its story and comparison selection."
 Disposition: receiving slice 3
+
+### G3. Provide the retry action in Review changes
+
+Reported: slice 2 — "The Retry sync control remains assigned to slice 4."
+Story clause: "An open or reopened pane shows the specific failure and offers **Retry sync**, which starts or joins one new attempt."
+Disposition: receiving slice 4
 
 ## Consumer trace
 
