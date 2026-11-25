@@ -5,7 +5,7 @@ import {
 } from "../../dashboard/test-support/intentModePage.ts";
 // A Taken card's empty area selects its story: one header above the views
 // names it, its revisions and outside count, and offers Project Intent and
-// Review changes. Changes starts with "Selected story only"; the whole
+// Review changes. Changes starts with "Changes only" on; off, the whole
 // tree shows change styling, auto-opened containing folders and the first
 // changed location. Header appearance is proved by the mounted sidebar spec.
 // Changed Purpose matches Review
@@ -69,7 +69,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
     await expect(story.views).toHaveText("CI comparisonIntent coverage");
     await expect(storyHomeButton(intent)).toBeVisible();
-    await expect(story.storyOnly(column)).not.toBeChecked();
+    await expect(story.changesOnly(column)).toBeChecked();
   });
 
   await test.step("the persistent header names the story and its published comparison", async () => {
@@ -87,7 +87,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(story.tree.getByText(/notes\.md/)).toHaveCount(1);
   });
 
-  await test.step("the first changed location and its folders containing changes are open; the rest stay collapsed", async () => {
+  await test.step("the first changed location and its folders containing changes are open; the rest stay collapsed and unchanged folders are not listed", async () => {
     await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
       "aria-expanded",
       "true",
@@ -98,6 +98,12 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
     for (const name of ["arriving", "boundary", "out"])
       await expect(story.folderToggle(name, true)).toBeVisible();
+    await expect(story.folderToggle("other", false)).toHaveCount(0);
+    await expect(story.file("dashboard/tests/other/c.spec.ts")).toHaveCount(0);
+  });
+
+  await test.step("turning Changes only off lists the revision's unchanged files, their folders collapsed", async () => {
+    await story.changesOnly(column).uncheck();
     await expect(story.folderToggle("other", false)).toBeVisible();
     await expect(story.file("dashboard/tests/other/c.spec.ts")).toBeHidden();
   });

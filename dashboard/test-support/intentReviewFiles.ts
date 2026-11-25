@@ -6,7 +6,7 @@ import {
   intentFile,
   repositoryTree,
   repositoryFolder,
-  storyOnly,
+  changesOnly,
 } from "./support/intentStoryPage.ts";
 import { expectTreeRows, fileLineCounts } from "./support/reviewTreeRows.ts";
 
@@ -67,7 +67,7 @@ export class IntentReviewFiles {
 
   async showOnlyChanged() {
     await this.shown();
-    await storyOnly(this.#intent).check();
+    await changesOnly(this.#intent).check();
     return this;
   }
 
@@ -128,6 +128,12 @@ export class IntentReviewFiles {
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    return this;
+  }
+
+  async expectChangesOnly(on: boolean) {
+    await this.shown();
+    await expect(changesOnly(this.#intent)).toBeChecked({ checked: on });
     return this;
   }
 

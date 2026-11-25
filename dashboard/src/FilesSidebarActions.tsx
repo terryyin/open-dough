@@ -6,7 +6,7 @@
 import "./files-sidebar-actions.css";
 import { StoryHomeButton, type StoryPath } from "./IntentStoryEvidence.tsx";
 import {
-  storyOnlyFilterOf,
+  changesOnlyFilterOf,
   type StoryTreeScope,
 } from "./IntentStorySummary.tsx";
 
@@ -77,7 +77,7 @@ export function IntentFilesActions({
           ? {
               scope: "story",
               onHome: path?.onHome,
-              changesOnly: scope && storyOnlyFilterOf(scope),
+              changesOnly: scope && changesOnlyFilterOf(scope),
             }
           : { scope: "project" }
       }

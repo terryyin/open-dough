@@ -1,20 +1,16 @@
 import { codePane, expectContextRead } from "./reviewPanes.ts";
 import {
-  browseStoryFiles,
   chooseStoryTab,
   expectStoryTab,
-  filesColumn,
-  showIntentFiles,
   storySummary,
   storyFilesReading,
   storyTabPanel,
   storyViews,
-  uncoverIntentReader,
 } from "../intentModePage.ts";
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
-// read of the page: the selected story's header and views, the contains-changes
-// background, the "Selected story only" toggle, and a changed file's diff in
-// Intent's Purpose. Scenarios that read several of these hold `intentStory`.
+// read of the page: the selected story's header and views, its repository
+// tree (./intentStoryTreePage.ts), and a changed file's diff in Intent's
+// Purpose. Scenarios that read several of these hold `intentStory`.
 // Arranging the taken story: ./selectTakenStoryInIntent.ts. A row's
 // change-kind style: ./changeKindStyle.ts.
 
@@ -26,6 +22,7 @@ import {
   fileFollowUpDialog,
   followUpComposer,
 } from "./fileFollowUpPage.ts";
+import { intentFile, storyTree } from "./intentStoryTreePage.ts";
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -46,6 +43,19 @@ export {
   browseStoryFiles,
   chooseStoryTab,
 } from "../intentModePage.ts";
+export {
+  background,
+  changesOnly,
+  chooseIntentFile,
+  expectNoIntentFile,
+  folderItem,
+  folderRow,
+  folderToggle,
+  intentFile,
+  listStoryRevision,
+  repositoryFolder,
+  repositoryTree,
+} from "./intentStoryTreePage.ts";
 
 // Story-specific readings within the persistent selected-story header.
 export function storyHeaderReading(intent: Locator) {
@@ -92,72 +102,6 @@ export async function storyHeaderDetail(intent: Locator) {
   return header;
 }
 
-// The "Selected story only" toggle.
-export const storyOnly = (intent: Locator) =>
-  intent.getByRole("checkbox", { name: "Selected story only", exact: true });
-
-// A file's control in Intent's tree, by its accessible name: its full path,
-// or for a changed file its kind and path as Review changes names it. A story
-// comparison may append Proof's Counts and after-side words after a comma.
-const fileName = (name: string) =>
-  new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:,|$)`);
-export const intentFile = (
-  intent: Locator,
-  name: string,
-  options: { readonly includeHidden?: boolean } = {},
-) =>
-  filesColumn(intent).getByRole("button", { ...options, name: fileName(name) });
-
-// Chooses a file in Intent's tree, opening Files first where a narrow page
-// keeps it in a drawer, which the choice closes.
-export async function chooseIntentFile(intent: Locator, name: string) {
-  await showIntentFiles(intent);
-  await intentFile(intent, name).click();
-}
-
-// Intent's tree lists no file NAME, read with Files shown and then the reader
-// uncovered again where a narrow page lays Files over it as a drawer.
-export async function expectNoIntentFile(intent: Locator, name: string) {
-  await showIntentFiles(intent);
-  await expect(intentFile(intent, name)).toHaveCount(0);
-  await uncoverIntentReader(intent);
-}
-
-// The story's repository file tree.
-export const repositoryTree = (intent: Locator) =>
-  filesColumn(intent).getByRole("list", {
-    name: "Repository files",
-    exact: true,
-  });
-
-// A folder's toggle in Intent, by the folder's name and whether it is open.
-export const folderToggle = (intent: Locator, name: string, open: boolean) =>
-  intent.getByRole("button", {
-    name: `${open ? "Collapse" : "Expand"} ${name}`,
-    exact: true,
-  });
-
-// A folder's row (toggle and name) in Intent, and the list item it heads,
-// which carries the contains-changes mark.
-export const folderRow = (intent: Locator, name: string) =>
-  intent.locator(".story-review-folder-row").filter({
-    has: intent
-      .page()
-      .locator(`button.story-review-folder[aria-label$=" ${name}"]`),
-  });
-
-export const folderItem = (intent: Locator, name: string) =>
-  folderRow(intent, name).locator("xpath=..");
-
-// A repository folder, including a configured Intent root.
-export const repositoryFolder = (intent: Locator, path: string) =>
-  repositoryTree(intent).locator(
-    `li[data-folder-path=${JSON.stringify(path)}]`,
-  );
-
-export const background = (row: Locator) =>
-  row.evaluate((element) => getComputedStyle(element).backgroundColor);
-
 // Read the already selected diff without selecting a file or changing its place.
 export function intentDiffReading(intent: Locator) {
   const purpose = purposeRegion(intent);
@@ -198,37 +142,12 @@ async function followUpFrom(intent: Locator, control: Locator) {
 // compare; `background` stays a measurement the scenario compares itself.
 export function intentStory(intent: Locator) {
   return {
+    ...storyTree(intent),
     summary: storySummary(intent),
     header: storyHeaderReading(intent),
     title: storyTitle(intent),
     views: storyViews(intent),
     diffReading: intentDiffReading(intent),
-    storyOnly: (scope?: Locator) => storyOnly(scope ?? intent),
-    file: (name: string) => intentFile(intent, name),
-    folderToggle: (name: string, open: boolean) =>
-      folderToggle(intent, name, open),
-    folderRow: (name: string) => folderRow(intent, name),
-    folderItem: (name: string) => folderItem(intent, name),
-    folderAt: (path: string) => repositoryFolder(intent, path),
-    folderRowAt: (path: string) =>
-      repositoryFolder(intent, path).locator(
-        ":scope > .story-review-folder-row",
-      ),
-    async expandFolderPath(path: string) {
-      let ancestor = "";
-      for (const segment of path.split("/")) {
-        ancestor = ancestor ? `${ancestor}/${segment}` : segment;
-        const toggle = repositoryFolder(intent, ancestor).locator(
-          ":scope > div > button[aria-expanded]",
-        );
-        await expect(toggle).toBeVisible();
-        if ((await toggle.getAttribute("aria-expanded")) === "false")
-          await toggle.click();
-        await expect(toggle).toHaveAttribute("aria-expanded", "true");
-      }
-    },
-    tree: repositoryTree(intent),
-    files: filesColumn(intent),
     headerDetail: () => storyHeaderDetail(intent),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
       chooseStoryTab(intent, name),
@@ -236,7 +155,6 @@ export function intentStory(intent: Locator) {
       expectStoryTab(intent, name),
     panel: (name: Parameters<typeof storyTabPanel>[1]) =>
       storyTabPanel(intent, name),
-    browseFiles: () => browseStoryFiles(intent),
     filesReading: storyFilesReading(intent),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     followUpComparison: () =>

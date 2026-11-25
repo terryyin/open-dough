@@ -23,7 +23,7 @@ const panel = (name: string) =>
 
 async function showsUsablePublishedTree() {
   const story = intentStoryCompare();
-  await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
+  await expect.element(story.changesOnly).not.toBeInTheDocument();
   await expect
     .element(
       story.tree.getByRole("button", {
@@ -98,7 +98,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await story.retry();
   await expect.poll(story.revisions).toContain("Published story branch");
   await expect.element(story.alert).not.toBeInTheDocument();
-  await expect.element(story.onlyChangedFiles).not.toBeChecked();
+  await expect.element(story.changesOnly).toBeChecked();
   for (const name of [changed.product, changed.notes])
     await expect.element(story.file(name)).toBeVisible();
   for (const name of [changed.modified, changed.added])
@@ -131,7 +131,7 @@ test("without configured Intent locations the header names the selected story, S
   expect(story.header.element().parentElement?.firstElementChild).toBe(
     story.header.element(),
   );
-  await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
+  await expect.element(story.changesOnly).not.toBeInTheDocument();
   await expect
     .element(story.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");

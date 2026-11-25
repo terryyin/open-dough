@@ -31,11 +31,11 @@ export type ComparedStory = {
   readonly wholeStory: boolean;
 };
 
-// The "Selected story only" choice over a compared story's tree and whether
-// no location's test file changed; only the locations browser has them.
+// The "Changes only" choice over a compared story's tree and whether no
+// path matches it; only the locations browser has them.
 export type StoryTreeScope = {
   readonly only: boolean;
-  readonly noneInLocations: boolean;
+  readonly noMatch: boolean;
   readonly onOnly: (only: boolean) => void;
 };
 
@@ -136,11 +136,11 @@ export function storyCiEvidenceOptionsOf(summary: StorySummary | undefined) {
   };
 }
 
-// The Changes tree's "Selected story only" filter for the Files sidebar's
-// row, and its message when no location's test file changed.
-export function storyOnlyFilterOf(scope: StoryTreeScope) {
+// The Changes tree's "Changes only" filter for the Files sidebar's row, and
+// its message when no path matches it.
+export function changesOnlyFilterOf(scope: StoryTreeScope) {
   return {
-    label: "Selected story only",
+    label: "Changes only",
     checked: scope.only,
     onToggle: scope.onOnly,
   };
@@ -151,10 +151,10 @@ export function StoryTreeScopeNote({
 }: {
   readonly scope: StoryTreeScope;
 }) {
-  if (!scope.only || !scope.noneInLocations) return null;
+  if (!scope.noMatch) return null;
   return (
     <p className="intent-story-none" role="status">
-      No test files in Intent locations changed in this story
+      No changed files match in this comparison
     </p>
   );
 }

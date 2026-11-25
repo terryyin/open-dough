@@ -66,7 +66,7 @@ test("on a phone, expanding a folder keeps the Files drawer open, choosing a fil
   const story = await openStoryOnPhone();
   const files = fileLayout();
   await files.toggle.click();
-  await story.onlyChangedFiles.click();
+  await expect.element(story.changesOnly).toBeChecked();
   await files.showsFiles(true);
   const folder = scopeToggle("deep");
   for (const expanded of ["false", "true"]) {
@@ -82,7 +82,7 @@ test("on a phone, expanding a folder keeps the Files drawer open, choosing a fil
 
   await files.toggle.click();
   await files.showsFiles(true);
-  await expect.element(story.onlyChangedFiles).toBeChecked();
+  await expect.element(story.changesOnly).toBeChecked();
   await expect
     .element(story.file(deepFile))
     .toHaveAttribute("aria-pressed", "true");

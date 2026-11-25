@@ -130,6 +130,8 @@ export function storyRepositoryTree(
   const files = [...overlay.files.values()].filter(
     (file) => !changesOnly || file.kind !== undefined,
   );
+  // The listed inventory by repository path; a folder's file list reads it.
+  const listed = new Map(files.map((file) => [file.path, file] as const));
   // Keep the former folder's Summary reachable without adding a file row.
   const proofFolders = files.flatMap(({ proofPath }) =>
     proofPath === undefined
@@ -143,6 +145,9 @@ export function storyRepositoryTree(
   return {
     nodes,
     roots,
+    files: listed as ReadonlyMap<string, IntentTreeFile>,
+    // Changes only is on and no path matches it.
+    noMatch: changesOnly && files.length === 0,
     changedFiles: reviewFileOrder(nodes).filter(
       (file) => file.kind !== undefined,
     ),

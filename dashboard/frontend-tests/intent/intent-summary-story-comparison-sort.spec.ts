@@ -141,7 +141,7 @@ test("Summary keeps its sort through drilling and story selection, falling back 
 
   async function returnToDone() {
     await selectFromDevelopment(facts.identity, "Story A", "Story B");
-    await intentStoryCompare().browseFiles();
+    await intentStoryCompare().listRevision();
     await openSummary(entry);
   }
 

@@ -5,7 +5,7 @@
 // which differ from the published revision Intent describes
 // (ADR 0008), since trunk has advanced past the completion. The test file the
 // story deleted is absent from the published tree, yet stays in Intent as
-// removed in both "Selected story only" states, with the deletion diff
+// removed in both "Changes only" states, with the deletion diff
 // Review changes shows; the modified and added files show Review's diffs
 // too. That a diff is the same in both states is proved with the moves
 // (./intent-story-changes-moves.spec.ts). Historical source and missing-history
@@ -100,10 +100,10 @@ test("Intent overlays a completed story's published history comparison, naming i
   const style = await kindStyles(intent);
   for (const only of [false, true]) {
     const state = only ? "on" : "off";
-    if (only) await story.storyOnly().check();
-    await expect(story.storyOnly()).toBeChecked({ checked: only });
+    await story.changesOnly().setChecked(only);
+    await expect(story.changesOnly()).toBeChecked({ checked: only });
 
-    await test.step(`Selected story only ${state}: the deleted, modified, and added files show by kind`, async () => {
+    await test.step(`Changes only ${state}: the deleted, modified, and added files show by kind`, async () => {
       await expandIntentGroup(intent, "dashboard/tests");
       for (const [name, expected] of [
         [changed.deleted, style.deleted],

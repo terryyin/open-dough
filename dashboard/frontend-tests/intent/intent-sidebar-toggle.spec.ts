@@ -39,7 +39,7 @@ test("Hide files gives the reading pane the width under the story's header; Show
   const files = fileLayout();
   const story = intentStoryCompare();
   await story.browseFiles();
-  await story.onlyChangedFiles.click();
+  await expect.element(story.changesOnly).toBeChecked();
   const selected = story.file(deepFile);
   await selected.click();
   await expect.poll(story.diffName).toBe(deepFile);
@@ -60,7 +60,7 @@ test("Hide files gives the reading pane the width under the story's header; Show
 
   await files.toggle.click();
   await files.showsFiles(true);
-  await expect.element(story.onlyChangedFiles).toBeChecked();
+  await expect.element(story.changesOnly).toBeChecked();
   await expect.element(selected).toHaveAttribute("aria-pressed", "true");
   for (const name of ["boundary", "deep"])
     await expect

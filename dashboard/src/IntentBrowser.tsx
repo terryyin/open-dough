@@ -166,6 +166,7 @@ export function IntentBrowser({
           comparisonReading={comparisonReading}
           locations={locations}
           treeFiles={storyTree.overlay.files}
+          listedFiles={storyTree.shown.files}
           selection={selection}
           story={story}
           changedFiles={storyTree.shown.changedFiles}

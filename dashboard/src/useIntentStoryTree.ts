@@ -27,8 +27,10 @@ export function useIntentStoryTree({
     () => intentStoryOverlay(locations, changes, inventory),
     [locations, changes, inventory],
   );
-  const [only, setOnly] = useKeptArrangement("storyOnly", () => false);
-  const changesOnly = story !== undefined && only;
+  const [only, setOnly] = useKeptArrangement("changesOnly", () => true);
+  // An unread or unavailable comparison narrows nothing.
+  const changesOnly =
+    changes !== undefined && comparisonReading !== true && only;
   const shown = useMemo(
     () => storyRepositoryTree(locations, overlay, changesOnly),
     [locations, overlay, changesOnly],
@@ -42,7 +44,7 @@ export function useIntentStoryTree({
       ? undefined
       : {
           only,
-          noneInLocations: overlay.changedLocations.size === 0,
+          noMatch: shown.noMatch,
           onOnly: (next) => {
             setOnly(next);
             setRound((previous) => previous + 1);

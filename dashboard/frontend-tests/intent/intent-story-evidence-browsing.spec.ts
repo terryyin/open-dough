@@ -59,7 +59,7 @@ test("Intent coverage leaves the file sidebar usable for opening a folder's summ
     .toBeVisible();
 });
 
-test("Selected story only hides the unchanged failing file but keeps its result in the same CI build", async () => {
+test("Changes only hides the unchanged failing file but keeps its result in the same CI build", async () => {
   const run = { revision: initialRevision, runId: 41, runAttempt: 1 };
   const entry = makeMe.aCiProofEntry
     .at(location)
@@ -97,12 +97,13 @@ test("Selected story only hides the unchanged failing file but keeps its result 
       run.revision.slice(0, 7),
     );
   };
-  await expect.element(story.file(keptPath)).toBeVisible();
+  await expect.element(story.changesOnly).toBeChecked();
+  await expect.element(story.file(keptPath)).not.toBeInTheDocument();
   await showsFailingBuild();
 
-  await story.onlyChangedFiles.click();
+  await story.changesOnly.click();
 
-  await expect.element(story.file(keptPath)).not.toBeInTheDocument();
+  await expect.element(story.file(keptPath)).toBeVisible();
   await showsFailingBuild();
 });
 

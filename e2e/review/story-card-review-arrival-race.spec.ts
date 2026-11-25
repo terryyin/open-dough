@@ -157,9 +157,9 @@ test("choosing a file while the card's comparison is reading keeps that file", a
   } finally {
     await held.releaseAndDrain();
   }
-  await files.expectSelected("tests/kept.spec.ts");
   await expect(purposeRegion(intent)).toContainText('test("kept source"');
-  await expect(files.row("tests/kept.spec.ts")).toBeFocused();
+  await files.expectChangesOnly(true);
+  await files.expectNotShown("tests/kept.spec.ts");
 });
 
 test("returning Home while review is pending keeps the late comparison from opening a file", async ({

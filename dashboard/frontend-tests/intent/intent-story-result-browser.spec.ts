@@ -60,7 +60,7 @@ test("switching comparisons changes the inventory, settings and file's exact rev
     },
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
+  await story.listRevision();
   await story.expandFolderPath("checks");
   await expect.element(story.file(currentTest)).toBeVisible();
   await story.expandFolderPath("docs");
@@ -104,7 +104,7 @@ test("a late inventory from the prior comparison cannot replace a captured run's
           }),
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
+  await story.listRevision();
   await expect.poll(oldInventory.asked).toBe(true);
   await story.chooseLatestLanding();
   await story.expandFolderPath("previous");
@@ -156,7 +156,7 @@ test("an inventory failure keeps the changed diff available while Retry restores
       ),
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
+  await story.listRevision();
   const failure = story.sidebar
     .getByRole("alert")
     .filter({ hasText: "Repository inventory could not be read" });
@@ -172,4 +172,44 @@ test("an inventory failure keeps the changed diff available while Retry restores
   await intentFileReading(guide).shows("same guide");
   await intentFileReading(guide).isAt(doneCompletion);
   expect(attempts).toBe(2);
+});
+
+test("with Changes only on, choosing a landed run lists that run's changed paths and keeps Changes only", async () => {
+  const landed = makeMe.aStoryReview
+    .landed()
+    .onRun(run, [run])
+    .modifying(capturedTest)
+    .please();
+  await openDoneStoryComparison({
+    review: (query) =>
+      Promise.resolve(
+        query.run === run.key
+          ? landed
+          : { ...publishedCompletion(), runs: [run] },
+      ),
+    storyResult: (query) => {
+      const revision =
+        query.reference === undefined ? doneCompletion : capturedRevision;
+      const path = revision === doneCompletion ? currentTest : capturedTest;
+      return Promise.resolve({
+        kind: "inventory",
+        revision,
+        paths: [guide, path],
+        locations: [listed(path)],
+      });
+    },
+  });
+  const story = intentStoryCompare();
+  await story.browseFiles();
+  await expect.element(story.changesOnly).toBeChecked();
+  await expect
+    .element(story.file("Added dashboard/tests/folder/a.spec.ts"))
+    .toBeVisible();
+  await story.chooseLatestLanding();
+  await expect.element(story.changesOnly).toBeChecked();
+  await expect.element(story.file(`Modified ${capturedTest}`)).toBeVisible();
+  await expect
+    .element(story.file("Added dashboard/tests/folder/a.spec.ts"))
+    .not.toBeInTheDocument();
+  await expect.element(story.file(guide)).not.toBeInTheDocument();
 });

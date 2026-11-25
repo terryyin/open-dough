@@ -93,7 +93,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
       .element(page.getByRole(role, { name: switchName }))
       .not.toBeInTheDocument();
 
-  await story.browseFiles();
+  await story.listRevision();
   const folder = scopeToggle("folder");
   await expect.element(folder).toBeVisible();
   if (folder.element().getAttribute("aria-expanded") === "false")

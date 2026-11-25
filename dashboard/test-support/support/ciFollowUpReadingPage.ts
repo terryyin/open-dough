@@ -6,7 +6,7 @@ import { expect } from "./pageTest.ts";
 import { ciFollowUpEndpoint } from "../../src/ciFollowUp.ts";
 import { parts } from "../dashboardPage.ts";
 import { showIntentFiles, uncoverIntentReader } from "../intentModePage.ts";
-import { chooseStoryTab, intentFile, storyOnly } from "./intentStoryPage.ts";
+import { chooseStoryTab, intentFile, changesOnly } from "./intentStoryPage.ts";
 import {
   expandIntentGroup,
   intentLocationName,
@@ -140,7 +140,8 @@ export async function expectOriginalProofNavigation(
 ) {
   const { intent } = parts(page);
   await showIntentFiles(intent);
-  if (await storyOnly(intent).isChecked()) await storyOnly(intent).uncheck();
+  if (await changesOnly(intent).isChecked())
+    await changesOnly(intent).uncheck();
   await intentLocationName(intent, expected.location).click();
   await uncoverIntentReader(intent);
   const summary = summaryRegion(intent);

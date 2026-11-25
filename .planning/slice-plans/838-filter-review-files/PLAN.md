@@ -121,7 +121,7 @@ counts in `intent-done-branch-contributions.spec.ts`.
 ### 1. Show a story's changes in the shared file inventory
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The mounted changes journey and the direct changes-dimension cases
 in the proof map.
 
@@ -135,6 +135,19 @@ updates the list and keeps the choice. A path the filter hides stays open
 and is not described as missing from the revision. When a usable comparison
 has no matching path, say so. While the comparison is not usable, do not
 narrow the inventory; slice 3 adds the explanation.
+
+Learnings: **Changes only** on by default hid the untouched file that about
+20 journeys outside the named list open. They now widen through
+`listRevision()` on `intentStoryFiles()` (mounted, in
+`intent-story-files-page.ts`) and `listStoryRevision` (end-to-end, in
+`intentStoryTreePage.ts`); slice 2 adds its **Intent only** steps there and
+its rule cases to `intent-story-repository-tree.spec.ts`. A file chosen
+while the comparison is read loses its row, not its reading, when the
+comparison arrives (`story-card-review-arrival-race`). Refactor follow-up
+for wrap-up: `intent-done-completion-provenance`, `intent-done-prior-execution`,
+`intent-done-retained-landing` and `intent-story-becomes-done` still
+hand-write the story-review response watcher `completedReviewRequests.ts`
+offers.
 
 ### 2. Narrow the same inventory to Intent
 
@@ -170,3 +183,10 @@ No separate refinement pass was needed. The three slices extend one
 membership rule: changes, then Intent, then the case where the change set
 cannot be read. Each has its own mounted proof and fits the slice budget.
 This review found no remaining slice-specific concern.
+
+## Story obligations
+
+### G1. An unusable comparison's Changes only has no explanation yet
+Reported: slice 1 — "No narrowing while the comparison is unusable: only covered indirectly; slice 3 owns the explicit assertion."
+Story clause: "When the story's comparison is still being read, has failed, or is unavailable, **Changes only** explains why it is unavailable and does not narrow the inventory."
+Disposition: receiving slice 3

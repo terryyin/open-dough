@@ -76,7 +76,7 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
   await expectSelected(card, true);
   await intentChoice.click();
   const browser = intentStory(intent);
-  await browser.browseFiles();
+  await browser.listRevision();
   await browser.expandFolderPath("dashboard/tests");
   const file = browser.file(readSpec);
   await file.click();

@@ -39,6 +39,7 @@ test("a published story without Intent locations can browse unchanged source and
   const path = "docs/notes.md";
   await story.browseFiles();
   await expect(story.files).toContainText("No Intent locations are configured");
+  await story.listRevision();
   await story.expandFolderPath("docs");
   await story.file(path).click();
   await expect(purposeRegion(intent)).toContainText("notes 11");

@@ -3,7 +3,7 @@
 // round, Purpose/Proof choice (`./IntentFileReading.tsx`), the reading pane's
 // scroll offset, and the tree's arrangement: the expanded location, each
 // location's open folders (`./useLocationOpenFolders.ts`), the last reveal
-// request, and **Selected story only** with the expansion it asked for
+// request, and **Changes only** with the expansion it asked for
 // (`./useIntentStoryTree.ts`). Disposable page state (ADR 0008), in memory
 // only, kept by the page (`./PageFrame.tsx`) beside the chosen mode
 // (`./pageIntentMode.tsx`) so it outlasts Intent's own mount: switching to

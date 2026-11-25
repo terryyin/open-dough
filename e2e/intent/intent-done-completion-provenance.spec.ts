@@ -1,6 +1,7 @@
 // A saved preparation run cannot replace a later completed story's history.
 // Both the refinement capture and the execution completion use real installed
 // publication; the Done reader chooses their meaning, not a fabricated answer.
+import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
 import {
@@ -92,6 +93,7 @@ test("a Done story reads its published execution instead of an earlier refinemen
   expect(original).toContain("the completed execution test");
   expect(locations).toContain(completion);
   expect(locations).not.toContain(refinement.receipt.revision);
+  await listStoryRevision(intent);
   await folderToggle(intent, "boundary", false).click();
   await intentFile(intent, unchanged).click();
   await expect(purposeRegion(intent)).toContainText("kept 11");

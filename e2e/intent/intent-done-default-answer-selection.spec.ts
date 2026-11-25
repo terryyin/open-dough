@@ -28,9 +28,10 @@ import {
   commitBacklogCompletion,
   publishCompletedStory,
 } from "../../dashboard/test-support/support/completedStoryPublication.ts";
+import { waitForLandedReview } from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
-  browseStoryFiles,
+  listStoryRevision,
   intentStory,
   showComparisonDetails,
   storySummary,
@@ -151,20 +152,12 @@ test("selecting another Done story opens its published default after reading the
       landingRevision: firstCapture.revision,
     },
   );
-  const landedRead = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname === storyReviewEndpoint &&
-      url.searchParams.get("run") === first.reporting.reference
-    );
-  });
+  const landedRead = waitForLandedReview(page, first.reporting.reference);
   const landing = new ReviewLandedRun(storySummary(intent), () =>
     showComparisonDetails(storySummary(intent)),
   );
   await landing.choose(first.reporting.reference);
-  expect(
-    storyReviewSchema.parse(await (await landedRead).json()),
-  ).toMatchObject({
+  expect(await landedRead).toMatchObject({
     kind: "landed",
     tree: firstCapture.revision,
     selectedRun: first.reporting.reference,
@@ -172,7 +165,7 @@ test("selecting another Done story opens its published default after reading the
   await landing.expectShown(firstCapture.revision);
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
 
-  await browseStoryFiles(intent);
+  await listStoryRevision(intent);
   const firstTree = intentStory(intent);
   await firstTree.expandFolderPath("docs");
   await firstTree.file("docs/notes.md").click();
@@ -221,7 +214,7 @@ test("selecting another Done story opens its published default after reading the
       "data-state",
       "compared",
     );
-    await browseStoryFiles(intent);
+    await listStoryRevision(intent);
     const story = intentStory(intent);
     await story.expandFolderPath("second/tests");
     await expect(story.file("Modified dashboard/tests/a.spec.ts")).toHaveCount(

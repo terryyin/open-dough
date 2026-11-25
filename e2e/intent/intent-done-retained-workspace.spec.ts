@@ -1,3 +1,4 @@
+import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
@@ -114,6 +115,7 @@ test("a readable Done workspace cannot replace published locations, inventory, u
     0,
   );
   expect(locations).toContain(completion);
+  await listStoryRevision(intent);
   await intentFile(intent, "dashboard/tests/boundary/kept.spec.ts").click();
   await expect(purposeRegion(intent)).toContainText("kept 11");
   await expect(purposeRegion(intent)).not.toContainText("source rewrite");

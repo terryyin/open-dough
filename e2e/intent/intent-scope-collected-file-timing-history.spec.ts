@@ -1,3 +1,4 @@
+import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   chooseTimingUnit,
   scopeHistory,
@@ -188,6 +189,7 @@ test("a Done folder and file keep their collected history through Proof and Purp
     expect(ciCalls()).toHaveLength(before);
     return history;
   };
+  await listStoryRevision(intent);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
   await expectHistory(summary, ["700 ms", "1.5 s"]);
   // Each declared-unit row opens the same child path, as existing unit journeys do.
