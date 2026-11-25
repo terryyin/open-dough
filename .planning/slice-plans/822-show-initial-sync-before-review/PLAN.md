@@ -177,8 +177,9 @@ Literal commands, assertions, traces and passing results are in
 - Slice 3 at `4bcfa96cb3e730e7eaedc0497b814b7b077e49b1`. Backend, frontend and
   Chromium proof covers the typed pending answer and two-tab continuation with
   one initial fetch, exact comparison, first changed file and pinned source.
-- Slice 4. Frontend and Chromium proof covers retained failure, one explicit
-  keyboard retry, the original selected diff, and warm and history-gap cues.
+- Slice 4 at `184f8624e92fe74374ffd09b3107a5e5e149bab0`. Frontend and Chromium
+  proof covers retained failure, one keyboard retry, the original selected
+  diff, and warm and history-gap cues.
 
 ## Story obligations
 
@@ -236,3 +237,13 @@ observable start, transport recovery, review continuation, and pane recovery
 transitions. They share one project sync state and one review continuation
 rule. The interim deadline and missing retry action have named replacing
 slices. No remaining slice-specific planning concern was identified.
+
+## Execution complete
+
+Product advice: no change. The on-demand review solves the selected story, and
+the existing SEED-430 successors retain ownership of the Board migration.
+
+The outcome review found each promised behavior covered by direct backend
+observations and representative browser journeys. Process review is deferred
+until wrap-up receives the Intent Coverage check for the rewritten cold
+offline journey's explicit retry and continuation.
