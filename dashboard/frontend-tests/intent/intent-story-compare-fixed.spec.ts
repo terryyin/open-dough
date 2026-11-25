@@ -183,6 +183,7 @@ test("a late branch comparison cannot replace another story's explanation or fil
     .element(story.outsideFile(`Added ${incomingPath}`))
     .toBeVisible();
   holdBranchRead = true;
+  await story.openDetails();
   await activateComparisonControl(story.refreshButton);
   await comparisonRead(held.asked).toBe(true);
 

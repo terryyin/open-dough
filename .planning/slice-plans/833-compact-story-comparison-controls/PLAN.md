@@ -47,9 +47,17 @@ Project Intent's tab bar, which keeps its current layout.
 - [IntentPage.tsx](../../../dashboard/src/IntentPage.tsx) (247 lines) and
   [IntentStoryComparison.tsx](../../../dashboard/src/IntentStoryComparison.tsx)
   (237 lines) are near the 250-line check. The bar and its summary go in a
-  new `IntentComparisonBar.tsx`. IntentHeader keeps the title rows.
-  IntentPage only places the bar. No reorganization of the existing files
-  is required.
+  new `IntentComparisonBar.tsx`. IntentHeader keeps the title rows and
+  places the bar under them (slice 1): placing it from IntentPage would
+  pass 250 lines, and every Intent page object finds the comparison in the
+  "Selected story" header. Slice 2 passes IntentPage's files-toggle state
+  into IntentHeader, or moves the bar, keeping both files under 250 lines.
+- Intent's comparison details reuse Review changes' `ReviewDetails` and
+  the extracted `ReviewDetailsEye`. E2E journeys open them through the
+  shared `showComparisonDetails` in
+  [intentStoryPage.ts](../../../dashboard/test-support/support/intentStoryPage.ts);
+  readers of the details (landed-run heading, follow-up, revisions) use it,
+  not only Refresh.
 - [Plan 832](../832-choose-review-scope/PLAN.md) removes the header's
   scope crumb controls and also edits `intent-story-changes-gaps`,
   `intent-story-changes-only` and `intent-sidebar-toggle`. Neither story
@@ -73,7 +81,7 @@ and slice 3 proves it.
 ### 1. Read the active comparison from a one-line summary that opens its details
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New frontend spec `intent-story-comparison-summary.spec.ts` in
 `dashboard/frontend-tests/intent`. Update the seven failing cases above
 through
@@ -93,6 +101,12 @@ comparison, keeps the choice, reports the refreshed comparison, and leaves
 the details open with focus on Refresh. No comparison is available: the
 summary says so and the details explain why. The read failed: the summary
 reports it with **Retry**. Seed examples 3 and 5.
+
+Accepted: the new spec's five cases, the frontend `intent` and `review`
+folders, the e2e `intent` and `review` folders and traced consumers passed.
+Four e2e timeouts at load ~25–33 passed when rerun alone; branch CI is the
+deciding observation. `scripts/test.sh` runs no Playwright specs; e2e
+proof runs through `npm run --silent test:e2e -- <files>`.
 
 ### 2. Change the comparison from the same row as the files toggle
 

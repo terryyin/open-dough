@@ -83,6 +83,24 @@
   font-size: var(--text-sm);
 }
 
+/* The comparison bar (./IntentComparisonBar.tsx): the summary or its state
+   and the eye on one row that wraps on a narrow window. */
+.intent-comparison-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.intent-comparison-bar > p {
+  margin: 0;
+}
+
+.intent-comparison-bar-name {
+  font-weight: var(--weight-strong);
+}
+
 .intent-story-detail:empty {
   display: none;
 }

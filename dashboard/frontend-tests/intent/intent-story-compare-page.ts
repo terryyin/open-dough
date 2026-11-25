@@ -1,7 +1,8 @@
 // The selected story in a mounted Intent view
 // (./intent-story-compare-stories.ts) as a reader meets its comparison: the
-// header's revisions line and its Compare group (the comparison choice, the
-// story's commits, the uncommitted check, Refresh and the range read), the
+// header's comparison summary, the details its eye reveals (the revisions
+// and Refresh), its Compare group (the comparison choice, the story's commits,
+// the uncommitted check and the range read), the
 // story's views, the Changes file list, its folders and "Selected story
 // only" filter, and the selected file's diff in the reading pane.
 import { expect } from "vitest";
@@ -73,6 +74,20 @@ export function intentStoryCompare() {
   const outsideGroup = intent.getByRole("region", {
     name: "Outside Intent locations",
   });
+  const summary = header.getByRole("group", { name: "Comparison summary" });
+  const details = header.getByRole("group", { name: "Review details" });
+  const refreshButton = details.getByRole("button", { name: "Refresh" });
+  // The summary's eye, by the name it has now.
+  const detailsEye = (shown: boolean) =>
+    summary.getByRole("button", {
+      name: `${shown ? "Hide" : "Show"} review details`,
+      exact: true,
+    });
+  const openDetails = async () => {
+    const eye = detailsEye(false);
+    if (eye.query() !== null) await userEvent.click(eye);
+    await expect.element(details).toBeVisible();
+  };
   return {
     header,
     filesToggle: intent.getByRole("button", { name: /^(Hide|Show) files$/ }),
@@ -144,10 +159,11 @@ export function intentStoryCompare() {
     // How many of Intent's controls are pressed, as a selected file is.
     pressedControlCount: () =>
       intent.element().querySelectorAll('[aria-pressed="true"]').length,
-    // Comparison facts can expand independently of the header.
+    // Comparison facts can expand independently of the header, apart from
+    // the summary's eye.
     collapsedControl: header.getByRole("button", {
       expanded: false,
-      name: /^(?!Branch )/,
+      name: /^(?!Branch |Show review details$)/,
     }),
     revisions: () =>
       textOf(header.element().querySelector(".intent-story-revisions")),
@@ -157,9 +173,30 @@ export function intentStoryCompare() {
     includeMerged: compare.getByRole("checkbox", {
       name: "Include merged changes",
     }),
-    refreshButton: compare.getByRole("button", { name: "Refresh" }),
-    refresh: () =>
-      userEvent.click(compare.getByRole("button", { name: "Refresh" })),
+    // The summary's eye and the details it reveals; opening shows the
+    // details, holding Refresh.
+    detailsEye,
+    openDetails,
+    details,
+    detailsText: () => textOf(details.query()),
+    summary,
+    // The summary's words, without its eye's tooltip.
+    summaryText: () =>
+      [
+        ...(summary
+          .query()
+          ?.querySelectorAll(
+            ":scope > :not([aria-controls], :has([aria-controls]))",
+          ) ?? []),
+      ]
+        .map(textOf)
+        .join(" ")
+        .trim(),
+    refreshButton,
+    refresh: async () => {
+      await openDetails();
+      await userEvent.click(refreshButton);
+    },
     viewTab,
     chooseTab: (name: View) => activateComparisonControl(viewTab(name)),
     // A listed file's control, named by its kind and path.

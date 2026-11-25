@@ -4,11 +4,8 @@
 
 import type { ReactNode } from "react";
 import { IntentStoryCompare } from "./IntentStoryCompare.tsx";
-import {
-  CompactComparisonState,
-  ComparisonDetail,
-  compareOf,
-} from "./IntentStoryComparison.tsx";
+import { IntentComparisonBar } from "./IntentComparisonBar.tsx";
+import { compareOf } from "./IntentStoryComparison.tsx";
 import type { StorySummary } from "./IntentStorySummary.tsx";
 import { shortRevision } from "./publishedWork.ts";
 import { StoryNotes } from "./StoryNotesControl.tsx";
@@ -75,17 +72,12 @@ export function IntentHeader({
       )}
       {summary !== undefined && (
         <>
-          <CompactComparisonState
-            comparison={summary.comparison}
-            onRetry={summary.onRetry}
+          <IntentComparisonBar
+            key={summary.story.identity}
+            summary={summary}
+            compare={compare}
           />
-          <div className="intent-story-detail">
-            <ComparisonDetail
-              comparison={summary.comparison}
-              completed={summary.story.completed}
-            />
-            {compare !== undefined && <IntentStoryCompare compare={compare} />}
-          </div>
+          {compare !== undefined && <IntentStoryCompare compare={compare} />}
         </>
       )}
     </section>
