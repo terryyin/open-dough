@@ -74,7 +74,7 @@ Node 24.21.0 and Apple Git 2.50.1.
 ### 1. Start or rejoin one verified first sync
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Given a configured cold project, concurrent start and status
 requests see one running sync. When all waiting requests disconnect, the
@@ -146,6 +146,52 @@ observe the failure and recovery action, restore origin, retry, and see the
 original diff. Use slice 2 for stall and repeated retry timing. Exercise
 the warm failure and historical-gap cases at their existing boundaries and
 check that neither displays the initial-sync action.
+
+## Execution context
+
+- Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent
+  `Honoka-chan`. The established workspace is
+  `/Users/terryyin/git/open-dough/.worktrees/show-initial-sync-and-open-the-requested-review`.
+  The local integration checkout is `/Users/terryyin/git/open-dough`.
+- Starting revision `d8ecf133394e1aa0a45af4444e76234275f9838c`. The Take at
+  `41b1f70fc0ddc01fc4cc4f08565e7b186c5d0e88` was confirmed on `origin/main`
+  and `origin/codex/show-initial-sync-and-open-the-requested-review`.
+- Checkout setup used Node `24.21.0`, the locked npm setup, and Dashboard
+  typecheck. Chromium prerequisite validation passed on the same checkout.
+- Codex observer for `terryyin/open-dough`, workflow `ci.yml` (`CI`), and
+  `codex/show-initial-sync-and-open-the-requested-review`: coordinator
+  `seed-438-honoka`, mailbox `/tmp/dough-ci-501/watch-wPO4WT`, PID `29930`,
+  session `22122`, cell `g271:10`.
+
+### Slice 1 evidence
+
+The admitted endpoint owns one target attempt independently of request
+cancellation. `review-initial-sync.spec.ts` holds the real fixture Git fetch,
+checks late status and the exact published target, and observes ordinary
+same-target joins and other-ref writer ordering. Its wrong-ref case establishes
+that a successful Git exit alone cannot report readiness.
+`review-initial-sync-admission.spec.ts` observes the cross-site refusal at
+the registered endpoint without creating a Review repository.
+
+Focused backend proof passed, including Done and Taken offline comparisons,
+published sessions, branch entry, generic Git writer, and launch shutdown
+callers. Two existing Done and Taken Intent CI journeys and Dashboard
+typecheck passed. Literal commands, run records and consumer trace are in
+the checkout's Git evidence directory under `s1-implementation.md`.
+
+## Story obligations
+
+### G1. Replace the interim request-era cutoff and prove retry
+
+Reported: slice 1 — "Slice 2 replaces the interim original 50-second bound with Git progress-inactivity handling and explicit retry."
+Story clause: "The sync outlives its review and status requests and keeps running while Git makes progress, including beyond the former per-open budget."
+Disposition: receiving slice 2
+
+### G2. Connect the review opening to the verified target
+
+Reported: slice 1 — "The new endpoint currently has no browser consumer."
+Story clause: "When the server confirms readable published history, the pane automatically resumes the same review request, including its story and comparison selection."
+Disposition: receiving slice 3
 
 ## Consumer trace
 
