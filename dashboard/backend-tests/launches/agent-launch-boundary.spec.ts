@@ -206,7 +206,7 @@ test("answers uncertain once the launch wait expires, and ends the waiting claud
   expect(await recordsOf(server, "open-dough")).toHaveLength(recordsBefore);
 });
 
-test("answers not-installed when Claude Code is absent and keeps no record", async ({
+test("refuses before publishing a Take when Claude Code is absent", async ({
   installedClaude,
 }) => {
   const bin = mkdtempSync(path.join(tmpdir(), "dough-start-git-only-"));
@@ -225,16 +225,27 @@ test("answers not-installed when Claude Code is absent and keeps no record", asy
       claude: "absent",
       pathPrefix: [bin],
     });
+    const project = openDoughFolder(server);
+    const origin = await git(project, "remote", "get-url", "origin");
+    const main = await git(origin, "rev-parse", "refs/heads/main");
+    const worktrees = await git(project, "worktree", "list", "--porcelain");
     const response = await launch(server, queuedExecution);
 
     expect(response.status).toBe(200);
     expect(JSON.parse(response.body)).toMatchObject({
       kind: "failed",
-      reason: "not-installed",
-      explanation: expect.stringContaining(
-        "Claude Code (`claude`) was not found",
-      ),
+      reason: "start-refused",
+      explanation:
+        "Claude Code (`claude`) was not found on this machine. Install it to start a session.",
     });
+    expect(await git(origin, "rev-parse", "refs/heads/main")).toBe(main);
+    const worktreesAfter = await git(
+      project,
+      "worktree",
+      "list",
+      "--porcelain",
+    );
+    expect(worktreesAfter).toBe(worktrees);
     expect(server.claudeCalls()).toEqual([]);
     expect(await recordsOf(server, "open-dough")).toEqual([]);
   } finally {

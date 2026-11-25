@@ -16,6 +16,8 @@
   `origin/main` and on the execution branch as its first published base.
 - Slice 1 was accepted on the execution branch at
   `902165eaf1870b425a00934a229c7b49a0580810`.
+- Slice 2 and the approved plan expansion were accepted at
+  `344f64cb7e7fc7692f976015c6d905b81de1c919` on the execution branch.
 
 ## Goal and scope
 
@@ -173,7 +175,7 @@ when Claude Code is absent. The slice used 11.8 of its 15 active minutes.
 ### 3. Refuse installed execution when Claude Code is missing
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The existing missing-Claude HTTP case in `agent-launch-boundary`
 uses a Ready queued story and a real local bare origin with Git and its
 transport available. Observe the installed-start refusal with an actionable
@@ -189,6 +191,17 @@ the workflow can create a workspace or publish. Keep the workflow as the
 owner of publication per [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them).
 The proof loop is limited to the refusing boundary and its normal Ready
 control, plus directly affected installed-start consumers.
+
+The existing HTTP regression failed before the change because the Take
+published before the native refusal. With the change, the strict backend run
+passed 44 cases. The missing-Claude case checked identical bare `main` and
+worktree lists, an actionable `start-refused` explanation, and no native call
+or launch record. The Ready control checked the published receipt against
+bare `main` and the native call's actual workspace. Dashboard typecheck and
+the future-worktree executable probe passed. The kept-start browser cases
+passed twice at the default timeout after removing a redundant setup reload.
+Commands and observations are in `s3-implementation-report.md` under the
+checkout Git evidence path.
 
 ### 4. Preserve acceptance, continuation and launch-record writes
 
@@ -337,7 +350,7 @@ Disposition: receiving slice 9
 ### G2. Settle missing-Claude behavior on an installed Ready launch
 Reported: slice 2 — "With Claude absent and Git fully available, the installed start published the Take. The native launch then returned `not-installed` and kept no launch record."
 Story clause: "With Claude Code absent, the boundary answers the installed start's refusal and keeps no launch record."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/backend-tests/launches/agent-launch-boundary.spec.ts`, missing-Claude and Ready controls, strict `s3-backend-final.json`.
 
 ## Verification and delivery
 

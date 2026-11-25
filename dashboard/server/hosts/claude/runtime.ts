@@ -10,6 +10,8 @@
 // (`../../developerShellEnvironment.ts`).
 
 import { execFile, type ExecException } from "node:child_process";
+import { access, constants, stat } from "node:fs/promises";
+import path from "node:path";
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import type { LaunchRecord } from "../../../src/agentLaunch.ts";
 import {
@@ -19,6 +21,37 @@ import {
 import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
 import type { LocalFolder } from "../../localFolder.ts";
 import { parsedListing, type ListedSession } from "./listing.ts";
+
+const command = "claude";
+
+// Establish absence in the native launch environment without running Claude.
+export async function claudeExecutableMissing(
+  folder: LocalFolder,
+): Promise<boolean> {
+  const env = developerShellEnvironment(process.env);
+  const cwd = path.resolve(folder.path);
+  const checkoutPrefix = path.join(cwd, path.sep);
+  let candidateInCheckout = false;
+  for (const directory of (env["PATH"] ?? "/usr/bin:/bin").split(
+    path.delimiter,
+  )) {
+    const executable = path.resolve(cwd, directory, command);
+    try {
+      await access(executable, constants.X_OK);
+      if ((await stat(executable)).isFile()) return false;
+    } catch {
+      // Continue looking in the remaining PATH entries.
+    }
+    candidateInCheckout ||= executable.startsWith(checkoutPrefix);
+  }
+  // The checkout can supply an executable that is unresolved before creation.
+  if (!candidateInCheckout) return true;
+  try {
+    return (await stat(cwd)).isDirectory();
+  } catch {
+    return false;
+  }
+}
 
 type ClaudeRun = {
   readonly error: ExecException | null;
@@ -35,7 +68,7 @@ function execClaude(
 ): Promise<ClaudeRun> {
   return new Promise((resolve) => {
     const child = execFile(
-      "claude",
+      command,
       [...args],
       {
         cwd: folder.path,
@@ -101,7 +134,7 @@ export function attachClaude(
   folder: LocalFolder,
   size: { readonly cols: number; readonly rows: number },
 ): IPty {
-  return spawnPty("claude", ["attach", shortId], {
+  return spawnPty(command, ["attach", shortId], {
     name: "xterm-256color",
     cwd: folder.path,
     env: developerShellEnvironment(process.env),

@@ -129,6 +129,5 @@ export async function reachKeptStart(
   await expect(backlog.getByRole("article", { name: "Story A" })).toHaveCount(
     0,
   );
-  await reloadUntilRead(page);
   return { takenStoryCard, otherTakenCard, workspace };
 }
