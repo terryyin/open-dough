@@ -235,39 +235,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-options)
   carries the remaining families, the Story Notes store and runner retirement.
 
-<a id="finish-backend-vitest-renovation-after-launch-options"></a>
-
-### Prove launch attachment admission in Node Vitest
-
-**Identity:** SEED-413#finish-backend-vitest-renovation-after-launch-options
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"76eea7b77b2647791949d6c80606e3cb84b9c22e84fd25bff8078999b5b8f50d","plan":"80048b7bed76a184b03a6c03907e7522f0f5f5bcf68dfd861e3f0e6ab685119d"}}
-```
-
-- **Goal.** Developers changing launch attachments get fast, typed feedback
-  on which uploads are refused and what a refused launch leaves on disk.
-  Existing browser journeys continue to show that accepted images reach the
-  agent and survive startup recovery.
-- **Scope.** Move `launch-attachment-boundary.spec.ts` and
-  `launch-attachment-refusals.spec.ts` to plain Node Vitest. Keep upload
-  type and size refusals, filename encoding, selection reasons, claim
-  cleanup and the response contract with their observing tests. Exercise
-  real files in a private dashboard directory. Account for all six former
-  cases and measure the focused command before and after.
-- **Key examples.** Given a PDF or a declared oversized PNG, posting it
-  returns the corresponding reason and an uncached refusal, with no new
-  claim. A name with non-Latin-1 characters can be sent in a header and
-  recovered on receipt. When a launch names six claims, or supplies a file
-  path alongside a posted claim, refusal clears the claims and leaves no
-  attempt files. With valid images, existing browser proof observes the
-  copied bytes in the order picked and the same path when startup continues.
-- **Boundary.** The
-  [launch-options story](https://github.com/terryyin/open-dough/blob/9ac6002b205bc324155f82e9b0f07901ed4d6a7e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-session-reads-and-alerts)
-  owns option admission. Session-terminal uploads and voice are consumers of
-  the shared reader and retain their coverage. The
-  [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-attachments)
-  carries the remaining families, Story Notes and runner retirement.
-
 <a id="finish-backend-vitest-renovation-after-launch-attachments"></a>
 
 ### Finish the remaining backend Vitest renovation after launch attachments
@@ -277,12 +244,11 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-This remainder carries the unselected scope split from
-[launch attachment admission](#finish-backend-vitest-renovation-after-launch-options).
-The maintained selector at `7a206c76e` on 25 November 2026 reports 309
-Playwright and 283 Node Vitest paths across 592 backend specs. Launch
-options is Taken. After the two options files and the two attachment files
-move, the projection is 305 Playwright paths if no other changes land.
+This remainder carries the backend Vitest work after launch attachment
+admission. The maintained selector at `7a206c76e` on 25 November 2026
+reported 309 Playwright and 283 Node Vitest paths across 592 backend specs.
+The two completed launch cohorts account for four moved specs, projecting
+305 Playwright paths from that baseline before other changes.
 
 | Family | Playwright paths at `7a206c76e` | After launch options and attachments |
 | --- | ---: | ---: |
@@ -296,11 +262,8 @@ move, the projection is 305 Playwright paths if no other changes land.
 | Terminals | 12 | 12 |
 | **Total** | **309** | **305** |
 
-The attachment increment can run independently of launch-option selection
-and the Taken work on story-linked sessions and Review. Its type, size, and
-claim-cleanup behavior has a distinct production owner. The new launch
-path since the `93d26816e` count is the landed-comparison follow-up admission
-spec. Recount before selecting the next cohort. Select an independent
+The new launch path since the `93d26816e` count is the landed-comparison
+follow-up admission spec. Recount before selecting the next cohort. Select an independent
 production boundary among the surviving higher-cost families, accounting
 for overlapping product changes first. The campaign remainder exceeds
 eight 15-minute slices. Keep runner retirement as its final increment.
