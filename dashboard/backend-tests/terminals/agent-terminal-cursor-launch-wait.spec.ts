@@ -79,7 +79,7 @@ test.describe(`Cursor launch wait`, () => {
     });
     const story = `${instruction}\n${"line of the launch instruction. ".repeat(40)}`;
     await withInstructedCursor(
-      { mode: "boundary", installedCatalog: "codex" },
+      { mode: "boundary" },
       cursor,
       story,
       (server, launched) => {
@@ -106,7 +106,7 @@ test.describe(`Cursor launch wait`, () => {
   test("a launch wait on workspace trust explains the kept prompt, and the developer's terminal answer confirms its instruction", async () => {
     const cursor = installFakeCursor({ screen: "trust-unframed" });
     await withInstructedCursor(
-      { mode: "boundary", installedCatalog: "codex" },
+      { mode: "boundary" },
       cursor,
       instruction,
       async (server, launched) => {

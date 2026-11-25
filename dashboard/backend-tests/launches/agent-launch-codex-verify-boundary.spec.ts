@@ -12,7 +12,7 @@ const request = makeMe.aLaunchRequest
   .adHoc({ host: "codex" })
   .withInstruction("Preserve this exact intent.")
   .please();
-test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
+test.use({ projectFolders: ["open-dough"] });
 
 test("direct verification refuses an uncertain Codex start and keeps its attempt", async ({
   dashboard,

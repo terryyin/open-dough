@@ -40,7 +40,7 @@ import { takenAdHocSession } from "../../dashboard/test-support/support/startedA
 import { watchTerminalSockets } from "../../dashboard/test-support/support/terminalSockets.ts";
 import { adHocDeveloperInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 
-test.use({ projectFolders: ["open-dough"], installedCatalog: "claude" });
+test.use({ projectFolders: ["open-dough"] });
 
 const text = "summarize the open issues";
 

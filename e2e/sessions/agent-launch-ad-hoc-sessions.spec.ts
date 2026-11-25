@@ -47,7 +47,6 @@ import {
 } from "../../dashboard/test-support/support/startedAdHocSession.ts";
 test.use({
   projectFolders: ["open-dough", "pygardon"],
-  installedCatalog: "claude",
 });
 
 const openDoughStories = {

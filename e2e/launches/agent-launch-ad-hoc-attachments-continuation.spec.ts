@@ -24,7 +24,7 @@ import {
   test,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 
-test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
+test.use({ projectFolders: ["open-dough"] });
 
 test("unconfirmed Codex first input continued from Startup recovery resends the same attachment paths", async ({
   page,

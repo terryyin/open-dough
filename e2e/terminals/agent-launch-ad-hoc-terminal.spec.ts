@@ -31,7 +31,7 @@ import { scrollYOf, wheelTo } from "../../dashboard/test-support/boardPage.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { openWhileStarting } from "../../dashboard/test-support/support/adHocTerminalStartup.ts";
 
-test.use({ projectFolders: ["open-dough"], installedCatalog: "claude" });
+test.use({ projectFolders: ["open-dough"] });
 
 // Accepted cost: one real ad hoc launch, the only full proof that a session
 // started with nothing typed opens in the terminal at once with the keyboard

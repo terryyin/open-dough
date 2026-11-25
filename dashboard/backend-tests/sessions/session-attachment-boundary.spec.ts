@@ -1,12 +1,9 @@
+import { givenSavedCodexSession } from "../../test-support/support/codexObservation.ts";
 // Real local upload admission and the files retained by the machine server.
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../test-support/support/codexLaunch.ts";
-import {
-  launch,
-  refinementRequest,
-} from "../../test-support/agentLaunchBoundary.ts";
 import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import { sessionAttachmentEndpoint } from "../../src/agentTerminal.ts";
 import {
@@ -112,7 +109,7 @@ test("an unavailable native session cannot store a pasted image", async ({
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   native.observations.set(native.threadId, {
     status: { type: "idle" },
     turns: [],
@@ -198,7 +195,7 @@ test("an opaque host session ID cannot select a storage path component", async (
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
   native.threadId = "../another/session";
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   const response = await fetch(
     attachmentUrl(dashboard, native.threadId, "codex"),
     {

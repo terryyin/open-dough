@@ -45,7 +45,7 @@ import {
   test,
 } from "../../dashboard/test-support/support/cursorStart.ts";
 import {
-  retained,
+  givenRetiredCodexReport,
   report,
   save,
 } from "../../dashboard/test-support/support/retainedReport.ts";
@@ -163,7 +163,7 @@ codexTest.describe("Recently done final-report destination", () => {
     "opening a Done entry whose destination is a final report reaches Final report",
     async ({ page, dashboard, codexProtocol: native }) => {
       if (native === undefined) throw new Error("Missing protocol fixture");
-      const { record } = await retained(dashboard, native);
+      const { record } = await givenRetiredCodexReport(dashboard, native);
       save(dashboard.home, [
         {
           ...record,

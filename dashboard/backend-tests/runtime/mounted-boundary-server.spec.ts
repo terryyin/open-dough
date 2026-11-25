@@ -171,7 +171,6 @@ test("the mounted server accepts the control that ends a pending launch wait", a
   const server = await startDashboardServer({
     ...mounted,
     projectFolders: ["open-dough"],
-    installedCatalog: "claude",
     launchTimeoutMs: 20_000,
     launchWaitEnd: true,
   });

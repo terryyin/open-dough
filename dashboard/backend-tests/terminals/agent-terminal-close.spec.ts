@@ -26,6 +26,7 @@ import {
   type Terminal,
 } from "../../test-support/agentTerminalBoundary.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { prepareCatalogProjects } from "../../test-support/support/catalogProjectOrigin.ts";
 import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
 import {
   endFakeGh,
@@ -63,8 +64,9 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
     const claude = installFakeClaude(
       tempRoot,
       { binDir: gh.binDir, path: ghEnv["PATH"] ?? "" },
-      { projectFolders: ["open-dough"] },
+      {},
     );
+    await prepareCatalogProjects(claude.controls.home, ["open-dough"]);
     configureDevelopmentProjects(claude.controls.home);
     // Claude's PATH keeps fake-claude ahead of fake-gh; ghEnv supplies the
     // request-owner root and FAKE_GH_ORIGIN.

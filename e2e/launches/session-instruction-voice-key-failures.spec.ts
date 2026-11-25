@@ -29,7 +29,6 @@ import {
 } from "../../dashboard/src/openAIConfiguration.ts";
 test.use({
   ...voiceBrowserOptions,
-  installedCatalog: "claude",
   extraEnv: async ({ provider }, use) => {
     await use({
       ...provider.extraEnv,

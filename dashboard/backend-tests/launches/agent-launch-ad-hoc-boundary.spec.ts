@@ -37,7 +37,6 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     server = await startDashboardServer({
       mode: "boundary",
       projectFolders: ["open-dough"],
-      installedCatalog: "claude",
     });
   });
 

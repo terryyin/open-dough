@@ -1,3 +1,13 @@
+import { givenSavedCodexSession } from "../../test-support/support/codexObservation.ts";
+import {
+  connection,
+  observe,
+  retire,
+} from "../../server/hosts/codex/conversation.ts";
+import { updateRecord } from "../../server/launchRecordStore.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 // Local intent survives asynchronous native evidence and is cleared only by readiness.
 import { shows } from "../../test-support/agentTerminalBoundary.ts";
 import { openCodexTerminal } from "../../test-support/support/codexTerminal.ts";
@@ -7,8 +17,6 @@ import {
   stored,
 } from "../../test-support/support/codexLaunch.ts";
 import {
-  launch,
-  refinementRequest,
   markDone,
   deleteRecord,
   machineSessions,
@@ -22,7 +30,7 @@ test("a late failed interruption cannot restore local done intent after successf
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   native.observations.set(native.threadId, {
     status: { type: "active", activeFlags: [] },
     turns: [{ id: "slow-turn", status: "inProgress" }],
@@ -68,49 +76,100 @@ test("a native lifecycle callback retains done intent and a diagnostic before un
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  const stopObserving = await givenObservedCodexTurn(
+    dashboard,
+    native,
+    "running-turn",
+  );
+  try {
+    native.interruptError = { code: -32000, message: "Native stop refused." };
+    const response = await markDone(dashboard, {
+      source: "open-dough",
+      session: native.threadId,
+      host: "codex",
+    });
+    expect(response.status).toBe(200);
+    const marked = stored(dashboard.home)[0];
+    native.failConnection();
+    await expect
+      .poll(() => {
+        const session = stored(dashboard.home)[0]?.session;
+        return session?.host === "codex"
+          ? session.continuation?.notice
+          : undefined;
+      })
+      .toContain("native connection ended");
+    expect(stored(dashboard.home)[0]?.doneAt).toBe(marked?.doneAt);
+    expect(stored(dashboard.home)[0]?.doneProblem).toBe(marked?.doneProblem);
+    native.observations.set(native.threadId, {
+      status: { type: "idle" },
+      turns: [],
+      metadataError: { code: -32000, message: "Unreadable." },
+    });
+    expect(
+      (
+        await deleteRecord(dashboard, {
+          source: "open-dough",
+          session: native.threadId,
+          host: "codex",
+        })
+      ).status,
+    ).toBe(200);
+    native.failConnection();
+    await expect.poll(() => native.sockets.size).toBe(0);
+    expect(stored(dashboard.home)).toEqual([]);
+    expect(await machineSessions(dashboard)).toEqual([]);
+  } finally {
+    stopObserving();
+  }
+});
+
+// Observe an already saved native conversation without issuing a launch.
+async function givenObservedCodexTurn(
+  dashboard: DashboardServer,
+  native: FakeCodex,
+  turnId: string,
+) {
+  const firstInput = { state: "confirmed", turnId } as const;
   native.observations.set(native.threadId, {
     status: { type: "active", activeFlags: [] },
-    turns: [{ id: "running-turn", status: "inProgress" }],
+    turns: [{ id: turnId, status: "inProgress" }],
   });
-  native.interruptError = { code: -32000, message: "Native stop refused." };
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: native.threadId,
-    host: "codex",
-  });
-  expect(response.status).toBe(200);
-  const marked = stored(dashboard.home)[0];
-  native.failConnection();
-  await expect
-    .poll(() => {
-      const session = stored(dashboard.home)[0]?.session;
-      return session?.host === "codex"
-        ? session.continuation?.notice
-        : undefined;
-    })
-    .toContain("native connection ended");
-  expect(stored(dashboard.home)[0]?.doneAt).toBe(marked?.doneAt);
-  expect(stored(dashboard.home)[0]?.doneProblem).toBe(marked?.doneProblem);
-  native.observations.set(native.threadId, {
-    status: { type: "idle" },
-    turns: [],
-    metadataError: { code: -32000, message: "Unreadable." },
-  });
-  expect(
-    (
-      await deleteRecord(dashboard, {
-        source: "open-dough",
-        session: native.threadId,
-        host: "codex",
-      })
-    ).status,
-  ).toBe(200);
-  native.failConnection();
-  await expect.poll(() => native.sockets.size).toBe(0);
-  expect(stored(dashboard.home)).toEqual([]);
-  expect(await machineSessions(dashboard)).toEqual([]);
-});
+  const saved = await givenSavedCodexSession(dashboard, native, { firstInput });
+  const endpoint = saved.session.continuation?.endpoint;
+  if (endpoint === undefined) throw new Error("Missing saved native endpoint");
+  const rpc = connection(endpoint, new AbortController().signal);
+  try {
+    await rpc.initialize();
+    observe(rpc, saved.session, firstInput, {
+      async session(session, evidence) {
+        const restoreEnv = withRestoredEnv({ HOME: dashboard.home });
+        try {
+          const updated = await updateRecord(saved.request.source, {
+            ...saved,
+            session,
+            firstInput: evidence,
+          });
+          if (!updated) throw new Error("The launch record was deleted.");
+        } finally {
+          restoreEnv();
+        }
+      },
+      creating() {
+        return Promise.reject(new Error("Expected an existing record"));
+      },
+      refused() {
+        return Promise.reject(new Error("Expected an existing record"));
+      },
+    });
+  } catch (error) {
+    retire(rpc);
+    throw error;
+  }
+  return () => {
+    retire(rpc);
+  };
+}
 
 test("a failed done operation returning after record deletion does not recreate the record", async ({
   dashboard,
@@ -118,7 +177,7 @@ test("a failed done operation returning after record deletion does not recreate 
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   const observation = {
     status: { type: "active", activeFlags: [] },
     turns: [{ id: "deleted-turn", status: "inProgress" }],

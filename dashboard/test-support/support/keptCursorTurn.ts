@@ -37,7 +37,6 @@ import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 export type CursorServer = {
   readonly mode: "boundary";
   readonly environment?: ProjectEnvironment;
-  readonly installedCatalog?: DashboardServerOptions["installedCatalog"];
 };
 
 export function keptCursor(home: string): LaunchRecord {

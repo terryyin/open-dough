@@ -39,7 +39,6 @@ import { openTerminalControl } from "../../dashboard/test-support/terminalScreen
 
 test.use({
   projectFolders: ["open-dough", "pygardon"],
-  installedCatalog: "claude",
 });
 
 const openJourney = (page: Page, launchJourney: LaunchJourney) =>

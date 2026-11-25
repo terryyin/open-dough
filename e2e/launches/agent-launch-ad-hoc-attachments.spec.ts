@@ -33,7 +33,7 @@ import {
 import { claudeLaunch } from "../../dashboard/test-support/support/claudeLaunch.ts";
 import { adHocDeveloperInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 
-test.use({ projectFolders: ["open-dough"], installedCatalog: "claude" });
+test.use({ projectFolders: ["open-dough"] });
 
 const openJourney = (page: Page, launchJourney: LaunchJourney) =>
   openTakenBacklog(page, launchJourney);

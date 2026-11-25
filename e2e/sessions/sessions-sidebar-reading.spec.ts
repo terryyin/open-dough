@@ -33,7 +33,6 @@ import {
 
 test.use({
   projectFolders: ["open-dough", "doughnut"],
-  installedCatalog: "claude",
   extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "100" },
 });
 

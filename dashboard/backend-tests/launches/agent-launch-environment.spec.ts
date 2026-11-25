@@ -34,7 +34,6 @@ test.describe(`agent launch environment from a deployment's start`, () => {
     server = await startDashboardServer({
       mode: "boundary",
       projectFolders: ["open-dough"],
-      installedCatalog: "claude",
       pathPrefix: start.pathPrefix,
       extraEnv: start.extraEnv,
     });

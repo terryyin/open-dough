@@ -15,7 +15,7 @@ scope: two stories
 
 **Identity:** SEED-433#run-dashboard-launch-tests-on-an-installed-project
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-433#run-dashboard-launch-tests-on-an-installed-project","dependencies":[{"supplier":{"identity":"SEED-433#compose-existing-sessions-directly","href":"seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly"},"implementation":"Install every catalog project and update only the launch-behavior consumers, relying on the session consumers already composing their sessions as data.","rationale":"Installing every catalog project makes story launches run the real start. At cde557acd that failed about 95 spec files, roughly two thirds of them consumers that launch only to obtain a session. The developer chose to move those consumers first, so this story stays within its launch-behavior consumers and keeps every catalog project installed with no opt-out.","condition":"The Dashboard backend and E2E consumers that need only an existing session compose it as data on trunk, without launching.","state":"satisfied","resolution":{"revision":"db57040f8fbeb93cf8db44538d3ac4d2ec55e8da","path":".planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly","summary":"Plan 817 kept real launch behavior in launch cases and migrated existing-session setup to composed records and native listings. The installed-catalog probe passed 144 backend and 88 E2E cases. Full plain backend and E2E suites passed with one existing opt-in backend skip. The integrated tests attach to composed Claude sessions, raise session alerts, and navigate the sidebar without using Start as setup. Plan 816 carries the remaining genuine launch cases.\nCondition satisfied: The Dashboard backend and E2E consumers that need only an existing session compose it as data on trunk, without launching.\nAccepted integration: 83956b350a0cc72710cc16011486f6c908b3abf1 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"identity":"SEED-433#run-dashboard-launch-tests-on-an-installed-project","dependencies":[{"supplier":{"identity":"SEED-433#compose-existing-sessions-directly","href":"seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly"},"implementation":"Reuse the session state composition already delivered by Plan 817. At the dual-layout rollout, compose the remaining saved-session preconditions directly.","rationale":"Plan 817 migrated the consumers reached by the earlier catalog probe. Installing both native layouts reached additional Codex session preconditions. The developer included them in this story and required declarative state construction in each Given.","condition":"The Dashboard backend and E2E consumers that need only an existing session compose it as data on trunk, without launching.","state":"satisfied","resolution":{"revision":"db57040f8fbeb93cf8db44538d3ac4d2ec55e8da","path":".planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly","summary":"Plan 817 kept real launch behavior in launch cases and migrated existing-session setup to composed records and native listings. The installed-catalog probe passed 144 backend and 88 E2E cases. Full plain backend and E2E suites passed with one existing opt-in backend skip. The integrated tests attach to composed Claude sessions, raise session alerts, and navigate the sidebar without using Start as setup. Plan 816 carries the remaining genuine launch cases.\nCondition satisfied: The Dashboard backend and E2E consumers that need only an existing session compose it as data on trunk, without launching.\nAccepted integration: 83956b350a0cc72710cc16011486f6c908b3abf1 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"67ca40245db80e017f828f009f54e8eac999aff44517eec0c0bbae4135d769ab","plan":"2912e0402d0adfed417f12e92e607367038c379e42e8ca3950785fd1cbf93488"}}
@@ -35,6 +35,9 @@ changes only the expectations that depend on its story.
 - During execution the developer expanded this story to refuse an installed
   Dashboard execution launch before a Take can be published when Claude Code
   is missing.
+- The developer brought the remaining 44 saved-session preconditions into
+  this story. The Given declares and constructs the saved session, native
+  state and relevant workspace facts directly at the test level.
 - On 2026-11-24 the developer set two criteria. Tests use the distribution
   cohesively, not in diverging ways. Most cases stay fast, and slow behavior
   gets its own focused, fast tests. The developer accepted [the supplier story to compose existing sessions directly](https://github.com/terryyin/open-dough/blob/db57040f8fbeb93cf8db44538d3ac4d2ec55e8da/.planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly)
@@ -55,8 +58,10 @@ changes only the expectations that depend on its story.
   about the shell, launch options, host verification, records and continuation.
 - The test harness and its launch tests own the migration. The installed
   Dashboard execution launch also checks for Claude Code before publication.
-  Plan 817 owns setup-only session consumers. The existing installed start
-  and kept-start journeys provide focused publication and recovery proof.
+  Reuse Plan 817's conventions to construct remaining saved-session
+  preconditions through MakeMe and the native fixture. The existing
+  installed start and kept-start journeys provide focused publication and
+  recovery proof.
 
 **Key examples.**
 

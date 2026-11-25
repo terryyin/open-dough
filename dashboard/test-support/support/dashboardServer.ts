@@ -166,14 +166,12 @@ async function start(
         )
       : undefined;
   const closeOwned = dashboardFixtureLifetime({ ...resources, standIn });
-  await prepareCatalogProjects(
-    resources.home,
-    options.projectFolders,
-    options.installedCatalog,
-  ).catch(async (error: unknown) => {
-    await closeOwned();
-    throw error;
-  });
+  await prepareCatalogProjects(resources.home, options.projectFolders).catch(
+    async (error: unknown) => {
+      await closeOwned();
+      throw error;
+    },
+  );
 
   const launchLive = async () => {
     const { spawn, outDir } = await serverLaunch(

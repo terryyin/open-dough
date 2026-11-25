@@ -53,7 +53,6 @@ test("a wait naming the changes its asker saw answers at once a change told whil
   const server = await startDashboardServer({
     mode: "boundary",
     projectFolders: ["open-dough"],
-    installedCatalog: "claude",
     launchTimeoutMs: 60_000,
   });
   try {
@@ -166,7 +165,6 @@ test("an unsettled attempt this server's own process works on is answered withou
     mode: "boundary",
     liveServer: "separate process",
     projectFolders: ["open-dough"],
-    installedCatalog: "claude",
     extraEnv: { DOUGH_CHANGE_WAIT_MS: String(nonOwnerBoundMs) },
   });
   try {

@@ -30,6 +30,8 @@
   `9e653e3870f6658ef228cdb766acc7ca309a55a1`.
 - Slice 8 was accepted on the execution branch at
   `42b8a23ec402a5ab2607b0c8ca004f62bad14278`.
+- Slice 9 was accepted on the execution branch at
+  `28c7c440950cae77ec6fded823e377d730197b08`.
 
 ## Goal and scope
 
@@ -385,11 +387,14 @@ independent reporting and preferences, and the exact late skill after
 its origin revision changes. Exact commands, manifests and observations
 are in `s9-launches-implementation-report.md` under the Git evidence path.
 
-### 10. Install every fixture-created catalog project
+### 10. Install every catalog fixture and compose saved-session preconditions
 
 Type: Behavior
-Status: planned
-Proof: Full backend and E2E suites, with the strict proof records. Check the
+Status: done
+Proof: Match all 44 saved-session cases to passing focused manifests.
+Their Given declares the saved record, native session and workspace facts
+that each case requires. Confirm the actual action independently at the
+existing boundary. Run full backend and E2E suites with strict proof. Check the
 fixture path for all `projectFolders` callers, including direct
 `installFakeClaude` users in `agent-terminal-close` and
 `agent-terminal-codex-close`. Check that concurrently reused projects share
@@ -411,9 +416,10 @@ cases, of which 45 failed and one was the baseline replay skip. E2E selected
 779 and 26 failed. The earlier preparation probe used the Claude layout.
 The dual-layout run reached 27 additional launch observations now owned by
 slice 9, and 44 existing-session preconditions across the two suites.
-Plan 817 owns session setup in the selected source. The disposition for the
-remaining 44 cases needs the developer's scope decision before the default
-can pass both full suites.
+The developer included the 44 cases in this slice. Use declarative Given
+data at the test level and the existing MakeMe and synthetic host builders
+to materialize it. Retain the independent Done, final report, attachment,
+retirement, shutdown, admission and native-state observations.
 
 The exact default changes are parked in `s9-installed-default.patch` under
 the checkout Git evidence path. That directory also holds the before/after
@@ -422,10 +428,39 @@ consumer traces, strict manifests, timing and failure tables, and
 Carry its clock record from key `9` when starting the rollout as slice 10.
 
 Trunk accepted SEED-430's Board fixture routing at `f05e15351` during the
-probe. Reconcile its changes to `dashboardServer`, `dashboardTest`, the
-fixture origin routes and the direct Claude terminal case before renewing
-the full gates. The focused slice 9 proof is on the story branch's existing
-fixture contract.
+probe. The story branch integrated trunk `cbf5504be` as `a3be7bd6a`.
+The retained default patch was reapplied against the merged routing,
+including the direct Claude terminal case. The full gates will cover that
+combined state.
+
+Accepted proof on the combined candidate:
+
+- All 44 saved-session cases passed focused verification. Their Given
+  constructs the saved record, native state and relevant workspace facts.
+  The disconnect case establishes the observer directly and exercises
+  Done and deletion at the HTTP boundary. The retired-workspace case
+  verifies the report retry with zero native start or resume calls.
+- Full E2E passed all 779 cases. Full backend passed 1,984 cases and had
+  the existing opt-in replay skip. Both were strict four-worker runs.
+  The combined proof includes the two direct shutdown cases, reused
+  catalog checkouts and private-origin start journeys. Dashboard
+  typecheck, whole-repository lint and whitespace checks passed.
+- On the same AC Mac, the full E2E duration was 1,211.9 seconds versus
+  467.6 for the retained baseline. Backend duration was 828.4 seconds
+  versus 1,573.1. The full E2E delta appeared across launch, session,
+  Intent and Review cases. The same-base two-worker E2E sample passed all
+  seven cases in each run with 25.76 seconds plain and 23.46 installed.
+  The five saved-session cases had a median increase of 1,143 ms, and the
+  two Intent controls had a median increase of 611 ms. These samples do
+  not establish a fixture-only cause for the full-suite change.
+
+Commands, strict manifests and host snapshots are in the checkout Git
+evidence path under `s10-*`. The exact focused observation locations are
+in `s10-composition-implementation-report.md` and `s10-refactor-report.md`.
+The full gates and case timing comparison are `s10-backend-full.json`,
+`s10-e2e-full.json`, `s10-e2e-timing-comparison.tsv` and
+`s10-timing-summary.txt`. The candidate no longer has an installation
+selector.
 
 ## Review verification
 
@@ -461,7 +496,7 @@ establishes the baseline for the installed-catalog comparison in slice 10.
 ### G1. Make the installed catalog the default
 Reported: slice 1 — "The temporary installation selection is the planned interim until slice 8."
 Story clause: "Every catalog project the harness creates has an installed Open Dough checkout and a matching bare origin."
-Disposition: receiving slice 10
+Disposition: proved by slice 10: the whole backend and E2E manifests, the shared catalog origin and direct terminal cases, and the retained caller-owned origin probe.
 
 ### G2. Settle missing-Claude behavior on an installed Ready launch
 Reported: slice 2 — "With Claude absent and Git fully available, the installed start published the Take. The native launch then returned `not-installed` and kept no launch record."

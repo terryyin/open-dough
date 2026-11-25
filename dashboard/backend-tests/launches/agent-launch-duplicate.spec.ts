@@ -2,10 +2,7 @@
 import { rmSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import {
-  test as base,
-  expect,
-} from "../../test-support/support/codexLaunch.ts";
+import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import {
   accept,
   launch,
@@ -18,7 +15,7 @@ import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 
-base.use({
+test.use({
   serverMode: "boundary",
   projectFolders: ["open-dough"],
   launchTimeoutMs: 30_000,
@@ -49,7 +46,6 @@ function awaitingNativeCall(
 }
 
 for (const host of ["claude", "codex"] as const) {
-  const test = base.extend({ installedCatalog: host });
   for (const subject of ["instruction", "blank", "start-less story"] as const) {
     test(`${host}: overlapping ${subject} launch makes one native conversation and input`, async ({
       dashboard,
@@ -219,28 +215,26 @@ for (const host of ["claude", "codex"] as const) {
   });
 }
 
-const claudeTest = base.extend({ installedCatalog: "claude" });
-claudeTest(
-  "distinct Claude instructions remain independent while both launches are held",
-  async ({ dashboard }) => {
-    dashboard.claudeScenario("held");
-    const request = makeMe.aLaunchRequest
-      .adHoc({ instruction: "First subject." })
-      .please();
-    const first = launch(dashboard, request);
-    await expect
-      .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
-      .toHaveLength(1);
-    const second = launch(dashboard, {
-      ...request,
-      instruction: "Second subject.",
-    });
-    await expect
-      .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
-      .toHaveLength(2);
-    dashboard.releaseHeldClaude();
-    expect((await answerOf(first)).kind).toBe("launched");
-    expect((await answerOf(second)).kind).toBe("launched");
-    expect(await recordsOf(dashboard, "open-dough")).toHaveLength(2);
-  },
-);
+test("distinct Claude instructions remain independent while both launches are held", async ({
+  dashboard,
+}) => {
+  dashboard.claudeScenario("held");
+  const request = makeMe.aLaunchRequest
+    .adHoc({ instruction: "First subject." })
+    .please();
+  const first = launch(dashboard, request);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
+    .toHaveLength(1);
+  const second = launch(dashboard, {
+    ...request,
+    instruction: "Second subject.",
+  });
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
+    .toHaveLength(2);
+  dashboard.releaseHeldClaude();
+  expect((await answerOf(first)).kind).toBe("launched");
+  expect((await answerOf(second)).kind).toBe("launched");
+  expect(await recordsOf(dashboard, "open-dough")).toHaveLength(2);
+});

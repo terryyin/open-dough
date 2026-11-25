@@ -25,7 +25,7 @@ import { keepLaunchStore } from "../../dashboard/test-support/support/launchStor
 import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
-test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
+test.use({ projectFolders: ["open-dough"] });
 
 for (const blank of [true, false]) {
   test(`lost ${blank ? "materialization" : "input"} acknowledgment/restart retains original ${blank ? "blank intent" : "predecessor uncertain input"} without resubmission`, async ({

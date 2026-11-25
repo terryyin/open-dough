@@ -110,7 +110,7 @@ test.describe(`Cursor launch turn`, () => {
     const cursor = installFakeCursor({ screen: "composer" });
     const story = `${instruction}\n${"line of the launch instruction. ".repeat(40)}`;
     await withInstructedCursor(
-      { mode: "boundary", installedCatalog: "codex" },
+      { mode: "boundary" },
       cursor,
       story,
       async (server) => {

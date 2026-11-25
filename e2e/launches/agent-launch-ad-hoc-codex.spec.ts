@@ -47,7 +47,6 @@ import { startedSessionTerminal } from "../../dashboard/test-support/support/sta
 
 test.use({
   projectFolders: ["open-dough", "pygardon"],
-  installedCatalog: "codex",
 });
 
 for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {

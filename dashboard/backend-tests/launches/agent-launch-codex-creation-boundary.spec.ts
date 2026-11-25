@@ -19,7 +19,7 @@ const request = makeMe.aLaunchRequest
   .adHoc({ host: "codex" })
   .withInstruction("Preserve this exact intent.")
   .please();
-test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
+test.use({ projectFolders: ["open-dough"] });
 
 type Answer = { kind: string; explanation: string };
 const answerOf = async (server: DashboardServer) =>

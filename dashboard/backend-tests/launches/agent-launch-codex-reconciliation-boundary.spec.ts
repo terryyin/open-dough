@@ -23,7 +23,7 @@ const request = makeMe.aLaunchRequest
   .adHoc({ host: "codex" })
   .withInstruction("Preserve this exact intent.")
   .please();
-test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
+test.use({ projectFolders: ["open-dough"] });
 
 test("unreadable, missing, empty, unrelated and wrong-workspace history never authorize an uncertain resend", async ({
   dashboard,

@@ -35,7 +35,7 @@ import {
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
-test.use({ projectFolders: ["open-dough"], installedCatalog: "codex" });
+test.use({ projectFolders: ["open-dough"] });
 
 type Answer = {
   kind: string;

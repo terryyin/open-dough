@@ -50,7 +50,6 @@ test.describe("launch records after the store a server read is replaced", () => 
       liveServer,
       machine,
       projectFolders: ["open-dough"],
-      installedCatalog: "claude",
       launchTimeoutMs: 4_000,
     });
     servers.push(server);

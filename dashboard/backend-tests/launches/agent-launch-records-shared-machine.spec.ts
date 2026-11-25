@@ -1,6 +1,6 @@
 // The installed catalog checkout and launch record survive concurrent
 // Dashboard starts and a restart on the same machine.
-import { mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -51,7 +51,6 @@ async function startAndReadCatalog(environment: ProjectEnvironment) {
     machine,
     environment,
     projectFolders: [source],
-    installedCatalog: "claude",
   });
   dashboards.push(server);
   const home = machineFolder(server);
@@ -99,6 +98,16 @@ test("answers a launch from another server on this machine, and again after both
   await test.step("Then both serve the same installed checkout", () => {
     const { checkout, origin, head } = launchCatalog;
     expect(readingCatalog).toMatchObject({ checkout, origin, head });
+    for (const root of [".claude", ".agents"])
+      expect(
+        existsSync(
+          path.join(
+            checkout,
+            root,
+            "skills/dough-execute-plan/scripts/execution-start.mjs",
+          ),
+        ),
+      ).toBe(true);
   });
 
   await test.step("And the machine keeps one bare origin for it", () => {

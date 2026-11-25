@@ -12,22 +12,22 @@ import {
   stopCursorRunner,
 } from "../../server/hosts/cursor/runnerClient.ts";
 import {
-  launch,
-  refinementRequest,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
   shows,
   type Terminal,
 } from "../../test-support/agentTerminalBoundary.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
+import { prepareCatalogProjects } from "../../test-support/support/catalogProjectOrigin.ts";
 import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
   codexAttaches,
   expectCodexHungUp,
   openCodexTerminal,
 } from "../../test-support/support/codexTerminal.ts";
-import { codexSkill } from "../../test-support/support/codexLaunch.ts";
+import {
+  observationRecord,
+  saveObservations,
+} from "../../test-support/support/codexObservation.ts";
 import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 import { configureDevelopmentProjects } from "../../test-support/support/projectConfiguration.ts";
 
@@ -41,14 +41,14 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
   const claude = installFakeClaude(
     tempRoot,
     { binDir: tempRoot, path: process.env["PATH"] ?? "" },
-    { projectFolders: ["open-dough"] },
+    {},
   );
+  await prepareCatalogProjects(claude.controls.home, ["open-dough"]);
   const native = await installFakeCodex(
     tempRoot,
     claude.env["PATH"] ?? "",
     true,
   );
-  codexSkill(claude.controls.home);
   configureDevelopmentProjects(claude.controls.home);
   const restore = withRestoredEnv({ ...claude.env, ...native.env });
   let handler: StoredHandler | undefined;
@@ -82,11 +82,9 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
   } as unknown as DashboardServer;
   let terminal: Terminal | undefined;
   try {
-    expect(
-      JSON.parse(
-        (await launch(local, { ...refinementRequest, host: "codex" })).body,
-      ),
-    ).toMatchObject({ kind: "launched" });
+    saveObservations(local, [
+      observationRecord(local, native, native.threadId),
+    ]);
     terminal = await openCodexTerminal(local, native.threadId);
     expect(await shows(terminal, "original retained history")).toBe(true);
     const pid = codexAttaches(native)[0]?.pid ?? 0;

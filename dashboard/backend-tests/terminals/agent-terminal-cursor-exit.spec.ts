@@ -70,7 +70,7 @@ test.describe(`Cursor client exit`, () => {
     const cursor = installFakeCursor({ screen: "trust" });
     const replacementId = "b1c2d3e4-f5a6-4789-abcd-ef0123456789";
     await withInstructedCursor(
-      { mode: "boundary", installedCatalog: "codex" },
+      { mode: "boundary" },
       cursor,
       instruction,
       async (server) => {

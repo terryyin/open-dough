@@ -74,7 +74,6 @@ test.describe("launch records kept on this machine", () => {
       liveServer,
       machine,
       projectFolders: ["open-dough"],
-      installedCatalog: "claude",
       launchTimeoutMs: launchWaitMs,
     });
     servers.push(server);

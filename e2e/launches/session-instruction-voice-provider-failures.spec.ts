@@ -17,7 +17,7 @@ import {
   originalDraft,
 } from "../../dashboard/test-support/support/voiceRecovery.ts";
 import { instructionProblems } from "../../dashboard/src/instructionTranscription.ts";
-test.use({ ...voiceBrowserOptions, installedCatalog: "claude" });
+test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });

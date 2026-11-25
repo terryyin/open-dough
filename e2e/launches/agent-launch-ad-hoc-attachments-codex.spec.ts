@@ -21,7 +21,6 @@ import {
 
 test.use({
   projectFolders: ["open-dough", "pygardon"],
-  installedCatalog: "codex",
 });
 
 test("Codex Start session with one attached image ends the text input with its copied path", async ({

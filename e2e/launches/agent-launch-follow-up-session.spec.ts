@@ -47,7 +47,7 @@ import { readFinalReportControl } from "../../dashboard/test-support/finalReport
 import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
-test.use({ projectFolders: ["open-dough"], installedCatalog: "claude" });
+test.use({ projectFolders: ["open-dough"] });
 
 const report = "The cache key changed; I restored it.";
 const landed = "ab".repeat(20);

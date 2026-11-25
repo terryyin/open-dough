@@ -22,7 +22,6 @@ import {
 test.use({
   serverMode: "boundary",
   projectFolders: ["open-dough"],
-  installedCatalog: "codex",
 });
 const missingOptions = installedStart.extend({
   originRepository: queuedDashboardRepository()

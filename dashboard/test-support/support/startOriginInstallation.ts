@@ -10,7 +10,8 @@ import type {
 } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 
-export type StartOriginLayout = "claude" | "codex";
+export const nativeStartLayouts = ["claude", "codex"] as const;
+export type StartOriginLayout = (typeof nativeStartLayouts)[number] | "catalog";
 export type StartRepository = RepositoryDescription<string>;
 
 export const installedStartSkills = [
@@ -45,14 +46,21 @@ export function withInstallation(
   const files: Record<string, string> = { ".gitignore": ".worktrees/\n" };
   const executables: string[] = [];
   const project = { path: "", shown: "" };
+  const hosts = layout === "catalog" ? nativeStartLayouts : [layout];
   for (const skill of installedStartSkills) {
-    const installed = installedSkillPath(layout, project, skill);
+    const installations = hosts.map((host) =>
+      installedSkillPath(host, project, skill),
+    );
     const skillSource = path.join(source, skill);
     for (const file of sourceFiles(skillSource)) {
       const from = path.join(skillSource, file);
-      const to = path.join(installed, file);
-      files[to] = readFileSync(from, "utf8");
-      if (statSync(from).mode & 0o100) executables.push(to);
+      const contents = readFileSync(from, "utf8");
+      const executable = statSync(from).mode & 0o100;
+      for (const installed of installations) {
+        const to = path.join(installed, file);
+        files[to] = contents;
+        if (executable) executables.push(to);
+      }
     }
   }
   const [first, ...later] = repository.revisions;

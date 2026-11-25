@@ -70,7 +70,7 @@ test.describe(`Cursor embedded terminal`, () => {
     let server: DashboardServer | undefined;
     try {
       server = await startCursorDashboard(
-        { mode: "boundary", installedCatalog: "codex" },
+        { mode: "boundary" },
         cursor,
         machine,
       );

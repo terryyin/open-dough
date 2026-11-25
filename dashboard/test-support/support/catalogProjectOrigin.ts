@@ -11,31 +11,26 @@ import { queuedReadyRepository } from "../../../Distribution/tests/support/queue
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
 import { initializeStartOrigin } from "./startOriginInitialization.ts";
-import type { StartOriginLayout } from "./startOriginPreparation.ts";
+import { nativeStartLayouts } from "./startOriginInstallation.ts";
 import { git } from "./startOriginObservation.ts";
 
 const initializing = new Map<string, Promise<void>>();
 
 export async function prepareCatalogProjects(
   home: string,
-  folders: readonly string[] | undefined,
-  layout: StartOriginLayout | undefined,
+  folders: readonly string[] = [],
 ): Promise<void> {
-  if (layout === undefined || folders === undefined) return;
+  if (folders.length === 0) return;
   const machineHome = realpathSync(home);
   const preparations = await Promise.allSettled(
-    folders.map((folder) => prepareProject(machineHome, folder, layout)),
+    folders.map((folder) => prepareProject(machineHome, folder)),
   );
   for (const preparation of preparations) {
     if (preparation.status === "rejected") throw preparation.reason;
   }
 }
 
-async function prepareProject(
-  home: string,
-  folder: string,
-  layout: StartOriginLayout,
-) {
+async function prepareProject(home: string, folder: string) {
   const project = path.join(home, "git", folder);
   const pending = initializing.get(project);
   if (pending !== undefined) return pending;
@@ -51,7 +46,10 @@ async function prepareProject(
     "catalog-origins",
     `${folder}.git`,
   );
-  if (readdirSync(project).length !== 0 || existsSync(origin))
+  if (
+    (existsSync(project) && readdirSync(project).length !== 0) ||
+    existsSync(origin)
+  )
     throw new Error(
       `Cannot install the catalog project over existing files in ${project} or ${origin}.`,
     );
@@ -61,7 +59,6 @@ async function prepareProject(
     project,
     origin,
     configured.repository,
-    layout,
   );
   initializing.set(project, preparation);
   try {
@@ -76,7 +73,6 @@ async function installProject(
   project: string,
   origin: string,
   repository: string,
-  layout: StartOriginLayout,
 ) {
   // A later start treats a checkout already in this folder as caller-owned.
   // Publish the checkout there only once the installation and origin agree.
@@ -87,10 +83,10 @@ async function installProject(
       home,
       checkout,
       repository,
-      layout,
+      "catalog",
       queuedReadyRepository().please(),
     );
-    await confirmInstallation(checkout, origin, layout);
+    await confirmInstallation(checkout, origin);
     renameSync(checkout, project);
   } catch (error) {
     rmSync(origin, { recursive: true, force: true });
@@ -100,20 +96,18 @@ async function installProject(
   }
 }
 
-async function confirmInstallation(
-  project: string,
-  origin: string,
-  layout: StartOriginLayout,
-) {
-  const start = installedSkillPath(
-    layout,
-    { path: project, shown: project },
-    "dough-execute-plan",
-    "scripts",
-    "execution-start.mjs",
-  );
-  if (!existsSync(start))
-    throw new Error(`The catalog project lacks installed ${start}.`);
+async function confirmInstallation(project: string, origin: string) {
+  for (const host of nativeStartLayouts) {
+    const start = installedSkillPath(
+      host,
+      { path: project, shown: project },
+      "dough-execute-plan",
+      "scripts",
+      "execution-start.mjs",
+    );
+    if (!existsSync(start))
+      throw new Error(`The catalog project lacks installed ${start}.`);
+  }
   const [checkoutOrigin, bare, checkoutMain, originMain] = await Promise.all([
     git(project, "remote", "get-url", "origin"),
     git(origin, "rev-parse", "--is-bare-repository"),

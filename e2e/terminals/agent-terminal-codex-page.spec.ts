@@ -1,3 +1,4 @@
+import { givenSavedCodexSession } from "../../dashboard/test-support/support/codexObservation.ts";
 // Actual page/xterm renders native startup then shared transport/reconnect lifecycle.
 import type { Page } from "@playwright/test";
 import {
@@ -5,10 +6,6 @@ import {
   expect,
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
-import {
-  launch,
-  refinementRequest,
-} from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   chooseProject,
   storyCardSessions,
@@ -19,7 +16,6 @@ import { terminalScreen } from "../../dashboard/test-support/terminalScreen.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
-  notRefinedIdentity,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
@@ -33,7 +29,6 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
-import { changeLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import { markAsDone } from "../../dashboard/test-support/support/markDone.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -42,10 +37,8 @@ test.beforeAll(async () => {
 });
 test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
-// Opens the journey once its preparation is read and the boundary launch's
-// start has reconciled: until then Backlog cards shrink as they settle, which
-// moves Recently done under a press and loses its click.
-async function settledAfterBoundaryLaunch(page: Page) {
+// Wait for the Board and its saved session to settle before using its controls.
+async function openBoardWithSavedSession(page: Page) {
   const opened = await openStoryColumnsJourney(page, journey);
   await opened.settled();
   await expect(page.getByText(/this story's actions/)).toHaveCount(0);
@@ -60,20 +53,10 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, {
-    ...refinementRequest,
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-    host: "codex",
+  await givenSavedCodexSession(dashboard, native, {
+    doneAt: new Date(Date.now() - 60_000).toISOString(),
   });
-  changeLaunchStore(dashboard, (state) => ({
-    ...state,
-    "open-dough": stored(dashboard.home).map((record) => ({
-      ...record,
-      doneAt: new Date(Date.now() - 60_000).toISOString(),
-    })),
-  }));
-  const { card } = await settledAfterBoundaryLaunch(page);
+  const { card } = await openBoardWithSavedSession(page);
   const doneEntry = await shownDoneSessionEntriesOf(
     page,
     notRefinedStory,
@@ -97,10 +80,10 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await terminal.expectText("resized");
   expect(
     native.calls.filter((call) => call.method === "thread/start"),
-  ).toHaveLength(1);
+  ).toHaveLength(0);
   expect(
     native.calls.filter((call) => call.method === "turn/start"),
-  ).toHaveLength(1);
+  ).toHaveLength(0);
   // A project change preserves the page's one current native attachment.
   await chooseProject(page, "Doughnut");
   await terminal.expectIdentity(notRefinedStory);
@@ -152,10 +135,10 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     ).toBe(true);
     expect(
       native.calls.filter((call) => call.method === "turn/start"),
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     expect(
       native.calls.filter((call) => call.method === "thread/start"),
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     expect(
       native.calls.filter((call) => call.method === "turn/interrupt"),
     ).toHaveLength(0);
@@ -170,20 +153,10 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, {
-    ...refinementRequest,
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-    host: "codex",
+  await givenSavedCodexSession(dashboard, native, {
+    doneAt: new Date(Date.now() - 60_000).toISOString(),
   });
-  changeLaunchStore(dashboard, (state) => ({
-    ...state,
-    "open-dough": stored(dashboard.home).map((record) => ({
-      ...record,
-      doneAt: new Date(Date.now() - 60_000).toISOString(),
-    })),
-  }));
-  await settledAfterBoundaryLaunch(page);
+  await openBoardWithSavedSession(page);
   codexTerminalMode(native, "partial");
   await openTerminalControl(
     await shownDoneSessionEntriesOf(page, notRefinedStory, native.threadId),

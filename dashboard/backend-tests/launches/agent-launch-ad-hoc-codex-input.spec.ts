@@ -32,7 +32,6 @@ import {
 test.use({
   serverMode: "boundary",
   projectFolders: ["open-dough"],
-  installedCatalog: "codex",
 });
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();

@@ -25,7 +25,6 @@ import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 test.use({
   serverMode: "boundary",
   projectFolders: ["open-dough"],
-  installedCatalog: "claude",
 });
 
 type Answer = {

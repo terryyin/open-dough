@@ -20,7 +20,6 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 test.use({
   serverMode: "boundary",
   projectFolders: ["open-dough"],
-  installedCatalog: "codex",
 });
 
 const shutdownTest = test.extend({ liveServer: "separate process" });
