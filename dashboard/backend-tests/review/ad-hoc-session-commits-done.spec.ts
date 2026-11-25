@@ -3,13 +3,19 @@
 // case.
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import type { LaunchHost } from "../../server/launchHosts.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/localFolder.ts";
-import { markDone, source, undoDone } from "../support/doneCaptureCase.ts";
+import {
+  markDone,
+  source,
+  takenStoryFiles,
+  undoDone,
+} from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
@@ -20,12 +26,21 @@ async function aSessionWithHeldRename() {
     performWork,
     at,
   } = await aDoneCaptureCase()
+    .withOrigin()
+    .withBaseFiles(takenStoryFiles(storyA))
     .withCheckoutLaunch("default-launch", { launched: 60 }, (launch) =>
-      launch.reportingThrough(dashboardReporting),
+      launch
+        .adHoc({ title: storyA.title, storyIdentity: storyA.identity })
+        .reportingThrough(dashboardReporting),
     )
     .kept()
     .please();
-  await keepAttempt(makeMe.anAcceptedAttempt.reportingFor(record).please());
+  await keepAttempt(
+    makeMe.anAcceptedAttempt
+      .reportingFor(record)
+      .published(checkout.base)
+      .please(),
+  );
   const submission = makeMe.aCompletionSubmission
     .reportingFor({
       host: record.session.host,

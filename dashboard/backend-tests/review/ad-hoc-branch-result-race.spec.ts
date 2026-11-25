@@ -3,6 +3,7 @@
 // later commit, and runs no native stop when the stale manual mark resumes.
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks, type DoneLaunches } from "../../server/doneMarks.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
@@ -10,11 +11,12 @@ import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/localFolder.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
-import { source } from "../support/doneCaptureCase.ts";
+import { source, takenStoryFiles } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
 test("a newer quiet Done takes precedence over a manual mark still capturing its branch", async () => {
+  const instruction = "Save the latest update";
   const {
     checkout,
     records: { "isolated-draft": record },
@@ -23,9 +25,16 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
+    .withBaseFiles(takenStoryFiles(storyA))
     .withWorkspace("draft")
     .withIsolatedLaunch("isolated-draft", { launched: 60 }, "draft", (launch) =>
-      launch.reportingThrough(dashboardReporting),
+      launch
+        .adHoc({
+          title: storyA.title,
+          storyIdentity: storyA.identity,
+          instruction,
+        })
+        .reportingThrough(dashboardReporting),
     )
     .withWork(
       (at) => makeMe.aCheckoutWork.committing("earlier", { at: at(40) }),
@@ -38,9 +47,10 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
   await keepAttempt(
     makeMe.anAcceptedAttempt
       .reportingFor(record)
+      .published(checkout.base)
       .requesting(
         makeMe.aLaunchRequest
-          .adHoc({ instruction: "Save the latest update" })
+          .adHoc({ instruction })
           .withPolicy({ workspace: "isolated", landing: "review" })
           .please(),
       )

@@ -8,6 +8,8 @@ import { onTestFinished, vi } from "vitest";
 import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
 import { performCheckoutWork } from "../../../Distribution/tests/support/repository-checkout-work.mjs";
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
+import { renderPublishedBacklog } from "../../../Distribution/tests/support/published-backlog.mjs";
+import { storySeed } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
   keptRecords,
   setRecordDoneAt,
@@ -19,6 +21,13 @@ import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 export const source = "open-dough";
 
 export { minutesAgo };
+
+export function takenStoryFiles(story: Parameters<typeof storySeed>[0]) {
+  return {
+    ".planning/PRODUCT-BACKLOG.md": renderPublishedBacklog({ taken: [story] }),
+    [`.planning/${story.href.split("#", 1)[0]}`]: storySeed(story, story.title),
+  };
+}
 
 // The checkout shape dated work needs.
 export type WorkCheckout = Parameters<typeof performCheckoutWork>[0];
