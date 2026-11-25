@@ -82,21 +82,40 @@ These retain the original selected outcome in delivery order.
 
 **Identity:** SEED-430#publish-moving-board-fixtures-through-git
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/826-publish-moving-board-fixtures-through-git/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/826-publish-moving-board-fixtures-through-git/PLAN.md","assessment":"not-ready","reasons":["Slice 6 needs a real-origin Project Intent visit that observes the trunk and story judgments and establishes the size of the shared CI history conversion.","Slice 8 needs a real-origin mixed-owner observation that reaches the directed scheduled or detail wait and recovery so the remaining inline fixture work can be sized."],"basis":{"document":"6bffebe68005254fee82a09548b0e1ccf2c3049f3f286ae0ae32e019613fbd17","plan":"440a269620aa911fefdfab8d9926fa63374896e97248dbf4ca62b6293a497abc"}}
 ```
 
-**Goal.** A maintainer can simulate a trunk move or rewind through a real
-origin and run Board, scheduled and detail journeys against the same pins.
+**Goal.** A maintainer can exercise a moving or rewound test publication
+through the same real origin the Dashboard will use for Board membership.
+Browser journeys can continue to verify scheduled observation and pinned
+details against the commits the fixture actually publishes.
 
-**Scope.** Migrate moving browser histories and customized browser
-observation fixtures. Keep the existing record, clock, launch-independent
-session, and Intent transitions. Preserve still-live REST branch and
-failure signals where the consumer continues to use them.
+**Scope.** Migrate moving browser histories and their custom observation
+fixtures. Successful trunk answers in Git and REST name the same commit
+at each publication. Carry the existing record bytes, comparisons, clocks,
+launch-independent session transitions, and Intent CI references to the
+appropriate pins. Preserve intentional holds, bad inputs, and recovery at
+the scheduled or detail request that owns them. Keep earlier pins readable
+where the journey retains them. The fixed fixture story owns fixed file
+publications. Routing qualification owns actual launch and reconciliation,
+configured-project setup, direct backend proofs, and the final cross-suite
+audit. The Board cutover owns membership dispatch and its failure proofs.
 
-**Key example.** Given a real publication at A, move origin to B during
-a scheduled browser check. The fixture advertises B in Git and REST,
-the Board shows B at the right revision and the scheduled read and
-detail observations still run at their intended boundaries.
+**Key examples.**
+
+- Given a Board at A, publish B and let the scheduled check run. The served
+  HOME resolves trunk to B, the scheduled request discovers B, and the
+  Board shows the records for B. A detail already pinned at A still reads
+  its intended record.
+- Given a test origin that has moved from A to B, rewind trunk to A. A
+  subsequent check and the visible direction or navigation state follow the
+  original A commit. A deliberately held or refused REST detail still
+  reaches its original failure and recovery assertions.
+- Given a moving file history where B changes only product code, let the
+  check discover B. The existing comparison names the real A and B, the
+  Board reuses unchanged planning records, and a restarted Dashboard reads
+  those records at B. Intent and Recently done journeys keep the same CI
+  evidence or session relationship across their own publication changes.
 
 <a id="qualify-board-fixture-routing-and-request-boundaries"></a>
 

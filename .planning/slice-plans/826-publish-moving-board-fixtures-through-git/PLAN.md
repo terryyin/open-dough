@@ -4,137 +4,245 @@
 
 **Identity:** SEED-430#publish-moving-board-fixtures-through-git
 
-**State:** Awaiting story refinement. These mapped slices need realignment before execution.
-
 ## Goal and scope
 
-A maintainer can drive a test publication from one real trunk commit to
-another and see the same change through the Board, scheduled checks and
-the fixture's pinned detail answers. This plan covers the browser
-publishers that move, and preserves deliberate scheduled and detail failures.
-[Configured projects and direct HTTP read fixtures](../827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md)
-own the request boundary and fixtures that launch or configure projects.
+Give maintainers real trunk moves and rewinds in browser fixtures while
+preserving scheduled checks, pinned details, published sessions, and Intent
+CI observations. Use the same real commit in Git and successful REST trunk
+answers at each publication. A deliberate REST hold or failure belongs to
+the request that exercises it. Keep old commits and their pinned records
+readable for the fixture's existing consumers.
+
+[Fixed file publications](../824-open-published-board-from-local-git/PLAN.md),
+[configured projects, actual launch and reconciliation, direct backend proofs,
+and the final audit](../827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md),
+and [membership dispatch and its failure proofs](../828-open-and-refresh-board-at-verified-trunk/PLAN.md)
+have their own delivery owners. Where a spec combines those concerns, assign
+the publication and each continuing request assertion by what they drive.
+
+## Current decisions
+
+- Reuse MakeMe's named histories and
+  [repository materialization](../../../Distribution/tests/support/repository-fixture.mjs),
+  [ref movement](../../../dashboard/test-support/committedOriginRepo.ts) and
+  [served-HOME routing](../../../dashboard/test-support/support/fixtureOriginRoute.ts).
+  Keep each scenario's publication on one real history. Resolve named scenario
+  revisions to actual SHAs when publishing and carry those SHAs into successful
+  REST answers and consuming assertions. A rewind reuses the original commit.
+- Preserve the existing REST controls in
+  [raw backlog](../../../dashboard/test-support/publishedMovingOrigin.ts)
+  and [moving files](../../../dashboard/test-support/publishedFiles.ts)
+  where a live scheduled or detail request uses them. The committed origin's
+  generic compare path serves containment; observation's paged commit-range
+  compare, made commits and path histories need their existing answers.
+  Keep branch-only variations at the scheduled or CI seam that exercises
+  them. Preserve the fixture's actual Git ancestry when a case relies on it.
+- Follow [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+  and [Share one refresh for published Dashboard Git reads](../../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads).
+  A served HOME reaches the fixture origin, and a detail refers to a
+  published commit independently of the execution checkout. The cutover
+  and later observation work own production dispatch.
+- Follow [ADR 0002, Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+  [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support),
+  [Act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows)
+  and [Plain Vitest for unit tests; Playwright only for E2E](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).
+  Extend existing data builders and publication seams. Keep UI actions in
+  their current page objects and independent Git/REST observations in the
+  cases. The browser journeys stay in E2E.
 
 ## Premises and proof
 
-[The audit inventory](../827-qualify-board-fixture-routing-and-request-boundaries/fixture-audit.md)
-groups browser mismatches by registered answerer. A scratch real A/B trunk
-in `auto-refresh-branches.spec.ts` retained the conditional listing,
-displayed pin and scheduled backlog request. An independent A/B conversion
-in `auto-refresh-rate-limit.spec.ts` reached its 429, 403 reset and recovery
-with a held owner. Each consumer's scratch conversion took about one active
-minute once traced. On `2d6b55306`, those two migrated cases and the phone
-Board passed in 32.2 seconds with the scratch Git membership dispatch
-described in [the cutover plan](../828-open-and-refresh-board-at-verified-trunk/PLAN.md).
-On `9dc3e801e`, a second scratch sample used one MakeMe history
-publisher to materialize the named commits, move the real trunk and
-advance the existing REST answerer together. The rate-limit case used
-A/B and the direction case exercised A/B/A. Both passed in 5.8 seconds
-through scratch Git membership and the live scheduled REST path under
-`env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/stories/direction-disclosure.spec.ts e2e/observation/auto-refresh-rate-limit.spec.ts --grep 'same-project refresh|auto refresh rate limit' --workers=1 --reporter=line`.
-The shared helper and two seam adaptations were a few active minutes,
-before refactor, delivery or expansion to other answer families. Keep
-the broader case counts separate from this sample.
+| Consumer and premise | Observation and limit |
+| --- | --- |
+| Scheduled branch observation and 429/403 recovery can use a real trunk alongside REST checks | On `2d6b55306`, real A/B versions of `auto-refresh-branches` and `auto-refresh-rate-limit` passed with the phone Board in 32.2 seconds on the [scratch Git membership dispatch](../828-open-and-refresh-board-at-verified-trunk/PLAN.md#preparation-probes-on-2026-11-25). They retained conditional listing, the scheduled backlog read, a held owner and recovery. Each adaptation took about one active minute after trace. |
+| One named history can drive the raw move and rewind | At `9dc3e801e`, the A/B rate-limit and A/B/A direction cases passed in 5.8 seconds through scratch Git membership and live scheduled REST. The shared sample and two adaptations took a few active minutes. The consuming Dashboard and fixture paths were unchanged between that revision and `f9ebb225d`. |
+| The moving-file compare can use the real A and B without losing the REST reuse proof | At `f9ebb225d` in the preparation worktree, baseline `unchanged-records-refresh` passed in 8.2 seconds. A temporary MakeMe A/B origin committed the scenario's A files and a product-only B change. `git ls-remote` under the original and restarted served HOMEs matched the published SHAs. The browser checked the A/B comparison, one real B commit read, no unchanged record rereads on the move, reuse in a second tab, and a full B read on restart. It passed in 7.7 seconds with the current REST membership path. Suppressing only the Git move left REST at B and failed the independent routed-ref assertion at A. The scratch changes were reverted. |
+| The Intent CI story fixture can carry real trunk SHAs through a scoped judgment | `intentCiStoryRecords` supplies both the published Board revision and a separate CI history. The Project Intent visit checks the earlier browse pin and judges the later trunk and story heads separately. Neither scratch result above reached that pair of judgments. |
+| Residual custom browser answerers fit one bounded publication slice | The audit catches successful fake refs after the response and from the first HOME. Source inspection distinguishes several controls, but the independent wait and its recovery have yet to be observed for the mixed cases where membership also shares the REST owner. |
 
-Use the existing MakeMe history materializer or movable real origin.
-Preserve each still-live REST endpoint's history, comparisons and failure
-inputs. A move or rewind must point Git and the fake REST trunk at the
-same real commit. Keep earlier reachable commits and explicit branch/detail
-answers for their current consumers. Follow the pins from publication
-through the assertions that name them.
+Raw sample command at `9dc3e801e`:
 
-## Provisional ordered slices
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/stories/direction-disclosure.spec.ts e2e/observation/auto-refresh-rate-limit.spec.ts --grep 'same-project refresh|auto refresh rate limit' --workers=1 --reporter=line
+```
 
-### 1. Move raw backlog observations through real commits
+Moving-file sample command at `f9ebb225d`:
 
-Type: Structure
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/unchanged-records-refresh.spec.ts --workers=1 --reporter=line
+```
+
+The negative moving-file run also set `DOUGH_SCRATCH_SKIP_TRUNK_MOVE=1`.
+The sample used one Chromium worker on AC power and the main checkout's
+dependencies via a temporary symlink with a matching lockfile. The symlink
+was removed. The sample does not establish the physical-dependency backend
+gate in plan 827.
+
+## Ordered slices
+
+For every publication group, keep a maintained observation of the advertised
+SHA from the served HOME at initial open and each move the case proves. Keep
+the associated browser and request assertions in the same slice. For the
+named spec families below, run the affected cases with the E2E entry in
+[Local gate](#local-gate), including unchanged callers of an edited shared
+entry point. Record a case's Git pin and the live request or visible result
+that discriminates its promise.
+
+### 1. Publish scheduled backlog observations at real revisions
+
+Type: Behavior
 Status: planned
-Change: Start with the common raw moving origin and the branch/steady
-observation journeys that reuse it. Keep deliberate synthetic branch
-answers for scheduled reads.
-Proof: Observe a real initial pin, exact trunk move, and the scheduled
-read on the new pin in both transports. Measure remaining raw-origin
-edit sites before fixing the next boundary.
+Behavior: With a raw test Board open at A, publish B through the existing
+raw-history seam. A scheduled check discovers B and reads its backlog while
+the origin reports the same SHA. Use `autoRefreshJourney`,
+`refreshJourney` and `revisionStreamJourney` where they own the setup.
+Proof: Run `auto-refresh.spec.ts`, `steady-refresh*.spec.ts` and the
+`revision-stream*` and `revision-check-return` cases that use the raw
+setup. Keep the subscription, lost-stream fallback, and visible/hidden
+cadence assertions. Prove one moved real pin at the scheduled operation.
+Use the shared path for the repeated setups within the 15-minute budget.
 
-### 2. Keep scheduled throttles and recovery at their owner
+### 2. Preserve scheduled and detail recovery on a moving origin
 
-Type: Structure
+Type: Behavior
 Status: planned
-Change: Migrate moving rate-limit, transient and read-turn scenarios with
-raw publications. Stimulate the still-live scheduled or detail request at
-its boundary. Keep genuine membership-only cases with the cutover.
-Proof: Exercise holder, competing waiter, and recovery at the new real
-revision. Preserve each scenario's distinct wait or error.
+Behavior: With a confirmed snapshot and a held, refused or interrupted
+scheduled check or pinned detail, publish the next real trunk and recover
+through the operation that incurred the wait. A companion project or waiter
+continues under the journey's existing request-owner rules.
+Proof: Run the affected `auto-refresh-*-recovery`, `auto-refresh-rate-limit`,
+`project-read-*`, `transient-*`, `read-failure`,
+`owner-replacement-recovery` and isolation cases. Observe the directed
+429 and 403 wait/reset at the scheduled or detail request, the retained
+snapshot, and recovery at the expected pin. Keep membership-only controls
+with the cutover. Use the shared raw setup and its established override
+points. Count any residual owner rewrites against this slice before dispatch.
 
-### 3. Move directions and story navigation across real pins
+### 3. Follow real trunk rewinds through story navigation
 
-Type: Structure
+Type: Behavior
 Status: planned
-Change: Migrate remaining raw moving Board/navigation publishers, including
-direction, project changes and rewinds.
-Proof: Run each affected project/navigation transition and observe both
-trunk pins and the retained detail request.
+Behavior: When a published history returns to A or the reader changes
+project, the Board's direction and story navigation reflect that project's
+current real pin. A link or detail keeps the pin its journey establishes.
+Proof: Run `direction-disclosure`, `story-url-history` and reached
+project navigation cases. Observe A/B/A with the same A commit, the visible
+direction change, and any detail requested at an earlier pin. Keep
+independent project origins distinct. Size from the retained raw rewind
+sample and the directly reached navigation setups.
 
-### 4. Move browser session publications through named history
+### 4. Preserve session navigation while its published Board moves
 
-Type: Structure
+Type: Behavior
 Status: planned
-Change: Migrate raw publishers shared by browser session navigation,
-sidebar and Recently done reset cases. The actual agent launch and
-reconciliation controls belong to configured projects qualification.
-Proof: Check the prior and current pins, session state and view
-navigation with the live details kept at their published pin.
+Behavior: A reader following an existing session through sidebar, story or
+Recently done navigation keeps the recorded session choice and reaches the
+right publication across project and Board changes. Update the first
+shared publication in `sessionNavigationJourney`,
+`recentlyDoneSessionsSidebarPage` or the role-specific setup it reaches.
+Proof: Run the reached `sessions-sidebar*`,
+`cursor-sessions-sidebar-*`, `recently-done-sessions-sidebar-*` and
+progressive navigation cases. Check the pin and the retained selection,
+panel or route. Keep machine-local session signals distinct from published
+records. Qualification owns cases whose proof is launch, terminal startup
+or reconciliation. Keep fixed auxiliary projects with the publisher that
+already owns their route.
 
-### 5. Move published work records without replacing pinned history
+### 5. Keep comparison and branch observations at their published pins
 
-Type: Structure
+Type: Behavior
 Status: planned
-Change: Migrate moving file publications used by profiles, assignment
-credit, branch progress, and unchanged-record readers.
-Proof: Run these journeys through the move, reopen and restart where
-present. Check prior pin and the exact comparison and record reuse
-assertions.
+Behavior: After a file history advances, the Dashboard compares the
+actual trunk pins and keeps the correct record reuse, attribution, clock
+or branch progress result. A reopened Dashboard reads from the served
+origin of its new HOME.
+Proof: Run affected `unchanged-*`, `story-cards-before-comparison`,
+`reopened-project-reads`, `agent-roster-avatar`, `branch-progress-reading`
+and `branchRefreshJourney` cases. Preserve held compare, the exact A/B
+comparison, no unnecessary reads, branch-tip deletion or unusable listing,
+and profile history identity where asserted. Use the sampled file path and
+shared branch setup. Keep `publishedFiles.ts`'s publication and answer
+dispatch cohesive. If the near-limit file grows, simplify that seam
+without changing the request controls.
 
-### 6. Move Intent CI histories through real trunk
+### 6. Keep Intent CI evidence attached to its published head
 
-Type: Structure
+Type: Behavior
 Status: planned
-Change: Migrate moving file publications in Intent CI, keeping the existing
-verdict, returned history and event relationships.
-Proof: Show CI evidence and its intended revision before and after a
-real trunk move using the affected Intent journeys.
+Behavior: When a project or story's published head changes during an
+Intent visit, the existing judgment reads that head's CI evidence and
+retains the previously admitted browse revision where the case requires it.
+Proof: Begin with `intent-project-visit-ci.spec.ts` through
+`intentCiStoryRecords`, then run affected Intent CI callers of that setup
+and the shared project CI publishers in the audit. Match actual trunk,
+history, run head and displayed SHA where they represent the same commit.
+Keep held check, nearest-result, differing branch verdicts and proof-source
+assertions. Reuse `intentCiHistoryPage`'s real-origin path where already
+active. Measure the shared CI history adaptation before accepting the
+15-minute budget.
 
-### 7. Move Recently done and session histories through real trunk
+### 7. Follow moving Recently done and published session histories
 
-Type: Structure
+Type: Behavior
 Status: planned
-Change: Migrate moving Done and session publications, including the
-queued/re-Taken/Done sequence.
-Proof: Run the reached sessions and Recently done journeys with the
-same event sequence and real pins.
+Behavior: Moving a published story through queue, re-Take and Done, or
+refreshing a progressive Done catalog, updates the browser at the correct
+commit while earlier admitted details keep their record and session links.
+Proof: Run `recently-done-returned-sessions`, the progressive
+refresh/reset/failure journeys reached through `recentlyDoneRefresh`,
+and catalog retry where it replaces a publication. Check the exact pins,
+session relationship and request order, including a failed listing or
+record read where the journey holds it. Preserve one publication history
+for each scenario and its earlier pins.
 
-### 8. Publish remaining browser record overrides at their real trunk pins
+### 8. Keep custom observation faults at the consuming request
 
-Type: Structure
+Type: Behavior
 Status: planned
-Change: Route custom result and error answerers for observation stories
-that bypass the common publishers. Keep overrides at their still-live
-scheduled or detail request.
-Proof: Repeat the audited cases at their original failure and recovery
-boundary. Record every moving fixture group for the final routing audit.
+Behavior: Where an inline browser answerer controls a moving publication,
+the real trunk remains available at the announced pin while the explicit
+scheduled, detail or comparison fault still reaches the existing consumer.
+Proof: Group live overrides by held ref/listing, held content/history,
+or mixed owner turn. Run each affected case at its original trigger and
+recovery boundary. Record the routed pin and the still-live request
+observation. Keep pure membership proofs with cutover, fixed publications
+with their fixed owner and configured-project cases with qualification.
+Bound the residual mixed-owner work before dispatch.
 
-## Refinement condition
+## Boundary review and remaining concerns
 
-Use the shared moving-history sample for raw callers with the same shape.
-Group the 51 raw-origin and 27 moving-file spec hits by the first shared
-setup that can own a real pin. Count the residual moves and assertions,
-and measure the distinct moving-file comparison path before accepting its
-boundary. Select smaller
-outcomes if their retained independent proofs require more than eight slices.
+Slice-plan refinement applied. Each slice owns a consumer-visible
+fixture result and its preserved proof. The [audit inventory](../827-qualify-board-fixture-routing-and-request-boundaries/fixture-audit.md)
+lists 51 raw-origin, 27 moving-file and 17 inline spec hits. These overlap.
+Most raw scheduled cases reach the three shared journey setups in slice 1;
+the failure overrides belong to slice 2, and the same raw publisher is
+reused for the separate navigation and session consumers in slices 3–4.
+The moving-file hits reach shared branch/reuse callers in slice 5, 16
+Intent files in slice 6, and the returned-session publication in slice 7.
+Some hits use a fixed or already-real publisher alongside a moving one.
+Count a setup once, and cover every consumer through the slice that changes
+its first affected setup.
+
+Inline source tracing puts owner replacement and the two transient lifecycle
+overlaps with slice 2, catalog retry with slice 7, added-project setup with
+qualification, and fixed Intent recovery, detail, credit and clock setups
+with their fixed publication owner. The mixed `limit-recovery-tabs`,
+`read-turns-across-tabs` and `shared-observer-reads` cases still need their
+continuing scheduled/detail owner distinguished from membership before
+sizing slice 8. Reproduce a mixed case with a real origin and a directed
+live wait; if it needs more than one independent repair, reassess the existing
+slice boundaries before execution. Slice 6 still needs a real-origin
+Project Intent visit covering both trunk and story judgment to settle
+which CI inputs must move together and the size of the conversion.
 
 ## Local gate
 
-Run focused checks and Dashboard typecheck for each changed boundary.
-Run long checks under [`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Use `npm run test:e2e -- <affected-specs> --workers=1 --reporter=line` for
+focused proof, and `npm run typecheck:dashboard` when editing shared typed
+support. Trace and run the affected readers when changing either publisher,
+including backend callers of a changed shared raw contract. Plan 827 owns
+final whole-suite qualification. Run long checks under
+[`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
-and select test conventions through [AGENTS.md](../../../AGENTS.md).
+and [AGENTS.md](../../../AGENTS.md) for MakeMe, page-object selection and
+default timeouts. Recheck active slice size before expanding any boundary.
