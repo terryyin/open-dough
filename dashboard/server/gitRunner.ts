@@ -1,8 +1,6 @@
-// Runs one `git` call for the dashboard server: a fixed argument array --
-// never a shell string -- in a checkout, with what it printed. A call that
-// exits nonzero, cannot start, is aborted, or prints more than its output
-// limit rejects with a `GitFailure` carrying what was printed; each caller
-// decides what that failure means to it.
+// Runs dashboard Git commands with fixed argument arrays. Direct calls
+// return stdout and stderr or reject with a GitFailure. Transport calls
+// own the process group so cancellation also stops Git's helpers.
 
 import { execFile, type ExecException } from "node:child_process";
 import { gitExecutable } from "../../Distribution/src/skills/dough-execute-plan/scripts/git-executable.mjs";
@@ -70,6 +68,36 @@ export async function runGitUntilClosed(
   call: GitCall,
 ): Promise<GitOutput> {
   return gitOutput(args, call, true);
+}
+
+// A bounded remote read owns Git and its transport helpers through cancellation.
+export async function readGitTransport(
+  args: readonly string[],
+  { cwd, env, signal, maxBuffer }: Omit<GitCall, "input">,
+): Promise<string> {
+  const directory = cwd ?? process.cwd();
+  const callEnv = { ...process.env, ...env };
+  const executable = await gitExecutable({ cwd: directory, env: callEnv });
+  const running = ownedProcess(executable, [...args], {
+    cwd: directory,
+    env: callEnv,
+    ...(signal === undefined ? {} : { signal }),
+  });
+  const chunks: Buffer[] = [];
+  let bytes = 0;
+  running.child.stdout.on("data", (chunk: Buffer) => {
+    bytes += chunk.length;
+    if (bytes > maxBuffer) running.terminate("SIGKILL");
+    else chunks.push(chunk);
+  });
+  const result = await running.exited;
+  signal?.throwIfAborted();
+  if (result.code !== 0 || bytes > maxBuffer) {
+    throw new Error("Git could not read the remote.", {
+      cause: running.output(),
+    });
+  }
+  return Buffer.concat(chunks).toString("utf8");
 }
 
 // A long fetch drains progress continuously and retains only bounded

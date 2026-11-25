@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -8,9 +7,10 @@ import {
   type DashboardServer,
   type DashboardServerMode,
 } from "./dashboardServer.ts";
-import type { FakeGhTransport } from "./fakeGh.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { everyRepository, publishes } from "./fakeGitHub.ts";
+import { git } from "./launchLanding.ts";
+import { commitPublishedOrigin } from "./publishedOrigin.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -19,30 +19,46 @@ import {
 } from "./projectConfiguration.ts";
 
 export const addedRepository = "example/sample-app";
-export const addedRevision = "b7".repeat(20);
 export const addedBranch = "release+stable";
 export const addedLocalPath = "~/work/private-checkout";
 
-export function projectAddMachine({
-  ghTransport,
-}: { ghTransport?: FakeGhTransport } = {}) {
+export function projectAddMachine() {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-project-add-"));
   const checkout = path.join(machine, "home/work/private-checkout");
-  mkdirSync(checkout, { recursive: true });
-  execFileSync("git", [
-    "init",
+  const facts = {
+    defaultBranch: addedBranch,
+    backlog: describedBacklog(makeMe.aRepository.please()),
+  };
+  const published = publishes(facts);
+  const otherProjects = publishes({ ...facts, revision: published.revision });
+  const localBranch = commitPublishedOrigin({
+    branch: "local-checkout",
+    backlog: null,
+  });
+  git(
+    published.origin,
+    "fetch",
     "--quiet",
-    "--initial-branch=local-checkout",
+    localBranch.origin,
+    "local-checkout:local-checkout",
+  );
+  mkdirSync(path.dirname(checkout), { recursive: true });
+  git(
+    machine,
+    "clone",
+    "--quiet",
+    "--branch",
+    "local-checkout",
+    published.origin,
     checkout,
-  ]);
-  execFileSync("git", [
-    "-C",
+  );
+  git(
     checkout,
     "remote",
-    "add",
+    "set-url",
     "origin",
     `git@github.com:${addedRepository}.git`,
-  ]);
+  );
   const servers: DashboardServer[] = [];
   // The file a server of that mode keeps its projects in.
   const configurationFile = (mode: DashboardServerMode) =>
@@ -53,6 +69,7 @@ export function projectAddMachine({
   return {
     machine,
     checkout,
+    revision: published.revision,
     configurationFile,
     async start(
       mode: DashboardServerMode,
@@ -61,22 +78,14 @@ export function projectAddMachine({
     ): Promise<DashboardServer> {
       const server = await startDashboardServer({
         mode,
-        ghTransport,
         machine,
         configureDevelopmentProjects: false,
         prebuilt: sharedDashboardBuild,
         readTimeoutMs,
         codexProtocol,
       });
-      server.github.serve(
-        everyRepository,
-        publishes({
-          revision: addedRevision,
-          defaultBranch: addedBranch,
-          // The added project records no stories.
-          backlog: describedBacklog(makeMe.aRepository.please()),
-        }),
-      );
+      server.github.serve(everyRepository, otherProjects);
+      server.github.serve(addedRepository, published);
       servers.push(server);
       return server;
     },

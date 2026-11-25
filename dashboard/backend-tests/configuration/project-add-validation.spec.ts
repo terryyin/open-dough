@@ -1,73 +1,125 @@
-import { mkdirSync, readFileSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { addProject } from "../../server/projectAddition.ts";
 import {
   appendConfiguredProject,
   configuredProjects,
+  mountProjectConfiguration,
+  projectConfigurationFile,
 } from "../../server/projectConfiguration.ts";
 import {
   ProjectInputProblem,
   type ProjectInput,
 } from "../../src/projectInput.ts";
-import { failsWith, publishes } from "../../test-support/support/fakeGitHub.ts";
-import {
-  projectAdditionFixture,
-  validationRepository,
-} from "../../test-support/support/projectAdditionFixture.ts";
+import { routeOriginThroughHome } from "../../test-support/support/fixtureOriginRoute.ts";
+import { commitPublishedOrigin } from "../../test-support/support/publishedOrigin.ts";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.describe.configure({ mode: "serial" });
-let fixture: Awaited<ReturnType<typeof projectAdditionFixture>>;
-test.beforeEach(async () => {
-  fixture = await projectAdditionFixture();
+const validationRepository = "example/sample-app";
+const defaultBranch = "release+stable";
+let home: string;
+let checkout: string;
+let file: string;
+let gitTrace: string;
+let input: ProjectInput;
+let restoreEnv: (() => void) | undefined;
+let releaseConfiguration: (() => void) | undefined;
+test.beforeEach(() => {
+  home = mkdtempSync(path.join(tmpdir(), "dough-project-validation-"));
+  checkout = path.join(home, "checkout");
+  gitTrace = path.join(home, "git-trace");
+  restoreEnv = withRestoredEnv({ HOME: home, GIT_TRACE: gitTrace });
+  const local = commitPublishedOrigin({ branch: "local", backlog: null });
+  execFileSync("git", ["clone", "--quiet", local.origin, checkout]);
+  execFileSync("git", [
+    "-C",
+    checkout,
+    "remote",
+    "set-url",
+    "origin",
+    `git@github.com:${validationRepository}.git`,
+  ]);
+  releaseConfiguration = mountProjectConfiguration("development");
+  file = projectConfigurationFile("development");
+  input = {
+    githubUrl: `https://github.com/${validationRepository}`,
+    localPath: checkout,
+  };
 });
-test.afterEach(async () => fixture.close());
 
-async function refuses(input: ProjectInput, field: string, message: string) {
-  const bytes = readFileSync(fixture.file, "utf8");
+function advertiseDefaultBranch() {
+  routeOriginThroughHome(
+    home,
+    commitPublishedOrigin({ branch: defaultBranch }).origin,
+    validationRepository,
+  );
+}
+
+function expectNoRemoteValidation() {
+  expect(
+    existsSync(gitTrace) ? readFileSync(gitTrace, "utf8") : "",
+  ).not.toContain("ls-remote");
+}
+test.afterEach(() => {
+  releaseConfiguration?.();
+  releaseConfiguration = undefined;
+  restoreEnv?.();
+  restoreEnv = undefined;
+  rmSync(home, { recursive: true, force: true });
+});
+
+async function refuses(
+  submitted: ProjectInput,
+  field: string,
+  message: string,
+) {
+  const bytes = readFileSync(file, "utf8");
   const projects = configuredProjects();
   await expect(
-    addProject(input, new AbortController().signal),
+    addProject(submitted, new AbortController().signal),
   ).rejects.toMatchObject({
     field,
     message,
   });
-  expect(readFileSync(fixture.file, "utf8")).toBe(bytes);
+  expect(readFileSync(file, "utf8")).toBe(bytes);
   expect(configuredProjects()).toEqual(projects);
-  expect(readdirSync(path.dirname(fixture.file))).toEqual([
+  expect(readdirSync(path.dirname(file))).toEqual([
     "projects-development.json",
   ]);
 }
 
 test("a non-GitHub URL is refused at its field without an external read", async () => {
   await refuses(
-    { ...fixture.input, githubUrl: "https://gitlab.com/example/sample-app" },
+    { ...input, githubUrl: "https://gitlab.com/example/sample-app" },
     "githubUrl",
     "Enter a GitHub repository URL in HTTPS or SSH form.",
   );
-  expect(fixture.github.calls).toEqual([]);
+  expectNoRemoteValidation();
 });
 
 test("an unreadable GitHub repository is refused at its URL field", async () => {
-  fixture.github.serve(
+  routeOriginThroughHome(
+    home,
+    path.join(home, "missing.git"),
     validationRepository,
-    failsWith("gh: Not Found (HTTP 404)"),
   );
   await refuses(
-    fixture.input,
+    input,
     "githubUrl",
     `The repository ${validationRepository} could not be read through the local GitHub CLI. Check gh access and try again.`,
   );
-  expect(fixture.github.calls.map((call) => call.argv)).toEqual([
-    [
-      "api",
-      "--include",
-      `repos/${validationRepository}`,
-      "--jq",
-      ".default_branch",
-    ],
-  ]);
 });
 
 for (const kind of [
@@ -77,7 +129,7 @@ for (const kind of [
 ] as const) {
   test(`${kind} is refused at the execution checkout field before GitHub is read`, async () => {
     const localPath = path.join(
-      kind === "nested checkout folder" ? fixture.checkout : fixture.home,
+      kind === "nested checkout folder" ? checkout : home,
       "folder",
     );
     if (kind !== "missing") {
@@ -87,23 +139,31 @@ for (const kind of [
       kind === "missing"
         ? `The execution checkout ${localPath} was not found.`
         : `The execution checkout ${localPath} is not the root of a Git checkout with an origin repository.`;
-    await refuses({ ...fixture.input, localPath }, "localPath", message);
-    expect(fixture.github.calls).toEqual([]);
+    await refuses({ ...input, localPath }, "localPath", message);
+    expectNoRemoteValidation();
   });
 }
 
 test("a different origin names both repositories and refuses the execution checkout", async () => {
-  fixture.setOrigin("https://github.com/another/different.git");
+  execFileSync("git", [
+    "-C",
+    checkout,
+    "remote",
+    "set-url",
+    "origin",
+    "https://github.com/another/different.git",
+  ]);
   await refuses(
-    fixture.input,
+    input,
     "localPath",
-    `The origin of ${fixture.checkout} is another/different, but the GitHub URL names ${validationRepository}.`,
+    `The origin of ${checkout} is another/different, but the GitHub URL names ${validationRepository}.`,
   );
-  expect(fixture.github.calls).toEqual([]);
+  expectNoRemoteValidation();
 });
 
 for (const duplicate of ["repository", "id"] as const) {
   test(`a case-insensitive duplicate ${duplicate} is refused without replacing saved projects`, async () => {
+    advertiseDefaultBranch();
     appendConfiguredProject(
       makeMe.aConfiguredProject
         .with({
@@ -119,7 +179,7 @@ for (const duplicate of ["repository", "id"] as const) {
         .please(),
     );
     await refuses(
-      { ...fixture.input, githubUrl: "git@github.com:Example/Sample-App.git" },
+      { ...input, githubUrl: "git@github.com:Example/Sample-App.git" },
       "githubUrl",
       duplicate === "repository"
         ? `${validationRepository} is already configured.`
@@ -130,33 +190,23 @@ for (const duplicate of ["repository", "id"] as const) {
 }
 
 test("concurrent validated additions recheck admission and save exactly one append", async () => {
-  let release: () => void = () => undefined;
-  const held = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  const published = publishes({
-    defaultBranch: "release+next",
-  });
-  fixture.github.serve(validationRepository, async (call) => {
-    await held;
-    return published(call);
-  });
-  const first = addProject(fixture.input, new AbortController().signal);
-  const second = addProject(
-    { ...fixture.input, githubUrl: "git@github.com:EXAMPLE/SAMPLE-APP.git" },
-    new AbortController().signal,
-  );
-  const results = Promise.allSettled([first, second]);
-  try {
-    // Additions asking GitHub the same question while it is outstanding
-    // share one `gh` call (../../server/ghRead.ts); either way, neither has
-    // saved while it is held, and each rechecks admission when it saves.
-    await expect.poll(() => fixture.github.calls.length).toBe(1);
-    expect(readFileSync(fixture.file, "utf8")).toBe("[]\n");
-  } finally {
-    release();
-  }
-  const settled = await results;
+  advertiseDefaultBranch();
+  expect(
+    execFileSync(
+      "git",
+      ["-C", checkout, "rev-parse", "--abbrev-ref", "@{upstream}"],
+      {
+        encoding: "utf8",
+      },
+    ).trim(),
+  ).toBe("origin/local");
+  const settled = await Promise.allSettled([
+    addProject(input, new AbortController().signal),
+    addProject(
+      { ...input, githubUrl: "git@github.com:EXAMPLE/SAMPLE-APP.git" },
+      new AbortController().signal,
+    ),
+  ]);
   expect(
     settled.filter((result) => result.status === "fulfilled"),
   ).toHaveLength(1);
@@ -166,19 +216,19 @@ test("concurrent validated additions recheck admission and save exactly one appe
     field: "githubUrl",
     message: `${validationRepository} is already configured.`,
   });
-  const saved = JSON.parse(readFileSync(fixture.file, "utf8")) as unknown[];
+  const saved = JSON.parse(readFileSync(file, "utf8")) as unknown[];
   expect(saved).toEqual([
     {
       id: "sample-app",
       label: "Sample App",
       repository: validationRepository,
-      ref: "release+next",
+      ref: defaultBranch,
       backlogPath: ".planning/PRODUCT-BACKLOG.md",
-      localPath: fixture.checkout,
+      localPath: checkout,
     },
   ]);
   expect(configuredProjects()).toEqual(saved);
-  expect(readdirSync(path.dirname(fixture.file))).toEqual([
+  expect(readdirSync(path.dirname(file))).toEqual([
     "projects-development.json",
   ]);
 });

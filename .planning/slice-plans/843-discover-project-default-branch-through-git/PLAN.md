@@ -68,14 +68,41 @@ macOS.
 | Add Project configures the branch symbolic `HEAD` advertises even when the execution checkout tracks another branch, and makes no repository metadata API call for the default branch. After add and restart, the Board uses that configured ref. | 1. Backend validation and the Add Project E2E with a routed real origin whose `HEAD` is `release+stable` and a checkout on another branch; assert saved `ref`, Board revision after restart, and absence of `api … .default_branch` for Add. |
 | Access refusal or an unusable advertised default leaves the project unconfigured and tells the developer how to retry. | 2. Backend validation: refused remote and successful probe without a usable `refs/heads/` name; assert unchanged configuration file and field guidance. |
 
+Local gates run focused checks from the fully awake macOS checkout on AC power
+under `caffeinate -s -i`. Apply the shared
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+
+## Execution context
+
+Story Branch Mode in the Dashboard-owned
+`discover-a-project-s-default-branch-through-git` worktree on
+`codex/discover-a-project-s-default-branch-through-git`, with `origin/main` as
+the integration target. Publisher `dashboard-territory.local-open-dough`,
+agent Mihiro-chan, starting revision `6a88dc365`, published Take `b6b62ad24`.
+Locked install, dashboard typecheck, and pinned Chromium setup passed in this
+checkout on Node 24.21.0. Codex observer `mihiro-437` follows the remote story
+branch with GitHub Actions `ci.yml` in `/tmp/dough-ci-501/watch-LAypcY`.
+
 ## Slices
 
 ### 1. Configure the advertised default branch from symbolic HEAD
 Type: Behavior
-Status: planned
+Status: done
 Proof: Backend project-add validation and `e2e/configuration/project-add.spec.ts` with a routed origin whose symbolic `HEAD` is `release+stable` while the checkout is on another branch; saved `ref` is that branch; Board uses it after add and restart; no Add Project `api … .default_branch` call.
 
 Behavior: Given an accessible origin whose symbolic `HEAD` names a usable branch different from the execution checkout's branch → trigger Add Project → the project is saved with that `ref`, later Board reads use it, and discovery used authenticated Git rather than the repository metadata API.
+
+Accepted proof: 16 Chromium cases, including Add and restart from a checkout
+tracking `origin/local-checkout` at a different commit. The saved `release+stable`
+ref drives the visible Board revision and Add makes no default-branch API call.
+20 backend cases cover validation, the HTTP boundary and API cooldown. Ten
+Review cases cover initial and offline sync through the shared Git settings.
+The independent refactor renewed all five wire cases. Reports and terminal
+runner records are under the execution checkout's Git evidence directory.
+
+Learning: the Add fixture needs a real named origin for `example/sample-app`
+and the prior API fallback for seeded projects. The related fixture-qualification
+story can reuse this named origin and retains ownership of its wider suite audit.
 
 ### 2. Leave Add unconfigured when Git access fails or the default is unusable
 Type: Behavior

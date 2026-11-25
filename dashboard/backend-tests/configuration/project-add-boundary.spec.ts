@@ -1,6 +1,10 @@
 import http from "node:http";
+import { once } from "node:events";
 import { readFileSync } from "node:fs";
+import type { AddressInfo } from "node:net";
 import { expect, test } from "../../test-support/support/pageTest.ts";
+import { machineHome } from "../../test-support/machineLaunchRecords.ts";
+import { routeOriginThroughHome } from "../../test-support/support/fixtureOriginRoute.ts";
 import {
   projectAddMachine,
   addedRepository,
@@ -10,12 +14,10 @@ import {
   rawRequest,
   abandonedRequest,
 } from "../../test-support/support/rawHttp.ts";
-import { hangs } from "../../test-support/support/fakeGitHub.ts";
-import { processRunning } from "../../test-support/support/processGroup.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
-  fixture = projectAddMachine({ ghTransport: "cli" });
+  fixture = projectAddMachine();
 });
 test.afterEach(async () => fixture.close());
 const body = JSON.stringify({
@@ -71,59 +73,91 @@ test("Add admits only same-origin POST and returns published facts without check
   expect(server.claudeCalls()).toEqual([]);
 });
 
-for (const abandonment of ["disconnect", "deadline"] as const) {
-  test(`Add validation ends gh on ${abandonment} and leaves the saved list untouched`, async () => {
-    // Under one burner per core, 3 s leaves time to observe gh's spawn before
-    // the handler's deadline; 500 ms could expire before gh wrote its pid.
-    const server = await fixture.start(
-      "boundary",
-      abandonment === "deadline" ? 3_000 : 30_000,
-    );
-    server.github.serve(addedRepository, hangs);
-    const before = readFileSync(fixture.configurationFile("boundary"), "utf8");
-    const options = {
-      url: `${server.baseURL}/__project-configuration/add`,
-      method: "POST",
-      headers: { Origin: server.origin, "Content-Type": "application/json" },
-      body,
-    };
-    if (abandonment === "disconnect") {
-      const request = abandonedRequest(options);
-      await expect.poll(() => server.ghPid()).toBeGreaterThan(0);
-      request.cutAfter(1);
-    } else {
-      const response = rawRequest(options);
-      await expect.poll(() => server.ghPid()).toBeGreaterThan(0);
-      expect((await response).status).toBe(503);
-    }
-    await expect.poll(() => server.ghExitedBy()).toBe("SIGTERM");
-    expect(readFileSync(fixture.configurationFile("boundary"), "utf8")).toBe(
-      before,
-    );
-  });
-}
+test.describe("Add validation with a pending Git request", () => {
+  let origin: http.Server | undefined;
+  let requested: (string | undefined)[];
+  let closed: number;
 
-test("server shutdown ends pending Add validation without writing configuration", async () => {
-  const server = await fixture.start("boundary");
-  server.github.serve(addedRepository, hangs);
-  const before = readFileSync(fixture.configurationFile("boundary"), "utf8");
-  abandonedRequest({
-    url: `${server.baseURL}/__project-configuration/add`,
-    method: "POST",
-    headers: { Origin: server.origin, "Content-Type": "application/json" },
-    body,
+  test.beforeEach(async () => {
+    requested = [];
+    closed = 0;
+    origin = http.createServer((req, res) => {
+      requested.push(req.url);
+      res.once("close", () => {
+        closed += 1;
+      });
+    });
+    await once(origin.listen(0, "127.0.0.1"), "listening");
+    const { port } = origin.address() as AddressInfo;
+    routeOriginThroughHome(
+      machineHome(fixture.machine),
+      `http://127.0.0.1:${String(port)}/sample-app.git`,
+      addedRepository,
+    );
   });
-  await expect.poll(() => server.ghPid()).toBeGreaterThan(0);
-  const pid = server.ghPid();
-  if (pid === undefined) throw new Error("The fake gh did not record its pid.");
-  await fixture.stop(server);
-  // Already over once the server's process group is: an exited `gh` that
-  // outlived the server still answers `kill(pid, 0)` until launchd reaps it, late
-  // under load, so only whether it can still run code says it was ended.
-  expect(processRunning(pid)).toBe(false);
-  expect(readFileSync(fixture.configurationFile("boundary"), "utf8")).toBe(
-    before,
-  );
+
+  test.afterEach(async () => {
+    const pendingOrigin = origin;
+    origin = undefined;
+    if (pendingOrigin === undefined) return;
+    pendingOrigin.closeAllConnections();
+    await new Promise<void>((resolve) => {
+      pendingOrigin.close(() => {
+        resolve();
+      });
+    });
+  });
+
+  async function prepareAdd(readTimeoutMs = 30_000) {
+    const server = await fixture.start("boundary", readTimeoutMs);
+    const configuration = fixture.configurationFile("boundary");
+    return {
+      server,
+      configuration,
+      before: readFileSync(configuration, "utf8"),
+      options: {
+        url: `${server.baseURL}/__project-configuration/add`,
+        method: "POST",
+        headers: { Origin: server.origin, "Content-Type": "application/json" },
+        body,
+      },
+    };
+  }
+
+  async function expectTransportReached() {
+    await expect
+      .poll(() => requested)
+      .toEqual(["/sample-app.git/info/refs?service=git-upload-pack"]);
+  }
+
+  async function expectAddEnded(configuration: string, before: string) {
+    await expect.poll(() => closed).toBe(1);
+    expect(readFileSync(configuration, "utf8")).toBe(before);
+  }
+
+  test("disconnect ends the transport without writing configuration", async () => {
+    const { configuration, before, options } = await prepareAdd();
+    const request = abandonedRequest(options);
+    await expectTransportReached();
+    request.cutAfter(1);
+    await expectAddEnded(configuration, before);
+  });
+
+  test("the deadline ends the transport without writing configuration", async () => {
+    // Allow the request to reach the transport under CI load.
+    const { configuration, before, options } = await prepareAdd(3_000);
+    expect((await rawRequest(options)).status).toBe(503);
+    await expectTransportReached();
+    await expectAddEnded(configuration, before);
+  });
+
+  test("shutdown ends the transport without writing configuration", async () => {
+    const { server, configuration, before, options } = await prepareAdd();
+    abandonedRequest(options);
+    await expectTransportReached();
+    await fixture.stop(server);
+    await expectAddEnded(configuration, before);
+  });
 });
 
 test("an unfinished Add request body ends at the boundary deadline without validation or writes", async () => {
