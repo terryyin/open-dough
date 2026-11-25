@@ -82,7 +82,7 @@ These retain the original selected outcome in delivery order.
 
 **Identity:** SEED-430#publish-moving-board-fixtures-through-git
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/826-publish-moving-board-fixtures-through-git/PLAN.md","assessment":"not-ready","reasons":["Slice 6 needs a real-origin Project Intent visit that observes the trunk and story judgments and establishes the size of the shared CI history conversion.","Slice 8 needs a real-origin mixed-owner observation that reaches the directed scheduled or detail wait and recovery so the remaining inline fixture work can be sized."],"basis":{"document":"6bffebe68005254fee82a09548b0e1ccf2c3049f3f286ae0ae32e019613fbd17","plan":"440a269620aa911fefdfab8d9926fa63374896e97248dbf4ca62b6293a497abc"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/826-publish-moving-board-fixtures-through-git/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6bffebe68005254fee82a09548b0e1ccf2c3049f3f286ae0ae32e019613fbd17","plan":"d2eab427f8eb52e7f60beee78713d7e356ce9eb9ca56888b6411647160308a84"}}
 ```
 
 **Goal.** A maintainer can exercise a moving or rewound test publication

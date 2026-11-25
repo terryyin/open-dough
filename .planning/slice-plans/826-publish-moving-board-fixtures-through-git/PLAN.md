@@ -57,8 +57,8 @@ the publication and each continuing request assertion by what they drive.
 | Scheduled branch observation and 429/403 recovery can use a real trunk alongside REST checks | On `2d6b55306`, real A/B versions of `auto-refresh-branches` and `auto-refresh-rate-limit` passed with the phone Board in 32.2 seconds on the [scratch Git membership dispatch](../828-open-and-refresh-board-at-verified-trunk/PLAN.md#preparation-probes-on-2026-11-25). They retained conditional listing, the scheduled backlog read, a held owner and recovery. Each adaptation took about one active minute after trace. |
 | One named history can drive the raw move and rewind | At `9dc3e801e`, the A/B rate-limit and A/B/A direction cases passed in 5.8 seconds through scratch Git membership and live scheduled REST. The shared sample and two adaptations took a few active minutes. The consuming Dashboard and fixture paths were unchanged between that revision and `f9ebb225d`. |
 | The moving-file compare can use the real A and B without losing the REST reuse proof | At `f9ebb225d` in the preparation worktree, baseline `unchanged-records-refresh` passed in 8.2 seconds. A temporary MakeMe A/B origin committed the scenario's A files and a product-only B change. `git ls-remote` under the original and restarted served HOMEs matched the published SHAs. The browser checked the A/B comparison, one real B commit read, no unchanged record rereads on the move, reuse in a second tab, and a full B read on restart. It passed in 7.7 seconds with the current REST membership path. Suppressing only the Git move left REST at B and failed the independent routed-ref assertion at A. The scratch changes were reverted. |
-| The Intent CI story fixture can carry real trunk SHAs through a scoped judgment | `intentCiStoryRecords` supplies both the published Board revision and a separate CI history. The Project Intent visit checks the earlier browse pin and judges the later trunk and story heads separately. Neither scratch result above reached that pair of judgments. |
-| Residual custom browser answerers fit one bounded publication slice | The audit catches successful fake refs after the response and from the first HOME. Source inspection distinguishes several controls, but the independent wait and its recovery have yet to be observed for the mixed cases where membership also shares the REST owner. |
+| Intent can judge real trunk and story heads independently | In the [November 25 probes](#november-25-readiness-probes), Project Intent kept its admitted browse revision while it judged the hidden trunk advance. A later story push left judgment waiting on the revision-check body, then showed the story's own passing result. The ancestor proof used the real completed ancestor's run attempt. |
+| Mixed REST answerers keep their detail, scheduled, and admission controls with real Git pins | The [November 25 probes](#november-25-readiness-probes) reached the directed detail rate limit, held a shared scheduled listing across a Git advance, and preserved the eight-read admission bound for two real origins. The existing answer wrappers supplied each control. |
 
 Raw sample command at `9dc3e801e`:
 
@@ -77,6 +77,57 @@ The sample used one Chromium worker on AC power and the main checkout's
 dependencies via a temporary symlink with a matching lockfile. The symlink
 was removed. The sample does not establish the physical-dependency backend
 gate in plan 827.
+
+## November 25 readiness probes
+
+The scratch worktree used source revision `bdb1621dd`, Chromium with one
+worker, AC power, and the main checkout's dependencies after verifying the
+lockfiles matched. The baseline across the four focal specs passed 7 cases
+in 14.5 seconds.
+
+- **Moving Intent judgments.** In `intent-project-visit-ci`, one MakeMe
+  origin supplied the earlier browse commit, the separate trunk and story
+  advances, and their parents. Each advance matched `git ls-remote` from
+  the Dashboard HOME while the other branch stayed at its previous pin.
+  The trunk advance asked main's history and Actions and kept the earlier
+  browse SHA. The story advance waited for the held revision-check body,
+  then asked the story history and showed its own passing SHA. Revisiting
+  a scope reused the judgment, and accepting the new browse revision
+  showed the real trunk advance. Suppressing the Git move while updating
+  the REST answer failed the routed-ref assertion (`8af92cf` vs
+  `bccd421` in the faulted run).
+- **Intent fixture size.** `intent-ci-proof-ancestor` reused the same graph
+  with its extra files. Its running head and completed ancestor came from
+  Git, and the displayed proof and cached artifact requests still named
+  run 12, attempt 2, at the ancestor. The seven files that use
+  `publishStoryCi` and the three mixed observation files passed 18
+  cases in 26.5 seconds with the visit and ancestor cases adapted. A
+  separate probe used one fixed publisher change to give
+  `intent-ci-status`, `intent-ci-measure-history`, and
+  `intent-ci-prior-build-states` real Board heads and supplied those heads
+  to the CI history answer. All 10 cases passed in 10.7 seconds. Keep fixture
+  ancestry, run heads, and display names derived from the same named
+  revisions wherever the journey joins those inputs. History-only data
+  such as an earlier CI result still belongs to the test that models it.
+- **Mixed REST waits.** In `limit-recovery-tabs`, the withheld seed at
+  the routed SHA reached the directed two-second 429. Both tabs recovered
+  to that SHA, and GitHub received only one ref read and one read for each
+  withheld record after the wait. In `shared-observer-reads`, both tabs
+  used one held matching-refs request. Git already named B while the
+  request was pending, and releasing it after hiding the other tab gave
+  the visible tab a successful changed check at B. In
+  `read-turns-across-tabs`, each project had its own routed origin and
+  both boards settled after the eight admitted reads were released.
+  These adapters used the existing route, answer wrappers, and test
+  controls.
+
+The final focused run below passed 8 cases in 13.8 seconds after
+`npm run typecheck:dashboard` passed. The probe edits and dependency symlink
+were removed.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/intent/{intent-project-visit-ci,intent-ci-proof-ancestor}.spec.ts e2e/observation/{limit-recovery-tabs,read-turns-across-tabs,shared-observer-reads}.spec.ts --workers=1 --reporter=line
+```
 
 ## Ordered slices
 
@@ -177,9 +228,13 @@ Proof: Begin with `intent-project-visit-ci.spec.ts` through
 and the shared project CI publishers in the audit. Match actual trunk,
 history, run head and displayed SHA where they represent the same commit.
 Keep held check, nearest-result, differing branch verdicts and proof-source
-assertions. Reuse `intentCiHistoryPage`'s real-origin path where already
-active. Measure the shared CI history adaptation before accepting the
-15-minute budget.
+assertions. Resolve named commits in the shared story fixture once and
+derive callers' CI evidence and displays from those SHAs. Move the story
+refs in that same origin, making divergent branch tips available before
+advertising them. Supply the fixed project head through its shared
+publisher and reuse `intentCiHistoryPage`'s real-origin path where already
+active. Budget 12–15 active minutes for the two shared entry points,
+the remaining caller substitutions, and focused proof review.
 
 ### 7. Follow moving Recently done and published session histories
 
@@ -203,11 +258,14 @@ Behavior: Where an inline browser answerer controls a moving publication,
 the real trunk remains available at the announced pin while the explicit
 scheduled, detail or comparison fault still reaches the existing consumer.
 Proof: Group live overrides by held ref/listing, held content/history,
-or mixed owner turn. Run each affected case at its original trigger and
-recovery boundary. Record the routed pin and the still-live request
-observation. Keep pure membership proofs with cutover, fixed publications
-with their fixed owner and configured-project cases with qualification.
-Bound the residual mixed-owner work before dispatch.
+or mixed owner turn. Preserve the actual withheld detail, the shared
+matching-refs wait, and the admission limit through the existing answerers.
+Run each affected case at its original trigger and recovery boundary.
+Record the routed pin and the still-live request observation. Keep pure
+membership proofs with cutover, fixed publications with their fixed owner
+and configured-project cases with qualification. Budget 8–12 active minutes
+for the three confirmed mixed cases and the remaining inline substitutions
+already assigned to this slice.
 
 ## Boundary review and remaining concerns
 
@@ -227,13 +285,11 @@ Inline source tracing puts owner replacement and the two transient lifecycle
 overlaps with slice 2, catalog retry with slice 7, added-project setup with
 qualification, and fixed Intent recovery, detail, credit and clock setups
 with their fixed publication owner. The mixed `limit-recovery-tabs`,
-`read-turns-across-tabs` and `shared-observer-reads` cases still need their
-continuing scheduled/detail owner distinguished from membership before
-sizing slice 8. Reproduce a mixed case with a real origin and a directed
-live wait; if it needs more than one independent repair, reassess the existing
-slice boundaries before execution. Slice 6 still needs a real-origin
-Project Intent visit covering both trunk and story judgment to settle
-which CI inputs must move together and the size of the conversion.
+`read-turns-across-tabs` and `shared-observer-reads` cases retain their
+detail, admission, and scheduled proofs in slice 8. Their successful
+trunk answers use the real routed pin while REST retains ownership of
+the request under test. The samples for slices 6 and 8 supported the
+existing eight-slice boundary.
 
 ## Local gate
 
