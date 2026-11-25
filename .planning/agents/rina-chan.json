@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rina-chan",
+  "email": "rina-chan@example.org",
+  "identity": "SEED-417#use-sidebars-consistently-across-the-dashboard",
+  "mode": "story-branch",
+  "branch": "claude/use-sidebars-consistently-across-the-dashboard",
+  "host": "claude"
+}
