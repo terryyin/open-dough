@@ -6,7 +6,7 @@ import {
   popover,
   recent as button,
   recentChoice,
-  showsBookmark,
+  showsBookmarkFill,
   showsHistory,
   wholeProject,
 } from "../navigation/recent-stories-frame.ts";
@@ -50,6 +50,13 @@ export async function chooseWholeProject() {
   await expect.element(popover).not.toBeInTheDocument();
 }
 
+export async function showsIntentBookmark(scope?: string) {
+  await expect
+    .element(button)
+    .toHaveAccessibleName(`Recent stories, ${scope ?? "Whole project"}`);
+  showsBookmarkFill(scope !== undefined);
+}
+
 // Every remembered row is in `project`.
 export function intentRecentStories(project: PublishedSource) {
   const recent = {
@@ -91,9 +98,6 @@ export function intentRecentStories(project: PublishedSource) {
       await expect.element(popover).not.toBeInTheDocument();
       await expect.poll(storyHeadingIsReadable).toBe(true);
     },
-    // The button names the selected story and fills its bookmark, or names
-    // none with an outline.
-    isLabelled: showsBookmark,
     noticeText: () => notice.element().textContent,
   };
   return recent;

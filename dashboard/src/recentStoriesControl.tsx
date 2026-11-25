@@ -7,6 +7,7 @@ import { useContext, useEffect, useId, useRef, useState } from "react";
 import { Bookmark } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
+import { useIntentStoryTitle } from "./intentStoryTitle.tsx";
 import { useClearProjectIntentSelection } from "./intentWorkspaceSelection.ts";
 import { useChooseProjectCi } from "./pageIntentMode.tsx";
 import { storyShown } from "./pageEntries.ts";
@@ -42,6 +43,11 @@ export function RecentStories({
   readonly onSelectProject: (next: PublishedSource) => void;
 }) {
   const selected = useSelectedStory();
+  const intentTitle = useIntentStoryTitle(
+    selected?.project === project ? selected : undefined,
+  );
+  const intentScope =
+    perspective === "intent" ? (intentTitle ?? "Whole project") : undefined;
   const clearProjectPath = useClearProjectIntentSelection();
   const chooseProjectCi = useChooseProjectCi(project);
   const recent = useRecentStories();
@@ -52,7 +58,10 @@ export function RecentStories({
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const label = recentStoriesLabel(selected);
+  const label =
+    intentScope === undefined
+      ? recentStoriesLabel(selected)
+      : `Recent stories, ${intentScope}`;
 
   const dismiss = () => {
     setOpen(false);
@@ -164,6 +173,11 @@ export function RecentStories({
             aria-hidden="true"
             focusable="false"
           />
+        )}
+        {intentScope !== undefined && (
+          <span className="recent-stories-scope" aria-hidden="true">
+            {intentScope}
+          </span>
         )}
       </button>
       <FrameTooltip>{label}</FrameTooltip>

@@ -5,6 +5,12 @@
   position: relative;
 }
 
+.recent-stories-control:has(.recent-stories-scope) .frame-tooltip > span {
+  max-inline-size: min(24rem, 60vw);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .banner .recent-stories-popover {
   box-sizing: border-box;
   position: absolute;

@@ -43,11 +43,15 @@ export async function showsBookmark(identity?: string) {
       ? "Recent stories, no story selected"
       : `Recent stories, ${identity} selected`;
   await expect.element(recent).toHaveAccessibleName(name);
+  showsBookmarkFill(identity !== undefined);
+}
+
+export function showsBookmarkFill(filled: boolean) {
   const icons = recent.element().querySelectorAll("svg");
   expect(icons).toHaveLength(1);
   const icon = icons.item(0);
   expect(icon.getAttribute("fill") ?? "none").toBe(
-    identity === undefined ? "none" : "currentColor",
+    filled ? "currentColor" : "none",
   );
 }
 

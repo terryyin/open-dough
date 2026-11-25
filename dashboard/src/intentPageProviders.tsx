@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { IntentModeProvider } from "./pageIntentMode.tsx";
 import { IntentReadingProvider } from "./pageIntentReading.tsx";
 import { ProjectIntentSelectionProvider } from "./intentWorkspaceSelection.ts";
+import { IntentStoryTitleProvider } from "./intentStoryTitle.tsx";
 
 export function IntentPageProviders({
   project,
@@ -16,7 +17,7 @@ export function IntentPageProviders({
     <IntentModeProvider project={project}>
       <ProjectIntentSelectionProvider project={project}>
         <IntentReadingProvider project={project}>
-          {children}
+          <IntentStoryTitleProvider>{children}</IntentStoryTitleProvider>
         </IntentReadingProvider>
       </ProjectIntentSelectionProvider>
     </IntentModeProvider>

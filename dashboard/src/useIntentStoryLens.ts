@@ -11,6 +11,7 @@
 
 import { useDoneDetails } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
+import { usePublishIntentStoryTitle } from "./intentStoryTitle.tsx";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
 import {
@@ -111,6 +112,7 @@ export function useIntentStoryLens({
     selectedIdentity === undefined
       ? undefined
       : lensStoryOf(work, selectedIdentity, doneRecord);
+  usePublishIntentStoryTitle(source.id, story);
   const taken = work?.taken.find(
     ({ identity }) => identity === selectedIdentity,
   );

@@ -33,6 +33,7 @@ import {
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
   intentRecentStories,
+  showsIntentBookmark,
   storyHeading,
 } from "./intent-recent-stories-page.ts";
 
@@ -61,7 +62,7 @@ test("choosing another remembered story in Intent shows its start while Intent s
 
   await recent.chooseRow(runningStory.identity);
   await recent.showsStoryFromStart(runningStory.identity);
-  await recent.isLabelled(runningStory.identity);
+  await showsIntentBookmark(runningStory.title);
 });
 
 test("Whole project from the Intent chooser clears the selected story and opens trunk CI", async () => {
@@ -85,7 +86,7 @@ test("Whole project from the Intent chooser clears the selected story and opens 
   await userEvent.click(wholeProject);
 
   await recent.intentStays();
-  await recent.isLabelled(undefined);
+  await showsIntentBookmark();
   await expect.element(popover).not.toBeInTheDocument();
   await expect.element(projectRadio(openDoughSource.label)).toBeChecked();
   await expect
@@ -119,12 +120,19 @@ test("a recent story in another project switches the project and reads its story
   });
   await mounted.selectStory(failingStory.identity, failingStory.title);
   await expect.element(storyHeading).toHaveTextContent(failingStory.title);
+  await showsIntentBookmark(failingStory.title);
 
   await recent.chooseRow(otherStory.identity, doughnutSource);
 
   await expect.element(projectRadio(doughnutSource.label)).toBeChecked();
   await recent.showsStoryFromStart(otherStory.identity);
   await expect.element(storyHeading).toHaveTextContent(otherStory.title);
+  await showsIntentBookmark(otherStory.title);
+
+  await userEvent.click(projectRadio(openDoughSource.label));
+  await expect
+    .element(bookmark)
+    .toHaveAccessibleName("Recent stories, Whole project");
 });
 
 test("the last recent choice stays reachable in the short touch chooser", async () => {
@@ -167,11 +175,11 @@ test("a remembered story unavailable in Intent keeps the chooser reachable with 
       { project: openDoughSource.id, identity: failingStory.identity },
     ],
   });
-  await recent.isLabelled(undefined);
+  await showsIntentBookmark();
 
   await recent.chooseRow(gone);
   await recent.selects(gone);
-  await recent.isLabelled(gone);
+  await showsIntentBookmark(gone);
   await recent.intentStays();
   expect(recent.noticeText()).toBe("");
   await recent.lists([

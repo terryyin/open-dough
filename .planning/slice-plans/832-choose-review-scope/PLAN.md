@@ -8,7 +8,7 @@
 
 - Rio-chan, publisher `dashboard-territory.local-open-dough`, Story Branch Mode.
 - Execution checkout `/Users/terryyin/git/open-dough/.worktrees/choose-the-whole-project-or-a-recent-story-from`, branch `codex/choose-the-whole-project-or-a-recent-story-from`. Default checkout `/Users/terryyin/git/open-dough`. Integration target `origin/main`.
-- Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch. Story-branch receipts for slices 1 through 3 are `58af62fa9ebbc518faff700f74e14082fd5ccd3d`, `21991f88217a7e44759def9cd97edc10ecda864f` and `1b9c91da35433b20e669b7a63919bb02b54c77a2`.
+- Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch. Story-branch receipts for slices 1 through 4 are `58af62fa9ebbc518faff700f74e14082fd5ccd3d`, `21991f88217a7e44759def9cd97edc10ecda864f`, `1b9c91da35433b20e669b7a63919bb02b54c77a2` and `17d1ea2cf628666239096cdd42d44b23ff2fb493`.
 - Execution branch observation uses GitHub Actions `ci.yml` with coordinator `rio-chan-32284348` and stream `/tmp/dough-ci-501/watch-8RaTPQ` (PID 77649). The trunk claim preceded that observer.
 - Checkout setup passed with Node 24.21.0, the locked npm install, the locked Chromium launch, and `npm run typecheck:dashboard`.
 
@@ -33,18 +33,8 @@ have separate stories.
 
 - [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts) gives PageFrame one Selected story and the browser one recent history of project and identity pairs. Use the existing [pageStorySelection](../../../dashboard/src/pageStorySelection.tsx) operations and preserve history keys, order and storage. Intent derives current-project scope from the selection, with reveal owned by the UI's bounds and movement.
 - Follow [Dashboard UX/UI North Star, Review in Intent](../../../docs/dashboard-ux-ui-north-star.md#review-in-intent) for the single chooser and compact mobile label, and [Board interaction, Touch browsing and selection](../../../docs/dashboard-board-interaction.md#touch-browsing-and-selection) for the first-reveal gesture, 44 px coarse-pointer target, and Board story-reference journey. Preserve the icon semantics, perspective radios, and project evidence and revision ownership.
-- Reuse and extend [RecentStories](../../../dashboard/src/recentStoriesControl.tsx)
-  and the existing project switch path. The Board uses the story-reference
-  journey, including its unavailable state. Intent uses its own visible
-  heading and scroll region. Keep opening and reveal on the same definition
-  of readable. Preserve the live distinction between an offscreen
-  destination and one already reported unavailable.
-- Use the published title already resolved for the selected story when
-  available, including a Done record's title. Trace the active and Done reads
-  from [useIntentStoryLens](../../../dashboard/src/useIntentStoryLens.ts) and
-  its consumers before threading the title to the banner. Fall back to the
-  identity during loading or absence. Keep label data derived from the
-  current project and selection so a project change cannot show stale text.
+- Reuse [RecentStories](../../../dashboard/src/recentStoriesControl.tsx) and existing project switching. Board uses the story-reference journey and its unavailable state. Intent uses its visible heading and scroll region. Opening and reveal share the definition of readable. Keep offscreen and reported unavailable destinations distinct.
+- Use the title already resolved for an active or Done story from [useIntentStoryLens](../../../dashboard/src/useIntentStoryLens.ts). Fall back to identity during loading or absence. Match the label to the current project and selection to avoid stale text.
 - Follow [directly testable production code](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support),
   [act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows)
   and [plain Vitest for unit tests](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).
@@ -195,7 +185,7 @@ All 53 mounted cases, ten strict E2E cases with a single passing attempt each, a
 ### 5. Name the active Intent scope in the banner
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 
 With Intent open at desktop width, the developer can read the **Intent**
@@ -206,6 +196,15 @@ existing responsive banner mechanics. Verify changing scopes, project
 and selection alignment, title fallback, bounded label width, and the
 existing 44 px coarse-pointer target. Keep the Board's banner navigation
 and keyboard reading order intact.
+
+Accepted proof on `17d1ea2c` plus working changes. The configured frame in `intent-bookmark-scope-label.spec.ts` supplies a long published active title and a held Done record. It observes the desktop Intent label, current scope, clipping and row fit, then native touch activation, full accessible name and actual 44 px target at phone width. Releasing the original Done read replaces the identity without an additional request. `intent-recent-stories.spec.ts` verifies current-project titles with duplicate identities and selection changes. Board reading order, header layout and stored history passed their existing checks.
+
+```sh
+caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/intent/intent-bookmark-scope-label.spec.ts dashboard/frontend-tests/intent/intent-recent-stories.spec.ts dashboard/frontend-tests/navigation/accessible-board-keyboard.spec.ts dashboard/frontend-tests/navigation/recent-stories.spec.ts dashboard/frontend-tests/navigation/recent-stories-scope.spec.ts dashboard/frontend-tests/navigation/recent-stories-storage.spec.ts dashboard/frontend-tests/navigation/dashboard-header.spec.ts dashboard/frontend-tests/navigation/dashboard-header-compact.spec.ts dashboard/frontend-tests/intent/intent-home-activation-scope.spec.ts dashboard/frontend-tests/intent/intent-done-project-refresh.spec.ts
+caffeinate -s -i env OPEN_DOUGH_E2E_PROOF_RECORD="$(git rev-parse --git-path open-dough/evidence)/slice5-e2e.proof.json" npm run test:e2e -- --workers=2 e2e/intent/intent-done-project-refresh.spec.ts e2e/intent/intent-ci-follow-up-return.spec.ts
+caffeinate -s -i npm run typecheck:dashboard
+```
+All 28 mounted cases, three strict E2E cases with one passing attempt each, and typecheck passed. The independent refactor placed both label disclosures in one banner breakpoint, then `caffeinate -s -i node scripts/test-frontend.mjs dashboard/frontend-tests/intent/intent-bookmark-scope-label.spec.ts dashboard/frontend-tests/navigation/dashboard-header.spec.ts dashboard/frontend-tests/navigation/dashboard-header-compact.spec.ts dashboard/frontend-tests/navigation/accessible-board-keyboard.spec.ts` passed all nine cases. See `slice5-implementation.md` and `slice5-refactor.md` in worktree Git evidence.
 
 ## Verification and plan review
 
