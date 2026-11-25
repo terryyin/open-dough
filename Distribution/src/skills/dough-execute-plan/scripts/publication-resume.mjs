@@ -13,9 +13,9 @@ import { resolvePublicationLandingContext } from "./resolve-publication-landing-
 import {
   git,
   inspectDefaultCheckoutMaintenance,
-  publishExactCandidate,
   verifyRef,
 } from "./publication-git.mjs";
+import { publishExactCandidate } from "./publication-loop.mjs";
 import { doneRecordsStop } from "./publication-backlog-validation.mjs";
 
 const defaultTargetRef = "refs/heads/main";
@@ -79,53 +79,53 @@ export async function resumeInterruptedPublication({
   const accepts = (candidate, tip) =>
     isAncestor(ownedWorkspace, candidate, tip);
   const classification = "not-on-remote";
-  let publication;
-  try {
-    publication = await publishExactCandidate({
-      workspace: ownedWorkspace,
-      remote,
-      targetRef,
-      accepts,
-      prepareCandidate: async ({ remoteTip }) => {
-        if (remoteTip && (await accepts(candidateSha, remoteTip))) {
-          for (const stale of supersededShas) {
-            if (await accepts(stale, remoteTip)) {
-              throw new Error(
-                "a pre-rebase SHA must not be the published candidate",
-              );
-            }
+  const {
+    acceptedTip,
+    pushCount,
+    stop: held,
+    timeout,
+  } = await publishExactCandidate({
+    workspace: ownedWorkspace,
+    remote,
+    targetRef,
+    acceptsFetchedCandidate: accepts,
+    prepareCandidate: async ({ remoteTip }) => {
+      if (remoteTip && (await accepts(candidateSha, remoteTip))) {
+        for (const stale of supersededShas) {
+          if (await accepts(stale, remoteTip)) {
+            throw new Error(
+              "a pre-rebase SHA must not be the published candidate",
+            );
           }
-          return { alreadyPublished: true };
         }
+        return { alreadyPublished: true };
+      }
 
-        const stop =
-          (await onFetchedTarget?.({
-            attempt: 0,
-            candidate: candidateSha,
-            remoteTip,
-          })) ||
-          (await doneRecordsStop({
-            workspace: ownedWorkspace,
-            candidate: candidateSha,
-            backlogPath,
-          }));
-        if (stop) return { stop };
-        if (landingContext)
-          await retainLandingComparison(
-            landingContext,
-            { candidate: candidateSha, suffixBase },
-            { remote, targetRef },
-          );
-        return { candidate: candidateSha };
-      },
-    });
-  } catch (error) {
-    if (error?.code === "transport-timeout" && error.pushIssued !== undefined) {
-      error.classification = error.pushIssued ? classification : null;
-    }
-    throw error;
+      const stop =
+        (await onFetchedTarget?.({
+          attempt: 0,
+          candidate: candidateSha,
+          remoteTip,
+        })) ||
+        (await doneRecordsStop({
+          workspace: ownedWorkspace,
+          candidate: candidateSha,
+          backlogPath,
+        }));
+      if (stop) return { stop };
+      if (landingContext)
+        await retainLandingComparison(
+          landingContext,
+          { candidate: candidateSha, suffixBase },
+          { remote, targetRef },
+        );
+      return { candidate: candidateSha };
+    },
+  });
+  if (timeout) {
+    timeout.classification = timeout.pushIssued ? classification : null;
+    throw timeout;
   }
-  const { acceptedTip, pushCount, stop: held } = publication;
   if (held) return { classification, pushCount, suffixBase, held };
   if (!acceptedTip)
     throw new Error("push did not accept the retained candidate");

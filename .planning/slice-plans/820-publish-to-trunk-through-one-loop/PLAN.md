@@ -132,6 +132,7 @@ The Take `a260b60c349ad6db02fc5b1df5b4834fe029f83d` was accepted by
 The Codex `eimi-chan-seed-423` observer watches the story branch on
 `terryyin/open-dough` with GitHub Actions `ci.yml`, cell `g243:11`,
 session `71138`, directory `/tmp/dough-ci-501/watch-I57KEb`, and PID `19804`.
+Slice 1 was accepted there at `ef4a3644109c4bd008db80375ca339fe1b7963a8`.
 
 ### 1. Resume through the exact-candidate loop
 
@@ -152,8 +153,12 @@ initial loop serves resume until slice 2 adopts it.
 ### 2. Deliver a validated increment through the same loop
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Racing suffix, affected proof, delivery receipt and Dashboard capture cases above.
+
+The matched preparation selection passed 69 cases in 19 files, down from 70.
+The managed second-rejection case now observes the exact once-rewritten work
+and affected proof previously covered by the duplicate direct case.
 
 When a validated increment meets a moved target, prepare its owned suffix
 with the existing reconciliation. Retain the comparison before each push,
@@ -206,6 +211,14 @@ Keep entry-point choice, authorization, ownership, validation, result-specific
 recovery and the landing evidence handoff where agents need them. Remove
 repeated rules and obsolete recipes and verify the guidance, script and test
 deltas.
+
+## Story obligations
+
+### G1. Invalid retained target reaches Git transport
+
+Reported: slice 1 — "Direct resume currently fetches before rejecting a non-branch target."
+Story clause: "receipt and stop contracts."
+Disposition: proved by slice 1: `s1-target-refusal-after.log.run.json` in the checkout evidence shows zero transport calls and an unchanged tracking ref through the installed resume API.
 
 ## Plan review
 

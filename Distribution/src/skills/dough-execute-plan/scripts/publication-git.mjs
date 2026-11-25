@@ -119,7 +119,7 @@ export async function fetchedTarget(workspace, targetRef, remote = "origin") {
   return readTrackingTip(workspace, originTrackingRef(targetRef, remote));
 }
 
-async function readTrackingTip(workspace, tracking) {
+export async function readTrackingTip(workspace, tracking) {
   try {
     return await revParse(workspace, tracking);
   } catch (error) {
@@ -169,49 +169,6 @@ export async function tryPushExactRef(workspace, candidate, remote, targetRef) {
     }
     return { rejected: true, error };
   }
-}
-
-// Fetch the target, then publish the exact candidate prepared against that
-// observation. Preparation may stop or recognize an already-published tip.
-export async function publishExactCandidate({
-  workspace,
-  remote,
-  targetRef,
-  prepareCandidate,
-  accepts,
-}) {
-  const tracking = originTrackingRef(targetRef, remote);
-  let remoteTip = null;
-  let pushIssued = false;
-  let pushCount = 0;
-  const transport = async (stage, operation) => {
-    try {
-      return await operation();
-    } catch (error) {
-      if (error?.code === "transport-timeout") {
-        Object.assign(error, { stage, remoteTip, pushIssued, pushCount });
-      }
-      throw error;
-    }
-  };
-  const fetch = async (stage) => {
-    await transport(stage, () => git(workspace, "fetch", remote));
-    return readTrackingTip(workspace, tracking);
-  };
-
-  remoteTip = await fetch("fetch");
-  const prepared = await prepareCandidate({ remoteTip });
-  if (prepared.stop) return { stop: prepared.stop, pushCount };
-  if (prepared.alreadyPublished) return { acceptedTip: remoteTip, pushCount };
-
-  pushIssued = true;
-  await transport("push", () =>
-    pushExactRef(workspace, prepared.candidate, remote, targetRef),
-  );
-  pushCount += 1;
-  const tip = await fetch("confirmation-fetch");
-  const accepted = tip && (await accepts(prepared.candidate, tip));
-  return { acceptedTip: accepted ? tip : null, pushCount };
 }
 
 // Inspection-only maintenance result for a default checkout after remote
