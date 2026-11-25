@@ -179,89 +179,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
-<a id="renovate-remaining-backend-families-after-intent-ci-readers"></a>
-
-### Prove the browser suites' reporter, proof record and spec times through their typed hooks
-
-**Identity:** SEED-413#renovate-remaining-backend-families-after-intent-ci-readers
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/825-prove-browser-reporter-through-typed-hooks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5d92e1f83e80c1507ed6005c14ab992845b363ef65a03bbd34f684ee4df0dcd2","plan":"0c590a1f304001c8e0621048ce32b5386799d35e9c6bd5f76905248a2a18e4da"}}
-```
-
-- **Goal.** Maintainers changing how the browser suites report a run, keep
-  its proof record or write its spec times get fast, compile-time-checked
-  feedback. Today each case starts a nested Playwright run. Aim for about
-  100 ms per case, and keep a nested run only where the runner's own process
-  behavior decides the result.
-- **Scope.** Move these seven Playwright-selected specs to plain Node Vitest,
-  following the campaign criteria in the
-  [remaining backend renovation](#renovate-remaining-backend-families-after-browser-reporter):
-  `intent/proof-record.spec.ts`, `intent/proof-record-entry.spec.ts`,
-  `intent/proof-record-interruption.spec.ts`,
-  `intent/proof-record-storage.spec.ts`,
-  `intent/proof-record-verdict.spec.ts`, `intent/spec-times.spec.ts` and
-  `runtime/quiet-reporter.spec.ts`.
-  - The production entries are the typed reporter classes in
-    `dashboard/test-support/support/`: `QuietReporter` (`quietReporter.ts`)
-    and the `ProofRecord` and `SpecTimes` it drives. The e2e, frontend and
-    backend Playwright configs register them through `runnerConfig.mjs`, so
-    they outlive the backend runner's retirement as e2e's reporter.
-  - Cases about selection, attempts, retries, repetitions and skips, the
-    strict verdict, output classification, storage refusals and spec-time
-    attribution construct the reporter and call its hooks directly. They use
-    Playwright's reporter types with MakeMe-built suites, cases, results and
-    steps, and they write to real temporary files.
-  - Keep a nested real run only where the run's process behavior decides
-    the result. That covers opting in through the normal and direct
-    configs, output the runner process writes outside any reporter event,
-    and graceful interruption and a forced group kill. A run reaching its
-    deadline reaches the reporter as a `timedout` end, so its cases call
-    the hooks directly. Each nested case states what it alone proves. The
-    nested runs' fixtures stay as plain Playwright specs under
-    `dashboard/test-support/fixtures/quiet-reporter/`, which the backend
-    group does not select.
-  - `proofRecordRun.ts` keeps what the surviving nested cases and its other
-    callers use. Its readiness wait (`waitForProofState`), the only part
-    that needs Playwright's `expect`, moves to Vitest's polling with the
-    interruption cases that alone use it. Its readiness cases stay only
-    while a surviving case still waits on producer progress. Add no test
-    support beyond the MakeMe builders. Every other `proofRecordRun.ts`
-    caller keeps working.
-- **Boundary.** The [remaining backend renovation](#renovate-remaining-backend-families-after-browser-reporter)
-  keeps every other Playwright-selected spec. Selection left these out:
-  - `runtime/runner-ownership.spec.ts` and the other runtime cases that
-    prove a runner itself, which retire or change with that runner;
-  - the Taken launch, session and Review stories' specs, the GitHub-backed
-    authenticated reads that the local-Git reading stories are replacing,
-    and the landed CI repeat checks, as recorded in the
-    [current recount](#renovate-remaining-backend-families-after-browser-reporter).
-- **Evaluation.** Compare the seven-file selection under the maintained
-  backend runner before and after on comparable conditions. Before, at
-  `9464e9a0a` on 25 November 2026 at two workers under load average about 4:
-  32 cases summed to 40.4 s and the selection took 28 s, with 31 cases over
-  100 ms. `quiet-reporter` (12.2 s) and `proof-record-interruption`
-  (10.8 s) held over half of it. CI run `45557556997` on `1adca9f40` gave the
-  seven files 93 s. Record per-case times after the change, name each
-  surviving nested-run case with its cost, and account for any coverage
-  moved or dropped.
-
-**Key examples.**
-
-- A filtered run whose selected test is retried once: calling `onBegin`
-  with a MakeMe suite holding only that test, then `onTestEnd` for both
-  attempts, gives a record with `selectedCount: 1` and two attempts under
-  one test ID. The failed first attempt still leaves `strictStatus` failed.
-  No nested run is needed.
-- A spec file whose cases come from an imported case module: its times
-  count under the spec file that ran them. A typed `TestCase` located in the
-  imported module, inside the spec's file suite, shows that rule directly.
-- Global setup printing to stdout fails a passing run and shows the text.
-  The reporter watches the process streams itself, so this case keeps one
-  nested run, as do graceful interruption and a forced group kill.
-- A destination that aliases a disposable output directory is refused, and
-  the verdict is unchanged. That is a direct `ProofRecord` case over real
-  temporary paths.
-
 <a id="renovate-remaining-backend-families-after-browser-reporter"></a>
 
 ### Renovate the remaining dashboard backend unit-test families after the browser reporter
@@ -276,8 +193,9 @@ The durable launch admission cohort moved
 `launches/agent-launch-cross-server-accept.spec.ts` to Node Vitest. The Intent
 CI reader cohort is complete (recoverable at
 `38f934ba:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission`).
-The [browser reporter cohort](#renovate-remaining-backend-families-after-intent-ci-readers)
-is selected. The scope below applies to the remaining inventory.
+The browser reporter cohort is complete (recoverable at
+`fbfcca735:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-intent-ci-readers`).
+The scope below applies to the remaining inventory.
 
 Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
 kept the [completed Done capture family](https://github.com/terryyin/open-dough/blob/8f4cc9480ccb0b736e3b29c787ab49a6ac80d366/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests).
@@ -385,11 +303,11 @@ smaller unit selection does not hide its cost or a lost regression check.
      [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete.
   3. The Intent CI reader cohort is complete (recoverable at
      `38f934ba:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission`).
-     The [browser reporter cohort](#renovate-remaining-backend-families-after-intent-ci-readers)
-     follows. After it, select the next launch or other boundary cohort
-     from the surviving runner inventory and measured CI cost, once the
-     Taken stories that change the same launch, session and Review specs
-     have landed.
+     The browser reporter cohort is complete (recoverable at
+     `fbfcca735:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-intent-ci-readers`).
+     Select the next launch or other boundary cohort from the surviving
+     runner inventory and measured CI cost, once the Taken stories that
+     change the same launch, session and Review specs have landed.
      Intent still includes follow-up and lifecycle proof outside the
      extracted spec lists, together with Intent location reads. Keep freshness, invalidation and closing with the production
      lifetime owner. Keep the [automatic-repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
