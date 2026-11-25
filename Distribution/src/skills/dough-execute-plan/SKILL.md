@@ -219,6 +219,9 @@ delegation.
    and risk check. Select in plan order, or use the one quick slice. For
    behavior/state removal or disablement, run the
    [destructive later-outcome check](references/destructive-later-outcome-check.md).
+   When the slice changes a runtime failure path, apply
+   [runtime failure handling](../dough-slice-planning/references/architectural-thinking.md#runtime-failure-handling)
+   and carry the intended outcome into the implementation brief.
 3. When planned refinement is needed and learning escalation permits, invoke
    [slice-plan refinement](../dough-slice-plan-refinement/SKILL.md) in place.
    Restart at step 1 after an in-limit refinement. With replanning disabled, apply
