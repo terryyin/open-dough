@@ -25,6 +25,7 @@ import type {
   ReviewedFileText,
   StoryReview,
 } from "../src/storyReviewContract.ts";
+import type { StoryReviewResult } from "../src/storyReviewResult.ts";
 import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 
 import type { submitCompletion } from "./completionReporting.ts";
@@ -50,6 +51,7 @@ export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: StoryReview }
   | { readonly status: number; readonly body: ReviewedFileDiff }
   | { readonly status: number; readonly body: ReviewedFileText }
+  | { readonly status: number; readonly body: StoryReviewResult }
   | { readonly status: number; readonly body: RunningCursorSessions }
   | { readonly status: number; readonly body: Acceptance }
   | { readonly status: number; readonly body: ChangedAnswer }

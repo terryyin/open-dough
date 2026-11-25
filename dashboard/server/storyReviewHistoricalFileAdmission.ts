@@ -12,10 +12,6 @@ import type { StoryReview } from "../src/storyReviewContract.ts";
 import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { reviewRepositoryPath } from "./reviewRepository.ts";
-import {
-  admissionBound,
-  throwIfRequestAborted,
-} from "./storyReviewAdmissionBound.ts";
 import type { LandingReviewSource } from "./storyReviewLanded.ts";
 import {
   notOnCapturedRun,
@@ -23,7 +19,7 @@ import {
   readRetainedLandedReview,
   requireLandedPair,
 } from "./storyReviewLandedAdmission.ts";
-import { publishedStoryReview } from "./storyReviewPublished.ts";
+import { requirePublishedCompletion } from "./storyReviewPublishedAdmission.ts";
 
 export {
   admissionBound,
@@ -95,30 +91,6 @@ export function belongsOnRetainedPair(
   fields: HistoricalReviewedFileFields,
 ): boolean {
   return files.some((file) => matchesHistoricalPath(file, fields));
-}
-
-async function requirePublishedCompletion(
-  source: PublishedSource,
-  identity: string,
-  completion: string,
-  signal?: AbortSignal,
-) {
-  const review = await publishedStoryReview(
-    source,
-    identity,
-    admissionBound(signal),
-    { completion },
-  );
-  throwIfRequestAborted(signal);
-  if (review?.kind !== "published")
-    throw new RefusedRequest(
-      409,
-      review?.kind === "unavailable"
-        ? review.explanation
-        : "Published comparison unavailable.",
-    );
-  // The named review has already verified the completion identity.
-  return review;
 }
 
 export async function admitStoryComparison(

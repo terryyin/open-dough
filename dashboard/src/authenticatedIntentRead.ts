@@ -18,7 +18,7 @@ import { readingPathAt } from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const locationProblem = z.enum(["unsupported-kind", "no-matching-files"]);
-const settingsProblem = z.enum(["malformed", "unreadable"]);
+export const intentSettingsProblemSchema = z.enum(["malformed", "unreadable"]);
 
 const answeredFields = {
   path: z.string().min(1),
@@ -29,7 +29,7 @@ const answeredFields = {
 
 // A location declared by source entries answers them and no kind; one
 // declared by a kind answers it with any include patterns.
-const intentLocation = z.union([
+export const intentLocationSchema = z.union([
   z.object({
     ...answeredFields,
     sources: z
@@ -51,13 +51,13 @@ const intentLocation = z.union([
 
 const okIntent = z.object({
   revision: commitSha,
-  locations: z.array(intentLocation).nullable(),
-  settingsProblem: settingsProblem.optional(),
+  locations: z.array(intentLocationSchema).nullable(),
+  settingsProblem: intentSettingsProblemSchema.optional(),
   recovery: transientReadRecovery,
 });
 
-export type IntentLocation = z.infer<typeof intentLocation>;
-export type IntentSettingsProblem = z.infer<typeof settingsProblem>;
+export type IntentLocation = z.infer<typeof intentLocationSchema>;
+export type IntentSettingsProblem = z.infer<typeof intentSettingsProblemSchema>;
 
 export type IntentLocations =
   | { readonly status: "not-configured" }

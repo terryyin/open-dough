@@ -157,7 +157,7 @@ follow-up with 52 mounted checks and eight real-Git cases.
 ### 3. Read the admitted story result tree
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Routed backend checks against committed origin objects as mapped above.
 Re-run existing Review file admission and historical source consumers.
 
@@ -176,6 +176,14 @@ Keep review admission cohesive. If reuse reaches the near-limit
 comparison-resolution seam from changed-file validation and keep the
 existing historical file and follow-up caller assertions. Retain typed
 diagnostics and request cancellation at the read boundary.
+
+The [result read](../../../dashboard/src/storyReviewResult.ts) names the
+selected comparison and its after object. It reports the published commit
+as the revision, exposes inventory and settings together, and reads literal
+paths from that same result. Routed tests cover all three admission modes,
+including differing synced heads, empty trees, missing paths and settings,
+and unreadable content. Existing comparison and follow-up reads retain
+their separate admission and signals.
 
 ### 4. Browse the selected revision's complete inventory
 
