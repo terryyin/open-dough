@@ -24,8 +24,10 @@ import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest.ts";
 import {
   asHeadsListing,
+  commitAnswer,
   noConnection,
   notFoundAnswer,
+  rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers.ts";
 import { directoryListingAnswer, listedFiles } from "./listingAnswers.ts";
@@ -36,6 +38,15 @@ import {
   publishedTarget,
 } from "./publishedOriginBasics.ts";
 import { defaultPassingBaseCi } from "./support/baseCiActions.ts";
+import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import {
+  expectServedHomesReach,
+  routeServedHomesToPublication,
+} from "./support/fixtureOriginRoute.ts";
+import {
+  commitPublishedOrigin,
+  type PublishedOrigin,
+} from "./support/publishedOrigin.ts";
 
 export {
   commitAnswer,
@@ -84,9 +95,46 @@ export function publishOrigin(
   origin: Origin,
   repository: string = defaultRepository,
 ): Promise<ObservedRequest[]> {
+  return Promise.resolve(serveOrigin(page, origin, repository));
+}
+
+// Serve the same backlog bytes from a real main commit, or a 404 when the
+// backlog is absent from that commit, with the raw publisher's ref hold.
+export function publishCommittedBacklog(
+  page: Page,
+  backlog: string | null,
+  refHeldUntil?: Promise<void>,
+) {
+  const published = commitPublishedOrigin({ branch: "main", backlog });
+  const { revision } = published;
+  const requests = serveOrigin(
+    page,
+    {
+      ref: commitAnswer(revision),
+      backlog: {
+        revision,
+        answer: backlog === null ? notFoundAnswer() : rawFileAnswer(backlog),
+      },
+      ...(refHeldUntil === undefined ? {} : { refHeldUntil }),
+    },
+    defaultRepository,
+    published,
+  );
+  const github = githubFor(page);
+  routeServedHomesToPublication(github, defaultRepository);
+  expectServedHomesReach(github, defaultRepository, revision);
+  return { revision, requests };
+}
+
+function serveOrigin(
+  page: Page,
+  origin: Origin,
+  repository: string,
+  published?: PublishedOrigin,
+): ObservedRequest[] {
   const observed: ObservedRequest[] = [];
   const { ref, refHeldUntil, backlog } = origin;
-  githubFor(page).serve(repository, async (call) => {
+  const respond: RepositoryAnswerer = async (call) => {
     const target = publishedTarget(call);
     if (target === "main") {
       observe(observed, call);
@@ -104,10 +152,11 @@ export function publishOrigin(
       request.revision === backlog.revision
     ) {
       const { answer } = backlog;
-      return directoryListingAnswer(
-        request.path,
-        listedFiles({ [backlogPath]: "body" in answer ? answer.body : "" }),
-      );
+      const files =
+        published !== undefined && "status" in answer && answer.status === 404
+          ? {}
+          : { [backlogPath]: "body" in answer ? answer.body : "" };
+      return directoryListingAnswer(request.path, listedFiles(files));
     }
     // Published at this revision with no such file: a missing record, not a
     // temporary connection loss. Leave it unobserved so membership journeys
@@ -126,6 +175,10 @@ export function publishOrigin(
         ? (JSON.parse(ref.body) as { sha?: string }).sha
         : undefined);
     return defaultPassingBaseCi(request, headSha) ?? noConnection;
-  });
-  return Promise.resolve(observed);
+  };
+  githubFor(page).serve(
+    repository,
+    published === undefined ? respond : Object.assign(respond, published),
+  );
+  return observed;
 }

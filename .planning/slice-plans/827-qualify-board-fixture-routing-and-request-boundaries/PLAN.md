@@ -358,7 +358,7 @@ run records retain exact proof. The independent review made no edits.
 ### 8. Route raw Board opens to the commits they describe
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use real Git publications in the raw `read-failure`, `published-work`, and
 `transient-read-exclusions` cases that advertise or hold a successful ref.
@@ -369,6 +369,16 @@ at their existing operations. Check a real empty publication in
 actual materialized revision. Move the independent empty-membership case
 out of the existing 264-line `published-work.spec.ts` before editing the
 oversized source. Preserve both Board cases and include both in focused E2E.
+
+The raw publisher now materializes the advertised SHA and exact backlog
+bytes or absence, then verifies the served HOME's Git ref. The successful
+Board and intentionally malformed backlog cases keep their exact pinned
+requests. Held and malformed ref controls still use the existing REST answer.
+The empty membership case has its own focused spec, and the preparation
+legend reads a real empty commit. All 21 selected E2E cases, both direct
+legacy backend controls, and Dashboard typecheck passed. The independent
+review reused the proof recorded in `resume-raw-board-return.md` and its run
+records.
 
 ### 9. Open static detail and recovery cases at their real publication
 
