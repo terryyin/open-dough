@@ -234,9 +234,22 @@ Story Branch Mode uses `origin/codex/prove-installed-launch-options-through-type
 with `origin/main` as the trunk target and `7e3a27c5e8129f9d667718839b4cd7ead9be2f7a`
 as the published claim and first publication base. Slice 1 was accepted at
 `d9cf4c7761ce06d130e8b56ae1d533a72d75fbbc` and slice 2 at
-`77a69f7c9a87580121530fe348461dc4419eebcb`. The CI workflow cancelled the
+`77a69f7c9a87580121530fe348461dc4419eebcb`. Slice 3 was accepted at
+`096c4dc4700cc6689880754d76ae70f4c5c2c1f2`. The CI workflow cancelled the
 first slice's earlier attempt when the second slice was pushed.
-The CI observer uses
-GitHub Actions `ci.yml`, coordinator `kirara-839`, mailbox
+The CI observer uses GitHub Actions `ci.yml`, coordinator `kirara-839`, mailbox
 `/tmp/dough-ci-501/watch-BbXkps`, PID `8873`, Codex stream session `48890`
 and cell `g394:17` in this worktree.
+
+## Execution complete
+
+Product advice: no backlog change. Typed tests cover the detailed installed
+selection rules, and the browser journeys observe admission, native launch
+and persisted options. The backend renovation remainder remains the owner of
+the outstanding backend families and runner work.
+
+The retrospective found no correction needed in the delivered three slices.
+It reviewed their accepted branch commits, the retained case accounting and
+the separate production and browser observation boundaries. Applicable CI is
+pending. The process review is deferred until the Intent Coverage result in
+Story Wrap Up.
