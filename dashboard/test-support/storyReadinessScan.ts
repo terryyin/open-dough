@@ -21,6 +21,7 @@ import {
   inspectionGroup,
   launchGroup,
   reviewChanges,
+  storyFollowUp,
   storyNotesControl,
 } from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
@@ -72,13 +73,12 @@ export async function expectScanToDetailAt420AndTwiceZoom(
     await expect(readyCard).not.toContainText(plannedReady.identity);
     await expect(readyCard.getByRole("link")).toHaveCount(0);
 
-    // From the card, shown by its column's column paging control, the keyboard
-    // reaches its Inspect story.
+    // From the card, shown by its column's paging control, the keyboard visits
+    // Follow up before Inspect story.
     await showColumn(page, "Taken");
     const inspect = readyCard.getByRole("button", { name: "Inspect story" });
     await readyCard.focus();
-    await page.keyboard.press("Tab");
-    await expectFocusedAndIndicated(page, inspect);
+    await expectTabOrder(page, [storyFollowUp(readyCard), inspect]);
     await page.keyboard.press("Enter");
     const detail = readyCard.getByRole("region", {
       name: `Detail for ${plannedReady.title}`,

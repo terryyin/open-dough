@@ -83,6 +83,9 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
         await expect.element(refinement).toBeEnabled();
         stops.push(refinement.element());
       }
+      if (name === "Taken") {
+        stops.push(card.getByRole("button", { name: /^Follow up / }).element());
+      }
       expect(card.getByRole("link").elements()).toHaveLength(0);
       stops.push(
         card.getByRole("button", { name: "Inspect story" }).element(),
@@ -97,7 +100,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
       }
     }
   }
-  expect(stops).toHaveLength(20);
+  expect(stops).toHaveLength(22);
   await expectTabOrder(stops);
   expect(
     document.querySelectorAll(".board[tabindex='-1'], .board [tabindex='-1']"),

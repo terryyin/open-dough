@@ -7,6 +7,7 @@
 import type { Locator } from "@playwright/test";
 import { storyCardAttentionOf } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
+import { storyFollowUpSelector } from "./storyCardControls.ts";
 
 // Expects the words each card with affected sessions shows, by title, and
 // that every other card on the board shows none.
@@ -27,7 +28,7 @@ export const publishedFactsOf = async (card: Locator) => {
   let facts: string | null = null;
   await expect
     .poll(async () => {
-      facts = await card.evaluate((element) => {
+      facts = await card.evaluate((element, followUpSelector) => {
         // Readiness (badges, each credited human) and capture share one
         // turn: a new snapshot may begin reading after an assertion passed.
         if (
@@ -38,11 +39,11 @@ export const publishedFactsOf = async (card: Locator) => {
           return null;
         const copy = element.cloneNode(true) as HTMLElement;
         const localPresentation = copy.querySelectorAll(
-          ".story-card-sessions, .story-card-attention, .story-card-session-open-reason, .story-card-preparation .badge-ready, .story-card-done",
+          `.story-card-sessions, .story-card-attention, .story-card-session-open-reason, .story-card-preparation .badge-ready, .story-card-done, ${followUpSelector}`,
         );
         for (const part of localPresentation) part.remove();
         return copy.textContent;
-      });
+      }, storyFollowUpSelector);
       return facts;
     })
     .not.toBeNull();

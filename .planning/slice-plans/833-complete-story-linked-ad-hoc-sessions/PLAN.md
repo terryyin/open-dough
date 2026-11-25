@@ -212,6 +212,11 @@ session admission. Its 54 backend and 11 browser cases passed with typecheck.
 See `SLICE-3-REPORT.md` and `slice-3-refactor-consumer-dispositions.md` in the
 worktree's Git evidence directory.
 
+Branch CI run 45611041207/1 found six stale observations of the Taken Follow
+up action. The repair proves exact focus order and control counts, plus
+stable published facts when local session state changes. Thirteen mounted
+and 15 E2E cases passed. `CI-REPAIR-45611041207-REPORT.md` holds the evidence.
+
 ### 4. Land under the bound story with the exact accepted comparison
 Type: Behavior
 Status: planned

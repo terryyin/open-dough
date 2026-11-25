@@ -35,6 +35,11 @@ export const inspectionToggle = (card: Locator) =>
 export const storyNotesControl = (card: Locator) =>
   card.getByRole("button", { name: storyNotesNames.control });
 
+export const storyFollowUpSelector =
+  '.story-card-frame > button[aria-haspopup="dialog"][aria-label^="Follow up "]';
+export const storyFollowUp = (scope: Locator) =>
+  scope.locator(storyFollowUpSelector);
+
 export async function tapInspectStory(card: Locator, page?: Page) {
   await tapWhereShown(inspectionToggle(card), page);
 }

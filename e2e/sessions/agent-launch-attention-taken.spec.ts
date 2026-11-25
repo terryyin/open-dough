@@ -28,6 +28,7 @@ import {
   attentionCountsOn,
   publishedFactsOf,
 } from "../../dashboard/test-support/storyCardAttention.ts";
+import { storyFollowUp } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   openDoughWorkingSessions,
   openWithOpenSessions,
@@ -95,10 +96,12 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await expectMembership(page, takenColumns);
       const takenFacts = await publishedFactsOf(card(readyStory));
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
+      await expect(storyFollowUp(card(readyStory))).toHaveCount(0);
 
       await markDoneAnyway(entryOf(readyStory, "Execution"));
       await expect(entryOf(readyStory, "Execution")).toHaveCount(0);
       await expectCounted({ [notRefinedStory]: one });
+      await expect(storyFollowUp(card(readyStory))).toBeVisible();
       expect(await publishedFactsOf(card(readyStory))).toBe(takenFacts);
       await expectNotReloaded(page);
     });

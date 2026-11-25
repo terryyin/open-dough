@@ -1,13 +1,15 @@
 // Every button a shown snapshot offers, and nothing else: the banner's
 // Sessions, Recent stories (when a project is selected), System settings,
 // Start session, the badge legend, each Backlog card's launch actions, and
-// each card's detail toggle and Notes, plus Review changes on Taken cards.
+// each card's detail toggle and Notes, plus Review changes and Follow up on
+// Taken cards without open sessions.
 import { expect, type Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
 import {
   detailToggle,
   reviewChanges,
   storyCardLaunchActions,
+  storyFollowUp,
 } from "./storyCardControls.ts";
 
 export async function expectSnapshotButtons(
@@ -37,11 +39,13 @@ export async function expectSnapshotButtons(
     shown.cards,
   );
   await expect(button("Notes")).toHaveCount(shown.cards);
-  await expect(reviewChanges(parts(page).taken)).toHaveCount(shown.takenCards);
+  const taken = parts(page).taken;
+  await expect(reviewChanges(taken)).toHaveCount(shown.takenCards);
+  await expect(storyFollowUp(taken)).toHaveCount(shown.takenCards);
   await expect(page.getByRole("button")).toHaveCount(
     fixedBannerButtons.length +
       shown.backlogCards * storyCardLaunchActions.length +
       shown.cards * 2 +
-      shown.takenCards,
+      shown.takenCards * 2,
   );
 }
