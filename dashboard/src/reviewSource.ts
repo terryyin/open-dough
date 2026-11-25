@@ -25,10 +25,15 @@ import {
 
 export type ReviewQuery = Readonly<Record<string, string>>;
 
+type ReviewReadOptions = {
+  readonly onInitialSync: (status: ReviewInitialSyncProgress) => void;
+  readonly retryInitialSync: boolean;
+};
+
 export type ReviewRead<Answer> = (
   query: ReviewQuery,
   signal: AbortSignal,
-  onInitialSync?: (status: ReviewInitialSyncProgress) => void,
+  options?: ReviewReadOptions,
 ) => Promise<Answer>;
 
 export type ReviewSource = {
@@ -87,18 +92,23 @@ async function waitForSyncPoll(signal: AbortSignal): Promise<void> {
 async function reviewWithInitialSync(
   query: ReviewQuery,
   signal: AbortSignal,
-  report?: (status: ReviewInitialSyncProgress) => void,
+  options?: ReviewReadOptions,
 ) {
   let review = await readReview(query, signal);
   const source = query["source"];
+  let retry = options?.retryInitialSync === true;
   while (review.kind === "initial-sync-required" && source !== undefined) {
-    let status = await startSync({ source }, signal);
-    if (status.kind === "running") report?.(status);
+    let status = await startSync(
+      retry ? { source, retry: "true" } : { source },
+      signal,
+    );
+    retry = false;
+    if (status.kind === "running") options?.onInitialSync(status);
     while (status.kind === "running") {
       await waitForSyncPoll(signal);
       status = await readSync({ source }, signal);
     }
-    if (status.kind === "failed") report?.(status);
+    if (status.kind === "failed") options?.onInitialSync(status);
     if (status.kind === "idle")
       throw new Error("The initial sync is no longer running.");
     if (status.kind !== "ready") return review;

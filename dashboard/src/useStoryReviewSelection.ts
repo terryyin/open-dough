@@ -102,6 +102,7 @@ export function useStoryReviewSelection({
     {
       round,
       enabled: enabled && readsSelectedRun,
+      readKey: followInitialSync ? keyedBy : undefined,
     },
   );
   const review = !readsSelectedRun

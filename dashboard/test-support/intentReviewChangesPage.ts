@@ -81,6 +81,24 @@ class IntentReviewChanges {
     return this;
   }
 
+  async expectRetrySyncAvailable() {
+    await expect(this.#retrySync).toBeVisible();
+    await expect(this.#retrySync).toBeEnabled();
+    return this;
+  }
+
+  async expectRetrySyncUnavailable() {
+    await expect(this.#retrySync).toHaveCount(0);
+    return this;
+  }
+
+  async retrySync(using: "mouse" | "keyboard" = "mouse") {
+    await (using === "keyboard"
+      ? this.#retrySync.press("Enter")
+      : this.#retrySync.click());
+    return this;
+  }
+
   async expectHistoricalSource(file: string, revision: string, text: string) {
     await expect(fileSource(this.#intent, file)).toContainText(text);
     await expect(sourceRevision(this.#intent, file)).toContainText(
@@ -132,6 +150,13 @@ class IntentReviewChanges {
 
   get #refresh() {
     return reviewRefresh(this.#header, { exact: true });
+  }
+
+  get #retrySync() {
+    return this.#header.getByRole("button", {
+      name: "Retry sync",
+      exact: true,
+    });
   }
 
   // Preserve the real snapshot response for assertions about Git's inputs.

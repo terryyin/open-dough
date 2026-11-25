@@ -1,6 +1,6 @@
-import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 // A Done story's historical source comes from its landing, even after trunk
 // changes tests and removes settings. Unrecoverable history never borrows the
 // current tree; an available saved coverage report remains independently useful.
@@ -132,7 +132,8 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
   // Review changes gives the completed story the same explanation.
   const { development } = parts(page);
   await development.click();
-  await reviewChanges(card).click();
+  const review = await openIntentReviewChanges(page, card);
   await expect(story.panel("Changes")).toBeVisible();
-  await expect(story.summary).toContainText(unrecoverable);
+  await review.expectText(unrecoverable);
+  await review.expectRetrySyncUnavailable();
 });

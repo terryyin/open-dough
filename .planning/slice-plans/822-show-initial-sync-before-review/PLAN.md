@@ -135,7 +135,7 @@ the interim. Slice 4 adds its recovery action.
 ### 4. Retry initial sync from the review pane
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A failed first sync shows its reason and **Retry sync**. Reopening
 shows that failure until a retry. A developer can retry and reach the same
@@ -165,32 +165,20 @@ check that neither displays the initial-sync action.
   `seed-438-honoka`, mailbox `/tmp/dough-ci-501/watch-wPO4WT`, PID `29930`,
   session `22122`, cell `g271:10`.
 
-### Slice 1 evidence
+### Accepted evidence
 
-`review-initial-sync.spec.ts` observes late status after cancellation, shared
-writer order, exact ref readiness and failure when Git fetched a different ref.
-`review-initial-sync-admission.spec.ts` verifies cross-site refusal with the
-Review repository absent. Focused backend and existing Intent CI browser
-checks and Dashboard typecheck passed. `s1-implementation.md` in the Git
-evidence directory holds commands and trace. Story-branch observer registered
-the accepted revision `04fb36330b917d44d5808bb3d7b5138d8b8265af`.
+Literal commands, assertions, traces and passing results are in
+`s1-implementation.md` through `s4-implementation.md` in the Git evidence directory.
 
-### Slice 2 evidence
-
-`review-initial-sync-progress.spec.ts` observes Git object and byte increments
-past the scaled former limit, a stall under repeated output, refusal and shared
-retry after Git closes, and shutdown with an active transport. Forty focused
-backend cases and Dashboard typecheck passed. `s2-implementation.md` in the
-Git evidence directory holds commands and trace.
-
-### Slice 3 evidence
-
-The story branch accepted slice 2 at `8e639371a9790c200e19622a0c4ff91afe56ad1b`.
-`story-review-initial-sync.spec.ts` verifies the typed pending answer, retained
-failure, and exact continuation. The two-tab Chromium case verifies the original
-comparison, first changed file, and pinned historical source after one initial
-fetch. Focused backend and frontend checks, eight Chromium journeys, and
-Dashboard typecheck passed. See `s3-implementation.md` in the Git evidence directory.
+- Slice 1 at `04fb36330b917d44d5808bb3d7b5138d8b8265af`. Backend and Intent CI
+  browser proof covers local admission, cancellation, writer order and exact ref.
+- Slice 2 at `8e639371a9790c200e19622a0c4ff91afe56ad1b`. Backend proof covers
+  advancing Git progress, stall, refusal, shared retry and shutdown after close.
+- Slice 3 at `4bcfa96cb3e730e7eaedc0497b814b7b077e49b1`. Backend, frontend and
+  Chromium proof covers the typed pending answer and two-tab continuation with
+  one initial fetch, exact comparison, first changed file and pinned source.
+- Slice 4. Frontend and Chromium proof covers retained failure, one explicit
+  keyboard retry, the original selected diff, and warm and history-gap cues.
 
 ## Story obligations
 
@@ -210,7 +198,7 @@ Disposition: proved by slice 3: typed exact-target continuation and two-tab Chro
 
 Reported: slice 2 — "The Retry sync control remains assigned to slice 4."
 Story clause: "An open or reopened pane shows the specific failure and offers **Retry sync**, which starts or joins one new attempt."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `story-review-offline.spec.ts` cold refusal, reopened failure, keyboard retry, and original selected diff
 
 ## Consumer trace
 

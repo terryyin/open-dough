@@ -12,7 +12,7 @@ import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
 import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
 import { useStateKeyedBy } from "./stateKeyedBy.ts";
-import type { ReviewInitialSyncProgress } from "./reviewInitialSync.ts";
+import type { ReviewInitialSyncFeedback } from "./useReviewRead.ts";
 
 export function useStoryComparison({
   source,
@@ -33,7 +33,7 @@ export function useStoryComparison({
   // The default review read, which owns the story's completed result.
   readonly defaultReview: StoryReview | undefined;
   readonly reading: boolean;
-  readonly initialSync?: ReviewInitialSyncProgress | undefined;
+  readonly initialSync?: ReviewInitialSyncFeedback | undefined;
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
   // The published comparison and available retained landing choices.
