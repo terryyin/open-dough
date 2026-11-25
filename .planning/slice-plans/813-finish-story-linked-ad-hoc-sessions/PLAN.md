@@ -145,7 +145,7 @@ and `startSessionLanding.ts`.
 
 ### 3. Put default-route launch consumers on an installed project and origin
 Type: Structure
-Status: planned
+Status: done
 Proof: Every backend and E2E consumer that starts default-choice ad hoc work
 runs on the installed project with a matching bare origin. Its existing
 assertions pass unchanged against the current standalone route.
@@ -201,6 +201,16 @@ branch. Resume once SEED-433 integrates:
    the slice on that evidence.
 3. Continue with slice 4. Its expectation updates shrink to the
    story-dependent ones.
+
+Result: SEED-433 (plan 816) installed both host layouts and a matching bare
+origin for every fixture-created catalog project. On its story branch, the E2E
+gate passed 779 cases and the backend gate passed 1,984. It was accepted on
+trunk at `672fc3210`. Trunk merged into this branch at `03cb6e7cd`, and
+`isolatedSessionAdmission.ts` now imports from `executionStartCommands.ts`,
+the module trunk moved those helpers into. Dashboard typecheck passes there.
+This slice closes on the supplier's integrated proof. Slice 4 first reruns
+slice 2's admission families on the merged branch as its baseline. Branch CI
+on the merged revision covers the rest of the merged state.
 
 ### 4. Open a default-checkout session on its admitted story
 Type: Behavior
