@@ -30,9 +30,10 @@ import {
 test.describe.configure({ mode: "serial" });
 
 const knownSourceId = "open-dough";
-const revision = "ab".repeat(20);
 // An empty project's backlog.
 const backlog = describedBacklog(makeMe.aRepository.please());
+const published = publishes({ backlog });
+const { revision } = published;
 const secretMarker = "gho_should-never-reach-a-browser-1234567890";
 
 test.describe("authenticated read boundary refusal (development environment)", () => {
@@ -54,7 +55,7 @@ test.describe("authenticated read boundary refusal (development environment)", (
   // A request refused for its parameters alone answers 400 with the reason,
   // before any `gh` call.
   async function expectRefusedParameters(query: string, error: string) {
-    server.github.serve(everyRepository, publishes({ revision, backlog }));
+    server.github.serve(everyRepository, published);
     const callsBefore = server.ghCalls().length;
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&${query}`,
@@ -66,7 +67,7 @@ test.describe("authenticated read boundary refusal (development environment)", (
   }
 
   test("refuses a mismatched Origin before launching gh", async () => {
-    server.github.serve(everyRepository, publishes({ revision, backlog }));
+    server.github.serve(everyRepository, published);
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
       headers: { Origin: "http://evil.example" },
@@ -109,7 +110,7 @@ test.describe("authenticated read boundary refusal (development environment)", (
   // without a browser: what it does carry is `Sec-Fetch-Site: same-origin`,
   // which `../../server/localOrigin.ts` now accepts in place of `Origin`.
   test("accepts a same-origin request signaled by Sec-Fetch-Site with no Origin header at all", async () => {
-    server.github.serve(everyRepository, publishes({ revision, backlog }));
+    server.github.serve(everyRepository, published);
     const callsBefore = server.ghCalls().length;
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
@@ -130,19 +131,16 @@ test.describe("authenticated read boundary refusal (development environment)", (
   });
 
   test("refuses an arbitrary repository path that the pinned revision's records do not name", async () => {
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision,
-        backlog,
-        files: {
-          ".planning/PRODUCT-BACKLOG.md": backlog,
-        },
-      }),
-    );
+    const pinned = publishes({
+      backlog,
+      files: {
+        ".planning/PRODUCT-BACKLOG.md": backlog,
+      },
+    });
+    server.github.serve(everyRepository, pinned);
     const callsBefore = server.ghCalls().length;
     const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(".planning/secrets/not-in-backlog.md")}`,
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${pinned.revision}&path=${encodeURIComponent(".planning/secrets/not-in-backlog.md")}`,
       headers: { Origin: server.origin },
     });
     expect(response.status).toBe(404);

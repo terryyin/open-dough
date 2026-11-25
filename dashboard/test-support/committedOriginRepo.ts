@@ -70,6 +70,38 @@ export function commitOf(repoDir: string, name: string): string | undefined {
   }
 }
 
+// Moves `main` to the published `revision`, so a Git read routed to
+// `repoDir` finds the trunk the fixture answers; a checkout's own `main`
+// stays with its working tree.
+export function publishMain(repoDir: string, revision: string): void {
+  if (commitOf(repoDir, "main") === revision) return;
+  if (checkedOutMain(repoDir)) return;
+  execFileSync("git", [
+    "-C",
+    repoDir,
+    "update-ref",
+    "refs/heads/main",
+    revision,
+  ]);
+}
+
+// Whether `repoDir` is a checkout whose working tree holds `main`.
+function checkedOutMain(repoDir: string): boolean {
+  const git = (...args: string[]) =>
+    execFileSync("git", ["-C", repoDir, ...args], {
+      encoding: "utf8",
+      stdio: quietWhenGone,
+    }).trim();
+  try {
+    return (
+      git("rev-parse", "--is-bare-repository") === "false" &&
+      git("symbolic-ref", "--quiet", "HEAD") === "refs/heads/main"
+    );
+  } catch {
+    return false;
+  }
+}
+
 // Every published branch head in the bare origin, with `main` forced to the
 // tip the fixture currently publishes (Taken story-branch tip moves stay
 // visible to the page's revision check).

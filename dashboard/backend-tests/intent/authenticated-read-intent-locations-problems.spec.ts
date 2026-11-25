@@ -7,7 +7,6 @@ import {
   featurePath,
   featureText,
   knownSourceId,
-  revisionOf,
   settings,
   settingsPath,
 } from "../../test-support/intentLocationsBoundaryFixtures.ts";
@@ -41,15 +40,12 @@ test.describe("authenticated Intent locations problems (development environment)
   });
 
   test("answers malformed and unreadable settings distinctly from not-configured", async () => {
-    const malformedRevision = revisionOf("a5");
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision: malformedRevision,
-        backlog,
-        files: { [settingsPath]: "{not json\n" },
-      }),
-    );
+    const published = publishes({
+      backlog,
+      files: { [settingsPath]: "{not json\n" },
+    });
+    const { revision: malformedRevision } = published;
+    server.github.serve(everyRepository, published);
     const malformed = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${malformedRevision}&intent=locations`,
       headers: { Origin: server.origin },
@@ -61,12 +57,11 @@ test.describe("authenticated Intent locations problems (development environment)
       settingsProblem: "malformed",
     });
 
-    const unreadableRevision = revisionOf("a6");
-    const published = publishes({
-      revision: unreadableRevision,
+    const unreadableSettings = publishes({
       backlog,
       files: { [settingsPath]: "{}\n" },
     });
+    const { revision: unreadableRevision } = unreadableSettings;
     server.github.serve(everyRepository, async (call) => {
       if (
         call.request.kind === "content" &&
@@ -74,7 +69,7 @@ test.describe("authenticated Intent locations problems (development environment)
       ) {
         return noConnection;
       }
-      return published(call);
+      return unreadableSettings(call);
     });
     const unreadable = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${unreadableRevision}&intent=locations`,
@@ -90,21 +85,19 @@ test.describe("authenticated Intent locations problems (development environment)
   });
 
   test("keeps an unmarked settings refusal and a classified whole-read listing failure distinct", async () => {
-    const refusedRevision = revisionOf("a7");
-    const listingRevision = revisionOf("a8");
     const refused = publishes({
-      revision: refusedRevision,
       backlog,
       files: { [settingsPath]: intentSettingsText(settings) },
     });
     const listing = publishes({
-      revision: listingRevision,
       backlog,
       files: {
         [settingsPath]: intentSettingsText(settings),
         [featurePath]: featureText,
       },
     });
+    const refusedRevision = refused.revision;
+    const listingRevision = listing.revision;
     server.github.serve(everyRepository, (call) => {
       const { request } = call;
       if (request.kind === "content" && request.path === settingsPath) {

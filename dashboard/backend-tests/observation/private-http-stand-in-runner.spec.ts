@@ -79,28 +79,19 @@ test("unexpected Cursor protocol work fails the stand-in fixture after cleanup",
 });
 
 test("overlapping stand-in fixtures keep private answers and retire only their own resources", async () => {
-  const firstRevision = "ab".repeat(20);
-  const secondRevision = "cd".repeat(20);
   const emptyBacklog = describedBacklog(makeMe.aRepository.please());
+  // Each publication is a commit of its own, so each answer names its own.
+  const firstPublished = publishes({ backlog: emptyBacklog });
+  const secondPublished = publishes({ backlog: emptyBacklog });
+  const firstRevision = firstPublished.revision;
+  const secondRevision = secondPublished.revision;
   const first = await startDashboardServer(withStandIn);
   const second = await startDashboardServer(withStandIn);
   const firstHome = first.home;
   const secondHome = second.home;
   try {
-    first.github.serve(
-      everyRepository,
-      publishes({
-        revision: firstRevision,
-        backlog: emptyBacklog,
-      }),
-    );
-    second.github.serve(
-      everyRepository,
-      publishes({
-        revision: secondRevision,
-        backlog: emptyBacklog,
-      }),
-    );
+    first.github.serve(everyRepository, firstPublished);
+    second.github.serve(everyRepository, secondPublished);
     const firstRead = await readRevision(first.baseURL, first.origin);
     const secondRead = await readRevision(second.baseURL, second.origin);
     expect(firstRead.status).toBe(200);

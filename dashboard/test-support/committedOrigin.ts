@@ -13,6 +13,7 @@
 // revision is read in full. A repository the journey publishes to may be
 // followed (`follows`): its `main` is then the published revision as each
 // request arrives, as GitHub follows pushes, and any commit of it is readable.
+// A Git read of the repository under the dashboard's HOME reaches `repoDir`.
 
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest.ts";
@@ -34,6 +35,7 @@ import {
   filesUnder,
   headsOf,
   listedAt,
+  publishMain,
   showAt,
 } from "./committedOriginRepo.ts";
 import { answerCommittedCommits } from "./committedOriginCommits.ts";
@@ -41,6 +43,7 @@ import {
   passingActionsAnswer,
   targetHistoryAnswer,
 } from "./support/baseCiActions.ts";
+import { routeOriginThroughServedHomes } from "./support/fixtureOriginRoute.ts";
 
 export type ActionsAnswerer = (
   argv: readonly string[],
@@ -90,7 +93,9 @@ export function publishCommittedOrigin(
   const instead = new Map<string, OriginAnswer>();
   let actionsOverride: ActionsAnswerer | undefined;
   const history = committedHistoryAnswers(repoDir);
+  if (!follows) publishMain(repoDir, revision);
 
+  routeOriginThroughServedHomes(githubFor(page), repoDir, repository);
   githubFor(page).serve(repository, async (call) => {
     const { request, argv } = call;
     if (
@@ -219,6 +224,7 @@ export function publishCommittedOrigin(
     },
     advanceTo(next) {
       revision = next;
+      if (!follows) publishMain(repoDir, next);
     },
   });
 }

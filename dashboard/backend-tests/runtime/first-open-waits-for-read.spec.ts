@@ -147,7 +147,7 @@ machineTest(
       prebuilt: sharedDashboardBuild,
     });
     const ref = holdingAnswer(
-      publishes({ revision: revisionA, backlog: backlogA }),
+      publishes({ backlog: backlogA }),
       (request) => request.kind === "ref",
     );
     server.github.serve(everyRepository, ref.answer);

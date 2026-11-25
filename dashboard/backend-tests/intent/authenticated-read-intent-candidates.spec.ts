@@ -42,8 +42,6 @@ const settings = intentSettingsText(
 );
 const recordText = makeMe.aTestOptimizationCandidatesRecord.please();
 
-const revisionOf = (byte: string) => byte.repeat(20);
-
 test.describe("authenticated Intent candidates read (development environment)", () => {
   let server: DashboardServer;
 
@@ -56,18 +54,15 @@ test.describe("authenticated Intent candidates read (development environment)", 
   });
 
   test("answers the fixed record text at a pinned revision", async () => {
-    const revision = revisionOf("c1");
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision,
-        backlog,
-        files: {
-          [settingsPath]: settings,
-          [testOptimizationCandidatesPath]: recordText,
-        },
-      }),
-    );
+    const published = publishes({
+      backlog,
+      files: {
+        [settingsPath]: settings,
+        [testOptimizationCandidatesPath]: recordText,
+      },
+    });
+    const { revision } = published;
+    server.github.serve(everyRepository, published);
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&intent=test-optimization-candidates`,
       headers: { Origin: server.origin },
@@ -80,12 +75,11 @@ test.describe("authenticated Intent candidates read (development environment)", 
   });
 
   test("answers absent when the fixed path is not published", async () => {
-    const revision = revisionOf("c2");
     const published = publishes({
-      revision,
       backlog,
       files: { [settingsPath]: settings },
     });
+    const { revision } = published;
     // `publishes` falls back to the backlog for unnamed paths; absent is a
     // GitHub 404 for the fixed candidates path only.
     server.github.serve(everyRepository, async (call) => {
@@ -109,15 +103,14 @@ test.describe("authenticated Intent candidates read (development environment)", 
   });
 
   test("answers unreadable distinctly when the fixed path cannot be read", async () => {
-    const revision = revisionOf("c3");
     const published = publishes({
-      revision,
       backlog,
       files: {
         [settingsPath]: settings,
         [testOptimizationCandidatesPath]: recordText,
       },
     });
+    const { revision } = published;
     server.github.serve(everyRepository, async (call) => {
       if (
         call.request.kind === "content" &&
@@ -140,21 +133,16 @@ test.describe("authenticated Intent candidates read (development environment)", 
     });
   });
 
-  for (const [failure, byte, answer] of [
-    ["an access refusal", "c5", httpErrorAnswer(403)],
-    [
-      "an unknown CLI failure",
-      "c6",
-      { exitCode: 1, stderr: "connection reset" },
-    ],
+  for (const [failure, answer] of [
+    ["an access refusal", httpErrorAnswer(403)],
+    ["an unknown CLI failure", { exitCode: 1, stderr: "connection reset" }],
   ] as const) {
     test(`answers unreadable without recovery for ${failure}`, async () => {
-      const revision = revisionOf(byte);
       const published = publishes({
-        revision,
         backlog,
         files: { [settingsPath]: settings },
       });
+      const { revision } = published;
       server.github.serve(everyRepository, (call) =>
         call.request.kind === "content" &&
         call.request.path === testOptimizationCandidatesPath
@@ -175,18 +163,15 @@ test.describe("authenticated Intent candidates read (development environment)", 
   }
 
   test("refuses a client-supplied path and any mix with other read parameters", async () => {
-    const revision = revisionOf("c4");
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision,
-        backlog,
-        files: {
-          [settingsPath]: settings,
-          [testOptimizationCandidatesPath]: recordText,
-        },
-      }),
-    );
+    const published = publishes({
+      backlog,
+      files: {
+        [settingsPath]: settings,
+        [testOptimizationCandidatesPath]: recordText,
+      },
+    });
+    const { revision } = published;
+    server.github.serve(everyRepository, published);
     const withPath = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&intent=test-optimization-candidates&path=${encodeURIComponent(testOptimizationCandidatesPath)}`,
       headers: { Origin: server.origin },

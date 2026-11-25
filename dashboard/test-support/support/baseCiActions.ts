@@ -11,10 +11,6 @@ import type { OriginAnswer } from "../originAnswers.ts";
 import type { GhCall } from "./fakeGitHub.ts";
 import { isActionsRequest } from "./ghActionsRequest.ts";
 
-// Default published head when a journey has not served its own origin yet
-// (SEED-210): every-repository and owned-GitHub defaults answer this revision.
-export const defaultBaseCiRevision = "ab".repeat(20);
-
 // Observed GitHub run facts (`apiRun` / MakeMe `aCiRun`). Compatibility `id`
 // mirrors `databaseId` while unconverted consumers still read it. Reuse may
 // also state workflow/repository ownership for the shared encoder.

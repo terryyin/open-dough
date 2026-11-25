@@ -42,10 +42,8 @@ import {
 import { notLoggedIn } from "../../test-support/originAnswers.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  describedRevision,
-  withBacklogFallback,
-} from "../../test-support/describedRevisions.ts";
+import { describedFiles } from "../../test-support/describedRevisions.ts";
+import { backlogPath } from "../../test-support/publishedOriginBasics.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -101,7 +99,6 @@ test.describe("authenticated read boundary (development environment)", () => {
   test("reads an allowlisted canonical path pinned to the supplied revision exactly as origin publishes it, a literal control-character escape included, reusing records already read at that revision", async () => {
     // Content at one commit never changes, so this case publishes its
     // different backlog at its own revision.
-    const revision = "cd".repeat(20);
     const seedPath = ".planning/seeds/SEED-boundary.md";
     const story = makeMe.aBacklogEntry
       .with({
@@ -113,22 +110,17 @@ test.describe("authenticated read boundary (development environment)", () => {
     // `gh` would print a JSON-typed answer's literal `\u0002` as `^B`.
     // Deliberate control-character bytes stay at the call site.
     const seedBody = `# Seed\n\n**Identity:** ${story.identity}\n\nCtrl+B then Enter records a line holding \`\\u0002\`.\n`;
-    const published = describedRevision(
-      makeMe.aRepository
-        .withRevision("boundary", {
-          backlog: {
-            queued: [story],
-          },
-          // The exact seed bytes this case reads back.
-          files: { [seedPath]: seedBody },
-        })
-        .please(),
-      revision,
-    );
-    server.github.serve(
-      everyRepository,
-      publishes(withBacklogFallback(published)),
-    );
+    const files = describedFiles({
+      backlog: {
+        queued: [story],
+      },
+      // The exact seed bytes this case reads back.
+      files: { [seedPath]: seedBody },
+    });
+    // Unnamed paths answer the backlog the description publishes.
+    const published = publishes({ files, backlog: files[backlogPath] ?? "" });
+    const { revision } = published;
+    server.github.serve(everyRepository, published);
     const membership = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
       headers: { Origin: server.origin },
@@ -163,7 +155,6 @@ test.describe("authenticated read boundary (development environment)", () => {
   });
 
   test("encodes the space in a canonical path when asking GitHub for that record alone", async () => {
-    const revision = "ef".repeat(20);
     const recordPath = "docs/release notes/2026.md";
     const recordText = "# Release notes for 2026\n";
     const story = makeMe.aBacklogEntry
@@ -173,16 +164,14 @@ test.describe("authenticated read boundary (development environment)", () => {
         href: "/docs/release%20notes/2026.md",
       })
       .please();
-    const published = describedRevision(
-      makeMe.aRepository
-        .withRevision("release-notes", {
-          backlog: { queued: [story] },
-          files: { [recordPath]: recordText },
-        })
-        .please(),
-      revision,
-    );
-    server.github.serve(everyRepository, publishes(published));
+    const published = publishes({
+      files: describedFiles({
+        backlog: { queued: [story] },
+        files: { [recordPath]: recordText },
+      }),
+    });
+    const { revision } = published;
+    server.github.serve(everyRepository, published);
     const membership = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
       headers: { Origin: server.origin },

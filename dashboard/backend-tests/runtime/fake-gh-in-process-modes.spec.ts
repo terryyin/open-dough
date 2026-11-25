@@ -13,7 +13,8 @@ import {
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { expect, test } from "../support/fakeGhInProcess.ts";
 
-const revision = "ab".repeat(20);
+const published = publishes({});
+const { revision } = published;
 
 for (const mode of ["boundary", "dev", "preview"] as const) {
   test(`${mode} uses the default fast owner alongside a custom preload`, async ({
@@ -23,7 +24,7 @@ for (const mode of ["boundary", "dev", "preview"] as const) {
     dashboardPreviewReady: _dashboardPreviewReady,
   }) => {
     expect(client.gh.transport).toBe("in-process");
-    client.github.serve(everyRepository, publishes({ revision }));
+    client.github.serve(everyRepository, published);
     const probe = path.join(client.root, "server-probe.mjs");
     const noted = path.join(client.root, "probe-ran");
     writeFileSync(

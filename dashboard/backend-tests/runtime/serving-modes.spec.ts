@@ -46,9 +46,10 @@ import { expectSuppliedIcons } from "../../test-support/support/brandIcons.ts";
 
 type ViteMode = Extract<DashboardServerMode, "dev" | "preview">;
 const modes = ["dev", "preview"] as const;
-const revision = "ab".repeat(20);
 // An empty project's backlog.
 const backlog = describedBacklog(makeMe.aRepository.please());
+const published = publishes({ backlog });
+const { revision } = published;
 
 // The answer without the moment it was asked, which each server stamps
 // itself; both must stamp it.
@@ -70,7 +71,7 @@ test.describe("serving modes mount the same boundaries", () => {
           projectFolders: ["open-dough"],
           prebuilt: sharedDashboardBuild,
         });
-        server.github.serve(everyRepository, publishes({ revision, backlog }));
+        server.github.serve(everyRepository, published);
         return [mode, server] as const;
       }),
     );
