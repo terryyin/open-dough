@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Pass session observation limits as typed values](seeds/SEED-413-renovate-dashboard-unit-tests.md#pass-session-observation-limits-as-typed-values) — SEED-413#pass-session-observation-limits-as-typed-values
 - [Choose the whole project or a recent story from the bookmark](seeds/SEED-420-unified-intent-review.md#choose-review-scope) — SEED-420#choose-review-scope
 - [Read and change the story comparison from one control bar](seeds/SEED-420-unified-intent-review.md#compact-story-comparison-controls) — SEED-420#compact-story-comparison-controls
 - [Put comparison follow-up beside story notes](seeds/SEED-420-unified-intent-review.md#put-comparison-follow-up-by-story-notes) — SEED-420#put-comparison-follow-up-by-story-notes

@@ -951,6 +951,14 @@ A planned CI or flake repair delivered through `execution-increment-delivery.mjs
   - Evidence: the first attempt refused with `preparation-refused`, "the plan must be included in ownedPaths"; the coordinator copied PLAN.md to the job temp directory, reset it to HEAD plus a repair note, delivered, then restored the parked copy with the same note.
   - Observed effect: one refused delivery and a manual park and restore of an owned record outside the CI repair stash.
   - Inference: `stagedPaths` for a partially staged plan, or a repair mode that accepts an unchanged plan, would avoid the hand-managed copy.
+- Execution: SEED-413#renovate-remaining-backend-families-after-browser-reporter (plan 829; first implementation `58c8cc033`)
+  - Timestamp: unknown (2026-11-25 +08:00, CI repair `4036080e0` of run 45580413772)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.113 (installed guidance at Take `3eca0ec43`)
+  - Evidence: with slice 2's work in the CI repair stash and the plan unchanged, the repair's first `fresh` attempt refused with `preparation-refused`, "the plan must be included in ownedPaths"; the coordinator added a repair note to the plan to deliver it.
+  - Observed effect: one refused delivery and a plan edit made only to satisfy the refusal.
+  - Inference: the refusal applies even when the plan has no edits, so a repair needs a plan note it would not otherwise need.
 
 ## ODF-329 — Delegation omits read-only lint before coordinator formatting <a id="odf-329"></a>
 
