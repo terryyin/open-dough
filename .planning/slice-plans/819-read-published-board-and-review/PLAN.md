@@ -84,7 +84,7 @@ when changing a reader or fixture.
 ### 1. Route committed-origin journeys through the fixture HOME
 
 Type: Structure
-Status: planned
+Status: done
 Change: `publishCommittedOrigin` routes its repository through the fixture
 HOME, so a Git read of the configured project reaches that origin. Fake
 GitHub answers stay unchanged. Enables slice 4.
@@ -166,3 +166,11 @@ authoring or changing proof.
   developer approved a resplit: original slices 3–8 moved to
   [plan 821](../821-follow-published-progress-from-local-git/PLAN.md), and
   fixture migration now precedes the switch here.
+- Slice 1 routes every origin published through one fake GitHub to every
+  dashboard HOME it serves (`routeOriginThroughServedHomes`), which slices 2
+  and 3 reuse. Slice 4 must handle two findings. Git uses the first of two
+  routes for one GitHub URL, so a repository published twice in one test
+  keeps reaching its first origin. `advanceTo` moves only the fake GitHub's
+  answer, so a journey relying on it must move the origin's real `main`.
+  A change to `dashboardServer.ts` needs both full suites (about 22 minutes
+  for e2e and 20 for backend on this machine).

@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { installFakeClaude, type FakeClaudeControls } from "./fakeClaude.ts";
 import { dashboardServerEnvironment } from "./dashboardServerEnvironment.ts";
-import { routeUnroutedGitHubAway } from "./fixtureOriginRoute.ts";
+import { routeDashboardHome } from "./fixtureOriginRoute.ts";
 import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { readPid } from "./processGroup.ts";
 import {
@@ -118,7 +118,7 @@ async function start(
     { binDir: gh.binDir, path: ghEnv["PATH"] ?? "" },
     options,
   );
-  routeUnroutedGitHubAway(claude.controls.home);
+  routeDashboardHome(claude.controls.home, github);
   const environment = projectEnvironmentOf(options.mode, options.environment);
   if (
     environment === "development" &&

@@ -4,6 +4,7 @@
 // repository the fixture never cloned, reaches the network.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
+import type { FakeGitHub } from "./fakeGitHub.ts";
 
 // The origin URL a configured project `owner/name` names.
 export const gitHubRepositoryUrl = (repository: string) =>
@@ -28,7 +29,7 @@ export function routeOriginThroughHome(
 // under `home`, so a Git read of an unrouted configured project fails at once
 // instead of reaching the network. Git picks the longest matching insteadOf,
 // so each origin `routeOriginThroughHome` names still wins.
-export function routeUnroutedGitHubAway(home: string): void {
+function routeUnroutedGitHubAway(home: string): void {
   execFileSync("git", [
     "config",
     "--file",
@@ -36,4 +37,36 @@ export function routeUnroutedGitHubAway(home: string): void {
     `url.${path.join(home, "unrouted-github")}/.insteadOf`,
     "https://github.com/",
   ]);
+}
+
+// Every HOME a dashboard served by one fake GitHub runs under, and every
+// origin a journey publishes through it, routed both ways whichever comes
+// first, so a Git read of a published project under any of those HOMEs
+// reaches the origin the fake GitHub answers from.
+type Served = { homes: string[]; origins: [string, string][] };
+const servedBy = new WeakMap<FakeGitHub, Served>();
+const served = (github: FakeGitHub): Served => {
+  const known = servedBy.get(github) ?? { homes: [], origins: [] };
+  servedBy.set(github, known);
+  return known;
+};
+
+// A dashboard HOME served by `github`: unrouted GitHub URLs fail locally and
+// each origin published through `github` is reachable.
+export function routeDashboardHome(home: string, github: FakeGitHub): void {
+  routeUnroutedGitHubAway(home);
+  const { homes, origins } = served(github);
+  homes.push(home);
+  for (const [origin, repository] of origins)
+    routeOriginThroughHome(home, origin, repository);
+}
+
+export function routeOriginThroughServedHomes(
+  github: FakeGitHub,
+  origin: string,
+  repository: string,
+): void {
+  const { homes, origins } = served(github);
+  origins.push([origin, repository]);
+  for (const home of homes) routeOriginThroughHome(home, origin, repository);
 }
