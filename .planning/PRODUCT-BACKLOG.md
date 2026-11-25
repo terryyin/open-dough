@@ -37,6 +37,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Recheck Cursor workarounds](seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds) — SEED-440#recheck-cursor-workarounds
 - [Load execution guidance for the current phase](seeds/SEED-345-session-token-efficiency.md#load-execution-guidance-for-the-current-phase) — SEED-345#load-execution-guidance-for-the-current-phase
 - [Put comparison follow-up beside story notes](seeds/SEED-420-unified-intent-review.md#put-comparison-follow-up-by-story-notes) — SEED-420#put-comparison-follow-up-by-story-notes
 - [Read CI comparison and Intent coverage from Story Home](seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home) — SEED-420#read-story-evidence-from-intent-home
