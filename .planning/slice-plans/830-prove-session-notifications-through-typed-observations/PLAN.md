@@ -142,7 +142,7 @@ after their last caller.
 ### 7. Use an admitted destination from the listening address
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 7–11 active minutes.
 
 Given IPv4/IPv6 loopback or wildcard addresses with assigned ports,
@@ -240,6 +240,9 @@ baseline.
 - Slice 6: skipped fresh refactor — subject-spec lifetime relocation and
   emptied Playwright file deletion; no production change; shared alert
   fixtures retain other callers.
+- Slice 7: skipped fresh refactor — subject-spec origin Vitest rewrite
+  plus E2E socket probe; no production change; probe is not a browser
+  journey so no page-object seam.
 
 ### Slice 6 accepted proof
 
@@ -248,6 +251,15 @@ baseline.
   availability, and stops further reads
   (`slice6-vitest-lifetime.log.run.json`). Emptied
   `session-alerts-helper.spec.ts` and `session-alerts.spec.ts` removed.
+
+### Slice 7 accepted proof
+
+- Vitest `session-alerts-origin.spec.ts` — typed listener address shapes
+  yield exact usable origins through `dashboardOrigin` and admission;
+  unusable addresses yield none (`slice7-vitest-origin.log.run.json`).
+- E2E socket probe `e2e/sessions/session-alerts-origin.spec.ts` — real
+  binds for 127.0.0.1 / 0.0.0.0 / ::1 / ::
+  (`slice7-e2e-origin-2.log.run.json`).
 
 ### Slice 4 accepted proof
 
