@@ -1,14 +1,37 @@
 // Exact unavailable endpoints are explained by the authenticated local reader.
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { afterEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  parseIntentCiHistoryRead,
+  performIntentCiHistoryRead,
+} from "../../server/intentCiHistoryRead.ts";
 import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-test.use({ serverMode: "boundary" });
 
-test("an exact unavailable Done endpoint explains retention, absence and unknown local order without using the current endpoint", async ({
-  dashboard,
-  github,
-}) => {
+const source = makeMe.aPublishedSource.openDough.please();
+let home = "";
+
+type DoneAvailabilityAnswer = {
+  selectedRevision: string;
+  availability: string;
+  reference: {
+    endpoint: string;
+    averageMs?: number;
+    sampleCount: number;
+    difference?: unknown;
+    evidence: { status: string; reason?: string }[];
+  };
+};
+
+afterEach(() => {
+  if (home !== "") rmSync(home, { recursive: true, force: true });
+  home = "";
+});
+
+test("an exact unavailable Done endpoint explains retention, absence and unknown local order without using the current endpoint", async () => {
+  home = mkdtempSync(path.join(tmpdir(), "ci-done-wall-availability-"));
   const rev = (n: number) => n.toString(16).padStart(40, "0");
   const read = async (endpoint: number) => {
     const query = new URLSearchParams({
@@ -17,22 +40,15 @@ test("an exact unavailable Done endpoint explains retention, absence and unknown
       revision: rev(endpoint),
       through: "2026-11-05T10:00:00Z",
     });
-    const response = await rawRequest({
-      url: `${dashboard.origin}/__authenticated-read?${query}`,
-      headers: { Origin: dashboard.origin },
-    });
-    expect(response.status).toBe(200);
-    return JSON.parse(response.body) as {
-      selectedRevision: string;
-      availability: string;
-      reference: {
-        endpoint: string;
-        averageMs?: number;
-        sampleCount: number;
-        difference?: unknown;
-        evidence: { status: string; reason?: string }[];
-      };
-    };
+    const named = parseIntentCiHistoryRead(query);
+    expect(named).toMatchObject({ kind: "intent-ci-history" });
+    if (named?.kind !== "intent-ci-history")
+      throw new Error("expected intent-ci-history read");
+    const outcome = await performIntentCiHistoryRead(source, named, { home });
+    expect(outcome).toMatchObject({ kind: "answered" });
+    if (outcome.kind !== "answered")
+      throw new Error("expected answered history");
+    return outcome.answer as unknown as DoneAvailabilityAnswer;
   };
   const builder = makeMe.aLandedCiHistory.inTrunkOrder(
     [1, 2, 3, 4, 5, 6, 7].map(rev),
@@ -54,8 +70,7 @@ test("an exact unavailable Done endpoint explains retention, absence and unknown
         .please(),
     );
   }
-  const before = github.calls.length;
-  await keepLandedCiHistory(dashboard.home, builder.please());
+  await keepLandedCiHistory(home, builder.please());
   expect(await read(6)).toMatchObject({
     selectedRevision: rev(6),
     availability: "uncollected",
@@ -88,11 +103,10 @@ test("an exact unavailable Done endpoint explains retention, absence and unknown
       completedAt: "2026-11-05T10:01:40Z",
     })
     .please();
-  await keepLandedCiHistory(dashboard.home, onlyLater);
+  await keepLandedCiHistory(home, onlyLater);
   expect(await read(0)).toMatchObject({
     selectedRevision: rev(0),
     availability: "outside-retention",
     reference: { endpoint: rev(0), sampleCount: 0 },
   });
-  expect(github.calls).toHaveLength(before);
 });

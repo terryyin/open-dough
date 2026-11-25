@@ -141,7 +141,7 @@ fixture only; no new product representation.
 ### 2. Done and endpoint history reads answer in process
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `ci-done-history-retry`, `ci-done-wall-availability`,
 `ci-done-wall-reference`, `ci-prior-build-revision-order` and
 `ci-project-measure-reference` run on Node Vitest. They call
@@ -157,6 +157,13 @@ endpoint answers the same selection, availability and reference as through
 the server.
 
 Estimated active work 12–15 minutes.
+
+Accepted proof (coordinator): focused `test:dashboard:backend` on the five
+paths → Vitest, 5/5 passed (~3.1 s); typecheck and eslint exit 0. Evidence:
+`open-dough/evidence/slice2-done-endpoint-history-vitest-20261125-122228-report.md`.
+Temp home + `keepLandedCiHistory`; no HOME stub; Git origin only in
+prior-build-revision-order. Retry asserts failed Outcome then answered.
+Refactor disposition: skip — subject specs only; no new product representation.
 
 ### 3. History capability projections and refusals answer in process
 
