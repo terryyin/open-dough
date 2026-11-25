@@ -13,10 +13,15 @@ export const quietTitle = "Tidy the changelog";
 // report and the revision its work landed at.
 export const retiredSession = (
   home: string,
-  { report, landed, doneAt }: { report: string; landed: string; doneAt: Date },
+  {
+    report,
+    landed,
+    doneAt,
+    storyIdentity,
+  }: { report: string; landed: string; doneAt: Date; storyIdentity?: string },
 ): LaunchRecord =>
   makeMe.aLaunchRecord
-    .adHoc({ instruction: retiredTitle, title: retiredTitle })
+    .adHoc({ instruction: retiredTitle, title: retiredTitle, storyIdentity })
     .inClaudeSession({ sessionId: "reported-source", shortId: "reported" })
     .inIsolatedWorkspace({
       workspace: path.join(home, "retired-worktree"),
@@ -29,9 +34,13 @@ export const retiredSession = (
 
 // A Done ad hoc session in the execution checkout that completed quietly, under this
 // native session id.
-export const quietSession = (sessionId: string, doneAt: Date): LaunchRecord =>
+export const quietSession = (
+  sessionId: string,
+  doneAt: Date,
+  storyIdentity?: string,
+): LaunchRecord =>
   makeMe.aLaunchRecord
-    .adHoc({ instruction: quietTitle, title: quietTitle })
+    .adHoc({ instruction: quietTitle, title: quietTitle, storyIdentity })
     .inClaudeSession({ sessionId, shortId: sessionId.slice(0, 8) })
     .completedWith({ message: "" })
     .markedDoneAt(doneAt.toISOString())

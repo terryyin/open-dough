@@ -34,14 +34,18 @@ import { storyCardMarks } from "./storyCardFocus.ts";
 import type { ReadSessions } from "./readSessions.ts";
 import { StoryCardLaunches } from "./StoryCardLaunches.tsx";
 import { StoryCardDoneSessions } from "./StoryCardDoneSessions.tsx";
-import { SessionFollowUp } from "./FollowUp.tsx";
+import { SessionFollowUp, TakenStoryFollowUp } from "./FollowUp.tsx";
 import {
   dependencyStartReason,
   startEligibilityOf,
 } from "./startEligibility.ts";
 import { StoryNotes } from "./StoryNotesControl.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
-import { storyCardSessionsOf, type LaunchWithState } from "./agentLaunch.ts";
+import {
+  storyCardSessionsOf,
+  storySessionsOf,
+  type LaunchWithState,
+} from "./agentLaunch.ts";
 import { storyCardAssignmentsOf } from "./agentAssignments.ts";
 import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
@@ -82,6 +86,7 @@ export function StoryCard({
   onOpenRoster: OpenRoster;
 }) {
   const sourceId = work.source.id;
+  const taken = work.taken.some(({ identity }) => identity === entry.identity);
   const cardRef = useRef<HTMLElement>(null);
   const detailId = `story-detail-${entry.identity.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   // Every startup of the story protects its frame.
@@ -156,6 +161,20 @@ export function StoryCard({
             />
           )}
         />
+        {taken && (
+          <TakenStoryFollowUp
+            story={entry}
+            revision={work.revision}
+            project={work.source.label}
+            sourceId={sourceId}
+            launches={launches}
+            sessions={storySessionsOf(
+              launches.records,
+              sourceId,
+              entry.identity,
+            )}
+          />
+        )}
       </StartupFrame>
       <div
         className="story-card-action-group story-card-inspection-group"
@@ -188,9 +207,7 @@ export function StoryCard({
             title={entry.title}
           />
           <StoryReviewAction
-            taken={work.taken.some(
-              ({ identity }) => identity === entry.identity,
-            )}
+            taken={taken}
             records={launches.records}
             sourceId={sourceId}
             work={entry}

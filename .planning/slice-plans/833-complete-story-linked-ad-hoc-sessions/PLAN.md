@@ -189,7 +189,7 @@ worktree's Git evidence directory.
 
 ### 3. Follow up under the source story
 Type: Behavior
-Status: planned
+Status: done
 Proof: Card and session actions for published Taken and Done sources yield a
 new session ID on the same story, with membership unchanged.
 
@@ -199,6 +199,18 @@ already accepted attempt may continue from its verified binding after its
 source session expires. Preserve composed context delivery and workspace and
 host rules. Extend the follow-up identity and published range admission
 families and the E2E session-origin action.
+
+Accepted proof: The Taken and Done card and session actions opened a new native
+session under their published story and left membership intact. Mismatched,
+unavailable, unbound and forged sources did not dispatch or change trunk. Retry
+used the server-verified identity after source expiry. The active attempt keeps
+`request.followUp.storyIdentity`; the native launch record keeps
+`request.storyIdentity`. Exact range admission, original context and reporting,
+and nonduplicated closed follow-ups kept their existing behavior. The
+independent refactor shares the pinned backlog read between typed card and
+session admission. Its 54 backend and 11 browser cases passed with typecheck.
+See `SLICE-3-REPORT.md` and `slice-3-refactor-consumer-dispositions.md` in the
+worktree's Git evidence directory.
 
 ### 4. Land under the bound story with the exact accepted comparison
 Type: Behavior

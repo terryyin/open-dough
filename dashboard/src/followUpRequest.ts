@@ -75,8 +75,9 @@ const followUpFileSchema = z
 const followUpStorySchema = z
   .strictObject({
     identity: z.string().min(1).max(200),
-    // The published revision whose done record the page showed.
+    // The published revision whose story the page showed.
     revision: z.string().regex(commitShaPattern),
+    status: z.literal("taken").optional(),
     file: followUpFileSchema.optional(),
     comparison: followUpComparisonSchema.optional(),
     // Optional sessions, resolved against the story at admission.
@@ -107,14 +108,27 @@ const attachedNotes = z
   )
   .optional();
 
+// The canonical identity verified at server admission and kept on the attempt.
+const boundStory = z
+  .string()
+  .min(1)
+  .max(200)
+  .regex(/^[^\r\n]*$/)
+  .optional();
+
 export const followUpSchema = z.union([
   // One retained session of the project.
-  z.strictObject({ session: followUpSessionSchema, context: resolvedContext }),
-  // One done story of the project, with the sessions its card holds.
+  z.strictObject({
+    session: followUpSessionSchema,
+    context: resolvedContext,
+    storyIdentity: boundStory,
+  }),
+  // One published story of the project, with the sessions its card holds.
   z.strictObject({
     story: followUpStorySchema,
     context: resolvedContext,
     notes: attachedNotes,
+    storyIdentity: boundStory,
   }),
 ]);
 

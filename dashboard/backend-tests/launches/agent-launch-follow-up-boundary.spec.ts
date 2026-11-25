@@ -26,10 +26,13 @@ import {
   reported,
   reportedContext,
   request,
+  publishFollowUpSources,
+  sourceStory,
 } from "./followUpBoundaryCases.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
+test.beforeEach(publishFollowUpSources);
 
 test("Execution checkout · Wait for review sends the context, then the request, then the reporting context, keeps it on the request and leaves the source unchanged", async ({
   dashboard,
@@ -136,7 +139,11 @@ test("a final report longer than the instruction field's limit is sent whole bes
 }) => {
   const long = "r".repeat(16_000);
   const source = makeMe.aLaunchRecord
-    .adHoc({ instruction: "Write it all down", title: "Write it all down" })
+    .adHoc({
+      instruction: "Write it all down",
+      title: "Write it all down",
+      storyIdentity: sourceStory.identity,
+    })
     .inClaudeSession({ sessionId: "long-report", shortId: "long" })
     .completedWith({ message: long })
     .markedDone()

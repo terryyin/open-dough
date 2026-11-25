@@ -108,7 +108,11 @@ export function expectAdHocReportingInput(
   const developer = adHocDeveloperInput(input);
   expect(developer).toBe(instruction);
   let reporting = input.slice(developer.length + 2);
-  if (request?.workflow === "ad-hoc" && request.storyIdentity !== undefined) {
+  if (
+    request?.workflow === "ad-hoc" &&
+    request.followUp === undefined &&
+    request.storyIdentity !== undefined
+  ) {
     const binding = `\n\nTaken story: ${request.storyIdentity}`;
     expect(reporting.endsWith(binding)).toBe(true);
     reporting = reporting.slice(0, -binding.length);

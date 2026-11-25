@@ -30,7 +30,7 @@ test("card and file follow-ups of one story share its Done card, newest first, a
   await mountSessions(
     makeMe.aMachineAnswer
       .observingDone(
-        followUp(cardTitle, "2026-11-16T13:00:00.000Z"),
+        followUp(cardTitle, "2026-11-16T13:00:00.000Z", { bound: true }),
         followUp(fileTitle, "2026-11-16T13:05:00.000Z", { file: true }),
       )
       .please(),
@@ -107,7 +107,7 @@ test("a card holding a closed follow-up offers only the story's own sessions as 
     makeMe.aMachineAnswer
       .observingUnavailable(
         own,
-        followUp(followTitle, "2026-11-16T13:40:00.000Z"),
+        followUp(followTitle, "2026-11-16T13:40:00.000Z", { bound: true }),
       )
       .please(),
     catalogs({ "open-dough": [source] }),

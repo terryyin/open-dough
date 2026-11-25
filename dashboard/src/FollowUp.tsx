@@ -11,7 +11,12 @@ import { useContext } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import type { DoneStory } from "./doneRecord.ts";
-import { sessionContext, storyContext, storyName } from "./followUpContext.ts";
+import {
+  sessionContext,
+  storyContext,
+  storyName,
+  takenStoryContext,
+} from "./followUpContext.ts";
 import type { FollowUpSource, FollowUpTarget } from "./followUpRequest.ts";
 import {
   retainedFollowUpReference,
@@ -23,6 +28,7 @@ import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { offersFollowUp } from "./sessionAccess.ts";
 import { StartSession, type AdHocLaunches } from "./StartSession.tsx";
+import type { WorkEntry } from "./publishedWork.ts";
 
 type Launching = {
   // The project's name.
@@ -137,4 +143,35 @@ export function StoryFollowUp(props: StoryLaunch) {
   const { hostOperations } = usePageSessions();
   if (!offersFollowUp(props.sessions, hostOperations)) return null;
   return <StoryFollowUpSession {...props} />;
+}
+
+export function TakenStoryFollowUp({
+  story,
+  revision,
+  project,
+  sourceId,
+  launches,
+  sessions,
+}: Launching & {
+  readonly story: Pick<WorkEntry, "identity" | "title">;
+  readonly revision: string;
+  readonly sessions: readonly LaunchWithState[];
+}) {
+  const { hostOperations, presentTerminal } = usePageSessions();
+  if (!offersFollowUp(sessions, hostOperations)) return null;
+  return (
+    <StartSession
+      project={project}
+      sourceId={sourceId}
+      launches={launches}
+      presentTerminal={presentTerminal}
+      followUp={{
+        source: {
+          story: { identity: story.identity, revision, status: "taken" },
+        },
+        name: storyName(story),
+        context: takenStoryContext(story),
+      }}
+    />
+  );
 }

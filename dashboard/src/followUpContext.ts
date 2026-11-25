@@ -47,8 +47,23 @@ export const noReportRetained = "No final report is retained.";
 export const noSessionRetained = "No session context is retained.";
 
 // A done story as its entry reads, by identity and title.
-export const storyName = ({ identity, title }: FollowUpStoryFacts) =>
+type NamedStory = Pick<FollowUpStoryFacts, "identity" | "title">;
+
+export const storyName = ({ identity, title }: NamedStory) =>
   `${identity} — ${title}`;
+
+export function takenStoryContext(
+  story: NamedStory,
+  sessions: readonly FollowUpSection[] = [],
+): StoryFollowUpContext {
+  return {
+    story: {
+      label: storyName(story),
+      items: [{ label: "Status", value: "Taken" }],
+    },
+    sessions,
+  };
+}
 
 // When a story was completed, the same for the page and the server.
 const completionTime = new Intl.DateTimeFormat("en-GB", {

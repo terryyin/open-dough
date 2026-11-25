@@ -146,7 +146,7 @@ test("the notes reader explains why unreadable notes cannot be attached", async 
   );
 });
 
-test("a Taken card shows notes waiting and offers no story Follow up", async () => {
+test("a Taken card keeps its waiting notes visible beside story Follow up", async () => {
   const { card } = await mountStoryStartup(story, {
     taken: true,
     notes: answer(waiting),
@@ -159,5 +159,5 @@ test("a Taken card shows notes waiting and offers no story Follow up", async () 
     .toHaveAccessibleDescription("1 note waiting");
   await expect
     .element(card.getByRole("button", { name: /Follow up/ }))
-    .not.toBeInTheDocument();
+    .toBeEnabled();
 });

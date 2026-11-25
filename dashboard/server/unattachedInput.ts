@@ -36,7 +36,10 @@ export function unattachedInput(
     context === undefined
   )
     return undefined;
-  const story = identity === undefined ? undefined : `Taken story: ${identity}`;
+  const story =
+    identity === undefined || saved !== undefined
+      ? undefined
+      : `Taken story: ${identity}`;
   const reporting = reportingInstruction(request);
   return (
     block === undefined

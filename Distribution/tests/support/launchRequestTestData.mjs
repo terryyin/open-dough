@@ -14,7 +14,7 @@
 /**
  * What an ad hoc launch's request states: the project, the instruction it
  * started with (none for a blank session), and the title kept for it.
- * @typedef {{ instruction?: string, title: string, source?: string, followUp?: import("../../../dashboard/src/followUpRequest.ts").FollowUp, maintenance?: KeptAdHocRequest["maintenance"] }} AdHocFacts
+ * @typedef {{ instruction?: string, title: string, source?: string, storyIdentity?: string | undefined, followUp?: import("../../../dashboard/src/followUpRequest.ts").FollowUp, maintenance?: KeptAdHocRequest["maintenance"] }} AdHocFacts
  */
 /**
  * What the launch asked for: a story by its workflow, or an ad hoc session
@@ -67,6 +67,9 @@ function keptRequest(
       host,
       workflow: requested.workflow,
       title: requested.title,
+      ...(requested.storyIdentity && {
+        storyIdentity: requested.storyIdentity,
+      }),
       ...(requested.instruction !== undefined && {
         instruction: requested.instruction,
       }),
@@ -99,15 +102,18 @@ function keptRequest(
  * @param {KeptAdHocRequest} kept
  * @returns {Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>}
  */
-export function incomingAdHocRequest({ title, reporting, ...request }) {
-  void title;
-  void reporting;
+export function incomingAdHocRequest({
+  title,
+  reporting,
+  storyIdentity,
+  ...request
+}) {
+  void [title, reporting, storyIdentity];
   return request;
 }
 
-// One incoming launch request. Choose its workflow facts; it is otherwise for
-// the `open-dough` project on `claude`. Options, model, policy, and other
-// launch choices the case names stay on the builder, not invented here.
+// One incoming request, defaulting to `open-dough` on `claude`.
+// The case chooses its launch options and policy.
 export class LaunchRequestBuilder {
   /** @type {AgentLaunchRequest | undefined} */
   #request;

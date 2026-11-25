@@ -10,9 +10,14 @@ import { accept, attempts } from "../../test-support/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { reported, request } from "./followUpBoundaryCases.ts";
+import {
+  publishFollowUpSources,
+  reported,
+  request,
+} from "./followUpBoundaryCases.ts";
 
 test.use({ serverMode: "boundary" });
+test.beforeEach(publishFollowUpSources);
 
 test("repeating a follow-up active on another server answers with the running attempt after source expiry", async ({
   dashboard,

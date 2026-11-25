@@ -168,7 +168,14 @@ test("a done story's Follow up sends only the retained session selected through 
   await test.step("the card stays in Recently done as it was, and its sessions as kept", async () => {
     await expect(sessionEntriesIn(card)).toHaveCount(2);
     await expect(followUp(card, recoverStory)).toBeVisible();
-    expect(stored(dashboard.home).slice(0, 3)).toEqual([...quiet, reopenable]);
+    const [refinement, execution, reopened, launched] = stored(dashboard.home);
+    expect([refinement, execution, reopened]).toEqual([...quiet, reopenable]);
+    expect(launched?.request).toMatchObject({
+      storyIdentity: recoverStory.identity,
+    });
+    expect(quiet.map(({ session }) => session.sessionId)).not.toContain(
+      launched?.session.sessionId,
+    );
   });
 });
 

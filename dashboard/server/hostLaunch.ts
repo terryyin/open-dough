@@ -120,9 +120,15 @@ export function recordedRequest(
   began: Date,
 ): RecordedLaunchRequest {
   const recorded = withoutConfirmation(request);
-  return recorded.workflow === "ad-hoc"
-    ? { ...recorded, title: adHocLabel(recorded, began) }
-    : recorded;
+  if (recorded.workflow !== "ad-hoc") return recorded;
+  const title = adHocLabel(recorded, began);
+  const followUp = recorded.followUp;
+  const storyIdentity = followUp?.storyIdentity;
+  if (storyIdentity === undefined || followUp === undefined)
+    return { ...recorded, title };
+  const source = { ...followUp };
+  delete source.storyIdentity;
+  return { ...recorded, followUp: source, storyIdentity, title };
 }
 
 // A story's recorded request with the policy its start ran with, a kept

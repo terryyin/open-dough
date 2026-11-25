@@ -1,18 +1,3 @@
-// Follow up on a standalone Done session in Recently done whose earlier
-// conversation can no longer be continued: Read final report stays beside
-// Follow up, which opens the project's Start session dialog naming the
-// session and listing the context it supplies; Start sends that context with
-// the request to the synthetic `claude` (./fixtures/fake-claude), the new
-// session reads in Taken labelled by its request, and the source stays Done
-// and unchanged. With typed text the Side panel stays closed and the keyboard
-// returns to Follow up; with only whitespace the new session's terminal
-// opens with the keyboard. A Done session that still offers Open terminal
-// offers no Follow up until its conversation is confirmed unavailable. The
-// first input's order with reporting and an established workspace:
-// ../../dashboard/backend-tests/launches/agent-launch-follow-up-boundary.spec.ts;
-// identity and retries: agent-launch-follow-up-identity.spec.ts there.
-
-import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   terminalPanel,
@@ -23,11 +8,9 @@ import {
   parts,
   sessionStateOf,
   standaloneSessionName,
-  sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTakenBacklog,
-  startSessionDialog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { listed } from "../../dashboard/test-support/recentlyDoneColumn.ts";
@@ -39,6 +22,20 @@ import {
   retiredSession,
   retiredTitle,
 } from "../../dashboard/test-support/support/followUpSources.ts";
+import {
+  takenIdentity,
+  takenStory,
+} from "../../dashboard/test-support/launchJourney.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import {
+  publishedFiles,
+  repository,
+} from "../../dashboard/test-support/recentlyDoneRecords.ts";
+import {
+  doneStoryRecords,
+  recoverStory,
+} from "../../dashboard/test-support/support/followUpStories.ts";
+import { sessionFollowUpPage } from "../../dashboard/test-support/support/sessionFollowUpPage.ts";
 import { radio } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
@@ -59,39 +56,43 @@ const reported = (home: string) =>
     report,
     landed,
     doneAt: new Date(Date.now() - 60_000),
+    storyIdentity: recoverStory.identity,
   });
-
-const entryOf = (page: Page, title: string) =>
-  parts(page).recentlyDone.getByRole("article", {
-    name: standaloneSessionName("Ad hoc", title),
-  });
-
-const followUp = (entry: Locator, title: string) =>
-  entry.getByRole("button", { name: `Follow up ${title}` });
-
-const contextList = (dialog: Locator) =>
-  dialog.getByRole("list", { name: "Follow-up context" }).getByRole("listitem");
 
 test("a Done session whose workspace is gone offers Read final report and Follow up; Start sends the context with the request, opens nothing, returns the keyboard to Follow up and leaves the source as it was", async ({
   page,
   dashboard,
-  launchJourney,
 }) => {
   const source = reported(dashboard.home);
   keepLaunchRecords(dashboard, [source]);
   dashboard.claudeScenario("launched");
-  await openTakenBacklog(page, launchJourney);
-  const entry = entryOf(page, retiredTitle);
-  const dialog = startSessionDialog(page, "Open Dough");
+  publishCommittedFiles(page, {
+    repository,
+    files: publishedFiles({
+      doneRecords: doneStoryRecords(
+        [recoverStory],
+        new Date(Date.now() - 120_000).toISOString(),
+      ),
+    }),
+  });
+  await page.goto("/");
+  const board = sessionFollowUpPage(page);
+  const done = board.done(recoverStory.title);
+  const entry = board.session(
+    done,
+    standaloneSessionName("Ad hoc", retiredTitle),
+  );
+  const { dialog } = board;
 
   await expect(sessionStateOf(entry)).toHaveText("Done");
   await expect(readFinalReportControl(entry)).toBeVisible();
-  await followUp(entry, retiredTitle).click();
+  await board.followUp(entry, retiredTitle).click();
 
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText(`Follows up ${retiredTitle}`);
-  await expect(contextList(dialog)).toHaveText([
+  await expect(board.context).toHaveText([
     "Workflow: Ad hoc",
+    `Story: ${recoverStory.identity}`,
     `Original request: ${retiredTitle}`,
     `Final report (Completed with attention): ${report}`,
     `Landed at revision: ${landed}`,
@@ -105,8 +106,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
     await expect(radio(dialog, group, name)).toBeChecked();
 
   const text = "Is it still slow?";
-  await startSessionField(dialog).fill(text);
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await board.submit(text);
 
   const started = parts(page).taken.getByRole("article", {
     name: standaloneSessionName("Ad hoc", text),
@@ -116,16 +116,18 @@ test("a Done session whose workspace is gone offers Read final report and Follow
   await expect(started).not.toContainText(retiredTitle);
   // The startup ended: its button is available again and holds the keyboard,
   // and the Side panel is still closed.
-  await expect(followUp(entry, retiredTitle)).toBeFocused({
+  await expect(board.followUp(entry, retiredTitle)).toBeFocused({
     timeout: launchWaitMs,
   });
   await expect(sidePanelContents(page)).toHaveCount(0);
   expectFollowUpInput(
     dashboard,
     source.session.sessionId,
+    recoverStory.identity,
     [
       followUpContextOf(retiredTitle, [
         "- Workflow: Ad hoc",
+        `- Story: ${recoverStory.identity}`,
         `- Original request: ${retiredTitle}`,
         `- Final report (Completed with attention): ${report}`,
         `- Landed at revision: ${landed}`,
@@ -140,7 +142,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
   // The source stays Done in Recently done with its actions, its record as kept.
   await expect(sessionStateOf(entry)).toHaveText("Done");
   await expect(readFinalReportControl(entry)).toBeVisible();
-  await expect(followUp(entry, retiredTitle)).toBeVisible();
+  await expect(board.followUp(entry, retiredTitle)).toBeVisible();
   expect(
     stored(dashboard.home).find(
       (record) => record.session.sessionId === "reported-source",
@@ -155,32 +157,38 @@ test("a Done session that still opens its terminal offers no Follow up until its
 }) => {
   const sessionId = listed(dashboard, Date.now(), quietTitle, 10 * 60_000);
   keepLaunchRecords(dashboard, [
-    quietSession(sessionId, new Date(Date.now() - 120_000)),
+    quietSession(sessionId, new Date(Date.now() - 120_000), takenIdentity),
   ]);
   await openTakenBacklog(page, launchJourney);
-  const entry = entryOf(page, quietTitle);
+  const board = sessionFollowUpPage(page);
+  const taken = board.taken(takenStory);
+  const history = await board.showDoneHistory(taken);
+  const entry = board.session(history, "Ad hoc session");
 
   await expect(openTerminalControl(entry)).toBeVisible();
-  await expect(followUp(entry, quietTitle)).toHaveCount(0);
+  await expect(board.followUp(entry, quietTitle)).toHaveCount(0);
 
   dashboard.claudeSessionBecomes(sessionId, "forgotten");
   await page.reload();
-  await expect(followUp(entry, quietTitle)).toBeVisible();
+  await board.showDoneHistory(taken);
+  await expect(board.followUp(entry, quietTitle)).toBeVisible();
   await expect(openTerminalControl(entry)).toHaveCount(0);
-  await followUp(entry, quietTitle).click();
-  const dialog = startSessionDialog(page, "Open Dough");
+  await board.followUp(entry, quietTitle).click();
+  const { dialog } = board;
   await expect(dialog).toContainText(`Follows up ${quietTitle}`);
-  await expect(contextList(dialog)).toHaveText([
+  await expect(board.context).toHaveText([
     "Workflow: Ad hoc",
+    `Story: ${takenIdentity}`,
     `Original request: ${quietTitle}`,
     "Final report: No final report was submitted.",
   ]);
 
   dashboard.claudeScenario("launched");
-  await startSessionField(dialog).fill(" \t\n ");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await board.submit(" \t\n ");
 
-  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
+  await expect(board.openedSessions(taken)).toHaveCount(1, {
+    timeout: launchWaitMs,
+  });
   // The context is not typed text: the terminal opens with the keyboard.
   await expect(terminalScreenParts(terminalPanel(page)).input).toBeFocused({
     timeout: launchWaitMs,
@@ -193,8 +201,10 @@ test("a Done session that still opens its terminal offers no Follow up until its
   expectFollowUpInput(
     dashboard,
     sessionId,
+    takenIdentity,
     followUpContextOf(quietTitle, [
       "- Workflow: Ad hoc",
+      `- Story: ${takenIdentity}`,
       `- Original request: ${quietTitle}`,
       "- Final report: No final report was submitted.",
     ]),
@@ -205,6 +215,7 @@ test("a Done session that still opens its terminal offers no Follow up until its
 function expectFollowUpInput(
   dashboard: DashboardServer,
   sourceSessionId: string,
+  storyIdentity: string,
   instruction: string,
 ) {
   const records = stored(dashboard.home);
@@ -214,6 +225,7 @@ function expectFollowUpInput(
   );
   if (record === undefined)
     throw new Error("Missing the new follow-up record.");
+  expect(record.request).toMatchObject({ storyIdentity });
   expect(dashboard.claudeListing()).toContainEqual(
     expect.objectContaining({ sessionId: record.session.sessionId }),
   );

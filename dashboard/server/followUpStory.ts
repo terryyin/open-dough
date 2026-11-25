@@ -1,22 +1,25 @@
-// What a done story's follow-up reads at admission (`./followUpAdmission.ts`):
-// the story's published done record at the revision the page showed, by the
-// same read the page's Recently done uses (`done=bodies`,
-// `./doneCatalogRead.ts`), so it is read only when that revision's agreeing
-// done catalog lists it; and the sessions this machine keeps for it that are
-// marked done, oldest first, as its card holds them
-// (`../src/recentlyDoneView.ts`). A record that revision does not list, or
-// that does not read as the story, refuses the follow-up with 404; a read
-// that fails refuses it with 502, so nothing starts without the story's
-// facts.
+// A follow-up reads published story membership before launch. A Done card
+// uses its displayed revision. Taken cards and retained sessions check the
+// current backlog, and a retained session may also refer to a Done story.
+// The file and its listed identity must agree at the same revision.
 
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import {
+  parseBacklog,
+  takenHeading,
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import { doneRecordOf, type DoneStory } from "../src/doneRecord.ts";
 import { mapPool } from "../src/boundedPool.ts";
-import type { FollowUpSessionChoice } from "../src/followUpRequest.ts";
+import type {
+  FollowUp,
+  FollowUpSessionChoice,
+} from "../src/followUpRequest.ts";
 import { storyFollowUpSessions } from "../src/followUpSessions.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
+import type { WorkEntry } from "../src/publishedWork.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
+import { resolveRevisionViaGh } from "./ghRevision.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { listedReadConcurrency } from "./listedRecordsRead.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -31,6 +34,10 @@ import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
 // Answers at resolved commits, kept as the read boundary keeps them; made at
 // the first follow-up of a story.
 let pinned: PinnedTexts | undefined;
+function pinnedTexts() {
+  pinned ??= new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
+  return pinned;
+}
 
 const notPublished = () =>
   new RefusedRequest(
@@ -43,19 +50,25 @@ const unread = () =>
     "The done story this follows up could not be read at the revision shown.",
   );
 
-export async function publishedDoneStory(
+const notTaken = () =>
+  new RefusedRequest(
+    404,
+    "The story this follows up is not published in Taken.",
+  );
+
+async function publishedDoneStory(
   source: PublishedSource,
   { identity, revision }: { identity: string; revision: string },
+  signal: AbortSignal,
 ): Promise<DoneStory> {
-  pinned ??= new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
   const file = doneRecordFileName(identity);
   let outcome;
   try {
     outcome = await performDoneCatalogRead(
-      pinned,
+      pinnedTexts(),
       source,
       { kind: "done-bodies-at", revision, files: [file] },
-      new AbortController().signal,
+      signal,
       () => undefined,
     );
   } catch {
@@ -70,6 +83,65 @@ export async function publishedDoneStory(
   if (read?.status !== "read" || read.story.identity !== identity)
     throw notPublished();
   return read.story;
+}
+
+async function currentMembership(
+  source: PublishedSource,
+  identity: string,
+  signal: AbortSignal,
+) {
+  try {
+    const { revision } = await resolveRevisionViaGh(
+      source.repository,
+      source.ref,
+      signal,
+    );
+    const read = pinnedTexts().reader(source, revision, signal);
+    const backlog = parseBacklog(await read(source.backlogPath));
+    return {
+      revision,
+      entry: backlog.entries.find((entry) => entry.identity === identity),
+    };
+  } catch (error) {
+    if (error instanceof RefusedRequest) throw error;
+    throw new RefusedRequest(
+      502,
+      "The published membership of the story this follows up could not be read.",
+    );
+  }
+}
+
+type FollowUpCard = Extract<FollowUp, { story: unknown }>["story"];
+
+export async function publishedFollowUpCardStory(
+  source: PublishedSource,
+  card: Pick<FollowUpCard, "identity" | "revision" | "status">,
+): Promise<
+  | ({ readonly status: "taken" } & Pick<WorkEntry, "identity" | "title">)
+  | ({ readonly status: "done" } & DoneStory)
+> {
+  const signal = admissionBound();
+  if (card.status !== "taken") {
+    return {
+      ...(await publishedDoneStory(source, card, signal)),
+      status: "done",
+    };
+  }
+  const { entry } = await currentMembership(source, card.identity, signal);
+  if (entry?.list !== takenHeading || typeof entry.title !== "string")
+    throw notTaken();
+  return { status: "taken", identity: card.identity, title: entry.title };
+}
+
+export async function requirePublishedFollowUpSessionStory(
+  source: PublishedSource,
+  identity: string,
+): Promise<void> {
+  const signal = admissionBound();
+  const { entry, revision } = await currentMembership(source, identity, signal);
+  if (entry?.list === takenHeading) return;
+  if (entry !== undefined) throw notTaken();
+  await publishedDoneStory(source, { identity, revision }, signal);
 }
 
 // The published facts for the UUIDs selected, from this project's Git.

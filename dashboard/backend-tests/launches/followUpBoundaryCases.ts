@@ -1,4 +1,6 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { renderPublishedBacklog } from "../../../Distribution/tests/support/published-backlog.mjs";
 // The follow-up boundary specs' sources, requests and first-input reading:
 // agent-launch-follow-up-boundary.spec.ts (what the first input holds),
 // agent-launch-follow-up-identity.spec.ts (identity, retries and refusals),
@@ -11,6 +13,9 @@ import type { LaunchRecord, LaunchWithState } from "../../src/launchRecord.ts";
 import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";
 import type { EstablishedSession } from "../../src/unattachedSession.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { publishCommittedOrigin } from "../../test-support/committedOrigin.ts";
+import type { FakeGitHub } from "../../test-support/support/fakeGitHub.ts";
+import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
 import { expect } from "../../test-support/support/preparationPage.ts";
 import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
 import { sessionBlock } from "../../test-support/support/startSessionLanding.ts";
@@ -37,16 +42,51 @@ const landed = "ab".repeat(20);
 export const report =
   "The cache key changed; I restored it.\nCI now takes 4 minutes.";
 
+export const sourceStory = { ...storyA, title: "Maintenance" };
+
+export async function publishFollowUpSources({
+  github,
+  origin,
+}: {
+  github: FakeGitHub;
+  origin: StartOrigin;
+}) {
+  const revision = await origin.publishRevision({
+    message: "Publish the source story",
+    files: {
+      ".planning/PRODUCT-BACKLOG.md": renderPublishedBacklog({
+        taken: [sourceStory],
+      }),
+    },
+  });
+  await publishCommittedOrigin(github, {
+    repoDir: origin.origin,
+    revision,
+    repository: "terryyin/open-dough",
+    follows: true,
+  });
+}
+
 // A Done session whose isolated workspace was retired, with its final report
 // and the revision its work landed at.
 export const reported = (home: string): LaunchRecord =>
-  retiredSession(home, { report, landed, doneAt: new Date() });
+  retiredSession(home, {
+    report,
+    landed,
+    doneAt: new Date(),
+    storyIdentity: sourceStory.identity,
+  });
 
 // A Done session that completed quietly.
-export const quiet: LaunchRecord = quietSession("quiet-source", new Date());
+export const quiet: LaunchRecord = quietSession(
+  "quiet-source",
+  new Date(),
+  sourceStory.identity,
+);
 
 export const reportedContext = followUpContextOf(retiredTitle, [
   "- Workflow: Ad hoc",
+  `- Story: ${sourceStory.identity}`,
   `- Original request: ${retiredTitle}`,
   "- Final report (Completed with attention):",
   report,
@@ -55,6 +95,7 @@ export const reportedContext = followUpContextOf(retiredTitle, [
 
 export const quietContext = followUpContextOf(quietTitle, [
   "- Workflow: Ad hoc",
+  `- Story: ${sourceStory.identity}`,
   `- Original request: ${quietTitle}`,
   "- Final report: No final report was submitted.",
 ]);

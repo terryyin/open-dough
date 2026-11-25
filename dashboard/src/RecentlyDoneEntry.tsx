@@ -100,6 +100,14 @@ export function ListedEntry({
       followUps={followUps}
       sourceId={sourceId}
       launchRecords={launches.records}
+      followUpOf={(session) => (
+        <SessionFollowUp
+          record={session}
+          project={project}
+          sourceId={sourceId}
+          launches={launches}
+        />
+      )}
       selected={selectedIdentity === record.identity}
       onSelect={onSelect}
       ciFollowUp={

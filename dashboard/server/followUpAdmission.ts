@@ -1,18 +1,18 @@
-// A new follow-up's context comes from a retained session, or a story's
-// published done record at the shown revision and the sessions its card holds
-// (`./followUpStory.ts`), with an optional file anchor checked against that
-// story's comparison (`./followUpFileAdmission.ts`). When a story asks for
+// A new follow-up's context comes from a retained session or a published
+// story and the sessions its card holds (`./followUpStory.ts`). An optional
+// file anchor is checked against its comparison. When a story asks for
 // notes, waiting notes are read from the machine store (`./storyNotes.ts`),
 // never from the page, and their versions are kept beside the context. A
 // retry of a pending conversation keeps its original context and notes even
 // after the source expires. Repeating a retained attempt uses its saved
 // request directly (`./agentLaunchAccept.ts`).
 
-import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
+import { storyOf, type AgentLaunchRequest } from "../src/agentLaunch.ts";
 import {
   followUpContextText,
   sessionContext,
   storyContext,
+  takenStoryContext,
   type StoryFollowUpContext,
 } from "../src/followUpContext.ts";
 import {
@@ -28,7 +28,11 @@ import { storyNotesContext } from "../src/followUpStoryNotes.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { storyNoteVersion } from "../src/storyNote.ts";
 import { admitFollowUpFile } from "./followUpFileAdmission.ts";
-import { followUpStorySessions, publishedDoneStory } from "./followUpStory.ts";
+import {
+  followUpStorySessions,
+  publishedFollowUpCardStory,
+  requirePublishedFollowUpSessionStory,
+} from "./followUpStory.ts";
 import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { storyFollowUpMessage } from "./storyFollowUpMessage.ts";
@@ -42,7 +46,7 @@ async function resolveStoryFollowUp(
   context: StoryFollowUpContext;
   notes?: AttachedStoryNote[];
 }> {
-  const story = await publishedDoneStory(source, followUp);
+  const story = await publishedFollowUpCardStory(source, followUp);
   const { file, comparison } = followUp;
   if (file !== undefined)
     await admitFollowUpFile(source, followUp.identity, file);
@@ -54,14 +58,18 @@ async function resolveStoryFollowUp(
     followUp.sessions ?? [],
   );
   const selected = new Set(followUp.sessions?.map(followUpSessionKey));
-  const base = storyContext(
-    story,
-    sessions
-      .filter((session) => followUpSessionSelected(session, selected))
-      .map(followUpSessionContext),
-    file ?? comparison,
-    sessions.some(({ retained }) => retained !== undefined),
-  );
+  const attached = sessions
+    .filter((session) => followUpSessionSelected(session, selected))
+    .map(followUpSessionContext);
+  const base =
+    story.status === "done"
+      ? storyContext(
+          story,
+          attached,
+          file ?? comparison,
+          sessions.some(({ retained }) => retained !== undefined),
+        )
+      : takenStoryContext(story, attached);
   if (followUp.notes !== true) return { context: base };
   const waiting = await waitingStoryNotes(source.id, followUp.identity);
   if (waiting === "unreadable" || waiting.length === 0)
@@ -85,7 +93,18 @@ async function resolveSessionFollowUp(
       404,
       "The session this follows up is no longer kept on this machine.",
     );
-  return { ...followUp, context: followUpContextText(sessionContext(record)) };
+  const identity = storyOf(record.request);
+  if (identity === undefined)
+    throw new RefusedRequest(
+      404,
+      "The session this follows up has no published story binding.",
+    );
+  await requirePublishedFollowUpSessionStory(source, identity);
+  return {
+    ...followUp,
+    storyIdentity: identity,
+    context: followUpContextText(sessionContext(record)),
+  };
 }
 
 export async function withFollowUpContext(
@@ -95,8 +114,15 @@ export async function withFollowUpContext(
   if (request.workflow !== "ad-hoc" || request.followUp === undefined)
     return request;
   const pending = (await pendingInputOf(source.id, request))?.request;
-  const saved = pending?.workflow === "ad-hoc" ? pending.followUp : undefined;
-  if (saved?.context !== undefined) return { ...request, followUp: saved };
+  if (
+    pending?.workflow === "ad-hoc" &&
+    pending.followUp?.context !== undefined &&
+    pending.storyIdentity !== undefined
+  )
+    return {
+      ...request,
+      followUp: { ...pending.followUp, storyIdentity: pending.storyIdentity },
+    };
   if ("session" in request.followUp)
     return {
       ...request,
@@ -107,6 +133,7 @@ export async function withFollowUpContext(
     ...request,
     followUp: {
       ...request.followUp,
+      storyIdentity: request.followUp.story.identity,
       context: {
         message: storyFollowUpMessage(resolved.context, request.instruction),
       },

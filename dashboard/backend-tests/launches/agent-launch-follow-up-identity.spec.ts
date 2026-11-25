@@ -35,10 +35,13 @@ import {
   reported,
   reportedContext,
   request,
+  publishFollowUpSources,
+  sourceStory,
 } from "./followUpBoundaryCases.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
+test.beforeEach(publishFollowUpSources);
 
 test("follow-ups of two sessions with the same words and choices are two launches", async ({
   dashboard,
@@ -179,6 +182,7 @@ test.describe("a follow-up whose established start is kept after the host refuse
     expect(after).toEqual(["Continue"]);
     expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
       followUp: { context: reportedContext },
+      storyIdentity: sourceStory.identity,
     });
   });
 });

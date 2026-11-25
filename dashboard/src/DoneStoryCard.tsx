@@ -60,6 +60,7 @@ export function DoneStoryCard({
   selected,
   onSelect,
   followUp,
+  followUpOf,
   ciFollowUp,
   reviewState,
 }: {
@@ -81,6 +82,7 @@ export function DoneStoryCard({
   readonly onSelect: (identity: string) => void;
   // The story's Follow up, when it offers one.
   readonly followUp?: ReactNode;
+  readonly followUpOf?: (record: LaunchWithState) => ReactNode;
   readonly ciFollowUp?: ReactNode;
   // The story's review state and its action.
   readonly reviewState?: ReactNode;
@@ -140,6 +142,7 @@ export function DoneStoryCard({
         sessions={nested}
         className="done-story-sessions"
         onStoryCard={false}
+        followUpOf={followUpOf}
       />
       <div
         className="story-card-action-group story-card-inspection-group"

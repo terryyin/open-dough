@@ -34,7 +34,9 @@ function CardSituation({
   const [selected, select] = useState(false);
   const [inspected, inspect] = useState(false);
   return createElement(StoryCard, {
-    work,
+    work: taken
+      ? makeMe.aPublishedWork.with({ ...work, taken: [entry] }).please()
+      : work,
     entry,
     priority: undefined,
     showsSliceProgress: taken,

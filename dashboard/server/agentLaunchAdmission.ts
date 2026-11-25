@@ -135,6 +135,7 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
     request.workflow === "ad-hoc" &&
     (request.maintenance !== undefined ||
       request.followUp?.context !== undefined ||
+      request.followUp?.storyIdentity !== undefined ||
       (request.followUp !== undefined &&
         "notes" in request.followUp &&
         request.followUp.notes !== undefined))

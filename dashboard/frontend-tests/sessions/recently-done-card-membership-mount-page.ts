@@ -20,7 +20,13 @@ export function followUp(
     identity = source.identity,
     project = "open-dough",
     file = false,
-  }: { identity?: string; project?: string; file?: boolean } = {},
+    bound = false,
+  }: {
+    identity?: string;
+    project?: string;
+    file?: boolean;
+    bound?: boolean;
+  } = {},
 ) {
   const story = makeMe.aFollowUp.ofStory(identity, sha(9));
   if (file)
@@ -37,6 +43,7 @@ export function followUp(
       instruction: title,
       title,
       source: project,
+      ...(bound && { storyIdentity: identity }),
       followUp: story.please(),
     })
     .inClaudeSession({ sessionId: title.replaceAll(" ", "-") })

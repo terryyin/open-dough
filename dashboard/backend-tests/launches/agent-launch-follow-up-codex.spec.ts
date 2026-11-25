@@ -45,10 +45,12 @@ import {
   reported,
   reportedContext,
   request,
+  publishFollowUpSources,
 } from "./followUpBoundaryCases.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
+test.beforeEach(publishFollowUpSources);
 
 const codex = { ...request, host: "codex" };
 const isolated = { workspace: "isolated", landing: "review" };
@@ -233,11 +235,16 @@ test("repeating a follow-up with only its pending Codex input kept recovers the 
   expect(others).toEqual([]);
   expect(resent).toBe(refused);
   expect(resent).toContain(reportedContext);
-  expect(keptAttempts(dashboard)).toEqual([
-    expect.objectContaining({
-      request: expect.objectContaining({
-        followUp: { ...followUp.followUp, context: reportedContext },
-      }),
-    }),
-  ]);
+  const recoveredAttempts = keptAttempts(dashboard);
+  expect(recoveredAttempts).toHaveLength(1);
+  expect(recoveredAttempts[0]?.request).toMatchObject({
+    followUp: {
+      ...followUp.followUp,
+      context: reportedContext,
+      storyIdentity:
+        kept.request.workflow === "ad-hoc"
+          ? kept.request.storyIdentity
+          : undefined,
+    },
+  });
 });

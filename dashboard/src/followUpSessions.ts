@@ -28,6 +28,10 @@ export type FollowUpSession = {
     }
 );
 
+export function isFollowUpSession({ request }: LaunchRecord): boolean {
+  return request.workflow === "ad-hoc" && request.followUp !== undefined;
+}
+
 export function storyFollowUpSessions(
   records: readonly LaunchRecord[] | undefined,
   published: readonly PublishedSessionRecord[],
@@ -42,7 +46,7 @@ export function storyFollowUpSessions(
     ]),
   );
   for (const retained of storySessionsOf(records, sourceId, identity)) {
-    if (isOpen(retained)) continue;
+    if (isOpen(retained) || isFollowUpSession(retained)) continue;
     const reference = reportingReferenceOf(retained);
     const choice =
       reference === undefined
@@ -57,6 +61,7 @@ export function storyFollowUpSessions(
     const key = followUpSessionKey(choice);
     const retained =
       sessions.get(key)?.retained ?? localByReference.get(record.sessionId);
+    if (retained !== undefined && isFollowUpSession(retained)) continue;
     sessions.set(
       key,
       retained === undefined

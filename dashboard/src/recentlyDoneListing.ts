@@ -13,6 +13,7 @@ import {
 } from "./agentLaunch.ts";
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import type { PublishedSessions } from "./publishedSessions.ts";
+import { isFollowUpSession } from "./followUpSessions.ts";
 import type { HeldEntry } from "./recentlyDoneRange.ts";
 import { reportingReferenceOf } from "./sessionListing.ts";
 import { sessionKey } from "./sessionReference.ts";
@@ -39,7 +40,11 @@ function closedStoryFollowUpsOf(
   identity: string,
 ): readonly LaunchWithState[] {
   return (projectSessionsOf(doneSessions, sourceId) ?? []).filter((record) => {
-    if (record.request.workflow !== "ad-hoc") return false;
+    if (
+      record.request.workflow !== "ad-hoc" ||
+      record.request.storyIdentity !== undefined
+    )
+      return false;
     const followUp = record.request.followUp;
     return (
       followUp !== undefined &&
@@ -81,12 +86,18 @@ export function newestFirst(
   keptLaunches: readonly LaunchWithState[],
   published: readonly PublishedSessionRecord[] = [],
 ): readonly Listed[] {
-  const cards = records.map((record) => ({
-    at: Date.parse(record.completedAt),
-    record,
-    sessions: storySessionsOf(doneSessions, sourceId, record.identity),
-    followUps: closedStoryFollowUpsOf(doneSessions, sourceId, record.identity),
-  }));
+  const cards = records.map((record) => {
+    const held = storySessionsOf(doneSessions, sourceId, record.identity);
+    return {
+      at: Date.parse(record.completedAt),
+      record,
+      sessions: held.filter((session) => !isFollowUpSession(session)),
+      followUps: [
+        ...held.filter(isFollowUpSession),
+        ...closedStoryFollowUpsOf(doneSessions, sourceId, record.identity),
+      ],
+    };
+  });
   const stoodFor = new Set(keptLaunches.map(reportingReferenceOf));
   const held = new Set(
     cards.flatMap((card) => holdingsOf(card.sessions, card.followUps)),

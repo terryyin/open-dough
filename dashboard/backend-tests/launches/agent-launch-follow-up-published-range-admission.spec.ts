@@ -1,5 +1,5 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { accept } from "../../test-support/agentLaunchBoundary.ts";
+import { accept, launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   doneStoryFiles,
   otherStory,
@@ -15,7 +15,8 @@ import { publishes } from "../../test-support/support/publishedRepository.ts";
 import { publishStorySession } from "../../test-support/support/storySessionPublication.ts";
 import { getReview } from "../../test-support/support/completedReviewRequests.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { request } from "./followUpBoundaryCases.ts";
+import { originMain } from "../../test-support/support/sessionDialog.ts";
+import { answerOf, request } from "./followUpBoundaryCases.ts";
 
 test.use({ serverMode: "boundary" });
 
@@ -86,6 +87,23 @@ test("a published file Follow up requires the exact recorded range, literal path
     expect(response.body).toContain(invalid.reason);
   }
   expect(dashboard.claudeCalls()).toEqual([]);
+
+  const before = await originMain(origin);
+  const launched = await answerOf(
+    launch(dashboard, {
+      ...request,
+      followUp: makeMe.aFollowUp
+        .ofStory(recoverStory, revision)
+        .anchoredAt(file)
+        .please(),
+    }),
+  );
+  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
+  expect(launched.record?.request).toMatchObject({
+    storyIdentity: recoverStory.identity,
+  });
+  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+  expect(await originMain(origin)).toBe(before);
 });
 
 test.describe("a published whole-story comparison", () => {

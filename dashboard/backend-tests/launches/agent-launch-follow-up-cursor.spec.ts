@@ -35,10 +35,12 @@ import {
   quiet,
   quietContext,
   request,
+  publishFollowUpSources,
 } from "./followUpBoundaryCases.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
+test.beforeEach(publishFollowUpSources);
 
 const cursorRequest = { ...request, host: "cursor" };
 const isolated = { workspace: "isolated", landing: "review" };
