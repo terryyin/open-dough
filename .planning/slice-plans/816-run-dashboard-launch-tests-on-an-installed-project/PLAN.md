@@ -22,6 +22,8 @@
   `1c39c80dd843876b678fc965abbf1299d152a6db`.
 - Slice 4 was accepted on the execution branch at
   `e98c81b6cd2153168dead084e5e1432a4f54112d`.
+- Slice 5 was accepted on the execution branch at
+  `e86c9fa362b2737602a88e9e6658af43763bcc75`.
 
 ## Goal and scope
 
@@ -271,7 +273,7 @@ under the checkout's Git evidence path.
 ### 6. Observe verified or continued launches in the page
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: E2E `agent-launch-claude-verification`,
 `agent-launch-claude-own-record-verification`, `agent-launch-codex` and
 `agent-launch-follow-up-session`. Observe verification, Recheck and
@@ -284,6 +286,16 @@ start. Arrange an existing source session through MakeMe for the follow-up
 when only the follow-up is under test. Match the host installation to the
 command exercised and keep the native fake's distinguishing behavior. Keep
 the retained attempt and final session ID assertions independent of setup.
+
+Eight E2E cases passed before and after the migration, and Dashboard
+typecheck passed. The Claude cases capture the accepted attempt ID before
+Recheck and observe the adopted session or unchanged refusal on that attempt.
+The mixed-host case publishes a Codex option revision after opening the
+dialog, observes the native turn and Preparing receipt independently,
+and reads that revision before checking session actions. Both follow-ups
+preserve the composed Done source and observe their distinct native sessions.
+Exact observations and strict run records are in
+`s6-implementation-report.md` under the checkout Git evidence path.
 
 ### 7. Carry dialog choices through the installed launch
 

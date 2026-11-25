@@ -137,6 +137,29 @@ export async function showOptions(dialog: Locator) {
   }
 }
 
+export function storyLaunchChoices(dialog: Locator) {
+  const option = (name: string) =>
+    dialog.getByRole("checkbox", { name, exact: true });
+  const model = dialog.getByRole("combobox", { name: "Model" });
+  return {
+    async chooseOption(name: string) {
+      await showOptions(dialog);
+      await option(name).check();
+    },
+    chooseHost: (host: string) =>
+      dialog.getByRole("combobox", { name: "Host" }).selectOption(host),
+    chooseModel: (alias: string) => model.selectOption(alias),
+    async showsRemovedOption(name: string, explanation: string) {
+      await expect(dialog).toContainText(explanation);
+      await expect(option(name)).toHaveCount(0);
+    },
+    async showsModels(selected: string, labels: string[]) {
+      await expect(model).toHaveValue(selected);
+      await expect(model.locator("option")).toHaveText(labels);
+    },
+  };
+}
+
 export const startSession = (page: Page, project: string) =>
   page.getByRole("button", { name: `Start session in ${project}` });
 

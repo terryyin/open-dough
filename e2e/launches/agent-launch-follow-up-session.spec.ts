@@ -44,8 +44,10 @@ import { keepLaunchRecords } from "../../dashboard/test-support/support/launchSt
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import { sidePanelContents } from "../../dashboard/test-support/support/sidePanelContents.ts";
 import { readFinalReportControl } from "../../dashboard/test-support/finalReportPages.ts";
+import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+test.use({ projectFolders: ["open-dough"], installedCatalog: "claude" });
 
 const report = "The cache key changed; I restored it.";
 const landed = "ab".repeat(20);
@@ -118,19 +120,21 @@ test("a Done session whose workspace is gone offers Read final report and Follow
     timeout: launchWaitMs,
   });
   await expect(sidePanelContents(page)).toHaveCount(0);
+  expectFollowUpInput(
+    dashboard,
+    source.session.sessionId,
+    [
+      followUpContextOf(retiredTitle, [
+        "- Workflow: Ad hoc",
+        `- Original request: ${retiredTitle}`,
+        `- Final report (Completed with attention): ${report}`,
+        `- Landed at revision: ${landed}`,
+      ]),
+      text,
+    ].join("\n\n"),
+  );
   expect(dashboard.claudeLaunches()).toMatchObject([
-    {
-      name: `Open Dough · Ad hoc · ${text}`,
-      instruction: [
-        followUpContextOf(retiredTitle, [
-          "- Workflow: Ad hoc",
-          `- Original request: ${retiredTitle}`,
-          `- Final report (Completed with attention): ${report}`,
-          `- Landed at revision: ${landed}`,
-        ]),
-        text,
-      ].join("\n\n"),
-    },
+    { name: `Open Dough · Ad hoc · ${text}` },
   ]);
 
   // The source stays Done in Recently done with its actions, its record as kept.
@@ -186,7 +190,9 @@ test("a Done session that still opens its terminal offers no Follow up until its
   expect(started?.name).toMatch(
     /^Open Dough · Ad hoc · \d{1,2} \w{3}, \d\d:\d\d$/,
   );
-  expect(started?.instruction).toBe(
+  expectFollowUpInput(
+    dashboard,
+    sessionId,
     followUpContextOf(quietTitle, [
       "- Workflow: Ad hoc",
       `- Original request: ${quietTitle}`,
@@ -195,3 +201,26 @@ test("a Done session that still opens its terminal offers no Follow up until its
   );
   await expect(sessionStateOf(entry)).toHaveText("Done");
 });
+
+function expectFollowUpInput(
+  dashboard: DashboardServer,
+  sourceSessionId: string,
+  instruction: string,
+) {
+  const records = stored(dashboard.home);
+  expect(records).toHaveLength(2);
+  const record = records.find(
+    ({ session }) => session.sessionId !== sourceSessionId,
+  );
+  if (record === undefined)
+    throw new Error("Missing the new follow-up record.");
+  expect(dashboard.claudeListing()).toContainEqual(
+    expect.objectContaining({ sessionId: record.session.sessionId }),
+  );
+  expectAdHocReportingInput(
+    dashboard.claudeLaunches()[0]?.instruction ?? "",
+    instruction,
+    record.request,
+    dashboard,
+  );
+}
