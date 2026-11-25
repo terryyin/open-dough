@@ -84,7 +84,9 @@ to use local repositories so Git cannot hit live GitHub from the test machine.
 | Authenticated reads retain admission and exact detail pinning | 5. A cold shared setup reaches its published backlog. Explicit revision, reachable detail, refusal, failure, and held detail assertions still observe their own result. |
 | Retained answers reuse only eligible detail at the admitted pin | 6. Read across revision moves, processes, and machine homes. Verify which detail calls recur and which return the same answer. |
 | REST owner sharing, wait bounds, directed waits, and recovery still apply | 7. Drive real HTTP scheduling and detail paths with the existing held/failure answers. Observe response timing/status, arrival/non-arrival, and both projects' outcomes. |
-| No unexplained fixture mismatch at handoff | 8. Document the operation and timing behind each residual diagnostic event, prove the relevant exact ref or independent REST operation, pass both full suites, and retire scratch evidence. |
+| Raw Board opens use real commits while the existing ref and backlog controls remain observable | 8. Check the published ref and the exact raw backlog or held-ref operation. |
+| Static recovery and inspection keep their details at the publication used to open the Board | 9. Resolve the routed commit and observe the existing requests and responses at the correct pin. |
+| No unexplained fixture mismatch at handoff | 10. Document the operation and timing behind each residual diagnostic event, prove the relevant exact ref or independent REST operation, pass both full suites, and retire scratch evidence. |
 
 ## Ordered slices
 
@@ -345,7 +347,45 @@ npm run typecheck:dashboard
 All 42 selected backend tests and Dashboard typecheck passed. The shared
 Board-open REST dispatch proof stays with the cutover in plan 828.
 
-### 8. Qualify both suites and retire the diagnostic
+The resumed audit repair gives the second tab, project switch and stream
+fixtures the actual Doughnut commit through `serveDoughnut`. The successful
+Open Dough opens use their materialized commits and retain origin metadata
+through the directed-wait answers. The held check, failed detail and history
+predicates still observe their own REST operations. All 32 focused E2E cases
+and Dashboard typecheck passed. `resume-directed-return.md` and the terminal
+run records retain exact proof. The independent review made no edits.
+
+### 8. Route raw Board opens to the commits they describe
+
+Type: Behavior
+Status: planned
+
+Use real Git publications in the raw `read-failure`, `published-work`, and
+`transient-read-exclusions` cases that advertise or hold a successful ref.
+Commit the same backlog bytes, including malformed content and intentionally
+absent files, and keep the REST hold, malformed ref, and transport refusals
+at their existing operations. Check a real empty publication in
+`preparation-legend`. Keep request counts and exact pinned links on the
+actual materialized revision. Move the independent empty-membership case
+out of the existing 264-line `published-work.spec.ts` before editing the
+oversized source. Preserve both Board cases and include both in focused E2E.
+
+### 9. Open static detail and recovery cases at their real publication
+
+Type: Behavior
+Status: planned
+
+Materialize the cold publications for the recorded profile latency, credit
+and detail recovery, Intent candidate/settings recovery, and remaining
+session or profile pin cases in the audit index. Keep independently pinned
+history, candidate guards, refusals, and held detail at their observed
+operation. Check the exact ref at the Board open and any fixture-controlled
+advance. For settings and alert callers that incidentally open a Board in an
+installed catalog, judge which existing publication supplies that open before
+changing routing. Keep intentional scheduler or transport-only controls with
+their live operations. Use only the affected E2E and backend checks.
+
+### 10. Qualify both suites and retire the diagnostic
 
 Type: Behavior
 Status: planned
@@ -416,15 +456,13 @@ startup, allowing the deliberate invalid and stalled transport routes to
 reach the boundary. The affected backend tests and Dashboard typecheck
 passed (`resume-merge-*.log.run.json` in Git evidence).
 
-Continue the audit repairs through their existing owning slices. Address
-launch and reconciliation first by selecting the committed Board publication
-without changing the native checkout's publication semantics. Reuse
-`routeServedHomesToPublication` only at fixtures with a distinct Board and
-catalog origin. Route the direct-reader and authenticated cold fixtures at
-their actual refinements. Materialize successful browser publications before
-held details or scheduler events, leaving the explicit REST operation under
-proof. Keep this slice's full gate and both open obligations until a current
-audit and the two complete suites establish them.
+The earlier owning slices repaired shared launch, reconciliation, held facts,
+direct reader, and directed-wait publications. The audit exposed two more
+independent test change loops, raw Board content and static detail recovery,
+which now precede the full gate. This splits the original slice 8 within the
+execution limit while preserving its proof and the original story outcome.
+The full gate owns both open obligations until the two complete suites and a
+current audit establish them.
 
 ## Story obligations
 
@@ -432,18 +470,18 @@ audit and the two complete suites establish them.
 
 Reported: slice 8 — "The full ref audit confirmed cold Board opens in which the routed Git ref differs from the fixture publication."
 Story clause: "A successful open's configured repository and ref must reach its fixture commit in each HOME that uses it."
-Disposition: return
+Disposition: receiving slice 10
 
 ### G2. The full E2E gate and mismatch attribution remain open
 
 Reported: slice 8 — "The full E2E run failed three responsive-launch cases. A focused repeat passed, and confirmed Board pin gaps and unattributed audit groups remain."
 Story clause: "Pass the full Dashboard Backend Test and E2E Test suites with every diagnostic mismatch explained, then remove the scratch diagnostic."
-Disposition: return
+Disposition: receiving slice 10
 
 ## Local gate
 
 Use the focused cases named by each slice and `npm run typecheck:dashboard`
-for changed Dashboard fixture boundaries. In slice 8 run the repository's
+for changed Dashboard fixture boundaries. In slice 10 run the repository's
 `npm run test:e2e` and `npm run test:dashboard:backend` in full because
 configuration and shared publishers are loaded across both groups. Keep a
 physical checkout-local `npm ci` installation for the backend runtime paths.

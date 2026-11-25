@@ -35,7 +35,6 @@ import {
   doughnutRepository,
   doughnutSharedGoal,
   doughnutSharedTitle,
-  revisionDoughnut,
 } from "../../dashboard/test-support/doughnutProject.ts";
 import { selectSettledDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
@@ -56,11 +55,11 @@ test.describe("project read isolation of automatic checks", () => {
   // of Open Dough's.
   async function expectOnlyDoughnut(
     page: Page,
-    shown: { link: Locator; retrievedAt: string | null },
+    shown: { link: Locator; retrievedAt: string | null; revision: string },
   ) {
     const { readRevision } = parts(page);
     await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
-    await expect(readRevision).toContainText(shortRevision(revisionDoughnut));
+    await expect(readRevision).toContainText(shortRevision(shown.revision));
     await expect(parts(page).retrievedAt).toHaveAttribute(
       "datetime",
       shown.retrievedAt ?? "",
@@ -82,7 +81,7 @@ test.describe("project read isolation of automatic checks", () => {
   // Since the switch, GitHub was asked only for Doughnut: its membership
   // read, detail at its own revision, and then its own checks -- nothing a
   // late Open Dough answer could have started.
-  function expectOnlyDoughnutAsked(calls: readonly GhCall[]) {
+  function expectOnlyDoughnutAsked(calls: readonly GhCall[], revision: string) {
     expect(openDoughCalls(calls)).toEqual([]);
     expect(calls.filter(({ request }) => request.kind === "ref")).toHaveLength(
       1,
@@ -92,9 +91,7 @@ test.describe("project read isolation of automatic checks", () => {
     ]);
     const reads = contentReads(calls);
     expect(reads.length).toBeGreaterThan(1);
-    expect(
-      reads.every((read) => read.endsWith(`?ref=${revisionDoughnut}`)),
-    ).toBe(true);
+    expect(reads.every((read) => read.endsWith(`?ref=${revision}`))).toBe(true);
   }
   const doughnutCheckArgv = headsCheckArgv(undefined, doughnutRepository);
 
@@ -126,7 +123,7 @@ test.describe("project read isolation of automatic checks", () => {
       expect(callsSince(page, beforeNext).map(({ argv }) => argv)).toEqual([
         doughnutCheckArgv,
       ]);
-      expectOnlyDoughnutAsked(callsSince(page, atSwitch));
+      expectOnlyDoughnutAsked(callsSince(page, atSwitch), shown.revision);
       await expectOnlyDoughnut(page, shown);
     });
   });
@@ -191,7 +188,7 @@ test.describe("project read isolation of automatic checks", () => {
       expect(callsSince(page, beforeNext).map(({ argv }) => argv)).toEqual([
         doughnutCheckArgv,
       ]);
-      expectOnlyDoughnutAsked(callsSince(page, atSwitch));
+      expectOnlyDoughnutAsked(callsSince(page, atSwitch), shown.revision);
     });
   });
 });

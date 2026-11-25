@@ -37,7 +37,6 @@ import {
   afterTake,
   justTaken,
   profilePath,
-  revision as clockRevision,
   takes,
 } from "../../dashboard/test-support/sliceClockRecords.ts";
 
@@ -45,21 +44,18 @@ test("limiting a profile's history leaves its human unknown in the scan view, na
   page,
 }) => {
   const creditedHuman = "Yuri Credited";
-  const { answers, other } = await openedBeside(
-    page,
-    clockOpened,
-    publishes({
-      revision: clockRevision,
-      // The project setting selects the current collection, so the roster
-      // lists its agents.
-      files: { ...clockFiles, ".planning/open-dough.json": "{}\n" },
-      committed: clockCommitted,
-      history: {
-        ...clockHistory,
-        [profilePath("Yuma")]: [{ ...takes.Yuma, committer: creditedHuman }],
-      },
-    }),
-  );
+  const published = publishes({
+    // The project setting selects the current collection, so the roster
+    // lists its agents.
+    files: { ...clockFiles, ".planning/open-dough.json": "{}\n" },
+    committed: clockCommitted,
+    history: {
+      ...clockHistory,
+      [profilePath("Yuma")]: [{ ...takes.Yuma, committer: creditedHuman }],
+    },
+  });
+  const { revision: clockRevision } = published;
+  const { answers, other } = await openedBeside(page, clockOpened, published);
   const akihoHistory = (request: GhRequest) =>
     request.kind === "commit-list" && request.path === profilePath("Akiho");
   // Yuma's addition is read from GitHub before Akiho's history is refused.

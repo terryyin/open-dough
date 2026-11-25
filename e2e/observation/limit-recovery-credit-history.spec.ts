@@ -15,14 +15,13 @@ import {
 import { pathChange } from "../../dashboard/test-support/pathHistoryAnswers.ts";
 import {
   profilePath,
-  revision,
   takes,
 } from "../../dashboard/test-support/sliceClockRecords.ts";
 
 test("a limited profile history is read once the wait ends, crediting its human and Take clock without a reload", async ({
   page,
 }) => {
-  const { limitSeenAt, asked } = await openedWithYumaWithheld(page, {
+  const { revision, limitSeenAt, asked } = await openedWithYumaWithheld(page, {
     yumaHistory: [yumaAddition],
     // Sola's addition names no usable committer.
     solaHistory: [pathChange(0x53, "added", "   ")],

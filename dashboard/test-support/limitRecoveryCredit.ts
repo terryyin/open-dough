@@ -19,6 +19,7 @@ import { limiting } from "./limitedReadingJourney.ts";
 import { limitedUntil } from "./limitNotice.ts";
 import { readsBesideChecks } from "./originObservation.ts";
 import { untilReported } from "./support/directedWait.ts";
+import { serveCommitted } from "./committedFiles.ts";
 import { publishes } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import type { PathChange } from "./pathHistoryAnswers.ts";
@@ -31,7 +32,6 @@ import {
   justTaken,
   profilePath,
   planPath,
-  revision,
   stories,
   takes,
   timeUnread,
@@ -86,23 +86,24 @@ export async function openedWithYumaWithheld(
   },
 ) {
   await pausePageClockAt(page, opened);
-  const answers = limiting(
+  const published = publishes({
+    // The project setting selects the current collection, so the roster
+    // lists its agents.
+    files: { ...files, ".planning/open-dough.json": "{}\n" },
+    committed,
+    history: {
+      ...history,
+      [profilePath("Yuma")]: yumaHistory,
+      [profilePath("Sola")]: solaHistory,
+    },
+  });
+  const answers = limiting(page, published, directedSeconds);
+  const revision = serveCommitted(
     page,
-    publishes({
-      revision,
-      // The project setting selects the current collection, so the roster
-      // lists its agents.
-      files: { ...files, ".planning/open-dough.json": "{}\n" },
-      committed,
-      history: {
-        ...history,
-        [profilePath("Yuma")]: yumaHistory,
-        [profilePath("Sola")]: solaHistory,
-      },
-    }),
-    directedSeconds,
+    "terryyin/open-dough",
+    published,
+    answers.answer,
   );
-  githubFor(page).serve("terryyin/open-dough", answers.answer);
   answers.limit(
     refused,
     isCommit(takes.Akiho.sha),
@@ -142,7 +143,7 @@ export async function openedWithYumaWithheld(
     `Human developer unknown. ${withheld}`,
   );
   await expect(parts(page).problem).toHaveCount(1);
-  return { limitSeenAt, asked: githubFor(page).calls.length };
+  return { revision, limitSeenAt, asked: githubFor(page).calls.length };
 }
 
 // Lets the reported wait, which began before `limitSeenAt`, pass on the

@@ -8,7 +8,6 @@ import {
   doughnutRepository,
   doughnutSharedGoal,
   doughnutSharedTitle,
-  revisionDoughnut,
 } from "./doughnutProject.ts";
 import { selectSettledDoughnut } from "./doughnutJourney.ts";
 import { projectTab } from "./projectChoice.ts";
@@ -66,7 +65,7 @@ export async function expectOnlyDoughnut(
   await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
   await expect(projectTab(page, "Doughnut")).toBeChecked();
   await expect(parts(page).readRevision).toContainText(
-    shortRevision(revisionDoughnut),
+    shortRevision(shown.revision),
   );
   await expect(shown.card).toContainText(doughnutSharedGoal);
   await expect(
@@ -74,7 +73,7 @@ export async function expectOnlyDoughnut(
   ).toBeVisible();
   await expect(shown.link).toHaveAttribute(
     "href",
-    `https://github.com/${doughnutRepository}/blob/${revisionDoughnut}/.planning/seeds/SEED-777-shared.md#shared-story`,
+    `https://github.com/${doughnutRepository}/blob/${shown.revision}/.planning/seeds/SEED-777-shared.md#shared-story`,
   );
   await expect(shown.link).toBeFocused();
   await expectNoEarlierFacts(page, earlier);
