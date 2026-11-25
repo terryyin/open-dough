@@ -67,22 +67,35 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **Scope and beneficiary.** Shared guidance used on every host. A
-  coordinator starts each execution phase with the guidance that phase needs.
-- **Evaluation.** On a representative execution, the coordinator reaches
-  the same decisions, refusals and proof while reading guidance for the phase
-  it is in rather than the whole reference tree, and re-reads a boundary only
-  when it changed. Skill descriptions listed in every session stay short while
-  naming their triggers. Compare guidance read and coordinator context.
-- **Priority.** Fifth. Coordinators read about 21 execute-plan files on
-  Cursor and about 20 (roughly 250k characters) on Claude Code; Codex's
-  first reference batch truncated in SEED-342. Every execution pays this,
-  but the 2026-11-15 re-measurement put the carried guidance at about $2
-  list-price per Claude Code execution.
-- **Effort and boundary.** Medium, medium confidence. Keep required
-  breadth ([ODF-158](../../docs/maintainer/findings/ODF-158.md)) and keep
-  boundary rows maintainable ([ODF-446](../../docs/maintainer/findings/ODF-446.md)).
-  [Guidance reads](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
+- **Goal.** Developers using Execute Plan get the required decisions, refusals,
+  and proof with less startup retrieval. Two sources of excess output were
+  observed in one coordinator session. Its tool lookup matched broad terms
+  across the catalog even though the CI guide named the tools, and its full-file
+  startup reads overflowed even in a call with no tool lookup.
+  [Recorded occurrence](../../docs/maintainer/findings/ODF-264.md#odf-264)
+- **Integrate the guidance.** Rewrite the existing Execute Plan startup and
+  reading instructions as one concise procedure. Use the tools already named by
+  the workflow. When a tool is missing, look up the specific capability and
+  inspect only plausible matches. Retrieve the passages and prerequisites the
+  current decision needs. Put required workflow links where their steps use them.
+- **Remove the output-budget mechanism.** Delete the boundary-read table, the
+  one-response-per-row and separate skill-body requirements, the dedicated
+  30,000-byte test, and any instructions, scripts, tests, or documentation that
+  exist solely to enforce or work around this limit. Fold the budget-driven
+  `ci-completion-recovery.md` split into the completion guide and remove the old
+  file and its incoming references. Remove remaining dead links, helpers, and
+  obsolete copies through the ordinary payload update. CI observer recovery and
+  proof still have live callers and must work after the cleanup.
+- **Evaluation.** Compare representative native startup traces under
+  [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md). With a named
+  CI tool, the coordinator reaches delegation without a catalog dump or reading
+  ahead. With an unknown capability, the lookup is narrow. Missing required
+  context stops the affected step, and completion recovery remains reachable
+  when it applies. Check that the budget machinery and its references are gone
+  from the source and from an installation updated from the prior payload.
+- **Priority.** First at Terry's direction. The static review found the dedicated
+  test and confirmed that the [recovery documentation split](https://github.com/terryyin/open-dough/commit/607771fa60ce2902ec07da6abba1fd1d0865e083)
+  was driven by the byte budget.
 
 <a id="start-cursor-slices-from-complete-task-briefs"></a>
 
