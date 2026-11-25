@@ -144,3 +144,13 @@ npm run typecheck:dashboard
 Run long checks under [`caffeinate -s -i` on AC power](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 and select test conventions through [AGENTS.md](../../../AGENTS.md).
+
+## Execution complete
+
+Product advice: no change
+
+Retrospective (pending CI on `67cb35e214d2def5a0a092385289be54fa360d85`):
+delivered correction matches goal, scope and key example; focused e2e and
+typecheck prove original-pin recovery; no product findings; process enabled
+with no supported findings to record; Intent Coverage automatic check does not
+apply to this correction.
