@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Julia-chan",
+  "email": "julia-chan@example.org",
+  "identity": "SEED-413#prove-session-notifications-through-typed-observations",
+  "mode": "story-branch",
+  "branch": "cursor/prove-session-notifications-through-typed-observ",
+  "host": "cursor",
+  "model": "auto"
+}
