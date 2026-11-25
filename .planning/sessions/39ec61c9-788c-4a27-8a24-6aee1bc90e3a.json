@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "39ec61c9-788c-4a27-8a24-6aee1bc90e3a",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T13:21:03.251Z",
+  "story": "SEED-420#recognize-intent-folders-and-read-proof",
+  "ranges": [
+    {
+      "base": "ddeb643502a6221c073bc7e06aa56478a1fb98e2",
+      "candidate": "41946ec20288dd370b8669272d1d5e4ea38fc916"
+    }
+  ]
+}

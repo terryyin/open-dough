@@ -5,6 +5,7 @@ import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.t
 import {
   chooseProject,
   expectProjectChoice,
+  sessionEntryShowing,
   standaloneSessionName,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
@@ -13,16 +14,15 @@ import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedRead
 import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import {
   destination,
-  names,
-  openedWithHeldStory,
-  storiesThrough,
+  openedWithHeldPublishedStory,
+  publishedNames,
+  publishedPaths,
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import {
   expectEntries,
   shownEntries,
 } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import { recordsAsked } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
-import { placedAt } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   expectRevealsSince,
   recordReveals,
@@ -53,11 +53,12 @@ import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonPr
 import { finalReportParts } from "../../dashboard/test-support/finalReportPages.ts";
 
 test.use({
-  projectFolders: ["open-dough", "doughnut", "pygardon"],
+  projectFolders: ["open-dough"],
   cursorScreen: "working",
 });
 
-test("choosing a Done session beyond Board's first ten from Pygardon reveals its Board entry", async ({
+test("choosing a Done session beyond Board's first ten from Pygardon reveals its published story", async ({
+  afterGitHubStops,
   page,
   dashboard,
   cursor,
@@ -65,7 +66,6 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   const instruction = "sidebar done beyond board ten";
-  const entryName = standaloneSessionName("Ad hoc", instruction);
   const launched = await launch(dashboard, {
     source: "open-dough",
     workflow: "ad-hoc",
@@ -76,7 +76,7 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   const held = keptRecord(dashboard.home);
   await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
-  await publishOnePygardonStory(page);
+  await publishOnePygardonStory(page, afterGitHubStops);
   await recordReveals(page);
   let releaseCatalog: () => void = () => undefined;
   const catalogHeld = new Promise<void>((resolve) => {
@@ -93,17 +93,13 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
   );
   let release: () => void = releaseCatalog;
   try {
-    const view = await openedWithHeldStory(page, dashboard, {
-      open: [],
-      elsewhere: true,
-      also: (now) => [
-        {
-          ...held,
-          launchedAt: placedAt(now, destination),
-          doneAt: new Date(now - 10 * 60_000).toISOString(),
-        },
-      ],
-    });
+    const view = await openedWithHeldPublishedStory(
+      page,
+      dashboard,
+      afterGitHubStops,
+      instruction,
+      held,
+    );
     release = () => {
       releaseCatalog();
       view.release();
@@ -111,11 +107,15 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
     releaseCatalog();
     const { github, recent } = view;
     const { backlog } = parts(page);
-    const boardEntry = recent.getByRole("article", { name: entryName });
+    const boardEntry = view.destinationCard;
+    const session = sessionEntryShowing(
+      boardEntry,
+      `cursor:${held.session.sessionId}`,
+    );
     await expect(boardEntry).toHaveCount(0);
-    await expectEntries(recent, names(10));
+    await expectEntries(recent, publishedNames(10));
     expect(recordsAsked(github).toSorted()).toEqual(
-      storiesThrough(10).toSorted(),
+      publishedPaths(10).toSorted(),
     );
     await chooseProject(page, "Pygardon");
     await expect(backlog).toContainText("A Pygardon story");
@@ -127,12 +127,11 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
 
     await test.step("Open Dough's Board Recently done extends through entry 27 while the held story reads", async () => {
       await expectProjectChoice(page, "Open Dough");
-      await expect(view.heldCard).toContainText("Reading done story…");
-      await expect(boardEntry).toBeVisible();
+      await view.showsPendingDestination();
       await expect(shownEntries(recent)).toHaveCount(destination);
       await expect
         .poll(() => recordsAsked(github).toSorted())
-        .toEqual(storiesThrough(destination).toSorted());
+        .toEqual(publishedPaths(destination).toSorted());
       expect((await revealsOf(page)).slice(before)).toEqual([]);
     });
 
@@ -141,8 +140,13 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
       await expect
         .poll(async () => (await revealsOf(page)).length)
         .toBeGreaterThan(before);
-      await expectRevealsSince(page, before, entryName, "auto");
-      await expect(boardEntry).toBeInViewport();
+      await expectRevealsSince(
+        page,
+        before,
+        standaloneSessionName("Execution", instruction),
+        "auto",
+      );
+      await expect(session).toBeInViewport();
     });
   } finally {
     release();

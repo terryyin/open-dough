@@ -23,7 +23,7 @@ import {
   parts,
   rosterParts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { publishCommittedFileHistory } from "../../dashboard/test-support/committedFiles.ts";
 import { avatarHost } from "../../dashboard/test-support/agentAttributionRecords.ts";
 import { inspectedDetail } from "../../dashboard/test-support/storyCardControls.ts";
 import { credit } from "../../dashboard/test-support/agentCredit.ts";
@@ -33,21 +33,17 @@ import {
   openSettledAtA,
   passTimeUntilChecked,
   queueStory,
-  recordsAt,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import {
-  backlogB,
-  revisionB,
-  titlesOfB,
-} from "../../dashboard/test-support/refreshJourney.ts";
+import { titlesOfB } from "../../dashboard/test-support/refreshJourney.ts";
 import {
   agents,
-  atA,
+  creditHistory,
+  creditDetails,
+  creditMoves,
   human,
   opened,
   repository,
   titleOf,
-  toB,
 } from "../../dashboard/test-support/assignmentCreditRecords.ts";
 
 const syncRecord = ".planning/seeds/SEED-008-sync.md";
@@ -67,7 +63,7 @@ const cardCredits = (page: Page) =>
 async function credits(page: Page) {
   const { member, opener, roster, back } = rosterParts(page);
   const cards = await cardCredits(page);
-  await opener(`${agents[0] ?? ""}-chan`).click();
+  await opener(`${agents[0]}-chan`).click();
   await expect(roster).toBeVisible();
   const members = await Promise.all(
     agents.map((agent) => member(`${agent}-chan`).innerText()),
@@ -78,10 +74,17 @@ async function credits(page: Page) {
 
 test("assignments keep their agents, credited humans, and portraits on cards and the roster while a new revision is read", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
   githubFor(page).serveAvatars(avatarHost);
-  const origin = publishMovingFiles(page, { repository, ...atA });
+  const origin = await publishCommittedFileHistory(page, creditHistory, {
+    repository,
+    trunk: "A",
+    details: creditDetails,
+    afterGitHubStops,
+  });
+  const { toB } = creditMoves(origin);
   await page.goto("/");
   await expectSettledPage(page);
   const { taken } = parts(page);
@@ -117,8 +120,10 @@ test("assignments keep their agents, credited humans, and portraits on cards and
 
 test("an inspection open at A keeps its purpose while B is read", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { B: revisionB } = origin.revisions;
   const queueCard = parts(page).board.getByRole("article", {
     name: queueStory,
   });
@@ -127,7 +132,7 @@ test("an inspection open at A keeps its purpose while B is read", async ({
   const toggle = queueCard.getByRole("button", { name: "Hide detail" });
   await toggle.focus();
   const release = origin.hold(syncRecord);
-  origin.push(revisionB, backlogB, recordsAt("B"));
+  origin.advanceTo("B");
   await passTimeUntilChecked(page);
 
   await test.step("while B's record is held, the inspection keeps A's purpose and focus", async () => {

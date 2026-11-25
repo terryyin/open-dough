@@ -11,8 +11,8 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import { sessionsAudienceParameter } from "../src/machineSessionsRevision.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
-import { publishMovingOrigin } from "./publishedOrigin.ts";
-import { describedBacklog } from "./describedRevisions.ts";
+import { publishMovingHistory } from "./publishedMovingOrigin.ts";
+import { doughnutRepository } from "./doughnutProject.ts";
 import { publishOnePygardonStory } from "./pygardonProject.ts";
 import { heightOf, showCrowded } from "./cursorSessionsSidebarResizePage.ts";
 import { openRunningList, runningCursorParts } from "./runningCursorList.ts";
@@ -164,38 +164,34 @@ export function pageReadReopened(page: Page, held: LaunchRecord) {
   });
 }
 
-// Publishes Doughnut and Pygardon, each queuing one story, beside the Open
-// Dough origin already shown.
-export async function publishSiblingProjects(page: Page) {
-  const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  doughnut.push(
-    "d4".repeat(20),
-    describedBacklog(
-      makeMe.aRepository
-        .withRevision("published", {
-          backlog: {
-            queued: [
-              makeMe.aBacklogEntry
-                .with({
-                  identity: "SEED-401#s",
-                  title: "A Doughnut story",
-                  href: "seeds/SEED-401.md#s",
-                })
-                .please(),
-            ],
-          },
-        })
-        .please(),
-    ),
-  );
-  await publishOnePygardonStory(page);
-}
+const doughnutStory = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-401#s",
+    title: "A Doughnut story",
+    href: "seeds/SEED-401.md#s",
+  })
+  .please();
+const siblingHistory = makeMe.aRepository
+  .withRevision("published", { backlog: { queued: [doughnutStory] } })
+  .please();
 
-export async function showThreeProjectPage(page: Page, origin: StartOrigin) {
-  await publishSiblingProjects(page);
+export async function showThreeProjectPage(
+  page: Page,
+  origin: StartOrigin,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+) {
+  await publishMovingHistory(
+    page,
+    siblingHistory,
+    "published",
+    afterGitHubStops,
+    doughnutRepository,
+  );
+  const pygardon = await publishOnePygardonStory(page, afterGitHubStops);
   await showPage(page, origin);
   await chooseProject(page, "Pygardon");
   await expect(parts(page).backlog).toContainText("A Pygardon story");
+  return pygardon;
 }
 
 export const roomOfThree = async (shown: {

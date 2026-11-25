@@ -26,7 +26,7 @@ import {
 } from "./ciEvidenceLabelsPage.ts";
 import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
 import { intentLocationName } from "./intentPerspectivePage.ts";
-import { chooseStoryTab } from "./support/intentStoryPage.ts";
+import { browseStoryFiles } from "./support/intentStoryPage.ts";
 import { storyIntentFrame } from "./intentModePage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -102,10 +102,10 @@ export const testsShare = (byFile: boolean): Producer => ({
 
 // Judged trunk: running at the published head, so the shown proof is its
 // completed ancestor's, run 41 at the judged commit.
-const ancestorRuns = (): readonly CiRunAnswer[] => [
+const ancestorRuns = (head: string): readonly CiRunAnswer[] => [
   makeMe.aCiRun
     .with({
-      headSha: openDough.revision,
+      headSha: head,
       status: "in_progress",
       databaseId: 42,
       url: runUrl,
@@ -130,8 +130,10 @@ export async function openIntent(
   files: Readonly<Record<string, string>> = published,
 ) {
   await page.setViewportSize({ width: 1280, height: 900 });
-  const judgment = trunkCi(openDough.revision, ancestorRuns);
   const project = publishProject(page, openDough, files);
+  const judgment = trunkCi(project.revision, () =>
+    ancestorRuns(project.revision),
+  );
   const ci: CiAnswerer = (call) => {
     const { request } = call;
     if (request.kind === "actions-run-artifacts") return artifacts();
@@ -161,7 +163,7 @@ export async function openIntent(
 // With a selected story, Summaries are read in its Changes view.
 export async function openSummary(intent: Locator, location: string) {
   if ((await storyIntentFrame(intent).count()) > 0)
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
   await intentLocationName(intent, location).click();
   const summary = summaryRegion(intent);
   await expect(summary.locator(".intent-summary-path")).toHaveText(location);
@@ -182,30 +184,30 @@ export const bothEntriesSummary = (byFile: boolean) =>
 
 export const allParts = "2 of 2 parts present";
 
-// The label saying the tree shows a newer revision than the evidence.
-export const treeGap = `Tree at ${shortSha(openDough.revision)} — newer files unproved here`;
+const treeGapAt = (revision: string) =>
+  `Tree at ${shortSha(revision)} — newer files unproved here`;
 
-// That label's full words, heard after it and on hover.
-export const treeGapInFull = `Evidence at ${shortSha(judged)}, tree at ${shortSha(openDough.revision)}: a file added or changed since has no CI result here, or an earlier one.`;
-
-// How a Summary names the completed ancestor's proof, label by label: its
-// linked run and attempt, revision, branch and ancestor mark, and that the
-// tree shows a newer revision.
-export const ancestorEvidence = [
+export const ancestorEvidence = (revision: string) => [
   "Run 41 · attempt 1",
   `Revision ${shortSha(judged)}`,
   "Branch main",
   "Completed ancestor",
-  treeGap,
-] as const;
+  treeGapAt(revision),
+];
 
-// A Summary names the completed ancestor's proof in those labels, its run
-// linked and the tree gap in full; a screen reader in browse mode hears each
-// label from its content.
-export async function expectAncestorEvidence(summary: Locator) {
-  await expectEvidenceLabels(evidenceLabels(summary), ancestorEvidence);
+// A Summary names the completed ancestor's proof and the newer tree's pin.
+export async function expectAncestorEvidence(
+  summary: Locator,
+  revision: string,
+) {
+  const tree = shortSha(revision);
+  const treeGapInFull = `Evidence at ${shortSha(judged)}, tree at ${tree}: a file added or changed since has no CI result here, or an earlier one.`;
+  await expectEvidenceLabels(
+    evidenceLabels(summary),
+    ancestorEvidence(revision),
+  );
   await expectAttemptLinked(summary, "Run 41 · attempt 1", runUrl);
-  await expectLabelInFull(summary, treeGap, treeGapInFull);
+  await expectLabelInFull(summary, treeGapAt(revision), treeGapInFull);
   await expect(evidenceLabels(summary)).toMatchAriaSnapshot(`
     - list "CI evidence":
       - listitem:
@@ -219,7 +221,7 @@ export async function expectAncestorEvidence(summary: Locator) {
       - listitem: Completed ancestor , The completed ancestor of the running result
       - listitem:
         - text: Tree at
-        - code: ${JSON.stringify(shortSha(openDough.revision))}
+        - code: ${JSON.stringify(tree)}
         - text: "— newer files unproved here , ${treeGapInFull}"
   `);
 }

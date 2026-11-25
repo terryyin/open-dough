@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "agent": "Julia-chan",
   "email": "julia-chan@example.org",
-  "identity": "SEED-413#prove-session-notifications-through-typed-observations",
+  "identity": "SEED-430#qualify-board-fixture-routing-and-request-boundaries",
   "mode": "story-branch",
-  "branch": "cursor/prove-session-notifications-through-typed-observ",
-  "host": "cursor",
-  "model": "auto"
+  "branch": "codex/qualify-board-fixture-routing-and-request-bounda",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
 }

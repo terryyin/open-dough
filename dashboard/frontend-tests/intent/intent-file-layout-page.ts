@@ -86,6 +86,20 @@ export async function controlsFit(...controls: Locator[]) {
   );
 }
 
+// Asserts the controls share one row, left to right in the given order, and
+// returns their boxes.
+export function expectOneRow(...controls: Locator[]) {
+  const boxes = controls.map((control) =>
+    control.element().getBoundingClientRect(),
+  );
+  expect(Math.max(...boxes.map((box) => box.top))).toBeLessThan(
+    Math.min(...boxes.map((box) => box.bottom)),
+  );
+  const lefts = boxes.map((box) => box.left);
+  expect(lefts).toEqual([...lefts].sort((a, b) => a - b));
+  return boxes;
+}
+
 export async function toggleFilesFromKeyboard(after: Locator) {
   const files = fileLayout();
   await expect.element(after).toBeVisible();

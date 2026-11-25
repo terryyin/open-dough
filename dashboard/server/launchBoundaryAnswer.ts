@@ -37,6 +37,8 @@ import {
 } from "../src/agentTerminal.ts";
 import { submitSessionAttachment } from "./sessionAttachments.ts";
 import { configuredLimit } from "./configuredLimit.ts";
+import { withResponseSignal } from "./responseSignal.ts";
+import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { sessionBranchEntryEndpoint } from "../src/sessionBranchResult.ts";
 import { submitSessionBranchEntry } from "./sessionBranchEntry.ts";
 import type { ReviewInitialSync } from "./reviewInitialSync.ts";
@@ -148,7 +150,15 @@ export async function answer(
       case "cursor-sessions":
         return { status: 200, body: await heldCursorSessions() };
       case "sessions":
-        return { status: 200, ...(await sessions.answerFor(res, request)) };
+        // The viewer leaving ends its wait; the observation bounds it.
+        return {
+          status: 200,
+          ...(await withResponseSignal(
+            res,
+            (signal) => sessions.answerFor(request, signal),
+            readWaitLimitMs,
+          )),
+        };
       case "changed":
         return {
           status: 200,

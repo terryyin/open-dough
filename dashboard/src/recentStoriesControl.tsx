@@ -1,24 +1,19 @@
 // The banner's Recent stories control (`./recentStories.ts` shapes the list):
-// a bookmark that shows whether a story is selected, and a popover listing
-// recent selections (ADR 0008). Choosing a row, or clicking the button while
-// the selected story's start is out of view, selects and reveals it in the
-// current perspective: Development via the story-reference journey, Intent via
-// chooseScope("story") and the Intent view start (`intentHomeMarks`).
+// a bookmark that shows whether a story is selected and offers the whole
+// project or a recent story. A story is revealed in the current perspective:
+// Development via the story-reference journey and Intent at the story heading.
 
-import {
-  useContext,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useContext, useEffect, useId, useRef, useState } from "react";
 import { Bookmark } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
-import { useIntentScopeChooser } from "./intentStoryTabs.tsx";
+import { useIntentStoryTitle } from "./intentStoryTitle.tsx";
+import { useClearProjectIntentSelection } from "./intentWorkspaceSelection.ts";
+import { useChooseProjectCi } from "./pageIntentMode.tsx";
+import { storyShown } from "./pageEntries.ts";
 import { keepInView, startIsReadable } from "./pageMovement.ts";
-import { projectLabel, useVisibleProjects } from "./projectList.tsx";
+import { useVisibleProjects } from "./projectList.tsx";
+import { RecentStoriesChoices } from "./RecentStoriesChoices.tsx";
 import {
   sameSelectedStory,
   StorySelectionOnPage,
@@ -27,8 +22,9 @@ import {
   type SelectedStory,
 } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
-import { intentStoryViewStart, storyCard } from "./storyCardFocus.ts";
+import { intentStoryHeading } from "./storyCardFocus.ts";
 import { StoryNavigationOnPage } from "./storyNavigation.tsx";
+import { storyReferenceChoices } from "./StoryReferenceNotice.tsx";
 import "./recent-stories.css";
 
 function recentStoriesLabel(selected: SelectedStory | undefined): string {
@@ -39,83 +35,91 @@ function recentStoriesLabel(selected: SelectedStory | undefined): string {
 
 export function RecentStories({
   perspective,
+  project,
   onSelectProject,
 }: {
   readonly perspective: DashboardPerspective;
+  readonly project: string;
   readonly onSelectProject: (next: PublishedSource) => void;
 }) {
   const selected = useSelectedStory();
+  const intentTitle = useIntentStoryTitle(
+    selected?.project === project ? selected : undefined,
+  );
+  const intentScope =
+    perspective === "intent" ? (intentTitle ?? "Whole project") : undefined;
+  const clearProjectPath = useClearProjectIntentSelection();
+  const chooseProjectCi = useChooseProjectCi(project);
   const recent = useRecentStories();
   const selection = useContext(StorySelectionOnPage);
   const navigation = useContext(StoryNavigationOnPage);
-  const chooseIntentScope = useIntentScopeChooser();
   const projects = useVisibleProjects();
-  const listId = useId();
+  const choicesId = useId();
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const label = recentStoriesLabel(selected);
-
-  useLayoutEffect(() => {
-    if (open) {
-      root.current
-        ?.querySelector<HTMLElement>(".recent-stories-popover")
-        ?.focus();
-    }
-  }, [open]);
+  const label =
+    intentScope === undefined
+      ? recentStoriesLabel(selected)
+      : `Recent stories, ${intentScope}`;
 
   const dismiss = () => {
     setOpen(false);
-    button.current?.focus();
+    button.current?.focus({ preventScroll: true });
   };
 
-  const bringIntentStartIntoView = () => {
+  const revealInIntent = (entry: SelectedStory, chosen = false) => {
+    const sameProject = entry.project === project;
+    if (!sameProject || chosen) {
+      const destination = projects.find((shown) => shown.id === entry.project);
+      if (destination === undefined && !sameProject) return false;
+      if (destination !== undefined) onSelectProject(destination);
+    }
     requestAnimationFrame(() => {
-      const start = intentStoryViewStart();
-      if (start !== undefined) keepInView(start);
+      const heading = intentStoryHeading(entry);
+      if (heading !== undefined) keepInView(heading);
     });
-  };
-
-  // Intent: select, keep the perspective, choose the story scope, and bring
-  // the Intent view start into view. A new selection already opens on story.
-  const revealInIntent = (entry: SelectedStory) => {
-    const same = sameSelectedStory(selected, entry);
-    selection?.select(entry);
-    const project = projects.find((shown) => shown.id === entry.project);
-    if (project !== undefined) onSelectProject(project);
-    if (same) chooseIntentScope?.("story");
-    bringIntentStartIntoView();
+    return true;
   };
 
   const choose = (entry: SelectedStory) => {
+    selection?.select(entry);
     if (perspective === "intent") {
-      revealInIntent(entry);
+      revealInIntent(entry, true);
     } else {
-      selection?.select(entry);
       navigation?.follow(entry);
     }
     dismiss();
   };
 
-  // When the selected story's start is not in the region's readingBounds
-  // (same rule keepInView uses for readable), return via choose and leave the
-  // popover closed; otherwise toggle the list.
-  const selectedStartOutOfView = () => {
-    if (selected === undefined) return false;
+  const revealSelected = (entry: SelectedStory) => {
     if (perspective === "intent") {
-      const start = intentStoryViewStart();
-      return start === undefined || !startIsReadable(start);
+      const heading = intentStoryHeading(entry);
+      return (
+        (entry.project !== project ||
+          (heading !== undefined && !startIsReadable(heading))) &&
+        revealInIntent(entry)
+      );
     }
-    const card = storyCard(selected.identity);
-    return card === undefined || !startIsReadable(card);
+    const card = entry.project === project ? storyShown(entry.identity) : null;
+    if (
+      navigation === undefined ||
+      (card !== null && startIsReadable(card)) ||
+      sameSelectedStory(navigation.unavailable, entry)
+    ) {
+      return false;
+    }
+    navigation.follow(entry);
+    return true;
   };
 
   const onButtonClick = () => {
-    if (selected !== undefined && selectedStartOutOfView()) {
-      choose(selected);
+    if (open) {
+      dismiss();
       return;
     }
-    setOpen((was) => !was);
+    if (selected !== undefined && revealSelected(selected)) return;
+    setOpen(true);
   };
 
   useEffect(() => {
@@ -147,6 +151,7 @@ export function RecentStories({
     <div
       className="tooltip-control tooltip-center recent-stories-control"
       ref={root}
+      {...storyReferenceChoices}
     >
       <button
         type="button"
@@ -155,7 +160,7 @@ export function RecentStories({
         aria-label={label}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-controls={open ? listId : undefined}
+        aria-controls={open ? choicesId : undefined}
         onClick={onButtonClick}
       >
         {selected === undefined ? (
@@ -169,52 +174,29 @@ export function RecentStories({
             focusable="false"
           />
         )}
+        {intentScope !== undefined && (
+          <span className="recent-stories-scope" aria-hidden="true">
+            {intentScope}
+          </span>
+        )}
       </button>
       <FrameTooltip>{label}</FrameTooltip>
       {open ? (
-        <div
-          id={listId}
-          className="recent-stories-popover"
-          role="dialog"
-          aria-label="Recent stories"
-          tabIndex={-1}
-        >
-          {recent.length === 0 ? (
-            <p className="recent-stories-empty">There are no recent stories.</p>
-          ) : (
-            <ul
-              className="recent-stories-list"
-              role="listbox"
-              aria-label="Recent stories"
-            >
-              {recent.map((entry) => {
-                const checked = sameSelectedStory(selected, entry);
-                return (
-                  <li
-                    key={`${entry.project}:${entry.identity}`}
-                    role="option"
-                    aria-selected={checked}
-                    className="recent-stories-row"
-                    data-checked={checked ? "true" : undefined}
-                    onClick={() => {
-                      choose(entry);
-                    }}
-                  >
-                    <span className="recent-stories-check" aria-hidden="true">
-                      {checked ? "✓" : ""}
-                    </span>
-                    <span className="recent-stories-project">
-                      {projectLabel(projects, entry.project)}
-                    </span>
-                    <span className="recent-stories-identity">
-                      {entry.identity}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+        <RecentStoriesChoices
+          id={choicesId}
+          selected={selected}
+          recent={recent}
+          projects={projects}
+          chooseStory={choose}
+          chooseProject={() => {
+            if (perspective === "intent") {
+              chooseProjectCi();
+              clearProjectPath?.();
+            }
+            selection?.clear();
+            dismiss();
+          }}
+        />
       ) : null}
     </div>
   );

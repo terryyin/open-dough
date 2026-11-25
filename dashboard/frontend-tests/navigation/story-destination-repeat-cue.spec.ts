@@ -63,8 +63,8 @@ test("Back from Intent and System settings cues the same destination without cha
     .getByRole("button", { name: "Review changes", exact: true })
     .click();
   await expect
-    .element(page.getByRole("tab", { name: "Changes", exact: true }))
-    .toHaveAttribute("aria-selected", "true");
+    .element(page.getByRole("region", { name: "Path reading", exact: true }))
+    .toBeVisible();
   history.back();
   await card
     .getByRole("button", { name: "Inspect story", exact: true })

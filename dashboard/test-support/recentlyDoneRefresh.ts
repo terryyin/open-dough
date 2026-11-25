@@ -8,20 +8,20 @@
 
 import { expect, type Page } from "@playwright/test";
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { publishCommittedFileHistory } from "./committedFiles.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { shortRevision, parts } from "./dashboardPage.ts";
 import {
   doneDirectory,
   entryName,
   publishedWithCatalog,
-  revision as firstRevision,
+  repository,
   type ProgressiveEntry,
 } from "./recentlyDoneProgressive.ts";
-import {
-  publishes,
-  type FakeGitHub,
-  type RepositoryAnswerer,
-} from "./support/fakeGitHub.ts";
+import { githubFor } from "./dashboardTest.ts";
+import type { FakeGitHub, RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import { expectServedHomesReach } from "./support/fixtureOriginRoute.ts";
 
 // A done story outside the first publication, placed `place` hours and a
 // half before the list was published.
@@ -29,11 +29,10 @@ export const laterStory = (
   place: number,
   label: string,
   title: string,
-): Extract<ProgressiveEntry, { kind: "story" }> => {
+): ProgressiveEntry => {
   const identity = `SEED-3${label}#progressive-later-${label}`;
   return {
     place,
-    kind: "story",
     identity,
     title,
     path: `${doneDirectory}/${doneRecordFileName(identity)}`,
@@ -54,8 +53,7 @@ export const namesOf = (list: readonly ProgressiveEntry[], count: number) =>
     .map(entryName);
 
 // The record of a story entry.
-export const pathOf = (entry: ProgressiveEntry) =>
-  entry.kind === "story" ? entry.path : "";
+export const pathOf = (entry: ProgressiveEntry) => entry.path;
 
 // A done story newer than every first published entry.
 export const newest = laterStory(
@@ -64,40 +62,53 @@ export const newest = laterStory(
   "Finish the newest progressive story",
 );
 
-// `main` names the first publication until `publish` moves it; `answering`
-// wraps the first publication's answers (`opened`'s option of that name).
-// Each later publication keeps the files `beside` names beside its list
-// (`publishedWithCatalog`), as the first does when opened with them.
-export function movingMain(beside: Readonly<Record<string, string>> = {}) {
-  const published = new Map<string, RepositoryAnswerer>();
-  let head = firstRevision;
-  let count = 0;
-  const route: RepositoryAnswerer = (call) => {
-    const { request } = call;
-    const at =
-      "revision" in request ? published.get(request.revision) : undefined;
-    const answerer = at ?? published.get(head);
-    if (answerer === undefined) throw new Error("Nothing is published.");
-    return answerer(call);
-  };
+export type ProgressiveHistory = {
+  readonly afterGitHubStops: (cleanup: () => Promise<void>) => void;
+  readonly later: Readonly<Record<string, readonly ProgressiveEntry[]>>;
+};
+
+// Build the entire history once, removing expired records at their own
+// revision. Each published commit keeps answering for its own files.
+export async function movingMain(
+  page: Page,
+  now: number,
+  first: readonly ProgressiveEntry[],
+  beside: Readonly<Record<string, string>> | undefined,
+  { afterGitHubStops, later }: ProgressiveHistory,
+  wrapAnswer: (
+    answer: RepositoryAnswerer,
+    revision: string,
+  ) => RepositoryAnswerer,
+  workspaceTaken: boolean,
+) {
+  let previous = publishedWithCatalog(now, first, beside, workspaceTaken);
+  let history = makeMe.aRepository.withRevision<string>("A", {
+    files: previous,
+  });
+  for (const [name, list] of Object.entries(later)) {
+    const files = publishedWithCatalog(now, list, beside, workspaceTaken);
+    const remove = Object.keys(previous).filter(
+      (path) => !Object.hasOwn(files, path),
+    );
+    history = history.withRevision(name, { files, remove });
+    previous = files;
+  }
+  const published = await publishCommittedFileHistory(page, history.please(), {
+    repository,
+    trunk: "A",
+    afterGitHubStops,
+    wrapAnswer,
+  });
+  const github = githubFor(page);
+  const firstRevision = published.at("A").revision;
+  expectServedHomesReach(github, repository, firstRevision);
   return {
-    answering: (first: RepositoryAnswerer) => {
-      published.set(firstRevision, first);
-      return route;
-    },
-    // Publishes `list` at a revision of its own, which `main` then names,
-    // and says that revision.
-    publish: (now: number, list: readonly ProgressiveEntry[]) => {
-      count += 1;
-      head = String(count).padStart(2, "0").repeat(20);
-      published.set(
-        head,
-        publishes({
-          revision: head,
-          files: publishedWithCatalog(now, list, beside),
-        }),
-      );
-      return head;
+    firstRevision,
+    publish: (name: string) => {
+      const at = published.at(name);
+      published.moveTrunk(at);
+      expectServedHomesReach(github, repository, at.revision);
+      return at.revision;
     },
   };
 }

@@ -2,11 +2,16 @@
 // length are checked before and while bytes arrive, so a large or wrong body
 // never raises the shared 32 KB JSON bound (`./jsonRequestBody.ts`).
 
-import type { IncomingMessage } from "node:http";
+import type { IncomingHttpHeaders } from "node:http";
+import type { Readable } from "node:stream";
 import { RefusedRequest } from "./localOrigin.ts";
 
+export type RawBodyRequest = Readable & {
+  readonly headers: IncomingHttpHeaders;
+};
+
 export async function readBoundedRawBody(
-  req: IncomingMessage,
+  req: RawBodyRequest,
   signal: AbortSignal,
   {
     allowedTypes,

@@ -1,0 +1,88 @@
+/* The comparison bar (./IntentComparisonBar.tsx): the files toggle, the
+   comparison choice and Include merged changes, then the summary or its
+   state and the eye, on one row that wraps on a narrow window. The summary
+   takes the row's remaining width and wraps below only when less than its
+   minimum remains. */
+.intent-comparison-row,
+.intent-comparison-row > .intent-story-compare {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+}
+
+.intent-comparison-row > .start-launch-button {
+  flex: none;
+  font-size: var(--text-sm);
+}
+
+.intent-comparison-row .story-review-inclusion {
+  padding: 0;
+  border: 0;
+}
+
+.intent-comparison-row > .intent-story-compare > p {
+  margin: 0;
+}
+
+.intent-comparison-bar {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  font-size: var(--text-sm);
+}
+
+.intent-comparison-bar > p {
+  margin: 0;
+}
+
+/* The summary's name fills what its line leaves, up to its full width, and
+   ends in an ellipsis where the line is shorter, its full words kept as its
+   title. */
+.intent-comparison-bar-name {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: max-content;
+  overflow: hidden;
+  font-weight: var(--weight-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* On a narrow window, where the bar wraps anyway, the name keeps all its
+   words and wraps with them. */
+@media (max-width: 800px) {
+  .intent-comparison-bar-name {
+    flex: 0 1 auto;
+    white-space: normal;
+  }
+}
+
+/* The recorded agent, its portrait at the summary's line height so the bar
+   stays one compact row. */
+.intent-comparison-bar-agent {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.intent-comparison-bar-agent > .agent-portrait {
+  --portrait-size: 1.5rem;
+}
+
+/* Each choice keeps one line; a long landed-run label ends in an ellipsis,
+   its full words kept as the radio's name and its revisions in the details. */
+.intent-story-compare .story-review-comparison label {
+  display: inline-block;
+  max-width: 16rem;
+  padding: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}

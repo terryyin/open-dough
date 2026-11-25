@@ -5,19 +5,21 @@
 // ../../dashboard/test-support/autoRefreshJourney.ts; the page's clock is paused and
 // advanced by the test.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectSettledPage,
   parts,
+  shortRevision,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openSettledAtA,
   passTimeUntilChecked,
-  recordsAt,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   backlogA,
-  revisionB,
   titlesOfA,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { box } from "../../dashboard/test-support/partArrangement.ts";
@@ -28,15 +30,42 @@ for (const { width, at } of [
 ]) {
   test(`the read of a new revision is said without moving the columns${at}`, async ({
     page,
+    afterGitHubStops,
+    dashboard,
   }) => {
     await page.setViewportSize({ width, height: 720 });
-    const origin = await openSettledAtA(page);
+    const origin = await openSettledAtA(page, afterGitHubStops, {
+      backlog: backlogA,
+    });
+    const { B: revisionB } = origin.revisions;
+    expect(
+      await remoteBranchHead(
+        gitHubRepositoryUrl(defaultRepository),
+        "refs/heads/main",
+        {
+          cwd: dashboard.home,
+          env: { HOME: dashboard.home },
+          maxBuffer: 4096,
+        },
+      ),
+    ).toBe(origin.revisions.A);
     const { backlog, reading, status } = parts(page);
     const settledTop = (await box(backlog)).y;
 
     // B's backlog read is held, so the read stays under way to be seen.
     const release = origin.hold(revisionB);
-    origin.push(revisionB, backlogA, recordsAt("B"));
+    origin.advanceTo("B");
+    expect(
+      await remoteBranchHead(
+        gitHubRepositoryUrl(defaultRepository),
+        "refs/heads/main",
+        {
+          cwd: dashboard.home,
+          env: { HOME: dashboard.home },
+          maxBuffer: 4096,
+        },
+      ),
+    ).toBe(revisionB);
     await passTimeUntilChecked(page);
 
     await test.step("while the read is under way, the Backlog column stays where it was", async () => {
@@ -52,7 +81,9 @@ for (const { width, at } of [
       release();
       await expectSettledPage(page, titlesOfA);
       await expect(status).toHaveText(
-        /^Published work read at revision b2b2b2b/,
+        new RegExp(
+          `^Published work read at revision ${shortRevision(revisionB)}`,
+        ),
       );
       expect((await box(backlog)).y).toBe(settledTop);
     });

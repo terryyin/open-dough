@@ -7,6 +7,7 @@
 // Boundary first-input and admission: ../../dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { reviewRunKey } from "../../dashboard/src/storyReviewLandedRun.ts";
 import {
   parts,
   standaloneSessionName,
@@ -21,6 +22,7 @@ import {
   startSessionField,
 } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
 import { advanceCompletedTrunk } from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
+import { waitForLandedReview } from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import { ordinaryJourneyCompletedHistory } from "../../dashboard/test-support/support/completedFollowUpHistory.ts";
 import { claimant } from "../../dashboard/test-support/support/completedStoryThroughInterleaving.ts";
 import { agentWorktree } from "../../dashboard/test-support/support/agentAuthoredWorktree.ts";
@@ -118,7 +120,7 @@ test.describe("published file Follow up", () => {
 test.describe("retained Done workspace", () => {
   test.use({ originRepository: ordinaryJourneyCompletedHistory() });
 
-  test("a Done story retains Open terminal and follows up its published or landed file", async ({
+  test("a Done story follows up its selected landed comparison and still offers file follow-up", async ({
     page,
     dashboard,
     origin,
@@ -151,6 +153,7 @@ test.describe("retained Done workspace", () => {
       .markedDoneAt(doneAt)
       .please();
     keepLaunchRecords(dashboard, [reopenable]);
+    dashboard.claudeScenario("launched");
     advanceCompletedTrunk(origin);
     await publishCommittedOrigin(page, {
       repoDir: origin.origin,
@@ -181,21 +184,20 @@ test.describe("retained Done workspace", () => {
       await review.diffs.expectFollowUp(storyName);
     });
 
-    await test.step("Landed runs offer Follow up with the landed comparison", async () => {
-      const landed = page.waitForResponse((response) => {
-        const url = new URL(response.url());
-        return (
-          url.pathname === "/__agent-launch/review" &&
-          url.searchParams.has("run")
-        );
+    const landedComparison = `Landed run ${base} → ${completion}`;
+    await test.step("Landed runs offer file Follow up on the retained Git pair", async () => {
+      const key = reviewRunKey(reopenable);
+      const landed = waitForLandedReview(page, key);
+      await review.landedRun.choose(key);
+      expect(await landed).toMatchObject({
+        kind: "landed",
+        baseline: base,
+        tree: completion,
       });
-      await review.landedRun.chooseLatest();
-      const landedReview = (await (await landed).json()) as {
-        kind: string;
-        baseline: string;
-        tree: string;
-      };
-      expect(landedReview.kind).toBe("landed");
+      expect(review.answer).not.toMatchObject({
+        baseline: base,
+        tree: completion,
+      });
       await review.landedRun.expectShown();
       // The landed pair lists completion artifacts; pick one known path.
       const doneRecord = "Added .planning/done/SEED-A_a.json";
@@ -204,10 +206,23 @@ test.describe("retained Done workspace", () => {
       await review.diffs.followUp(storyName);
       await expectFileFollowUpDialog(dialog, storyName, [
         "Path: .planning/done/SEED-A_a.json",
-        `Comparison: Landed run ${landedReview.baseline} → ${landedReview.tree}`,
+        `Comparison: ${landedComparison}`,
       ]);
       await dialog.getByRole("button", { name: "Cancel" }).click();
       await expect(dialog).toBeHidden();
+    });
+
+    await test.step("The title action sends the same landed pair to Claude", async () => {
+      const composer = await review.followUpComparison();
+      await composer.expectContext(storyName, [
+        `Comparison: ${landedComparison}`,
+      ]);
+      const instruction = "Review the accepted landing";
+      await composer.start(instruction);
+      await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
+      const firstInput = dashboard.claudeLaunches()[0]?.instruction;
+      expect(firstInput).toContain(`- Comparison: ${landedComparison}`);
+      expect(firstInput).toContain(instruction);
     });
   });
 });

@@ -1,3 +1,4 @@
+import { chooseWholeProject } from "../intent/intent-recent-stories-page.ts";
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
@@ -185,9 +186,7 @@ test("system appearance changes frame chrome and Intent source without losing th
     exact: true,
   });
   await userEvent.click(intentChoice);
-  await intent
-    .getByRole("button", { name: "Project Intent", exact: true })
-    .click();
+  await chooseWholeProject();
   const source = highlightedSourceReading(await openHighlightedSource(), {
     keyword: /^export$/,
     comment: /greets the reader/,

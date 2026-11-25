@@ -52,7 +52,7 @@ test("CI status names main, its nearest Passed result, later commits without a r
     "dashboard/tests/browse.spec.ts": browseSpec,
   });
   published.serveCi(
-    trunkCi(openDough.revision, () => [
+    trunkCi(published.revision, () => [
       makeMe.aCiRun
         .with({ headSha: judged, conclusion: "success", url: runUrl })
         .please(),
@@ -114,16 +114,18 @@ test("CI status is shown without Intent locations and with unreadable Intent set
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  publishProject(page, doughnut).serveCi(
-    trunkCi(doughnut.revision, () => [
+  const doughnutCi = publishProject(page, doughnut);
+  doughnutCi.serveCi(
+    trunkCi(doughnutCi.revision, () => [
       makeMe.aCiRun
         .with({ headSha: judged, conclusion: "cancelled", url: runUrl })
         .please(),
     ]),
   );
-  publishProject(page, pygardon, {
+  const pygardonCi = publishProject(page, pygardon, {
     ".planning/open-dough.json": "{ not json\n",
-  }).serveCi(trunkCi(pygardon.revision, () => []));
+  });
+  pygardonCi.serveCi(trunkCi(pygardonCi.revision, () => []));
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();

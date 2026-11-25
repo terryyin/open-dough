@@ -1,13 +1,7 @@
-// A failed read of one project -- here Pygardon, published to the same fake
-// GitHub as Open Dough and Doughnut (../../dashboard/test-support/publishedOrigin.ts) -- is recovered in
-// the browser without losing project context: switching stays available,
-// reloading reads the project once access is restored, and a later failure keeps
-// only that project's previous snapshot. No real credentials change.
-// Server-side failure categories are covered by
-// authenticated-read-boundary.spec.ts; subprocess timeout is covered by
-// authenticated-read-subprocess-lifecycle.spec.ts.
+// A project read can fail, recover on reload, and retain its snapshot on a later failed check.
 
-import { type Page } from "@playwright/test";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   passTimeUntilChecked,
   pausePageClock,
@@ -23,33 +17,21 @@ import {
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
-  describedRevision,
-  publishedFile,
-} from "../../dashboard/test-support/describedRevisions.ts";
-import type { PublishedRevision } from "../../dashboard/test-support/publishedFiles.ts";
-import {
-  backlogPath,
   notLoggedIn,
-  publishMovingOrigin,
-  type MovingOrigin,
   type OriginAnswer,
 } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Backlog } from "../../Distribution/tests/support/repositoryTestData.mjs";
 
 const doughnutRepository = "nerds-odd-e/doughnut";
 const pygardonRepository = "terryyin/pygardon";
 
-// The one published revision of a project stating `backlog`.
-function publishedWith(revision: string, backlog: Backlog): PublishedRevision {
-  return describedRevision(
-    makeMe.aRepository.withRevision("published", { backlog }).please(),
-    revision,
-  );
-}
+const publishedWith = (backlog: Backlog) =>
+  makeMe.aRepository.withRevision("published", { backlog }).please();
 
 const openDoughTitle = "Open Dough's own queued story";
-const openDoughPublished = publishedWith("d0".repeat(20), {
+const openDoughPublished = publishedWith({
   queued: [
     makeMe.aBacklogEntry
       .with({
@@ -61,9 +43,8 @@ const openDoughPublished = publishedWith("d0".repeat(20), {
   ],
 });
 
-const doughnutRevision = "d1".repeat(20);
 const doughnutTitle = "Doughnut's own queued story";
-const doughnutPublished = publishedWith(doughnutRevision, {
+const doughnutPublished = publishedWith({
   queued: [
     makeMe.aBacklogEntry
       .with({
@@ -75,12 +56,11 @@ const doughnutPublished = publishedWith(doughnutRevision, {
   ],
 });
 
-const pygardonRevision = "c1".repeat(20);
 const pygardonTakenTitle = "Pygardon's own taken story";
 const pygardonQueuedTitle = "Pygardon's own queued story";
 const pygardonDirection =
   "Recover from a failed read without losing project context.";
-const pygardonPublished = publishedWith(pygardonRevision, {
+const pygardonPublished = publishedWith({
   direction: pygardonDirection,
   taken: [
     makeMe.aBacklogEntry
@@ -102,34 +82,45 @@ const pygardonPublished = publishedWith(pygardonRevision, {
   ],
 });
 
-// Moves `origin`'s `main` to `at`.
-function pushTo(origin: MovingOrigin, at: PublishedRevision): void {
-  origin.push(at.revision, publishedFile(at, backlogPath));
-}
-
 // `gh` fails in a way this boundary cannot put a category to.
 const unexplainedFailure: OriginAnswer = {
   exitCode: 1,
   stderr: "gh: unexplained failure\n",
 };
 
-async function publishOpenDough(page: Page): Promise<void> {
-  const openDough = await publishMovingOrigin(page);
-  pushTo(openDough, openDoughPublished);
-}
-
-async function publishOpenDoughAndDoughnut(page: Page): Promise<void> {
-  await publishOpenDough(page);
-  const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  pushTo(doughnut, doughnutPublished);
-}
-
 test.describe("project read recovery", () => {
   test("an unavailable Pygardon read shows an actionable, project-specific failure while another project remains selectable; restoring access and reloading reads Pygardon; a later failed check keeps only Pygardon's previous snapshot", async ({
     page,
+    afterGitHubStops,
+    dashboard,
   }) => {
-    await publishOpenDoughAndDoughnut(page);
-    const pygardonOrigin = await publishMovingOrigin(page, pygardonRepository);
+    await publishMovingHistory(
+      page,
+      openDoughPublished,
+      "published",
+      afterGitHubStops,
+    );
+    const doughnut = await publishMovingHistory(
+      page,
+      doughnutPublished,
+      "published",
+      afterGitHubStops,
+      doughnutRepository,
+    );
+    const pygardonOrigin = await publishMovingHistory(
+      page,
+      pygardonPublished,
+      "published",
+      afterGitHubStops,
+      pygardonRepository,
+    );
+    expect(
+      await remoteBranchHead(
+        gitHubRepositoryUrl(pygardonRepository),
+        "refs/heads/main",
+        { cwd: dashboard.home, env: { HOME: dashboard.home }, maxBuffer: 4096 },
+      ),
+    ).toBe(pygardonOrigin.revisions.published);
     const restoreLogin = pygardonOrigin.answerWith("main", notLoggedIn);
 
     await pausePageClock(page);
@@ -155,7 +146,9 @@ test.describe("project read recovery", () => {
       await expect(selectedProject).toBeFocused();
       await page.keyboard.press("ArrowLeft");
       await expectMembership(page, { taken: [], backlog: [doughnutTitle] });
-      await expect(readRevision).toContainText(shortRevision(doughnutRevision));
+      await expect(readRevision).toContainText(
+        shortRevision(doughnut.revisions.published),
+      );
       await expect(problem).toHaveCount(0);
     });
 
@@ -170,7 +163,6 @@ test.describe("project read recovery", () => {
 
     await test.step("restoring existing access and reloading reads Pygardon's actual published work", async () => {
       restoreLogin();
-      pushTo(pygardonOrigin, pygardonPublished);
       await page.reload();
       await expectMembership(page, {
         taken: [pygardonTakenTitle],
@@ -178,7 +170,9 @@ test.describe("project read recovery", () => {
       });
       await openDirection(page);
       await expect(direction).toContainText(pygardonDirection);
-      await expect(readRevision).toContainText(shortRevision(pygardonRevision));
+      await expect(readRevision).toContainText(
+        shortRevision(pygardonOrigin.revisions.published),
+      );
       await expect(problem).toHaveCount(0);
     });
 
@@ -207,10 +201,19 @@ test.describe("project read recovery", () => {
 
     test("the bounded stalled-read timeout resolves into the same ordinary recoverable failure as any other cause, and a reload after restored access succeeds", async ({
       page,
+      afterGitHubStops,
     }) => {
-      await publishOpenDough(page);
-      const pygardonOrigin = await publishMovingOrigin(
+      await publishMovingHistory(
         page,
+        openDoughPublished,
+        "published",
+        afterGitHubStops,
+      );
+      const pygardonOrigin = await publishMovingHistory(
+        page,
+        pygardonPublished,
+        "published",
+        afterGitHubStops,
         pygardonRepository,
       );
       const releaseRef = pygardonOrigin.hold("main");
@@ -233,7 +236,6 @@ test.describe("project read recovery", () => {
       await expect(page.getByRole("article")).toHaveCount(0);
 
       releaseRef();
-      pushTo(pygardonOrigin, pygardonPublished);
       await page.reload();
       await expectMembership(page, {
         taken: [pygardonTakenTitle],

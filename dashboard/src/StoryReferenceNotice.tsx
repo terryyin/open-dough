@@ -1,11 +1,19 @@
-// The persistent navigation announcement and the actions that belong to it.
-// Activating one keeps the journey; typing or moving elsewhere supersedes it.
-export function isStoryReferenceAction(event: Event): boolean {
-  if (
-    !(event.target instanceof Element) ||
-    event.target.closest(".story-reference-actions button") === null
-  )
-    return false;
+// The chooser can offer other destinations while an unavailable answer stays
+// visible. Its interaction mark is independent of where or how it is styled.
+const choicesAttribute = "data-story-reference-choices";
+export const storyReferenceChoices = { [choicesAttribute]: true };
+
+// Activating an action in the notice keeps the journey. Interacting with the
+// chooser also keeps an unavailable answer while the reader considers it.
+export function keepsStoryReference(
+  event: Event,
+  unavailable: boolean,
+): boolean {
+  const target = event.target;
+  if (!(target instanceof Element)) return false;
+  if (unavailable && target.closest(`[${choicesAttribute}]`) !== null)
+    return true;
+  if (target.closest(".story-reference-actions button") === null) return false;
   return (
     event.type === "pointerdown" ||
     event.type === "touchstart" ||

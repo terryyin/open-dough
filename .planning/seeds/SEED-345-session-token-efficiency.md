@@ -58,32 +58,6 @@ traces supply the examples below. Token figures come from
 
 Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
-<a id="load-execution-guidance-for-the-current-phase"></a>
-
-### Load execution guidance for the current phase
-
-**Identity:** SEED-345#load-execution-guidance-for-the-current-phase
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-- **Scope and beneficiary.** Shared guidance used on every host. A
-  coordinator starts each execution phase with the guidance that phase needs.
-- **Evaluation.** On a representative execution, the coordinator reaches
-  the same decisions, refusals and proof while reading guidance for the phase
-  it is in rather than the whole reference tree, and re-reads a boundary only
-  when it changed. Skill descriptions listed in every session stay short while
-  naming their triggers. Compare guidance read and coordinator context.
-- **Priority.** Fifth. Coordinators read about 21 execute-plan files on
-  Cursor and about 20 (roughly 250k characters) on Claude Code; Codex's
-  first reference batch truncated in SEED-342. Every execution pays this,
-  but the 2026-11-15 re-measurement put the carried guidance at about $2
-  list-price per Claude Code execution.
-- **Effort and boundary.** Medium, medium confidence. Keep required
-  breadth ([ODF-158](../../docs/maintainer/findings/ODF-158.md)) and keep
-  boundary rows maintainable ([ODF-446](../../docs/maintainer/findings/ODF-446.md)).
-  [Guidance reads](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
-
 <a id="start-cursor-slices-from-complete-task-briefs"></a>
 
 ### Start Cursor slices from complete Task briefs

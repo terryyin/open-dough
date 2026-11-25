@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "ef77dc1d-cd2e-4e12-88f0-791f468e04a1",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T11:45:03.012Z",
+  "story": "SEED-417#use-sidebars-consistently-across-the-dashboard",
+  "ranges": [
+    {
+      "base": "466d6d8fd6feeabbb91597748b532043749c7f58",
+      "candidate": "d25141f3cf40e45765cdf6f3f35d2639f302407c"
+    }
+  ]
+}

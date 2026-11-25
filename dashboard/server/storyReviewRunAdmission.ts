@@ -26,7 +26,7 @@ export async function reviewedLandedRuns(
   return { records, runs };
 }
 
-// A launch reference must be a UUID naming one of these retained landed runs.
+// A reference must name a launch or its captured landing among these runs.
 export function reviewedLandedRunByReference(
   runs: readonly ReviewLandedRun[],
   reference: string,
@@ -34,7 +34,9 @@ export function reviewedLandedRunByReference(
   if (!z.uuid().safeParse(reference).success)
     throw new RefusedRequest(400, "The review launch reference is malformed.");
   const run = runs.find(
-    ({ record }) => record.request.reporting?.reference === reference,
+    ({ record }) =>
+      record.landing?.reference === reference ||
+      record.request.reporting?.reference === reference,
   );
   if (run === undefined)
     throw new RefusedRequest(

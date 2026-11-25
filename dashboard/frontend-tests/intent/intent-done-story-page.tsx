@@ -5,6 +5,7 @@
 // whose historical Intent locations (../../src/useHistoricalIntentLocations.tsx)
 // are read at its published completion through a typed read source.
 import { page } from "vitest/browser";
+import "../page-objects/cssLocator.ts";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import { IntentCiEvidenceProvider } from "../../src/IntentCiEvidence.tsx";
@@ -81,7 +82,6 @@ export async function mountDoneStory(
     summary,
     selection: { project: story.source.id, identity: story.identity },
     compared: undefined,
-    onProjectIntent() {},
   };
   await mountComponent(
     <PageReadsOnPage reads={pageReadsSupplying({ intent: reads, ci })}>
@@ -113,17 +113,17 @@ export async function mountDoneStory(
     </PageReadsOnPage>,
     { viewport: { width: 1280, height: 600 } },
   );
-  const tab = (name: "CI comparison" | "Changes") =>
+  const tab = (name: "CI comparison") =>
     page.getByRole("tab", { name, exact: true });
-  const changes = page.getByRole("tabpanel", { name: "Changes", exact: true });
-  const failure = changes.getByRole("alert");
+  const home = page.getByCSS(".intent-story-home");
+  const failure = home.getByRole("alert");
   return {
     tab,
     title: page
       .getByRole("region", { name: "Selected story", exact: true })
       .getByRole("heading", { level: 2 }),
     headers: page.getByRole("region", { name: "Selected story", exact: true }),
-    changes,
+    home,
     failure,
     retry: failure.getByRole("button", { name: "Retry", exact: true }),
   };

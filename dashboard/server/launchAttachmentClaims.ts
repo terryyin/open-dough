@@ -18,18 +18,18 @@ import {
   withoutConfirmation,
   type AgentLaunchRequest,
 } from "../src/launchRequest.ts";
-import { machineDashboardPath } from "./machineHome.ts";
+import { machineDashboardDirectory } from "./machineHome.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 function contentDigest(bytes: Buffer): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-const claimsRoot = (...segments: string[]) =>
-  machineDashboardPath("launch-attachment-claims", ...segments);
+const claimDirectory = (id: string, dashboardDirectory: string) =>
+  path.join(dashboardDirectory, "launch-attachment-claims", id);
 
-const attachmentsRoot = (...segments: string[]) =>
-  machineDashboardPath("launch-attachments", ...segments);
+const attachmentsDirectory = (attemptId: string, dashboardDirectory: string) =>
+  path.join(dashboardDirectory, "launch-attachments", attemptId);
 
 type ClaimMeta = {
   readonly name: string;
@@ -40,10 +40,11 @@ export function claimLaunchAttachment(
   bytes: Buffer,
   type: string,
   name: string,
+  dashboardDirectory = machineDashboardDirectory(),
 ): string {
   const imageType = checkedImageAttachmentType(type, bytes.length);
   const id = randomUUID();
-  const directory = claimsRoot(id);
+  const directory = claimDirectory(id, dashboardDirectory);
   mkdirSync(directory, { recursive: true });
   const meta: ClaimMeta = {
     name: sanitizeImageAttachmentName(name, imageType),
@@ -56,9 +57,13 @@ export function claimLaunchAttachment(
 
 export function abandonAttachmentClaims(
   claims: readonly string[] | undefined,
+  dashboardDirectory = machineDashboardDirectory(),
 ): void {
   for (const id of claims ?? []) {
-    rmSync(claimsRoot(id), { recursive: true, force: true });
+    rmSync(claimDirectory(id, dashboardDirectory), {
+      recursive: true,
+      force: true,
+    });
   }
 }
 
@@ -72,8 +77,14 @@ export function answerWithoutAttachmentClaims<T>(
   return answer();
 }
 
-export function removeLaunchAttachments(attemptId: string): void {
-  rmSync(attachmentsRoot(attemptId), { recursive: true, force: true });
+export function removeLaunchAttachments(
+  attemptId: string,
+  dashboardDirectory = machineDashboardDirectory(),
+): void {
+  rmSync(attachmentsDirectory(attemptId, dashboardDirectory), {
+    recursive: true,
+    force: true,
+  });
 }
 
 type MaterializedAttachments = {
@@ -93,12 +104,12 @@ export function withClaimAttachmentDigests(
   ) {
     return request;
   }
+  const dashboardDirectory = machineDashboardDirectory();
   const digests: string[] = [];
   for (const id of request.attachmentClaims) {
     try {
-      digests.push(
-        contentDigest(readFileSync(path.join(claimsRoot(id), "bytes"))),
-      );
+      const directory = claimDirectory(id, dashboardDirectory);
+      digests.push(contentDigest(readFileSync(path.join(directory, "bytes"))));
     } catch {
       throw new RefusedRequest(400, "An attached image could not be read.");
     }
@@ -112,46 +123,47 @@ export function withClaimAttachmentDigests(
 export function materializeLaunchAttachments(
   attemptId: string,
   claims: readonly string[] | undefined,
+  dashboardDirectory = machineDashboardDirectory(),
 ): MaterializedAttachments {
   if (claims === undefined || claims.length === 0) {
     return { paths: [], digests: [] };
   }
   if (claims.length > launchAttachmentMaxCount) {
-    abandonAttachmentClaims(claims);
+    abandonAttachmentClaims(claims, dashboardDirectory);
     throw new RefusedRequest(400, launchAttachmentTooMany);
   }
   const unique = new Set(claims);
   if (unique.size !== claims.length) {
-    abandonAttachmentClaims(claims);
+    abandonAttachmentClaims(claims, dashboardDirectory);
     throw new RefusedRequest(400, "The launch request is malformed.");
   }
-  const directory = attachmentsRoot(attemptId);
+  const directory = attachmentsDirectory(attemptId, dashboardDirectory);
   mkdirSync(directory, { recursive: true });
   const paths: string[] = [];
   const digests: string[] = [];
   try {
     for (const [index, id] of claims.entries()) {
-      const claimDirectory = claimsRoot(id);
+      const claimed = claimDirectory(id, dashboardDirectory);
       let meta: ClaimMeta;
       let bytes: Buffer;
       try {
         meta = JSON.parse(
-          readFileSync(path.join(claimDirectory, "meta.json"), "utf8"),
+          readFileSync(path.join(claimed, "meta.json"), "utf8"),
         ) as ClaimMeta;
-        bytes = readFileSync(path.join(claimDirectory, "bytes"));
+        bytes = readFileSync(path.join(claimed, "bytes"));
       } catch {
         throw new RefusedRequest(400, "An attached image could not be read.");
       }
       const fileName = `${String(index + 1)}-${sanitizeImageAttachmentName(meta.name, meta.type)}`;
       const destination = path.join(directory, fileName);
       writeFileSync(destination, bytes);
-      rmSync(claimDirectory, { recursive: true, force: true });
+      rmSync(claimed, { recursive: true, force: true });
       paths.push(destination);
       digests.push(contentDigest(bytes));
     }
   } catch (error) {
     rmSync(directory, { recursive: true, force: true });
-    abandonAttachmentClaims(claims);
+    abandonAttachmentClaims(claims, dashboardDirectory);
     throw error;
   }
   return { paths, digests };
@@ -164,9 +176,10 @@ export function materializeLaunchAttachments(
 export function recordedRequestWithMaterializedAttachments(
   attemptId: string,
   request: AgentLaunchRequest,
+  dashboardDirectory = machineDashboardDirectory(),
 ): AgentLaunchRequest {
   if (request.attachments !== undefined) {
-    abandonAttachmentClaims(request.attachmentClaims);
+    abandonAttachmentClaims(request.attachmentClaims, dashboardDirectory);
     throw new RefusedRequest(400, "The launch request is malformed.");
   }
   const base = withoutConfirmation(request);
@@ -174,6 +187,7 @@ export function recordedRequestWithMaterializedAttachments(
     const { paths, digests } = materializeLaunchAttachments(
       attemptId,
       request.attachmentClaims,
+      dashboardDirectory,
     );
     if (paths.length === 0) {
       const kept = { ...base };
@@ -182,7 +196,7 @@ export function recordedRequestWithMaterializedAttachments(
     }
     return { ...base, attachments: paths, attachmentDigests: digests };
   } catch (error) {
-    removeLaunchAttachments(attemptId);
+    removeLaunchAttachments(attemptId, dashboardDirectory);
     throw error;
   }
 }

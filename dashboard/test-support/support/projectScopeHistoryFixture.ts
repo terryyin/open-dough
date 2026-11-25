@@ -7,15 +7,18 @@
 // ../../../e2e/intent/intent-project-scope-timing-history.spec.ts.
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
+import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import type { GhCall } from "./fakeGitHub.ts";
 import { declaredSummaryComparisonEndpointsIn } from "./intentSummaryStoryComparisonRepository.ts";
 import { serveSummaryComparisonStory } from "./intentSummaryStoryComparisonServing.ts";
 import { startingFromKeptSummaryComparisonStory } from "./keptPublishedStory.ts";
 import { keepLandedCiHistory } from "./landedCiHistory.ts";
 import { startLandedCiReader } from "./landedCiReader.ts";
 import { commonGitDir } from "./launchLanding.ts";
-import { chooseStoryTab } from "./intentStoryPage.ts";
+import { browseStoryFiles } from "./intentStoryPage.ts";
 import { test as preparationTest } from "./preparationPage.ts";
 import { openDoneStoryIntent } from "./scopeHistoryCollectedPage.ts";
 import { serveKeptScopeProofs } from "./scopeHistoryCollection.ts";
@@ -121,6 +124,42 @@ export async function readKeptProjectHistory(
   // The Done comparison's reads go on while the case reads Changes; a
   // case waits for the page's reads before it counts acquisitions.
   const { intent } = await openDoneStoryIntent(page, dashboard.origin);
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   return { setup, latest, intent };
 }
+
+export async function advanceTrunkWithoutCollectedBuild(
+  page: Page,
+  origin: StartOrigin,
+) {
+  const main = await originMain(origin);
+  const next = (
+    await origin.originGit(
+      "-c",
+      "user.name=Trunk Mover",
+      "-c",
+      "user.email=trunk@example.invalid",
+      "commit-tree",
+      `${main}^{tree}`,
+      "-p",
+      main,
+      "-m",
+      "New observed trunk head",
+    )
+  ).trim();
+  await origin.originGit("update-ref", "refs/heads/main", next, main);
+  git(origin.project, "fetch", "--quiet", "origin", "main");
+  await passTimeUntilChecked(page);
+  await untilPageReadsAnswered(page);
+  return next;
+}
+
+export const historyBuildAcquisitions = (
+  calls: readonly GhCall[],
+  artifactIds: readonly number[],
+) =>
+  calls.filter(
+    ({ request }) =>
+      request.kind === "actions-artifact-zip" &&
+      artifactIds.includes(request.artifactId),
+  ).length;

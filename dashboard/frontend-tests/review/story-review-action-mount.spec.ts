@@ -87,12 +87,11 @@ const reviewChanges = (card: Region) =>
 
 async function expectChangesOpened() {
   const intent = page.getByRole("main", { name: "Intent", exact: true });
-  const changes = intentStoryCompare().viewTab("Changes");
-  await expect.element(changes).toHaveAttribute("aria-selected", "true");
+  const feedback = intentStoryCompare().header;
   await expect
     .element(intent)
     .toHaveAttribute("data-selected-story", subject.identity);
-  await expect.element(changes).toHaveFocus();
+  await expect.element(feedback).toHaveFocus();
 }
 
 const box = (region: Region) => region.element().getBoundingClientRect();
@@ -101,7 +100,7 @@ test.each([
   { width: 1920, height: 900, oneLine: true },
   { width: 320, height: 900, oneLine: false },
 ])(
-  "at $width px the inspection group sits below the Starts in reading order, and the keyboard reaches Review changes from Inspect story and opens Changes focused",
+  "at $width px the inspection group sits below the Starts in reading order, and the keyboard reaches Review changes from Inspect story and focuses the comparison feedback",
   async ({ width, height, oneLine }) => {
     const card = await mountCard("Backlog", sources.launch(), {
       width,
@@ -158,7 +157,7 @@ test.each([
 );
 
 test.each([{ column: "Taken", source: "preparation" }] as const)(
-  "a $column card offered Review changes by a $source opens its Changes with the tab focused",
+  "a $column card offered Review changes by a $source focuses its comparison feedback",
   async ({ column, source }) => {
     const card = await mountCard(column, sources[source]());
     await reviewChanges(card).click();

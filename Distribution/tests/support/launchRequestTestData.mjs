@@ -33,7 +33,7 @@
  */
 /**
  * What an incoming ad hoc launch's request states beside its host and project.
- * @typedef {{ source?: string, host?: AgentLaunchRequest["host"], instruction?: string, followUp?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["followUp"], maintenance?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["maintenance"] }} IncomingAdHocFacts
+ * @typedef {{ source?: string, host?: AgentLaunchRequest["host"], instruction?: string, followUp?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["followUp"], maintenance?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["maintenance"], attachmentClaims?: readonly string[] }} IncomingAdHocFacts
  */
 
 /**
@@ -153,6 +153,7 @@ export class LaunchRequestBuilder {
     instruction,
     followUp,
     maintenance,
+    attachmentClaims,
   } = {}) {
     this.#request = {
       source,
@@ -161,6 +162,7 @@ export class LaunchRequestBuilder {
       ...(instruction !== undefined && { instruction }),
       ...(followUp && { followUp: { ...followUp } }),
       ...(maintenance && { maintenance: { ...maintenance } }),
+      ...(attachmentClaims && { attachmentClaims: [...attachmentClaims] }),
     };
     return this;
   }

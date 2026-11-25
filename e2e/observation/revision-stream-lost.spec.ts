@@ -23,7 +23,6 @@ import {
   checksAskedWhilePassing,
   pageTimeStepMs,
   passPageMs,
-  recordsAt,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   isRevisionStream,
@@ -34,8 +33,6 @@ import {
   untilStreamingAt,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
 import {
-  backlogB,
-  revisionB,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
@@ -55,7 +52,7 @@ test.use({
 
 ownerClockTest(
   "a rate-limited stream answer shows today's notice, closes the stream, waits until T, then reopens",
-  async ({ page, owner }) => {
+  async ({ page, afterGitHubStops, owner }) => {
     // Retry-After long enough that an observation-start arm would leave the
     // post-wait bound short of a full silence: such an arm reports lost
     // freshness 45 seconds of page time after the limited answer, before the
@@ -63,7 +60,8 @@ ownerClockTest(
     // E3.2 needs a full bound from reopen. The owner holds reads for this span
     // of its own time.
     const retryAfterSeconds = 6;
-    const origin = await openStreamingAtA(page);
+    const origin = await openStreamingAtA(page, afterGitHubStops);
+    const { A: revisionA, B: revisionB } = origin.revisions;
     const { problem, retrievedAt } = parts(page);
     const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
     const restoreMain = origin.answerWith(
@@ -114,10 +112,13 @@ ownerClockTest(
         .filter(({ request }) => request.kind === "matching-refs"),
     ).toEqual([]);
     // Owner time reaches T, and the page clock crosses it; silence arms
-    // immediately before this open.
+    // immediately before this open. The open reaches the test after the
+    // clock step that fires it returns, so the case waits for it; by then
+    // any earlier open would have reached the test too, and there was none.
     owner.advanceOwnerClock(retryAfterSeconds * 1000);
+    const reopened = untilStreamingAt(page, revisionA);
     await passPageMs(page, 2_000 + pageTimeStepMs);
-    expect(streamOpens.length).toBeGreaterThan(0);
+    expect(streamOpens).toEqual([(await reopened).url()]);
 
     await test.step("E3.2: after the wait a full silence bound starts from reopen", async () => {
       await passPageMs(page, revisionStreamSilenceMs - 5_000);
@@ -128,7 +129,7 @@ ownerClockTest(
     });
 
     await stopFailing();
-    origin.push(revisionB, backlogB, recordsAt("B"));
+    origin.advanceTo("B");
     const resumed = untilStreamingAt(page, revisionB);
     await passPageMs(page, checkIntervalMs);
     await expectSettledPage(page, titlesOfB);

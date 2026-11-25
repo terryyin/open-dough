@@ -36,7 +36,7 @@ import {
 import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { storyFollowUpMessage } from "./storyFollowUpMessage.ts";
-import { admitPublishedStoryComparison } from "./storyReviewHistoricalFileAdmission.ts";
+import { admitStoryComparison } from "./storyReviewHistoricalFileAdmission.ts";
 import { waitingStoryNotes } from "./storyNotes.ts";
 
 async function resolveStoryFollowUp(
@@ -51,7 +51,7 @@ async function resolveStoryFollowUp(
   if (file !== undefined)
     await admitFollowUpFile(source, followUp.identity, file);
   if (comparison !== undefined)
-    await admitPublishedStoryComparison(source, followUp.identity, comparison);
+    await admitStoryComparison(source, followUp.identity, comparison);
   const sessions = await followUpStorySessions(
     source,
     followUp.identity,

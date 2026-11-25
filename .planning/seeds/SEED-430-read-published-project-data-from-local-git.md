@@ -34,67 +34,9 @@ and machine gh credential.
 **Follow-up stories.** The rest of the published read inventory is tracked
 in [Intent and attribution](SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git),
 [CI inputs](SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git),
-[scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git),
-and [Add Project](SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git).
-
-<a id="recover-fixed-observation-at-its-published-pin"></a>
-
-### Recover a fixed observation at its published pin
-
-**Identity:** SEED-430#recover-fixed-observation-at-its-published-pin
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/831-recover-fixed-observation-at-its-published-pin/PLAN.md"}
-```
-
-**Goal.** A maintainer relying on the authenticated observation journey
-again proves that restored access shows the same published revision the
-Board read before the login failure.
-
-**Scope.** Correct the restored-access step left publishing a new commit
-by the fixed fixture story SEED-430#open-published-board-from-local-git, and the
-residue it left. Plan:
-[831](../slice-plans/831-recover-fixed-observation-at-its-published-pin/PLAN.md).
-
-<a id="publish-moving-board-fixtures-through-git"></a>
-
-### Publish moving Board test fixtures through real Git
-
-**Identity:** SEED-430#publish-moving-board-fixtures-through-git
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/826-publish-moving-board-fixtures-through-git/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6bffebe68005254fee82a09548b0e1ccf2c3049f3f286ae0ae32e019613fbd17","plan":"d2eab427f8eb52e7f60beee78713d7e356ce9eb9ca56888b6411647160308a84"}}
-```
-
-**Goal.** A maintainer can exercise a moving or rewound test publication
-through the same real origin the Dashboard will use for Board membership.
-Browser journeys can continue to verify scheduled observation and pinned
-details against the commits the fixture actually publishes.
-
-**Scope.** Migrate moving browser histories and their custom observation
-fixtures. Successful trunk answers in Git and REST name the same commit
-at each publication. Carry the existing record bytes, comparisons, clocks,
-launch-independent session transitions, and Intent CI references to the
-appropriate pins. Preserve intentional holds, bad inputs, and recovery at
-the scheduled or detail request that owns them. Keep earlier pins readable
-where the journey retains them. The fixed fixture story owns fixed file
-publications. Routing qualification owns actual launch and reconciliation,
-configured-project setup, direct backend proofs, and the final cross-suite
-audit. The Board cutover owns membership dispatch and its failure proofs.
-
-**Key examples.**
-
-- Given a Board at A, publish B and let the scheduled check run. The served
-  HOME resolves trunk to B, the scheduled request discovers B, and the
-  Board shows the records for B. A detail already pinned at A still reads
-  its intended record.
-- Given a test origin that has moved from A to B, rewind trunk to A. A
-  subsequent check and the visible direction or navigation state follow the
-  original A commit. A deliberately held or refused REST detail still
-  reaches its original failure and recovery assertions.
-- Given a moving file history where B changes only product code, let the
-  check discover B. The existing comparison names the real A and B, the
-  Board reuses unchanged planning records, and a restarted Dashboard reads
-  those records at B. Intent and Recently done journeys keep the same CI
-  evidence or session relationship across their own publication changes.
+and [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git).
+[Add Project](../../dashboard/server/projectAddition.ts) resolves the default branch
+from origin's symbolic `HEAD` when configuring a project.
 
 <a id="qualify-board-fixture-routing-and-request-boundaries"></a>
 
@@ -102,27 +44,44 @@ audit. The Board cutover owns membership dispatch and its failure proofs.
 
 **Identity:** SEED-430#qualify-board-fixture-routing-and-request-boundaries
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"78ad8b6b484d84f14a331a615d16caba7c99ed886bc3b3721a85a55eba0e2586","plan":"2fa9e3994354ee1bcd186712b4df0f423d9f7d0561fbb11a79edc36438714d20"}}
 ```
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-430#qualify-board-fixture-routing-and-request-boundaries","dependencies":[{"supplier":{"identity":"SEED-430#open-published-board-from-local-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#open-published-board-from-local-git"},"implementation":"Real publications for the fixed Board and Intent fixture families","rationale":"The final fixture gate covers the same fixed Board opens. Their synthetic origin pins leave unexplained mismatches in that gate.","condition":"The fixed Board and Intent fixtures advertise their real routed trunk with existing retained detail proof","state":"satisfied","resolution":{"revision":"548a3814652df8782da71457ac3acffd973a2f08","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#open-published-board-from-local-git","summary":"Plan 824 slices 1-6 are done at the before-cleanup revision. Fixed publications in the profile, clock, roster, portrait, branch-progress, Recently done, session, completion, Intent and project-observation specs commit through publishCommittedFiles or serveCommitted, which fail unless Git under every served dashboard HOME finds the published revision; REST detail answers serve the same files at that revision and specs assert the returned pin. Deliberate listing, catalog, record and backlog failures stay at their REST boundaries. Intent Coverage at 46d4fbf32 caught a broken routing on the listing-failure path. Branch CI succeeded at 851fc0199 and 27aa26172. The restored-access step of authenticated-project-observation still advertises a real routed trunk but at a new commit; queued correction SEED-430#recover-fixed-observation-at-its-published-pin restores its already-read pin. Moving cases remain with SEED-430#publish-moving-board-fixtures-through-git.\nCondition satisfied: The fixed Board and Intent fixtures advertise their real routed trunk with existing retained detail proof.\nCondition satisfied: The fixed Board and Intent fixtures advertise their real routed trunk with existing retained detail proof\nAccepted integration: 79b86d132478ef60f372d4ec86290ff22b8ab149 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-430#publish-moving-board-fixtures-through-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#publish-moving-board-fixtures-through-git"},"implementation":"Real publications for the moving browser fixture families","rationale":"The fixture gate requires real before and after trunk pins and preserved scheduled/detail proof in the browser suite.","condition":"The moving browser fixtures serve their real trunk at each expected move and preserve their scheduled and pinned-detail results","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-430#qualify-board-fixture-routing-and-request-boundaries","dependencies":[{"supplier":{"identity":"SEED-430#open-published-board-from-local-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#open-published-board-from-local-git"},"implementation":"Real publications for the fixed Board and Intent fixture families","rationale":"The final fixture gate covers the same fixed Board opens. Their synthetic origin pins leave unexplained mismatches in that gate.","condition":"The fixed Board and Intent fixtures advertise their real routed trunk with existing retained detail proof","state":"satisfied","resolution":{"revision":"548a3814652df8782da71457ac3acffd973a2f08","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#open-published-board-from-local-git","summary":"Plan 824 slices 1-6 are done at the before-cleanup revision. Fixed publications in the profile, clock, roster, portrait, branch-progress, Recently done, session, completion, Intent and project-observation specs commit through publishCommittedFiles or serveCommitted, which fail unless Git under every served dashboard HOME finds the published revision; REST detail answers serve the same files at that revision and specs assert the returned pin. Deliberate listing, catalog, record and backlog failures stay at their REST boundaries. Intent Coverage at 46d4fbf32 caught a broken routing on the listing-failure path. Branch CI succeeded at 851fc0199 and 27aa26172. The restored-access step of authenticated-project-observation still advertises a real routed trunk but at a new commit; queued correction SEED-430#recover-fixed-observation-at-its-published-pin restores its already-read pin. Moving cases remain with SEED-430#publish-moving-board-fixtures-through-git.\nCondition satisfied: The fixed Board and Intent fixtures advertise their real routed trunk with existing retained detail proof.\nCondition satisfied: The fixed Board and Intent fixtures advertise their real routed trunk with existing retained detail proof\nAccepted integration: 79b86d132478ef60f372d4ec86290ff22b8ab149 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-430#publish-moving-board-fixtures-through-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#publish-moving-board-fixtures-through-git"},"implementation":"Real publications for the moving browser fixture families","rationale":"The fixture gate requires real before and after trunk pins and preserved scheduled/detail proof in the browser suite.","condition":"The moving browser fixtures serve their real trunk at each expected move and preserve their scheduled and pinned-detail results","state":"satisfied","resolution":{"revision":"cd6d91fc619c03d5e6f988fcbe5dd4ecd162eb1c","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#publish-moving-board-fixtures-through-git","summary":"The moving browser fixtures publish actual trunk commits at every expected move. The scheduled and pinned-detail browser proofs passed on the published story branch. A shared-observer fault check also caught the Git read staying pinned to A when the REST fixture alone advanced to B.\nCondition satisfied: The moving browser fixtures serve their real trunk at each expected move and preserve their scheduled and pinned-detail results\nAccepted integration: 118787d8d61a2d14c77ce9eaa1551ccc2a0babf2 on origin/refs/heads/main."}}]}
 ```
 
-**Goal.** A maintainer can open Boards for configured, added and relaunched
-test projects against the right origin in the served HOME, with the
-backend's direct request proofs independent of which transport opens a
-Board.
+**Goal.** A Dashboard maintainer can move Board membership reads to Git
+with confidence that the tests publish a real, reachable commit for each
+Board open and that the live REST operations still prove their request
+handling independently.
 
-**Scope.** Cover named and seeded routing, existing HOME overrides,
-republication, launch/reconciliation, direct authenticated readers and
-retained-answer fixtures. Restore scheduled and detail ownership proof
-at the calls that use it. Qualify both suites before the cutover and
-retire the scratch diagnostic.
+**Scope.** Qualify named and seeded routing, republication, Add Project
+and saved configuration, launch and reconciliation, and the cold setup
+used by direct authenticated readers and retained-answer tests. A
+successful open's configured repository and ref must reach its fixture
+commit in each HOME that uses it. Keep intentional HOME overrides and
+local failure for an unserved repository so fixture reads stay isolated
+from live GitHub. Keep admission, pinning, sharing, directed waits, and
+recovery observable at the scheduled and detail operations that use them.
+Pass the full Dashboard Backend Test and E2E Test suites with every
+diagnostic mismatch explained, then remove the scratch diagnostic. The
+[Board cutover](#open-and-refresh-board-at-verified-trunk) owns the
+membership transport switch and retirement of its superseded REST proofs.
 
-**Key example.** Republish one named test project and reopen it from the
-test's two served HOMEs. Both route to its new real trunk. An explicit
-HOME override keeps precedence and a competing REST check only observes
-its own directed wait.
+**Key examples.**
+
+- Republish a named project and reopen it in two served HOMEs. Both
+  resolve its new real trunk. A HOME with an explicit route keeps that
+  route, and another project's route still reaches its own publication.
+- Add a project whose configured default branch is `release+stable`, then
+  reopen it after restart. Its Board fixture reaches the published commit
+  on that branch. A launch fixture that later publishes a second commit
+  makes it reachable when reconciliation reads its published record.
+- Start a scheduled REST check while pinned reads are under way, then
+  return a directed wait. The independent reads keep their own answers,
+  and later REST checks of either project observe the owner's wait.
+  After it expires, a formerly held detail is asked for and answered at
+  its admitted pin.
 
 <a id="open-and-refresh-board-at-verified-trunk"></a>
 

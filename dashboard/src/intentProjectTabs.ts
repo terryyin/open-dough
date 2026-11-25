@@ -8,5 +8,3 @@ export const projectTabs: readonly IntentTabOption<IntentMode>[] = [
   { value: "ci", label: "CI status" },
   { value: "candidates", label: "Optimization Candidates" },
 ];
-
-export const backToStoryId = (idPrefix: string) => `${idPrefix}-to-story`;

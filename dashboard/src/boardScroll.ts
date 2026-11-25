@@ -5,8 +5,11 @@ import { useEffect } from "react";
 export const boardScrollRegion = () =>
   document.querySelector<HTMLElement>(".board-scroll");
 
+export const readingRegionOf = (element: Element) =>
+  element.closest<HTMLElement>(".board-scroll, .roster-scroll, .intent-scroll");
+
 export function readingBounds(element: Element) {
-  const region = element.closest<HTMLElement>(".board-scroll, .roster-scroll");
+  const region = readingRegionOf(element);
   const at = region?.getBoundingClientRect();
   const padding = getComputedStyle(region ?? document.documentElement);
   return {
@@ -56,7 +59,7 @@ export function useBoardScrolling(suspended: boolean) {
         return;
       document
         .querySelector<HTMLElement>(
-          ".board-scroll .board, .roster-scroll h2, .intent-scroll .intent-browser:not([hidden]) .intent-reading, .intent-scroll .intent-candidates-panel:not([hidden])",
+          ".board-scroll .board, .roster-scroll h2, .intent-scroll .intent-browser:not([hidden]) .intent-reading:not([hidden]), .intent-scroll .intent-story-home:not([hidden]) [role='tabpanel']:not([hidden]), .intent-scroll .intent-candidates-panel:not([hidden])",
         )
         ?.focus({ preventScroll: true });
     };

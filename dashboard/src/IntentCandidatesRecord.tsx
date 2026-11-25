@@ -23,7 +23,7 @@ import {
   useIntentReadRecovery,
 } from "./intentReadRecovery.tsx";
 import { useIntentReads } from "./pageReads.tsx";
-import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
+import { intentTabPanelAttributes } from "./IntentTabs.tsx";
 import type { OpenCandidateLocation } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { shortRevision } from "./publishedWork.ts";
@@ -181,10 +181,7 @@ export function IntentCandidatesPanel({
   return (
     <div
       className="intent-candidates-panel"
-      role="tabpanel"
-      id={intentTabPanelId(modeIdPrefix, "candidates")}
-      aria-labelledby={intentTabId(modeIdPrefix, "candidates")}
-      hidden={mode !== "candidates"}
+      {...intentTabPanelAttributes(modeIdPrefix, "candidates", mode)}
       tabIndex={-1}
     >
       {chosen ? (

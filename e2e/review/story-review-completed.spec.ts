@@ -1,16 +1,16 @@
-import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
-import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
+import {
+  expectReviewChangesOffered,
+  openIntentReviewChanges,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
-  parts,
-  sessionEntriesIn,
-} from "../../dashboard/test-support/dashboardPage.ts";
-import { expectReviewed } from "../../dashboard/test-support/doneStoryReviewPage.ts";
-import { storyHeaderReading } from "../../dashboard/test-support/support/intentStoryPage.ts";
-import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+  expectNoStorySessions,
+  expectReviewed,
+  openDoneStoryCard,
+} from "../../dashboard/test-support/doneStoryReviewPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import path from "node:path";
 import {
@@ -27,78 +27,117 @@ test("a CLI-completed story without a local launch opens fixed published changes
   dashboard,
   origin,
 }) => {
-  const completion = origin.revision("completion");
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: completion,
-    repository: "terryyin/open-dough",
+  const completion =
+    await test.step("Given Story A was completed and published by the CLI", async () => {
+      const revision = origin.revision("completion");
+      await publishCommittedOrigin(page, {
+        repoDir: origin.origin,
+        revision,
+        repository: "terryyin/open-dough",
+      });
+      return revision;
+    });
+  const card = await test.step("When I find Story A in Recently done", () =>
+    openDoneStoryCard(page, "Story A"));
+  await test.step("Then the unreviewed story has Review changes without a local launch", async () => {
+    await expectNoStorySessions(card);
+    await expectReviewChangesOffered(card);
+    await expectReviewed(card, false);
   });
-  await page.goto("/");
-  await showColumn(page, "Recently done");
-  const card = parts(page).recentlyDone.getByRole("article", {
-    name: "Story A",
-    exact: true,
+
+  const review = await test.step("When I open Review changes", () =>
+    openIntentReviewChanges(page, card));
+  const published =
+    await test.step("Then the review uses the published completion revision", () => {
+      expect(review.answer).toMatchObject({ kind: "published", completion });
+      if (review.answer.kind !== "published")
+        throw new Error("No published review");
+      return review.answer;
+    });
+  await test.step("And the comparison includes the literal filename and excludes the other story", () => {
+    const paths = published.files.map((file) => file.path);
+    expect(paths).toContain("[literal]*.txt");
+    expect(paths).not.toContain("other-story.txt");
   });
-  await expect(sessionEntriesIn(card)).toHaveCount(0);
-  await expect(reviewChanges(card)).toBeVisible();
-  await expectReviewed(card, false);
-  const review = await openIntentReviewChanges(page, card);
-  const first = review.answer;
-  expect(first.kind).toBe("published");
-  if (first.kind !== "published") throw new Error("No published review");
-  expect(first.completion).toBe(completion);
-  expect(first.files.map((file) => file.path)).toContain("[literal]*.txt");
-  expect(first.files.map((file) => file.path)).not.toContain("other-story.txt");
-  const { files, diffs } = review;
-  await review.expectText("Published completion");
-  await expect(
-    storyHeaderReading(parts(page).intent).revisions.locator("time"),
-  ).toHaveAttribute("datetime", first.completedAt);
-  await review.expectText(first.target);
-  await files.choose("Modified shared.txt");
-  await diffs.expectChangedLines("Modified shared.txt", {
-    removed: ["-line 0"],
-    added: ["+story first"],
+  await test.step("And the header shows the published comparison, completion time, and target", async () => {
+    await review.expectText("Published completion");
+    await review.expectCompletedAt(published.completedAt);
+    await review.expectText(published.target);
   });
-  await review.comparison.expectNoSwitch();
-  await review.hideFiles();
-  await review.setFilesShown(true);
-  advanceCompletedTrunk(origin);
-  const moved = renameExecutionCheckout(origin);
-  expect((await review.refreshAndAnswer()).answer).toEqual(first);
-  await review.returnToDevelopment();
-  await expectReviewed(card, false);
-  const reopened = await openIntentReviewChanges(page, card);
-  expect(reopened.answer).toEqual(first);
-  await reopened.expectText("Published completion");
-  await reopened.files.choose("Added [literal]*.txt");
-  await reopened.diffs.expectShows(
-    "Added [literal]*.txt",
-    "+delivered on another machine",
-  );
-  await reopened.expectNoText("later.txt");
-  moved.restore();
-  // A receipt with a missing capture repository still opens its fixed landing.
-  // The single chooser keeps the published completion reachable beside it.
-  keepUnusableCompletedCapture(dashboard, origin, {
-    workspace: path.join(origin.project, ".worktrees", "missing-completed"),
-    completion,
-    baseline: origin.revision("interleaving"),
+  await test.step("When I select the shared file", () =>
+    review.files.choose("Modified shared.txt"));
+  await test.step("Then its diff shows the story's change", () =>
+    review.diffs.expectChangedLines("Modified shared.txt", {
+      removed: ["-line 0"],
+      added: ["+story first"],
+    }));
+  await test.step("And no other comparison is offered", () =>
+    review.comparison.expectNoSwitch());
+  await test.step("When I hide the files", () => review.hideFiles());
+  await test.step("And show the files again", () => review.setFilesShown(true));
+
+  await test.step("Given trunk advances after completion", () =>
+    advanceCompletedTrunk(origin));
+  const moved = await test.step("And the execution checkout moves", () =>
+    renameExecutionCheckout(origin));
+  const refreshed = await test.step("When I refresh the review", () =>
+    review.refreshAndAnswer());
+  await test.step("Then the comparison is unchanged", () => {
+    expect(refreshed.answer).toEqual(published);
   });
-  const withRun = (await reopened.refreshAndAnswer()).answer;
-  expect(withRun).toMatchObject({
-    kind: "published",
-    completion,
-    files: first.files,
+  await test.step("When I return to Development", () =>
+    refreshed.returnToDevelopment());
+  await test.step("Then opening the comparison has left Story A unreviewed", () =>
+    expectReviewed(card, false));
+  const reopened = await test.step("When I reopen Review changes", () =>
+    openIntentReviewChanges(page, card));
+  await test.step("Then the original published completion reopens", async () => {
+    expect(reopened.answer).toEqual(published);
+    await reopened.expectText("Published completion");
   });
-  await reopened.comparison.expectChosen("Published completion");
-  await reopened.landedRun.chooseLatest();
-  await reopened.landedRun.expectShown(completion);
-  await reopened.comparison.choose("Published completion");
-  await reopened.comparison.expectChosen("Published completion");
-  await reopened.files.choose("Added [literal]*.txt");
-  await reopened.diffs.expectShows(
-    "Added [literal]*.txt",
-    "+delivered on another machine",
-  );
+  await test.step("When I select the added file with a literal filename", () =>
+    reopened.files.choose("Added [literal]*.txt"));
+  await test.step("Then its diff shows the original published text", () =>
+    reopened.diffs.expectShows(
+      "Added [literal]*.txt",
+      "+delivered on another machine",
+    ));
+  await test.step("And the comparison omits the file added later", () =>
+    reopened.expectNoText("later.txt"));
+
+  await test.step("Given the execution checkout is restored", () => {
+    moved.restore();
+  });
+  await test.step("And a retained landing has a missing capture repository", () => {
+    keepUnusableCompletedCapture(dashboard, origin, {
+      workspace: path.join(origin.project, ".worktrees", "missing-completed"),
+      completion,
+      baseline: origin.revision("interleaving"),
+    });
+  });
+  const withRun = await test.step("When I refresh the comparison choices", () =>
+    reopened.refreshAndAnswer());
+  await test.step("Then Published completion keeps its original files and stays selected", async () => {
+    expect(withRun.answer).toMatchObject({
+      kind: "published",
+      completion,
+      files: published.files,
+    });
+    await withRun.comparison.expectChosen("Published completion");
+  });
+  await test.step("When I choose the landed run", () =>
+    withRun.landedRun.chooseLatest());
+  await test.step("Then the review shows the fixed landing revision", () =>
+    withRun.landedRun.expectShown(completion));
+  await test.step("When I switch back to Published completion", () =>
+    withRun.comparison.choose("Published completion"));
+  await test.step("Then Published completion is selected again", () =>
+    withRun.comparison.expectChosen("Published completion"));
+  await test.step("When I select the added file again", () =>
+    withRun.files.choose("Added [literal]*.txt"));
+  await test.step("Then it still shows the original published diff", () =>
+    withRun.diffs.expectShows(
+      "Added [literal]*.txt",
+      "+delivered on another machine",
+    ));
 });

@@ -80,16 +80,17 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("with two projects", () => {
-  test.use({ projectFolders: ["open-dough", "pygardon"] });
+  test.use({ projectFolders: ["open-dough"] });
 
   test("a chosen split outlasts collapsing, the sidebar, a project and a view, and a reload starts collapsed then recovers it; another browser starts at an equal share", async ({
+    afterGitHubStops,
     page,
     browser,
     dashboard,
     origin,
     cursor,
   }) => {
-    await publishOnePygardonStory(page);
+    await publishOnePygardonStory(page, afterGitHubStops);
     keepLaunchRecords(
       dashboard,
       fortyFiveDoneSessions(Date.now(), ["open-dough"]).records,

@@ -60,6 +60,21 @@ export class SessionStateBuilder {
   }
 
   /**
+   * Why available activity is unknown: an explicit unfamiliar native answer,
+   * or an incomplete activity read.
+   * @param {"unrecognized" | "incomplete"} reason
+   */
+  unknownReason(reason) {
+    const state = this.#state;
+    if (state?.kind !== "available" || state.activity !== "unknown")
+      throw new Error(
+        'choose .loaded("unknown") or .retained("unknown") first',
+      );
+    this.#state = { ...state, unknownReason: reason };
+    return this;
+  }
+
+  /**
    * Nothing confirmed the session's state; `label` is the words this
    * observation shows as written, otherwise the host's unknown wording.
    * @param {string} [label]

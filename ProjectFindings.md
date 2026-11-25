@@ -140,13 +140,14 @@ SEED-221#launch-records-poll-waits occurrence (plan 448, 2026-11-02). The
 measurement guidance then omitted queue or admission time. In this repository,
 `scripts/local-test-suite.mjs` (via `dashboard/playwright.config.ts`
 `acquireLocalSuite`) holds a second full run until another worktree's suite
-finishes, and `tests/local-test-resources.md` did not then say that its shell
+finishes, and the local test guidance did not then say that its shell
 wall includes that wait. About 38 minutes of the candidate run's 4,068 s wall
 were admission (Playwright reported 29.6 min), and the coordinator spent
 several investigation steps before finding the gate.
 
 **Response:** `ad8b1f3afafa91eca1cfd3b36295716f52d90fe6` (2026-11-02, alongside
-SEED-221's closure) adds to `tests/local-test-resources.md`: a full run's
+SEED-221's closure) added this note, now kept in
+[runner settings](Distribution/tests/runner-settings.md): a full run's
 shell wall includes any admission wait; compare runs by the runner's own
 reported duration. **Observation criterion:** the next full-suite timing
 comparison in this repository taken while another worktree's suite may hold
@@ -160,9 +161,8 @@ unqueued.
 
 [DD-412](docs/maintainer/project-test-findings.md#dd-412) records two invalidated
 whole-suite runs in one execution and the passing AC-powered retry.
-**Response:** `b52c1d3bdad7369fc1042a5f2744e9ebedadecbe` (2026-11-04) adds
-[machine sleep on macOS](Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
-and points at it from [AGENTS.md](AGENTS.md#failing-and-flaky-tests).
+**Response:** `b52c1d3bdad7369fc1042a5f2744e9ebedadecbe` (2026-11-04) added the macOS sleep guard; it now lives in
+[AGENTS.md](AGENTS.md#failing-and-flaky-tests).
 **Observation criterion:** the next long local run on a macOS laptop follows
 that guard, and a sleep-shaped failure is attributed from `pmset -g log`
 before it is read as a defect. `SEED-241` (plan 477, 2026-11-05) followed

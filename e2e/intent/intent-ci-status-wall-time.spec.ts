@@ -1,3 +1,4 @@
+import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   ciStatusReading,
   expectCiAnswer,
@@ -41,11 +42,8 @@ import { proofOf } from "../../dashboard/test-support/intentCiProofPage.ts";
 import { openDough } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import { running } from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
-  login,
   mainRun,
   publishStoryCi,
-  signup,
-  started,
   toggleOnDevelopment,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -58,8 +56,9 @@ test("a listed run from 10:00 to 10:03 shows CI wall time 3 min with the attempt
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  publishProject(page, openDough).serveCi(
-    trunkCi(openDough.revision, () => [
+  const published = publishProject(page, openDough);
+  published.serveCi(
+    trunkCi(published.revision, () => [
       makeMe.aCiRun
         .with({
           headSha: judged,
@@ -87,9 +86,11 @@ test("a listed run from 10:00 to 10:03 shows CI wall time 3 min with the attempt
 
 test("a running result shows its completed ancestor's CI wall time", async ({
   page,
+  afterGitHubStops,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const ci = publishStoryCi(page);
+  const ci = await publishStoryCi(page, afterGitHubStops);
+  const { login, signup, started } = ci.revisions;
   ci.runs.main = [
     makeMe.aCiRun
       .with({
@@ -127,10 +128,13 @@ test("a running result shows its completed ancestor's CI wall time", async ({
   await chooseCiStatus(parts(page).intent);
   const panel = await toggleOnDevelopment(page, running.title);
   const proof = proofOf(panel);
-  await expectCiAnswer(panel, "Running at 70a0001 (Start the story)");
+  await expectCiAnswer(
+    panel,
+    `Running at ${shortSha(started)} (Start the story)`,
+  );
   await expectEvidenceLabels(evidenceLabels(proof), [
     "Run 12 · attempt 2",
-    "Revision d4e5f6a",
+    `Revision ${shortSha(signup)}`,
     "Completed ancestor",
     wallTime,
   ]);
@@ -139,7 +143,11 @@ test("a running result shows its completed ancestor's CI wall time", async ({
 test("a ciAdapter attempt without start and completion shows CI wall time not recorded", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
+  const {
+    revisions: { login },
+  } = await publishStoryCi(page, afterGitHubStops);
   const adapter = adapterProject(dashboard.home);
   adapter.answer({
     discover: { main: [passed(uuid, uuid, login, "main")] },

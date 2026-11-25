@@ -100,12 +100,16 @@
   margin-left: var(--space-1);
 }
 
-.intent-story-title-line:has(> .story-notes-problem) {
+.intent-story-title-line:has(> p) {
   display: grid;
-  grid-template-columns: minmax(0, max-content) max-content;
+  grid-template-columns: minmax(0, max-content) repeat(2, max-content);
 }
 
-.intent-story-title-line > .story-notes-problem {
+.intent-story-title-line > :is(.intent-story-title, .tooltip-control) {
+  grid-row: 1;
+}
+
+.intent-story-title-line > p {
   grid-column: 1 / -1;
 }
 
@@ -128,8 +132,13 @@
   font-size: var(--text-sm);
 }
 
-/* Narrow, the views and the files toggle share one row: smaller tabs, and
-   the toggle's icon alone, its words kept as its name. */
+/* A story's views span its header, between the title and comparison bar. */
+.intent-header > .intent-page-tabbar {
+  margin: var(--space-2) calc(-1 * clamp(0.75rem, 4vw, 1.5rem)) var(--space-2);
+}
+
+/* Narrow, the views keep one row with smaller tabs; Project Intent's files
+   toggle shares it with its icon alone, its words kept as its name. */
 @media (max-width: 36rem) {
   .intent-page-tabbar {
     flex-wrap: nowrap;

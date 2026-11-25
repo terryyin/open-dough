@@ -32,8 +32,7 @@ import type { ComparedStory } from "./IntentStorySummary.tsx";
 import { WholeStoryNote } from "./IntentStoryComparison.tsx";
 import {
   IntentTabs,
-  intentTabId,
-  intentTabPanelId,
+  intentTabPanelAttributes,
   type IntentTabOption,
 } from "./IntentTabs.tsx";
 import { useKeptReading, useKeptReadingScroll } from "./pageIntentReading.tsx";
@@ -154,14 +153,8 @@ export function IntentFileReading({
     // Only a tab switch returns to a place; a new file starts its own.
   }, [tab, path, readingArea]);
 
-  function panel(value: IntentReadingTab) {
-    return {
-      role: "tabpanel",
-      id: intentTabPanelId(idPrefix, value),
-      "aria-labelledby": intentTabId(idPrefix, value),
-      hidden: tab !== value,
-    } as const;
-  }
+  const panel = (value: IntentReadingTab) =>
+    intentTabPanelAttributes(idPrefix, value, tab);
 
   return (
     <>

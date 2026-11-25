@@ -29,7 +29,6 @@ import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   queueStory,
-  recordsAt,
   headsCheckArgv,
   headsChecks,
   setPageVisibility,
@@ -40,19 +39,16 @@ import {
   storyCard,
 } from "../../dashboard/test-support/storyCardControls.ts";
 import {
-  backlogB,
-  backlogC,
-  revisionA,
-  revisionB,
-  revisionC,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
 
 test("auto refresh: a hidden page makes no checks, and a page seen again checks once at once, then at its steady pace", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { A: revisionA, B: revisionB } = origin.revisions;
   const { problem, backlog, notice, retrievedAt, readRevision } = parts(page);
   const retrievedA = await retrievedAt.getAttribute("datetime");
   // The schedule is running: one ordinary check has been answered.
@@ -85,7 +81,7 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
 
   await test.step("hiding the page ends its wait on an outstanding check; the listing may settle while hidden, and nothing from that wait is shown", async () => {
     const releaseMain = origin.hold("main");
-    origin.push(revisionB, backlogB, recordsAt("B"));
+    origin.advanceTo("B");
     const beforeHidden = githubFor(page).calls.length;
     await passTimeUntilAsked(page);
     // The check has reached GitHub and waits there for its answer.
@@ -153,11 +149,13 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
 
 test("auto refresh: a page seen again while a read is under way checks once that read lands, so what was published meanwhile is shown", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await openSettledAtA(page);
+  const origin = await openSettledAtA(page, afterGitHubStops);
+  const { B: revisionB, C: revisionC } = origin.revisions;
   const { readRevision } = parts(page);
   const releaseB = origin.hold(revisionB);
-  origin.push(revisionB, backlogB, recordsAt("B"));
+  origin.advanceTo("B");
   const beforeB = githubFor(page).calls.length;
   await passTimeUntilChecked(page);
   // The check found B, whose read has reached GitHub and waits there.
@@ -165,7 +163,7 @@ test("auto refresh: a page seen again while a read is under way checks once that
     .poll(() => contentReads(callsSince(page, beforeB)))
     .toContain(`.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`);
   await setPageVisibility(page, "hidden");
-  origin.push(revisionC, backlogC, recordsAt("C"));
+  origin.advanceTo("C");
   await setPageVisibility(page, "visible");
   releaseB();
   await expectSettledPage(page, titlesOfB);

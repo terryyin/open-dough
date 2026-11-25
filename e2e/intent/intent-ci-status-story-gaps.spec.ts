@@ -1,3 +1,4 @@
+import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
 import {
   expectCiScope,
@@ -21,7 +22,7 @@ import type { Locator } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 
-import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/committedFiles.ts";
 import { doughnut } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import {
   done,
@@ -49,14 +50,16 @@ async function expectNoStatus(panel: Locator) {
 
 test("a selected story without a published story branch is named and explained, with no status and no other branch judged", async ({
   page,
+  afterGitHubStops,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const ci = publishStoryCi(page);
+  const ci = await publishStoryCi(page, afterGitHubStops);
+  const { login } = ci.revisions;
   const calls = ci.published.requests;
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   await expectCiScope(await chooseCiStatus(intent), "main");
-  await expectCiAnswer(intent, "Passed at 4774f60 (Add login)");
+  await expectCiAnswer(intent, `Passed at ${shortSha(login)} (Add login)`);
   const before = calls.length;
 
   await test.step("a selected done story shows its CI timing comparison, not a no-branch gap", async () => {
@@ -147,7 +150,7 @@ test("a selected story without a published story branch is named and explained, 
   await test.step("clearing the selection shows main again", async () => {
     const panel = await toggleOnDevelopment(page, removed.title);
     await expectCiScope(panel, "main");
-    await expectCiAnswer(panel, "Passed at 4774f60 (Add login)");
+    await expectCiAnswer(panel, `Passed at ${shortSha(login)} (Add login)`);
   });
 });
 
@@ -157,10 +160,9 @@ test("a selected story whose agent profiles cannot be read has an unknown branch
   await page.setViewportSize({ width: 1280, height: 800 });
   // A published profile whose read fails as a lost connection would.
   const profile = ".planning/agents/akiho-chan.json";
-  publishMovingFiles(page, {
+  publishCommittedFiles(page, {
     repository: doughnut.repository,
     ref: doughnut.ref,
-    revision: doughnut.revision,
     files: { ...doughnut.files, [profile]: "{}\n" },
     unanswered: [profile],
   });

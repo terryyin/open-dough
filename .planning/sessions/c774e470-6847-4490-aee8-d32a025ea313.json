@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "c774e470-6847-4490-aee8-d32a025ea313",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-25T11:04:50.921Z",
+  "story": "SEED-423#reconcile-the-backlog-through-one-git-adapter",
+  "ranges": [
+    {
+      "base": "b6bc2363404cb8918037d5fd54efa562e419e8ca",
+      "candidate": "0ba30bdfeb27256f30a51473d0ea0d1d56a82d61"
+    }
+  ]
+}

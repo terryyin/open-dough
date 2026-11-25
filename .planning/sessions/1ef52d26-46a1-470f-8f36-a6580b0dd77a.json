@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "1ef52d26-46a1-470f-8f36-a6580b0dd77a",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T11:18:29.222Z",
+  "story": "SEED-413#pass-session-observation-limits-as-typed-values",
+  "ranges": [
+    {
+      "base": "a5a980624b66450da07fbe07146fbb750f79e445",
+      "candidate": "99eea788f0a9b37dc2819471fd8555e64687e4a2"
+    },
+    {
+      "base": "99eea788f0a9b37dc2819471fd8555e64687e4a2",
+      "candidate": "06cd5d913059367f8a1747eb1cc807fc6aaab738"
+    },
+    {
+      "base": "06cd5d913059367f8a1747eb1cc807fc6aaab738",
+      "candidate": "3eed1ee877ac030ea287a69506d0a6af8cc6853f"
+    }
+  ]
+}

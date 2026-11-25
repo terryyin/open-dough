@@ -49,7 +49,10 @@ test("a selected file offers Purpose source and Proof CI results, keeping the ch
   const proof = proofRegion(intent);
   await expect(proofTab).toHaveAttribute("aria-selected", "true");
   // The file's Proof shares the Summary's evidence labels.
-  await expectEvidenceLabels(evidenceLabels(proof), ancestorEvidence);
+  await expectEvidenceLabels(
+    evidenceLabels(proof),
+    ancestorEvidence(project.revision),
+  );
   const table = proof.getByRole("table", {
     name: "CI proof of dashboard/tests/folder/a.spec.ts",
   });

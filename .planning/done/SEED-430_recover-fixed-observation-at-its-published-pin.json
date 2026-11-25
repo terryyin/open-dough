@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-430#recover-fixed-observation-at-its-published-pin",
+  "title": "Recover a fixed observation at its published pin",
+  "completedAt": "2026-11-25T10:45:00.746Z",
+  "developer": "Terry Yin",
+  "agent": "Aino-chan",
+  "host": "cursor",
+  "model": "auto"
+}

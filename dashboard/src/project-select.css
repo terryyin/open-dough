@@ -26,7 +26,6 @@
   cursor: pointer;
 }
 
-/* Icon-only: the mark is the whole visual, its name in the tooltip. */
 .perspective-choice {
   padding-inline: var(--space-2);
 }

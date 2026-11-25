@@ -6,7 +6,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { showColumn } from "./boardPage.ts";
-import { parts } from "./dashboardParts.ts";
+import { parts, sessionEntriesIn } from "./dashboardParts.ts";
 import { expect } from "./dashboardTest.ts";
 
 // Opens the page on Recently done.
@@ -20,6 +20,14 @@ export async function openRecentlyDone(page: Page) {
 // its identity until then.
 export const doneCard = (page: Page, name: string) =>
   parts(page).recentlyDone.getByRole("article", { name, exact: true });
+
+export async function openDoneStoryCard(page: Page, name: string) {
+  await openRecentlyDone(page);
+  return doneCard(page, name);
+}
+
+export const expectNoStorySessions = (card: Locator) =>
+  expect(sessionEntriesIn(card)).toHaveCount(0);
 
 export const storyActions = (card: Locator) =>
   card.getByRole("group", { name: "Story actions" });

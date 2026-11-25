@@ -209,8 +209,7 @@ status eligibility must fail their corresponding journey.
 Local gates: run the focused affected owner tests and observation suites above,
 dashboard typecheck/build for changed TS/wire contracts, and staged lint. Broader
 checks are added only for reached consumers, such as shared owner clients.
-Use [the maintained macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
-for long runs: awake on AC, `caffeinate -s -i`; on battery, lid open and
+For long runs on macOS: awake on AC, `caffeinate -s -i`; on battery, lid open and
 `caffeinate -i`, inspecting sleep logs afterwards. Inspect host load/memory and
 competing runs before expensive proof; respect full-suite admission. No full
 repository suite is required merely for this preparation's Markdown changes.

@@ -1,6 +1,7 @@
 import {
   filesColumn,
   intentModeViews,
+  storyHomeButton,
 } from "../../dashboard/test-support/intentModePage.ts";
 // A Taken card's empty area selects its story: one header above the views
 // names it, its revisions and outside count, and offers Project Intent and
@@ -54,23 +55,20 @@ test("Intent highlights a selected Taken story's test changes over the published
   const header = story.header;
   const column = filesColumn(intent);
 
-  await test.step("the story's view sits under the banner, one persistent header, led by the way to Project Intent, heading its views", async () => {
+  await test.step("the selected story's persistent header sits above its views", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(intent.locator(":scope > *").first()).toHaveClass(
       "intent-page-frame",
     );
     await expect(intentModeViews(intent)).toHaveCount(0);
-    await expect(header.crumb).toHaveText("Project Intent / Selected story");
-    await expect(header.leadingControl).toHaveAccessibleName("Project Intent");
+    await expect(header.crumb).toHaveText("Selected story");
     await expect(
       intent.getByRole("region", { name: "Selected story" }),
     ).toHaveCount(1);
     await expect(story.title).toHaveText("Story A");
     await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
-    await expect(story.views).toHaveText("CI comparisonChangesIntent coverage");
-    await expect(
-      column.locator(":scope > :not(.visually-hidden)").first(),
-    ).toHaveClass("intent-story-scope");
+    await expect(story.views).toHaveText("CI comparisonIntent coverage");
+    await expect(storyHomeButton(intent)).toBeVisible();
     await expect(story.storyOnly(column)).not.toBeChecked();
   });
 

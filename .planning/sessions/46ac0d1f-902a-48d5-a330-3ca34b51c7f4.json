@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "46ac0d1f-902a-48d5-a330-3ca34b51c7f4",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T11:37:04.286Z",
+  "story": "SEED-440#recheck-cursor-workarounds",
+  "ranges": [
+    {
+      "base": "f4d03aae4fde60c0e76a2e9a32e8c48f2defb339",
+      "candidate": "0426dd4ded63572a56299416ca1484ad8377e575"
+    }
+  ]
+}

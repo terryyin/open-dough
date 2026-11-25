@@ -1,3 +1,4 @@
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import {
   passTimeUntilChecked,
   expectSteadyPace,
@@ -13,10 +14,12 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   pathsRead,
-  publishMovingOrigin,
   noConnection,
 } from "../../dashboard/test-support/publishedOrigin.ts";
-import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { doughnutRepository } from "../../dashboard/test-support/doughnutProject.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectFocusedAndIndicated } from "../../dashboard/test-support/accessibleReading.ts";
 import {
@@ -24,24 +27,34 @@ import {
   openUntilRead,
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 
-const revisionA = "a".repeat(40);
-const revisionB = "b".repeat(40);
 const fullDirection = `Keep published work visible.
 
 Read <img src=x onerror="document.title='direction ran'"> as text.
 Finish with the complete final line.`;
-const withDirection = (direction: string) =>
-  describedBacklog(
-    makeMe.aRepository
-      .withRevision("directed", { backlog: { direction } })
-      .please(),
-  );
+const nextDirection = "The next published direction.";
+const directionHistory = () =>
+  makeMe.aRepository.withRevision("A", {
+    backlog: { direction: fullDirection },
+  });
+
+const routedTrunk = (home: string, repository = defaultRepository) =>
+  remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+    cwd: home,
+    env: { HOME: home },
+    maxBuffer: 4096,
+  });
 
 test("direction starts collapsed and opens by pointer and keyboard without reading again", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, withDirection(fullDirection));
+  const origin = await publishMovingHistory(
+    page,
+    directionHistory().please(),
+    "A",
+    afterGitHubStops,
+  );
+  const { A: revisionA } = origin.revisions;
   await openUntilRead(page);
   const {
     direction,
@@ -78,9 +91,16 @@ test("direction starts collapsed and opens by pointer and keyboard without readi
 
 test("the opened direction reads across the whole project actions row beneath Start session, which stays in place, and closing restores the row", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, withDirection(fullDirection));
+  const {
+    revisions: { A: revisionA },
+  } = await publishMovingHistory(
+    page,
+    directionHistory().please(),
+    "A",
+    afterGitHubStops,
+  );
   await page.setViewportSize({ width: 1440, height: 900 });
   await openUntilRead(page);
   const { directionText, directionToggle, projectActions, readRevision } =
@@ -98,9 +118,19 @@ test("the opened direction reads across the whole project actions row beneath St
 
 test("same-project refresh retains expanded and collapsed choices through loading, replacement, and failure", async ({
   page,
+  dashboard,
+  afterGitHubStops,
 }) => {
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, withDirection(fullDirection));
+  const origin = await publishMovingHistory(
+    page,
+    directionHistory()
+      .withRevision("B", { backlog: { direction: nextDirection } })
+      .please(),
+    "A",
+    afterGitHubStops,
+  );
+  const { A: revisionA, B: revisionB } = origin.revisions;
+  expect(await routedTrunk(dashboard.home)).toBe(revisionA);
   await pausePageClock(page);
   await page.goto("/");
   const {
@@ -111,9 +141,11 @@ test("same-project refresh retains expanded and collapsed choices through loadin
     readRevision,
   } = parts(page);
   await openDirection(page);
+  await expect(readRevision).toContainText(shortRevision(revisionA));
 
-  origin.push(revisionB, withDirection("The next published direction."));
+  origin.advanceTo("B");
   const release = origin.hold(revisionB);
+  expect(await routedTrunk(dashboard.home)).toBe(revisionB);
   await passTimeUntilChecked(page);
   await expect(reading).toBeVisible();
   await expect(body).toBeVisible();
@@ -130,7 +162,7 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   release();
   await expect(readRevision).toContainText(shortRevision(revisionB));
   await expect(body).toBeVisible();
-  await expect(body).toHaveText("The next published direction.");
+  await expect(body).toHaveText(nextDirection);
 
   expectSteadyPace(await nextCheck);
   await expect(problem).toBeVisible();
@@ -138,26 +170,46 @@ test("same-project refresh retains expanded and collapsed choices through loadin
     "Automatic checks continue every 15 seconds",
   );
   await expect(body).toBeVisible();
-  await expect(body).toHaveText("The next published direction.");
+  await expect(body).toHaveText(nextDirection);
   await directionToggle.click();
   await passTimeUntilChecked(page, 502);
   await expect(problem).toBeVisible();
   await expect(body).toBeHidden();
   restore();
-  origin.push(revisionA, withDirection(fullDirection));
+  origin.advanceTo("A");
+  expect(await routedTrunk(dashboard.home)).toBe(revisionA);
   await passTimeUntilChecked(page);
   await expect(readRevision).toContainText(shortRevision(revisionA));
   await expect(body).toBeHidden();
   await expect(problem).toHaveCount(0);
+  await openDirection(page);
+  await expect(body).toHaveText(fullDirection);
 });
 
 test("changing projects removes previous direction while reading and starts each observation collapsed", async ({
   page,
+  dashboard,
+  afterGitHubStops,
 }) => {
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, withDirection(fullDirection));
-  const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  doughnut.push(revisionB, describedBacklog(makeMe.aRepository.please()));
+  const origin = await publishMovingHistory(
+    page,
+    directionHistory().please(),
+    "A",
+    afterGitHubStops,
+  );
+  const doughnut = await publishMovingHistory(
+    page,
+    makeMe.aRepository.withRevision("doughnut", {}).please(),
+    "doughnut",
+    afterGitHubStops,
+    doughnutRepository,
+  );
+  const { A: revisionA } = origin.revisions;
+  const { doughnut: doughnutRevision } = doughnut.revisions;
+  expect(await routedTrunk(dashboard.home)).toBe(revisionA);
+  expect(await routedTrunk(dashboard.home, doughnutRepository)).toBe(
+    doughnutRevision,
+  );
   await page.goto("/");
   const { direction, directionText: body, reading, readRevision } = parts(page);
   await openDirection(page);
@@ -168,7 +220,7 @@ test("changing projects removes previous direction while reading and starts each
   await expect(direction).toHaveCount(0);
   await expect(page.getByText(fullDirection)).toHaveCount(0);
   release();
-  await expect(readRevision).toContainText(shortRevision(revisionB));
+  await expect(readRevision).toContainText(shortRevision(doughnutRevision));
   await expect(body).toBeHidden();
   await expectDirectionOpensAcrossRow(page);
   await expect(body).toHaveText("No near-future direction is recorded.");

@@ -16,14 +16,13 @@ import {
   pageTimeStepMs,
   passPageMs,
   pausePageClock,
-  recordsAt,
   setPageVisibility,
 } from "./autoRefreshJourney.ts";
 import { revisionStreamAtParameter } from "../src/authenticatedReadRules.ts";
 import { revisionStreamSlotLockNames } from "../src/revisionStreamSlot.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
-import { backlogA, revisionA, titlesOfA } from "./refreshJourney.ts";
-import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
+import { refreshHistory, titlesOfA } from "./refreshJourney.ts";
+import { publishMovingHistory } from "./publishedMovingOrigin.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 import { expectEarlierSnapshotKept } from "./transientRecoveryPage.ts";
 
@@ -150,23 +149,32 @@ export async function expectStreamOpenGapsAtLeastPace(
 // Opens a settled Board at A with free stream slots and a lowered server pace.
 // The stream opens as the snapshot settles, so wait for it from before
 // navigation rather than after.
-export async function openStreamingAtA(page: Page): Promise<MovingOrigin> {
+export async function openStreamingAtA(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+) {
   await pausePageClock(page);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA, recordsAt("A"));
-  const streaming = untilStreamingAt(page, revisionA);
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory(),
+    "A",
+    afterGitHubStops,
+  );
+  const streaming = untilStreamingAt(page, origin.revisions.A);
   await page.goto("/");
   await expectSettledPage(page, titlesOfA);
   await expectOwnersNotRecorded(page);
-  await streaming;
-  return origin;
+  return { ...origin, stream: await streaming };
 }
 
 // A second tab of the same browser on the same Board, already streaming at A.
 // It joins the context's page time as `page` paused it (`pausePageClockAt`).
-export async function openSecondStreamingAtA(page: Page): Promise<Page> {
+export async function openSecondStreamingAtA(
+  page: Page,
+  revision: string,
+): Promise<Page> {
   const other = await page.context().newPage();
-  const streaming = untilStreamingAt(other, revisionA);
+  const streaming = untilStreamingAt(other, revision);
   await other.goto("/");
   await expectSettledPage(other, titlesOfA);
   await expectOwnersNotRecorded(other);
@@ -174,14 +182,7 @@ export async function openSecondStreamingAtA(page: Page): Promise<Page> {
   return other;
 }
 
-export {
-  publishMovingOrigin,
-  recordsAt,
-  setPageVisibility,
-  backlogA,
-  revisionA,
-  titlesOfA,
-};
+export { setPageVisibility, titlesOfA };
 
 // Slot requests the browser has queued, across this origin's pages.
 export function queuedSlotRequests(page: Page): Promise<number> {

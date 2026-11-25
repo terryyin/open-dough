@@ -11,12 +11,18 @@ assigning an actual Board migration. The diagnostic only allows file
 transport. Held, failed, or otherwise unsuccessful ref answers are
 outside this inventory.
 
-Run with `DOUGH_REF_AUDIT` naming a writable JSONL path. Commands:
+Apply the current patch from the repository root. It checks each distinct
+registered HOME and records the HOME with each mismatch. Set
+`DOUGH_REF_AUDIT_ALL=1` to include matching observations in a focused replay.
+Use `DOUGH_REF_AUDIT` to name a writable JSONL file outside the checkout.
 
 ```sh
+base64 -D -i .planning/slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/ref-audit.patch.b64 | git apply -
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES DOUGH_REF_AUDIT=/tmp/board-e2e.jsonl caffeinate -s -i npm run test:e2e -- --workers=3 --reporter=dot
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES DOUGH_REF_AUDIT=/tmp/board-backend.jsonl caffeinate -s -i npm run test:dashboard:backend -- --workers=2 --reporter=dot
 ```
+
+The original full run at `9dc3e801e` used the first-HOME diagnostic.
 
 - E2E Test passed **780** cases in 9.9 minutes. The audit recorded **543** mismatch events in **149** files.
 - Dashboard Backend Test recorded **94** mismatch events in **26** files. Playwright passed 1,133 cases, failed 2 path-sensitive cases and skipped 1. Five serial cases did not run. All 856 Vitest cases passed. Both affected runtime files passed with a physical dependency directory (8 cases), including the five serial cases.
@@ -27,10 +33,28 @@ Node’s resolved module path with the configured literal path. A focused
 recheck with a physical directory recovered those cases.
 
 The fixed (done plan 824, `548a3814652df8782da71457ac3acffd973a2f08`),
-[moving](../826-publish-moving-board-fixtures-through-git/PLAN.md) and
+moving (done plan 826, `cd6d91fc619c03d5e6f988fcbe5dd4ecd162eb1c`) and
 [routing and request-boundary](PLAN.md) plans assign the families.
 Plan 827 owns the final backend and E2E qualification and removing
 the patch and this inventory once its evidence is spent.
+
+At `f75429565`, the focused configuration/launch E2E run and direct-read
+backend run passed 30 and 35 cases respectively, while still finding
+first-HOME mismatches. The patch was rebased and extended to check every
+distinct HOME for the additional reconciliation/Review replay. All six
+cases passed and eight of the 16 answer/HOME observations mismatched. Some
+checks came after a move or a server restart. The
+[plan's premises](PLAN.md#premises-and-refinement) record the attribution
+and the proof boundaries chosen from it.
+
+The focused runners used the same environment as the full commands above.
+These commands reproduce the focused spec selections.
+
+```sh
+npm run test:e2e -- e2e/configuration/{project-add,project-configuration}.spec.ts e2e/sessions/{project-restored-session,agent-completion-attention}.spec.ts e2e/launches/{agent-launch-base-ci,agent-launch-codex-effort,agent-launch-preparation-codex,agent-launch-preparation-phases,agent-launch-start-codex,agent-launch-start-phases,agent-launch-start-taken,responsive-session-reconciliation,responsive-session-reconciliation-completed}.spec.ts e2e/review/story-review-one-shot.spec.ts --workers=2 --reporter=dot
+npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-{cooldown,shared,turns,retained-answers,revision-reuse,revision-backlog}.spec.ts dashboard/backend-tests/launches/feedback-maintenance-launch.spec.ts dashboard/backend-tests/runtime/{committed-origin-actions,first-open-waits-for-read,settled-page}.spec.ts --workers=1 --reporter=dot
+DOUGH_REF_AUDIT_ALL=1 npm run test:e2e -- e2e/launches/responsive-session-reconciliation{,-completed}.spec.ts e2e/sessions/agent-completion-attention.spec.ts e2e/review/story-review-one-shot.spec.ts --workers=2 --reporter=dot
+```
 
 ## E2E Test
 

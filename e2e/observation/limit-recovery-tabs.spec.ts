@@ -5,6 +5,7 @@
 // withheld record; nothing already read is asked again.
 
 import type { Page, Request } from "@playwright/test";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import {
   expect,
   githubFor,
@@ -31,12 +32,13 @@ import {
   plannedPlan,
   plannedSeed,
   repository,
-  revision,
   titles,
   withheldSeed,
   withheldTitle,
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
+import { keepingOrigin } from "../../dashboard/test-support/support/publishedRepository.ts";
 import {
   inspectedDetail,
   storyCard,
@@ -74,18 +76,22 @@ const withheldGoal = "Only GitHub's limit keeps this record unread.";
 
 test("two tabs recover together once the wait ends, each question reaching GitHub once", async ({
   page,
+  dashboard,
 }) => {
   await pausePageClockAt(page, opened);
   const github = githubFor(page);
-  const answers = limiting(
-    page,
-    publishes({
-      revision,
-      files: { ...files, [settingPath]: "{}\n" },
+  const published = publishes({ files: { ...files, [settingPath]: "{}\n" } });
+  const { revision } = published;
+  const answers = limiting(page, published, 2);
+  const answer = keepingOrigin(answers.answer, published);
+  github.serve(repository, answer);
+  expect(
+    await remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+      cwd: dashboard.home,
+      env: { HOME: dashboard.home },
+      maxBuffer: 4096,
     }),
-    2,
-  );
-  github.serve(repository, answers.answer);
+  ).toBe(revision);
   // The other records and the project setting reach GitHub before the limit;
   // the plan is asked only after it.
   answers.limit(
@@ -93,8 +99,20 @@ test("two tabs recover together once the wait ends, each question reaching GitHu
     isContent(plannedSeed),
     isContent(settingPath),
   );
+  const refusedDetail = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      url.pathname === authenticatedReadEndpoint &&
+      url.searchParams.get("path") === withheldSeed &&
+      url.searchParams.get("revision") === revision
+    );
+  });
   await page.goto("/");
   await expectSettledPage(page, titles);
+  expect(await (await refusedDetail).json()).toMatchObject({
+    error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading ${withheldSeed} at ${revision}. GitHub asked to wait 2 seconds before asking again.`,
+    retryAfterSeconds: 2,
+  });
   const limitSeenAt = answers.lift();
   const other = await page.context().newPage();
   await other.goto("/");
@@ -104,7 +122,7 @@ test("two tabs recover together once the wait ends, each question reaching GitHu
     "This page reads the published work then, or when it is next seen.",
   );
   const asked = github.calls.length;
-  const ref = holdingAnswer(answers.answer, ({ kind }) => kind === "ref");
+  const ref = holdingAnswer(answer, ({ kind }) => kind === "ref");
   github.serve(repository, ref.answer);
   const tabs = [page, other];
 

@@ -21,11 +21,7 @@ import {
   type DashboardServer,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
-import {
-  chooseStoryTab,
-  storyHeaderReading,
-  storyTitle,
-} from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { intentStory } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
@@ -190,11 +186,11 @@ test("a fresh clone reads the retired admission's story and its exact published 
       return selectDoneStoryInIntent(page, title, undefined, reader.baseURL);
     });
   await test.step("Then Intent shows the completed story and its original closure revision", async () => {
-    await expect(storyTitle(intent)).toHaveText(title);
-    await chooseStoryTab(intent, "Changes");
-    await expect(storyHeaderReading(intent).publishedCompletion).toHaveText(
-      final,
-    );
+    const story = intentStory(intent);
+    await expect(story.title).toHaveText(title);
+    await story.headerDetail();
+    await story.browseFiles();
+    await expect(story.header.publishedCompletion).toHaveText(final);
   });
   await test.step("And published reading still needs no local launch storage", () => {
     expect(existsSync(launchStoreFile(reader))).toBe(false);

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "36c4ea6a-ebd9-4f9b-8c13-8adfc4493b28",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T13:39:11.083Z",
+  "story": "SEED-413#finish-backend-vitest-renovation-after-launch-options",
+  "ranges": [
+    {
+      "base": "f75429565d7eb066c1b1d23b95cbaaaf1ded61b3",
+      "candidate": "2488c5d792d949a8ea9a6b3d565ee11ea07253ed"
+    }
+  ]
+}

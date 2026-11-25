@@ -70,23 +70,21 @@ export function commitOf(repoDir: string, name: string): string | undefined {
   }
 }
 
-// Moves the branch to the published `revision`, so a Git read routed to
-// `repoDir` finds the trunk the fixture answers; a checkout's own `main`
-// stays with its working tree.
+export function publishMain(repoDir: string, revision: string): void {
+  publishBranch(repoDir, "main", revision);
+}
+
+// Move or delete a published fixture branch without moving its working tree.
 export function publishBranch(
   repoDir: string,
   branch: string,
-  revision: string,
+  revision: string | undefined,
 ): void {
   if (commitOf(repoDir, branch) === revision) return;
   if (checkedOutBranch(repoDir, branch)) return;
-  execFileSync("git", [
-    "-C",
-    repoDir,
-    "update-ref",
-    `refs/heads/${branch}`,
-    revision,
-  ]);
+  const ref = `refs/heads/${branch}`;
+  const update = revision === undefined ? ["-d", ref] : [ref, revision];
+  execFileSync("git", ["-C", repoDir, "update-ref", ...update]);
 }
 
 // Whether `repoDir` is a checkout whose working tree holds the branch.

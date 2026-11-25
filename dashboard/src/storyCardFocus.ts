@@ -1,4 +1,5 @@
 import { readingBounds } from "./boardScroll.ts";
+import type { SelectedStory } from "./pageStorySelection.tsx";
 import type { PublishedWork } from "./publishedWork.ts";
 export { keepInView, untilOwnMove } from "./pageMovement.ts";
 
@@ -12,11 +13,8 @@ export { keepInView, untilOwnMove } from "./pageMovement.ts";
 // the work that held it is not in the new snapshot. Board spreads these
 // marks onto what it renders. A card and the Board are focusable only so
 // that focus can be returned to them, so they stay out of the tab order. The
-// Intent perspective shows no Board; Project Intent's strip
-// (`./IntentPage.tsx`) and a selected story's view row
-// (`./IntentPage.tsx`), one of which Intent shows, spread
-// `intentHomeMarks`, and the chosen tab there, its row's one tab in the tab
-// order, is Intent's home.
+// Intent perspective shows no Board. Focus returns to its visible path
+// reading or the selected tab marked by Project Intent and Story Home.
 const storyCardAttribute = "data-story-card";
 const storyCardLinkAttribute = "data-story-card-link";
 const boardAttribute = "data-board";
@@ -34,6 +32,15 @@ export const boardMarks = { [boardAttribute]: true, tabIndex: -1 } as const;
 const intentHomeAttribute = "data-intent-home";
 
 export const intentHomeMarks = { [intentHomeAttribute]: true } as const;
+const intentStoryPathAttribute = "data-intent-story-path";
+export const intentStoryPathAttributes = (id: string, hidden: boolean) =>
+  ({
+    id,
+    hidden,
+    role: "region",
+    "aria-label": "Path reading",
+    [intentStoryPathAttribute]: true,
+  }) as const;
 
 export type FocusedStoryCard = {
   readonly identity: string;
@@ -131,12 +138,6 @@ export function focusBoard(): void {
 
 const board = () => document.querySelector<HTMLElement>(`[${boardAttribute}]`);
 
-// The chosen tab of Intent's shown view row while the page shows Intent.
-const intentHome = () =>
-  document.querySelector<HTMLElement>(
-    `[${intentHomeAttribute}] [role="tab"][aria-selected="true"]`,
-  );
-
 // Whether the page shows `element`: Intent keeps the Board mounted but
 // hidden, where it cannot take the keyboard.
 const shown = (element: HTMLElement | null | undefined) =>
@@ -146,25 +147,45 @@ const shown = (element: HTMLElement | null | undefined) =>
     ? element
     : undefined;
 
-// The selected story's Intent view start (its tabbar), while Intent shows it.
-export function intentStoryViewStart(): HTMLElement | undefined {
+const intentHeadingAttribute = "data-intent-story-heading";
+const intentProjectAttribute = "data-intent-story-project";
+
+// Intent starts at the selected story's heading, above its view tabs.
+export function intentStoryHeadingMarks(project: string, identity: string) {
+  return {
+    [intentHeadingAttribute]: identity,
+    [intentProjectAttribute]: project,
+  };
+}
+
+export function intentStoryHeading(
+  story: SelectedStory,
+): HTMLElement | undefined {
   return shown(
     document.querySelector<HTMLElement>(
-      `.intent-page-frame[data-intent-context="story"] [${intentHomeAttribute}]`,
+      `[${intentHeadingAttribute}="${CSS.escape(story.identity)}"][${intentProjectAttribute}="${CSS.escape(story.project)}"]`,
     ),
   );
 }
 
 // Where the keyboard is useful once what held it left the page: the work's
 // card while the page shows it, else the Board, else, in the Intent
-// perspective, which shows neither, the chosen tab of Intent's view row.
+// perspective, the visible path or selected evidence tab.
 export function storyCardHome(
   identity: string | undefined,
 ): HTMLElement | null {
   return (
     shown(identity === undefined ? undefined : storyCard(identity)) ??
     shown(board()) ??
-    intentHome()
+    shown(
+      document.querySelector<HTMLElement>(`[${intentStoryPathAttribute}]`),
+    ) ??
+    shown(
+      document.querySelector<HTMLElement>(
+        `[${intentHomeAttribute}] [role="tab"][aria-selected="true"]`,
+      ),
+    ) ??
+    null
   );
 }
 

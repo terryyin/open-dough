@@ -1,6 +1,5 @@
-// Project Intent's heading and views (../src/IntentPage.tsx), the
-// Test Optimization Candidates record it shows, and the way between Project
-// Intent and the selected story (../src/IntentPage.tsx).
+// Project and story views in Intent (../src/IntentPage.tsx), including the
+// Test Optimization Candidates record and the files column.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { shortRevision } from "./dashboardParts.ts";
@@ -64,11 +63,11 @@ export const storyIntentFrame = (intent: Locator) =>
 export const intentModeViews = (intent: Locator) =>
   intent.getByRole("tablist", { name: "Project Intent views" });
 export const storyViews = (intent: Locator) =>
-  intent.getByRole("tablist", { name: "Selected story views" });
+  intent.getByRole("tablist", { name: "Story Home" });
 
-type StoryTabName = "CI comparison" | "Changes" | "Intent coverage";
+type StoryTabName = "CI comparison" | "Intent coverage";
 
-// One of the selected story's views, in the row under its header.
+// One of Story Home's evidence tabs.
 export const storyTab = (intent: Locator, name: StoryTabName) =>
   storyViews(intent).getByRole("tab", { name, exact: true });
 
@@ -76,13 +75,35 @@ export const storyTab = (intent: Locator, name: StoryTabName) =>
 export const storyTabPanel = (intent: Locator, name: StoryTabName) =>
   intent.getByRole("tabpanel", { name, exact: true });
 
+export const storyFilesReading = (intent: Locator) =>
+  intent.getByRole("region", { name: "Path reading", exact: true });
+
 export async function expectStoryTab(intent: Locator, name: StoryTabName) {
   await expect(storyTab(intent, name)).toHaveAttribute("aria-selected", "true");
 }
 
 export async function chooseStoryTab(intent: Locator, name: StoryTabName) {
+  if (await storyFilesReading(intent).isVisible()) await goToStoryHome(intent);
   await storyTab(intent, name).click();
   await expectStoryTab(intent, name);
+}
+
+// Reach the file browser without selecting a location, folder or file.
+export async function browseStoryFiles(intent: Locator) {
+  const show = intent.getByRole("button", { name: "Show files", exact: true });
+  if (await show.isVisible()) await show.click();
+}
+
+export const storyHomeButton = (intent: Locator) =>
+  filesColumn(intent).getByRole("button", { name: "Home", exact: true });
+
+export async function goToStoryHome(
+  intent: Locator,
+  using: "mouse" | "keyboard" = "mouse",
+) {
+  await browseStoryFiles(intent);
+  const home = storyHomeButton(intent);
+  await (using === "keyboard" ? home.press("Enter") : home.click());
 }
 
 type IntentModeName = "CI status" | "Optimization Candidates";
@@ -110,35 +131,11 @@ export async function chooseOptimizationCandidates(intent: Locator) {
   await expect(filesColumn(intent)).toBeHidden();
 }
 
-// From the selected story's header to Project Intent, which shows its
-// heading with the keyboard on Back to selected story.
-export const projectIntentLink = (intent: Locator) =>
-  storySummary(intent).getByRole("button", {
-    name: "Project Intent",
-    exact: true,
-  });
-export const backToStory = (intent: Locator) =>
-  intent.getByRole("button", { name: "Back to selected story", exact: true });
-
-export async function openProjectIntent(intent: Locator) {
-  await projectIntentLink(intent).click();
-  await expect(
-    intent.getByRole("heading", { name: "Project Intent", level: 2 }),
-  ).toBeVisible();
-  await expect(backToStory(intent)).toBeFocused();
-}
-
-// Back to the selected story, the keyboard on its way to Project Intent.
-export async function returnToStory(intent: Locator) {
-  await backToStory(intent).click();
-  await expect(projectIntentLink(intent)).toBeFocused();
-}
-
 // Hide files / Show files for the locations column: in Project Intent's strip
-// on CI status, or ending a selected story's view row on Changes.
+// on CI status, or in the selected story's persistent toolbar.
 export const filesToggle = (intent: Locator) =>
   intent
-    .locator(".intent-page-tabbar")
+    .locator(".intent-page-tabbar, .intent-comparison-row")
     .getByRole("button", { name: /^(Hide|Show) files$/ });
 
 // The toggle names what it does and states whether the column is shown.

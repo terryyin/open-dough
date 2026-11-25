@@ -8,25 +8,12 @@
 // story, or, with a story selected on the page, that story's view
 // (`./IntentPage.tsx`), each from its own Intent CI evidence owner
 // (`./IntentCiEvidence.tsx`): Project Intent judges the project's trunk, the
-// story's view reads the story's evidence. Each scope keeps its own reading
-// place, selection and Hide files choice (`./pageIntentReading.tsx`); which
-// one shows is `./intentStoryTabs.tsx`'s. Going between them moves the
-// keyboard to the control that comes back. The story's evidence is read as
-// soon as work is known, whatever the locations' state, and keeps being
-// followed during a visit to Project Intent, so returning reads nothing again;
-// the project's trunk evidence is read once Project Intent first shows and
-// then followed while Intent stays open. The chosen Project Intent view
-// (`./pageIntentMode.tsx`) and the reading place are kept by the page per
-// project.
+// story's view reads the story's evidence. The page keeps each scope's reading
+// place. Project evidence keeps following trunk after its first display.
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { IntentCiEvidenceProvider } from "./IntentCiEvidence.tsx";
-import { backToStoryId } from "./intentProjectTabs.ts";
-import {
-  IntentPage,
-  toProjectIntentId,
-  type IntentPageStory,
-} from "./IntentPage.tsx";
+import { IntentPage, type IntentPageStory } from "./IntentPage.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import {
   useStorySummary,
@@ -34,11 +21,6 @@ import {
   type ComparedStory,
   type StorySummary,
 } from "./IntentStorySummary.tsx";
-import {
-  useIntentScope,
-  useProvideIntentScopeChooser,
-  type IntentScope,
-} from "./intentStoryTabs.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
@@ -88,9 +70,7 @@ function IntentBody({
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
 }) {
-  const { scope, chooseScope } = useIntentScope(selection);
-  useProvideIntentScopeChooser(chooseScope);
-  const storyShown = storySummary !== undefined && scope === "story";
+  const storyShown = storySummary !== undefined;
   // Project Intent's trunk evidence is read from its first showing on.
   const [projectVisited, setProjectVisited] = useState(!storyShown);
   if (!storyShown && !projectVisited) setProjectVisited(true);
@@ -101,28 +81,11 @@ function IntentBody({
   // CI starts independently of the locations read. The same mounted owner
   // supplies the loading explanation and the browser once locations settle.
   const projectCiActive = projectVisited && work !== undefined;
-  // The control that comes back, focused once the other scope shows.
-  const arrival = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    if (arrival.current === undefined) return;
-    document.getElementById(arrival.current)?.focus();
-    arrival.current = undefined;
-  }, [scope]);
-  const visit = (next: IntentScope) => {
-    arrival.current =
-      next === "project"
-        ? backToStoryId(project.modeIdPrefix)
-        : toProjectIntentId(project.modeIdPrefix);
-    chooseScope(next);
-  };
   const storyPage: IntentPageStory | undefined = storyShown
     ? {
         summary: storySummary,
         selection,
         compared: story,
-        onProjectIntent: () => {
-          visit("project");
-        },
       }
     : undefined;
 
@@ -138,13 +101,6 @@ function IntentBody({
         work={followed}
         project={project}
         projectShown={!storyShown}
-        onBackToStory={
-          storySummary === undefined
-            ? undefined
-            : () => {
-                visit("story");
-              }
-        }
         storyPages={(reading) => (
           <IntentCiEvidenceProvider
             source={source}

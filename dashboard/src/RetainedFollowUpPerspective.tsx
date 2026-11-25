@@ -1,5 +1,5 @@
 // A route-known local reader: no live CI owner mounts, including bootstrap.
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   CiFollowUpReading,
   FollowUpDestination,
@@ -15,11 +15,9 @@ import {
   IntentReadingPlace,
   IntentReadingScope,
 } from "./pageIntentReading.tsx";
-import { useIntentScope } from "./intentStoryTabs.tsx";
 import { useIntentModeChoice } from "./pageIntentMode.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
-import { FollowUpNavigationOnPage } from "./ciFollowUpNavigation.tsx";
 import type { IntentOnPage } from "./IntentPerspective.tsx";
 import "./intent-perspective.css";
 
@@ -47,10 +45,7 @@ function RetainedStory({ source, work, records, destination }: Props) {
   const [reading, setReading] = useState<CiFollowUpReading>();
   const [problem, setProblem] = useState<string>();
   const [round, setRound] = useState(0);
-  const [projectRequested, requestProject] = useState(false);
   const { selection } = useStorySelection(source.id);
-  const { chooseScope } = useIntentScope(selection);
-  const navigate = useContext(FollowUpNavigationOnPage);
   const reads = useCiFollowUpReads();
   const project = useIntentModeChoice(source.id);
   const lens = useIntentStoryLens({
@@ -60,11 +55,6 @@ function RetainedStory({ source, work, records, destination }: Props) {
     selectedIdentity: destination.identity,
   });
   const summary = useStorySummary(lens.story, lens.comparison, lens.retry);
-  // The reading owner commits the scope before this route unmounts it.
-  useEffect(() => {
-    if (projectRequested) navigate?.(undefined);
-  }, [projectRequested, navigate]);
-
   useEffect(() => {
     let current = true;
     void reads
@@ -110,10 +100,6 @@ function RetainedStory({ source, work, records, destination }: Props) {
             summary,
             selection,
             compared: lens.compared,
-            onProjectIntent: () => {
-              chooseScope("project");
-              requestProject(true);
-            },
           }}
         />
       )}

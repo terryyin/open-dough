@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -8,49 +7,70 @@ import {
   type DashboardServer,
   type DashboardServerMode,
 } from "./dashboardServer.ts";
-import type { FakeGhTransport } from "./fakeGh.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { everyRepository, publishes } from "./fakeGitHub.ts";
-import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { git } from "./launchLanding.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { commitOf } from "../committedOriginRepo.ts";
 import { initializeStartOrigin } from "./startOriginInitialization.ts";
 import { gitHubRepositoryUrl } from "./fixtureOriginRoute.ts";
+import { commitPublishedOrigin } from "./publishedOrigin.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   projectConfigurationFile,
   projectEnvironmentOf,
 } from "./projectConfiguration.ts";
 
 export const addedRepository = "example/sample-app";
-export const addedRevision = "b7".repeat(20);
 export const addedBranch = "release+stable";
 export const addedLocalPath = "~/work/private-checkout";
 
-export function projectAddMachine({
-  ghTransport,
-}: { ghTransport?: FakeGhTransport } = {}) {
+export function projectAddMachine() {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-project-add-"));
   const checkout = path.join(machine, "home/work/private-checkout");
-  const origin = path.join(machine, "sample-app.git");
-  mkdirSync(checkout, { recursive: true });
-  execFileSync("git", [
-    "init",
+  const installedOrigin = path.join(machine, "sample-app.git");
+  const facts = {
+    defaultBranch: addedBranch,
+    backlog: describedBacklog(makeMe.aRepository.please()),
+  };
+  const published = publishes(facts);
+  const otherProjects = publishes({ ...facts, revision: published.revision });
+  const localBranch = commitPublishedOrigin({
+    branch: "local-checkout",
+    backlog: null,
+  });
+  git(
+    published.origin,
+    "fetch",
     "--quiet",
-    "--initial-branch=local-checkout",
+    localBranch.origin,
+    "local-checkout:local-checkout",
+  );
+  mkdirSync(path.dirname(checkout), { recursive: true });
+  git(
+    machine,
+    "clone",
+    "--quiet",
+    "--branch",
+    "local-checkout",
+    published.origin,
     checkout,
-  ]);
-  execFileSync("git", [
-    "-C",
+  );
+  git(
     checkout,
     "remote",
-    "add",
+    "set-url",
     "origin",
     `git@github.com:${addedRepository}.git`,
-  ]);
+  );
   const servers: DashboardServer[] = [];
   let installed = false;
-  const addedTip = () => commitOf(origin, addedBranch) ?? addedRevision;
+  const addedTip = () =>
+    git(
+      installed ? installedOrigin : published.origin,
+      "rev-parse",
+      addedBranch,
+    );
   // The file a server of that mode keeps its projects in.
   const configurationFile = (mode: DashboardServerMode) =>
     projectConfigurationFile(
@@ -60,41 +80,61 @@ export function projectAddMachine({
   return {
     machine,
     checkout,
+    revision: published.revision,
     configurationFile,
     addedTip,
     async installAddedProject() {
       rmSync(checkout, { recursive: true });
       await initializeStartOrigin(
-        origin,
+        installedOrigin,
         path.join(machine, "home"),
         checkout,
         addedRepository,
         "claude",
         makeMe.aRepository.please(),
       );
-      execFileSync("git", ["-C", origin, "branch", addedBranch, "main"]);
-      execFileSync("git", ["-C", checkout, "branch", "-m", "local-checkout"]);
-      // Add inspects the resolved origin URL. Use the declared SSH spelling
-      // until the dialog accepts it, then switch to the routed fixture URL.
-      execFileSync("git", [
-        "-C",
+      git(installedOrigin, "branch", addedBranch, "main");
+      git(installedOrigin, "symbolic-ref", "HEAD", `refs/heads/${addedBranch}`);
+      git(checkout, "branch", "-m", "local-checkout");
+      git(
+        checkout,
+        "commit",
+        "--allow-empty",
+        "-m",
+        "Keep local checkout at its own revision",
+      );
+      git(
+        installedOrigin,
+        "fetch",
+        "--quiet",
+        checkout,
+        "local-checkout:local-checkout",
+      );
+      const localHead = git(checkout, "rev-parse", "HEAD");
+      git(
+        checkout,
+        "update-ref",
+        "refs/remotes/origin/local-checkout",
+        localHead,
+      );
+      git(checkout, "branch", "--set-upstream-to=origin/local-checkout");
+      git(
         checkout,
         "remote",
         "set-url",
         "origin",
         `git@github.com:${addedRepository}.git`,
-      ]);
+      );
       installed = true;
     },
     routeAddedCheckout() {
-      execFileSync("git", [
-        "-C",
+      git(
         checkout,
         "remote",
         "set-url",
         "origin",
         gitHubRepositoryUrl(addedRepository),
-      ]);
+      );
     },
     async start(
       mode: DashboardServerMode,
@@ -103,30 +143,22 @@ export function projectAddMachine({
     ): Promise<DashboardServer> {
       const server = await startDashboardServer({
         mode,
-        ghTransport,
         machine,
         configureDevelopmentProjects: false,
         prebuilt: sharedDashboardBuild,
         readTimeoutMs,
         codexProtocol,
       });
-      server.github.serve(
-        everyRepository,
-        publishes({
-          revision: addedRevision,
-          defaultBranch: addedBranch,
-          // The added project records no stories.
-          backlog: describedBacklog(makeMe.aRepository.please()),
-        }),
-      );
+      server.github.serve(everyRepository, otherProjects);
       if (installed)
         await publishCommittedOrigin(server.github, {
           repository: addedRepository,
-          repoDir: origin,
+          repoDir: installedOrigin,
           branch: addedBranch,
           revision: addedTip(),
           follows: true,
         });
+      else server.github.serve(addedRepository, published);
       servers.push(server);
       return server;
     },

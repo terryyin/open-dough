@@ -3,6 +3,11 @@ import { page } from "vitest/browser";
 import { scopeToggle } from "./intent-browser-page.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { developmentCard } from "./intent-ci-development-card-page.ts";
+import {
+  chooseWholeProject,
+  intentRecentStories,
+} from "./intent-recent-stories-page.ts";
+import { openDoughSource } from "./intent-ci-status-fixtures.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
 import {
   changed,
@@ -21,7 +26,7 @@ async function showsUsablePublishedTree() {
   await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
   await expect.element(story.outsideGroup).not.toBeInTheDocument();
   await expect
-    .element(panel("Changes").getByText(/No test files|no changes/i))
+    .element(story.sidebar.getByText(/No test files|no changes/i))
     .not.toBeInTheDocument();
   await scopeToggle("dashboard/tests").click();
   await scopeToggle("boundary").click();
@@ -29,7 +34,7 @@ async function showsUsablePublishedTree() {
   await story.file(modifiedPath).click();
   await intentFileReading(modifiedPath).shows("a 11");
   expect(
-    panel("Changes")
+    story.sidebar
       .element()
       .querySelectorAll("[data-kind], [data-contains-changes]"),
   ).toHaveLength(0);
@@ -55,7 +60,7 @@ test("a story with no published changes explains that no comparison is available
     .element(story.header.getByRole("button", { name: "Retry" }))
     .not.toBeInTheDocument();
   expect(story.revisions()).toBe("");
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await showsUsablePublishedTree();
 });
 
@@ -72,7 +77,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect
     .poll(story.alertText)
     .toBe("The story's changes could not be read. Retry");
@@ -95,7 +100,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   expect(attempts).toBe(2);
 });
 
-test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changes the explanation, and Project Intent main's CI status beside it", async () => {
+test("without configured Intent locations the header names the selected story, Story Home shows CI status and the explanation, and Project Intent main's CI status beside it", async () => {
   const mounted = await openStoryChanges({
     hasWorkspace: false,
     hasLocations: false,
@@ -133,15 +138,15 @@ test("without configured Intent locations the header names the selected story, C
     )
     .toBeVisible();
 
-  await story.chooseTab("Changes");
-  await showsExplanation("Changes");
   await expect
     .element(
-      panel("Changes").getByRole("region", { name: "CI status", exact: true }),
+      story.homeReading.getByText(
+        /No Intent locations are configured for Open Dough/,
+      ),
     )
-    .not.toBeInTheDocument();
+    .toBeVisible();
 
-  await story.projectIntent.click();
+  await chooseWholeProject();
   await expect.element(story.header).not.toBeInTheDocument();
   await showsExplanation("CI status");
   await expect
@@ -155,9 +160,15 @@ test("without configured Intent locations the header names the selected story, C
   await intentViewTab("Optimization Candidates").click();
   await showsExplanation("Optimization Candidates");
 
-  await story.backToStory.click();
+  await intentRecentStories(openDoughSource).chooseRow("SEED-A#a");
   await expect.element(story.header).toBeVisible();
-  await showsExplanation("Changes");
+  await expect
+    .element(
+      story.homeReading.getByText(
+        /No Intent locations are configured for Open Dough/,
+      ),
+    )
+    .toBeVisible();
 
   await mounted.showDevelopment();
   const card = developmentCard("Story A");
@@ -165,7 +176,6 @@ test("without configured Intent locations the header names the selected story, C
   await card.isSelected(false);
   await mounted.showIntent();
   await expect.element(story.header).not.toBeInTheDocument();
-  await expect.element(story.backToStory).not.toBeInTheDocument();
   await expect
     .element(intentViewTab("CI status"))
     .toHaveAttribute("aria-selected", "true");

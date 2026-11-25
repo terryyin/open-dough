@@ -1,11 +1,13 @@
-// Selection changes after Project Intent visits (../../src/IntentPerspective.tsx):
+// Page selection changes in Intent (../../src/IntentPerspective.tsx):
 // every new selection opens CI comparison, even when cleared and selected again
 // while Intent is hidden. Clearing selection opens Project Intent's CI status,
-// whichever view the previous visit ended on.
+// even after reading Optimization Candidates.
 import { expect, test } from "vitest";
 import { intentCandidates, intentViewTab } from "./intent-candidates-page.ts";
+import { chooseWholeProject } from "./intent-recent-stories-page.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
+  deepSpec,
   development,
   intent,
   intentChoice,
@@ -17,14 +19,19 @@ import {
 } from "./intent-project-visit-fixtures.ts";
 import { boardReading as board } from "../navigation/board-reading-page.ts";
 
-test("each new selection opens the story at CI comparison, even one cleared and selected again while Intent is hidden, and clearing lands on Project Intent's CI status after a visit that ended on Optimization Candidates", async () => {
+test("each new selection opens the story at CI comparison, even one cleared and selected again while Intent is hidden, and clearing lands on Project Intent's CI status after project scope was on Optimization Candidates", async () => {
   await mountProjectVisit();
-  const card = await selectTakenStoryInIntent();
-  await expect
-    .element(story.viewTab("Changes"))
-    .toHaveAttribute("aria-selected", "true");
-  await story.projectIntent.click();
+  await intentChoice.click();
   await intentCandidates().choose();
+  await development.click();
+  await intentChoice.click();
+  await expect
+    .element(intentViewTab("Optimization Candidates"))
+    .toHaveAttribute("aria-selected", "true");
+  await development.click();
+  const card = await selectTakenStoryInIntent();
+  await story.file(deepSpec).click();
+  await expect.element(story.pathReading).toBeVisible();
   const heading = card.getByRole("heading", {
     name: storyA.title,
     exact: true,
@@ -45,17 +52,7 @@ test("each new selection opens the story at CI comparison, even one cleared and 
   await expect
     .element(story.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");
-  await expect.element(story.backToStory).not.toBeInTheDocument();
-  await story.projectIntent.click();
-  await expect
-    .element(intentViewTab("CI status"))
-    .toHaveAttribute("aria-selected", "true");
-  await intentCandidates().choose();
-
-  await development.click();
-  await heading.click();
-  await board.expectStorySelection(card, false);
-  await intentChoice.click();
+  await chooseWholeProject();
   await expect.element(intent).not.toHaveAttribute("data-selected-story");
   await expect
     .element(

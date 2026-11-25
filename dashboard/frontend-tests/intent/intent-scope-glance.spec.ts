@@ -77,7 +77,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
     },
   });
   await page.viewport(portrait.width, portrait.height);
-  await intentStoryCompare().chooseTab("Changes");
+  await intentStoryCompare().browseFiles();
   const landing = `Selected landing ${shortSha(doneCompletion)}`;
   const priors = "5 prior builds used";
 

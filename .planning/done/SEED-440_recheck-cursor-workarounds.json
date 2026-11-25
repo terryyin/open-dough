@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-440#recheck-cursor-workarounds",
+  "title": "Recheck Cursor workarounds",
+  "completedAt": "2026-11-25T12:28:14.018Z",
+  "developer": "Terry Yin",
+  "agent": "Honoka-chan",
+  "host": "cursor",
+  "model": "auto"
+}

@@ -22,7 +22,9 @@ import {
   expectHumanAvatar,
   expectHumanInitials,
 } from "../../dashboard/test-support/agentCredit.ts";
-import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
+import { publishCommittedFileHistory } from "../../dashboard/test-support/committedFiles.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { avatarPathsRead } from "../../dashboard/test-support/avatarAnswers.ts";
 import { loadedWidth } from "../../dashboard/test-support/agentPortrait.ts";
 import {
@@ -30,7 +32,8 @@ import {
   credited,
   creditedAvatar,
   creditedWidth,
-  firstRevision,
+  attributionHistory,
+  attributionDetails,
   modifier,
   modifierAvatar,
   offHost,
@@ -41,7 +44,6 @@ import {
   reallocator,
   reallocatorAvatar,
   reallocatorWidth,
-  secondRevision,
   unfetched,
   unfetchedAvatar,
 } from "../../dashboard/test-support/agentAttributionRecords.ts";
@@ -52,10 +54,26 @@ import {
 } from "../../dashboard/test-support/agentRosterRecords.ts";
 test("each assignment credits the committer who added its profile's current allocation, with an avatar read once through the local boundary, on cards and the roster, and says when that cannot be established", async ({
   page,
+  dashboard,
+  afterGitHubStops,
 }) => {
   const github = githubFor(page);
   github.serveAvatars(avatarHost);
-  const origin = publishMovingFiles(page, firstRevision);
+  const repository = "terryyin/open-dough";
+  const origin = await publishCommittedFileHistory(page, attributionHistory, {
+    repository,
+    trunk: "first",
+    details: attributionDetails,
+    afterGitHubStops,
+  });
+  const { first: firstRevision, second: secondRevision } = origin.published;
+  const routed = () =>
+    remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+      cwd: dashboard.home,
+      env: { HOME: dashboard.home },
+      maxBuffer: 4096,
+    });
+  expect(await routed()).toBe(firstRevision.revision);
   const doughnutRevision = publishUnlistableProfiles(page);
   const pageRequests: string[] = [];
   page.on("request", (request) => pageRequests.push(request.url()));
@@ -147,6 +165,7 @@ test("each assignment credits the committer who added its profile's current allo
   await test.step("at a new revision, each card shows only its new allocation's human, and an account already fetched is not read again", async () => {
     await back.click();
     origin.moveTrunk(secondRevision);
+    expect(await routed()).toBe(secondRevision.revision);
     await page.reload();
     const { revision } = secondRevision;
     const reallocated = { width: reallocatorWidth, revision };

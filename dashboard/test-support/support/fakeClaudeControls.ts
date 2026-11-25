@@ -167,7 +167,7 @@ export function fakeClaudeControls(
     else rmSync(state(file), { force: true });
   };
   return {
-    ...fakeClaudeListing(stateDir, home),
+    ...fakeClaudeListing(stateDir),
     home,
     claudeCalls,
     claudeLaunchCalls: () => callsOf("--bg"),

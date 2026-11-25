@@ -10,21 +10,28 @@ import type {
   SessionState,
 } from "../src/agentLaunch.ts";
 import { sessionKey } from "../src/sessionReference.ts";
-import { launchHost } from "./launchHosts.ts";
+import { launchHost, type LaunchHost } from "./launchHosts.ts";
 import type { SessionObservation } from "./hostLaunch.ts";
 import type { LocalFolder } from "./localFolder.ts";
 
 const observationWaitMs = 10_000;
+
+// How a host reads its recorded sessions, by the host's name.
+export type HostSessions = (
+  host: LaunchRecord["session"]["host"],
+) => LaunchHost["sessions"];
+const launchHostSessions: HostSessions = (host) => launchHost(host)?.sessions;
 
 // Enforce the common read deadline even if a host cannot settle its transport
 // on abort. Rejection is isolated to this host's records, never other hosts.
 async function observed(
   records: readonly LaunchRecord[],
   folder: LocalFolder,
+  hostSessions: HostSessions,
 ): Promise<readonly SessionObservation[]> {
   const host = records[0]?.session.host;
   if (host === undefined) return [];
-  const sessions = launchHost(host)?.sessions;
+  const sessions = hostSessions(host);
   if (sessions === undefined) return [];
   const signal = AbortSignal.timeout(observationWaitMs);
   let expire: (() => void) | undefined;
@@ -47,6 +54,7 @@ async function observed(
 async function observedStates(
   folder: LocalFolder,
   records: readonly LaunchRecord[],
+  hostSessions: HostSessions,
 ): Promise<ReadonlyMap<string, SessionState>> {
   const byHost = new Map<string, LaunchRecord[]>();
   for (const record of records) {
@@ -56,7 +64,9 @@ async function observedStates(
   }
   const states = new Map<string, SessionState>();
   for (const observations of await Promise.all(
-    [...byHost.values()].map((hostRecords) => observed(hostRecords, folder)),
+    [...byHost.values()].map((hostRecords) =>
+      observed(hostRecords, folder, hostSessions),
+    ),
   ))
     for (const { session, sessionState } of observations) {
       const key = sessionKey(session);
@@ -69,13 +79,14 @@ export async function withStates(
   folder: LocalFolder,
   records: readonly LaunchRecord[],
   observation: "recurring" | "on-demand" = "on-demand",
+  hostSessions: HostSessions = launchHostSessions,
 ): Promise<readonly LaunchWithState[]> {
   const observes = ({ session, doneAt }: LaunchRecord) =>
     observation !== "recurring" ||
     session.host !== "codex" ||
     doneAt === undefined;
   const [states, workspaceStates] = await Promise.all([
-    observedStates(folder, records.filter(observes)),
+    observedStates(folder, records.filter(observes), hostSessions),
     recordedWorkspaceStates(records),
   ]);
   const folders = new Map<string, LocalFolder | undefined>();

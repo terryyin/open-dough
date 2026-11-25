@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-420#put-comparison-follow-up-by-story-notes",
+  "title": "Put comparison follow-up beside story notes",
+  "completedAt": "2026-11-25T13:05:19.968Z",
+  "developer": "Terry Yin",
+  "agent": "Anri-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** For SEED-420#put-comparison-follow-up-by-story-notes at `ab54d2b1000a03f072f5a40f0114bb2b344d54b0`, the maintained landed-run journey caught a wrong baseline in the title follow-up composer.\n\nThe retained Done workspace fixture in `e2e/review/story-review-follow-up.spec.ts:123` opens Published completion, selects a different retained landing, and observes the landed pair returned by Review. The only scratch fault was in `dashboard/src/StoryAnchoredFollowUp.tsx:99`. The reference form used the result tree as the title follow-up baseline. The reference, run selection, file path, and assertions were intact.\n\nThe same focused Chromium command selected one case on each run. The baseline passed. The faulted run reached the open title composer after confirming the landed Review and file context. The accessibility snapshot independently showed the composer reporting the result tree at both ends, `6041b01e65f3daf6de95f8b2bbb3615c3bf20072 → 6041b01e65f3daf6de95f8b2bbb3615c3bf20072`. The landed baseline was `6809e8237911e937480c1fb0ecbaeb6e70a34`. The `expectContext` list assertion at `dashboard/test-support/support/fileFollowUpPage.ts:31` caught the mismatch before Start. The restored pass verified the full journey through the host input, and the scratch source bytes, revision, and clean status matched their pre-probe state. The scratch worktree and branch were removed. [Fault observation](/tmp/dough-intent-coverage-837.8H3hYj/fault-error-context.md)\n\n```sh\ncaffeinate -s -i npm run test:e2e -- --reporter=list story-review-follow-up.spec.ts -g 'follows up its selected landed comparison'\n```\n\n**Next proof action.** Retain the existing comparison assertion for the title action’s baseline after switching to this retained landed run.\n\n- **Test runtime.** Measured Playwright case times were 13.1 s baseline, 15.6 s faulted, and 11.9 s restored.\n- **Human effort.** Unavailable because this probe did not record a separate human-effort measure.\n- **Agent effort.** Unavailable because the host did not supply a separate active-effort measure.\n\n\n- **Invocation-to-report elapsed.** 191805 ms (measured), from 1795611623282 to 1795611815087 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\n**Wrap-up disposition.** Checked `ab54d2b1000a03f072f5a40f0114bb2b344d54b0`, Caught, no follow-up.\n"
+  }
+}

@@ -1,3 +1,4 @@
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import {
   expect,
   pausePageClockAt,
@@ -16,16 +17,14 @@ import {
   noConnection,
   notFoundAnswer,
   pathsRead,
-  publishMovingOrigin,
   publishOrigin,
   rateLimitedAnswer,
   rawFileAnswer,
   type Origin,
 } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
-  backlogA,
   inspectDashboardStory,
-  revisionA,
+  refreshHistory,
   titlesOfA,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -190,13 +189,19 @@ test("read failure and retry is not caused by an unknown section, which adds no 
 
 test("read failure and retry publishes the first snapshot and withdraws the failure when a reload succeeds after failed openings", async ({
   page,
+  afterGitHubStops,
 }) => {
   const firstFailure = new Date("2026-09-20T08:30:00.000Z");
   const secondFailure = new Date("2026-09-20T08:30:01.000Z");
   const retrievedA = new Date("2026-09-20T08:30:02.000Z");
   await pausePageClockAt(page, firstFailure);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA);
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory({ filesAtA: {} }),
+    "A",
+    afterGitHubStops,
+  );
+  const { A: revisionA } = origin.revisions;
   const reconnect = origin.answerWith("main", noConnection);
   await page.goto("/");
   const { problem } = parts(page);

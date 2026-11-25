@@ -20,20 +20,17 @@ import {
   revealAction,
 } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
-import { doneDirectory } from "../../dashboard/test-support/recentlyDoneProgressive.ts";
+import {
+  doneDirectory,
+  progressiveStories,
+} from "../../dashboard/test-support/recentlyDoneProgressive.ts";
 import {
   isRecord,
   opened,
   untilPageRests,
 } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
-  entries,
-  entryAt,
-  names,
-} from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
-import {
   laterStory,
-  movingMain,
   namesOf,
   newest,
   recordsAskedAt,
@@ -44,6 +41,7 @@ import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJo
 
 test.use({ projectFolders: ["open-dough"] });
 
+const entries = progressiveStories(35);
 const newer = laterStory(0.5, "01", "Finish a newer progressive story");
 
 // A record file published beside the list whose text names another identity,
@@ -61,9 +59,7 @@ const beside = {
 
 // The stories among entries `from` to `to`.
 const storiesFrom = (from: number, to: number) =>
-  entries
-    .slice(from - 1, to)
-    .flatMap((entry) => (entry.kind === "story" ? [entry.path] : []));
+  entries.slice(from - 1, to).map((entry) => entry.path);
 
 type Demanded = { readonly revision: string; readonly path: string }[];
 
@@ -104,26 +100,25 @@ function demandedBy(page: Page) {
 test("a newer revision asks once again for the failed records still shown, not for read or refused ones, and a read failing again there says so with Retry", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.clock.install();
   const demanded = demandedBy(page);
-  const main = movingMain(beside);
+  const atB = [newest, ...entries];
+  const atC = [newer, ...atB];
   // The thirteenth entry's record fails once at the first revision, and once
   // at the second.
-  const failing = entryAt(13);
-  if (failing.kind !== "story") throw new Error("No story at 13");
+  const failing = entries[12];
+  if (!failing) throw new Error("No story at 13");
   const failingPath = failing.path;
   let failingAgainAt = "";
   const view = await opened(page, dashboard, entries, {
     beside,
+    history: { afterGitHubStops, later: { B: atB, C: atC } },
     answering: (published) =>
       answeringFirst(
-        answeringFirst(
-          main.answering(published),
-          isRecord(failingPath),
-          noConnection,
-        ),
+        answeringFirst(published, isRecord(failingPath), noConnection),
         (request) =>
           isRecord(failingPath)(request) &&
           request.kind === "content" &&
@@ -131,12 +126,13 @@ test("a newer revision asks once again for the failed records still shown, not f
         noConnection,
       ),
   });
-  const { github, recent, now } = view;
+  const { github, recent, main } = view;
+  if (main === undefined) throw new Error("No progressive publication history");
   const failed = recent.getByRole("article", { name: failing.identity });
   const retry = recent.getByRole("button", { name: "Retry done stories" });
 
   await test.step("the first ten and the refused record file are read; the next ten's read fails, and the same revision asks nothing more on its own", async () => {
-    await expectEntries(recent, names(10));
+    await expectEntries(recent, namesOf(entries, 10));
     await expect(recent).toContainText(refusal);
     await revealAction(recent).click();
     await expect(recent).toContainText("Done stories could not be read.");
@@ -151,11 +147,9 @@ test("a newer revision asks once again for the failed records still shown, not f
     await expect(failed).toContainText("This done story could not be read.");
   });
 
-  const atB = [newest, ...entries];
   await test.step("a newer revision with unchanged records asks once for the new record and the failed ones still shown, not the read or refused ones; failing again, it says so with Retry", async () => {
-    failingAgainAt = "01".repeat(20);
-    const revisionB = main.publish(now, atB);
-    expect(revisionB).toBe(failingAgainAt);
+    const revisionB = main.publish("B");
+    failingAgainAt = revisionB;
     await refreshedTo(page, revisionB);
     const askedAtB = [newest.path, ...storiesFrom(11, 19)].toSorted();
     await expect
@@ -170,9 +164,8 @@ test("a newer revision asks once again for the failed records still shown, not f
     expect(recordsAskedAt(github, revisionB)).toContain(failingPath);
   });
 
-  const atC = [newer, ...atB];
   await test.step("the next revision asks once for the failed records still shown and their cards show; read and refused records are not asked again", async () => {
-    const revisionC = main.publish(now, atC);
+    const revisionC = main.publish("C");
     await refreshedTo(page, revisionC);
     await expectEntries(recent, namesOf(atC, 20));
     await expect(recent).not.toContainText("could not be read");

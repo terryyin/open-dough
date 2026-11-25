@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "098b8591-eb4f-4067-939b-9d68c3867f28",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T12:13:51.896Z",
+  "story": "SEED-345#load-execution-guidance-for-the-current-phase",
+  "ranges": [
+    {
+      "base": "b6bc2363404cb8918037d5fd54efa562e419e8ca",
+      "candidate": "54c2b8cbe15e869ae45afe5b1df6de9a08143425"
+    },
+    {
+      "base": "54c2b8cbe15e869ae45afe5b1df6de9a08143425",
+      "candidate": "bd35d7619058db830264cec848b519e370e8168b"
+    },
+    {
+      "base": "bd35d7619058db830264cec848b519e370e8168b",
+      "candidate": "73d7e84afc6f9597796993c2e39c7a81fc73db66"
+    },
+    {
+      "base": "73d7e84afc6f9597796993c2e39c7a81fc73db66",
+      "candidate": "b4f14b3fc6c9fc93436064463651444256233c90"
+    }
+  ]
+}

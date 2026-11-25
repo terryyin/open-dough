@@ -3,8 +3,10 @@
 // opens that story; it does not repeat while the reading stays or after the
 // page is opened and reloaded, and is raised again after working. The text
 // travels as Open Dough notification sender arguments. The server's other
-// alert rules: ../../dashboard/backend-tests/sessions/session-alerts.spec.ts. The
-// synthetic `claude` (./fixtures/fake-claude) and sender
+// alert rules: ../../dashboard/backend-tests/sessions/session-alerts-reading.spec.ts;
+// closing ends the sender:
+// ../../dashboard/backend-tests/sessions/session-alerts-lifetime.spec.ts. The synthetic
+// `claude` (./fixtures/fake-claude) and sender
 // (./fixtures/fake-terminal-notifier) are all the server reaches; a real
 // notification is never raised. "Nothing more" is asserted only after the
 // fake `claude` has logged further listings, never after a sleep.

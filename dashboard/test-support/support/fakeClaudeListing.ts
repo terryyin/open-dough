@@ -26,9 +26,6 @@ export type ClaudeListingControls = {
   ): void;
   // Whether the fake's session listing fails, answering nothing.
   claudeListingFails(fails: boolean): void;
-  // Lists an interactive session running in a terminal, as Claude Code
-  // 2.1.285 does: with no short `id` and no `state`.
-  claudeListsInteractiveSession(): void;
   // Lists a background session working with this name, started in `cwd` at
   // `startedAt` (epoch milliseconds), as another launch would have; answers
   // its session id.
@@ -43,10 +40,7 @@ export type ClaudeListingControls = {
   claudeListingBecomes(sessions: readonly object[]): void;
 };
 
-export function fakeClaudeListing(
-  stateDir: string,
-  home: string,
-): ClaudeListingControls {
+export function fakeClaudeListing(stateDir: string): ClaudeListingControls {
   const state = (file: string) => path.join(stateDir, file);
   const claudeListing = () => {
     let listed = "[]";
@@ -88,20 +82,6 @@ export function fakeClaudeListing(
     claudeListingFails(fails) {
       if (fails) writeFileSync(state("listing-fails"), "");
       else rmSync(state("listing-fails"), { force: true });
-    },
-    claudeListsInteractiveSession() {
-      relist([
-        ...claudeListing(),
-        makeMe.aClaudeListingRow
-          .interactive({
-            pid: 3394,
-            cwd: home,
-            startedAt: Date.now(),
-            sessionId: "3ab4613a-744d-4545-adba-15346379854a",
-            name: "terminal session",
-          })
-          .please(),
-      ]);
     },
     claudeListsSession({ name, cwd, startedAt }) {
       const sessionId = randomUUID();

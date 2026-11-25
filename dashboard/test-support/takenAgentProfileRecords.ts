@@ -8,7 +8,7 @@ import { describedRevision } from "./describedRevisions.ts";
 
 export const repository = "terryyin/open-dough";
 export const agents = ".planning/agents";
-export const revisionA = "a1".repeat(20);
+const revisionA = "a1".repeat(20);
 
 export const trunkStory = "See who owns Taken work";
 export const branchStory = "Queue trunk integration on one machine";

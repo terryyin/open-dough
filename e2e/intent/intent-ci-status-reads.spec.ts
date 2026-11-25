@@ -1,3 +1,4 @@
+import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   expectCiScope,
   expectCiAnswer,
@@ -40,13 +41,10 @@ import {
 } from "../../dashboard/test-support/intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
-  broken,
   failedRun,
-  login,
   mainRun,
   publishStoryCi,
   toggleOnDevelopment,
-  trunkHead,
 } from "../../dashboard/test-support/intentCiStoryRecords.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { httpErrorAnswer } from "../../dashboard/test-support/originAnswers.ts";
@@ -58,7 +56,7 @@ test("CI status that could not be read names main and the reason; Check again re
   let historyMissing = true;
   let runsMissing = true;
   const published = publishProject(page, openDough);
-  const ci = trunkCi(openDough.revision, () =>
+  const ci = trunkCi(published.revision, () =>
     runsMissing
       ? httpErrorAnswer(404, "Not Found")
       : [
@@ -116,6 +114,7 @@ test("CI status that could not be read names main and the reason; Check again re
 
 test("a ciAdapter project is judged from its discover attempts, and a story branch counts main's discover results of shared commits", async ({
   page,
+  afterGitHubStops,
   dashboard,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -141,6 +140,8 @@ test("a ciAdapter project is judged from its discover attempts, and a story bran
   // Each discover answered by the branch asked: main's head fails (a commit
   // on main only), main's "Add login" passes, the failing story's own head
   // fails, and the planning-only story has no result of its own.
+  const ci = await publishStoryCi(page, afterGitHubStops);
+  const { trunkHead, login, broken } = ci.revisions;
   const answers = {
     main: [
       attempt(trunkHead, "failure", "https://ci.invalid/adapter"),
@@ -175,14 +176,16 @@ process.stdout.write(JSON.stringify({ attempts: attempts.map((each) => ({ ...eac
     existsSync(asked)
       ? readFileSync(asked, "utf8").trim().split("\n").sort()
       : [];
-  const ci = publishStoryCi(page);
   const calls = ci.published.requests;
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const trunkPanel = await chooseCiStatus(parts(page).intent);
 
   await test.step("main is judged from its own discover (SEED-219 example 8)", async () => {
     await expectCiScope(trunkPanel, "main");
-    await expectCiAnswer(trunkPanel, "Failed at e1e1e1e (Plan the next story)");
+    await expectCiAnswer(
+      trunkPanel,
+      `Failed at ${shortSha(trunkHead)} (Plan the next story)`,
+    );
     await expect(
       trunkPanel.getByRole("link", { name: "https://ci.invalid/adapter" }),
     ).toBeVisible();
@@ -194,9 +197,12 @@ process.stdout.write(JSON.stringify({ attempts: attempts.map((each) => ({ ...eac
     const before = calls.length;
     const panel = await toggleOnDevelopment(page, planningOnly.title);
     await expectCiScope(panel, planningOnly.branch);
-    await expectCiAnswer(panel, "Passed at 4774f60 (Add login), run on main");
+    await expectCiAnswer(
+      panel,
+      `Passed at ${shortSha(login)} (Add login), run on main`,
+    );
     await expect(panel.getByRole("link", { name: mainRun })).toBeVisible();
-    await expect(panel).not.toContainText("e1e1e1e");
+    await expect(panel).not.toContainText(shortSha(trunkHead));
     // Only the branch's history from GitHub; the discovers answer the runs.
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([
       `commit-list ${planningOnly.branch}`,
@@ -207,7 +213,10 @@ process.stdout.write(JSON.stringify({ attempts: attempts.map((each) => ({ ...eac
   await test.step("a failed result of the story branch's own nearer the head reads Failed", async () => {
     const panel = await toggleOnDevelopment(page, failing.title);
     await expectCiScope(panel, failing.branch);
-    await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
+    await expectCiAnswer(
+      panel,
+      `Failed at ${shortSha(broken)} (Break the login)`,
+    );
     await expect(panel.getByRole("link", { name: failedRun })).toBeVisible();
     await expect(panel).not.toContainText("run on");
   });

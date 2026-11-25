@@ -23,10 +23,14 @@ import {
   expectNoEarlierFacts,
 } from "./publishedFactsIsolationAssertions.ts";
 
-export async function openHeldPublication(page: Page, facts: PublishedFacts) {
+export async function openHeldPublication(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+) {
   await pausePageClockAt(page, opened);
-  const origin = publishFactsOrigin(page);
-  const abandoned = origin.push(facts, groups);
+  const origin = await publishFactsOrigin(page, afterGitHubStops);
+  const facts = origin.facts.A;
+  const abandoned = origin.push("A", groups);
   await page.goto("/");
   await expectMembership(page, facts.membership);
   await expectHeldGroups(page, facts, groups);

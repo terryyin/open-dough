@@ -6,17 +6,19 @@ import {
 } from "../../Distribution/tests/support/queued-repository.mjs";
 import { storyReviewSchema } from "../../dashboard/src/storyReviewContract.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  expectStoryTab,
-  openProjectIntent,
-  storyTab,
-} from "../../dashboard/test-support/intentModePage.ts";
+import { expectStoryTab } from "../../dashboard/test-support/intentModePage.ts";
 import {
   expandIntentGroup,
   purposeRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { chooseWholeProject } from "../../dashboard/test-support/recentStoriesPage.ts";
 import { intentReviewFiles } from "../../dashboard/test-support/intentReviewFiles.ts";
-import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import {
+  expectIntentReviewFocused,
+  expectIntentReviewOpened,
+  openIntentReviewChanges,
+  returnToIntentReviewHome,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { holdStoryReviewOf } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
@@ -99,8 +101,8 @@ test("a delayed card opening cannot choose a file for the next story", async ({
   );
   try {
     await reviewChanges(a).press("Enter");
-    await expectStoryTab(intent, "Changes");
-    await expect(storyTab(intent, "Changes")).toBeFocused();
+    await expectIntentReviewOpened(intent);
+    await expectIntentReviewFocused(intent, "feedback");
     const answer = storyReviewSchema.parse(await (await first.reached).json());
     expect(answer.kind).toBe("landed");
     if (answer.kind === "landed")
@@ -110,18 +112,21 @@ test("a delayed card opening cannot choose a file for the next story", async ({
         "tests/changed.spec.ts",
       ]);
     await firstReview.diffs.expectAbsent();
-    await openProjectIntent(intent);
-    await development.click();
+    await test.step("When I clear the delayed review through Whole project", async () => {
+      await chooseWholeProject(page);
+      await expect(intent).not.toHaveAttribute("data-selected-story");
+      await development.click();
+    });
 
     await reviewChanges(b).press("Enter");
     await firstReview.expectStory(storyB.title);
-    await expectStoryTab(intent, "Changes");
+    await expectIntentReviewOpened(intent);
     await second.reached;
     await first.releaseAndDrain();
     await firstReview.expectFeedback("Reading the story's changes…");
     await firstReview.files.expectNoSelection();
     await firstReview.diffs.expectAbsent();
-    await expect(storyTab(intent, "Changes")).toBeFocused();
+    await expectIntentReviewFocused(intent, "feedback");
   } finally {
     await first.releaseAndDrain();
     await second.releaseAndDrain();
@@ -129,7 +134,7 @@ test("a delayed card opening cannot choose a file for the next story", async ({
   await firstReview.expectStory(storyB.title);
   await firstReview.files.expectSelected("Added b-first.txt");
   await firstReview.diffs.expectLines("added", ["+first from Story B"]);
-  await expect(storyTab(intent, "Changes")).toBeFocused();
+  await expectIntentReviewFocused(intent);
 });
 
 test("choosing a file while the card's comparison is reading keeps that file", async ({
@@ -144,7 +149,7 @@ test("choosing a file while the card's comparison is reading keeps that file", a
   const held = await holdStoryReviewOf(page, dashboard.origin, queuedIdentity);
   try {
     await reviewChanges(card).press("Enter");
-    await expectStoryTab(intent, "Changes");
+    await expectIntentReviewOpened(intent);
     await held.reached;
     await expandIntentGroup(intent, "tests");
     await files.choose("tests/kept.spec.ts", "keyboard");
@@ -155,4 +160,33 @@ test("choosing a file while the card's comparison is reading keeps that file", a
   await files.expectSelected("tests/kept.spec.ts");
   await expect(purposeRegion(intent)).toContainText('test("kept source"');
   await expect(files.row("tests/kept.spec.ts")).toBeFocused();
+});
+
+test("returning Home while review is pending keeps the late comparison from opening a file", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  keepPublishedStoryReview(dashboard, origin, storyWorktree(origin).workspace);
+  const card = await openBacklog(page, origin);
+  const { intent } = parts(page);
+  const files = intentReviewFiles(intent);
+  const held = await holdStoryReviewOf(page, dashboard.origin, queuedIdentity);
+  try {
+    await test.step("When I open the review and return Home before it settles", async () => {
+      await reviewChanges(card).press("Enter");
+      await held.reached;
+      await returnToIntentReviewHome(intent);
+    });
+  } finally {
+    await held.releaseAndDrain();
+  }
+  await test.step("Then Home stays visible when the comparison arrives", async () => {
+    await files.expectOutsideFiles(2, [
+      "Added a-first.txt",
+      "Added a-kept.txt",
+    ]);
+    await files.expectNoSelection();
+    await expectStoryTab(intent, "CI comparison");
+  });
 });

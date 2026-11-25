@@ -1,5 +1,8 @@
 // Board streams use free slots/lowered pace; dashboardTest.ts pre-holds slots for check delivery.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import type { Page, Request } from "@playwright/test";
 import {
   expect,
@@ -23,15 +26,12 @@ import {
   openSecondStreamingAtA,
   openStreamingAtA,
   queuedSlotRequests,
-  recordsAt,
   streamServerEnv,
   untilMatchingRefsSince,
   untilStreamingAt,
   setPageVisibility,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
 import {
-  backlogB,
-  revisionB,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
@@ -43,8 +43,9 @@ test.use({
 
 test("a streaming page sends no since request over a quiet minute", async ({
   page,
+  afterGitHubStops,
 }) => {
-  await openStreamingAtA(page);
+  await openStreamingAtA(page, afterGitHubStops);
   const { problem } = parts(page);
   const before = githubFor(page).calls.length;
   await untilMatchingRefsSince(page, before, 2);
@@ -72,9 +73,23 @@ test.describe("shared publication listing", () => {
 
   test("two streaming pages show a publication from one listing with one backlog read", async ({
     page,
+    afterGitHubStops,
+    dashboard,
   }) => {
-    const origin = await openStreamingAtA(page);
-    const other = await openSecondStreamingAtA(page);
+    const origin = await openStreamingAtA(page, afterGitHubStops);
+    const { B: revisionB } = origin.revisions;
+    expect(
+      await remoteBranchHead(
+        gitHubRepositoryUrl(defaultRepository),
+        "refs/heads/main",
+        {
+          cwd: dashboard.home,
+          env: { HOME: dashboard.home },
+          maxBuffer: 4096,
+        },
+      ),
+    ).toBe(origin.revisions.A);
+    const other = await openSecondStreamingAtA(page, origin.revisions.A);
     const { problem, readRevision } = parts(page);
     await expect(problem, "the first tab's stream stayed fresh").toHaveCount(0);
     // Finish one paced listing so `before` is not mid-flight when we publish.
@@ -83,7 +98,18 @@ test.describe("shared publication listing", () => {
     const before = githubFor(page).calls.length;
     const pageAtB = untilStreamingAt(page, revisionB);
     const otherAtB = untilStreamingAt(other, revisionB);
-    origin.push(revisionB, backlogB, recordsAt("B"));
+    origin.advanceTo("B");
+    expect(
+      await remoteBranchHead(
+        gitHubRepositoryUrl(defaultRepository),
+        "refs/heads/main",
+        {
+          cwd: dashboard.home,
+          env: { HOME: dashboard.home },
+          maxBuffer: 4096,
+        },
+      ),
+    ).toBe(revisionB);
     await expectSettledPage(page, titlesOfB);
     await expectSettledPage(other, titlesOfB);
     await expect(readRevision).toContainText(shortRevision(revisionB));
@@ -116,8 +142,9 @@ test.describe("shared publication listing", () => {
 
 test("seven pages of one context: two stream and five check; hiding a holder lets a checker stream", async ({
   page,
+  afterGitHubStops,
 }) => {
-  await openStreamingAtA(page);
+  await openStreamingAtA(page, afterGitHubStops);
   const pages: Page[] = [page];
   const holders: Page[] = [page];
   const checkers: Page[] = [];

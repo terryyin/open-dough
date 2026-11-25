@@ -50,6 +50,9 @@ export type { Using };
 export { intentReviewFiles } from "./intentReviewFiles.ts";
 export {
   beginIntentReviewChanges,
+  expectIntentReviewFocused,
+  expectIntentReviewOpened,
+  returnToIntentReviewHome,
   expectReviewChangesOffered,
   openIntentReviewChanges,
   type IntentReviewChanges,

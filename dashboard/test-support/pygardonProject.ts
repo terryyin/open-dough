@@ -4,8 +4,7 @@
 // only moves to another project, one queued story.
 
 import type { Page } from "@playwright/test";
-import { describedBacklog } from "./describedRevisions.ts";
-import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { publishMovingHistory } from "./publishedMovingOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const pygardonRepository = "terryyin/pygardon";
@@ -31,47 +30,49 @@ export const pygardonBacklogTitles = [
   pygardonStory.title,
 ];
 
-export const pygardonRevision = "e5".repeat(20);
-
-export const pygardonBacklog = describedBacklog(
-  makeMe.aRepository
-    .withRevision("published", {
-      backlog: {
-        queued: [
-          ...pygardonOthers,
-          makeMe.aBacklogEntry
-            .with({
-              ...pygardonStory,
-              href: "seeds/SEED-031.md#telegram-qr-diagnosis",
-            })
-            .please(),
-        ],
-      },
-    })
-    .please(),
-);
+export const pygardonHistory = makeMe.aRepository
+  .withRevision("published", {
+    backlog: {
+      queued: [
+        ...pygardonOthers,
+        makeMe.aBacklogEntry
+          .with({
+            ...pygardonStory,
+            href: "seeds/SEED-031.md#telegram-qr-diagnosis",
+          })
+          .please(),
+      ],
+    },
+  })
+  .please();
 
 // One queued story, "A Pygardon story", for a journey that only chooses
 // Pygardon and sees its Backlog.
-const onePygardonStory = describedBacklog(
-  makeMe.aRepository
-    .withRevision("published", {
-      backlog: {
-        queued: [
-          makeMe.aBacklogEntry
-            .with({
-              identity: "SEED-301#s",
-              title: "A Pygardon story",
-              href: "seeds/SEED-301.md#s",
-            })
-            .please(),
-        ],
-      },
-    })
-    .please(),
-);
+const onePygardonStory = makeMe.aRepository
+  .withRevision("published", {
+    backlog: {
+      queued: [
+        makeMe.aBacklogEntry
+          .with({
+            identity: "SEED-301#s",
+            title: "A Pygardon story",
+            href: "seeds/SEED-301.md#s",
+          })
+          .please(),
+      ],
+    },
+  })
+  .please();
 
-export async function publishOnePygardonStory(page: Page) {
-  const pygardon = await publishMovingOrigin(page, pygardonRepository);
-  pygardon.push("e6".repeat(20), onePygardonStory);
+export function publishOnePygardonStory(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+) {
+  return publishMovingHistory(
+    page,
+    onePygardonStory,
+    "published",
+    afterGitHubStops,
+    pygardonRepository,
+  );
 }

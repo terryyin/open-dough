@@ -39,6 +39,7 @@ import { dashboardDestinationPath } from "../src/dashboardDestination.ts";
 import {
   probeTerminalNotifier,
   sendTerminalNotification,
+  type TerminalNotificationContent,
 } from "./terminalNotifier.ts";
 
 // How often the sessions are read. A test may shorten it through the
@@ -49,6 +50,21 @@ function checkMs(): number {
 
 const noDestination =
   "The dashboard has no listening loopback HTTP address for notification clicks.";
+
+// Probe and send outcomes SessionAlerts requests. Production wires the branded
+// helper; a case may supply its own outcomes.
+export type SessionAlertNotifier = {
+  readonly probe: (signal: AbortSignal) => Promise<string | undefined>;
+  readonly send: (
+    content: TerminalNotificationContent,
+    signal: AbortSignal,
+  ) => Promise<string | undefined>;
+};
+
+const productionNotifier: SessionAlertNotifier = {
+  probe: probeTerminalNotifier,
+  send: sendTerminalNotification,
+};
 
 // What a native reading's notification says: the reading, with what the
 // session waits for.
@@ -98,6 +114,7 @@ export class SessionAlerts {
       "machineSessions"
     >,
     private readonly origin: () => string | undefined,
+    private readonly notifier: SessionAlertNotifier = productionNotifier,
   ) {
     this.probing = this.probe();
     void this.run();
@@ -130,7 +147,7 @@ export class SessionAlerts {
     const origin = this.origin();
     if (origin === undefined) return;
     const { request } = session;
-    const unavailable = await sendTerminalNotification(
+    const unavailable = await this.notifier.send(
       {
         title: notificationTitle(session),
         message,
@@ -145,7 +162,7 @@ export class SessionAlerts {
   // older helpers before trusting -diagnose, and retry after a failed send.
   private async probe(): Promise<void> {
     const { signal } = this.stopped;
-    const unavailable = await probeTerminalNotifier(signal);
+    const unavailable = await this.notifier.probe(signal);
     if (!signal.aborted) this.unavailable = unavailable;
   }
 
