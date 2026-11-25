@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rio-chan",
+  "email": "rio-chan@example.org",
+  "identity": "SEED-433#run-dashboard-launch-tests-on-an-installed-project",
+  "mode": "story-branch",
+  "branch": "codex/run-dashboard-launch-tests-on-an-installed-proje",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
