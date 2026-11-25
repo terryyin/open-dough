@@ -170,7 +170,7 @@ files. The Claude Code native probe was waived by the developer.
 ### 2. Reach managed recovery after an ordinary update
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 7–10 active minutes, excluding the installer and test commands.
 
 **Behavior.** When the owned observer has ended before a completion receipt,
@@ -195,6 +195,17 @@ new version and guide bytes, no obsolete table or incoming link, and the
 still-present recovery command in both roots. Verify the local anchor resolves.
 Keep historical findings as evidence. The test of the actual file uses the
 current payload inventory, which differs from the prior tag's installer.
+
+**Accepted Slice 2 proof.** The payload link check, updater dropped-file
+check and both managed recovery specs passed. A scratch ordinary update from
+the actual `v0.3.113` release to the full candidate fixture `v0.3.114` listed
+the old companion's removal in both roots. Both installed guides matched the
+candidate bytes and resolved the relocated anchor. From the updated Codex
+root, the recovery CLI returned one success receipt for the exact fixture
+target and SHA, with confirmed shutdown and unchanged ended observer evidence.
+The first fixture needed the older installer's legacy root `src` tree. A
+corrected archive passed without a product edit. See `slice2-worker-return.md`
+and the focused and ordinary-update run records in the checkout evidence.
 
 ## Concern evidence
 
