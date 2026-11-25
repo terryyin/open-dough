@@ -24,6 +24,8 @@
   `e98c81b6cd2153168dead084e5e1432a4f54112d`.
 - Slice 5 was accepted on the execution branch at
   `e86c9fa362b2737602a88e9e6658af43763bcc75`.
+- Slice 6 was accepted on the execution branch at
+  `9cb22125f37e17265bc2465ed42505c159f496f4`.
 
 ## Goal and scope
 
@@ -300,7 +302,7 @@ Exact observations and strict run records are in
 ### 7. Carry dialog choices through the installed launch
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: E2E `agent-launch-options`, `agent-launch-options-exclusive`,
 `agent-launch-options-kept` and `agent-launch-model`.
 Keep the dialogs' definition, exclusion, kept selections, model, effort and
@@ -313,6 +315,16 @@ other command and absent-skill cases intentional. A missing-skill example
 keeps the project's installation and omits the specific skill whose
 absence it proves. Where a file changes after the dialog opens, preserve
 that temporal distinction and the re-read from the selected host.
+
+All 15 original E2E cases passed on the baseline. The installed selection
+passed all 16 cases including the shared Codex dialog consumer. The suite
+observes committed shipped, altered, absent, invalid, foreign-command and
+missing-skill definitions, native flags and model/effort, and the saved
+requests. The retention path changes the same origin while the dialog is
+open. Session options are observed after the Board reads the actual
+Preparing assignment and again after reload. Dashboard typecheck passed.
+Exact runner records and observations are in `s7-implementation-report.md`
+under the checkout Git evidence path.
 
 ### 8. Send voice input through the installed launch
 

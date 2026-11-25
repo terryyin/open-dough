@@ -1,65 +1,69 @@
-// A refused launch's selection in the refinement dialog, on the launch
-// journey's committed origin (../../dashboard/test-support/launchJourney.ts): the
-// launch says "Launch failed:" naming the option and keeps the selection for
-// the next opening, naming in one quiet line the kept flags the project no
-// longer offers, which are not sent. That Cancel drops it is
-// ../../dashboard/frontend-tests/launches/launch-refinement-options.spec.ts. The
-// synthetic `claude` (../../dashboard/test-support/fixtures/fake-claude) stands in for
-// the real one; the boundary's own rules are
-// ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.
-
-import { rmSync, writeFileSync } from "node:fs";
+// A refused launch retains the chosen flags until the next dialog rereads
+// the definition. Changes are committed to the installed project's origin.
+import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import {
   expect,
   pausePageClockAt,
-  test,
 } from "../../dashboard/test-support/dashboardTest.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
   untilPageRequestsAnswered,
   whileNotingChecks,
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   groupedOptions,
-  installRefinementSkill,
-  openTakenBacklog,
   showOptions,
+  storyLaunchChoices,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
 } from "../../dashboard/test-support/launchJourney.ts";
+import {
+  claudeRefinementRepository,
+  noRefinementOptions,
+  refinementOptionsRevision,
+} from "../../dashboard/test-support/support/claudeRefinementRepository.ts";
+import {
+  expectInstalledClaudeStory,
+  readClaudeLaunch,
+} from "./claudeLaunchObservation.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
+import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
+import { test } from "../../dashboard/test-support/support/startOriginTest.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+test.use({
+  projectFolders: ["open-dough"],
+  originRepository: claudeRefinementRepository(
+    refinementOptionsRevision(groupedOptions),
+  ),
+});
 
 const sent = `/dough-story-refinement ${notRefinedIdentity}`;
 
-// Selects A and C, then the project's definition drops --c after the dialog
-// offered it, so Start is refused and the dialog closes.
 async function refuseAWithC(
   page: Page,
-  file: string,
-  refinementDialog: Locator,
+  origin: StartOrigin,
+  { dialog, submit }: { dialog: Locator; submit: () => Promise<void> },
 ) {
-  await showOptions(refinementDialog);
-  await refinementDialog.getByRole("radio", { name: "A", exact: true }).check();
-  await refinementDialog
-    .getByRole("checkbox", { name: "C", exact: true })
-    .check();
-  writeFileSync(
-    file,
-    JSON.stringify({
+  const choices = storyLaunchChoices(dialog);
+  await showOptions(dialog);
+  await choices.groupChoice("Approach", "A").check();
+  await choices.chooseOption("C");
+  await origin.publishRevision(
+    refinementOptionsRevision({
       ...groupedOptions,
       options: groupedOptions.options.slice(0, 2),
     }),
   );
-  // A refusal immediately rereads the machine's offers. Settle that read
-  // before a caller changes the definition or advances the paused clock:
-  // the next periodic read is scheduled from this answer, not the refusal.
+  // The next periodic read is scheduled from the refusal's refreshed offer.
   await whileNotingChecks(page, async () => {
-    await refinementDialog.getByRole("button", { name: "Start" }).click();
-    await expect(refinementDialog).toBeHidden();
+    await submit();
+    await expect(dialog).toBeHidden();
     await untilPageRequestsAnswered(page);
   });
 }
@@ -67,75 +71,78 @@ async function refuseAWithC(
 test("a launch the boundary refuses says Launch failed naming the option, and the next opening keeps the selection", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
-  const file = installRefinementSkill(dashboard.home);
-  writeFileSync(file, JSON.stringify(groupedOptions));
   await pausePageClockAt(page, new Date());
-  const { card, refine, refinementDialog } = await openTakenBacklog(
-    page,
-    launchJourney,
-  );
-
-  await refine(notRefinedStory).click();
-  await refuseAWithC(page, file, refinementDialog);
-  await expect(card(notRefinedStory).locator(".launch-problem")).toContainText(
+  const board = await openInstalledStoryBoard(page, origin);
+  const first = await board.open(notRefinedStory, "Refinement");
+  await refuseAWithC(page, origin, first);
+  await expect(board.launchProblem(notRefinedStory)).toContainText(
     "Launch failed: Option --c is not one the installed dough-story-refinement skill",
   );
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
 
-  // The page's next read of the sessions sees the definition without --c.
   await page.clock.runFor(checkIntervalMs);
   dashboard.claudeScenario("launched");
-  await refine(notRefinedStory).click();
-  await showOptions(refinementDialog);
+  const { dialog, submit } = await board.open(notRefinedStory, "Refinement");
+  const choices = storyLaunchChoices(dialog);
+  await showOptions(dialog);
+  await expect(choices.groupChoice("Approach", "A")).toBeChecked();
   await expect(
-    refinementDialog.getByRole("radio", { name: "A", exact: true }),
-  ).toBeChecked();
-  await expect(
-    refinementDialog.getByText("Not offered any more, so not sent: --c.", {
+    dialog.getByText("Not offered any more, so not sent: --c.", {
       exact: true,
     }),
   ).toBeVisible();
-  await expect(refinementDialog).toContainText(`Sent after ${sent} --a.`);
-  await refinementDialog.getByRole("button", { name: "Start" }).click();
+  await expect(dialog).toContainText(`Sent after ${sent} --a.`);
 
-  await expect(refinementDialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunches()[0]?.instruction).toBe(`${sent} --a`);
+  const before = dashboard.claudeLaunches().length;
+  const acceptance = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await acceptance);
+  const launch = readClaudeLaunch(dashboard, outcome, before);
+  await expect(dialog).toBeHidden();
+  expectInstalledClaudeStory(dashboard, launch, {
+    invocation: `${sent} --a`,
+    handoff: "Established preparation:",
+    workspace: path.join(origin.project, ".worktrees", "story-c"),
+    publishedSha: await originMain(origin),
+  });
+  expect(launch.record.request.options).toEqual(["--a"]);
 });
 
 test("a kept selection the project no longer offers at all is named, and Start launches default refinement", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
-  const file = installRefinementSkill(dashboard.home);
-  writeFileSync(file, JSON.stringify(groupedOptions));
   await pausePageClockAt(page, new Date());
-  const { refine, refinementDialog } = await openTakenBacklog(
-    page,
-    launchJourney,
-  );
-
-  await refine(notRefinedStory).click();
-  await refuseAWithC(page, file, refinementDialog);
-  // The definition then goes away, and the page's next read of the sessions
-  // says so.
-  rmSync(file);
+  const board = await openInstalledStoryBoard(page, origin);
+  const first = await board.open(notRefinedStory, "Refinement");
+  await refuseAWithC(page, origin, first);
+  expect(dashboard.claudeLaunchCalls()).toEqual([]);
+  await origin.publishRevision(noRefinementOptions);
   await page.clock.runFor(checkIntervalMs);
 
   dashboard.claudeScenario("launched");
-  await refine(notRefinedStory).click();
+  const { dialog, submit } = await board.open(notRefinedStory, "Refinement");
   await expect(
-    refinementDialog.getByText("Not offered any more, so not sent: --a, --c.", {
+    dialog.getByText("Not offered any more, so not sent: --a, --c.", {
       exact: true,
     }),
   ).toBeVisible();
-  await expect(refinementDialog).toContainText(`Sent after ${sent}.`);
-  await refinementDialog.getByRole("button", { name: "Start" }).click();
+  await expect(dialog).toContainText(`Sent after ${sent}.`);
 
-  await expect(refinementDialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunches()[0]?.instruction).toBe(sent);
+  const before = dashboard.claudeLaunches().length;
+  const acceptance = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await acceptance);
+  const launch = readClaudeLaunch(dashboard, outcome, before);
+  await expect(dialog).toBeHidden();
+  expectInstalledClaudeStory(dashboard, launch, {
+    invocation: sent,
+    handoff: "Established preparation:",
+    workspace: path.join(origin.project, ".worktrees", "story-c"),
+    publishedSha: await originMain(origin),
+  });
+  expect(launch.record.request).not.toHaveProperty("options");
 });

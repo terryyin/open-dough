@@ -40,6 +40,7 @@ export function installedStoryBoard(page: Page) {
   return {
     card,
     action,
+    launchProblem: (title: string) => card(title).locator(".launch-problem"),
     settled: () => expectSettledPage(page),
     async open(
       title: string,

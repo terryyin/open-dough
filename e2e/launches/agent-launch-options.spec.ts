@@ -1,62 +1,69 @@
-// Choosing options in the refinement dialog, on the launch journey's committed
-// origin (../../dashboard/test-support/launchJourney.ts): the dialog offers one
-// checkbox per entry of the definition the project's installed skill carries,
-// behind its closed Refinement options disclosure, with its label and summary,
-// and follows a changed definition with no code change; selecting entries
-// shows their flags in the command line under Command details and starts the
-// session with those flags, which the card reads back after reload. Nothing
-// selected is today's dialog and launch. That no other dialog offers options is
-// ../../dashboard/frontend-tests/launches/launch-refinement-options.spec.ts.
-// The synthetic `claude` (../../dashboard/test-support/fixtures/fake-claude) stands
-// in for the real one. How the boundary honors a selection is
-// ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.
-
-import { writeFileSync } from "node:fs";
+// The installed refinement definition reaches the dialog, the actual Claude
+// launch and the record shown on the story card.
+import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
+import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import {
-  installRefinementSkill,
-  openTakenBacklog,
+  expect,
+  pausePageClockAt,
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import {
   shippedRefinementDefinition,
   showOptions,
+  showsRecordedRefinementOptions,
+  storyLaunchChoices,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
 } from "../../dashboard/test-support/launchJourney.ts";
-import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  passCheckPace,
+  reloadUntilRead,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  claudeRefinementRepository,
+  refinementOptionsRevision,
+} from "../../dashboard/test-support/support/claudeRefinementRepository.ts";
+import {
+  expectInstalledClaudeStory,
+  readClaudeLaunch,
+} from "./claudeLaunchObservation.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { test } from "../../dashboard/test-support/support/startOriginTest.ts";
 
-test.use({ projectFolders: ["open-dough"] });
+test.use({
+  projectFolders: ["open-dough"],
+  originRepository: claudeRefinementRepository(),
+});
 
-const skill = "dough-story-refinement";
+const sent = `/dough-story-refinement ${notRefinedIdentity}`;
 
 test("the refinement dialog offers the installed definition's entries with label, summary and flag, and a changed definition shows with no code change", async ({
   page,
-  dashboard,
-  launchJourney,
+  origin,
 }) => {
-  const file = installRefinementSkill(dashboard.home);
-  const { refine, refinementDialog } = await openTakenBacklog(
-    page,
-    launchJourney,
-  );
+  const board = await openInstalledStoryBoard(page, origin);
   const real = shippedRefinementDefinition();
   const shipped = [...real.options, ...real.focuses];
+  const { dialog } = await board.open(notRefinedStory, "Refinement");
+  const choices = storyLaunchChoices(dialog);
+  await showOptions(dialog);
 
-  await refine(notRefinedStory).click();
-  await showOptions(refinementDialog);
-  const group = refinementDialog.getByRole("group", { name: "Options" });
-  const command = refinementDialog.locator("code");
-  await expect(group.getByRole("checkbox")).toHaveCount(shipped.length);
+  await expect(choices.options.getByRole("checkbox")).toHaveCount(
+    shipped.length,
+  );
   for (const { flag, label, summary } of shipped) {
-    const box = group.getByRole("checkbox", { name: label, exact: true });
+    const box = choices.option(label);
     await expect(box).not.toBeChecked();
     await expect(box).toHaveAccessibleDescription(summary);
     await box.check();
-    await expect(command).toHaveText(new RegExp(` ${flag}$`));
+    await expect(choices.command).toHaveText(new RegExp(` ${flag}$`));
     await box.uncheck();
   }
-  await refinementDialog.getByRole("button", { name: "Cancel" }).click();
+  await choices.cancel();
 
   const changed = {
     ...real,
@@ -72,75 +79,81 @@ test("the refinement dialog offers the installed definition's entries with label
         .please(),
     ],
   };
-  writeFileSync(file, JSON.stringify(changed));
-  await page.reload();
-  await refine(notRefinedStory).click();
-  await showOptions(refinementDialog);
-  await expect(group.getByRole("checkbox")).toHaveCount(shipped.length + 1);
-  const zoom = group.getByRole("checkbox", { name: "Zoom", exact: true });
+  await origin.publishRevision(refinementOptionsRevision(changed));
+  await reloadUntilRead(page);
+  await board.open(notRefinedStory, "Refinement");
+  await showOptions(dialog);
+  await expect(choices.options.getByRole("checkbox")).toHaveCount(
+    shipped.length + 1,
+  );
+  const zoom = choices.option("Zoom");
   await expect(zoom).toHaveAccessibleDescription("Look closer.");
   await zoom.check();
-  await expect(command).toHaveText(/ --zoom$/);
+  await expect(choices.command).toHaveText(/ --zoom$/);
 });
 
 test("selecting Explore and Borrow sends those flags and the session's card shows them through reload", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("launched");
-  installRefinementSkill(dashboard.home);
-  const backlog = await openTakenBacklog(page, launchJourney);
-  const { refine, refinementDialog } = backlog;
-  const sent = `/${skill} ${notRefinedIdentity}`;
+  await pausePageClockAt(page, new Date());
+  const board = await openInstalledStoryBoard(page, origin);
+  const { dialog, submit } = await board.open(notRefinedStory, "Refinement");
+  const choices = storyLaunchChoices(dialog);
+  await expect(dialog).toContainText(`Sent after ${sent}.`);
+  await choices.chooseOption("Borrow");
+  await choices.chooseOption("Explore");
+  await expect(dialog).toContainText(`Sent after ${sent} --explore --borrow.`);
 
-  await refine(notRefinedStory).click();
-  await expect(refinementDialog).toContainText(`Sent after ${sent}.`);
-  await showOptions(refinementDialog);
-  // Selected out of definition order, shown in it.
-  await refinementDialog.getByRole("checkbox", { name: "Borrow" }).check();
-  await refinementDialog.getByRole("checkbox", { name: "Explore" }).check();
-  await expect(refinementDialog).toContainText(
-    `Sent after ${sent} --explore --borrow.`,
-  );
-  await refinementDialog.getByRole("button", { name: "Start" }).click();
-
-  await expect(refinementDialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunches()[0]?.instruction).toBe(
-    `${sent} --explore --borrow`,
-  );
+  const before = dashboard.claudeLaunches().length;
+  const acceptance = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await acceptance);
+  const launch = readClaudeLaunch(dashboard, outcome, before);
+  await expect(dialog).toBeHidden();
+  expectInstalledClaudeStory(dashboard, launch, {
+    invocation: `${sent} --explore --borrow`,
+    handoff: "Established preparation:",
+    workspace: path.join(origin.project, ".worktrees", "story-c"),
+    publishedSha: await originMain(origin),
+  });
+  expect(launch.record.request.options).toEqual(["--explore", "--borrow"]);
+  const card = board.card(notRefinedStory);
   const recorded = "Options: --explore --borrow (requested)";
-  await backlog.showsRecordedRefinementOptions(notRefinedStory, recorded);
+  await passCheckPace(page);
+  await showsRecordedRefinementOptions(card, recorded);
   await reloadUntilRead(page);
-  await backlog.showsRecordedRefinementOptions(notRefinedStory, recorded);
+  await showsRecordedRefinementOptions(card, recorded);
 });
 
 test("a dialog with nothing selected starts as before, and opens again with nothing selected", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("launched");
-  installRefinementSkill(dashboard.home);
-  const { refine, refinementDialog } = await openTakenBacklog(
-    page,
-    launchJourney,
-  );
-  const sent = `/${skill} ${notRefinedIdentity}`;
+  const board = await openInstalledStoryBoard(page, origin);
+  const { dialog } = await board.open(notRefinedStory, "Refinement");
+  const choices = storyLaunchChoices(dialog);
+  await choices.chooseOption("Explore");
+  await choices.cancel();
+  const { submit } = await board.open(notRefinedStory, "Refinement");
+  await showOptions(dialog);
+  await expect(choices.option("Explore")).not.toBeChecked();
 
-  await refine(notRefinedStory).click();
-  await showOptions(refinementDialog);
-  await refinementDialog.getByRole("checkbox", { name: "Explore" }).check();
-  await refinementDialog.getByRole("button", { name: "Cancel" }).click();
-  await refine(notRefinedStory).click();
-  await showOptions(refinementDialog);
-  await expect(
-    refinementDialog.getByRole("checkbox", { name: "Explore" }),
-  ).not.toBeChecked();
-  await refinementDialog.getByRole("button", { name: "Start" }).click();
-
-  await expect(refinementDialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunches()[0]?.instruction).toBe(sent);
+  const before = dashboard.claudeLaunches().length;
+  const acceptance = nextAcceptedAttemptId(page);
+  await submit();
+  const outcome = await settledOutcome(dashboard, await acceptance);
+  const launch = readClaudeLaunch(dashboard, outcome, before);
+  await expect(dialog).toBeHidden();
+  expectInstalledClaudeStory(dashboard, launch, {
+    invocation: sent,
+    handoff: "Established preparation:",
+    workspace: path.join(origin.project, ".worktrees", "story-c"),
+    publishedSha: await originMain(origin),
+  });
+  expect(launch.record.request).not.toHaveProperty("options");
 });
