@@ -25,7 +25,7 @@ import {
   publishedTarget,
 } from "./publishedOriginBasics.ts";
 import { defaultPassingBaseCi } from "./support/baseCiActions.ts";
-import type { FakeGitHub } from "./support/fakeGitHub.ts";
+import type { FakeGitHub, RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import { routeOriginThroughServedHomes } from "./support/fixtureOriginRoute.ts";
 
 export type MovingOrigin = {
@@ -45,8 +45,8 @@ export type MovingOrigin = {
   hold(what: string): () => void;
   // Answers from now on with this raw answer instead of the published one,
   // until the returned restore is called: for "main" the ref request and the
-  // check listing it, for a
-  // revision the backlog file read at it.
+  // check listing it, for a revision the backlog file read at it, and for
+  // a repository path the record reads at that path.
   answerWith(what: string, answer: OriginAnswer): () => void;
 };
 
@@ -64,19 +64,25 @@ export async function publishMovingHistory<Name extends string>(
   first: Name,
   afterGitHubStops: (cleanup: () => Promise<void>) => void,
   repository: string = defaultRepository,
+  wrapAnswer?: (answerer: RepositoryAnswerer) => RepositoryAnswerer,
 ): Promise<MovingHistory<Name>> {
   const { origin, revisions, cleanup } =
     await materializeRepository(description);
   afterGitHubStops(cleanup);
   const published = describedRevisions(description, revisions);
-  const { push, ...moving } = await publishMovingOrigin(page, repository);
+  const github = githubFor(page);
+  const { push, ...moving } = await serveMovingOrigin(
+    github,
+    repository,
+    wrapAnswer,
+  );
   const advanceTo = (name: Name) => {
     const { revision, backlog, files } = backlogApart(published[name]);
     publishMain(origin, revision);
     push(revision, backlog, files);
   };
   advanceTo(first);
-  routeOriginThroughServedHomes(githubFor(page), origin, repository);
+  routeOriginThroughServedHomes(github, origin, repository);
   return { ...moving, revisions, advanceTo };
 }
 
@@ -86,6 +92,15 @@ export function publishMovingOrigin(
   page: Page | FakeGitHub,
   repository: string = defaultRepository,
 ): Promise<MovingOrigin> {
+  const github = "serve" in page ? page : githubFor(page);
+  return serveMovingOrigin(github, repository);
+}
+
+function serveMovingOrigin(
+  github: FakeGitHub,
+  repository: string,
+  wrapAnswer?: (answerer: RepositoryAnswerer) => RepositoryAnswerer,
+): Promise<MovingOrigin> {
   const requests: ObservedRequest[] = [];
   const backlogs = new Map<string, string>();
   const records = new Map<string, Readonly<Record<string, string>>>();
@@ -93,8 +108,7 @@ export function publishMovingOrigin(
   const instead = new Map<string, OriginAnswer>();
   let main: string | undefined;
 
-  const github = "serve" in page ? page : githubFor(page);
-  github.serve(repository, async (call) => {
+  const respond: RepositoryAnswerer = async (call) => {
     const target = publishedTarget(call);
     const { request } = call;
     if (target === undefined && request.kind === "content") {
@@ -103,10 +117,11 @@ export function publishMovingOrigin(
         files !== undefined && Object.hasOwn(files, request.path)
           ? files[request.path]
           : undefined;
-      if (body !== undefined) {
+      const answer = instead.get(request.path);
+      if (answer !== undefined || body !== undefined) {
         observe(requests, call);
         await held.get(request.path);
-        return rawFileAnswer(body);
+        return answer ?? rawFileAnswer(body ?? "");
       }
       // Published at this revision with no such file: a missing record, not a
       // temporary connection loss (those use answerWith / hold). Leave it
@@ -146,7 +161,8 @@ export function publishMovingOrigin(
     }
     await held.get(target);
     return request.kind === "matching-refs" ? asHeadsListing(answer) : answer;
-  });
+  };
+  github.serve(repository, wrapAnswer?.(respond) ?? respond);
 
   return Promise.resolve({
     requests,

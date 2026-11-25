@@ -110,14 +110,21 @@ export function recordsAt(label: string): Record<string, string> {
 export function refreshHistory({
   backlog = backlogB,
   files = recordsAt("B"),
-}: { backlog?: string; files?: Record<string, string> } = {}) {
+  filesAtA = recordsAt("A"),
+  atC = { backlog: backlogC, files: recordsAt("C") },
+}: {
+  backlog?: string;
+  files?: Record<string, string>;
+  filesAtA?: Record<string, string>;
+  atC?: { backlog: string; files: Record<string, string> };
+} = {}) {
   return makeMe.aRepository
     .withRevision("A", {
-      files: { ...recordsAt("A"), [backlogPath]: backlogA },
+      files: { ...filesAtA, [backlogPath]: backlogA },
     })
     .withRevision("B", { files: { ...files, [backlogPath]: backlog } })
     .withRevision("C", {
-      files: { ...recordsAt("C"), [backlogPath]: backlogC },
+      files: { ...atC.files, [backlogPath]: atC.backlog },
     })
     .please();
 }

@@ -5,6 +5,7 @@
 // GitHub's answers are supplied. Page time is paused. Access and other
 // non-retry cases live in ./transient-read-exclusions.spec.ts.
 
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import {
   expect,
   githubFor,
@@ -21,13 +22,11 @@ import {
   httpErrorAnswer,
   noConnection,
   pathsRead,
-  publishMovingOrigin,
 } from "../../dashboard/test-support/publishedOrigin.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
-  backlogA,
   inspectDashboardStory,
-  revisionA,
+  refreshHistory,
   titlesOfA,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { failedAt } from "../../dashboard/test-support/limitNotice.ts";
@@ -40,12 +39,15 @@ import {
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 
+const rawA = refreshHistory({ filesAtA: {} });
+
 test("an empty page's continuing 503s wait 15, then 30, then 60, then 60 seconds after settlement, and a later answer publishes membership without reload", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA);
+  const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
+  const { A: revisionA } = origin.revisions;
   const restore = origin.answerWith("main", httpErrorAnswer(503));
   await page.goto("/");
   await expectProblemAndNoSnapshot(
@@ -103,10 +105,11 @@ test("an empty page's continuing 503s wait 15, then 30, then 60, then 60 seconds
 
 test("a pinned backlog's eligible failure recovers on its own; a later successful ref does not reset that wait", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA);
+  const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
+  const { A: revisionA } = origin.revisions;
   const restoreBacklog = origin.answerWith(revisionA, httpErrorAnswer(503));
   await page.goto("/");
   await expectProblemAndNoSnapshot(
@@ -149,10 +152,11 @@ test("a pinned backlog's eligible failure recovers on its own; a later successfu
 
 test("a lost connection is recovered on its own at the first wait", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA);
+  const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
+  const { A: revisionA } = origin.revisions;
   const reconnect = origin.answerWith("main", noConnection);
   await page.goto("/");
   await expectProblemAndNoSnapshot(
@@ -173,10 +177,11 @@ test("a lost connection is recovered on its own at the first wait", async ({
 
 test("a stalled read at the wait bound recovers on its own without a reload", async ({
   page,
+  afterGitHubStops,
 }) => {
   await page.clock.install({ time: opened });
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA);
+  const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
+  const { A: revisionA } = origin.revisions;
   const releaseRef = origin.hold("main");
   await page.goto("/");
   const { problem, status } = parts(page);

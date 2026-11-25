@@ -5,11 +5,14 @@
 // ./transient-recovery-lifecycle.spec.ts. The page, local boundary, and `gh`
 // are production; only GitHub's answers are supplied. Page time is paused.
 
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
+import { keepingOrigin } from "../../dashboard/test-support/support/publishedRepository.ts";
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import {
   checksAskedWhilePassing,
   contentReads,
   headsChecks,
-  recordsAt,
   setPageVisibility,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
@@ -32,7 +35,6 @@ import {
   opened as limitedOpened,
   plannedTitle,
   repository,
-  revision,
   titlesBesideUnreachable,
   unreachableGap,
   unreachableSeed,
@@ -44,16 +46,10 @@ import {
 } from "../../dashboard/test-support/limitedReadingJourney.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
+import { httpErrorAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
-  httpErrorAnswer,
-  publishMovingOrigin,
-} from "../../dashboard/test-support/publishedOrigin.ts";
-import {
-  backlogA,
-  backlogB,
   dashboardStory,
-  revisionA,
-  revisionB,
+  refreshHistory,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
@@ -71,10 +67,24 @@ const opened = new Date("2026-09-20T08:30:00.000Z");
 
 test("recovery discovering a new revision replaces the snapshot with current facts", async ({
   page,
+  afterGitHubStops,
+  dashboard,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA, recordsAt("A"));
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory(),
+    "A",
+    afterGitHubStops,
+  );
+  const { A: revisionA, B: revisionB } = origin.revisions;
+  const routedTrunk = () =>
+    remoteBranchHead(
+      gitHubRepositoryUrl("terryyin/open-dough"),
+      "refs/heads/main",
+      { cwd: dashboard.home, env: { HOME: dashboard.home }, maxBuffer: 4096 },
+    );
+  expect(await routedTrunk()).toBe(revisionA);
   const restoreMain = origin.answerWith("main", httpErrorAnswer(503));
   await page.goto("/");
   await expectProblemAndNoSnapshot(
@@ -84,7 +94,8 @@ test("recovery discovering a new revision replaces the snapshot with current fac
   );
   await untilPageReadsAnswered(page);
   restoreMain();
-  origin.push(revisionB, backlogB, recordsAt("B"));
+  origin.advanceTo("B");
+  expect(await routedTrunk()).toBe(revisionB);
   await page.clock.runFor(15_250);
   await untilPageReadsAnswered(page);
   await expectSettledPage(page, titlesOfB);
@@ -97,10 +108,15 @@ test("recovery discovering a new revision replaces the snapshot with current fac
 
 test("switching projects abandons a late detail answer from the previous observation", async ({
   page,
+  afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = await publishMovingOrigin(page);
-  origin.push(revisionA, backlogA, recordsAt("A"));
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory(),
+    "A",
+    afterGitHubStops,
+  );
   const releaseDetail = origin.hold(".planning/seeds/SEED-021-progress.md");
   await page.goto("/");
   await expectMembership(page, titlesOfA);
@@ -131,17 +147,20 @@ test("outstanding detail recovery excludes revision checks until it settles", as
 }) => {
   await pausePageClockAt(page, limitedOpened);
   let withholdFails = true;
-  const published = publishes({ revision, files: filesBesideUnreachable });
-  githubFor(page).serve(repository, (call) => {
-    if (
-      withholdFails &&
-      call.request.kind === "content" &&
-      call.request.path === unreachableSeed
-    ) {
-      return Promise.resolve(noConnection);
-    }
-    return published(call);
-  });
+  const published = publishes({ files: filesBesideUnreachable });
+  githubFor(page).serve(
+    repository,
+    keepingOrigin((call) => {
+      if (
+        withholdFails &&
+        call.request.kind === "content" &&
+        call.request.path === unreachableSeed
+      ) {
+        return Promise.resolve(noConnection);
+      }
+      return published(call);
+    }, published),
+  );
   await page.goto("/");
   await expectSettledPage(page, titlesBesideUnreachable);
   const { backlog, problem, readRevision } = parts(page);
@@ -156,7 +175,7 @@ test("outstanding detail recovery excludes revision checks until it settles", as
     expect(headsChecks(githubFor(page).calls.slice(askedBeforeChecks))).toEqual(
       [],
     );
-    await expect(readRevision).toContainText(shortRevision(revision));
+    await expect(readRevision).toContainText(shortRevision(published.revision));
     await expect(storyCard(backlog, plannedTitle)).toBeVisible();
   });
 
@@ -175,7 +194,7 @@ test("a rate limit during transient recovery postpones recovery demand until the
 }) => {
   await pausePageClockAt(page, limitedOpened);
   let withholdFails = true;
-  const published = publishes({ revision, files: filesBesideUnreachable });
+  const published = publishes({ files: filesBesideUnreachable });
   const answers = limiting(
     page,
     (call) => {
@@ -190,7 +209,7 @@ test("a rate limit during transient recovery postpones recovery demand until the
     },
     2,
   );
-  githubFor(page).serve(repository, answers.answer);
+  githubFor(page).serve(repository, keepingOrigin(answers.answer, published));
   await page.goto("/");
   await expectSettledPage(page, titlesBesideUnreachable);
   await expect(parts(page).problem).toContainText(detailRecovery);

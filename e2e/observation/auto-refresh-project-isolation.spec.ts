@@ -28,7 +28,6 @@ import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   pausePageClock,
-  recordsAt,
   headsCheckArgv,
   headsChecks,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
@@ -40,13 +39,10 @@ import {
 } from "../../dashboard/test-support/doughnutProject.ts";
 import { selectSettledDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
-import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import {
-  backlogA,
-  backlogB,
   dashboardStory,
-  revisionA,
-  revisionB,
+  refreshHistory,
   titlesOfA,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import type { GhCall } from "../../dashboard/test-support/support/fakeGitHub.ts";
@@ -104,11 +100,12 @@ test.describe("project read isolation of automatic checks", () => {
 
   test("a deselected project's outstanding revision check is abandoned, its late answer changes nothing, and only the selected project is checked from then on", async ({
     page,
+    afterGitHubStops,
   }) => {
-    const openDough = await openSettledAtA(page);
+    const openDough = await openSettledAtA(page, afterGitHubStops);
     const releaseCheck = openDough.hold("main");
     // What the held check would find: Open Dough's main moved on to B.
-    openDough.push(revisionB, backlogB, recordsAt("B"));
+    openDough.advanceTo("B");
     const beforeCheck = githubFor(page).calls.length;
     await passTimeUntilAsked(page);
     await expect
@@ -136,10 +133,16 @@ test.describe("project read isolation of automatic checks", () => {
 
   test("a deselected project's late detail read never lands in the newly selected project's view or schedule", async ({
     page,
+    afterGitHubStops,
   }) => {
     await pausePageClock(page);
-    const openDough = await publishMovingOrigin(page);
-    openDough.push(revisionA, backlogA, recordsAt("A"));
+    const openDough = await publishMovingHistory(
+      page,
+      refreshHistory(),
+      "A",
+      afterGitHubStops,
+    );
+    const { A: revisionA } = openDough.revisions;
     const releaseDetail = openDough.hold(
       ".planning/seeds/SEED-021-progress.md",
     );

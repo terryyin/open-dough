@@ -1,7 +1,4 @@
-// A project selection owns its read: success or failure from a deselected
-// project never replaces the current project. Switching aborts the request,
-// so releasing a held answer only finishes the test handler; it cannot reach
-// the page. Assertions after release therefore need no arbitrary wait.
+// Releasing a deselected project's held answer cannot replace the selected view.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
@@ -14,13 +11,8 @@ import {
   doughnutBacklog,
   doughnutRepository,
   doughnutSharedTitle,
-  revisionDoughnut,
   sharedStoryIdentity,
 } from "../../dashboard/test-support/doughnutProject.ts";
-import {
-  describedRevisions,
-  publishedFile,
-} from "../../dashboard/test-support/describedRevisions.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   focusCanonicalRecord,
@@ -30,18 +22,13 @@ import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   backlogPath,
   pathsRead,
-  publishMovingOrigin,
   rateLimitedAnswer,
-  type MovingOrigin,
 } from "../../dashboard/test-support/publishedOrigin.ts";
 
-const revisionOpenDoughFirst = "a1".repeat(20);
-const revisionOpenDoughSecond = "a2".repeat(20);
-const revisionOpenDoughThird = "a3".repeat(20);
+import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
+import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
+import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 
-// Doughnut's telling of the shared identity is in
-// ../../dashboard/test-support/doughnutProject.ts; Open Dough's tellings differ, and
-// neither may appear under the other's label.
 const openDoughSharedTitleFirst =
   "Open Dough's first telling of the shared story";
 const openDoughSharedTitleSecond =
@@ -57,41 +44,39 @@ const sharedStoryTold = (title: string) =>
       href: "seeds/SEED-777-shared.md#shared-story",
     })
     .please();
-const openDoughRevisions = describedRevisions(
-  makeMe.aRepository
-    .withRevision("first", {
-      backlog: { queued: [sharedStoryTold(openDoughSharedTitleFirst)] },
-    })
-    .withRevision("second", {
-      backlog: { queued: [sharedStoryTold(openDoughSharedTitleSecond)] },
-    })
-    .withRevision("third", {
-      backlog: { queued: [sharedStoryTold(openDoughSharedTitleThird)] },
-    })
-    .please(),
-  {
-    first: revisionOpenDoughFirst,
-    second: revisionOpenDoughSecond,
-    third: revisionOpenDoughThird,
-  },
-);
+const openDoughHistory = makeMe.aRepository
+  .withRevision("first", {
+    backlog: { queued: [sharedStoryTold(openDoughSharedTitleFirst)] },
+  })
+  .withRevision("second", {
+    backlog: { queued: [sharedStoryTold(openDoughSharedTitleSecond)] },
+  })
+  .withRevision("third", {
+    backlog: { queued: [sharedStoryTold(openDoughSharedTitleThird)] },
+  })
+  .please();
 
-// Moves Open Dough's `main` to the named revision.
-function pushOpenDough(
-  openDough: MovingOrigin,
-  name: keyof typeof openDoughRevisions,
-): void {
-  const at = openDoughRevisions[name];
-  openDough.push(at.revision, publishedFile(at, backlogPath));
-}
+const doughnutHistory = makeMe.aRepository
+  .withRevision("published", { files: { [backlogPath]: doughnutBacklog } })
+  .please();
 
 async function openBothOrigins(
   page: Page,
-): Promise<{ openDough: MovingOrigin; doughnut: MovingOrigin }> {
-  const openDough = await publishMovingOrigin(page);
-  const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  pushOpenDough(openDough, "first");
-  doughnut.push(revisionDoughnut, doughnutBacklog);
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+) {
+  const openDough = await publishMovingHistory(
+    page,
+    openDoughHistory,
+    "first",
+    afterGitHubStops,
+  );
+  const doughnut = await publishMovingHistory(
+    page,
+    doughnutHistory,
+    "published",
+    afterGitHubStops,
+    doughnutRepository,
+  );
   await page.goto("/");
   await expectMembership(page, {
     taken: [],
@@ -103,8 +88,12 @@ async function openBothOrigins(
 test.describe("project read isolation", () => {
   test("a late success from a deselected project's outstanding read never replaces the newly selected project's shown work, and the selector stays keyboard-operable throughout", async ({
     page,
+    afterGitHubStops,
   }) => {
-    const { openDough, doughnut } = await openBothOrigins(page);
+    const { openDough, doughnut } = await openBothOrigins(
+      page,
+      afterGitHubStops,
+    );
     const { project, backlog, readRevision } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
@@ -118,7 +107,7 @@ test.describe("project read isolation", () => {
       await expect(selectedProject).toBeFocused();
     });
 
-    pushOpenDough(openDough, "second");
+    openDough.advanceTo("second");
     await page.keyboard.press("ArrowLeft");
 
     await test.step("Open Dough's fresh read is shown; Doughnut's outstanding read is not waited on or shown", async () => {
@@ -127,7 +116,7 @@ test.describe("project read isolation", () => {
         backlog: [openDoughSharedTitleSecond],
       });
       await expect(readRevision).toContainText(
-        shortRevision(revisionOpenDoughSecond),
+        shortRevision(openDough.revisions.second),
       );
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
     });
@@ -139,12 +128,10 @@ test.describe("project read isolation", () => {
 
     await test.step("Doughnut's held read answers late with success, after Open Dough is already shown", async () => {
       releaseDoughnut();
-      // Immediate assertions, matching ./auto-refresh.spec.ts's own
-      // held-response races: nothing about the page depends on this release, so there is
-      // no later moment at which it could still take effect.
+      // Switching aborted the old read, so release cannot revive it.
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
       await expect(readRevision).toContainText(
-        shortRevision(revisionOpenDoughSecond),
+        shortRevision(openDough.revisions.second),
       );
       await expect(projectTab(page, "Open Dough")).toBeChecked();
       expect(doughnut.requests).toHaveLength(1);
@@ -158,16 +145,20 @@ test.describe("project read isolation", () => {
 
   test("a late failure from a deselected project's outstanding read never surfaces as the newly selected project's failure", async ({
     page,
+    afterGitHubStops,
   }) => {
-    const { openDough, doughnut } = await openBothOrigins(page);
+    const { openDough, doughnut } = await openBothOrigins(
+      page,
+      afterGitHubStops,
+    );
     const { readRevision } = parts(page);
 
+    doughnut.answerWith("main", rateLimitedAnswer());
     const releaseDoughnut = doughnut.hold("main");
     await projectTab(page, "Doughnut").check();
     await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
-    doughnut.answerWith("main", rateLimitedAnswer());
 
-    pushOpenDough(openDough, "second");
+    openDough.advanceTo("second");
     await projectTab(page, "Open Dough").check();
     await expectMembership(page, {
       taken: [],
@@ -182,7 +173,7 @@ test.describe("project read isolation", () => {
         backlog: [openDoughSharedTitleSecond],
       });
       await expect(readRevision).toContainText(
-        shortRevision(revisionOpenDoughSecond),
+        shortRevision(openDough.revisions.second),
       );
       expect(doughnut.requests).toHaveLength(1);
     });
@@ -190,21 +181,32 @@ test.describe("project read isolation", () => {
 
   test("returning to a project whose read is still outstanding elsewhere starts a third, fresh read rather than replaying its first snapshot, even with a shared work identity", async ({
     page,
+    afterGitHubStops,
+    dashboard,
   }) => {
-    const { openDough, doughnut } = await openBothOrigins(page);
+    const { openDough, doughnut } = await openBothOrigins(
+      page,
+      afterGitHubStops,
+    );
+    const pins = openDough.revisions;
+    const routedHead = (repository: string) =>
+      remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
+        cwd: dashboard.home,
+        env: { HOME: dashboard.home },
+        maxBuffer: 4096,
+      });
+    expect(await routedHead("terryyin/open-dough")).toBe(pins.first);
+    expect(await routedHead(doughnutRepository)).toBe(
+      doughnut.revisions.published,
+    );
     const { backlog, readRevision } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
     await projectTab(page, "Doughnut").check();
     await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
 
-    // Returning to Open Dough while Doughnut's read is still outstanding.
-    // Its own backlog changed underneath it since the first read (the same
-    // "returning to a project starts a fresh read" rule
-    // ../../dashboard/frontend-tests/navigation/project-selection.spec.ts
-    // proves for the sequential case), so a cached replay of the first
-    // snapshot would show the wrong title.
-    pushOpenDough(openDough, "third");
+    openDough.advanceTo("third");
+    expect(await routedHead("terryyin/open-dough")).toBe(pins.third);
     await projectTab(page, "Open Dough").check();
 
     await test.step("the third, fresh Open Dough read is shown -- not the first snapshot, and not Doughnut's", async () => {
@@ -212,21 +214,17 @@ test.describe("project read isolation", () => {
         taken: [],
         backlog: [openDoughSharedTitleThird],
       });
-      await expect(readRevision).toContainText(
-        shortRevision(revisionOpenDoughThird),
-      );
+      await expect(readRevision).toContainText(shortRevision(pins.third));
       await expect(page.locator("body")).not.toContainText(
         openDoughSharedTitleFirst,
       );
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
-      // Two Open Dough reads (main+file each): the first at mount, the
-      // second (fresh, not cached) on returning. Only one Doughnut request:
-      // its held read was never retried.
+      // The mount and return read Open Dough; Doughnut is never retried.
       expect(pathsRead(openDough)).toEqual([
         "main",
-        `PRODUCT-BACKLOG.md?ref=${revisionOpenDoughFirst}`,
+        `PRODUCT-BACKLOG.md?ref=${pins.first}`,
         "main",
-        `PRODUCT-BACKLOG.md?ref=${revisionOpenDoughThird}`,
+        `PRODUCT-BACKLOG.md?ref=${pins.third}`,
       ]);
       expect(doughnut.requests).toHaveLength(1);
     });

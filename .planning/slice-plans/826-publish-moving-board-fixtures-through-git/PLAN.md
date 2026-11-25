@@ -191,7 +191,7 @@ raw fixture behavior for recovery callers while slice 2 migrates them.
 ### 2. Preserve scheduled and detail recovery on a moving origin
 
 Type: Behavior
-Status: planned
+Status: done
 Behavior: With a confirmed snapshot and a held, refused or interrupted
 scheduled check or pinned detail, publish the next real trunk and recover
 through the operation that incurred the wait. A companion project or waiter
@@ -203,6 +203,28 @@ Proof: Run the affected `auto-refresh-*-recovery`, `auto-refresh-rate-limit`,
 snapshot, and recovery at the expected pin. Keep membership-only controls
 with the cutover. Use the shared raw setup and its established override
 points. Count any residual owner rewrites against this slice before dispatch.
+
+Accepted proof at `d7513707b85b964bddca4b2d9a071bee46c6b3b4` plus slice 2
+changes. The shared `openSettledAtA` now always opens a real history. The
+rate-limit journey independently resolves A and B under its Dashboard HOME
+and sees the scheduled 429, 403, directed waits, retained A, and recovered B.
+The detail cases isolate a REST 404 and a held request at immutable B. The
+malformed-backlog case publishes invalid data before the repair and observes
+all three routed pins. The owner-replacement and project-return cases keep
+their held requests, selected snapshot, and exact recovery pin. The published
+facts case retains A's independent record groups while B settles.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/{auto-refresh,auto-refresh-visibility,auto-refresh-detail-recovery,auto-refresh-project-isolation,auto-refresh-rate-limit,auto-refresh-recovery,owner-replacement-recovery,project-read-isolation,project-read-recovery,published-facts-isolation,read-failure,revision-check-return,revision-stream*,shared-observer-check-reuse,steady-refresh*,transient-read-exclusions,transient-read-recovery,transient-recovery-currentness,transient-recovery-lifecycle}.spec.ts --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- 'runtime/(observation-measurements|first-open-waits-for-read|settled-page)\.spec\.ts' --workers=1 --reporter=line
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/owner-replacement-recovery.spec.ts --workers=1 --reporter=line
+npm run typecheck:dashboard
+```
+
+The focused browser and backend groups passed 77 and 6 cases. The
+owner-replacement case and typecheck passed after refining the REST answer
+registration seam. The initial malformed membership-only refusal still uses
+the cutover story's boundary.
 
 ### 3. Follow real trunk rewinds through story navigation
 

@@ -11,13 +11,10 @@ import {
   publishMovingHistory,
   type MovingHistory,
 } from "./publishedMovingOrigin.ts";
-import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
 import {
-  backlogA,
   queueStory,
   recordsAt,
   refreshHistory,
-  revisionA,
   titlesOfA,
 } from "./refreshJourney.ts";
 import {
@@ -53,30 +50,18 @@ export async function pausePageClock(page: Page): Promise<void> {
 
 // Opens the page at A with its clock paused, and waits until the whole
 // snapshot, detail included, has been read.
-export function openSettledAtA(page: Page): Promise<MovingOrigin>;
-export function openSettledAtA(
-  page: Page,
-  afterGitHubStops: (cleanup: () => Promise<void>) => void,
-  atB?: Parameters<typeof refreshHistory>[0],
-): Promise<MovingHistory<"A" | "B" | "C">>;
 export async function openSettledAtA(
   page: Page,
-  afterGitHubStops?: (cleanup: () => Promise<void>) => void,
-  atB?: Parameters<typeof refreshHistory>[0],
-): Promise<MovingOrigin | MovingHistory<"A" | "B" | "C">> {
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+  history?: Parameters<typeof refreshHistory>[0],
+): Promise<MovingHistory<"A" | "B" | "C">> {
   await pausePageClock(page);
-  let origin;
-  if (afterGitHubStops === undefined) {
-    origin = await publishMovingOrigin(page);
-    origin.push(revisionA, backlogA, recordsAt("A"));
-  } else {
-    origin = await publishMovingHistory(
-      page,
-      refreshHistory(atB),
-      "A",
-      afterGitHubStops,
-    );
-  }
+  const origin = await publishMovingHistory(
+    page,
+    refreshHistory(history),
+    "A",
+    afterGitHubStops,
+  );
   await page.goto("/");
   await expectSettledPage(page, titlesOfA);
   // Preparation no longer implies that the independent profiles are read.
