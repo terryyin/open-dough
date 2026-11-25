@@ -44,7 +44,11 @@ import {
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { recordStarts } from "../../dashboard/test-support/support/startSessionLanding.ts";
-import { expectExecutionCheckoutSessionLaunch } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
+import { admittedStory } from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
+import {
+  expectExecutionCheckoutSessionLaunch,
+  launchStoryIdentity,
+} from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
 
 const text = "Explain how launch records are stored";
 const autoLand = { workspace: "default-checkout", landing: "auto-land" };
@@ -167,11 +171,12 @@ test("existing changes warn before a session starts, Back keeps the text, Cancel
   for (const attempt of (await attempts(dashboard)) as Recorded[])
     expect(attempt.request).not.toHaveProperty("existingChanges");
 
-  // The existing changes stay as they were; nothing was taken, assigned,
-  // or published.
+  // Only the private claim checkout is new. The execution checkout's staged,
+  // modified, deleted and untracked changes stayed where the user left them.
   expect(status(origin.project)).toBe(confirmed);
-  expect(worktrees(origin.project)).toBe(places);
+  expect(worktrees(origin.project)).toContain(places);
   expect(await keptStarts(dashboard)).toEqual([]);
-  expect(await originMain(origin)).toBe(before);
-  expect(await origin.takenProfiles()).toEqual([]);
+  expect(await admittedStory(origin, text)).toMatchObject({
+    identity: launchStoryIdentity(record),
+  });
 });

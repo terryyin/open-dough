@@ -57,7 +57,7 @@ async function startAndReadCatalog(environment: ProjectEnvironment) {
   const checkout = path.join(home, "git", source);
   const origin = await git(checkout, "remote", "get-url", "origin");
   const head = await git(checkout, "rev-parse", "HEAD");
-  expect(head).toBe(await git(origin, "rev-parse", "main"));
+  const published = await git(origin, "rev-parse", "main");
   expect(await git(origin, "rev-parse", "--is-bare-repository")).toBe("true");
   expect(await git(checkout, "config", "--get", "remote.origin.url")).toBe(
     `https://github.com/${repository}.git`,
@@ -70,7 +70,7 @@ async function startAndReadCatalog(environment: ProjectEnvironment) {
   expect(JSON.parse(response.body)).toContainEqual(
     expect.objectContaining({ id: source, repository }),
   );
-  return { server, home, checkout, origin, head };
+  return { server, home, checkout, origin, head, published };
 }
 
 type Catalog = Awaited<ReturnType<typeof startAndReadCatalog>>;
@@ -98,6 +98,7 @@ test("answers a launch from another server on this machine, and again after both
   await test.step("Then both serve the same installed checkout", () => {
     const { checkout, origin, head } = launchCatalog;
     expect(readingCatalog).toMatchObject({ checkout, origin, head });
+    expect(readingCatalog.published).toBe(head);
     for (const root of [".claude", ".agents"])
       expect(
         existsSync(
@@ -130,7 +131,7 @@ test("answers a launch from another server on this machine, and again after both
     answer = JSON.parse(response.body) as typeof answer;
     expect(answer).toMatchObject({
       kind: "launched",
-      record: expect.any(Object),
+      record: { request: { storyIdentity: expect.any(String) } },
     });
   });
 
@@ -151,6 +152,8 @@ test("answers a launch from another server on this machine, and again after both
   });
 
   await test.step("Then the restarted server reads the same record", async () => {
+    expect(readingCatalog.head).toBe(launchCatalog.head);
+    expect(readingCatalog.published).not.toBe(readingCatalog.head);
     expect(await recordsOf(readingCatalog.server, source)).toEqual([
       answer.record,
     ]);

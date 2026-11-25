@@ -13,6 +13,10 @@ import type { FakeCodex } from "./fakeCodex.ts";
 import { everyRepository, publishes } from "./fakeGitHub.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { publishCommittedOrigin } from "../committedOrigin.ts";
+import { commitOf } from "../committedOriginRepo.ts";
+import { initializeStartOrigin } from "./startOriginInitialization.ts";
+import { gitHubRepositoryUrl } from "./fixtureOriginRoute.ts";
 import {
   projectConfigurationFile,
   projectEnvironmentOf,
@@ -28,6 +32,7 @@ export function projectAddMachine({
 }: { ghTransport?: FakeGhTransport } = {}) {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-project-add-"));
   const checkout = path.join(machine, "home/work/private-checkout");
+  const origin = path.join(machine, "sample-app.git");
   mkdirSync(checkout, { recursive: true });
   execFileSync("git", [
     "init",
@@ -44,6 +49,8 @@ export function projectAddMachine({
     `git@github.com:${addedRepository}.git`,
   ]);
   const servers: DashboardServer[] = [];
+  let installed = false;
+  const addedTip = () => commitOf(origin, addedBranch) ?? addedRevision;
   // The file a server of that mode keeps its projects in.
   const configurationFile = (mode: DashboardServerMode) =>
     projectConfigurationFile(
@@ -54,6 +61,41 @@ export function projectAddMachine({
     machine,
     checkout,
     configurationFile,
+    addedTip,
+    async installAddedProject() {
+      rmSync(checkout, { recursive: true });
+      await initializeStartOrigin(
+        origin,
+        path.join(machine, "home"),
+        checkout,
+        addedRepository,
+        "claude",
+        makeMe.aRepository.please(),
+      );
+      execFileSync("git", ["-C", origin, "branch", addedBranch, "main"]);
+      execFileSync("git", ["-C", checkout, "branch", "-m", "local-checkout"]);
+      // Add inspects the resolved origin URL. Use the declared SSH spelling
+      // until the dialog accepts it, then switch to the routed fixture URL.
+      execFileSync("git", [
+        "-C",
+        checkout,
+        "remote",
+        "set-url",
+        "origin",
+        `git@github.com:${addedRepository}.git`,
+      ]);
+      installed = true;
+    },
+    routeAddedCheckout() {
+      execFileSync("git", [
+        "-C",
+        checkout,
+        "remote",
+        "set-url",
+        "origin",
+        gitHubRepositoryUrl(addedRepository),
+      ]);
+    },
     async start(
       mode: DashboardServerMode,
       readTimeoutMs?: number,
@@ -77,6 +119,14 @@ export function projectAddMachine({
           backlog: describedBacklog(makeMe.aRepository.please()),
         }),
       );
+      if (installed)
+        await publishCommittedOrigin(server.github, {
+          repository: addedRepository,
+          repoDir: origin,
+          branch: addedBranch,
+          revision: addedTip(),
+          follows: true,
+        });
       servers.push(server);
       return server;
     },

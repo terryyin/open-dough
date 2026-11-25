@@ -5,6 +5,7 @@
 // agent-terminal-cursor-launch.spec.ts.
 import { test, expect } from "../../test-support/support/pageTest.ts";
 import { instructionDeliveryTimedOutExplanation } from "../../server/hosts/cursor/instructionDelivery.ts";
+import { launchWaitMs } from "../../test-support/support/launchWait.ts";
 import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
 import {
   enteredInstruction,
@@ -67,7 +68,9 @@ test.describe(`Cursor launch wait`, () => {
       },
       // Its client is kept with the first paint held.
       async () => {
-        await expect.poll(() => cursor.attaches()).toHaveLength(1);
+        await expect
+          .poll(() => cursor.attaches(), { timeout: launchWaitMs })
+          .toHaveLength(1);
       },
     );
   });

@@ -1,21 +1,9 @@
-// Serves one isolated Git repository's committed bytes as GitHub would answer
-// the local `gh` behind the page's dashboard (./support/fakeGitHub.ts). The
-// journey records preparation through the real CLI, commits those files, and
-// answers contents requests with `git show <revision>:path` and directory
-// listings with `git ls-tree` at that revision (Intent's recursive location
-// listing with `git ls-tree -r`) — never with hand-constructed display
-// state; each listed agent profile's history is its addition by a
-// commit of its own (./pathHistoryAnswers.ts). A listing and a history read
-// are answered but not observed. A comparison of an accepted publication with
-// a shown revision is answered from the repository's own history
-// (./comparisonAnswers.ts) and kept in `compares`; one asking for the commits
-// between two revisions the ref named is not answered, so every newly named
-// revision is read in full. A repository the journey publishes to may be
-// followed (`follows`): its `main` is then the published revision as each
-// request arrives, as GitHub follows pushes, and any commit of it is readable.
-// A Git read of the repository under the dashboard's HOME reaches `repoDir`.
+// Serves one isolated Git origin's committed files, listings and containment
+// comparisons behind the Dashboard's `gh` boundary. With `follows`, answers
+// track the configured branch as pushes arrive and allow committed reads.
 
 import type { Page } from "@playwright/test";
+import type { FakeGitHub } from "./support/fakeGitHub.ts";
 import { githubFor } from "./dashboardTest.ts";
 import {
   asHeadsListing,
@@ -35,7 +23,7 @@ import {
   filesUnder,
   headsOf,
   listedAt,
-  publishMain,
+  publishBranch,
   showAt,
 } from "./committedOriginRepo.ts";
 import { answerCommittedCommits } from "./committedOriginCommits.ts";
@@ -67,23 +55,25 @@ export type CommittedOrigin = {
 };
 
 export function publishCommittedOrigin(
-  page: Page,
+  source: Page | FakeGitHub,
   options: {
     readonly repoDir: string;
     readonly revision: string;
     readonly repository: string;
     readonly follows?: boolean;
+    readonly branch?: string;
     // Read actual allocation history instead of the default one-addition
     // history supplied for each listed agent profile.
     readonly realHistory?: boolean;
   },
 ): Promise<CommittedOrigin> {
-  const { repoDir, repository } = options;
+  const { repoDir, repository, branch = "main" } = options;
+  const github = "serve" in source ? source : githubFor(source);
   let revision = options.revision;
   const follows = options.follows === true;
   // The revision `main` names now.
   const published = () =>
-    follows ? (commitOf(repoDir, "main") ?? revision) : revision;
+    follows ? (commitOf(repoDir, branch) ?? revision) : revision;
   // Whether a pinned read of `at` is answered.
   const readable = (at: string) =>
     follows ? commitOf(repoDir, at) === at : at === revision;
@@ -93,10 +83,10 @@ export function publishCommittedOrigin(
   const instead = new Map<string, OriginAnswer>();
   let actionsOverride: ActionsAnswerer | undefined;
   const history = committedHistoryAnswers(repoDir);
-  if (!follows) publishMain(repoDir, revision);
+  if (!follows) publishBranch(repoDir, branch, revision);
 
-  routeOriginThroughServedHomes(githubFor(page), repoDir, repository);
-  githubFor(page).serve(repository, async (call) => {
+  routeOriginThroughServedHomes(github, repoDir, repository);
+  github.serve(repository, async (call) => {
     const { request, argv } = call;
     if (
       request.kind === "actions-workflow" ||
@@ -118,7 +108,13 @@ export function publishCommittedOrigin(
       }
       return passingActionsAnswer(request.kind, published());
     }
-    if (request.kind === "ref" && request.ref === "main") {
+    if (request.kind === "repository" && options.branch !== undefined)
+      return {
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ default_branch: branch }),
+      };
+    if (request.kind === "ref" && request.ref === branch) {
       observe(requests, call);
       await held.get("main");
       return instead.get("main") ?? commitAnswer(published());
@@ -138,7 +134,7 @@ export function publishCommittedOrigin(
       // story-branch tip advance is visible through matching-refs.
       return asHeadsListing(
         instead.get("main") ?? commitAnswer(published()),
-        headsOf(repoDir, published()),
+        headsOf(repoDir, branch, published()),
       );
     }
     // A story branch head: published when the repository has that ref, else
@@ -224,7 +220,7 @@ export function publishCommittedOrigin(
     },
     advanceTo(next) {
       revision = next;
-      if (!follows) publishMain(repoDir, next);
+      if (!follows) publishBranch(repoDir, branch, next);
     },
   });
 }

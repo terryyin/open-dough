@@ -94,7 +94,7 @@ async function startWith(instruction?: string) {
   form.start.element().focus();
   await userEvent.keyboard("{Enter}");
 
-  const words = "Starting a session in Open Dough… Local startup in progress.";
+  const words = "Starting a session in Open Dough… Admitting a story.";
   const progress = page.getByText(words, { exact: true });
   await expect.element(form.dialog).not.toBeInTheDocument();
   await expect.element(progress).toHaveFocus();

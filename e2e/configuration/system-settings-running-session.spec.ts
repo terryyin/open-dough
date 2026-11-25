@@ -24,6 +24,7 @@ test.afterEach(async () => fixture.close());
 test("opening settings preserves one running native session and its attached terminal context", async ({
   page,
 }) => {
+  await fixture.installAddedProject();
   // The built dashboard mounts the terminal once. The dev server's React
   // StrictMode mounts it twice, and its first socket may still attach
   // before that mount's cleanup hangs it up, so counting attaches there
@@ -31,6 +32,7 @@ test("opening settings preserves one running native session and its attached ter
   const server = await fixture.start("preview");
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
+  fixture.routeAddedCheckout();
   await page
     .getByRole("button", { name: "Start session in Sample App" })
     .click();

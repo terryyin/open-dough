@@ -83,13 +83,16 @@ export function problemOf(
 // observation (`latest`) says.
 export function shownAttempt(
   page: PageAttempt | undefined,
-  latest: (attempt: AttemptObservation) => AttemptObservation,
+  latest: (
+    attempt: AttemptObservation,
+    acceptedAfter: number,
+  ) => AttemptObservation,
 ): LaunchAttempt | undefined {
   if (page === undefined) return undefined;
   if (page.kind === "submitting") return { kind: "starting" };
   if (page.kind === "unacknowledged") return page.problem;
   if (page.kind !== "accepted") return page;
-  const { outcome } = latest(page.attempt);
+  const { outcome } = latest(page.attempt, page.acceptedAfter);
   if (outcome === undefined) return { kind: "starting" };
   return outcome.kind === "launched" ? undefined : problemOf(outcome);
 }

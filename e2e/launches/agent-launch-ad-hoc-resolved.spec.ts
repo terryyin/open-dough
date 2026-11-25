@@ -16,25 +16,27 @@ import {
   sessionsHistoryAudience,
 } from "../../dashboard/src/machineSessionsRevision.ts";
 import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import {
   parts,
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
-  openTakenBacklog,
+  openStartSession,
   startSession,
-  startSessionDialog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 
-test.use({ projectFolders: ["open-dough"] });
-
 test("a launched ad hoc start leaves the overview and its page presents the session from the history", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("launched");
   const historyReads: string[] = [];
@@ -46,13 +48,47 @@ test("a launched ad hoc start leaves the overview and its page presents the sess
     )
       historyReads.push(request.url());
   });
-  await openTakenBacklog(page, launchJourney);
+  await openBacklog(page, origin, true);
   expect(historyReads).toEqual([]);
+  let release = () => {};
+  const delivery = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route(
+    (url) => url.pathname === agentLaunchEndpoint,
+    async (route) => {
+      if (route.request().method() === "GET") await delivery;
+      await route.continue();
+    },
+  );
 
-  const dialog = startSessionDialog(page, "Open Dough");
-  await startSession(page, "Open Dough").click();
-  await expect(startSessionField(dialog)).toHaveValue("");
-  await dialog.getByRole("button", { name: "Start" }).click();
+  try {
+    const { dialog, submit } = await openStartSession(page, "Open Dough");
+    await expect(startSessionField(dialog)).toHaveValue("");
+    await submit();
+
+    // Let the second page reconcile the published story before the first
+    // page reads the native launch outcome.
+    await expect
+      .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {
+        timeout: launchWaitMs,
+      })
+      .toBe("launched");
+    const other = await page.context().newPage();
+    try {
+      await other.goto(dashboard.baseURL);
+      await expect
+        .poll(async () => (await attempts(dashboard))[0]?.reconciledAt, {
+          timeout: launchWaitMs,
+        })
+        .toBeDefined();
+    } finally {
+      await other.close();
+    }
+  } finally {
+    release();
+  }
+  await page.bringToFront();
 
   const panel = terminalPanel(page);
   await expect(terminalScreenParts(panel).input).toBeFocused();

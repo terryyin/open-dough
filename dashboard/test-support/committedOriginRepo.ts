@@ -70,23 +70,27 @@ export function commitOf(repoDir: string, name: string): string | undefined {
   }
 }
 
-// Moves `main` to the published `revision`, so a Git read routed to
+// Moves the branch to the published `revision`, so a Git read routed to
 // `repoDir` finds the trunk the fixture answers; a checkout's own `main`
 // stays with its working tree.
-export function publishMain(repoDir: string, revision: string): void {
-  if (commitOf(repoDir, "main") === revision) return;
-  if (checkedOutMain(repoDir)) return;
+export function publishBranch(
+  repoDir: string,
+  branch: string,
+  revision: string,
+): void {
+  if (commitOf(repoDir, branch) === revision) return;
+  if (checkedOutBranch(repoDir, branch)) return;
   execFileSync("git", [
     "-C",
     repoDir,
     "update-ref",
-    "refs/heads/main",
+    `refs/heads/${branch}`,
     revision,
   ]);
 }
 
-// Whether `repoDir` is a checkout whose working tree holds `main`.
-function checkedOutMain(repoDir: string): boolean {
+// Whether `repoDir` is a checkout whose working tree holds the branch.
+function checkedOutBranch(repoDir: string, branch: string): boolean {
   const git = (...args: string[]) =>
     execFileSync("git", ["-C", repoDir, ...args], {
       encoding: "utf8",
@@ -95,7 +99,7 @@ function checkedOutMain(repoDir: string): boolean {
   try {
     return (
       git("rev-parse", "--is-bare-repository") === "false" &&
-      git("symbolic-ref", "--quiet", "HEAD") === "refs/heads/main"
+      git("symbolic-ref", "--quiet", "HEAD") === `refs/heads/${branch}`
     );
   } catch {
     return false;
@@ -107,7 +111,8 @@ function checkedOutMain(repoDir: string): boolean {
 // visible to the page's revision check).
 export function headsOf(
   repoDir: string,
-  mainSha: string,
+  branch: string,
+  revision: string,
 ): Record<string, string> {
   const listed = execFileSync(
     "git",
@@ -130,7 +135,7 @@ export function headsOf(
     if (space <= 0) continue;
     heads[line.slice(0, space)] = line.slice(space + 1);
   }
-  heads.main = mainSha;
+  heads[branch] = revision;
   return heads;
 }
 

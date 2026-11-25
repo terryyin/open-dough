@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   adHocName,
-  admitsIsolatedStory,
+  admitsAdHocStory,
   establishesSession,
   unattachedPolicyOf,
   type AgentLaunchRequest,
@@ -63,7 +63,7 @@ export function StartSessionDialog({
       : "this project's execution checkout";
   const context =
     followUp === undefined ? "" : ", sending this context with your request";
-  const admitting = admitsIsolatedStory({ policy, followUp });
+  const admitting = admitsAdHocStory({ followUp });
 
   return (
     <LaunchDialog

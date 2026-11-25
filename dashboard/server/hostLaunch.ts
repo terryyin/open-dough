@@ -141,7 +141,8 @@ export function withStartPolicy(
 // What an unattached launch's start established, under the key its launch
 // record keeps it by.
 export type UnattachedEstablished = {
-  readonly establishedSession: EstablishedSession;
+  // Absent for a borrowed checkout, which hands no session block.
+  readonly establishedSession?: EstablishedSession;
   readonly branchReviewRepository?: string;
   readonly defaultStart?: DefaultLaunchStart;
 };
@@ -150,7 +151,7 @@ export type UnattachedEstablished = {
 // and how the first input carries it.
 export type EstablishedHandoff<Facts = Established | UnattachedEstablished> = {
   readonly established: Facts;
-  readonly formatted: string;
+  readonly formatted?: string;
 };
 
 // A launch's established start with the workspace its session opens in.

@@ -1,5 +1,5 @@
 // Start session's optional text goes to the selected project's execution checkout; the
-// session reads in Taken and the sidebar without a story card. The real
+// session reads under its Taken story card and in the sidebar. The real
 // boundary launches synthetic Claude (../../dashboard/test-support/fixtures/fake-claude);
 // naming is ../../dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
 // Start session placement and availability are covered by
@@ -23,6 +23,7 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   notRefinedStory,
+  queuedDashboardRepository,
   readyStory,
   takenStory,
   type LaunchJourney,
@@ -33,9 +34,15 @@ import {
 } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   expectNamedAdHocCall,
-  expectNoSessionEstablishment,
+  expectBorrowedLaunch,
+  launchStoryIdentity,
 } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
+import { test as installedTest } from "../../dashboard/test-support/support/preparationPage.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import { admittedStory } from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 
 test.use({
   projectFolders: ["open-dough", "pygardon"],
@@ -44,94 +51,101 @@ test.use({
 const openJourney = (page: Page, launchJourney: LaunchJourney) =>
   openTakenBacklog(page, launchJourney);
 
-test("starting with text sends it in the Open Dough folder, and the session reads in Taken and the sidebar with no card listing it", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  dashboard.claudeScenario("launched");
-  await openJourney(page, launchJourney);
-  const text = "why is the CI slow on main?";
-  const dialog = startSessionDialog(page, "Open Dough");
-  const { recentlyDone } = parts(page);
-  const stories = () =>
-    expectMembership(page, {
-      taken: [takenStory],
-      backlog: [readyStory, notRefinedStory],
-    });
+installedTest.describe("installed catalog", () => {
+  installedTest.use({ originRepository: queuedDashboardRepository().please() });
+  installedTest(
+    "starting with text sends it in the Open Dough folder and lists the session under its story and in the sidebar",
+    async ({ page, dashboard, origin }) => {
+      dashboard.claudeScenario("launched");
+      await origin.takenByAnotherAgent();
+      await openBacklog(page, origin, true);
+      const text = "why is the CI slow on main?";
+      const dialog = startSessionDialog(page, "Open Dough");
+      const { recentlyDone } = parts(page);
+      const stories = () =>
+        expectMembership(page, {
+          taken: [takenStory, text],
+          backlog: [readyStory, notRefinedStory],
+        });
 
-  const before = Date.now();
-  await startSession(page, "Open Dough").click();
-  await startSessionField(dialog).fill(`  ${text}  `);
-  await dialog.getByRole("button", { name: "Start" }).click();
+      const before = Date.now();
+      await startSession(page, "Open Dough").click();
+      await startSessionField(dialog).fill(`  ${text}  `);
+      await dialog.getByRole("button", { name: "Start" }).click();
 
-  const entry = sessionEntriesIn(parts(page).taken);
-  await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
-  await expect(entry).toHaveCount(1);
-  await expect(dialog).toBeHidden();
-  await expect(entry).toHaveAccessibleName(`Ad hoc session for ${text}`);
-  await expect(entry.getByRole("heading", { level: 3 })).toHaveText(text);
-  await expect(entry).toContainText("Ad hoc session started in Claude Code");
-  await expect(entry).toContainText(
-    "Local: launched from this dashboard on this machine.",
+      const card = storyCard(parts(page).taken, text);
+      const entry = sessionEntriesIn(card);
+      await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
+      await expect(entry).toHaveCount(1);
+      await expect(dialog).toBeHidden();
+      await expect(entry).toHaveAccessibleName("Ad hoc session");
+      await expect(card.getByRole("heading", { level: 3 })).toHaveText(text);
+      await expect(entry).toContainText("Ad hoc session");
+      await expect(entry).toContainText(
+        "Local: launched from this dashboard on this machine.",
+      );
+      await expect(entry).toContainText(
+        `Session ${await sessionNamedBy(entry)}`,
+      );
+      await expect(openTerminalControl(entry)).toBeVisible();
+      await expect(entry.locator(".record-identity")).toHaveCount(0);
+      const launchedAt = Date.parse(
+        (await entry.locator("time").getAttribute("datetime")) ?? "",
+      );
+      expect(launchedAt).toBeGreaterThanOrEqual(before - 1_000);
+      expect(launchedAt).toBeLessThanOrEqual(Date.now());
+
+      expectNamedAdHocCall(dashboard, "open-dough", "Open Dough", text);
+      expect(await admittedStory(origin, text)).toMatchObject({
+        identity: launchStoryIdentity(await expectBorrowedLaunch(dashboard)),
+      });
+
+      await stories();
+      await expect(
+        parts(page).board.getByRole("list", { name: "Sessions" }),
+      ).toHaveCount(1);
+      for (const start of ["Start execution", "Start refinement"]) {
+        await expect(
+          parts(page).backlog.getByRole("button", { name: start }),
+        ).toHaveCount(2);
+      }
+
+      const { button, entries, titles } = sessionsSidebarParts(page);
+      await button.click();
+      await expect(entries).toHaveCount(1);
+      await expect(titles.first()).toHaveText(text);
+      await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
+    },
   );
-  await expect(entry).toContainText(`Session ${await sessionNamedBy(entry)}`);
-  await expect(openTerminalControl(entry)).toBeVisible();
-  await expect(entry.locator(".record-identity")).toHaveCount(0);
-  const launchedAt = Date.parse(
-    (await entry.locator("time").getAttribute("datetime")) ?? "",
-  );
-  expect(launchedAt).toBeGreaterThanOrEqual(before - 1_000);
-  expect(launchedAt).toBeLessThanOrEqual(Date.now());
 
-  expectNamedAdHocCall(dashboard, "open-dough", "Open Dough", text);
-  await expectNoSessionEstablishment(dashboard);
+  for (const [described, blank] of [
+    ["an empty field", ""],
+    ["only spaces", "   "],
+  ] as const) {
+    installedTest(
+      `starting with ${described} sends no instruction`,
+      async ({ page, dashboard, origin }) => {
+        dashboard.claudeScenario("launched");
+        await openBacklog(page, origin, true);
+        const dialog = startSessionDialog(page, "Open Dough");
 
-  await stories();
-  await expect(
-    parts(page).board.getByRole("list", { name: "Sessions" }),
-  ).toHaveCount(0);
-  for (const start of ["Start execution", "Start refinement"]) {
-    await expect(
-      parts(page).backlog.getByRole("button", { name: start }),
-    ).toHaveCount(2);
-  }
+        await startSession(page, "Open Dough").click();
+        await startSessionField(dialog).fill(blank);
+        await dialog.getByRole("button", { name: "Start" }).click();
 
-  const { button, entries, titles } = sessionsSidebarParts(page);
-  await button.click();
-  await expect(entries).toHaveCount(1);
-  await expect(titles.first()).toHaveText(text);
-  await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
-});
-
-for (const [described, blank] of [
-  ["an empty field", ""],
-  ["only spaces", "   "],
-] as const) {
-  test(`starting with ${described} sends no instruction`, async ({
-    page,
-    dashboard,
-    launchJourney,
-  }) => {
-    dashboard.claudeScenario("launched");
-    await openJourney(page, launchJourney);
-    const dialog = startSessionDialog(page, "Open Dough");
-
-    await startSession(page, "Open Dough").click();
-    await startSessionField(dialog).fill(blank);
-    await dialog.getByRole("button", { name: "Start" }).click();
-
-    await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
-    const [started] = dashboard.claudeLaunches();
-    expect(started).not.toHaveProperty("instruction");
-    const record = await expectNoSessionEstablishment(dashboard);
-    for (const absent of ["instruction", "reporting"])
-      expect(record?.request).not.toHaveProperty(absent);
-    expect(started?.name).toMatch(
-      /^Open Dough · Ad hoc · \d{1,2} \w{3}, \d\d:\d\d$/,
+        await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
+        const [started] = dashboard.claudeLaunches();
+        expect(started).not.toHaveProperty("instruction");
+        const record = await expectBorrowedLaunch(dashboard);
+        for (const absent of ["instruction", "reporting"])
+          expect(record?.request).not.toHaveProperty(absent);
+        expect(started?.name).toMatch(
+          /^Open Dough · Ad hoc · Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/,
+        );
+      },
     );
-  });
-}
+  }
+});
 
 test("starting on Pygardon uses Pygardon's folder and lists the session in the sidebar under Pygardon, not in Open Dough's Recently done", async ({
   page,
@@ -148,10 +162,9 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
   await startSessionField(dialog).fill("what changed last week?");
   await dialog.getByRole("button", { name: "Start" }).click();
 
-  // Pygardon publishes no work here, so the sidebar is where it is listed.
   const { button, entries } = sessionsSidebarParts(page);
   await button.click();
-  await expect(entries).toHaveCount(1);
+  await expect(entries).toHaveCount(1, { timeout: launchWaitMs });
   await expectTooltipLine(entries.first(), "Pygardon · Ad hoc");
   expectNamedAdHocCall(
     dashboard,

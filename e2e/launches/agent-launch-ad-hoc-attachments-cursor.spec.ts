@@ -13,6 +13,7 @@ import {
   expect,
   keptRecord,
 } from "../../dashboard/test-support/support/cursorStart.ts";
+import { launchStoryIdentity } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
 import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
   expectCopiedAttachmentPath,
@@ -74,7 +75,7 @@ test("Cursor Start session with one attached image ends the prompt's developer p
   expect(prompt.startsWith(expectedPrefix)).toBe(true);
   const rest = prompt.slice(expectedPrefix.length);
   const [attachedPath, reporting, ...extra] = rest.split("\n\n");
-  expect(extra).toEqual([]);
+  expect(extra).toEqual([`Taken story: ${launchStoryIdentity(record)}`]);
   expectCopiedAttachmentPath(attachedPath ?? "", dashboard.home, "1-card.png");
   expectReportingBlock(reporting, record.request, dashboard);
   expect(record.request.attachments).toEqual([attachedPath]);
@@ -126,7 +127,9 @@ test("Cursor Start session with a chosen model and only an image is admitted", a
   const prompt = cursor.input(client.pid).replace(/\r$/u, "");
   const record = keptRecord(dashboard.home);
 
-  expect(record.request.title).toMatch(/^\d{1,2} \w{3}, \d\d:\d\d$/);
+  expect(record.request.title).toMatch(
+    /^Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/,
+  );
   expect(record.request.model).toBe("gpt-5.2");
   expect(record.request).not.toHaveProperty("instruction");
 
@@ -134,7 +137,7 @@ test("Cursor Start session with a chosen model and only an image is admitted", a
   expect(prompt.startsWith(expectedPrefix)).toBe(true);
   const rest = prompt.slice(expectedPrefix.length);
   const [attachedPath, reporting, ...extra] = rest.split("\n\n");
-  expect(extra).toEqual([]);
+  expect(extra).toEqual([`Taken story: ${launchStoryIdentity(record)}`]);
   expectCopiedAttachmentPath(attachedPath ?? "", dashboard.home, "1-card.png");
   expectReportingBlock(reporting, record.request, dashboard);
   expect(record.request.attachments).toEqual([attachedPath]);

@@ -9,12 +9,15 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expect, test as base } from "../dashboardTest.ts";
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expectAdHocReportingInput } from "./reportingInputAssertions.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
+import { git } from "./startOriginObservation.ts";
 export { expect } from "../dashboardTest.ts";
 
 // The fake Codex installed on the test's machine, for any test whose
@@ -41,6 +44,22 @@ export const test = base.extend({
   },
   codexProtocol,
 });
+
+export async function openCodexLaunchBoard(page: Page, home: string) {
+  const origin = path.join(
+    path.dirname(home),
+    "catalog-origins",
+    "open-dough.git",
+  );
+  await publishCommittedOrigin(page, {
+    repoDir: origin,
+    revision: await git(origin, "rev-parse", "main"),
+    repository: "terryyin/open-dough",
+    follows: true,
+  });
+  await page.goto("/");
+}
+
 // The launches started exactly one native thread, in the execution checkout
 // `cwd`, with no model or effort of their own.
 export function expectOneThreadStarted(native: FakeCodex, cwd: string) {

@@ -28,7 +28,7 @@ import {
 import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
 
 const executionCheckoutEffects =
-  "Execution checkout · Automatically land The session runs in this project's execution checkout, with its existing changes; verified results land on origin without another review. Pressing Start authorizes that push.";
+  "Execution checkout · Automatically land Start publishes a Taken story before the session opens. The session runs in this project's execution checkout, with its existing changes; verified results land on origin without another review. Pressing Start authorizes that push.";
 
 const { name, portrait, landscape } = phoneLaunchTouchViewport;
 
@@ -117,7 +117,7 @@ test.describe(`${name} touch session editing`, () => {
     await expect(dialog).toBeHidden();
     await expect(launcher).toBeDisabled();
     await expect(page.locator(".start-session-answer")).toContainText(
-      "Local startup in progress.",
+      "Admitting a story.",
     );
     await expect
       .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })

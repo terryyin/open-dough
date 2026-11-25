@@ -2,7 +2,7 @@
 // settles: successful launch spends the start; a definite failure after
 // establishment keeps it and tells the developer where to resume.
 import {
-  establishesSession,
+  startsAdHocSession,
   type AgentLaunchRequest,
   type LaunchResult,
   type PublicationReceipt,
@@ -37,7 +37,7 @@ export async function settleSessionResult(
   attempt: string,
   result: LaunchResult,
 ): Promise<LaunchResult> {
-  if (request.workflow !== "ad-hoc" || !establishesSession(request))
+  if (request.workflow !== "ad-hoc" || !startsAdHocSession(request))
     return result;
   const kept = await settleSessionStart(source.id, attempt, result);
   if (result.kind !== "failed" || kept === undefined) return result;
@@ -53,6 +53,7 @@ export async function settleSessionResult(
         branch: kept.branch,
       },
       kept.claim,
+      kept.claimCheckout !== undefined,
     )}`,
   };
 }

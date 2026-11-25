@@ -1,4 +1,5 @@
 import { isolatedAdmissionFlags } from "../../test-support/support/isolatedSessionAdmissionProof.ts";
+import { expectBorrowedStarts } from "../../test-support/support/unattachedLaunchAssertions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // What an unattached Start session keeps of its start, and when, over raw
 // HTTP with a real bare origin (../../test-support/support/startOrigin.ts) and the installed
@@ -31,7 +32,6 @@ import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   executionCheckoutSession,
-  executionCheckoutStart,
   git,
   isolatedSession,
   recordStarts,
@@ -147,6 +147,10 @@ test.describe("an execution checkout start that outlasts its wait", () => {
       })
       .toEqual(session);
 
+    await expect
+      .poll(() => keptSessionStarts(origin)[id]?.["claim"])
+      .toMatchObject({ publishedSha: expect.any(String) });
+
     // Changes made since are not confirmed from recovery: nothing continues.
     const note = path.join(origin.project, "note.txt");
     writeFileSync(note, "later\n");
@@ -167,9 +171,13 @@ test.describe("an execution checkout start that outlasts its wait", () => {
     expect((call?.argv.at(-1) ?? "").split("\n\n")[0]).toBe(
       sessionBlock(session),
     );
-    expect(starts().map(({ argv }) => argv)).toEqual([
-      executionCheckoutStart(origin.project, "auto-land"),
-    ]);
+    expectBorrowedStarts(
+      starts,
+      origin.project,
+      "auto-land",
+      launched.record,
+      dashboard.home,
+    );
     expect(worktrees(origin.project)).toEqual([]);
     expect(keptSessionStarts(origin)).toEqual({});
   });

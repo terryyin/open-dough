@@ -143,7 +143,7 @@ test("Start session closes at acceptance while Codex holds its input", async ({
     .toHaveLength(1);
   await expect(button).toBeDisabled();
   await expect(page.locator(".start-session-answer")).toContainText(
-    "Local startup in progress",
+    "Admitting a story.",
   );
   await expect(story.getByRole("button", { disabled: true })).toHaveCount(0);
   expect(await attempts(dashboard)).toEqual([

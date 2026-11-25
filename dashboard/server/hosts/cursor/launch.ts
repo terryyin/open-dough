@@ -41,7 +41,7 @@ import {
   untilAbort,
 } from "./launchOutcomes.ts";
 import { composeCursorListedId } from "./modelIds.ts";
-import { cursorPrompt } from "./prompt.ts";
+import { cursorBlankModelExplanation, cursorPrompt } from "./prompt.ts";
 import {
   establishCursorSessionScope,
   removeCursorSessionScope,
@@ -84,8 +84,7 @@ export const launchCursor: LaunchHost["launch"] = async (
     return {
       kind: "failed",
       reason: "refused",
-      explanation:
-        "Cursor applies a chosen model with the first instruction. Add an instruction, or use your Cursor setting. Nothing was launched.",
+      explanation: cursorBlankModelExplanation,
     };
   }
   const workspace = established?.workspace.path ?? folder.path;

@@ -1,7 +1,7 @@
 // Native calls and retained evidence for an unattached session, whether its
 // default choices launch directly or its landing choice establishes a start.
 
-import { existsSync, realpathSync } from "node:fs";
+import { realpathSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -39,17 +39,13 @@ export function expectNamedAdHocCall(
   ]);
 }
 
-export async function expectNoSessionEstablishment(dashboard: DashboardServer) {
-  // Even successful establishment leaves its write-ahead store on disk, so
-  // absence observes that no start ran rather than merely that none is kept.
-  expect(
-    existsSync(
-      path.join(dashboard.home, ".open-dough/dashboard/session-starts.json"),
-    ),
-  ).toBe(false);
+export async function expectBorrowedLaunch(dashboard: DashboardServer) {
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(record).not.toHaveProperty("establishedSession");
   expect(record?.request).not.toHaveProperty("policy");
+  expect(realpathSync(record?.defaultStart?.workspace ?? "")).toBe(
+    realpathSync(path.join(dashboard.home, "git", "open-dough")),
+  );
   return record;
 }
 
@@ -73,9 +69,49 @@ export async function expectExecutionCheckoutSessionLaunch(
   );
   expect(block).toBe(sessionBlock(session));
   expectReportingBlock(reporting, record?.request, dashboard);
-  expect(developer).toEqual([text]);
-  expect(starts().map(({ argv }) => argv)).toEqual([
-    executionCheckoutStart(project, landing),
+  expect(developer).toEqual([
+    `Taken story: ${launchStoryIdentity(record)}`,
+    text,
   ]);
+  expectBorrowedStarts(starts, project, landing, record, dashboard.home);
   return record;
+}
+
+export function launchStoryIdentity(record: LaunchRecord | undefined): string {
+  const request = record?.request;
+  if (request?.workflow !== "ad-hoc" || request.storyIdentity === undefined)
+    throw new Error("The ad hoc launch has no admitted story.");
+  return request.storyIdentity;
+}
+
+export function expectBorrowedStarts(
+  starts: () => StartCall[],
+  project: string,
+  landing: EstablishedSession["landing"],
+  record: LaunchRecord | undefined,
+  home: string,
+) {
+  const reference = record?.request.reporting?.reference;
+  expect(starts()).toEqual([
+    {
+      argv: executionCheckoutStart(project, landing),
+      cwd: realpathSync(project),
+    },
+    {
+      argv: expect.arrayContaining([
+        "--admit",
+        "--identity",
+        launchStoryIdentity(record),
+        "--workspace",
+        path.join(
+          home,
+          ".open-dough/dashboard/admission-worktrees",
+          reference ?? "",
+        ),
+        "--branch",
+        `dough/admit-${reference}`,
+      ]),
+      cwd: realpathSync(project),
+    },
+  ]);
 }

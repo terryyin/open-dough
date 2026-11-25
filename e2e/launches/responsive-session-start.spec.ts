@@ -166,38 +166,43 @@ test("Start session in Claude Code closes at acceptance while its launch is held
   const { story, other } = await openStories(page, origin);
   const { backlog, taken } = parts(page);
   const answers = await holdAcceptanceAnswers(page);
+  const claim = origin.holdPushes();
   const button = page.getByRole("button", {
     name: "Start session in Open Dough",
   });
 
-  await button.click();
-  const dialog = page.getByRole("dialog", {
-    name: "Start a session in Open Dough in Claude Code",
-  });
-  await dialog.getByRole("textbox").fill("why is CI slow?");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expectSubmitted(page, dialog);
-  await answers.reached;
-  answers.release();
+  try {
+    await button.click();
+    const dialog = page.getByRole("dialog", {
+      name: "Start a session in Open Dough in Claude Code",
+    });
+    await dialog.getByRole("textbox").fill("why is CI slow?");
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expectSubmitted(page, dialog);
+    await answers.reached;
+    answers.release();
 
-  await expect(dialog).toBeHidden();
-  await expect(button).toBeDisabled();
-  await expect(page.locator(".start-session-answer")).toContainText(
-    "Starting a session in Open Dough… Local startup in progress.",
-  );
-  // Ad hoc feedback stays beside its action: no card, no story protected.
-  await expect(backlog.getByRole("article")).toHaveCount(2);
-  await expect(taken.getByRole("article")).toHaveCount(0);
-  await expect(story.getByRole("button", { disabled: true })).toHaveCount(0);
-  await expectOthersWork(page, other, story);
-  expect(await attempts(dashboard)).toEqual([
-    expect.objectContaining({
-      request: expect.objectContaining({ workflow: "ad-hoc" }),
-      publication: { kind: "none" },
-      owned: true,
-    }),
-  ]);
-
+    await expect(dialog).toBeHidden();
+    await expect(button).toBeDisabled();
+    await expect(page.locator(".start-session-answer")).toContainText(
+      "Starting a session in Open Dough… Admitting a story.",
+    );
+    // Ad hoc feedback stays beside its action: no card, no story protected.
+    await expect(backlog.getByRole("article")).toHaveCount(2);
+    await expect(taken.getByRole("article")).toHaveCount(0);
+    await expect(story.getByRole("button", { disabled: true })).toHaveCount(0);
+    await expectOthersWork(page, other, story);
+    expect(await attempts(dashboard)).toEqual([
+      expect.objectContaining({
+        request: expect.objectContaining({ workflow: "ad-hoc" }),
+        publication: { kind: "unknown" },
+        owned: true,
+      }),
+    ]);
+  } finally {
+    answers.release();
+    claim.release();
+  }
   dashboard.releaseHeldClaude();
   await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1, {
     timeout: 30_000,

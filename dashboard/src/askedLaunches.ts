@@ -56,11 +56,13 @@ export function useAskedLaunches({
   // answered it, else as their history did, or as accepted when no read has
   // named it yet.
   const latest = useCallback(
-    (attempt: AttemptObservation) =>
-      observed.find((read) => read.id === attempt.id) ??
-      resolved.find((read) => read.id === attempt.id) ??
-      attempt,
-    [observed, resolved],
+    (attempt: AttemptObservation, acceptedAfter: number) =>
+      answeredAsk <= acceptedAfter
+        ? attempt
+        : (observed.find((read) => read.id === attempt.id) ??
+          resolved.find((read) => read.id === attempt.id) ??
+          attempt),
+    [answeredAsk, observed, resolved],
   );
 
   useEffect(() => {
@@ -68,7 +70,7 @@ export function useAskedLaunches({
       if (page.kind === "unacknowledged" && page.lostAfter < answeredAsk)
         setPage(key, page.problem);
       if (page.kind !== "accepted") continue;
-      const { outcome } = latest(page.attempt);
+      const { outcome } = latest(page.attempt, page.acceptedAfter);
       if (outcome === undefined) {
         if (
           page.acceptedAfter < answeredAsk &&
@@ -121,8 +123,8 @@ export function useAskedLaunches({
         setPage(key, undefined);
         return answer;
       }
-      reread();
       setPage(key, answeredAttempt(answer, accepted, onLaunched, asksSoFar()));
+      reread();
       return answer.kind === "accepted";
     },
     [accept, setPage, reread, asksSoFar],

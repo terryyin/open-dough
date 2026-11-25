@@ -147,7 +147,7 @@ test("Start session with no text and one image sends the list alone, labels by t
       )) as LaunchRecord[];
       return record?.request.title;
     })
-    .toMatch(/^\d{1,2} \w{3}, \d\d:\d\d$/);
+    .toMatch(/^Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(call && claudeLaunch(call).name).toBe(
     `Open Dough · Ad hoc · ${record?.request.title}`,

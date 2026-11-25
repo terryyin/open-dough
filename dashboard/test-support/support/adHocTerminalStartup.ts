@@ -101,7 +101,7 @@ export async function openWhileStarting(
   await expect(entry).toHaveCount(1, { timeout: 20_000 });
   const sessionId = await sessionNamedBy(entry);
   await expect(
-    parts(page).projectActions.getByText("Local startup in progress."),
+    parts(page).projectActions.getByText("Admitting a story."),
   ).toBeVisible();
   const openTerminal = openTerminalControl(entry);
   // The browser requests attachment before the synthetic host has necessarily

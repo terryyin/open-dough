@@ -5,7 +5,7 @@
 
 import { z } from "zod";
 import {
-  admitsIsolatedStory,
+  admitsAdHocStory,
   sameUnattachedPolicy,
   unattachedPolicyOf,
   unattachedSessionPolicySchema,
@@ -31,23 +31,28 @@ export function isDefaultUnattachedPolicy(
 
 // Whether an unattached launch establishes its session: the shared start
 // runs for its place and the session is handed the "Established session"
-// block. A launch with the default choices establishes none and starts as an
-// unattached session always did, whatever it is asked.
+// block. The default choices borrow the project checkout with no block.
+// Story admission is independent of this choice.
 export function establishesSession(request: UnattachedChoices): boolean {
   return !isDefaultUnattachedPolicy(unattachedPolicyOf(request));
 }
+
+// An independent launch starts its admission even with the default choices.
+export const startsAdHocSession = (request: UnattachedChoices): boolean =>
+  admitsAdHocStory(request) || establishesSession(request);
 
 // Whether an unattached launch sends a first input: the developer's text, any
 // attached images (their path list alone when text is blank), the block of
 // the session it establishes, or the context of the entry it follows up. One
 // that sends none stays a blank native launch. Admission alone does not
-// consume the isolated session's first input.
+// consume the session's first input.
 export function sendsFirstInput(request: UnattachedChoices): boolean {
   return (
     Boolean(request.instruction?.trim()) ||
     (request.attachments?.length ?? 0) > 0 ||
     request.followUp !== undefined ||
-    (establishesSession(request) && !admitsIsolatedStory(request))
+    (establishesSession(request) &&
+      unattachedPolicyOf(request).workspace === "default-checkout")
   );
 }
 

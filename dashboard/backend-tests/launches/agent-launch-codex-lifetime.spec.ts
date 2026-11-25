@@ -11,8 +11,11 @@ import {
   attempts,
   launch,
   machineSessions,
+  openDoughFolder,
   deleteRecord,
 } from "../../test-support/agentLaunchBoundary.ts";
+import { git } from "../../test-support/support/startOriginObservation.ts";
+import { launchStoryIdentity } from "../../test-support/support/unattachedLaunchAssertions.ts";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
@@ -104,6 +107,17 @@ shutdownTest(
       reference: answered.attempt?.id,
       command: expect.any(String),
     });
+    const origin = await git(
+      openDoughFolder(dashboard),
+      "remote",
+      "get-url",
+      "origin",
+    );
+    const publication = {
+      kind: "published",
+      identity: launchStoryIdentity(record),
+      revision: await git(origin, "rev-parse", "main"),
+    };
     expect(await attempts(dashboard)).toEqual([
       {
         id: answered.attempt?.id,
@@ -111,7 +125,7 @@ shutdownTest(
         acceptedAt: answered.attempt?.acceptedAt,
         reportingOrigin: dashboard.origin,
         reporting,
-        publication: { kind: "none" },
+        publication,
         owned: true,
         running: true,
         changes: expect.any(Number) as unknown,
@@ -147,7 +161,7 @@ shutdownTest(
           acceptedAt: answered.attempt?.acceptedAt,
           reportingOrigin: dashboard.origin,
           reporting,
-          publication: { kind: "none" },
+          publication,
           owned: false,
           running: false,
           worker: {

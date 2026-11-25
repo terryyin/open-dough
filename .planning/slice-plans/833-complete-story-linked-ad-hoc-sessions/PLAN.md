@@ -61,6 +61,25 @@ minutes, and its fixture migration became
   starts stay standalone until this story's slices 1–3, and slice 6 retires
   them before the slice 7 switch.
 
+## Execution context
+
+- Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent
+  Nao-chan. The Dashboard-established worktree and published branch are
+  `codex/complete-story-linked-ad-hoc-sessions-in-the-das`. The starting
+  revision is `e5b15f59e8b7c1af9fd794742fb3b9c36adb55da`. The accepted claim on
+  `origin/main` and the initial branch tip are
+  `b8f9bdee2101310e777a98856c2255f0e9400d75`. The claim has no CI observation
+  from this coordinator.
+- Branch CI uses GitHub Actions `ci.yml`, display name `CI`. Codex coordinator
+  `codex-3590fff6-1048-4858-86f6-c5ed59686e1c` owns the stream in
+  `/tmp/dough-ci-501/watch-x0NEyR`, PID `97432`, session `39948`, cell `g308:10`.
+- On the unchanged claim revision, the backend admission retry, refusal and
+  `agent-launch-start-session` selection and the isolated Start E2E selection
+  passed 21 backend cases and three E2E cases under the macOS sleep guard. Run
+  records are
+  `slice-1-base-backend.log.run.json` and
+  `slice-1-base-isolated-e2e.log.run.json` in the worktree's Git evidence directory.
+
 ## Decisive premises and preparation evidence
 
 | Consuming operation | Observation and result | Remaining proof |
@@ -82,7 +101,7 @@ Keep production data, native identifiers and restore copies out of Git.
 
 ### 1. Open a default-checkout session on its admitted story
 Type: Behavior
-Status: planned
+Status: done
 Proof: The selected native checkout launches only after the installed claim
 reaches the bare origin. The borrowed HEAD, index and existing changes are
 intact and the Board carries the same admitted identity on Retry. A resumed
@@ -119,6 +138,22 @@ confirmed publication still opened no native session. The kept-start guard in
 slice moves default starts onto that guard, also fault it. Confirm that
 `claudeLaunchCalls()` stays empty in `admitted-session-retry`, or add an
 assertion that does.
+
+Accepted proof: The held bare-origin push verified publication before native
+dispatch on Claude and Codex with the borrowed HEAD, branch and index intact.
+Receipt recovery reused the same SHA and opened just one session. The
+Problems, Codex, Cursor and history E2E selection passed all 10 cases,
+including Retry opening the terminal. The default origin-refusal fault failed
+at the zero-native-calls assertion only after the kept-start gate was bypassed.
+The implementation report, refactor proof and consumer dispositions are in
+`SLICE-1-REPORT.md`, `slice-1-refactor-consumer-trace.md` and
+`slice-1-consumer-dispositions.md` in the worktree's Git evidence directory.
+The independent refactor generalized the server admission name and used
+existing Story card and Start dialog page objects. Typecheck, seven backend
+admission cases, 17 E2E cases and the six supplementary consumer selections
+passed. Converting the 16 remaining launch E2E files with unnamed steps is a
+refactor follow-up for wrap-up; representative cases are the Codex Ad hoc,
+Claude Problems and Cursor session recovery journeys.
 
 ### 2. Admit scheduled feedback and show Start's admission states
 Type: Behavior
@@ -160,6 +195,11 @@ landing handoff and capture proof with the v0.3.113 shape and mismatches.
 Observe trunk unchanged on refusal. Verify the same authority boundary for
 newly admitted independent work. Preserve the closed incident's Git
 comparison as history and grant no synthetic receipt.
+
+Keep the landing authority and policy available when a borrowed-checkout
+Start with Automatically land leaves the native terminal waiting for the
+developer's first input. Prove the blank launch and retained landing authority
+together for the case that slice 1 leaves on its existing native handoff.
 
 ### 5. Return to completed ad hoc work in ordinary review
 Type: Behavior
@@ -266,7 +306,7 @@ Disposition: receiving slice 7
 ### G2. Default launch compatibility must be verified (first reported in plan 813 slice 2)
 Reported: slice 1 — "SEED-426 found nine duplicate-launch backend failures and eight browser problems, Codex or Cursor failures on the unpublished default route."
 Story clause: "A new independent start publishes one canonical story and its Taken assignment before opening a native session."
-Disposition: return
+Disposition: proved by slice 1: `admitted-session-duplicate.spec.ts` holds the bare-origin push across Claude and Codex Start and observes the same published identity, borrowed checkout state and one native dispatch; `admitted-session-retry.spec.ts` recovers the same receipt; the final Problems, Codex and Cursor E2E selection observes the Taken Story card, history and open terminal on Retry.
 
 ### G3. Retained Land must recognize the admitted story (first reported in plan 813 slice 1)
 Reported: slice 1 — "The preserved isolated Dashboard path uses legacy established-session landing authority."
@@ -277,3 +317,8 @@ Disposition: receiving slice 4
 Reported: slice 1 — "The unpublished default admission uses a separate owned claim worktree and leaves the borrowed session checkout intact."
 Story clause: "Ordinary completion and review use the story's membership and published session records."
 Disposition: receiving slice 5
+
+### G5. Blank automatic-landing Start uses its existing native handoff
+Reported: slice 1 — "A borrowed Automatically land Start with no developer text opens the terminal after submitting its generated established-session block, reporting context and Taken story binding as native first input."
+Story clause: "A blank start opens the terminal awaiting the developer's first input after admission, subject to the selected host's native input requirements."
+Disposition: receiving slice 4

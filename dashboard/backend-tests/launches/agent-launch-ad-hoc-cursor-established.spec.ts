@@ -8,6 +8,7 @@
 // Cursor session that establishes none, and of the blank start with a chosen
 // model that is refused.
 
+import { launchStoryIdentity } from "../../test-support/support/unattachedLaunchAssertions.ts";
 import { existsSync, realpathSync, rmSync } from "node:fs";
 import path from "node:path";
 import type { LaunchResult } from "../../src/agentLaunch.ts";
@@ -86,7 +87,7 @@ test("existing changes are confirmed before Cursor creates anything, and an esta
   const prompt = cursor.input(client.pid).replace(/\r$/u, "");
   const [block, reporting, ...extra] = prompt.split("\n\n");
   expect(block).toBe(sessionBlock(session));
-  expect(extra).toEqual([]);
+  expect(extra).toEqual([`Taken story: ${launchStoryIdentity(record)}`]);
   expectReportingBlock(reporting, record?.request, dashboard);
   expect(prompt).not.toContain("dough-execute-plan ");
   expect(status(origin.project)).toBe(changes);

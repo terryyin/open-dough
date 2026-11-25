@@ -1,12 +1,8 @@
 import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
-// An unattached Cursor session has no story and no start. The fixture
-// `cursor-agent` on PATH prints the create-chat id and records argv. An
-// empty instruction is recorded with no prompt and no skill line. A present
-// instruction is the only prompt text. An empty instruction with a chosen
-// model is refused before create-chat. The project still carries the real
-// installed start script, and this launch does not run it. Claude's ad hoc
-// specs and Codex's ad hoc spec stay the proofs of those hosts. The fixture
-// paints a working turn, so the client the launch kept is still running when
+// Cursor opens in the borrowed checkout after the origin accepts its Taken
+// story. The synthetic cursor-agent records create-chat and first input.
+// A blank launch with a chosen model is refused before either effect. The
+// fixture paints a working turn, so the client is still running when
 // the page opens the terminal, however long that opening takes; an idle
 // screen would be hung up after its settle period and replaced. The server
 // starts as a deployment's does, and its Cursor runner, create-chat, and the
@@ -17,6 +13,8 @@ import { realpathSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { admittedStory } from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
 import {
   startSessionField,
   startedSession,
@@ -42,7 +40,7 @@ function recordsIn(stored: string | null): LaunchRecord[] {
 }
 
 for (const text of ["", "why is the CI slow?"]) {
-  test(`Cursor Start session ${JSON.stringify(text)} records no story and no invented skill line`, async ({
+  test(`Cursor Start session ${JSON.stringify(text)} publishes its Taken story and no invented skill line`, async ({
     page,
     dashboard,
     origin,
@@ -50,9 +48,6 @@ for (const text of ["", "why is the CI slow?"]) {
   }) => {
     const blank = text.trim() === "";
     const original = (await origin.originGit("rev-parse", "main")).trim();
-    const commitsBefore = Number(
-      (await origin.originGit("rev-list", "--count", "main")).trim(),
-    );
     await publishCommittedOrigin(page, {
       repoDir: origin.origin,
       revision: original,
@@ -81,9 +76,13 @@ for (const text of ["", "why is the CI slow?"]) {
     }
     const title = record.request.title;
     expect(title).toMatch(
-      blank ? /^\d{1,2} \w{3}, \d\d:\d\d$/ : /^why is the CI slow\?$/,
+      blank
+        ? /^Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/
+        : /^why is the CI slow\?$/,
     );
-    await expect(recent.getByRole("heading")).toHaveText(title);
+    await expect(storyCard(parts(page).taken, title)).toContainText(
+      cursor.sessionId,
+    );
     await expect(recent).toContainText(cursor.sessionId);
     await expect(openTerminalControl(recent)).toHaveCount(1);
     if (blank) {
@@ -188,11 +187,9 @@ for (const text of ["", "why is the CI slow?"]) {
         });
     }
 
-    expect(await origin.takenProfiles()).toEqual([]);
-    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(original);
-    expect(
-      Number((await origin.originGit("rev-list", "--count", "main")).trim()),
-    ).toBe(commitsBefore);
+    const admitted = await admittedStory(origin, title);
+    expect(admitted.revision).not.toBe(original);
+    expect(record.request).toMatchObject({ storyIdentity: admitted.identity });
 
     const sidebar = sessionsSidebarParts(page);
     await sidebar.button.click();
@@ -203,14 +200,15 @@ for (const text of ["", "why is the CI slow?"]) {
   });
 }
 
-test("a blank Cursor Start session with a chosen model is refused before create-chat", async ({
+test("a blank Cursor Start session with a chosen model is refused before create-chat and story admission", async ({
   page,
   origin,
   cursor,
 }) => {
+  const trunk = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    revision: trunk,
     repository: "terryyin/open-dough",
     follows: true,
   });
@@ -232,4 +230,5 @@ test("a blank Cursor Start session with a chosen model is refused before create-
   await expect(button).toBeEnabled();
   await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(0);
   expect(cursor.calls()).toEqual([]);
+  expect((await origin.originGit("rev-parse", "main")).trim()).toBe(trunk);
 });

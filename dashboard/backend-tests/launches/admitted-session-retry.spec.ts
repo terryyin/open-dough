@@ -159,70 +159,78 @@ fi
   }
 });
 
-test("Continue records a previously accepted publication before native startup", async ({
-  origin,
-  github,
-}) => {
-  const blocked = path.join(origin.machine, "refuse-publication-receipt");
-  const extraEnv = fsPromisesHook(
-    path.join(origin.machine, "refuse-publication-receipt.mjs"),
-    "rename",
-    `async (from, to, ...args) => {
+for (const workspace of ["isolated", "default-checkout"] as const) {
+  test(`Continue records a previously accepted publication before native startup from ${workspace}`, async ({
+    origin,
+    github,
+  }) => {
+    const blocked = path.join(origin.machine, "refuse-publication-receipt");
+    const extraEnv = fsPromisesHook(
+      path.join(origin.machine, "refuse-publication-receipt.mjs"),
+      "rename",
+      `async (from, to, ...args) => {
       if (String(to).endsWith('/launch-attempts.json') && fs.existsSync(${JSON.stringify(blocked)}) &&
           fs.readFileSync(from, 'utf8').includes('"kind": "published"'))
         throw new Error('Cannot write the publication receipt');
       return original(from, to, ...args);
     }`,
-  );
-  writeFileSync(blocked, "");
-  const dashboard = await startDashboardServer({
-    mode: "boundary",
-    liveServer: "separate process",
-    github,
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    extraEnv,
-  });
-  try {
-    dashboard.claudeScenario("launched");
-    const refused = JSON.parse((await launch(dashboard, request)).body) as {
-      explanation?: string;
-    };
-    const [attempt] = keptAttempts(dashboard);
-    if (attempt === undefined) throw new Error("No kept Dashboard attempt.");
-    const published = await admittedStory(origin, title);
-    expect(refused).toMatchObject({
-      kind: "failed",
-      reason: "unrecorded",
-      explanation: expect.stringContaining(
-        "Cannot write the publication receipt",
-      ),
+    );
+    writeFileSync(blocked, "");
+    const dashboard = await startDashboardServer({
+      mode: "boundary",
+      liveServer: "separate process",
+      github,
+      machine: origin.machine,
+      projectFolders: ["open-dough"],
+      extraEnv,
     });
-    expect(refused.explanation).toContain(published.revision);
-    expect(keptSessionStarts(origin)[attempt.id]).toMatchObject({
-      claim: { publishedSha: published.revision },
-    });
-    expect(attempt.publication.kind).toBe("unknown");
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(0);
+    try {
+      dashboard.claudeScenario("launched");
+      const launchRequest = {
+        ...request,
+        policy: { workspace, landing: "review" as const },
+      };
+      const refused = JSON.parse(
+        (await launch(dashboard, launchRequest)).body,
+      ) as {
+        explanation?: string;
+      };
+      const [attempt] = keptAttempts(dashboard);
+      if (attempt === undefined) throw new Error("No kept Dashboard attempt.");
+      const published = await admittedStory(origin, title);
+      expect(refused).toMatchObject({
+        kind: "failed",
+        reason: "unrecorded",
+        explanation: expect.stringContaining(
+          "Cannot write the publication receipt",
+        ),
+      });
+      expect(refused.explanation).toContain(published.revision);
+      expect(keptSessionStarts(origin)[attempt.id]).toMatchObject({
+        claim: { publishedSha: published.revision },
+      });
+      expect(attempt.publication.kind).toBe("unknown");
+      expect(dashboard.claudeLaunchCalls()).toHaveLength(0);
 
-    rmSync(blocked);
-    expect(
-      JSON.parse((await continued(dashboard, attempt.id)).body),
-    ).toMatchObject({ kind: "launched" });
-    expect(await head(origin)).toBe(published.revision);
-    expect(keptAttempts(dashboard)).toEqual([
-      expect.objectContaining({
-        id: attempt.id,
-        publication: {
-          kind: "published",
-          identity: published.identity,
-          revision: published.revision,
-        },
-      }),
-    ]);
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-  } finally {
-    rmSync(blocked, { force: true });
-    await dashboard.close();
-  }
-});
+      rmSync(blocked);
+      expect(
+        JSON.parse((await continued(dashboard, attempt.id)).body),
+      ).toMatchObject({ kind: "launched" });
+      expect(await head(origin)).toBe(published.revision);
+      expect(keptAttempts(dashboard)).toEqual([
+        expect.objectContaining({
+          id: attempt.id,
+          publication: {
+            kind: "published",
+            identity: published.identity,
+            revision: published.revision,
+          },
+        }),
+      ]);
+      expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+    } finally {
+      rmSync(blocked, { force: true });
+      await dashboard.close();
+    }
+  });
+}

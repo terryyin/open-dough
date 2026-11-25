@@ -4,7 +4,7 @@
 // startup or recovery is shown beside the launcher.
 
 import {
-  admitsIsolatedStory,
+  admitsAdHocStory,
   type AgentLaunchRequest,
   type LaunchChoices,
 } from "./agentLaunch.ts";
@@ -102,10 +102,7 @@ export function StartSession({
     setSubmitted({
       subject,
       source,
-      admitting: admitsIsolatedStory({
-        policy: choices.unattached,
-        followUp: source,
-      }),
+      admitting: admitsAdHocStory({ followUp: source }),
     });
     return launches.startAdHoc(
       sourceId,

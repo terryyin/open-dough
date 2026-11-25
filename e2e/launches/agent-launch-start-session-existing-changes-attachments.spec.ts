@@ -29,11 +29,14 @@ import {
 } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   executionCheckoutSession,
-  executionCheckoutStart,
   recordStarts,
   sessionBlock,
 } from "../../dashboard/test-support/support/startSessionLanding.ts";
 import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import {
+  expectBorrowedStarts,
+  launchStoryIdentity,
+} from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   expectCopiedAttachmentPath,
@@ -116,11 +119,12 @@ test("existing changes Back keeps images; Continue sends them copied once", asyn
   expect(call?.cwd).toBe(realpathSync(origin.project));
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   const session = executionCheckoutSession(origin.project, "auto-land", before);
-  const [block, reporting, developer, images] = (call?.argv.at(-1) ?? "").split(
-    "\n\n",
-  );
+  const [block, reporting, story, developer, images] = (
+    call?.argv.at(-1) ?? ""
+  ).split("\n\n");
   expect(block).toBe(sessionBlock(session));
   expectReportingBlock(reporting, record?.request, dashboard);
+  expect(story).toBe(`Taken story: ${launchStoryIdentity(record)}`);
   expect(developer).toBe(text);
   const expectedPrefix = "Attached images:\n1. ";
   expect(images?.startsWith(expectedPrefix)).toBe(true);
@@ -134,7 +138,11 @@ test("existing changes Back keeps images; Continue sends them copied once", asyn
     [],
   );
   expect(record?.request.attachments).toEqual([attachedPath]);
-  expect(starts().map(({ argv }) => argv)).toEqual([
-    executionCheckoutStart(origin.project, "auto-land"),
-  ]);
+  expectBorrowedStarts(
+    starts,
+    origin.project,
+    "auto-land",
+    record,
+    dashboard.home,
+  );
 });

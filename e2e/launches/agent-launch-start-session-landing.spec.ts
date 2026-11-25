@@ -4,13 +4,9 @@
 // ./agent-launch-start-session-isolated.spec.ts's. With a real bare origin
 // (../../dashboard/test-support/support/startOrigin.ts), the installed start recorded as it runs
 // (../../dashboard/test-support/support/startSessionLanding.ts), and the synthetic `claude`:
-// Automatically land runs the installed one-shot start with no identity in
-// the execution checkout and hands the session its "Established session" block,
-// then the reporting context, even with no text; the line beside Start names
-// the push Start authorizes. Change confirmation belongs to
-// ./agent-launch-start-session-existing-changes.spec.ts; default no-start
-// belongs to ./agent-launch-ad-hoc.spec.ts. The launch record keeps the
-// policy and what the start established, never the confirmation. Raw requests are
+// Automatically land retains the execution checkout policy and admits its
+// story from a separate claim checkout. The first input includes the
+// established-session block, reporting context and story. Raw requests are
 // in ../../dashboard/backend-tests/launches/agent-launch-start-session-landing-boundary.spec.ts.
 
 import { execFileSync } from "node:child_process";
@@ -44,11 +40,15 @@ import {
 } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   executionCheckoutSession,
-  executionCheckoutStart,
   recordStarts,
   sessionBlock,
 } from "../../dashboard/test-support/support/startSessionLanding.ts";
 import { expectLandingHandoff } from "../../dashboard/test-support/support/startSessionLandingCapture.ts";
+import { admittedStory } from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
+import {
+  expectBorrowedStarts,
+  launchStoryIdentity,
+} from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
 
 const where =
   "The session runs in this project's execution checkout, with its existing changes;";
@@ -96,11 +96,11 @@ test("Automatically land with no text names the push beside Start, runs the inst
   await expect(radio(dialog, "After checks", "Wait for review")).toBeChecked();
   const start = dialog.getByRole("button", { name: "Start", exact: true });
   await expect(start).toHaveAccessibleDescription(
-    `Execution checkout · Wait for review ${where} nothing is published.`,
+    `Execution checkout · Wait for review Start publishes a Taken story before the session opens. ${where} the work waits for review.`,
   );
   await radio(dialog, "After checks", "Automatically land").check();
   await expect(start).toHaveAccessibleDescription(
-    `Execution checkout · Automatically land ${where} verified results land on origin without another review. Pressing Start authorizes that push.`,
+    `Execution checkout · Automatically land Start publishes a Taken story before the session opens. ${where} verified results land on origin without another review. Pressing Start authorizes that push.`,
   );
   await expect(
     dialog.getByText(
@@ -113,20 +113,20 @@ test("Automatically land with no text names the push beside Start, runs the inst
   await expect(dialog).toBeHidden();
   const { sent, record } = await startedSession(dashboard, origin.project);
 
-  // The installed start ran once, in the execution checkout, with no identity,
-  // publisher, or workspace of its own.
-  expect(starts()).toEqual([
-    {
-      argv: executionCheckoutStart(origin.project, "auto-land"),
-      cwd: realpathSync(origin.project),
-    },
-  ]);
+  expectBorrowedStarts(
+    starts,
+    origin.project,
+    "auto-land",
+    record,
+    dashboard.home,
+  );
   // The first message is the block, then the reporting context, and nothing
   // of the developer's.
   const session = executionCheckoutSession(origin.project, "auto-land", before);
   const [block, reporting, ...extra] = (sent ?? "").split("\n\n");
   expect(block).toBe(sessionBlock(session));
-  expect(extra).toEqual([]);
+  const binding = `Taken story: ${launchStoryIdentity(record)}`;
+  expect(extra).toEqual([binding]);
   expectReportingBlock(reporting, record.request, dashboard);
 
   // Local evidence keeps the policy and what the start established.
@@ -136,7 +136,9 @@ test("Automatically land with no text names the push beside Start, runs the inst
   });
   expect(record.request).not.toHaveProperty("instruction");
   expect(record.establishedSession).toEqual(session);
-  expectLandingHandoff(record, sent ?? "", dashboard, origin.project);
+  expectLandingHandoff(record, sent ?? "", dashboard, origin.project, [
+    binding,
+  ]);
   for (const absent of ["start", "preparation"])
     expect(record).not.toHaveProperty(absent);
   // The session's entry names the execution checkout it was established in.
@@ -146,10 +148,10 @@ test("Automatically land with no text names the push beside Start, runs the inst
   for (const kept of [record, ...(await attempts(dashboard))])
     expect(JSON.stringify(kept)).not.toContain("existingChanges");
 
-  // Nothing was published, taken, assigned, or created at start.
-  expect(await originMain(origin)).toBe(before);
-  expect(await origin.takenProfiles()).toEqual([]);
+  expect(await admittedStory(origin, record.request.title)).toMatchObject({
+    identity: launchStoryIdentity(record),
+  });
   expect(await keptStarts(dashboard)).toEqual([]);
-  expect(worktrees(origin.project)).toBe(places);
+  expect(worktrees(origin.project)).toContain(places);
   expect(status(origin.project)).toBe("");
 });

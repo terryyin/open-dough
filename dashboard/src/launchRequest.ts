@@ -13,7 +13,6 @@ import {
   unattachedPolicyOf,
   unattachedSessionPolicySchema,
   type SessionPolicy,
-  type UnattachedSessionPolicy,
 } from "./launchRequestSessionPolicy.ts";
 
 export {
@@ -103,9 +102,8 @@ const storyLaunchRequestSchema = z.object({
   overrideStopUnconfirmed: z.boolean().optional(),
 });
 
-// A session in a project with no story or skill: the request carries no
-// title or identity, since the server derives the label
-// (`../server/hostLaunch.ts`), and one naming an identity is refused. Its
+// An ad hoc launch request leaves the new story's identity and initial title
+// to the installed admission. Its
 // policy is the unattached one, and it confirms existing changes as a story's
 // does. One the dashboard's feedback maintenance check starts
 // (`../server/feedbackMaintenanceCheck.ts`) carries the due date it serves as
@@ -131,17 +129,16 @@ export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
 export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 
-// These independent launches publish a Taken story before native start.
-export const admitsIsolatedStory = (request: {
-  readonly policy?: UnattachedSessionPolicy | undefined;
+// Independent ad hoc launches publish a Taken story before native start;
+// a follow-up works under its source story.
+export const admitsAdHocStory = (request: {
   readonly followUp?: unknown;
-}): boolean =>
-  request.followUp === undefined && request.policy?.workspace === "isolated";
+}): boolean => request.followUp === undefined;
 
 // Whether a launch starts a story before its native session: every story
-// workflow's start, or an isolated ad hoc admission. Others publish nothing.
+// workflow's start, or an independent ad hoc admission.
 export const startsStory = (request: AgentLaunchRequest): boolean =>
-  request.workflow !== "ad-hoc" || admitsIsolatedStory(request);
+  request.workflow !== "ad-hoc" || admitsAdHocStory(request);
 
 // A request as it is kept: without transient confirmation of existing changes,
 // base CI, or attachment claim ids (bytes stay out of JSON stores; paths are

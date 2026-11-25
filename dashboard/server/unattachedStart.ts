@@ -1,24 +1,16 @@
-// An unattached session's start: the project's installed shared start
-// establishes where the conversation works before its native session begins,
-// as the start for one-shot work that names no identity, which publishes
-// nothing: in the execution checkout as it is, or in a new workspace under
-// `.worktrees/` that the start creates. The dashboard owns the arguments and
-// reads the receipt; the installed formatter spells the "Established session"
-// block handed to the session. A launch that establishes no session
-// (`establishesSession`) runs nothing here. The start is kept with its launch
-// attempt (`./sessionStartStore.ts`) before its script runs, so continuing
-// that attempt goes on in the same workspace on the same branch: from the
-// session its script established, without running it again, or by running it
-// again for that workspace when no result was kept.
+// Resolve a session's workspace and require a published Take for independent
+// starts before handing the launch to its native host. Continue reuses the
+// start kept with the launch attempt.
 
 import {
   establishesSession,
+  startsAdHocSession,
   unattachedPolicyOf,
   type AgentLaunchRequest,
   type EstablishedSession,
   type PublicationReceipt,
 } from "../src/agentLaunch.ts";
-import { admitsIsolatedStory } from "../src/launchRequest.ts";
+import { admitsAdHocStory } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   executePlanScript,
@@ -46,6 +38,10 @@ import { unattachedStartWords } from "./startWorkflows.ts";
 import { isolatedBranchReviewRepository } from "./sessionBranchCapture.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { executionCheckoutStart } from "./defaultLaunchStart.ts";
+import {
+  refuseBlankCursor,
+  refuseDefaultCodexSettings,
+} from "./unattachedStartupRefusal.ts";
 
 const formatterScript = "established-session.mjs";
 
@@ -77,7 +73,7 @@ async function formattedSession(
   return formatter.formatEstablishedSession(session);
 }
 
-// A start that stopped: it publishes nothing, whatever became of it.
+// A start that could not hand off to the native host.
 function stopped(
   explanation: string,
   kind: "failed" | "uncertain" = "failed",
@@ -111,13 +107,6 @@ async function sessionWorkspace(
   );
 }
 
-// The start of an unattached launch's `attempt`, waiting for its script as a
-// story's start is waited for: none for a launch that establishes no session;
-// otherwise the session the installed start established, with its block, in
-// the project's execution checkout on the trunk target or in the new workspace
-// its policy chose, where the native session then opens. A start kept from
-// the attempt's earlier run goes on where it was: from its established
-// session as it is, else by its script run again there.
 export async function unattachedStarted(
   source: PublishedSource,
   request: UnattachedRequest,
@@ -126,11 +115,24 @@ export async function unattachedStarted(
   began: Date,
   noteWorker: (pid: number) => Promise<void>,
 ): Promise<Started> {
-  if (!establishesSession(request)) return { kind: "none" };
-  if (!(await establishesUnattached(project, request.host))) {
+  if (!startsAdHocSession(request)) return { kind: "none" };
+  const cursorRefusal = refuseBlankCursor(request);
+  if (cursorRefusal !== undefined) return cursorRefusal;
+  const establishes = establishesSession(request);
+  const installed = establishes
+    ? await establishesUnattached(project, request.host)
+    : await shipsStartScript(project, request.host);
+  if (!installed)
     return stopped(unattachedStartWords.notInstalled(project.shown));
-  }
   const kept = await keptSessionStart(source.id, attempt);
+  if (kept?.claim?.publishedSha === undefined) {
+    const codexRefusal = await refuseDefaultCodexSettings(
+      request,
+      project.path,
+    );
+    if (codexRefusal !== undefined) return codexRefusal;
+  }
+  const admitting = admitsAdHocStory(request);
   const chosen: WorkspaceChoice =
     kept !== undefined
       ? {
@@ -142,7 +144,7 @@ export async function unattachedStarted(
         : { workspace: project, branch: source.ref };
   const place = { workspace: chosen.workspace.shown, branch: chosen.branch };
   const result =
-    (kept?.claim !== undefined || !admitsIsolatedStory(request)
+    (kept?.claim?.publishedSha !== undefined || !admitting
       ? kept?.session
       : undefined) ??
     (await withinStartWait(
@@ -158,7 +160,6 @@ export async function unattachedStarted(
       ),
     ));
   if (result === "expired") {
-    const admitting = admitsIsolatedStory(request);
     return stopped(
       unattachedStartWords.uncertain(place, admitting),
       "uncertain",
@@ -183,7 +184,7 @@ export async function unattachedStarted(
           identity: claim.draft.identity,
           revision: claim.publishedSha,
         };
-  if (admitsIsolatedStory(request)) {
+  if (admitting) {
     if (publication.kind !== "published")
       return stopped(
         "Story admission could not be read. Continue to recover it.",
@@ -206,9 +207,13 @@ export async function unattachedStarted(
       "--abbrev-ref",
       "HEAD",
     ]);
-    if (revision.trim() !== `${publication.revision}\n${result.branch}`)
+    const expectedRevision =
+      result.role === "isolated"
+        ? publication.revision
+        : result.startingRevision;
+    if (revision.trim() !== `${expectedRevision ?? ""}\n${result.branch}`)
       return stopped(
-        "The admitted workspace no longer holds the Take. Restore its branch and revision to continue.",
+        "The session checkout changed during admission. Restore its branch and starting revision to continue.",
         "failed",
         publication,
       );
@@ -219,7 +224,7 @@ export async function unattachedStarted(
       kind: "session",
       handoff: {
         established: {
-          establishedSession: result,
+          ...(establishes ? { establishedSession: result } : {}),
           ...(result.role === "default-checkout" &&
           result.startingRevision !== undefined
             ? {
@@ -230,7 +235,9 @@ export async function unattachedStarted(
             ? {}
             : { branchReviewRepository: repository }),
         },
-        formatted: await formattedSession(project, result, request.host),
+        ...(establishes
+          ? { formatted: await formattedSession(project, result, request.host) }
+          : {}),
       },
       workspace: chosen.workspace,
       publication,

@@ -2,8 +2,6 @@ import {
   closeSidePanel,
   sidePanelNamesOf,
 } from "../../dashboard/test-support/sidePanelFrame.ts";
-// Actual Start session, browser focus/navigation and shared done/reopen owners.
-// Native protocol and ordinary CLI replies are substitutes, never record writers.
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import {
@@ -11,20 +9,22 @@ import {
   expect,
   expectCodexAdHocInput,
   expectOneThreadStarted,
+  openCodexLaunchBoard,
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
-  openTakenBacklog,
   startSession,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   chooseProject,
+  expandStoryCardDoneHistory,
   expectProjectChoice,
   parts,
   sessionEntriesIn,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
@@ -56,7 +56,6 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     codexProtocol,
     machine,
     github,
-    launchJourney,
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture.");
@@ -74,7 +73,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
           intent: "blank",
         });
     };
-    await openTakenBacklog(page, launchJourney);
+    await openCodexLaunchBoard(page, dashboard.home);
     const start = startSession(page, "Open Dough");
     await start.click();
     const dialog = page.getByRole("dialog");
@@ -99,9 +98,12 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       throw new Error("Missing saved Codex record.");
     const label = saved.request.title;
     expect(label).toMatch(
-      blank ? /^\d{1,2} \w{3}, \d\d:\d\d$/ : /^why is the CI slow\?$/,
+      blank
+        ? /^Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/
+        : /^why is the CI slow\?$/,
     );
-    await expect(recent.getByRole("heading")).toHaveText(label);
+    const card = storyCard(parts(page).taken, label);
+    await expect(card).toContainText(native.threadId);
     await expect(panel.getByRole("heading")).toHaveText(label);
     await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
       "Ad hoc session",
@@ -119,6 +121,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     expect(saved).not.toHaveProperty("start");
     expect(saved).not.toHaveProperty("preparation");
     expect(saved.request).not.toHaveProperty("identity");
+    expect(saved.request).toHaveProperty("storyIdentity", expect.any(String));
     expect(saved.request).not.toHaveProperty("model");
     const checkout = path.join(dashboard.home, "git", "open-dough");
     expectOneThreadStarted(native, checkout);
@@ -207,7 +210,8 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       expect(stored(restarted.home)[0]?.doneAt).toBeDefined();
       await reloadUntilRead(page);
       await expect(sessionStateOf(recent)).toHaveText("Done");
-      await showColumn(page, "Recently done");
+      await showColumn(page, "Taken");
+      await expandStoryCardDoneHistory(card);
       await openTerminalControl(recent).click();
       await expect(terminalScreenParts(panel).rows).toContainText(
         "GPT-6.1-Sol default",

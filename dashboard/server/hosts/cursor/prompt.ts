@@ -10,6 +10,9 @@ import type { EstablishedHandoff } from "../../hostLaunch.ts";
 import { developerPart } from "../../../src/launchAttachments.ts";
 import { unattachedInput } from "../../unattachedInput.ts";
 
+export const cursorBlankModelExplanation =
+  "Cursor applies a chosen model with the first instruction. Add an instruction, or use your Cursor setting. Nothing was launched.";
+
 export function cursorPrompt(
   request: RecordedLaunchRequest,
   handoff: EstablishedHandoff | undefined,

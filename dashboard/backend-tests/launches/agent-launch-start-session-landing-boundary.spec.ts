@@ -1,11 +1,15 @@
+import {
+  expectBorrowedStarts,
+  launchStoryIdentity,
+} from "../../test-support/support/unattachedLaunchAssertions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The launch boundary honors an unattached request's landing, with a real
 // bare origin (../../test-support/support/startOrigin.ts), the installed start recorded as it
 // runs (../../test-support/support/startSessionLanding.ts), and the synthetic `claude`: a
 // requested automatic landing runs the start and hands the session its
-// "Established session" block, the reporting context, then the developer's
-// text; Wait for review, named or not, runs no start, and confirming existing
-// changes never selects an automatic landing. The dialog's journeys are in
+// "Established session" block, reporting context, story and developer text.
+// Wait for review also admits the story. Confirming existing changes keeps
+// the selected policy. The dialog's journeys are in
 // ../../../e2e/launches/agent-launch-start-session-landing.spec.ts.
 
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -53,11 +57,20 @@ test("the boundary honors a requested automatic landing with the developer's tex
   ).split("\n\n");
   expect(block).toBe(sessionBlock(session));
   expectReportingBlock(reporting, answer.record?.request, dashboard);
-  expect([developer, ...extra]).toEqual([text]);
-  expect(starts()).toHaveLength(1);
+  expect([developer, ...extra]).toEqual([
+    `Taken story: ${launchStoryIdentity(answer.record)}`,
+    text,
+  ]);
+  expectBorrowedStarts(
+    starts,
+    origin.project,
+    "auto-land",
+    answer.record,
+    dashboard.home,
+  );
 
-  // Wait for review, named or not, with existing changes confirmed: no
-  // start runs, and nothing of an automatic landing reaches the session.
+  // With or without an explicit review choice, admission leaves the session
+  // waiting for review after the existing changes are confirmed.
   dirty(origin.project);
   const review = [undefined, { ...autoLand, landing: "review" }];
   for (const [index, policy] of review.entries()) {
@@ -79,7 +92,14 @@ test("the boundary honors a requested automatic landing with the developer's tex
     expect(confirmed.record?.request).not.toHaveProperty("policy");
     expect(confirmed.record).not.toHaveProperty("establishedSession");
   }
-  expect(starts()).toHaveLength(1);
+  expect(
+    starts()
+      .slice(2)
+      .map(({ argv }) => argv),
+  ).toEqual([
+    expect.arrayContaining(["--admit"]),
+    expect.arrayContaining(["--admit"]),
+  ]);
   for (const call of dashboard.claudeLaunchCalls().slice(1))
     expect(call.argv.at(-1)).not.toMatch(/auto-land|Established/);
 });

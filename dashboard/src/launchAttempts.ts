@@ -158,7 +158,7 @@ export function useLaunchAttempts({
     ...[...attempts.values()].flatMap((page) =>
       page.kind === "accepted" &&
       !observed.some((read) => read.id === page.attempt.id)
-        ? [latest(page.attempt)]
+        ? [latest(page.attempt, page.acceptedAfter)]
         : [],
     ),
   ];

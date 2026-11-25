@@ -64,8 +64,9 @@ export const unattachedStartWords = {
   retained: (
     { workspace, branch }: StartWhere,
     claim?: { readonly publishedSha?: string | undefined },
+    borrowedCheckout = false,
   ) =>
-    `${claim === undefined ? "Nothing was published." : claim.publishedSha !== undefined ? "The Taken story was published." : "The story admission can be retried."} The established start was kept in workspace ${workspace} on branch ${branch}, where Continue or the same Start request can resume it.`,
+    `${claim === undefined ? "Nothing was published." : claim.publishedSha !== undefined ? "The Taken story was published." : "The story admission can be retried."} ${borrowedCheckout ? "Continue or the same Start request can resume in the execution checkout" : "The established start was kept in workspace"} ${workspace} on branch ${branch}${borrowedCheckout ? "." : ", where Continue or the same Start request can resume it."}`,
   uncertain: (place: StartWhere, admitting: boolean) =>
     `The session's start did not finish within the wait; ${admitting ? "story admission is unresolved" : "it publishes nothing"}. ${keptGoingOn(place)}`,
   formatFailed: () =>

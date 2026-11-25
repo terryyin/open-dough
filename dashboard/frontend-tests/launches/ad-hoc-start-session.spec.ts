@@ -28,7 +28,7 @@ test("Start session names the project and host, focuses an empty instruction, an
   await expect
     .poll(() => form.dialog.element().textContent)
     .toContain(
-      "Claude Code starts a background session on this machine, in this project's execution checkout, with no story or skill.",
+      "Claude Code starts a background session on this machine, in this project's execution checkout, under its new Taken story.",
     );
   await expect.element(form.instruction).toHaveFocus();
   await expect.element(form.instruction).toHaveValue("");
@@ -71,7 +71,7 @@ test("an instructed Start session sends the draft, hands focus to progress, and 
   await form.instruction.fill(instruction);
   await form.start.click();
   const progress = page.getByText(
-    "Starting a session in Open Dough… Local startup in progress.",
+    "Starting a session in Open Dough… Admitting a story.",
   );
   await expect.element(progress).toHaveFocus();
   await expect.element(button).toBeDisabled();

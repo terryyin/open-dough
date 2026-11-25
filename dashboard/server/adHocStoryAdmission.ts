@@ -1,5 +1,4 @@
-// The selected isolated checkout carries the claim and opens the native
-// session. The attempt retains its draft before asking Git to publish.
+// Publish the attempt's retained draft from an owned claim checkout.
 import type { PublicationReceipt } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { executePlanScript, runStartScript } from "./executionStartCommands.ts";
@@ -27,7 +26,7 @@ type Admitted = {
   readonly revision: string;
 };
 
-export type IsolatedAdmissionRefusal = {
+export type AdHocStoryAdmissionRefusal = {
   readonly kind: "refused";
   readonly explanation: string;
   readonly publication: PublicationReceipt;
@@ -36,7 +35,7 @@ export type IsolatedAdmissionRefusal = {
 const refused = (
   explanation: string,
   uncertain = false,
-): IsolatedAdmissionRefusal => ({
+): AdHocStoryAdmissionRefusal => ({
   kind: "refused",
   explanation,
   publication: { kind: uncertain ? "unknown" : "none" },
@@ -75,14 +74,14 @@ function canDraftAgain(
   );
 }
 
-export async function admitIsolatedSession(
+export async function admitAdHocStory(
   source: PublishedSource,
   request: UnattachedRequest,
   project: LocalFolder,
   attempt: string,
   placement: SessionStart,
   noteWorker: (pid: number) => Promise<void>,
-): Promise<Admitted | IsolatedAdmissionRefusal> {
+): Promise<Admitted | AdHocStoryAdmissionRefusal> {
   const origin = await git(project, ["config", "--get", "remote.origin.url"]);
   if (repositoryOf(origin) !== source.repository.toLowerCase())
     return refused(
@@ -97,13 +96,13 @@ export async function admitIsolatedSession(
     "--target",
     source.ref,
   ];
-  const { workspace, branch } = placement;
+  const { workspace, branch } = placement.claimCheckout ?? placement;
   const publisher = `${publisherId(source)}-${attempt}`;
   const kept = placement.claim;
   if (kept?.publishedSha !== undefined)
     return { kind: "admitted", revision: kept.publishedSha };
 
-  async function draftAdmission(): Promise<Draft | IsolatedAdmissionRefusal> {
+  async function draftAdmission(): Promise<Draft | AdHocStoryAdmissionRefusal> {
     const title = admittedStoryTitle(request, new Date(placement.startedAt));
     const answer = await runStartCommand(
       executePlanScript(project, request.host, "execution-start.mjs"),

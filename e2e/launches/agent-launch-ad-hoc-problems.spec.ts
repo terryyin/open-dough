@@ -1,11 +1,16 @@
-// An ad hoc launch from the project actions row that did not start, or may
-// not have started, on the committed origin of ./agent-launch-story-card.spec.ts:
-// the answer stays beside Start session, which stays enabled to start again,
-// and it lists no session, opens no terminal, and shows on no card. The page's
-// own dashboard server launches the synthetic `claude` (./fixtures/fake-claude);
-// the real one is never reached.
+// An ad hoc launch from the project actions row whose native session did not
+// start, or may not have started, after its story was admitted on the bare
+// origin of the installed project: the answer stays beside Start session,
+// which stays enabled to start again, and it lists no session, opens no
+// terminal, and shows on no backlog card. The page's own dashboard server
+// launches the synthetic `claude`; the real one is never reached.
 
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
+import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   storyCardSessions,
@@ -15,24 +20,26 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import type { Page } from "@playwright/test";
 import {
-  openTakenBacklog,
   startSession,
   startSessionDialog,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
 
-test.use({ projectFolders: ["open-dough"] });
-
+// The admitted story stays published and its kept start resumes on the same
+// Start request, under the same story.
+const kept =
+  " The Taken story was published. Continue or the same Start request can resume in the execution checkout ~/git/open-dough on branch main.";
 const failures = [
   {
     scenario: "untrusted",
-    words:
-      "Launch failed: Claude Code does not trust ~/git/open-dough yet. Run claude in that folder once and accept the trust prompt.",
+    words: `Launch failed: Claude Code does not trust ~/git/open-dough yet. Run claude in that folder once and accept the trust prompt.${
+      kept
+    }`,
   },
   {
     scenario: "refused",
-    words:
-      "Launch failed: Claude Code refused to start a session in ~/git/open-dough. Run claude in that folder once to see why.",
+    words: `Launch failed: Claude Code refused to start a session in ~/git/open-dough. Run claude in that folder once to see why.${
+      kept
+    }`,
   },
 ] as const;
 
@@ -55,16 +62,18 @@ for (const { scenario, words } of failures) {
   test(`${scenario}: the row says Launch failed and why beside Start session, which stays enabled with the keyboard on it, and a later start launches and clears it`, async ({
     page,
     dashboard,
-    launchJourney,
+    origin,
   }) => {
     dashboard.claudeScenario(scenario);
-    const { card } = await openTakenBacklog(page, launchJourney);
+    const card = await openBacklog(page, origin, true);
     const button = startSession(page, "Open Dough");
     const row = parts(page).projectActions;
 
     await startAdHoc(page);
 
-    await expect(row.locator(".launch-problem")).toHaveText(words);
+    await expect(row.locator(".launch-problem")).toHaveText(words, {
+      timeout: launchWaitMs,
+    });
     await expect(row.locator(".launch-problem code")).toHaveText("claude");
     await expect(button).toBeEnabled();
     await expect(button).toBeFocused();
@@ -73,9 +82,10 @@ for (const { scenario, words } of failures) {
     );
     await expectNothingStarted(page);
     await expect(page.locator(".launch-problem")).toHaveCount(1);
-    await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
+    await expect(storyCardSessions(card)).toHaveCount(0);
     expect(dashboard.claudeCalls()).toHaveLength(1);
     await expectDirectionOpensAcrossRow(page);
+    const claim = await origin.originGit("rev-parse", "main");
 
     dashboard.claudeScenario("launched");
     await startAdHoc(page);
@@ -85,6 +95,7 @@ for (const { scenario, words } of failures) {
     await expect(terminalPanel(page)).toHaveCount(1);
     await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(button).toHaveAccessibleDescription("");
+    expect(await origin.originGit("rev-parse", "main")).toBe(claim);
   });
 }
 
@@ -94,10 +105,10 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
   test("hang: Start session is disabled while in flight, and the row then says Launch uncertain with the claude agents advice beside an enabled button", async ({
     page,
     dashboard,
-    launchJourney,
+    origin,
   }) => {
     dashboard.claudeScenario("hang");
-    const { card } = await openTakenBacklog(page, launchJourney);
+    const card = await openBacklog(page, origin, true);
     const button = startSession(page, "Open Dough");
     const dialog = startSessionDialog(page, "Open Dough");
 
@@ -111,6 +122,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
       page.locator(".project-actions .launch-problem"),
     ).toContainText(
       "Launch uncertain: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it.",
+      { timeout: launchWaitMs },
     );
     await expect(page.locator(".launch-problem code")).toHaveText(
       "claude agents",
@@ -122,7 +134,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     await expect(button).toBeEnabled();
     await expect(button).toBeFocused();
     await expectNothingStarted(page);
-    await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
+    await expect(storyCardSessions(card)).toHaveCount(0);
     expect(dashboard.claudeCalls()).toHaveLength(1);
   });
 });

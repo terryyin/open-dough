@@ -59,6 +59,7 @@ export const test = base.extend<
       startTimeoutMs,
       serverMode,
       liveServer,
+      launchTimeoutMs,
     },
     use,
   ) => {
@@ -69,7 +70,7 @@ export const test = base.extend<
       github,
       machine: origin.machine,
       projectFolders: ["open-dough"],
-      launchTimeoutMs: launchWaitMs,
+      launchTimeoutMs: launchTimeoutMs ?? launchWaitMs,
       liveServer,
       codexProtocol,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),

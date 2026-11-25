@@ -38,10 +38,10 @@ export function keptSessionStarts(
   return kept[source] ?? {};
 }
 
-// What an unattached start that outlasts its wait answers: it publishes
-// nothing, and was kept where it goes on.
+// A borrowed start can resume in the same place when its wait ends
+// before the story admission resolves.
 export const keptWords = (workspace: string, branch: string) =>
-  `The session's start did not finish within the wait; it publishes nothing. The start was kept and goes on in workspace ${workspace} on branch ${branch}, where it can be resumed.`;
+  `The session's start did not finish within the wait; story admission is unresolved. The start was kept and goes on in workspace ${workspace} on branch ${branch}, where it can be resumed.`;
 
 // What continuing an unattached start answers while its start still runs.
 export const stillRunning =

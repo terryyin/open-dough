@@ -1,3 +1,4 @@
+import { launchStoryIdentity } from "../../test-support/support/unattachedLaunchAssertions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // Actual HTTP/store launch decisions; the fixture only supplies native replies.
 import path from "node:path";
@@ -120,7 +121,7 @@ startTest(
     expect(input.map(({ type }) => type)).toEqual(["text"]);
     const [block, reporting, ...extra] = (input[0]?.text ?? "").split("\n\n");
     expect(block).toBe(sessionBlock(session));
-    expect(extra).toEqual([]);
+    expect(extra).toEqual([`Taken story: ${launchStoryIdentity(record)}`]);
     expectReportingBlock(reporting, record?.request, dashboard);
     expect(record?.firstInput?.instruction).toBe(input[0]?.text);
     expect(
@@ -180,7 +181,7 @@ startTest.describe(dueOnCodex, () => {
         "\n\n",
       );
       expect(invocation).toBe("$maintain-feedback-cycle");
-      expect(extra).toEqual([]);
+      expect(extra).toEqual([`Taken story: ${launchStoryIdentity(record)}`]);
       expectReportingBlock(reporting, record?.request, dashboard);
       const skill = "maintain-feedback-cycle";
       expect(input[1]).toEqual({

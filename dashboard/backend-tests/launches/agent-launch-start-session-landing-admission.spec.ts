@@ -45,21 +45,6 @@ const childPublication = test.extend({
 childPublication(
   "a Wait for review session carries the landing context too; a context naming no story is admitted only for the launch that established a session",
   async ({ dashboard, origin }) => {
-    const waiting = await launched(dashboard, {
-      instruction: "Tidy the README wording",
-      policy: { workspace: "isolated", landing: "review" } satisfies Policy,
-    });
-    const [block, reportingBlock, story, text] = waiting.sent.split("\n\n");
-    expect(story).toBe(
-      `Taken story: ${"storyIdentity" in waiting.record.request ? waiting.record.request.storyIdentity : ""}`,
-    );
-    expect(text).toBe("Tidy the README wording");
-    const { session, reporting, context } = landingHandoff(waiting.record);
-    expect(block).toBe(sessionBlock(session));
-    expectReportingBlock(reportingBlock, waiting.record.request, dashboard);
-    expect(reportingBlock).toContain("--landing-context");
-    expect(context).not.toHaveProperty("identity");
-
     // The default choices establish no session: the reporting context names
     // no landing context and no capture authority is kept.
     const plain = await launched(dashboard, { instruction: "Say hello" });
@@ -92,6 +77,21 @@ childPublication(
         path.join(plainReportingDir, "first-landing-expectation.json"),
       ),
     ).toBe(false);
+
+    const waiting = await launched(dashboard, {
+      instruction: "Tidy the README wording",
+      policy: { workspace: "isolated", landing: "review" } satisfies Policy,
+    });
+    const [block, reportingBlock, story, text] = waiting.sent.split("\n\n");
+    expect(story).toBe(
+      `Taken story: ${"storyIdentity" in waiting.record.request ? waiting.record.request.storyIdentity : ""}`,
+    );
+    expect(text).toBe("Tidy the README wording");
+    const { session, reporting, context } = landingHandoff(waiting.record);
+    expect(block).toBe(sessionBlock(session));
+    expectReportingBlock(reportingBlock, waiting.record.request, dashboard);
+    expect(reportingBlock).toContain("--landing-context");
+    expect(context).not.toHaveProperty("identity");
 
     const base = await originMain(origin);
     const revision = commit(session.workspace, "later.txt");

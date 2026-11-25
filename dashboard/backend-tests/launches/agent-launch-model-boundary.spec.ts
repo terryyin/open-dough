@@ -27,7 +27,7 @@ import {
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
-const timeLabel = /^\d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/;
+const timeLabel = /^Ad hoc work — \d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/;
 
 test.describe(`agent launch boundary, chosen model`, () => {
   let server: DashboardServer;

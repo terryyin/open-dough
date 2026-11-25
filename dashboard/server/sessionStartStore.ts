@@ -2,8 +2,8 @@
 // workflows' start stores (`./startStore.ts`):
 // `~/.open-dough/dashboard/session-starts.json`, resolved through `HOME`. An
 // unattached start begins without a story and is kept by its launch attempt,
-// under its project id. Isolated admissions also retain the draft, candidate
-// and confirmed publication when known. The start is written before its
+// under its project ID, with its admission draft, candidate and confirmed
+// publication when known. The start is written before its
 // script runs (host, workspace, branch, when), then given the established session,
 // however long after the launch stopped waiting. Continuing that attempt goes
 // on in the same workspace on the same branch instead of choosing new ones.
@@ -48,6 +48,10 @@ const sessionStartSchema = z.object({
   startedAt: z.iso.datetime(),
   // What the script established, once it reported.
   session: establishedSessionSchema.optional(),
+  // The owned checkout that publishes a borrowed session's claim.
+  claimCheckout: z
+    .object({ workspace: z.string().min(1), branch: z.string().min(1) })
+    .optional(),
   claim: z
     .object({
       draft: sessionDraftSchema,

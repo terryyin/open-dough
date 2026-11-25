@@ -1,8 +1,7 @@
-// Real browser, local Git checkout, loopback boundary and saved machine settings.
-// Fake GitHub supplies only repository/default-branch/published facts; the fake
-// host records the actual cwd chosen by the product. The Add dialog's refusal
-// linking and dismissal are ../../dashboard/frontend-tests/configuration/project-add-dialog.spec.ts.
+// The Add dialog uses a real execution checkout and keeps machine settings
+// through restart. The fake host observes its actual working directory.
 import { chmodSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
+import { git } from "../../dashboard/test-support/support/startOriginObservation.ts";
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { identity } from "../../dashboard/test-support/agentLaunchBoundary.ts";
@@ -33,7 +32,6 @@ import {
 import {
   projectAddMachine,
   addedRepository,
-  addedRevision,
   addedBranch,
   addedLocalPath,
 } from "../../dashboard/test-support/support/projectAddMachine.ts";
@@ -47,15 +45,18 @@ test.afterEach(async () => fixture.close());
 test("Add selects, reads the repository's default branch, launches in its execution checkout and survives restart", async ({
   page,
 }) => {
+  await fixture.installAddedProject();
+  const before = fixture.addedTip();
   let server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
   await expect(
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
   await addProjectOnPage(page);
+  fixture.routeAddedCheckout();
   const { readRevision } = parts(page);
   await expectProjectChoice(page, "Sample App");
-  await expect(readRevision).toContainText(shortRevision(addedRevision));
+  await expect(readRevision).toContainText(shortRevision(before));
   expect(server.ghCalls()).toContainEqual([
     "api",
     "--include",
@@ -100,6 +101,12 @@ test("Add selects, reads the repository's default branch, launches in its execut
   await expect(
     page.getByRole("region", { name: "Taken", exact: true }),
   ).toContainText("Work in this checkout");
+  const published = fixture.addedTip();
+  expect(published).not.toBe(before);
+  expect(await git(fixture.checkout, "branch", "--show-current")).toBe(
+    "local-checkout",
+  );
+  expect(await git(fixture.checkout, "rev-parse", "HEAD")).toBe(before);
 
   await fixture.stop(server);
   server = await fixture.start("preview");
@@ -108,7 +115,7 @@ test("Add selects, reads the repository's default branch, launches in its execut
     page.getByRole("radio", { name: "Sample App", exact: true }),
   ).toBeChecked();
   await expect(parts(page).readRevision).toContainText(
-    shortRevision(addedRevision),
+    shortRevision(published),
   );
   expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
     saved,

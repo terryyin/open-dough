@@ -6,7 +6,7 @@ import { hostDescriptions } from "../../../src/hostDescription.ts";
 import { codexOptions } from "./options.ts";
 import { NativeRefusal } from "./rpc.ts";
 export async function verifyCodexSettings(
-  request: RecordedLaunchRequest,
+  request: Pick<RecordedLaunchRequest, "model" | "effort">,
   workspace: string,
   signal: AbortSignal,
 ): Promise<LaunchHostOptions | undefined> {

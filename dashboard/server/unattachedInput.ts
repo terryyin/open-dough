@@ -1,13 +1,17 @@
 // An unattached session's first input, the same on every host: the block of
 // the session its launch established, the reporting context, then the
 // developer's part (typed text and any attached-images path list). A launch
-// that established none sends the developer's part first and its reporting
-// context after, as it always did, and nothing at all when that part is blank.
+// that established none sends the developer's part first, its reporting
+// context after, then the Taken story it was admitted under; nothing at all
+// when that part is blank.
 // A new story follow-up's saved message includes its developer instruction.
 // Older story follow-ups and standalone session follow-ups save only context,
 // so they keep their separate instruction block.
 
-import type { RecordedLaunchRequest } from "../src/agentLaunch.ts";
+import {
+  unattachedPolicyOf,
+  type RecordedLaunchRequest,
+} from "../src/agentLaunch.ts";
 import { developerPart } from "../src/launchAttachments.ts";
 import { reportingInstruction } from "./reportingInstruction.ts";
 
@@ -24,7 +28,10 @@ export function unattachedInput(
   const identity =
     request.workflow === "ad-hoc" ? request.storyIdentity : undefined;
   if (
-    (block === undefined || identity !== undefined) &&
+    (block === undefined ||
+      (request.workflow === "ad-hoc" &&
+        identity !== undefined &&
+        unattachedPolicyOf(request).workspace === "isolated")) &&
     own === undefined &&
     context === undefined
   )
@@ -33,7 +40,7 @@ export function unattachedInput(
   const reporting = reportingInstruction(request);
   return (
     block === undefined
-      ? [context, own, reporting]
+      ? [context, own, reporting, story]
       : [block, reporting, story, context, own]
   )
     .filter((part) => part !== undefined && part !== "")
