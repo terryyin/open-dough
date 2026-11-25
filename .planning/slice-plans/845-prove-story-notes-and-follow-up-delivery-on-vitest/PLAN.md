@@ -167,7 +167,7 @@ cohort and Dashboard typecheck passed.
 ### 5. Observe Cursor's later confirmation in E2E
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 Proof: E2E sees the kept uncertain input and waiting note together, then
 the real Cursor runner confirms that same input and the stored note is sent.
@@ -181,6 +181,11 @@ sent state. Keep the original case until the E2E case observes both sides
 of the transition. Preserve a failure signal if Cursor omits notes
 delivery after confirming. The remaining delivery cases stay in backend
 Playwright until slice 6.
+
+Cursor E2E passed on the same native session and input, with the exact
+version marked sent in storage and in the reopened dialog. Omitting the
+Cursor delivery installation failed the stored-version assertion after
+confirmation. Restoring it passed. The backend retains three mounted cases.
 
 ### 6. Mark only the confirmed version in the real notes store
 

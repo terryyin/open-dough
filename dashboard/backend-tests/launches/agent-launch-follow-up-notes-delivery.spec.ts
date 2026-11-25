@@ -1,8 +1,5 @@
-// Confirmed first input marks attached note versions sent; refused or
-// unconfirmed leaves them waiting; a later Cursor confirmation marks them;
-// an edit during start stays waiting after the admitted version confirms;
-// a notes-store write failure leaves them waiting. Admission and content:
-// agent-launch-follow-up-notes.spec.ts.
+// Confirmed first input marks attached versions sent. Refusal, a newer
+// edit, or a notes-store write failure leaves the current note waiting.
 
 import { mkdirSync, rmSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -11,11 +8,6 @@ import {
   expect,
   test as claudeTest,
 } from "../../test-support/support/preparationPage.ts";
-import {
-  expect as cursorExpect,
-  test as cursorTest,
-} from "../../test-support/support/cursorStart.ts";
-import { keptCursor } from "../../test-support/support/keptCursorTurn.ts";
 import { recoverStory } from "../../test-support/support/followUpStories.ts";
 import {
   storyNoteIsWaiting,
@@ -44,12 +36,6 @@ function withNotesStoreWriteRefused(home: string, body: () => Promise<void>) {
 }
 
 claudeTest.use({ serverMode: "boundary" });
-cursorTest.use({
-  serverMode: "boundary",
-  cursorScreen: "working",
-  cursorHoldPaint: true,
-  launchWaitEnd: true,
-});
 
 async function storyNotesAnswer(
   api: {
@@ -192,53 +178,5 @@ claudeTest(
         ),
       ).toBe(true);
     });
-  },
-);
-
-cursorTest(
-  "uncertain Cursor first input leaves notes waiting until later confirmation",
-  async ({ dashboard, origin, cursor, request: api }) => {
-    const revision = await publishRecoverStory(dashboard, origin);
-    seedNotes(dashboard.home, { [recoverStory.identity]: [waitingGeneral] });
-    const launching = launch(dashboard, {
-      ...followUpWithNotes(revision),
-      host: "cursor",
-    });
-    await cursorExpect.poll(() => cursor.attaches()).toHaveLength(1);
-    await dashboard.endLaunchWait();
-    const launched = JSON.parse((await launching).body) as {
-      kind: string;
-      reason?: string;
-    };
-    expect(launched.kind).toBe("uncertain");
-    const uncertain = keptCursor(dashboard.home);
-    expect(uncertain.firstInput?.state).toBe("uncertain");
-    expect(uncertain.request).toMatchObject({
-      followUp: {
-        notes: [
-          { id: waitingGeneral.id, version: storyNoteVersion(waitingGeneral) },
-        ],
-      },
-    });
-    expect(
-      storyNoteIsWaiting(
-        noteOf(await storyNotesAnswer(api, dashboard), waitingGeneral.id),
-      ),
-    ).toBe(true);
-
-    cursor.releasePaint();
-    await cursorExpect
-      .poll(async () => {
-        if (keptCursor(dashboard.home).firstInput?.state !== "confirmed")
-          return undefined;
-        return noteOf(await storyNotesAnswer(api, dashboard), waitingGeneral.id)
-          .delivered;
-      })
-      .toBe(storyNoteVersion(waitingGeneral));
-    expect(
-      storyNoteIsWaiting(
-        noteOf(await storyNotesAnswer(api, dashboard), waitingGeneral.id),
-      ),
-    ).toBe(false);
   },
 );
