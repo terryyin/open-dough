@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-438_show-initial-sync-before-review.json",
+      "identity": "SEED-438#show-initial-sync-before-review",
+      "completedAt": "2026-11-25T07:01:35.592Z",
+      "blob": "ead50877b572f8fc1d466f24fb7158f76990c031"
+    },
+    {
       "fileName": "SEED-423_publish-to-trunk-through-one-loop.json",
       "identity": "SEED-423#publish-to-trunk-through-one-loop",
       "completedAt": "2026-11-25T04:53:06.986Z",
