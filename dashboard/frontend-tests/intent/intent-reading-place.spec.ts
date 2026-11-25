@@ -132,7 +132,6 @@ async function openStoryChanges() {
       .please(),
   });
   await mounted.selectStory(storyA.identity, storyA.title);
-  await story.browseFiles();
   return { ...mounted, reads };
 }
 

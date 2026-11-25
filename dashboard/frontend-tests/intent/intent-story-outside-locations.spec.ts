@@ -17,7 +17,6 @@ import {
 test("outside changes sit beside configured paths in one repository hierarchy", async () => {
   await openStoryChanges();
   const story = intentStoryCompare();
-  await story.browseFiles();
   await expect.element(story.tree).toBeVisible();
   const dashboard = story.folder("dashboard");
   const children = dashboard.element().querySelectorAll(":scope > ul > li");
@@ -51,7 +50,6 @@ test("an outside file reads its diff as Purpose and stays selected under Selecte
       ),
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   const file = story.file(changed.product);
   await activateComparisonControl(file);
   await expect.poll(story.diffName).toBe(changed.product);
@@ -82,7 +80,6 @@ test("a Done story lists its published completion's outside product code with it
     },
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
   await activateComparisonControl(story.file(changed.product));
   await expect.poll(story.diffName).toBe(changed.product);

@@ -57,7 +57,6 @@ test("without configured Intent locations the CI view offers the story's changed
 
 async function showsUnavailableChanges(explanation: string) {
   const story = intentStoryCompare();
-  await story.browseFiles();
   await expect
     .element(story.header.getByRole("status"))
     .toHaveTextContent("No comparison is available.");

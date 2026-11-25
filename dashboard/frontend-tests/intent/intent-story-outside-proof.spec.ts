@@ -18,7 +18,6 @@ const landingFile = `Modified ${landing}`;
 
 test("an outside file's Proof names the story's CI comparison, explains missing file evidence and keeps the diff's reading place", async () => {
   await openDoneStoryComparison({
-    viewport: { width: 1280, height: 800 },
     review: () =>
       Promise.resolve(
         makeMe.aStoryReview
@@ -43,7 +42,6 @@ test("an outside file's Proof names the story's CI comparison, explains missing 
     },
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   await activateComparisonControl(story.file(landingFile));
   await expect.poll(story.diffName).toBe(landingFile);
   await expect.poll(story.diffCode).toContain("landing line 199");
