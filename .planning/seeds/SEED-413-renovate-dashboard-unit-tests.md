@@ -179,29 +179,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
-<a id="renovate-remaining-backend-families-after-browser-reporter"></a>
-
-### Prove machine-session reads through typed backend answers
-
-**Identity:** SEED-413#renovate-remaining-backend-families-after-browser-reporter
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/829-prove-machine-session-reads-through-typed-answers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7946d5994d6f587cccc4994a439c3398155d1d8916d73d940d19be878bb27c02","plan":"81751012ddce35cfc985dee33074b83603aec6e3764a9a13d52a025ebbe4e1a3"}}
-```
-
-- **Goal.** Developers changing the dashboard's machine-session read get fast,
-  typed Node Vitest feedback on what an overview or history reader receives.
-- **Scope.** The six legacy session-read specs listed in the plan. Exercise
-  host reading and record composition, the overview/history split, revision
-  reuse and fresh demand, and request admission and encoding. Keep native host
-  translation proof with that boundary. Start no server for the Node cases.
-  Session mutations, alerts, and other backend families have their own owners.
-- **Key examples.** With open records, retained Done records and settled
-  attempts, the overview gives the reader the compact listing and the history
-  restores the detail under its own revision. A reader holding the current
-  revision gets an unchanged answer. A fresh ask can see a changed Codex
-  observation while an ordinary ask still reuses a held observation. A full
-  answer accepted as gzip decodes to the plain response.
-
 <a id="prove-session-notifications-through-typed-observations"></a>
 
 ### Prove session notifications through typed observations
@@ -227,6 +204,25 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   can recover on a new transition. Closing cancels a pending diagnosis or
   delivery. A click opens the story in an existing dashboard tab.
 
+<a id="pass-session-observation-limits-as-typed-values"></a>
+
+### Pass session observation limits as typed values
+
+**Identity:** SEED-413#pass-session-observation-limits-as-typed-values
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/834-pass-session-observation-limits-as-typed-values/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9dcbe49f03e9515a7207be78a560ebe880f1738e7b69a4f3f99a5aca0feeab70","plan":"1d78a4559d29daefe632bbd01beacf303e872cd371b3b03fb588a8fd6ebaff71"}}
+```
+
+- **Goal.** Developers proving the machine-session observation set its wait
+  and reuse window as typed values, so a Node Vitest case never stubs the
+  process environment to control timing.
+- **Scope.** A correction of
+  [machine-session reads](https://github.com/terryyin/open-dough/blob/0c7ad7e2c6019d0b736e8e04ff4218ee61944e10/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter)
+  ([plan](../slice-plans/834-pass-session-observation-limits-as-typed-values/PLAN.md)).
+  The observation receives its limits from the production adapter, which
+  alone reads the configured environment values. Started-server and E2E
+  cases keep configuring them through that environment.
+
 <a id="finish-backend-vitest-renovation-after-session-reads-and-alerts"></a>
 
 ### Finish the remaining backend Vitest renovation after session reads and alerts
@@ -237,7 +233,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 ```
 
 This campaign remainder carries the unselected work from
-[the original preparation identity](#renovate-remaining-backend-families-after-browser-reporter).
+[the original preparation identity](https://github.com/terryyin/open-dough/blob/0c7ad7e2c6019d0b736e8e04ff4218ee61944e10/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter).
 The two selected cohorts can land independently. Machine-session reads go
 first for their slightly higher measured cost and the reuse they establish
 at the observation boundary. Notifications already consume typed readings

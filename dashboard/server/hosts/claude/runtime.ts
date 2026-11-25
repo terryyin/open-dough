@@ -215,7 +215,15 @@ export async function observeClaudeSessions(
   folder: LocalFolder,
   signal: AbortSignal,
 ): Promise<readonly SessionObservation[]> {
-  const listed = await claudeSessions(folder, signal);
+  return claudeObservations(records, await claudeSessions(folder, signal));
+}
+
+// The recorded conversations as one listing answers them: each listed one's
+// state, an omitted one unavailable, and every one unknown without a listing.
+export function claudeObservations(
+  records: readonly LaunchRecord[],
+  listed: readonly ListedSession[] | undefined,
+): readonly SessionObservation[] {
   const states = new Map<string, ListedSession["sessionState"]>();
   for (const entry of listed ?? [])
     if (!states.has(entry.session.sessionId))

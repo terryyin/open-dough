@@ -1,105 +1,114 @@
 // A viewer naming the revision of the sessions answer it holds is answered
-// only that it is unchanged while nothing changed, and in full otherwise
-// (../../server/machineSessionObservation.ts).
-import { sessionsRevisionHeader } from "../../src/machineSessionsRevision.ts";
+// only that it is unchanged while that answer still stands, and in full
+// otherwise (../../server/machineSessionObservation.ts), read through the
+// shared reader contract (../../src/machineSessionsRevision.ts).
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import {
-  alertsSettled,
-  markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
+  machineSessionsReadSchema,
+  sessionsHistoryReadSchema,
+} from "../../src/machineSessionsRevision.ts";
 import {
-  test,
-  expect,
-  stored,
-} from "../../test-support/support/codexLaunch.ts";
-import {
-  givenSavedCodexSession,
-  observed,
-  sessionsRequest,
-} from "../../test-support/support/codexObservation.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+  MachineSessionObservation,
+  type SessionsAsk,
+} from "../../server/machineSessionObservation.ts";
 
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+type SessionsAudience = SessionsAsk["audience"];
 
-type Answer = {
-  readonly revision: string;
-  readonly unchanged?: true;
-  readonly records?: readonly { readonly doneAt?: string }[];
-  readonly attempts?: readonly unknown[];
-};
+const now = "2026-11-25T09:00:00.000Z";
+const staying = new AbortController().signal;
 
-// The sessions answer as sent, to a viewer holding `held` if any.
-async function askHolding(server: DashboardServer, held?: string) {
-  const request = sessionsRequest(server);
-  const response = await rawRequest({
-    ...request,
-    headers: {
-      ...request.headers,
-      ...(held === undefined ? {} : { [sessionsRevisionHeader]: held }),
-    },
-  });
-  expect(response.status).toBe(200);
+function observed(sessionId: string): LaunchWithState {
+  const record = makeMe.aLaunchRecord
+    .executing({ identity: `SEED-052#${sessionId}`, title: sessionId })
+    .inClaudeSession({ sessionId })
+    .launchedAt(now)
+    .please();
+  return makeMe.anObservedLaunch
+    .of(record)
+    .withSessionState(makeMe.aSessionState.unknown().please())
+    .please();
+}
+
+// One server's shared observation of `records`, whose observed inputs move
+// with each update, as a written machine document moves its revision.
+function machine(...initial: LaunchWithState[]) {
+  let records = initial;
+  let inputs = 0;
+  const observation = new MachineSessionObservation(
+    () => Promise.resolve(makeMe.aMachineAnswer.observing(...records).please()),
+    () => Promise.resolve([inputs]),
+  );
+  const schemas = {
+    overview: machineSessionsReadSchema,
+    history: sessionsHistoryReadSchema,
+  };
   return {
-    bytes: Buffer.byteLength(response.body),
-    answer: JSON.parse(response.body) as Answer,
-    body: response.body,
+    update(...updated: LaunchWithState[]) {
+      records = updated;
+      inputs += 1;
+    },
+    async ask(audience: SessionsAudience, held?: string) {
+      const { serialized } = await observation.answerFor(
+        { audience, held, fresh: false },
+        staying,
+      );
+      return schemas[audience].parse(JSON.parse(serialized));
+    },
   };
 }
 
-// The revision a full answer body names, leading it: a digest of the
-// answer's content (../../server/machineSessionsFragments.ts).
-function revisionOf(body: string): string {
-  const { revision } = JSON.parse(body) as Answer;
-  expect(body.startsWith(`{"revision":${JSON.stringify(revision)},`)).toBe(
-    true,
-  );
-  expect(revision).toMatch(/^[0-9a-f]{64}$/);
-  return revision;
+const done: LaunchWithState = { ...observed("done"), doneAt: now };
+const open = observed("open");
+const audiences = ["overview", "history"] as const;
+
+async function revisionOf(
+  sessions: ReturnType<typeof machine>,
+  audience: SessionsAudience,
+) {
+  const answer = await sessions.ask(audience);
+  if ("unchanged" in answer) throw new Error("Expected a full answer");
+  expect(answer.revision).toMatch(/^[0-9a-f]{64}$/);
+  return answer.revision as string;
 }
 
-test("a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it", async ({
-  dashboard,
-  codexProtocol: native,
-}) => {
-  if (native === undefined) throw new Error("Missing native fixture");
-  await givenSavedCodexSession(dashboard, native);
-  observed(native, native.threadId, { type: "idle" }, "completed");
-  await alertsSettled(dashboard);
+test.each(audiences)(
+  "a viewer holding the current %s revision is answered unchanged",
+  async (audience) => {
+    const sessions = machine(done, open);
+    const held = await revisionOf(sessions, audience);
+    for (let ask = 0; ask < 2; ask += 1)
+      expect(await sessions.ask(audience, held)).toEqual({
+        revision: held,
+        unchanged: true,
+      });
+  },
+);
 
-  const first = await askHolding(dashboard);
-  const held = first.answer.revision;
-  expect(revisionOf(first.body)).toBe(held);
-  expect(first.answer.records).toHaveLength(1);
+test.each(audiences)(
+  "a viewer of the %s holding the other audience's revision or a stale one is answered in full",
+  async (audience) => {
+    const sessions = machine(done, open);
+    const full = await sessions.ask(audience);
+    const other = await revisionOf(
+      sessions,
+      audience === "history" ? "overview" : "history",
+    );
+    for (const held of [other, "an-older-revision"])
+      expect(await sessions.ask(audience, held)).toEqual(full);
+  },
+);
 
-  // Repeated asks, each observed afresh, stay small while nothing changed.
-  for (let ask = 0; ask < 3; ask += 1) {
-    const unchanged = await askHolding(dashboard, held);
-    expect(unchanged.answer).toEqual({ revision: held, unchanged: true });
-    expect(unchanged.bytes).toBeLessThan(1_024);
-  }
-  // A read naming no revision, or an older one, is answered in full.
-  for (const asked of [undefined, "an-older-revision"]) {
-    const full = await askHolding(dashboard, asked);
-    expect(full.body).toBe(first.body);
-    expect(full.answer.unchanged).toBeUndefined();
-  }
-
-  const marked = await markDone(dashboard, {
-    source: "open-dough",
-    session: native.threadId,
-    host: "codex",
-  });
-  expect(marked.status).toBe(200);
-  const doneAt = stored(dashboard.home)[0]?.doneAt;
-  expect(doneAt).toBeDefined();
-  const changed = await askHolding(dashboard, held);
-  expect(changed.answer.unchanged).toBeUndefined();
-  expect(changed.answer.revision).not.toBe(held);
-  expect(revisionOf(changed.body)).toBe(changed.answer.revision);
-  expect(changed.answer.records?.[0]?.doneAt).toBe(doneAt);
-  expect(changed.answer.attempts).toBeDefined();
-  // The changed revision is the one now held.
-  expect((await askHolding(dashboard, changed.answer.revision)).answer).toEqual(
-    { revision: changed.answer.revision, unchanged: true },
-  );
-});
+test.each(audiences)(
+  "once an observed record changes, the held %s revision is answered in full under a new revision",
+  async (audience) => {
+    const sessions = machine(done, open);
+    const held = await revisionOf(sessions, audience);
+    sessions.update(done, { ...open, doneAt: now });
+    const changed = await sessions.ask(audience, held);
+    if ("unchanged" in changed) throw new Error("Expected a full answer");
+    expect(changed.revision).not.toBe(held);
+    expect(changed.records.map(({ doneAt }) => doneAt)).toEqual([now, now]);
+  },
+);
