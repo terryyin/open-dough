@@ -39,6 +39,7 @@ function machine(...initial: LaunchWithState[]) {
   const observation = new MachineSessionObservation(
     () => Promise.resolve(makeMe.aMachineAnswer.observing(...records).please()),
     () => Promise.resolve([inputs]),
+    { waitMs: 30_000, reuseMs: 1_000 },
   );
   const schemas = {
     overview: machineSessionsReadSchema,

@@ -39,7 +39,6 @@ import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import { type SharedAnswer, SharedGzip } from "./agentLaunchResponse.ts";
-import { configuredLimit } from "./configuredLimit.ts";
 import type { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
 import { hostOperations } from "./launchHosts.ts";
 import { localWorkspaces } from "./localWorkspaces.ts";
@@ -52,11 +51,6 @@ import {
 import { configuredProjects } from "./projectConfiguration.ts";
 import type { AdmittedSessions } from "./sessionsAdmission.ts";
 import { SharedObservation } from "./sharedObservation.ts";
-
-// How long a waiter waits for the observation. A test may shorten it.
-const waitMs = () => configuredLimit("DOUGH_SESSIONS_WAIT_MS", readWaitLimitMs);
-// How long a settled observation serves later demand. A test may shorten it.
-const reuseMs = () => configuredLimit("DOUGH_SESSIONS_REUSE_MS", 1_000);
 
 const unanswered = `The machine's sessions were not observed within ${readWaitLimitMs / 1000} seconds. Ask again.`;
 
@@ -162,17 +156,24 @@ export class MachineSessionObservation {
   constructor(
     read: () => Promise<MachineSessionsReading>,
     private readonly inputs: () => Promise<readonly unknown[]>,
+    private readonly limits: {
+      readonly waitMs: number;
+      readonly reuseMs: number;
+    },
   ) {
     const fragments = new SessionsAnswerFragments();
-    this.shared = new SharedObservation(async () => {
-      const reading = await read();
-      const { overview, history } = fragments.answers(reading);
-      return {
-        ...observedAnswer(overview),
-        records: reading.records,
-        history: observedAnswer(history),
-      };
-    }, reuseMs);
+    this.shared = new SharedObservation(
+      async () => {
+        const reading = await read();
+        const { overview, history } = fragments.answers(reading);
+        return {
+          ...observedAnswer(overview),
+          records: reading.records,
+          history: observedAnswer(history),
+        };
+      },
+      () => limits.reuseMs,
+    );
   }
 
   // The shared observation, or a retryable refusal past the read wait. A
@@ -185,7 +186,7 @@ export class MachineSessionObservation {
   ): Promise<ObservedMachineSessions> {
     const demanded = await this.shared.demand(
       await this.inputs(),
-      waitMs(),
+      this.limits.waitMs,
       signal,
       fresh,
     );

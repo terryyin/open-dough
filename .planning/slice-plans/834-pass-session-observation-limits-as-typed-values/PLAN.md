@@ -52,7 +52,7 @@ are outside this correction.
 ### 1. Hold the observation through a typed reuse window
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 6–9 active minutes.
 
 Given a fresh-demand case that needs a 60 s reuse window, construct the
@@ -77,3 +77,20 @@ four callers form one proof loop. No slice-specific concern remains.
 - Run `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- 'backend-tests/sessions/(agent-launch-session-listing|agent-launch-sessions-(encoding|fresh|history|listing|unchanged)|agent-launch-codex-observation-(wait|sharing|concurrency|alerts))\.spec\.ts' --workers=2`,
   Dashboard typecheck and staged lint. Hosted CI runs the groups after
   publication.
+
+## Execution evidence
+
+- Story Branch Mode in `codex/pass-session-observation-limits-as-typed-values`,
+  published from claim `a5a980624b66450da07fbe07146fbb750f79e445` on `origin`.
+  GitHub Actions `ci.yml` observes the execution branch through coordinator
+  `seed-413-limits-1ef52d26` in `/tmp/dough-ci-501/watch-CPI2Ma`.
+- Slice 1 passed the ten-spec local gate with 35 Node Vitest cases and eight
+  started-server Chromium cases. The fresh-demand case retains the prior
+  revision on ordinary demand and sees the updated Codex options under a new
+  revision on fresh demand. The started-server cases observed the configured
+  wait bound, sharing and expiry, concurrency, and alert continuity.
+- `caffeinate -s -i npm run test:e2e -- agent-launch-host-switch-fresh.spec.ts agent-launch-retained-history.spec.ts --workers=1`
+  passed three Chromium cases, covering the production reuse override during
+  host switching and the revision and gzip behavior of the history reader.
+  `npm run typecheck:dashboard` passed. The independent refactor review found
+  no edits needed, so the observed proof still applies.

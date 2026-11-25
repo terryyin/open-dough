@@ -52,6 +52,7 @@ const observation = new MachineSessionObservation(
         .please(),
     ),
   () => Promise.resolve([0]),
+  { waitMs: 30_000, reuseMs: 1_000 },
 );
 
 const answered = (audience: Audience, held?: string) =>
