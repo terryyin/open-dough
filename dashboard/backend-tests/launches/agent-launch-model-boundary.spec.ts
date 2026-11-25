@@ -8,78 +8,53 @@
 // names the model asked for. The synthetic `claude`
 // (../../test-support/fixtures/fake-claude) records every call.
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect } from "../../test-support/support/pageTest.ts";
 import {
   launch,
-  identity,
-  launchRequest,
   machineSessions,
   openDoughFolder,
-  title,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
-import { claudeLaunch } from "../../test-support/support/claudeLaunch.ts";
+import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { expectAdHocReportingInput } from "../../test-support/support/reportingInputAssertions.ts";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  expectStoryInput,
+  launchClaude,
+  otherExecution,
+  queuedExecution,
+  test,
+} from "../support/installedClaudeLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
 const timeLabel = /^\d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/;
 
 test.describe(`agent launch boundary, chosen model`, () => {
-  test.describe.configure({ mode: "serial" });
   let server: DashboardServer;
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer({
-      mode: "boundary",
-      projectFolders: ["open-dough"],
-      codex: true,
-      doneRenameWaitMs: 100,
+  test.beforeEach(async ({ installedClaude }) => {
+    server = await installedClaude({ codex: true });
+  });
+
+  async function execute(body: unknown, instruction = "") {
+    const result = await launchClaude(server, body);
+    expectStoryInput(server, result, {
+      command: `/dough-execute-plan ${queuedExecution.identity}`,
+      identity: queuedExecution.identity,
+      instruction,
     });
-  });
-
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  // Launches and returns the answered record and the `--bg` launch read from
-  // its call.
-  async function launched(body: unknown) {
-    await closeOpenSessions(server);
-    server.claudeScenario("launched");
-    const callsBefore = server.claudeLaunchCalls().length;
-    const response = await launch(server, body);
-    expect(response.status).toBe(200);
-    const answer = JSON.parse(response.body) as {
-      kind: string;
-      record: { request: Record<string, unknown> };
-    };
-    expect(answer.kind).toBe("launched");
-    const calls = server.claudeLaunchCalls();
-    expect(calls).toHaveLength(callsBefore + 1);
-    const call = calls[callsBefore];
-    expect(call?.cwd).toBe(openDoughFolder(server));
-    return {
-      record: answer.record,
-      started: call && claudeLaunch(call),
-    };
+    return result;
   }
 
   test("starts a story session on the chosen model and keeps the alias", async () => {
     const request = makeMe.aLaunchRequest
-      .executing({ identity, title })
+      .executing(storyA)
       .requestingModel("opus")
       .withInstruction("go")
       .please();
-    const { record, started } = await launched(request);
+    const { record, started } = await execute(request, "go");
 
-    expect(started).toMatchObject({
-      model: "opus",
-      instruction: `/dough-execute-plan ${identity}\n\ngo`,
-    });
+    expect(started.model).toBe("opus");
     expect(record.request).toMatchObject(request);
     expect(await machineSessions(server)).toContainEqual(
       expect.objectContaining({ request: record.request }),
@@ -91,14 +66,13 @@ test.describe(`agent launch boundary, chosen model`, () => {
       .adHoc()
       .requestingModel("sonnet")
       .please();
-    const { record, started } = await launched(request);
+    const { record, started } = await launchClaude(server, request);
 
-    expect(started?.model).toBe("sonnet");
+    expect(started.cwd).toBe(openDoughFolder(server));
+    expect(started.model).toBe("sonnet");
     expect(started).not.toHaveProperty("instruction");
-    expect(started?.name).toBe(
-      `Open Dough · Ad hoc · ${String(record.request["title"])}`,
-    );
-    expect(record.request["title"]).toMatch(timeLabel);
+    expect(started.name).toBe(`Open Dough · Ad hoc · ${record.request.title}`);
+    expect(record.request.title).toMatch(timeLabel);
     expect(record.request).toMatchObject(request);
     expect(await machineSessions(server)).toContainEqual(
       expect.objectContaining({ request: record.request }),
@@ -106,60 +80,67 @@ test.describe(`agent launch boundary, chosen model`, () => {
   });
 
   test("starts an ad hoc session on the chosen model with its text", async () => {
-    const { started } = await launched(
+    const instruction = "look at the build";
+    const { record, started } = await launchClaude(
+      server,
       makeMe.aLaunchRequest
-        .adHoc({ instruction: "look at the build" })
+        .adHoc({ instruction })
         .requestingModel("fable")
         .please(),
     );
 
     expect(started).toMatchObject({
       model: "fable",
-      instruction: "look at the build",
+      cwd: openDoughFolder(server),
     });
+    expectAdHocReportingInput(
+      started.instruction ?? "",
+      instruction,
+      record.request,
+      server,
+    );
   });
 
   test("starts a story session at the chosen effort and keeps it", async () => {
     const request = makeMe.aLaunchRequest
-      .executing({ identity, title })
+      .executing(storyA)
       .requestingModel("opus")
       .withEffort("high")
       .withInstruction("go")
       .please();
-    const { record, started } = await launched(request);
+    const { record, started } = await execute(request, "go");
 
-    expect(started).toEqual({
-      cwd: openDoughFolder(server),
-      name: `Open Dough · Execution · ${title}`,
+    expect(started).toMatchObject({
+      name: `Open Dough · Execution · ${queuedExecution.title}`,
       model: "opus",
       effort: "high",
-      instruction: `/dough-execute-plan ${identity}\n\ngo`,
     });
-    expect(record.request).toEqual(request);
+    expect(record.request).toMatchObject(request);
     expect(await machineSessions(server)).toContainEqual(
       expect.objectContaining({ request: record.request }),
     );
   });
 
   test("passes Open Dough's default effort when none is chosen, and its record keeps it", async () => {
-    const story = await launched(launchRequest);
+    const story = await execute(queuedExecution);
     expect(story.started).not.toHaveProperty("model");
-    expect(story.started?.effort).toBe("medium");
+    expect(story.started.effort).toBe("medium");
     expect(story.record.request).not.toHaveProperty("model");
-    expect(story.record.request["effort"]).toBe("medium");
+    expect(story.record.request.effort).toBe("medium");
 
-    const adHoc = await launched(adHocRequest);
+    const adHoc = await launchClaude(server, adHocRequest);
+    expect(adHoc.started.cwd).toBe(openDoughFolder(server));
     expect(adHoc.started).not.toHaveProperty("model");
-    expect(adHoc.started?.effort).toBe("medium");
+    expect(adHoc.started.effort).toBe("medium");
     expect(adHoc.record.request).not.toHaveProperty("model");
-    expect(adHoc.record.request["effort"]).toBe("medium");
+    expect(adHoc.record.request.effort).toBe("medium");
   });
 
   test("refuses a Claude Code effort outside its levels before starting claude, naming them", async () => {
     server.claudeScenario("launched");
     const callsBefore = server.claudeCalls().length;
     const response = await launch(server, {
-      ...launchRequest,
+      ...queuedExecution,
       effort: "extreme",
     });
 
@@ -178,7 +159,7 @@ test.describe(`agent launch boundary, chosen model`, () => {
     ["null", null],
   ] as const) {
     for (const [kind, body] of [
-      ["story", launchRequest],
+      ["story", queuedExecution],
       ["ad hoc", adHocRequest],
     ] as const) {
       test(`refuses ${request} as the model of ${kind} requests before starting claude`, async () => {
@@ -193,7 +174,7 @@ test.describe(`agent launch boundary, chosen model`, () => {
   }
 
   for (const [kind, body] of [
-    ["story", launchRequest],
+    ["story", queuedExecution],
     ["ad hoc", adHocRequest],
   ] as const) {
     test(`refuses a model with Codex on ${kind} requests before starting claude`, async () => {
@@ -213,8 +194,8 @@ test.describe(`agent launch boundary, chosen model`, () => {
   test("names the model asked for when claude refuses the launch, and none otherwise", async () => {
     server.claudeScenario("refused");
     const recordsBefore = (await machineSessions(server)).length;
-    const asked = await launch(server, { ...launchRequest, model: "opus" });
-    const plain = await launch(server, launchRequest);
+    const asked = await launch(server, { ...queuedExecution, model: "opus" });
+    const plain = await launch(server, otherExecution);
 
     const askedAnswer = JSON.parse(asked.body) as { explanation: string };
     const plainAnswer = JSON.parse(plain.body) as { explanation: string };

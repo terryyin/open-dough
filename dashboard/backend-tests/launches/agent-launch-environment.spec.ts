@@ -10,10 +10,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  launch,
-  launchRequest,
-} from "../../test-support/agentLaunchBoundary.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -23,6 +20,8 @@ import {
   expectDeveloperShellEnvironment,
   type DeploymentLikeStart,
 } from "../../test-support/support/launchEnvironment.ts";
+import { queuedExecution } from "../support/installedClaudeLaunch.ts";
+
 test.describe(`agent launch environment from a deployment's start`, () => {
   let start: DeploymentLikeStart;
   let server: DashboardServer;
@@ -35,6 +34,7 @@ test.describe(`agent launch environment from a deployment's start`, () => {
     server = await startDashboardServer({
       mode: "boundary",
       projectFolders: ["open-dough"],
+      installedCatalog: "claude",
       pathPrefix: start.pathPrefix,
       extraEnv: start.extraEnv,
     });
@@ -47,7 +47,7 @@ test.describe(`agent launch environment from a deployment's start`, () => {
 
   test("launches Claude Code without the dashboard's start-up additions and with everything else", async () => {
     server.claudeScenario("launched");
-    const response = await launch(server, launchRequest);
+    const response = await launch(server, queuedExecution);
 
     expect(JSON.parse(response.body)).toMatchObject({ kind: "launched" });
     expect(server.claudeLaunchEnvironments()).toHaveLength(1);

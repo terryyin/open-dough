@@ -32,6 +32,9 @@ changes only the expectations that depend on its story.
 - This work was extracted from SEED-432 as its own test-only story after
   SEED-432's slice 3 overran. It lands on trunk before SEED-432 resumes at
   default-choice admission.
+- During execution the developer expanded this story to refuse an installed
+  Dashboard execution launch before a Take can be published when Claude Code
+  is missing.
 - On 2026-11-24 the developer set two criteria. Tests use the distribution
   cohesively, not in diverging ways. Most cases stay fast, and slow behavior
   gets its own focused, fast tests. The developer accepted [the supplier story to compose existing sessions directly](https://github.com/terryyin/open-dough/blob/db57040f8fbeb93cf8db44538d3ac4d2ec55e8da/.planning/seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly)
@@ -50,9 +53,10 @@ changes only the expectations that depend on its story.
 - Observe the reporting context that installation adds, the actual started
   workspace, and the installed start's refusal. Keep distinct observations
   about the shell, launch options, host verification, records and continuation.
-- The test harness and its launch tests own this change. Plan 817 owns
-  setup-only session consumers. The existing installed start and kept-start
-  journeys provide focused publication and recovery proof.
+- The test harness and its launch tests own the migration. The installed
+  Dashboard execution launch also checks for Claude Code before publication.
+  Plan 817 owns setup-only session consumers. The existing installed start
+  and kept-start journeys provide focused publication and recovery proof.
 
 **Key examples.**
 
@@ -67,7 +71,8 @@ changes only the expectations that depend on its story.
   Preparing assignment and opens its workspace. The installed execution
   command refuses the same unprepared story.
 - With Claude Code absent, the boundary answers the installed start's
-  refusal and keeps no launch record.
+  refusal and keeps no launch record. The Ready story stays on the Backlog
+  and the bare origin's trunk remains at its original revision.
 
 ## Shared context
 
