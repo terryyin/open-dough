@@ -204,21 +204,74 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 <a id="finish-backend-vitest-renovation-after-session-reads-and-alerts"></a>
 
-### Finish the remaining backend Vitest renovation after session reads and alerts
+### Prove installed launch options through typed backend requests
 
 **Identity:** SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/839-prove-installed-launch-options-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ca055bf9a02ae08103eba3a3119b1a4bfb972fe4b0a4a287e7cbb79a309f444","plan":"469d73a330e69a3e7430f6227f0c15baa0bc6c121ec681df05a0843e85632d21"}}
+```
+
+- **Goal.** Developers changing installed launch options can check in Node
+  Vitest which flags a project accepts and in what order, with browser proof
+  that Start sends the selection and shows it again after reload.
+- **Scope.** Move the two HTTP-based launch option specs,
+  `agent-launch-options-boundary.spec.ts` and
+  `agent-launch-options-groups.spec.ts`, off backend Playwright. Exercise the
+  typed selection owner against the requesting project's real installed
+  definition. Keep failures distinct when their reason differs. Keep
+  command delivery and persisted selection with their observing proof,
+  including the existing browser journeys. Measure focused feedback before
+  and after and account for every former case.
+- **Key examples.** Given a definition with a free flag and two exclusive
+  flags, a request in a different order returns the selected flags in the
+  definition's order. Selecting two flags from the same group refuses the
+  request and names the group and both flags. Given the same flag installed
+  in one project and absent in another, only the project that defines it
+  accepts it. Given an unavailable definition, an empty selection still
+  allows the default launch, and a selected flag receives the reason the
+  definition cannot be used.
+- **Boundary.** Native host dispatch, the machine-session reader, and the
+  runner's direct Playwright specimen retain their existing owners. The
+  [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-options)
+  carries the remaining families, the Story Notes store and runner retirement.
+
+<a id="finish-backend-vitest-renovation-after-launch-options"></a>
+
+### Finish the remaining backend Vitest renovation after launch options
+
+**Identity:** SEED-413#finish-backend-vitest-renovation-after-launch-options
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-This campaign remainder carries the unselected work from
-[the original preparation identity](https://github.com/terryyin/open-dough/blob/0c7ad7e2c6019d0b736e8e04ff4218ee61944e10/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter).
-The two selected cohorts can land independently. Machine-session reads go
-first for their slightly higher measured cost and the reuse they establish
-at the observation boundary. Notifications already consume typed readings
-and can proceed independently.
+This remainder carries all unselected scope split from
+[the launch-options story](#finish-backend-vitest-renovation-after-session-reads-and-alerts).
+Machine-session reads and notifications have Done records. The maintained
+selector at `93d26816e` on 25 November 2026 reports 308 Playwright and 283 Node
+Vitest paths across 591 backend specs. At that revision, the two options files
+leave a projected 306 legacy paths if no other changes land.
 
-**Current sizing** (`4f107f7e7`, 25 November 2026). The maintained selector
+| Family | Playwright paths at `93d26816e` | After launch options at the same baseline |
+| --- | ---: | ---: |
+| Launches | 92 | 90 |
+| Observation | 54 | 54 |
+| Sessions | 50 | 50 |
+| Runtime | 39 | 39 |
+| Review | 31 | 31 |
+| Intent | 17 | 17 |
+| Configuration | 13 | 13 |
+| Terminals | 12 | 12 |
+| **Total** | **308** | **306** |
+
+The installed options admission already consumes a typed request and local
+project folder. It gives a bounded launch increment ahead of the larger
+handoff and record families, whose existing cases depend on more of the
+installed launch lifecycle. Each subsequent selection starts with a fresh
+runner count. The whole remainder exceeds eight 15-minute slices and stays
+campaign input. Select the next independent production boundary and carry the
+remaining scope forward again, with runner retirement as the final increment.
+
+**Earlier sizing** (`4f107f7e7`, 25 November 2026). The maintained selector
 reports 320 Playwright and 269 Node Vitest paths across 589 backend specs.
 The change from 498 legacy paths at the systematic recount is a net reduction
 of 178 while the suite grew by nine. The direct rewrite and typed Usage
@@ -282,11 +335,12 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   collaborators where their behavior matters. The campaign ends when
   `dashboard/backend.playwright.config.ts` and the backend request and server
   wrappers in `dashboard/test-support/` are deleted.
-- **Remaining work.** Recount the runner after the two selected cohorts and
-  the overlapping product changes. This story retains the other families,
-  the Story Notes store follow-up below, and final runner retirement. The
-  automatic-repeat correction owns its assigned coverage and load
-  obligations. Count each legacy survivor once at runner cutover.
+- **Remaining work.** Recount after launch options and overlapping product
+  changes. The automatic-repeat correction owns its assigned coverage and load
+  obligations. Count each legacy survivor once at runner cutover. The direct
+  launch-options rule spec still serves the backend proof-record and runner
+  ownership checks. Convert it when replacing or retiring those Playwright
+  checks, keeping their selection and reporting proof with the next owner.
 - **Family planning.** Split by a verifiable outcome and size each story to one
   plan. Group closely related families when they use the same typed inputs
   and arrangement. Recount the review families after
