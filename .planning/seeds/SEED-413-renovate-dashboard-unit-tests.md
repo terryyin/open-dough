@@ -481,7 +481,7 @@ smaller unit selection does not hide its cost or a lost regression check.
   132 specs (913 s) use the launch boundary helpers and 144 (792 s) start a
   dashboard server; these overlap. The Taken plans for
   [installed-project launches](https://github.com/terryyin/open-dough/blob/9cd90fe67384e09bcdcb4f75cdb4c48a6857855b/.planning/slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md),
-  [story-linked ad hoc sessions](../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md),
+  [story-linked ad hoc sessions](https://github.com/terryyin/open-dough/blob/03b6dc4abe9f49901a6119f8e2295d04165ef75d/.planning/slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md),
   [local-Git Board and Review reads](../slice-plans/819-read-published-board-and-review/PLAN.md)
   and [one publication loop](../slice-plans/820-publish-to-trunk-through-one-loop/PLAN.md)
   change specs in those boundaries or every server caller's fixture, so the
@@ -495,7 +495,7 @@ smaller unit selection does not hide its cost or a lost regression check.
   Review 150, terminals 50 and configuration 17. The local-Git Board and
   Review read and publication-loop plans have landed. These owners still
   hold most of the cost:
-  - The Taken [story-linked ad hoc sessions](../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md),
+  - The queued [story-linked ad hoc sessions](../slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md),
     [installed-project launches](../slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md)
     and [initial sync before review](../slice-plans/822-show-initial-sync-before-review/PLAN.md)
     plans change launch, session and Review specs. Slice 8 of the

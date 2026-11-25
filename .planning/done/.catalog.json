@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-432_finish-story-linked-ad-hoc-sessions.json",
+      "identity": "SEED-432#finish-story-linked-ad-hoc-sessions",
+      "completedAt": "2026-11-25T09:54:13.807Z",
+      "blob": "38618f48d957ed106e4d82ca2c3f3156a90a2eb5"
+    },
+    {
       "fileName": "SEED-430_open-published-board-from-local-git.json",
       "identity": "SEED-430#open-published-board-from-local-git",
       "completedAt": "2026-11-25T08:42:26.637Z",

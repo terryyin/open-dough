@@ -28,7 +28,7 @@ and show a card title from startup. Settle the initial title during refinement.
 card. Choosing a session in Recently done selects its story. The same story
 review in Intent is available for work started ad hoc.
 
-[SEED-432](../.planning/seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions)
+[SEED-439](../.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions)
 retires standalone session rows at delivery.
 
 ## Review in Intent

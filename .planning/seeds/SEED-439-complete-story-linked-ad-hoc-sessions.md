@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-439#complete-story-linked-ad-hoc-sessions
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"afc2627c5155b66e5428b2a7981e3b4de2d4333303bbafabc65bd3538c9457fc","plan":"bad358bf33efbd9e42b5cb587822d607eda8d67d973edd0496412aed2f0c2e2e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"afc2627c5155b66e5428b2a7981e3b4de2d4333303bbafabc65bd3538c9457fc","plan":"c5f7055cd40e193d6f3b76e6fd6063f5e8f1c8c3236bc4ce33385f574df3102e"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-439#complete-story-linked-ad-hoc-sessions","dependencies":[{"supplier":{"identity":"SEED-432#finish-story-linked-ad-hoc-sessions","href":"seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions"},"implementation":"Isolated Dashboard Starts admit a Taken story through the installed execution start before native dispatch.","rationale":"This story's slices extend SEED-432's isolated admission code, proof seams and plan 813 evidence to default, scheduled and follow-up starts. That code exists only on SEED-432's story branch until its wrap-up integrates it.","condition":"SEED-432's isolated Dashboard admission is integrated on trunk.","state":"waiting"}]}

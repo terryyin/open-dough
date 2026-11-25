@@ -112,6 +112,14 @@ consumer trace reaches. A retained default start should not read as an
 "established start", so align its wording with the borrowed checkout. Owned
 claim cleanup attaches to ordinary completion in slice 5.
 
+SEED-432's Intent Coverage check at `03b6dc4ab` returned Insufficient
+evidence. A fault making `isolatedSessionAdmission.ts` report admitted without a
+confirmed publication still opened no native session. The kept-start guard in
+`unattachedStart.ts` refused it, so only the refusal wording changed. When this
+slice moves default starts onto that guard, also fault it. Confirm that
+`claudeLaunchCalls()` stays empty in `admitted-session-retry`, or add an
+assertion that does.
+
 ### 2. Admit scheduled feedback and show Start's admission states
 Type: Behavior
 Status: planned

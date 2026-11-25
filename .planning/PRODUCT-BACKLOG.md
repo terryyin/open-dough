@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
 - [Prove machine-session reads through typed backend answers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter) — SEED-413#renovate-remaining-backend-families-after-browser-reporter ([plan](slice-plans/829-prove-machine-session-reads-through-typed-answers/PLAN.md))
 - [Prove session notifications through typed observations](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-notifications-through-typed-observations) — SEED-413#prove-session-notifications-through-typed-observations ([plan](slice-plans/830-prove-session-notifications-through-typed-observations/PLAN.md))
 - [Publish moving Board test fixtures through real Git](seeds/SEED-430-read-published-project-data-from-local-git.md#publish-moving-board-fixtures-through-git) — SEED-430#publish-moving-board-fixtures-through-git ([plan](slice-plans/826-publish-moving-board-fixtures-through-git/PLAN.md))
