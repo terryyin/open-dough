@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "sessionId": "f478883b-661a-45bf-a157-38f9d7383fbd",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T13:25:14.600Z",
+  "story": "SEED-420#put-comparison-follow-up-by-story-notes",
+  "ranges": [
+    {
+      "base": "332770259c712ac7467e71da9baf299a5243262e",
+      "candidate": "b816e856005d295cb5e16d71d301cafe039ba9be"
+    },
+    {
+      "base": "b816e856005d295cb5e16d71d301cafe039ba9be",
+      "candidate": "e2e7f3f33c3e42a0bb83babaaebc271052756fcb"
+    },
+    {
+      "base": "e2e7f3f33c3e42a0bb83babaaebc271052756fcb",
+      "candidate": "410724b49f2e037aa00f4315c36d65028d6b4569"
+    },
+    {
+      "base": "410724b49f2e037aa00f4315c36d65028d6b4569",
+      "candidate": "ab54d2b1000a03f072f5a40f0114bb2b344d54b0"
+    },
+    {
+      "base": "ab54d2b1000a03f072f5a40f0114bb2b344d54b0",
+      "candidate": "b51044c1fe672cfc7a2fd1a4949c493420bc2818"
+    }
+  ]
+}
