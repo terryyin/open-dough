@@ -1,7 +1,7 @@
 // Mark as done on a Cursor session is a local dashboard acknowledgement
 // only (slice 3): at the real page/server boundary with the fake Cursor
 // runner, marking an active unreported working session moves it to
-// Recently done with local-only wording, sets only the local done mark,
+// its Taken story's Done history with local-only wording, sets only the local done mark,
 // and does not hang the held client up. A locally done session later
 // observed still held/working shows that native state as it is and
 // still offers Stop, which then works. The report-backed path is
@@ -16,6 +16,7 @@ import {
 import type { Page } from "@playwright/test";
 import {
   expectNormalizedReading,
+  instruction,
   openTakenCursorSession,
 } from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
@@ -37,7 +38,7 @@ const localDoneWording =
 const closeOpenTerminal = (page: Page) => closeTerminal(terminalPanel(page));
 
 workingCursorTest(
-  "Mark as done on an active unreported working Cursor session moves it to Recently done with local-only wording, sets only the local mark, and does not stop the session",
+  "Mark as done moves an active Cursor session to its Taken story's Done history and leaves it working",
   async ({ page, dashboard, origin, cursor }) => {
     const entry = await openTakenCursorSession(page, origin);
     await closeOpenTerminal(page);
@@ -51,7 +52,7 @@ workingCursorTest(
     const signalsBefore = cursor.signals(client?.pid ?? 0);
     const callsBefore = cursor.calls().length;
 
-    const recent = await markLocallyDone(page, entry);
+    const recent = await markLocallyDone(page, instruction, entry);
 
     await expect(recent).toContainText(localDoneWording);
     await expect(recent).not.toContainText("Named done-");
@@ -71,7 +72,7 @@ workingCursorTest(
 );
 
 workingCursorTest(
-  "Mark as done from the open terminal moves an active Cursor session to Recently done with local-only wording, sets only the local mark, and does not stop the session",
+  "Mark as done from the terminal moves an active Cursor session to its Taken story's Done history and leaves it working",
   async ({ page, dashboard, origin, cursor }) => {
     const entry = await openTakenCursorSession(page, origin);
     const panel = terminalPanel(page);
@@ -83,7 +84,7 @@ workingCursorTest(
     const signalsBefore = cursor.signals(client?.pid ?? 0);
     const callsBefore = cursor.calls().length;
 
-    const recent = await markLocallyDoneFromSidePanel(page, panel);
+    const recent = await markLocallyDoneFromSidePanel(page, instruction, panel);
 
     await expect(panel).toHaveCount(0);
     await expect(recent).toContainText(localDoneWording);
@@ -107,7 +108,7 @@ workingCursorTest(
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
 
-    const recent = await markLocallyDone(page, entry);
+    const recent = await markLocallyDone(page, instruction, entry);
     expect(keptRecord(dashboard.home).doneAt).toBeDefined();
 
     // Still held and working: the done entry shows that native state as

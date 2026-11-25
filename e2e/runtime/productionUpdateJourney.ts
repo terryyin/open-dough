@@ -5,10 +5,15 @@ import { observeLaunchAdmission } from "../../dashboard/test-support/support/lau
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import type { APIRequestContext, Browser, Page } from "@playwright/test";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { developmentDashboard } from "../../dashboard/test-support/support/dashboardCommand.ts";
 import { localPublishedMainFixture } from "../../dashboard/test-support/support/publishedMainFixture.ts";
 import { startWatcherNativeCodex } from "../../dashboard/test-support/support/watcherNativeCodex.ts";
-import { configureWatcherApplication } from "../../dashboard/test-support/support/productionWatcherFixture.ts";
+import {
+  configureWatcherApplication,
+  watcherHeldStartRepository,
+} from "../../dashboard/test-support/support/productionWatcherFixture.ts";
+import { initializeStartOrigin } from "../../dashboard/test-support/support/startOriginInitialization.ts";
 import { serialFileResources } from "../../dashboard/test-support/support/serialFileResources.ts";
 import {
   deploymentWork,
@@ -87,6 +92,15 @@ export function productionUpdateJourney() {
       () => localPublishedMainFixture(true, "application"),
       (owned) => owned.cleanup(),
     );
+    const launchCheckout = path.join(fixture.root, "held-start");
+    await initializeStartOrigin(
+      path.join(fixture.root, "held-start.git"),
+      fixture.home,
+      launchCheckout,
+      watcherHeldStartRepository,
+      "codex",
+      makeMe.aRepository.please(),
+    );
     const workflow = await readFile(
       path.join(fixture.development, ciWorkflowPath),
       "utf8",
@@ -112,7 +126,7 @@ export function productionUpdateJourney() {
       configuration,
       configured,
       env: applicationEnv,
-    } = await configureWatcherApplication(fixture);
+    } = await configureWatcherApplication(fixture, launchCheckout);
     const [host, dependencies] = await Promise.allSettled([
       resources.acquire(
         () => startWatcherNativeCodex(applicationEnv, pinnedWatcherCodex),

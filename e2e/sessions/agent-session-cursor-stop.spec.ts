@@ -24,7 +24,10 @@ import {
   holdRunnerSessionsReads,
   rekeepKeptCursorSession,
 } from "../../dashboard/test-support/support/cursorRunnerHeldReads.ts";
-import { markLocallyDone } from "../../dashboard/test-support/support/cursorLocalDone.ts";
+import {
+  locallyDoneOnTakenStory,
+  markLocallyDone,
+} from "../../dashboard/test-support/support/cursorLocalDone.ts";
 import {
   entryWithRunnerUnreachable,
   expectBlockThenAdmitReplacement,
@@ -32,6 +35,7 @@ import {
 } from "../../dashboard/test-support/support/cursorUnconfirmedStop.ts";
 import {
   expectNormalizedReading,
+  instruction,
   openTakenCursorSession,
 } from "../../dashboard/test-support/support/cursorSessionReading.ts";
 import {
@@ -89,7 +93,7 @@ workingCursorTest(
     const { entry: again, release } = await entryWithRunnerUnreachable(
       page,
       dashboard.home,
-      parts(page).taken,
+      () => sessionEntriesIn(parts(page).taken),
     );
     try {
       await expect(again).toContainText(cursorRunnerSentence("unreachable"));
@@ -125,14 +129,14 @@ workingCursorTest(
     await closeOpenTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
 
-    const recent = await markLocallyDone(page, entry);
+    const recent = await markLocallyDone(page, instruction, entry);
     expect(keptRecord(dashboard.home).doneAt).toBeDefined();
     await expect(await sessionAction(recent, "Stop")).toHaveCount(1);
 
     const { entry: again, release } = await entryWithRunnerUnreachable(
       page,
       dashboard.home,
-      parts(page).recentlyDone,
+      () => locallyDoneOnTakenStory(page, instruction),
     );
     try {
       await expect(again).toContainText(cursorRunnerSentence("unreachable"));
@@ -216,7 +220,7 @@ workingCursorTest(
     const { entry: again, release } = await entryWithRunnerUnreachable(
       page,
       dashboard.home,
-      parts(page).taken,
+      () => sessionEntriesIn(parts(page).taken),
     );
     try {
       await (await sessionAction(again, "Stop")).click();

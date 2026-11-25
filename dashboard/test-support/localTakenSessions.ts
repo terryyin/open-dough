@@ -4,7 +4,6 @@
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import { parts } from "./dashboardPage.ts";
-import { publishCommittedFiles } from "./committedFiles.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { backlogPath, publishFiles } from "./publishedOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -33,14 +32,6 @@ export const publishMembership = (
     repository,
     revision: at,
     files: { [backlogPath]: backlog },
-  });
-// Commits the unplanned backlog and serves it at that commit.
-export const publishCommittedMembership = (
-  page: Parameters<typeof publishCommittedFiles>[0],
-) =>
-  publishCommittedFiles(page, {
-    repository,
-    files: { [backlogPath]: unplannedBacklog },
   });
 export const localEntries = (page: Parameters<typeof parts>[0]) =>
   parts(page).taken.locator(":scope > ol > li > .session-entry");

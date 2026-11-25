@@ -11,11 +11,9 @@ import { sessionAction } from "../../dashboard/test-support/support/sessionEntry
 // ./agent-completion-quiet.spec.ts.
 
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import {
-  parts,
-  sessionProblemOf,
-} from "../../dashboard/test-support/dashboardPage.ts";
+import { sessionProblemOf } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import { shownDoneSessionEntriesOf } from "../../dashboard/test-support/dashboardParts.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   launchedAdHoc,
@@ -65,10 +63,8 @@ test.describe("within a wait the session outlasts", () => {
 
     await publishOrigin(page, origin);
     await openUntilRead(page);
-    await showColumn(page, "Recently done");
-    const recent = parts(page)
-      .recentlyDone.getByRole("article")
-      .filter({ hasText: sessionId });
+    await showColumn(page, "Taken");
+    const recent = await shownDoneSessionEntriesOf(page, title, sessionId);
     await expect(recent).toContainText(`Intended name ${doneName}`);
     await expect(recent.getByText(pending)).toBeVisible();
     await expect(sessionProblemOf(recent)).not.toContainText(pending);
@@ -85,9 +81,10 @@ test.describe("within a wait the session outlasts", () => {
       })
       .toBeUndefined();
     await reloadUntilRead(page);
-    await showColumn(page, "Recently done");
-    await expect(recent).toContainText(`Named ${doneName}`);
-    await expect(recent).not.toContainText(pending);
+    await showColumn(page, "Taken");
+    const renamed = await shownDoneSessionEntriesOf(page, title, sessionId);
+    await expect(renamed).toContainText(`Named ${doneName}`);
+    await expect(renamed).not.toContainText(pending);
     expect(
       dashboard.claudeListing().find((each) => each["id"] === shortId)?.[
         "name"

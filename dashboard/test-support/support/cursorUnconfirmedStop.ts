@@ -4,25 +4,25 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
-import { startSessionField } from "../launchStoryCardPage.ts";
+import { parts } from "../dashboardParts.ts";
+import { startSession, startSessionField } from "../launchStoryCardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { keptRecord } from "./cursorStart.ts";
 import { keptRecords } from "./cursorSessionRecovery.ts";
 import { occupyRunner } from "./cursorRunnerJourney.ts";
 import { launchWaitMs } from "./launchWait.ts";
-import { sessionEntriesIn } from "../dashboardParts.ts";
 
 // Stops the runner, occupies its address, and reloads until the entry in
 // this section reads with the runner unreachable.
 export async function entryWithRunnerUnreachable(
   page: Page,
   home: string,
-  section: Locator,
+  entryOf: () => Locator | Promise<Locator>,
 ): Promise<{ entry: Locator; release: () => Promise<void> }> {
   await stopCursorRunner(home);
   const release = await occupyRunner(home);
   await reloadUntilRead(page);
-  const entry = sessionEntriesIn(section);
+  const entry = await entryOf();
   await expect(entry).toHaveCount(1);
   return { entry, release };
 }
@@ -62,9 +62,7 @@ export async function expectBlockThenAdmitReplacement(
   page: Page,
   home: string,
 ): Promise<void> {
-  await page
-    .getByRole("button", { name: "Start session in Open Dough" })
-    .click();
+  await startSession(page, "Open Dough").click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
   await startSessionField(dialog).fill("replacement writer session");
@@ -78,9 +76,13 @@ export async function expectBlockThenAdmitReplacement(
   expect(keptRecords(home)).toHaveLength(1);
   await dialog.getByRole("button", { name: "Start anyway" }).click();
   await expect(dialog).toBeHidden({ timeout: 30_000 });
-  await expect(page.locator(".project-actions .launch-problem")).toHaveText(
+  const problem = parts(page).projectActions.locator(".launch-problem");
+  await expect(problem).toContainText(
     "Launch failed: The Cursor runner on this machine could not be reached. No agent was started.",
     { timeout: launchWaitMs },
+  );
+  await expect(problem).toContainText(
+    "The Taken story was published. Continue or the same Start request can resume",
   );
   // The admitted launch settled while the runner was unreachable, so it
   // too started nothing.

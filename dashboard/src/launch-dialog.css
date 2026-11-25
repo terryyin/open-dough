@@ -208,6 +208,7 @@
 
 .launch-dialog-effects {
   font-size: 0.9rem;
+  line-height: 1.35;
 }
 
 .launch-dialog-summary {
@@ -238,10 +239,9 @@
   margin: 0;
 }
 
-/* Keep room to scroll and edit the instruction above the pinned actions. */
 @media (height <= 30rem) {
   .launch-dialog textarea {
-    max-height: max(var(--control-size), 20dvh);
+    max-height: max(var(--control-size), 15dvh);
   }
   .launch-dialog-footer {
     gap: var(--space-1);

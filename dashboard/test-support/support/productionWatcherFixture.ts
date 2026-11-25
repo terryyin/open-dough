@@ -25,8 +25,12 @@ export function productionBuildEnvironment(
   return env;
 }
 
+export const watcherHeldStartSource = "held-start";
+export const watcherHeldStartRepository = "fixture/held-start";
+
 export async function configureWatcherApplication(
   fixture: Awaited<ReturnType<typeof localPublishedMainFixture>>,
+  heldStartCheckout?: string,
 ) {
   const project = makeMe.aConfiguredProject
     .with({
@@ -38,7 +42,20 @@ export async function configureWatcherApplication(
     })
     .please();
   const configuration = projectConfigurationFile(fixture.home, "production");
-  const configured = `${JSON.stringify([project], null, 4)}\n`;
+  const projects = [project];
+  if (heldStartCheckout !== undefined)
+    projects.push(
+      makeMe.aConfiguredProject
+        .with({
+          id: watcherHeldStartSource,
+          label: "Held Start",
+          repository: watcherHeldStartRepository,
+          localPath: heldStartCheckout,
+          hidden: true,
+        })
+        .please(),
+    );
+  const configured = `${JSON.stringify(projects, null, 4)}\n`;
   await mkdir(path.dirname(configuration), { recursive: true });
   await Promise.all([
     writeFile(configuration, configured),

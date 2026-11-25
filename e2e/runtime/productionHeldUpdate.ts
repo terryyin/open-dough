@@ -29,6 +29,7 @@ import {
   productionBoundary,
 } from "../../dashboard/test-support/support/productionWatcher.ts";
 import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { watcherHeldStartSource } from "../../dashboard/test-support/support/productionWatcherFixture.ts";
 import { waitForWatcherOutput } from "../../dashboard/test-support/support/watcherEvents.ts";
 import type { ProductionUpdateJourney } from "./productionUpdateJourney.ts";
 
@@ -39,7 +40,9 @@ export async function replaceWhileStartDrains(
   const state = journey.started();
   const { fixture, page, watcher, drainEvents } = state;
   const boundary = productionBoundary(state.served.url, fixture.home);
-  const launch = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
+  const launch = makeMe.aLaunchRequest
+    .adHoc({ host: "codex", source: watcherHeldStartSource })
+    .please();
   const start = () =>
     request.post(`${state.served.url}/__agent-launch/accept`, {
       headers: { Origin: state.served.url },

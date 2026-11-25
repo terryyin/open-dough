@@ -155,6 +155,14 @@ passed. Converting the 16 remaining launch E2E files with unnamed steps is a
 refactor follow-up for wrap-up; representative cases are the Codex Ad hoc,
 Claude Problems and Cursor session recovery journeys.
 
+Branch CI run 45600082746/1 identified 15 E2E failures in the compact Start,
+session columns, Cursor lifecycle and sidebar, and production watcher drain.
+The repair preserved the supported session observations and gives the watcher
+test its own installed launch origin. Local proof passed 25 session and phone
+E2E cases, 10 watcher cases, 10 mounted layout cases and Dashboard typecheck.
+The independent refactor rechecked both explicit stop override cases. See
+[the diagnosis](diagnosis-ci-45600082746.md) and the Git evidence repair report.
+
 ### 2. Admit scheduled feedback and show Start's admission states
 Type: Behavior
 Status: planned

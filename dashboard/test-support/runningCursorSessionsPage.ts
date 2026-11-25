@@ -6,6 +6,7 @@
 // opening and collapsing come from there directly.
 import type { Locator, Page, Request } from "@playwright/test";
 import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
+import { agentReconciledEndpoint } from "../src/launchOutcome.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
@@ -95,12 +96,17 @@ export async function showPage(page: Page, origin: StartOrigin): Promise<void> {
   ).toBeVisible();
 }
 
-// Requests other than reads: a launch, an attach, a done mark, a delete, or
-// a runner control.
+// Records session and runner actions. A page can acknowledge an earlier
+// startup's published story while it loads, independent of sidebar actions.
 export function changesAsked(page: Page): readonly string[] {
   const asked: string[] = [];
   page.on("request", (request: Request) => {
-    if (request.method() !== "GET") asked.push(request.url());
+    const address = request.url();
+    if (
+      request.method() !== "GET" &&
+      new URL(address).pathname !== agentReconciledEndpoint
+    )
+      asked.push(address);
   });
   return asked;
 }

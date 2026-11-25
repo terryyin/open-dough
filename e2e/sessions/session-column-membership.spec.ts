@@ -14,7 +14,6 @@ import {
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   localEntries,
-  publishCommittedMembership,
   publishMembership,
   queuedStoryTaken,
   savedLocalSessionRecords as savedRecords,
@@ -49,7 +48,7 @@ import {
 } from "../../dashboard/test-support/recentlyDoneRecords.ts";
 import { keptSessions } from "../../dashboard/test-support/recentlyDoneSessions.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { startAdHocAndClose } from "../../dashboard/test-support/support/startedAdHocSession.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 test.use({
   projectFolders: ["open-dough", "doughnut"],
   extraEnv: briefDoneRenameWait,
@@ -156,14 +155,29 @@ test("one Taken story with two sessions and one local session means two entries;
   ).toBe(true);
 });
 
-test("an actual no-story Start has one local Taken entry; direct Done refusal stays open, saved Done moves and receives focus, and refused reopening retains Done", async ({
+function keepLocalSession(dashboard: DashboardServer, title: string) {
+  const startedAt = Date.now();
+  const sessionId = dashboard.claudeListsSession({
+    name: title,
+    cwd: path.join(dashboard.home, "git", "open-dough"),
+    startedAt,
+  });
+  keepLaunchRecords(dashboard, [
+    makeMe.aLaunchRecord
+      .adHoc({ title })
+      .inClaudeSession({ sessionId })
+      .launchedAt(new Date(startedAt).toISOString())
+      .please(),
+  ]);
+}
+
+test("a retained standalone session stays Taken after a Done refusal, receives focus when Done, and retains Done if reopening is refused", async ({
   page,
   dashboard,
 }) => {
-  dashboard.claudeScenario("launched");
-  publishCommittedMembership(page);
+  keepLocalSession(dashboard, "inspect local work");
+  await publishMembership(page);
   await page.goto("/");
-  await startAdHocAndClose(page, "Open Dough", "inspect local work");
   const terminal = terminalPanel(page);
   const active = localEntries(page);
   await expect(active).toHaveCount(1);
@@ -211,10 +225,9 @@ test("deleting its last local Taken entry returns the keyboard to Taken and sett
   page,
   dashboard,
 }) => {
-  dashboard.claudeScenario("launched");
-  publishCommittedMembership(page);
+  keepLocalSession(dashboard, "the only local session");
+  await publishMembership(page);
   await page.goto("/");
-  await startAdHocAndClose(page, "Open Dough", "the only local session");
   dashboard.claudeListingFails(true);
   await reloadUntilRead(page);
   const entry = localEntries(page);
