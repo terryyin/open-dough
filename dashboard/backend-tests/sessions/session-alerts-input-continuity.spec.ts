@@ -1,211 +1,208 @@
-// Run-local input history through real polling and the notification command
-// log. Native fixtures supply observations, never alert suppression. Gaps and
-// changed summaries are not work; even a new question stays quiet if all its
-// intervening work escaped observation. The machine answer remains current.
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
-import { test, expect } from "../../test-support/support/codexLaunch.ts";
-import {
-  observationRecord as record,
-  observationStates,
-  saveObservations as save,
-  observed,
-  afterFurtherReads,
-  passive,
-} from "../../test-support/support/codexObservation.ts";
-import {
-  afterFurtherListings,
-  notices,
-} from "../../test-support/support/sessionAlerts.ts";
-import { notRefinedIdentity } from "../../test-support/launchJourney.ts";
+// SessionAlerts keeps a handled input wait quiet across omitted records,
+// unknown readings and a changed wait summary, then alerts once after a
+// confirmed working reading rearms it. Native listing and parsing stay with
+// the host's reader; these cases drive typed LaunchWithState observations.
+import { afterEach, beforeEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  SessionAlerts,
+  type SessionAlertNotifier,
+} from "../../server/sessionAlerts.ts";
+import type { TerminalNotificationContent } from "../../server/terminalNotifier.ts";
+import type { LaunchRecord, LaunchWithState } from "../../src/agentLaunch.ts";
 
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+const checkMsKey = "DOUGH_ALERT_CHECK_MS";
+const origin = "http://127.0.0.1:49176";
+const words = "Which database?";
+const changed = "A changed question";
 
-test("baseline and independently notified input survive gaps, omitted records and changed summaries until observed working", async ({
-  machine,
-  codexProtocol,
-  dashboard,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture");
-  const waiting = { type: "active", activeFlags: ["waitingOnUserInput"] };
-  const words = "Codex is waiting for your input";
-  observed(native, "baseline", waiting);
-  observed(native, "sentinel", { type: "active", activeFlags: [] });
-  const sentinel = record(dashboard, native, "sentinel");
-  const baseline = [record(dashboard, native, "baseline"), sentinel];
-  save(dashboard, baseline);
-  const collision = dashboard.claudeListsSession({
-    name: "Claude collision",
-    cwd: dashboard.home,
-    startedAt: Date.now(),
-  });
-  await dashboard.close();
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    projectFolders: ["open-dough"],
-    codexProtocol: native,
-    alertCheckMs: 50,
-  });
-  const further = () => afterFurtherReads(native, "sentinel");
-  const inputs = () =>
-    notices(server).filter((notice) =>
-      notice.message?.startsWith("Needs input"),
-    );
-  const unreadable = {
-    status: { type: "idle" },
-    turns: [],
-    metadataError: { code: -32600, message: "Native read refused" },
+const claudeRecord = (sessionId: string, title: string): LaunchRecord =>
+  makeMe.aLaunchRecord
+    .executing({
+      identity: `SEED-413#continuity-${sessionId}`,
+      title,
+      source: "open-dough",
+    })
+    .inClaudeSession({ sessionId, shortId: sessionId.slice(0, 8) })
+    .please();
+
+const codexRecord = (sessionId: string, title: string): LaunchRecord =>
+  makeMe.aLaunchRecord
+    .executing({
+      identity: `SEED-413#continuity-${sessionId}`,
+      title,
+      source: "open-dough",
+    })
+    .inCodexSession({ sessionId })
+    .please();
+
+const observed = (
+  kept: LaunchRecord,
+  sessionState: LaunchWithState["sessionState"],
+): LaunchWithState =>
+  makeMe.anObservedLaunch.of(kept).withSessionState(sessionState).please();
+
+const working = (kept: LaunchRecord) =>
+  observed(kept, makeMe.aSessionState.loaded("working").please());
+
+const waiting = (kept: LaunchRecord, waitingFor = words) =>
+  observed(
+    kept,
+    makeMe.aSessionState.loaded("waiting").waitingFor(waitingFor).please(),
+  );
+
+const unknown = (kept: LaunchRecord) =>
+  observed(kept, makeMe.aSessionState.unknown().please());
+
+const incomplete = (kept: LaunchRecord) =>
+  observed(
+    kept,
+    makeMe.aSessionState.loaded("unknown").unknownReason("incomplete").please(),
+  );
+
+function observe(initial: readonly LaunchWithState[]) {
+  let sessions = [...initial];
+  let reads = 0;
+  const sent: TerminalNotificationContent[] = [];
+  const notifier: SessionAlertNotifier = {
+    probe: () => Promise.resolve(undefined),
+    send: (content) => {
+      sent.push(content);
+      return Promise.resolve(undefined);
+    },
   };
-  try {
-    await further();
-    expect(notices(server)).toEqual([]);
-    native.observations.set("baseline", unreadable);
-    await further();
-    expect(
-      (await observationStates(server)).find(
-        (entry) => entry.session.sessionId === "baseline",
-      )?.sessionState,
-    ).toEqual({ kind: "unknown" });
-    observed(native, "baseline", waiting);
-    await further();
-    expect(notices(server)).toEqual([]);
+  const alerts = new SessionAlerts(
+    {
+      machineSessions: () => {
+        reads += 1;
+        return Promise.resolve(sessions);
+      },
+    },
+    () => origin,
+    notifier,
+  );
+  return {
+    sent,
+    become(next: readonly LaunchWithState[]) {
+      sessions = [...next];
+    },
+    async further() {
+      const prior = reads;
+      await expect.poll(() => reads).toBeGreaterThanOrEqual(prior + 2);
+    },
+    close() {
+      alerts.close();
+    },
+  };
+}
 
-    // Each session first appears waiting after baseline, with identical text.
-    const first = record(server, native, collision, { title: "First Codex" });
-    const second = record(server, native, "second", { title: "Second Codex" });
-    const claude = makeMe.aLaunchRecord
-      .refining({ identity: notRefinedIdentity, title: "Claude collision" })
-      .inClaudeSession({ sessionId: collision })
-      .launchedAt(first.launchedAt)
-      .please();
-    observed(native, collision, waiting);
-    save(server, [...baseline, first]);
-    await expect.poll(() => inputs().length).toBe(1);
-    observed(native, "second", waiting);
-    save(server, [...baseline, first, second]);
-    await expect.poll(() => inputs().length).toBe(2);
-    server.claudeSessionBecomes(collision, "blocked", words);
-    const all = [...baseline, first, second, claude];
-    save(server, all);
-    await expect.poll(() => inputs().length).toBe(3);
-    expect(inputs()).toEqual([
-      {
-        message: `Needs input: ${words}`,
-        title: "Open Dough · First Codex",
-        sound: "Glass",
-      },
-      {
-        message: `Needs input: ${words}`,
-        title: "Open Dough · Second Codex",
-        sound: "Glass",
-      },
-      {
-        message: `Needs input: ${words}`,
-        title: "Open Dough · Claude collision",
-        sound: "Glass",
-      },
-    ]);
+const inputNotices = (sent: TerminalNotificationContent[]) =>
+  sent.filter((notice) => notice.message.startsWith("Needs input"));
 
-    observed(native, collision, {
-      type: "active",
-      activeFlags: ["waitingOnApproval"],
-    });
-    server.claudeSessionBecomes(collision, "blocked", "A changed question");
-    await further();
-    expect(inputs()).toHaveLength(3);
-    server.claudeSessionBecomes(collision, "blocked", words);
-    for (const gap of [
-      unreadable,
-      unreadable,
-      unreadable,
-      { status: { type: "active" }, turns: [] },
-      {
-        status: { type: "idle" },
-        turns: [],
-        historyError: { code: -32601, message: "History unavailable" },
-      },
-      { status: { type: "futureNativeStatus" }, turns: [] },
-      {
-        ...unreadable,
-        metadataError: {
-          code: -32600,
-          message: `thread not loaded: ${collision}`,
-        },
-      },
-      { status: { type: "idle" }, turns: [] },
-    ]) {
-      native.observations.set(collision, gap);
-      await further();
-      observed(native, collision, waiting);
-      await further();
-      expect(inputs()).toHaveLength(3);
-    }
-    expect(
-      notices(server)
-        .filter((notice) => !notice.message?.startsWith("Needs input"))
-        .map((notice) => notice.message),
-    ).toEqual(["State not recognized", "Session unavailable"]);
+async function silenceThroughGaps(
+  owner: ReturnType<typeof observe>,
+  kept: LaunchRecord,
+  baseline: readonly LaunchWithState[],
+  waitingObservation: LaunchWithState,
+) {
+  owner.become([unknown(kept), ...baseline]);
+  await owner.further();
+  owner.become([incomplete(kept), ...baseline]);
+  await owner.further();
+  owner.become([...baseline]);
+  await owner.further();
+  owner.become([waiting(kept, changed), ...baseline]);
+  await owner.further();
+  owner.become([waitingObservation, ...baseline]);
+  await owner.further();
+}
 
-    // Remove actual machine records, rather than only a native listing.
-    save(server, [sentinel]);
-    await further();
-    expect(
-      (await observationStates(server)).map((entry) => entry.session.sessionId),
-    ).toEqual(["sentinel"]);
-    save(server, all);
-    await further();
-    expect(inputs()).toHaveLength(3);
-    observed(native, collision, { type: "active", activeFlags: [] });
-    await further();
-    observed(native, collision, waiting);
-    await expect.poll(() => inputs().length).toBe(4);
-    await further();
-    expect(inputs().at(-1)).toEqual(inputs()[0]);
-    expect(inputs()).toHaveLength(4);
-    passive(native.calls);
-  } finally {
-    await server.close();
-  }
+let priorCheckMs: string | undefined;
+const owners: { close(): void }[] = [];
+
+beforeEach(() => {
+  priorCheckMs = process.env[checkMsKey];
+  process.env[checkMsKey] = "20";
 });
 
-test("Claude input survives unreadable listing and native omission recovery", async ({
-  machine,
-  dashboard,
-}) => {
-  await dashboard.close();
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    projectFolders: ["open-dough"],
-    alertCheckMs: 50,
-  });
-  try {
-    const { sessionId: session } = await composeSession(server);
-    await afterFurtherListings(server);
-    server.claudeSessionBecomes(session, "blocked", "Which database?");
-    await expect.poll(() => server.notifierCalls().length).toBe(1);
-    const listed = server.claudeListing();
-    for (const gap of ["unreadable", "omitted"] as const) {
-      if (gap === "unreadable") server.claudeListingFails(true);
-      else server.claudeSessionBecomes(session, "forgotten");
-      await afterFurtherListings(server);
-      if (gap === "unreadable") server.claudeListingFails(false);
-      else server.claudeListingBecomes(listed);
-      await afterFurtherListings(server);
-      expect(
-        notices(server).filter((notice) =>
-          notice.message?.startsWith("Needs input"),
-        ),
-      ).toHaveLength(1);
-    }
-    expect(notices(server).map((notice) => notice.message)).toEqual([
-      "Needs input: Which database?",
-      "Session unavailable",
-    ]);
-  } finally {
-    await server.close();
-  }
+afterEach(() => {
+  while (owners.length > 0) owners.pop()?.close();
+  if (priorCheckMs === undefined)
+    Reflect.deleteProperty(process.env, checkMsKey);
+  else process.env[checkMsKey] = priorCheckMs;
+});
+
+test("baselined Codex input stays quiet through unknown, incomplete, omitted and changed summary, then alerts once after working rearms it", async () => {
+  const kept = codexRecord("codex-baseline", "Codex baseline");
+  const needing = waiting(kept);
+  const owner = observe([needing]);
+  owners.push(owner);
+  await owner.further();
+  expect(owner.sent).toEqual([]);
+  await silenceThroughGaps(owner, kept, [], needing);
+  expect(inputNotices(owner.sent)).toEqual([]);
+  owner.become([working(kept)]);
+  await owner.further();
+  owner.become([needing]);
+  await expect.poll(() => inputNotices(owner.sent).length).toBe(1);
+  await owner.further();
+  expect(inputNotices(owner.sent)).toEqual([
+    {
+      title: "open-dough · Codex baseline",
+      message: `Needs input: ${words}`,
+      destination: `${origin}/?project=open-dough&story=SEED-413%23continuity-codex-baseline`,
+    },
+  ]);
+});
+
+test("already-alerted Claude input stays quiet through the same gaps, then alerts once after working rearms it", async () => {
+  const kept = claudeRecord("claude-alerted", "Claude alerted");
+  const needing = waiting(kept);
+  const owner = observe([working(kept)]);
+  owners.push(owner);
+  await owner.further();
+  expect(owner.sent).toEqual([]);
+  owner.become([needing]);
+  await expect.poll(() => inputNotices(owner.sent).length).toBe(1);
+  await silenceThroughGaps(owner, kept, [], needing);
+  expect(inputNotices(owner.sent)).toHaveLength(1);
+  owner.become([working(kept)]);
+  await owner.further();
+  owner.become([needing]);
+  await expect.poll(() => inputNotices(owner.sent).length).toBe(2);
+  await owner.further();
+  expect(inputNotices(owner.sent).at(-1)?.message).toBe(
+    `Needs input: ${words}`,
+  );
+  expect(inputNotices(owner.sent)).toHaveLength(2);
+});
+
+test("each newly listed Codex or Claude wait alerts once, and omission of both keeps prior input quiet until working rearms one", async () => {
+  const first = codexRecord("codex-first", "First Codex");
+  const second = claudeRecord("claude-second", "Claude collision");
+  const owner = observe([]);
+  owners.push(owner);
+  await owner.further();
+  owner.become([waiting(first)]);
+  await expect.poll(() => inputNotices(owner.sent).length).toBe(1);
+  owner.become([waiting(first), waiting(second)]);
+  await expect.poll(() => inputNotices(owner.sent).length).toBe(2);
+  expect(inputNotices(owner.sent).map((notice) => notice.title)).toEqual([
+    "open-dough · First Codex",
+    "open-dough · Claude collision",
+  ]);
+  owner.become([]);
+  await owner.further();
+  owner.become([waiting(first), waiting(second)]);
+  await owner.further();
+  expect(inputNotices(owner.sent)).toHaveLength(2);
+  owner.become([working(first), waiting(second)]);
+  await owner.further();
+  owner.become([waiting(first), waiting(second)]);
+  await expect.poll(() => inputNotices(owner.sent).length).toBe(3);
+  await owner.further();
+  expect(inputNotices(owner.sent).at(-1)?.title).toBe(
+    "open-dough · First Codex",
+  );
+  expect(inputNotices(owner.sent)).toHaveLength(3);
 });

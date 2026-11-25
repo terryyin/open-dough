@@ -78,7 +78,7 @@ later snapshot-based cases.
 ### 2. Preserve input-alert continuity across incomplete readings
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 9–13 active minutes.
 
 Given a baselined or already-alerted input wait, omit the session, return an
@@ -204,6 +204,23 @@ baseline.
 - Production: optional notifier dependency on `SessionAlerts`; shared
   `TerminalNotificationContent`; MakeMe `unknownReason` for unrecognized
   readings.
+
+### Slice 2 accepted proof
+
+- Vitest `backend-tests/sessions/session-alerts-input-continuity.spec.ts`
+  — 3 cases: baselined Codex and already-alerted Claude stay quiet
+  through unknown/incomplete/omit/changed summary then alert once after
+  working rearms; newly listed Codex+Claude each alert once and stay
+  quiet through omission until working rearms one
+  (`slice2-vitest-continuity-2.log.run.json`). Engine list shows `[node]`
+  only. Production unchanged.
+
+### Delivery dispositions
+
+- Slice 2: skipped fresh refactor — subject-spec-only rewrite; product
+  search found no required refactor-check candidate beyond a local
+  observe harness duplicated from slice 1, which must not move into
+  test-support and is retained for later snapshot cases.
 
 ## Verification and delivery
 
