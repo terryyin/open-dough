@@ -183,7 +183,7 @@ and off/due results are exercised at the REST watch-list operation.
 ### 4. Reconcile the real publication across session views
 
 Type: Behavior
-Status: planned
+Status: done
 
 For responsive reconciliation, completion attention, and one-shot Review,
 observe the configured ref in each HOME that opens the Board. Check it at
@@ -192,6 +192,23 @@ already pushes the authoritative origin only needs matching registration and
 an assertion there. Observe the published record on the existing terminal,
 restart, and Review paths. Keep subsequent explicit REST record/listing
 assertions at the same pin.
+
+The responsive tests resolve the exact initial, accepted, unrelated or
+descendant ref at the corresponding event and after restart. A scheduled
+REST check admitted before the Take still returns its earlier held pin. The
+completion test retains the failing later REST read. Installed attention
+uses a separate real Board publication after the native Take, then advances
+it before the retained report is redisplayed. One-shot Review follows the
+real trunk through advance, revert and restart while keeping its captured
+comparison pair. The five subject specs reuse shared publishers and page
+objects, with no new refactor candidate.
+
+```sh
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/launches/responsive-session-reconciliation{,-completed}.spec.ts e2e/sessions/agent-completion-attention{,-restart}.spec.ts e2e/review/story-review-one-shot.spec.ts --workers=2 --reporter=dot
+npm run typecheck:dashboard
+```
+
+All six E2E cases and Dashboard typecheck passed.
 
 ### 5. Preserve explicit read admission and detail results
 
