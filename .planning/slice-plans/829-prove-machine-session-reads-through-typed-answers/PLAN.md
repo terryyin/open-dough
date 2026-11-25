@@ -130,7 +130,7 @@ alert and closure consumers passed 16/16.
 ### 4. Fresh demand observes after the ask
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 9–13 active minutes.
 
 Given a held recent observation and changed Codex options, ask ordinarily
@@ -140,6 +140,10 @@ after its demand. Move `agent-launch-sessions-fresh.spec.ts` through the
 same answer owner and the real shared-observation scheduling. Advance
 controlled observations by their completion or start, with no sleep used
 as the assertion.
+
+Proof (25 November 2026): one Node case, 6 ms, through `answerFor` with
+`fresh` over the real `SharedObservation`, advancing by counted
+observation starts. Only the subject spec changed.
 
 ### 5. Admit and encode a session read at the adapter
 
@@ -186,6 +190,11 @@ Disposition: excluded "Session mutations, alerts, and other backend families hav
 Reported: slice 2 — "The answers to a held revision (unchanged, and full across audiences) from the old history case belong to slice 3."
 Story clause: "A reader holding the current revision gets an unchanged answer."
 Disposition: proved by slice 3: dashboard/backend-tests/sessions/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current {overview,history} revision is answered unchanged" and "a viewer of the {overview,history} holding the other audience's revision or a stale one is answered in full"
+
+### G5. Fresh-demand header admission no longer asserted
+Reported: slice 4 — "the old spec was the only backend test that sent `sessionsFreshHeader` over HTTP"
+Story clause: "A fresh ask can see a changed Codex observation while an ordinary ask still reuses a held observation."
+Disposition: receiving slice 5
 
 ## Verification and delivery
 

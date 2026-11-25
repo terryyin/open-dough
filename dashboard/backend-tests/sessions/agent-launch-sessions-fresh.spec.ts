@@ -1,91 +1,82 @@
 // A sessions ask marked fresh is answered only by an observation begun after
 // it arrived (../../server/machineSessionObservation.ts): under a long reuse
-// window, changing the project's installed Codex options yields a new revision
-// carrying those offers, while an ordinary ask holding the prior revision is
-// still answered unchanged from the settled observation.
-import {
-  sessionsFreshHeader,
-  sessionsRevisionHeader,
-} from "../../src/machineSessionsRevision.ts";
-import {
-  test,
-  expect,
-  codexSkill,
-} from "../../test-support/support/codexLaunch.ts";
-import { sessionsRequest } from "../../test-support/support/codexObservation.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+// window, changed installed Codex options reach a fresh ask under a new
+// revision, while an ordinary ask holding the prior revision is still answered
+// unchanged from the held observation, read through the shared reader
+// contract (../../src/machineSessionsRevision.ts).
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { offeredShape } from "../../src/commandOptions.ts";
+import { machineSessionsReadSchema } from "../../src/machineSessionsRevision.ts";
+import { MachineSessionObservation } from "../../server/machineSessionObservation.ts";
 
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+const staying = new AbortController().signal;
 
-type Definition = {
-  readonly host: string;
-  readonly options?: readonly { readonly flag: string }[];
-};
+function codexOffering(flag: string) {
+  const definition = makeMe.anOptionsDefinition
+    .with({
+      command: "dough-story-refinement",
+      options: [makeMe.anOptionsEntry.with({ flag }).please()],
+    })
+    .please();
+  const { records, ...rest } = makeMe.aMachineAnswer
+    .offering({
+      source: "open-dough",
+      workflow: "refinement",
+      host: "codex",
+      ...offeredShape(definition),
+    })
+    .please();
+  return { records, rest };
+}
 
-type Answer = {
-  readonly revision: string;
-  readonly unchanged?: true;
-  readonly definitions?: readonly Definition[];
-};
-
-async function ask(
-  server: DashboardServer,
-  options: { readonly held?: string; readonly fresh?: boolean } = {},
-) {
-  const request = sessionsRequest(server);
-  const response = await rawRequest({
-    ...request,
-    headers: {
-      ...request.headers,
-      ...(options.held === undefined
-        ? {}
-        : { [sessionsRevisionHeader]: options.held }),
-      ...(options.fresh === true ? { [sessionsFreshHeader]: "1" } : {}),
+test("a fresh ask observes changed Codex options while an ordinary held ask is answered unchanged", async () => {
+  vi.stubEnv("DOUGH_SESSIONS_REUSE_MS", "60000");
+  onTestFinished(() => {
+    vi.unstubAllEnvs();
+  });
+  let installed = codexOffering("--option-a");
+  let observationsStarted = 0;
+  const observation = new MachineSessionObservation(
+    () => {
+      observationsStarted += 1;
+      return Promise.resolve(installed);
     },
-  });
-  expect(response.status).toBe(200);
-  return JSON.parse(response.body) as Answer;
-}
-
-function codexFlags(answer: Answer): string[] {
-  return (answer.definitions ?? [])
-    .filter((definition) => definition.host === "codex")
-    .flatMap((definition) =>
-      (definition.options ?? []).map(({ flag }) => flag),
+    () => Promise.resolve(["unchanged catalog and machine documents"]),
+  );
+  const ask = async (held: string | undefined, fresh: boolean) =>
+    machineSessionsReadSchema.parse(
+      JSON.parse(
+        (
+          await observation.answerFor(
+            { audience: "overview", held, fresh },
+            staying,
+          )
+        ).serialized,
+      ),
     );
-}
+  const codexFlags = (answer: Awaited<ReturnType<typeof ask>>) =>
+    "definitions" in answer
+      ? answer.definitions
+          .filter((definition) => definition.host === "codex")
+          .flatMap((definition) =>
+            "options" in definition
+              ? definition.options.map(({ flag }) => flag)
+              : [],
+          )
+      : [];
 
-test("a fresh sessions ask observes changed Codex options while an ordinary held ask stays unchanged", async ({
-  machine,
-  dashboard: closed,
-}) => {
-  codexSkill(closed.home, "--option-a");
-  await closed.close();
-  const dashboard = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    projectFolders: ["open-dough"],
-    sessionsReuseMs: 60_000,
-  });
-  try {
-    const first = await ask(dashboard);
-    const held = first.revision;
-    expect(codexFlags(first)).toContain("--option-a");
-    expect(codexFlags(first)).not.toContain("--option-b");
+  const first = await ask(undefined, false);
+  const held = first.revision;
+  expect(codexFlags(first)).toEqual(["--option-a"]);
 
-    codexSkill(dashboard.home, "--option-b");
+  installed = codexOffering("--option-b");
 
-    const ordinary = await ask(dashboard, { held });
-    expect(ordinary).toEqual({ revision: held, unchanged: true });
+  expect(await ask(held, false)).toEqual({ revision: held, unchanged: true });
+  expect(observationsStarted).toBe(1);
 
-    const fresh = await ask(dashboard, { held, fresh: true });
-    expect(fresh.unchanged).toBeUndefined();
-    expect(fresh.revision).not.toBe(held);
-    expect(codexFlags(fresh)).toContain("--option-b");
-    expect(codexFlags(fresh)).not.toContain("--option-a");
-  } finally {
-    await dashboard.close();
-  }
+  const fresh = await ask(held, true);
+  expect(observationsStarted).toBe(2);
+  expect(fresh.revision).not.toBe(held);
+  expect(codexFlags(fresh)).toEqual(["--option-b"]);
 });
