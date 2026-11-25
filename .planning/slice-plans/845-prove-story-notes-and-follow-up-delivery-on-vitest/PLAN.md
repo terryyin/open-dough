@@ -103,7 +103,7 @@ typecheck passed. The full backend selection took 62.30 s on the shared Mac.
 ### 2. Refuse page fields that cannot select notes
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 Proof: Typed admission returns the current 400 answer for each refused
 shape and does not start work.
@@ -115,6 +115,10 @@ existing status and reason with a valid opted-in request as the contrast
 case. Keep origin, method, request read, and response framing with the
 wire adapter. The typed refusal checks run on the existing engine until
 slice 3 replaces the last mounted case in this file and selects Vitest.
+
+The three typed refusals returned the existing 400 and reason. Valid Attach
+opt-in survived admission. Those cases and three mounted Start observations
+passed on the retained Chromium runner in 29.26 s wall.
 
 ### 3. Send the requested waiting notes with their context
 

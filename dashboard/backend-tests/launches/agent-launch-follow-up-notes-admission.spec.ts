@@ -1,24 +1,21 @@
-// Follow-up notes admission refusals over raw HTTP with a real bare origin
-// and the synthetic `claude`: a session source cannot ask for notes, and a
-// page cannot send note text or attached versions before claude starts.
-// What waiting notes send and launch identity:
-// agent-launch-follow-up-notes.spec.ts.
+// A story follow-up can opt into notes. Value admission refuses a session's
+// opt-in, page-composed text, and page-supplied versions. The mounted case
+// observes the first input when admitted notes cannot be read.
 
 import { writeFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { accept, launch } from "../../test-support/agentLaunchBoundary.ts";
+import { admittedLaunchRequest } from "../../server/agentLaunchAdmission.ts";
+import { RefusedRequest } from "../../server/localOrigin.ts";
+import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   recoverStory,
   storyContextOf,
 } from "../../test-support/support/followUpStories.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { storyNoteVersion } from "../../src/storyNote.ts";
 import {
   answerOf,
   expectFollowUpInput,
-  quiet,
-  reported,
   request,
 } from "./followUpBoundaryCases.ts";
 import {
@@ -69,80 +66,60 @@ test("a story follow-up starts with the required input when the selected notes c
     expect(answer.record.request.followUp).not.toHaveProperty("notes");
 });
 
-test("refuses a follow-up naming notes on a session source before starting claude", async ({
-  dashboard,
-}) => {
-  const source = reported(dashboard.home);
-  keepLaunchRecords(dashboard, [source, quiet]);
-  dashboard.claudeScenario("launched");
+const optedIn = () =>
+  makeMe.aFollowUp
+    .ofStory(recoverStory, "a".repeat(40))
+    .attachingNotes()
+    .please();
 
-  const response = await accept(dashboard, {
-    ...request,
-    followUp: {
-      ...makeMe.aFollowUp.ofSession(source).please(),
-      notes: true,
-    },
-  });
+test("admits an opted-in story follow-up", () => {
+  const start = makeMe.aLaunchRequest.adHoc({ followUp: optedIn() }).please();
 
-  expect(response.status, response.body).toBe(400);
-  expect(dashboard.claudeCalls()).toEqual([]);
+  expect(admittedLaunchRequest(start)).toHaveProperty(
+    "followUp.story.notes",
+    true,
+  );
 });
 
-test("refuses a follow-up carrying note text the page composed before starting claude", async ({
-  dashboard,
-  origin,
-}) => {
-  const revision = await publishRecoverStory(dashboard, origin);
-  seedNotes(dashboard.home, {
-    [recoverStory.identity]: [waitingGeneral],
-  });
-  dashboard.claudeScenario("launched");
+const version = {
+  id: waitingGeneral.id,
+  version: storyNoteVersion(waitingGeneral),
+};
 
-  const response = await accept(dashboard, {
-    ...request,
-    followUp: {
-      ...makeMe.aFollowUp
-        .ofStory(recoverStory, revision)
-        .attachingNotes()
+for (const { label, followUp, notes } of [
+  {
+    label: "naming notes on a session source",
+    followUp: () =>
+      makeMe.aFollowUp
+        .ofSession(
+          makeMe.aLaunchRecord.adHoc({ title: "Source session" }).please(),
+        )
         .please(),
-      notes: [
-        {
-          id: waitingGeneral.id,
-          version: storyNoteVersion(waitingGeneral),
-          text: "Forged note text from the page.",
-        },
-      ],
-    },
+    notes: true,
+  },
+  {
+    label: "carrying note text the page composed",
+    followUp: optedIn,
+    notes: [{ ...version, text: "Forged note text from the page." }],
+  },
+  {
+    label: "carrying attached note versions from the page",
+    followUp: optedIn,
+    notes: [version],
+  },
+]) {
+  test(`refuses a follow-up ${label} at Start value admission`, () => {
+    const malformed = {
+      ...makeMe.aLaunchRequest.adHoc().please(),
+      followUp: { ...followUp(), notes },
+    };
+
+    expect(() => admittedLaunchRequest(malformed)).toThrow(
+      expect.objectContaining({
+        constructor: RefusedRequest,
+        status: 400,
+        message: "The launch request is malformed.",
+      }),
+    );
   });
-
-  expect(response.status, response.body).toBe(400);
-  expect(dashboard.claudeCalls()).toEqual([]);
-});
-
-test("refuses a follow-up carrying attached note versions the page composed before starting claude", async ({
-  dashboard,
-  origin,
-}) => {
-  const revision = await publishRecoverStory(dashboard, origin);
-  seedNotes(dashboard.home, {
-    [recoverStory.identity]: [waitingGeneral],
-  });
-  dashboard.claudeScenario("launched");
-
-  const response = await accept(dashboard, {
-    ...request,
-    followUp: makeMe.aFollowUp
-      .ofStory(recoverStory, revision)
-      .attachingNotes()
-      .withAttachedNotes([
-        {
-          id: waitingGeneral.id,
-          version: storyNoteVersion(waitingGeneral),
-        },
-      ])
-      .please(),
-  });
-
-  expect(response.status, response.body).toBe(400);
-  expect(dashboard.claudeCalls()).toEqual([]);
-});
+}
