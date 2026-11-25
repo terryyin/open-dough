@@ -132,7 +132,8 @@ The Take `a260b60c349ad6db02fc5b1df5b4834fe029f83d` was accepted by
 The Codex `eimi-chan-seed-423` observer watches the story branch on
 `terryyin/open-dough` with GitHub Actions `ci.yml`, cell `g243:11`,
 session `71138`, directory `/tmp/dough-ci-501/watch-I57KEb`, and PID `19804`.
-Slice 1 was accepted there at `ef4a3644109c4bd008db80375ca339fe1b7963a8`.
+Slices 1 and 2 were accepted there at `ef4a3644109c4bd008db80375ca339fe1b7963a8`
+and `50ad2d9858a496d78f09c4bcc83351edaf9aa977`.
 
 ### 1. Resume through the exact-candidate loop
 
@@ -169,8 +170,11 @@ result through delivery while preserving its serialized receipts and defaults.
 ### 3. Land a published prefix through the same loop
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: History-preserving integration and landing expectation cases above.
+
+The 204 Distribution cases, 16 Dashboard and E2E files, and five probes passed.
+The probes verified final-rejection state and exact authorized live-tip confirmation.
 
 When the reviewed tip has published history, use the existing merge strategy
 to prepare or recompute the merge on fetched trunk. Preserve ownership and

@@ -123,8 +123,10 @@ export async function resumeInterruptedPublication({
     },
   });
   if (timeout) {
-    timeout.classification = timeout.pushIssued ? classification : null;
-    throw timeout;
+    const { error, ...facts } = timeout;
+    throw Object.assign(error, facts, {
+      classification: facts.pushIssued ? classification : null,
+    });
   }
   if (held) return { classification, pushCount, suffixBase, held };
   if (!acceptedTip)

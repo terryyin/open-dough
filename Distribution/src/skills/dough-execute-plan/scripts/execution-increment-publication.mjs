@@ -171,12 +171,12 @@ export async function publishExecutionIncrement({
     });
   if (stop) return stop;
   if (timeout) {
-    const { stage, remoteTip, pushIssued, boundMs } = timeout;
+    const { stage, remoteTip, pushIssued, error } = timeout;
     return stopped("transport-timeout", {
       ...facts(remoteTip),
       stage,
       pushIssued,
-      boundMs,
+      boundMs: error.boundMs,
       remote,
       target: targetRef,
     });
