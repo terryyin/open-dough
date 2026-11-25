@@ -38,10 +38,10 @@ const pairFields = {
   tree: objectIdSchema,
 };
 
-const followUpComparisonSchema = z.strictObject({
-  ...pairFields,
-  completion: objectIdSchema,
-});
+const followUpComparisonSchema = z.union([
+  z.strictObject({ ...pairFields, completion: objectIdSchema }),
+  z.strictObject({ ...pairFields, reference: z.uuid() }),
+]);
 const followUpFileSchema = z
   .strictObject({
     path: reviewedPathSchema,
@@ -154,7 +154,9 @@ export function followUpSourceKey(followUp: FollowUpSource): string {
     identity,
     anchor ??
       (comparison && [
-        comparison.completion,
+        "completion" in comparison
+          ? comparison.completion
+          : comparison.reference,
         comparison.baseline,
         comparison.tree,
       ]),

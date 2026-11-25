@@ -1,4 +1,4 @@
-// A published story comparison and the file and line actions use the same
+// A historical story comparison and the file and line actions use the same
 // Follow up dialog and carry the target from the review it opened on.
 
 import { useContext } from "react";
@@ -23,21 +23,24 @@ export function useReviewedStoryFollowUp(reviewed: ReviewedWork) {
   return story?.sourceId === reviewed.subject.source ? story : undefined;
 }
 
+function namedStoryComparison({ completion, reference }: ReviewedWork) {
+  if (completion !== undefined) return { completion };
+  if (reference !== undefined) return { reference };
+  return undefined;
+}
+
 // A file names its literal path and the exact pair shown by its review.
 export function fileFollowUpTarget(
-  { subject, completion, reference }: ReviewedWork,
+  reviewed: ReviewedWork,
   baseline: string,
   tree: string,
   file: ReviewedFile,
   line?: { readonly line: number; readonly side: DiffLineSide },
 ): FollowUpFile | undefined {
+  const { subject } = reviewed;
   const comparison = isReviewedPublishedSessionSubject(subject)
     ? { published: subject.published }
-    : completion !== undefined
-      ? { completion }
-      : reference !== undefined
-        ? { reference }
-        : undefined;
+    : namedStoryComparison(reviewed);
   if (comparison === undefined) return undefined;
   return { ...reviewedFilePaths(file), baseline, tree, ...comparison, ...line };
 }
@@ -76,12 +79,13 @@ export function StoryComparisonFollowUp({
   readonly shown: ShownStoryComparison;
 }) {
   const launches = useContext(LaunchesOnPage);
-  if (reviewed.completion === undefined || launches === undefined) return null;
+  const name = namedStoryComparison(reviewed);
+  if (name === undefined || launches === undefined) return null;
   return (
     <DoneStoryAnchoredFollowUp
       reviewed={reviewed}
       target={{
-        completion: reviewed.completion,
+        ...name,
         baseline: comparison.from,
         tree,
       }}

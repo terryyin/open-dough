@@ -119,10 +119,12 @@ revision readers. Dashboard typecheck passed after the refactor. The
 comparison control follows the displayed pair while another comparison
 loads. Notes and launch feedback appear below the title controls.
 
+Published to the execution branch at `b816e856005d295cb5e16d71d301cafe039ba9be`.
+
 ### 2. Start a follow-up from the selected landed run
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A developer switches from the published completion to a readable
 landed run of the same Done story, opens the title action and starts a
@@ -154,6 +156,23 @@ against otherwise valid Done-story requests. Assert each refusal and no
 host call. Run `npm run test:dashboard:backend -- launches/agent-launch-follow-up review/story-review-file-text-admission.spec.ts review/story-review-state-admission.spec.ts review/published-session-review.spec.ts`
 and rerun the affected frontend and E2E checks from slice 1. Budget 15 active
 minutes.
+
+Accepted observations on the first published slice plus these changes.
+The named backend selection passed 56 browser and eight Node cases, with
+14 additional cases covering directly affected historical review routes.
+The HTTP boundary accepted both retained and published landing evidence
+and refused a wrong baseline, wrong result and foreign reference with zero
+host calls. A retained landing with no reporting reference uses the
+captured reference already returned by Review. The historical file path
+uses the same named resolver and pair check before testing file membership.
+The existing published comparison key remains in use.
+
+Mounted Intent, Review and Launches passed 476 cases across 175 files.
+Eight named native cases passed, including the title composer and first
+host input for the retained Git pair and the preserved landed-file composer.
+The recorded-landing file journey and Distribution session-record pruning
+also passed. The independent refactor shared the composer-context assertion
+and reran eight affected E2E cases and Dashboard typecheck successfully.
 
 ## Proof map
 

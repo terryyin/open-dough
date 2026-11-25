@@ -69,11 +69,10 @@ export function followUpTargetItems(
 ): readonly FollowUpItem[] {
   const file = "path" in target ? target : undefined;
   const published = file?.published;
+  const completion = "completion" in target ? target.completion : undefined;
   const comparison =
     published === undefined
-      ? fileComparisonName(
-          target.completion === undefined ? "landed" : "published",
-        )
+      ? fileComparisonName(completion === undefined ? "landed" : "published")
       : `Published session ${published}`;
   return [
     ...(file === undefined ? [] : [{ label: "Path", value: file.path }]),

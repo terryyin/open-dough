@@ -23,6 +23,13 @@ export { startSessionField };
 export function followUpComposer(dialog: Locator) {
   const sessions = dialog.getByRole("group", { name: "Attach sessions" });
   return {
+    async expectContext(
+      storyName: string,
+      context: readonly (string | RegExp)[],
+    ) {
+      await expect(dialog).toContainText(`Follows up ${storyName}`);
+      await expect(followUpContextList(dialog)).toContainText([...context]);
+    },
     async start(instruction?: string) {
       if (instruction !== undefined)
         await startSessionField(dialog).fill(instruction);
@@ -60,8 +67,7 @@ export async function expectFileFollowUpDialog(
   context: readonly (string | RegExp)[],
 ) {
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText(`Follows up ${storyName}`);
-  await expect(followUpContextList(dialog)).toContainText([...context]);
+  await followUpComposer(dialog).expectContext(storyName, context);
   await expect(startSessionField(dialog)).toHaveValue("");
   for (const [group, name] of [
     ["Workspace", "Execution checkout"],
