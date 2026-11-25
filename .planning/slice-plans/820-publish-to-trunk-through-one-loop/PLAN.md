@@ -122,11 +122,27 @@ through removal of repeated procedure.
 
 ## Slices
 
+Execution runs in Story Branch Mode in the owned
+`.worktrees/publish-to-trunk-through-one-loop` checkout of
+`/Users/terryyin/git/open-dough`. Eimi-chan uses publisher
+`dashboard-territory.local-open-dough` on `codex/publish-to-trunk-through-one-loop`.
+The starting revision is `5725720cc44c7a46dcb31b8dbf2d8a1b069630dd`.
+The Take `a260b60c349ad6db02fc5b1df5b4834fe029f83d` was accepted by
+`origin/main` and `origin/codex/publish-to-trunk-through-one-loop`.
+The Codex `eimi-chan-seed-423` observer watches the story branch on
+`terryyin/open-dough` with GitHub Actions `ci.yml`, cell `g243:11`,
+session `71138`, directory `/tmp/dough-ci-501/watch-I57KEb`, and PID `19804`.
+
 ### 1. Resume through the exact-candidate loop
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Resume and retained-comparison cases above.
+
+The 77 reached Distribution cases and Dashboard installed CLI check passed.
+Local transport probes also observed one acknowledged push at confirmation
+timeout, then recovery with zero additional pushes, and one push on rejection.
+A direct-resume probe verified invalid targets are refused before transport.
 
 When reopening a retained candidate, share bounded fetch, exact push and
 confirmation with a single-attempt policy. Preserve its base, no-push

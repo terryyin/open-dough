@@ -114,11 +114,14 @@ export async function inspectCheckout(checkout, head, statusOptions = []) {
   };
 }
 
-// Soft-fail lookup of the workspace's remote-tracking tip for an authorized
-// target. Missing tracking refs are treated as an absent remote tip.
+// Read the authorized remote-tracking tip, or null when it is absent.
 export async function fetchedTarget(workspace, targetRef, remote = "origin") {
+  return readTrackingTip(workspace, originTrackingRef(targetRef, remote));
+}
+
+async function readTrackingTip(workspace, tracking) {
   try {
-    return await revParse(workspace, originTrackingRef(targetRef, remote));
+    return await revParse(workspace, tracking);
   } catch (error) {
     const text = `${error.stderr ?? ""}\n${error.message ?? ""}`;
     if (
@@ -166,6 +169,49 @@ export async function tryPushExactRef(workspace, candidate, remote, targetRef) {
     }
     return { rejected: true, error };
   }
+}
+
+// Fetch the target, then publish the exact candidate prepared against that
+// observation. Preparation may stop or recognize an already-published tip.
+export async function publishExactCandidate({
+  workspace,
+  remote,
+  targetRef,
+  prepareCandidate,
+  accepts,
+}) {
+  const tracking = originTrackingRef(targetRef, remote);
+  let remoteTip = null;
+  let pushIssued = false;
+  let pushCount = 0;
+  const transport = async (stage, operation) => {
+    try {
+      return await operation();
+    } catch (error) {
+      if (error?.code === "transport-timeout") {
+        Object.assign(error, { stage, remoteTip, pushIssued, pushCount });
+      }
+      throw error;
+    }
+  };
+  const fetch = async (stage) => {
+    await transport(stage, () => git(workspace, "fetch", remote));
+    return readTrackingTip(workspace, tracking);
+  };
+
+  remoteTip = await fetch("fetch");
+  const prepared = await prepareCandidate({ remoteTip });
+  if (prepared.stop) return { stop: prepared.stop, pushCount };
+  if (prepared.alreadyPublished) return { acceptedTip: remoteTip, pushCount };
+
+  pushIssued = true;
+  await transport("push", () =>
+    pushExactRef(workspace, prepared.candidate, remote, targetRef),
+  );
+  pushCount += 1;
+  const tip = await fetch("confirmation-fetch");
+  const accepted = tip && (await accepts(prepared.candidate, tip));
+  return { acceptedTip: accepted ? tip : null, pushCount };
 }
 
 // Inspection-only maintenance result for a default checkout after remote
