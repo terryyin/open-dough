@@ -12,6 +12,7 @@ import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { diagnosticsUrl } from "../../test-support/support/readDiagnostics.ts";
 
 import { afterFurtherListings } from "../../test-support/support/sessionAlerts.ts";
+import { launchWaitMs } from "../../test-support/support/launchWait.ts";
 import { startOrigin } from "../../test-support/support/startOrigin.ts";
 import { dayFromToday } from "../../test-support/support/feedbackMaintenanceDue.ts";
 import {
@@ -137,7 +138,9 @@ test("a developer's open session with the cycle's invocation is the machine's fe
         })
       ).status,
     ).toBe(200);
-    await expect.poll(() => server.claudeLaunchCalls().length).toBe(2);
+    await expect
+      .poll(() => server.claudeLaunchCalls().length, { timeout: launchWaitMs })
+      .toBe(2);
     await afterFurtherListings(server);
     expect(server.claudeLaunchCalls()).toHaveLength(2);
     expect(server.notifierCalls()).toEqual([]);

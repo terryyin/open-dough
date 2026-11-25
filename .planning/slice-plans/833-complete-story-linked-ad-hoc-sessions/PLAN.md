@@ -165,7 +165,7 @@ The independent refactor rechecked both explicit stop override cases. See
 
 ### 2. Admit scheduled feedback and show Start's admission states
 Type: Behavior
-Status: planned
+Status: done
 Proof: Scheduled feedback publishes its story before the native start. Mounted
 Start shows pending, refusal, accepted and Retry for a default-choice
 admission.
@@ -174,6 +174,18 @@ Scheduled feedback already dispatches through the common launch boundary.
 Add proof there without editing the 292-line scheduler. Mount Start on Vitest
 through pending, refusal, accepted and Retry. Reuse SEED-432's admission
 recovery proof where the same installed path is used.
+
+Accepted proof: A due watch list and held bare-origin push verified no Codex
+thread before the Take. The first native creation callback captured the exact
+published revision, and the native record kept that story identity and due
+date on the selected checkout. The mounted default Start closed its dialog,
+showed pending and refusal, retried the same request, ignored the older
+refusal, and focused the terminal on acceptance. Four scheduled backend,
+five scheduled E2E and three mounted cases passed, as did the explicit
+auto-land recheck and typecheck. The mounted selection passed again after
+the slice 1 CI repair. `SLICE-2-REPORT.md` and
+`slice-2-consumer-dispositions.md` hold the commands and observations in the
+worktree's Git evidence directory.
 
 ### 3. Follow up under the source story
 Type: Behavior

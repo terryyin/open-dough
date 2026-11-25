@@ -16,6 +16,7 @@ import {
   type DashboardServer,
 } from "./dashboardServer.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
+import { launchWaitMs } from "./launchWait.ts";
 import {
   authorizeFeedbackMaintenance,
   dayFromToday,
@@ -103,7 +104,9 @@ export async function maintenanceRecords(
 
 // The one automatic launch's first input, once it is made.
 export async function launchedInput(server: DashboardServer): Promise<string> {
-  await expect.poll(() => server.claudeLaunchCalls().length).toBe(1);
+  await expect
+    .poll(() => server.claudeLaunchCalls().length, { timeout: launchWaitMs })
+    .toBe(1);
   await expect
     .poll(async () => (await maintenanceRecords(server)).length)
     .toBe(1);
