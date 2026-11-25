@@ -30,7 +30,7 @@ import {
 } from "../../dashboard/test-support/support/completedStoryPublication.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentStory,
   showComparisonDetails,
   storySummary,
@@ -172,7 +172,7 @@ test("selecting another Done story opens its published default after reading the
   await landing.expectShown(firstCapture.revision);
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
 
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   const firstTree = intentStory(intent);
   await firstTree.expandFolderPath("docs");
   await firstTree.file("docs/notes.md").click();
@@ -221,7 +221,7 @@ test("selecting another Done story opens its published default after reading the
       "data-state",
       "compared",
     );
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
     const story = intentStory(intent);
     await story.expandFolderPath("second/tests");
     await expect(story.file("Modified dashboard/tests/a.spec.ts")).toHaveCount(

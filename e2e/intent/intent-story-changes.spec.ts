@@ -1,6 +1,7 @@
 import {
   filesColumn,
   intentModeViews,
+  storyHomeButton,
 } from "../../dashboard/test-support/intentModePage.ts";
 // A Taken card's empty area selects its story: one header above the views
 // names it, its revisions and outside count, and offers Project Intent and
@@ -66,10 +67,8 @@ test("Intent highlights a selected Taken story's test changes over the published
     ).toHaveCount(1);
     await expect(story.title).toHaveText("Story A");
     await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
-    await expect(story.views).toHaveText("CI comparisonChangesIntent coverage");
-    await expect(
-      column.locator(":scope > :not(.visually-hidden)").first(),
-    ).toHaveClass("intent-story-scope");
+    await expect(story.views).toHaveText("CI comparisonIntent coverage");
+    await expect(storyHomeButton(intent)).toBeVisible();
     await expect(story.storyOnly(column)).not.toBeChecked();
   });
 

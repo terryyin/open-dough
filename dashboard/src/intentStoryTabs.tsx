@@ -1,30 +1,17 @@
-// The selected story's views in Intent (`./IntentPage.tsx`): **CI
-// comparison**, **Changes** and **Intent coverage**, in that order,
-// one Intent tablist (`./IntentTabs.tsx`) under the story's header
-// (`./IntentHeader.tsx`). The chosen view is disposable page state
-// (ADR 0008) kept with the project's reading place
-// (`./pageIntentReading.tsx`) together with the selection it was chosen for
-// (`./pageStorySelection.tsx`), so every new selection, even of a story
-// cleared and selected again while Intent is hidden, opens CI comparison;
-// returning from Development or another tab keeps it. Every
-// view stays mounted while another shows, so the Changes reader and
-// tree keep their place. A file's Proof returns directly to CI comparison
-// through `useStoryCiReturn`, which also focuses that tab.
+// Story Home keeps its chosen evidence tab for the current story selection.
 
-import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useLayoutEffect, useState } from "react";
 import { intentTabId, type IntentTabOption } from "./IntentTabs.tsx";
 import {
   useFinishStoryReviewOpening,
-  useShowStoryReviewOpening,
   useStoryReviewOpening,
 } from "./pageStoryReviewOpening.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 
-export type IntentStoryTab = "ci" | "changes" | "coverage";
+export type IntentStoryTab = "ci" | "coverage";
 export const storyTabs: readonly IntentTabOption<IntentStoryTab>[] = [
   { value: "ci", label: "CI comparison" },
-  { value: "changes", label: "Changes" },
   { value: "coverage", label: "Intent coverage" },
 ];
 
@@ -43,54 +30,29 @@ export function useStoryTab(selection: SelectedStory | undefined) {
   };
 }
 
-// Card arrivals choose Changes and take focus after the tab has mounted.
-export function useStoryChangesArrival(
+// The sidebar and file Proof share the return to CI comparison.
+const StoryCiReturnContext = createContext<(() => void) | undefined>(undefined);
+
+export const useStoryCiReturn = () => useContext(StoryCiReturnContext);
+export const StoryCiReturnProvider = StoryCiReturnContext.Provider;
+
+export function useReturnToStoryCi(
   project: string | undefined,
-  tabsIdPrefix: string,
-  tab: IntentStoryTab,
+  idPrefix: string,
   chooseTab: (tab: IntentStoryTab) => void,
-  canOpenFile: boolean,
+  clearSelection: () => void,
 ) {
-  const finish = useFinishStoryReviewOpening();
-  const shown = useShowStoryReviewOpening();
   const opening = useStoryReviewOpening(project);
-  useEffect(() => {
-    if (opening === undefined) return;
-    if (opening.phase === "show") {
-      chooseTab("changes");
-      document.getElementById(intentTabId(tabsIdPrefix, "changes"))?.focus();
-      shown?.(opening);
-    } else if (tab !== "changes" || !canOpenFile) {
-      finish?.(opening);
-    }
-  }, [opening, tabsIdPrefix, tab, chooseTab, canOpenFile, shown, finish]);
-}
-
-// Back to the story's CI comparison, focusing its tab; absent outside the
-// selected story's view.
-type StoryCiReturn = () => void;
-
-const StoryCiReturnContext = createContext<StoryCiReturn | undefined>(
-  undefined,
-);
-
-export const useStoryCiReturn = (): StoryCiReturn | undefined =>
-  useContext(StoryCiReturnContext);
-
-export function StoryCiReturnProvider({
-  idPrefix,
-  chooseTab,
-  children,
-}: {
-  // The story tablist's ids.
-  readonly idPrefix: string;
-  readonly chooseTab: (next: IntentStoryTab) => void;
-  readonly children: ReactNode;
-}) {
-  const back = () => {
+  const finish = useFinishStoryReviewOpening();
+  const [returnCount, setReturnCount] = useState(0);
+  useLayoutEffect(() => {
+    if (returnCount !== 0)
+      document.getElementById(intentTabId(idPrefix, "ci"))?.focus();
+  }, [returnCount, idPrefix]);
+  return () => {
+    if (opening !== undefined) finish?.(opening);
+    clearSelection();
     chooseTab("ci");
-    // The tab is drawn already; only its panel was hidden.
-    document.getElementById(intentTabId(idPrefix, "ci"))?.focus();
+    setReturnCount((count) => count + 1);
   };
-  return <StoryCiReturnContext value={back}>{children}</StoryCiReturnContext>;
 }

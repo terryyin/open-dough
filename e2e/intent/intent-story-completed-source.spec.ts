@@ -13,7 +13,10 @@ import {
   expandIntentGroup,
   purposeRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
-import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import {
+  expectIntentReviewFocused,
+  openIntentReviewChanges,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   completedChanges as changed,
   selectCompletedStoryInIntent,
@@ -75,7 +78,7 @@ test("a Done story keeps landing locations, inventory and unchanged source after
       return { intent, story: intentStory(intent), completion };
     });
   await test.step("And I expand dashboard tests in Changes", async () => {
-    await story.chooseTab("Changes");
+    await story.browseFiles();
     await expandIntentGroup(intent, "dashboard/tests");
   });
   await test.step("Then the completion's modified, added, and deleted tests appear", async () => {
@@ -161,12 +164,14 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
   });
   await test.step("And no empty-inventory notice appears", () =>
     expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0));
-  await test.step("When I open Changes", () => story.chooseTab("Changes"));
-  await test.step("Then Changes explains why it cannot show the historical files", async () => {
+  await test.step("Then Story Home explains why it cannot show the historical files", async () => {
     await expect(filesColumn(intent)).toHaveCount(0);
-    await expect(story.panel("Changes")).toContainText(
-      "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
-    );
+    await expect(
+      intent.getByText(
+        "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
+        { exact: true },
+      ),
+    ).toBeVisible();
   });
   await test.step("When I open Intent coverage", () =>
     story.chooseTab("Intent coverage"));
@@ -181,8 +186,8 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
   const review = await test.step("And I open Review changes for Story A", () =>
     openIntentReviewChanges(page, card));
   await test.step("Then Review changes shows the history problem without offering a sync retry", async () => {
-    await expect(story.panel("Changes")).toBeVisible();
     await review.expectText(unrecoverable);
+    await expectIntentReviewFocused(intent, "feedback");
     await review.expectRetrySyncUnavailable();
   });
 });

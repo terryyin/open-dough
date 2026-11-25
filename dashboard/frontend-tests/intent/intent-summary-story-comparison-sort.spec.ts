@@ -131,7 +131,7 @@ test("Summary keeps its sort through drilling and story selection, falling back 
     await expect
       .element(view.viewTab("CI comparison"))
       .toHaveAttribute("aria-selected", "true");
-    await view.chooseTab("Changes");
+    await view.browseFiles();
     await openSummary(entry);
     await expect
       .element(table.getByRole("columnheader", { name: "Landed", exact: true }))
@@ -141,7 +141,7 @@ test("Summary keeps its sort through drilling and story selection, falling back 
 
   async function returnToDone() {
     await selectFromDevelopment(facts.identity, "Story A", "Story B");
-    await intentStoryCompare().chooseTab("Changes");
+    await intentStoryCompare().browseFiles();
     await openSummary(entry);
   }
 

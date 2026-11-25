@@ -16,7 +16,7 @@
 
 import type { Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
-import { expectStoryTab, storyTab } from "./intentModePage.ts";
+import { expectIntentReviewFocused } from "./reviewChangesPage.ts";
 import { FinalReport } from "./finalReportPages.ts";
 import { PageObject } from "./fluentPageObject.ts";
 import { box } from "./pageLayout.ts";
@@ -78,11 +78,10 @@ export class Intent extends PageObject {
     );
   }
 
-  expectFocusedStoryTab(name: Parameters<typeof storyTab>[1]) {
-    return this.cueHere(`Intent: ${name} is selected and focused`, async () => {
-      await expectStoryTab(this.#intent, name);
-      await expect(storyTab(this.#intent, name)).toBeFocused();
-    });
+  expectFocusedPathReading() {
+    return this.cueHere("Intent: path reading is focused", () =>
+      expectIntentReviewFocused(this.#intent),
+    );
   }
 
   expectNotShown() {

@@ -4,6 +4,7 @@
 // (../../src/IntentCiEvidence.tsx) around its page (../../src/IntentPage.tsx),
 // whose repository result is read at its published completion.
 import { page } from "vitest/browser";
+import "../page-objects/cssLocator.ts";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import { IntentCiEvidenceProvider } from "../../src/IntentCiEvidence.tsx";
@@ -110,17 +111,17 @@ export async function mountDoneStory(
     </PageReadsOnPage>,
     { viewport: { width: 1280, height: 600 } },
   );
-  const tab = (name: "CI comparison" | "Changes") =>
+  const tab = (name: "CI comparison") =>
     page.getByRole("tab", { name, exact: true });
-  const changes = page.getByRole("tabpanel", { name: "Changes", exact: true });
-  const failure = changes.getByRole("alert");
+  const files = page.getByCSS(".intent-locations");
+  const failure = files.getByRole("alert");
   return {
     tab,
     title: page
       .getByRole("region", { name: "Selected story", exact: true })
       .getByRole("heading", { level: 2 }),
     headers: page.getByRole("region", { name: "Selected story", exact: true }),
-    changes,
+    files,
     failure,
     retry: failure.getByRole("button", { name: "Retry", exact: true }),
   };

@@ -35,7 +35,7 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
       Promise.resolve(query.run === run.key ? runGap : offeringRun()),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
   await expect.element(story.filesToggle).toBeVisible();
 
@@ -60,7 +60,7 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
       .poll(() => story.noteBuild(name))
       .toBe(doneCompletion.slice(0, 7));
   }
-  await story.chooseTab("Changes");
+  await story.browseFiles();
 
   // Published completion again names the completion.
   await story.choose("Published completion");
@@ -88,7 +88,7 @@ test("a failed read of a chosen landed run offers Retry, which reads that run ag
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
 
   // Landed runs whose read fails explains the failure.

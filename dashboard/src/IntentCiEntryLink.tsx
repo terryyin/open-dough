@@ -33,9 +33,10 @@ export function IntentCiEntryNavigation({
   const [arrivals, setArrivals] = useState(0);
   useEffect(() => {
     if (arrivals === 0) return;
-    const reading = document
-      .getElementById(panelId)
-      ?.querySelector<HTMLElement>(".intent-reading");
+    const panel = document.getElementById(panelId);
+    const reading = panel?.matches(".intent-reading")
+      ? panel
+      : panel?.querySelector<HTMLElement>(".intent-reading");
     if (reading === undefined || reading === null) return;
     reading.scrollTop = 0;
     reading.focus();

@@ -21,6 +21,11 @@ export class IntentReviewFiles {
     return repositoryTree(this.#intent);
   }
 
+  async expectInventoryNotice(message: string | RegExp) {
+    await expect(filesColumn(this.#intent).getByText(message)).toBeVisible();
+    return this;
+  }
+
   async expectChangedFileCount(count: number) {
     await expect(this.tree.locator("li[data-kind]")).toHaveCount(count);
     return this;

@@ -43,7 +43,7 @@ test("an outside file's Proof names the story's CI comparison, explains missing 
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await activateComparisonControl(story.file(landingFile));
   await expect.poll(story.diffName).toBe(landingFile);
   await expect.poll(story.diffCode).toContain("landing line 199");
@@ -68,13 +68,6 @@ test("an outside file's Proof names the story's CI comparison, explains missing 
   await expect.element(proof.getByRole("table")).not.toBeInTheDocument();
 
   await story.choosePurpose();
-  await expect.poll(story.diffName).toBe(landingFile);
-  await expect.poll(story.readingOffset).toBe(offset);
-  await story.chooseTab("CI comparison");
-  await story.chooseTab("Changes");
-  await expect
-    .element(page.getByRole("tab", { name: "Purpose", exact: true }))
-    .toHaveAttribute("aria-selected", "true");
   await expect.poll(story.diffName).toBe(landingFile);
   await expect.poll(story.readingOffset).toBe(offset);
 });

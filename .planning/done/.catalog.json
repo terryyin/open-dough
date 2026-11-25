@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_read-story-evidence-from-intent-home.json",
+      "identity": "SEED-420#read-story-evidence-from-intent-home",
+      "completedAt": "2026-11-25T14:56:33.407Z",
+      "blob": "f565e2f65c11c1e095ae08607ff7c4e16aa64a78"
+    },
+    {
+      "fileName": "SEED-413_finish-backend-vitest-renovation-after-launch-options.json",
+      "identity": "SEED-413#finish-backend-vitest-renovation-after-launch-options",
+      "completedAt": "2026-11-25T14:32:54.685Z",
+      "blob": "c0325e933a85218e4e24f0da41e537132dedfb8e"
+    },
+    {
+      "fileName": "SEED-413_finish-backend-vitest-renovation-after-session-reads-and-alerts.json",
+      "identity": "SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts",
+      "completedAt": "2026-11-25T14:15:07.314Z",
+      "blob": "dc5c4d441edd35bd52bdab2ddca611cc4f3c485f"
+    },
+    {
       "fileName": "SEED-420_compact-story-comparison-controls.json",
       "identity": "SEED-420#compact-story-comparison-controls",
       "completedAt": "2026-11-25T14:04:32.755Z",

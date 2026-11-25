@@ -66,16 +66,18 @@ test("including merged changes leaves CI comparison and file Proof at the measur
   const story = intentStoryCompare();
   const measured = measuredLanded.slice(0, 7);
 
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await activateComparisonControl(story.includeMerged);
   await activateComparisonControl(story.file(`Added ${incomingPath}`));
   await story.chooseProof();
 
   await comparisonRead(() => story.proofLabels(doneIdentity)).not.toEqual([]);
   await comparisonRead(() => story.noteBuild("Proof")).toBe(measured);
+  await story.goHome();
   expect(story.noteBuild("CI comparison")).toBe(measured);
-  expect(story.noteBuild("Intent coverage")).toBe(measured);
   expect(story.landedEndpoint()).toContain(measured);
+  await story.chooseTab("Intent coverage");
+  expect(story.noteBuild("Intent coverage")).toBe(measured);
   expect(
     proofReads.some(({ subject }) => subject.revision === measuredLanded),
   ).toBe(true);
@@ -98,7 +100,7 @@ test("a captured landed run reads its own diff pair after a branch comparison in
   });
   const story = intentStoryCompare();
 
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await activateComparisonControl(story.includeMerged);
   await comparisonRead(story.revisions).toContain(`Baseline ${widenedFrom}.`);
   await story.chooseLatestLanding();
@@ -134,11 +136,11 @@ test("changing stories clears the widened choice and gives Trunk Mode its own fi
   });
   const story = intentStoryCompare();
 
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await activateComparisonControl(story.includeMerged);
   await comparisonRead(story.revisions).toContain(`Baseline ${widenedFrom}.`);
   await mounted.selectStory(trunkStory.identity);
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await activateComparisonControl(story.file(`Added ${trunkPath}`));
 
   await comparisonRead(requestedDiff).toMatchObject({
@@ -151,7 +153,7 @@ test("changing stories clears the widened choice and gives Trunk Mode its own fi
   expect(story.file(`Added ${incomingPath}`).query()).toBeNull();
 
   await mounted.selectDoneStory();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.element(story.file(`Added ${branchPath}`)).toBeVisible();
   expect(story.file(`Added ${incomingPath}`).query()).toBeNull();
   expect((story.includeMerged.element() as HTMLInputElement).checked).toBe(
@@ -177,7 +179,7 @@ test("a late branch comparison cannot replace another story's explanation or fil
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await activateComparisonControl(story.includeMerged);
   await expect.element(story.file(`Added ${incomingPath}`)).toBeVisible();
   holdBranchRead = true;
@@ -186,7 +188,7 @@ test("a late branch comparison cannot replace another story's explanation or fil
   await comparisonRead(held.asked).toBe(true);
 
   await mounted.selectStory(trunkStory.identity);
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await comparisonRead(story.headerText).toContain(gap);
   await expect.element(story.includeMerged).not.toBeInTheDocument();
   expect(branchSignal?.aborted).toBe(true);

@@ -93,7 +93,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
       .element(page.getByRole(role, { name: switchName }))
       .not.toBeInTheDocument();
 
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   const folder = scopeToggle("folder");
   await expect.element(folder).toBeVisible();
   if (folder.element().getAttribute("aria-expanded") === "false")
@@ -130,7 +130,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
       .querySelector("p, .intent-story-coverage-text") as Element,
   );
 
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.element(file).toHaveAttribute("data-ci-count-cue", "none");
   await expect
     .element(file)

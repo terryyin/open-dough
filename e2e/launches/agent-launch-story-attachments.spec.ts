@@ -4,6 +4,7 @@
 // launch-attachments folder. That both story dialogs offer Attach images is
 // ../../dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts.
 
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
@@ -85,5 +86,7 @@ test("Start refinement with two picked images and no text ends the first input w
   const path2 = lines[2]?.replace(/^2\. /, "") ?? "";
   expectCopiedAttachmentPath(path1, dashboard.home, "1-mockup-a.png");
   expectCopiedAttachmentPath(path2, dashboard.home, "2-mockup-b.png");
+  expect(readFileSync(path1)).toEqual(pngA);
+  expect(readFileSync(path2)).toEqual(pngB);
   expect(record?.request.attachments).toEqual([path1, path2]);
 });

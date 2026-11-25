@@ -18,7 +18,7 @@ import { startingFromKeptSummaryComparisonStory } from "./keptPublishedStory.ts"
 import { keepLandedCiHistory } from "./landedCiHistory.ts";
 import { startLandedCiReader } from "./landedCiReader.ts";
 import { commonGitDir } from "./launchLanding.ts";
-import { chooseStoryTab } from "./intentStoryPage.ts";
+import { browseStoryFiles } from "./intentStoryPage.ts";
 import { test as preparationTest } from "./preparationPage.ts";
 import { openDoneStoryIntent } from "./scopeHistoryCollectedPage.ts";
 import { serveKeptScopeProofs } from "./scopeHistoryCollection.ts";
@@ -124,7 +124,7 @@ export async function readKeptProjectHistory(
   // The Done comparison's reads go on while the case reads Changes; a
   // case waits for the page's reads before it counts acquisitions.
   const { intent } = await openDoneStoryIntent(page, dashboard.origin);
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   return { setup, latest, intent };
 }
 

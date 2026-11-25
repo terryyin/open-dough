@@ -1,9 +1,11 @@
 import { codePane, expectContextRead } from "./reviewPanes.ts";
 import {
+  browseStoryFiles,
   chooseStoryTab,
   expectStoryTab,
   filesColumn,
   storySummary,
+  storyFilesReading,
   storyTabPanel,
   storyViews,
 } from "../intentModePage.ts";
@@ -36,8 +38,10 @@ export {
   storySummary,
   storyViews,
   storyTab,
+  storyFilesReading,
   storyTabPanel,
   expectStoryTab,
+  browseStoryFiles,
   chooseStoryTab,
 } from "../intentModePage.ts";
 
@@ -207,6 +211,7 @@ export function intentStory(intent: Locator) {
       }
     },
     tree: repositoryTree(intent),
+    files: filesColumn(intent),
     headerDetail: () => storyHeaderDetail(intent),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
       chooseStoryTab(intent, name),
@@ -214,6 +219,8 @@ export function intentStory(intent: Locator) {
       expectStoryTab(intent, name),
     panel: (name: Parameters<typeof storyTabPanel>[1]) =>
       storyTabPanel(intent, name),
+    browseFiles: () => browseStoryFiles(intent),
+    filesReading: storyFilesReading(intent),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     followUpComparison: () =>
       followUpFrom(

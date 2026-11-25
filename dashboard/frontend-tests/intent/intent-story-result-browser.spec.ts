@@ -1,5 +1,4 @@
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { StoryReviewResult } from "../../src/storyReviewResult.ts";
 import { heldRead } from "./intent-ci-status-fixtures.ts";
@@ -21,8 +20,6 @@ const run = makeMe.aReviewRun
   .please();
 const captured = makeMe.aStoryReview.landed().onRun(run, [run]).please();
 
-const changesPanel = () =>
-  page.getByRole("tabpanel", { name: "Changes", exact: true });
 const listed = (path: string) => {
   const root = path.split("/")[0] ?? "";
   return makeMe.anIntentLocation
@@ -63,7 +60,7 @@ test("switching comparisons changes the inventory, settings and file's exact rev
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await story.expandFolderPath("checks");
   await expect.element(story.file(currentTest)).toBeVisible();
   await story.expandFolderPath("docs");
@@ -107,7 +104,7 @@ test("a late inventory from the prior comparison cannot replace a captured run's
           }),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.poll(oldInventory.asked).toBe(true);
   await story.chooseLatestLanding();
   await story.expandFolderPath("previous");
@@ -159,8 +156,8 @@ test("an inventory failure keeps the changed diff available while Retry restores
       ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-  const failure = changesPanel()
+  await story.browseFiles();
+  const failure = story.sidebar
     .getByRole("alert")
     .filter({ hasText: "Repository inventory could not be read" });
   await expect

@@ -20,22 +20,11 @@ import {
 const purposeProof = () =>
   intent.getByRole("tablist", { name: "Purpose and Proof", exact: true });
 
-test("the story retains its reading across tabs, and its candidate's project source is published and returns focus", async () => {
+test("the selected story reads its diff, and the project candidate source is published and returns focus", async () => {
   const { reads } = await mountProjectVisit();
   await selectTakenStoryInIntent();
   await story.file(deepSpec).click();
   await expect.poll(story.diffCode).toContain("long 120");
-  const offset = await story.scrollReadingHalfway();
-  await story.chooseTab("Intent coverage");
-  await story.chooseTab("Changes");
-  await expect
-    .element(story.viewTab("Changes"))
-    .toHaveAttribute("aria-selected", "true");
-  await expect
-    .element(story.file(deepSpec))
-    .toHaveAttribute("aria-pressed", "true");
-  await expect.poll(() => story.readingOffset()).toBe(offset);
-
   await story.file(changed.modified).click();
   await expect.poll(story.diffName).toBe(changed.modified);
   await story.chooseProof();
@@ -44,15 +33,6 @@ test("the story retains its reading across tabs, and its candidate's project sou
     .getByRole("button", { name: "View story CI comparison" });
   await expect.element(storyCiLink).toBeVisible();
 
-  await story.chooseTab("CI comparison");
-  await story.chooseTab("Changes");
-  await expect
-    .element(story.file(changed.modified))
-    .toHaveAttribute("aria-pressed", "true");
-  await expect
-    .element(purposeProof().getByRole("tab", { name: "Proof", exact: true }))
-    .toHaveAttribute("aria-selected", "true");
-  await expect.element(storyCiLink).toBeVisible();
   await userEvent.click(
     purposeProof().getByRole("tab", { name: "Purpose", exact: true }),
   );

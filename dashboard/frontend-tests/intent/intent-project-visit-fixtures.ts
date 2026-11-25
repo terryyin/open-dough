@@ -168,6 +168,6 @@ export async function selectTakenStoryInIntent() {
   await expect
     .element(intent)
     .toHaveAttribute("data-selected-story", storyA.identity);
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   return card;
 }

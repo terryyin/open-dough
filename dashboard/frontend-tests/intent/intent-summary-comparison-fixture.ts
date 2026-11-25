@@ -144,9 +144,7 @@ export async function openSummaryComparison(
   await expect
     .element(page.getByRole("main", { name: "Intent", exact: true }))
     .toHaveAttribute("data-selected-story", story.identity);
-  const changes = intentStoryCompare().viewTab("Changes");
-  await expect.element(changes).toBeVisible();
-  (changes.element() as HTMLElement).click();
+  await intentStoryCompare().browseFiles();
   return {
     selectStory: (identity: string, title: string) =>
       mounted.selectStory(identity, title),

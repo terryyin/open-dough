@@ -69,22 +69,21 @@ test("a selected story's CI comparison shows under its one header while the Inte
   expect(done.headers.elements()).toHaveLength(1);
   expect(walls).not.toEqual([]);
 
-  await done.tab("Changes").click();
   await expect
-    .poll(() => done.changes.query()?.textContent)
-    .toContain(readingLocations);
+    .element(done.files.getByText(readingLocations, { exact: true }))
+    .toBeVisible();
   expect(ci.asked.comparisons).toHaveLength(1);
   held.replies[0]?.resolve({ status: "configured", locations });
   await expect
-    .poll(() => done.changes.query()?.textContent)
-    .not.toContain(readingLocations);
+    .element(done.files.getByText(readingLocations, { exact: true }))
+    .not.toBeInTheDocument();
   await done.tab("CI comparison").click();
   await expect.poll(() => comparison.activeComparison()).toEqual(landed);
   expect(comparison.wallTimes()).toEqual(walls);
   expect(ci.asked.comparisons).toHaveLength(1);
 });
 
-test("a failed Intent locations read leaves the story's CI comparison shown while Changes explains the failure, and Retry reads the completion revision", async () => {
+test("a failed Intent locations read leaves the story's CI comparison shown alongside an explanation of the failure, and Retry reads the completion revision", async () => {
   const completion = "2".repeat(40);
   const { done, held, comparison, walls } =
     await doneStoryWithHeldLocations(completion);
@@ -92,7 +91,6 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
     new ReadProblem("locations read failed", undefined, "transient"),
   );
 
-  await done.tab("Changes").click();
   await expect
     .poll(() => done.failure.element().textContent)
     .toBe(
@@ -104,12 +102,11 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
   await expect.poll(() => comparison.activeComparison()).toEqual(landed);
   expect(comparison.wallTimes()).toEqual(walls);
 
-  await done.tab("Changes").click();
   await done.retry.click();
   await expect.poll(() => held.revisions).toEqual([completion, completion]);
   held.replies[1]?.resolve({ status: "configured", locations });
   await expect.element(done.failure).not.toBeInTheDocument();
   await expect
-    .poll(() => done.changes.query()?.textContent)
-    .not.toContain(readingLocations);
+    .element(done.files.getByText(readingLocations, { exact: true }))
+    .not.toBeInTheDocument();
 });

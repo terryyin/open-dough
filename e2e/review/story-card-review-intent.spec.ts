@@ -2,9 +2,9 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
+  browseStoryFiles,
   chooseStoryTab,
   expectStoryTab,
-  storyTab,
 } from "../../dashboard/test-support/intentModePage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
@@ -12,7 +12,11 @@ import {
   expectSelected,
 } from "../../dashboard/test-support/storyCardSelection.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
-import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import {
+  expectIntentReviewFocused,
+  expectIntentReviewOpened,
+  openIntentReviewChanges,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   intentDiffReading,
   intentStory,
@@ -44,7 +48,7 @@ const changedFiles = [
   storyFile,
 ];
 
-test("the Taken Story card opens Changes beside its terminal and Back returns to that card", async ({
+test("the Taken Story card opens the first changed file beside its terminal and Back returns to that card", async ({
   page,
   dashboard,
   origin,
@@ -104,7 +108,7 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await emptyArea(card).click();
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await files.expectNoSelection();
   await files.expectChangedFiles(changedFiles);
   await intentStory(intent).expandFolderPath("a-tests/second-folder");
@@ -120,13 +124,12 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await reviewChanges(card).press("Enter");
   await expect(intent).toBeVisible();
   await expect(intent).toHaveAttribute("data-selected-story", queuedIdentity);
-  await expectStoryTab(intent, "Changes");
-  await expect(storyTab(intent, "Changes")).toBeFocused();
+  await expectIntentReviewOpened(intent);
   await files.expectSelected(firstFile);
   const reading = intentDiffReading(intent);
   await expect(reading.name).toHaveText(firstFile);
   await expect(reading.container).toContainText("first by repository order");
-  await expect(storyTab(intent, "Changes")).toBeFocused();
+  await expectIntentReviewFocused(intent);
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
   await page.goBack();
   await expect(board).toBeVisible();
@@ -144,14 +147,14 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await development.click();
   await expectSelected(card, true);
   await openIntentReviewChanges(page, card);
-  await expectStoryTab(intent, "Changes");
+  await expectIntentReviewOpened(intent);
   await review.files.expectSelected(storyFile);
   await expect(reading.name).toHaveText(storyFile);
 
   await chooseStoryTab(intent, "Intent coverage");
   await development.click();
   await openIntentReviewChanges(page, card);
-  await expectStoryTab(intent, "Changes");
+  await expectIntentReviewOpened(intent);
   await review.files.expectSelected(storyFile);
   await expect(reading.name).toHaveText(storyFile);
 
@@ -162,7 +165,7 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await expectSelected(card, true);
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await review.files.expectChangedFiles(changedFiles);
   await expect(review.files.row(storyFile)).toBeVisible();
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);

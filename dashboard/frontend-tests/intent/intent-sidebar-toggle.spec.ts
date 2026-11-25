@@ -32,13 +32,13 @@ const ciStatus = intentPage.getByRole("region", {
   exact: true,
 });
 
-test("Hide files gives the reading pane the width under the story's header; after the other views, Show files returns the column, test and Proof as they were", async () => {
+test("Hide files gives the reading pane the width under the story's header; Show files restores the column, test and Proof before Home clears the path", async () => {
   await openIntentFileLayout({
     viewport: { width: 1280, height: 560 },
   });
   const files = fileLayout();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await story.onlyChangedFiles.click();
   const selected = story.file(deepFile);
   await selected.click();
@@ -58,15 +58,6 @@ test("Hide files gives the reading pane the width under the story's header; afte
   );
   await expect.element(proof).toBeVisible();
 
-  for (const view of ["Intent coverage", "CI comparison"] as const) {
-    await story.chooseTab(view);
-    await expect.element(files.toggle).not.toBeInTheDocument();
-    await expect.poll(files.readerVisible).toBe(false);
-    await story.chooseTab("Changes");
-    await files.showsFiles(false);
-    await expect.element(proof).toBeVisible();
-  }
-
   await files.toggle.click();
   await files.showsFiles(true);
   await expect.element(story.onlyChangedFiles).toBeChecked();
@@ -77,13 +68,17 @@ test("Hide files gives the reading pane the width under the story's header; afte
       .toHaveAttribute("aria-expanded", "true");
   await expect.poll(files.fileScroll).toBe(offset);
   await expect.element(proofTab).toHaveAttribute("aria-selected", "true");
+  story.home.element().focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(story.viewTab("CI comparison")).toHaveFocus();
+  await expect.element(selected).toHaveAttribute("aria-pressed", "false");
 });
 
 test("changed locations keep their own full-width header and change mark when selected", async () => {
   const mounted = await openIntentFileLayout({
     viewport: { width: 1280, height: 800 },
   });
-  await intentStoryCompare().chooseTab("Changes");
+  await intentStoryCompare().browseFiles();
   const folder = scopeToggle("boundary");
   await expect.element(folder).toBeVisible();
   const markedFolder = folder.element().closest(".story-review-folder-row");
@@ -154,7 +149,7 @@ test("the hidden column stays hidden across scopes and Development, with its own
   });
   const files = fileLayout();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await files.toggle.click();
   await files.showsFiles(false);
 
@@ -163,7 +158,6 @@ test("the hidden column stays hidden across scopes and Development, with its own
   await projectView("Optimization Candidates").click();
   await expect.element(files.toggle).not.toBeInTheDocument();
   await intentRecentStories(openDoughSource).chooseRow("SEED-A#a");
-  await story.chooseTab("Changes");
   await files.showsFiles(false);
 
   await mounted.showDevelopment();
@@ -182,7 +176,7 @@ test("the hidden column stays hidden across scopes and Development, with its own
       story.header.getByRole("heading", { name: "Story A", exact: true }),
     )
     .toBeVisible();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await files.showsFiles(true);
 });
 

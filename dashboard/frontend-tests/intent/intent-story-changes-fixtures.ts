@@ -112,6 +112,7 @@ export async function openStoryChanges({
     }),
   storyNotes,
   machine,
+  ci,
 }: {
   readonly hasWorkspace?: boolean;
   readonly hasLocations?: boolean;
@@ -120,6 +121,7 @@ export async function openStoryChanges({
   readonly title?: string;
   readonly machine?: MachineAnswer;
   readonly review?: ReviewSource["review"];
+  readonly ci?: Partial<PageReads["ci"]>;
 } & Partial<Pick<ReviewSource, "fileDiff" | "fileText">> &
   Partial<Pick<PageReads, "storyNotes">> = {}) {
   const locations =
@@ -171,6 +173,7 @@ export async function openStoryChanges({
           Promise.resolve(
             judgedStatus(branch, "pass", revision, "Published tests"),
           ),
+        ...ci,
       }),
       review: {
         ...review,

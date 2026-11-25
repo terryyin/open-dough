@@ -18,7 +18,7 @@ import {
 } from "../../dashboard/test-support/support/codexStart.ts";
 import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   folderToggle,
   intentDiff,
   intentFile,
@@ -86,7 +86,7 @@ test("a Done story reads its published execution instead of an earlier refinemen
   const answer = storyReviewSchema.parse(await (await received).json());
   expect(answer).toMatchObject({ kind: "published", completion });
   expect(answer.selectedRun).toBeUndefined();
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expandIntentGroup(intent, "dashboard/tests");
   const original = await intentDiff(intent, modified);
   expect(original).toContain("the completed execution test");

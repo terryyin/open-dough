@@ -2,9 +2,8 @@
 // (./intent-story-compare-stories.ts) as a reader meets its comparison: the
 // header's comparison summary, the details its eye reveals (the revisions
 // and Refresh), its Compare group (the comparison choice, the story's commits,
-// the uncommitted check and the range read), the
-// story's views, the Changes file list, its folders and "Selected story
-// only" filter, and the selected file's diff in the reading pane.
+// the uncommitted check and the range read), Story Home's evidence tabs,
+// and the file list, folders, filter and diff in the story browser.
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import "../page-objects/cssLocator.ts";
@@ -49,12 +48,26 @@ export function intentStoryCompare() {
   const landingChoices = compare.getByRole("radio", { name: / — / });
   const runChoice = (key: string) =>
     landingChoices.and(page.getByCSS(`[value="${CSS.escape(key)}"]`));
-  type View = "Changes" | "CI comparison" | "Intent coverage";
+  type View = "CI comparison" | "Intent coverage";
   const storyViews = intent.getByRole("tablist", {
-    name: "Selected story views",
+    name: "Story Home",
   });
   const viewTab = (name: View) =>
     storyViews.getByRole("tab", { name, exact: true });
+  const sidebar = intent.getByCSS(".intent-locations");
+  const showFiles = intent.getByRole("button", {
+    name: "Show files",
+    exact: true,
+  });
+  const home = intent.getByRole("button", { name: "Home", exact: true });
+  const pathReading = intent.getByRole("region", { name: "Path reading" });
+  const browseFiles = async () => {
+    if (showFiles.query() !== null) await activateComparisonControl(showFiles);
+  };
+  const goHome = async () => {
+    await browseFiles();
+    await activateComparisonControl(home);
+  };
   const view = (name: View) => {
     const id = viewTab(name).query()?.getAttribute("aria-controls");
     return id === undefined || id === null ? null : document.getElementById(id);
@@ -209,9 +222,18 @@ export function intentStoryCompare() {
       await userEvent.click(refreshButton);
     },
     viewTab,
-    chooseTab: (name: View) => activateComparisonControl(viewTab(name)),
+    chooseTab: async (name: View) => {
+      if (pathReading.query() !== null) await goHome();
+      await activateComparisonControl(viewTab(name));
+    },
+    browseFiles,
+    goHome,
+    home,
+    pathReading,
+    sidebar,
+    homeReading: intent.getByCSS(".intent-story-home"),
     // A listed file's control, named by its kind and path.
-    file: (name: string) => intent.getByRole("button", fileNamed(name)),
+    file: (name: string) => sidebar.getByRole("button", fileNamed(name)),
     // A location's or folder's toggle, by its name and whether it is open.
     folderToggle: (name: string, open: boolean) =>
       intent.getByRole("button", {

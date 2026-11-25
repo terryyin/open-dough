@@ -1,7 +1,6 @@
 // Intent's persistent header for project evidence or a selected story.
-// Story metadata and comparison appear in that story's evidence context:
-// its views, then the comparison bar whose row holds the files toggle, the
-// comparison choice and the summary, directly above the story's view.
+// The story's comparison bar holds the files toggle, comparison choice,
+// and summary above the reading pane.
 
 import type { ReactNode } from "react";
 import { IntentStoryCompare } from "./IntentStoryCompare.tsx";
@@ -18,15 +17,14 @@ export function IntentHeader({
   source,
   browserRevision,
   filesToggle,
-  tabBar,
+  reviewFeedbackId,
 }: {
   readonly summary: StorySummary | undefined;
   readonly source: string;
   readonly browserRevision: string | undefined;
   // A story's files toggle, which leads its comparison bar.
-  readonly filesToggle: ReactNode;
-  // A story's views, between its title rows and its comparison bar.
-  readonly tabBar: ReactNode;
+  readonly filesToggle?: ReactNode;
+  readonly reviewFeedbackId?: string | undefined;
 }) {
   const story = summary?.story;
   const compare =
@@ -36,6 +34,8 @@ export function IntentHeader({
       className="intent-header"
       aria-label={story === undefined ? "Project Intent" : "Selected story"}
       data-state={summary?.comparison.state}
+      id={reviewFeedbackId}
+      tabIndex={reviewFeedbackId === undefined ? undefined : -1}
     >
       <p className="intent-story-crumb">
         {story === undefined ? "Project Intent" : "Selected story"}
@@ -80,7 +80,6 @@ export function IntentHeader({
           <code title={browserRevision}>{shortRevision(browserRevision)}</code>
         </p>
       )}
-      {tabBar}
       {summary !== undefined && (
         <IntentComparisonBar
           key={summary.story.identity}

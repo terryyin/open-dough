@@ -108,14 +108,14 @@ async function openCapturedRun({
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   return { story, file: story.file(`Modified ${filePath}`), observedAttempts };
 }
 
 const locationControl = () =>
-  page
-    .getByRole("tabpanel", { name: "Changes", exact: true })
-    .getByRole("button", { name: /^dashboard\/tests, / });
+  intentStoryCompare().sidebar.getByRole("button", {
+    name: /^dashboard\/tests, /,
+  });
 
 async function openSummary() {
   await activateComparisonControl(locationControl());

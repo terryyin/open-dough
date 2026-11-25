@@ -18,7 +18,7 @@ import {
   test,
 } from "../../dashboard/test-support/support/codexStart.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentDiff,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
@@ -107,7 +107,7 @@ test("a Done story's later completion outranks its execution launch's first capt
     kind: "published",
     completion,
   });
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expandIntentGroup(intent, "dashboard/tests");
   const original = await intentDiff(intent, modified);
   expect(original).toContain("the final completed execution");

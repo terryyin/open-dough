@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sessionId": "4194758a-ec84-4dfd-8263-19ae64660e24",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T15:01:47.792Z",
+  "story": "SEED-413#finish-backend-vitest-renovation-after-launch-options",
+  "ranges": [
+    {
+      "base": "35f189e8610aeecc264a0faf291b103099c6fe99",
+      "candidate": "a0bf56a8cc52d5eebc733c5da7c0740ee1307ded"
+    },
+    {
+      "base": "a0bf56a8cc52d5eebc733c5da7c0740ee1307ded",
+      "candidate": "5930174c01cdd767b89c7c4365e231902ce11cd6"
+    },
+    {
+      "base": "5930174c01cdd767b89c7c4365e231902ce11cd6",
+      "candidate": "0bf28557b2c054bc0c7c68c2022bedf5a0aaf252"
+    },
+    {
+      "base": "0bf28557b2c054bc0c7c68c2022bedf5a0aaf252",
+      "candidate": "d105c9f1edba20127256b5e9c15a9cb69898eb7c"
+    },
+    {
+      "base": "d105c9f1edba20127256b5e9c15a9cb69898eb7c",
+      "candidate": "ee8d963f593e06a2a2ca518b8c4072e888b8bae6"
+    },
+    {
+      "base": "ee8d963f593e06a2a2ca518b8c4072e888b8bae6",
+      "candidate": "5ab99f69ae827ce89af5b23646f015940dca400c"
+    },
+    {
+      "base": "fec5480484657266e715615024f3d6b630ad4b35",
+      "candidate": "7163eb39191fe7890ab77d6ab0504ae8f0b3575f"
+    }
+  ]
+}

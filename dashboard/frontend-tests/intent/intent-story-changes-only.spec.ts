@@ -45,7 +45,7 @@ const changedInFirstLocation = [
 test("Selected story only shows just the story's changed files, expanded, and off again the whole tree with its changed folders open", async () => {
   const mounted = await openStoryChanges();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.element(story.onlyChangedFiles).not.toBeChecked();
   await scopeToggle("boundary").click();
   await scopeToggle("other").click();
@@ -67,13 +67,9 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await expect
     .element(page.getByRole("tabpanel", { name: "Intent coverage" }))
     .toBeVisible();
-  await expect
-    .element(
-      page.getByRole("tabpanel", { name: "Changes", includeHidden: true }),
-    )
-    .not.toBeVisible();
-  await story.chooseTab("Changes");
-  await expect.element(file).toHaveAttribute("aria-pressed", "true");
+  await expect.element(story.pathReading).not.toBeInTheDocument();
+  await expect.element(file).toHaveAttribute("aria-pressed", "false");
+  await file.click();
   await expect.poll(story.diffName).toBe(changed.modified);
   await expect.element(story.onlyChangedFiles).toBeChecked();
   await showsStoryExpansion();
@@ -95,7 +91,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await expect
     .element(story.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect
     .element(story.header.getByRole("status"))
     .toHaveTextContent("No comparison is available.");
@@ -108,7 +104,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await expect
     .element(story.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.element(story.onlyChangedFiles).not.toBeChecked();
   await showsStoryExpansion();
   await expect
@@ -121,7 +117,7 @@ test("a product-only or empty comparison explains why no tests changed and keeps
   let review = makeMe.aStoryReview.modifying(productPath).please();
   await openStoryChanges({ review: () => Promise.resolve(review) });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.poll(story.revisions).toContain("Published story branch");
   await expect.element(story.onlyChangedFiles).not.toBeChecked();
   await expect.element(story.file(changed.product)).toBeVisible();
@@ -165,7 +161,7 @@ test("a product-only or empty comparison explains why no tests changed and keeps
 test("Selected story only stays on through a new trunk revision and tab changes, and Whole project can read the latest trunk", async () => {
   const mounted = await openStoryChanges();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await story.onlyChangedFiles.click();
   await showsStoryExpansion();
 
@@ -180,7 +176,7 @@ test("Selected story only stays on through a new trunk revision and tab changes,
   await showsStoryExpansion();
 
   await story.chooseTab("Intent coverage");
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.element(story.onlyChangedFiles).toBeChecked();
   await showsStoryExpansion();
   await expect.element(story.file(otherPath)).not.toBeInTheDocument();

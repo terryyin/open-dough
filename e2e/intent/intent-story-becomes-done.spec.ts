@@ -16,7 +16,7 @@ import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectiv
 import { keepUnusableCompletedCapture } from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
 import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentDiff,
   storySummary,
   storyHeaderReading,
@@ -113,7 +113,7 @@ test("a selected Taken story moves from published trunk to its published complet
   await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
   await expect(storyHeaderReading(intent).done).toHaveText("Done");
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expandIntentGroup(intent, "dashboard/tests");
   expect(await intentDiff(intent, modified)).toContain(
     "published completion after active selection",
