@@ -179,85 +179,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
-<a id="renovate-remaining-backend-families-after-launch-admission"></a>
-
-### Prove Intent CI comparison and landed history reads through their typed reads
-
-**Identity:** SEED-413#renovate-remaining-backend-families-after-launch-admission
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/821-prove-intent-ci-readers-through-typed-reads/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ed3aa3c1993f8d610543294e86f5d0a3c155441a9b430a0fe0a2f33d5a79bc02","plan":"1ef438a91f176f52d240f0ff8cda15566a9c2f9d7115285bef9054547fbab465"}}
-```
-
-- **Goal.** Dashboard maintainers changing how Intent compares a story's CI
-  with trunk, or how it reads landed CI history, get fast, compile-time-checked
-  feedback with no dashboard server. Aim for about 100 ms per case.
-- **Scope.** Move these 22 Playwright-selected specs under
-  `dashboard/backend-tests/intent/` to plain Node Vitest, following the
-  campaign criteria in the
-  [remaining backend renovation](#renovate-remaining-backend-families-after-intent-ci-readers):
-  - Comparison memory, already in process behind a Playwright fixture:
-    `ci-comparison-client-identity`, the five `ci-comparison-finality-*`
-    specs (`answered`, `equivalent-recovery`, `no-run`, `receipts`,
-    `unanswered`), the four `ci-comparison-memory-*` specs (`final`, `fresh`,
-    `later`, `recovery`) and `ci-proof-memory-github-gaps`.
-  - Landed history reads through a started boundary server:
-    `ci-done-history-retry`, `ci-done-wall-availability`,
-    `ci-done-wall-reference`, `ci-history-glance-compatibility`,
-    `ci-history-measure-compatibility`, `ci-history-reader-compatibility`,
-    `ci-history-slim-response`, `ci-prior-build-revision-order` and
-    `ci-project-measure-reference`.
-  - Comparison with pending proof or a receipt, arranged through the launch
-    store and a server: `intent-ci-comparison-pending-proof` and
-    `intent-ci-comparison-receipt`.
-
-  Call `performIntentCiComparisonRead` and `performIntentCiHistoryRead`
-  directly. State the kept landed history, launch landings and CI answers
-  through MakeMe. Use a real Git origin only where landing order or ancestry
-  decides the answer. Prove the history read's parameter refusals as
-  request-admission unit cases. Existing Node Vitest specs already cover
-  the comparison read's parameters. Where a case depends on a provider-directed wait or the
-  request owner's clock, prove the decision beneath it in process; it needs no
-  started server. Delete the `dashboard/test-support/` wrappers this cohort
-  alone used, such as the comparison-memory fixture and the pending-comparison
-  server helpers, and add none.
-- **Boundary.** The [remaining backend renovation](#renovate-remaining-backend-families-after-intent-ci-readers)
-  keeps every other Playwright-selected spec. Selection left these out:
-  - the landed CI repeat checks and collector and server lifetime, owned by
-    the [repeat-check correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps);
-  - `proof-record*` and `spec-times`, which prove the test runner's own
-    proof record and change with runner retirement;
-  - `authenticated-read-intent-*` and `intent-ci-status-read-boundary`,
-    which read through the GitHub-backed authenticated boundary that the
-    local-Git reading stories are replacing;
-  - launch, session, Review landing and authenticated-read families, whose
-    specs the Taken stories SEED-433, SEED-432, SEED-430 and SEED-423 are
-    changing now.
-- **Evaluation.** Compare the 22-file selection under the maintained backend
-  runner before and after. Before, at `2bf3fe927` on 25 November 2026 under
-  load average about 26: 59 cases summed to 54.3 s and the selection took
-  48 s, with 16 cases over 100 ms. `intent-ci-comparison-pending-proof`
-  (24.0 s) and `intent-ci-comparison-receipt` (11.7 s) held two thirds of it.
-  The 11 comparison-memory specs already run in under 0.2 s together, so
-  they reduce the legacy count rather than time. CI run `45535651060` on
-  `b127d984f` gave the selection 20.3 s.
-
-**Key examples**
-
-- A queued equivalent trunk build has no completed proof yet. The
-  comparison read answers no landed build. Once that build completes, a
-  second read in the same process answers the equivalent build. Each case
-  starts with empty comparison answers, without a Playwright fixture.
-- Kept history holds five prior Done builds and a selected landing. A Done
-  history read for the glance capability answers the chart entries and the
-  compact reference figures. The equivalent full read answers the same
-  figures and asks CI for nothing.
-- A history request repeats the capability value, mixes scopes or asks for a
-  glance of the whole project history. Request admission refuses it from
-  typed request values, without a server.
-- An equivalent landing's artifact listing is malformed when first read.
-  A later read recovers the proof, even after the landing hour, and final
-  answers reuse it without asking the provider again.
-
 <a id="renovate-remaining-backend-families-after-intent-ci-readers"></a>
 
 ### Renovate the remaining dashboard backend unit-test families after the Intent CI readers
@@ -269,9 +190,10 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 The durable launch admission cohort moved
 `launches/launch-attempt-admission-close.spec.ts` and
-`launches/agent-launch-cross-server-accept.spec.ts` to Node Vitest. The
-[Intent CI reader cohort](#renovate-remaining-backend-families-after-launch-admission)
-owns its 22 specs. The scope below applies to the remaining inventory.
+`launches/agent-launch-cross-server-accept.spec.ts` to Node Vitest. The Intent
+CI reader cohort is complete (recoverable at
+`38f934ba:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission`).
+The scope below applies to the remaining inventory.
 
 Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
 kept the [completed Done capture family](https://github.com/terryyin/open-dough/blob/8f4cc9480ccb0b736e3b29c787ab49a6ac80d366/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests).
@@ -377,8 +299,9 @@ smaller unit selection does not hide its cost or a lost regression check.
      Attempt evidence is complete (recoverable at
      `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
      [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete.
-  3. Begin with the [Intent CI reader cohort](#renovate-remaining-backend-families-after-launch-admission).
-     Then select the next launch or other boundary cohort from the surviving
+  3. The Intent CI reader cohort is complete (recoverable at
+     `38f934ba:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission`).
+     Select the next launch or other boundary cohort from the surviving
      runner inventory and measured CI cost, once the Taken stories that
      change the same launch, session, Review landing and authenticated-read
      specs have landed.
