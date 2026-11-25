@@ -196,25 +196,61 @@ project browsing, session selection, and new CI evidence are separate work.
 
 **Identity:** SEED-420#browse-one-selectable-review-tree
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/838-browse-one-selectable-review-tree/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"66d8ca4c205292d6c8d16d6fdb0bf9f3129f9c4c8b462d9a534c39f115520aa5","plan":"8102836c229acd4818db853667dd7b78bcb38286a71e0629837adeb03b895a1f"}}
 ```
 
-A developer can browse Intent paths and other paths together in one tree of
-repository paths at the story review's selected revision. Show each path in
-its repository folder. Retire the separate Intent section lists and
-**Outside Intent locations** section. Keep comparison paths for deleted and
-renamed files reachable and preserve the selected comparison when opening a
-path.
+**Goal.** A developer reviewing a story can navigate its repository folders,
+open source or a diff, and move to a folder's Intent proof while keeping
+the same story and comparison in view.
 
-Folder rows can become the current selection, with a separate expand and
-collapse control. Selecting a regular folder replaces the previous reading
-with an empty or minimal folder view. Selecting a configured Intent root or
-a folder under it opens the folder's proof summary. For example, a developer
-can expand `dashboard`, select a regular folder without leaving the tree,
-then select a frontend test folder and see its proof. The
-[folder proof story](#recognize-intent-folders-and-read-proof) owns the visual
-cues and section details. [Project browsing](#browse-the-project-at-a-revision)
-applies the shared tree to the whole-project scope.
+**Scope.** Show a single repository path tree in story review. When the
+comparison supplies a published revision, use its repository inventory and
+the Intent locations at that revision. Place tracked files, including files
+outside Intent, under their repository folders. Overlay the selected
+comparison on this inventory so deletions remain selectable at their former
+paths and a renamed file has one row at its destination with both paths
+available in the diff. Preserve the former path for baseline proof and
+existing links into the comparison. Retire the separate Intent section
+lists and **Outside Intent locations** section in story review.
+
+A folder name selects the folder and its disclosure control independently
+opens or closes its children. Both controls work by keyboard. Selecting a
+regular folder replaces the previous reading with a minimal view naming its
+path. Selecting a configured Intent root or folder within it opens its
+existing scope summary. Selecting an unchanged file reads its source at the
+browsed revision. Selecting a changed file uses the current comparison's
+diff and existing proof. Keep the comparison choice when moving among
+paths, and keep the directed **Review changes** entry and file navigation
+working with the paths shown in the tree.
+
+Keep **Selected story only** and its current meaning while the
+[filter story](#filter-review-files) owns its replacement. When repository
+inventory is unavailable, explain the gap and keep independently readable
+comparison paths available. Keep existing evidence and navigation for a
+story without a published comparison. The
+[folder proof story](#recognize-intent-folders-and-read-proof) owns new cues
+and summary details. [Project browsing](#browse-the-project-at-a-revision)
+owns the whole-project rollout.
+
+**Key examples.**
+
+- In a story comparison containing tests and production changes, expand
+  `dashboard` once to reach both kinds of paths. Select a production
+  folder to replace the previous diff with its folder view. Collapse it
+  without changing the selection, then select a frontend test folder and
+  read its proof summary with the same comparison still selected.
+- In a comparison with a deleted test and a test renamed into a
+  production folder, open the deletion at its old path and the rename at
+  its destination. The deletion and rename retain their change kinds and
+  diffs. The rename keeps its former path and baseline proof. File moves
+  traverse the visible changed paths in tree order. **Selected story only**
+  hides unchanged paths while preserving the ancestors needed for those
+  changes.
+- Choose a captured landed run whose repository has an unchanged document
+  that later trunk changes. Open the document from the tree and read the
+  text at that run's revision. Choose another published comparison and the
+  tree follows its revision. If the inventory read fails, explain the gap
+  and leave the available changed diffs reachable.
 
 <a id="filter-review-files"></a>
 
