@@ -36,7 +36,7 @@ running at a wait budget both complete through the revised guidance without
 requiring an exit-file poll. Guidance consumers no longer instruct the
 until/sleep/exit-file Cursor loop as the required wait.
 
-**Source.** Queued from [SEED-440](SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds)
+**Source.** Queued from [SEED-440](https://github.com/terryyin/open-dough/blob/e5dd182939036cacfad9c6ca9c432ad4361ae365/.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds)
 slice 1 retire disposition. Evidence:
 [tool-workarounds — Cursor exit-file proof wait](../../docs/maintainer/tool-workarounds.md)
 (2026-11-25 review) and worktree evidence `slice1-full-report.md`,

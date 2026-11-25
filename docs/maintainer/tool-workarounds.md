@@ -141,7 +141,7 @@ Use Git for earlier reviews and retired entries.
   maintainer workaround recheck.
 - **Last review.** 2026-11-25, retire for Cursor agent + AwaitShell on CLI
   `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 1.
-  [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
+  [SEED-440](https://github.com/terryyin/open-dough/blob/e5dd182939036cacfad9c6ca9c432ad4361ae365/.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor generation identity for CI delivery
 
@@ -181,7 +181,7 @@ Use Git for earlier reviews and retired entries.
   a live parent hook payload.
 - **Last review.** 2026-11-25, keep for Cursor agent + hooks on CLI
   `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 2.
-  [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
+  [SEED-440](https://github.com/terryyin/open-dough/blob/e5dd182939036cacfad9c6ca9c432ad4361ae365/.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor importing Claude Code hooks
 
@@ -230,7 +230,7 @@ Use Git for earlier reviews and retired entries.
   change.
 - **Last review.** 2026-11-25, keep for Cursor agent + dual hook sets on CLI
   `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 3.
-  [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
+  [SEED-440](https://github.com/terryyin/open-dough/blob/e5dd182939036cacfad9c6ca9c432ad4361ae365/.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor tool hook with an empty working directory
 
@@ -277,7 +277,7 @@ Use Git for earlier reviews and retired entries.
   `workspace_roots[0]` differs from the command checkout.
 - **Last review.** 2026-11-25, keep for Cursor agent + hooks on CLI
   `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 4.
-  [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
+  [SEED-440](https://github.com/terryyin/open-dough/blob/e5dd182939036cacfad9c6ca9c432ad4361ae365/.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor interrupted-delegation boundary (ODF-229)
 

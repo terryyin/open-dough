@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-440_recheck-cursor-workarounds.json",
+      "identity": "SEED-440#recheck-cursor-workarounds",
+      "completedAt": "2026-11-25T12:28:14.018Z",
+      "blob": "7707404d9cb4a0ec54cc523adc8f2e3da08fb18e"
+    },
+    {
       "fileName": "SEED-430_recover-fixed-observation-at-its-published-pin.json",
       "identity": "SEED-430#recover-fixed-observation-at-its-published-pin",
       "completedAt": "2026-11-25T10:45:00.746Z",
