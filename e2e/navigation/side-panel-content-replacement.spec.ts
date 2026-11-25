@@ -200,11 +200,9 @@ test("a Story card opens Intent beside another story's final report", async ({
     journey.phase("Open Story A's Changes", ({ board }) =>
       board.storyCard("Story A").openChanges("keyboard"),
     ));
-  await test.step("Then Changes has focus beside the same report", () =>
+  await test.step("Then the path reading has focus beside the same report", () =>
     journey.phase("Story A is selected in Intent", ({ intent, sidePanel }) => {
-      intent
-        .expectSelectedStory(queuedIdentity)
-        .expectFocusedStoryTab("Changes");
+      intent.expectSelectedStory(queuedIdentity).expectFocusedPathReading();
       sidePanel.finalReport.expectText(storyBReport).sidePanel.expectItems(1);
     }));
   await test.step("When I return to Development", () =>

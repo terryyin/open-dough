@@ -1,5 +1,5 @@
 // One selection after a card arrival, made from the settled displayed tree.
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
 import {
@@ -14,8 +14,7 @@ import {
 
 type StoryReviewFileReadiness = "waiting" | "ready" | "unavailable";
 
-// The tab keeps the request through waiting. Only the ready displayed tree
-// can supply the first file.
+// Only the settled, displayed comparison and tree can supply the first file.
 export function storyReviewFileReadiness(
   comparison: LensComparison | undefined,
   locationsReading: boolean,
@@ -40,7 +39,7 @@ export function useFirstStoryChangedFile({
   canChooseFile,
   locations,
   overlay,
-  fileSelected,
+  hasSelection,
   open,
 }: {
   readonly project: string;
@@ -48,27 +47,66 @@ export function useFirstStoryChangedFile({
   readonly canChooseFile: boolean;
   readonly locations: readonly IntentLocation[];
   readonly overlay: StoryOverlay;
-  readonly fileSelected: boolean;
+  readonly hasSelection: boolean;
   readonly open: (selection: IntentSelection) => void;
 }) {
   const opening = useStoryReviewOpening(project);
   const finish = useFinishStoryReviewOpening();
   useEffect(() => {
-    if (opening?.phase !== "read" || opening.identity !== storyIdentity) return;
-    if (!fileSelected) {
-      if (!canChooseFile) return;
-      const [first] = intentChangedFileOrder(locations, overlay);
-      if (first !== undefined) open({ path: first.path, scope: "file" });
-    }
-    finish?.(opening);
+    if (
+      opening === undefined ||
+      opening.identity !== storyIdentity ||
+      hasSelection ||
+      !canChooseFile
+    )
+      return;
+    const [first] = intentChangedFileOrder(locations, overlay);
+    if (first === undefined) finish?.(opening);
+    else open({ path: first.path, scope: "file" });
   }, [
     opening,
-    finish,
     storyIdentity,
     canChooseFile,
     locations,
     overlay,
-    fileSelected,
+    hasSelection,
     open,
+    finish,
   ]);
+}
+
+// Hold focus on the visible comparison feedback while the first path loads.
+// Give focus to the reading only if the reader has not moved to a control.
+export function useStoryReviewArrival({
+  project,
+  readiness,
+  pathVisible,
+  headerId,
+  readingId,
+}: {
+  readonly project: string | undefined;
+  readonly readiness: StoryReviewFileReadiness;
+  readonly pathVisible: boolean;
+  readonly headerId: string;
+  readonly readingId: string;
+}) {
+  const opening = useStoryReviewOpening(project);
+  const finish = useFinishStoryReviewOpening();
+  const focused = useRef<number>(undefined);
+  useLayoutEffect(() => {
+    if (opening === undefined) return;
+    const header = document.getElementById(headerId);
+    const pathReady = readiness === "ready" && pathVisible;
+    const firstFocus = focused.current !== opening.sequence;
+    if (
+      firstFocus ||
+      document.activeElement === header ||
+      document.activeElement === document.body
+    ) {
+      const target = pathReady ? document.getElementById(readingId) : header;
+      if (target !== document.activeElement) target?.focus();
+    }
+    focused.current = opening.sequence;
+    if (readiness === "unavailable" || pathReady) finish?.(opening);
+  }, [opening, finish, readiness, pathVisible, headerId, readingId]);
 }

@@ -38,7 +38,7 @@ test("a pending Refresh keeps Compare and a second press does not read again", a
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.poll(story.revisions).toContain("Published story branch");
 
   await story.refresh();
@@ -70,7 +70,7 @@ test("a pending landed run keeps the Done story's locations and CI endpoint", as
   await story.chooseTab("CI comparison");
   await expect.poll(story.landedEndpoint).not.toBe("");
   const landedText = story.landedEndpoint();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
   const locationText = () =>
     document.querySelector("button.intent-location-name")?.textContent ?? "";

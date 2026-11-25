@@ -35,7 +35,7 @@ shortcut and session-opening behavior.
 The Files sidebar lays out the available Home, Intent only and Changes only
 controls in that order, together on a phone. Whole-project scope offers Home
 and Intent only when their actions are available. The
-[Story Home story](SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home)
+[Story Home story](https://github.com/terryyin/open-dough/blob/295c96b89ac352f18060e24a5f983f219392da8d/.planning/seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home)
 owns clearing the path and restoring story evidence.
 [Project browsing](SEED-420-unified-intent-review.md#browse-the-project-at-a-revision)
 owns returning to project CI. The

@@ -1,5 +1,5 @@
 // A story's review in Intent. Compare and commit controls use the shared
-// review components. File choices and the selected diff live in Changes.
+// review components. File choices and the selected diff share the Intent browser.
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
   storyReviewWaitMs,
@@ -10,8 +10,9 @@ import {
   expectFilesShown,
   filesColumn,
   filesToggle,
+  storyFilesReading,
   storySummary,
-  storyTabPanel,
+  goToStoryHome,
 } from "./intentModePage.ts";
 import { ReviewComparison } from "./reviewChangesComparison.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
@@ -91,8 +92,10 @@ class IntentReviewChanges {
     return this;
   }
 
-  async expectChangesExplanation(message: string) {
-    await expect(storyTabPanel(this.#intent, "Changes")).toContainText(message);
+  async expectHistoricalSourceExplanation(message: string) {
+    await expect(
+      this.#intent.getByText(message, { exact: true }),
+    ).toBeVisible();
     return this;
   }
 
@@ -199,6 +202,20 @@ class IntentReviewChanges {
 }
 
 export type { IntentReviewChanges };
+
+export const expectIntentReviewOpened = (intent: Locator) =>
+  expect(storySummary(intent)).toBeVisible();
+
+export const expectIntentReviewFocused = (
+  intent: Locator,
+  target: "feedback" | "file" = "file",
+) =>
+  expect(
+    target === "file" ? storyFilesReading(intent) : storySummary(intent),
+  ).toBeFocused();
+
+export const returnToIntentReviewHome = (intent: Locator) =>
+  goToStoryHome(intent, "keyboard");
 
 // The card offers Review changes once its startup enables the fieldset.
 export async function expectReviewChangesOffered(card: Locator) {

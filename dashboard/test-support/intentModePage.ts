@@ -63,11 +63,11 @@ export const storyIntentFrame = (intent: Locator) =>
 export const intentModeViews = (intent: Locator) =>
   intent.getByRole("tablist", { name: "Project Intent views" });
 export const storyViews = (intent: Locator) =>
-  intent.getByRole("tablist", { name: "Selected story views" });
+  intent.getByRole("tablist", { name: "Story Home" });
 
-type StoryTabName = "CI comparison" | "Changes" | "Intent coverage";
+type StoryTabName = "CI comparison" | "Intent coverage";
 
-// One of the selected story's views, in the row under its header.
+// One of Story Home's evidence tabs.
 export const storyTab = (intent: Locator, name: StoryTabName) =>
   storyViews(intent).getByRole("tab", { name, exact: true });
 
@@ -75,13 +75,35 @@ export const storyTab = (intent: Locator, name: StoryTabName) =>
 export const storyTabPanel = (intent: Locator, name: StoryTabName) =>
   intent.getByRole("tabpanel", { name, exact: true });
 
+export const storyFilesReading = (intent: Locator) =>
+  intent.getByRole("region", { name: "Path reading", exact: true });
+
 export async function expectStoryTab(intent: Locator, name: StoryTabName) {
   await expect(storyTab(intent, name)).toHaveAttribute("aria-selected", "true");
 }
 
 export async function chooseStoryTab(intent: Locator, name: StoryTabName) {
+  if (await storyFilesReading(intent).isVisible()) await goToStoryHome(intent);
   await storyTab(intent, name).click();
   await expectStoryTab(intent, name);
+}
+
+// Reach the file browser without selecting a location, folder or file.
+export async function browseStoryFiles(intent: Locator) {
+  const show = intent.getByRole("button", { name: "Show files", exact: true });
+  if (await show.isVisible()) await show.click();
+}
+
+export const storyHomeButton = (intent: Locator) =>
+  filesColumn(intent).getByRole("button", { name: "Home", exact: true });
+
+export async function goToStoryHome(
+  intent: Locator,
+  using: "mouse" | "keyboard" = "mouse",
+) {
+  await browseStoryFiles(intent);
+  const home = storyHomeButton(intent);
+  await (using === "keyboard" ? home.press("Enter") : home.click());
 }
 
 type IntentModeName = "CI status" | "Optimization Candidates";
@@ -110,8 +132,7 @@ export async function chooseOptimizationCandidates(intent: Locator) {
 }
 
 // Hide files / Show files for the locations column: in Project Intent's strip
-// on CI status, or leading a selected story's comparison bar, under its
-// views, on Changes.
+// on CI status, or in the selected story's persistent toolbar.
 export const filesToggle = (intent: Locator) =>
   intent
     .locator(".intent-page-tabbar, .intent-comparison-row")

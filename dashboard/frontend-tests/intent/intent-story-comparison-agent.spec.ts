@@ -26,7 +26,6 @@ test("a published comparison by a rotation agent shows the agent's portrait besi
       ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
 
   await expect.poll(story.summaryText).toContain("Kaoru-chan");
   await expect.poll(story.summaryPortraitBeside).toBe("Kaoru-chan");
@@ -36,7 +35,6 @@ test("with landed runs offered at 1280 px, the files toggle, the choice, Include
   await openWithLandedRun({ agent: "Kaoru-chan" });
   await page.viewport(1280, 800);
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
   await expect.poll(story.summaryPortraitBeside).toBe("Kaoru-chan");
 
   expectOneRow(
@@ -59,7 +57,6 @@ test("an agent outside the rotation shows its attribution without a portrait", a
       ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
 
   await expect
     .poll(story.summaryText)
@@ -80,7 +77,6 @@ test("a landed run records no agent: the summary names the run without a portrai
       ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
 
   await expect.poll(story.summaryText).toContain(landedRunLaunched);
   expect(story.summaryPortraitBeside()).toBeUndefined();

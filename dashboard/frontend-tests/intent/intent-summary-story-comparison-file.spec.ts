@@ -50,7 +50,7 @@ async function openSelectedFileProof(story: ComparedStory) {
   });
   const view = intentStoryCompare();
   await expect
-    .element(view.viewTab("Changes"))
+    .element(view.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");
   await expect
     .poll(() => comparisonReads.map(({ identity }) => identity))
@@ -147,9 +147,10 @@ test("a selected done story's changed test file shows Purpose as the diff and Pr
 
   await userEvent.keyboard("{ArrowRight}");
   await expect
-    .element(view.viewTab("Changes"))
+    .element(view.viewTab("Intent coverage"))
     .toHaveAttribute("aria-selected", "true");
-  await expect.element(file).toHaveAttribute("aria-pressed", "true");
+  await expect.element(file).toHaveAttribute("aria-pressed", "false");
+  await file.click();
   await expect.element(proofTab).toHaveAttribute("aria-selected", "true");
   await expect.element(proof).toBeVisible();
 

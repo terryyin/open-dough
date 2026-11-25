@@ -38,7 +38,6 @@ const branchReview = (...paths: string[]) =>
 test("the summary names the comparison and opens the branch, revisions, attribution and Refresh", async () => {
   await openStoryAComparison({ review: () => Promise.resolve(branchReview()) });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
 
   await expect
     .poll(story.summaryText)
@@ -68,7 +67,6 @@ test("a Done story's details hold its completion and its time", async () => {
     review: () => Promise.resolve(publishedCompletion()),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
   await expect.poll(story.summaryText).toContain("Published completion");
 
   await story.openDetails();
@@ -95,7 +93,6 @@ test("Refresh re-reads, reports the refreshed comparison and keeps the details o
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
   await expect.poll(story.summaryText).toContain("1 changed file");
 
   await story.refresh();
@@ -116,7 +113,6 @@ test("without a comparison the summary says so and the details explain why", asy
       Promise.resolve(makeMe.aStoryReview.unavailable(explanation).please()),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
   await expect.poll(story.summaryText).toContain("No comparison is available.");
 
   await story.openDetails();
@@ -134,7 +130,6 @@ test("a failed read reports the failure with Retry in the summary", async () => 
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
   await expect
     .poll(story.summaryText)
     .toContain("The story's changes could not be read.");
@@ -148,12 +143,11 @@ test("a failed read reports the failure with Retry in the summary", async () => 
     .toContain("Published completion — 1 changed file");
 });
 
-test("the files toggle, the comparison choice, Include merged changes and the summary share one row under the title and views, directly above the files, that wraps without overflow when narrow", async () => {
+test("the files toggle, comparison choice, Include merged changes and summary share a row above Story Home that wraps without overflow", async () => {
   await openWithLandedRun();
   await page.viewport(1280, 800);
   const story = intentStoryCompare();
   const files = fileLayout();
-  await story.chooseTab("Changes");
   await expect.poll(story.summaryText).toContain("Published completion");
   const row = [
     files.toggle,
@@ -167,12 +161,10 @@ test("the files toggle, the comparison choice, Include merged changes and the su
   expect(boxes[0]?.top).toBeGreaterThanOrEqual(
     title?.getBoundingClientRect().bottom ?? Infinity,
   );
-  // The story's views sit above the bar; the file browser starts directly
-  // below it.
   const barBottom = Math.max(...boxes.map((box) => box.bottom));
   expect(
-    story.viewTab("Changes").element().getBoundingClientRect().bottom,
-  ).toBeLessThanOrEqual(Math.min(...boxes.map((box) => box.top)));
+    story.viewTab("CI comparison").element().getBoundingClientRect().top,
+  ).toBeGreaterThanOrEqual(barBottom);
   expect(files.browser().top).toBeGreaterThanOrEqual(barBottom);
   expect(files.browser().top - barBottom).toBeLessThanOrEqual(32);
 
@@ -183,7 +175,6 @@ test("the files toggle, the comparison choice, Include merged changes and the su
 test("choosing a landed run updates the summary and the open details, and Include merged changes follows its support", async () => {
   await openWithLandedRun();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
   await expect.element(story.includeMerged).toBeVisible();
   await story.openDetails();
 

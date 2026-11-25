@@ -29,7 +29,7 @@ import {
 } from "../../dashboard/test-support/support/completedStoryPublication.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentDiff,
   intentFile,
   showComparisonDetails,
@@ -211,7 +211,7 @@ test("selecting another Done story opens its published default after reading the
       "data-state",
       "compared",
     );
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
     await expandIntentGroup(intent, "second/tests");
     await expect(intentFile(intent, "dashboard/tests/a.spec.ts")).toHaveCount(
       0,

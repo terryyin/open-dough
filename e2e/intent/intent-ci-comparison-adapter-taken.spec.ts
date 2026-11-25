@@ -4,7 +4,7 @@ import {
   proofRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { intentReviewFiles } from "../../dashboard/test-support/reviewChangesPage.ts";
-import { chooseStoryTab } from "../../dashboard/test-support/intentModePage.ts";
+import { browseStoryFiles } from "../../dashboard/test-support/intentModePage.ts";
 // Taken adapter stories show a completed provisional ancestor while a
 // newer attempt is running, without an Actions read or a branch-head API
 // request for the comparison itself.
@@ -149,7 +149,7 @@ for (const mode of ["story-branch", "trunk"] as const) {
     );
     if (mode === "trunk") {
       await test.step("When I open the published file's Proof", async () => {
-        await chooseStoryTab(intent, "Changes");
+        await browseStoryFiles(intent);
         await intentReviewFiles(intent).choose("Added src/trunk-story.ts");
         await fileReadingTab(intent, "Proof").click();
       });

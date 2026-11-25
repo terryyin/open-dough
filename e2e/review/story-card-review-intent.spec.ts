@@ -2,9 +2,9 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
+  browseStoryFiles,
   chooseStoryTab,
   expectStoryTab,
-  storyTab,
 } from "../../dashboard/test-support/intentModePage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
@@ -12,7 +12,11 @@ import {
   expectSelected,
 } from "../../dashboard/test-support/storyCardSelection.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
-import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import {
+  expectIntentReviewFocused,
+  expectIntentReviewOpened,
+  openIntentReviewChanges,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 import { intentDiffReading } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
 import { intentReviewFiles } from "../../dashboard/test-support/intentReviewFiles.ts";
@@ -35,7 +39,7 @@ import {
 
 const firstFile = "Added z-tests/nested/first.spec.ts";
 
-test("the Taken Story card opens Changes beside its terminal and Back returns to that card", async ({
+test("the Taken Story card opens the first changed file beside its terminal and Back returns to that card", async ({
   page,
   dashboard,
   origin,
@@ -95,7 +99,7 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await emptyArea(card).click();
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await files.expectNoSelection();
   await files.collapseFolder("nested");
   await files.collapseLocation("z-tests");
@@ -109,13 +113,12 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await reviewChanges(card).press("Enter");
   await expect(intent).toBeVisible();
   await expect(intent).toHaveAttribute("data-selected-story", queuedIdentity);
-  await expectStoryTab(intent, "Changes");
-  await expect(storyTab(intent, "Changes")).toBeFocused();
+  await expectIntentReviewOpened(intent);
   await files.expectSelected(firstFile);
   const reading = intentDiffReading(intent);
   await expect(reading.name).toHaveText(firstFile);
   await expect(reading.container).toContainText("first in the displayed tree");
-  await expect(storyTab(intent, "Changes")).toBeFocused();
+  await expectIntentReviewFocused(intent);
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
   await page.goBack();
   await expect(board).toBeVisible();
@@ -132,14 +135,14 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await development.click();
   await expectSelected(card, true);
   await openIntentReviewChanges(page, card);
-  await expectStoryTab(intent, "Changes");
+  await expectIntentReviewOpened(intent);
   await review.files.expectSelected("Added story.txt");
   await expect(reading.name).toHaveText("Added story.txt");
 
   await chooseStoryTab(intent, "Intent coverage");
   await development.click();
   await openIntentReviewChanges(page, card);
-  await expectStoryTab(intent, "Changes");
+  await expectIntentReviewOpened(intent);
   await review.files.expectSelected("Added story.txt");
   await expect(reading.name).toHaveText("Added story.txt");
 
@@ -150,7 +153,7 @@ test("the Taken Story card opens Changes beside its terminal and Back returns to
   await expectSelected(card, true);
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await review.files.expectOutsideFiles(1, ["Added story.txt"]);
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
 });

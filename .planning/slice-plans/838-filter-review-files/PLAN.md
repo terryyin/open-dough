@@ -59,7 +59,7 @@ selection, or proof explanations.
   configured.
 - [The sidebar story](../../seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard)
   owns row fit. Supply the two controls after **Home**, **Intent only** then
-  **Changes only**. [Story Home](../../seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home)
+  **Changes only**. [Story Home](https://github.com/terryyin/open-dough/blob/295c96b89ac352f18060e24a5f983f219392da8d/.planning/seeds/SEED-420-unified-intent-review.md#read-story-evidence-from-intent-home)
   owns Home's evidence. This plan only keeps an unchanged test's contribution
   visible there. Folder proof wording stays with its story. Session subsets
   stay with their story. The active comparison, including a landed run and

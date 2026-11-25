@@ -23,7 +23,7 @@ import {
   retainedCiFollowUpReading,
   shownCiFollowUpCard,
 } from "../../dashboard/test-support/support/ciFollowUpReadingPage.ts";
-import { chooseStoryTab } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { browseStoryFiles } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 
 test.use({ viewport: { width: 390, height: 844 } });
@@ -98,7 +98,7 @@ test("a revisit keeps the original pin while a new story or Whole project leaves
       return (await comparison.textContent()) ?? "";
     });
   await test.step("When I revisit the card after switching tabs and going back", async () => {
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
     await page.goBack();
     await openCiFollowUp(await shownCiFollowUpCard(page, "Story A"), "pointer");
   });

@@ -10,7 +10,7 @@ import {
   storyB,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { parts } from "../dashboardPage.ts";
-import { chooseStoryTab, expectStoryTab } from "../intentModePage.ts";
+import { browseStoryFiles, expectStoryTab } from "../intentModePage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import {
   changeIntentTests,
@@ -48,7 +48,7 @@ export async function selectTakenStoryInIntent(
   await intentChoice.click();
   await expect(intent).toBeVisible();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expectStoryComparisonRead(intent);
   return {
     card,

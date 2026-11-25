@@ -48,7 +48,7 @@ const openDoneWithCapturedRuns = () =>
 test("a Done story keeps its published locations when choosing captured changes and returning to Published completion", async () => {
   const { locationRevisions, outsideCalls } = await openDoneWithCapturedRuns();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
 
   // It opens on Published completion, naming the completion revision,
   // without a run choice.
@@ -81,7 +81,7 @@ test("a Done story keeps its published locations when choosing captured changes 
 test("Intent names the launch, destination and captured revisions of the landed run being compared", async () => {
   await openDoneWithCapturedRuns();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await story.chooseLatestLanding();
   await story.chooseRun(older.key);
   await story.openDetails();
@@ -105,7 +105,7 @@ test("Intent names the launch, destination and captured revisions of the landed 
 test("Landed runs lists the captured runs as read, newest first, and the keyboard moves to the older run's changes", async () => {
   await openDoneWithCapturedRuns();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await story.chooseLatestLanding();
   await expect.element(story.runChoice(newer.key)).toBeChecked();
   const listed = story.landingChoices
@@ -138,7 +138,7 @@ test("a newer default run moves an unchosen run but not a chosen one while the o
   // Each default answer's landed tree is its own, so only the run chosen is
   // observed here.
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.element(story.runChoice(older.key)).toBeChecked();
 
   // A later default naming the newer run moves Intent to it when no run was
