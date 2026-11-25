@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Publish fixed Board test fixtures through real Git](seeds/SEED-430-read-published-project-data-from-local-git.md#open-published-board-from-local-git) — SEED-430#open-published-board-from-local-git ([plan](slice-plans/824-open-published-board-from-local-git/PLAN.md))
 - [Prove machine-session reads through typed backend answers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-browser-reporter) — SEED-413#renovate-remaining-backend-families-after-browser-reporter ([plan](slice-plans/829-prove-machine-session-reads-through-typed-answers/PLAN.md))
 - [Prove session notifications through typed observations](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-notifications-through-typed-observations) — SEED-413#prove-session-notifications-through-typed-observations ([plan](slice-plans/830-prove-session-notifications-through-typed-observations/PLAN.md))
+- [Publish moving Board test fixtures through real Git](seeds/SEED-430-read-published-project-data-from-local-git.md#publish-moving-board-fixtures-through-git) — SEED-430#publish-moving-board-fixtures-through-git ([plan](slice-plans/826-publish-moving-board-fixtures-through-git/PLAN.md))
 
 ## Backlog list
 
@@ -44,7 +45,6 @@ intent introduced or affected by a newly developed story.
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files
 - [Recognize Intent folders and read their proof](seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof) — SEED-420#recognize-intent-folders-and-read-proof
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision
-- [Publish moving Board test fixtures through real Git](seeds/SEED-430-read-published-project-data-from-local-git.md#publish-moving-board-fixtures-through-git) — SEED-430#publish-moving-board-fixtures-through-git
 - [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries
 - [Open and refresh the published Board from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
