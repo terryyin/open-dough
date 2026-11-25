@@ -173,3 +173,11 @@ share a product model with those entries. No unbounded slice concern remains.
   adds them. Revert every temporary disable of a workaround before commit.
 - Use the existing selective commit checks, independent refactoring, and
   delivery gates. Hosted CI retains ownership of its usual checks.
+
+## Execution complete
+
+Product advice: no change. The four Cursor register reviews and ODF-229
+boundary match the story; the only product follow-up is already queued as
+SEED-441#retire-cursor-exit-file-proof-wait. Process review deferred into
+wrap-up (intentCoverage). Pending CI on
+`d7c052d2dcd438ac84bfbf2e2d2f8c795f6c977a` / branch tip at completion commit.
