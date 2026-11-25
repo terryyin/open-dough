@@ -1,3 +1,4 @@
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   finalityIdentity,
@@ -23,7 +24,6 @@ import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";
 import type { StoryCiComparisonSource } from "../../server/storyCiComparisonSource.ts";
 import {
   test,
-  expect,
   observedComparisonSource,
   comparisonAcquisitions,
 } from "../support/comparisonMemory.ts";

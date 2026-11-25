@@ -79,7 +79,7 @@ test.describe("authenticated profile addition refusal (development environment)"
     },
   ]) {
     test(`refuses an addition read ${refused.read} before launching gh`, async () => {
-      server.github.serve(everyRepository, publishes({ revision, backlog }));
+      server.github.serve(everyRepository, publishes({ backlog }));
       const callsBefore = server.ghCalls().length;
       const response = await rawRequest({
         url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&committed=added&${refused.query}`,

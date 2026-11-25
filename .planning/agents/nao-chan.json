@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Nao-chan",
-  "email": "nao-chan@example.org",
-  "identity": "SEED-430#read-published-project-data-from-local-git",
-  "mode": "story-branch",
-  "branch": "claude/read-the-published-board-and-review-from-local-g",
-  "host": "claude"
-}

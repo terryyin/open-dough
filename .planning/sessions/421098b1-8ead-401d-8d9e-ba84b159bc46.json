@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "421098b1-8ead-401d-8d9e-ba84b159bc46",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T02:55:48.734Z",
+  "story": "SEED-423#reconcile-the-backlog-through-one-git-adapter",
+  "ranges": [
+    {
+      "base": "0b2306e5712c3a6993184dc31c999d748a12db3e",
+      "candidate": "30b432f2f118a6e1f8225f17e981b2ca95175594"
+    },
+    {
+      "base": "30b432f2f118a6e1f8225f17e981b2ca95175594",
+      "candidate": "16a73cb2d008c88b03c08cb23d49ff7254d11113"
+    },
+    {
+      "base": "16a73cb2d008c88b03c08cb23d49ff7254d11113",
+      "candidate": "f625c789b34efe77a53f820139934681e5056e99"
+    },
+    {
+      "base": "f625c789b34efe77a53f820139934681e5056e99",
+      "candidate": "b127d984fd163a5114df26e07eaa023d78c7ddb9"
+    }
+  ]
+}

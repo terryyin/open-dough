@@ -1,7 +1,7 @@
 // Only checked summaries are retained: failed acquisition and validation retry.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import {
   archiveOf,
   listedArtifact,
@@ -98,7 +98,7 @@ test("a version 1 artifact is refused and never remembered", async () => {
   const expected = {
     kind: "unavailable",
     reason: "invalid",
-    detail: expect.stringContaining("schemaVersion is not 2"),
+    detail: expect.stringContaining("schemaVersion is not 2") as unknown,
   };
   expect(await reader(repository, run, signal())).toMatchObject(expected);
   expect(await reader(repository, run, signal())).toMatchObject(expected);

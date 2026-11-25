@@ -114,11 +114,20 @@ export async function inspectCheckout(checkout, head, statusOptions = []) {
   };
 }
 
-// Soft-fail lookup of the workspace's remote-tracking tip for an authorized
-// target. Missing tracking refs are treated as an absent remote tip.
+// Read the authorized remote-tracking tip, or null when it is absent.
 export async function fetchedTarget(workspace, targetRef, remote = "origin") {
+  return readTrackingTip(workspace, originTrackingRef(targetRef, remote));
+}
+
+// Fetch and pin the observed tip of an authorized tracking ref for a decision.
+export async function observePublicationTarget(workspace, remote, tracking) {
+  await git(workspace, "fetch", remote);
+  return readTrackingTip(workspace, tracking);
+}
+
+export async function readTrackingTip(workspace, tracking) {
   try {
-    return await revParse(workspace, originTrackingRef(targetRef, remote));
+    return await revParse(workspace, tracking);
   } catch (error) {
     const text = `${error.stderr ?? ""}\n${error.message ?? ""}`;
     if (

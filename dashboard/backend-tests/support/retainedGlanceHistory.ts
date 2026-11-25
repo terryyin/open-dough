@@ -5,9 +5,11 @@
 // them, the Done landing's build of 120 s with 120 ms, and a later landing's
 // build, each landing's own exact build, and its local read.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  parseIntentCiHistoryRead,
+  performIntentCiHistoryRead,
+} from "../../server/intentCiHistoryRead.ts";
 import { keepLandedCiHistory } from "../../test-support/support/landedCiHistory.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { expect } from "../../test-support/support/preparationPage.ts";
 
 const revisionOf = (index: number) =>
   index.toString(16).padStart(2, "0").repeat(20);
@@ -81,21 +83,29 @@ export async function keepGlanceHistory(home: string) {
   await keepLandedCiHistory(home, history.please());
 }
 
-// The local authenticated read's JSON answer to `query`.
+// The in-process history answer for `query` against kept history in `home`.
 export async function historyAnswer(
-  origin: string,
+  home: string,
   query: Record<string, string>,
 ): Promise<unknown> {
-  const response = await rawRequest({
-    url: `${origin}/__authenticated-read?${new URLSearchParams({
-      source: glanceSource.id,
-      intent: "ci-history",
-      ...query,
-    })}`,
-    headers: { Origin: origin },
+  const params = new URLSearchParams({
+    source: glanceSource.id,
+    intent: "ci-history",
+    ...query,
   });
-  expect(response.status).toBe(200);
-  return JSON.parse(response.body) as unknown;
+  const named = parseIntentCiHistoryRead(params);
+  if (named?.kind !== "intent-ci-history")
+    throw new Error(
+      `expected intent-ci-history read, got ${JSON.stringify(named)}`,
+    );
+  const outcome = await performIntentCiHistoryRead(glanceSource, named, {
+    home,
+  });
+  if (outcome.kind !== "answered")
+    throw new Error(
+      `expected answered history, got ${JSON.stringify(outcome)}`,
+    );
+  return outcome.answer;
 }
 
 // The selected Done read's and the scoped read's parameters, without a

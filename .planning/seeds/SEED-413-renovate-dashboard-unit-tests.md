@@ -179,18 +179,20 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
-<a id="renovate-remaining-backend-families-after-launch-admission"></a>
+<a id="renovate-remaining-backend-families-after-intent-ci-readers"></a>
 
-### Renovate the remaining dashboard backend unit-test families after launch admission
+### Renovate the remaining dashboard backend unit-test families after the Intent CI readers
 
-**Identity:** SEED-413#renovate-remaining-backend-families-after-launch-admission
+**Identity:** SEED-413#renovate-remaining-backend-families-after-intent-ci-readers
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Recount the surviving legacy specs by production boundary and select the next independently verifiable cohort before slice planning. The two durable launch-admission specs have a separate plan."],"basis":{"document":"ca5b502accf9b8622b5c901aee654008588dbc88414e88bce0fa415e1ff6b304"}}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Recount the surviving legacy specs by production boundary and select the next independently verifiable cohort before slice planning, after the Taken stories changing launch, session, Review landing and authenticated-read specs land."],"basis":{"document":"5506df2af5ce4b08724be5dfd0d5dba5068119fb113ed57d1c54472fdadc4b22"}}
 ```
 
 The durable launch admission cohort moved
 `launches/launch-attempt-admission-close.spec.ts` and
-`launches/agent-launch-cross-server-accept.spec.ts` to Node Vitest.
+`launches/agent-launch-cross-server-accept.spec.ts` to Node Vitest. The Intent
+CI reader cohort is complete (recoverable at
+`38f934ba:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission`).
 The scope below applies to the remaining inventory.
 
 Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
@@ -297,10 +299,14 @@ smaller unit selection does not hide its cost or a lost regression check.
      Attempt evidence is complete (recoverable at
      `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
      [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete.
-  3. Select the next launch or other boundary cohort from the surviving
-     runner inventory and measured CI cost.
-     Intent still includes comparison, follow-up and lifecycle proof outside
-     the extracted spec list, together with other Intent readers and proof
+  3. The Intent CI reader cohort is complete (recoverable at
+     `38f934ba:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-backend-families-after-launch-admission`).
+     Select the next launch or other boundary cohort from the surviving
+     runner inventory and measured CI cost, once the Taken stories that
+     change the same launch, session, Review landing and authenticated-read
+     specs have landed.
+     Intent still includes follow-up and lifecycle proof outside the
+     extracted spec lists, together with Intent location reads and proof
      recording. Keep freshness, invalidation and closing with the production
      lifetime owner. Keep the [automatic-repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
      distinct. The earlier [collector close analysis](https://github.com/terryyin/open-dough/blob/6c628be4a/.planning/slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md)
@@ -372,6 +378,21 @@ smaller unit selection does not hide its cost or a lost regression check.
   so they include setup-only use. Two Playwright files belong to the
   durable admission cohort. Recount the survivors when selecting the next
   bounded outcome.
+- **Inventory at Intent CI reader selection** (`2bf3fe927`, 25 November
+  2026). The engine rule counts 585 backend specs, 348 Playwright and 237
+  Node Vitest. The Playwright paths are launches 89, sessions 64,
+  observation 54, Intent 45, runtime 40, Review 31, configuration 13 and
+  terminals 12. CI run `45535651060` on `b127d984f` gave them 2,068 s:
+  launches 643, runtime 334, sessions 318, Intent 302, observation 262,
+  Review 144, terminals 49 and configuration 16. By imported boundary,
+  132 specs (913 s) use the launch boundary helpers and 144 (792 s) start a
+  dashboard server; these overlap. The Taken plans for
+  [installed-project launches](../slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md),
+  [story-linked ad hoc sessions](../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md),
+  [local-Git Board and Review reads](../slice-plans/819-read-published-board-and-review/PLAN.md)
+  and [one publication loop](../slice-plans/820-publish-to-trunk-through-one-loop/PLAN.md)
+  change specs in those boundaries or every server caller's fixture, so the
+  Intent CI readers went first.
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,
   2,519 s; entry kinds counted from each spec's text, so approximate).
 

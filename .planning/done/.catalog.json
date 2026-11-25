@@ -2,6 +2,30 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-remaining-backend-families-after-launch-admission.json",
+      "identity": "SEED-413#renovate-remaining-backend-families-after-launch-admission",
+      "completedAt": "2026-11-25T05:59:39.158Z",
+      "blob": "5eaed4a67c32422339e8c6e6efa2e34bcc863fbe"
+    },
+    {
+      "fileName": "SEED-430_read-published-project-data-from-local-git.json",
+      "identity": "SEED-430#read-published-project-data-from-local-git",
+      "completedAt": "2026-11-25T05:58:45.136Z",
+      "blob": "72ede0b6a2ce6cdedf33342cfb8bd2c6e0419eac"
+    },
+    {
+      "fileName": "SEED-423_publish-to-trunk-through-one-loop.json",
+      "identity": "SEED-423#publish-to-trunk-through-one-loop",
+      "completedAt": "2026-11-25T04:53:06.986Z",
+      "blob": "89d74d47e059a5859066e73246d6ac37e327130f"
+    },
+    {
+      "fileName": "SEED-423_reconcile-the-backlog-through-one-git-adapter.json",
+      "identity": "SEED-423#reconcile-the-backlog-through-one-git-adapter",
+      "completedAt": "2026-11-25T02:42:06.488Z",
+      "blob": "767f1daeca9042be3c520c6ea90d9efa6fc96c5a"
+    },
+    {
       "fileName": "SEED-423_trim-the-product-backlog-command-to-guided-operations.json",
       "identity": "SEED-423#trim-the-product-backlog-command-to-guided-operations",
       "completedAt": "2026-11-25T00:08:23.420Z",

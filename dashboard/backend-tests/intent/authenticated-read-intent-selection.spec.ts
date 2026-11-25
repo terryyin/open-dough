@@ -25,7 +25,6 @@ const knownSourceId = "open-dough";
 // An empty project's backlog.
 const backlog = describedBacklog(makeMe.aRepository.please());
 const settingsPath = ".planning/open-dough.json";
-const revisionOf = (byte: string) => byte.repeat(20);
 
 test.describe("authenticated Intent location selection (development environment)", () => {
   let server: DashboardServer;
@@ -39,7 +38,6 @@ test.describe("authenticated Intent location selection (development environment)
   });
 
   test("admits file-at for a selected path and refuses an unmatched file inside a pattern location", async () => {
-    const revision = revisionOf("a7");
     const matchedPath = "frontend/src/pages/AspyPage.devices.spec.tsx";
     const unmatchedPath = "frontend/src/pages/AspyPage.tsx";
     const matchedText = "export const devices = true;\n";
@@ -50,28 +48,26 @@ test.describe("authenticated Intent location selection (development environment)
       "**/*.test.ts",
       "**/*.test.tsx",
     ];
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision,
-        backlog,
-        files: {
-          [settingsPath]: intentSettingsText(
-            makeMe.intentSettings
-              .withLocations(
-                makeMe.anIntentLocation
-                  .at("frontend/src")
-                  .ofKind("typescript", include)
-                  .withRules({ makeMe: false, pageObjects: true })
-                  .please(),
-              )
-              .please(),
-          ),
-          [matchedPath]: matchedText,
-          [unmatchedPath]: unmatchedText,
-        },
-      }),
-    );
+    const published = publishes({
+      backlog,
+      files: {
+        [settingsPath]: intentSettingsText(
+          makeMe.intentSettings
+            .withLocations(
+              makeMe.anIntentLocation
+                .at("frontend/src")
+                .ofKind("typescript", include)
+                .withRules({ makeMe: false, pageObjects: true })
+                .please(),
+            )
+            .please(),
+        ),
+        [matchedPath]: matchedText,
+        [unmatchedPath]: unmatchedText,
+      },
+    });
+    const { revision } = published;
+    server.github.serve(everyRepository, published);
 
     const matched = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(matchedPath)}`,
@@ -124,7 +120,6 @@ test.describe("authenticated Intent location selection (development environment)
   });
 
   test("a sources location lists and admits each file an entry's pattern matches, with no extension filter, and answers its entries without a kind", async () => {
-    const revision = revisionOf("a8");
     const matchedPath = "checks/a.check";
     const neighborPath = "checks/notes.md";
     const matchedText = "check a\n";
@@ -132,20 +127,18 @@ test.describe("authenticated Intent location selection (development environment)
       .at("checks")
       .withSources({ include: ["**/*.check"] })
       .please();
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision,
-        backlog,
-        files: {
-          [settingsPath]: intentSettingsText(
-            makeMe.intentSettings.withLocations(checks).please(),
-          ),
-          [matchedPath]: matchedText,
-          [neighborPath]: "# Notes\n",
-        },
-      }),
-    );
+    const published = publishes({
+      backlog,
+      files: {
+        [settingsPath]: intentSettingsText(
+          makeMe.intentSettings.withLocations(checks).please(),
+        ),
+        [matchedPath]: matchedText,
+        [neighborPath]: "# Notes\n",
+      },
+    });
+    const { revision } = published;
+    server.github.serve(everyRepository, published);
 
     const listed = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&intent=locations`,
@@ -182,49 +175,46 @@ test.describe("authenticated Intent location selection (development environment)
   });
 
   test("sources alone select when present, and a malformed sources list drops its location", async () => {
-    const revision = revisionOf("a9");
     const shellTest = "scripts/test/worktree_setup.sh.test";
     const nodeTest = "scripts/ci/ci-proof-outcomes.test.mjs";
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision,
-        backlog,
-        files: {
-          [settingsPath]: JSON.stringify({
-            intent: {
-              locations: [
-                // `kind` and `include` beside `sources` are not read.
-                {
-                  path: "scripts",
-                  kind: "javascript",
-                  include: ["**/*.mjs"],
-                  sources: [
-                    { include: ["**/*.test"], syntax: "shell" },
-                    { include: ["**/*.test.mjs"], syntax: "javascript" },
-                  ],
-                },
-                { path: "empty", sources: [] },
-                { path: "no-include", sources: [{ include: [] }] },
-                { path: "unsafe", sources: [{ include: ["../*.test"] }] },
-                { path: "not-a-list", sources: { include: ["*.test"] } },
-                {
-                  path: "bad-syntax",
-                  sources: [{ include: ["*"], syntax: 7 }],
-                },
-                { path: "kind-only", kind: "shell", sources: null },
-              ],
-            },
-          }),
-          [shellTest]: "echo ok\n",
-          [nodeTest]: "export {};\n",
-          "scripts/ci/ci-proof-fixtures.mjs": "export {};\n",
-          "empty/a.test": "",
-          "no-include/a.test": "",
-          "kind-only/a.sh": "",
-        },
-      }),
-    );
+    const published = publishes({
+      backlog,
+      files: {
+        [settingsPath]: JSON.stringify({
+          intent: {
+            locations: [
+              // `kind` and `include` beside `sources` are not read.
+              {
+                path: "scripts",
+                kind: "javascript",
+                include: ["**/*.mjs"],
+                sources: [
+                  { include: ["**/*.test"], syntax: "shell" },
+                  { include: ["**/*.test.mjs"], syntax: "javascript" },
+                ],
+              },
+              { path: "empty", sources: [] },
+              { path: "no-include", sources: [{ include: [] }] },
+              { path: "unsafe", sources: [{ include: ["../*.test"] }] },
+              { path: "not-a-list", sources: { include: ["*.test"] } },
+              {
+                path: "bad-syntax",
+                sources: [{ include: ["*"], syntax: 7 }],
+              },
+              { path: "kind-only", kind: "shell", sources: null },
+            ],
+          },
+        }),
+        [shellTest]: "echo ok\n",
+        [nodeTest]: "export {};\n",
+        "scripts/ci/ci-proof-fixtures.mjs": "export {};\n",
+        "empty/a.test": "",
+        "no-include/a.test": "",
+        "kind-only/a.sh": "",
+      },
+    });
+    const { revision } = published;
+    server.github.serve(everyRepository, published);
     const listed = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&intent=locations`,
       headers: { Origin: server.origin },

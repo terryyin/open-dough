@@ -1,15 +1,5 @@
-// Slice 3's acceptance and recovery half: a multi-commit rebase that
-// finishes with no Git conflict at any step is still checked against the
-// whole-rebase aggregate comparison of the true pre-rebase tip and the true
-// destination-at-start (`product-backlog-git-rebase-clean.test.mjs` proves
-// the refusal path for masked disputes) — but that comparison must not
-// falsely dispute a genuinely compatible replay, and must not re-dispute a
-// human's already-accepted resolution of an earlier, real Git conflict. It
-// also covers the read-only `validate` recovery path for both an accepted
-// and a disputed clean-rebase result. Every case here performs a real
-// `git rebase` in a scratch repository and asserts on the gate's own outcome
-// and on real Git/file-system state — the rebase's local commits, the
-// branch's own ref, and the worktree's bytes — never a mocked function call.
+// A compatible clean replay and a staged human resolution each lead to
+// acceptance. A disputed clean replay supports read-only validation.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
@@ -56,10 +46,22 @@ test("rebase accepts a genuinely compatible multi-commit clean replay, with no f
           direction,
         },
       })
+      .withRevision("cutoff", { files: { "cutoff.txt": "Earlier work" } })
+      .withRevision("destination", {
+        parents: ["ancestor"],
+        backlog: {
+          queued: linkedEntries("A", "B", "C", "D").map((entry) =>
+            entry.href === "seeds/B.md#b"
+              ? { ...entry, title: "Item B renamed" }
+              : entry,
+          ),
+          direction,
+        },
+      })
       .please(),
   );
 
-  repo.git(["checkout", "-q", "-b", "feature"]);
+  repo.git(["checkout", "-q", "-b", "feature", repo.revisions.cutoff]);
   commitOn(
     repo,
     backlogOf([], ["- [Item A renamed](seeds/A.md#a)", itemB, itemC, itemD]),
@@ -80,14 +82,16 @@ test("rebase accepts a genuinely compatible multi-commit clean replay, with no f
   );
 
   checkout(repo, "main");
-  commitOn(
-    repo,
-    backlogOf([], [itemA, "- [Item B renamed](seeds/B.md#b)", itemC, itemD]),
-    "destination renames B, a different entry entirely",
-  );
-  checkout(repo, "feature");
 
-  const rebased = await runRebase(repo, ["rebase", "--ref", "main"]);
+  const rebased = await runRebase(repo, [
+    "rebase",
+    "--onto",
+    "main",
+    "--ref",
+    repo.revisions.cutoff,
+    "--branch",
+    "feature",
+  ]);
 
   assert.equal(rebased.code, 0, rebased.stdout + rebased.stderr);
   assert.equal(isMidRebase(repo), false);
@@ -96,6 +100,9 @@ test("rebase accepts a genuinely compatible multi-commit clean replay, with no f
     /aggregate comparison .* agrees with the result/,
   );
   assert.equal(rebased.stderr, "", "a clean rebase shows only its receipt");
+  assert.equal(refSha(repo, "feature~2"), repo.revisions.destination);
+  assert.equal(refSha(repo, "main"), repo.revisions.destination);
+  assert.equal(repo.git(["ls-files", "--", "cutoff.txt"]), "");
   assert.equal(
     repo.read(),
     backlogOf(

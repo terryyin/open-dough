@@ -89,12 +89,20 @@ journey_inputs=(
   Distribution/src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   Distribution/src/skills/dough-story-wrap-up/scripts/trunk-closure-observer.mjs
   Distribution/src/skills/dough-execute-plan/scripts/ci-host-hook.mjs
-  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs"
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-rebase-operation.mjs
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-rebase-aggregate.mjs
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-cli.mjs
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-candidate.mjs"
   "story_closure_write_evidence_identity|${land_inputs[*]} ${response_input}
   Distribution/evaluation/cases/closure/native-closure-repository.mjs Distribution/evaluation/cases/closure/native-closure-ci.mjs
   Distribution/tests/support/makeMe.mjs Distribution/tests/support/repositoryTestData.mjs Distribution/tests/support/ciRunTestData.mjs
   Distribution/src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
-  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-driver.mjs"
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-merge-operation.mjs
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-driver.mjs
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-cli.mjs
+  Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-candidate.mjs"
   "git_publication_write_evidence_identity execution-review|${response_input}
   Distribution/src/skills/dough-land/references/completion-attention.md"
   'git_publication_write_evidence_identity admission|

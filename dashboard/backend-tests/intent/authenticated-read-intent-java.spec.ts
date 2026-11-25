@@ -11,7 +11,7 @@ import {
   publishes,
 } from "../../test-support/support/fakeGitHub.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { describedRevision } from "../../test-support/describedRevisions.ts";
+import { describedFiles } from "../../test-support/describedRevisions.ts";
 import { intentSettingsText } from "../../test-support/support/intentSettingsFile.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
@@ -79,11 +79,10 @@ test.describe("authenticated Java source selection", () => {
       },
     },
   ];
-  for (const [index, scenario] of cases.entries()) {
+  for (const scenario of cases) {
     test(scenario.title, async () => {
-      const revision = `a${index + 1}`.repeat(20);
-      const repository = makeMe.aRepository
-        .withRevision("pinned", {
+      const published = publishes({
+        files: describedFiles({
           files: {
             ".planning/open-dough.json": intentSettingsText(
               makeMe.intentSettings.withLocations(scenario.location).please(),
@@ -93,12 +92,10 @@ test.describe("authenticated Java source selection", () => {
             [examplesPath]: text,
             "backend/src/test/java/com/example/Notes.txt": "not Java\n",
           },
-        })
-        .please();
-      server.github.serve(
-        everyRepository,
-        publishes(describedRevision(repository, revision)),
-      );
+        }),
+      });
+      const { revision } = published;
+      server.github.serve(everyRepository, published);
       const read = (query: string) =>
         rawRequest({
           url: `${server.baseURL}/__authenticated-read?source=open-dough&revision=${revision}&${query}`,

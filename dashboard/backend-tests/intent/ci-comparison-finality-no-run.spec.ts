@@ -1,5 +1,6 @@
 // Missing runs are live until actual CI progress or the matching receipt's
 // age settles them. Later CI facts never become an exact-only result.
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { branch, landing, completion } from "../support/comparisonRead.ts";
 import {
@@ -8,7 +9,6 @@ import {
 } from "../support/finalityComparisonFacts.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import {
-  expect,
   test,
   observedComparisonSource,
   comparisonAcquisitions,

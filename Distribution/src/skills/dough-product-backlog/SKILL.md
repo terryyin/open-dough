@@ -210,9 +210,9 @@ invoke the installed `scripts/product-backlog.mjs` operation instead of a
 direct hand-edit. Reads, edits to other files, and shell-run commands (including
 shell redirection into the backlog file) are unaffected.
 
-## Merge, rebase, or cherry-pick the backlog across branches
+## Merge or rebase the backlog across branches
 
-An authorized merge, rebase, or cherry-pick that combines two sides of the
+An authorized merge or rebase that combines two sides of the
 product backlog (often `PRODUCT-BACKLOG.md`) — not an ordinary same-branch
 add/take/place/complete — is run through this project's installed product
 backlog Git adapters from the start, before Git ever reports a conflict; a

@@ -1,7 +1,5 @@
-// Git mechanics (not guidance-following): a rejected push of an owned suffix
-// is reconciled once through the backlog rebase adapter when that suffix
-// touches the backlog, then pushed once. A conflict or a second rejection
-// preserves that state and does not loop. Lost-response classification is not this file.
+// A rejected push replays the owned backlog suffix onto the current tip.
+// A replay conflict preserves the original candidate and stops before retry.
 import assert from "node:assert/strict";
 import { makeMe } from "../../support/makeMe.mjs";
 import { publishExecutionIncrement } from "../../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs";
@@ -19,17 +17,14 @@ import {
   itemD,
   otherD,
   ownedD,
-  publishRacingSuffix,
   siblingB,
 } from "./publication-racing-suffix-fixtures.mjs";
 import {
-  advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
   assertRemoteCandidate,
   captureCheckout,
   git,
   lsRemoteSha,
-  maintenanceFromInspection,
   plantHumanEdit,
   revParse,
 } from "./publication-test-fixtures.mjs";
@@ -37,57 +32,63 @@ import {
 test("a rejected push is reconciled once onto the other writer's commit, then the combined candidate is accepted", async (t) => {
   const ownedBacklog = backlogOf([], [itemA, itemB, itemC, ownedD]);
   const fixture = await createBacklogSuffixFixture(ownedBacklog);
-  const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    fixture;
+  const { origin, integration, execution, trunkSha, cleanup } = fixture;
   t.after(cleanup);
 
   await plantHumanEdit(integration);
   const before = await captureCheckout(integration);
-  const siblingSha = await advanceOriginBacklog(
-    origin,
-    backlogOf([], [itemA, siblingB, itemC, itemD]),
-    "sibling backlog change",
-  );
-
+  let siblingSha;
+  const attempts = [];
   let checkedSha;
-  const outcome = await publishRacingSuffix({
+  const outcome = await publishExecutionIncrement({
     workspace: execution,
-    origin,
-    candidateSha,
-    previouslyPublishedBase: trunkSha,
-    branch: "exec/story",
-    affectedCheck: async (sha) => {
+    ...makeMe.anIncrementPublication
+      .with({
+        previouslyPublishedBase: trunkSha,
+        branch: "exec/story",
+        targetRef: "refs/heads/main",
+        defaultCheckout: integration,
+      })
+      .please(),
+    beforePush: async ({ attempt }) => {
+      attempts.push(attempt);
+      if (attempt === 0) {
+        siblingSha = await advanceOriginBacklog(
+          origin,
+          backlogOf([], [itemA, siblingB, itemC, itemD]),
+          "sibling backlog change",
+        );
+      }
+    },
+    validate: async (sha) => {
       checkedSha = sha;
       await assertAffectedCombination(fixture, sha);
+      return true;
     },
   });
 
-  assert.equal(outcome.status, "published");
-  assert.equal(outcome.replays, 1);
-  assert.equal(checkedSha, outcome.sha);
+  assert.equal(outcome.publication, "accepted");
+  assert.equal(outcome.reconciliations, 1);
+  assert.deepEqual(attempts, [0, 1]);
+  const { sha } = outcome.receipt;
+  assert.equal(checkedSha, sha);
   assert.equal(
-    (await git(execution, "rev-parse", `${outcome.sha}^`)).stdout.trim(),
+    (await git(execution, "rev-parse", `${sha}^`)).stdout.trim(),
     siblingSha,
     "published ancestry keeps the other writer's commit as the parent",
   );
   assert.equal(
-    (
-      await git(
-        execution,
-        "log",
-        "--format=%s",
-        `${siblingSha}..${outcome.sha}`,
-      )
-    ).stdout,
+    (await git(execution, "log", "--format=%s", `${siblingSha}..${sha}`))
+      .stdout,
     "verified increment\n",
     "only the owned suffix is replayed",
   );
   await git(execution, "fetch", "origin");
-  await assertRemoteCandidate(origin, outcome.sha);
+  await assertRemoteCandidate(origin, sha);
   const after = await captureCheckout(integration);
   assertCheckoutUnchanged(before, after);
   assert.equal(after.head, trunkSha);
-  assert.equal(maintenanceFromInspection(after, outcome.sha), "deferred");
+  assert.equal(outcome.maintenance, "deferred");
   assert.equal(rebaseInProgress(execution), undefined);
 });
 
@@ -99,27 +100,38 @@ test("conflicting backlog intent preserves the rejected candidate and does not r
   t.after(cleanup);
 
   const before = await captureCheckout(integration);
-  const siblingSha = await advanceOriginBacklog(
-    origin,
-    backlogOf([], [itemA, itemB, itemC, otherD]),
-    "conflicting rename of D",
-  );
-
+  let siblingSha;
+  const attempts = [];
   let checked = false;
-  const outcome = await publishRacingSuffix({
+  const outcome = await publishExecutionIncrement({
     workspace: execution,
-    origin,
-    candidateSha,
-    previouslyPublishedBase: trunkSha,
-    branch: "exec/story",
-    affectedCheck: () => {
+    ...makeMe.anIncrementPublication
+      .with({
+        previouslyPublishedBase: trunkSha,
+        branch: "exec/story",
+        targetRef: "refs/heads/main",
+      })
+      .please(),
+    beforePush: async ({ attempt }) => {
+      attempts.push(attempt);
+      if (attempt === 0) {
+        siblingSha = await advanceOriginBacklog(
+          origin,
+          backlogOf([], [itemA, itemB, itemC, otherD]),
+          "conflicting rename of D",
+        );
+      }
+    },
+    validate: () => {
       checked = true;
+      return true;
     },
   });
 
-  assert.equal(outcome.status, "preserved");
-  assert.equal(outcome.reason, "conflict");
-  assert.equal(outcome.replays, 1);
+  assert.equal(outcome.publication, "stopped");
+  assert.equal(outcome.status, "conflict");
+  assert.equal(outcome.reconciliations, 1);
+  assert.deepEqual(attempts, [0]);
   assert.equal(
     checked,
     false,
@@ -129,80 +141,13 @@ test("conflicting backlog intent preserves the rejected candidate and does not r
     outcome.replay.stdout + outcome.replay.stderr,
     /unresolved|conflict/i,
   );
-  assert.equal(outcome.remoteSha, siblingSha);
+  assert.equal(outcome.remoteTip, siblingSha);
+  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), siblingSha);
   assert.equal(await revParse(execution, "exec/story"), candidateSha);
   assert.equal(rebaseInProgress(execution), "rebase-merge");
   assert.match(
     (await git(execution, "ls-files", "-u", "--", backlogPath)).stdout,
     /PRODUCT-BACKLOG/,
   );
-  assertCheckoutUnchanged(before, await captureCheckout(integration));
-});
-
-test("a second rejection preserves the once-rewritten candidate and does not reconcile again", async (t) => {
-  const ownedBacklog = backlogOf([], [itemA, itemB, itemC, ownedD]);
-  const fixture = await createBacklogSuffixFixture(ownedBacklog);
-  const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    fixture;
-  t.after(cleanup);
-
-  const before = await captureCheckout(integration);
-  let siblingSha;
-  let checkedSha;
-  const attempts = [];
-  const result = await publishExecutionIncrement({
-    workspace: execution,
-    ...makeMe.anIncrementPublication
-      .with({
-        previouslyPublishedBase: trunkSha,
-        branch: "exec/story",
-        targetRef: "refs/heads/main",
-      })
-      .please(),
-    validate: async (sha) => {
-      checkedSha = sha;
-      await assertAffectedCombination(fixture, sha);
-      return { ok: true };
-    },
-    beforePush: async ({ attempt }) => {
-      attempts.push(attempt);
-      if (attempt === 0)
-        siblingSha = await advanceOriginBacklog(
-          origin,
-          backlogOf([], [itemA, siblingB, itemC, itemD]),
-          "sibling backlog change",
-        );
-      else await advanceOriginFromAnotherWriter(origin);
-    },
-  });
-  assert.deepEqual(attempts, [0, 1]);
-  assert.equal(result.status, "persistent-contention");
-  assert.equal(result.reconciliations, 1);
-  const { candidate: localSha, remoteTip: remoteSha } = result;
-
-  assert.equal(checkedSha, localSha);
-  assert.notEqual(remoteSha, siblingSha);
-  assert.notEqual(localSha, candidateSha);
-  assert.equal(await revParse(execution, "exec/story"), localSha);
-  assert.equal(
-    (await git(execution, "rev-parse", `${localSha}^`)).stdout.trim(),
-    siblingSha,
-    "the one replay stays based on the first remote advance",
-  );
-  let absorbed = true;
-  try {
-    await git(execution, "merge-base", "--is-ancestor", remoteSha, localSha);
-  } catch {
-    absorbed = false;
-  }
-  assert.equal(absorbed, false, "the later remote commit was not absorbed");
-  assert.equal(
-    (
-      await git(execution, "ls-tree", "-r", "--name-only", localSha)
-    ).stdout.includes("other-writer.txt"),
-    false,
-  );
-  assert.equal(rebaseInProgress(execution), undefined);
-  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), remoteSha);
   assertCheckoutUnchanged(before, await captureCheckout(integration));
 });

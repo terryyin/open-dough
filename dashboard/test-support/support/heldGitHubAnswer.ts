@@ -8,6 +8,7 @@
 import type { RepositoryAnswerer } from "./fakeGitHub.ts";
 import type { GhRequest } from "./ghRequest.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
+import { keepingOrigin } from "./publishedRepository.ts";
 
 // Answers the first call whose request `isPicked` picks with `first`, and
 // every other call as `answerer` does.
@@ -17,12 +18,12 @@ export function answeringFirst(
   first: OriginAnswer,
 ): RepositoryAnswerer {
   let unanswered: OriginAnswer | undefined = first;
-  return (call) => {
+  return keepingOrigin((call) => {
     const answer = isPicked(call.request) ? unanswered : undefined;
     if (answer === undefined) return answerer(call);
     unanswered = undefined;
     return Promise.resolve(answer);
-  };
+  }, answerer);
 }
 
 export function holding<Request, Answer>(
@@ -54,7 +55,8 @@ export function holdingAnswer(
   published: RepositoryAnswerer,
   isHeld: (request: GhRequest) => boolean,
 ): { readonly answer: RepositoryAnswerer; readonly release: () => void } {
-  return holding(published, (call) => isHeld(call.request));
+  const held = holding(published, (call) => isHeld(call.request));
+  return { ...held, answer: keepingOrigin(held.answer, published) };
 }
 
 // Held `gh` answers released one at a time: each call whose request `isHeld`
@@ -72,14 +74,14 @@ export function heldInTurn(
   const held: (() => void)[] = [];
   let holding = true;
   return {
-    answer: async (call) => {
+    answer: keepingOrigin(async (call) => {
       if (holding && isHeld(call.request)) {
         await new Promise<void>((resolve) => {
           held.push(resolve);
         });
       }
       return published(call);
-    },
+    }, published),
     held: () => held.length,
     releaseOldest: () => {
       held.shift()?.();

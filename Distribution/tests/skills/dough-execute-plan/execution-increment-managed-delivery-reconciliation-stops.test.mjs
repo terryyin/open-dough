@@ -16,6 +16,7 @@ import {
 import {
   advanceOriginBacklog,
   assertAffectedCombination,
+  backlogSuffixDescription,
   backlogPath,
   itemA,
   itemB,
@@ -164,38 +165,78 @@ test("conflict stops and preserves recoverable work without pushing", async (t) 
   );
 });
 
-test("second push rejection stops after one reconciliation retry", async (t) => {
-  const fixture = await createManagedFixture();
+test("second push rejection preserves the first rewritten candidate and reports contention", async (t) => {
+  const fixture = await createManagedFixture({
+    description: backlogSuffixDescription(
+      backlogOf([], [itemA, itemB, itemC, ownedD]),
+    ),
+  });
   t.after(fixture.cleanup);
-
-  let pushAttempt = 0;
+  const { origin, integration, execution } = fixture;
+  const before = await captureCheckout(integration);
+  const attempts = [];
+  let checkedSha;
+  let siblingSha;
+  let secondWriter;
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
-    workspace: fixture.execution,
+    workspace: execution,
     branch: "exec/story",
     previouslyPublishedBase: fixture.trunkSha,
     targetRef: trunkTarget,
     repo,
-    validate: async () => ({ ok: true }),
-    beforePush: async () => {
-      pushAttempt += 1;
-      await advanceOriginFromAnotherWriter(fixture.origin, {
-        file: `race-${pushAttempt}.txt`,
-        body: `race ${pushAttempt}\n`,
-        message: `racing push ${pushAttempt}`,
-      });
+    validate: async (sha) => {
+      checkedSha = sha;
+      await assertAffectedCombination(fixture, sha);
+      return true;
+    },
+    beforePush: async ({ attempt }) => {
+      attempts.push(attempt);
+      if (attempt === 0) {
+        siblingSha = await advanceOriginBacklog(
+          origin,
+          backlogOf([], [itemA, siblingB, itemC, itemD]),
+          "sibling backlog change",
+        );
+      } else {
+        secondWriter = await advanceOriginFromAnotherWriter(origin);
+      }
     },
   });
 
   assert.equal(delivered.ok, false);
   assert.equal(delivered.publication, "stopped");
+  assert.equal(delivered.report, "persistent-contention");
   assert.equal(delivered.status, "persistent-contention");
+  assert.equal(delivered.receipt, null);
+  assert.equal(delivered.maintenance, null);
   assert.equal(delivered.reconciliations, 1);
-  assert.equal(pushAttempt, 2);
-  assert.notEqual(delivered.candidate, fixture.candidateSha);
-  assert.notEqual(
-    await lsRemoteSha(fixture.origin, trunkTarget),
-    delivered.candidate,
+  assert.deepEqual(attempts, [0, 1]);
+  const { candidate } = delivered;
+  assert.equal(candidate, checkedSha);
+  assert.notEqual(candidate, fixture.candidateSha);
+  assert.equal(await revParse(execution, "exec/story"), candidate);
+  assert.equal(
+    (
+      await git(execution, "rev-list", "--parents", "-1", candidate)
+    ).stdout.trim(),
+    `${candidate} ${siblingSha}`,
   );
-  assert.equal(rebaseInProgress(fixture.execution), undefined);
+  assert.equal(
+    (
+      await git(
+        execution,
+        "ls-tree",
+        "--name-only",
+        candidate,
+        "other-writer.txt",
+      )
+    ).stdout,
+    "",
+  );
+  assert.equal(delivered.remoteTip, secondWriter);
+  assert.equal(await lsRemoteSha(origin, trunkTarget), secondWriter);
+  assert.notEqual(secondWriter, candidate);
+  assert.equal(rebaseInProgress(execution), undefined);
+  assertCheckoutUnchanged(before, await captureCheckout(integration));
 });

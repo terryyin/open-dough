@@ -1,5 +1,6 @@
 // Real matching over raw namespaced launch/history documents and a controlled
 // clock; optional local evidence never replaces published endpoint facts.
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   baseline,
@@ -16,7 +17,6 @@ import {
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import { capturedComparisonLanding } from "../../test-support/support/capturedComparisonLanding.ts";
 import {
-  expect,
   test,
   observedComparisonSource,
   comparisonAcquisitions,

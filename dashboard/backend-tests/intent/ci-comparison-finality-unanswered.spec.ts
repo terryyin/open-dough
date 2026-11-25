@@ -1,5 +1,6 @@
 // Raw request failures, held errors and malformed listings retain the actual
 // artifact reader's private brand through the shared finality/memory path.
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   GitHubAcquisitionFailed,
@@ -19,7 +20,6 @@ import { finalityArtifacts } from "../support/finalityArtifacts.ts";
 import { archiveOf, listedArtifact } from "../support/ciProofMemory.ts";
 import { capturedComparisonLanding } from "../../test-support/support/capturedComparisonLanding.ts";
 import {
-  expect,
   test,
   observedComparisonSource,
   comparisonAcquisitions,
