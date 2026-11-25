@@ -11,6 +11,7 @@
 - Start revision `5d02421262879ca53650f787b9f34f83c558b14e`. Claim `9774e3021acfb5fc06b7e516d4cd91a0dbf8c533` accepted on `origin/main` and the remote execution branch. Story-branch receipts for slices 1 through 4 are `58af62fa9ebbc518faff700f74e14082fd5ccd3d`, `21991f88217a7e44759def9cd97edc10ecda864f`, `1b9c91da35433b20e669b7a63919bb02b54c77a2` and `17d1ea2cf628666239096cdd42d44b23ff2fb493`.
 - Execution branch observation uses GitHub Actions `ci.yml` with coordinator `rio-chan-32284348` and stream `/tmp/dough-ci-501/watch-8RaTPQ` (PID 77649). The trunk claim preceded that observer.
 - Checkout setup passed with Node 24.21.0, the locked npm install, the locked Chromium launch, and `npm run typecheck:dashboard`.
+- Slice 5 was accepted on the story branch at `cba809fb31e2a319f0e347a0fcab1880df9c7d05`. The completed slice 4 Actions attempt `45604866927/1` had one failed shard. Its checkout could not connect to GitHub on three consecutive fetch attempts, before any test ran. The final accepted state has its own applicable CI check.
 
 ## Goal and scope
 
@@ -240,3 +241,7 @@ Disposition: proved by slice 4: intent-home-activation-scope.spec.ts observes pr
 Reported: slice 3 — "Clearing Done scope then choosing its recent currently restores the old Changes tab (CI comparison aria-selected=false)."
 Story clause: "Choosing a story again after clearing starts a new review at its default view."
 Disposition: proved by slice 4: mounted and end-to-end intent-done-project-refresh.spec.ts observe CI comparison selected after clearing and reselecting the Done story. The nondefault comparison test in intent-home-activation-scope.spec.ts also observes the comparison reset.
+
+## Execution complete
+
+Product advice: no change. The five delivered increments fulfilled the scope and proof. The existing comparison, Story Home and project browsing stories still own the adjacent outcomes.
