@@ -202,39 +202,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-<a id="finish-backend-vitest-renovation-after-session-reads-and-alerts"></a>
-
-### Prove installed launch options through typed backend requests
-
-**Identity:** SEED-413#finish-backend-vitest-renovation-after-session-reads-and-alerts
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/839-prove-installed-launch-options-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ca055bf9a02ae08103eba3a3119b1a4bfb972fe4b0a4a287e7cbb79a309f444","plan":"469d73a330e69a3e7430f6227f0c15baa0bc6c121ec681df05a0843e85632d21"}}
-```
-
-- **Goal.** Developers changing installed launch options can check in Node
-  Vitest which flags a project accepts and in what order, with browser proof
-  that Start sends the selection and shows it again after reload.
-- **Scope.** Move the two HTTP-based launch option specs,
-  `agent-launch-options-boundary.spec.ts` and
-  `agent-launch-options-groups.spec.ts`, off backend Playwright. Exercise the
-  typed selection owner against the requesting project's real installed
-  definition. Keep failures distinct when their reason differs. Keep
-  command delivery and persisted selection with their observing proof,
-  including the existing browser journeys. Measure focused feedback before
-  and after and account for every former case.
-- **Key examples.** Given a definition with a free flag and two exclusive
-  flags, a request in a different order returns the selected flags in the
-  definition's order. Selecting two flags from the same group refuses the
-  request and names the group and both flags. Given the same flag installed
-  in one project and absent in another, only the project that defines it
-  accepts it. Given an unavailable definition, an empty selection still
-  allows the default launch, and a selected flag receives the reason the
-  definition cannot be used.
-- **Boundary.** Native host dispatch, the machine-session reader, and the
-  runner's direct Playwright specimen retain their existing owners. The
-  [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-options)
-  carries the remaining families, the Story Notes store and runner retirement.
-
 <a id="finish-backend-vitest-renovation-after-launch-options"></a>
 
 ### Prove launch attachment admission in Node Vitest
@@ -262,7 +229,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   attempt files. With valid images, existing browser proof observes the
   copied bytes in the order picked and the same path when startup continues.
 - **Boundary.** The
-  [launch-options story](#finish-backend-vitest-renovation-after-session-reads-and-alerts)
+  [launch-options story](https://github.com/terryyin/open-dough/blob/9ac6002b205bc324155f82e9b0f07901ed4d6a7e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-session-reads-and-alerts)
   owns option admission. Session-terminal uploads and voice are consumers of
   the shared reader and retain their coverage. The
   [backend campaign remainder](#finish-backend-vitest-renovation-after-launch-attachments)
@@ -280,8 +247,8 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 This remainder carries the unselected scope split from
 [launch attachment admission](#finish-backend-vitest-renovation-after-launch-options).
 The maintained selector at `7a206c76e` on 25 November 2026 reports 309
-Playwright and 283 Node Vitest paths across 592 backend specs. Launch
-options is Taken. After the two options files and the two attachment files
+Playwright and 283 Node Vitest paths across 592 backend specs. After the two
+options files and the two attachment files
 move, the projection is 305 Playwright paths if no other changes land.
 
 | Family | Playwright paths at `7a206c76e` | After launch options and attachments |
