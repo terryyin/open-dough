@@ -132,9 +132,9 @@ The Take `a260b60c349ad6db02fc5b1df5b4834fe029f83d` was accepted by
 The Codex `eimi-chan-seed-423` observer watches the story branch on
 `terryyin/open-dough` with GitHub Actions `ci.yml`, cell `g243:11`,
 session `71138`, directory `/tmp/dough-ci-501/watch-I57KEb`, and PID `19804`.
-Slices 1–4 were accepted there at `ef4a3644109c4bd008db80375ca339fe1b7963a8`,
+Slices 1–5 were accepted there at `ef4a3644109c4bd008db80375ca339fe1b7963a8`,
 `50ad2d9858a496d78f09c4bcc83351edaf9aa977`, `e8b93bf32dcb0bbb492952bb3d47d72a929b2aa4`
-and `1916d74c6c29c7809967f473b27313d183c3040b`.
+`1916d74c6c29c7809967f473b27313d183c3040b` and `3a7070b4213844b9bc8f168540cccc3ebaec04c3`.
 
 ### 1. Resume through the exact-candidate loop
 
@@ -215,8 +215,12 @@ tests whose last consumer moved.
 ### 6. Give agents concise publication instructions
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Installed guidance review, payload check and final size and case counts above.
+
+The three walkthroughs, payload links, native entry, evidence identity and
+fresh recovery checks passed. The matched family passed 69 cases in 19 files.
+The story removes 190 guidance lines, 106 script lines and 102 test lines.
 
 After the callers share the loop, fold common rules into the existing guidance.
 Keep entry-point choice, authorization, ownership, validation, result-specific
