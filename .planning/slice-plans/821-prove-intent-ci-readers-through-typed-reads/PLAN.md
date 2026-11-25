@@ -168,7 +168,7 @@ Refactor disposition: skip — subject specs only; no new product representation
 ### 3. History capability projections and refusals answer in process
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `ci-history-glance-compatibility`, `ci-history-measure-compatibility`,
 `ci-history-reader-compatibility` and `ci-history-slim-response` run on Node
 Vitest. Glance and measure answers are compared with the full answer from
@@ -182,6 +182,13 @@ the glance or measure capability answers the projection of its default
 answer, and refused parameters return the refusal without a read.
 
 Estimated active work 10–14 minutes.
+
+Accepted proof (coordinator): focused Vitest 4 files / 6 cases; typecheck and
+eslint exit 0. Evidence:
+`open-dough/evidence/slice3-history-capability-vitest-20261125-123017-report.md`.
+HTTP `rawRequest` reader removed from `retainedGlanceHistory` (in-process
+`historyAnswer(home, query)` kept). Refusals are parse-only unit cases.
+Refactor disposition: skip — subject specs + cohort helper only.
 
 ### 4. Unreadable captures are read from the case's own home
 

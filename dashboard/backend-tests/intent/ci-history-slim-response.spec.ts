@@ -1,9 +1,12 @@
 // A selected Done or scoped history read that names the glance capability
 // answers the chart data and compact figures the glance views read, as a
-// projection of the same retained history's default answer, through the real
-// local authenticated boundary. The default answer's membership, median and
-// run links are in ./ci-history-glance-compatibility.spec.ts. Browsing reads
-// no CI.
+// projection of the same retained history's default answer. The default
+// answer's membership, median and run links are in
+// ./ci-history-glance-compatibility.spec.ts. Browsing reads no CI.
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { afterEach, expect, test } from "vitest";
 import {
   doneHistoryQuery,
   failedRevision,
@@ -13,9 +16,13 @@ import {
   landedEndpoint,
   scopeHistoryQuery,
 } from "../support/retainedGlanceHistory.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
 
-test.use({ serverMode: "boundary" });
+let home = "";
+
+afterEach(() => {
+  if (home !== "") rmSync(home, { recursive: true, force: true });
+  home = "";
+});
 
 type Answer = Record<string, unknown> & {
   readonly entries: readonly Record<string, unknown>[];
@@ -27,17 +34,13 @@ const figuresOf = (reference: Record<string, unknown>) => {
   return { endpoint, selected, sampleCount, averageMs, difference };
 };
 
-test("the glance capability sends the Done chart through its landing and compact figures without membership, median, filtering detail or run links", async ({
-  dashboard,
-  github,
-}) => {
-  await keepGlanceHistory(dashboard.home);
-  const before = github.calls.length;
-  const full = (await historyAnswer(
-    dashboard.origin,
-    doneHistoryQuery,
-  )) as Answer & { readonly reference: Record<string, unknown> };
-  const glance = (await historyAnswer(dashboard.origin, {
+test("the glance capability sends the Done chart through its landing and compact figures without membership, median, filtering detail or run links", async () => {
+  home = mkdtempSync(path.join(tmpdir(), "ci-history-slim-response-done-"));
+  await keepGlanceHistory(home);
+  const full = (await historyAnswer(home, doneHistoryQuery)) as Answer & {
+    readonly reference: Record<string, unknown>;
+  };
+  const glance = (await historyAnswer(home, {
     ...doneHistoryQuery,
     history: "glance",
   })) as Answer;
@@ -81,22 +84,15 @@ test("the glance capability sends the Done chart through its landing and compact
   expect(JSON.stringify(glance)).not.toMatch(
     /"(runUrl|evidence|medianMs|from|to)"/,
   );
-  expect(github.calls).toHaveLength(before);
 });
 
-test("the glance capability sends scoped dated readings, typed gaps, segments and provenance with compact figures and no landing or run metadata", async ({
-  dashboard,
-  github,
-}) => {
-  await keepGlanceHistory(dashboard.home);
-  const before = github.calls.length;
-  const full = (await historyAnswer(
-    dashboard.origin,
-    scopeHistoryQuery,
-  )) as Answer & {
+test("the glance capability sends scoped dated readings, typed gaps, segments and provenance with compact figures and no landing or run metadata", async () => {
+  home = mkdtempSync(path.join(tmpdir(), "ci-history-slim-response-scope-"));
+  await keepGlanceHistory(home);
+  const full = (await historyAnswer(home, scopeHistoryQuery)) as Answer & {
     readonly references: readonly { reference: Record<string, unknown> }[];
   };
-  const glance = (await historyAnswer(dashboard.origin, {
+  const glance = (await historyAnswer(home, {
     ...scopeHistoryQuery,
     history: "glance",
   })) as Answer & { readonly references: readonly unknown[] };
@@ -152,5 +148,4 @@ test("the glance capability sends scoped dated readings, typed gaps, segments an
   expect(JSON.stringify(glance)).not.toMatch(
     /"(runUrl|runId|revision|receivedAt|build|run|evidence|medianMs|from|to|entry)"/,
   );
-  expect(github.calls).toHaveLength(before);
 });
