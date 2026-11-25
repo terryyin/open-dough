@@ -6,15 +6,17 @@ import {
   reportingContextSchema,
   agentLaunchEndpoint,
   agentLaunchRequestSchema,
-  type StoryLaunchRequest,
 } from "./launchRequest.ts";
 import {
   landingRepositorySchema,
   launchLandingSchema,
 } from "./launchLanding.ts";
 import { completionReceiptSchema } from "./completionReport.ts";
-import { completionSchema, launchWithStateSchema } from "./launchRecord.ts";
-import type { HostOperations } from "./sessionCapabilities.ts";
+import {
+  completionSchema,
+  launchRecordSchema,
+  launchWithStateSchema,
+} from "./launchRecord.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 import { baseCiFoundSchema } from "./baseCiConfirmation.ts";
 import { existingChangesFoundSchema } from "./existingLaunchChanges.ts";
@@ -169,6 +171,7 @@ export const launchAttemptSchema = z.object({
 export type LaunchAttemptRecord = z.infer<typeof launchAttemptSchema>;
 
 export const attemptObservationSchema = launchAttemptSchema.extend({
+  unboundRecovery: z.literal(true).optional(),
   owned: z.boolean(),
   running: z.boolean(),
   // For an attempt the answering server runs: how many changes of it that
@@ -180,6 +183,7 @@ export const attemptObservationSchema = launchAttemptSchema.extend({
 export type AttemptObservation = z.infer<typeof attemptObservationSchema>;
 
 export {
+  launchVerifiable,
   needsReconciliation,
   sessionStartRetained,
   worktreeUpdateNeeded,
@@ -214,20 +218,6 @@ export const verifiedAnswerSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("unresolved"), explanation: z.string().min(1) }),
 ]);
 
-// Whether Recheck asks the local service to verify the attempt's launch: a
-// story attempt whose launch is uncertain while its publication is known, so
-// its start settled and its session alone may or may not exist, and its
-// host boundary offers a listing to verify it against.
-export const launchVerifiable = (
-  attempt: AttemptObservation,
-  operations: HostOperations,
-): attempt is AttemptObservation & { readonly request: StoryLaunchRequest } =>
-  attempt.request.workflow !== "ad-hoc" &&
-  !attempt.running &&
-  attempt.outcome?.kind === "uncertain" &&
-  attempt.publication.kind !== "unknown" &&
-  operations[attempt.request.host]?.launchedSessions === true;
-
 export type ReconciledAnswer =
   | { readonly kind: "reconciled"; readonly attempt: AttemptObservation }
   | { readonly kind: "refused"; readonly explanation: string };
@@ -241,7 +231,11 @@ export type ChangedAnswer = z.infer<typeof changedAnswerSchema>;
 
 // What asking for acceptance answers: the accepted attempt, or what was answered before anything was accepted or started.
 export const acceptanceSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("accepted"), attempt: attemptObservationSchema }),
+  z.object({
+    kind: z.literal("accepted"),
+    attempt: attemptObservationSchema,
+    recoveredSession: launchRecordSchema.optional(),
+  }),
   ...unlaunchedSchemas,
   stopUnconfirmedFoundSchema,
 ]);

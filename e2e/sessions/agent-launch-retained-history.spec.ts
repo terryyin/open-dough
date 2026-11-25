@@ -14,11 +14,17 @@ import {
   sessionsHistoryAudience,
   sessionsRevisionHeader,
 } from "../../dashboard/src/machineSessionsRevision.ts";
-import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { sessionDetailsControl } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
 import { givePageItsTurns } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { storyA } from "../../Distribution/tests/support/queued-repository.mjs";
+import { doneStoryFiles } from "../../dashboard/test-support/support/followUpStories.ts";
 import {
   recentlyDoneParts,
   showRecentlyDone,
@@ -35,6 +41,11 @@ import type { DashboardServer } from "../../dashboard/test-support/support/dashb
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
 const minute = 60_000;
+const retainedStory = {
+  ...storyA,
+  identity: "SEED-804#retained-session-story",
+  title: "Retained session story",
+};
 
 const isHistoryUrl = (url: URL) =>
   url.pathname === agentLaunchEndpoint &&
@@ -67,7 +78,7 @@ function retained(dashboard: DashboardServer, now: number, title: string) {
     startedAt: launchedAt,
   });
   return makeMe.aLaunchRecord
-    .adHoc({ instruction: title, title })
+    .adHoc({ instruction: title, title, storyIdentity: retainedStory.identity })
     .inClaudeSession({ sessionId })
     .launchedAt(new Date(launchedAt).toISOString())
     .markedDoneAt(new Date(now - 5 * minute).toISOString())
@@ -81,13 +92,24 @@ async function showRetained(
   records: readonly LaunchRecord[],
 ) {
   const opened = new Date("2026-10-28T10:00:00.000Z");
+  await origin.publishRevision({
+    message: "Publish the retained sessions' story",
+    files: doneStoryFiles(
+      [retainedStory],
+      new Date(opened.getTime() - 10 * minute).toISOString(),
+    ),
+  });
   await pausePageClockAt(page, opened);
   const { passOnePace } = await watchRecordReads(page);
   keepLaunchStore(dashboard, { "open-dough": records });
   const { asked, codings } = historyReads(page);
   await showPage(page, origin);
   const onBoard = (title: string) =>
-    parts(page).recentlyDone.getByRole("article").filter({ hasText: title });
+    sessionEntriesIn(
+      storyCard(parts(page).recentlyDone, retainedStory.title),
+    ).filter({
+      hasText: title,
+    });
   return { passOnePace, asked, codings, onBoard };
 }
 

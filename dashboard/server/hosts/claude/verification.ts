@@ -55,3 +55,22 @@ export async function claudeLaunchedSessions(
   }
   return matching;
 }
+
+export async function claudeSessionInWorkspace(
+  folder: LocalFolder,
+  sessionId: string,
+  workspace: string,
+  signal: AbortSignal,
+): Promise<boolean> {
+  const listed = await claudeSessions(folder, signal);
+  const matches = listed?.filter(
+    (entry) => entry.session.sessionId === sessionId,
+  );
+  const cwd = matches?.length === 1 ? matches[0]?.cwd : undefined;
+  if (cwd === undefined) return false;
+  try {
+    return (await realpath(cwd)) === (await realpath(workspace));
+  } catch {
+    return false;
+  }
+}

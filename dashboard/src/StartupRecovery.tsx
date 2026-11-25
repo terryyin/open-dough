@@ -26,6 +26,7 @@ import type {
   RecoveryActions,
   StartupRecoveryItem,
 } from "./startupRecoveries.ts";
+import type { OpenTerminal } from "./pageSessions.ts";
 import "./agent-launch.css";
 import "./startup-recovery.css";
 
@@ -79,14 +80,12 @@ function KnownFacts({ attempt }: { readonly attempt: AttemptObservation }) {
 
 function RecoveryEntry({
   item,
-  onContinue,
-  onUpdateWorktree,
-  onRecheck,
+  actions,
+  presentTerminal,
 }: {
   readonly item: StartupRecoveryItem;
-  readonly onContinue: (attempt: AttemptObservation) => void;
-  readonly onUpdateWorktree: (attempt: AttemptObservation) => void;
-  readonly onRecheck: (attempt?: AttemptObservation) => void;
+  readonly actions: RecoveryActions;
+  readonly presentTerminal: OpenTerminal | undefined;
 }) {
   const id = useId();
   const {
@@ -150,7 +149,7 @@ function RecoveryEntry({
           type="button"
           aria-label={`Recheck ${subject}`}
           onClick={() => {
-            onRecheck(attempt);
+            actions.recheckStartups(attempt);
           }}
         >
           Recheck
@@ -161,7 +160,7 @@ function RecoveryEntry({
             aria-label={`Update worktree and retry ${named} of ${subject}`}
             disabled={continuing}
             onClick={() => {
-              onUpdateWorktree(attempt);
+              actions.updateWorktreeAndRetry(attempt);
             }}
           >
             {continuing ? "Updating…" : "Update worktree and retry"}
@@ -175,8 +174,11 @@ function RecoveryEntry({
               nativeCheckAdvice === undefined ? undefined : `${id}-check`
             }
             disabled={continuing}
-            onClick={() => {
-              onContinue(attempt);
+            onClick={(event) => {
+              const control = event.currentTarget;
+              actions.continueStartup(attempt, (record) => {
+                if (control.isConnected) presentTerminal?.({ record, control });
+              });
             }}
           >
             {continuing ? "Continuing…" : `Continue ${named}`}
@@ -194,10 +196,12 @@ export function StartupRecovery({
   items,
   evidence,
   actions,
+  presentTerminal,
 }: {
   readonly items: readonly StartupRecoveryItem[];
   readonly evidence: AttemptEvidence;
   readonly actions: RecoveryActions;
+  readonly presentTerminal?: OpenTerminal;
 }) {
   const headingId = useId();
   if (items.length === 0 && (evidence === "read" || evidence === "unread"))
@@ -236,9 +240,8 @@ export function StartupRecovery({
         <RecoveryEntry
           key={item.key}
           item={item}
-          onContinue={actions.continueStartup}
-          onUpdateWorktree={actions.updateWorktreeAndRetry}
-          onRecheck={actions.recheckStartups}
+          actions={actions}
+          presentTerminal={presentTerminal}
         />
       ))}
     </section>

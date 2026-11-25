@@ -50,6 +50,8 @@ import {
   prepareWorktreeUpdate,
 } from "./worktreeUpdateRetry.ts";
 import { acceptLaunchRequest } from "./agentLaunchAccept.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
+import { withUnboundRecovery } from "./unboundLaunchRecovery.ts";
 
 // How long a launch verification waits for its host's session listing.
 const verifyWaitMs = 10_000;
@@ -73,7 +75,9 @@ export class AgentLaunches {
     const kept = await keptRecordsByProject();
     return withStates(
       machineFolder(),
-      configuredProjects().flatMap((source) => kept.get(source.id) ?? []),
+      configuredProjects()
+        .flatMap((source) => kept.get(source.id) ?? [])
+        .filter((record) => storyOf(record.request) !== undefined),
       "recurring",
     );
   }
@@ -133,11 +137,11 @@ export class AgentLaunches {
 
   // The attempts this machine keeps and those this server owns, and whether
   // the kept ones could be read.
-  attempts(): Promise<{
+  async attempts(): Promise<{
     readonly attempts: readonly AttemptObservation[];
     readonly readable: boolean;
   }> {
-    return this.owner.attempts();
+    return withUnboundRecovery(await this.owner.attempts());
   }
 
   // Waits for a change after the observation counting `seen` changes, then

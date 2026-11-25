@@ -16,7 +16,7 @@ import { sessionAccess } from "./sessionAccess.ts";
 import { embeddedTerminal } from "./sessionCapabilities.ts";
 import { sessionKey } from "./sessionReference.ts";
 import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
-import { deletedEntryHome, sessionEntry } from "./pageEntries.ts";
+import { deletedEntryHome, sessionReturnHome } from "./pageEntries.ts";
 import {
   type OpenTerminal,
   type OpenFinalReport,
@@ -36,7 +36,6 @@ import {
   type Shown,
   type SidePanel,
 } from "./sidePanelContent.ts";
-import { storyCardHome } from "./storyCardFocus.ts";
 import { useKeyboardReturn } from "./keyboardReturn.ts";
 
 export function usePageSidePanel({
@@ -146,9 +145,10 @@ export function usePageSidePanel({
       shows: undefined,
       ...("record" in closed ? { session: closed.record } : {}),
       home: () =>
-        ("record" in closed
-          ? sessionEntry(sessionKey(closed.record.session))
-          : null) ?? storyCardHome(shownStory(closed)?.identity),
+        sessionReturnHome(
+          "record" in closed ? sessionKey(closed.record.session) : undefined,
+          shownStory(closed)?.identity,
+        ),
     });
   };
   const markSessionDone: MarkSessionDone = async ({ record, control }) => {
@@ -169,8 +169,10 @@ export function usePageSidePanel({
         shows: latest.current?.request,
         session: record,
         home: () =>
-          sessionEntry(sessionKey(record.session)) ??
-          storyCardHome(launchSubject(record.request).identity),
+          sessionReturnHome(
+            sessionKey(record.session),
+            launchSubject(record.request).identity,
+          ),
       });
     return "marked";
   };

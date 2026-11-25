@@ -10,6 +10,7 @@ import {
 import { hangupCursorClient } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
 import {
+  doneSessionEntriesOf,
   parts,
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
@@ -63,7 +64,11 @@ replacementTest(
     // A finished session in a workspace that still exists, and an
     // unfinished one whose saved workspace is gone.
     const doneRecord = makeMe.aLaunchRecord
-      .adHoc({ instruction: "Finish the report.", title: "Finished session" })
+      .adHoc({
+        instruction: "Finish the report.",
+        title: "Finished session",
+        storyIdentity: storyB.identity,
+      })
       .inCursorSession({
         sessionId: doneSessionId,
         continuation: { workspace: other.session.continuation.workspace },
@@ -77,7 +82,11 @@ replacementTest(
       failSessionId,
     );
     const failRecord = makeMe.aLaunchRecord
-      .adHoc({ instruction: "Keep going.", title: "Failing revival" })
+      .adHoc({
+        instruction: "Keep going.",
+        title: "Failing revival",
+        storyIdentity: storyB.identity,
+      })
       .inCursorSession({
         sessionId: failSessionId,
         continuation: { workspace: missingWorkspace },
@@ -158,9 +167,7 @@ replacementTest(
       1,
     );
     await expect(
-      sessionEntriesIn(parts(page).recentlyDone).filter({
-        hasText: doneSessionId,
-      }),
+      doneSessionEntriesOf(page, storyB.title, doneSessionId),
     ).toHaveCount(1);
     expect(
       cursor.attaches().some((each) => each.sessionId === failSessionId),

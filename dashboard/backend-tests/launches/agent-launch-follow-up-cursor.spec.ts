@@ -9,6 +9,8 @@
 
 import { realpathSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../../Distribution/tests/support/published-backlog.mjs";
+import { publishCommittedOrigin } from "../../test-support/committedOrigin.ts";
 import { keepMoreAttemptsBesideServer } from "../../test-support/acceptedAttempts.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
@@ -36,6 +38,7 @@ import {
   quietContext,
   request,
   publishFollowUpSources,
+  sourceStory,
 } from "./followUpBoundaryCases.ts";
 
 // No page: the local boundaries alone answer these requests.
@@ -152,7 +155,23 @@ test("with Isolated workspace, Continue sends the saved story follow-up message 
 test("Continue reads a legacy story follow-up attempt and preserves its separate instruction", async ({
   dashboard,
   cursor,
+  origin,
 }) => {
+  const trunk = await origin.publishRevision({
+    message: "Publish the historical follow-up's source",
+    files: {
+      ...doneStoryFiles([recoverStory], "2026-11-08T09:05:00.000Z"),
+      ".planning/PRODUCT-BACKLOG.md": renderPublishedBacklog({
+        taken: [sourceStory],
+      }),
+    },
+  });
+  await publishCommittedOrigin(dashboard.github, {
+    repoDir: origin.origin,
+    revision: trunk,
+    repository: "terryyin/open-dough",
+    follows: true,
+  });
   const context =
     "Done story “SEED-269#recover-terminal-insert”: prior context";
   const text = "Continue the previous start";
@@ -161,7 +180,7 @@ test("Continue reads a legacy story follow-up attempt and preserves its separate
       host: "cursor",
       instruction: text,
       followUp: makeMe.aFollowUp
-        .ofStory(recoverStory, "a".repeat(40))
+        .ofStory(recoverStory, trunk)
         .withContext(context)
         .please(),
     })
@@ -172,6 +191,10 @@ test("Continue reads a legacy story follow-up attempt and preserves its separate
   const launched = await answerOf(continued(dashboard, kept.id));
 
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
+  expect(launched.record?.request).toHaveProperty(
+    "storyIdentity",
+    recoverStory.identity,
+  );
   expectFollowUpInput((await promptOf(cursor)).prompt, {
     context,
     own: text,

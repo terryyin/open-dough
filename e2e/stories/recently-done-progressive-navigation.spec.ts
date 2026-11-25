@@ -86,6 +86,30 @@ test("a Taken session can open from the sidebar and mark Done on its own card wi
   });
 });
 
+test("Mark as done in a terminal returns focus to its story when Done history is collapsed", async ({
+  afterGitHubStops,
+  page,
+  dashboard,
+}) => {
+  await page.setViewportSize({ width: 80 * rem, height: 900 });
+  const view = await openedWithTakenNativeSession(
+    page,
+    dashboard,
+    afterGitHubStops,
+  );
+  await view.showsCollapsedDoneHistory();
+  await openTerminalControl(view.activeSession).click();
+  const terminal = terminalOf(page);
+  await expectTerminalText(terminal, "attached");
+
+  await view.markDone(terminal);
+
+  await expect(terminal).toHaveCount(0);
+  await expect(view.activeSession).toHaveCount(0);
+  await view.showsCollapsedDoneHistory();
+  await expect(view.card).toBeFocused();
+});
+
 const terminalLayouts = [
   { name: "beside the Board", width: 80 * rem },
   {

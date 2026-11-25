@@ -10,6 +10,7 @@ import {
   worktreeUpdateNeeded,
   type AgentLaunchRequest,
   type AttemptObservation,
+  type LaunchRecord,
 } from "./agentLaunch.ts";
 import {
   requestAttemptContinuation,
@@ -43,7 +44,10 @@ export type AttemptEvidence = "unread" | "unanswered" | "unreadable" | "read";
 
 // What the developer can do from Startup recovery.
 export type RecoveryActions = {
-  readonly continueStartup: (attempt: AttemptObservation) => void;
+  readonly continueStartup: (
+    attempt: AttemptObservation,
+    onRecovered: (record: LaunchRecord) => void,
+  ) => void;
   readonly updateWorktreeAndRetry: (attempt: AttemptObservation) => void;
   readonly recheckStartups: (attempt?: AttemptObservation) => void;
 };
@@ -107,6 +111,7 @@ export function useStartupRecovery({
     (
       attempt: AttemptObservation,
       ask: (attempt: AttemptObservation) => Promise<AcceptanceAnswer>,
+      onRecovered?: (record: LaunchRecord) => void,
     ) => {
       settle(attempt.id, {
         kind: "continuing",
@@ -132,7 +137,11 @@ export function useStartupRecovery({
                     explanation: answer.explanation,
                   },
           );
-        else settle(attempt.id, { kind: "continuing", after: asksSoFar() });
+        else {
+          settle(attempt.id, { kind: "continuing", after: asksSoFar() });
+          if (answer.recoveredSession !== undefined)
+            onRecovered?.(answer.recoveredSession);
+        }
         reread();
       });
     },
@@ -182,40 +191,43 @@ export function useStartupRecovery({
         ? [itemOf(identity, "waiting", startup)]
         : [];
     });
+    let latestAdHoc: AttemptObservation | undefined;
+    for (const attempt of known) {
+      const { request } = attempt;
+      if (request.source !== sourceId) continue;
+      if (attempt.unboundRecovery === true)
+        items.push(
+          itemOf(attempt.id, attemptCause(attempt), { request, attempt }),
+        );
+      else if (request.workflow === "ad-hoc")
+        latestAdHoc = laterAttempt(latestAdHoc, attempt);
+    }
     const lostAdHoc = unacknowledged.find(
       ({ request }) =>
         request.source === sourceId && request.workflow === "ad-hoc",
     );
     if (lostAdHoc !== undefined)
-      return [
-        ...items,
+      items.push(
         itemOf("ad-hoc", "unacknowledged", {
           request: lostAdHoc.request,
           problem: lostAdHoc.problem.explanation,
         }),
-      ];
-    const adHoc = known
-      .filter(
-        ({ request }) =>
-          request.source === sourceId && request.workflow === "ad-hoc",
-      )
-      .reduce<AttemptObservation | undefined>(laterAttempt, undefined);
-    return adHoc !== undefined && needsReconciliation(adHoc)
-      ? [
-          ...items,
-          itemOf("ad-hoc", attemptCause(adHoc), {
-            request: adHoc.request,
-            attempt: adHoc,
-          }),
-        ]
-      : items;
+      );
+    else if (latestAdHoc !== undefined && needsReconciliation(latestAdHoc))
+      items.push(
+        itemOf("ad-hoc", attemptCause(latestAdHoc), {
+          request: latestAdHoc.request,
+          attempt: latestAdHoc,
+        }),
+      );
+    return items;
   };
 
   return {
     recoveriesOf,
     attemptEvidence,
-    continueStartup: (attempt) => {
-      beginRecovery(attempt, requestAttemptContinuation);
+    continueStartup: (attempt, onRecovered) => {
+      beginRecovery(attempt, requestAttemptContinuation, onRecovered);
     },
     updateWorktreeAndRetry: (attempt) => {
       beginRecovery(attempt, requestUpdateWorktreeAndRetry);
@@ -229,10 +241,7 @@ export function useStartupRecovery({
       }
       void requestLaunchVerification(attempt).then((answer) => {
         if (answer.kind === "unresolved")
-          settle(attempt.id, {
-            kind: "uncertain",
-            explanation: answer.explanation,
-          });
+          settle(attempt.id, { ...answer, kind: "uncertain" });
         reread();
         readAfresh();
       });

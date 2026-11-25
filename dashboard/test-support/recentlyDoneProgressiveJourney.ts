@@ -9,6 +9,7 @@ import {
   parts,
   doneSessionEntriesOf,
   expandStoryCardDoneHistory,
+  storyCardDoneDisclosure,
   storyCardSessions,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -185,6 +186,11 @@ export async function openedWithTakenNativeSession(
     },
     showDoneHistory: () => expandStoryCardDoneHistory(card),
     doneSession,
+    async showsCollapsedDoneHistory() {
+      await expect(storyCardDoneDisclosure(card)).not.toHaveAttribute("open");
+      await expect(doneSession).toBeAttached();
+      await expect(doneSession).toBeHidden();
+    },
     async showsFocusedDoneSession() {
       await expect(activeSession).toHaveCount(0);
       await expect(doneSession).toBeFocused();

@@ -3,10 +3,9 @@
 // remaining review-cue interim specs) publish, keep and open the page on:
 // Open Dough with Intent locations and a spec to read, Pygardon with one
 // published done story beside its Taken story, and Doughnut with none; and
-// four retained Done sessions, newest completion first: Pygardon's done
+// three retained Done sessions, newest completion first: Pygardon's done
 // story's session, Open Dough's session whose workspace is gone so it opens
-// its final report, a session of Pygardon's Taken story that no done record
-// matches, and a Doughnut ad hoc session. The Pygardon sessions are ones the
+// its final report, and a session of Pygardon's Taken story. The Pygardon sessions are ones the
 // synthetic `claude` lists, so Open reaches their terminal. A case can keep
 // more ad hoc sessions in Doughnut or Pygardon, done after that project's own
 // entry, so the entry stands beyond the first ten its Board Recently done
@@ -184,12 +183,6 @@ export function keepSelectionSessions(
         .please(),
     ],
     doughnut: [
-      makeMe.aLaunchRecord
-        .adHoc({ ...adHoc, source: "doughnut" })
-        .launchedAt(at(60))
-        .markedDoneAt(at(4))
-        .please(),
-      // Done after the ad hoc session above.
       ...newerIn("doughnut", newer.doughnut ?? 0, { from: 3.5, to: 1.25 }, at),
     ],
   });
@@ -225,7 +218,7 @@ export async function openSelectionPage(
   // The section header is a disclosure row, not a 44px touch control.
   await shown.header.click();
   await expect(shown.entries).toHaveCount(
-    4 + (newer.doughnut ?? 0) + (newer.pygardon ?? 0),
+    3 + (newer.doughnut ?? 0) + (newer.pygardon ?? 0),
   );
   return { shown, row: shown.row };
 }

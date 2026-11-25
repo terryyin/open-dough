@@ -8,7 +8,7 @@
 
 import { cueDestination } from "./destinationCue.ts";
 import type { HeldEntry } from "./recentlyDoneRange.ts";
-import { keepInView, storyCard } from "./storyCardFocus.ts";
+import { keepInView, storyCard, storyCardHome } from "./storyCardFocus.ts";
 
 // The attribute by which a session entry names the session it shows.
 const showsSessionAttribute = "data-shows-session";
@@ -145,4 +145,21 @@ export function sessionEntry(sessionKey: string): HTMLElement | null {
     { attribute: showsSessionAttribute, value: sessionKey },
     ".board",
   );
+}
+
+export function sessionReturnHome(
+  key: string | undefined,
+  identity: string | undefined,
+): HTMLElement | null {
+  const entry = key === undefined ? null : sessionEntry(key);
+  if (
+    entry !== null &&
+    entry.closest("details:not([open])") === null &&
+    entry.getClientRects().length > 0
+  )
+    return entry;
+  const story = identity === undefined ? null : storyShown(identity);
+  return story !== null && story.getClientRects().length > 0
+    ? story
+    : storyCardHome(identity);
 }

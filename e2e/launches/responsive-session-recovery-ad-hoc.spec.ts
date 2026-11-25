@@ -19,10 +19,10 @@ import {
   parts,
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expect,
+  openCodexLaunchBoard,
   stored,
   test,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
@@ -31,11 +31,10 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 test.use({ projectFolders: ["open-dough"] });
 
-test("an unconfirmed blank ad hoc session is recovered under Startup recovery with no card, and continuing it submits no input", async ({
+test("an admitted blank session with unconfirmed native persistence is recovered without input", async ({
   page,
   dashboard,
   codexProtocol,
-  launchJourney,
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
@@ -51,7 +50,8 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
     intent: "blank",
   });
 
-  await openTakenBacklog(page, launchJourney);
+  await openCodexLaunchBoard(page, dashboard.home);
+  await expectSettledPage(page);
   const { board } = parts(page);
   const cards = board.locator("[data-story-card]");
   const storyCards = await cards.count();
@@ -72,15 +72,21 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
     recovery.getByRole("button", { name: "Recheck Ad hoc session" }),
   ).toBeEnabled();
   await expect(cards).toHaveCount(storyCards);
-  await expect(
-    cards.and(page.getByRole("article", { name: /ad hoc/i })),
-  ).toHaveCount(0);
   await expect(board).not.toContainText("Startup needs reconciliation");
-  // The recorded native id has its local entry; recovery concerns whether
-  // the blank conversation persisted, not a new published story.
+  const storedRequest = stored(dashboard.home)[0]?.request;
+  if (
+    storedRequest?.workflow !== "ad-hoc" ||
+    storedRequest.storyIdentity === undefined
+  )
+    throw new Error("Missing admitted story membership.");
   const session = stored(dashboard.home)[0]?.session.sessionId;
   expect(session).toBeDefined();
-  const entry = sessionEntriesIn(parts(page).taken);
+  const entry = sessionEntriesIn(
+    parts(page).taken.getByRole("article", {
+      name: storedRequest.title,
+      exact: true,
+    }),
+  );
   await expect(entry).toHaveCount(1);
   await expect(entry).toContainText(`Session ${String(session)}`);
   await expect(sessionEntriesIn(parts(page).recentlyDone)).toHaveCount(0);

@@ -1,5 +1,19 @@
 // Select unresolved retained attempts independently of launch result schemas.
 import type { AttemptObservation } from "./launchOutcome.ts";
+import type { StoryLaunchRequest } from "./launchRequest.ts";
+import type { HostOperations } from "./sessionCapabilities.ts";
+
+// Recheck verifies a settled story start's uncertain launch when the host
+// offers a session listing and publication is known.
+export const launchVerifiable = (
+  attempt: AttemptObservation,
+  operations: HostOperations,
+): attempt is AttemptObservation & { readonly request: StoryLaunchRequest } =>
+  attempt.request.workflow !== "ad-hoc" &&
+  !attempt.running &&
+  attempt.outcome?.kind === "uncertain" &&
+  attempt.publication.kind !== "unknown" &&
+  operations[attempt.request.host]?.launchedSessions === true;
 
 // A known publication whose required receipt could not be kept stops before
 // any native launch. Continue retries its recording checkpoint.
@@ -41,6 +55,7 @@ export const worktreeUpdateNeeded = (
 // recheck, continuation, update-and-retry, or completed session evidence does.
 export function needsReconciliation(attempt: AttemptObservation): boolean {
   if (attempt.completion?.outcome === "completed") return false;
+  if (attempt.unboundRecovery === true) return !attempt.running;
   return attempt.outcome === undefined
     ? !attempt.running
     : attempt.outcome.kind === "uncertain" ||
@@ -125,7 +140,10 @@ export function attemptsNeedingAttention(
   const attending = new Set<AttemptObservation>();
   for (const ofLane of lanes.values()) {
     const open = ofLane.filter(
-      (attempt) => attempt.running || unsettled(attempt),
+      (attempt) =>
+        attempt.running ||
+        unsettled(attempt) ||
+        attempt.unboundRecovery === true,
     );
     for (const attempt of open) attending.add(attempt);
     const latest = ofLane.reduce(laterAttempt);

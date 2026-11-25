@@ -35,7 +35,6 @@ import { attemptWorker } from "./launchAttemptWorker.ts";
 import { establishedFacts } from "./startLaunch.ts";
 import type { StartProgress } from "./startProgress.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
-
 import { keepAttempt } from "./launchAttemptStore.ts";
 import {
   prepareAttemptReporting,
@@ -43,6 +42,8 @@ import {
 } from "./launchReportingPreparation.ts";
 import { takeTerminalHandoff, withTerminalHandoff } from "./terminalHandoff.ts";
 import { launchWait } from "./launchWait.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
+import { retainedFollowUpWithStory } from "./followUpAdmission.ts";
 
 // Runs the attempt and settles its retained session establishment.
 export async function attemptRun(
@@ -68,6 +69,11 @@ export async function attemptRun(
   return settleSessionResult(source, own.request, own.attempt.id, result);
 }
 
+function refusedUnboundStart(subject: string): LaunchResult {
+  const explanation = `${subject} has no verified story. Nothing was launched.`;
+  return { kind: "failed", reason: "start-refused", explanation };
+}
+
 async function startedRun(
   source: PublishedSource,
   own: OwnedAttempt,
@@ -80,7 +86,10 @@ async function startedRun(
   doneMarks: NativeDoneMarks,
 ): Promise<LaunchResult> {
   const owned = own;
-  const { request, controller, attempt } = owned;
+  const { controller, attempt } = owned;
+  const request = await retainedFollowUpWithStory(owned.request, source);
+  if (request === undefined)
+    return refusedUnboundStart("The retained follow-up");
   const attachTerminal = takeTerminalHandoff(attempt.id);
   const folder = executionCheckout(source);
   const began = new Date(attempt.acceptedAt);
@@ -132,6 +141,8 @@ async function startedRun(
               title: start.storyTitle ?? requested.title,
             }
           : requested);
+    if (storyOf(baseRecording) === undefined)
+      return refusedUnboundStart("This start");
     const kept = pending?.request.reporting ?? attempt.reporting;
     const preparedReporting = await prepareAttemptReporting(
       owned.attempt,

@@ -58,12 +58,13 @@ export async function admitAttempt(
     worker: attemptWorker(startsStory(request) ? "start" : "launch"),
   };
   let keptAttempt: LaunchAttemptRecord = working;
+  let recoveredSession: LaunchRecord | undefined;
   let refusal: Unaccepted | undefined;
   try {
     const recorded = await keepAttemptIf(working, async (machine) => {
       const records = await readableRecordsByProject();
       if (continued !== undefined) {
-        const selected = continuationRecord(
+        const selected = await continuationRecord(
           owned,
           verifying,
           request.source,
@@ -75,6 +76,7 @@ export async function admitAttempt(
           refusal = selected;
           return false;
         }
+        recoveredSession = selected.recoveredSession;
         keptAttempt = selected.ownLaunch
           ? selected.attempt
           : {
@@ -103,7 +105,11 @@ export async function admitAttempt(
   }
   if (keptAttempt.outcome?.kind === "launched") {
     owned.release(attempt.id);
-    return { kind: "accepted", attempt: owned.observed(keptAttempt) };
+    return {
+      kind: "accepted",
+      attempt: owned.observed(keptAttempt),
+      ...(recoveredSession === undefined ? {} : { recoveredSession }),
+    };
   }
   if (owned.closed)
     return {

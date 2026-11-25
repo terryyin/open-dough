@@ -14,6 +14,7 @@ import { direction } from "../../Distribution/tests/support/product-backlog-fixt
 import { storyB } from "../../Distribution/tests/support/queued-repository.mjs";
 import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import { parts } from "./dashboardParts.ts";
+import { agentContinueEndpoint } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
 import { expectProtected } from "./responsiveStart.ts";
 import {
@@ -35,6 +36,32 @@ export const subject = `Story A (${queuedIdentity})`;
 export const continueLabel = `Continue execution start of ${subject}`;
 
 export const recoveryOf = (page: Page) => parts(page).startupRecovery;
+
+export function continueAdHocRecovery(page: Page): Promise<void> {
+  return recoveryOf(page)
+    .getByRole("button", {
+      name: "Continue session start of Ad hoc session",
+      exact: true,
+    })
+    .click();
+}
+
+export async function loseNextContinueReply(page: Page): Promise<void> {
+  await page.route(
+    (url) => url.pathname === agentContinueEndpoint,
+    async (route) => {
+      const response = await route.fetch({
+        headers: {
+          ...route.request().headers(),
+          "sec-fetch-site": "same-origin",
+        },
+      });
+      expect(response.ok()).toBe(true);
+      await route.abort();
+    },
+    { times: 1 },
+  );
+}
 
 // The story's frame is protected and said statically, with nothing moving
 // and no answer beside its unavailable actions, which, like the card, are

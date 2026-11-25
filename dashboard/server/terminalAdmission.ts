@@ -1,11 +1,12 @@
 // Native terminal admission remains independent of passive report access.
 import type { IncomingMessage } from "node:http";
-import { attachOpens, recordedWorkspace } from "../src/agentLaunch.ts";
+import { attachOpens, recordedWorkspace, storyOf } from "../src/agentLaunch.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import { launchHost } from "./launchHosts.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
+import { localFolder } from "./localFolder.ts";
 import { knownSource, recordedSession } from "./sessionAdmission.ts";
 
 // An upgrade attaches only a kept session through its host’s supported
@@ -42,12 +43,17 @@ export async function admittedAttach(
     );
   }
   const savedWorkspace =
-    record.session.host === "claude" ? recordedWorkspace(record) : undefined;
+    record.session.host === "claude"
+      ? (recordedWorkspace(record) ?? record.defaultStart?.workspace)
+      : undefined;
   return {
     sourceId: source.id,
     session: record.session,
     markedDone: record.doneAt !== undefined,
-    folder,
+    folder:
+      savedWorkspace !== undefined && storyOf(record.request) === undefined
+        ? localFolder(savedWorkspace)
+        : folder,
     ...(savedWorkspace === undefined ? {} : { savedWorkspace }),
   };
 }

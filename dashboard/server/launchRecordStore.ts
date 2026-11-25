@@ -1,5 +1,6 @@
 // Public launch/creation record operations use one machine document and retention rule.
 import { sameLaunch } from "../src/launchRequest.ts";
+import { storyOf } from "../src/launchWorkflow.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import {
   branchPinOwner,
@@ -85,6 +86,7 @@ export function pendingInputRecord(
   return records.find(
     (record) =>
       sameLaunch(record.request, request) &&
+      storyOf(record.request) !== undefined &&
       record.firstInput !== undefined &&
       record.firstInput.state !== "confirmed" &&
       record.firstInput.state !== "not-requested",

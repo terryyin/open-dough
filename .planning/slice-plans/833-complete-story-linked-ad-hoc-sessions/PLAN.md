@@ -339,7 +339,7 @@ and `slice-6-board-refactor-static.log.run.json`.
 
 ### 7. Retire standalone startup and inventory
 Type: Behavior
-Status: planned
+Status: done
 Proof: New and retained admitted starts only settle into an active session
 with verified story membership. The original verified unbound attempt can
 Continue with its original reference and checkout through recovery.
@@ -353,6 +353,22 @@ When a linked session becomes Done while its history disclosure is
 collapsed, keep keyboard focus on a visible control or entry on its story.
 Prove the default terminal return as well as the existing visible-history
 path.
+
+Admitted starts and Follow up retain the shared installed workspace setup.
+The active inventory requires a story binding. For old stored rows, slice 10
+owns verifying that binding against published membership. Startup recovery
+uses the historical Claude attempt's exact reporting reference and verifies
+its native ID and saved checkout each time Continue runs. The browser test
+discards the first successful reply, reloads, and opens the original terminal
+from the same attempt with no new launch, input, publication, or Board row.
+See `slice-7-boundaries-v3.proof.json`, `slice-7-inventory-v4.proof.json`,
+`slice-7-mounted-v4.proof.json`, and `slice-7-responsive-v6.proof.json` in
+the worktree's Git evidence directory. The last run replaces the stale blank
+Codex fixture's result from the 12-case inventory run. Implementation
+finished at 14.9 active minutes. After the independent refactor, all 36
+selected backend, seven mounted, and 19 browser cases passed with typecheck,
+lint, and formatting. The records are `slice-7-refactor-{backend,mounted,e2e}.proof.json`
+and `slice-7-refactor-static-v2.log.run.json`.
 
 ### 8. Retire standalone completion and review routes
 Type: Behavior
@@ -498,4 +514,4 @@ Disposition: proved by slice 6: `slice-6-restored-e2e.proof.json` records the pu
 ### G9. Keyboard return can target a hidden Done session
 Reported: slice 6 — "The supplier and the parked Board candidate both finish a terminal Mark as done with the linked Done history collapsed. The nested session is attached but hidden and focus falls to the body."
 Story clause: "Remove the remaining legacy standalone frontend cases and keep applicable story-linked selection, review and warning coverage."
-Disposition: receiving slice 7
+Disposition: proved by slice 7: `recently-done-progressive-navigation.spec.ts` marks the linked native session Done with history collapsed, verifies terminal closure, and observes focus on the owning visible story card. Its existing open-history journey keeps focus on the linked session entry. Both cases passed in the focused inventory and refactor browser runs.
