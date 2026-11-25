@@ -227,7 +227,7 @@ files ≤250; production SpecTimes untouched.
 ### 4. The console report stays quiet unless a run needs attention
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `quiet-reporter.spec.ts` runs on Node Vitest. Five cases call the
 hooks directly with the stream seam. A passing run prints nothing and
 succeeds. A failing case is named with its error and its kept attachment
@@ -245,6 +245,14 @@ output and the run's own end, and a run that shows nothing leaves no output
 directory.
 
 Estimated active work 12–15 minutes.
+
+Accepted proof: focused
+`caffeinate -s -i … npm run --silent test:dashboard:backend -- runtime/quiet-reporter.spec.ts`
+→ 6 passed (5 direct 1–2 ms; nested printingSetup 912 ms)
+(`slice4-quiet-reporter-backend-proof2.log.run.json`). typecheck and lint
+passed. Dropped HTML page browse and retain-on-failure process proof; attachment
+paths listed directly. `innerPlaywright` retained (other callers). Refactor
+disposition: skipped — subject spec only; 220 lines; production untouched.
 
 ### 5. Runner entry and interruption keep their nested proof on Node Vitest
 
