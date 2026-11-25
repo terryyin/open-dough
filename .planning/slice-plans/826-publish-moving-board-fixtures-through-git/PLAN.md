@@ -8,7 +8,7 @@
 
 Story Branch Mode in the owned worktree
 `/Users/terryyin/git/open-dough/.worktrees/publish-moving-board-test-fixtures-through-real`
-on `codex/publish-moving-board-test-fixtures-through-real`, with integration
+on `codex/publish-moving-board-test-fixtures-through-real`, with default
 checkout `/Users/terryyin/git/open-dough` and authorized trunk `origin/main`.
 The dashboard publisher `dashboard-territory.local-open-dough` assigned
 Tsukasa-chan. The Take and initial execution branch are published at
@@ -225,6 +225,13 @@ The focused browser and backend groups passed 77 and 6 cases. The
 owner-replacement case and typecheck passed after refining the REST answer
 registration seam. The initial malformed membership-only refusal still uses
 the cutover story's boundary.
+
+[Watcher CI setup repair](diagnosis-pinned-watcher-codex-setup.md) reproduced
+the pinned native Codex acquisition timeout on the slice 2 publication.
+The exact browser case passed with the same stalled registry and a prepared
+launcher. Only the owning E2E shard prepares the binary in its existing
+acquisition window. Native watcher, backend, and workflow contract proof
+passed locally. The branch observer covers the hosted verification.
 
 ### 3. Follow real trunk rewinds through story navigation
 

@@ -73,7 +73,7 @@ refuse npm-failed npm failed 'npm source acquisition failed (23)'
 mv -- "${temporary_dir}/bin/npm" "${temporary_dir}/bin/npm-hidden"
 refuse npm-unavailable npm healthy 'npm source unavailable:'
 mv -- "${temporary_dir}/bin/npm-hidden" "${temporary_dir}/bin/npm"
-for stage in npm browser; do
+for stage in npm browser watcher-codex; do
   # A real wall deadline tests process termination, including source children.
   # It leaves a loaded machine time to reach the launch, and still ends well
   # before the fixture's 30-second stall.
@@ -84,6 +84,7 @@ for stage in npm browser; do
   "${node}" -e "if (Number('${elapsed}') > 6) process.exit(1)"
 done
 refuse browser-failed browser failed 'browser source acquisition failed (23)'
+refuse watcher-codex-failed watcher-codex failed 'watcher-codex source acquisition failed (1)'
 printf '%s\n' '{"version":"1.62.0"}' > "${temporary_dir}/node_modules/playwright/package.json"
 refuse browser-mismatch browser healthy 'Playwright prerequisite mismatch: locked 1.63.0, installed 1.62.0'
 [[ ! -e ${temporary_dir}/source-call ]]

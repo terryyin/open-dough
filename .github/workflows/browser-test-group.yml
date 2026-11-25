@@ -116,12 +116,36 @@ jobs:
         if: ${{ !cancelled() && steps.npm.outcome == 'success' }}
         id: browser
         run: node scripts/setup-native.mjs browser
+      - name: Select the production watcher prerequisite
+        id: watcher-codex-selection
+        env:
+          GROUP: ${{ inputs.group }}
+          SPLIT: ${{ matrix.shard }}/${{ strategy.job-total }}
+        run: node scripts/pinned-watcher-codex.mjs "$GROUP" "$SPLIT" >> "$GITHUB_OUTPUT"
+      - name: Cache pinned watcher Codex
+        if: ${{ steps.watcher-codex-selection.outputs.needed == 'true' }}
+        uses: actions/cache@v6
+        id: watcher-codex-cache
+        timeout-minutes: 1
+        continue-on-error: true
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
+        with:
+          path: ${{ runner.temp }}/watcher-codex-npm/_cacache
+          key: watcher-codex-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/pinned-watcher-codex.mjs') }}
+      - name: Prepare pinned watcher Codex
+        if: ${{ steps.watcher-codex-selection.outputs.needed == 'true' }}
+        env:
+          NPM_CONFIG_CACHE: ${{ steps.watcher-codex-cache.outcome == 'failure' && format('{0}/watcher-codex-clean-npm', runner.temp) || format('{0}/watcher-codex-npm', runner.temp) }}
+        run: |
+          watcher_codex=$(node scripts/setup-native.mjs watcher-codex)
+          echo "OPEN_DOUGH_WATCHER_CODEX=${watcher_codex}" >> "$GITHUB_ENV"
       # The run ends itself, naming the deadline, at `<prefix>_DEADLINE_MS`,
       # about 30 seconds inside the job's 8 minutes, so a shard out of time
       # fails instead of being cancelled and the reports below are kept.
       # `exec` makes npm the step's process, which cancellation signals.
       - name: Run the group's browser tests
-        if: ${{ !cancelled() && steps.npm.outcome == 'success' && steps.browser.outcome == 'success' }}
+        if: ${{ success() && steps.npm.outcome == 'success' && steps.browser.outcome == 'success' }}
         id: suite
         env:
           SETTINGS: ${{ inputs.settings }}

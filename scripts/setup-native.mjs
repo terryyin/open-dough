@@ -3,6 +3,7 @@
 import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const stage = process.argv[2];
 const recovery =
@@ -11,9 +12,14 @@ function fail(message) {
   console.error(`Infrastructure setup: ${message}. ${recovery}`);
   process.exit(1);
 }
-if (!["npm", "browser", "check"].includes(stage)) {
-  fail("choose npm, browser, or check with node scripts/setup-native.mjs");
+if (!["npm", "browser", "watcher-codex", "check"].includes(stage)) {
+  fail(
+    "choose npm, browser, watcher-codex, or check with node scripts/setup-native.mjs",
+  );
 }
+const watcherCodex = stage === "watcher-codex";
+// The watcher stage's stdout is the executable path passed to Playwright.
+const report = watcherCodex ? console.error : console.log;
 const started = Date.now();
 const suppliedDeadline = process.env.OPEN_DOUGH_SETUP_DEADLINE_MS;
 const deadline =
@@ -37,7 +43,7 @@ if (process.versions.node !== selectedNode) {
   );
 }
 
-if (stage !== "npm") {
+if (stage === "browser" || stage === "check") {
   let installed;
   let locked;
   try {
@@ -58,7 +64,12 @@ if (stage !== "npm") {
 }
 // Validate by launching the same default headless Chromium used by the suite.
 // Playwright selects its own locked revision and diagnoses missing libraries.
-const limits = { npm: 45_000, browser: 45_000, check: 15_000 };
+const limits = {
+  npm: 45_000,
+  browser: 45_000,
+  "watcher-codex": 45_000,
+  check: 15_000,
+};
 const operation =
   stage === "check"
     ? "Chromium prerequisite validation"
@@ -74,9 +85,15 @@ const args =
     ? ["ci", "--fetch-retries=0", "--fetch-timeout=20000"]
     : stage === "browser"
       ? [resolve("node_modules/playwright/cli.js"), "install", "chromium"]
-      : [
-          "-e",
-          `
+      : watcherCodex
+        ? [
+            fileURLToPath(
+              new URL("./pinned-watcher-codex.mjs", import.meta.url),
+            ),
+          ]
+        : [
+            "-e",
+            `
           const { chromium } = require(${JSON.stringify(resolve("node_modules/playwright"))});
           chromium.launch({ timeout: 10000 }).then(async browser => {
             console.log('Native prerequisites: Chromium ' + browser.version());
@@ -87,10 +104,8 @@ const args =
             process.exitCode = 1;
           });
         `,
-        ];
-console.log(
-  `Native setup: ${operation}, at most ${Math.ceil(remaining / 1000)}s`,
-);
+          ];
+report(`Native setup: ${operation}, at most ${Math.ceil(remaining / 1000)}s`);
 let timedOut = false;
 let interruption;
 function stopStage() {
@@ -150,6 +165,6 @@ if (result.error) {
 if (result.code !== 0) {
   fail(`${operation} failed (${result.signal ?? result.code})`);
 }
-console.log(
+report(
   `Native setup: ${stage === "check" ? "prerequisite validation" : `${stage} acquisition`} complete`,
 );
