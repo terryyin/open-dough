@@ -6,7 +6,7 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { publishFiles } from "./publishedOrigin.ts";
+import { publishCommittedFiles } from "./committedFiles.ts";
 import { profilePath } from "./branchProgressRecords.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
 import { describedRevisions } from "./describedRevisions.ts";
@@ -150,9 +150,8 @@ The retrospective found nothing to record.
 
 export async function openTakenExecutionComplete(page: Page) {
   await pausePageClockAt(page, opened);
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository,
-    revision,
     files: trunk.files,
     committed: {
       [planPath("on-branch")]: minutesBefore(3 * 24 * 60),

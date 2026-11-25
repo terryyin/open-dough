@@ -132,7 +132,7 @@ representation.
 ### 4. Publish fixed session and completion records
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: Migrate fixed publications in the Recently done session cases,
 session column membership and Taken execution completion. The moving
@@ -141,6 +141,13 @@ return/re-Take/Done sequence belongs to the moving story.
 Proof: Run the reached session and completion consumers. Preserve the
 expired, retained, reopened or selected session signals. Observe the exact
 origin and pinned published record. Budget 13 active minutes.
+
+Learnings: membership and completion publish through support modules;
+`publishCommittedMembership` serves the unplanned backlog at a real commit.
+`doneStoryPublication` and the read-failure publications no longer name
+fixed revisions. The moving cases in `recently-done-returned-sessions` and
+`session-column-membership` stay with the moving story; when it moves the
+latter, `publishMembership` can go.
 
 ### 5. Publish fixed Intent sources and purpose at the real pin
 

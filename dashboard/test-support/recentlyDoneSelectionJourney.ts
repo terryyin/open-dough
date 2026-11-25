@@ -25,7 +25,7 @@ import {
   openDoughSettings,
   publishIntentProject,
 } from "./intentCodeBrowseFixtures.ts";
-import { publishFiles } from "./publishedFiles.ts";
+import { publishCommittedFiles } from "./committedFiles.ts";
 import { doneRecordAt } from "./recentlyDoneRecords.ts";
 import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import type { tapWhereShown } from "./pageLayout.ts";
@@ -102,14 +102,12 @@ export async function publishSelectionProjects(
       .please(),
     { pinned: pygardon.revision, done: pygardon.revision },
   );
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository: pygardon.repository,
-    revision: pygardon.revision,
     files: done.files,
   });
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository: doughnut.repository,
-    revision: doughnut.revision,
     files: doughnut.files,
   });
 }

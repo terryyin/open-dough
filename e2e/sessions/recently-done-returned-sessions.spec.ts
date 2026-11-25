@@ -20,7 +20,7 @@ import {
   storyCardSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { describedRevisions } from "../../dashboard/test-support/describedRevisions.ts";
-import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/committedFiles.ts";
 import { publishMovingFiles } from "../../dashboard/test-support/publishedFiles.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
@@ -165,7 +165,7 @@ test("a returned launch whose native session still works keeps that note under t
   const now = Date.now();
   const returnedId = listed(dashboard, now, queuedTitle, 5 * hour);
   keepLaunchRecords(dashboard, [returnedLaunch(now, returnedId)]);
-  await publishFiles(page, { repository, revision, files: publishedFiles() });
+  publishCommittedFiles(page, { repository, files: publishedFiles() });
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.goto("/");
   await expectMembership(page, { taken: [], backlog: [queuedTitle] });
