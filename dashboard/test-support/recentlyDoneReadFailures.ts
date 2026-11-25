@@ -1,10 +1,11 @@
 // Publications of the Recently done stories (./recentlyDoneRecords.ts) whose
 // catalog or records cannot be read: no catalog, a catalog that omits a record
 // added beside it, a catalog read that fails, and malformed records beside the
-// readable ones. Each publishes files of its own, so its commit lands at its own
-// revision and a journey can publish one after another without the local
-// boundary having remembered it. The stories spec states the problem each
-// publication produces.
+// readable ones. Each publication is its own commit: commitPublishedOrigin
+// numbers each commit message, so successive publications land at distinct
+// revisions by commit identity even when the files match, and a journey can
+// publish one after another without the local boundary having remembered it.
+// The stories spec states the problem each publication produces.
 import { basename } from "node:path";
 import { catalogFile } from "../../Distribution/tests/support/revision-done-catalog.mjs";
 import {

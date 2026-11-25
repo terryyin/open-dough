@@ -66,6 +66,24 @@ and reuse the existing fixture and page objects.
 - Keep `revisionA` local to `takenAgentProfileRecords.ts`. The file still
   passes the value to `describedRevision`.
 
+## Accepted proof (slice 1)
+
+Refactor disposition: skipped fresh pass — owned subject spec and two named
+fixture modules only; product search found no existing restore-previous-answerer
+representation to consolidate; comment and `revisionA` privacy introduce no
+further refactor-check candidate.
+
+| Promise | Boundary | Command | Result |
+| --- | --- | --- | --- |
+| Original pin trunk and recovered Board agree | authenticated observation recovery | focused e2e below | pass — `expectServedHomesReach` at refusal and restoration; membership/`readRevision`/`problem` on original SHA |
+| Refusal and other Board reads remain covered | same journey | same e2e | pass |
+| Fixture cleanup preserves callers | Taken + Recently done + dashboard tsc | same e2e + `npm run typecheck:dashboard` | pass |
+
+Focused e2e:
+`env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/authenticated-project-observation.spec.ts e2e/stories/recently-done-stories.spec.ts e2e/stories/taken-agent-profile.spec.ts --workers=1 --reporter=line`
+(4 passed). Evidence:
+`open-dough/evidence/slice1-report.20261125182814.md` and matching `*.run.json` under the worktree evidence path.
+
 ## Decisive premises
 
 Observed in the owned preparation worktree at `ed65a5916b9a` on
@@ -87,7 +105,7 @@ proof route. Slice 1 owns verification of the delivered change.
 ### 1. Show restored access at the already-read revision
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: In the existing authenticated observation scenario, retain the
 original Doughnut answerer when installing the login failure and restore it
