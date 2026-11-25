@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-442#exercise-board-navigation-on-published-story-fixtures",
+  "title": "Exercise Board navigation on published story fixtures",
+  "completedAt": "2026-11-25T15:48:32.070Z",
+  "developer": "Terry Yin",
+  "agent": "Maria-chan",
+  "host": "codex",
+  "intentCoverage": {
+    "report": "**Verdict — Caught.** The maintained Recently done paging test caught a read beyond the ten displayed Done records.\n\n**Story and revision.** SEED-442, Exercise Board navigation on published story fixtures, at `73f8f092a64131231bdb43927610432efbfe8db8`. The fixture publishes 35 Done stories through routed Git, with three retained sessions on the fourth story.\n\n**Fault.** In `dashboard/src/recentlyDoneView.ts`, the `useDoneDetails` input took one extra entry from `listed.slice(0, shown.length + 1)`. The rendered range and the maintained test and fixture stayed unchanged.\n\n**Observation.** The same focused Playwright command selected one Chromium case in each arm. Baseline passed. With the fault, the browser still showed “Showing 10 of 35 entries.” The fake GitHub recorder independently observed an eleventh file read, `.planning/done/SEED-211_progressive-11.json`. The maintained exact request-list assertion failed at `e2e/stories/recently-done-progressive-loading.spec.ts:97`. After restoration, the case passed and the scratch checkout matched its empty pre-probe Git status. The isolated worktree was removed. The retained proof records, faulted log, Playwright snapshot and trace are in the supplier's Git evidence under `intent-coverage`.\n\n**Next proof action.** Retain the existing assertion for the observed first-page over-read. It needs no strengthening for this fault.\n\n- **Test runtime.** Measured Playwright case durations were 9.088 s baseline, 2.028 s faulted and 7.364 s restored. The three command invocations took 40.898 s total including setup.\n- **Human effort.** Unavailable. No separately measured human activity was recorded.\n- **Agent effort.** Unavailable. The host did not provide a separately measured active-agent interval.\n\n\n- **Invocation-to-report elapsed.** 119306 ms (measured), from 1795621546443 to 1795621665749 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition: 73f8f092a64131231bdb43927610432efbfe8db8, Caught, no follow-up.\n"
+  }
+}

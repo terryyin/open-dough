@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-442_exercise-board-navigation-on-published-story-fixtures.json",
+      "identity": "SEED-442#exercise-board-navigation-on-published-story-fixtures",
+      "completedAt": "2026-11-25T15:48:32.070Z",
+      "blob": "96abc8d0e0b7232f4942c78c0f63ede77d78041d"
+    },
+    {
       "fileName": "SEED-420_compact-story-comparison-controls.json",
       "identity": "SEED-420#compact-story-comparison-controls",
       "completedAt": "2026-11-25T14:04:32.755Z",
