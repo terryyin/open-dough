@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_browse-one-selectable-review-tree.json",
+      "identity": "SEED-420#browse-one-selectable-review-tree",
+      "completedAt": "2026-11-25T15:54:56.820Z",
+      "blob": "32b5e01fefb29cb4041b88ef9245f72b4fc87231"
+    },
+    {
       "fileName": "SEED-420_read-story-evidence-from-intent-home.json",
       "identity": "SEED-420#read-story-evidence-from-intent-home",
       "completedAt": "2026-11-25T14:56:33.407Z",
