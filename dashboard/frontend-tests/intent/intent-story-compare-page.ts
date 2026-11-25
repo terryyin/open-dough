@@ -11,6 +11,7 @@ import {
   intentReadingPane as readingPane,
   scrollReadingHalfway,
 } from "./intent-browser-page.ts";
+import { fileLayout } from "./intent-file-layout-page.ts";
 
 const escaped = (name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -76,6 +77,9 @@ export function intentStoryCompare() {
   return {
     header,
     filesToggle: intent.getByRole("button", { name: /^(Hide|Show) files$/ }),
+    // Files shown, opening its drawer where the page is narrow: each newly
+    // entered view starts it closed, and choosing a file closes it.
+    showFiles: () => fileLayout().showFiles(),
     headerText: () => textOf(header.element()),
     // A chosen comparison that cannot be read, with Retry after a failed read.
     alert,

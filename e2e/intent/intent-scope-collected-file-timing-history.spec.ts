@@ -15,6 +15,7 @@ import {
   proofRegion,
   purposeRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { showIntentFiles } from "../../dashboard/test-support/intentModePage.ts";
 import { childName } from "../../dashboard/test-support/intentScopeProofPage.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
@@ -39,6 +40,8 @@ import {
 import { openSummaryComparison } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
 import { land } from "../../dashboard/test-support/support/startSessionLandingContext.ts";
 import {
+  chooseIntentFile,
+  expectNoIntentFile,
   intentFile,
   storyTitle,
   intentDiffReading,
@@ -193,9 +196,7 @@ test("a Done folder and file keep their collected history through Proof and Purp
     "dashboard/tests/folder",
   );
   await expectHistory(summary, ["300 ms", "900 ms"]);
-  await expect(
-    intentFile(intent, "dashboard/tests/folder/ghost.spec.ts"),
-  ).toHaveCount(0);
+  await expectNoIntentFile(intent, "dashboard/tests/folder/ghost.spec.ts");
   await expect(summary.getByRole("table")).toBeVisible();
   await childName(summary, "nested/").first().click();
   await expectHistory(summary, ["200 ms", "400 ms"]);
@@ -203,7 +204,7 @@ test("a Done folder and file keep their collected history through Proof and Purp
   await expect(purposeRegion(intent)).toBeVisible();
   await fileReadingTab(intent, "Proof").click();
   await expectHistory(proofRegion(intent), ["200 ms", "400 ms"]);
-  await intentFile(intent, summaryComparisonChanges.modified).click();
+  await chooseIntentFile(intent, summaryComparisonChanges.modified);
   const file = proofRegion(intent);
   const zero = ["100 ms", "0 ms"] as const;
   const history = await expectHistory(file, zero);
@@ -230,6 +231,7 @@ test("a Done folder and file keep their collected history through Proof and Purp
   );
   await expect(files.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
   await expect(storyTitle(intent)).toHaveText("Story A");
+  await showIntentFiles(intent);
   await expect(
     intentFile(intent, summaryComparisonChanges.modified),
   ).toHaveAttribute("aria-pressed", "true");

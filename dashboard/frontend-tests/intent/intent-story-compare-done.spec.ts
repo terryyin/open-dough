@@ -62,6 +62,7 @@ test("a Done story keeps its published locations when choosing captured changes 
   // Landed runs and the older run list its changes and name its tree.
   await story.chooseLatestLanding();
   await expect.element(story.runChoice(newer.key)).toBeChecked();
+  await story.showFiles();
   await expect.poll(story.outside).toContain("newer.txt");
   await story.chooseRun(older.key);
   await expect.element(story.runChoice(older.key)).toBeChecked();
@@ -120,6 +121,7 @@ test("Landed runs lists the captured runs as read, newest first, and the keyboar
   await userEvent.click(story.runChoice(newer.key));
   await userEvent.keyboard("{ArrowDown}");
   await expect.element(story.runChoice(older.key)).toBeChecked();
+  await story.showFiles();
   await expect.poll(story.outside).toContain("older.txt");
 });
 

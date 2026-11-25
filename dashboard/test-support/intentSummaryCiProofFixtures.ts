@@ -27,7 +27,11 @@ import {
 import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
 import { intentLocationName } from "./intentPerspectivePage.ts";
 import { chooseStoryTab } from "./support/intentStoryPage.ts";
-import { storyIntentFrame } from "./intentModePage.ts";
+import {
+  showIntentFiles,
+  storyIntentFrame,
+  uncoverIntentReader,
+} from "./intentModePage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { OriginAnswer } from "./originAnswers.ts";
@@ -160,13 +164,16 @@ export async function openIntent(
   return { project, ci, intent, home, bodyReads };
 }
 
-// With a selected story, Summaries are read in its Changes view.
+// With a selected story, Summaries are read in its Changes view; Files opens
+// to press the location and a drawer of it closes to uncover the Summary.
 export async function openSummary(intent: Locator, location: string) {
   if ((await storyIntentFrame(intent).count()) > 0)
     await chooseStoryTab(intent, "Changes");
+  await showIntentFiles(intent);
   await intentLocationName(intent, location).click();
   const summary = summaryRegion(intent);
   await expect(summary.locator(".intent-summary-path")).toHaveText(location);
+  await uncoverIntentReader(intent);
   return summary;
 }
 

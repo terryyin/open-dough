@@ -89,6 +89,7 @@ test("a Done story lists its published completion's outside product code with it
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
+  await story.showFiles();
   await activateComparisonControl(story.outsideFile(changed.product));
   await expect.poll(story.diffName).toBe(changed.product);
   await expect.poll(story.diffCode).toContain("app change");

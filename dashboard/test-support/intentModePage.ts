@@ -4,6 +4,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { shortRevision } from "./dashboardParts.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { sidebarPlacement } from "./sidebarPlacement.ts";
 import { emptyArea, expectSelected } from "./storyCardSelection.ts";
 
 // Open the board, select the named card and enter its initial Intent view.
@@ -128,4 +129,27 @@ export async function expectFilesShown(intent: Locator, shown: boolean) {
   );
   if (shown) await expect(column).toBeVisible();
   else await expect(column).toBeHidden();
+}
+
+const filesPlacement = (intent: Locator) =>
+  filesToggle(intent).evaluate(sidebarPlacement);
+
+async function settledFiles(intent: Locator) {
+  await expect.poll(() => filesPlacement(intent)).not.toBe("pending");
+  return filesPlacement(intent);
+}
+
+// Files shown, opening its drawer where the page is narrow: each newly
+// entered view starts it closed, and choosing a file closes it.
+export async function showIntentFiles(intent: Locator) {
+  if ((await settledFiles(intent)) === "hidden")
+    await filesToggle(intent).click();
+  await expectFilesShown(intent, true);
+}
+
+// The reader uncovered: an open Files drawer closes, docked Files stays.
+export async function uncoverIntentReader(intent: Locator) {
+  if ((await settledFiles(intent)) !== "drawer") return;
+  await filesToggle(intent).click();
+  await expectFilesShown(intent, false);
 }

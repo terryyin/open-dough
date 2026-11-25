@@ -109,6 +109,7 @@ async function openCapturedRun({
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
+  await story.showFiles();
   return { story, file: story.file(`Modified ${filePath}`), observedAttempts };
 }
 
@@ -165,6 +166,7 @@ test("Changes, Summary and file Proof share the captured attempts and restore th
 
   await story.choosePurpose();
   await comparisonRead(story.diffName).toContain("a.spec.ts");
+  await story.showFiles();
   await expect.element(file).toHaveAttribute("aria-pressed", "true");
   await expect.element(story.runChoice(run.key)).toBeChecked();
 

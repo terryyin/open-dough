@@ -77,9 +77,9 @@ test("a Taken Trunk review opens attributed published files at touch width and k
   await test.step("And I refresh the review", async () => {
     review = await review.refreshAndAnswer("keyboard");
   });
-  await test.step("Then the new published file appears and Refresh keeps focus", async () => {
-    await review.files.expectOutsideRows(["src", "  a.ts", "d.md", "more.md"]);
+  await test.step("Then Refresh keeps focus and the new published file appears", async () => {
     await review.expectRefreshFocused();
+    await review.files.expectOutsideRows(["src", "  a.ts", "d.md", "more.md"]);
   });
   await test.step("And the selected file's diff stays open", async () => {
     await review.files.expectSelected(changedFile);

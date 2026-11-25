@@ -68,6 +68,7 @@ test("including merged changes leaves CI comparison and file Proof at the measur
 
   await story.chooseTab("Changes");
   await activateComparisonControl(story.includeMerged);
+  await story.showFiles();
   await activateComparisonControl(story.outsideFile(`Added ${incomingPath}`));
   await story.chooseProof();
 
@@ -102,6 +103,7 @@ test("a captured landed run reads its own diff pair after a branch comparison in
   await activateComparisonControl(story.includeMerged);
   await comparisonRead(story.revisions).toContain(`Baseline ${widenedFrom}.`);
   await story.chooseLatestLanding();
+  await story.showFiles();
   await activateComparisonControl(story.outsideFile(`Added ${capturePath}`));
 
   await comparisonRead(requestedDiff).toMatchObject({
@@ -111,6 +113,7 @@ test("a captured landed run reads its own diff pair after a branch comparison in
   });
   expect(story.revisions()).toContain(`From ${captureFrom} to ${captureTree}.`);
   expect(story.includeMerged.query()).toBeNull();
+  await story.showFiles();
   expect(story.outsideFile(`Added ${incomingPath}`).query()).toBeNull();
 });
 
@@ -139,6 +142,7 @@ test("changing stories clears the widened choice and gives Trunk Mode its own fi
   await comparisonRead(story.revisions).toContain(`Baseline ${widenedFrom}.`);
   await mounted.selectStory(trunkStory.identity);
   await story.chooseTab("Changes");
+  await story.showFiles();
   await activateComparisonControl(story.outsideFile(`Added ${trunkPath}`));
 
   await comparisonRead(requestedDiff).toMatchObject({
@@ -148,10 +152,12 @@ test("changing stories clears the widened choice and gives Trunk Mode its own fi
   });
   expect(story.includeMerged.query()).toBeNull();
   expect(story.revisions()).toContain(`Completion ${trunkCompletion}.`);
+  await story.showFiles();
   expect(story.outsideFile(`Added ${incomingPath}`).query()).toBeNull();
 
   await mounted.selectDoneStory();
   await story.chooseTab("Changes");
+  await story.showFiles();
   await expect.element(story.outsideFile(`Added ${branchPath}`)).toBeVisible();
   expect(story.outsideFile(`Added ${incomingPath}`).query()).toBeNull();
   expect((story.includeMerged.element() as HTMLInputElement).checked).toBe(
@@ -179,6 +185,7 @@ test("a late branch comparison cannot replace another story's explanation or fil
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
   await activateComparisonControl(story.includeMerged);
+  await story.showFiles();
   await expect
     .element(story.outsideFile(`Added ${incomingPath}`))
     .toBeVisible();

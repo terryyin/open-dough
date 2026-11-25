@@ -9,6 +9,7 @@ import type { PublishedWork } from "../../src/publishedWork.ts";
 import { pressAt } from "../navigation/board-reading-page.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { fullSha } from "./intent-ci-status-fixtures.ts";
+import { fileLayout } from "./intent-file-layout-page.ts";
 
 export const workOf = (
   source: PublishedSource,
@@ -97,11 +98,13 @@ export function locationNameDrawn(locationPath: string) {
 }
 
 // Presses the drawn name of the location at LOCATIONPATH with the mouse on its
-// first line of words; a narrow page shows a wrapped name only in part. A
-// comparison arriving at any moment renames the button, so the press locates
-// it by path, never by name.
+// first line of words, opening Files first where a narrow page keeps it in a
+// closed drawer; a narrow page shows a wrapped name only in part. A comparison
+// arriving at any moment renames the button, so the press locates it by path,
+// never by name.
 export async function pressLocationName(locationPath: string) {
   await locationNameDrawn(locationPath);
+  await fileLayout().showFiles();
   const name = presentElement(locationNameElement(locationPath));
   name.scrollIntoView({ block: "nearest", inline: "nearest" });
   const words = document.createRange();

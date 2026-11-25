@@ -1,5 +1,6 @@
 import { expect, vi } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
+import { sidebarPlacement } from "../../test-support/sidebarPlacement.ts";
 
 export const intentPage = page.getByRole("main", {
   name: "Intent",
@@ -32,6 +33,14 @@ export function fileLayout() {
     return element.getBoundingClientRect();
   };
   const shown = () => toggle.element().getAttribute("aria-expanded") === "true";
+  const placement = () => {
+    const control = toggle.query();
+    return control === null ? "pending" : sidebarPlacement(control);
+  };
+  const settledPlacement = async () => {
+    await expect.poll(placement).not.toBe("pending");
+    return placement();
+  };
   return {
     toggle,
     tabBar: () => box(bar()),
@@ -51,8 +60,14 @@ export function fileLayout() {
     },
     // Files shown, whether it starts docked or as a closed drawer.
     async showFiles() {
-      if (!shown()) await toggle.click();
+      if ((await settledPlacement()) === "hidden") await toggle.click();
       await this.showsFiles(true);
+    },
+    // The reader uncovered: an open Files drawer closes, docked Files stays.
+    async uncoverReader() {
+      if ((await settledPlacement()) !== "drawer") return;
+      await toggle.click();
+      await this.showsFiles(false);
     },
     async showsFullReader() {
       await expect

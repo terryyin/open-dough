@@ -200,6 +200,14 @@ named slices. This review identified no remaining slice-specific concern.
   below 52rem each Intent view has its own drawer state starting closed;
   docked keeps the kept per-scope choice. Narrowing a wide view also starts
   Files closed, so narrow consumers that read the tree open Files first.
+- CI repair for slice 2 (run 45630336875 on `c9dea0526`): 29 mounted Intent
+  cases and 6 e2e journeys read Intent's tree at phone width as if Files were
+  docked. Tests open Files through `fileLayout().showFiles()`,
+  `story.showFiles()`, `showIntentFiles` and `chooseIntentFile`, which wait
+  for the shared `dashboard/test-support/sidebarPlacement.ts` to settle after
+  a viewport change. Slice 3 reuses it for Review's tree at narrow room.
+  Pressing a location or folder name opens its Summary and leaves the drawer
+  open; the story closes the drawer only when a file is chosen.
 - Slice 3 refactor lead: the drawer placement block (fixed, banner-height
   top, z-index 8 over the backdrop's 7, edge and shadow) and its
   `.sidebar-drawer-backdrop:has(+ …)` rule repeat in `sessions-sidebar.css`

@@ -21,6 +21,7 @@ async function openProof(
   file: ReturnType<typeof story.file>,
 ) {
   await story.chooseTab("Changes");
+  await story.showFiles();
   await activateComparisonControl(file);
   await story.chooseProof();
 }
