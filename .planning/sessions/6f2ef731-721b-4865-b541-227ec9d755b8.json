@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "6f2ef731-721b-4865-b541-227ec9d755b8",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T15:37:08.960Z",
+  "story": "SEED-437#discover-project-default-branch-through-git",
+  "ranges": [
+    {
+      "base": "b6b62ad24f8892a1e8077825ca36936a15da6acc",
+      "candidate": "5cc1c721fb6c8f76f8219e2a0529c59433e9421c"
+    },
+    {
+      "base": "5cc1c721fb6c8f76f8219e2a0529c59433e9421c",
+      "candidate": "60e7fe528f2eaa22789b955f87a4f54491239a19"
+    },
+    {
+      "base": "60e7fe528f2eaa22789b955f87a4f54491239a19",
+      "candidate": "4521779988ffd9027b3663e49683ad7224689e00"
+    },
+    {
+      "base": "4521779988ffd9027b3663e49683ad7224689e00",
+      "candidate": "e40137649624db32315ed52eed3143416d305f1a"
+    }
+  ]
+}

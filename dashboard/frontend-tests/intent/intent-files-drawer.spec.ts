@@ -17,15 +17,35 @@ import { intentStoryCompare } from "./intent-story-compare-page.ts";
 const clickAt = (point: { x: number; y: number }) =>
   userEvent.click(page.elementLocator(document.body), { position: point });
 
-async function openStoryChangesOnPhone() {
+async function openStoryOnPhone() {
   await openIntentFileLayout({ viewport: { width: 390, height: 844 } });
-  const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-  return story;
+  return intentStoryCompare();
+}
+
+type Story = ReturnType<typeof intentStoryCompare>;
+
+// The story header's review-details eye, a page control beyond the open
+// Files drawer, which lies over the browser below that header.
+function eyeBeyondDrawer(story: Story, files: ReturnType<typeof fileLayout>) {
+  const drawer = document.getElementById(
+    files.toggle.element().getAttribute("aria-controls") ?? "",
+  );
+  const eye = center(story.detailsEye(false).element());
+  expect(
+    eye.x > (drawer?.getBoundingClientRect().right ?? 0) ||
+      eye.y < (drawer?.getBoundingClientRect().top ?? 0),
+  ).toBe(true);
+  return eye;
+}
+
+async function expectDetailsShown(story: Story, shown: boolean) {
+  await expect
+    .element(story.detailsEye(shown))
+    .toHaveAttribute("aria-expanded", String(shown));
 }
 
 test("on a phone, Files opens over the full story reader and an outside click closes it before the page acts", async () => {
-  const story = await openStoryChangesOnPhone();
+  const story = await openStoryOnPhone();
   const files = fileLayout();
   await files.showsFiles(false);
   await files.showsFullReader();
@@ -33,21 +53,17 @@ test("on a phone, Files opens over the full story reader and an outside click cl
   await files.toggle.click();
   await files.showsFiles(true);
   await files.showsFullReader();
-  const coverage = center(story.viewTab("Intent coverage").element());
-  await clickAt(coverage);
+  const eye = eyeBeyondDrawer(story, files);
+  await clickAt(eye);
   await files.showsFiles(false);
-  await expect
-    .element(story.viewTab("Changes"))
-    .toHaveAttribute("aria-selected", "true");
+  await expectDetailsShown(story, false);
 
-  await clickAt(coverage);
-  await expect
-    .element(story.viewTab("Intent coverage"))
-    .toHaveAttribute("aria-selected", "true");
+  await clickAt(eye);
+  await expectDetailsShown(story, true);
 });
 
 test("on a phone, expanding a folder keeps the Files drawer open, choosing a file exposes its reading and Files reopens to the same browsing place", async () => {
-  const story = await openStoryChangesOnPhone();
+  const story = await openStoryOnPhone();
   const files = fileLayout();
   await files.toggle.click();
   await story.onlyChangedFiles.click();
@@ -77,7 +93,7 @@ test("on a phone, expanding a folder keeps the Files drawer open, choosing a fil
 });
 
 test("on a phone, Escape closes the Files drawer to the full reader and returns focus to its toggle", async () => {
-  await openStoryChangesOnPhone();
+  await openStoryOnPhone();
   const files = fileLayout();
   await files.toggle.click();
   await files.showsFiles(true);
@@ -131,29 +147,25 @@ test("docked at a wide window, Files stays beside the reader while a page contro
   expect(files.reading().left).toBeGreaterThan(files.browser().left + 100);
 });
 
-test("on a phone, a native tap beyond the Files drawer closes it without changing the tab under it, and the next tap does", async () => {
+test("on a phone, a native tap beyond the Files drawer closes it without acting on the control under it, and the next tap does", async () => {
   await enableSettingsTouch();
-  const story = await openStoryChangesOnPhone();
+  const story = await openStoryOnPhone();
   const files = fileLayout();
   await files.toggle.click();
   await files.showsFiles(true);
-  const coverage = center(story.viewTab("Intent coverage").element());
+  const eye = eyeBeyondDrawer(story, files);
 
-  await touchAt(coverage.x, coverage.y);
+  await touchAt(eye.x, eye.y);
   await files.showsFiles(false);
-  await expect
-    .element(story.viewTab("Changes"))
-    .toHaveAttribute("aria-selected", "true");
+  await expectDetailsShown(story, false);
 
-  await touchAt(coverage.x, coverage.y);
-  await expect
-    .element(story.viewTab("Intent coverage"))
-    .toHaveAttribute("aria-selected", "true");
+  await touchAt(eye.x, eye.y);
+  await expectDetailsShown(story, true);
 });
 
 test("on a phone, the Sessions shortcut over an open Files drawer leaves one drawer, which one outside tap dismisses", async () => {
   await enableSettingsTouch();
-  await openStoryChangesOnPhone();
+  await openStoryOnPhone();
   const files = fileLayout();
   await files.toggle.click();
   await files.showsFiles(true);
@@ -167,8 +179,11 @@ test("on a phone, the Sessions shortcut over an open Files drawer leaves one dra
     ),
   ).toHaveLength(1);
 
-  const beyond = center(files.toggle.element());
-  await touchAt(beyond.x, beyond.y);
+  const sidebarEdge = page
+    .getByRole("complementary", { name: "Sessions sidebar" })
+    .element()
+    .getBoundingClientRect().right;
+  await touchAt(sidebarEdge + 10, center(files.toggle.element()).y);
   await expect
     .element(sessionsButton)
     .toHaveAttribute("aria-expanded", "false");

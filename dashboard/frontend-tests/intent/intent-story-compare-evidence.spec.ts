@@ -20,8 +20,7 @@ async function openProof(
   story: ReturnType<typeof intentStoryCompare>,
   file: ReturnType<typeof story.file>,
 ) {
-  await story.chooseTab("Changes");
-  await story.showFiles();
+  await story.browseFiles();
   await activateComparisonControl(file);
   await story.chooseProof();
 }
@@ -128,6 +127,15 @@ test("a Done story's CI comparison switches to the captured run's measured build
   await comparisonRead(() => story.viewText("Proof")).toMatch(
     /Baseline.*6666666.*Run 71 · attempt 2.*Selection.*2222222.*Run 72 · attempt 3/s,
   );
+  await story.goHome();
+  await expect.element(story.runChoice(run.key)).toBeChecked();
+  await comparisonRead(() => baseline.query()?.textContent ?? "").toMatch(
+    /6666666.*Run 71 · attempt 2/,
+  );
+  await comparisonRead(() => selection.query()?.textContent ?? "").toMatch(
+    /2222222.*Run 72 · attempt 3/,
+  );
+  expect(asked).toEqual([{ identity: doneIdentity, range: { start, end } }]);
   await story.choose("Published completion");
   await story.chooseTab("CI comparison");
   await comparisonRead(story.landedEndpoint).toBe(measured);
@@ -162,4 +170,14 @@ test("a captured run without recorded revisions keeps the whole-story CI compari
   await comparisonRead(() => story.noteBuild("Proof")).toBe(
     doneCompletion.slice(0, 7),
   );
+  await story.goHome();
+  await expect.element(story.runChoice(legacy.key)).toBeChecked();
+  await comparisonRead(() => story.noteBuild("CI comparison")).toBe(
+    doneCompletion.slice(0, 7),
+  );
+  await story.chooseTab("Intent coverage");
+  await comparisonRead(() => story.noteBuild("Intent coverage")).toBe(
+    doneCompletion.slice(0, 7),
+  );
+  expect(requested).toBe(false);
 });

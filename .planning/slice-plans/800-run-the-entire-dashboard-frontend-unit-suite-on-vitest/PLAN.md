@@ -145,7 +145,7 @@ Type: Structure
 Status: planned
 
 Update `dashboard/frontend-tests/README.md`, the North Star topic's
-"still to retire" wording, `Distribution/tests/local-test-resources.md`,
+"still to retire" wording,
 `browser-test-group.yml` steps that serve only the frontend Playwright
 runner, and generated-output ignores. Keep the npm command, shards, timings,
 proof label and publication.
@@ -212,7 +212,7 @@ slice-specific concern.
 
 ## Verification and delivery
 
-- Local gate: use the maintained [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
+- Local gate: use `caffeinate -s -i` on AC power
   (`caffeinate -s -i`, AC power) for the full group run in slice 7. Follow
   the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   as written.

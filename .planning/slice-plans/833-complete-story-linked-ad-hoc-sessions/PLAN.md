@@ -243,8 +243,7 @@ Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/r
 Run Dashboard typecheck for changed Dashboard contracts and installation proof
 for changed shipped operations. On macOS, start awake on AC under
 `caffeinate -s -i`. On battery plug in or start awake with the lid open under
-`caffeinate -i` and check the sleep log. Follow
-[local suite admission and machine sleep](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+`caffeinate -i` and check the sleep log.
 
 Default-route admission cost sizing twice: SEED-426 overran at 14.7 active
 minutes, and plan 813's slice 3 overran at 15. Both times the cost was moving

@@ -18,6 +18,7 @@ import {
 import {
   StoryReviewDetailsSection,
   reviewHoldsDetails,
+  useReviewDetailsPlace,
 } from "./StoryReviewDetailsSection.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
 import { useReviewFiles } from "./ReviewFilesDrawer.tsx";
@@ -49,17 +50,7 @@ export function StoryReview({
   // How many times Refresh asked for a new snapshot.
   const [round, setRound] = useState(0);
   const files = useReviewFiles(`${id}-files`, body);
-  const [detailsShown, setDetailsShown] = useState(false);
-  const eye = useRef<HTMLButtonElement>(null);
-  const details = {
-    id: `${id}-details`,
-    shown: detailsShown,
-    eye,
-    onShow: (show: boolean, focusEye = false) => {
-      setDetailsShown(show);
-      if (focusEye) eye.current?.focus();
-    },
-  };
+  const details = useReviewDetailsPlace(`${id}-details`);
   const { review, problem, reading, runKey, onRun } = useStoryReviewSelection({
     subject,
     round,

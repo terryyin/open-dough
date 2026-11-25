@@ -23,6 +23,23 @@ export function intentTabPanelId(idPrefix: string, value: string) {
   return `${idPrefix}-${value}-panel`;
 }
 
+export function intentTabPanelAttributes(
+  idPrefix: string,
+  value: string,
+  selected: string,
+) {
+  return {
+    role: "tabpanel",
+    id: intentTabPanelId(idPrefix, value),
+    "aria-labelledby": intentTabId(idPrefix, value),
+    hidden: selected !== value,
+  } as const;
+}
+
+export type IntentTabPanelAttributes = ReturnType<
+  typeof intentTabPanelAttributes
+>;
+
 export function IntentTabs<T extends string>({
   options,
   selected,

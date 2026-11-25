@@ -108,15 +108,14 @@ async function openCapturedRun({
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
-  await story.showFiles();
+  await story.browseFiles();
   return { story, file: story.file(`Modified ${filePath}`), observedAttempts };
 }
 
 const locationControl = () =>
-  page
-    .getByRole("tabpanel", { name: "Changes", exact: true })
-    .getByRole("button", { name: /^dashboard\/tests, / });
+  intentStoryCompare().sidebar.getByRole("button", {
+    name: /^dashboard\/tests, /,
+  });
 
 async function openSummary() {
   await activateComparisonControl(locationControl());
@@ -166,7 +165,7 @@ test("Changes, Summary and file Proof share the captured attempts and restore th
 
   await story.choosePurpose();
   await comparisonRead(story.diffName).toContain("a.spec.ts");
-  await story.showFiles();
+  await story.browseFiles();
   await expect.element(file).toHaveAttribute("aria-pressed", "true");
   await expect.element(story.runChoice(run.key)).toBeChecked();
 

@@ -139,7 +139,6 @@ export async function expectOriginalProofNavigation(
   },
 ) {
   const { intent } = parts(page);
-  await chooseStoryTab(intent, "Changes");
   await showIntentFiles(intent);
   if (await storyOnly(intent).isChecked()) await storyOnly(intent).uncheck();
   await intentLocationName(intent, expected.location).click();

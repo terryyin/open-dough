@@ -74,16 +74,15 @@ export function notificationContent(
   ];
 }
 
+// Title, message and click destination one delivery carries to the helper.
+export type TerminalNotificationContent = {
+  readonly title: string;
+  readonly message: string;
+  readonly destination: string;
+};
+
 export async function sendTerminalNotification(
-  {
-    title,
-    message,
-    destination,
-  }: {
-    readonly title: string;
-    readonly message: string;
-    readonly destination: string;
-  },
+  { title, message, destination }: TerminalNotificationContent,
   signal: AbortSignal,
 ): Promise<string | undefined> {
   const { unavailable } = await notifier(

@@ -29,11 +29,10 @@ export const laterStory = (
   place: number,
   label: string,
   title: string,
-): Extract<ProgressiveEntry, { kind: "story" }> => {
+): ProgressiveEntry => {
   const identity = `SEED-3${label}#progressive-later-${label}`;
   return {
     place,
-    kind: "story",
     identity,
     title,
     path: `${doneDirectory}/${doneRecordFileName(identity)}`,
@@ -54,8 +53,7 @@ export const namesOf = (list: readonly ProgressiveEntry[], count: number) =>
     .map(entryName);
 
 // The record of a story entry.
-export const pathOf = (entry: ProgressiveEntry) =>
-  entry.kind === "story" ? entry.path : "";
+export const pathOf = (entry: ProgressiveEntry) => entry.path;
 
 // A done story newer than every first published entry.
 export const newest = laterStory(
@@ -81,13 +79,14 @@ export async function movingMain(
     answer: RepositoryAnswerer,
     revision: string,
   ) => RepositoryAnswerer,
+  workspaceTaken: boolean,
 ) {
-  let previous = publishedWithCatalog(now, first, beside);
+  let previous = publishedWithCatalog(now, first, beside, workspaceTaken);
   let history = makeMe.aRepository.withRevision<string>("A", {
     files: previous,
   });
   for (const [name, list] of Object.entries(later)) {
-    const files = publishedWithCatalog(now, list, beside);
+    const files = publishedWithCatalog(now, list, beside, workspaceTaken);
     const remove = Object.keys(previous).filter(
       (path) => !Object.hasOwn(files, path),
     );

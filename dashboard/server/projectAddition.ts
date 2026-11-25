@@ -1,6 +1,5 @@
 import { realpath } from "node:fs/promises";
 import path from "node:path";
-import { notAskedOfGitHub } from "../src/authenticatedReadRules.ts";
 import {
   githubRepository,
   projectIdentity,
@@ -12,19 +11,12 @@ import {
   publishedProjects,
 } from "./projectConfiguration.ts";
 import { folderExists, localFolder } from "./localFolder.ts";
-import { rateLimitStop, runGh } from "./ghRead.ts";
-import { runGit } from "./gitRunner.ts";
-
-// What a repository check GitHub's rate limit stopped is told instead of
-// advice to check access: whether GitHub was asked at all, and how long to
-// wait.
-function limitedCheck(error: unknown, repository: string): string | undefined {
-  const stop = rateLimitStop(error);
-  if (stop === undefined) return undefined;
-  if (stop.kind === "held-back")
-    return `${notAskedOfGitHub(`the repository ${repository}`)} Try again in ${String(stop.waitSeconds)} seconds.`;
-  return `GitHub limited the rate of the local GitHub CLI's requests while checking the repository ${repository}. Try again in ${String(stop.waitSeconds)} seconds.`;
-}
+import {
+  githubGitCredentials,
+  githubGitEnvironment,
+  githubGitOrigin,
+} from "./githubGitTransport.ts";
+import { readGitTransport, runGit } from "./gitRunner.ts";
 
 export async function addProject(input: ProjectInput, signal: AbortSignal) {
   // Unreadable settings admit no writes or external validation.
@@ -71,28 +63,7 @@ export async function addProject(input: ProjectInput, signal: AbortSignal) {
       "localPath",
       `The origin of ${localPath} is ${localRepository ?? "an unrecognized repository"}, but the GitHub URL names ${repository}.`,
     );
-  let ref: string;
-  try {
-    ref = (
-      await runGh(
-        ["api", `repos/${repository}`, "--jq", ".default_branch"],
-        signal,
-      )
-    ).trim();
-    if (ref === "" || ref === "null")
-      throw new Error("No usable default branch");
-    await runGit(["check-ref-format", "--branch", ref], {
-      signal,
-      maxBuffer: 64 * 1024,
-    });
-  } catch (error) {
-    if (signal.aborted) throw signal.reason;
-    throw new ProjectInputProblem(
-      "githubUrl",
-      limitedCheck(error, repository) ??
-        `The repository ${repository} could not be read through the local GitHub CLI. Check gh access and try again.`,
-    );
-  }
+  const ref = await discoverDefaultBranch(repository, signal);
   signal.throwIfAborted();
   const project = {
     ...projectIdentity(repository),
@@ -110,4 +81,44 @@ export async function addProject(input: ProjectInput, signal: AbortSignal) {
         : folder.path,
   });
   return { project, projects: publishedProjects() };
+}
+
+async function discoverDefaultBranch(repository: string, signal: AbortSignal) {
+  const options = { signal, maxBuffer: 64 * 1024 };
+  let advertised: string;
+  try {
+    advertised = await readGitTransport(
+      [
+        ...githubGitCredentials,
+        "ls-remote",
+        "--symref",
+        "--",
+        githubGitOrigin(repository),
+        "HEAD",
+      ],
+      { ...options, env: githubGitEnvironment },
+    );
+  } catch {
+    signal.throwIfAborted();
+    throw new ProjectInputProblem(
+      "githubUrl",
+      `Git could not read ${repository}. Check gh access and try again.`,
+    );
+  }
+  const branch = /^ref: refs\/heads\/(.+)\tHEAD$/m.exec(advertised)?.[1];
+  if (branch !== undefined) {
+    const validated = await runGit(
+      ["check-ref-format", "--branch", branch],
+      options,
+    ).catch(() => {
+      signal.throwIfAborted();
+      return undefined;
+    });
+    if (validated?.stdout.trimEnd() === branch) return branch;
+  }
+  signal.throwIfAborted();
+  throw new ProjectInputProblem(
+    "githubUrl",
+    `Git could not resolve a usable default branch for ${repository}. Try again when the repository has a valid default branch.`,
+  );
 }

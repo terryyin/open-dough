@@ -16,20 +16,19 @@ test("narrow, a selected story's views and the Files drawer stay reachable by ke
   await openIntentFileLayout({ viewport: { width: 390, height: 760 } });
   const story = intentStoryCompare();
   const files = fileLayout();
-  await story.chooseTab("Changes");
   await controlsFit(
     story.viewTab("CI comparison"),
-    story.viewTab("Changes"),
     story.viewTab("Intent coverage"),
     files.toggle,
   );
 
   await files.showsFiles(false);
-  await toggleFilesFromKeyboard(story.viewTab("Changes"));
-  await files.showsFullReader();
+  focus(files.toggle);
+  await userEvent.keyboard("{Enter}");
+  await files.showsFiles(true);
   await userEvent.keyboard(" ");
   await files.showsFiles(false);
-  focus(story.viewTab("Changes"));
+  focus(story.viewTab("Intent coverage"));
   await userEvent.keyboard("{Home}");
   await expect
     .element(story.viewTab("CI comparison"))
@@ -39,7 +38,7 @@ test("narrow, a selected story's views and the Files drawer stay reachable by ke
   await expect
     .element(story.viewTab("Intent coverage"))
     .toHaveAttribute("aria-selected", "true");
-  await expect.element(files.toggle).not.toBeInTheDocument();
+  await files.showsFiles(false);
 });
 
 test("without a story the shared header, project views and reader fit narrow and short reading with keyboard controls", async () => {
@@ -78,9 +77,7 @@ test("without a story the shared header, project views and reader fit narrow and
         ?.getAttribute("data-intent-context"),
     ).toBe("project");
     await expect
-      .element(
-        intentPage.getByRole("tablist", { name: "Selected story views" }),
-      )
+      .element(intentPage.getByRole("tablist", { name: "Story Home" }))
       .not.toBeInTheDocument();
     await controlsFit(
       intentPage.getByLabelText("Test browser revision", { exact: true }),

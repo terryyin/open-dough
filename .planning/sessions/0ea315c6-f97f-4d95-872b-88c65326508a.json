@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "0ea315c6-f97f-4d95-872b-88c65326508a",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T13:48:11.247Z",
+  "story": "SEED-430#qualify-board-fixture-routing-and-request-boundaries",
+  "ranges": [
+    {
+      "base": "35f189e8610aeecc264a0faf291b103099c6fe99",
+      "candidate": "a75e67dea51709c290922d534cca210b26c06f12"
+    }
+  ]
+}

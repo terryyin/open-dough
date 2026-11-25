@@ -6,7 +6,7 @@ import { comparisonReading } from "../intentCiComparisonPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import { chooseStoryTab } from "./intentStoryPage.ts";
+import { browseStoryFiles } from "./intentStoryPage.ts";
 import { expect } from "./preparationPage.ts";
 
 // Selects the published Done story's card and opens its Intent, whose CI
@@ -41,6 +41,6 @@ export async function openCollectedHistoryStory(page: Page, address = "/") {
   await untilPageReadsAnswered(page);
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
   await expect(comparisonReading(panel).entryTable).toBeVisible();
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   return { intent, panel, card };
 }

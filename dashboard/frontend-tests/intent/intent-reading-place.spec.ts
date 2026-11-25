@@ -132,29 +132,9 @@ async function openStoryChanges() {
       .please(),
   });
   await mounted.selectStory(storyA.identity, storyA.title);
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   return { ...mounted, reads };
 }
-
-test("the deep spec read to an offset is shown at that offset after the story's other views, without reading again", async () => {
-  const mounted = await openStoryChanges();
-  await story.file(deepSpec).click();
-  await expect.poll(story.diffCode).toContain("long 120");
-  const offset = await story.scrollReadingHalfway();
-  expect(offset).toBeGreaterThan(20);
-
-  mounted.reads.length = 0;
-  for (const view of ["CI comparison", "Intent coverage"] as const) {
-    await story.chooseTab(view);
-    await expect.poll(story.readingShown).toBe(false);
-    await story.chooseTab("Changes");
-    await expect
-      .element(story.file(deepSpec))
-      .toHaveAttribute("aria-pressed", "true");
-    await expect.poll(story.readingOffset).toBe(offset);
-  }
-  expect(mounted.reads).toEqual([]);
-});
 
 test("the deep spec read with Selected story only on, out collapsed and Purpose scrolled is shown the same after Development and back, without reading again", async () => {
   const mounted = await openStoryChanges();
@@ -169,9 +149,7 @@ test("the deep spec read with Selected story only on, out collapsed and Purpose 
   await mounted.showDevelopment();
   await expect.element(intent).not.toBeInTheDocument();
   await mounted.showIntent();
-  await expect
-    .element(story.viewTab("Changes"))
-    .toHaveAttribute("aria-selected", "true");
+  await expect.element(story.pathReading).toBeVisible();
 
   await expect.element(story.onlyChangedFiles).toBeChecked();
   await expect
@@ -203,20 +181,14 @@ test("another project shows none of the reading place, and choosing the project 
 
   // The story stays selected and opens at its CI comparison; its tree is
   // expanded as when first compared, with the toggle off and nothing
-  // selected, so Changes asks for a choice.
+  // selected, so Story Home shows CI comparison.
   await mounted.showWork(work);
   await expect
     .element(story.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");
   const ciPanel = intentCiStatus().panel;
   await expect.element(ciPanel).toBeVisible();
-  await story.chooseTab("Changes");
-  await expect
-    .poll(story.readingText)
-    .toContain(
-      "Choose a test, folder or location to read its Purpose and Proof.",
-    );
-  await expect.element(ciPanel).not.toBeInTheDocument();
+  await expect.element(story.pathReading).not.toBeInTheDocument();
   await expect
     .element(intent.getByRole("region", { name: "Purpose", exact: true }))
     .not.toBeInTheDocument();

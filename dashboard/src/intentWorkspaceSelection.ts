@@ -111,10 +111,10 @@ export function IntentWorkspaceSelectionProvider({
   readonly children: ReactNode;
   readonly story?: SelectedStory | undefined;
 }) {
-  const [selection, showSelection] = useKeptReading<IntentSelection>(
-    "selection",
-    () => emptySelection,
-  );
+  const [reading, keepReading] = useKeptReading("selection", () => ({
+    story,
+    selection: emptySelection,
+  }));
   const [storySelections, keepStorySelections] = useKeptReading(
     "storySelections",
     () => new Map<string, IntentSelection>(),
@@ -123,6 +123,11 @@ export function IntentWorkspaceSelectionProvider({
   const [opened, setOpened] = useState<number>();
   // Normal navigation still keeps the current reading. A card opening
   // restores only a file chosen while its own story was selected.
+  const selection =
+    reading.story === story ? reading.selection : emptySelection;
+  const showSelection = (next: IntentSelection) => {
+    keepReading({ story, selection: next });
+  };
   if (
     opening !== undefined &&
     opening.identity === story?.identity &&
@@ -130,6 +135,8 @@ export function IntentWorkspaceSelectionProvider({
   ) {
     setOpened(opening.sequence);
     showSelection(storySelections.get(opening.identity) ?? emptySelection);
+  } else if (reading.story !== story) {
+    showSelection(emptySelection);
   }
   const setSelection = (next: IntentSelection) => {
     showSelection(next);
@@ -148,7 +155,7 @@ export function IntentWorkspaceSelectionProvider({
         selection,
         setSelection,
         clearSelection: () => {
-          if (selection.path !== "") setSelection(emptySelection);
+          if (selection.path !== "") showSelection(emptySelection);
         },
       },
     },

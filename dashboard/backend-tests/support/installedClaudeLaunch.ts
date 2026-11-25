@@ -12,7 +12,6 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { StoryLaunchRequest } from "../../src/launchRequest.ts";
 import {
   launch,
-  machineSessions,
   openDoughFolder,
 } from "../../test-support/agentLaunchBoundary.ts";
 import { expect, test as base } from "../../test-support/support/pageTest.ts";
@@ -33,13 +32,6 @@ export const otherExecution = makeMe.aLaunchRequest
 export const roughRefinement = makeMe.aLaunchRequest
   .refining(roughStoryC)
   .please() as StoryLaunchRequest;
-// Used when a case launches a second preparation after the rough story's Preparing assignment.
-export const otherRefinement = makeMe.aLaunchRequest
-  .refining(storyB)
-  .please() as StoryLaunchRequest;
-export const refinementSkill = "dough-story-refinement";
-export const refinementSkillFolder = `.claude/skills/${refinementSkill}`;
-export const refinementDefinition = `${refinementSkillFolder}/references/refinement-options.json`;
 
 type Settings = Omit<
   DashboardServerOptions,
@@ -106,7 +98,7 @@ export async function launchClaude(server: DashboardServer, body: unknown) {
   return { record: answer.record, started };
 }
 
-export function expectStoryCommand(
+function expectStoryCommand(
   started: ReturnType<DashboardServer["claudeLaunches"]>[number],
   expectedCommand: string,
   expectedInstruction = "",
@@ -157,15 +149,4 @@ export function expectStoryInput(
   expect(block).toContain(`- branch: ${receipt.branch}`);
   expect(block).toContain(`- publishedSha: ${receipt.publishedSha ?? ""}`);
   expectReportingBlock(reporting, record.request, server);
-}
-
-export async function refuseOptions(server: DashboardServer, body: unknown) {
-  server.claudeScenario("launched");
-  const recordsBefore = (await machineSessions(server)).length;
-  const callsBefore = server.claudeCalls().length;
-  const response = await launch(server, body);
-  expect(response.status).toBe(400);
-  expect(server.claudeCalls()).toHaveLength(callsBefore);
-  expect(await machineSessions(server)).toHaveLength(recordsBefore);
-  return (JSON.parse(response.body) as { error: string }).error;
 }

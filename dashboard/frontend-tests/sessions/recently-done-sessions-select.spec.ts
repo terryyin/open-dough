@@ -12,7 +12,7 @@ import {
   expectSelected,
 } from "../../test-support/storyCardSelection.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentFile,
 } from "../../test-support/support/intentStoryPage.ts";
 import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
@@ -42,7 +42,7 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
   await emptyArea(card).click();
   await expectSelected(card, true);
   await intentChoice.click();
-  await chooseStoryTab(intent, "Changes");
+  await browseStoryFiles(intent);
   await expandIntentGroup(intent, "dashboard/tests");
   const file = intentFile(intent, readSpec);
   await file.click();

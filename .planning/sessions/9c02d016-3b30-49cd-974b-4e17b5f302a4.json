@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "9c02d016-3b30-49cd-974b-4e17b5f302a4",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T15:29:26.451Z",
+  "story": "SEED-413#prove-launch-starts-and-recovery-on-vitest",
+  "ranges": [
+    {
+      "base": "caf5a81a774f1245de8698234d0ea5f44a84dc8b",
+      "candidate": "ed97d157be7573db14b973baf4b5dfdd371cff7c"
+    }
+  ]
+}

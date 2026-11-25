@@ -27,6 +27,7 @@ import {
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
+  browseStoryFiles,
   chooseStoryTab,
   expectStoryTab,
   storyHeaderReading,
@@ -58,7 +59,7 @@ test("all Done tabs ignore project freshness while Whole project notices the lat
     }));
   await test.step("Then Changes reads the published Done revision", async () => {
     await firstRequested;
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
     await expect(filesColumn(intent)).toBeVisible();
   });
   await test.step("And that is the only file-browser revision read", () => {
@@ -80,7 +81,7 @@ test("all Done tabs ignore project freshness while Whole project notices the lat
     expectStoryTab(intent, "CI comparison"));
   const { revisions, endpoints } =
     await test.step("When I read Changes in the fresh review", async () => {
-      await chooseStoryTab(intent, "Changes");
+      await browseStoryFiles(intent);
       return readDoneEndpoints(intent);
     });
   await test.step("Then the story comparison stays pinned to completion", () => {
@@ -100,12 +101,8 @@ test("all Done tabs ignore project freshness while Whole project notices the lat
         })
         .please().revisions[0],
     ));
-  await test.step("Then each Done tab keeps the historical comparison", async () => {
-    for (const tab of [
-      "CI comparison",
-      "Intent coverage",
-      "Changes",
-    ] as const) {
+  await test.step("Then each Story Home tab keeps the historical comparison", async () => {
+    for (const tab of ["CI comparison", "Intent coverage"] as const) {
       await chooseStoryTab(intent, tab);
       await expect(revisions).toHaveText(endpoints, { useInnerText: true });
       await expectNoProjectFreshness(intent);

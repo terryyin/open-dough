@@ -29,9 +29,10 @@ import {
 } from "../../dashboard/test-support/support/completedStoryPublication.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentDiff,
   intentFile,
+  showComparisonDetails,
   storySummary,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
@@ -157,7 +158,7 @@ test("selecting another Done story opens its published default after reading the
     );
   });
   const landing = new ReviewLandedRun(storySummary(intent), () =>
-    expect(storySummary(intent)).toBeVisible(),
+    showComparisonDetails(storySummary(intent)),
   );
   await landing.choose(first.reporting.reference);
   expect(
@@ -210,7 +211,7 @@ test("selecting another Done story opens its published default after reading the
       "data-state",
       "compared",
     );
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
     await expandIntentGroup(intent, "second/tests");
     await expect(intentFile(intent, "dashboard/tests/a.spec.ts")).toHaveCount(
       0,

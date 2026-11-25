@@ -11,7 +11,6 @@ import {
 } from "../navigation/dashboard-header-reading.ts";
 import { openIntentFileLayout } from "./intent-file-layout-fixture.ts";
 import { fileLayout } from "./intent-file-layout-page.ts";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 const sessionsSidebar = page.getByRole("complementary", {
   name: "Sessions sidebar",
@@ -19,9 +18,10 @@ const sessionsSidebar = page.getByRole("complementary", {
 
 type Files = ReturnType<typeof fileLayout>;
 
+// Project Intent, whose Files toggle ends its views row, beyond where the
+// Sessions sidebar lies.
 async function openFilesLayout(viewport: { width: number; height: number }) {
-  await openIntentFileLayout({ viewport });
-  await intentStoryCompare().chooseTab("Changes");
+  await openIntentFileLayout({ viewport, selected: false });
   const files = fileLayout();
   await expect.element(files.toggle).toBeVisible();
   return files;

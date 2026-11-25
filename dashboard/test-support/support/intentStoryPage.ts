@@ -1,10 +1,12 @@
 import { codePane, expectContextRead } from "./reviewPanes.ts";
 import {
+  browseStoryFiles,
   chooseStoryTab,
   expectStoryTab,
   filesColumn,
   showIntentFiles,
   storySummary,
+  storyFilesReading,
   storyTabPanel,
   storyViews,
   uncoverIntentReader,
@@ -39,8 +41,10 @@ export {
   storySummary,
   storyViews,
   storyTab,
+  storyFilesReading,
   storyTabPanel,
   expectStoryTab,
+  browseStoryFiles,
   chooseStoryTab,
 } from "../intentModePage.ts";
 
@@ -64,11 +68,25 @@ export function storyHeaderReading(intent: Locator) {
 export const storyTitle = (intent: Locator) =>
   storySummary(intent).getByRole("heading", { level: 2 });
 
+// The comparison details under the header's summary, revealed by its eye:
+// the revisions or full explanation, the follow-up action and Refresh.
+export async function showComparisonDetails(header: Locator) {
+  await expect(header).toBeVisible();
+  const eye = header.getByRole("button", {
+    name: "Show review details",
+    exact: true,
+  });
+  if ((await eye.count()) > 0) await eye.click();
+  await expect(
+    header.getByRole("button", { name: "Hide review details", exact: true }),
+  ).toBeVisible();
+  return header;
+}
+
 // What the header says beyond the title: the identity, and the revisions or
 // full explanation of the comparison.
 export async function storyHeaderDetail(intent: Locator) {
-  const header = storySummary(intent);
-  await expect(header).toBeVisible();
+  const header = await showComparisonDetails(storySummary(intent));
   await expect(
     header.getByRole("button", { expanded: false, name: /^(?!Branch )/ }),
   ).toHaveCount(0);
@@ -203,14 +221,18 @@ export function intentStory(intent: Locator) {
       expectStoryTab(intent, name),
     panel: (name: Parameters<typeof storyTabPanel>[1]) =>
       storyTabPanel(intent, name),
+    browseFiles: () => browseStoryFiles(intent),
+    filesReading: storyFilesReading(intent),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
-    followUpComparison: (storyName: string) =>
+    followUpComparison: () =>
       followUpFrom(
         intent,
-        storySummary(intent).getByRole("button", {
-          name: `Follow up on comparison ${storyName}`,
-          exact: true,
-        }),
+        storySummary(intent)
+          .locator(".intent-story-title-line")
+          .getByRole("button", {
+            name: "Follow up on comparison",
+            exact: true,
+          }),
       ),
     // The Follow up beside the selected diff's file path.
     followUpFile: (storyName: string) =>

@@ -25,7 +25,11 @@ export function fileLayout() {
     name: /^(Hide|Show) files$/,
   });
   const column = () => withinIntent(".intent-locations");
-  const reading = () => withinIntent(".intent-reading");
+  // The reader the browser shows: the path reading, or a story's Home.
+  const reading = () =>
+    withinIntent(
+      ".intent-reading:not([hidden]), .intent-story-home:not([hidden])",
+    );
   const browser = () => withinIntent(".intent-browser");
   const bar = () => withinIntent(".intent-page-tabbar");
   const box = (element: HTMLElement | null | undefined) => {
@@ -63,8 +67,10 @@ export function fileLayout() {
       if ((await settledPlacement()) === "hidden") await toggle.click();
       await this.showsFiles(true);
     },
-    // The reader uncovered: an open Files drawer closes, docked Files stays.
+    // The reader uncovered: an open Files drawer closes, docked Files stays,
+    // and a view without Files has nothing over its reader.
     async uncoverReader() {
+      if (toggle.query() === null) return;
       if ((await settledPlacement()) !== "drawer") return;
       await toggle.click();
       await this.showsFiles(false);
@@ -106,6 +112,20 @@ export async function controlsFit(...controls: Locator[]) {
   expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(
     window.innerWidth,
   );
+}
+
+// Asserts the controls share one row, left to right in the given order, and
+// returns their boxes.
+export function expectOneRow(...controls: Locator[]) {
+  const boxes = controls.map((control) =>
+    control.element().getBoundingClientRect(),
+  );
+  expect(Math.max(...boxes.map((box) => box.top))).toBeLessThan(
+    Math.min(...boxes.map((box) => box.bottom)),
+  );
+  const lefts = boxes.map((box) => box.left);
+  expect(lefts).toEqual([...lefts].sort((a, b) => a - b));
+  return boxes;
 }
 
 export async function toggleFilesFromKeyboard(after: Locator) {

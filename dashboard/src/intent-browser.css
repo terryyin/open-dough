@@ -22,8 +22,38 @@
   grid-template-rows: minmax(0, 1fr);
 }
 
-.intent-locations[hidden] {
+.intent-locations[hidden],
+.intent-reading[hidden],
+.intent-story-home[hidden] {
   display: none;
+}
+
+.intent-story-home {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.intent-story-home > .intent-tabs {
+  flex: none;
+  margin-inline: var(--space-3);
+}
+
+.intent-home-button {
+  flex: none;
+  align-self: flex-start;
+  display: grid;
+  place-items: center;
+  padding: var(--space-1);
+  margin: var(--space-2) var(--space-3);
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--line);
+}
+
+.intent-home-button:hover {
+  background: var(--raised-surface);
 }
 
 /* Each pane scrolls on its own and keeps positioned screen-reader labels
@@ -85,5 +115,19 @@
 
   .sidebar-drawer-backdrop:has(+ .intent-locations) {
     display: block;
+  }
+
+  /* A selected story's files toggle leads the comparison bar in its header
+     (./IntentHeader.tsx), so its drawer lies over the browser below that
+     header, leaving the toggle uncovered. */
+  .intent-page-frame[data-intent-context="story"] + .intent-browser {
+    position: relative;
+  }
+
+  .intent-page-frame[data-intent-context="story"]
+    + .intent-browser
+    > .intent-locations {
+    position: absolute;
+    top: 0;
   }
 }

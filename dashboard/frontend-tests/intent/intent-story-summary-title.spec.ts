@@ -13,7 +13,7 @@ test("a long story title shows once in full above the story's views, whichever i
     title: long,
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   const title = story.header.getByRole("heading", { name: long, exact: true });
   await expect.element(title).toBeVisible();
   expect(intentPage.getByText(long, { exact: true }).all()).toHaveLength(1);
@@ -36,7 +36,7 @@ test("a long story title shows once in full above the story's views, whichever i
   await expect.poll(story.revisions).toContain("Published story branch");
   await expect.poll(story.revisions).toContain(comparison.baseline);
 
-  for (const view of ["CI comparison", "Intent coverage", "Changes"] as const) {
+  for (const view of ["CI comparison", "Intent coverage"] as const) {
     await story.chooseTab(view);
     expect(title.element().getBoundingClientRect().bottom).toBeLessThan(
       story.viewTab(view).element().getBoundingClientRect().top,

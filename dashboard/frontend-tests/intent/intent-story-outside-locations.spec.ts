@@ -17,7 +17,7 @@ import {
 test("outside changes follow the configured locations in open folders and do not count in the story header", async () => {
   await openStoryChanges();
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   const outside = story.outsideGroup;
   await expect.element(outside).toBeVisible();
   const groups = outside
@@ -56,7 +56,7 @@ test("an outside file reads its diff as Purpose and stays selected under Selecte
       ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   const file = story.outsideFile(changed.product);
   await activateComparisonControl(file);
   await expect.poll(story.diffName).toBe(changed.product);
@@ -87,9 +87,8 @@ test("a Done story lists its published completion's outside product code with it
     },
   });
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
+  await story.browseFiles();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
-  await story.showFiles();
   await activateComparisonControl(story.outsideFile(changed.product));
   await expect.poll(story.diffName).toBe(changed.product);
   await expect.poll(story.diffCode).toContain("app change");

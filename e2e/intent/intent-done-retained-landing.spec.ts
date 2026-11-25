@@ -21,7 +21,7 @@ import {
   test,
 } from "../../dashboard/test-support/support/codexStart.ts";
 import {
-  chooseStoryTab,
+  browseStoryFiles,
   intentDiff,
   folderToggle,
   intentFile,
@@ -135,7 +135,6 @@ for (const history of ["published", "shallow"] as const)
           /published .*history|published completion/i,
         ),
       });
-      await chooseStoryTab(intent, "Changes");
       await expect(filesColumn(intent)).toHaveCount(0);
       expect(locations).not.toContain(accepted);
       expect(sourceReads).toEqual([]);
@@ -143,7 +142,7 @@ for (const history of ["published", "shallow"] as const)
     }
     expect(answer).toMatchObject({ kind: "published", completion: accepted });
     expect(answer.selectedRun).toBeUndefined();
-    await chooseStoryTab(intent, "Changes");
+    await browseStoryFiles(intent);
     await expandIntentGroup(intent, "dashboard/tests");
     await expect(intentFile(intent, modified)).toBeVisible();
     for (const path of ["current-a", "later", "local"])

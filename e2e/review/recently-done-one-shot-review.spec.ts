@@ -59,8 +59,8 @@ async function inspectDelivered(
     landing: { reference: receipt.reference },
   });
   if (answer.kind !== "landed") throw new Error("No delivered review");
-  await review.expectChangesExplanation(
-    "The story's historical Intent locations and test source are unavailable",
+  await review.expectHistoricalSourceExplanation(
+    "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
   );
   await review.files.expectOutsideCount(answer.files.length);
   expect(answer.files.map((file) => file.path)).toEqual(
