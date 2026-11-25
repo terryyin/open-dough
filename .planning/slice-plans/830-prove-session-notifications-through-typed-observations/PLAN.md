@@ -311,3 +311,7 @@ baseline.
   and the relocated socket probe before delivery. Trace remaining consumers
   of the synthetic notifier, activation and alert fixtures before removing
   dead support. Hosted CI runs the groups after publication.
+
+## Execution complete
+
+Product advice: Outcome delivered as scoped — developers get fast Node Vitest proof over typed session observations; campaign remainder and sibling machine-session-reads stay correctly ordered with no priority change. Measured cohort win (~54s → ~3.8s) strengthens confidence for the remaining backend Vitest renovation; reuse the same production-seam pattern (typed notifier dependency), not new test-support wrappers. Do not queue harness dedup that would grow dashboard/test-support. Wrap-up owns Done publication, temporary-direction retirement, deferred process after intent-coverage, and CI finalization.
