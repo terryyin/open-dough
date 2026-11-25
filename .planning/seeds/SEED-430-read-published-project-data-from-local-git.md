@@ -43,44 +43,59 @@ and [Add Project](SEED-437-discover-project-default-branch-through-git.md#discov
 
 **Identity:** SEED-430#open-published-board-from-local-git
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/824-open-published-board-from-local-git/PLAN.md","assessment":"not-ready","reasons":["Six fixture-family slices are sized only from the audit's file counts; measure or refine their boundaries before Take."],"basis":{"document":"5d9d102b61be288b76899b8d89836fbea3ec543ae420623ef7df70d9ee782dad","plan":"2ccf7339bf92abf1c85e2eda7d09ff4ed715ecba8b03cc0931fbbb6d3a0e850d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/824-open-published-board-from-local-git/PLAN.md","assessment":"not-ready","reasons":["Slices 1–5: a static real-origin migration is demonstrated, but the effort to migrate moving histories and the remaining fixture callers after the shared change is unmeasured.","Slice 7: the sampled cutover isolated two membership calls, but the remaining cold-open request-count and failure assertions across both suites are unmeasured against the 15-minute active limit."],"basis":{"document":"9d7595ab910c32ed9da859ee253fb7b4535d760fc84e9d5f513d9d221bcfc3d6","plan":"a93f8bcc4e02f6a3b4971be0d2b659fc273cd93b01feae639f844982cebfde44"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-430#open-published-board-from-local-git","dependencies":[{"supplier":{"identity":"SEED-430#read-published-project-data-from-local-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git"},"implementation":"Board-opening test fixtures that publish through real routed Git origins","rationale":"The Board's Git read can only be proved where the suites hold a real origin at the answered revision; switching it first would break every Board open in the suites.","condition":"SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.","state":"satisfied","resolution":{"revision":"1e2edf48ff3abdb521ad2bef8828b47dafa80eef","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git","summary":"Origin main accepted f05e15351e85617fab1bf8fa97b8f7f6c0eb7568. At the before-cleanup revision, plan 819 slices 1-4 are done: publishCommittedOrigin routes its origin through every dashboard HOME its fake GitHub serves and keeps the origin's main at the answered revision; publishes() without a revision commits a real origin that serving by name routes, with a republication replacing only its own earlier route; the default answer commits a real origin linked for the seeded projects; answer wrappers keep their origin. committed-origin-actions.spec.ts checks ls-remote under the dashboard HOME, and both full suites passed on each slice. Intent Coverage at 4baf31b4f found the republication path missing from maintained checks; plan 824 slice 6 owns that proof.\nCondition satisfied: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nCondition satisfied: SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nAccepted integration: f05e15351e85617fab1bf8fa97b8f7f6c0eb7568 on origin/refs/heads/main."}}]}
 ```
 
-**Goal.** A developer can open the Board and Refresh it with the execution
-checkout absent or behind. The Board shows the backlog at the verified
-published trunk, identifies the last confirmed view, and explains a failed
-refresh.
+**Goal.** A developer can open the Board and confirm what is published,
+even when the execution checkout is absent or behind. The Board shows
+the backlog at the verified published trunk, names when it was last
+confirmed, and explains a failed Refresh.
 
-**Scope.** Cold Board open establishes a locally readable published trunk
-view within a bounded check. A warm Board shows its last readable view during
-Refresh. Manual Refresh updates the confirmation time when origin confirms
-the same trunk and advances the Board when a new trunk is verified. A
-temporary failure keeps the last confirmation and readable view, shows the
-problem, and permits recovery on Refresh. A cold failure leaves the Board
-unavailable. Explicit access refusals retain their own outcome. A missing
-trunk or unreadable backlog cannot yield a confirmed Board. Mere object
-presence confers no admission.
+**Scope.** Open and manual Refresh resolve the configured trunk on origin
+and read the backlog at that exact revision from the dashboard's Review
+repository, within the Board's wait bound. Refresh is an action on the
+open Board. The developer can keep working from the confirmed view while
+the check is pending. A successful unchanged check advances the
+confirmation time without fetching. A changed check advances the view
+and time together once that revision's backlog is readable. A failed
+check keeps the earlier confirmation and shows the problem. A Board
+without a prior confirmed view shows the failure as unavailable.
+Explicit access refusal retains its established outcome. A missing trunk,
+unreadable backlog, or unverified local commit cannot establish a Board
+confirmation. Admission still follows the configured source and existing
+read rules.
 
-The remaining Board-opening fixtures that answer a synthetic trunk, or
-serve a project no route reaches, publish through a real routed origin first,
-so every Board open in the suites exercises the verified trunk read. Reads other than the
-Board's trunk and backlog keep their current paths until
-[the published-progress story](#follow-published-progress-from-local-git)
-moves them.
+Every Board-opening fixture must publish its advertised trunk through a
+real routed origin. The
+[published-progress story](#follow-published-progress-from-local-git)
+owns migrating automatic observation, watched branches, the other
+published records, and Review callers to the verified observation.
+
+**Architecture.** Reuse the dashboard-owned Review repository and its Git
+transport under [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+The Board's confirmation binds the origin-verified revision and its
+confirmation time in one update after checking the backlog at the pin.
+Git may already hold candidate objects when that update fails. Readers
+continue to use the last confirmed pin and access is still evaluated
+against the configured source.
 
 **Key examples.**
 
-- Given an accessible origin and an absent execution checkout, open the Board
-  cold. It shows the backlog at the exact verified trunk revision. Record
-  cold and warm request counts and timing.
-- Given a previously confirmed Board and an unavailable origin or an
-  interrupted fetch, Refresh retains the current view with its old
-  confirmation time. A cold failure and an explicit access refusal are
-  distinguishable. On recovery, an unchanged check advances the confirmation
-  time with no fetch and a changed check exposes only verified revisions.
+- Given an accessible origin and an absent execution checkout, open a
+  Board with no prior confirmation. It shows the backlog and time for the
+  exact verified trunk. If origin is unavailable on that first open,
+  there is no confirmed Board. An explicit refusal is reported as such.
+- Given a Board confirmed at A and origin advertising B, press Refresh.
+  While B is being checked, the Board shows A and A's confirmation time.
+  If B's fetch or confirmation write fails, A and its time stay and the
+  failure is visible. If another Refresh can verify B, the displayed
+  revision and time advance together.
+- Given a warm Board and reachable origin still at its confirmed
+  revision, press Refresh. The later check updates the confirmation
+  time without fetching. Record cold and warm request counts and timing.
 
 <a id="follow-published-progress-from-local-git"></a>
 
