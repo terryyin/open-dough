@@ -31,11 +31,12 @@ const commitEnv = {
   GIT_COMMITTER_DATE: "2026-01-01T00:00:00Z",
 };
 
-// Commits `backlog` at the backlog path and every file in `files` (which
-// win over the backlog path) as the one commit on `branch`.
+// Commits `backlog` at the backlog path (an empty one when not given, none
+// when null) and every file in `files` (which win over the backlog path) as
+// the one commit on `branch`.
 export function commitPublishedOrigin(published: {
   readonly branch: string;
-  readonly backlog?: string;
+  readonly backlog?: string | null;
   readonly files?: Readonly<Record<string, string>>;
 }): PublishedOrigin {
   const origin = mkdtempSync(path.join(tmpdir(), "dough-published-origin-"));
@@ -46,8 +47,9 @@ export function commitPublishedOrigin(published: {
       encoding: "utf8",
     }).trim();
   git("init", "--quiet", "-b", published.branch);
+  const { backlog = "" } = published;
   const contents = {
-    [backlogPath]: published.backlog ?? "",
+    ...(backlog === null ? {} : { [backlogPath]: backlog }),
     ...published.files,
   };
   for (const [file, body] of Object.entries(contents)) {

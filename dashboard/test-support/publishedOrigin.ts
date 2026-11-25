@@ -14,7 +14,8 @@
 // Both list a published revision's directories from those files alone, so a
 // project without agent profiles lists none; listings are not observed.
 // `publishFiles` (./publishedFiles.ts) publishes fixed files at one revision,
-// `publishCommittedFiles` (./committedFiles.ts) as one real commit,
+// `publishCommittedFiles` (./committedFiles.ts) as one real commit (and
+// `serveCommitted` a real commit through a journey's own answers),
 // ./committedOrigin.ts whole committed revisions; ./originObservation.ts holds
 // what every origin observes of the calls it answers, leaving out revision
 // checks.
@@ -52,7 +53,7 @@ export {
   pathsRead,
   type ObservedRequest,
 } from "./originObservation.ts";
-export { publishCommittedFiles } from "./committedFiles.ts";
+export { publishCommittedFiles, serveCommitted } from "./committedFiles.ts";
 export { publishFiles } from "./publishedFiles.ts";
 export {
   backlogPath,

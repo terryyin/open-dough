@@ -20,11 +20,12 @@ import {
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { isHeadsCheck } from "../../dashboard/test-support/originObservation.ts";
-import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import {
+  publishCommittedFiles,
+  serveCommitted,
+} from "../../dashboard/test-support/publishedOrigin.ts";
 import { callsSince } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
-import { keepingOrigin } from "../../dashboard/test-support/support/publishedRepository.ts";
-import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import {
   addedAt,
@@ -190,18 +191,11 @@ test("when agent profiles cannot be read, the clock is a gap rather than a plan-
   await pausePageClockAt(page, opened);
   // The same records, but the profile directory cannot be listed.
   const published = publishes({ files, committed, history });
-  const github = githubFor(page);
-  github.serve(
-    repository,
-    keepingOrigin(
-      (call) =>
-        call.request.kind === "listing"
-          ? Promise.resolve(noConnection)
-          : published(call),
-      published,
-    ),
+  serveCommitted(page, repository, published, (call) =>
+    call.request.kind === "listing"
+      ? Promise.resolve(noConnection)
+      : published(call),
   );
-  expectServedHomesReach(github, repository, published.revision);
 
   const { taken } = await openedTaken(page);
   const card = taken.getByRole("article", { name: afterTake });

@@ -24,12 +24,10 @@ import {
 } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   backlogUnreadable,
-  doughnut,
   doughnutStory,
   expectDirectRosterFailure,
   expectOpenDoughAssignments,
   expectRoute,
-  openDough,
   publishRosterOrigins,
   queuedStory,
   takenStory,
@@ -44,7 +42,7 @@ const everyAgent = agentNames.map((name) => agentIdentity(name).agent);
 test("a card's agent portrait opens the project's agent roster, and Back returns to the stories as they were left", async ({
   page,
 }) => {
-  await publishRosterOrigins(page);
+  const revisions = publishRosterOrigins(page);
   await page.goto("/");
 
   const { taken, backlog } = parts(page);
@@ -68,7 +66,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(member("Akiho-chan")).toHaveAttribute("aria-current", "true");
     await expect(member("Akiho-chan")).toBeFocused();
     await expect(roster).toContainText(
-      `Open Dough: agent profiles published at revision ${openDough.revision.slice(0, 7)}.`,
+      `Open Dough: agent profiles published at revision ${revisions.openDough.slice(0, 7)}.`,
     );
 
     await page.goBack();
@@ -132,7 +130,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await chooseProject(page, "Doughnut");
     expectRoute(page, { project: "doughnut", view: "roster" });
     await expect(roster).toContainText(
-      `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
+      `Doughnut: agent profiles published at revision ${revisions.doughnut.slice(0, 7)}.`,
     );
     await expect(
       members.filter({
@@ -146,7 +144,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await page.goBack();
     expectRoute(page, { project: "open-dough", view: "roster" });
     await expect(roster).toContainText(
-      `Open Dough: agent profiles published at revision ${openDough.revision.slice(0, 7)}.`,
+      `Open Dough: agent profiles published at revision ${revisions.openDough.slice(0, 7)}.`,
     );
     await expect(member("Akiho-chan")).toHaveAttribute("aria-current", "true");
 
@@ -194,7 +192,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
 test("direct roster load, reload, unknown project fallback, and direct failure keep URL, view, and focus coherent", async ({
   page,
 }) => {
-  await publishRosterOrigins(page);
+  const revisions = publishRosterOrigins(page);
 
   await test.step("direct roster load selects project and focuses heading, reload keeps it, and Back returns to project stories", async () => {
     await openUntilRead(page, "/?project=doughnut&view=roster");
@@ -208,7 +206,7 @@ test("direct roster load, reload, unknown project fallback, and direct failure k
     ).toBeFocused();
     await expect(roster.locator('[aria-current="true"]')).toHaveCount(0);
     await expect(roster).toContainText(
-      `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
+      `Doughnut: agent profiles published at revision ${revisions.doughnut.slice(0, 7)}.`,
     );
 
     await reloadUntilRead(page);
@@ -218,7 +216,7 @@ test("direct roster load, reload, unknown project fallback, and direct failure k
     ).toBeFocused();
     expectRoute(page, { project: "doughnut", view: "roster" });
     await expect(roster).toContainText(
-      `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
+      `Doughnut: agent profiles published at revision ${revisions.doughnut.slice(0, 7)}.`,
     );
 
     await back.click();

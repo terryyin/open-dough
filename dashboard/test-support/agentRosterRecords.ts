@@ -10,21 +10,16 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 import type { Locator, Page } from "@playwright/test";
 import { renderAgentProfile } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { expect, githubFor } from "./dashboardTest.ts";
+import { expect } from "./dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,
   rosterParts,
   selectedProjectId,
 } from "./dashboardPage.ts";
 import { credit } from "./agentCredit.ts";
-import { publishFiles } from "./publishedOrigin.ts";
-import {
-  commitAnswer,
-  headsAnswer,
-  noConnection,
-  notFoundAnswer,
-  rawFileAnswer,
-} from "./originAnswers.ts";
+import { publishCommittedFiles, serveCommitted } from "./publishedOrigin.ts";
+import { noConnection, notFoundAnswer } from "./originAnswers.ts";
+import { publishes } from "./support/fakeGitHub.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { describedBacklog, describedRevision } from "./describedRevisions.ts";
 import { backlogPath } from "./publishedOriginBasics.ts";
@@ -111,10 +106,7 @@ export const { files: openDoughFiles } = describedRevision(
   openDough.revision,
 );
 
-export const doughnut = {
-  repository: "nerds-odd-e/doughnut",
-  revision: "d9".repeat(20),
-};
+const doughnut = { repository: "nerds-odd-e/doughnut" };
 export const doughnutStory = "Doughnut's own taken story";
 const doughnutBacklog = describedBacklog(
   makeMe.aRepository
@@ -132,38 +124,33 @@ const doughnutBacklog = describedBacklog(
     .please(),
 );
 
-// Doughnut publishes a Taken entry, but listing its agent profiles fails.
-export function publishUnlistableProfiles(page: Page) {
-  const { repository, revision } = doughnut;
-  githubFor(page).serve(repository, ({ request }) => {
-    if (request.kind === "ref") {
-      return Promise.resolve(commitAnswer(revision));
-    }
-    if (request.kind === "matching-refs") {
-      return Promise.resolve(headsAnswer({ main: revision }));
-    }
-    if (request.kind === "content" && request.path === backlogPath) {
-      return Promise.resolve(rawFileAnswer(doughnutBacklog));
-    }
-    if (request.kind === "content") {
+// Doughnut publishes a Taken entry, but listing its agent profiles fails;
+// returns its committed revision.
+export function publishUnlistableProfiles(page: Page): string {
+  const published = publishes({ backlog: doughnutBacklog });
+  return serveCommitted(page, doughnut.repository, published, (call) => {
+    const { request } = call;
+    if (request.kind === "content" && request.path !== backlogPath)
       return Promise.resolve(notFoundAnswer());
-    }
-    return Promise.resolve(noConnection);
+    return ["ref", "matching-refs", "content"].includes(request.kind)
+      ? published(call)
+      : Promise.resolve(noConnection);
   });
 }
 
-// Pygardon publishes no backlog, so its read fails before any published work
+// Pygardon commits no backlog, so its read fails before any published work
 // is known.
-export const pygardon = {
-  repository: "terryyin/pygardon",
-  revision: "e5".repeat(20),
-  files: {},
-};
+const pygardon = { repository: "terryyin/pygardon", files: {} };
 
-export async function publishRosterOrigins(page: Page) {
-  await publishFiles(page, { ...openDough, files: openDoughFiles });
-  publishUnlistableProfiles(page);
-  await publishFiles(page, pygardon);
+// Publishes each roster project, returning the revisions committed.
+export function publishRosterOrigins(page: Page) {
+  const { revision } = publishCommittedFiles(page, {
+    repository: openDough.repository,
+    files: openDoughFiles,
+  });
+  const doughnutRevision = publishUnlistableProfiles(page);
+  publishCommittedFiles(page, pygardon);
+  return { openDough: revision, doughnut: doughnutRevision };
 }
 
 // The address names each given project, view and story; null means none.

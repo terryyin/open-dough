@@ -86,7 +86,7 @@ after refactoring.
 ### 2. Publish fixed roster and branch-progress records
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: Migrate fixed setups reached through `agentRosterRecords` and the
 fixed publication sites in `nerds-cartoon-portrait` and
@@ -100,6 +100,14 @@ Proof: Run the reached roster, portrait and branch-progress cases.
 Observe the reported revision for each project and the advertised trunk via
 its HOME. Check the missing backlog is absent from the commit and continues
 to produce the established unavailable Board. Budget 13 active minutes.
+
+Learnings: `publishCommittedFiles` commits only the given files
+(`commitPublishedOrigin` takes `backlog: null`) and accepts `branches`.
+A journey that answers some REST kinds itself over a real commit uses
+`serveCommitted` from the same module. Branch heads in
+`branch-slice-progress` stay REST-only; only its trunk is committed. Moving
+roster fixtures (`agent-roster-avatar`'s Open Dough, `agentAttributionRecords`)
+stay with the moving story.
 
 ### 3. Publish fixed Recently done records
 
