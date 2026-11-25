@@ -6,6 +6,19 @@
 
 **State:** Planned
 
+## Execution context
+
+Julia-chan is executing in Story Branch Mode in the owned
+`.worktrees/qualify-board-fixture-routing-and-request-bounda` checkout on
+`codex/qualify-board-fixture-routing-and-request-bounda`. The publisher is
+`dashboard-territory.local-open-dough`. Origin main and the story branch both
+accepted the Take at `4f25aa5672565f1efc25d58165a5ab021b1d00ff`, based on
+`1935edc5c20ed181bdf276b973767ffef83ac292`. This Take is the first increment's
+published base. The checkout passed `npm ci` and `npm run typecheck:dashboard`.
+The Codex observer uses GitHub Actions `ci.yml` on the story branch with
+coordinator `Julia-chan-84a618be` and mailbox `/tmp/dough-ci-501/watch-A78W0t`.
+Replanning follows existing planning authority.
+
 ## Goal and scope
 
 Make the fixture publication independently readable by Git wherever a configured,
@@ -77,7 +90,7 @@ to use local repositories so Git cannot hit live GitHub from the test machine.
 ### 1. Resolve the publication in each fixture HOME
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given one named project, re-serve a wrapped answer for its second real
 publication. Read Git from HOMEs registered before and after its first
@@ -86,6 +99,17 @@ publication. Prove through the fake GitHub fixture's public setup and
 seeded fallback still work, an explicit HOME route keeps precedence, and an
 unserved URL fails locally. Put the maintained regression proof at this boundary.
 The existing `committed-origin-actions.spec.ts` proves one HOME and one route.
+
+Proof passed with `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run
+test:dashboard:backend -- dashboard/backend-tests/runtime/committed-origin-routing.spec.ts`
+and `npm run typecheck:dashboard`. The five Vitest cases serve real commits
+through the public fake GitHub fixture and read the configured ref with
+`git ls-remote` from each disposable HOME. The assertions cover both pins in
+early and late HOMEs, the preserved named and seeded pins, explicit route
+precedence, and the local missing repository error. The test-only change
+uses individual HOME reads because the shared all-HOME assertion cannot
+distinguish a registration omission or the explicit override result.
+The review found no independent refactor candidate.
 
 ### 2. Open a configured or added project from its configured ref
 
