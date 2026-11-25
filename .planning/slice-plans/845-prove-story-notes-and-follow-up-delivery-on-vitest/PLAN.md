@@ -145,7 +145,7 @@ and pending Codex input checks passed, as did Dashboard typecheck.
 ### 4. Reuse the chosen notes when the same start is retried
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 Proof: A typed launch acceptance or continuation answers with the retained
 attempt and its original first input. Both the selection and retry variants
@@ -158,6 +158,11 @@ Use MakeMe to arrange the kept attempt and native record directly. Assert
 the chosen identity, old message and version at their receiving handoff
 and absence of a replacement attempt. Complete conversion of the legacy
 content and retry spec.
+
+Typed acceptance and continuation kept the original attempt ID, first input,
+and attached version after the edit, and separated the other Attach choice.
+The replacement Node cases took 28.87 and 32.48 ms. The 42-case backend
+cohort and Dashboard typecheck passed.
 
 ### 5. Observe Cursor's later confirmation in E2E
 

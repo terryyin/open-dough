@@ -1,4 +1,4 @@
-// Shared fixtures for the retained follow-up notes retry and delivery specs.
+// Fixtures for the retained follow-up notes delivery spec.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
@@ -24,8 +24,6 @@ export const waitingGeneral = makeMe.aStoryNote
   .withText("General: paste still drops the last line on iPad.")
   .savedAt("2026-11-17T10:00:00.000Z")
   .please();
-
-export const waitingGeneralLine = `- Note: ${waitingGeneral.text}`;
 
 export async function publishRecoverStory(
   dashboard: DashboardServer,

@@ -23,7 +23,11 @@ import { withStates } from "./launchStates.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
 import { changedAttempt } from "./launchAttemptChanges.ts";
-import { keptCreations, keptRecordsByProject } from "./launchRecordStore.ts";
+import {
+  keptCreations,
+  keptRecordsByProject,
+  pendingInputOf,
+} from "./launchRecordStore.ts";
 import {
   lookupRecordedSession,
   type Recorded,
@@ -50,6 +54,8 @@ import {
   prepareWorktreeUpdate,
 } from "./worktreeUpdateRetry.ts";
 import { acceptLaunchRequest } from "./agentLaunchAccept.ts";
+import { followUpStorySessions, publishedDoneStory } from "./followUpStory.ts";
+import { machineStoryNotesFile } from "./storyNotes.ts";
 
 // How long a launch verification waits for its host's session listing.
 const verifyWaitMs = 10_000;
@@ -161,6 +167,12 @@ export class AgentLaunches {
         request,
         this.runAttempt(source),
         (id) => this.continueRequest(source, id),
+        {
+          notesFile: machineStoryNotesFile(),
+          publishedDoneStory,
+          followUpStorySessions,
+          pendingInputOf,
+        },
         reportingOrigin,
       ),
     );
