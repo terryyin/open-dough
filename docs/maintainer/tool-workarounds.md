@@ -149,10 +149,38 @@ Use Git for earlier reviews and retired entries.
   hook generation. It adopts the real generation at the owning hook boundary.
   Introduced in `c02158fc3` (`v0.3.57`). Cursor `2026.10.19-6bbf2c4` verified
   ownership and registration. [ODF-154](findings/ODF-154.md#odf-154)
-- **Recheck.** Compare the identifiers exposed to Shell and hooks for a parent
-  and child, including across a new prompt. Remove the temporary generation if
-  a common native identity delivers the failure once to the correct agent.
-- **Last review.** 2026-11-25, keep pending the native check in SEED-440.
+- **Right problem.** Yes. Managed CI delivery runs from Shell, which exposes
+  conversation identity but not the hook `generation_id` the Cursor adapter
+  requires to bind a failure once to the owning agent.
+- **Still necessary.** Yes on this recorded surface. Disabling the
+  managed-generation adopt path leaves `recorded=managed-delivery` and gates
+  out the owning real hook (missed delivery). The coordinator owner's
+  generation file records a `generation_id` distinct from its
+  `conversation_id`, so Shell `CURSOR_CONVERSATION_ID` is not a native
+  substitute for hook generation. Child Shell still has no `generation_id`
+  env field; `CURSOR_REQUEST_ID` differs from hook `generation_id` and must
+  not be used as a substitute. A beforeSubmitPrompt / new-prompt boundary was
+  not exercised in this child Task (gap noted; does not overturn keep).
+- **Right solution.** Keep the temporary `managed-delivery` placeholder and
+  adopt-at-owning-hook bridge. No retire or simplify product change from this
+  review.
+- **Evidence.** Build: agent CLI `2026.11.22-e9042b2`; Cursor IDE `3.31.15`
+  (`3eb8c133…`, arm64). Surface: Cursor agent with Shell + hooks (Task child;
+  coordinator parent via transcript path and mailbox generation file).
+  Payload / HEAD: `abb6d3de8d3b202a54a219953638f0af76fecfae`. Diagnostic
+  wrapper on the loaded `.agents` `ci-host-hook.mjs` (reverted). Receipts
+  under the worktree evidence dir: `slice2-shell-identity-summary.txt`,
+  `slice2-hook-live-captures.jsonl`, `slice2-parent-generation-divergence.txt`,
+  `slice2-still-necessary-gate.json`, `slice2-owner-compare.json`,
+  `slice2-full-report.md`.
+- **Disposition.** keep (no follow-up product change).
+- **Next review trigger.** Cursor exposes a Shell-visible generation identity
+  equal to hook `generation_id` across parent, child, and new prompts; or a
+  maintainer recheck that captures a beforeSubmitPrompt generation change and
+  a live parent hook payload.
+- **Last review.** 2026-11-25, keep for Cursor agent + hooks on CLI
+  `2026.11.22-e9042b2` / IDE `3.31.15`. Native evidence in SEED-440 slice 2.
+  [SEED-440](../../.planning/seeds/SEED-440-recheck-cursor-workarounds.md#recheck-cursor-workarounds).
 
 ## Cursor importing Claude Code hooks
 
