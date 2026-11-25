@@ -44,6 +44,11 @@ locking and power-loss guarantees do not transfer to this repository.
   guides the shared domain model through the server, wire contract, and UI.
 - Extend [Review repository](../../../dashboard/server/reviewRepository.ts)
   and its [bounded Git fetch](../../../dashboard/server/gitTargetFetch.ts).
+  SEED-438 moved the repository writer, pinned-ref verification, and sync
+  recording into [Review repository storage](../../../dashboard/server/reviewRepositoryStorage.ts).
+  The Board's observation must verify its own candidate and backlog before
+  publishing confirmation. An initial Review sync can also fetch the target,
+  so its tracking ref and sync record remain separate from Board confirmation.
   Reuse [SharedObservation](../../../dashboard/server/sharedObservation.ts)
   for lifetime, bounded waiters, and fresh demand. Match a project and
   authorized origin, the required refs, and freshness before joining a check.
@@ -152,6 +157,57 @@ to prove the existing automatic branch behavior. The scratch used Review's
 existing fetch on every open, so it supplies no evidence about the proposed
 confirmation or fetch-elision behavior.
 
+### Preparation probes on 2026-11-25
+
+- On `174c73f1f`, the existing phone Board, automatic branch progress, and
+  automatic rate-limit browser cases all passed in 29.8 seconds. Replacing
+  the branch-progress fixture's trunk with two MakeMe commits took about
+  one active minute for this consumer once its fixture was traced. The
+  routed origin started at the first commit. Its trunk-move step advanced
+  the bare origin and the fake REST listing to the second commit. The
+  complete journey passed with the existing REST membership path in 16.4
+  seconds, including the conditional head listing, the exact displayed
+  trunk pin and the pinned backlog request. The synthetic story-branch
+  answers were left in place for the still-REST scheduled check and detail
+  reads. A separate A/B conversion for the rate-limit journey took about
+  one active minute with the same materialization and routing sequence.
+  Neither estimate includes generalizing the helper, migrating other
+  callers, or refactoring and delivering a slice.
+- On `2d6b55306`, after SEED-438 landed, a scratch change routed only
+  authenticated `ref` through `syncedReviewRepository`, verified the
+  configured tracking ref, read the pinned backlog with `git show`, and
+  seeded the pinned memo. The phone Board and both migrated journeys
+  passed in 32.2 seconds. The branch journey reached the exact new
+  displayed trunk and retained the REST pinned backlog assertion for the
+  scheduled update. The rate-limit journey reached the scheduled 429,
+  held owner time, 403 reset, and recovery at the second committed
+  revision. Neither required REST membership. The command was
+  `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/navigation/phone-board.spec.ts e2e/observation/auto-refresh-branches.spec.ts e2e/observation/auto-refresh-rate-limit.spec.ts --workers=1 --reporter=line`.
+  This exercised routing and the consumers. The scratch path fetched on
+  every open and supplies no proof of confirmation atomicity or fetch
+  elision.
+- With the scratch cutover at `174c73f1f`, the backend shared-open case
+  never reached its held REST ref. The cooldown suite lost the implicit
+  membership request as both a way to trigger and a way to observe the
+  REST owner's wait. The first-open browser suite's synthetic origin
+  failed before its success and held-detail assertions could run. The
+  command was `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-shared.spec.ts dashboard/backend-tests/observation/authenticated-read-cooldown.spec.ts dashboard/backend-tests/runtime/first-open-waits-for-read.spec.ts`.
+- At `2d6b55306`, using an explicit scheduled `since` read and holding
+  `matching-refs` restored all three cooldown cases after removing the
+  obsolete membership assertion from the cross-operation REST owner
+  matrix. In the owned-server first-open case, placing a gate on the
+  actual Git fetch through the fixture's `pathPrefix` and releasing it to
+  a real origin preserved the pending-read and rendered-Board assertions.
+  The four cases passed in 14.2 seconds under
+  `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i node_modules/.bin/playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/runtime/first-open-waits-for-read.spec.ts dashboard/backend-tests/observation/authenticated-read-cooldown.spec.ts --grep 'starts its own dashboard|directed rate limit' --workers=1 --reporter=line`.
+  The [landed Review browser case](../../../e2e/review/story-review-initial-sync.spec.ts)
+  also demonstrates a real transfer gate using `remote.origin.uploadpack`.
+  Outside these cases, cross-project opens, shared waiters and failure
+  variants were not converted. All scratch edits were reverted. The
+  untouched backend selection of the shared-read, cooldown, and first-open
+  files then passed all 11 cases at the same revision (19.7 seconds)
+  through `npm run test:dashboard:backend` with `--reporter=line`.
+
 ## Outside-in proof
 
 | Promise | Owner and observation |
@@ -235,8 +291,11 @@ remaining mismatch for this path.
 Include the direct HTTP observation family, such as
 `authenticated-read-shared.spec.ts` and `authenticated-read-cooldown.spec.ts`.
 Trace each held answer and counter to membership, a scheduled check, or a
-detail read. Slice 7 owns membership-specific assertion edits. The fixtures
-serving live REST operations keep the inputs needed by those operations.
+detail read. Move the REST cooldown stimulus and observation to explicit
+scheduled checks, preserving both projects and the competing directed
+waits. Keep the existing membership cooldown case separately until slice 7
+retires that promise with its transport. The fixtures serving live REST
+operations keep the inputs needed by those operations.
 
 ### 6. Route projects a test adds or configures
 
@@ -318,34 +377,28 @@ with an owner in this plan. Close it before the final slice finishes.
 
 ## Slice refinement and remaining concerns
 
-Refinement retained one story and eight slices. Open and Refresh use the
-same verified membership path and confirmation state. Separating Refresh
-leaves the migration and cutover workload on the cold-open story.
-Splitting out the fixture work alone adds no independent Board outcome.
-Slices 1–6 each preserve current
-behavior through a distinct fixture publication boundary. Slice 1 owns
-the shared materialization and later migrations address only callers it
-does not already cover. Slice 7 switches and cleans up one authenticated
-membership path. Slice 8 exercises that path from the open Board and
-closes the cleanup obligation across the story.
+Refinement kept the eight current slices while checking the moving-origin
+and cutover assumptions. Static and moving fixtures can both derive their
+real trunk pin and REST answers from the same committed history. The
+cutover probes separate the cases that still exercise the scheduled REST
+owner from the cases that must observe a Git membership check.
 
-- Slices 1–5 still lack a migration-sized measurement. The prior audit
-  counts responding files and the direction example covers one static
-  fixture. The effort for the remaining fixture and assertion changes
-  after the common conversion is unmeasured. In particular,
-  `MovingFiles.moveTrunk` currently returns no published ID and some
-  observation tests assert hard-coded A/B/C values and REST request
-  counts. Before Take, sample the shared conversion on the trunk-move step
-  in `auto-refresh-branches.spec.ts`. Time the edits that make its real
-  origin, REST pin, and displayed revision agree. Use its trace and the
-  fixture audit to estimate the remaining edits after the common conversion.
-- Slice 7's cutover had a different effect on membership and detail calls
-  in the direction example. The scratch branch and throttle journeys
-  stopped before moving the remote or exercising the REST throttle.
-  Trace the remaining cold-open request-count, held-answer and failure
-  assertions across both suites. Measure which assertions move to Git,
-  which are obsolete, and which guard REST details and scheduled checks
-  before estimating this slice against the 15-minute active limit.
+- Slices 1–5 have representative static and moving examples. The moving
+  samples cover two consumers. They do not size the common conversion or
+  show how many edit sites remain per family after it. Group the retained
+  audit by fixture entry point, sample a shared family conversion through
+  its consumers, and use the resulting count of residual edits to bound
+  each migration slice.
+- Slice 7 includes separate proof loops for verification and publication,
+  held and shared membership waits, and migration of remaining REST
+  assertions. The probes show a REST cooldown rewrite can be proved
+  independently while a held Board read needs its own Git gate and real
+  origin. Move proofs for live REST operations to those operations before
+  switching membership. Size both the remaining Git proof and the
+  obsolete-path deletion separately. The current plan already has eight
+  slices, so an extra slice requires a smaller story boundary if the
+  preceding migration work cannot be consolidated within its active
+  limit. The current cutover is unbounded against 15 active minutes.
 
 ## Local gate
 
