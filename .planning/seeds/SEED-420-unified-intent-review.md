@@ -315,22 +315,109 @@ session-subset comparisons belong to their existing work.
 ### Recognize Intent folders and read their proof
 
 **Identity:** SEED-420#recognize-intent-folders-and-read-proof
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-420#recognize-intent-folders-and-read-proof","dependencies":[{"supplier":{"identity":"SEED-420#browse-one-selectable-review-tree","href":"seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree"},"implementation":"Shared selectable repository path tree in Intent","rationale":"Ancestor rollup cues and clean root folder rows apply to directories in the single selectable repository path tree. Today Intent renders flat location-group accordion sections without ancestor folder rows and with single-child compaction, while SEED-420#browse-one-selectable-review-tree is actively Taken to build that shared path tree and regular-versus-Intent folder selection.","condition":"Story review shows repository paths in one selectable folder tree without single-child compaction, routing regular folders to the minimal path view and configured Intent roots and nested folders to Summary, with the separate Intent section lists and Outside Intent locations section retired in story review.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/840-recognize-intent-folders-and-read-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b2421b0efbb179fd882aaae8a7d90ced699d7784cc6bcf67cb7b882b27684340","plan":"cca4fa48fdbf180ec4023afe92e56df4d3f463abe4fd78e0b7ecd96c4371fe5c"}}
 ```
 
-A developer can find configured Intent locations in the shared file tree.
-Style a collapsed ancestor containing one or more Intent locations with a
-cue related to the current Intent section style. Once expanded, style the
-visible Intent root itself. If an intervening folder still hides a root, its
-collapsed row carries the cue. Root rows stay visually distinct whether open
-or closed. The tree rows show folder names and state. Test types and
-configured folder and file patterns belong in the selected root's summary.
+**Goal.** A developer reviewing a story or browsing a published project in
+Intent can spot where configured Intent locations sit in the shared file tree
+without pattern clutter on folder rows, and read a root's test configuration
+or a nested folder's scoped CI proof with its evidence basis identified.
 
-Selecting the root shows its test type, configured patterns, matching files
-and proof. Selecting a folder inside that location shows proof scoped to that
-folder, with the evidence basis identified. The same tree cues and folder
-reading apply when browsing a published project without a selected story.
+**Scope.** Use the shared selectable repository folder tree both in story
+review and when browsing a published project without a selected story over
+its configured-location inventory at the browsed revision. Retire the
+separate Intent location accordion headers and exclusive single-location
+collapse. Configured Intent roots with no matching files or an unsupported
+kind remain selectable at their root paths except when hidden by a story
+changes-only filter.
+
+In the shown tree, style each configured Intent root row visually distinctly
+whether open or closed, building on the existing Intent location colour
+family so roots stand apart from regular folders and collapsed ancestors
+while preserving selection, story change marks, and CI comparison cues on
+compared entry roots. Style a collapsed non-root folder with a related,
+lighter cue when at least one configured Intent root is present beneath it in
+the shown tree. Once expanded, clear the cue on that folder; if an
+intervening child folder remains collapsed and still hides a shown Intent
+root, its collapsed row carries the cue until the root is visible.
+
+Tree folder rows show only the folder's name and state: open/closed
+disclosure, collapsed file count, selection, Intent root or collapsed-ancestor
+cue, story change mark, and compared-entry CI cues and words where
+applicable. Move configured labels, test types, and folder/file patterns out
+of tree rows into the selected root's Summary. Keep independent disclosure
+and selection by pointer and keyboard, and reveal ancestor folders when
+opening a path from CI links, Summary rows, or optimization candidates.
+
+Selecting a configured Intent root opens Summary with its optional label,
+repository path, declared test type (`kind`, or `sources` entries' declared
+`syntax` with their patterns), configured `include` patterns when present,
+matching Intent file count and immediate child breakdown (or the existing
+empty/unsupported explanation), and CI proof with its evidence basis
+identified. Non-matching files under a mixed-content root do not count as
+matching Intent files in Summary. Selecting a folder inside a configured
+Intent location opens Summary scoped to that folder — path, matching Intent
+files under it, and scoped CI proof with its evidence basis identified —
+without repeating root-only configuration metadata. Selecting a folder
+outside configured Intent locations, including an ancestor above an Intent
+root, shows the minimal folder view naming its path.
+
+[File filtering](#filter-review-files) owns **Intent only**, **Changes
+only**, and filtering Summary's file list. [Project browsing](#browse-the-project-at-a-revision)
+owns expanding whole-project inventory beyond configured Intent locations and
+repositories without Intent locations.
+
+**Key examples.**
+
+- **Collapsed ancestors, intervening folders, and persistent roots:** A
+  project configures Intent roots at `e2e`, `e2e_test/features`, and
+  `e2e_test/packaged/features`. With top-level folders collapsed, `e2e`
+  carries the Intent root style and `e2e_test` carries the collapsed-ancestor
+  cue; regular folders carry neither. Expanding `e2e_test` clears its cue,
+  shows `features` with the Intent root style, and leaves collapsed
+  `packaged` with the collapsed-ancestor cue until `packaged` is expanded to
+  reveal its `features` root. Expanding or collapsing a root keeps its root
+  style. Folder rows show names and state without inline types or patterns.
+- **Root Summary, mixed-content root, nested folder, and non-root ancestor:**
+  In a story comparison where `dashboard` holds `dashboard/src` and
+  `dashboard/frontend-tests` (`kind: "typescript"`, `include:
+  ["**/*.spec.ts"]`), and `Distribution` (`sources` with `shell` and
+  `javascript` patterns) also holds `Distribution/src/SKILL.md`: selecting
+  `dashboard` shows the minimal folder view naming `dashboard`. Selecting
+  `dashboard/frontend-tests` shows its label, path, `typescript`,
+  `**/*.spec.ts`, matching specs, and CI comparison proof with endpoints
+  identified. Selecting `Distribution` shows its `shell` and `javascript`
+  patterns and counts only matching tests, excluding `Distribution/src/SKILL.md`.
+  Selecting `dashboard/frontend-tests/intent` shows proof and matching files
+  scoped to that subfolder with the comparison basis identified and without
+  root configuration details.
+- **Change-filtered tree avoids false ancestor cues:** A story modifies
+  `dashboard/src/app.ts` and leaves `dashboard/frontend-tests` untouched.
+  With change filtering on (**Selected story only** or **Changes only**),
+  collapsed `dashboard` carries no Intent ancestor cue because no Intent root
+  is in the filtered tree; turning it off restores `dashboard/frontend-tests`
+  beneath `dashboard` and restores the collapsed-ancestor cue while
+  `dashboard` is closed.
+- **Project Intent without a selected story:** With no story selected,
+  Project Intent renders its configured locations in the same shared folder
+  tree starting collapsed, with independent folder disclosure. Selecting a
+  nested folder under a root shows single-run CI proof scoped to that folder
+  with the measured run, revision, branch, and any ancestor or newer-tree
+  qualification. Selecting an empty or unsupported-kind root shows `0 files`,
+  its declared type and patterns, and the existing problem explanation.
+
+**Architecture.** Following [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
+and [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#2-whole-product-focus),
+Project Intent and story review share one folder-tree representation and one
+Summary reader instead of keeping a separate location-group accordion. Root
+and collapsed-ancestor cues are derived presentation state over the shown
+tree and configured `IntentLocation` list, and Summary scopes matching files
+via `locationSelectsRepositoryPath` and proof from held `IntentCiEvidence`
+with no extra Git or CI requests.
 
 <a id="browse-the-project-at-a-revision"></a>
 
