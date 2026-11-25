@@ -240,15 +240,44 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#prove-installed-story-starts-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"334714b9c1111e0ce1c3f7cdb2dd2c8061160c1db98d65a071b0f6a67d89d98e","plan":"57e65aee6392e914cec6d196d8f2f1d6babbd1d56fbd6e74945039371b9d8318"}}
 ```
 
-- **For / why.** A developer starting a queued story gets fast proof that execution or refinement publishes the right assignment before dispatch.
-- **Boundary.** Exercise the installed Start and Preparing commands, their receipts, and worktree-update retry. Keep real Git and a private origin where publication supplies the evidence.
-- **Evaluation.** A published Take or Preparing assignment resumes in its original workspace after a refusal, with one assignment and no duplicate dispatch. Unreadable command output cannot stand in for a publication.
-- **Effort hypothesis.** L, low confidence. Publication still needs the installed command and real Git.
-- **Mapped slices.** See the [provisional plan](../slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md).
-- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+- **Goal.** Developers changing how the Dashboard starts execution or
+  refinement get fast Node Vitest proof that the installed start publishes
+  the right Take or Preparing assignment before any session is dispatched,
+  and that a kept start resumes in its original workspace with one
+  assignment.
+- **Scope.** Move the 15 legacy specs mapped in the plan off backend
+  Playwright: installed execution and preparation starts, their refusals and
+  stops, kept-start recovery, Codex continuation and retry, incomplete
+  reporting support, and worktree-update retry. Run the real installed
+  commands against real Git and a private origin wherever publication is the
+  evidence; replace the HTTP server, Vite and the synthetic session server
+  with typed start and dispatch inputs. Workspace and session-policy
+  choices, host first input, launch admission and attempt recovery, and
+  retained records have their own owners in the
+  [coverage map](#backend-vitest-replacement-coverage).
+- **Key examples.**
+  - Given a queued ready story, Start publishes the Take naming the host and
+    chosen model, then dispatches one session in a new `.worktrees/`
+    workspace with the established start; the kept record holds that start.
+    A refinement Start publishes Preparing, with no Taken profile, before its
+    session.
+  - Given a story Taken by another agent, not queued, unrefined, or whose
+    origin is not the catalog repository, Start dispatches nothing and says
+    why. Installed output with no readable result is not trusted as a
+    publication. A project whose installed skill lacks the start launches as
+    before in the execution checkout.
+  - Given a Take or Preparing assignment kept after a refusal, a lost server
+    or a store failure, Continue resumes in the original workspace with the
+    same claim or assignment and dispatches once. A second Start while the
+    first is held is refused with one claim, workspace and session. Retained
+    Codex evidence continues only the allocation that Git verifies.
+  - Given a kept start whose worktree lacks reporting support, Continue stops
+    before dispatch and names the missing helper. Applying the updater to that
+    exact worktree resumes the kept start once; an updater refusal explains
+    and launches nothing.
 
 <a id="prove-session-workspace-starts-on-vitest"></a>
 
