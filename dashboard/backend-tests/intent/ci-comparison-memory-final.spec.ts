@@ -1,13 +1,10 @@
 // Finality is observed through repeated real reads, without any clock or TTL.
+import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiTimingJob } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { start, branch, later } from "../support/comparisonRead.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
-import {
-  expect,
-  test,
-  observedComparisonSource,
-} from "../support/comparisonMemory.ts";
+import { test, observedComparisonSource } from "../support/comparisonMemory.ts";
 
 test("a completed build's timing reason stays final even when jobs later become available", async ({
   comparisonRead,

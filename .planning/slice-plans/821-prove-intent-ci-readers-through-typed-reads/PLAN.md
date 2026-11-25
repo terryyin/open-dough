@@ -77,6 +77,10 @@ status framing (such as a failed outcome's 502) with its existing owners.
 - [ADR 0010, definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
   judges speed, clarity and deleted support together. Each moved case keeps
   its observation. A dropped one names its owner.
+- Vitest selection (`isVitestFile`) requires a direct `import … from "vitest"`
+  in each moved **spec** file. A fixture that re-exports `test`/`expect` from
+  Vitest is not enough for selection. Later history and comparison slices must
+  give each converted spec that import.
 
 ## Baseline and decisive premises
 
@@ -106,12 +110,12 @@ rerun both on a quieter host.
 | The comparison source can read receipts from a case's own home | Read `storyCiComparisonSource.landingReceipts`, `readableRecordsByProject` and `launchStore()`. | The launch store has no `home` parameter; the history store has one. Slice 3 adds the seam described above. |
 | The pending-proof server observations have in-process owners | Read the test titles of the owners named in Current decisions. | Titles match the observations but do not settle ownership. Slice 4 checks each owner by discrimination before dropping anything. Otherwise the observation stays as an in-process case. Either outcome fits the slice. |
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. Comparison memory runs on Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the 11 comparison-memory specs select Node Vitest under the maintained
 runner and pass all 43 cases with unchanged titles and assertions. Make the
 two asymmetric-matcher assertions pass lint without weakening them. The
@@ -123,6 +127,16 @@ process answers the same comparison it did on Playwright. Each case starts
 from empty memory.
 
 Estimated active work 8–12 minutes.
+
+Accepted proof (coordinator): focused `test:dashboard:backend` on the 11
+paths → Vitest `RUN v5.1.0`, 11 files / 43 cases passed (~4.6 s); typecheck and
+eslint on changed paths exit 0. Evidence:
+`open-dough/evidence/slice1-comparison-memory-vitest-20261125-121237-report.md`
+and run records `slice1-tests|typecheck|lint|consumer-trace-20261125-121237`.
+Fixture: `comparisonMemory.ts` uses Vitest `test.extend` and still clears
+answers before/after each case. Asymmetric matchers cast `as unknown` without
+weakening. Refactor disposition: skip fresh pass — subject specs plus their
+fixture only; no new product representation.
 
 ### 2. Done and endpoint history reads answer in process
 

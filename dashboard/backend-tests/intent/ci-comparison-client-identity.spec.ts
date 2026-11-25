@@ -1,5 +1,5 @@
 // Real wire validation and exact attempt identity; no selected subjects are faked.
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { test, expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readIntentCiProof } from "../../src/authenticatedIntentCiProofRead.ts";
 import { createCiComparisonProofs } from "../../src/ciComparisonProofs.ts";
@@ -52,7 +52,9 @@ test("equal slot subjects stay independent while attempt and source-object chang
     );
     expect(owner.proofsFor(source, retry, 0)?.branch).toMatchObject({
       kind: "unavailable",
-      line: expect.stringContaining("shape this dashboard does not understand"),
+      line: expect.stringContaining(
+        "shape this dashboard does not understand",
+      ) as unknown,
     });
     correctAttempt = true;
     await owner.select(source, retry, 1);
