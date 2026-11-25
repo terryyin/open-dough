@@ -65,11 +65,12 @@ function read(
   records: readonly LaunchWithState[],
   fragments = new SessionsAnswerFragments(),
 ) {
-  const { records: observing, ...rest } = makeMe.aMachineAnswer
-    .observing(...records)
-    .answeringAttempts(...attempts)
-    .please();
-  const { overview, history } = fragments.answers(observing, rest);
+  const { overview, history } = fragments.answers(
+    makeMe.aMachineAnswer
+      .observing(...records)
+      .answeringAttempts(...attempts)
+      .please(),
+  );
   const overviewRead = machineSessionsReadSchema.parse(
     JSON.parse(overview.serialized()),
   );

@@ -41,13 +41,11 @@ function read(
   records: readonly LaunchWithState[],
   attempts: readonly AttemptObservation[] = [],
 ) {
-  const { records: observing, ...rest } = makeMe.aMachineAnswer
-    .observing(...records)
-    .answeringAttempts(...attempts)
-    .please();
   const { overview, history } = new SessionsAnswerFragments().answers(
-    observing,
-    rest,
+    makeMe.aMachineAnswer
+      .observing(...records)
+      .answeringAttempts(...attempts)
+      .please(),
   );
   const overviewRead = machineSessionsReadSchema.parse(
     JSON.parse(overview.serialized()),

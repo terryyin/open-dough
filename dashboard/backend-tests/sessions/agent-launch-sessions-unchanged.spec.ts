@@ -37,12 +37,7 @@ function machine(...initial: LaunchWithState[]) {
   let records = initial;
   let inputs = 0;
   const observation = new MachineSessionObservation(
-    () => {
-      const { records: observing, ...rest } = makeMe.aMachineAnswer
-        .observing(...records)
-        .please();
-      return Promise.resolve({ records: observing, rest });
-    },
+    () => Promise.resolve(makeMe.aMachineAnswer.observing(...records).please()),
     () => Promise.resolve([inputs]),
   );
   const schemas = {

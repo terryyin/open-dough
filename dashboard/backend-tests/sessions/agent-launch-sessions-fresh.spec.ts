@@ -19,7 +19,7 @@ function codexOffering(flag: string) {
       options: [makeMe.anOptionsEntry.with({ flag }).please()],
     })
     .please();
-  const { records, ...rest } = makeMe.aMachineAnswer
+  return makeMe.aMachineAnswer
     .offering({
       source: "open-dough",
       workflow: "refinement",
@@ -27,7 +27,6 @@ function codexOffering(flag: string) {
       ...offeredShape(definition),
     })
     .please();
-  return { records, rest };
 }
 
 test("a fresh ask observes changed Codex options while an ordinary held ask is answered unchanged", async () => {

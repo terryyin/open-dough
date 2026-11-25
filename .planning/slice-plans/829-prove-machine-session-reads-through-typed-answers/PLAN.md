@@ -148,7 +148,7 @@ observation starts. Only the subject spec changed.
 ### 5. Admit and encode a session read at the adapter
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Given full, unchanged and refused answers, pass typed request values
@@ -160,6 +160,16 @@ Move `agent-launch-sessions-encoding.spec.ts` using a shared answer and
 real compression. Follow how the adapter sends the resulting bytes with
 the existing `agent-launch-retained-history.spec.ts` E2E. Remove support
 used only by the migrated cases after tracing retained consumers.
+
+Proof (25 November 2026, load ~16–17): 15 Node cases, 0–3 ms each,
+through production `sessionsRequest(url, headers)` and
+`launchResponse(acceptEncoding, answer)` with real gzip;
+`respondToLaunch` keeps only the HTTP write. The final six-file gate ran
+35 cases, all Node, none a Playwright selection: 1.199 s summed case time
+against 43.534 s, 34 cases at or below 100 ms (the 1,000-session listing
+case took about 1.1 s under load), 6.1 s elapsed against 54.358 s. The
+retained-history E2E passed, and the started-server observation-wait,
+session-alerts-origin and session-refusal specs passed 8/8.
 
 ## Concern evidence
 
@@ -179,7 +189,7 @@ Disposition: no user cost "Developers changing the dashboard's machine-session r
 ### G2. Overview and history body layout no longer asserted
 Reported: slice 2 — "No session-read spec now asserts the wire byte layout"
 Story clause: "A full answer accepted as gzip decodes to the plain response."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: dashboard/backend-tests/sessions/agent-launch-sessions-encoding.spec.ts "a full overview answer is the plain JSON ending with its history revision", "a full history answer is the plain JSON of its revision, records and attempts, in that order" and the gzip-decodes-to-plain cases for both audiences
 
 ### G3. Mark-Done and reconcile routes no longer drive the read cases
 Reported: slice 2 — "The HTTP mark-Done and page-reconcile routes are no longer exercised here"
@@ -194,7 +204,7 @@ Disposition: proved by slice 3: dashboard/backend-tests/sessions/agent-launch-se
 ### G5. Fresh-demand header admission no longer asserted
 Reported: slice 4 — "the old spec was the only backend test that sent `sessionsFreshHeader` over HTTP"
 Story clause: "A fresh ask can see a changed Codex observation while an ordinary ask still reuses a held observation."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: dashboard/backend-tests/sessions/agent-launch-sessions-encoding.spec.ts "a read naming the fresh header and a held revision is admitted as a fresh ask of that revision" and "a read without the fresh header is admitted as an ordinary ask" through production `sessionsRequest`; the answer side stays in agent-launch-sessions-fresh.spec.ts
 
 ## Verification and delivery
 

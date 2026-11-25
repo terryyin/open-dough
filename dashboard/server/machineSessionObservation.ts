@@ -106,11 +106,10 @@ const observedAnswer = ({
   revision,
 });
 
-// What one observation reads: the records and the answer after them.
+// What one observation reads: the records, then the answer after them.
 export type MachineSessionsReading = {
   readonly records: readonly LaunchWithState[];
-  readonly rest: MachineSessionsRest;
-};
+} & MachineSessionsRest;
 
 // The inputs an observation stands for: the project catalog and the
 // machine-document revision.
@@ -127,7 +126,8 @@ export async function readMachineSessions(
   const { attempts, readable } = await launches.attempts();
   const records = await launches.machineSessions();
   const feedbackMaintenance = maintenance.state(records, attempts);
-  const rest: MachineSessionsRest = {
+  return {
+    records,
     ...(feedbackMaintenance !== undefined && { feedbackMaintenance }),
     attempts,
     attemptsReadable: readable,
@@ -143,7 +143,6 @@ export async function readMachineSessions(
     sessionPolicies: await launches.sessionPolicies(),
     workspaces: await localWorkspaces(),
   };
-  return { records, rest };
 }
 
 // Who asks for the machine's sessions: the audience, the revision of its
@@ -166,11 +165,11 @@ export class MachineSessionObservation {
   ) {
     const fragments = new SessionsAnswerFragments();
     this.shared = new SharedObservation(async () => {
-      const { records, rest } = await read();
-      const { overview, history } = fragments.answers(records, rest);
+      const reading = await read();
+      const { overview, history } = fragments.answers(reading);
       return {
         ...observedAnswer(overview),
-        records,
+        records: reading.records,
         history: observedAnswer(history),
       };
     }, reuseMs);
