@@ -16,6 +16,8 @@ trunk pin without depending on the execution checkout. A failed fresh check
 keeps an already shown confirmation and reports the failure. Automatic
 observation, additional records and the migration of Review callers belong
 to [the published-progress story](../823-follow-published-progress-from-local-git/PLAN.md).
+This story owns removal of the superseded Board membership path and all
+temporary code, tests, and documents used to reach the cutover.
 
 ## Approach comparison
 
@@ -56,9 +58,11 @@ locking and power-loss guarantees do not transfer to this repository.
   [reachable paths](../../../dashboard/server/reachablePaths.ts),
   [branch reachability](../../../dashboard/server/branchReachability.ts),
   and [records beside the backlog](../../../dashboard/server/recordsBesideBacklog.ts).
-  Seed the existing pinned backlog memo from the verified local text where
-  reachability still consults it. Admit the pin after verification. Keep the
-  object available for its existing admitted lifetime.
+  Seed the existing pinned backlog memo with `PinnedMemo.remember` from the
+  verified local text where reachability still consults it. Call
+  `observeProjectRevision` and advance the memo's answered backlog after
+  verification and confirmation publication. Keep the object available for
+  its existing admitted lifetime.
 - Use the configured source's exact trunk ref and immutable commit IDs.
   A ref move between probe and fetch cannot confirm an unverified candidate.
   Commit the revision and confirmation time together after the pinned
@@ -84,7 +88,17 @@ locking and power-loss guarantees do not transfer to this repository.
   committed origins, `publishes()` and the default answer)
   ([fixture origin routes](../../../dashboard/test-support/support/fixtureOriginRoute.ts),
   [published main](../../../dashboard/test-support/support/publishedMainFixture.ts)).
-  One trunk path serves every Board open; no fixture keeps a REST-only Board.
+  Use one Git trunk path for Board open and manual Refresh. Delete the
+  REST dispatch for authenticated `ref` when it switches, including any
+  fallback that could answer a failed Git check.
+- Trace the deletion from Board requests through the server handler, memo,
+  transport and failure handling to their callers, tests, fixtures and docs.
+  `resolveRevisionViaGh` still serves the fallback in `revisionChecks.ts` and
+  the check in `feedbackMaintenanceCheck.ts`. The explicit `backlog-at`
+  operation and pinned reachability still read through `PinnedTexts`. Keep
+  those live paths and remove obsolete Board-specific branches, comments,
+  test cases, and fixture adapters when their final use disappears. Tests
+  for a live scheduled or detail behavior keep their proof at that caller.
 - Reuse the MakeMe [repository materializer](../../../Distribution/tests/support/repository-fixture.mjs)
   for described history, `publishes()` for one publication, and the existing
   movable Git fixture for journeys that actually push. Both Git and the
@@ -108,7 +122,7 @@ locking and power-loss guarantees do not transfer to this repository.
 | Consuming operation | Observation | Remainder |
 | --- | --- | --- |
 | Review transport probe of refusal, unavailability, and absence | On 2026-11-25 against this checkout at `75182dd87`, the Review transport's exact `ls-remote` (gh credential helper, `GIT_TERMINAL_PROMPT=0`, `LC_ALL=C`) exited 128 for loopback 401, 403, 404, 503, a held request aborted by its deadline, a closed port, and GitHub "Repository not found". Stderr separated 401 ("could not read Username") and 403 ("returned error: 403") from connection failure and 503. A missing branch exited 2 under `--exit-code`. One read-only probe reached the configured origin under the existing Review authority with the active gh account's `repo` scope. | A server-rejected credential ("Authentication failed") was not observed; slice 7 treats an unrecognized 128 as unavailable. |
-| Board fixture reach | On 2026-11-25 at `739b1dbc4` with the first story's committed-origin change, a log-only audit ran `git ls-remote` under a served HOME for successful fake GitHub `ref` answers through both full suites. About 150 e2e and 26 backend files answered a revision their routed origin did not hold. Slices 1–6 name those fixture families. Launch journeys (`agent-launch-*`, `responsive-session-reconciliation*`, `agent-completion-attention`, `story-review-one-shot`, `published-work`, `system-settings-terminal-theme`) that already push to the real `main` before `advanceTo` supply that origin directly. | Apply [the audit](ref-audit.patch.b64) from the repository root with `base64 -d -i <plan-dir>/ref-audit.patch.b64 \| git apply -`. Run the focused consumers as each family moves, run both full suites before cutover, and reverse the audit before delivery. File counts leave family sizes unmeasured. |
+| Board fixture reach | On 2026-11-25 at `739b1dbc4` with the first story's committed-origin change, a log-only audit ran `git ls-remote` under a served HOME for successful fake GitHub `ref` answers through both full suites. About 150 e2e and 26 backend files answered a revision their routed origin did not hold. Slices 1–6 name those fixture families. Launch journeys (`agent-launch-*`, `responsive-session-reconciliation*`, `agent-completion-attention`, `story-review-one-shot`, `published-work`, `system-settings-terminal-theme`) that already push to the real `main` before `advanceTo` supply that origin directly. | Apply [the audit](ref-audit.patch.b64) from the repository root with `base64 -D -i <plan-dir>/ref-audit.patch.b64 \| git apply -`. Run the focused consumers as each family moves and both full suites before cutover. Slice 6 reverses the audit and removes the patch and its instructions. File counts leave family sizes unmeasured. |
 | Ref and backlog agree in one served HOME | At `2eb0dae6f`, a local Node probe used `startFakeGitHub`, `routeDashboardHome`, `publishes`, and production `remoteBranchHead`. After publication A, a synthetic trunk answer advertised B over the framed `gh api …/commits/main --jq .sha` call while Git still returned A. Republishing B as a real commit made both calls return B's object ID. Git was restricted to the file protocol in a disposable HOME. | Confirms the need to migrate synthetic inputs. The probe covers named republication in one HOME. Slice 6 owns maintained coverage and the remaining routing cases. |
 | Review's ref and stored sync time can diverge | In the same disposable HOME at `2eb0dae6f`, `syncedReviewRepository` fetched A and `git show A:.planning/PRODUCT-BACKLOG.md` read it. After origin advanced to B, a read-only sync record made the next sync reject with `EACCES`. The tracking ref had moved to B, the sync record still held A's time, and A was still readable by object ID. The probe ran through `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES node --experimental-transform-types --input-type=module` with `LC_ALL=C` and `GIT_ALLOW_PROTOCOL=file`. | Rules out treating the current Review tracking ref plus its sync time as a confirmed Board view. Slices 7–8 verify the new commit point and interruption recovery through the Board. |
 | Recovery and fixture baselines | At `2eb0dae6f`, the three branch/check/recovery browser cases passed under `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/observation/auto-refresh-branches.spec.ts e2e/observation/auto-refresh-recovery.spec.ts --workers=1 --reporter=line`. Separately the six `story-review-offline-sync.spec.ts` cases and two `committed-origin-actions.spec.ts` cases passed via `npm run test:dashboard:backend -- <spec>` under the same environment and sleep guard. | Automatic checks and Review offline behavior provide a preserved-behavior baseline. These runs did not exercise a manual Board Refresh. The Board has a fresh-read callback for launch reconciliation and uses page reload as a published-read recovery cue. Slice 8 exposes and exercises the in-place Board action. |
@@ -123,14 +137,30 @@ for discovery and verify routed refs in each relevant HOME where the
 consumer uses more than one. The suite after cutover proves that the
 actual Board entry opens through Git.
 
+At `c3bd0ac36`, the baseline preparation run selected seven cases and all
+seven passed. The command was
+`env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/navigation/phone-board.spec.ts e2e/observation/auto-refresh-branches.spec.ts e2e/observation/limited-reading-membership.spec.ts e2e/stories/direction-disclosure.spec.ts --workers=1 --reporter=line`.
+A scratch cutover of authenticated `ref` to Review sync and `git show`
+added `--grep 'touch pages|automatic check follows|limiting the membership|direction starts'`.
+The phone Board passed. The moving-branch journey failed at its initial
+Board membership. Direction disclosure lost its synthetic pin. The
+REST rate-limit journey failed during the second project's initial Board
+open, before it reached the throttle. The scratch edit was reverted.
+The same four cases passed again after reverting it.
+The moving-branch journey needs a real initial trunk and a real trunk move
+to prove the existing automatic branch behavior. The scratch used Review's
+existing fetch on every open, so it supplies no evidence about the proposed
+confirmation or fetch-elision behavior.
+
 ## Outside-in proof
 
 | Promise | Owner and observation |
 | --- | --- |
 | Test publications expose the advertised trunk and preserve the consumer's existing behavior | Slices 1–6. Compare the real routed origin with each migrated fixture's advertised revision. Run the affected consumer journeys and use the final pre-cutover whole-suite audit to find missed fixtures. |
-| Cold Board open shows the exact configured origin revision and backlog without an execution checkout | Slice 7. Observe the authenticated ref response and the rendered Board against a real origin. Check unavailability, missing trunk or backlog, and explicit refusal through the same boundary. |
+| Cold Board open shows the exact configured origin revision and backlog without an execution checkout | Slice 7. Observe the authenticated ref response and the rendered Board against a real origin. Check unavailability with the former REST read still able to answer, missing trunk or backlog, and explicit refusal through the same boundary. |
 | An in-flight or failed warm Refresh retains the previous revision and confirmation time | Slice 8. Act on Refresh in the rendered Board, hold a candidate fetch, fail before confirmation publication, then restart the server while the Board remains open. Record what the view and persisted observation show at each point. |
 | Warm success advances confirmation and requires no fetch when origin is unchanged | Slice 8. Observe the fresh probe, no fetch, and later confirmation time. Move origin and verify the revision and time advance together on the next successful Refresh. Record elapsed time and counts for cold and warm membership reads, with follow-up detail calls counted separately. |
+| Cutover removes all temporary and unused legacy paths | Slices 1–6 remove orphaned fixture helpers as their last consumers move. Slice 7 deletes REST membership and verifies it cannot supply the Board. Slice 8 and wrap-up check the complete diff and trace remaining callers, fixtures, tests and docs against the seed's cleanup clause. |
 
 ## Ordered slices
 
@@ -202,6 +232,12 @@ Proof: The affected backend checks observe the same admission, pinning,
 and retained-answer outcomes. The focused `ref` audit reports no
 remaining mismatch for this path.
 
+Include the direct HTTP observation family, such as
+`authenticated-read-shared.spec.ts` and `authenticated-read-cooldown.spec.ts`.
+Trace each held answer and counter to membership, a scheduled check, or a
+detail read. Slice 7 owns membership-specific assertion edits. The fixtures
+serving live REST operations keep the inputs needed by those operations.
+
 ### 6. Route projects a test adds or configures
 
 Type: Structure
@@ -220,7 +256,8 @@ found the republication path missing from maintained checks: skipping the
 earlier origin's unroute left every examined check green while a scratch Git
 read reached the stale origin. Repeat the backend and e2e suites with
 the audit, account for all residual mismatches, and reverse the audit
-before delivery.
+before delivery. Delete the audit patch and remove its instructions from the
+active plan after recording the final result needed by slice 7.
 
 ### 7. Open the Board at verified published trunk
 
@@ -233,18 +270,26 @@ pin. A missing trunk or unreadable backlog cannot yield a confirmed Board.
 An explicit refusal keeps its refusal outcome; an ambiguous failure is
 unavailable.
 
-Proof: Drive cold Board open through the authenticated endpoint, using a
-real origin and a renamed checkout. Assert the exact revision and backlog
-and count the membership probe, fetch, local read, and any API calls.
-Check refusal, unavailable origin, missing trunk, unreadable backlog, and
-the Board's timeout at the same boundary. Drive a changed advertised
-ref during fetch and prove the answer matches the verified revision.
-Run the dashboard backend and e2e suites after cutover. Move
-membership-specific transport assertions from the old REST path to the
-Git path while keeping separate assertions for the REST details and
-scheduled checks that those journeys still exercise. Launch journeys
-whose product push reaches origin before `advanceTo` keep their
-observed reconciliation behavior.
+Proof: Drive cold open through the authenticated endpoint and rendered
+Board with a real origin and an absent execution checkout. Assert the exact
+revision and backlog. Count the membership probe, fetch, and local read,
+and verify zero REST membership calls. Check refusal, unavailable origin,
+missing trunk, unreadable backlog, and the Board's timeout at that boundary.
+For unavailable origin, let REST advertise a readable backlog and verify
+the Board still reports unavailability and makes zero REST membership
+attempts. Move the advertised ref during fetch and prove the answer matches
+the verified revision.
+Move held membership and shared-open proof, including the relevant cases
+in `first-open-waits-for-read.spec.ts` and `authenticated-read-shared.spec.ts`,
+to the observable Git check. Remove scenarios and support that only assert
+the old REST membership behavior, including the membership-only 429 case
+in `limited-reading-membership.spec.ts`. Preserve independent cooldown,
+rate-limit, and request-sharing proof where scheduled or detail REST reads
+still exercise it. Launch journeys whose product push reaches origin before
+`advanceTo` keep their observed reconciliation behavior. Search for every
+remaining reference to the superseded paths and remove orphaned production
+code, fixture code, tests, and documentation. Run the dashboard backend and
+e2e suites after the cutover and deletions.
 
 ### 8. Refresh a warm Board and explain failure
 
@@ -264,13 +309,25 @@ shared eligible check if two requests arrive together, and show that a
 new Refresh can recover after the failed one. Capture cold and warm
 request counts and elapsed time from the Board.
 
+Before accepting this slice, review the entire story diff and trace
+references to temporary code, fixtures, and superseded membership entry
+points. Delete remaining interim artifacts and orphaned code, tests, fixtures
+and docs. Record any interim behavior discovered in execution using
+[story obligations](../../../.agents/skills/dough-execute-plan/references/story-obligations.md)
+with an owner in this plan. Close it before the final slice finishes.
+
 ## Slice refinement and remaining concerns
 
-Refinement retained eight slices. Slices 1–6 each preserve current
+Refinement retained one story and eight slices. Open and Refresh use the
+same verified membership path and confirmation state. Separating Refresh
+leaves the migration and cutover workload on the cold-open story.
+Splitting out the fixture work alone adds no independent Board outcome.
+Slices 1–6 each preserve current
 behavior through a distinct fixture publication boundary. Slice 1 owns
 the shared materialization and later migrations address only callers it
-does not already cover. Slice 7 switches one authenticated membership
-path and slice 8 exercises that same path from the open Board.
+does not already cover. Slice 7 switches and cleans up one authenticated
+membership path. Slice 8 exercises that path from the open Board and
+closes the cleanup obligation across the story.
 
 - Slices 1–5 still lack a migration-sized measurement. The prior audit
   counts responding files and the direction example covers one static
@@ -278,12 +335,16 @@ path and slice 8 exercises that same path from the open Board.
   after the common conversion is unmeasured. In particular,
   `MovingFiles.moveTrunk` currently returns no published ID and some
   observation tests assert hard-coded A/B/C values and REST request
-  counts. Sample the shared moving-revision conversion with an asserting
-  consumer and use its trace to group the remaining edits before Take.
+  counts. Before Take, sample the shared conversion on the trunk-move step
+  in `auto-refresh-branches.spec.ts`. Time the edits that make its real
+  origin, REST pin, and displayed revision agree. Use its trace and the
+  fixture audit to estimate the remaining edits after the common conversion.
 - Slice 7's cutover had a different effect on membership and detail calls
-  in the direction example. Trace the remaining cold-open request-count
-  and failure assertions across both suites. Measure which assertions
-  move to Git and which still guard REST details and scheduled checks
+  in the direction example. The scratch branch and throttle journeys
+  stopped before moving the remote or exercising the REST throttle.
+  Trace the remaining cold-open request-count, held-answer and failure
+  assertions across both suites. Measure which assertions move to Git,
+  which are obsolete, and which guard REST details and scheduled checks
   before estimating this slice against the 15-minute active limit.
 
 ## Local gate

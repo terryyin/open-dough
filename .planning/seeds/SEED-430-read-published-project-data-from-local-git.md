@@ -43,7 +43,7 @@ and [Add Project](SEED-437-discover-project-default-branch-through-git.md#discov
 
 **Identity:** SEED-430#open-published-board-from-local-git
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/824-open-published-board-from-local-git/PLAN.md","assessment":"not-ready","reasons":["Slices 1–5: a static real-origin migration is demonstrated, but the effort to migrate moving histories and the remaining fixture callers after the shared change is unmeasured.","Slice 7: the sampled cutover isolated two membership calls, but the remaining cold-open request-count and failure assertions across both suites are unmeasured against the 15-minute active limit."],"basis":{"document":"9d7595ab910c32ed9da859ee253fb7b4535d760fc84e9d5f513d9d221bcfc3d6","plan":"a93f8bcc4e02f6a3b4971be0d2b659fc273cd93b01feae639f844982cebfde44"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/824-open-published-board-from-local-git/PLAN.md","assessment":"not-ready","reasons":["Slices 1–5: the moving-history conversion has not yet been timed through a real origin and an asserting Board consumer, so the remaining fixture migrations cannot be sized.","Slice 7: the scratch cutover exposed fixture failures before the scheduled and throttle assertions ran. The remaining membership request-count, held-answer, failure, and legacy-cleanup edits across both suites are unmeasured against the 15-minute active limit."],"basis":{"document":"2f34cd71ead3ab0309d76bf03a76f7171de87ba14739eb37a0f2f68ce7131c84","plan":"1905726a5b108299ee639c4ec690f79f78ffa12ad2e652eb9a93b2fb58d25189"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-430#open-published-board-from-local-git","dependencies":[{"supplier":{"identity":"SEED-430#read-published-project-data-from-local-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git"},"implementation":"Board-opening test fixtures that publish through real routed Git origins","rationale":"The Board's Git read can only be proved where the suites hold a real origin at the answered revision; switching it first would break every Board open in the suites.","condition":"SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.","state":"satisfied","resolution":{"revision":"1e2edf48ff3abdb521ad2bef8828b47dafa80eef","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git","summary":"Origin main accepted f05e15351e85617fab1bf8fa97b8f7f6c0eb7568. At the before-cleanup revision, plan 819 slices 1-4 are done: publishCommittedOrigin routes its origin through every dashboard HOME its fake GitHub serves and keeps the origin's main at the answered revision; publishes() without a revision commits a real origin that serving by name routes, with a republication replacing only its own earlier route; the default answer commits a real origin linked for the seeded projects; answer wrappers keep their origin. committed-origin-actions.spec.ts checks ls-remote under the dashboard HOME, and both full suites passed on each slice. Intent Coverage at 4baf31b4f found the republication path missing from maintained checks; plan 824 slice 6 owns that proof.\nCondition satisfied: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nCondition satisfied: SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nAccepted integration: f05e15351e85617fab1bf8fa97b8f7f6c0eb7568 on origin/refs/heads/main."}}]}
@@ -69,10 +69,17 @@ confirmation. Admission still follows the configured source and existing
 read rules.
 
 Every Board-opening fixture must publish its advertised trunk through a
-real routed origin. The
+real routed origin. Open and manual Refresh use the same verified Git path,
+including on failure. Before closing this story, remove every temporary
+implementation or fixture bridge and every superseded path that loses its
+last caller, including the old REST membership path. Remove the associated
+tests, fixtures, and documentation that only served those paths. Keep the
+behavioral proof for promises that continue on the Git path or through
+another live caller. The
 [published-progress story](#follow-published-progress-from-local-git)
 owns migrating automatic observation, watched branches, the other
-published records, and Review callers to the verified observation.
+published records, and Review callers to the verified observation. Those
+live callers define the scope of any shared REST helpers this story retains.
 
 **Architecture.** Reuse the dashboard-owned Review repository and its Git
 transport under [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
@@ -86,8 +93,10 @@ against the configured source.
 
 - Given an accessible origin and an absent execution checkout, open a
   Board with no prior confirmation. It shows the backlog and time for the
-  exact verified trunk. If origin is unavailable on that first open,
-  there is no confirmed Board. An explicit refusal is reported as such.
+  exact verified trunk without GitHub REST membership reads. If origin
+  is unavailable on that first open, there is no confirmed Board even
+  if the old REST endpoint could answer. An explicit refusal is reported
+  as such.
 - Given a Board confirmed at A and origin advertising B, press Refresh.
   While B is being checked, the Board shows A and A's confirmation time.
   If B's fetch or confirmation write fails, A and its time stay and the
