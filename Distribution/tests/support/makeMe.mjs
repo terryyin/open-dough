@@ -26,6 +26,7 @@ import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
 import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
+import { reporterRunMakeMeProperties } from "./reporterRunMakeMe.mjs";
 
 /** @typedef {import("./publishedReadingMakeMe.mjs").BacklogEntry} BacklogEntry */
 /** @typedef {import("../../../dashboard/test-support/publishedFiles.ts").PublishedRevision} PublishedRevision */
@@ -73,9 +74,9 @@ import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
  * @property {HostHookSettingsBuilder} hostHookSettings
  */
 
-/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & import("./storyReviewMakeMe.mjs").StoryReviewMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & import("./sessionRecordTestData.mjs").SessionRecordMakeMe} */
+/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & import("./storyReviewMakeMe.mjs").StoryReviewMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & import("./sessionRecordTestData.mjs").SessionRecordMakeMe & import("./reporterRunMakeMe.mjs").ReporterRunMakeMe} */
 export const makeMe = Object.defineProperties(
-  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & import("./storyReviewMakeMe.mjs").StoryReviewMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & import("./sessionRecordTestData.mjs").SessionRecordMakeMe} */ ({}),
+  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & import("./storyReviewMakeMe.mjs").StoryReviewMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & import("./sessionRecordTestData.mjs").SessionRecordMakeMe & import("./reporterRunMakeMe.mjs").ReporterRunMakeMe} */ ({}),
   {
     hostHookSettings: {
       enumerable: true,
@@ -215,5 +216,6 @@ export const makeMe = Object.defineProperties(
     ...projectRevisionMakeMeProperties(),
     ...publishedReadingMakeMeProperties(),
     ...sessionRecordMakeMeProperties(),
+    ...reporterRunMakeMeProperties(),
   },
 );

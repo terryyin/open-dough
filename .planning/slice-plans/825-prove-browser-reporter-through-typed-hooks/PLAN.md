@@ -89,6 +89,18 @@ working unchanged.
   [ADR 0010, definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
   judges speed, clarity and deleted support together. Each moved case keeps
   its observation, and each dropped observation names its owner or reason.
+- Slice 1 learnings (reuse in later slices):
+  - Reporter-run MakeMe is split across `reporterRunTestData.mjs` (run/suite),
+    `reporterResultTestData.mjs` (result/step), and `reporterRunMakeMe.mjs`
+    (factory surface). Specs share Vitest helpers in
+    `dashboard/backend-tests/support/directProofRecord.ts`.
+  - `QuietReporter` optional `{ stdout, stderr }` defaults to process streams;
+    format helpers live in `quietReporterFormat.ts`. Options-only construction
+    leaves Playwright configs unchanged (confirmed by one e2e and one frontend
+    Playwright run under high load with `--workers=1`).
+  - MakeMe JSDoc `FullConfig` needs an `unknown`→`FullConfig` bridge at the
+    ProofRecord call site; optional result fields must be omitted rather than
+    set to `undefined` under `exactOptionalPropertyTypes`.
 
 ## Baseline and decisive premises
 
@@ -121,12 +133,12 @@ at a global timeout. A run that ends `interrupted` stays nested through the
 graceful interruption case, so the reporter's non-passing end still meets a
 real runner.
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. A run's selection, attempts and strict verdict are recorded from direct hooks
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `proof-record.spec.ts` and `proof-record-verdict.spec.ts` run on Node
 Vitest, with 8 cases under about 100 ms each. Add the reporter-run MakeMe
 module and the `QuietReporter` stream seam. Cases: a filtered selection
@@ -143,6 +155,16 @@ the actual selection, every attempt and a strict verdict that output or
 failure turns failed.
 
 Estimated active work 12–15 minutes.
+
+Accepted proof (implementation + refactor): focused
+`caffeinate -s -i … npm run --silent test:dashboard:backend -- intent/proof-record.spec.ts intent/proof-record-verdict.spec.ts`
+→ 8 passed, 2–8 ms each (`slice1-refactor-backend-proof.log.run.json`).
+`typecheck:dashboard` and lint on owned paths passed. Default-stream seam
+confirmed by `e2e/runtime/browser-identity.spec.ts` and frontend Playwright
+`test-harness/observation-measurements.spec.ts` (`--workers=1`). Setup:
+MakeMe shared `TestCase` instances and writable stream stand-ins. Observations:
+`selectedCount`/attempts/listing/`strictStatus`; QuietReporter
+`FAIL:`/`PRINTED:`/`outside any test` and `Kept:`.
 
 ### 2. Proof record storage refusals and snapshots hold from direct hooks
 
