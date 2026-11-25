@@ -1,6 +1,7 @@
 import {
   git,
   lsRemoteSha,
+  observePublicationTarget,
   originTrackingRef,
   pushExactRef,
   readTrackingTip,
@@ -61,8 +62,10 @@ export async function publishExactCandidate({
     if (attempt === 0 && initialCandidate !== undefined)
       return { candidate: initialCandidate };
     try {
-      await fetch(attempt ? "fetch-after-rejection" : "fetch");
-      remoteTip = await readTrackingTip(workspace, tracking);
+      remoteTip = await transport(
+        attempt ? "fetch-after-rejection" : "fetch",
+        () => observePublicationTarget(workspace, remote, tracking),
+      );
     } catch (error) {
       if (!failedPush) throw error;
       return recoverPushFailure({ ...failedPush, verificationError: error });

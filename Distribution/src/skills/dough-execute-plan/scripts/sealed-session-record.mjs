@@ -8,7 +8,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
-import { git, originTrackingRef } from "./publication-git.mjs";
+import {
+  git,
+  observePublicationTarget,
+  originTrackingRef,
+} from "./publication-git.mjs";
 import { expiredSessionRecordPaths } from "./session-record-pruning.mjs";
 import { rangeUncertainty } from "./shared-checkout-note.mjs";
 import {
@@ -74,15 +78,14 @@ export function sealRecord(
 const recordBytes = (record) => `${JSON.stringify(record, null, 2)}\n`;
 
 async function publishedBytes({ workspace, remote, targetRef }, path) {
-  await git(workspace, "fetch", remote);
+  const tip = await observePublicationTarget(
+    workspace,
+    remote,
+    originTrackingRef(targetRef, remote),
+  );
+  if (!tip) return undefined;
   try {
-    return (
-      await git(
-        workspace,
-        "show",
-        `${originTrackingRef(targetRef, remote)}:${path}`,
-      )
-    ).stdout;
+    return (await git(workspace, "show", `${tip}:${path}`)).stdout;
   } catch {
     return undefined;
   }

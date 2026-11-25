@@ -119,6 +119,12 @@ export async function fetchedTarget(workspace, targetRef, remote = "origin") {
   return readTrackingTip(workspace, originTrackingRef(targetRef, remote));
 }
 
+// Fetch and pin the observed tip of an authorized tracking ref for a decision.
+export async function observePublicationTarget(workspace, remote, tracking) {
+  await git(workspace, "fetch", remote);
+  return readTrackingTip(workspace, tracking);
+}
+
 export async function readTrackingTip(workspace, tracking) {
   try {
     return await revParse(workspace, tracking);

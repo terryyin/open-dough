@@ -132,8 +132,9 @@ The Take `a260b60c349ad6db02fc5b1df5b4834fe029f83d` was accepted by
 The Codex `eimi-chan-seed-423` observer watches the story branch on
 `terryyin/open-dough` with GitHub Actions `ci.yml`, cell `g243:11`,
 session `71138`, directory `/tmp/dough-ci-501/watch-I57KEb`, and PID `19804`.
-Slices 1–3 were accepted there at `ef4a3644109c4bd008db80375ca339fe1b7963a8`,
-`50ad2d9858a496d78f09c4bcc83351edaf9aa977` and `e8b93bf32dcb0bbb492952bb3d47d72a929b2aa4`.
+Slices 1–4 were accepted there at `ef4a3644109c4bd008db80375ca339fe1b7963a8`,
+`50ad2d9858a496d78f09c4bcc83351edaf9aa977`, `e8b93bf32dcb0bbb492952bb3d47d72a929b2aa4`
+and `1916d74c6c29c7809967f473b27313d183c3040b`.
 
 ### 1. Resume through the exact-candidate loop
 
@@ -198,8 +199,12 @@ refusal. Delete the superseded claim loop.
 ### 5. Close sessions through the shared publication path
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Session-close and preparation-landing cases above.
+
+The 102 Distribution cases and 10 Dashboard and E2E files passed. A local
+commit-race probe verified a renewed-proof hold before any record push.
+Invalid record targets now stop before transport or local commit creation.
 
 After work is accepted, publish its immutable record with its retained identity
 and byte-conflict check. Use the loop's remote observation for record handling
