@@ -79,6 +79,8 @@ Proof (25 November 2026, load ~5–6): six Node cases pass in
 `parsedListing` and `claudeObservations`. The six-file gate passed 16/16
 at two workers (44.654 s summed, 25.731 s elapsed); five paths remain
 Playwright selections.
+CI repair of run 45580413772: `revision-stream-lost.spec.ts` now awaits
+the stream reopen it asserted right after the clock pass.
 
 ### 2. Separate compact overview from retained detail
 
