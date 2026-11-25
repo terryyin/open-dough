@@ -127,6 +127,7 @@ export function useIntentStoryLens({
     review,
     defaultReview,
     reading,
+    initialSync,
     problem,
     shown,
     compare,
@@ -154,8 +155,8 @@ export function useIntentStoryLens({
               compare,
               ...(reading ? { reading: true } : { refreshed }),
             }
-          : reading
-            ? { state: "reading", defaultReview, compare }
+          : reading || initialSync !== undefined
+            ? { state: "reading", defaultReview, compare, initialSync }
             : unreadable !== undefined && compare !== undefined
               ? { state: "unreadable", unreadable, defaultReview, compare }
               : problem !== undefined

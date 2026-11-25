@@ -12,6 +12,7 @@ import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
 import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
 import { useStateKeyedBy } from "./stateKeyedBy.ts";
+import type { ReviewInitialSyncFeedback } from "./useReviewRead.ts";
 
 export function useStoryComparison({
   source,
@@ -32,6 +33,7 @@ export function useStoryComparison({
   // The default review read, which owns the story's completed result.
   readonly defaultReview: StoryReview | undefined;
   readonly reading: boolean;
+  readonly initialSync?: ReviewInitialSyncFeedback | undefined;
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
   // The published comparison and available retained landing choices.
@@ -48,15 +50,20 @@ export function useStoryComparison({
   const opening = useStoryReviewOpening(source);
   const sequence =
     opening?.identity === identity ? opening.sequence : undefined;
-  const [lastOpening, setLastOpening] = useState(sequence);
-  if (sequence !== undefined && sequence !== lastOpening)
-    setLastOpening(sequence);
+  const [lastOpening, setLastOpening] = useState(opening);
+  if (sequence !== undefined && sequence !== lastOpening?.sequence)
+    setLastOpening(opening);
+  const explicitOpening =
+    sequence ??
+    (lastOpening?.identity === identity && lastOpening.project === source
+      ? lastOpening.sequence
+      : undefined);
   const keyedBy = JSON.stringify([
     source,
     identity,
     completed,
     taken,
-    sequence ?? lastOpening,
+    explicitOpening,
   ]);
   const { value: round, set: setRound } = useStateKeyedBy(0, keyedBy);
   const { value: includeMerged, set: setIncludeMerged } = useStateKeyedBy(
@@ -86,6 +93,7 @@ export function useStoryComparison({
     selectedRun,
     runUnread,
     published,
+    initialSync,
   } = useStoryReviewSelection({
     subject,
     round,
@@ -95,6 +103,7 @@ export function useStoryComparison({
     historical: completed,
     keyedBy,
     followsDefault: true,
+    followInitialSync: explicitOpening !== undefined,
   });
   if (!enabled)
     return {
@@ -149,6 +158,7 @@ export function useStoryComparison({
     review: reviewKept,
     defaultReview: carry ? defaultReview : undefined,
     reading: readingNow,
+    initialSync,
     problem,
     unreadable,
     shown: shownKept,

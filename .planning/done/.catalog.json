@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-438_show-initial-sync-before-review.json",
+      "identity": "SEED-438#show-initial-sync-before-review",
+      "completedAt": "2026-11-25T07:01:35.592Z",
+      "blob": "ead50877b572f8fc1d466f24fb7158f76990c031"
+    },
+    {
       "fileName": "SEED-413_renovate-remaining-backend-families-after-launch-admission.json",
       "identity": "SEED-413#renovate-remaining-backend-families-after-launch-admission",
       "completedAt": "2026-11-25T05:59:39.158Z",

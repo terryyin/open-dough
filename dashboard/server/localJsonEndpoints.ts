@@ -25,7 +25,7 @@ export function localJsonEndpoints(
     signal: AbortSignal,
   ) => Promise<unknown>,
   failure: (error: unknown) => EndpointFailure,
-): BoundaryInstall {
+): (...args: Parameters<BoundaryInstall>) => () => void {
   return (middlewares) => {
     const pending = new Set<AbortController>();
     middlewares.use((req, res, next) => {

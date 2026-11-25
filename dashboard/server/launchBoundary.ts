@@ -79,6 +79,8 @@ import { MachineSessionObservation } from "./machineSessionObservation.ts";
 import { dashboardOrigin } from "./dashboardOrigin.ts";
 import { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
 import { LandedCiCollection } from "./landedCiCollection.ts";
+import { ReviewInitialSync } from "./reviewInitialSync.ts";
+import { installReviewInitialSyncMiddleware } from "./reviewInitialSyncBoundary.ts";
 
 export function installAgentLaunchMiddleware(
   middlewares: BoundaryMiddlewares,
@@ -108,6 +110,11 @@ export function installAgentLaunchMiddleware(
     dashboardOrigin(httpServer),
   );
   const landedCi = new LandedCiCollection();
+  const reviewInitialSync = new ReviewInitialSync();
+  const closeReviewInitialSyncRequests = installReviewInitialSyncMiddleware(
+    middlewares,
+    reviewInitialSync,
+  );
   // Every viewer and the notification observer share one observation. It
   // reads the alerts' availability only while observing, after construction.
   const sessions: MachineSessionObservation = new MachineSessionObservation(
@@ -122,16 +129,22 @@ export function installAgentLaunchMiddleware(
       next();
       return;
     }
-    void answer(req, url, res, launches, doneMarks, sessions, landedCi).then(
-      (outcome) => respondToLaunch(req, res, outcome),
-      next,
-    );
+    void answer(
+      req,
+      url,
+      res,
+      launches,
+      doneMarks,
+      sessions,
+      landedCi,
+      reviewInitialSync,
+    ).then((outcome) => respondToLaunch(req, res, outcome), next);
   });
   return {
     // The runner outlives this server. `ready` settles before Vite listens,
     // after this middleware and close are already in place.
     ready: ensureCursorRunner(),
-    close: () => {
+    close: async () => {
       void releaseCursorHandoffs();
       alerts.close();
       maintenance.close();
@@ -139,7 +152,8 @@ export function installAgentLaunchMiddleware(
       const doneSettled = doneMarks.close();
       terminals.close();
       launches.close();
-      return doneSettled;
+      closeReviewInitialSyncRequests();
+      await Promise.all([doneSettled, reviewInitialSync.close()]);
     },
   };
 }

@@ -13,6 +13,8 @@ import {
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
+import type { ReviewInitialSyncFeedback } from "./useReviewRead.ts";
+import { IntentReviewInitialSync } from "./IntentReviewInitialSync.tsx";
 import {
   ComparedContext,
   EmptyHistoricalContext,
@@ -28,6 +30,7 @@ import {
 export type LensComparison =
   | {
       readonly state: "reading";
+      readonly initialSync?: ReviewInitialSyncFeedback | undefined;
       // Kept while the first comparison, or a later one, is still in flight.
       readonly defaultReview?: StoryReview | undefined;
       readonly compare?: StoryCompare | undefined;
@@ -123,6 +126,8 @@ export function CompactComparisonState({
   readonly comparison: LensComparison;
   readonly onRetry: () => void;
 }) {
+  if (comparison.state === "reading" && comparison.initialSync !== undefined)
+    return <IntentReviewInitialSync sync={comparison.initialSync} />;
   if (
     comparison.state === "reading" ||
     (comparison.state === "compared" && comparison.reading === true)

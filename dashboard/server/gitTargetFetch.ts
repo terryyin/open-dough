@@ -42,7 +42,8 @@ export async function remoteBranchHead(
 
 export class GitTargetFetches {
   private readonly outstanding = new OutstandingReads<void>(storyReviewWaitMs);
-  private readonly settling = new Map<string, Promise<void>>();
+  private readonly owned = new Map<string, Promise<unknown>>();
+  private readonly settling = new Map<string, Promise<unknown>>();
 
   fetch(
     repository: string,
@@ -51,26 +52,47 @@ export class GitTargetFetches {
     waiter: AbortSignal,
     start: (signal: AbortSignal) => Promise<void>,
   ): Promise<void> {
-    return this.outstanding.waitFor(
-      JSON.stringify([repository, remote, target]),
-      waiter,
-      (signal) => {
-        const previous = this.settling.get(repository);
-        const read = (async () => {
-          if (previous !== undefined) await previous.catch(() => undefined);
-          signal.throwIfAborted();
-          await start(signal);
-        })();
-        this.settling.set(repository, read);
-        void read
-          .finally(() => {
-            if (this.settling.get(repository) === read)
-              this.settling.delete(repository);
-          })
-          .catch(() => undefined);
-        return read;
-      },
-    );
+    const key = JSON.stringify([repository, remote, target]);
+    return this.outstanding.waitFor(key, waiter, async (signal) => {
+      const owned = this.owned.get(key);
+      if (owned !== undefined) await owned;
+      else await this.serialize(repository, signal, start);
+    });
+  }
+
+  // The operation's owner supplies its lifetime. Ordinary request waiters
+  // can join an owned fetch, while their departure leaves it running.
+  fetchOwned<T>(
+    repository: string,
+    remote: string,
+    target: string,
+    lifetime: AbortSignal,
+    start: (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> {
+    const key = JSON.stringify([repository, remote, target]);
+    const fetch = this.serialize(repository, lifetime, start);
+    this.owned.set(key, fetch);
+    return fetch.finally(() => {
+      if (this.owned.get(key) === fetch) this.owned.delete(key);
+    });
+  }
+
+  private serialize<T>(
+    repository: string,
+    signal: AbortSignal,
+    start: (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> {
+    const previous = this.settling.get(repository);
+    const fetch = (async () => {
+      if (previous !== undefined) await previous.catch(() => undefined);
+      signal.throwIfAborted();
+      return start(signal);
+    })();
+    this.settling.set(repository, fetch);
+    return fetch.finally(() => {
+      if (this.settling.get(repository) === fetch)
+        this.settling.delete(repository);
+    });
   }
 }
 

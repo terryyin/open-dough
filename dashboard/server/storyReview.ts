@@ -3,6 +3,8 @@
 // The handler admits a typed read against the kept records and answers under
 // the caller's signal; the response adapter bounds that signal.
 import type { ServerResponse } from "node:http";
+import { isSessionId } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
+import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   storyReviewWaitMs,
   type StoryReview,
@@ -11,6 +13,7 @@ import { reviewRunChoice, reviewRunKey } from "../src/storyReviewLandedRun.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import type { ReviewInitialSync } from "./reviewInitialSync.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import {
   openSyncDeadline,
@@ -42,6 +45,7 @@ import {
 export async function storyReviewResponse(
   { read }: AdmittedStoryReview,
   res: ServerResponse,
+  initialSync?: ReviewInitialSync,
 ): Promise<AgentLaunchAnswer> {
   const body = await withResponseSignal(
     res,
@@ -51,6 +55,7 @@ export async function storyReviewResponse(
         await reviewInput(read, signal, syncDeadline),
         signal,
         syncDeadline,
+        initialSync,
       );
     },
     storyReviewWaitMs,
@@ -67,6 +72,7 @@ export async function storyReview(
   input: StoryReviewInput,
   signal: AbortSignal,
   syncDeadline: ReviewSyncDeadline = new ReviewSyncDeadline(),
+  initialSync?: ReviewInitialSync,
 ): Promise<StoryReview> {
   const reader = reviewRepositoryRead(syncDeadline);
   if ("syncFailed" in input) return unsyncedSessionReview(input.syncFailed);
@@ -86,6 +92,18 @@ export async function storyReview(
       signal,
       reader,
     );
+  const handoff = async (source: PublishedSource) => {
+    if (initialSync === undefined || input.read.initialSync === undefined)
+      return false;
+    const observed = await initialSync.forReview(
+      source,
+      signal,
+      input.read.initialSync,
+    );
+    if (observed === "verified") syncDeadline.reuseVerifiedTrunk(source);
+    return observed === "pending";
+  };
+  const pending = { kind: "initial-sync-required" } as const;
   if ("subject" in input.read && input.read.taken === true) {
     if (
       input.read.completed === true ||
@@ -94,7 +112,9 @@ export async function storyReview(
     )
       throw new RefusedRequest(400, "The Taken review request is malformed.");
     const { source, identity } = input.read.subject;
-    return publishedTakenReview(knownSource(source), identity, signal, {
+    const project = knownSource(source);
+    if (await handoff(project)) return pending;
+    return publishedTakenReview(project, identity, signal, {
       syncDeadline,
     });
   }
@@ -102,8 +122,10 @@ export async function storyReview(
     const { subject, run, reference } = input.read;
     const named = run ?? reference;
     if (named !== undefined) {
+      const project = knownSource(subject.source);
+      if (isSessionId(named) && (await handoff(project))) return pending;
       const recorded = await recordedLandingReview(
-        knownSource(subject.source),
+        project,
         subject.identity,
         named,
         signal,
@@ -113,6 +135,15 @@ export async function storyReview(
     }
   }
   const request = await keptStoryReview(input.read);
+  if ("completed" in request && (await handoff(request.completed)))
+    return pending;
+  if (
+    "run" in request &&
+    request.run.record.landing?.remote === "origin" &&
+    request.run.record.landing.target === `refs/heads/${request.source.ref}` &&
+    (await handoff(request.source))
+  )
+    return pending;
   const review = await answered(request, signal, syncDeadline);
   const kept = request.runs.map(reviewRunChoice);
   const recorded =

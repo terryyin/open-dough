@@ -16,6 +16,13 @@ export const reviewSyncFailureSchema = z.object({
 });
 export type ReviewSyncFailure = z.infer<typeof reviewSyncFailureSchema>;
 
+// Why a review is unavailable when its sync failed and nothing synced earlier
+// can answer it.
+export const failedSyncExplanation = ({
+  problem,
+}: Pick<ReviewSyncFailure, "problem">) =>
+  `The review could not sync from origin, and nothing synced earlier holds this comparison: ${problem}`;
+
 export const storyReviewEndpoint = "/__agent-launch/review";
 // The file diff reads the same comparison as the file list. The query names
 // the start and end objects as `baseline` and `tree`, and supplies the file's
@@ -62,6 +69,7 @@ const sharedCheckout = { shared: z.literal(true).optional() };
 
 export const storyReviewSchema = z
   .discriminatedUnion("kind", [
+    z.object({ kind: z.literal("initial-sync-required") }),
     z.object({
       kind: z.literal("published"),
       completion: objectIdSchema,

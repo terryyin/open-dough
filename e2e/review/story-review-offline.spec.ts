@@ -1,10 +1,15 @@
 import { renameSync } from "node:fs";
+import { reviewInitialSyncEndpoint } from "../../dashboard/src/reviewInitialSync.ts";
 import {
+  beginIntentReviewChanges,
   expectReviewChangesOffered,
   openIntentReviewChanges,
   type IntentReviewChanges,
 } from "../../dashboard/test-support/reviewChangesPage.ts";
-import { test } from "../../dashboard/test-support/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   commitAllAs,
   push,
@@ -44,6 +49,7 @@ test("a synced Taken review stays readable while origin is unreachable and advan
   await test.step("Then the last synced comparison appears with the sync notice", async () => {
     await review.expectFeedback(notSynced);
     await review.expectFeedback(lastSynced);
+    await review.expectRetrySyncUnavailable();
     await review.files.expectOutsideRows(["src", "  a.ts", "d.md"]);
   });
   await test.step("And switching files shows their exact diffs", async () => {
@@ -80,17 +86,44 @@ test("a synced Taken review stays readable while origin is unreachable and advan
   });
 });
 
-test("a Taken review never synced on this machine is unavailable offline and names the failed sync", async ({
+test("a cold Taken review retains its initial sync failure and opens the original diff after a keyboard retry", async ({
   page,
   origin,
 }) => {
   const card = await openTaken(page, origin);
   await expectReviewChangesOffered(card);
-  renameSync(origin.origin, `${origin.origin}-away`);
+  const away = `${origin.origin}-away`;
+  const failure =
+    "The review could not sync from origin, and nothing synced earlier holds this comparison: fatal: Could not read from remote repository.";
+  const retries: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      request.method() === "POST" &&
+      url.pathname === reviewInitialSyncEndpoint &&
+      url.searchParams.get("retry") === "true"
+    )
+      retries.push(request.url());
+  });
+  renameSync(origin.origin, away);
+  const review = await beginIntentReviewChanges(page, card);
+  await review.expectFeedback(failure);
+  await review.expectRetrySyncAvailable();
+  await review.returnToDevelopment();
 
-  const review = await openIntentReviewChanges(page, card);
+  renameSync(away, origin.origin);
+  const reopened = await beginIntentReviewChanges(page, card);
+  await reopened.expectFeedback(failure);
+  await reopened.expectRetrySyncAvailable();
+  expect(retries).toHaveLength(0);
+  await reopened.retrySync("keyboard");
 
-  await review.expectText(
-    "The review could not sync from origin, and nothing synced earlier holds this comparison: ",
-  );
+  await reopened.expectStory("Story A");
+  await reopened.files.expectSelected(changedFile);
+  await reopened.diffs.expectChangedLines(changedFile, {
+    removed: ["-a 0"],
+    added: ["+a one"],
+  });
+  await reopened.expectRetrySyncUnavailable();
+  expect(retries).toHaveLength(1);
 });
