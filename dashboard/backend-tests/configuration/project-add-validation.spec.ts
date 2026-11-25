@@ -109,7 +109,7 @@ test("a non-GitHub URL is refused at its field without an external read", async 
   expectNoRemoteValidation();
 });
 
-test("an unreadable GitHub repository is refused at its URL field", async () => {
+test("an unreachable origin is refused with access guidance at its URL field", async () => {
   routeOriginThroughHome(
     home,
     path.join(home, "missing.git"),
@@ -118,7 +118,18 @@ test("an unreadable GitHub repository is refused at its URL field", async () => 
   await refuses(
     input,
     "githubUrl",
-    `The repository ${validationRepository} could not be read through the local GitHub CLI. Check gh access and try again.`,
+    `Git could not read ${validationRepository}. Check gh access and try again.`,
+  );
+});
+
+test("a reachable origin with no default branch is refused with branch guidance at its URL field", async () => {
+  const origin = path.join(home, "empty.git");
+  execFileSync("git", ["init", "--bare", "--quiet", origin]);
+  routeOriginThroughHome(home, origin, validationRepository);
+  await refuses(
+    input,
+    "githubUrl",
+    `Git could not resolve a usable default branch for ${validationRepository}. Try again when the repository has a valid default branch.`,
   );
 });
 

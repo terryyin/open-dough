@@ -82,6 +82,7 @@ agent Mihiro-chan, starting revision `6a88dc365`, published Take `b6b62ad24`.
 Locked install, dashboard typecheck, and pinned Chromium setup passed in this
 checkout on Node 24.21.0. Codex observer `mihiro-437` follows the remote story
 branch with GitHub Actions `ci.yml` in `/tmp/dough-ci-501/watch-LAypcY`.
+Slice 1 was accepted on the story branch at `5cc1c721`.
 
 ## Slices
 
@@ -106,10 +107,18 @@ story can reuse this named origin and retains ownership of its wider suite audit
 
 ### 2. Leave Add unconfigured when Git access fails or the default is unusable
 Type: Behavior
-Status: planned
+Status: done
 Proof: Backend project-add validation cases for a refused remote and for a successful `ls-remote --symref` without a usable `refs/heads/` name; configuration file unchanged; githubUrl field names retry guidance.
 
 Behavior: Given origin access refused, or an accessible origin that does not advertise a usable default branch → trigger Add Project → nothing is appended to configured projects and the developer is told how to retry.
+
+Accepted proof: 22 backend cases cover an unreachable origin, an empty bare
+origin and an origin advertising `refs/heads/HEAD`, with unchanged settings and
+distinct retry guidance. Both unusable-branch cases rejected the old guidance
+before the fix. The four Add browser cases and five component cases passed;
+the other fixture and Review observations from slice 1 still apply. Typecheck
+and changed-file ESLint passed. The change stays within the reviewed Add
+path and its subject specs, with no additional refactoring candidate.
 
 ## Concern evidence
 

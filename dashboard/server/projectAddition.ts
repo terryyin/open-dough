@@ -63,35 +63,7 @@ export async function addProject(input: ProjectInput, signal: AbortSignal) {
       "localPath",
       `The origin of ${localPath} is ${localRepository ?? "an unrecognized repository"}, but the GitHub URL names ${repository}.`,
     );
-  let ref: string;
-  try {
-    const advertised = await readGitTransport(
-      [
-        ...githubGitCredentials,
-        "ls-remote",
-        "--symref",
-        "--",
-        githubGitOrigin(repository),
-        "HEAD",
-      ],
-      { signal, env: githubGitEnvironment, maxBuffer: 64 * 1024 },
-    );
-    const branch = /^ref: refs\/heads\/(.+)\tHEAD$/m.exec(advertised)?.[1];
-    if (branch === undefined) throw new Error("No usable default branch");
-    const validated = await runGit(["check-ref-format", "--branch", branch], {
-      signal,
-      maxBuffer: 64 * 1024,
-    });
-    if (validated.stdout.trimEnd() !== branch)
-      throw new Error("No usable default branch");
-    ref = branch;
-  } catch {
-    signal.throwIfAborted();
-    throw new ProjectInputProblem(
-      "githubUrl",
-      `The repository ${repository} could not be read through the local GitHub CLI. Check gh access and try again.`,
-    );
-  }
+  const ref = await discoverDefaultBranch(repository, signal);
   signal.throwIfAborted();
   const project = {
     ...projectIdentity(repository),
@@ -109,4 +81,44 @@ export async function addProject(input: ProjectInput, signal: AbortSignal) {
         : folder.path,
   });
   return { project, projects: publishedProjects() };
+}
+
+async function discoverDefaultBranch(repository: string, signal: AbortSignal) {
+  const options = { signal, maxBuffer: 64 * 1024 };
+  let advertised: string;
+  try {
+    advertised = await readGitTransport(
+      [
+        ...githubGitCredentials,
+        "ls-remote",
+        "--symref",
+        "--",
+        githubGitOrigin(repository),
+        "HEAD",
+      ],
+      { ...options, env: githubGitEnvironment },
+    );
+  } catch {
+    signal.throwIfAborted();
+    throw new ProjectInputProblem(
+      "githubUrl",
+      `Git could not read ${repository}. Check gh access and try again.`,
+    );
+  }
+  const branch = /^ref: refs\/heads\/(.+)\tHEAD$/m.exec(advertised)?.[1];
+  if (branch !== undefined) {
+    const validated = await runGit(
+      ["check-ref-format", "--branch", branch],
+      options,
+    ).catch(() => {
+      signal.throwIfAborted();
+      return undefined;
+    });
+    if (validated?.stdout.trimEnd() === branch) return branch;
+  }
+  signal.throwIfAborted();
+  throw new ProjectInputProblem(
+    "githubUrl",
+    `Git could not resolve a usable default branch for ${repository}. Try again when the repository has a valid default branch.`,
+  );
 }

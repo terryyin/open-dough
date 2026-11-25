@@ -2,9 +2,11 @@ import http from "node:http";
 import { once } from "node:events";
 import { readFileSync } from "node:fs";
 import type { AddressInfo } from "node:net";
+import path from "node:path";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { machineHome } from "../../test-support/machineLaunchRecords.ts";
 import { routeOriginThroughHome } from "../../test-support/support/fixtureOriginRoute.ts";
+import { git } from "../../test-support/support/launchLanding.ts";
 import {
   projectAddMachine,
   addedRepository,
@@ -71,6 +73,30 @@ test("Add admits only same-origin POST and returns published facts without check
   expect(answer.projects.at(-1)).toEqual(answer.project);
   expect(response.body).not.toContain(addedLocalPath);
   expect(server.claudeCalls()).toEqual([]);
+});
+
+test("Add reports a rejected advertised branch name at the GitHub URL field", async () => {
+  const origin = path.join(fixture.machine, "rejected-branch.git");
+  git(fixture.machine, "clone", "--bare", "--quiet", fixture.checkout, origin);
+  git(origin, "update-ref", "refs/heads/HEAD", "refs/heads/local-checkout");
+  git(origin, "symbolic-ref", "HEAD", "refs/heads/HEAD");
+  routeOriginThroughHome(machineHome(fixture.machine), origin, addedRepository);
+  const server = await fixture.start("boundary");
+  const file = fixture.configurationFile("boundary");
+  const before = readFileSync(file, "utf8");
+
+  const response = await rawRequest({
+    url: `${server.baseURL}/__project-configuration/add`,
+    method: "POST",
+    headers: { Origin: server.origin, "Content-Type": "application/json" },
+    body,
+  });
+  expect(response.status).toBe(400);
+  expect(JSON.parse(response.body)).toEqual({
+    field: "githubUrl",
+    error: `Git could not resolve a usable default branch for ${addedRepository}. Try again when the repository has a valid default branch.`,
+  });
+  expect(readFileSync(file, "utf8")).toBe(before);
 });
 
 test.describe("Add validation with a pending Git request", () => {
