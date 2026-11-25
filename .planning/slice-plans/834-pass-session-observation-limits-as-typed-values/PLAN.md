@@ -94,3 +94,20 @@ four callers form one proof loop. No slice-specific concern remains.
   host switching and the revision and gzip behavior of the history reader.
   `npm run typecheck:dashboard` passed. The independent refactor review found
   no edits needed, so the observed proof still applies.
+
+## Retrospective
+
+The delivered revision `99eea788f0a9b37dc2819471fd8555e64687e4a2` makes
+the wait and reuse inputs explicit at all four call sites. Production
+wiring parses the limits at startup and preserves both defaults, while
+the typed tests supply their own values. This follows the direct mapping
+in [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)
+and the machine-local boundary in [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
+The existing browser journeys validated the production boundary after
+implementation. The process review identified no finding to record.
+
+## Execution complete
+
+Product advice: Preserve the current backend renovation order. The typed
+timing seam meets this correction's scope and the existing started-server
+proof exercises both configuration overrides.
