@@ -1,9 +1,9 @@
 // What every workflow's start shares, whatever its installed skill's command:
 // the answer a start gives a launch (`PlannedStart`), the gate a start passes
 // before its script runs (`gatedStart`), the one stable publisher, and the
-// subprocess that runs the command (`runStartCommand`). The argument array and
-// the result reader stay with each workflow (`./executionStart.ts`,
-// `./preparationStart.ts`).
+// subprocess that runs the command (`runStartCommand`). The workflows supply
+// the arguments. The command adapters read the results
+// (`./executionStartCommands.ts`, `./preparationStart.ts`).
 
 import { RefusedRequest } from "./localOrigin.ts";
 import { spawn } from "node:child_process";

@@ -4,9 +4,7 @@
 import { sessionsRevisionHeader } from "../../src/machineSessionsRevision.ts";
 import {
   alertsSettled,
-  launch,
   markDone,
-  refinementRequest,
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
   test,
@@ -14,6 +12,7 @@ import {
   stored,
 } from "../../test-support/support/codexLaunch.ts";
 import {
+  givenSavedCodexSession,
   observed,
   sessionsRequest,
 } from "../../test-support/support/codexObservation.ts";
@@ -63,7 +62,7 @@ test("a viewer holding the current revision is answered unchanged, and in full o
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   observed(native, native.threadId, { type: "idle" }, "completed");
   await alertsSettled(dashboard);
 

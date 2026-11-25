@@ -3,21 +3,14 @@
 // without asking the host, and its attempt is kept unchanged. Recheck on the
 // page: ../../../e2e/launches/agent-launch-codex-recheck.spec.ts.
 import { agentVerifyEndpoint } from "../../src/agentLaunch.ts";
-import {
-  notRefinedIdentity,
-  notRefinedStory,
-} from "../../test-support/launchJourney.ts";
 import { attempts, launch } from "../../test-support/agentLaunchBoundary.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest
-  .refining({
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-    host: "codex",
-  })
+  .adHoc({ host: "codex" })
+  .withInstruction("Preserve this exact intent.")
   .please();
 test.use({ projectFolders: ["open-dough"] });
 

@@ -8,10 +8,6 @@ import {
   sharedDashboardBuild,
 } from "../../test-support/support/dashboardServer.ts";
 import {
-  notRefinedIdentity,
-  notRefinedStory,
-} from "../../test-support/launchJourney.ts";
-import {
   attempts,
   continued,
   launch,
@@ -24,11 +20,7 @@ import {
 } from "../../test-support/support/codexLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest
-  .refining({
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-    host: "codex",
-  })
+  .adHoc({ host: "codex" })
   .withInstruction("Preserve this exact intent.")
   .please();
 test.use({ projectFolders: ["open-dough"] });

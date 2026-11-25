@@ -13,10 +13,27 @@ import type {
 import { machineSessions } from "../agentLaunchBoundary.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { keepLaunchStore } from "./launchStore.ts";
+import {
+  keepLaunchStore,
+  keepMoreLaunchRecordsBesideServer,
+} from "./launchStore.ts";
 import { rawRequest } from "./rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RawRequestOptions, RawResponse } from "./rawHttp.ts";
+
+export type SavedCodexSessionFacts = {
+  source?: string;
+  title?: string;
+  identity?: string;
+  workspace?: string;
+  endpoint?: string;
+  doneAt?: string;
+  firstInput?: LaunchRecord["firstInput"];
+  readCompletion?: Pick<
+    NonNullable<LaunchRecord["completion"]>,
+    "outcome" | "message"
+  >;
+};
 
 // The kept refinement of the not-refined story in Codex thread `id`, which
 // continues through this fake's socket in the server's checkout unless the
@@ -29,25 +46,62 @@ export function observationRecord(
   {
     source = "open-dough",
     title = notRefinedStory,
+    identity = notRefinedIdentity,
     workspace = path.join(server.home, "git", "open-dough"),
     endpoint = codexEndpoint(native),
-  }: {
-    source?: string;
-    title?: string;
-    workspace?: string;
-    endpoint?: string;
-  } = {},
+    doneAt,
+    firstInput,
+    readCompletion,
+  }: SavedCodexSessionFacts = {},
 ): LaunchRecord & { session: CodexSession } {
-  const record = makeMe.aLaunchRecord
-    .refining({ identity: notRefinedIdentity, title, source })
+  const builder = makeMe.aLaunchRecord
+    .refining({ identity, title, source })
     .inCodexSession({
       sessionId: id,
       continuation: { workspace, endpoint },
-    })
-    .please();
+    });
+  if (doneAt !== undefined) builder.markedDoneAt(doneAt);
+  if (firstInput !== undefined) builder.withFirstInput(firstInput);
+  if (readCompletion !== undefined)
+    builder.completedWith(readCompletion).withReportRead();
+  const record = builder.please();
   const { session } = record;
   if (session.host !== "codex") throw new Error("Expected a Codex session");
   return { ...record, session };
+}
+
+// The saved conversation already has one submitted turn in its workspace.
+export async function givenSavedCodexSession(
+  server: Pick<DashboardServer, "home">,
+  native: FakeCodex,
+  {
+    history,
+    ...facts
+  }: SavedCodexSessionFacts & {
+    history?: FakeCodex["history"];
+  } = {},
+) {
+  const record = observationRecord(server, native, native.threadId, facts);
+  const protocol = native;
+  protocol.cwd = record.session.continuation?.workspace ?? "";
+  const firstInput = facts.firstInput;
+  const instruction = firstInput?.instruction;
+  protocol.history = history ?? [
+    {
+      id: firstInput?.turnId ?? "native-turn-id",
+      items:
+        instruction === undefined
+          ? []
+          : [
+              {
+                type: "userMessage",
+                content: [{ type: "text", text: instruction }],
+              },
+            ],
+    },
+  ];
+  await keepMoreLaunchRecordsBesideServer(server, [record], facts.source);
+  return record;
 }
 export function saveObservations(
   server: Pick<DashboardServer, "home">,

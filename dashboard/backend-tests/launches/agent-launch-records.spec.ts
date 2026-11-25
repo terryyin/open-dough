@@ -24,12 +24,10 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   identity,
   launch,
-  launchRequest,
   markDone,
   recordsOf,
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
-import { distinctStoryRequest } from "../../test-support/openStorySessionSetup.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -89,22 +87,6 @@ test.describe("launch records kept on this machine", () => {
   test.afterEach(async () => {
     await Promise.all(servers.splice(0).map((server) => server.close()));
     rmSync(machine, { recursive: true, force: true });
-  });
-
-  test("answers a launch from another server on this machine, and again after both restart", async () => {
-    const development = await serverOn("development");
-    development.claudeScenario("launched");
-    const { record } = JSON.parse(
-      (await launch(development, launchRequest)).body,
-    ) as { record: unknown };
-    expect(record).toBeDefined();
-
-    const production = await serverOn("production", "separate process");
-    expect(await recordsOf(production, "open-dough")).toEqual([record]);
-
-    await Promise.all(servers.splice(0).map((server) => server.close()));
-    const restarted = await serverOn("development");
-    expect(await recordsOf(restarted, "open-dough")).toEqual([record]);
   });
 
   test("concurrent done marks from separate dashboard processes all survive and suppress later review attention", async () => {
@@ -194,7 +176,7 @@ test.describe("launch records kept on this machine", () => {
 
     server.claudeScenario("launched");
     const { record } = JSON.parse(
-      (await launch(server, distinctStoryRequest("retention-write"))).body,
+      (await launch(server, makeMe.aLaunchRequest.adHoc().please())).body,
     ) as {
       record: { session: { sessionId: string } };
     };

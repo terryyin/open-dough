@@ -7,7 +7,8 @@
 // own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude).
 
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { test } from "../../dashboard/test-support/support/startOriginTest.ts";
 import {
   columnCountOf,
   storyCardSessions,
@@ -15,11 +16,8 @@ import {
   sessionEntryShowing,
   standaloneSessionName,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  publishStoryColumnsJourney,
-  readyStory,
-  type StoryColumnsJourney,
-} from "../../dashboard/test-support/launchJourney.ts";
+import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import { holdSessionReads } from "../../dashboard/test-support/sessionStatePace.ts";
@@ -27,7 +25,7 @@ import {
   expectSessionsSidebar,
   sessionsSidebarParts,
 } from "../../dashboard/test-support/sessionsSidebarPage.ts";
-import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
   columnPagingControl,
   showColumn,
@@ -39,21 +37,14 @@ test.use({
 });
 
 test.describe("the Sessions sidebar's reading", () => {
-  let columnsJourney: StoryColumnsJourney;
-  test.beforeAll(async () => {
-    columnsJourney = await publishStoryColumnsJourney();
-  });
-  test.afterAll(() =>
-    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
-  );
-
   test("says it is reading until the machine's sessions are first read, then that none are kept, then none open", async ({
     page,
     dashboard,
+    origin,
   }) => {
     await page.setViewportSize({ width: 1000, height: 1000 });
     const { answer } = await holdSessionReads(page);
-    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
+    const { settled } = await openInstalledStoryBoard(page, origin);
     const { sidebar, button, entries, badge, workingBadge } =
       sessionsSidebarParts(page);
     const { recentlyDone, taken } = parts(page);
@@ -112,24 +103,22 @@ test.describe("the Sessions sidebar's reading", () => {
   test("no Start is offered before the first read while the lists keep reading; once read, a launch's session joins what was read", async ({
     page,
     dashboard,
+    origin,
   }) => {
     // Kept before the page opens, so the first read answers it too.
     await composeSession(dashboard, "doughnut");
     dashboard.claudeScenario("launched");
     const { answer } = await holdSessionReads(page);
-    const { settled, card, launch } = await openStoryColumnsJourney(
-      page,
-      columnsJourney,
-    );
+    const boardPage = await openInstalledStoryBoard(page, origin, {
+      follows: false,
+    });
     const { sidebar, button, entries } = sessionsSidebarParts(page);
     const { recentlyDone, board } = parts(page);
-    await settled();
+    await boardPage.settled();
     await button.click();
 
-    const own = storyCardSessions(card(readyStory));
-    await expect(
-      card(readyStory).getByRole("button", { name: "Start execution" }),
-    ).toBeDisabled();
+    const own = storyCardSessions(boardPage.card(readyStory));
+    await expect(boardPage.action(readyStory, "Execution")).toBeDisabled();
     for (const place of [sidebar, recentlyDone]) {
       await expect(place).toContainText("Reading sessions…");
     }
@@ -137,8 +126,8 @@ test.describe("the Sessions sidebar's reading", () => {
 
     answer();
     await expect(entries).toHaveCount(1);
-    await launch(readyStory, "Execution");
-    await expect(own).toHaveCount(1);
+    await (await boardPage.open(readyStory, "Execution")).submit();
+    await expect(own).toHaveCount(1, { timeout: launchWaitMs });
     await expect(own).toBeFocused();
     await expect(sidebar).not.toContainText("Reading sessions…");
     await expect(recentlyDone).not.toContainText("Reading sessions…");
@@ -154,8 +143,8 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(recentlyDone).toContainText(
       "No sessions are listed in Recently done.",
     );
-    await page.reload();
-    await settled();
+    await boardPage.showPublished();
+    await boardPage.settled();
     await expect(entries).toHaveCount(2);
     await expect(own).toHaveAttribute("data-shows-session", key);
     await expect(sessionEntryShowing(board, key)).toHaveCount(1);

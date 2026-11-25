@@ -9,6 +9,7 @@
 // `claude` (./fixtures/fake-claude) stands in for Claude Code.
 
 import type { Page } from "@playwright/test";
+import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   accept,
@@ -24,16 +25,18 @@ import {
   recoveryOf,
   storyRequest,
   subject,
-  useUncertainLaunch,
+  uncertainLaunch,
+  attemptOf,
 } from "../../dashboard/test-support/claudeVerification.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import { keepMoreLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),
 );
 
-const uncertainLaunch = useUncertainLaunch();
+test.use({ projectFolders: ["open-dough"], launchWaitEnd: true });
 const answerKind = async (response: Promise<{ body: string }>) =>
   (JSON.parse((await response).body) as { kind: string; reason?: string }).kind;
 
@@ -82,13 +85,17 @@ async function holdReadsSinceLaunchUntilVerified(page: Page) {
 test("Recheck records the one session the uncertain launch started, and the card lists it with Starts held for the open session", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("launched-hang");
   // The read the uncertain settling asks is still under way when Recheck
   // answers, so the read asked after the launch settled must still follow.
   await holdReadsSinceLaunchUntilVerified(page);
-  const { card, start } = await uncertainLaunch(page, dashboard, launchJourney);
+  const { card, start, showPublished, attemptId } = await uncertainLaunch(
+    page,
+    dashboard,
+    origin,
+  );
   const [listed] = dashboard.claudeListing();
   await expect(card).toContainText("Startup needs reconciliation");
   expect(await answerKind(accept(dashboard, storyRequest))).toBe("failed");
@@ -102,27 +109,34 @@ test("Recheck records the one session the uncertain launch started, and the card
   await expect(card).not.toContainText("Startup needs reconciliation");
   await expect(start).toBeDisabled();
   await expect(start).toHaveAccessibleDescription(openSessionDescription);
+  await showPublished();
   await expect(
     card.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
-  expect((await attempts(dashboard))[0]?.outcome).toEqual({
+  expect((await attemptOf(dashboard, attemptId)).outcome).toEqual({
     kind: "launched",
     session: { host: "claude", sessionId: listed?.sessionId },
   });
+  expect(stored(dashboard.home)).toMatchObject([
+    {
+      session: { host: "claude", sessionId: listed?.sessionId },
+      start: {
+        workspace: path.join(origin.project, ".worktrees", "story-b"),
+        publishedSha: (await origin.originGit("rev-parse", "main")).trim(),
+      },
+    },
+  ]);
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
 });
 
 test("Recheck finding no session this launch started, among others listed, settles it as not launched and lifts protection", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("hang");
-  const { card, start, name, cwd, acceptedAt } = await uncertainLaunch(
-    page,
-    dashboard,
-    launchJourney,
-  );
+  const { card, start, name, cwd, acceptedAt, attemptId } =
+    await uncertainLaunch(page, dashboard, origin, { oneShot: true });
   const now = Date.now();
   // Each is this launch's but for one thing.
   dashboard.claudeListsSession({
@@ -146,11 +160,11 @@ test("Recheck finding no session this launch started, among others listed, settl
   await expect(start).toBeEnabled();
   await expect(card).not.toContainText("Startup needs reconciliation");
   await expect(storyCardSessions(card)).toHaveCount(0);
-  expect((await attempts(dashboard))[0]?.outcome).toMatchObject({
+  expect((await attemptOf(dashboard, attemptId)).outcome).toMatchObject({
     kind: "failed",
     reason: "not-listed",
     explanation: expect.stringContaining(
-      "Claude Code lists no session this launch started in ~/git/open-dough",
+      "Claude Code lists no session this launch started in ~/git/open-dough/.worktrees/story-b",
     ),
   });
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
@@ -162,15 +176,15 @@ test("Recheck finding no session this launch started, among others listed, settl
 test("Recheck keeps the story protected, saying why, while the listing cannot be read or names two sessions it could have started", async ({
   page,
   dashboard,
-  launchJourney,
+  origin,
 }) => {
   dashboard.claudeScenario("launched-hang");
-  const { card, name, cwd } = await uncertainLaunch(
+  const { card, name, cwd, attemptId } = await uncertainLaunch(
     page,
     dashboard,
-    launchJourney,
+    origin,
   );
-  const [before] = await attempts(dashboard);
+  const before = await attemptOf(dashboard, attemptId);
   const recovery = recoveryOf(page);
   const recheck = recovery.getByRole("button", { name: `Recheck ${subject}` });
   const continues = recovery.getByRole("button", {
@@ -190,7 +204,7 @@ test("Recheck keeps the story protected, saying why, while the listing cannot be
   dashboard.claudeListsSession({ name, cwd, startedAt: Date.now() });
   await recheck.click();
   await expect(recovery.locator(".launch-problem")).toContainText(
-    "Claude Code lists 2 sessions this launch could have started in ~/git/open-dough, so which one it started is not known.",
+    "Claude Code lists 2 sessions this launch could have started in ~/git/open-dough/.worktrees/story-b, so which one it started is not known.",
   );
   await expect(continues).toBeEnabled();
   await expect(card).toContainText("Startup needs reconciliation");

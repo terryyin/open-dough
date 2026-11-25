@@ -4,7 +4,10 @@
 import path from "node:path";
 import type { HostSession } from "../src/agentLaunch.ts";
 import type { LaunchHost } from "./launchHosts.ts";
-import { launchClaude } from "./hosts/claude/launch.ts";
+import {
+  claudeExecutionStartRefusal,
+  launchClaude,
+} from "./hosts/claude/launch.ts";
 import {
   attachClaude,
   observeClaudeSessions,
@@ -27,6 +30,7 @@ export const claudeHost: LaunchHost = {
   description: hostDescriptions.claude,
   installedSkillPath: (project, skill, ...segments) =>
     path.join(project.path, ".claude", "skills", skill, ...segments),
+  executionStartRefusal: claudeExecutionStartRefusal,
   launch: launchClaude,
   launchedSessions: claudeLaunchedSessions,
   sessions: observeClaudeSessions,

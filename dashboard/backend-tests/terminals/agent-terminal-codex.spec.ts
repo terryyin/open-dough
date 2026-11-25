@@ -1,3 +1,4 @@
+import { givenSavedCodexSession } from "../../test-support/support/codexObservation.ts";
 // Actual HTTP/store/WS/PTY: substitute CLI supplies only native startup/transport output.
 // The dashboard starts as a deployment's does; resume runs in the developer's shell environment.
 import { realpathSync } from "node:fs";
@@ -7,11 +8,7 @@ import {
   expect,
   stored,
 } from "../../test-support/support/codexLaunch.ts";
-import {
-  launch,
-  refinementRequest,
-  machineSessions,
-} from "../../test-support/agentLaunchBoundary.ts";
+import { machineSessions } from "../../test-support/agentLaunchBoundary.ts";
 import {
   shows,
   refusedResponse,
@@ -65,7 +62,7 @@ test.describe(`Codex native terminal boundary`, () => {
     codexProtocol: native,
   }) => {
     if (native === undefined) throw new Error("Missing native fixture");
-    await launch(dashboard, { ...refinementRequest, host: "codex" });
+    await givenSavedCodexSession(dashboard, native);
     const record = stored(dashboard.home)[0];
     if (record?.session.host !== "codex")
       throw new Error("Missing saved Codex record.");
@@ -137,7 +134,7 @@ test.describe(`Codex native terminal boundary`, () => {
     codexProtocol: native,
   }) => {
     if (native === undefined) throw new Error("Missing native fixture");
-    await launch(dashboard, { ...refinementRequest, host: "codex" });
+    await givenSavedCodexSession(dashboard, native);
     const recordsBefore = stored(dashboard.home);
     native.observations.set(native.threadId, {
       status: { type: "idle" },
@@ -166,7 +163,7 @@ test.describe(`Codex native terminal boundary`, () => {
     codexProtocol: native,
   }) => {
     if (native === undefined) throw new Error("Missing native fixture");
-    await launch(dashboard, { ...refinementRequest, host: "codex" });
+    await givenSavedCodexSession(dashboard, native);
     const record = stored(dashboard.home)[0];
     if (record === undefined) throw new Error("Missing saved record");
     const doneAt = new Date(Date.now() - 60_000).toISOString();

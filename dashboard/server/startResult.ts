@@ -1,7 +1,7 @@
 // What the start command reported and how the dashboard words a start that did
 // not establish. This module is the only reader of `execution-start.mjs`'s
 // one-line JSON result (`readStartResult`) and holds the one table of reasons
-// a stop is refused for (`refusal`); `./executionStart.ts` runs the command.
+// a stop is refused for (`refusal`). `./executionStartCommands.ts` runs the command.
 
 import { z } from "zod";
 

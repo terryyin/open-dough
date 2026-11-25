@@ -27,7 +27,7 @@ import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColum
 import {
   report,
   save,
-  retained,
+  givenRetiredCodexReport,
   passive,
 } from "../../dashboard/test-support/support/retainedReport.ts";
 import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
@@ -49,7 +49,10 @@ test("card, Recently done and sidebar review the retained report with attention,
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing protocol fixture");
-  const { record, workspace } = await retained(dashboard, native);
+  const { record, workspace } = await givenRetiredCodexReport(
+    dashboard,
+    native,
+  );
   const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const since = native.calls.length;
   const { card, show } = await openStoryColumnsJourney(page, journey);
@@ -118,7 +121,7 @@ test("changing or closing selection cancels a held report and never shows its te
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing protocol fixture");
-  const { record } = await retained(dashboard, native);
+  const { record } = await givenRetiredCodexReport(dashboard, native);
   const next = {
     ...record,
     session: { ...record.session, sessionId: "next-retained-session" },

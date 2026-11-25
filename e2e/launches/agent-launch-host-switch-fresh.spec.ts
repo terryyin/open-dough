@@ -5,10 +5,8 @@
 // stay unmarked, including the one the page schedules once that fresh read
 // has settled. Story launch and Start session share that path.
 
-import { cpSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { installedSkillPath } from "../../dashboard/server/launchHosts.ts";
 import { agentLaunchEndpoint } from "../../dashboard/src/launchRequest.ts";
 import { sessionsFreshHeader } from "../../dashboard/src/machineSessionsRevision.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
@@ -25,7 +23,13 @@ import {
   startSession,
   startSessionDialog,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import { notRefinedStory } from "../../dashboard/test-support/launchJourney.ts";
+import {
+  notRefinedStory,
+  queuedDashboardRepository,
+} from "../../dashboard/test-support/launchJourney.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { test as installedCodex } from "../../dashboard/test-support/support/codexStart.ts";
+import { withInstallation } from "../../dashboard/test-support/support/startOriginInstallation.ts";
 import { codexSkill } from "../../dashboard/test-support/support/codexLaunch.ts";
 import { radio } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { repoRoot } from "../../dashboard/test-support/support/repositoryRoot.ts";
@@ -86,20 +90,17 @@ const offersCodexStartSession = (answer: SessionsAnswer | undefined) =>
       policy.host === "codex",
   ) === true;
 
-// The project's Codex installation of the real execution skill, which ships
-// the start, policy and formatter that establish a session with no story.
-function installCodexSessionStart(home: string) {
-  const project = path.join(home, "git", "open-dough");
-  cpSync(
-    path.join(repoRoot, "Distribution", "src", "skills", "dough-execute-plan"),
-    installedSkillPath(
-      "codex",
-      { path: project, shown: project },
-      "dough-execute-plan",
-    ),
-    { recursive: true },
-  );
-}
+const executionSkill = ".agents/skills/dough-execute-plan";
+const catalog = queuedDashboardRepository().please();
+const lateSkill = installedCodex.extend({
+  extraEnv: { DOUGH_SESSIONS_REUSE_MS: "60000" },
+  originRepository: queuedDashboardRepository()
+    .withRevision("without-execution", {
+      message: "Start without the Codex execution skill",
+      remove: [executionSkill],
+    })
+    .please(),
+});
 
 test("story launch Host switch shows Codex options observed after the switch without waiting for the poll", async ({
   page,
@@ -144,50 +145,63 @@ test("story launch Host switch shows Codex options observed after the switch wit
 // Codex installation made after the page's read. Once that read has
 // answered and the dialog shows its offer, the page arms its next regular
 // poll; advancing the clock then makes that poll, and it is unmarked.
-test("Start session Host switch shows the Codex offer installed after the page's read; the regular poll after it stays unmarked", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  await pausePageClockAt(page, new Date());
-  const asks = sessionsGets(page);
-  installRefinementSkill(dashboard.home);
-  await openTakenBacklog(page, launchJourney);
+lateSkill(
+  "Start session Host switch shows the Codex offer installed after the page's read; the regular poll after it stays unmarked",
+  async ({ page, origin }) => {
+    await pausePageClockAt(page, new Date());
+    const asks = sessionsGets(page);
+    await openInstalledStoryBoard(page, origin);
 
-  // The page's reads so far are regular, and answered without the offer.
-  await expect
-    .poll(() => asks.some((ask) => ask.answer?.sessionPolicies !== undefined))
-    .toBe(true);
-  expect(asks.every((ask) => !ask.fresh)).toBe(true);
-  expect(asks.some((ask) => offersCodexStartSession(ask.answer))).toBe(false);
+    // The page's reads so far are regular, and answered without the offer.
+    await expect
+      .poll(() => asks.some((ask) => ask.answer?.sessionPolicies !== undefined))
+      .toBe(true);
+    expect(asks.every((ask) => !ask.fresh)).toBe(true);
+    expect(asks.some((ask) => offersCodexStartSession(ask.answer))).toBe(false);
 
-  installCodexSessionStart(dashboard.home);
-  await startSession(page, "Open Dough").click();
-  const beforeSwitch = asks.length;
-  await startSessionDialog(page, "Open Dough")
-    .getByRole("combobox", { name: "Host" })
-    .selectOption("codex");
-  const codexDialog = page.getByRole("dialog", {
-    name: "Start a session in Open Dough in Codex",
-  });
-  await expect(codexDialog).toBeVisible();
+    const installed = withInstallation(
+      catalog,
+      "codex",
+      path.join(repoRoot, "Distribution", "src", "skills"),
+    ).revisions[0];
+    await origin.publishRevision({
+      message: "Install the Codex execution skill",
+      files: Object.fromEntries(
+        Object.entries(installed.files ?? {}).filter(([file]) =>
+          file.startsWith(`${executionSkill}/`),
+        ),
+      ),
+      executables: (installed.executables ?? []).filter((file) =>
+        file.startsWith(`${executionSkill}/`),
+      ),
+    });
+    await startSession(page, "Open Dough").click();
+    const beforeSwitch = asks.length;
+    await startSessionDialog(page, "Open Dough")
+      .getByRole("combobox", { name: "Host" })
+      .selectOption("codex");
+    const codexDialog = page.getByRole("dialog", {
+      name: "Start a session in Open Dough in Codex",
+    });
+    await expect(codexDialog).toBeVisible();
 
-  // The fresh re-read answered with the offer, and the dialog shows it.
-  await expect
-    .poll(() =>
-      asks
-        .slice(beforeSwitch)
-        .some((ask) => ask.fresh && offersCodexStartSession(ask.answer)),
-    )
-    .toBe(true);
-  await expect(
-    radio(codexDialog, "Workspace", "Isolated workspace"),
-  ).toBeEnabled();
-  await expect(codexDialog).not.toContainText(unattachedNotOffered);
+    // The fresh re-read answered with the offer, and the dialog shows it.
+    await expect
+      .poll(() =>
+        asks
+          .slice(beforeSwitch)
+          .some((ask) => ask.fresh && offersCodexStartSession(ask.answer)),
+      )
+      .toBe(true);
+    await expect(
+      radio(codexDialog, "Workspace", "Isolated workspace"),
+    ).toBeEnabled();
+    await expect(codexDialog).not.toContainText(unattachedNotOffered);
 
-  const settled = asks.length;
-  await page.clock.runFor(checkIntervalMs);
-  await expect.poll(() => asks.length).toBeGreaterThan(settled);
-  expect(asks.slice(settled).every((ask) => !ask.fresh)).toBe(true);
-  await expect(codexDialog).toBeVisible();
-});
+    const settled = asks.length;
+    await page.clock.runFor(checkIntervalMs);
+    await expect.poll(() => asks.length).toBeGreaterThan(settled);
+    expect(asks.slice(settled).every((ask) => !ask.fresh)).toBe(true);
+    await expect(codexDialog).toBeVisible();
+  },
+);

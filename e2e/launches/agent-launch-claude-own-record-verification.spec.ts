@@ -2,7 +2,6 @@
 // no longer names its session, using the latest record when several exist.
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openSessionStartReason,
@@ -20,27 +19,25 @@ import {
   test,
   recoveryOf,
   subject,
-  useUncertainLaunch,
+  uncertainLaunch,
+  attemptOf,
 } from "../../dashboard/test-support/claudeVerification.ts";
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),
 );
 
-const uncertainLaunch = useUncertainLaunch();
+test.use({ projectFolders: ["open-dough"], launchWaitEnd: true });
 
 for (const count of [1, 2]) {
   test(`Recheck trusts the latest own record among ${String(count)} unlisted sessions without reading the listing or keeping another record`, async ({
     page,
     dashboard,
-    launchJourney,
+    origin,
   }) => {
     dashboard.claudeScenario("hang");
-    const { card, start, acceptedAt } = await uncertainLaunch(
-      page,
-      dashboard,
-      launchJourney,
-    );
+    const { card, start, acceptedAt, showPublished, attemptId } =
+      await uncertainLaunch(page, dashboard, origin);
     // An older writer left worker facts on a settled uncertain attempt.
     // They cannot make it running, and Recheck must clear them with its outcome.
     const attemptFile = path.join(
@@ -62,7 +59,7 @@ for (const count of [1, 2]) {
       slowSince: entry.acceptedAt,
     }));
     writeFileSync(attemptFile, JSON.stringify(retained));
-    expect((await attempts(dashboard))[0]).toMatchObject({
+    expect(await attemptOf(dashboard, attemptId)).toMatchObject({
       running: false,
       worker: { pid: dashboard.pid },
     });
@@ -104,15 +101,17 @@ for (const count of [1, 2]) {
     await expect(storyCardSessions(card)).toHaveCount(count);
     await expect(start).toBeDisabled();
     await expect(start).toHaveAccessibleDescription(openSessionDescription);
+    await showPublished();
     await expect(
       card.getByRole("button", { name: "Inspect story" }),
     ).toBeEnabled();
-    expect((await attempts(dashboard))[0]?.outcome).toEqual({
+    const settled = await attemptOf(dashboard, attemptId);
+    expect(settled.outcome).toEqual({
       kind: "launched",
       session: { host: "claude", sessionId: latest?.session.sessionId },
     });
-    expect((await attempts(dashboard))[0]?.worker).toBeUndefined();
-    expect((await attempts(dashboard))[0]?.slowSince).toBeUndefined();
+    expect(settled.worker).toBeUndefined();
+    expect(settled.slowSince).toBeUndefined();
     expect(verificationListings()).toEqual(before);
     expect(readFileSync(launchStoreFile(dashboard), "utf8")).toBe(stored);
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);

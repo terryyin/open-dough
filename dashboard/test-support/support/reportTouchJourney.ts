@@ -9,8 +9,7 @@ import { keepOpen, markAsDone } from "./markDone.ts";
 import { expect, stored } from "./codexLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
-import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { givenRetiredCodexReport, report } from "./retainedReport.ts";
 import { sessionStateOf, storyCardSessions } from "../dashboardPage.ts";
 import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
 import { pageColumnProjectValue } from "../pageLayout.ts";
@@ -33,15 +32,18 @@ export async function openUnfinishedReport(
   if (native === undefined) throw new Error("Missing protocol fixture");
   const protocol = native;
   protocol.threadId = sessionId;
-  const { record, workspace } = await retained(dashboard, native);
-  keepFinalReport(native, workspace, text);
-  record.request.title = title;
-  record.completion = makeMe.aCompletionReport
-    .withOutcome("unfinished")
-    .saying("Keep the remaining steps open.")
-    .please();
-  record.reportRead = record.completion.receipt;
-  save(dashboard.home, [record]);
+  const { record, workspace } = await givenRetiredCodexReport(
+    dashboard,
+    native,
+    {
+      title,
+      text,
+      readCompletion: {
+        outcome: "unfinished",
+        message: "Keep the remaining steps open.",
+      },
+    },
+  );
   const since = native.calls.length;
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();

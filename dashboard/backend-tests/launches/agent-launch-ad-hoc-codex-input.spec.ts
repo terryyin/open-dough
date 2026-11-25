@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   test,
   expect,
+  expectCodexAdHocInput,
   stored,
 } from "../../test-support/support/codexLaunch.ts";
 import { test as startTest } from "../../test-support/support/codexStart.ts";
@@ -28,7 +29,10 @@ import {
 } from "../../test-support/support/startSessionLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+test.use({
+  serverMode: "boundary",
+  projectFolders: ["open-dough"],
+});
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 
@@ -44,13 +48,7 @@ test("HTTP text preserves exact bytes once; completed blank launches permit anot
       (await launch(dashboard, { ...request, instruction: text })).body,
     ),
   ).toMatchObject({ kind: "launched" });
-  expect(stored(dashboard.home)[0]?.firstInput?.instruction).toBe(text);
-  expect(native.calls.filter((call) => call.method === "turn/start")).toEqual([
-    {
-      method: "turn/start",
-      params: { threadId: native.threadId, input: [{ type: "text", text }] },
-    },
-  ]);
+  expectCodexAdHocInput(native, text, stored(dashboard.home)[0], dashboard);
   const textId = native.threadId;
   native.threadId = "first-blank";
   native.history = [];

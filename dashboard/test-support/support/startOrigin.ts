@@ -135,7 +135,7 @@ export async function startOrigin(
       home,
       project,
       repository,
-      host,
+      host === "claude" ? "claude" : "codex",
       description,
     );
   } catch (error) {

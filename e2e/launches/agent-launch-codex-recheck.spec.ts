@@ -3,9 +3,10 @@
 // ../../dashboard/backend-tests/launches/agent-launch-codex-verify-boundary.spec.ts).
 import { agentVerifyEndpoint } from "../../dashboard/src/agentLaunch.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
   notRefinedIdentity,
+  queuedDashboardRepository,
   notRefinedStory,
 } from "../../dashboard/test-support/launchJourney.ts";
 import {
@@ -15,8 +16,10 @@ import {
 import {
   test,
   expect,
-} from "../../dashboard/test-support/support/codexLaunch.ts";
+  stored,
+} from "../../dashboard/test-support/support/codexStart.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { expectInstalledCodexStoryInput } from "./codexLaunchObservation.ts";
 
 const request = makeMe.aLaunchRequest
   .refining({
@@ -26,22 +29,29 @@ const request = makeMe.aLaunchRequest
   })
   .please();
 const subject = `${notRefinedStory} (${notRefinedIdentity})`;
-test.use({ projectFolders: ["open-dough"] });
+
+test.use({ originRepository: queuedDashboardRepository().please() });
 
 test("Recheck rereads evidence and published state without verifying a Codex start", async ({
   dashboard,
   page,
   codexProtocol,
-  launchJourney,
+  origin,
 }) => {
   if (codexProtocol === undefined) throw new Error("Missing launch fixture.");
-  await openTakenBacklog(page, launchJourney);
+  await openInstalledStoryBoard(page, origin);
   const native = codexProtocol;
   native.refuseInput = true;
   expect(JSON.parse((await launch(dashboard, request)).body)).toMatchObject({
     kind: "uncertain",
     reason: "unconfirmed",
   });
+  expectInstalledCodexStoryInput(
+    dashboard,
+    native,
+    stored(dashboard.home)[0],
+    `$dough-story-refinement ${notRefinedIdentity}`,
+  );
   const [before] = await attempts(dashboard);
   await page.reload();
   const recovery = parts(page).startupRecovery;

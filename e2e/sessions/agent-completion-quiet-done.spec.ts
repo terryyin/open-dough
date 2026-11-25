@@ -18,7 +18,7 @@ import {
 import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import {
   keepFinalReport,
-  retained,
+  givenRetiredCodexReport,
   save,
 } from "../../dashboard/test-support/support/retainedReport.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
@@ -46,7 +46,10 @@ async function quietlyDone(
   problem?: string,
 ) {
   if (native === undefined) throw new Error("Missing native fixture");
-  const { record, workspace } = await retained(dashboard, native);
+  const { record, workspace } = await givenRetiredCodexReport(
+    dashboard,
+    native,
+  );
   // Received now, so the Done mark stays inside the store's retention window.
   const completion = makeMe.aCompletionReport
     .receivedAt(new Date().toISOString())

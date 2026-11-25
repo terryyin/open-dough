@@ -11,7 +11,7 @@ import {
   keepTrackedClosureEvidence,
   plantTrackedClosureRepository,
   report,
-  retained,
+  givenRetiredCodexReport,
 } from "../../test-support/support/retainedReport.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
@@ -22,7 +22,7 @@ test("final report admission refuses unknown projects, unrecorded or wrong-host 
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing protocol fixture");
-  const { workspace } = await retained(dashboard, native);
+  const { workspace } = await givenRetiredCodexReport(dashboard, native);
   const story = { identity: notRefinedIdentity, title: notRefinedStory };
   const attention = "Reminder: check the migration before landing.";
   const claudeRecord = makeMe.aLaunchRecord

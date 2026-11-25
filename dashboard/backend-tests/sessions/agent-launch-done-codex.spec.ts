@@ -1,3 +1,4 @@
+import { givenSavedCodexSession } from "../../test-support/support/codexObservation.ts";
 // HTTP/store and optional WS/PTY exercise native rename and exact-turn interruption.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -6,12 +7,7 @@ import {
   stored,
 } from "../../test-support/support/codexLaunch.ts";
 import { changeLaunchStore } from "../../test-support/support/launchStore.ts";
-import {
-  launch,
-  refinementRequest,
-  markDone,
-  recordsOf,
-} from "../../test-support/agentLaunchBoundary.ts";
+import { markDone, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
 import { shows } from "../../test-support/agentTerminalBoundary.ts";
 import {
   codexAttaches,
@@ -29,7 +25,7 @@ for (const status of ["active", "idle", "notLoaded"] as const) {
       codexProtocol: native,
     }) => {
       if (native === undefined) throw new Error("Missing native fixture");
-      await launch(dashboard, { ...refinementRequest, host: "codex" });
+      await givenSavedCodexSession(dashboard, native);
       native.observations.set(native.threadId, {
         status: {
           type: status,
@@ -98,7 +94,7 @@ for (const status of ["active", "idle", "notLoaded"] as const) {
         native.calls.filter((call) =>
           ["thread/start", "turn/start"].includes(call.method),
         ),
-      ).toHaveLength(2);
+      ).toHaveLength(0);
       if (terminal !== undefined) {
         expect(await terminal.closed).toBe(4000);
         const pid = codexAttaches(native)[0]?.pid ?? 0;
@@ -117,7 +113,7 @@ test("unrecorded and cross-origin done requests fail before native reads or writ
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   const before = [...native.calls];
   expect(
     (
@@ -146,7 +142,7 @@ test("missing saved endpoint retains local intent, closes attachments and report
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
-  await launch(dashboard, { ...refinementRequest, host: "codex" });
+  await givenSavedCodexSession(dashboard, native);
   const terminal = await openCodexTerminal(dashboard, native.threadId);
   expect(await shows(terminal, "original retained history")).toBe(true);
   changeLaunchStore(dashboard, (document) => ({

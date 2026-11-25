@@ -1,15 +1,15 @@
 // Vendor report payload and privately retired workspace for real dashboard journeys.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, rmSync, symlinkSync } from "node:fs";
+import { mkdirSync, symlinkSync } from "node:fs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import type { renderPublishedBacklog } from "../../../Distribution/tests/support/published-backlog.mjs";
 import path from "node:path";
-import { expect, stored } from "./codexLaunch.ts";
+import { expect } from "./codexLaunch.ts";
 import {
-  launch,
-  openDoughFolder,
-  refinementRequest,
-} from "../agentLaunchBoundary.ts";
+  givenSavedCodexSession,
+  type SavedCodexSessionFacts,
+} from "./codexObservation.ts";
+import { openDoughFolder, refinementRequest } from "../agentLaunchBoundary.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { codexAttaches } from "./codexTerminal.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -30,37 +30,31 @@ export function save(home: string, records: LaunchRecord[]) {
     "open-dough": records,
   }));
 }
-export async function retained(
+export async function givenRetiredCodexReport(
   dashboard: DashboardServer,
   native: FakeCodex,
-  unknown = false,
+  {
+    workspaceState = "missing",
+    text = report,
+    ...record
+  }: Pick<SavedCodexSessionFacts, "title" | "readCompletion"> & {
+    workspaceState?: "missing" | "unreadable";
+    text?: string;
+  } = {},
 ) {
-  await launch(dashboard, {
-    ...refinementRequest,
-    host: "codex",
-    identity: notRefinedIdentity,
-    title: notRefinedStory,
-  });
   const workspace = path.join(dashboard.home, "private-workspace");
-  mkdirSync(workspace);
-  rmSync(workspace, { recursive: true });
-  if (unknown) symlinkSync(workspace, workspace);
-  const records = stored(dashboard.home);
-  const record = records[0];
-  if (
-    record === undefined ||
-    record.session.host !== "codex" ||
-    record.session.continuation === undefined
-  )
-    throw new Error("Missing recorded session");
-  record.session.continuation.workspace = workspace;
-  keepFinalReport(native, workspace, report);
+  if (workspaceState === "unreadable") symlinkSync(workspace, workspace);
+  keepFinalReport(native, workspace, text);
   native.observations.set(native.threadId, {
     status: { type: "notLoaded" },
     turns: [{ id: "landing-turn", status: "completed" }],
   });
-  save(dashboard.home, records);
-  return { record: { ...record, session: record.session }, workspace };
+  const saved = await givenSavedCodexSession(dashboard, native, {
+    ...record,
+    workspace,
+    history: native.history,
+  });
+  return { record: saved, workspace };
 }
 // The not-refined story's recorded preparation has a workspace to retire.
 const retiredStory = { identity: notRefinedIdentity, title: notRefinedStory };

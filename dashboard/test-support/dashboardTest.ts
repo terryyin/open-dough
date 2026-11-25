@@ -93,10 +93,7 @@ export const test = base.extend<{
   // stalled read; the server's own bound when unset. A journey that waits
   // the bound out sets a short one with `test.use`.
   readTimeoutMs: number | undefined;
-  // Folders under this page's dashboard HOME's `git/`, as catalog projects'
-  // folders for its synthetic `claude`; none when unset. A journey that
-  // launches an agent, or marks done or reopens a kept session, names them
-  // with `test.use`, and may shorten the server's launch wait the same way.
+  // Catalog project folders under this page's dashboard HOME's `git/`.
   projectFolders: readonly string[] | undefined;
   machine: string | undefined;
   codexProtocol: FakeCodex | undefined;

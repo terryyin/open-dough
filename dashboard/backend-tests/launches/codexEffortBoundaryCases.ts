@@ -2,9 +2,15 @@ import {
   test,
   expect,
   stored,
+  expectCodexAdHocInput,
 } from "../../test-support/support/codexLaunch.ts";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+test.use({
+  serverMode: "boundary",
+  projectFolders: ["open-dough"],
+});
+
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 
 for (const settings of [
@@ -46,19 +52,11 @@ for (const settings of [
         },
       ]);
       expect(stored(dashboard.home)[0]?.request).toMatchObject(settings);
-      const turns = native.calls.filter((c) => c.method === "turn/start");
-      expect(turns).toEqual(
-        instruction === undefined
-          ? []
-          : [
-              {
-                method: "turn/start",
-                params: {
-                  threadId: native.threadId,
-                  input: [{ type: "text", text: instruction }],
-                },
-              },
-            ],
+      expectCodexAdHocInput(
+        native,
+        instruction ?? "",
+        stored(dashboard.home)[0],
+        dashboard,
       );
       if ("effort" in settings && !("model" in settings))
         expect(

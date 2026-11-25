@@ -23,7 +23,8 @@ import {
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { optionsDefinitionSchema } from "../src/commandOptions.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
-import { sessionDetails } from "./support/sessionEntryDisclosure.ts";
+import { sessionDetailsControl } from "./support/sessionEntryDisclosure.ts";
+import { radio } from "./support/sessionDialog.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
 // Installs the real refinement skill's references, its options definition
@@ -114,12 +115,6 @@ export function backlogLaunchers(page: Page) {
     refinementDialog: page.getByRole("dialog", {
       name: "Start refinement in Claude Code",
     }),
-    async showsRecordedRefinementOptions(title: string, expected: string) {
-      const entry = storyCardSessions(card(title));
-      await expect(entry).toHaveCount(1);
-      await sessionDetails(entry);
-      await expect(entry.getByText(expected, { exact: true })).toBeVisible();
-    },
   };
 }
 
@@ -137,6 +132,49 @@ export async function showOptions(dialog: Locator) {
   }
 }
 
+export function storyLaunchChoices(dialog: Locator) {
+  const options = dialog.getByRole("group", { name: "Options" });
+  const option = (name: string) =>
+    options.getByRole("checkbox", { name, exact: true });
+  const model = dialog.getByRole("combobox", { name: "Model" });
+  const effort = dialog.getByRole("combobox", { name: "Reasoning effort" });
+  return {
+    option,
+    options,
+    optionGroup: (name: string) => options.getByRole("group", { name }),
+    groupChoice: (group: string, name: string) => radio(options, group, name),
+    command: dialog.locator("code"),
+    model,
+    effort,
+    cancel: () => dialog.getByRole("button", { name: "Cancel" }).click(),
+    async chooseOption(name: string) {
+      await showOptions(dialog);
+      await option(name).check();
+    },
+    chooseHost: (host: string) =>
+      dialog.getByRole("combobox", { name: "Host" }).selectOption(host),
+    chooseModel: (alias: string) => model.selectOption(alias),
+    async showsRemovedOption(name: string, explanation: string) {
+      await expect(dialog).toContainText(explanation);
+      await expect(option(name)).toHaveCount(0);
+    },
+    async showsModels(selected: string, labels: string[]) {
+      await expect(model).toHaveValue(selected);
+      await expect(model.locator("option")).toHaveText(labels);
+    },
+  };
+}
+
+export async function showsRecordedRefinementOptions(
+  card: Locator,
+  expected: string,
+) {
+  const entry = storyCardSessions(card);
+  await expect(entry).toHaveCount(1);
+  await sessionDetailsControl(entry).click();
+  await expect(entry.getByText(expected, { exact: true })).toBeVisible();
+}
+
 export const startSession = (page: Page, project: string) =>
   page.getByRole("button", { name: `Start session in ${project}` });
 
@@ -144,6 +182,16 @@ export const startSessionDialog = (page: Page, project: string) =>
   page.getByRole("dialog", {
     name: `Start a session in ${project} in Claude Code`,
   });
+
+export async function openStartSession(page: Page, project: string) {
+  await startSession(page, project).click();
+  const dialog = startSessionDialog(page, project);
+  return {
+    dialog,
+    submit: () =>
+      dialog.getByRole("button", { name: "Start", exact: true }).click(),
+  };
+}
 
 export const startSessionField = (dialog: Locator) =>
   dialog.getByRole("textbox", {

@@ -21,7 +21,7 @@ export function routeOriginThroughHome(
     "config",
     "--file",
     path.join(home, ".gitconfig"),
-    "--add",
+    "--replace-all",
     `url.${origin}.insteadOf`,
     gitHubRepositoryUrl(repository),
   ]);

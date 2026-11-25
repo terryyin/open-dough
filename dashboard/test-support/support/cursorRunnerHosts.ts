@@ -4,14 +4,14 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect } from "./pageTest.ts";
-import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
+import { launch } from "../agentLaunchBoundary.ts";
 import {
   lastAttachEnded,
   composeSession,
   openTerminal,
   shows,
 } from "../agentTerminalBoundary.ts";
-import { codexSkill } from "./codexLaunch.ts";
+import { givenSavedCodexSession } from "./codexObservation.ts";
 import {
   codexAttaches,
   expectCodexHungUp,
@@ -64,12 +64,7 @@ export async function serverCloseLeavesCursorAndHangsUpOtherHosts(): Promise<voi
     const claude = await composeSession(server);
     const claudeTerminal = await openTerminal(server, claude);
     expect(await shows(claudeTerminal, "attached")).toBe(true);
-    codexSkill(server.home);
-    const codexLaunch = await launch(server, {
-      ...refinementRequest,
-      host: "codex",
-    });
-    expect(JSON.parse(codexLaunch.body)).toMatchObject({ kind: "launched" });
+    await givenSavedCodexSession(server, server.codex);
     const codexSession = await openCodexTerminal(server, server.codex.threadId);
     expect(await shows(codexSession, "original retained history")).toBe(true);
     const codexPid = codexAttaches(server.codex)[0]?.pid ?? 0;

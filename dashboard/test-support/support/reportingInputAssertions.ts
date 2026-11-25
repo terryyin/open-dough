@@ -105,10 +105,25 @@ export function expectAdHocReportingInput(
   request: RecordedLaunchRequest | undefined,
   server: Pick<DashboardServer, "home" | "origin">,
 ) {
-  const [developer, reporting, ...extra] = input.split("\n\n");
+  const developer = adHocDeveloperInput(input);
   expect(developer).toBe(instruction);
-  expect(extra).toEqual([]);
-  expectReportingBlock(reporting, request, server);
+  expectReportingBlock(input.slice(developer.length + 2), request, server);
+}
+
+export function adHocDeveloperInput(input: string): string {
+  const reporting = input.lastIndexOf("\n\nDashboard reporting context:");
+  return reporting < 0 ? input : input.slice(0, reporting);
+}
+
+export function installedStoryLaunchInput(input: string | undefined) {
+  const [invocation, handoff, reporting, ...developer] =
+    input?.split("\n\n") ?? [];
+  return {
+    invocation,
+    handoff,
+    reporting,
+    instruction: developer.join("\n\n"),
+  };
 }
 
 // The workspace's installed reporting script is the one this release ships.

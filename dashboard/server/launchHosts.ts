@@ -89,6 +89,8 @@ export type LaunchHost = {
     skill: string,
     ...segments: readonly string[]
   ): string;
+  // An unavailable native prerequisite for an installed execution that can publish a Take.
+  executionStartRefusal?(folder: LocalFolder): Promise<string | undefined>;
   launch(
     source: PublishedSource,
     request: RecordedLaunchRequest,

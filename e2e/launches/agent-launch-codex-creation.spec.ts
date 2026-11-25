@@ -18,9 +18,10 @@ import {
 } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   notRefinedIdentity,
+  queuedDashboardRepository,
   notRefinedStory,
 } from "../../dashboard/test-support/launchJourney.ts";
-import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
   launch,
   machineSessions,
@@ -29,13 +30,15 @@ import {
   test,
   expect,
   stored,
-} from "../../dashboard/test-support/support/codexLaunch.ts";
+} from "../../dashboard/test-support/support/codexStart.ts";
 import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openUntilRead,
   reloadUntilRead,
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { expectInstalledCodexStoryInput } from "./codexLaunchObservation.ts";
+
 const request = makeMe.aLaunchRequest
   .refining({
     identity: notRefinedIdentity,
@@ -44,7 +47,8 @@ const request = makeMe.aLaunchRequest
   })
   .withInstruction("Preserve this exact intent.")
   .please();
-test.use({ projectFolders: ["open-dough"] });
+
+test.use({ originRepository: queuedDashboardRepository().please() });
 
 // The launch's answer to the request above, and the saved launch records of
 // a server's home.
@@ -64,11 +68,11 @@ test("lost creation identity persists reconciliation requirement across server r
   dashboard,
   codexProtocol: protocol,
   machine,
-  launchJourney,
+  origin,
 }) => {
   const native = protocol;
   if (native === undefined) throw new Error("Missing native fixture.");
-  const { card } = await openTakenBacklog(page, launchJourney);
+  const { card } = await openInstalledStoryBoard(page, origin);
   native.loseCreation = true;
   const answer = await answerOf(dashboard);
   expect(answer.kind).toBe("uncertain");
@@ -79,7 +83,7 @@ test("lost creation identity persists reconciliation requirement across server r
     expect.objectContaining({
       request: expect.objectContaining({ host: "codex" }),
       creation: {
-        workspace: path.join(dashboard.home, "git/open-dough"),
+        workspace: path.join(origin.project, ".worktrees", "story-c"),
         endpoint: `unix://${native.env["FAKE_CODEX_SOCKET"]}`,
       },
     }),
@@ -100,7 +104,7 @@ test("lost creation identity persists reconciliation requirement across server r
       "reconcile this machine's launch evidence with it",
     );
     expect(retry.explanation).toContain(
-      path.join(restarted.home, "git/open-dough"),
+      path.join(origin.project, ".worktrees", "story-c"),
     );
     const port = Number(new URL(restarted.baseURL).port);
     await openUntilRead(page, `http://localhost:${port}/`);
@@ -112,7 +116,7 @@ test("lost creation identity persists reconciliation requirement across server r
       "No trustworthy conversation ID was returned",
     );
     await expect(pending.first()).toContainText(
-      path.join(restarted.home, "git/open-dough"),
+      path.join(origin.project, ".worktrees", "story-c"),
     );
     await expect(pending.first()).toContainText(
       "Conversation creation in Codex unresolved",
@@ -137,7 +141,7 @@ test("lost creation identity persists reconciliation requirement across server r
       "--remote",
       `unix://${native.env["FAKE_CODEX_SOCKET"]}`,
       "--cd",
-      path.join(restarted.home, "git/open-dough"),
+      path.join(origin.project, ".worktrees", "story-c"),
       "--include-non-interactive",
     ]);
     expect(await machineSessions(restarted)).toEqual([]);
@@ -153,10 +157,10 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
   page,
   dashboard,
   codexProtocol: native,
-  launchJourney,
+  origin,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture.");
-  const { card } = await openTakenBacklog(page, launchJourney);
+  const { card } = await openInstalledStoryBoard(page, origin);
   expect(
     JSON.parse(
       (
@@ -183,6 +187,12 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
   const saved = stored(dashboard.home)[0];
   if (saved?.session.host !== "codex")
     throw new Error("Missing saved Codex record.");
+  expectInstalledCodexStoryInput(
+    dashboard,
+    native,
+    saved,
+    `$dough-story-refinement ${notRefinedIdentity}`,
+  );
   const document = savedRecords<{ firstInput: { explanation?: string } }>(
     dashboard.home,
   );

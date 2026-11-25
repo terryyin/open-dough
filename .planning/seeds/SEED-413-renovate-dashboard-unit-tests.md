@@ -471,7 +471,7 @@ smaller unit selection does not hide its cost or a lost regression check.
   Review 144, terminals 49 and configuration 16. By imported boundary,
   132 specs (913 s) use the launch boundary helpers and 144 (792 s) start a
   dashboard server; these overlap. The Taken plans for
-  [installed-project launches](../slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md),
+  [installed-project launches](https://github.com/terryyin/open-dough/blob/9cd90fe67384e09bcdcb4f75cdb4c48a6857855b/.planning/slice-plans/816-run-dashboard-launch-tests-on-an-installed-project/PLAN.md),
   [story-linked ad hoc sessions](../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md),
   [local-Git Board and Review reads](../slice-plans/819-read-published-board-and-review/PLAN.md)
   and [one publication loop](../slice-plans/820-publish-to-trunk-through-one-loop/PLAN.md)

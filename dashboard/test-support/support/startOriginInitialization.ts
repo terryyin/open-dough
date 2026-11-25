@@ -20,6 +20,7 @@ import {
   preparedRevisions,
   preparedStartOrigin,
   prepareStartOrigin,
+  type StartOriginLayout,
   type StartRepository,
   type StartRevisions,
 } from "./startOriginPreparation.ts";
@@ -40,10 +41,9 @@ export async function initializeStartOrigin(
   home: string,
   project: string,
   repository: string,
-  host: "claude" | "codex" | "cursor",
+  layout: StartOriginLayout,
   description: StartRepository,
 ): Promise<StartRevisions> {
-  const layout = host === "claude" ? "claude" : "codex";
   const { directory: prepared, shared } = await preparedStartOrigin(
     layout,
     description,

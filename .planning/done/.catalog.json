@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-433_run-dashboard-launch-tests-on-an-installed-project.json",
+      "identity": "SEED-433#run-dashboard-launch-tests-on-an-installed-project",
+      "completedAt": "2026-11-25T07:38:57.720Z",
+      "blob": "4f44a5ed0366b2b1600c8541a2033e453a7e1931"
+    },
+    {
       "fileName": "SEED-438_show-initial-sync-before-review.json",
       "identity": "SEED-438#show-initial-sync-before-review",
       "completedAt": "2026-11-25T07:01:35.592Z",
