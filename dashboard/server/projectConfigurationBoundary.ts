@@ -3,7 +3,7 @@ import { answerCiFollowUp } from "./ciFollowUpBoundary.ts";
 import { storyReviewStateEndpoint } from "../src/storyReviewState.ts";
 import { answerStoryReviewStates } from "./storyReviewStates.ts";
 import { storyNotesEndpoint } from "../src/storyNote.ts";
-import { answerStoryNotes } from "./storyNotes.ts";
+import { answerStoryNotes, machineStoryNotesFile } from "./storyNotes.ts";
 import type { IncomingMessage } from "node:http";
 import {
   projectAddEndpoint,
@@ -41,7 +41,8 @@ async function answer(
   if (pathname === ciFollowUpEndpoint) return answerCiFollowUp(req, signal);
   if (pathname === storyReviewStateEndpoint)
     return answerStoryReviewStates(req, signal);
-  if (pathname === storyNotesEndpoint) return answerStoryNotes(req, signal);
+  if (pathname === storyNotesEndpoint)
+    return answerStoryNotes(req, signal, machineStoryNotesFile());
   if (
     pathname === projectListEndpoint ||
     pathname === projectSettingsEndpoint

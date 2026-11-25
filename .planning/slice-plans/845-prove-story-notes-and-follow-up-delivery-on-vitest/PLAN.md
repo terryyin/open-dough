@@ -74,10 +74,16 @@ lock-identical dependencies from the integration checkout.
 
 ## Ordered slices
 
+Execution continues in Story Branch Mode on
+`origin/codex/prove-story-notes-and-follow-up-delivery-in-node` from Take
+`dd22b9e1c0e9025ae4eeb18f6ebbfb7f488fba30`, with `origin/main` for
+integration. The plan and seed agreed at execution start. The recorded
+readiness review predates changes to the source.
+
 ### 1. Persist and read notes from an isolated file
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 Proof: Both selected Story Notes pilot specs pass under Node Vitest.
 
@@ -88,6 +94,11 @@ file unchanged. Give the handler, waiting-note reader, and delivered-note
 writer the same file input with the existing machine location bound by
 production callers. Remove the pilot's `HOME` override and prove the
 unchanged notes request admission alongside it.
+
+All 29 Node pilot cases passed with the private file, with a maximum of
+63.86 ms. The 12 retained launch cases passed, including the production notes
+route and Cursor confirmation. The browser sent-state check and Dashboard
+typecheck passed. The full backend selection took 62.30 s on the shared Mac.
 
 ### 2. Refuse page fields that cannot select notes
 

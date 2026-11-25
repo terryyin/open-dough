@@ -38,6 +38,7 @@ import { waitingStoryNotes } from "./storyNotes.ts";
 async function resolveStoryFollowUp(
   followUp: Extract<FollowUp, { story: unknown }>["story"],
   source: PublishedSource,
+  notesFile: string,
 ): Promise<{
   context: StoryFollowUpContext;
   notes?: AttachedStoryNote[];
@@ -63,7 +64,11 @@ async function resolveStoryFollowUp(
     sessions.some(({ retained }) => retained !== undefined),
   );
   if (followUp.notes !== true) return { context: base };
-  const waiting = await waitingStoryNotes(source.id, followUp.identity);
+  const waiting = await waitingStoryNotes(
+    notesFile,
+    source.id,
+    followUp.identity,
+  );
   if (waiting === "unreadable" || waiting.length === 0)
     return { context: base };
   return {
@@ -91,6 +96,7 @@ async function resolveSessionFollowUp(
 export async function withFollowUpContext(
   request: AgentLaunchRequest,
   source: PublishedSource,
+  notesFile: string,
 ): Promise<AgentLaunchRequest> {
   if (request.workflow !== "ad-hoc" || request.followUp === undefined)
     return request;
@@ -102,7 +108,11 @@ export async function withFollowUpContext(
       ...request,
       followUp: await resolveSessionFollowUp(request.followUp, source),
     };
-  const resolved = await resolveStoryFollowUp(request.followUp.story, source);
+  const resolved = await resolveStoryFollowUp(
+    request.followUp.story,
+    source,
+    notesFile,
+  );
   return {
     ...request,
     followUp: {

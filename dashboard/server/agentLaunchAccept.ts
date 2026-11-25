@@ -25,6 +25,7 @@ import {
   replacementWriterBlock,
 } from "./launchPreAcceptance.ts";
 import type { AttemptRun } from "./launchAttemptSettlement.ts";
+import { machineStoryNotesFile } from "./storyNotes.ts";
 
 export async function acceptLaunchRequest(
   owner: LaunchAttemptOwner,
@@ -62,7 +63,11 @@ export async function acceptLaunchRequest(
   // request that would otherwise be accepted as a new attempt.
   let resolved: AgentLaunchRequest;
   try {
-    resolved = await withFollowUpContext(withDefaultEffort(identified), source);
+    resolved = await withFollowUpContext(
+      withDefaultEffort(identified),
+      source,
+      machineStoryNotesFile(),
+    );
   } catch (error) {
     abandonAttachmentClaims(claims);
     throw error;
