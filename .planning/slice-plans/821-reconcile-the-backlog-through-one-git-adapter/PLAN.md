@@ -201,8 +201,7 @@ under `open-dough/evidence/slice-2-report.md`.
 
 The tracked scope for line counts includes all shipped Git adapter modules
 with their moved code, both guidance files and the installed guard. It
-measured 2,514 lines at preparation and 2,503 at the Take. The slice
-implementation measured 1,661 before selective formatting.
+measured 2,514 lines at preparation and 2,503 at the Take. The published implementation measured 1,684 lines after selective formatting.
 
 ## Plan review
 
@@ -210,3 +209,12 @@ Separate refinement was unnecessary. Retirement is a complete first
 delivery, and the second slice uses the same resolver and recovery rules
 for the remaining supported commands. No remaining slice-specific concern
 was identified.
+
+
+## Execution complete
+
+Product advice: no change. The delivered source matches the story's two
+slices, the installed entry paths and recovery proof are intact, and the
+result takes no new priority over the separately queued trunk-publication
+work. Outcome review used the Take as provenance and `30b432f2` and
+`16a73cb2` as the attributable implementation commits.
