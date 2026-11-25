@@ -1,5 +1,10 @@
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
+import {
+  enableSettingsTouch,
+  touchAt,
+} from "../configuration/system-settings-browser.ts";
+import { center } from "./board-reading-page.ts";
 import {
   button,
   covering,
@@ -37,7 +42,7 @@ test("review keeps its session, chosen file and reads through width and sidebar 
   const heading = panel.getByRole("heading", { level: 2 }).element();
   const retain = async () => {
     expect(panel.getByRole("heading", { level: 2 }).element()).toBe(heading);
-    await files.expectSelected(picked);
+    // A narrow panel starts Files closed; the diff shows the kept choice.
     await files.expectDiffShows(picked, "+more wide");
     expect([review.mock.calls.length, fileDiff.mock.calls.length]).toEqual(
       before,
@@ -97,4 +102,58 @@ test("review keeps its session, chosen file and reads through width and sidebar 
   await expect.element(sidebar).not.toBeInTheDocument();
   await widthIs(minimum + 3 * keyStep);
   await retain();
+});
+
+const shownBackdrops = () =>
+  [...document.querySelectorAll(".sidebar-drawer-backdrop")].filter(
+    (backdrop) => getComputedStyle(backdrop).display !== "none",
+  );
+
+test("in a narrow frame, Sessions over the Review Files drawer leaves one drawer that one outside tap dismisses, and docking releases the boundary", async () => {
+  await enableSettingsTouch();
+  const { review } = await mountWidthReview(narrow);
+  await button("Show files").click();
+  await expect.element(button("Hide files")).toBeVisible();
+
+  await userEvent.keyboard("{Meta>}b{/Meta}");
+  await expect.element(sidebar).toBeVisible();
+  await expect.element(button("Show files")).toBeVisible();
+  expect(shownBackdrops()).toHaveLength(1);
+
+  const reads = review.mock.calls.length;
+  const refresh = center(button("Refresh").element());
+  expect(refresh.x).toBeGreaterThan(
+    sidebar.element().getBoundingClientRect().right,
+  );
+  await touchAt(refresh.x, refresh.y);
+  await expect.element(sidebar).not.toBeInTheDocument();
+  await expect.element(button("Show files")).toBeVisible();
+  expect(review.mock.calls.length).toBe(reads);
+  expect(shownBackdrops()).toHaveLength(0);
+
+  await button("Show files").click();
+  expect(shownBackdrops()).toHaveLength(1);
+  await page.viewport(wide.width, wide.height);
+  await expect.element(button("Hide files")).toBeVisible();
+  await expect.poll(() => shownBackdrops()).toHaveLength(0);
+  const filesList = document.getElementById(
+    button("Hide files").element().getAttribute("aria-controls") ?? "",
+  );
+  button("Hide files").element().focus();
+  await userEvent.tab();
+  expect(filesList?.contains(document.activeElement)).toBe(false);
+  expect(document.activeElement).not.toBe(button("Hide files").element());
+
+  // Replacing the panel content releases an open drawer's boundary.
+  await page.viewport(narrow.width, narrow.height);
+  await button("Show files").click();
+  expect(shownBackdrops()).toHaveLength(1);
+  // The backdrop takes a pointer on Close; the keyboard replaces the panel.
+  button("Close").element().focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(panel).not.toBeInTheDocument();
+  expect(shownBackdrops()).toHaveLength(0);
+  const before = document.activeElement;
+  await userEvent.tab();
+  expect(document.activeElement).not.toBe(before);
 });

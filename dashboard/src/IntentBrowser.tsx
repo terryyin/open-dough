@@ -4,7 +4,7 @@
 
 import type { ReactNode } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
-import type { IntentFilesPlace } from "./IntentFilesDrawer.tsx";
+import type { FilesSidebar } from "./FilesSidebar.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
 import { IntentTreeGroups } from "./IntentTreeGroups.tsx";
@@ -67,7 +67,7 @@ export function IntentBrowser({
   readonly story: ComparedStory | undefined;
   readonly reviewFileReady: boolean;
   // The locations column's id and whether Hide files / Show files shows it.
-  readonly files: IntentFilesPlace;
+  readonly files: FilesSidebar;
   readonly panel: IntentBrowserPanel;
   // Project Intent's chosen view and ids, in Project Intent: opening a test
   // from the record returns this browser to CI status.

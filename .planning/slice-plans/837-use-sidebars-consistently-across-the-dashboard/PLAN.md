@@ -140,7 +140,7 @@ keep their existing scoped choice and independently scrolling reader.
 ### 3. Use the same Files drawer in Review changes
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mounted Review width, input and navigation cases, plus the real-frame
 Review and Sessions journey. Verify the second-click action from the same
 coordinates and the preferred width after the divider returns.
@@ -208,17 +208,23 @@ named slices. This review identified no remaining slice-specific concern.
   a viewport change. Slice 3 reuses it for Review's tree at narrow room.
   Pressing a location or folder name opens its Summary and leaves the drawer
   open; the story closes the drawer only when a file is chosen.
-- Slice 3 refactor lead: the drawer placement block (fixed, banner-height
-  top, z-index 8 over the backdrop's 7, edge and shadow) and its
-  `.sidebar-drawer-backdrop:has(+ …)` rule repeat in `sessions-sidebar.css`
-  and `intent-browser.css` under different room conditions. Review Files
-  decides by measured panel room, so let each sidebar apply a shared
-  over-page class from `sidebar-drawer.css` once it knows its placement.
+- Slice 3 delivered `dashboard/src/ReviewFilesDrawer.tsx` and the shared
+  `FilesSidebar.tsx` (`useFilesSidebar`) used by Intent and Review: Review
+  measures its body against the 34.75rem threshold, so a narrow split in a
+  wide window gets the drawer, and commits the change only on crossing it.
+  Opening one drawer over the page closes any other through
+  `sidebar-drawer-opened`. Entering narrow room starts Files closed in both
+  views. Placement blocks stay per view, because their CSS room queries are
+  the settle signal `sidebarPlacement` reads.
+- Slice 3 learning: a "ResizeObserver loop completed" warning appeared on
+  narrow Review mounts at load 19–24 and was not reproduced at load 11–16.
+  The observer now commits only on a threshold crossing; CI's Review shard
+  is the next confirmation.
 - Slice 2 learning: `dashboard/frontend-tests/review/story-review-toolbar-truthful.spec.ts:39`
   failed once in a 39-file batch at load 16–30 ("expected undefined to be
   'Published changes'") and passed alone 5/5 at load 16, with no Review code
-  changed. Slice 3 reruns the Review toolbar consumers and repairs the case
-  if it recurs.
+  changed. It passed in every Slice 3 batch, including the whole Review
+  directory at load 13–24.
 
 ## Story obligations
 
@@ -235,9 +241,9 @@ Disposition: proved by slice 1: the plan's baseline at `f4d03aae4` observed the 
 ### G3. The Files drawer's outside dismissal was not observed with a native tap
 Reported: slice 2 — "There is no native-touch run for the Files drawer; the pointer path was checked with the mouse."
 Story clause: "With a drawer open on a phone, tap an exposed point over an underlying button. The drawer closes and the button stays inactive. A second tap can activate the button."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/frontend-tests/review/story-review-files-drawer.spec.ts` (native tap on Refresh closes Review Files with the read count unchanged; the next tap refreshes) and `dashboard/frontend-tests/intent/intent-files-drawer.spec.ts` (native tap on Intent coverage closes Files with Changes selected; the next tap selects it), run `s3-fix-5`
 
 ### G4. The Sessions shortcut can open a second drawer over an open Files drawer
 Reported: slice 2 — "If the Sessions keyboard shortcut opens Sessions while the Files drawer is open, two drawers and two backdrops can be open at once."
 Story clause: "Use one active drawer input boundary when narrow surfaces meet."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `intent-files-drawer.spec.ts` (Meta+B over the open Files drawer leaves one backdrop; one tap closes Sessions with Files closed) and `dashboard/frontend-tests/navigation/side-panel-width-review.spec.ts` (Sessions over the Review Files drawer leaves one backdrop and one tap on Refresh closes it without a read; docking and closing the Review leave no backdrop and Tab moves freely), runs `s3-fix-5` and `s3-fix-8`

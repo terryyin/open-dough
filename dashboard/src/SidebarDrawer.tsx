@@ -14,9 +14,15 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { isInsideOpenDialog } from "./pageShortcuts.ts";
 import "./sidebar-drawer.css";
 
-// Whether the sidebar element is currently presented as a drawer.
+// Whether the sidebar element is currently presented as a drawer: over the
+// window, or over its own panel's room (`./ReviewFilesDrawer.tsx`).
 export const liesOverPage = (sidebar: HTMLElement | null) =>
-  sidebar !== null && getComputedStyle(sidebar).position === "fixed";
+  sidebar !== null &&
+  ["fixed", "absolute"].includes(getComputedStyle(sidebar).position);
+
+// One drawer is active at a time: a drawer opening over the page closes any
+// other open drawer, so one outside gesture dismisses what is open.
+const drawerOpened = "sidebar-drawer-opened";
 
 // The toggle that answers for the sidebar where it is shown, among copies of
 // its control, such as the banner's and the side panel header's.
@@ -47,6 +53,25 @@ export type SidebarDrawer = {
 
 // Escape and Tab containment for an open drawer over the page.
 export function useDrawerKeys({ open, sidebarId, close }: SidebarDrawer) {
+  useEffect(() => {
+    if (!open) return undefined;
+    if (liesOverPage(document.getElementById(sidebarId)))
+      document.dispatchEvent(
+        new CustomEvent<string>(drawerOpened, { detail: sidebarId }),
+      );
+    const onOther = (event: Event) => {
+      const other = (event as CustomEvent<string>).detail;
+      if (
+        other !== sidebarId &&
+        liesOverPage(document.getElementById(sidebarId))
+      )
+        close();
+    };
+    document.addEventListener(drawerOpened, onOther);
+    return () => {
+      document.removeEventListener(drawerOpened, onOther);
+    };
+  }, [open, sidebarId, close]);
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (event: KeyboardEvent) => {
@@ -120,17 +145,24 @@ export function DrawerBackdrop({
   open,
   sidebarId,
   onDismiss,
+  overPage = false,
 }: {
   readonly open: boolean;
   readonly sidebarId: string;
   readonly onDismiss: () => void;
+  // Shown wherever it is open, for a sidebar that decides its own placement.
+  readonly overPage?: boolean;
 }) {
   const hole = useToggleHole(open, sidebarId);
   if (!open) return null;
   // The click ends the gesture its press began, so nothing beneath acts.
   return (
     <div
-      className="sidebar-drawer-backdrop"
+      className={
+        overPage
+          ? "sidebar-drawer-backdrop sidebar-drawer-over-page"
+          : "sidebar-drawer-backdrop"
+      }
       aria-hidden="true"
       style={hole === undefined ? undefined : { clipPath: hole }}
       onPointerDown={(event) => {

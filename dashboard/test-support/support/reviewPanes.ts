@@ -93,6 +93,25 @@ export async function shownInPane(pane: Locator, row: Locator) {
 export const boxes = (parts: readonly Locator[]) =>
   Promise.all(parts.map((part) => box(part)));
 
+// The part spans the work area from top to bottom; answers the part's box.
+export async function expectSpansWorkarea(part: Locator, workarea: Locator) {
+  const [area, shown] = await Promise.all([box(workarea), box(part)]);
+  expect(shown.y).toBeCloseTo(area.y, 0);
+  expect(shown.height).toBeCloseTo(area.height, 0);
+  return shown;
+}
+
+// A drawer spans the work area at its leading edge and leaves room beside it
+// for an outside dismissal.
+export async function expectDrawerOver(drawer: Locator, workarea: Locator) {
+  const [area, shown] = await Promise.all([
+    box(workarea),
+    expectSpansWorkarea(drawer, workarea),
+  ]);
+  expect(shown.x).toBeCloseTo(area.x, 0);
+  expect(shown.x + shown.width).toBeLessThan(area.x + area.width - 40);
+}
+
 // The large story: many files, a name wider than the browser and long diffs.
 export const largeReviewRepository = largeRepository(
   largeReviewRevision({

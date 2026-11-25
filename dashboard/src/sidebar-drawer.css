@@ -1,10 +1,15 @@
 /* A sidebar drawer's backdrop (./SidebarDrawer.tsx): the whole window, banner
    included, less the active toggle's box, just under the drawer. Each view's
    style shows it only where that view places its sidebar over the page, as
-   ./sessions-sidebar.css does for Sessions. */
+   ./sessions-sidebar.css does for Sessions; a sidebar that decides its
+   placement by its own measured room marks it over the page. */
 .sidebar-drawer-backdrop {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 7;
+}
+
+.sidebar-drawer-backdrop.sidebar-drawer-over-page {
+  display: block;
 }

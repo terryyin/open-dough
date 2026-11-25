@@ -1,6 +1,11 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
+import {
+  enableSettingsTouch,
+  touchAt,
+} from "../configuration/system-settings-browser.ts";
 import { center } from "../navigation/board-reading-page.ts";
+import { sessions as sessionsButton } from "../navigation/dashboard-header-reading.ts";
 import { scopeToggle } from "./intent-browser-page.ts";
 import {
   deepFile,
@@ -124,4 +129,48 @@ test("docked at a wide window, Files stays beside the reader while a page contro
   await status.click();
   await files.showsFiles(true);
   expect(files.reading().left).toBeGreaterThan(files.browser().left + 100);
+});
+
+test("on a phone, a native tap beyond the Files drawer closes it without changing the tab under it, and the next tap does", async () => {
+  await enableSettingsTouch();
+  const story = await openStoryChangesOnPhone();
+  const files = fileLayout();
+  await files.toggle.click();
+  await files.showsFiles(true);
+  const coverage = center(story.viewTab("Intent coverage").element());
+
+  await touchAt(coverage.x, coverage.y);
+  await files.showsFiles(false);
+  await expect
+    .element(story.viewTab("Changes"))
+    .toHaveAttribute("aria-selected", "true");
+
+  await touchAt(coverage.x, coverage.y);
+  await expect
+    .element(story.viewTab("Intent coverage"))
+    .toHaveAttribute("aria-selected", "true");
+});
+
+test("on a phone, the Sessions shortcut over an open Files drawer leaves one drawer, which one outside tap dismisses", async () => {
+  await enableSettingsTouch();
+  await openStoryChangesOnPhone();
+  const files = fileLayout();
+  await files.toggle.click();
+  await files.showsFiles(true);
+
+  await userEvent.keyboard("{Meta>}b{/Meta}");
+  await expect.element(sessionsButton).toHaveAttribute("aria-expanded", "true");
+  await files.showsFiles(false);
+  expect(
+    [...document.querySelectorAll(".sidebar-drawer-backdrop")].filter(
+      (backdrop) => getComputedStyle(backdrop).display !== "none",
+    ),
+  ).toHaveLength(1);
+
+  const beyond = center(files.toggle.element());
+  await touchAt(beyond.x, beyond.y);
+  await expect
+    .element(sessionsButton)
+    .toHaveAttribute("aria-expanded", "false");
+  await files.showsFiles(false);
 });

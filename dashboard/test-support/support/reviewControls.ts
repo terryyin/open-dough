@@ -1,6 +1,8 @@
 // Story review controls, without a read or snapshot wait. The caller owns
 // whether it needs the answer or is deliberately leaving it pending.
 import { expect, type Locator, type Page } from "@playwright/test";
+import { tapWhereShown } from "../pageLayout.ts";
+import { sidebarPlacement } from "../sidebarPlacement.ts";
 import { storyReviewNames as n } from "../storyReviewNames.ts";
 
 export const reviewRegion = (
@@ -94,3 +96,42 @@ export const reviewRefresh = (
   review: Locator,
   { exact = false }: { exact?: boolean } = {},
 ) => review.getByRole("button", { name: "Refresh", exact });
+
+// The toolbar's file sidebar toggle, whatever it is named now.
+const anyFilesToggle = (review: Locator) =>
+  reviewToolbar(review).getByRole("button", { name: /^(Hide|Show) files$/ });
+
+// Where Files stands once the review's state agrees with its style for its
+// room, and whether that room makes it a drawer; undefined where the
+// comparison lists no files.
+async function settledFiles(review: Locator) {
+  const toggle = anyFilesToggle(review);
+  if ((await toggle.count()) === 0) return undefined;
+  const placement = () => toggle.evaluate(sidebarPlacement);
+  await expect.poll(placement).not.toBe("pending");
+  const drawerRoom = await toggle.evaluate((control) => {
+    const files = document.getElementById(
+      control.getAttribute("aria-controls") ?? "",
+    );
+    return files !== null && getComputedStyle(files).position === "absolute";
+  });
+  return { placement: await placement(), drawerRoom };
+}
+
+// Where Files is a drawer, open it by touch: each newly narrow review starts
+// it closed, and choosing a file closes it. Docked Files keeps the
+// reviewer's choice.
+export async function showFilesByTouch(review: Locator) {
+  const files = await settledFiles(review);
+  if (files?.placement !== "hidden" || !files.drawerRoom) return;
+  await tapWhereShown(filesToggle(review, "Show files"));
+  await expect(filesToggle(review, "Hide files")).toBeVisible();
+}
+
+// The diff uncovered by touch: an open Files drawer closes, docked Files
+// stays.
+export async function uncoverDiffByTouch(review: Locator) {
+  if ((await settledFiles(review))?.placement !== "drawer") return;
+  await tapWhereShown(filesToggle(review, "Hide files"));
+  await expect(filesToggle(review, "Show files")).toBeVisible();
+}

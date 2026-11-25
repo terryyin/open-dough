@@ -31,7 +31,7 @@ import {
 } from "./reviewTouchReading.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { reviewRegion } from "./reviewControls.ts";
+import { reviewRegion, showFilesByTouch } from "./reviewControls.ts";
 import {
   commitAll,
   largeRepository,
@@ -80,6 +80,8 @@ export async function openReviewByTouch(page: Page, origin: StartOrigin) {
   const review = reviewRegion(page);
   await expectOpenedWithKeyboard(review);
   await expectReviewRead(review);
+  // A narrow review opens on its diff; Files is its drawer.
+  await showFilesByTouch(review);
   const browser = fileBrowser(review);
   await expect(
     changedFilesList(browser, `${String(changedFiles)} changed files`),
@@ -188,8 +190,11 @@ export async function chooseComparisonAndReadByTouch(
     ).visible,
   ).toBe(true);
   const codeBeforeBrowserScroll = await scrollTopOf(code);
+  // Reopening a Files drawer recovers its tree where it was.
+  await showFilesByTouch(review);
+  const browserShownAt = await scrollTopOf(browser);
   await scrollByTouch(page, browser, 100);
-  await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserAt);
+  await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserShownAt);
   expect(await scrollTopOf(code)).toBe(codeBeforeBrowserScroll);
   expect(await boxes(fixed)).toEqual(before);
 }

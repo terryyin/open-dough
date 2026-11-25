@@ -37,6 +37,7 @@ export function SnapshotView({
   comparison,
   headingId,
   browser,
+  onFileChosen,
   tree: comparedTree,
   settingsRevision,
 }: {
@@ -44,6 +45,8 @@ export function SnapshotView({
   readonly comparison: ReviewComparison;
   readonly headingId: string;
   readonly browser: FileBrowserPlace;
+  // Choosing a file closes a Files drawer to expose its diff.
+  readonly onFileChosen?: () => void;
   readonly tree: string;
   // Intent locations revision for path-grammar fallback (`./reviewDiffSyntaxHint.ts`).
   readonly settingsRevision?: string;
@@ -82,6 +85,12 @@ export function SnapshotView({
     );
     if (browserPane.current && row) revealRow(browserPane.current, row);
   }, [shownPath]);
+  // Hidden Files, docked or a closed drawer, recovers its scroll when shown.
+  const browserTop = useRef(0);
+  useLayoutEffect(() => {
+    if (browser.shown && browserPane.current)
+      browserPane.current.scrollTop = browserTop.current;
+  }, [browser.shown]);
   const moveTo = (file: ReviewedFile) => {
     setCollapsed((was) => {
       const holders = [...was].filter((folder) =>
@@ -110,13 +119,21 @@ export function SnapshotView({
           className="story-review-files"
           aria-labelledby={`${browserId}-heading`}
           hidden={!browser.shown}
+          onScroll={(event) => {
+            const pane = event.currentTarget;
+            if (pane.getClientRects().length > 0)
+              browserTop.current = pane.scrollTop;
+          }}
         >
           <h3 id={`${browserId}-heading`}>{listName}</h3>
           <FileTree
             label={listName}
             nodes={tree}
             selectedPath={selected.path}
-            onSelect={setSelectedPath}
+            onSelect={(path) => {
+              setSelectedPath(path);
+              onFileChosen?.();
+            }}
             collapsed={collapsed}
             onToggle={(folderPath) => {
               setCollapsed((was) => {
