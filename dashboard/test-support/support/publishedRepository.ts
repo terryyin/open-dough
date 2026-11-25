@@ -33,6 +33,21 @@ export const publishedOriginOf = (
 ): PublishedOrigin | undefined =>
   "origin" in answerer ? (answerer as PublishedOriginAnswerer) : undefined;
 
+// `wrapper` answers from `published`'s origin, so serving it routes that
+// origin as serving `published` would.
+export const keepingOrigin = (
+  wrapper: RepositoryAnswerer,
+  published: RepositoryAnswerer,
+): RepositoryAnswerer => {
+  const origin = publishedOriginOf(published);
+  return origin === undefined
+    ? wrapper
+    : Object.assign(wrapper, {
+        origin: origin.origin,
+        revision: origin.revision,
+      });
+};
+
 type Publishing = {
   readonly defaultBranch?: string;
   readonly backlog?: string;

@@ -16,7 +16,6 @@ import {
   startFakeGitHub,
   type FakeGitHub,
 } from "./fakeGitHub.ts";
-import { defaultBaseCiRevision } from "./baseCiActions.ts";
 import { publishes } from "./publishedRepository.ts";
 import { dashboardFixtureLifetime } from "./dashboardFixtureLifetime.ts";
 import {
@@ -106,10 +105,7 @@ async function start(
   const ownsGitHub = options.github === undefined;
   const github = options.github ?? (await startFakeGitHub());
   if (ownsGitHub) {
-    github.serve(
-      everyRepository,
-      publishes({ revision: defaultBaseCiRevision }),
-    );
+    github.serve(everyRepository, publishes({}));
   }
   const gh = installFakeGh(tempRoot, { transport: options.ghTransport });
   const ghEnv = fakeGhEnv(gh, github.url);

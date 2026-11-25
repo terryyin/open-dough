@@ -71,9 +71,9 @@ than the Board's trunk and backlog keep their current paths for
 
 | Consuming operation | Observation | Remainder |
 | --- | --- | --- |
-| Review transport probe of refusal, unavailability, and absence | On 2026-11-25 against this checkout at `75182dd87`, the Review transport's exact `ls-remote` (gh credential helper, `GIT_TERMINAL_PROMPT=0`, `LC_ALL=C`) exited 128 for loopback 401, 403, 404, 503, a held request aborted by its deadline, a closed port, and GitHub "Repository not found". Stderr separated 401 ("could not read Username") and 403 ("returned error: 403") from connection failure and 503. A missing branch exited 2 under `--exit-code`. One read-only probe reached the configured origin under the existing Review authority with the active gh account's `repo` scope. | A server-rejected credential ("Authentication failed") was not observed; slice 4 treats an unrecognized 128 as unavailable. |
-| Board fixture reach | At `75182dd87`, about 120 backend and e2e spec files use the fake GitHub; 52 use `publishes()` with synthetic revisions, 64 e2e files use `publishCommittedOrigin` with a real repository, and the e2e server routes every unrouted GitHub URL to a missing repository. | Slices 1–3 migrate the Board-opening ones; each slice's suite run is its proof. |
-| Board's recovery cues | At `1c0272d6f`, `caffeinate -s -i npm run test:e2e -- auto-refresh-branches.spec.ts auto-refresh-recovery.spec.ts --workers=1 --reporter=line` passed 3 cases. The Board preserved the last good snapshot during a failed check and recovered. | Slice 5 replaces the provider fixture at the Refresh boundary and counts Git operations against a real origin. |
+| Review transport probe of refusal, unavailability, and absence | On 2026-11-25 against this checkout at `75182dd87`, the Review transport's exact `ls-remote` (gh credential helper, `GIT_TERMINAL_PROMPT=0`, `LC_ALL=C`) exited 128 for loopback 401, 403, 404, 503, a held request aborted by its deadline, a closed port, and GitHub "Repository not found". Stderr separated 401 ("could not read Username") and 403 ("returned error: 403") from connection failure and 503. A missing branch exited 2 under `--exit-code`. One read-only probe reached the configured origin under the existing Review authority with the active gh account's `repo` scope. | A server-rejected credential ("Authentication failed") was not observed; slice 5 treats an unrecognized 128 as unavailable. |
+| Board fixture reach | At `75182dd87`, about 120 backend and e2e spec files use the fake GitHub; 52 use `publishes()` with synthetic revisions, 64 e2e files use `publishCommittedOrigin` with a real repository, and the e2e server routes every unrouted GitHub URL to a missing repository. | Slices 1–4 migrate the Board-opening ones; each slice's suite run is its proof. |
+| Board's recovery cues | At `1c0272d6f`, `caffeinate -s -i npm run test:e2e -- auto-refresh-branches.spec.ts auto-refresh-recovery.spec.ts --workers=1 --reporter=line` passed 3 cases. The Board preserved the last good snapshot during a failed check and recovered. | Slice 6 replaces the provider fixture at the Refresh boundary and counts Git operations against a real origin. |
 
 Use the
 [consumer trace procedure](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
@@ -87,7 +87,7 @@ Type: Structure
 Status: done
 Change: `publishCommittedOrigin` routes its repository through the fixture
 HOME, so a Git read of the configured project reaches that origin. Fake
-GitHub answers stay unchanged. Enables slice 4.
+GitHub answers stay unchanged. Enables slice 5.
 
 Proof: The e2e specs using `publishCommittedOrigin` pass unchanged, and a
 focused check shows a Git `ls-remote` under the fixture HOME reaching the
@@ -103,31 +103,45 @@ Serving it under a repository name routes that origin through every HOME
 the fake GitHub serves, and a later publication of the same repository
 replaces the route. Backend specs that named a synthetic trunk revision take
 it from the fixture. Callers that still supply a revision are unchanged.
-Enables slice 4.
+Enables slice 5.
 
 Proof: The migrated backend specs pass with assertions unchanged apart from
 revision sourcing. A routed check shows `ls-remote` following a
 republication. The full backend and e2e suites pass, because the route
 replacement also governs `publishCommittedOrigin`.
 
-### 3. Publish the remaining Board-opening fixtures through a real origin
+### 3. Route the default published answer through a real origin
+
+Type: Structure
+Status: done
+Change: The default answer that `dashboardTest.ts` and `dashboardServer.ts`
+serve for every repository commits a real origin instead of the synthetic
+`defaultBaseCiRevision`. An origin served for every repository is routed
+through each served HOME for the configured project's GitHub URL. Wrappers
+around a published answerer, such as `holdingAnswer`, keep its origin.
+Callers of `defaultBaseCiRevision` read the origin's revision instead.
+Enables slice 5.
+
+Proof: Both full suites pass unchanged in observed behavior. A routed check
+shows `ls-remote` for a configured project reaching the default origin's
+`main`.
+
+### 4. Publish hand-answered Board fixtures through a real origin
 
 Type: Structure
 Status: planned
-Change: The e2e `publishes()` specs and shared test-support callers, the
-`describedRevisions.ts` publications, launch fixtures that already hold a
-real origin, and specs that hand-answer `ref` publish their trunk through a
-named, routed real origin. Wrappers around a published answerer, such as
-`holdingAnswer`, keep its origin. Specs that serve the `everyRepository`
-fallback and open the Board serve their project by name instead. Specs that
-never open the Board keep their answers. Enables slice 4.
+Change: Specs and support that hand-answer `ref`, and launch fixtures that
+already hold a real origin, publish their trunk through a named, routed
+real origin. `publishes()` accepts an existing origin. A journey that
+advances trunk moves the origin's real `main` too. Reads that pass an
+explicit revision and never ask for `ref`, such as the
+`describedRevisions.ts` specs, keep their answers. Enables slice 5.
 
 Proof: The migrated specs pass unchanged in observed behavior, with both
 full suites. A search shows no remaining Board-opening synthetic trunk or
-fallback-served project. If this slice overruns, split it at the e2e and
-shared-support boundary.
+fallback-served project.
 
-### 4. Open the Board at verified published trunk
+### 5. Open the Board at verified published trunk
 
 Type: Behavior
 Status: planned
@@ -143,7 +157,7 @@ real origin and a renamed checkout. Assert the exact revision and backlog
 and count subprocess and GitHub calls. Check refusal and unavailable origins
 at the same boundary, then run the dashboard backend and e2e suites.
 
-### 5. Refresh a warm Board and explain failure
+### 6. Refresh a warm Board and explain failure
 
 Type: Behavior
 Status: planned
@@ -178,14 +192,14 @@ authoring or changing proof.
   fixture migration now precedes the switch here.
 - Slice 1 routes every origin published through one fake GitHub to every
   dashboard HOME it serves (`routeOriginThroughServedHomes`), which slices 2
-  and 3 reuse. Slice 4 must handle two findings. Git uses the first of two
+  to 4 reuse. Slice 5 must handle two findings. Git uses the first of two
   routes for one GitHub URL, so a repository published twice in one test
   keeps reaching its first origin. `advanceTo` moves only the fake GitHub's
   answer, so a journey relying on it must move the origin's real `main`.
   A change to `dashboardServer.ts` needs both full suites (about 22 minutes
   for e2e and 20 for backend on this machine).
 - Slice 2's first attempt (7.5 active minutes) completed the backend
-  `publishes()` migration and returned the rest. Its findings set slice 3's
+  `publishes()` migration and returned the rest. Its findings set slices 3 and 4's
   scope. Migrated backend cases serve the `everyRepository` fallback, which
   routes nothing. Wrappers around `publishes()` drop its origin. A
   done-catalog case needs one revision holding different files for two
@@ -200,3 +214,13 @@ authoring or changing proof.
   file passed in the first full run, passed alone (6/6, 2.3–3.2 s per case),
   and this story does not change it. Its review syncs are a load-sensitive
   test defect that needs a follow-up correction at wrap-up.
+- Slice 3's first attempt (1.5 active minutes, no change) found that the
+  default answer served for every repository holds the synthetic
+  `defaultBaseCiRevision`. Every default Board open goes through it, so the
+  original slice 3 split into a central routing slice (3) and the
+  hand-answered fixtures (4).
+- Slice 3 links the default origin into each served HOME only for the
+  seeded projects (`productionSeedProjects`), under the unrouted-away
+  directory, so routes named by fixtures still win. Slice 5 must reach a
+  project that a test adds and the default origin alone answers, and must
+  move the origin's `main` where a journey advances trunk.

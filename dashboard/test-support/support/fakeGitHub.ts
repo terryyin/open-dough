@@ -18,7 +18,10 @@ import { avatarsAt } from "../avatarAnswers.ts";
 import { asGhReply } from "./ghReply.ts";
 import { parseRequest, type GhRequest } from "./ghRequest.ts";
 import { unanswered } from "./waitUntil.ts";
-import { routeOriginThroughServedHomes } from "./fixtureOriginRoute.ts";
+import {
+  routeFallbackThroughServedHomes,
+  routeOriginThroughServedHomes,
+} from "./fixtureOriginRoute.ts";
 import { publishedOriginOf } from "./publishedRepository.ts";
 
 export { publishes } from "./publishedRepository.ts";
@@ -196,8 +199,9 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
       const previous = served.get(repository);
       served.set(repository, answerer);
       const published = publishedOriginOf(answerer);
-      // A fallback answerer names no repository a HOME could route.
-      if (published !== undefined && repository !== everyRepository)
+      if (repository === everyRepository)
+        routeFallbackThroughServedHomes(github, published?.origin);
+      else if (published !== undefined)
         routeOriginThroughServedHomes(github, published.origin, repository);
       return previous;
     },
