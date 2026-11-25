@@ -30,6 +30,10 @@ export default defineConfig({
       .map((file) => `dashboard/${file}`),
     includeTaskLocation: true,
     isolate: true,
+    // A file's history traversals stay inside its own tester frame.
+    setupFiles: [
+      "dashboard/test-support/component-mount/historyTraversalGuard.ts",
+    ],
     browser: {
       enabled: true,
       headless: true,
