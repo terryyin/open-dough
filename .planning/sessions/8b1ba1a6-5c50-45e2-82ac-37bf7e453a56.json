@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "8b1ba1a6-5c50-45e2-82ac-37bf7e453a56",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-25T11:24:25.728Z",
+  "story": "SEED-438#show-initial-sync-before-review",
+  "ranges": [
+    {
+      "base": "3adaf74dd8c340e82e422fd50cc37fc09c70bf2b",
+      "candidate": "c25236caa4c0fb319fc87414e8cb72b54bb0fec5"
+    }
+  ]
+}
