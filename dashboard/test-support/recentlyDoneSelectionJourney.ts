@@ -25,7 +25,7 @@ import {
   openDoughSettings,
   publishIntentProject,
 } from "./intentCodeBrowseFixtures.ts";
-import { publishFiles } from "./publishedFiles.ts";
+import { publishCommittedFiles } from "./committedFiles.ts";
 import { doneRecordAt } from "./recentlyDoneRecords.ts";
 import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import type { tapWhereShown } from "./pageLayout.ts";
@@ -63,12 +63,12 @@ export const readSpec = "dashboard/tests/browse.spec.ts";
 // Publishes the three projects; given `unreadableLinkedRecord`, Pygardon's
 // done story's record names another identity, so its catalog names that
 // record unreadable.
-export async function publishSelectionProjects(
+export function publishSelectionProjects(
   page: Page,
   now: number,
   unreadableLinkedRecord = false,
 ) {
-  await publishIntentProject(page, openDough, openDoughSettings, {
+  publishIntentProject(page, openDough, openDoughSettings, {
     [readSpec]: browseSpec,
   });
   const { pygardon, doughnut } = catalogPublications;
@@ -102,14 +102,12 @@ export async function publishSelectionProjects(
       .please(),
     { pinned: pygardon.revision, done: pygardon.revision },
   );
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository: pygardon.repository,
-    revision: pygardon.revision,
     files: done.files,
   });
-  await publishFiles(page, {
+  publishCommittedFiles(page, {
     repository: doughnut.repository,
-    revision: doughnut.revision,
     files: doughnut.files,
   });
 }
@@ -218,7 +216,7 @@ export async function openSelectionPage(
   const now = Date.now();
   if (tap === undefined)
     await page.setViewportSize({ width: 1600, height: 900 });
-  await publishSelectionProjects(page, now, unreadableLinkedRecord);
+  publishSelectionProjects(page, now, unreadableLinkedRecord);
   keepSelectionSessions(dashboard, now, newer);
   await openUntilRead(page, address);
   const shown = recentlyDoneParts(page);

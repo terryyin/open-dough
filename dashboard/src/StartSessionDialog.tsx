@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   adHocName,
+  admitsIsolatedStory,
   establishesSession,
   unattachedPolicyOf,
   type AgentLaunchRequest,
@@ -62,6 +63,7 @@ export function StartSessionDialog({
       : "this project's execution checkout";
   const context =
     followUp === undefined ? "" : ", sending this context with your request";
+  const admitting = admitsIsolatedStory({ policy, followUp });
 
   return (
     <LaunchDialog
@@ -87,7 +89,7 @@ export function StartSessionDialog({
           />
         )
       }
-      description={`${hostName(host)} starts a background session on this machine, in ${workspace}, with no story or skill${context}. It is listed as ${project} · ${adHocName}.`}
+      description={`${hostName(host)} starts a background session on this machine, in ${workspace}, ${admitting ? "under its new Taken story" : "with no story or skill"}${context}. It is listed as ${project} · ${admitting ? "its story title" : adHocName}.`}
       fieldLabel="What would you like to talk about? (optional)"
       session={unattachedSession({
         policy,
@@ -99,10 +101,14 @@ export function StartSessionDialog({
           <strong className="launch-dialog-summary">
             {unattachedSummary(policy)}
           </strong>{" "}
-          {unattachedEffect(policy)}
+          {unattachedEffect(policy, admitting)}
         </>
       }
-      details={<p>{unattachedWhere(policy, establishesSession({ policy }))}</p>}
+      details={
+        <p>
+          {unattachedWhere(policy, establishesSession({ policy }), admitting)}
+        </p>
+      }
       onStart={(choices) =>
         onStart(
           choices,

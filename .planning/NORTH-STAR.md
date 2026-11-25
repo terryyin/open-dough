@@ -14,7 +14,7 @@ only when their commits are locally readable, and keep detail reads pinned.
 When refresh fails, retain the last readable view with its confirmation time
 and sync status. Actions that need current state require a successful fresh
 check. The
-[Board trunk story](seeds/SEED-430-read-published-project-data-from-local-git.md#open-published-board-from-local-git)
+[Board trunk story](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk)
 establishes the shared observation, and the
 [published-progress story](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git)
 extends it to branches, records, and Review. The

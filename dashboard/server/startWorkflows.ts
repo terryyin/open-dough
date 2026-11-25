@@ -58,13 +58,16 @@ const oneShot = {
     `No session started; nothing was published. Workspace ${workspace.shown}.`,
 };
 
-// What an unattached session's start says (`./unattachedStart.ts`): it has
-// no story, so nothing is Taken or Preparing, and it publishes nothing.
+// What an unattached session's start says (`./unattachedStart.ts`): it
+// publishes nothing, unless an isolated one admits its Taken story.
 export const unattachedStartWords = {
-  retained: ({ workspace, branch }: StartWhere) =>
-    `Nothing was published. The established start was kept in workspace ${workspace} on branch ${branch}, where Continue or the same Start request can resume it.`,
-  uncertain: (place: StartWhere) =>
-    `The session's start did not finish within the wait; it publishes nothing. ${keptGoingOn(place)}`,
+  retained: (
+    { workspace, branch }: StartWhere,
+    claim?: { readonly publishedSha?: string | undefined },
+  ) =>
+    `${claim === undefined ? "Nothing was published." : claim.publishedSha !== undefined ? "The Taken story was published." : "The story admission can be retried."} The established start was kept in workspace ${workspace} on branch ${branch}, where Continue or the same Start request can resume it.`,
+  uncertain: (place: StartWhere, admitting: boolean) =>
+    `The session's start did not finish within the wait; ${admitting ? "story admission is unresolved" : "it publishes nothing"}. ${keptGoingOn(place)}`,
   formatFailed: () =>
     `The session's place was established, but the installed skill's formatter could not be read, so no session was started.`,
   unreadable:

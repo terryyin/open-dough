@@ -26,7 +26,7 @@ import {
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
-  publishFiles,
+  publishCommittedFiles,
   type ObservedRequest,
 } from "../../dashboard/test-support/publishedOrigin.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
@@ -80,7 +80,7 @@ test("Recently done lists published done stories among the sessions, newest firs
 }) => {
   const now = Date.now();
   keepSessions(dashboard, now);
-  const requests = await publishFiles(page, doneStories.published(now));
+  const { requests } = publishCommittedFiles(page, doneStories.published(now));
   await page.goto("/");
   await expectMembership(page, {
     taken: [],
@@ -152,7 +152,7 @@ test("a revision with no done records lists the sessions as before, and one whos
   const { recentlyDone: recent } = parts(page);
 
   await test.step("no done-record directory: only the sessions, with no error", async () => {
-    await publishFiles(page, doneStories.publishedWithoutRecords());
+    publishCommittedFiles(page, doneStories.publishedWithoutRecords());
     await page.goto("/");
     await expectMembership(page, {
       taken: [],
@@ -165,7 +165,7 @@ test("a revision with no done records lists the sessions as before, and one whos
   });
 
   await test.step("a done catalog read that fails: the column says done stories could not be read and still lists the sessions, with its count incomplete", async () => {
-    await publishFiles(page, doneStoryReadFailures.unansweredCatalog(now));
+    publishCommittedFiles(page, doneStoryReadFailures.unansweredCatalog(now));
     await page.reload();
     await expectMembership(page, {
       taken: [],
@@ -180,7 +180,7 @@ test("a revision with no done records lists the sessions as before, and one whos
   });
 
   await test.step("done records published without a catalog: the column names the gap and its repair, reads no record, and still lists the sessions", async () => {
-    const requests = await publishFiles(
+    const { requests } = publishCommittedFiles(
       page,
       doneStoryReadFailures.withoutCatalog(now),
     );
@@ -198,7 +198,7 @@ test("a revision with no done records lists the sessions as before, and one whos
   });
 
   await test.step("a done record published beside a catalog that does not list it: the column names the stale catalog and the same repair, reads no record, and still lists the sessions", async () => {
-    const requests = await publishFiles(
+    const { requests } = publishCommittedFiles(
       page,
       doneStoryReadFailures.staleCatalog(now),
     );
@@ -216,7 +216,7 @@ test("a revision with no done records lists the sessions as before, and one whos
   });
 
   await test.step("malformed done records beside readable ones: the column names each file with its problem, and still shows the readable cards and the sessions", async () => {
-    await publishFiles(page, doneStoryReadFailures.malformed.published(now));
+    publishCommittedFiles(page, doneStoryReadFailures.malformed.published(now));
     await page.reload();
     await expectMembership(page, {
       taken: [],

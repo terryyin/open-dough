@@ -1,3 +1,7 @@
+import {
+  admittedStory,
+  isolatedAdmissionFlags,
+} from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
 // A definite native refusal after establishment keeps its session start; the
 // page offers recovery without native uncertainty and an identical Start
 // resumes the same attempt. It drives a real installed start and bare
@@ -28,8 +32,6 @@ import {
 } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   isolatedSession,
-  isolatedStart,
-  originHeads,
   recordStarts,
   sessionBlock,
   worktree,
@@ -49,7 +51,6 @@ test("a failed established session is offered for recovery and the identical Sta
 }) => {
   const starts = recordStarts(origin);
   const before = await originMain(origin);
-  const heads = await originHeads(origin);
   dashboard.claudeScenario("refused");
   await openBacklog(page, origin);
   await startSession(page, "Open Dough").click();
@@ -64,7 +65,7 @@ test("a failed established session is offered for recovery and the identical Sta
     .toBe("failed");
   const [failed] = await attempts(dashboard);
   const id = failed?.id ?? "";
-  const retained = `Nothing was published. The established start was kept in workspace ~/git/open-dough/.worktrees/${slug} on branch claude/${slug}, where Continue or the same Start request can resume it.`;
+  const retained = `The Taken story was published. The established start was kept in workspace ~/git/open-dough/.worktrees/${slug} on branch claude/${slug}, where Continue or the same Start request can resume it.`;
   await expect(page.locator(".start-session-answer")).toContainText(retained);
   const recovery = recoveryOf(page);
   await expect(recovery).toContainText(retained);
@@ -78,7 +79,14 @@ test("a failed established session is offered for recovery and the identical Sta
   await expect(
     recovery.getByRole("button", { name: continueLabel }),
   ).toBeEnabled();
-  const session = isolatedSession(origin.project, slug, "review", before);
+  const admitted = await admittedStory(origin, text);
+  expect(admitted.revision).not.toBe(before);
+  const session = isolatedSession(
+    origin.project,
+    slug,
+    "review",
+    admitted.revision,
+  );
   expect(keptSessionStarts(origin)[id]?.["session"]).toEqual(session);
 
   dashboard.claudeScenario("launched");
@@ -106,14 +114,14 @@ test("a failed established session is offered for recovery and the identical Sta
   expect(block).toBe(sessionBlock(session));
   if (record === undefined) throw new Error("Missing launch record.");
   expectReportingBlock(reporting, record.request, dashboard);
-  expect(developer).toEqual([text]);
+  expect(developer).toEqual([`Taken story: ${admitted.identity}`, text]);
   expect(starts().map(({ argv }) => argv)).toEqual([
-    isolatedStart(origin.project, slug, "review"),
+    expect.arrayContaining(isolatedAdmissionFlags(origin.project, slug)),
   ]);
   expect(worktrees(origin.project)).toEqual([slug]);
   expect(keptSessionStarts(origin)).toEqual({});
   expect(await attempts(dashboard)).toEqual([
     expect.objectContaining({ id, acceptedAt: failed?.acceptedAt }),
   ]);
-  expect(await originHeads(origin)).toBe(heads);
+  expect(await originMain(origin)).toBe(admitted.revision);
 });

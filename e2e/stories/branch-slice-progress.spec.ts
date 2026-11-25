@@ -20,7 +20,7 @@ import {
   expectMembership,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   inspectedDetail,
   storyCard,
@@ -44,19 +44,18 @@ import {
   planUninterpretable,
   profilePath,
   repository,
-  revision,
   similarlyNamed,
   stories,
-  trunk,
+  trunkPublication,
   twoOwners,
 } from "../../dashboard/test-support/branchProgressRecords.ts";
 import { credit } from "../../dashboard/test-support/agentCredit.ts";
 
 async function openedAtOpening(page: Page) {
   await pausePageClockAt(page, opened);
-  const requests = await publishFiles(page, {
+  const { requests, revision } = publishCommittedFiles(page, {
     repository,
-    ...trunk,
+    ...trunkPublication,
     branches,
   });
   await page.goto("/");
@@ -68,13 +67,13 @@ async function openedAtOpening(page: Page) {
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
   const { taken } = parts(page);
   const progress = (title: string) => sliceProgress(storyCard(taken, title));
-  return { requests, taken, progress };
+  return { requests, revision, taken, progress };
 }
 
 test("Taken cards show progress from where each story is published, or the gap that stops it", async ({
   page,
 }) => {
-  const { requests, taken, progress } = await openedAtOpening(page);
+  const { requests, revision, taken, progress } = await openedAtOpening(page);
 
   await test.step("a Story Branch Mode story shows 6 of 8 from its branch head, named as not in trunk", async () => {
     // The scan view qualifies the count briefly; the exact branch and

@@ -1,3 +1,4 @@
+import { isolatedAdmissionFlags } from "../../test-support/support/isolatedSessionAdmissionProof.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // Retention removes only the machine evidence of actually pruned attempts,
 // after a real installed unattached start finishes; Git workspaces remain.
@@ -20,7 +21,6 @@ import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
   git,
   isolatedSession,
-  isolatedStart,
   recordStarts,
   worktree,
 } from "../../test-support/support/startSessionLanding.ts";
@@ -56,12 +56,14 @@ test("a completed expired start loses only its pruned attempt's machine evidence
     if (attempt === undefined) throw new Error("No real held attempt");
     expect(attempt.settledAt).toBeDefined();
     await expect.poll(hold.reached, { timeout: 30_000 }).toBe(true);
+    const admitted = await originMain(origin);
+    expect(admitted).not.toBe(before);
     hold.release();
     const session = isolatedSession(
       origin.project,
       "session",
       "review",
-      before,
+      admitted,
     );
     await expect
       .poll(() => keptSessionStarts(origin)[attempt.id]?.["session"], {
@@ -150,7 +152,7 @@ test("a completed expired start loses only its pruned attempt's machine evidence
       git(worktree(origin.project, "session"), "branch", "--show-current"),
     ).toBe("claude/session");
     expect(starts().map(({ argv }) => argv)).toEqual([
-      isolatedStart(origin.project, "session", "review"),
+      expect.arrayContaining(isolatedAdmissionFlags(origin.project, "session")),
     ]);
   } finally {
     hold.release();

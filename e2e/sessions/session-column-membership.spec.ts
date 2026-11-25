@@ -14,6 +14,7 @@ import {
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   localEntries,
+  publishCommittedMembership,
   publishMembership,
   queuedStoryTaken,
   savedLocalSessionRecords as savedRecords,
@@ -160,7 +161,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  await publishMembership(page);
+  publishCommittedMembership(page);
   await page.goto("/");
   await startAdHocAndClose(page, "Open Dough", "inspect local work");
   const terminal = terminalPanel(page);
@@ -211,7 +212,7 @@ test("deleting its last local Taken entry returns the keyboard to Taken and sett
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  await publishMembership(page);
+  publishCommittedMembership(page);
   await page.goto("/");
   await startAdHocAndClose(page, "Open Dough", "the only local session");
   dashboard.claudeListingFails(true);

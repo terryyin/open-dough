@@ -84,7 +84,7 @@ export async function collectedProofOf(
   return { proof, pending };
 }
 
-export const readLandedProof: LandedProofRead = (source, subject, signal) =>
+const readLandedProof: LandedProofRead = (source, subject, signal) =>
   readIntentCiProof(
     source,
     subject,

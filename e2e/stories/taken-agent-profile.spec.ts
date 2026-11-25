@@ -15,7 +15,7 @@ import {
   inspectedDetail,
   storyCard,
 } from "../../dashboard/test-support/storyCardControls.ts";
-import { publishFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   enlargedView,
   expectOwnerMarks,
@@ -30,16 +30,14 @@ import {
   older,
   queued,
   repository,
-  revisionA,
   trunkStory,
 } from "../../dashboard/test-support/takenAgentProfileRecords.ts";
 
 test("each Taken card shows its published agent profile, or says plainly that none is recorded or readable", async ({
   page,
 }) => {
-  const requests = await publishFiles(page, {
+  const { requests, revision } = publishCommittedFiles(page, {
     repository,
-    revision: revisionA,
     files,
   });
 
@@ -224,12 +222,12 @@ test("each Taken card shows its published agent profile, or says plainly that no
         ? [`${request.kind} ${request.path}?ref=${request.revision}`]
         : [],
     );
-    expect(asked).toContain(`listing ${agents}?ref=${revisionA}`);
+    expect(asked).toContain(`listing ${agents}?ref=${revision}`);
     for (const agent of ["akiho", "kirara", "mana", "rina", "sola", "yuma"]) {
       expect(asked).toContain(
-        `content ${agents}/${agent}-chan.json?ref=${revisionA}`,
+        `content ${agents}/${agent}-chan.json?ref=${revision}`,
       );
     }
-    expect(asked).not.toContain(`content ${agents}/README.md?ref=${revisionA}`);
+    expect(asked).not.toContain(`content ${agents}/README.md?ref=${revision}`);
   });
 });

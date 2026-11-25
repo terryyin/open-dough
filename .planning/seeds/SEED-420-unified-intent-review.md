@@ -37,24 +37,64 @@ points are [IntentPage](../../dashboard/src/IntentPage.tsx),
 
 **Identity:** SEED-420#choose-review-scope
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/832-choose-review-scope/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ebfad0a3b95843ec13185b6f57b52d0d9647a19802094503a2a90902df9cabed","plan":"5aac011cbd89b87aaae3284965c6ea696ad205fa7b48f89d1505e89dfba541fc"}}
 ```
 
-A developer can identify the perspective and scope at a glance from the
-desktop **Intent** banner label and the adjacent bookmark labeled with the
-selected story or **Whole project**. The bookmark opens the menu to switch
-stories or choose **Whole project**. Clearing the story preserves its
-recent-list entry. On mobile the closed bookmark shows only its icon, with a
-touch target and accessible name conveying its scope.
+**Goal.** A developer reviewing work can tell which perspective and scope
+they are in and switch between the current project's evidence and recent
+stories from the banner.
 
-Repair the reported failure to open the menu while the selected story is
-already visible. Verify Board and Intent: the first click on a visible story
-opens the list, the first click with the story offscreen reveals it, and the
-next click opens the list. Selecting another project's recent story navigates
-to it. Exercise keyboard activation as well as touch.
+**Scope.** On desktop Intent, show **Intent** and the adjacent bookmark's
+current scope. Name the story by its published title when available, with its
+identity as the fallback. In project scope use **Whole project**. On a narrow
+screen the closed bookmark is icon-only, keeps a touch target of at least
+44 px on coarse pointers, and has an accessible name identifying the scope.
+The chooser works with mouse, keyboard, and touch. Its choices can be
+activated from the keyboard, and Escape returns focus to the bookmark.
 
-**Effort hypothesis:** S, medium confidence. Reproduce the visibility
-regression at the affected viewport before changing its detection.
+With a selected story, opening the chooser depends on whether the start of
+the story is readable in the current perspective. On the Board this is the
+start of the Story card. In Intent it is the story heading. A reader who
+already sees that start gets the menu on the first activation, with their
+reading place intact. If the start is offscreen, the first activation
+reveals it, and the next opens the menu. A story known to be unavailable
+still leaves the menu reachable so the developer can switch or clear.
+
+The bookmark replaces Intent's **Project Intent** and **Back to selected
+story** navigation. **Whole project** clears the page's selected story,
+keeps the current project and perspective, and preserves the recent list.
+In Intent this reaches the existing project CI view. On the Board this
+clears the selected card's highlight. Selecting a recent story keeps the
+current perspective and navigates to the story's project when needed.
+Choosing a story again after clearing starts a new review at its default
+view. The existing project and story identity pair determines which story
+is selected. Project file browsing, Story Home, and comparison controls
+have separate stories below.
+
+**Key examples.**
+
+- At desktop width with a selected story open in Intent, the banner reads
+  **Intent** and names the story. Open the bookmark and choose **Whole
+  project** to see the existing project CI view. Opening the bookmark again
+  shows the previous story in the same recent-list position. Choosing it
+  starts the story's default view and comparison.
+- With the selected Story card at the start of the Board's reading region,
+  activate the bookmark to open its menu. Page or scroll the card offscreen
+  and activate the bookmark to reveal the card. Activate again to open the
+  menu, then choose a recent story from another project to arrive on its Board.
+- On a short viewport with a file open in Changes and the story heading in
+  view, tap the bookmark to open its choices with the file still selected.
+  With the title scrolled out of view, the first activation makes the title
+  readable and the next opens the choices. With keyboard focus on the
+  bookmark, use the keyboard to open the choices and select a recent story.
+
+**Architecture.** [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts)
+assigns the page one Selected story and keeps Recent stories as browser
+history of project and identity pairs. Intent derives its scope from the
+page's Selected story, following the [North Star](../../docs/dashboard-ux-ui-north-star.md#review-in-intent).
+Readable bounds belong to the current perspective's UI. The banner can use
+the published story title when available without making titles part of story
+identity or history.
 
 <a id="compact-story-comparison-controls"></a>
 
@@ -62,24 +102,60 @@ regression at the affected viewport before changing its detection.
 
 **Identity:** SEED-420#compact-story-comparison-controls
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/833-compact-story-comparison-controls/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a1eca05b901b399dfb7e17be328824a37850231af209af3f93773625b1ffa894","plan":"13b53d4e8c0e50a27c3e7cc204edc90520d613c7ddcdfaf62252b6ef2d6787a1"}}
 ```
 
-A developer reviewing a story can identify the active comparison and change
-it from one compact toolbar row, leaving room for files and proof. Keep the
-story title above the bar. Group the file sidebar toggle, available comparison
-controls, and **Include merged changes** when supported. Show the Sessions
-control there as it becomes available through
-[session selection](SEED-418-review-published-session-changes.md#select-a-story-session-for-review).
+**Goal.** A developer reviewing a story in Intent can tell which comparison is
+active and change it from one compact toolbar row. The files and proof get the
+height the stacked comparison text and controls take today. This advances the
+seed's single review workspace without dropping any comparison capability.
 
-Collapse the comparison metadata into a one-line summary in that row. Show
-the recorded agent's avatar alongside attribution when an agent is known.
-Make the full comparison details available from the row, including the
-recorded time, branch, baseline and result revisions, and attribution or
-availability explanation. Switching comparisons updates the summary and the
-details to describe the active choice. Remove the standalone comparison
-**Refresh** button. A comparison read failure still offers its
-existing **Retry** where applicable.
+**Scope.** Keep the story title, its identity and Done mark, and the note
+button above the bar. The bar holds, in order:
+
+- the file sidebar's **Hide files** / **Show files** toggle;
+- the comparison controls that are available: the published comparison and
+  **Landed runs** choice when there is more than one choice, and
+  **Include merged changes** when the published comparison supports it;
+- a one-line summary of the active comparison. It names the comparison,
+  shows the recorded agent's portrait beside its attribution when an agent is
+  known, and opens the full comparison details.
+
+The details show what the stacked text shows today: the recorded time,
+branch, baseline and result revisions, and the attribution or the
+explanation of why a comparison is unavailable. The comparison follow-up
+action stays in the details until
+[its own story](#put-comparison-follow-up-by-story-notes) moves it. The
+details also hold **Refresh**, which re-reads the comparison while keeping the
+choice. The standalone **Refresh** button leaves the bar. Changing the
+comparison updates the summary and the details to describe the new choice.
+Reading, unavailable and failed states appear in the summary's place. A read
+failure keeps its **Retry** there. On a narrow window the bar wraps instead of
+overflowing. The **Sessions** control joins the bar through
+[session selection](SEED-418-review-published-session-changes.md#select-a-story-session-for-review),
+not this story.
+
+Out of scope: rereading automatically when newer work is published, and the
+follow-up button beside the notes.
+
+**Key examples.**
+
+- An unfinished story's published comparison by Kaoru-chan is open. The bar
+  shows the files toggle, the comparison choice, **Include merged changes**
+  and a summary with Kaoru-chan's portrait. Opening the summary shows the
+  branch, the baseline and result revisions, and **Refresh**. The file diff
+  starts directly below the bar.
+- The developer chooses a landed run. The summary and the details now
+  describe that run's time and landing revisions. **Include merged changes**
+  is not offered when that comparison does not support it.
+- New work is published while the story is open. **Refresh** in the details
+  re-reads it, keeps the landed run or published choice, and the summary
+  reports the refreshed comparison.
+- A comparison has no recorded agent. The summary shows the attribution text
+  without a portrait.
+- No comparison is available. The summary says so and the details explain
+  why. The comparison read fails: the summary reports the failure with
+  **Retry**.
 
 <a id="put-comparison-follow-up-by-story-notes"></a>
 

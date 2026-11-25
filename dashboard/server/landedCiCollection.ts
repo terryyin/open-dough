@@ -35,12 +35,17 @@
 // `DOUGH_TEST_LANDED_CI_COLLECTION=off`.
 
 import { collectCiFollowUps } from "./ciFollowUpCollection.ts";
-import type { PublishedSource } from "../src/publishedSource.ts";
-import { configuredLimit } from "./configuredLimit.ts";
+import type { LaunchLanding } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import type { RevisionCiProviders } from "./baseCiRevisionLookupSource.ts";
+import { configuredLimit } from "./configuredLimit.ts";
+import {
+  readIntentCiProof,
+  type IntentCiProofReaders,
+} from "./intentCiProofRead.ts";
 import { keptLandedCiHistory } from "./landedCiHistoryStore.ts";
 import { collectLandedCiPass } from "./landedCiPass.ts";
-import { readLandedProof } from "./landedCiCollectedProof.ts";
 import { landedCiReadSignal, passRead } from "./landedCiPassRead.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import {
@@ -63,33 +68,62 @@ function collects(): boolean {
   );
 }
 
-// The CI providers a machine pass reads each project's builds and proofs
-// through.
-export type LandedCiReads = {
-  readonly read: typeof passRead;
-  readonly readProof: Parameters<typeof collectLandedCiPass>[0]["readProof"];
+// External CI reads shared by build selection and retained proof collection.
+type LandedCiProviders = {
+  readonly runs?: RevisionCiProviders;
+  readonly proofs?: Partial<IntentCiProofReaders>;
 };
 
-// One project's pass over its launch records' landings, then its CI
-// follow-ups, in this machine's home.
-async function collectProject(
-  source: PublishedSource,
-  records: readonly LaunchRecord[],
-  ci: LandedCiReads,
-  stopped: AbortSignal,
-): Promise<void> {
-  const repository = executionCheckout(source).path;
-  await collectLandedCiPass({
+export async function collectProjectLandedCi(
+  {
     source,
-    history: await keptLandedCiHistory(source.id),
-    receipts: records.flatMap(({ landing }) =>
-      landing === undefined ? [] : [landing],
-    ),
+    receipts,
     repository,
     stopped,
-    read: ci.read(source, repository, stopped),
-    readProof: ci.readProof,
+    home,
+  }: {
+    readonly source: PublishedSource;
+    readonly receipts: readonly LaunchLanding[];
+    readonly repository: string;
+    readonly stopped: AbortSignal;
+    readonly home?: string;
+  },
+  { runs, proofs }: LandedCiProviders = {},
+): Promise<void> {
+  const artifact = proofs?.artifact;
+  await collectLandedCiPass({
+    source,
+    history: await keptLandedCiHistory(source.id, home),
+    receipts,
+    repository,
+    stopped,
+    ...(home === undefined ? {} : { home }),
+    read: passRead(source, repository, stopped, {
+      ...(runs === undefined ? {} : { providers: runs }),
+      ...(artifact === undefined ? {} : { readArtifact: artifact }),
+    }),
+    readProof: (project, attempt, signal) =>
+      readIntentCiProof(project, attempt, signal, () => repository, proofs),
   });
+}
+
+async function collectRecordedProjectCi(
+  source: PublishedSource,
+  records: readonly LaunchRecord[],
+  providers: LandedCiProviders,
+  stopped: AbortSignal,
+): Promise<void> {
+  await collectProjectLandedCi(
+    {
+      source,
+      receipts: records.flatMap(({ landing }) =>
+        landing === undefined ? [] : [landing],
+      ),
+      repository: executionCheckout(source).path,
+      stopped,
+    },
+    providers,
+  );
   if (!stopped.aborted)
     await collectCiFollowUps(
       source,
@@ -106,9 +140,9 @@ export type LandedCiLifecycle = {
 };
 
 // This machine's lifecycle: its environment decides whether it collects, and
-// each pass reads its launch records and configured projects through `ci`.
+// each pass reads its launch records and configured projects' CI.
 export function machineLifecycle(
-  ci: LandedCiReads = { read: passRead, readProof: readLandedProof },
+  providers: LandedCiProviders = {},
 ): LandedCiLifecycle {
   return {
     collects,
@@ -118,7 +152,12 @@ export function machineLifecycle(
       if (records === undefined) return;
       for (const source of publishedProjects()) {
         if (stopped.aborted) return;
-        await collectProject(source, records.get(source.id) ?? [], ci, stopped);
+        await collectRecordedProjectCi(
+          source,
+          records.get(source.id) ?? [],
+          providers,
+          stopped,
+        );
       }
     },
   };

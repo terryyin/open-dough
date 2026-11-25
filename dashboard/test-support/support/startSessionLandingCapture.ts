@@ -51,11 +51,12 @@ export function expectLandingHandoff(
   sent: string,
   dashboard: DashboardServer,
   project: string,
+  input: readonly string[] = [],
 ) {
   const { session, reporting, file, context } = landingHandoff(record);
   const [block, reportingBlock, ...extra] = sent.split("\n\n");
   expect(block).toBe(sessionBlock(session));
-  expect(extra).toEqual([]);
+  expect(extra).toEqual(input);
   expectReportingBlock(reportingBlock, record.request, dashboard);
   expect(reportingBlock).toContain(`--landing-context '${file}'`);
   expect(context).toEqual({

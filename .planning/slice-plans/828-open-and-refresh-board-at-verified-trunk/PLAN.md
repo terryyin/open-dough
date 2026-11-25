@@ -6,7 +6,7 @@
 
 **State:** Awaiting story refinement. These mapped slices need realignment before execution.
 
-**Split from:** [The original Board plan](../824-open-published-board-from-local-git/PLAN.md).
+**Split from:** The original Board plan 824 (`548a3814652df8782da71457ac3acffd973a2f08:.planning/slice-plans/824-open-published-board-from-local-git/PLAN.md`).
 The fixture work was split into three preceding outcomes. This plan retains
 the verified open, manual Refresh and cleanup.
 

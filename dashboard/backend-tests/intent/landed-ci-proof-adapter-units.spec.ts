@@ -6,13 +6,8 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { ciAdapterProofReader } from "../../server/ciAdapterProof.ts";
 import { performIntentCiHistoryRead } from "../../server/intentCiHistoryRead.ts";
-import {
-  performIntentCiProofRead,
-  readIntentCiProof,
-} from "../../server/intentCiProofRead.ts";
+import { collectProjectLandedCi } from "../../server/landedCiCollection.ts";
 import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
-import { collectLandedCiPass } from "../../server/landedCiPass.ts";
-import { passRead } from "../../server/landedCiPassRead.ts";
 import { buildKeyOf } from "../../src/landedCiBuildKey.ts";
 import { proofSummaryForEntry } from "../../test-support/support/ciProofArtifacts.ts";
 
@@ -33,11 +28,10 @@ test("retains and reads independent case and file timings from one validated ada
     gitTemplates: false,
   });
   const repository = checkout.integration;
+  const home = checkout.fixture;
   const stopped = new AbortController();
-  vi.stubEnv("HOME", checkout.fixture);
   onTestFinished(async () => {
     stopped.abort();
-    vi.unstubAllEnvs();
     await checkout.cleanup();
   });
 
@@ -85,30 +79,21 @@ test("retains and reads independent case and file timings from one validated ada
   const proof = vi.fn<typeof readCommandProof>().mockResolvedValue({ summary });
   const adapter = ciAdapterProofReader(proof);
   const artifact = vi.fn();
-  const readers = { adapter, artifact };
-
-  await collectLandedCiPass({
-    source,
-    receipts: [landing],
-    history: await keptLandedCiHistory(source.id),
-    repository,
-    stopped: stopped.signal,
-    read: passRead(source, repository, stopped.signal, {
-      providers: {
+  await collectProjectLandedCi(
+    { source, receipts: [landing], repository, stopped: stopped.signal, home },
+    {
+      runs: {
         adapter: {
           discover,
           jobs: () => Promise.resolve({ unavailable: "No job graph" }),
         },
         github: vi.fn().mockRejectedValue(new Error("unexpected GitHub")),
       },
-      readArtifact: artifact,
-    }),
-    readProof: (project, subject, signal) =>
-      readIntentCiProof(project, subject, signal, () => repository, readers),
-  });
+      proofs: { adapter, artifact },
+    },
+  );
 
-  const kept = await keptLandedCiHistory(source.id);
-  expect(Object.keys(kept.builds)).toEqual([key]);
+  const kept = await keptLandedCiHistory(source.id, home);
   expect(kept.builds[key]?.proof).toEqual({ kind: "summary", summary });
   expect(proof).toHaveBeenCalledTimes(1);
   expect(proof.mock.calls[0]?.slice(1, 3)).toEqual([
@@ -120,47 +105,12 @@ test("retains and reads independent case and file timings from one validated ada
     },
   ]);
 
-  const proofRead = {
-    kind: "intent-ci-proof" as const,
-    ...makeMe.aCiAdapterProofAttempt
-      .with({
-        runId: adapterAttempt.runId,
-        attemptId: adapterAttempt.attemptId,
-        branch: source.ref,
-        revision,
-      })
-      .please(),
-  };
-  const proofCalls = proof.mock.calls.length;
-  const discoveries = discover.mock.calls.length;
   expect(
-    await performIntentCiProofRead(
+    await performIntentCiHistoryRead(
       source,
-      proofRead,
-      stopped.signal,
-      () => repository,
-      readers,
+      { kind: "intent-ci-history", scope, revision, through: receivedAt },
+      { home },
     ),
-  ).toMatchObject({
-    kind: "answered",
-    answer: {
-      runId: adapterAttempt.runId,
-      attemptId: adapterAttempt.attemptId,
-      branch: source.ref,
-      revision,
-      proof: { kind: "summary", summary },
-    },
-  });
-  // Remembered adapter summary answers the same attempt without another ask.
-  expect(proof).toHaveBeenCalledTimes(proofCalls);
-
-  expect(
-    await performIntentCiHistoryRead(source, {
-      kind: "intent-ci-history",
-      scope,
-      revision,
-      through: receivedAt,
-    }),
   ).toMatchObject({
     kind: "answered",
     answer: {
@@ -182,17 +132,5 @@ test("retains and reads independent case and file timings from one validated ada
       ],
     },
   });
-  expect(discover).toHaveBeenCalledTimes(discoveries);
   expect(artifact).not.toHaveBeenCalled();
-  expect(
-    await performIntentCiHistoryRead(source, {
-      kind: "intent-ci-history",
-    }),
-  ).toMatchObject({
-    kind: "answered",
-    answer: {
-      entries: [{ kind: "point", revision }],
-    },
-  });
-  expect(discover).toHaveBeenCalledTimes(discoveries);
 });

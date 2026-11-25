@@ -17,6 +17,7 @@ import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   startSession,
   startSessionDialog,
+  startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   expect,
@@ -32,7 +33,7 @@ import {
 } from "../../dashboard/test-support/support/startSessionLandingCapture.ts";
 import { worktree } from "../../dashboard/test-support/support/startSessionLanding.ts";
 
-test("Isolated workspace · Automatically land with no text hands the session its landing context, and a landing from its worktree is captured for the launch with no story", async ({
+test("Isolated workspace · Automatically land carries its landing context and captures a landing from its admitted worktree", async ({
   page,
   dashboard,
   origin,
@@ -42,19 +43,27 @@ test("Isolated workspace · Automatically land with no text hands the session it
   const dialog = startSessionDialog(page, "Open Dough");
   await radio(dialog, "Workspace", "Isolated workspace").check();
   await radio(dialog, "After checks", "Automatically land").check();
+  await startSessionField(dialog).fill("Session");
   dashboard.claudeScenario("launched");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(dialog).toBeHidden();
   await expect.poll(() => recordsOf(dashboard, "open-dough")).toHaveLength(1);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   if (record === undefined) throw new Error("Missing launch record.");
-  expect(record.request).not.toHaveProperty("instruction");
+  expect(record.request).toMatchObject({
+    instruction: "Session",
+    storyIdentity: expect.any(String),
+  });
 
   const { session } = expectLandingHandoff(
     record,
     dashboard.claudeLaunches()[0]?.instruction ?? "",
     dashboard,
     origin.project,
+    [
+      `Taken story: ${"storyIdentity" in record.request ? record.request.storyIdentity : ""}`,
+      "Session",
+    ],
   );
   expect(session).toMatchObject({
     workspace: worktree(origin.project, "session"),
