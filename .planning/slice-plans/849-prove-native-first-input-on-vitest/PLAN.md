@@ -82,7 +82,9 @@ behavioral evidence and take a comparable pair for any performance claim.
   `25be1d9a8661191589c44e60165edfd5186055a8` with the workspace-start merge
   and the same observer. Slice 3 published as `ade5fff4c67f06d1fa9ddbd84d69c1557b067df8`
   on the same target. Slice 4 published as
-  `61c47088b1e5d2976bc4bb08d262fdf5e5b8ff0e`.
+  `61c47088b1e5d2976bc4bb08d262fdf5e5b8ff0e`, followed by slice 5
+  at `ead706721f4417cbe8d2d98bbfe6aeaa71df772d`. The slice 4 CI run
+  was cancelled by that later branch push with no failed job.
 - Locked checkout install, native Chromium prerequisite check, and Dashboard
   typecheck passed. Retain the existing eight-slice scope and use the
   recorded baseline for behavior on the unchanged launch paths.
@@ -290,7 +292,7 @@ and persistence owners. No further refactor was needed.
 ### 6. Recover uncertain first input only with matching evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Proof: Matching history confirms the original input. Explicit refusal can
@@ -308,6 +310,24 @@ conversation and workspace match. Convert
 [ad hoc Codex recovery](../../../e2e/launches/agent-launch-ad-hoc-codex-recovery.spec.ts)
 E2E journeys for protocol evidence, including blank persistence and a
 predecessor-shaped kept input after restart.
+
+Accepted proof: The three legacy cases pass under Node. The blank case
+reads the original published story and checks refusal and identity
+variants before the known refusal confirms the matching thread and
+workspace. One thread and zero turns are observed. The instructed
+continuation uses a fresh owner and the durable attempt for all five
+unsuitable histories, retaining the original record and one total
+submitted turn. Direct Verify leaves both durable and observed attempts
+unchanged without a native call. The unchanged reconciliation and
+ad hoc recovery E2E retain positive resend and matching-history proof.
+
+The selector
+`launches/agent-launch-(ad-hoc-codex-recovery-boundary|codex-reconciliation-boundary|codex-verify-boundary)\.spec\.ts$`
+passed three Node cases and zero Playwright cases in 6.22 s wall.
+Measured 3.170 s summed and individual cases from 1.024 to 1.117 s.
+Dashboard typecheck passed. The subject specs reuse the existing typed
+attempt inputs, real stores, and protocol fixture. No further refactor
+was needed.
 
 ### 7. Respect host connection loss and startup reconnection
 
