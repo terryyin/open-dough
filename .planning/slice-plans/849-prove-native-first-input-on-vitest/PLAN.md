@@ -78,7 +78,9 @@ behavioral evidence and take a comparable pair for any performance claim.
   Established claim `365c7c69bbdc91f7ca9c1b5119e34b20f9fcf724` is
   confirmed on the remote execution branch.
   Slice 1 published as `d6691f5bb35fc2214a1629e7ec873dcdbabe158e`
-  on that branch with observer registration.
+  on that branch with observer registration. Slice 2 published as
+  `25be1d9a8661191589c44e60165edfd5186055a8` with the workspace-start merge
+  and the same observer.
 - Locked checkout install, native Chromium prerequisite check, and Dashboard
   typecheck passed. Retain the existing eight-slice scope and use the
   recorded baseline for behavior on the unchanged launch paths.
@@ -184,7 +186,7 @@ unconfirmed-input Chromium E2E passed on the combined tree.
 ### 3. Admit Codex model and effort before acknowledging input
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Exercise Codex catalog reading through the same-origin project and
@@ -199,6 +201,25 @@ imported `codexEffortBoundaryCases.ts`, and
 and the [effort](../../../e2e/launches/agent-launch-codex-effort.spec.ts)
 and [stale effort](../../../e2e/launches/agent-launch-codex-stale-effort.spec.ts)
 journeys for dialog choice and native handoff.
+
+Accepted proof: All 18 legacy cases now have 20 Node checks and zero
+Playwright cases in the backend selection. The catalog spec exercises the
+same-origin, method and project rules and pages through the actual
+synthetic Codex socket. The model and effort specs check settings before
+creation and sample the durable machine record at the first input request.
+Conflicting settings keep the thread without sending input or saving a
+sendable input intent. The options spec keeps the missing installed
+refinement choices and bounded native creation refusals. The three input
+shapes for a native refusal now run independently. The unchanged Codex
+dialog E2E journeys retain native handoff from the browser.
+
+The selector for the four receiving specs was
+`launches/agent-launch-codex-(catalog|model-boundary|effort-boundary|options)\.spec\.ts$`.
+It passed in 58.77 s wall, with 50.072 s summed and individual cases from
+171.8 ms to 4.728 s including test setup. The old effort import is gone
+and Dashboard typecheck passed. The owned changes concern these specs
+alone, with existing protocol, storage, and reporting observers reused.
+No further refactor was needed.
 
 ### 4. Validate Cursor's chosen model at discovery and creation
 
