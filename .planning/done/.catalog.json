@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-installed-story-starts-on-vitest.json",
+      "identity": "SEED-413#prove-installed-story-starts-on-vitest",
+      "completedAt": "2026-11-26T02:44:45.536Z",
+      "blob": "1510ceafeb218b36abada2c8847643565b9c7d76"
+    },
+    {
       "fileName": "SEED-417_use-sidebars-consistently-across-the-dashboard.json",
       "identity": "SEED-417#use-sidebars-consistently-across-the-dashboard",
       "completedAt": "2026-11-25T17:30:25.522Z",

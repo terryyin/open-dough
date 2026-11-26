@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files ([plan](slice-plans/838-filter-review-files/PLAN.md))
 - [Recognize Intent folders and read their proof](seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof) — SEED-420#recognize-intent-folders-and-read-proof ([plan](slice-plans/840-recognize-intent-folders-and-read-proof/PLAN.md))
 - [Prove Dashboard launch starts and recovery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) — SEED-413#prove-launch-starts-and-recovery-on-vitest ([plan](slice-plans/846-prove-launch-starts-and-recovery-on-vitest/PLAN.md))
-- [Prove installed execution and refinement starts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-installed-story-starts-on-vitest) — SEED-413#prove-installed-story-starts-on-vitest ([plan](slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md))
 
 ## Backlog list
 
