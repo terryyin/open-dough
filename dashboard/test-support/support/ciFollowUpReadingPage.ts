@@ -24,7 +24,7 @@ export const ciFollowUpCard = (page: Page, title: string) =>
 export const ciFollowUpWarning = (card: Locator) =>
   card.getByLabel("CI timing follow-up");
 
-// The Board can show the Done card before its project-wide follow-up is read.
+// The scenario checks the follow-up once the new Board has rendered it.
 export async function openBoardWithCiFollowUp(
   page: Page,
   baseURL: string,
@@ -32,13 +32,7 @@ export async function openBoardWithCiFollowUp(
 ) {
   const board = new URL(baseURL);
   board.searchParams.set("project", project);
-  const read = new URL(ciFollowUpEndpoint, board);
-  read.searchParams.set("id", project);
-  const [answer] = await Promise.all([
-    page.waitForResponse(read.href),
-    page.goto(board.href),
-  ]);
-  await answer.finished();
+  await page.goto(board.href);
 }
 
 // The Done card of `title` brought into view: a phone shows one Board column

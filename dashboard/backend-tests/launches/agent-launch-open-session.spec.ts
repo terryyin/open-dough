@@ -1,250 +1,241 @@
-// An open record refuses its story's starts with `session-open` across
-// workflows until the session is marked done or the record is deleted.
-// Unreadable records also refuse story starts at the HTTP acceptance boundary
-// (`../../server/agentLaunches.ts`). Continuation ownership is covered in
-// `./agent-launch-open-session-continue.spec.ts`.
-
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test as base } from "../../test-support/support/pageTest.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { acceptLaunchRequest } from "../../server/agentLaunchAccept.ts";
+import * as baseCi from "../../server/baseCiJudgment.ts";
+import * as checkoutChanges from "../../server/executionCheckoutChanges.ts";
 import {
-  sessionOpen,
-  unreadableLaunchRecords,
-} from "../../server/launchAttemptConflicts.ts";
+  followUpStorySessions,
+  publishedDoneStory,
+} from "../../server/followUpStory.ts";
+import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
+import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
+import { replaceAttempts } from "../../server/launchAttemptStore.ts";
 import {
-  accept,
-  attempts,
   deleteRecord,
-  markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import { machineHome } from "../../test-support/machineLaunchRecords.ts";
+  pendingInputOf,
+} from "../../server/launchRecordStore.ts";
+import { machineDashboardPath } from "../../server/machineHome.ts";
 import {
-  keepLaunchRecords,
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { machineStoryNotesFile } from "../../server/storyNotes.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
+import {
   keepLaunchStore,
   keepLaunchStoreText,
+  launchStoreFile,
 } from "../../test-support/support/launchStore.ts";
-import {
-  answerOf,
-  nothingStarted,
-  openSessionRequest as request,
-} from "./openStorySessionAcceptance.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  queuedIdentity,
-  queuedTitle,
-  startOrigin,
-  type PushHold,
-  type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
 
-const test = base.extend<{ liveServer: string | undefined }>({
-  liveServer: [undefined, { option: true }],
-});
-const cursorTest = test.extend({ liveServer: "separate process" });
+const source = makeMe.aPublishedSource.openDough.please();
+const story = {
+  source: source.id,
+  identity: "SEED-052#open",
+  title: "Open story",
+};
+const openExecution = () => makeMe.aLaunchRecord.executing(story);
 
-// The requested story's execution, still open in the session it names.
-const openExecution = () =>
-  makeMe.aLaunchRecord.executing({
-    identity: queuedIdentity,
-    title: queuedTitle,
-  });
-
-test.describe("an open story session on this machine", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
-  let push: PushHold;
-
-  test.beforeEach(async ({ liveServer }) => {
-    origin = await startOrigin(queuedReadyRepository().please());
-    server = await startDashboardServer({
-      mode: "boundary",
-      liveServer,
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-      doneRenameWaitMs: 100,
-    });
-    push = origin.holdPushes();
-    // These cases need Takes to publish so settled launches can prove acceptance
-    // after an open session closes; refusals still assert nothing was held.
-    push.release();
-  });
-
-  test.afterEach(async () => {
-    push.release();
-    await server.close();
-    origin.cleanup();
-  });
-
-  const keepOpen = (open: LaunchRecord) => {
-    keepLaunchRecords(machineHome(origin.machine), [open]);
-  };
-
-  const noneStarted = (keptAttempts = true) =>
-    nothingStarted(origin, server, push, keptAttempts);
-
-  test("refuses every workflow's start until marked done, and leaves other starts free", async () => {
-    const sessionId = "aaaaaaaa-0000-4000-8000-000000000001";
-    keepOpen(openExecution().inClaudeSession({ sessionId }).please());
-    server.claudeScenario("launched");
-
-    for (const workflow of ["execution", "refinement"] as const) {
-      expect(await answerOf(accept(server, { ...request, workflow }))).toEqual(
-        sessionOpen,
-      );
+async function admission() {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-open-story-"));
+  const owner = new LaunchAttemptOwner();
+  vi.stubEnv("HOME", home);
+  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
+  const unmount = mountProjectConfiguration("development");
+  onTestFinished(async () => {
+    owner.close();
+    try {
+      await owner.drain();
+    } finally {
+      unmount();
+      vi.restoreAllMocks();
+      vi.unstubAllEnvs();
+      rmSync(home, { recursive: true, force: true });
     }
-    expect(
-      await answerOf(
-        accept(server, {
-          ...request,
-          workflow: "refinement",
-          policy: {
-            tracking: "one-shot",
-            workspace: "isolated",
-            landing: "review",
-          },
-        }),
-      ),
-    ).toEqual(sessionOpen);
-    await noneStarted();
-
-    const otherStory = {
-      ...request,
-      identity: "SEED-B#b",
-      title: "Story B",
-    };
-    expect(await answerOf(accept(server, otherStory))).toMatchObject({
-      kind: "accepted",
-    });
-    await expect
-      .poll(async () => (await attempts(server)).at(-1)?.outcome?.kind, {
-        timeout: 30_000,
-      })
-      .toBe("launched");
-
-    expect(
-      await answerOf(
-        accept(server, {
-          source: "open-dough",
-          workflow: "ad-hoc",
-          host: "claude",
-        }),
-      ),
-    ).toMatchObject({ kind: "accepted" });
-    await expect
-      .poll(async () => (await attempts(server)).at(-1)?.outcome?.kind, {
-        timeout: 30_000,
-      })
-      .toBe("launched");
-
-    // Another project's open record of the same identity does not block once
-    // this project's session is marked done.
-    keepLaunchStore(machineHome(origin.machine), {
-      "open-dough": [openExecution().inClaudeSession({ sessionId }).please()],
-      "other-project": [
-        makeMe.aLaunchRecord
-          .executing({
-            identity: queuedIdentity,
-            title: queuedTitle,
-            source: "other-project",
-          })
-          .inClaudeSession({
-            sessionId: "bbbbbbbb-0000-4000-8000-000000000002",
-          })
-          .please(),
-      ],
-    });
-    expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
-    expect(
-      await markDone(server, { source: "open-dough", session: sessionId }),
-    ).toMatchObject({ status: 200 });
-    writeFileSync(
-      path.join(
-        server.home,
-        ".open-dough",
-        "dashboard",
-        "launch-attempts.json",
-      ),
-      "{}",
-    );
-    expect(await answerOf(accept(server, request))).toMatchObject({
-      kind: "accepted",
-    });
   });
-
-  cursorTest(
-    "refuses a start for an open Codex or Cursor session until its record is deleted",
-    async () => {
-      server.claudeScenario("launched");
-      keepOpen(
-        openExecution()
-          .inCodexSession({ sessionId: "codex-open-session-1" })
-          .please(),
-      );
-      expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
-      expect(
-        await answerOf(accept(server, { ...request, host: "codex" })),
-      ).toEqual(sessionOpen);
-      await noneStarted();
-      expect(
-        await deleteRecord(server, {
-          source: "open-dough",
-          session: "codex-open-session-1",
-          host: "codex",
-        }),
-      ).toMatchObject({ status: 200 });
-
-      const cursorSession = "cccccccc-0000-4000-8000-000000000003";
-      keepOpen(
-        openExecution()
-          .inCursorSession({
-            sessionId: cursorSession,
-            continuation: {
-              workspace: "/tmp",
-              args: ["agent", "--resume", cursorSession],
-            },
-          })
-          .please(),
-      );
-      expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
-      expect(
-        await answerOf(accept(server, { ...request, host: "cursor" })),
-      ).toEqual(sessionOpen);
-      await noneStarted();
-      expect(
-        await deleteRecord(server, {
-          source: "open-dough",
-          session: cursorSession,
-          host: "cursor",
-        }),
-      ).toMatchObject({ status: 200 });
-      expect(await answerOf(accept(server, request))).toMatchObject({
-        kind: "accepted",
-      });
-    },
+  appendConfiguredProject(
+    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
   );
 
-  test("refuses a story start when launch records cannot be read", async () => {
-    keepLaunchStoreText(machineHome(origin.machine), "{ not launch records");
-    server.claudeScenario("launched");
-    expect(await answerOf(accept(server, request))).toEqual(
-      unreadableLaunchRecords,
-    );
-    await noneStarted();
-    expect(
-      await answerOf(
-        accept(server, {
-          source: "open-dough",
-          workflow: "ad-hoc",
-          host: "claude",
-        }),
-      ),
-    ).toMatchObject({ kind: "accepted" });
+  vi.spyOn(baseCi, "judgeBranchCi").mockResolvedValue({
+    state: "pass",
+    revision: "a1".repeat(20),
+    subject: "Passing origin",
+    laterWithoutResult: 0,
   });
+  vi.spyOn(checkoutChanges, "existingChanges").mockResolvedValue(undefined);
+  const run = vi.fn<AttemptRun>(() =>
+    Promise.resolve({
+      kind: "failed",
+      reason: "refused",
+      explanation: "The test stops the launch after admission.",
+    }),
+  );
+  const accept = (request: AgentLaunchRequest) =>
+    acceptLaunchRequest(
+      owner,
+      source,
+      request,
+      run,
+      () => {
+        throw new Error("Unexpected continuation.");
+      },
+      {
+        notesFile: machineStoryNotesFile(),
+        publishedDoneStory,
+        followUpStorySessions,
+        pendingInputOf,
+      },
+    );
+
+  await replaceAttempts(() => ({}));
+  const attemptFile = machineDashboardPath("launch-attempts.json");
+  const initialAttempts = readFileSync(attemptFile, "utf8");
+  const initialRecords = () => readFileSync(launchStoreFile(home), "utf8");
+  function expectNoAdmission(keptRecords: string) {
+    expect(run).not.toHaveBeenCalled();
+    expect(readFileSync(attemptFile, "utf8")).toBe(initialAttempts);
+    expect(initialRecords()).toBe(keptRecords);
+  }
+  return { home, accept, run, expectNoAdmission };
+}
+
+test.each([
+  {
+    name: "execution",
+    request: makeMe.aLaunchRequest.executing(story).please(),
+  },
+  {
+    name: "refinement",
+    request: makeMe.aLaunchRequest.refining(story).please(),
+  },
+  {
+    name: "one-shot refinement",
+    request: makeMe.aLaunchRequest
+      .refining(story)
+      .withPolicy({
+        tracking: "one-shot",
+        workspace: "isolated",
+        landing: "review",
+      })
+      .please(),
+  },
+  {
+    name: "execution in the default checkout",
+    request: makeMe.aLaunchRequest
+      .executing(story)
+      .withPolicy({
+        tracking: "standard",
+        workspace: "default-checkout",
+        landing: "review",
+      })
+      .please(),
+  },
+])("refuses $name while the story has an open session", async ({ request }) => {
+  const boundary = await admission();
+  const kept = keepLaunchStore(boundary.home, {
+    [source.id]: [openExecution().please()],
+  });
+
+  expect(await boundary.accept(request)).toMatchObject({
+    kind: "failed",
+    reason: "session-open",
+  });
+  boundary.expectNoAdmission(kept);
+});
+
+test.each([
+  {
+    name: "a different story",
+    request: makeMe.aLaunchRequest
+      .executing({ ...story, identity: "SEED-053#other", title: "Other story" })
+      .please(),
+  },
+  { name: "an ad hoc launch", request: makeMe.aLaunchRequest.adHoc().please() },
+])("an open story still allows $name to start", async ({ request }) => {
+  const boundary = await admission();
+  keepLaunchStore(boundary.home, { [source.id]: [openExecution().please()] });
+
+  expect(await boundary.accept(request)).toHaveProperty("kind", "accepted");
+  expect(boundary.run).toHaveBeenCalledOnce();
+  expect(boundary.run.mock.calls[0]?.[0].request).toMatchObject(request);
+});
+
+test("a locally Done session and a matching open session in another project allow a start", async () => {
+  const boundary = await admission();
+  const other = "other-project";
+  keepLaunchStore(boundary.home, {
+    [source.id]: [openExecution().markedDone().please()],
+    [other]: [
+      makeMe.aLaunchRecord.executing({ ...story, source: other }).please(),
+    ],
+  });
+
+  expect(
+    await boundary.accept(makeMe.aLaunchRequest.executing(story).please()),
+  ).toHaveProperty("kind", "accepted");
+  expect(boundary.run).toHaveBeenCalledOnce();
+});
+
+test.each([
+  {
+    record: openExecution()
+      .inCodexSession({ sessionId: "open-thread" })
+      .please(),
+  },
+  {
+    record: openExecution()
+      .inCursorSession({
+        sessionId: "cccccccc-0000-4000-8000-000000000003",
+        continuation: { workspace: "/tmp" },
+      })
+      .please(),
+  },
+])(
+  "an open $record.session.host session blocks starts across hosts until deleted",
+  async ({ record }) => {
+    const boundary = await admission();
+    const kept = keepLaunchStore(boundary.home, { [source.id]: [record] });
+    const request = makeMe.aLaunchRequest.executing(story).please();
+    const matchingHost = makeMe.aLaunchRequest
+      .executing({ ...story, host: record.session.host })
+      .please();
+
+    for (const start of [request, matchingHost]) {
+      expect(await boundary.accept(start)).toMatchObject({
+        kind: "failed",
+        reason: "session-open",
+      });
+    }
+    boundary.expectNoAdmission(kept);
+
+    expect(await deleteRecord(source.id, record.session)).toBe(true);
+    expect(await boundary.accept(request)).toHaveProperty("kind", "accepted");
+    expect(boundary.run).toHaveBeenCalledOnce();
+  },
+);
+
+test("refuses a story start when its launch records are unreadable", async () => {
+  const boundary = await admission();
+  const badRecords = "{ not launch records";
+  keepLaunchStoreText(boundary.home, badRecords);
+
+  expect(
+    await boundary.accept(makeMe.aLaunchRequest.executing(story).please()),
+  ).toMatchObject({ kind: "failed", reason: "unrecorded" });
+  boundary.expectNoAdmission(badRecords);
+});
+
+test("unreadable story records leave an ad hoc start available", async () => {
+  const boundary = await admission();
+  const badRecords = "{ not launch records";
+  keepLaunchStoreText(boundary.home, badRecords);
+
+  expect(
+    await boundary.accept(makeMe.aLaunchRequest.adHoc().please()),
+  ).toHaveProperty("kind", "accepted");
+  expect(boundary.run).toHaveBeenCalledOnce();
+  expect(readFileSync(launchStoreFile(boundary.home), "utf8")).toBe(badRecords);
 });

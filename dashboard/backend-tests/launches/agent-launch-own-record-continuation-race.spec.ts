@@ -1,187 +1,249 @@
-// A Continue waiting to select its own record must honor newer attempt facts
-// under the machine lock rather than replacing another server's run/result.
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
-import { continueAttempt } from "../../test-support/agentLaunchBoundary.ts";
-import { machineHome } from "../../test-support/machineLaunchRecords.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
+import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
+import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
+import { attemptWorker } from "../../server/launchAttemptWorker.ts";
+import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
+import { machineDashboardPath } from "../../server/machineHome.ts";
+import {
+  acquireWriteLock,
+  releaseWriteLock,
+} from "../../server/machineJsonLock.ts";
+import {
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import type { Acceptance, AgentLaunchRequest } from "../../src/agentLaunch.ts";
 import {
   keepLaunchStore,
   keepLaunchStoreText,
   launchStoreFile,
 } from "../../test-support/support/launchStore.ts";
-import { ownRecordContinuation } from "./ownRecordContinuation.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { fsSyncHook } from "../../test-support/support/serverFsHook.ts";
-import { startOrigin } from "../../test-support/support/startOrigin.ts";
 
-for (const state of ["running", "settled"] as const)
-  test(`Continue preserves the ${state} attempt found after its own-record selection waited`, async () => {
-    const origin = await startOrigin(queuedReadyRepository().please());
-    const hold = path.join(origin.machine, "hold-attempt-lock");
-    const reached = path.join(origin.machine, "attempt-lock-reached");
-    const env = fsSyncHook(
-      path.join(origin.machine, "hold-attempt-lock.mjs"),
-      "mkdirSync",
-      `(folder, ...args) => {
-      if (String(folder).endsWith('/launch-attempts.json.lock') && fs.existsSync(${JSON.stringify(hold)})) {
-        fs.writeFileSync(${JSON.stringify(reached)}, 'reached');
-        throw Object.assign(new Error("acquisition held by test"), { code: "EEXIST" });
-      }
-      return original(folder, ...args);
-    }`,
-    );
-    const server = await startDashboardServer({
-      mode: "boundary",
-      liveServer: "separate process",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      extraEnv: env,
-    });
-    try {
-      const proof = ownRecordContinuation(server, origin, "execution", false);
-      writeFileSync(hold, "hold");
-      const pending = continueAttempt(server, proof.id);
-      await expect.poll(() => existsSync(reached)).toBe(true);
-      const file = path.join(
-        server.home,
-        ".open-dough/dashboard/launch-attempts.json",
-      );
-      const stored = JSON.parse(readFileSync(file, "utf8")) as Record<
-        string,
-        LaunchAttemptRecord[]
-      >;
-      const prior = stored["open-dough"]?.[0];
-      if (prior === undefined) throw new Error("Missing attempt precondition.");
-      const current =
-        state === "running"
-          ? {
-              ...prior,
-              worker: {
-                pid: server.pid,
-                serverPid: server.pid,
-                step: "launch",
-                notedAt: new Date().toISOString(),
-              },
-            }
-          : {
-              ...prior,
-              outcome: {
-                kind: "failed",
-                reason: "not-listed",
-                explanation: "No native session was listed.",
-              },
-              settledAt: new Date().toISOString(),
-            };
-      const changed = JSON.stringify({ "open-dough": [current] });
-      writeFileSync(file, changed);
-      rmSync(hold);
-      const answer = JSON.parse((await pending).body) as {
-        kind: string;
-        reason: string;
-        explanation: string;
-      };
-      expect(answer).toMatchObject(
-        state === "running"
-          ? {
-              kind: "uncertain",
-              explanation: expect.stringContaining("already running"),
-            }
-          : { kind: "failed", reason: "refused" },
-      );
-      expect(readFileSync(file, "utf8")).toBe(changed);
-      await proof.nothingStarted();
-    } finally {
-      rmSync(hold, { force: true });
-      await server.close();
-      origin.cleanup();
-    }
-  });
+let onBlockedWrite: { lock: string; reached: () => void } | undefined;
 
-test("Continue reads an own record again at admission after pre-acceptance", async () => {
-  const origin = await startOrigin(queuedReadyRepository().please());
-  const hold = path.join(origin.machine, "hold-readmission");
-  const reached = path.join(origin.machine, "readmission-reached");
-  const count = path.join(origin.machine, "admission-count");
-  const env = fsSyncHook(
-    path.join(origin.machine, "hold-readmission.mjs"),
-    "mkdirSync",
-    `(folder, ...args) => {
-    if (String(folder).endsWith('/launch-attempts.json.lock') && fs.existsSync(${JSON.stringify(hold)})) {
-      if (!fs.existsSync(${JSON.stringify(reached)})) {
-        const countFile = ${JSON.stringify(count)};
-        const number = fs.existsSync(countFile) ? Number(fs.readFileSync(countFile, 'utf8')) + 1 : 1;
-        fs.writeFileSync(countFile, String(number));
-        if (number === 2) fs.writeFileSync(${JSON.stringify(reached)}, 'reached');
+vi.mock(import("node:fs"), async (original) => {
+  const fs = await original();
+  return {
+    ...fs,
+    mkdirSync: (directory, options) => {
+      try {
+        return fs.mkdirSync(directory, options);
+      } catch (error) {
+        if (
+          onBlockedWrite?.lock === directory &&
+          (error as NodeJS.ErrnoException).code === "EEXIST"
+        ) {
+          onBlockedWrite.reached();
+        }
+        throw error;
       }
-      if (fs.existsSync(${JSON.stringify(reached)}))
-        throw Object.assign(new Error("acquisition held by test"), { code: "EEXIST" });
-    }
-    return original(folder, ...args);
-  }`,
-  );
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    extraEnv: env,
-    liveServer: "separate process",
-  });
-  try {
-    const proof = ownRecordContinuation(server, origin, "execution", false);
-    proof.restoreScript();
-    keepLaunchStore(machineHome(origin.machine), { "open-dough": [] });
-    writeFileSync(hold, "hold");
-    const pending = continueAttempt(server, proof.id);
-    await expect.poll(() => existsSync(reached)).toBe(true);
-    keepLaunchStoreText(machineHome(origin.machine), proof.records);
-    rmSync(hold);
-    const answer = JSON.parse((await pending).body) as {
-      kind: string;
-      attempt?: import("../../src/agentLaunch.ts").AttemptObservation;
-    };
-    expect(answer).toMatchObject({
-      kind: "accepted",
-      attempt: {
-        id: proof.id,
-        acceptedAt: proof.acceptedAt,
-        outcome: proof.outcome,
-        running: false,
-      },
-    });
-    proof.settled(answer.attempt);
-    await proof.nothingStarted();
-  } finally {
-    rmSync(hold, { force: true });
-    await server.close();
-    origin.cleanup();
-  }
+    },
+  };
 });
 
-test("Continue with unreadable own records leaves both stores as read and starts nothing", async () => {
-  const origin = await startOrigin(queuedReadyRepository().please());
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
+const source = makeMe.aPublishedSource.openDough.please();
+const story = {
+  source: source.id,
+  identity: "SEED-052#open",
+  title: "Open story",
+};
+const request = makeMe.aLaunchRequest.refining(story).please();
+
+function continuation() {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-continuation-race-"));
+  const owner = new LaunchAttemptOwner();
+  vi.stubEnv("HOME", home);
+  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
+  const unmount = mountProjectConfiguration("development");
+  onTestFinished(async () => {
+    owner.close();
+    try {
+      await owner.drain();
+    } finally {
+      unmount();
+      vi.unstubAllEnvs();
+      onBlockedWrite = undefined;
+      rmSync(home, { recursive: true, force: true });
+    }
   });
+  appendConfiguredProject(
+    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
+  );
+  const run = vi.fn<AttemptRun>(() => {
+    throw new Error("Unexpected launch dispatch.");
+  });
+  const file = machineDashboardPath("launch-attempts.json");
+  return { home, owner, file, lock: `${file}.lock`, run };
+}
+
+function waitForBlockedWrite(lock: string, pending: Promise<Acceptance>) {
+  const blocked = new Promise<void>((resolve) => {
+    onBlockedWrite = { lock, reached: resolve };
+  });
+  return Promise.race([
+    blocked,
+    pending.then(() => {
+      throw new Error(
+        "Continue answered before contending for the write lock.",
+      );
+    }),
+  ]);
+}
+
+function ownRecordAfter(acceptedAt: string) {
+  return makeMe.aLaunchRecord
+    .refining(story)
+    .launchedAt(new Date(Date.parse(acceptedAt) + 1).toISOString())
+    .withFirstInput({ state: "confirmed" })
+    .please();
+}
+
+test.each([
+  {
+    state: "running",
+    newer: (attempt: typeof makeMe.anAcceptedAttempt) =>
+      attempt.workedBy(attemptWorker("launch")).please(),
+    kind: "uncertain",
+    reason: "unconfirmed",
+  },
+  {
+    state: "settled",
+    newer: (attempt: typeof makeMe.anAcceptedAttempt) =>
+      attempt
+        .ended({
+          kind: "failed",
+          reason: "not-listed",
+          explanation: "No native session was listed.",
+        })
+        .settledAt(new Date().toISOString())
+        .please(),
+    kind: "failed",
+    reason: "refused",
+  },
+])(
+  "Continue preserves a newer $state attempt written under the lock",
+  async ({ newer, kind, reason }) => {
+    const { home, owner, file, lock, run } = continuation();
+    const builder = makeMe.anAcceptedAttempt
+      .requesting(request)
+      .acceptedAt(new Date().toISOString());
+    const kept = builder.please();
+    await keepAttempt(kept);
+    const records = keepLaunchStore(home, {
+      [source.id]: [ownRecordAfter(kept.acceptedAt)],
+    });
+    const before = vi.fn(() => {
+      throw new Error("Unexpected pre-acceptance for newer evidence.");
+    });
+
+    await acquireWriteLock(lock);
+    const pending = owner.continueAttempt(source.id, kept.id, before, run);
+    const updated = JSON.stringify({ [source.id]: [newer(builder)] });
+    try {
+      await waitForBlockedWrite(lock, pending);
+      writeFileSync(file, updated);
+    } finally {
+      releaseWriteLock(lock);
+      await pending;
+    }
+
+    expect(await pending).toMatchObject({ kind, reason });
+    expect(readFileSync(file, "utf8")).toBe(updated);
+    expect(readFileSync(launchStoreFile(home), "utf8")).toBe(records);
+    expect(before).not.toHaveBeenCalled();
+    expect(run).not.toHaveBeenCalled();
+  },
+);
+
+test("Continue sees its own confirmed record that arrived after pre-acceptance", async () => {
+  const { home, owner, lock, run } = continuation();
+  const attempt = makeMe.anAcceptedAttempt
+    .requesting(request)
+    .acceptedAt(new Date().toISOString())
+    .please();
+  await keepAttempt(attempt);
+  keepLaunchStore(home, { [source.id]: [] });
+  const record = ownRecordAfter(attempt.acceptedAt);
+  let reachedPreAcceptance = () => {};
+  const preAccepted = new Promise<void>((resolve) => {
+    reachedPreAcceptance = resolve;
+  });
+  const writer = { locked: false };
+  const before = vi.fn(async (kept: AgentLaunchRequest) => {
+    const answer = await preContinuationAnswer(
+      source,
+      attempt.id,
+      kept,
+      new StartProgress(),
+    );
+    await acquireWriteLock(lock);
+    writer.locked = true;
+    reachedPreAcceptance();
+    return answer;
+  });
+  const pending = owner.continueAttempt(source.id, attempt.id, before, run);
   try {
-    const proof = ownRecordContinuation(server, origin, "execution", false);
-    const unreadable = "{ unreadable launch records";
-    keepLaunchStoreText(machineHome(origin.machine), unreadable);
-    const answer = JSON.parse(
-      (await continueAttempt(server, proof.id)).body,
-    ) as { kind: string; reason: string };
-    expect(answer).toMatchObject({ kind: "failed", reason: "unrecorded" });
-    proof.unchanged();
-    expect(
-      readFileSync(launchStoreFile(machineHome(origin.machine)), "utf8"),
-    ).toBe(unreadable);
-    await proof.nothingStarted(unreadable);
+    await Promise.race([
+      preAccepted,
+      pending.then(() => {
+        throw new Error("Continue skipped pre-acceptance.");
+      }),
+    ]);
+    await waitForBlockedWrite(lock, pending);
+    keepLaunchStore(home, { [source.id]: [record] });
   } finally {
-    await server.close();
-    origin.cleanup();
+    if (writer.locked) releaseWriteLock(lock);
+    await pending;
   }
+
+  const outcome = {
+    kind: "launched",
+    session: { host: record.session.host, sessionId: record.session.sessionId },
+  };
+  expect(await pending).toMatchObject({
+    kind: "accepted",
+    attempt: {
+      id: attempt.id,
+      acceptedAt: attempt.acceptedAt,
+      outcome,
+      running: false,
+    },
+  });
+  const [settled] = (await keptAttempts()) ?? [];
+  expect(settled).toMatchObject({
+    id: attempt.id,
+    acceptedAt: attempt.acceptedAt,
+    outcome,
+  });
+  expect(before).toHaveBeenCalledWith(request);
+  expect(run).not.toHaveBeenCalled();
+});
+
+test("Continue refuses unreadable records, preserving both stores without dispatch", async () => {
+  const { home, owner, file, run } = continuation();
+  const attempt = makeMe.anAcceptedAttempt.requesting(request).please();
+  await keepAttempt(attempt);
+  const initialAttempt = readFileSync(file, "utf8");
+  const unreadable = "{ unreadable launch records";
+  keepLaunchStoreText(home, unreadable);
+  const before = vi.fn(() => {
+    throw new Error("Unexpected pre-acceptance with unreadable records.");
+  });
+
+  expect(
+    await owner.continueAttempt(source.id, attempt.id, before, run),
+  ).toMatchObject({
+    kind: "failed",
+    reason: "unrecorded",
+  });
+  expect(readFileSync(file, "utf8")).toBe(initialAttempt);
+  expect(readFileSync(launchStoreFile(home), "utf8")).toBe(unreadable);
+  expect(before).not.toHaveBeenCalled();
+  expect(run).not.toHaveBeenCalled();
 });

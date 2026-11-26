@@ -1,121 +1,173 @@
-// A continuation of a story attempt is refused with `session-open` while
-// another open session of that story remains, and accepted when the only open
-// record is that attempt's own launched session.
-
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { randomUUID } from "node:crypto";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { sessionOpen } from "../../server/launchAttemptConflicts.ts";
-import { continueAttempt } from "../../test-support/agentLaunchBoundary.ts";
-import { machineHome } from "../../test-support/machineLaunchRecords.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
+import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
+import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
+import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
+import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
+import { machineDashboardPath } from "../../server/machineHome.ts";
 import {
-  answerOf,
-  nothingStarted,
-  openSessionRequest as request,
-  seedKeptAttempt,
-} from "./openStorySessionAcceptance.ts";
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import type {
+  AgentLaunchRequest,
+  LaunchRecord,
+} from "../../src/agentLaunch.ts";
 import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  queuedIdentity,
-  queuedTitle,
-  startOrigin,
-  type PushHold,
-  type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
+  keepLaunchStore,
+  launchStoreFile,
+} from "../../test-support/support/launchStore.ts";
 
-test.describe("continuing while a story session is open", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
-  let push: PushHold;
+const source = makeMe.aPublishedSource.openDough.please();
+const story = {
+  source: source.id,
+  identity: "SEED-052#open",
+  title: "Open story",
+};
+const request = makeMe.aLaunchRequest.refining(story).please();
 
-  test.beforeEach(async () => {
-    origin = await startOrigin(queuedReadyRepository().please());
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-    });
-    push = origin.holdPushes();
-    push.release();
+function continuation() {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-open-continue-"));
+  const owner = new LaunchAttemptOwner();
+  vi.stubEnv("HOME", home);
+  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
+  const unmount = mountProjectConfiguration("development");
+  onTestFinished(async () => {
+    owner.close();
+    try {
+      await owner.drain();
+    } finally {
+      unmount();
+      vi.unstubAllEnvs();
+      rmSync(home, { recursive: true, force: true });
+    }
   });
-
-  test.afterEach(async () => {
-    push.release();
-    await server.close();
-    origin.cleanup();
+  appendConfiguredProject(
+    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
+  );
+  const progress = new StartProgress();
+  const before = vi.fn((id: string, request: AgentLaunchRequest) =>
+    preContinuationAnswer(source, id, request, progress),
+  );
+  const run = vi.fn<AttemptRun>(() => {
+    throw new Error("Unexpected launch dispatch.");
   });
+  return {
+    home,
+    before,
+    run,
+    continueAttempt: (id: string) =>
+      owner.continueAttempt(
+        source.id,
+        id,
+        (request) => before(id, request),
+        run,
+      ),
+  };
+}
 
-  test("refuses a continuation unless the open record is that attempt's own launch", async () => {
-    const openId = "dddddddd-0000-4000-8000-000000000004";
-    const ownId = "eeeeeeee-0000-4000-8000-000000000005";
-    const foreignAttempt = randomUUID();
-    const ownAttempt = randomUUID();
-    const acceptedAt = new Date().toISOString();
-    // An open refinement session blocks continuing an execution attempt of the
-    // same story: it is not that attempt's own launch.
-    keepLaunchRecords(machineHome(origin.machine), [
-      makeMe.aLaunchRecord
-        .refining({ identity: queuedIdentity, title: queuedTitle })
-        .inClaudeSession({ sessionId: openId })
-        .please(),
-    ]);
-    seedKeptAttempt(
-      server.home,
-      makeMe.anAcceptedAttempt
-        .withId(foreignAttempt)
-        .requesting(request)
-        .acceptedAt(acceptedAt)
-        .ended({
-          kind: "uncertain",
-          reason: "timed-out",
-          explanation: "The launch wait expired.",
-        })
-        .settledAt(acceptedAt)
-        .please(),
-    );
-    expect(await answerOf(continueAttempt(server, foreignAttempt))).toEqual(
-      sessionOpen,
-    );
-    await nothingStarted(origin, server, push, false);
+test("refuses Continue for a different workflow's open session of the same story", async () => {
+  const boundary = continuation();
+  const when = new Date();
+  const attempt = makeMe.anAcceptedAttempt
+    .requesting(request)
+    .acceptedAt(when.toISOString())
+    .ended({
+      kind: "uncertain",
+      reason: "timed-out",
+      explanation: "The launch wait expired.",
+    })
+    .settledAt(when.toISOString())
+    .please();
+  await keepAttempt(attempt);
+  const open = makeMe.aLaunchRecord
+    .executing(story)
+    .launchedAt(new Date(when.getTime() + 1).toISOString())
+    .please();
+  const records = keepLaunchStore(boundary.home, { [source.id]: [open] });
+  const attemptFile = machineDashboardPath("launch-attempts.json");
+  const before = readFileSync(attemptFile, "utf8");
 
-    keepLaunchRecords(machineHome(origin.machine), [
-      makeMe.aLaunchRecord
-        .executing({ identity: queuedIdentity, title: queuedTitle })
-        .inClaudeSession({ sessionId: ownId })
-        // Launched once the attempt was accepted, as its own launch is.
-        .launchedAt(new Date(Date.parse(acceptedAt) + 1).toISOString())
-        .please(),
-    ]);
-    seedKeptAttempt(
-      server.home,
+  expect(await boundary.continueAttempt(attempt.id)).toMatchObject({
+    kind: "failed",
+    reason: "session-open",
+  });
+  expect(boundary.before).toHaveBeenCalledExactlyOnceWith(attempt.id, request);
+  expect(boundary.run).not.toHaveBeenCalled();
+  expect(readFileSync(attemptFile, "utf8")).toBe(before);
+  expect(readFileSync(launchStoreFile(boundary.home), "utf8")).toBe(records);
+});
+
+test.each([
+  {
+    state: "interrupted",
+    arrange: (attempt: typeof makeMe.anAcceptedAttempt, at: string) =>
+      attempt
+        .workedBy({ pid: 2147483647, step: "launch", notedAt: at })
+        .slowSince(at),
+  },
+  {
+    state: "launched with publication unknown",
+    arrange: (
+      attempt: typeof makeMe.anAcceptedAttempt,
+      at: string,
+      session: LaunchRecord["session"],
+    ) => attempt.launched(session).settledAt(at),
+  },
+])(
+  "Continue settles its own confirmed session when $state without dispatch",
+  async ({ arrange }) => {
+    const boundary = continuation();
+    const when = new Date();
+    const record = makeMe.aLaunchRecord
+      .refining(story)
+      .launchedAt(new Date(when.getTime() + 1).toISOString())
+      .withFirstInput({ state: "confirmed" })
+      .please();
+    const at = when.toISOString();
+    const attempt = arrange(
       makeMe.anAcceptedAttempt
-        .withId(ownAttempt)
         .requesting(request)
-        .acceptedAt(acceptedAt)
-        .publicationUnknown()
-        .launched({ host: "claude", sessionId: ownId })
-        .settledAt(acceptedAt)
-        .please(),
-    );
-    server.claudeScenario("launched");
-    expect(await answerOf(continueAttempt(server, ownAttempt))).toMatchObject({
+        .acceptedAt(at)
+        .publicationUnknown(),
+      at,
+      record.session,
+    ).please();
+    await keepAttempt(attempt);
+    const records = keepLaunchStore(boundary.home, { [source.id]: [record] });
+    const outcome = {
+      kind: "launched",
+      session: {
+        host: record.session.host,
+        sessionId: record.session.sessionId,
+      },
+    };
+
+    expect(await boundary.continueAttempt(attempt.id)).toMatchObject({
       kind: "accepted",
       attempt: {
-        id: ownAttempt,
-        outcome: {
-          kind: "launched",
-          session: { host: "claude", sessionId: ownId },
-        },
+        id: attempt.id,
+        request,
+        outcome,
         owned: false,
         running: false,
       },
     });
-    await nothingStarted(origin, server, push, false);
-  });
-});
+    const [settled] = (await keptAttempts()) ?? [];
+    expect(settled).toMatchObject({
+      id: attempt.id,
+      acceptedAt: attempt.acceptedAt,
+      outcome,
+    });
+    expect(settled?.settledAt).toMatch(/\S/);
+    expect(settled?.worker).toBeUndefined();
+    expect(settled?.slowSince).toBeUndefined();
+    expect(boundary.before).not.toHaveBeenCalled();
+    expect(boundary.run).not.toHaveBeenCalled();
+    expect(readFileSync(launchStoreFile(boundary.home), "utf8")).toBe(records);
+  },
+);

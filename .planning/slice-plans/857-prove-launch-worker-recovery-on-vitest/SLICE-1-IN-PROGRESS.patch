@@ -1,0 +1,1029 @@
+diff --git a/dashboard/backend-tests/launches/agent-launch-confirmed-continuation.spec.ts b/dashboard/backend-tests/launches/agent-launch-confirmed-continuation.spec.ts
+new file mode 100644
+index 000000000..28ecb36ea
+--- /dev/null
++++ b/dashboard/backend-tests/launches/agent-launch-confirmed-continuation.spec.ts
+@@ -0,0 +1,166 @@
++import { mkdtempSync, readFileSync, rmSync } from "node:fs";
++import { tmpdir } from "node:os";
++import path from "node:path";
++import { expect, onTestFinished, test, vi } from "vitest";
++import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
++import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
++import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
++import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
++import { preAcceptanceAnswer, preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
++import { machineDashboardPath } from "../../server/machineHome.ts";
++import {
++  appendConfiguredProject,
++  mountProjectConfiguration,
++} from "../../server/projectConfiguration.ts";
++import { StartProgress } from "../../server/startProgress.ts";
++import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
++import { keepLaunchStore, launchStoreFile } from "../../test-support/support/launchStore.ts";
++
++let unwritable: string | undefined;
++vi.mock(import("node:fs/promises"), async (original) => {
++  const fs = await original();
++  return {
++    ...fs,
++    rename: async (from, to) => {
++      if (to === unwritable) throw new Error("Attempt replacement denied.");
++      await fs.rename(from, to);
++    },
++  };
++});
++
++const source = makeMe.aPublishedSource.openDough.please();
++const story = { source: source.id, identity: "SEED-052#continue", title: "Continue this story" };
++
++function machine(missingCheckout = false) {
++  const home = mkdtempSync(path.join(tmpdir(), "dough-confirmed-attempt-"));
++  vi.stubEnv("HOME", home);
++  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
++  const unmount = mountProjectConfiguration("development");
++  const owner = new LaunchAttemptOwner();
++  onTestFinished(async () => {
++    owner.close();
++    try {
++      await owner.drain();
++    } finally {
++      unmount();
++      unwritable = undefined;
++      vi.unstubAllEnvs();
++      rmSync(home, { recursive: true, force: true });
++    }
++  });
++  appendConfiguredProject(makeMe.aConfiguredProject
++    .with({ ...source, localPath: missingCheckout ? path.join(home, "missing") : home })
++    .please());
++  const progress = new StartProgress();
++  const before = vi.fn((id: string, request: AgentLaunchRequest) =>
++    preContinuationAnswer(source, id, request, progress),
++  );
++  const run = vi.fn<AttemptRun>(() => { throw new Error("Unexpected launch dispatch."); });
++  return {
++    home, before, run,
++    file: machineDashboardPath("launch-attempts.json"),
++    continueAttempt: (id: string) =>
++      owner.continueAttempt(source.id, id, (request) => before(id, request), run),
++  };
++}
++
++async function ownRecordCase(workflow: "execution" | "refinement", state: "interrupted" | "uncertain", home: string) {
++  const request = makeMe.aLaunchRequest.ofWorkflow(workflow, story).please();
++  const when = Date.now();
++  const at = new Date(when).toISOString();
++  const builder = makeMe.anAcceptedAttempt.requesting(request).acceptedAt(at)
++    .workedBy({ pid: 2147483647, step: "launch", notedAt: at }).slowSince(at);
++  if (state === "uncertain") builder.ended({
++    kind: "uncertain", reason: "unconfirmed", explanation: "Interrupted handoff.",
++  }).settledAt(at);
++  const attempt = builder.please();
++  await keepAttempt(attempt);
++
++  const launch = (offset: number, selected = workflow, identity = story.identity) =>
++    makeMe.aLaunchRecord.ofWorkflow(selected, { ...story, identity })
++      .launchedAt(new Date(when + offset).toISOString());
++  const own = launch(2).inCodexSession({ sessionId: "latest-eligible" })
++    .withFirstInput({ state: "confirmed" }).please();
++  const records = keepLaunchStore(home, { [source.id]: [
++    launch(1).please(),
++    launch(3, workflow === "execution" ? "refinement" : "execution").please(),
++    own,
++    launch(4, workflow, "SEED-053#other").please(),
++    launch(-1).please(),
++  ] });
++  return { attempt, own, records };
++}
++
++async function expectOwnSettlement(
++  boundary: ReturnType<typeof machine>,
++  { attempt, own, records }: Awaited<ReturnType<typeof ownRecordCase>>,
++) {
++  const { id, acceptedAt } = attempt;
++  const outcome = { kind: "launched", session: { host: "codex", sessionId: own.session.sessionId } };
++  expect(await boundary.continueAttempt(id)).toMatchObject({
++    kind: "accepted",
++    attempt: { id, acceptedAt, outcome, owned: false, running: false },
++  });
++  const [settled] = (await keptAttempts()) ?? [];
++  expect(settled).toMatchObject({ id, acceptedAt, outcome });
++  expect(settled?.settledAt).toMatch(/\S/);
++  expect(settled?.worker).toBeUndefined();
++  expect(settled?.slowSince).toBeUndefined();
++  expect(boundary.before).not.toHaveBeenCalled();
++  expect(boundary.run).not.toHaveBeenCalled();
++  expect(readFileSync(launchStoreFile(boundary.home), "utf8")).toBe(records);
++}
++
++test.each(["execution", "refinement"] as const)(
++  "Continue settles an uncertain %s with its newest eligible confirmed record",
++  async (workflow) => {
++    const boundary = machine();
++    await expectOwnSettlement(boundary, await ownRecordCase(workflow, "uncertain", boundary.home));
++  },
++);
++
++test("Continue settles an interrupted execution even if its checkout is missing", async () => {
++  const boundary = machine(true);
++  const evidence = await ownRecordCase("execution", "interrupted", boundary.home);
++  const initial = readFileSync(boundary.file, "utf8");
++  expect(await preAcceptanceAnswer(source, evidence.attempt.request)).toMatchObject({
++    kind: "failed", reason: "folder-not-found",
++  });
++  expect(readFileSync(boundary.file, "utf8")).toBe(initial);
++
++  await expectOwnSettlement(boundary, evidence);
++});
++
++test("Continue refuses an unwritable settlement and leaves both files intact", async () => {
++  const boundary = machine();
++  const { attempt, records } = await ownRecordCase("execution", "interrupted", boundary.home);
++  const initial = readFileSync(boundary.file, "utf8");
++  unwritable = boundary.file;
++
++  expect(await boundary.continueAttempt(attempt.id)).toMatchObject({
++    kind: "failed", reason: "unrecorded",
++  });
++  expect(readFileSync(boundary.file, "utf8")).toBe(initial);
++  expect(readFileSync(launchStoreFile(boundary.home), "utf8")).toBe(records);
++  expect(boundary.before).not.toHaveBeenCalled();
++  expect(boundary.run).not.toHaveBeenCalled();
++});
++
++test("a matching record from before acceptance cannot settle Continue", async () => {
++  const boundary = machine(true);
++  const when = Date.now();
++  const attempt = makeMe.anAcceptedAttempt.executing(story).acceptedAt(new Date(when).toISOString()).please();
++  const prior = makeMe.aLaunchRecord.executing(story)
++    .launchedAt(new Date(when - 1).toISOString()).withFirstInput({ state: "confirmed" }).please();
++  await keepAttempt(attempt);
++  const initial = readFileSync(boundary.file, "utf8");
++  const records = keepLaunchStore(boundary.home, { [source.id]: [prior] });
++
++  expect(await boundary.continueAttempt(attempt.id)).toMatchObject({
++    kind: "failed", reason: "folder-not-found",
++  });
++  expect(boundary.before).toHaveBeenCalledExactlyOnceWith(attempt.id, attempt.request);
++  expect(boundary.run).not.toHaveBeenCalled();
++  expect(readFileSync(boundary.file, "utf8")).toBe(initial);
++  expect(readFileSync(launchStoreFile(boundary.home), "utf8")).toBe(records);
++});
+diff --git a/dashboard/backend-tests/launches/agent-launch-continuation-interrupted.spec.ts b/dashboard/backend-tests/launches/agent-launch-continuation-interrupted.spec.ts
+index f29ce146c..dbc268f9d 100644
+--- a/dashboard/backend-tests/launches/agent-launch-continuation-interrupted.spec.ts
++++ b/dashboard/backend-tests/launches/agent-launch-continuation-interrupted.spec.ts
+@@ -1,175 +1,161 @@
+-// Continuing a kept launch attempt that needs reconciliation
+-// (../../server/launchAttemptOwner.ts), over raw HTTP: an attempt left unsettled
+-// by a server that closed blocks a fresh start of its story on the restarted
+-// server, and only its own continuation resumes it -- under the same attempt
+-// identity and the existing recovery rules, here Codex's recovery of an
+-// unconfirmed first input, which resumes the recorded conversation without
+-// submitting it again. A continuation the service cannot match to a kept
+-// attempt that needs it is refused with nothing started; such an attempt, or
+-// one this machine does not keep, is never noted reconciled. Unreadable kept
+-// attempts: ../../../e2e/launches/agent-launch-continuation.spec.ts. A story
+-// whose latest attempt settled uncertain blocks a fresh start the same way
+-// (./agent-launch-uncertain-continuation.spec.ts).
+-
+-import { randomUUID } from "node:crypto";
+-import type { AttemptObservation } from "../../src/agentLaunch.ts";
+-import {
+-  accept,
+-  attempts,
+-  continueAttempt,
+-  noteReconciled,
+-} from "../../test-support/agentLaunchBoundary.ts";
+-import {
+-  keptAttempts,
+-  settledOutcome,
+-} from "../../test-support/acceptedAttempts.ts";
+-import {
+-  test,
+-  expect,
+-  stored,
+-} from "../../test-support/support/codexLaunch.ts";
+-import {
+-  sharedDashboardBuild,
+-  startDashboardServer,
+-} from "../../test-support/support/dashboardServer.ts";
+-import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
++import assert from "node:assert/strict";
++import { mkdtempSync, readFileSync, rmSync } from "node:fs";
++import { tmpdir } from "node:os";
++import path from "node:path";
++import { expect, onTestFinished, test, vi } from "vitest";
+ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
++import { codexHost } from "../../server/codexHost.ts";
++import { NativeDoneMarks } from "../../server/doneMarks.ts";
++import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
++import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
++import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
++import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
++import { keptRecords } from "../../server/launchRecordStore.ts";
++import { attemptRun } from "../../server/launchRun.ts";
++import * as launchStart from "../../server/launchStart.ts";
++import { machineFolder } from "../../server/localFolder.ts";
++import { machineDashboardPath } from "../../server/machineHome.ts";
++import {
++  appendConfiguredProject,
++  mountProjectConfiguration,
++} from "../../server/projectConfiguration.ts";
++import { StartProgress } from "../../server/startProgress.ts";
++import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
+
+-test.use({ projectFolders: ["open-dough"] });
+-
+-type Answer = {
+-  kind: string;
+-  reason?: string;
+-  explanation?: string;
+-  attempt?: AttemptObservation;
++const source = makeMe.aPublishedSource.openDough.please();
++const story = {
++  source: source.id,
++  identity: "SEED-052#recover",
++  title: "Recover this story",
++  host: "codex" as const,
++  instruction: "Continue with the original input.",
+ };
+
+-const answerOf = (response: { body: string }) =>
+-  JSON.parse(response.body) as Answer;
++test("only the interrupted attempt can recover its kept input and workspace", async () => {
++  const home = mkdtempSync(path.join(tmpdir(), "dough-interrupted-attempt-"));
++  vi.stubEnv("HOME", home);
++  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
++  const unmount = mountProjectConfiguration("development");
++  const owner = new LaunchAttemptOwner();
++  onTestFinished(async () => {
++    owner.close();
++    try {
++      await owner.drain();
++    } finally {
++      unmount();
++      vi.restoreAllMocks();
++      vi.unstubAllEnvs();
++      rmSync(home, { recursive: true, force: true });
++    }
++  });
++  appendConfiguredProject(
++    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
++  );
+
+-test("an attempt a closed server left unsettled blocks a fresh start of its story and is resumed only by its own continuation, without a second input", async ({
+-  dashboard,
+-  codexProtocol,
+-  machine,
+-  github,
+-}) => {
+-  const native = codexProtocol;
+-  if (native === undefined) throw new Error("Missing native fixture.");
+-  native.hold = true;
++  const policy = {
++    tracking: "one-shot",
++    workspace: "isolated",
++    landing: "review",
++  } as const;
+   const request = makeMe.aLaunchRequest
+-    .refining({ ...storyA, host: "codex" })
+-    .withPolicy({
+-      tracking: "one-shot",
+-      workspace: "isolated",
+-      landing: "review",
++    .refining(story)
++    .withPolicy(policy)
++    .withEffort("high")
++    .please();
++  const acceptedAt = new Date().toISOString();
++  const attempt = makeMe.anAcceptedAttempt
++    .requesting(request)
++    .acceptedAt(acceptedAt)
++    .workedBy({ pid: 2147483647, step: "launch", notedAt: acceptedAt })
++    .please();
++  await keepAttempt(attempt);
++  const workspace = path.join(home, "kept-workspace");
++  const firstInput = { state: "uncertain", instruction: story.instruction } as const;
++  const record = makeMe.aLaunchRecord
++    .refining(story)
++    .requestingEffort("high")
++    .onStoryBranch({ tracking: "one-shot", role: policy.workspace, landing: policy.landing, workspace, branch: "codex/story" })
++    .inCodexSession({
++      sessionId: "interrupted-thread",
++      continuation: { workspace, endpoint: "unix:///saved-codex.sock" },
+     })
++    .withFirstInput(firstInput)
++    .launchedAt(acceptedAt)
+     .please();
+-  const accepted = answerOf(await accept(dashboard, request)).attempt;
+-  if (accepted === undefined) throw new Error("The launch was not accepted.");
+-  const inputs = () =>
+-    native.calls.filter((call) => call.method === "turn/start");
+-  await expect.poll(() => inputs().length).toBe(1);
+-  // The installed one-shot prepares its workspace without publishing.
+-  const [running] = await attempts(dashboard);
+-  expect(running).toMatchObject({ publication: { kind: "none" }, owned: true });
+-  await dashboard.close();
+-  await expect.poll(() => native.sockets.size).toBe(0);
+-  native.release();
+-  native.resumeStatus = "completed";
+-
+-  const restarted = await startDashboardServer({
+-    mode: "preview",
+-    prebuilt: sharedDashboardBuild,
+-    machine,
+-    github,
+-    codexProtocol,
+-    projectFolders: ["open-dough"],
++  keepLaunchStore(home, { [source.id]: [record] });
++  const progress = new StartProgress();
++  const marks = new NativeDoneMarks({
++    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
++    hostFor: () => undefined,
++    reportingFolder: machineFolder,
+   });
+-  try {
+-    // No server runs it now, so it has no next change to count.
+-    const interrupted = {
+-      ...running,
+-      owned: false,
+-      running: false,
+-      changes: undefined,
+-    };
+-    expect(await attempts(restarted)).toEqual([interrupted]);
+-    // No workflow's fresh start of the story is accepted.
+-    for (const workflow of ["refinement", "execution"]) {
+-      expect(
+-        answerOf(await accept(restarted, { ...request, workflow })),
+-      ).toMatchObject({
+-        kind: "failed",
+-        reason: "already-starting",
+-        explanation: expect.stringContaining(
+-          "An earlier start of this story on this machine was interrupted and needs reconciliation",
+-        ),
+-      });
+-    }
+-    expect(
+-      answerOf(await continueAttempt(restarted, randomUUID())),
+-    ).toMatchObject({ kind: "failed", reason: "refused" });
+-    expect(
+-      answerOf(await continueAttempt(restarted, accepted.id, "doughnut")),
+-    ).toMatchObject({ kind: "failed", reason: "refused" });
+-    // Nor is it, or an attempt this machine does not keep, noted reconciled.
+-    for (const [attempt, source] of [
+-      [randomUUID(), "open-dough"],
+-      [accepted.id, "doughnut"],
+-      [accepted.id, "open-dough"],
+-    ] as const) {
+-      expect(
+-        answerOf(await noteReconciled(restarted, attempt, source)),
+-      ).toMatchObject({ kind: "refused" });
+-    }
+-    expect(await attempts(restarted)).toEqual([interrupted]);
++  const started = vi.spyOn(launchStart, "started").mockRejectedValue(new Error("Unexpected installed start."));
++  const newLaunch = vi.spyOn(codexHost, "launch").mockRejectedValue(new Error("Unexpected native launch."));
++  const confirmed = { ...firstInput, state: "confirmed", turnId: "original-turn" } as const;
++  const recover = vi.spyOn(codexHost, "recover").mockImplementation(
++    async (...[kept, , evidence]) => {
++      await evidence.session(kept.session, confirmed);
++      return {
++        kind: "launched",
++        session: kept.session,
++        sessionState: { kind: "unknown" },
++      };
++    },
++  );
++  const run = vi.fn<AttemptRun>((...args) =>
++    attemptRun(source, ...args, progress, marks),
++  );
++  const before = vi.fn((id: string, request: typeof attempt.request) =>
++    preContinuationAnswer(source, id, request, progress),
++  );
++  const continuation = (project: string, id: string) =>
++    owner.continueAttempt(project, id, (request) => before(id, request), run);
++  const file = machineDashboardPath("launch-attempts.json");
++  const original = readFileSync(file, "utf8");
++  expect((await owner.attempts()).attempts).toEqual([
++    { ...attempt, running: false, owned: false },
++  ]);
++  for (const workflow of ["execution", "refinement"] as const) {
++    const fresh = makeMe.aLaunchRequest.ofWorkflow(workflow, story).withPolicy(policy).please();
++    const refused = await owner.accept(fresh, run);
++    expect(refused).toMatchObject({ kind: "failed", reason: "already-starting" });
++    expect(refused).toHaveProperty("explanation", expect.stringContaining("was interrupted and needs reconciliation"));
++  }
+
+-    const continued = answerOf(await continueAttempt(restarted, accepted.id));
+-    expect(continued).toMatchObject({
+-      kind: "accepted",
+-      attempt: {
+-        id: accepted.id,
+-        request,
+-        acceptedAt: accepted.acceptedAt,
+-        owned: true,
+-      },
+-    });
+-    const outcome = await settledOutcome(restarted, accepted.id);
+-    expect(outcome).toEqual({
+-      kind: "launched",
+-      session: { host: "codex", sessionId: native.threadId },
+-    });
+-    expect(keptAttempts(restarted)).toEqual([
+-      expect.objectContaining({
+-        id: accepted.id,
+-        acceptedAt: accepted.acceptedAt,
+-        request,
+-        outcome,
+-      }),
+-    ]);
+-    // A settled attempt is no longer continued.
+-    expect(
+-      answerOf(await continueAttempt(restarted, accepted.id)),
+-    ).toMatchObject({ kind: "failed", reason: "refused" });
+-    // Settled, it is noted reconciled once; noting it again changes nothing.
+-    const noted = answerOf(await noteReconciled(restarted, accepted.id));
+-    expect(noted).toMatchObject({
+-      kind: "reconciled",
+-      attempt: { id: accepted.id, outcome, reconciledAt: expect.any(String) },
+-    });
+-    expect(answerOf(await noteReconciled(restarted, accepted.id))).toEqual(
+-      noted,
+-    );
+-    expect(keptAttempts(restarted)).toEqual([
+-      expect.objectContaining({
+-        id: accepted.id,
+-        reconciledAt: noted.attempt?.reconciledAt,
+-      }),
+-    ]);
+-    expect(inputs()).toHaveLength(1);
+-    expect(stored(restarted.home)).toHaveLength(1);
+-    expect(stored(restarted.home)[0]?.session.sessionId).toBe(native.threadId);
+-  } finally {
+-    await restarted.close();
++  const unknown = makeMe.anAcceptedAttempt.withId("00000000-0000-4000-8000-00000000aaaa").requesting(request).please().id;
++  for (const [project, id] of [[source.id, unknown], ["doughnut", attempt.id]] as const) {
++    expect(await continuation(project, id)).toMatchObject({ kind: "failed", reason: "refused" });
++    expect(await owner.reconcile(project, id)).toHaveProperty("kind", "refused");
+   }
++  expect(await owner.reconcile(source.id, attempt.id)).toHaveProperty("kind", "refused");
++  expect(readFileSync(file, "utf8")).toBe(original);
++  expect(before).not.toHaveBeenCalled();
++  expect(run).not.toHaveBeenCalled();
++
++  expect(await continuation(source.id, attempt.id)).toMatchObject({
++    kind: "accepted",
++    attempt: { id: attempt.id, acceptedAt, request, owned: true },
++  });
++  await owner.drain();
++  expect(before).toHaveBeenCalledExactlyOnceWith(attempt.id, request);
++  expect(recover).toHaveBeenCalledOnce();
++  expect(recover.mock.calls[0]?.[0]).toEqual(record);
++  expect(started).not.toHaveBeenCalled();
++  expect(newLaunch).not.toHaveBeenCalled();
++  expect(await keptRecords(source.id)).toEqual([{ ...record, firstInput: confirmed }]);
++  const outcome = { kind: "launched", session: { host: "codex", sessionId: record.session.sessionId } };
++  expect(await keptAttempts()).toMatchObject([
++    { id: attempt.id, acceptedAt, request, outcome, publication: { kind: "none" } },
++  ]);
++  expect(await continuation(source.id, attempt.id)).toMatchObject({ kind: "failed", reason: "refused" });
++  expect(run).toHaveBeenCalledOnce();
++  expect(recover).toHaveBeenCalledOnce();
++
++  const noted = await owner.reconcile(source.id, attempt.id);
++  assert.equal(noted.kind, "reconciled");
++  expect(noted.attempt).toMatchObject({ id: attempt.id, outcome });
++  expect(noted.attempt.reconciledAt).toMatch(/\S/);
++  const reconciled = readFileSync(file, "utf8");
++  expect(await owner.reconcile(source.id, attempt.id)).toEqual(noted);
++  expect(readFileSync(file, "utf8")).toBe(reconciled);
+ });
+diff --git a/dashboard/backend-tests/launches/agent-launch-uncertain-continuation.spec.ts b/dashboard/backend-tests/launches/agent-launch-uncertain-continuation.spec.ts
+index 6d538cbec..67649dc14 100644
+--- a/dashboard/backend-tests/launches/agent-launch-uncertain-continuation.spec.ts
++++ b/dashboard/backend-tests/launches/agent-launch-uncertain-continuation.spec.ts
+@@ -1,235 +1,141 @@
+-// A story start that settled while its session or its publication may or may
+-// not exist (../../server/launchAttemptOwner.ts), over raw HTTP: its story stays
+-// unresolved, so a fresh start of it from any workflow is refused with nothing
+-// started, and only that attempt's own continuation resumes it, under the same
+-// attempt identity.
+-
+-import { renameSync } from "node:fs";
++import assert from "node:assert/strict";
++import { mkdtempSync, readFileSync, rmSync } from "node:fs";
++import { tmpdir } from "node:os";
++import path from "node:path";
++import { expect, onTestFinished, test, vi } from "vitest";
+ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+-import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
+-import { ownRecordContinuation } from "./ownRecordContinuation.ts";
+-import type { AttemptObservation } from "../../src/agentLaunch.ts";
++import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
++import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
++import { keptAttempts } from "../../server/launchAttemptStore.ts";
++import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
++import { machineDashboardPath } from "../../server/machineHome.ts";
+ import {
+-  accept,
+-  attempts,
+-  continueAttempt,
+-  launchRequest,
+-  runningStarts,
+-} from "../../test-support/agentLaunchBoundary.ts";
+-import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
+-import { test as startTest } from "../../test-support/support/startOriginTest.ts";
+-import { test, expect } from "../../test-support/support/codexLaunch.ts";
+-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+-
+-// No page: the local boundaries alone answer these requests.
+-test.use({
+-  serverMode: "boundary",
+-  projectFolders: ["open-dough"],
+-});
++  appendConfiguredProject,
++  mountProjectConfiguration,
++} from "../../server/projectConfiguration.ts";
++import { StartProgress } from "../../server/startProgress.ts";
+
+-type Answer = {
+-  kind: string;
+-  attempt?: AttemptObservation;
+-};
++const source = makeMe.aPublishedSource.openDough.please();
++const story = { source: source.id, identity: "SEED-052#continue", title: "Continue this story" };
++const refining = makeMe.aLaunchRequest
++  .refining(story)
++  .withPolicy({ tracking: "one-shot", workspace: "isolated", landing: "review" })
++  .withEffort("max")
++  .please();
++const executing = makeMe.aLaunchRequest.executing(story).please();
++const uncertain = {
++  kind: "uncertain",
++  reason: "timed-out",
++  explanation: "The native launch wait expired.",
++} as const;
+
+-const answerOf = (response: { body: string }) =>
+-  JSON.parse(response.body) as Answer;
+-
+-const unresolvedStart = {
+-  kind: "failed",
+-  reason: "already-starting",
+-  explanation: expect.stringContaining(
+-    "Recheck or continue it from Startup recovery.",
+-  ),
+-};
+-
+-test.describe("a story start whose launch wait expired", () => {
+-  test.use({ launchTimeoutMs: 3_000 });
++function machine() {
++  const home = mkdtempSync(path.join(tmpdir(), "dough-uncertain-attempt-"));
++  vi.stubEnv("HOME", home);
++  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
++  const unmount = mountProjectConfiguration("development");
++  const owner = new LaunchAttemptOwner();
++  onTestFinished(async () => {
++    owner.close();
++    try {
++      await owner.drain();
++    } finally {
++      unmount();
++      vi.unstubAllEnvs();
++      rmSync(home, { recursive: true, force: true });
++    }
++  });
++  appendConfiguredProject(makeMe.aConfiguredProject
++    .with({ ...source, localPath: home })
++    .please());
++  const progress = new StartProgress();
++  return {
++    owner,
++    file: machineDashboardPath("launch-attempts.json"),
++    continueAttempt: (id: string, run: AttemptRun) =>
++      owner.continueAttempt(source.id, id, (request) => preContinuationAnswer(source, id, request, progress), run),
++  };
++}
+
+-  test("blocks a fresh start of its story from any workflow, and is resumed only by its own continuation at its recorded effort", async ({
+-    dashboard,
+-  }) => {
+-    dashboard.claudeScenario("hang");
+-    const request = makeMe.aLaunchRequest
+-      .refining(storyA)
+-      .withPolicy({
+-        tracking: "one-shot",
+-        workspace: "isolated",
+-        landing: "review",
+-      })
+-      .withEffort("max")
+-      .please();
+-    const accepted = answerOf(await accept(dashboard, request));
+-    const id = accepted.attempt?.id ?? "";
+-    expect(await settledOutcome(dashboard, id)).toMatchObject({
+-      kind: "uncertain",
+-      reason: "timed-out",
+-    });
+-    const [uncertain] = await attempts(dashboard);
+-    expect(uncertain).toMatchObject({
+-      id,
+-      running: false,
+-      publication: { kind: "none" },
+-    });
+-    expect(uncertain?.worker).toBeUndefined();
+-    expect(uncertain?.slowSince).toBeUndefined();
++test("only Continue retries a timed-out start with the same request and effort", async () => {
++  const { owner, file, continueAttempt } = machine();
++  const record = makeMe.anObservedLaunch.of(makeMe.aLaunchRecord.refining(story).please()).please();
++  const run = vi.fn<AttemptRun>()
++    .mockResolvedValueOnce(uncertain)
++    .mockResolvedValueOnce({ kind: "launched", record });
++  const accepted = await owner.accept(refining, run);
++  assert.equal(accepted.kind, "accepted");
++  const { id, acceptedAt } = accepted.attempt;
++  await owner.drain();
++  expect((await owner.attempts()).attempts).toMatchObject([{
++    id, running: false, publication: { kind: "none" }, outcome: uncertain,
++  }]);
++  const before = readFileSync(file, "utf8");
+
+-    for (const workflow of ["refinement", "execution"])
+-      expect(
+-        answerOf(await accept(dashboard, { ...request, workflow })),
+-      ).toMatchObject(unresolvedStart);
+-    expect(await attempts(dashboard)).toEqual([uncertain]);
+-    expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
++  for (const request of [refining, executing]) {
++    const refused = await owner.accept(request, run);
++    expect(refused).toMatchObject({ kind: "failed", reason: "already-starting" });
++    expect(refused).toHaveProperty("explanation", expect.stringContaining("Recheck or continue it from Startup recovery."));
++  }
++  expect(readFileSync(file, "utf8")).toBe(before);
++  expect(run).toHaveBeenCalledOnce();
+
+-    dashboard.claudeScenario("launched");
+-    expect(answerOf(await continueAttempt(dashboard, id))).toMatchObject({
+-      kind: "accepted",
+-      attempt: { id, acceptedAt: uncertain?.acceptedAt },
+-    });
+-    expect(await settledOutcome(dashboard, id)).toMatchObject({
+-      kind: "launched",
+-    });
+-    expect(answerOf(await continueAttempt(dashboard, id))).toMatchObject({
+-      kind: "failed",
+-      reason: "refused",
+-    });
+-    expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
+-    expect(dashboard.claudeLaunches().map(({ effort }) => effort)).toEqual([
+-      "max",
+-      "max",
+-    ]);
++  expect(await continueAttempt(id, run)).toMatchObject({
++    kind: "accepted",
++    attempt: { id, acceptedAt, request: refining },
+   });
++  await owner.drain();
++  expect(await keptAttempts()).toMatchObject([{ id, acceptedAt, outcome: { kind: "launched" } }]);
++  expect(await continueAttempt(id, run)).toMatchObject({ kind: "failed", reason: "refused" });
++  expect(run.mock.calls.map(([own]) => own.request)).toEqual([refining, refining]);
+ });
+
+-startTest.describe("a story start that crosses its warning threshold", () => {
+-  startTest.use({ startTimeoutMs: 3_000, launchTimeoutMs: 60_000 });
+-
+-  startTest(
+-    "refuses duplicates and Continue while running, then launches automatically",
+-    async ({ dashboard, origin }) => {
+-      const push = origin.holdPushes();
+-      const story = {
+-        ...launchRequest,
+-        identity: queuedIdentity,
+-        title: "Story A",
+-      };
+-      const id = answerOf(await accept(dashboard, story)).attempt?.id ?? "";
+-      await expect
+-        .poll(async () => (await attempts(dashboard))[0]?.slowSince, {
+-          timeout: 30_000,
+-        })
+-        .toBeDefined();
+-      const [slow] = await attempts(dashboard);
+-      expect(slow).toMatchObject({
+-        id,
+-        owned: true,
+-        publication: { kind: "unknown" },
+-      });
+-      expect(slow?.outcome).toBeUndefined();
+-      expect(
+-        answerOf(await accept(dashboard, { ...story, workflow: "refinement" })),
+-      ).toMatchObject({
+-        kind: "failed",
+-        reason: "already-starting",
+-      });
+-      expect(answerOf(await accept(dashboard, story))).toMatchObject({
+-        kind: "failed",
+-        reason: "already-starting",
+-      });
+-      expect(answerOf(await continueAttempt(dashboard, id))).toMatchObject({
+-        kind: "uncertain",
+-        explanation: expect.stringContaining("already running"),
+-      });
+-      // Recording the warning can change its timestamp and observation count.
+-      expect(await attempts(dashboard)).toEqual([
+-        {
+-          ...slow,
+-          slowSince: expect.any(String),
+-          changes: expect.any(Number) as unknown,
+-        },
+-      ]);
+-      expect(dashboard.claudeLaunchCalls()).toEqual([]);
+-      push.release();
+-      expect(await settledOutcome(dashboard, id)).toMatchObject({
+-        kind: "launched",
+-      });
+-      const [launched] = await attempts(dashboard);
+-      expect(launched).toMatchObject({
+-        id,
+-        acceptedAt: slow?.acceptedAt,
+-        publication: { kind: "published" },
+-      });
+-      expect(launched?.slowSince).toBeUndefined();
+-      expect(await runningStarts(dashboard)).toEqual([]);
+-      expect(await origin.takenProfiles()).toHaveLength(1);
+-      expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+-    },
+-  );
+-});
+-
+-for (const workflow of ["execution", "refinement"] as const)
+-  for (const uncertain of [false, true])
+-    startTest(
+-      `Continue settles ${workflow}'s ${uncertain ? "uncertain" : "unsettled"} own record before checks, scripts or native calls`,
+-      async ({ dashboard, origin }) => {
+-        const proof = ownRecordContinuation(
+-          dashboard,
+-          origin,
+-          workflow,
+-          uncertain,
+-        );
+-        const missingProject = workflow === "execution" && !uncertain;
+-        const movedProject = `${origin.project}.temporarily-missing`;
+-        if (missingProject) renameSync(origin.project, movedProject);
+-        try {
+-          if (missingProject) {
+-            expect(
+-              answerOf(
+-                await accept(dashboard, {
+-                  ...launchRequest,
+-                  identity: queuedIdentity,
+-                  title: "Story A",
+-                  workflow,
+-                }),
+-              ),
+-            ).toMatchObject({ kind: "failed", reason: "folder-not-found" });
+-            proof.unchanged();
+-          }
+-          const answered = answerOf(await continueAttempt(dashboard, proof.id));
+-          expect(answered).toMatchObject({
+-            kind: "accepted",
+-            attempt: {
+-              id: proof.id,
+-              acceptedAt: proof.acceptedAt,
+-              outcome: proof.outcome,
+-              owned: false,
+-              running: false,
+-            },
+-          });
+-          expect(answered.attempt?.worker).toBeUndefined();
+-          expect(answered.attempt?.slowSince).toBeUndefined();
+-          expect(await attempts(dashboard)).toEqual([answered.attempt]);
+-          proof.settled(answered.attempt);
+-          await proof.nothingStarted();
+-        } finally {
+-          if (missingProject) renameSync(movedProject, origin.project);
+-        }
+-      },
+-    );
+-
+-startTest(
+-  "Continue cannot settle an own record when the attempt file cannot be written, and starts nothing",
+-  async ({ dashboard, origin }) => {
+-    const proof = ownRecordContinuation(dashboard, origin, "execution", false);
+-    proof.readOnly(true);
++test("a slow live start rejects Start and Continue until it settles", async () => {
++  const { owner, file, continueAttempt } = machine();
++  const slow = new Date().toISOString();
++  const warned = Promise.withResolvers<void>();
++  const complete = Promise.withResolvers<void>();
++  const record = makeMe.anObservedLaunch.of(makeMe.aLaunchRecord.executing(story).please()).please();
++  const publication = { kind: "published", revision: "b2".repeat(20) } as const;
++  const run = vi.fn<AttemptRun>(async (own, notePublication, noteSlow) => {
++    const cancelled = () => complete.resolve();
++    own.controller.signal.addEventListener("abort", cancelled, { once: true });
+     try {
+-      expect(
+-        answerOf(await continueAttempt(dashboard, proof.id)),
+-      ).toMatchObject({ kind: "failed", reason: "unrecorded" });
+-      proof.unchanged();
+-      await proof.nothingStarted();
++      await noteSlow(slow);
++      warned.resolve();
++      await complete.promise;
++      await notePublication(publication);
++      return { kind: "launched", record };
+     } finally {
+-      proof.readOnly(false);
++      own.controller.signal.removeEventListener("abort", cancelled);
+     }
+-  },
+-);
++  });
++
++  const accepted = await owner.accept(executing, run);
++  assert.equal(accepted.kind, "accepted");
++  const { id, acceptedAt } = accepted.attempt;
++  try {
++    await warned.promise;
++    const before = readFileSync(file, "utf8");
++    expect((await owner.attempts()).attempts).toMatchObject([{
++      id, owned: true, slowSince: slow, publication: { kind: "unknown" },
++    }]);
++    for (const request of [executing, refining])
++      expect(await owner.accept(request, run)).toMatchObject({
++        kind: "failed", reason: "already-starting",
++      });
++    const refused = await continueAttempt(id, run);
++    expect(refused).toHaveProperty("kind", "uncertain");
++    expect(refused).toHaveProperty("explanation", expect.stringContaining("already running"));
++    expect(readFileSync(file, "utf8")).toBe(before);
++    expect(run).toHaveBeenCalledOnce();
++  } finally {
++    complete.resolve();
++  }
++
++  await owner.drain();
++  const [launched] = (await keptAttempts()) ?? [];
++  expect(launched).toMatchObject({ id, acceptedAt, publication, outcome: { kind: "launched" } });
++  expect(launched?.slowSince).toBeUndefined();
++  expect(launched?.worker).toBeUndefined();
++});
+diff --git a/dashboard/backend-tests/launches/ownRecordContinuation.ts b/dashboard/backend-tests/launches/ownRecordContinuation.ts
+deleted file mode 100644
+index 3c38d2030..000000000
+--- a/dashboard/backend-tests/launches/ownRecordContinuation.ts
++++ /dev/null
+@@ -1,154 +0,0 @@
+-// Only preconditions for own-record Continue proof: a kept attempt, durable
+-// records and invocation traps. The service must establish the settlement.
+-import { randomUUID } from "node:crypto";
+-import {
+-  chmodSync,
+-  existsSync,
+-  mkdirSync,
+-  readFileSync,
+-  writeFileSync,
+-} from "node:fs";
+-import path from "node:path";
+-import { expect } from "@playwright/test";
+-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+-import type { AttemptObservation } from "../../src/agentLaunch.ts";
+-import { installedSkillPath } from "../../server/launchHosts.ts";
+-import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+-import {
+-  keptStarts,
+-  runningStarts,
+-} from "../../test-support/agentLaunchBoundary.ts";
+-import { machineHome } from "../../test-support/machineLaunchRecords.ts";
+-import {
+-  keepLaunchStore,
+-  launchStoreFile,
+-} from "../../test-support/support/launchStore.ts";
+-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+-import {
+-  queuedIdentity,
+-  type StartOrigin,
+-} from "../../test-support/support/startOrigin.ts";
+-
+-export function ownRecordContinuation(
+-  dashboard: DashboardServer,
+-  origin: StartOrigin,
+-  workflow: "execution" | "refinement",
+-  uncertain: boolean,
+-) {
+-  const id = randomUUID();
+-  const acceptedAt = new Date().toISOString();
+-  const story = { identity: queuedIdentity, title: "Story A" };
+-  const request = makeMe.aLaunchRequest.ofWorkflow(workflow, story).please();
+-  const folder = path.join(dashboard.home, ".open-dough/dashboard");
+-  const file = path.join(folder, "launch-attempts.json");
+-  mkdirSync(folder, { recursive: true });
+-  const accepted = makeMe.anAcceptedAttempt.withId(id).requesting(request);
+-  // Its worker's process is gone, so no server runs it.
+-  accepted
+-    .acceptedAt(acceptedAt)
+-    .workedBy({ pid: 2147483647, step: "launch", notedAt: acceptedAt })
+-    .slowSince(acceptedAt);
+-  if (uncertain)
+-    accepted
+-      .ended({
+-        kind: "uncertain",
+-        reason: "unconfirmed",
+-        explanation: "Interrupted handoff.",
+-      })
+-      .settledAt(acceptedAt);
+-  const attempt = accepted.please();
+-  const kept = JSON.stringify({ "open-dough": [attempt] });
+-  writeFileSync(file, kept);
+-  const latestId = randomUUID();
+-  // Open launches of Story A, or of another story, by their workflow,
+-  // launched `offset` milliseconds after the attempt was accepted.
+-  const openLaunch = (
+-    launchWorkflow: "execution" | "refinement",
+-    offset: number,
+-    identity = queuedIdentity,
+-  ) =>
+-    makeMe.aLaunchRecord
+-      .ofWorkflow(launchWorkflow, { identity, title: story.title })
+-      .launchedAt(new Date(Date.parse(acceptedAt) + offset).toISOString());
+-  const otherWorkflow = workflow === "execution" ? "refinement" : "execution";
+-  const records = [
+-    openLaunch(workflow, 2).inCodexSession({ sessionId: latestId }).please(),
+-    openLaunch(workflow, 1)
+-      .inClaudeSession({ sessionId: randomUUID() })
+-      .please(),
+-    openLaunch(otherWorkflow, 3)
+-      .inClaudeSession({ sessionId: randomUUID() })
+-      .please(),
+-    openLaunch(workflow, 4, "another-story")
+-      .inClaudeSession({ sessionId: randomUUID() })
+-      .please(),
+-    openLaunch(workflow, -1)
+-      .inClaudeSession({ sessionId: randomUUID() })
+-      .please(),
+-  ];
+-  const stored = keepLaunchStore(machineHome(origin.machine), {
+-    "open-dough": records,
+-  });
+-  const marker = path.join(origin.machine, "unexpected-start");
+-  const skill =
+-    workflow === "execution" ? "dough-execute-plan" : "dough-story-refinement";
+-  const script =
+-    workflow === "execution"
+-      ? "execution-start.mjs"
+-      : "preparation-assignment.mjs";
+-  const installed = installedSkillPath(
+-    "claude",
+-    { path: origin.project, shown: origin.project },
+-    skill,
+-    "scripts",
+-    script,
+-  );
+-  // Detect a script invocation independently of publication or native calls.
+-  const original = readFileSync(installed, "utf8");
+-  const offset = original.startsWith("#!") ? original.indexOf("\n") + 1 : 0;
+-  writeFileSync(
+-    installed,
+-    `${original.slice(0, offset)}import { writeFileSync as markUnexpectedStart } from 'node:fs';
+-markUnexpectedStart(${JSON.stringify(marker)}, 'called');
+-${original.slice(offset)}`,
+-  );
+-  const outcome = {
+-    kind: "launched",
+-    session: { host: "codex", sessionId: latestId },
+-  };
+-  return {
+-    id,
+-    acceptedAt,
+-    outcome,
+-    records: stored,
+-    restoreScript: () => {
+-      writeFileSync(installed, original);
+-    },
+-    readOnly: (yes: boolean) => {
+-      chmodSync(folder, yes ? 0o555 : 0o755);
+-    },
+-    unchanged: () => {
+-      expect(readFileSync(file, "utf8")).toBe(kept);
+-    },
+-    settled: (answered: AttemptObservation | undefined) => {
+-      const durable = Object.fromEntries(
+-        Object.entries(answered ?? {}).filter(
+-          ([key]) => key !== "owned" && key !== "running",
+-        ),
+-      );
+-      expect(keptAttempts(dashboard)).toEqual([durable]);
+-      expect(answered?.settledAt).toEqual(expect.any(String));
+-    },
+-    nothingStarted: async (expectedRecords = stored) => {
+-      expect(existsSync(marker)).toBe(false);
+-      expect(dashboard.claudeLaunchCalls()).toEqual([]);
+-      expect(dashboard.codex.calls).toEqual([]);
+-      expect(await runningStarts(dashboard)).toEqual([]);
+-      expect(await keptStarts(dashboard)).toEqual([]);
+-      expect(await origin.takenProfiles()).toEqual([]);
+-      expect(
+-        readFileSync(launchStoreFile(machineHome(origin.machine)), "utf8"),
+-      ).toBe(expectedRecords);
+-    },
+-  };
+-}
