@@ -143,6 +143,36 @@ export function readAt(
   });
 }
 
+// A revision no published answer names: the one a revision check was shown
+// and a pinned read pins.
+export const unnamedRevision = "ab".repeat(20);
+
+// The query asking whether main still names a revision shown, as the page's
+// scheduled checks ask it: one listing of the published branch heads, then
+// main alone when that listing fails.
+export const revisionCheck = `&since=${unnamedRevision}`;
+
+// A revision check of `source` (by default open-dough). A failure arranged at
+// `gh` fails the listing and then main, so it answers as a failed read of main
+// after asking GitHub twice.
+export function checkedAt(
+  server: Pick<DashboardServer, "baseURL" | "origin">,
+  source = "open-dough",
+): Promise<RawResponse> {
+  return readAt(server, { source, query: revisionCheck });
+}
+
+// The query reading the shared seed pinned to the unnamed revision.
+export const pinnedRead = sharedSeedRead(unnamedRevision);
+
+// A pinned read of open-dough's shared seed. It asks GitHub once, so a failure
+// arranged at `gh` answers it as one failed content read.
+export function pinnedAt(
+  server: Pick<DashboardServer, "baseURL" | "origin">,
+): Promise<RawResponse> {
+  return readAt(server, pinnedRead);
+}
+
 // A request the boundary refuses before asking GitHub. Once it is answered,
 // every request sent before it waits on its `gh` call.
 export async function refusedMarker(server: DashboardServer): Promise<void> {

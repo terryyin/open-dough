@@ -41,6 +41,7 @@ import {
 } from "../../test-support/support/fakeGitHub.ts";
 import { notLoggedIn } from "../../test-support/originAnswers.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { checkedAt } from "../../test-support/support/sharedReads.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedFiles } from "../../test-support/describedRevisions.ts";
 import { backlogPath } from "../../test-support/publishedOriginBasics.ts";
@@ -68,10 +69,7 @@ test.describe("authenticated read boundary (development environment)", () => {
       everyRepository,
       failsWith(`${notLoggedIn.stderr}token file: ${secretMarker}\n`),
     );
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=pygardon`,
-      headers: { Origin: server.origin },
-    });
+    const response = await checkedAt(server, "pygardon");
     expect(response.status).toBe(502);
     expect(response.headers["cache-control"]).toBe("no-store");
     expect(JSON.parse(response.body)).toEqual({
@@ -85,16 +83,22 @@ test.describe("authenticated read boundary (development environment)", () => {
   test("never forwards gh's raw stderr or a credential-like marker into the failure response", async () => {
     const callsBefore = server.ghCalls().length;
     server.github.serve(everyRepository, failsWith(`fatal: ${secretMarker}\n`));
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-      headers: { Origin: server.origin },
-    });
+    const response = await checkedAt(server);
     expect(response.status).toBe(502);
     expect(response.body).not.toContain(secretMarker);
     expect(response.body).not.toContain("fatal:");
-    // The ref resolution itself failed, so the content read is never
-    // attempted with whatever partial/undefined revision that would imply.
-    expect(server.ghCalls()).toHaveLength(callsBefore + 1);
+    // The check's listing failed, then main alone, so nothing is read on
+    // from whatever partial/undefined revision that would imply.
+    expect(server.ghCalls().slice(callsBefore)).toEqual([
+      ["api", "--include", `repos/${knownRepository}/git/matching-refs/heads/`],
+      [
+        "api",
+        "--include",
+        `repos/${knownRepository}/commits/main`,
+        "--jq",
+        ".sha",
+      ],
+    ]);
   });
 
   test("reads an allowlisted canonical path pinned to the supplied revision exactly as origin publishes it, a literal control-character escape included, reusing records already read at that revision", async () => {

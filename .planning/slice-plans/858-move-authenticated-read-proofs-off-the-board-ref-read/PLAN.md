@@ -26,12 +26,16 @@ open itself (listed in the seed).
   shares the `ref` read's label (`readingRefOf` in
   [readingRequestedRead.ts](../../../dashboard/server/readingRequestedRead.ts))
   and asks `repos/<repo>/git/matching-refs/heads/`
-  ([ghRevision.ts](../../../dashboard/server/ghRevision.ts)). Assertions change
-  only the incident or diagnostic category (`ref` to `revision-check`) and the
-  recorded gh call. Pinned reads (`&revision=<sha>&path=…`, already built
-  by `sharedSeedRead`) serve specs that need an answer, not a failure.
-- Add one helper in `dashboard/test-support/support/sharedReads.ts` for the
-  revision-check query and a failing read, instead of inline bare
+  ([ghRevision.ts](../../../dashboard/server/ghRevision.ts)). A failed
+  listing falls back to `commits/main` (`RevisionChecks.check` in
+  [revisionChecks.ts](../../../dashboard/server/revisionChecks.ts)), so one
+  failed check asks gh twice and records two failures. Specs whose promise
+  is the "while reading main of" wording fail a check (`checkedAt`); specs
+  that count failures, diagnostics or incidents fail a pinned read
+  (`pinnedAt`, `&revision=<sha>&path=…`), which asks gh once and records
+  category `content`. Pinned reads also serve specs that need an answer.
+- `dashboard/test-support/support/sharedReads.ts` holds one helper per read
+  form (`revisionCheck`/`checkedAt`, `pinnedAt`) instead of inline bare
   `?source=` URLs in each spec. Drop the "membership" kind from
   `support/authenticatedReadUrl.ts`.
 - Call accounting leaves membership reads (`ref` and its backlog content) out
@@ -49,14 +53,15 @@ open itself (listed in the seed).
 
 | Premise | Result | Slice |
 | --- | --- | --- |
-| A `&since=` read that fails at gh gives the same "while reading main of" message as the cold read | Code read only: same `readingRefOf` label; the first slice's first spec observes it | Slice 1 (early probe) |
+| A `&since=` read that fails at gh gives the same "while reading main of" message as the cold read | Held: boundary and transient-eligibility specs observe it on trunk and under the patch | Slice 1 |
+| A failed check changes only the category and the gh call | False: the listing falls back to `commits/main` (two calls, two failures); counting specs fail a pinned read instead (one call, `content`) | Slice 1 |
 | The switch's server patch applies on trunk | `git apply --check` passed on `287488278` | All |
 
 ## Outside-in proof
 
 | Promise | Proof owner |
 | --- | --- |
-| Failure classification, diagnostics and incident records are proved through the revision check | Slice 1 |
+| Failure classification, diagnostics and incident records are proved through the revision check or a pinned read | Slice 1 |
 | Held gh lifecycle, directed waits, cooldown and the shared request owner are proved without the cold read | Slice 2 |
 | Retained-answer, reuse and isolation call accounting leave membership reads out | Slice 3 |
 | E2E transient and owner-failure recovery are proved after a failed check | Slice 4 |
@@ -72,7 +77,7 @@ patch is never committed outside this plan.
 ### 1. Prove failure classification through the revision check
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Failures, diagnostics and incident records are reached through a
 revision check. Add the shared-read helper. Retarget
@@ -90,7 +95,7 @@ Type: Behavior
 Status: planned
 
 Behavior: Retarget `authenticated-read-shared-waiters`, `-plugin-hooks`,
-`-subprocess-lifecycle` (drop the membership kind), `-cooldown-reach`,
+`-subprocess-lifecycle` (drop the membership kind; `authenticatedReadUrl.ts` takes `revisionCheck` from `sharedReads.ts`), `-cooldown-reach`,
 `-directed-wait` (replace its ref entry with a revision-check entry),
 `shared-request-owner` (refuse `matching-refs` and read `&since=`), and
 `runtime/fake-gh-in-process`, `-activation`, `-scopes`, `-modes` and
@@ -129,6 +134,10 @@ Proof: Run those specs on trunk and under the patch, then run the Dashboard
 Backend Test and E2E Test suites on trunk. Budget 14 active minutes.
 
 ## Learnings
+
+Slice 1 (2026-11-26): all 11 specs pass on trunk and under the patch.
+Later slices that count calls on a failed check expect the listing, then
+`commits/main`.
 
 Spec classification comes from the plan 856 slice 1 run logs, under load
 with two suites running at once (2026-11-26). Eight backend specs that seemed
