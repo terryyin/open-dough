@@ -19,6 +19,10 @@ import type {
 } from "./intentCiStatusRead.ts";
 import type { IntentCandidatesAnswer } from "./intentCandidatesRead.ts";
 import type { IntentLocationsAnswer } from "./intentLocationsRead.ts";
+import type {
+  ProjectFileAnswer,
+  ProjectTreeAnswer,
+} from "./projectBrowseRead.ts";
 import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
 import type { ReportedFailure } from "./readFailureMessage.ts";
 
@@ -96,6 +100,9 @@ type Answer =
     }
   | IntentLocationsAnswer
   | IntentCandidatesAnswer
+  // Project Intent browsing (`./projectBrowseRead.ts`).
+  | ProjectTreeAnswer
+  | ProjectFileAnswer
   // Intent's CI status: the judged branch, when it was checked, and the
   // selected check's judgment (`./intentCiStatusRead.ts`); or `none` when
   // the kept form finds nothing for that target.

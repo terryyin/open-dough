@@ -19,6 +19,7 @@ import { readingIntentCiProofOf } from "./intentCiProofRead.ts";
 import { readingIntentCiStatusOf } from "./intentCiStatusRead.ts";
 import { readingIntentLocationsOf } from "./intentLocationsRead.ts";
 import { readingListedRecordsOf } from "./listedRecordsRead.ts";
+import { readingProjectBrowseOf } from "./projectBrowseRead.ts";
 import { readingPublishedSessionsOf } from "./publishedSessionsRead.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 
@@ -58,6 +59,9 @@ export function readingOf(
       return readingIntentCiComparisonOf(source, read);
     case "intent-ci-history":
       return readingIntentCiHistoryOf(source, read);
+    case "project-tree-at":
+    case "project-file-at":
+      return readingProjectBrowseOf(source, read);
     case "addition-at":
       return readingAdditionAt(read.path, read.revision);
     case "backlog-at":

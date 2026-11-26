@@ -29,7 +29,7 @@ attribution readers remain outside this plan.
   favors sharing the existing path model. Proudly Found Elsewhere: the
   published blob listing is `trackedFiles` inside
   [storyReviewResultRead.ts](../../../dashboard/server/storyReviewResultRead.ts),
-  and literal text is [textAtTree](../../../dashboard/server/storyReviewFileText.ts).
+  and literal text is [textAtTree](../../../dashboard/server/gitTreeFiles.ts).
   Both currently run only after a story comparison is admitted. Move the
   listing out of that admission and reuse `textAtTree`. The browser already
   accepts an inventory in
@@ -101,7 +101,7 @@ the consumers and repository operations this plan uses.
 ### 1. Share pinned repository inventory and source for Project Intent
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Direct Node Vitest tests at the authenticated project-read boundary
 with real Git fixtures, plus the existing generic reachability and
 published-review checks. Existing Dashboard UI behavior is preserved.
@@ -116,6 +116,20 @@ the existing text reader's distinct missing and unavailable outcomes. Prove
 a cold inventory and warm file reads through the new boundary, including
 two versions of the same tracked path. Keep the boundary typed and
 cancellable. This supplies the browser in slice 2.
+
+Delivered: `intent=project-tree&revision=` and
+`intent=project-file&revision=&path=` through
+[projectBrowseRead.ts](../../../dashboard/server/projectBrowseRead.ts). The
+tree answers `{kind:"inventory", revision, paths}` or a recoverable
+`{kind:"unavailable"}`, and a file answers `textAtTree`'s outcome with its
+revision and path. An unpublished revision gets a 409. `trackedFiles`,
+`textAtTree` and the tree-entry parser now share
+[gitTreeFiles.ts](../../../dashboard/server/gitTreeFiles.ts). Proof:
+[authenticated-read-project-browse.spec.ts](../../../dashboard/backend-tests/intent/authenticated-read-project-browse.spec.ts).
+Slice 2 still owes the first HTTP exercise of the new dispatch case.
+Backend specs built on `takenStoryReader` need
+`beforeAll(prepareRepository(takenBranchContributionHistory()))` and small
+cases to fit the default timeout under load.
 
 ### 2. Browse the whole project and return to CI Home
 

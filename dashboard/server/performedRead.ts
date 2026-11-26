@@ -37,6 +37,7 @@ import { performIntentCiComparisonRead } from "./intentCiComparisonRead.ts";
 import { performIntentCiHistoryRead } from "./intentCiHistoryRead.ts";
 import { performIntentCiProofRead } from "./intentCiProofRead.ts";
 import { performIntentCiStatusRead } from "./intentCiStatusRead.ts";
+import { performProjectBrowseRead } from "./projectBrowseRead.ts";
 import { executionCheckout } from "./executionCheckout.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import { pathReachableFromRevision } from "./reachablePaths.ts";
@@ -151,6 +152,9 @@ export async function perform(
                 signal,
                 localRepository: executionCheckout(source).path,
               });
+            case "project-tree-at":
+            case "project-file-at":
+              return await performProjectBrowseRead(source, read, signal);
             case "published-sessions-at":
               return await performPublishedSessionsRead(
                 source,

@@ -11,7 +11,7 @@ import {
   admissionBound,
   admitHistoricalReviewedFile,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import { textAtTree } from "./storyReviewFileText.ts";
+import { textAtTree } from "./gitTreeFiles.ts";
 
 const lineMissing = () =>
   new RefusedRequest(
