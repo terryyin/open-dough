@@ -128,7 +128,7 @@ origin needs `startOrigin(repository, { host: "codex" })`, kept once in
 ### 2. Start with existing changes only after confirmation
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Proof. Submit a borrowed checkout containing staged, unstaged and untracked
@@ -144,6 +144,38 @@ state, and a tracked effect at dispatch. Retain real Codex and Cursor
 workspace and input observations through the existing E2E when they
 distinguish those paths. Extend those journeys only for observations the
 supplier still needs and that no retained native check sees.
+
+Outcome (5 active minutes). `ad-hoc-existing-changes-start.spec.ts` (4
+node cases) runs a real borrowed checkout with staged, changed, deleted
+and untracked files. `unconfirmedStart` answers the same `existing-changes`
+fingerprint (count 4) whether the policy is absent or named, and also for a
+stale confirmation, and keeps no record. A confirmed request then returns
+undefined, and `started()` publishes the Taken story on the borrowed
+checkout. `recordedRequest` drops `existingChanges`. The shared
+`unattachedInput` keeps the developer's whitespace-laden text byte for byte
+and in order, for review and auto-land, and never includes the
+fingerprint. Symbolic-ref, HEAD, `ls-files --stage` and porcelain status
+are unchanged. The request schema refuses an ad hoc `tracking` choice.
+`cursor-missing-workspace.spec.ts` owns the stale-workspace answer, which
+names the path instead of asking to install Cursor.
+
+- Retained owners: `e2e/launches/agent-launch-ad-hoc-cursor.spec.ts` holds
+  the borrowed cwd, `--workspace`, no skill line, and refusal of a blank
+  start with a model. `agent-launch-ad-hoc-codex.spec.ts` holds the single
+  text item, `thread/start` cwd, `turn/start` and exact bytes.
+  `agent-launch-start-session-existing-changes.spec.ts` holds the dialog,
+  the stale refusal and attempts with no confirmation.
+  `agent-launch-uncertain-continuation.spec.ts` holds the missing
+  workspace on continuation.
+- Removed `agent-launch-start-session-existing-changes-boundary` and
+  `agent-launch-ad-hoc-cursor-established`. The Codex existing-changes case
+  left `agent-launch-ad-hoc-codex-input.spec.ts`; slice 8 owns its two
+  remaining cases.
+- Cost, one worker: the slice's 6 Playwright cases took 23.1 s summed.
+  The node cases that replace them take about 5.5 s: Git cases 0.8–2.6 s,
+  unit cases 2–4 ms. Slices 1 and 2 share `checkoutState` in
+  `dashboard/test-support/support/executionCheckoutChanges.ts` for the
+  unchanged-checkout observation.
 
 ### 3. Open the isolated checkout only after published admission
 
@@ -163,6 +195,10 @@ parsing are the observation, with recorded native dispatch and kept
 attempts. Retain the isolated E2E for real cwd, one worktree, first-input
 handoff and order relative to publication. Reuse the same admission
 contract proven in slice 1.
+Slice 1 found no held-admission observation for the borrowed start, and
+slice 2 removed the Cursor isolated case that read Cursor's `--workspace`
+argument naming the new worktree. Observe both here at the same native
+dispatch, or name a retained check that does.
 
 ### 4. Continue from the kept checkout and policy
 
@@ -254,6 +290,12 @@ same due date stays consumed after the session ends and is deleted.
 Retain the scheduled E2E and supplier's held-admission proof for ordering
 actual publication before native dispatch. Keep scheduler and notification
 behavior in their own existing producers.
+The reduced legacy `agent-launch-ad-hoc-codex-input.spec.ts` keeps the due
+Codex `$maintain-feedback-cycle` skill-item case and "HTTP text preserves
+exact bytes once; completed blank launches permit another deliberate
+session". Slice 2 and the retained Codex E2E now own the exact bytes. Port
+the repeated blank launch here, or retire it against the campaign's launch
+lifecycle owner, and remove the file.
 
 ## Proof ownership and historical inventory
 

@@ -3,7 +3,6 @@
 // origin and answers the session start before any native launch, leaving the
 // borrowed checkout's HEAD, index and changes as they were. The launch keeps
 // that checkout and its common repository (../../server/launchRun.ts).
-import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
@@ -15,6 +14,7 @@ import { started, type Started } from "../../server/launchStart.ts";
 import { localFolder, type LocalFolder } from "../../server/localFolder.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import { startStore } from "../../server/startStore.ts";
+import { checkoutState } from "../../test-support/support/executionCheckoutChanges.ts";
 import {
   startOrigin,
   type StartOrigin,
@@ -59,15 +59,6 @@ afterEach(async () => {
   origin.cleanup();
 });
 
-const checkout = () =>
-  ["rev-parse HEAD", "symbolic-ref HEAD", "ls-files --stage", "status --short"]
-    .map((args) =>
-      execFileSync("git", ["-C", origin.project, ...args.split(" ")], {
-        encoding: "utf8",
-      }),
-    )
-    .join("\n");
-
 for (const [asked, choices] of [
   ["with an instruction", { host: "claude", instruction: "Investigate." }],
   ["with no instruction", { host: "claude" }],
@@ -76,7 +67,7 @@ for (const [asked, choices] of [
   test(`a default Start ${asked} publishes its Taken story and keeps the borrowed checkout`, async () => {
     await begin(choices.host);
     const request = makeMe.aLaunchRequest.adHoc(choices).please();
-    const before = checkout();
+    const before = checkoutState(origin.project);
     const trunk = (await origin.originGit("rev-parse", "main")).trim();
 
     attempt = started(
@@ -104,7 +95,7 @@ for (const [asked, choices] of [
       expect.objectContaining({ identity: start.publication.identity }),
     ]);
     expect(start.workspace.path).toBe(origin.project);
-    expect(checkout()).toBe(before);
+    expect(checkoutState(origin.project)).toBe(before);
     const facts = await defaultLaunchStartFacts(
       recordedRequest(request, began),
       folder,
