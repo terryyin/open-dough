@@ -48,6 +48,9 @@ retires standalone session rows at delivery.
   comparison. Both on shows their intersection, both off the repository
   inventory at the selected revision, including comparison paths for deletions
   and renames. Tree and folder file lists use the same filters.
+  While the comparison is loading or cannot be used, **Changes only** keeps
+  its selection, shows a `Not applied: …` note with the reason, and leaves
+  files browsable under the current **Intent only** setting.
 - **Home and Proof.** Home returns to the existing project CI overview or the
   selected story's overview with its comparison and sessions intact. File
   filters affect browsing. A failing unchanged test still appears in overview

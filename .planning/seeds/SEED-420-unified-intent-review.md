@@ -87,6 +87,35 @@ outside this increment.
 **Effort hypothesis:** M, medium confidence. This expands the inventory beyond
 test locations while preserving revision-pinned reads.
 
+<a id="share-completed-intent-review-response-watching"></a>
+
+### Share completed Intent review response watching across E2E specs
+
+**Identity:** SEED-420#share-completed-intent-review-response-watching
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** Dashboard test maintainers can change how completed story-review
+responses are captured and parsed in one place while keeping each journey's
+review evidence explicit.
+
+**Scope.** Reuse the response-watching and parsing pattern in
+[`completedReviewRequests.ts`](../../dashboard/test-support/support/completedReviewRequests.ts)
+for the repeated historical story-review watchers in these four E2E specs:
+
+- [`intent-done-completion-provenance`](../../e2e/intent/intent-done-completion-provenance.spec.ts)
+- [`intent-done-prior-execution`](../../e2e/intent/intent-done-prior-execution.spec.ts)
+- [`intent-done-retained-landing`](../../e2e/intent/intent-done-retained-landing.spec.ts)
+- [`intent-story-becomes-done`](../../e2e/intent/intent-story-becomes-done.spec.ts)
+
+**Acceptance.** All four specs use the shared capture for historical review
+responses and keep their existing assertions. The watcher is armed before the
+action that triggers the request and matches the story-review endpoint with
+`historical=true`. Keep the Taken response observation in the transition
+journey and the unavailable-history observations in the affected specs.
+Run the four specs through the existing E2E entry point.
+
 ## Order and scope
 
 The [product backlog](../PRODUCT-BACKLOG.md#backlog-list) carries the priority
