@@ -202,36 +202,13 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-<a id="prove-launch-starts-and-recovery-on-vitest"></a>
-
-### Prove Dashboard launch admission and settlement in Node Vitest
-
-**Identity:** SEED-413#prove-launch-starts-and-recovery-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/846-prove-launch-starts-and-recovery-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"96d2fd9afa87b8822d8cdd8c3bd590fc9f959e15f40e5848baecaf0c4c80e4de","plan":"0a09253e26c91e844081e8840274f950b031309df2056f294e97407cf45fc85b"}}
-```
-
-- **Goal.** Dashboard maintainers get fast proof that an invalid Start or
-  Continue dispatches nothing and an admitted attempt is durably kept
-  before work begins.
-- **Scope.** Dispose of the eight legacy spec paths mapped by slices 1–4.
-  Cover refusal, kept-first admission, durable settlement under the write
-  lock, open sessions, and settlement from an already confirmed own launch.
-  Keep real Git, native and restart evidence in the maintained E2E journeys.
-- **Key examples.** An invalid request or failed initial write starts
-  nothing. A competing Start cannot claim the same held story. A change
-  reader stays on the running answer through durable replacement and
-  observes the settled result after release. An already confirmed own
-  launch settles without sending duplicate input or dispatching another run.
-- **Follow-up.** [Worker recovery and drain](#prove-launch-worker-recovery-on-vitest) owns former slices 5–8.
-
 <a id="prove-launch-worker-recovery-on-vitest"></a>
 
 ### Prove Dashboard worker recovery and drain in Node Vitest
 
 **Identity:** SEED-413#prove-launch-worker-recovery-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md","assessment":"not-ready","reasons":["Refine the four mapped slices and verify the surviving backend selectors, retained E2E receiving assertions, and applicability of the unverified continuation patch on the integrated base."],"basis":{"document":"eee32c69970b5b7f3982f6902a7a62c71f6cadd814b160c98485435f41615ad3","plan":"81099d8870d3adf0db84b8e90117e1a4f7e4847199a30d7147c31c11251b165c"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md","assessment":"not-ready","reasons":["Refine the four mapped slices and verify the surviving backend selectors, retained E2E receiving assertions, and applicability of the unverified continuation patch on the integrated base."],"basis":{"document":"cb9cb352ed1065480443ecf8d8c05168b992d43216db9efaced3019d64e493cd","plan":"81099d8870d3adf0db84b8e90117e1a4f7e4847199a30d7147c31c11251b165c"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-413#prove-launch-worker-recovery-on-vitest","dependencies":[{"supplier":{"identity":"SEED-413#prove-launch-starts-and-recovery-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest"},"implementation":"Integrate the kept-first admission, durable settlement, and own-launch continuation proofs.","rationale":"The follow-up reuses the integrated attempt owner proofs and must inventory the remaining legacy paths and their support from that boundary before applying the parked changes.","condition":"The eight legacy admission and settlement paths are disposed of on origin/main with the typed guard and settlement proofs in place.","state":"waiting"}]}
@@ -248,7 +225,8 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   reconciliation reads use the current evidence. During drain, new Start
   and Continue receive 503 until the existing attempt's final outcome is kept.
 - **Mapped slices.** See [plan 857](../slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md).
-- **Replacement trace.** Split from `SEED-413#prove-launch-starts-and-recovery-on-vitest` after its fourth delivered slice.
+- **Replacement trace.** Split from [the delivered admission and settlement story](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest)
+  after its fourth slice.
 
 <a id="prove-session-workspace-starts-on-vitest"></a>
 
@@ -297,7 +275,7 @@ their own stories.
   opens one session, and an attention report notifies once while the session
   stays open. Later checks on the same due date do not launch it again.
 
-**Split from.** [Launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+**Split from.** [Launch starts and recovery](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest).
 
 <a id="prove-native-first-input-on-vitest"></a>
 
@@ -345,7 +323,7 @@ their own stories.
 - **Effort hypothesis.** L, low confidence. Count separate protocol
   outcomes and existing E2E owners before combining cases.
 - **Mapped slices.** See the [plan](../slice-plans/849-prove-native-first-input-on-vitest/PLAN.md).
-- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+- **Replacement trace.** Split from [launch starts and recovery](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest).
 
 <a id="prove-follow-up-context-on-vitest"></a>
 
@@ -361,7 +339,7 @@ their own stories.
 - **Evaluation.** Two source sessions with the same instruction remain distinct. Repeating one after expiry sends its saved context and preserves the developer's instruction.
 - **Effort hypothesis.** M, low confidence. Cover the retained context through the corresponding host inputs.
 - **Mapped slices.** See the [provisional plan](../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md).
-- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+- **Replacement trace.** Split from [launch starts and recovery](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest).
 
 <a id="prove-kept-launch-records-on-vitest"></a>
 
@@ -377,7 +355,7 @@ their own stories.
 - **Evaluation.** A second server sees a newly replaced record. An unreadable replacement remains recoverable. Equal native identifiers from different hosts retain separate reads and actions.
 - **Effort hypothesis.** M, low confidence. Existing typed store and observer seams can remove incidental native starts.
 - **Mapped slices.** See the [provisional plan](../slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md).
-- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+- **Replacement trace.** Split from [launch starts and recovery](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest).
 
 <a id="prove-native-session-and-terminal-lifecycle-on-vitest"></a>
 
@@ -533,7 +511,7 @@ or removed once its behavior or duplicate is accounted for.
 | Three `agent-launch-follow-up-notes*` specs, plus the two Vitest Story Notes pilot specs | [Story Notes](https://github.com/terryyin/open-dough/blob/dec37b6b829b7b5d20a57df4a3775e9c6a015faa/.planning/slice-plans/845-prove-story-notes-and-follow-up-delivery-on-vitest/PLAN.md), completed on Node Vitest with Cursor confirmation in E2E |
 | Six `agent-launch-follow-up-{file-admission,file,landed-comparison-admission,published-range-admission,published-sessions,selection}` specs | [Published reads and evidence](#prove-published-dashboard-reads-on-vitest) |
 | `agent-launch-options-rules.spec.ts` | [Runner cutover](#retire-legacy-dashboard-backend-runner), while it is a runner specimen |
-| Eight launch admission and settlement spec paths | [Launch admission and settlement](#prove-launch-starts-and-recovery-on-vitest) |
+| Eight launch admission and settlement spec paths | [Launch admission and settlement](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) |
 | Six launch recovery, worker, change and drain specs | [Worker recovery and drain](#prove-launch-worker-recovery-on-vitest) |
 | 15 installed execution and refinement specs | [Installed story starts](https://github.com/terryyin/open-dough/blob/79475eaef07720be5bdd25722433060d62f8a19a/.planning/slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md), completed on Node Vitest with native dispatch and restart in E2E |
 | 18 workspace and scheduled launch specs | [Prove Dashboard session workspace choices in Node Vitest](#prove-session-workspace-starts-on-vitest) |
