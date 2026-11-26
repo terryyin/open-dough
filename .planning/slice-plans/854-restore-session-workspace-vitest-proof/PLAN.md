@@ -349,3 +349,8 @@ records cite. This review found no remaining slice-specific concern.
 - Follow [AGENTS.md](../../../AGENTS.md) for long macOS checks.
 - Compare each slice's selection before and after on one worker, with
   `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`.
+
+## Execution complete
+
+Product advice: Keep the existing runner cutover scope and order. Recheck
+its recorded workspace-choice prerequisite after this correction integrates.
