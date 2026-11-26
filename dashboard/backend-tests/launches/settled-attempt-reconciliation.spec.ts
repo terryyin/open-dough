@@ -15,7 +15,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, onTestFinished, test } from "vitest";
 import {
   settled,
   settlement,
@@ -76,6 +76,19 @@ test("an attempt that published nothing and whose session completed is reconcile
   expect(askedAfterSettling(completed, { askedAt: at - 1 })).toBe(false);
   expect(askedAfterSettling(completed, { askedAt: at })).toBe(false);
   expect(askedAfterSettling(completed, { askedAt: at + 1 })).toBe(true);
+  // Settled earlier by its outcome: a read before its report is after it.
+  expect(
+    askedAfterSettling(
+      observed(
+        storyAttempt()
+          .launched(session)
+          .settledAt(outcomeAt)
+          .reported("completed", receivedAt)
+          .please(),
+      ),
+      { askedAt: Date.parse(outcomeAt) + 1 },
+    ),
+  ).toBe(true);
   // Never settled: no read is after it.
   expect(
     askedAfterSettling(observed(storyAttempt().please()), {
@@ -84,88 +97,84 @@ test("an attempt that published nothing and whose session completed is reconcile
   ).toBe(false);
 });
 
-test.describe("noting an attempt reconciled on this machine", () => {
-  let home: string;
-  let previousHome: string | undefined;
-  let file: string;
-
-  test.beforeEach(() => {
-    previousHome = process.env["HOME"];
-    home = mkdtempSync(path.join(tmpdir(), "dough-settled-reconciliation-"));
-    process.env["HOME"] = home;
-    const directory = path.join(home, ".open-dough/dashboard");
-    mkdirSync(directory, { recursive: true });
-    file = path.join(directory, "launch-attempts.json");
-  });
-
-  test.afterEach(() => {
+// This machine's kept attempts, in a private home for this test.
+function privateMachine() {
+  const previousHome = process.env["HOME"];
+  const home = mkdtempSync(
+    path.join(tmpdir(), "dough-settled-reconciliation-"),
+  );
+  process.env["HOME"] = home;
+  onTestFinished(() => {
     if (previousHome === undefined) delete process.env["HOME"];
     else process.env["HOME"] = previousHome;
     rmSync(home, { recursive: true, force: true });
   });
+  const directory = path.join(home, ".open-dough/dashboard");
+  mkdirSync(directory, { recursive: true });
+  const file = path.join(directory, "launch-attempts.json");
+  return {
+    keep: (attempts: LaunchAttemptRecord[]) => {
+      writeFileSync(file, JSON.stringify({ "open-dough": attempts }));
+    },
+    kept: (): LaunchAttemptRecord[] =>
+      (
+        JSON.parse(readFileSync(file, "utf8")) as Record<
+          string,
+          LaunchAttemptRecord[]
+        >
+      )["open-dough"] ?? [],
+  };
+}
 
-  const kept = (): LaunchAttemptRecord[] =>
-    (
-      JSON.parse(readFileSync(file, "utf8")) as Record<
-        string,
-        LaunchAttemptRecord[]
-      >
-    )["open-dough"] ?? [];
+test("this machine notes reconciled an attempt settled by its session's completed report and refuses one that never settled or needs reconciliation", async () => {
+  const { keep, kept } = privateMachine();
+  const completed = storyAttempt()
+    .withId("00000000-0000-4000-8000-000000000001")
+    .published("a".repeat(40))
+    .reported("completed", receivedAt)
+    .please();
+  // Its worker lives, so it runs: never settled, yet needing no
+  // reconciliation.
+  const running = storyAttempt()
+    .withId("00000000-0000-4000-8000-000000000002")
+    .workedBy({ pid: process.pid, step: "launch", notedAt: acceptedAt })
+    .please();
+  const interrupted = storyAttempt()
+    .withId("00000000-0000-4000-8000-000000000003")
+    .reported("unfinished", receivedAt)
+    .please();
+  const uncertain = storyAttempt()
+    .withId("00000000-0000-4000-8000-000000000004")
+    .ended({
+      kind: "uncertain",
+      reason: "unconfirmed",
+      explanation: "Unknown.",
+    })
+    .settledAt(outcomeAt)
+    .please();
+  keep([completed, running, interrupted, uncertain]);
+  const owned = new OwnedAttempts();
 
-  test("accepts an attempt settled by its session's completed report and refuses one that never settled or needs reconciliation", async () => {
-    const completed = storyAttempt()
-      .withId("00000000-0000-4000-8000-000000000001")
-      .published("a".repeat(40))
-      .reported("completed", receivedAt)
-      .please();
-    // Its worker lives, so it runs: never settled, yet needing no
-    // reconciliation.
-    const running = storyAttempt()
-      .withId("00000000-0000-4000-8000-000000000002")
-      .workedBy({ pid: process.pid, step: "launch", notedAt: acceptedAt })
-      .please();
-    const interrupted = storyAttempt()
-      .withId("00000000-0000-4000-8000-000000000003")
-      .reported("unfinished", receivedAt)
-      .please();
-    const uncertain = storyAttempt()
-      .withId("00000000-0000-4000-8000-000000000004")
-      .ended({
-        kind: "uncertain",
-        reason: "unconfirmed",
-        explanation: "Unknown.",
-      })
-      .settledAt(outcomeAt)
-      .please();
-    writeFileSync(
-      file,
-      JSON.stringify({
-        "open-dough": [completed, running, interrupted, uncertain],
-      }),
-    );
-    const owned = new OwnedAttempts();
-
-    const answer = await reconcileAttempt(owned, "open-dough", completed.id);
-    expect(answer).toMatchObject({
-      kind: "reconciled",
-      attempt: { id: completed.id, reconciledAt: expect.any(String) },
-    });
-    const noted = kept().find(({ id }) => id === completed.id);
-    expect(noted?.reconciledAt).toEqual(expect.any(String));
-    // Nothing settles it but its report.
-    expect(noted?.outcome).toBeUndefined();
-    expect(noted?.settledAt).toBeUndefined();
-
-    for (const { id } of [running, interrupted, uncertain])
-      expect(await reconcileAttempt(owned, "open-dough", id)).toEqual({
-        kind: "refused",
-        explanation:
-          "This start has not settled or needs reconciliation, so it was not noted as reconciled.",
-      });
-    expect(
-      kept()
-        .filter(({ id }) => id !== completed.id)
-        .map(({ reconciledAt }) => reconciledAt),
-    ).toEqual([undefined, undefined, undefined]);
+  const answer = await reconcileAttempt(owned, "open-dough", completed.id);
+  expect(answer).toMatchObject({
+    kind: "reconciled",
+    attempt: { id: completed.id, reconciledAt: expect.any(String) as unknown },
   });
+  const noted = kept().find(({ id }) => id === completed.id);
+  expect(noted?.reconciledAt).toEqual(expect.any(String));
+  // Nothing settles it but its report.
+  expect(noted?.outcome).toBeUndefined();
+  expect(noted?.settledAt).toBeUndefined();
+
+  for (const { id } of [running, interrupted, uncertain])
+    expect(await reconcileAttempt(owned, "open-dough", id)).toEqual({
+      kind: "refused",
+      explanation:
+        "This start has not settled or needs reconciliation, so it was not noted as reconciled.",
+    });
+  expect(
+    kept()
+      .filter(({ id }) => id !== completed.id)
+      .map(({ reconciledAt }) => reconciledAt),
+  ).toEqual([undefined, undefined, undefined]);
 });

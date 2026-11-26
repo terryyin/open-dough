@@ -202,47 +202,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-<a id="prove-launch-worker-recovery-on-vitest"></a>
-
-### Prove Dashboard worker recovery and drain in Node Vitest
-
-**Identity:** SEED-413#prove-launch-worker-recovery-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f2100dd22fbbfadffeb3656dc54d2e099685370ca7b587ccd78c5b4ba67d40a","plan":"1a4d629815e58e03d4bc78762f214e2f04a7afbe9ee10847ce26119e754caa1c"}}
-```
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#prove-launch-worker-recovery-on-vitest","dependencies":[{"supplier":{"identity":"SEED-413#prove-launch-starts-and-recovery-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest"},"implementation":"Integrate the kept-first admission, durable settlement, and own-launch continuation proofs.","rationale":"The follow-up reuses the integrated attempt owner proofs and must inventory the remaining legacy paths and their support from that boundary before applying the parked changes.","condition":"The eight legacy admission and settlement paths are disposed of on origin/main with the typed guard and settlement proofs in place.","state":"satisfied","resolution":{"revision":"420905723de59e71180451879726f684dcc7915e","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest","summary":"The retained launch admission and settlement plan accounts for all eight legacy spec paths. The replaced fixture-only spec was removed with its fixture. The seven surviving paths and maintained cross-server, admission-close and worker controls passed in the one-worker Node Vitest selection, with zero Chromium selections. The integrated 61-case check also passed both worktree-retry cases and Dashboard typecheck. The plan preserves the receiving real process, Git and native E2E observations. The six worker recovery and drain paths remain assigned to the queued follow-up.\nCondition satisfied: The eight legacy admission and settlement paths are disposed of on origin/main with the typed guard and settlement proofs in place.\nAccepted integration: 6eaca3b874431ad8c5e1dca386b6a4dc6b49e5ac on origin/refs/heads/main."}}]}
-```
-
-- **Goal.** Dashboard maintainers can check changes to launch recovery and
-  update drain quickly in Node, with a real process observing each promise
-  that depends on a restart, native receipt, Git publication or preview replacement.
-- **Scope.** Account for all 16 cases in the six remaining backend Playwright
-  specs for continuation, worker handoff, change waits, reconciliation and
-  drain. Exercise the production owners with typed requests and private
-  machine records. The backend runner cutover belongs to its existing story.
-- **Key examples.**
-  - After a restart, fresh starts of the same story are refused. Continue
-    recovers the original attempt, workspace and first input. Matching native
-    history confirms receipt without a second send. An eligible own launch
-    record settles the attempt even when its checkout has since disappeared.
-  - When a launch times out, an explicit Continue uses its saved effort on
-    the second invocation. A slow worker that is still alive keeps ownership
-    through the handoff and finishes once without a retry.
-  - An owner that missed a change sees it immediately. A reader caught up
-    with that owner waits for its next change. A different server observing
-    live work waits out its bound.
-  - A completed report can settle an attempt with no recorded outcome. A
-    read requested at the report time is too early. The first qualifying
-    read can reconcile it, and another read sees the same durable marker.
-  - When an update closes admission, new Start and Continue receive 503.
-    Releasing the publication hold leaves drain pending through native
-    confirmation. The old preview can be replaced once the accepted
-    attempt's final outcome is readable.
-- **Slice plan.** [Worker recovery and drain](../slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md).
-- **Replacement trace.** Split from [the delivered admission and settlement story](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest)
-  after its fourth slice.
-
 <a id="prove-follow-up-context-on-vitest"></a>
 
 ### Prove retained follow-up context in Node Vitest
@@ -467,7 +426,7 @@ or removed once its behavior or duplicate is accounted for.
 | Six `agent-launch-follow-up-{file-admission,file,landed-comparison-admission,published-range-admission,published-sessions,selection}` specs | [Published reads and evidence](#prove-published-dashboard-reads-on-vitest) |
 | `agent-launch-options-rules.spec.ts` | [Runner cutover](#retire-legacy-dashboard-backend-runner), while it is a runner specimen |
 | Eight launch admission and settlement spec paths | [Launch admission and settlement](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) |
-| Six launch recovery, worker, change and drain specs | [Worker recovery and drain](#prove-launch-worker-recovery-on-vitest) |
+| Six launch recovery, worker, change and drain specs | [Worker recovery and drain](https://github.com/terryyin/open-dough/blob/23e911e465339f1b371fd9e36cc99a583c580ac1/.planning/slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md), completed on Node Vitest with native receipt, server death and preview replacement in E2E |
 | 15 installed execution and refinement specs | [Installed story starts](https://github.com/terryyin/open-dough/blob/79475eaef07720be5bdd25722433060d62f8a19a/.planning/slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md), completed on Node Vitest with native dispatch and restart in E2E |
 | 18 workspace and scheduled launch specs, plus the cutover's later `admitted-session-duplicate.spec.ts` | [Session workspace choices](https://github.com/terryyin/open-dough/blob/daea1238c354addf980ff601d7b794fe4523c927/.planning/slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md), completed on Node Vitest, including the isolated Codex case and restored observations in [plan 854](https://github.com/terryyin/open-dough/blob/cfd4dcfac7e06fa70e73be54cca2ad6626b1ab36/.planning/slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md) |
 | 15 native dispatch and first-input specs | [Host choices and first input](https://github.com/terryyin/open-dough/blob/eac4d5e9e4041f64f603a5afc08378552a9c433c/.planning/slice-plans/849-prove-native-first-input-on-vitest/PLAN.md), completed on Node Vitest with worker shutdown and restart in E2E |
