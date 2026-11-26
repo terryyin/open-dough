@@ -51,7 +51,7 @@ test("following a live attempt waits past outcome replacement until its writer r
     let firstAnswer;
     const accepted = await owner.accept(
       {source:'open-dough', host:'claude', workflow:'ad-hoc'},
-      async (own, publication) => {
+      async (own, { publication }) => {
         // The first change answer is taken before final replacement, then
         // delivered after it: the same network/filesystem ordering as CI.
         firstAnswer = changedAttempt(owner, own.attempt.id, 30_000);

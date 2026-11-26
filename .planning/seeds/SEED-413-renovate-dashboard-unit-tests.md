@@ -234,28 +234,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     confirmation and the final outcome write. A change reader sees the settled
     result after the owner has released the write lock.
 
-<a id="restore-session-workspace-vitest-proof"></a>
-
-### Restore dropped session workspace proof in Node Vitest
-
-**Identity:** SEED-413#restore-session-workspace-vitest-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"15474c50669b760c29ab1fa1a28262f07e509d689bf5e6e0ad27b9639f27b8b0","plan":"3030fb1989c2421fc5d57f32e3d9b8021bff40931455679145c691dba31b282c"}}
-```
-
-**Goal.** Dashboard maintainers get the session workspace and scheduled
-feedback observations that the [Node Vitest move](https://github.com/terryyin/open-dough/blob/daea1238c354addf980ff601d7b794fe4523c927/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-workspace-starts-on-vitest)
-dropped or credited to checks that do not assert them, and that move's last
-mapped spec leaves the legacy backend runner.
-
-**Scope.** Correct that story's delivered proof only. Restore each lost
-observation at a typed production boundary. Convert the retained Codex
-isolated spec. Collapse the duplicated attempt-run setup and the oversize
-or branching specs the review found. Product behavior and that story's
-promises stay unchanged.
-
-**Plan.** [Restore dropped session workspace proof](../slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md)
-
 <a id="prove-follow-up-context-on-vitest"></a>
 
 ### Prove retained follow-up context in Node Vitest
@@ -525,7 +503,7 @@ or removed once its behavior or duplicate is accounted for.
 | `agent-launch-options-rules.spec.ts` | [Runner cutover](#retire-legacy-dashboard-backend-runner), while it is a runner specimen |
 | 14 launch admission, attempt and worker specs | [Launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest) |
 | 15 installed execution and refinement specs | [Installed story starts](https://github.com/terryyin/open-dough/blob/79475eaef07720be5bdd25722433060d62f8a19a/.planning/slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md), completed on Node Vitest with native dispatch and restart in E2E |
-| 18 workspace and scheduled launch specs, plus the cutover's later `admitted-session-duplicate.spec.ts` | [Session workspace choices](https://github.com/terryyin/open-dough/blob/daea1238c354addf980ff601d7b794fe4523c927/.planning/slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md), completed on Node Vitest except the Codex isolated case, which [its correction](#restore-session-workspace-vitest-proof) moves |
+| 18 workspace and scheduled launch specs, plus the cutover's later `admitted-session-duplicate.spec.ts` | [Session workspace choices](https://github.com/terryyin/open-dough/blob/daea1238c354addf980ff601d7b794fe4523c927/.planning/slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md), completed on Node Vitest, including the isolated Codex case and restored observations in [plan 854](https://github.com/terryyin/open-dough/blob/cfd4dcfac7e06fa70e73be54cca2ad6626b1ab36/.planning/slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md) |
 | 15 native dispatch and first-input specs | [Host choices and first input](https://github.com/terryyin/open-dough/blob/eac4d5e9e4041f64f603a5afc08378552a9c433c/.planning/slice-plans/849-prove-native-first-input-on-vitest/PLAN.md), completed on Node Vitest with worker shutdown and restart in E2E |
 | 6 ordinary follow-up context specs | [Prove retained follow-up context in Node Vitest](#prove-follow-up-context-on-vitest) |
 | 7 retained launch record specs | [Prove retained launch records in Node Vitest](#prove-kept-launch-records-on-vitest) |

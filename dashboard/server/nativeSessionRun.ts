@@ -9,7 +9,7 @@ import type {
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { defaultLaunchStartFacts } from "./defaultLaunchStart.ts";
-import type { NativeDoneMarks } from "./doneMarks.ts";
+import type { ReportedDone } from "./doneMarks.ts";
 import type { LaunchHost } from "./launchHosts.ts";
 import { launchRecord } from "./launchRecord.ts";
 import { launchRecording } from "./launchRecording.ts";
@@ -27,7 +27,7 @@ export type NativeDispatch = (
 
 // What this server lends each native session: its done marks and dispatch.
 export type NativeSessionServices = {
-  readonly doneMarks: NativeDoneMarks;
+  readonly doneMarks: ReportedDone;
   readonly native: NativeDispatch;
 };
 

@@ -84,10 +84,8 @@ import {
   readMachineSessions,
 } from "./machineSessionObservation.ts";
 import { dashboardOrigin } from "./dashboardOrigin.ts";
-import {
-  FeedbackMaintenanceCheck,
-  publishedReview,
-} from "./feedbackMaintenanceCheck.ts";
+import { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
+import { publishedReview } from "./feedbackMaintenanceReview.ts";
 import { LandedCiCollection } from "./landedCiCollection.ts";
 import { ReviewInitialSync } from "./reviewInitialSync.ts";
 import { installReviewInitialSyncMiddleware } from "./reviewInitialSyncBoundary.ts";

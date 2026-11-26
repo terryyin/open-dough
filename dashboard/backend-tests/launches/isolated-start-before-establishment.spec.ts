@@ -13,10 +13,9 @@ import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { NativeDoneMarks } from "../../server/doneMarks.ts";
-import { attemptRun } from "../../server/launchRun.ts";
-import { machineFolder } from "../../server/localFolder.ts";
+import { attemptRun, type AttemptRunServices } from "../../server/launchRun.ts";
 import type { NativeDispatch } from "../../server/nativeSessionRun.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import type {
@@ -50,7 +49,6 @@ const repository = queuedReadyRepository().please();
 
 let origin: StartOrigin;
 let unmount: () => void;
-let marks: NativeDoneMarks;
 let dispatched: RecordedLaunchRequest[];
 
 // Records each native dispatch and opens it.
@@ -83,15 +81,9 @@ beforeEach(async () => {
   // Kept attempts, starts and records live in this test's own machine.
   vi.stubEnv("HOME", path.join(origin.machine, "home"));
   unmount = mountProjectConfiguration("production");
-  marks = new NativeDoneMarks({
-    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
-    hostFor: () => undefined,
-    reportingFolder: machineFolder,
-  });
 });
 
-afterEach(async () => {
-  await marks.close();
+afterEach(() => {
   unmount();
   vi.unstubAllEnvs();
   origin.cleanup();
@@ -99,35 +91,19 @@ afterEach(async () => {
 
 const attemptFor = (landing: "review" | "auto-land") =>
   makeMe.anAcceptedAttempt
-    .requesting(
-      makeMe.aLaunchRequest
-        .adHoc()
-        .withInstruction("Session")
-        .withPolicy({ workspace: "isolated", landing })
-        .please(),
-    )
-    .acceptedAt(new Date().toISOString())
+    .adHocStart({ workspace: "isolated", landing }, { instruction: "Session" })
     .please();
 
 const run = (
   attempt: ReturnType<typeof attemptFor>,
-  noteWorker: (worker: { readonly pid: number }) => Promise<void> = () =>
-    Promise.resolve(),
+  notes: AttemptRunServices["notes"] = {},
 ): Promise<LaunchResult> => {
-  const note = () => Promise.resolve();
-  return attemptRun(
-    source,
-    {
-      request: attempt.request,
-      attempt,
-      controller: new AbortController(),
-      changes: 0,
-    },
-    note,
-    note,
-    noteWorker,
-    { progress: new StartProgress(), doneMarks: marks, native },
-  );
+  return attemptRun(source, new OwnedAttempts().own(attempt.request, attempt), {
+    progress: new StartProgress(),
+    doneMarks: { reported: vi.fn() },
+    native,
+    notes,
+  });
 };
 
 test("a start that stops before any workspace existed keeps nothing, and a later Start chooses its workspace afresh", async () => {
@@ -169,27 +145,43 @@ test("a start that stops before any workspace existed keeps nothing, and a later
   expect(keptSessionStarts(origin)).toEqual({});
 });
 
-for (const when of ["before", "after"] as const) {
-  const made = when === "after";
+const interruptions = [
+  { when: "before", heldWorktrees: [], retryFlags: () => [] },
+  {
+    when: "after",
+    heldWorktrees: ["session"],
+    retryFlags: (revision: string) => ["--candidate-sha", revision],
+  },
+] as const;
+
+for (const { when, heldWorktrees, retryFlags } of interruptions) {
   test(`a start stopped ${when} it made its worktree is resumed by Continue in the kept workspace and branch`, async () => {
     const starts = recordStarts(origin);
     const hold = holdStarts(origin, when);
     const attempt = attemptFor("review");
-    const workers: number[] = [];
-    const stopping = run(attempt, (worker) => {
-      workers.push(worker.pid);
-      return Promise.resolve();
-    });
-    await vi.waitFor(
-      () => {
-        expect(hold.reached()).toBe(true);
+    let workerPid: number | undefined;
+    const stopping = run(attempt, {
+      worker: ({ pid }) => {
+        workerPid = pid;
+        return Promise.resolve();
       },
-      { timeout: 30_000 },
-    );
-    expect(worktrees(origin.project)).toEqual(made ? ["session"] : []);
-    // The held start worker dies before it answers.
-    process.kill(workers.at(-1) ?? 0, "SIGKILL");
-    hold.release();
+    });
+    try {
+      await vi.waitFor(
+        () => {
+          expect(hold.reached()).toBe(true);
+        },
+        { timeout: 3_000 },
+      );
+      expect(worktrees(origin.project)).toEqual(heldWorktrees);
+      if (workerPid === undefined)
+        throw new Error("The held start has no recorded worker.");
+      // The held start worker dies before it answers.
+      process.kill(workerPid, "SIGKILL");
+    } finally {
+      hold.release();
+      await stopping;
+    }
     expect(await stopping).toMatchObject({
       kind: "failed",
       reason: "start-refused",
@@ -230,11 +222,7 @@ for (const when of ["before", "after"] as const) {
     );
     expect(starts().map(({ argv }) => argv)).toEqual([
       expect.arrayContaining(startsForWorkspace),
-      expect.arrayContaining(
-        made
-          ? [...startsForWorkspace, "--candidate-sha", revision]
-          : startsForWorkspace,
-      ),
+      expect.arrayContaining([...startsForWorkspace, ...retryFlags(revision)]),
     ]);
     expect(worktrees(origin.project)).toEqual(["session"]);
     expect(dispatched).toEqual([

@@ -12,14 +12,18 @@ import { HostOperationFailure } from "./hostLaunch.ts";
 import { attemptOutcome, keepAttempt } from "./launchAttemptStore.ts";
 import type { OwnedAttempt, OwnedAttempts } from "./ownedAttempts.ts";
 
+export type AttemptRunNotes = {
+  readonly publication: (publication: PublicationReceipt) => Promise<void>;
+  readonly slow: (slowSince: string) => Promise<void>;
+  readonly worker: (
+    worker: NonNullable<LaunchAttemptRecord["worker"]>,
+  ) => Promise<void>;
+};
+
 // Runs an accepted attempt, noting its publication receipt once known.
 export type AttemptRun = (
   own: OwnedAttempt,
-  notePublication: (publication: PublicationReceipt) => Promise<void>,
-  noteSlow: (slowSince: string) => Promise<void>,
-  noteWorker: (
-    worker: NonNullable<LaunchAttemptRecord["worker"]>,
-  ) => Promise<void>,
+  notes: AttemptRunNotes,
 ) => Promise<LaunchResult>;
 
 // Keeps a change to an owned attempt, then answers it: this server never
@@ -67,12 +71,11 @@ export async function settleAttempt(
   };
   let result: LaunchResult;
   try {
-    result = await run(
-      own,
-      (publication) => change({ publication }),
-      (slowSince) => change({ slowSince }),
-      (worker) => change({ worker }),
-    );
+    result = await run(own, {
+      publication: (publication) => change({ publication }),
+      slow: (slowSince) => change({ slowSince }),
+      worker: (worker) => change({ worker }),
+    });
   } catch (error) {
     result = {
       kind: "uncertain",

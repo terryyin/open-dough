@@ -1,19 +1,14 @@
-// An unattached launch's kept record owns its landing capture after its
-// startup attempt expires (../../server/retainedLandingDecision.ts): it
-// records and replays a comparison prepared while the settled attempt was
-// kept, and refuses another story, a changed workspace or branch, and a
-// deleted record. The installed publisher's reporting-only retry:
-// ./declared-blank-launch-publication.spec.ts and
-// ../../../e2e/launches/agent-launch-start-session-landing-context.spec.ts.
+// Landing capture follows a launch into its retained record after startup
+// expiry. The installed publisher's retry is in ./declared-blank-launch-publication.spec.ts.
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { afterEach, beforeAll, expect, test, vi } from "vitest";
+import { afterEach, beforeAll, expect, onTestFinished, test, vi } from "vitest";
+import { LandingAuthorityBuilder } from "../../../Distribution/tests/support/launchLandingEvidenceTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { launchRetentionDays } from "../../src/launchRecord.ts";
-import { recordedRequest } from "../../server/hostLaunch.ts";
+import { settleAttempt } from "../../server/launchAttemptSettlement.ts";
 import {
-  keepAttempt,
   keptAttempts,
   replaceAttempts,
 } from "../../server/launchAttemptStore.ts";
@@ -22,34 +17,31 @@ import {
   handleLanding,
   machineLandingStores,
 } from "../../server/launchLandingReporting.ts";
-import { launchRecord } from "../../server/launchRecord.ts";
-import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { replaceRecords } from "../../server/launchRecordDocument.ts";
 import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
-import { prepareAttemptReporting } from "../../server/launchReportingPreparation.ts";
-import { started } from "../../server/launchStart.ts";
-import { localFolder } from "../../server/localFolder.ts";
+import { attemptRun } from "../../server/launchRun.ts";
 import { machineDashboardPath } from "../../server/machineHome.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
-import { startStore } from "../../server/startStore.ts";
-import { commit, git } from "../../test-support/support/launchLanding.ts";
 import {
-  startOrigin,
-  type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
+  commit,
+  commonGitDir,
+  git,
+} from "../../test-support/support/launchLanding.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
 import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
-const repository = queuedReadyRepository().please();
+const repository = makeMe.aRepository.please();
 const day = 86_400_000;
 const expired = (launchRetentionDays + 1) * day;
 const originMain = (workspace: string) =>
   git(workspace, "ls-remote", "origin", "refs/heads/main").slice(0, 40);
 
-let origin: StartOrigin | undefined;
-
 beforeAll(async () => {
-  const initial = await startOrigin(repository, { host: "claude" });
+  const initial = await startOrigin(repository);
   try {
     keepStartedOrigin("claude", repository, initial);
   } finally {
@@ -60,107 +52,79 @@ beforeAll(async () => {
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllEnvs();
-  origin?.cleanup();
 });
 
-// An isolated auto-land Start whose native session was bound to its kept
-// record before the attempt settled, with one commit to compare on origin main.
-async function boundLaunch() {
-  const began = new Date();
-  origin = await startOrigin(repository, { host: "claude" });
-  const home = path.join(origin.machine, "home");
-  vi.stubEnv("HOME", home);
-  const request = makeMe.aLaunchRequest
-    .adHoc()
-    .withInstruction("Session")
-    .withPolicy({ workspace: "isolated", landing: "auto-land" })
-    .please();
-  const accepted = makeMe.anAcceptedAttempt
-    .requesting(request)
-    .acceptedAt(began.toISOString())
+test("a bound launch's retained record records and replays the comparison prepared before its attempt expired", async () => {
+  const origin = await startOrigin(repository);
+  onTestFinished(() => {
+    origin.cleanup();
+  });
+  vi.stubEnv("HOME", path.join(origin.machine, "home"));
+  const unmount = mountProjectConfiguration("production");
+  const acceptedAttempt = makeMe.anAcceptedAttempt
+    .adHocStart(
+      { workspace: "isolated", landing: "auto-land" },
+      { instruction: "Session" },
+    )
     .reportingTo(dashboardOrigin)
     .please();
-  const start = await started(
-    source,
-    request,
-    localFolder("~/git/open-dough", home),
-    new StartProgress(),
-    {
-      store: (workflow) => startStore(workflow, home),
-      env: { ...process.env, HOME: home },
-    },
-    accepted.id,
-    undefined,
-    undefined,
-    began,
-  );
-  if (start.kind !== "session" || start.publication.kind !== "published")
-    throw new Error(`Expected a published session: ${JSON.stringify(start)}`);
-  const reporting = await prepareAttemptReporting(
-    { ...accepted, publication: start.publication },
-    start,
-    start.workspace,
-    undefined,
-    undefined,
-  );
-  const prepared =
-    reporting.kind === "prepared" ? reporting.prepared : undefined;
-  if (prepared === undefined) throw new Error("Expected reporting.");
-  const attempt = { ...accepted, publication: start.publication, ...prepared };
-  await keepAttempt(attempt);
-  const session = start.handoff.established.establishedSession;
-  const identity = start.publication.identity;
-  if (session === undefined || identity === undefined)
-    throw new Error("Expected an established story session.");
-  const host = {
-    host: "claude" as const,
-    sessionId: "retained-session",
-    shortId: "retained",
-    name: "Session",
-  };
-  const requested = recordedRequest(request, began);
-  if (requested.workflow !== "ad-hoc") throw new Error("Expected ad hoc.");
-  await bindRecord(
-    source.id,
-    launchRecord(
-      { ...requested, storyIdentity: identity, reporting: prepared.reporting },
-      host,
-      { establishedSession: session },
-      began.toISOString(),
-    ),
-  );
-  await keepAttempt({
-    ...attempt,
-    outcome: {
-      kind: "launched",
-      session: { host: "claude", sessionId: host.sessionId },
-    },
-    settledAt: began.toISOString(),
-  });
-  const workspace = session.workspace;
+  const host = makeMe.aHostSession
+    .claude({ sessionId: "retained-session" })
+    .named("Session")
+    .please();
+  const owned = new OwnedAttempts();
+  const own = owned.own(acceptedAttempt.request, acceptedAttempt);
+  try {
+    await settleAttempt(owned, own, (current, notes) =>
+      attemptRun(source, current, {
+        notes,
+        progress: new StartProgress(),
+        doneMarks: { reported: () => undefined },
+        native: () => ({
+          launch: () =>
+            Promise.resolve({
+              kind: "launched",
+              session: host,
+              sessionState: makeMe.aSessionState.loaded("working").please(),
+            }),
+        }),
+      }),
+    );
+  } finally {
+    unmount();
+  }
+  const { attempt } = own;
+  if (
+    attempt.outcome?.kind !== "launched" ||
+    attempt.settledAt === undefined ||
+    attempt.publication.kind !== "published" ||
+    attempt.publication.identity === undefined ||
+    attempt.landingRepository === undefined
+  )
+    throw new Error(
+      `Expected a settled reporting launch: ${JSON.stringify(own.attempt)}`,
+    );
+  const { workspace } = attempt.landingRepository;
   const base = originMain(workspace);
   const revision = commit(workspace, "retained.txt");
   const landing = makeMe.aLandingSubmission
-    .forLaunch({ reference: attempt.id, identity })
+    .forLaunch({
+      reference: attempt.id,
+      identity: attempt.publication.identity,
+    })
     .comparing({ base, revision })
     .please();
-  return { began, attempt, host, workspace, base, revision, landing };
-}
-
-test("a bound launch's retained record records and replays the comparison prepared before its attempt expired", async () => {
-  const { began, attempt, host, workspace, base, revision, landing } =
-    await boundLaunch();
+  const settled = new Date(attempt.settledAt);
   const kept = () => keptSession(source.id, host);
-  // The record retains the attempt's authority and its settlement.
-  const authority = (await kept())?.landingReporting?.authority;
-  expect((await kept())?.landingReporting).toMatchObject({
+  const reporting = (await kept())?.landingReporting;
+  const authority = reporting?.authority;
+  expect(reporting).toMatchObject({
     authority: attempt.landingRepository,
-    settledAt: began.toISOString(),
+    settledAt: settled.toISOString(),
   });
 
-  // A day after settlement the attempt is still kept and owns the preparation.
   vi.useFakeTimers({ toFake: ["Date"] });
-  vi.setSystemTime(began.getTime() + day);
+  vi.setSystemTime(settled.getTime() + day);
   const prepared = await handleLanding(landing, dashboardOrigin, "prepare");
   expect(prepared).toMatchObject({ state: "prepared", base, revision });
   const pinned = `refs/open-dough/one-shot/${attempt.id}/${landing.delivery}`;
@@ -170,8 +134,7 @@ test("a bound launch's retained record records and replays the comparison prepar
   ];
   expect(await heldLandingPins(authority?.repository ?? "")).toEqual(pins);
 
-  // Past retention the attempt is actually dropped; the record remains.
-  vi.setSystemTime(began.getTime() + expired);
+  vi.setSystemTime(settled.getTime() + expired);
   await replaceAttempts((stored) => stored);
   expect((await keptAttempts())?.map(({ id }) => id)).not.toContain(attempt.id);
   const attemptsFile = machineDashboardPath("launch-attempts.json");
@@ -180,7 +143,6 @@ test("a bound launch's retained record records and replays the comparison prepar
   git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
   const recorded = await handleLanding(landing, dashboardOrigin, "record");
   expect(recorded).toEqual({ ...prepared, state: "recorded" });
-  // The accepted landing keeps the retained authority's repository binding.
   const accepted = (await kept())?.landing;
   expect(accepted).toEqual({
     ...authority,
@@ -195,7 +157,6 @@ test("a bound launch's retained record records and replays the comparison prepar
   });
   expect((await kept())?.landingReporting?.preparations).toEqual([accepted]);
 
-  // An unacknowledged reply replays the same pair without republishing Git.
   expect(await handleLanding(landing, dashboardOrigin, "record")).toEqual(
     recorded,
   );
@@ -205,10 +166,50 @@ test("a bound launch's retained record records and replays the comparison prepar
 });
 
 test("a retained record refuses another story, a changed workspace or branch, and its deletion, without recreating the record", async () => {
-  const { began, host, workspace, landing } = await boundLaunch();
+  const branch = "claude/session";
+  const identity = "SEED-A#a";
+  const began = new Date();
+  const checkout = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("base")
+      .withWorkspace(branch, { from: "base" })
+      .please(),
+  );
+  onTestFinished(checkout.cleanup);
+  vi.stubEnv("HOME", path.join(checkout.fixture, "home"));
+  const { execution: workspace } = checkout;
+  if (workspace === undefined)
+    throw new Error("Missing the retained worktree.");
+  const base = checkout.revisions.base;
+  const revision = commit(workspace, "retained.txt");
+  const landing = makeMe.aLandingSubmission
+    .forLaunch({ identity })
+    .comparing({ base, revision })
+    .please();
+  const retainedLaunch = makeMe.aLaunchRecord
+    .adHoc({ title: "Session", storyIdentity: identity })
+    .inIsolatedWorkspace({ workspace, branch, startingRevision: base })
+    .reportingThrough({
+      origin: dashboardOrigin,
+      command: "report",
+      reference: landing.reference,
+    })
+    .withLandingReporting({
+      origin: dashboardOrigin,
+      authority: new LandingAuthorityBuilder()
+        .ofRepository(commonGitDir(workspace))
+        .inWorktree({ workspace, branch })
+        .forStory(identity)
+        .please(),
+      preparations: [],
+      settledAt: began.toISOString(),
+    })
+    .launchedAt(began.toISOString())
+    .please();
+  await replaceRecords(() => ({ [source.id]: [retainedLaunch] }));
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(began.getTime() + expired);
-  await replaceAttempts((stored) => stored);
+  const host = retainedLaunch.session;
   const record = await keptSession(source.id, host);
   if (record?.establishedSession === undefined)
     throw new Error("Expected the retained record.");

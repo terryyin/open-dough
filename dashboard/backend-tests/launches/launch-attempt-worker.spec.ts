@@ -65,15 +65,15 @@ test("unowned live workers run; settled outcomes never run; concurrent notes ret
   const own = owner.own(attempt.request, attempt);
   // No file IO is needed to prove the memory answered note path.
   owner.close();
-  await settleAttempt(owner, own, async (...[, publication, slow, working]) => {
-    await Promise.all([working(worker), slow(attempt.acceptedAt)]);
-    expect(own.attempt).toMatchObject({
+  await settleAttempt(owner, own, async (running, notes) => {
+    await Promise.all([notes.worker(worker), notes.slow(attempt.acceptedAt)]);
+    expect(running.attempt).toMatchObject({
       worker,
       slowSince: attempt.acceptedAt,
     });
-    await publication({ kind: "none" });
-    await working({ ...worker, step: "launch" });
-    expect(own.attempt.worker?.step).toBe("launch");
+    await notes.publication({ kind: "none" });
+    await notes.worker({ ...worker, step: "launch" });
+    expect(running.attempt.worker?.step).toBe("launch");
     return { kind: "failed", reason: "refused", explanation: "Not launched." };
   });
   expect(own.attempt.worker).toBeUndefined();

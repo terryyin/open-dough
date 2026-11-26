@@ -16,10 +16,8 @@
 //
 // The authorization (`./feedbackMaintenance.ts`) and this machine's launch
 // records and attempts are read first and cost no GitHub request. Only when
-// they permit is the project's ref resolved through `gh` and its watch list
-// read at that revision, remembered there (`./pinnedTexts.ts`); a failed read
-// is kept with the published read diagnostics (`./readDiagnostics.ts`) and is
-// not due. A launch attempt keeps its request with the marker before any side
+// they permit does the published reader (`./feedbackMaintenanceReview.ts`)
+// read the watch list. A launch attempt keeps its marker before any side
 // effect, so a restart, a later check, or a deleted record never launches the
 // same due date again while the attempt is retained.
 //
@@ -48,11 +46,6 @@ import {
   type MaintenanceObservation,
 } from "../src/feedbackMaintenanceState.ts";
 import {
-  feedbackWatchListPath,
-  readFeedbackReview,
-  type FeedbackReview,
-} from "../src/feedbackReview.ts";
-import {
   feedbackMaintenanceInstruction,
   feedbackMaintenanceRepository,
 } from "../src/feedbackMaintenanceSetting.ts";
@@ -60,20 +53,15 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 import { readFeedbackMaintenance } from "./feedbackMaintenance.ts";
-import { isNotFound } from "./ghFailure.ts";
-import { resolveRevisionViaGh } from "./ghRevision.ts";
+import type { ReviewRead } from "./feedbackMaintenanceReview.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import { withStates } from "./launchStates.ts";
 import { machineFolder } from "./localFolder.ts";
-import { PinnedTexts } from "./pinnedTexts.ts";
 import {
   projectEnvironment,
   publishedProjects,
 } from "./projectConfiguration.ts";
-import { withReadDiagnosticContext } from "./readDiagnostics.ts";
-import { RetainedAnswers } from "./retainedAnswers.ts";
 import { repeatUntilStopped } from "./repeatingCheck.ts";
-import { RevisionMemo } from "./revisionMemo.ts";
 
 // How soon a check waiting for the server's listening address looks again.
 const originWaitMs = 250;
@@ -112,46 +100,6 @@ async function maintenanceSessions(
       sessionState: { kind: "unknown" as const },
     }));
   return observedSessions(source.id, [...open, ...done], attempts);
-}
-
-// The watch list's review at a project's current revision, `unread` when a
-// read failed.
-export type ReviewRead = (
-  source: PublishedSource,
-  signal: AbortSignal,
-) => Promise<FeedbackReview | { readonly kind: "unread" }>;
-
-// Reads the review through `gh` at the ref's current revision, remembering
-// the text read there.
-export function publishedReview(): ReviewRead {
-  const pinned = new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
-  return async (source, signal) => {
-    let revision: string;
-    try {
-      ({ revision } = await withReadDiagnosticContext(
-        { source: source.id, category: "ref" },
-        () => resolveRevisionViaGh(source.repository, source.ref, signal),
-      ));
-    } catch {
-      return { kind: "unread" };
-    }
-    try {
-      return readFeedbackReview(
-        await withReadDiagnosticContext(
-          { source: source.id, category: "content", pin: revision },
-          () =>
-            pinned.namedRevisionText(
-              source,
-              revision,
-              feedbackWatchListPath,
-              signal,
-            ),
-        ),
-      );
-    } catch (error) {
-      return isNotFound(error) ? { kind: "absent" } : { kind: "unread" };
-    }
-  };
 }
 
 export class FeedbackMaintenanceCheck {

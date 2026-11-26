@@ -2,7 +2,7 @@
 // record keeps (../../server/launchRun.ts): the developer's text with
 // whitespace runs collapsed, cut at 40 characters, or the launch time when
 // the text is blank or holds a control character. The recorded request keeps
-// the text as typed. Admission refuses an ad hoc request naming an identity.
+// the text as typed. Admission refuses page-sent identity and maintenance.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { admittedLaunchRequest } from "../../server/agentLaunchAdmission.ts";
@@ -11,6 +11,7 @@ import {
   recordedRequest,
 } from "../../server/hostLaunch.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
+import { agentLaunchRequestSchema } from "../../src/launchRequest.ts";
 
 const began = new Date(2026, 8, 30, 14, 32);
 const titled = (instruction?: string) => {
@@ -58,4 +59,22 @@ test("refuses an ad hoc request naming an identity", () => {
   };
 
   expect(() => admittedLaunchRequest(request)).toThrow(RefusedRequest);
+});
+
+test("refuses a maintenance mark supplied by the page", () => {
+  const request = makeMe.aLaunchRequest
+    .adHoc({ instruction: "/maintain-feedback-cycle" })
+    .please();
+  const marked = { ...request, maintenance: { due: "2026-11-25" } };
+
+  expect(() => admittedLaunchRequest(request)).not.toThrow();
+  expect(agentLaunchRequestSchema.parse(marked)).toMatchObject({
+    maintenance: marked.maintenance,
+  });
+  expect(() => admittedLaunchRequest(marked)).toThrow(
+    expect.objectContaining({
+      status: 400,
+      message: "The launch request is malformed.",
+    }),
+  );
 });

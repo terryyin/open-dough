@@ -8,16 +8,16 @@ import { execFile } from "node:child_process";
 import { chmodSync, existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
-import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { attemptRun } from "../../server/launchRun.ts";
-import { machineFolder } from "../../server/localFolder.ts";
 import type { NativeDispatch } from "../../server/nativeSessionRun.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import type {
+  LaunchAttemptRecord,
   LaunchResult,
   RecordedLaunchRequest,
 } from "../../src/agentLaunch.ts";
@@ -27,7 +27,6 @@ import {
   startOrigin,
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
-import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 import { worktree } from "../../test-support/support/startSessionLanding.ts";
 
 const exec = promisify(execFile);
@@ -43,7 +42,6 @@ type Dispatched = {
 
 let origin: StartOrigin;
 let unmount: () => void;
-let marks: NativeDoneMarks;
 let dispatched: Dispatched[];
 let runs: Promise<LaunchResult>[];
 
@@ -66,15 +64,6 @@ const native: NativeDispatch = () => ({
 const originMain = async () =>
   (await origin.originGit("rev-parse", "main")).trim();
 
-beforeAll(async () => {
-  const initial = await startOrigin(repository);
-  try {
-    keepStartedOrigin("claude", repository, initial);
-  } finally {
-    initial.cleanup();
-  }
-});
-
 beforeEach(async () => {
   dispatched = [];
   runs = [];
@@ -82,49 +71,23 @@ beforeEach(async () => {
   // Kept attempts, starts and records live in this test's own machine.
   vi.stubEnv("HOME", path.join(origin.machine, "home"));
   unmount = mountProjectConfiguration("production");
-  marks = new NativeDoneMarks({
-    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
-    hostFor: () => undefined,
-    reportingFolder: machineFolder,
-  });
 });
 
 afterEach(async () => {
   await Promise.allSettled(runs);
-  await marks.close();
   unmount();
   vi.unstubAllEnvs();
   origin.cleanup();
 });
 
-const accepted = makeMe.anAcceptedAttempt
-  .requesting(
-    makeMe.aLaunchRequest
-      .adHoc()
-      .withInstruction(title)
-      .withPolicy({ workspace: "isolated", landing: "review" })
-      .please(),
-  )
-  .acceptedAt(new Date().toISOString())
-  .please();
-
 const git = async (cwd: string, ...args: string[]) =>
   (await exec("git", ["-C", cwd, ...args])).stdout.trim();
 
-function run() {
-  const note = () => Promise.resolve();
+function run(accepted: LaunchAttemptRecord) {
   const running = attemptRun(
     source,
-    {
-      request: accepted.request,
-      attempt: accepted,
-      controller: new AbortController(),
-      changes: 0,
-    },
-    note,
-    note,
-    note,
-    { progress: new StartProgress(), doneMarks: marks, native },
+    new OwnedAttempts().own(accepted.request, accepted),
+    { progress: new StartProgress(), doneMarks: { reported: vi.fn() }, native },
   );
   runs.push(running);
   return running;
@@ -135,6 +98,12 @@ test(
   "Continue drafts a new story after a competing claim wins the admission",
   { timeout: 30_000 },
   async () => {
+    const accepted = makeMe.anAcceptedAttempt
+      .adHocStart(
+        { workspace: "isolated", landing: "review" },
+        { instruction: title },
+      )
+      .please();
     const branch = "claude/retry-admission";
     const workspace = worktree(origin.project, "retry-admission");
     const held = path.join(origin.machine, "contender-held");
@@ -152,7 +121,7 @@ fi
 `,
     );
     chmodSync(hook, 0o755);
-    const first = run();
+    const first = run(accepted);
     try {
       await vi.waitFor(
         () => {
@@ -226,7 +195,7 @@ fi
         claim: { retained: { candidateSha: losingHead } },
       });
 
-      expect(await run()).toMatchObject({ kind: "launched" });
+      expect(await run(accepted)).toMatchObject({ kind: "launched" });
       const published = await admittedStory(origin, title);
       expect(published.identity).not.toBe(draft.identity);
       expect((await admittedStory(origin, draft.title)).identity).toBe(

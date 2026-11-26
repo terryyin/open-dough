@@ -4,24 +4,28 @@
 // session instead. The attempt run (../../server/launchRun.ts) dispatches
 // through a recording native collaborator against a real bare origin. The
 // real native recovery: ../../../e2e/launches/agent-launch-ad-hoc-codex-recovery.spec.ts.
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { keepRecord, keptRecords } from "../../server/launchRecordStore.ts";
 import { attemptRun } from "../../server/launchRun.ts";
-import { machineFolder } from "../../server/localFolder.ts";
 import type { NativeDispatch } from "../../server/nativeSessionRun.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { checkoutState } from "../../test-support/support/executionCheckoutChanges.ts";
+import { isolatedAdmissionFlags } from "../../test-support/support/isolatedSessionAdmissionProof.ts";
 import {
   startOrigin,
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
 import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 import {
+  git,
+  isolatedSession,
   recordStarts,
   worktree,
   worktrees,
@@ -32,7 +36,7 @@ const repository = queuedReadyRepository().please();
 
 let origin: StartOrigin;
 let unmount: () => void;
-let marks: NativeDoneMarks;
+const doneMarks = { reported: () => undefined };
 let launched: number;
 let recovered: LaunchRecord[];
 
@@ -73,15 +77,9 @@ beforeEach(async () => {
   origin = await startOrigin(repository, { host: "codex" });
   vi.stubEnv("HOME", path.join(origin.machine, "home"));
   unmount = mountProjectConfiguration("production");
-  marks = new NativeDoneMarks({
-    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
-    hostFor: () => undefined,
-    reportingFolder: machineFolder,
-  });
 });
 
-afterEach(async () => {
-  await marks.close();
+afterEach(() => {
   unmount();
   vi.unstubAllEnvs();
   origin.cleanup();
@@ -106,35 +104,22 @@ const pendingConversation = () =>
 
 const run = (landing: "review" | "auto-land") => {
   const attempt = makeMe.anAcceptedAttempt
-    .requesting(
-      makeMe.aLaunchRequest
-        .adHoc({ host: "codex" })
-        .withInstruction("Session")
-        .withPolicy({ workspace: "isolated", landing })
-        .please(),
+    .adHocStart(
+      { workspace: "isolated", landing },
+      { host: "codex", instruction: "Session" },
     )
-    .acceptedAt(new Date().toISOString())
     .please();
-  const note = () => Promise.resolve();
-  return attemptRun(
-    source,
-    {
-      request: attempt.request,
-      attempt,
-      controller: new AbortController(),
-      changes: 0,
-    },
-    note,
-    note,
-    note,
-    { progress: new StartProgress(), doneMarks: marks, native },
-  );
+  return attemptRun(source, new OwnedAttempts().own(attempt.request, attempt), {
+    progress: new StartProgress(),
+    doneMarks,
+    native,
+  });
 };
 
 test("the same choices recover the uncertain conversation without a start or a second send", async () => {
   const starts = recordStarts(origin, "codex");
   const pending = pendingConversation();
-  await keepRecord(source.id, pending, marks);
+  await keepRecord(source.id, pending, doneMarks);
 
   expect(await run("review")).toMatchObject({
     kind: "launched",
@@ -151,14 +136,39 @@ test("the same choices recover the uncertain conversation without a start or a s
 test("a different landing choice starts its own session and leaves the uncertain conversation waiting", async () => {
   const starts = recordStarts(origin, "codex");
   const pending = pendingConversation();
-  await keepRecord(source.id, pending, marks);
+  const waiting = worktree(origin.project, "session");
+  git(origin.project, "worktree", "add", "-b", "codex/session", waiting);
+  const note = path.join(waiting, "waiting.txt");
+  writeFileSync(note, "The waiting conversation's changes.\n");
+  const before = checkoutState(waiting);
+  await keepRecord(source.id, pending, doneMarks);
 
-  expect(await run("auto-land")).toMatchObject({
+  const result = await run("auto-land");
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
+  expect(result).toMatchObject({
     kind: "launched",
-    record: { session },
+    record: {
+      session,
+      establishedSession: isolatedSession(
+        origin.project,
+        "session-2",
+        "auto-land",
+        revision,
+        "codex",
+      ),
+    },
   });
   expect(recovered).toEqual([]);
   expect(launched).toBe(1);
-  expect(starts()).toHaveLength(1);
+  expect(starts().map(({ argv }) => argv)).toEqual([
+    expect.arrayContaining(
+      isolatedAdmissionFlags(origin.project, "session-2", "codex"),
+    ),
+  ]);
+  expect(worktrees(origin.project)).toEqual(["session", "session-2"]);
+  expect(checkoutState(waiting)).toBe(before);
+  expect(readFileSync(note, "utf8")).toBe(
+    "The waiting conversation's changes.\n",
+  );
   expect(await keptRecords(source.id)).toContainEqual(pending);
 });

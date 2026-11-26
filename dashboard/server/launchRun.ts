@@ -3,11 +3,7 @@
 // (`./nativeSessionRun.ts`), which preserves the original request and
 // established facts while its host owns native input and reconciliation.
 import { homedir } from "node:os";
-import {
-  type PublicationReceipt,
-  type LaunchAttemptRecord,
-  type LaunchResult,
-} from "../src/agentLaunch.ts";
+import type { LaunchResult } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { executionCheckout } from "./executionCheckout.ts";
 import { publicationOf, started, startTimeoutMs } from "./launchStart.ts";
@@ -19,6 +15,7 @@ import {
 } from "./sessionStartSettlement.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import type { OwnedAttempt } from "./ownedAttempts.ts";
+import type { AttemptRunNotes } from "./launchAttemptSettlement.ts";
 import { attemptWorker } from "./launchAttemptWorker.ts";
 import { establishedFacts } from "./startLaunch.ts";
 import type { StartProgress } from "./startProgress.ts";
@@ -36,31 +33,20 @@ import {
   type NativeSessionServices,
 } from "./nativeSessionRun.ts";
 
-// What this server lends each attempt's run: its start progress, and the
-// done marks and native dispatch of the session it opens.
+// What the server lends each attempt's run, including the owner that notes
+// its changing state when the run belongs to a settlement.
 export type AttemptRunServices = NativeSessionServices & {
   readonly progress: StartProgress;
+  readonly notes?: Partial<AttemptRunNotes>;
 };
 
 // Runs the attempt and settles its retained session establishment.
 export async function attemptRun(
   source: PublishedSource,
   own: OwnedAttempt,
-  notePublication: (publication: PublicationReceipt) => Promise<void>,
-  noteSlow: (slowSince: string) => Promise<void>,
-  noteWorker: (
-    worker: NonNullable<LaunchAttemptRecord["worker"]>,
-  ) => Promise<void>,
   services: AttemptRunServices,
 ): Promise<LaunchResult> {
-  const result = await startedRun(
-    source,
-    own,
-    notePublication,
-    noteSlow,
-    noteWorker,
-    services,
-  );
+  const result = await startedRun(source, own, services);
   return settleSessionResult(source, own.request, own.attempt.id, result);
 }
 
@@ -72,16 +58,12 @@ function refusedUnboundStart(subject: string): LaunchResult {
 async function startedRun(
   source: PublishedSource,
   own: OwnedAttempt,
-  notePublication: (publication: PublicationReceipt) => Promise<void>,
-  noteSlow: (slowSince: string) => Promise<void>,
-  noteWorker: (
-    worker: NonNullable<LaunchAttemptRecord["worker"]>,
-  ) => Promise<void>,
   services: AttemptRunServices,
 ): Promise<LaunchResult> {
   const owned = own;
   const { controller, attempt } = owned;
-  const { progress } = services;
+  const { progress, notes } = services;
+  const noteWorker = notes?.worker;
   const request = await retainedFollowUpWithStory(owned.request, source);
   if (request === undefined)
     return refusedUnboundStart("The retained follow-up");
@@ -111,8 +93,10 @@ async function startedRun(
             warningMs: startTimeoutMs(),
           },
           attempt.id,
-          noteSlow,
-          (pid) => noteWorker(attemptWorker("start", pid)),
+          notes?.slow,
+          noteWorker === undefined
+            ? undefined
+            : (pid) => noteWorker(attemptWorker("start", pid)),
           began,
         )
       : ({ kind: "none" } as const);
@@ -123,7 +107,7 @@ async function startedRun(
         ? attempt.publication
         : publicationOf(start, pending);
     try {
-      await notePublication(publication);
+      await notes?.publication?.(publication);
     } catch (error) {
       return publicationRecordingFailure(start, publication, error);
     }
@@ -162,7 +146,7 @@ async function startedRun(
     }
     const recording =
       reporting === undefined ? baseRecording : { ...baseRecording, reporting };
-    await noteWorker(attemptWorker("launch"));
+    await noteWorker?.(attemptWorker("launch"));
     endWait = launchWait(() => {
       controller.abort();
     });

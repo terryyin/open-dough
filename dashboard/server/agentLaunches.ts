@@ -208,11 +208,12 @@ export class AgentLaunches {
   }
 
   private runAttempt(source: PublishedSource): AttemptRun {
-    return (...args) =>
-      attemptRun(source, ...args, {
+    return (own, notes) =>
+      attemptRun(source, own, {
         progress: this.progress,
         doneMarks: this.doneMarks,
         native: launchHost,
+        notes,
       });
   }
 

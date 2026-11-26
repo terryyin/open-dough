@@ -14,7 +14,7 @@ import {
   updateRecord,
 } from "./launchRecordStore.ts";
 import { launchRecord, type LaunchStartFacts } from "./launchRecord.ts";
-import type { NativeDoneMarks } from "./doneMarks.ts";
+import type { ReportedDone } from "./doneMarks.ts";
 
 export type LaunchRecording = {
   session(session: HostSession, evidence: FirstInput): Promise<void>;
@@ -26,7 +26,7 @@ export function launchRecording(
   began: Date,
   facts: LaunchStartFacts,
   previous: LaunchRecord | undefined,
-  doneMarks: NativeDoneMarks,
+  doneMarks: ReportedDone,
 ) {
   let retained = previous;
   return {
