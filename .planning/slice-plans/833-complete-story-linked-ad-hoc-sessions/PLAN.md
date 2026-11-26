@@ -455,7 +455,7 @@ implementation clock paused at 14.7 minutes before independent review.
 
 ### 10. Switch production to the reconciled story-linked store
 Type: Behavior
-Status: planned
+Status: done
 Proof: The production candidate reads a complete migrated private copy and
 opens the preserved linked launch. After the production switch, reconcile
 every row and related reference before resuming writes.
@@ -656,8 +656,8 @@ shape. Keep the exact replay and distinguish it from current open rows.
 The full published payload installed in a private client with matching
 native roots and complete hook registration. See `slice-10-rehearsal.xO4uGJ`
 under the story's common Git evidence directory for the snapshot, report
-and later native and upstream corroboration. Production is still running
-the prior reader and store.
+and later native and upstream corroboration. Production still ran the prior
+reader and store during that rehearsal.
 
 The production action paused at 13.1 active minutes with 1.9 remaining while
 its dependencies are prepared and verified privately. The final slice is
@@ -667,6 +667,34 @@ The published slice 9 revision passed exact branch CI in run
 error after reporting the successful revision. Its notification was
 acknowledged and PID `30861` exited. See `slice-10-start-ci-await.log` and
 `slice-10-blocked-observer-stop.log` in the worktree's Git evidence.
+
+The first landing accepted `8c14cbaf19cb17896093c41e945093dd4aacaf30`
+on `origin/main`. The original launch recorded that revision and base
+`2b69bc19f0a0550beb430631574cdfd42fa1cb2b` before the old reader stopped.
+The held-writer snapshot accounted for 3,821 rows and 16,948 files. The
+candidate retained 1,539 launches, 1,561 attempts and 342 history rows.
+It verified 24 exact published comparisons, one open Codex identity, no
+unresolved open identity and no duplicate active reporting references.
+The original and live installed stores preserve the same accepted pair.
+The retained unresolved Cursor attempt has no verified native launch and
+keeps its original reporting evidence. The separate restorable original
+and archive were verified by the transfer journal.
+
+Release `v0.3.116` points to `eb3725268449334152fbd31095ca575234039c12`.
+Both installed roots and managed hooks were verified in all six configured
+projects, and all six update commits reached their configured branches.
+The stock watcher served `8ac33ed405cea1ebd9b68cc684e4dff9c3ac5f14`.
+The live API returned the original Codex session and exact landing pair.
+The restored feedback authorization kept the previous completed cycle
+visible as Done. The coordinator reopened ingress and restored all held
+writer services. Common Git evidence: `slice-10-fence.zHil4SS3/live.lTkDLUyT`
+and `slice-10-postaccept.eqSY09g1`.
+
+## Execution complete
+
+Product advice: Keep the current backlog order. Remove the realized ad hoc
+session direction from the Dashboard north star. The existing Dashboard
+test migration stories own later test-boundary work.
 
 ## Proof gates and concern review
 
@@ -695,7 +723,7 @@ rehearsal pass.
 ### G1. Live migration evidence needs disposition (first reported in plan 813 slice 1)
 Reported: slice 1 — "SEED-426 observed an open standalone Claude launch, a Cursor timeout without conclusive native binding, and one Lizard review with unavailable completion history."
 Story clause: "Switch production startup, completion and review together."
-Disposition: receiving slice 10
+Disposition: proved by slice 10: the post-accept writer-held snapshot, transactional store transfer, reader and receipt readback, and live production lookup settled the original migration evidence. The only open launch remained available through the switch. The unverified historical attempt remains preserved. See the activation and transfer journals named in slice 10.
 
 ### G2. Default launch compatibility must be verified (first reported in plan 813 slice 2)
 Reported: slice 1 — "SEED-426 found nine duplicate-launch backend failures and eight browser problems, Codex or Cursor failures on the unpublished default route."
