@@ -1,7 +1,7 @@
 // Intent location and folder toggles open or close without moving selection,
 // while names select a Summary of the scope's file count and immediate
 // children, on the page's Intent body (./intent-ci-page-mount.ts,
-// ../../src/IntentLocationHeader.tsx, ../../src/StoryReviewFileTree.tsx,
+// ../../src/IntentFileTree.tsx, ../../src/StoryReviewFileTree.tsx,
 // ../../src/IntentSummary.tsx). Summary CI proof:
 // ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
 import { expect, test } from "vitest";
@@ -63,7 +63,10 @@ async function mountScopeTree() {
     readCandidates: () => Promise.resolve({ status: "absent" }),
   };
   await mountIntentCiPage({ work, reads: { intent, ci: unreadCiReads } });
-  return intentScopeTree();
+  const tree = intentScopeTree();
+  await tree.toggle("e2e_test").click();
+  await tree.toggle("packaged").click();
+  return tree;
 }
 
 test("location names select a Summary of their files without opening, while toggles open or close without moving selection", async () => {
@@ -81,17 +84,15 @@ test("location names select a Summary of their files without opening, while togg
   await tree.summaryLists(["jobs/", "reports/", "disk_space.feature"]);
   await tree.showsNoPurpose();
 
-  // A toggle leaves the selection; a selected name toggles its location.
+  // A toggle leaves selection in place, and selecting the same name keeps disclosure.
   await features.click();
   await features.isExpanded(true);
   await featuresName.isSelected(true);
   await tree.summarizes(featuresPath);
   await featuresName.click();
-  await features.isExpanded(false);
+  await features.isExpanded(true);
   await featuresName.isSelected(true);
   await tree.summarizes("4 files");
-  await featuresName.click();
-  await features.isExpanded(true);
 
   // A closed location's name selects it while another stays open.
   await packaged.isExpanded(false);
@@ -100,9 +101,9 @@ test("location names select a Summary of their files without opening, while togg
   await features.isExpanded(true);
   await packagedName.isSelected(true);
   await tree.summarizes(packagedPath, "1 file");
-  await packagedName.click();
+  await packaged.click();
   await packaged.isExpanded(true);
-  await features.isExpanded(false);
+  await features.isExpanded(true);
   await tree.summarizes(packagedPath);
 });
 
@@ -130,7 +131,7 @@ test("folders start collapsed, and folder names select a Summary of their files 
   await tree.summarizes(featuresPath);
   await jobs.click();
 
-  // An unselected name selects keeping the open state; a selected one toggles.
+  // Selecting either folder name preserves its disclosure.
   await jobsName.isSelected(false);
   await jobsName.click();
   await jobsName.isSelected(true);
@@ -140,11 +141,8 @@ test("folders start collapsed, and folder names select a Summary of their files 
   await featuresName.isSelected(false);
   await jobsName.click();
   await jobsName.isSelected(true);
-  await jobs.isExpanded(false);
-  await tree.summarizes(jobsFolder, "2 files");
-  await jobsName.click();
   await jobs.isExpanded(true);
-  await tree.summarizes(jobsFolder);
+  await tree.summarizes(jobsFolder, "2 files");
 
   await reportsName.click();
   await reportsName.isSelected(true);
@@ -193,7 +191,8 @@ test("a file's Purpose stays while a toggle opens another location, and the clos
   await stooq.isSelected();
   await packaged.click();
   await packaged.isExpanded(true);
-  await features.isExpanded(false);
+  await features.isExpanded(true);
+  await features.click();
   await stooq.shows("Feature: Stooq refresh");
   await tree.showsNoSummary();
 

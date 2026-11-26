@@ -9,7 +9,6 @@
 // place: ./intentReadingPlacePage.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { intentLocationIdPrefix } from "../src/intentLocationIds.ts";
 import { parts } from "./dashboardParts.ts";
 import { countAuthenticatedReads } from "./support/frontendAuthenticatedReadControl.ts";
 
@@ -33,7 +32,7 @@ export function expectAddress(
 function intentLocationRow(intent: Locator, locationPath: string) {
   const path = JSON.stringify(locationPath);
   return intent.locator(
-    `.intent-location-header:has(> button[data-location-path=${path}]), li[data-folder-path=${path}] > [data-intent-folder-cue="root"]`,
+    `li[data-folder-path=${path}] > [data-intent-folder-cue="root"]`,
   );
 }
 
@@ -79,10 +78,10 @@ export async function revealIntentLocation(
 }
 
 // Selectable name for one Intent folder under the shared file tree.
-export function intentFolderName(intent: Locator, folderName: string) {
-  return intent
-    .locator("button.story-review-folder-name")
-    .filter({ hasText: folderName });
+export function intentFolderName(intent: Locator, path: string) {
+  return locationName(
+    intent.locator(`li[data-folder-path=${JSON.stringify(path)}] > div`),
+  );
 }
 
 // Disclose the location after revealing its ancestors.
@@ -93,9 +92,7 @@ export async function expandIntentGroup(intent: Locator, locationPath: string) {
 // The folder toggles inside one expanded Intent location's body.
 function intentFolderToggles(intent: Locator, locationPath: string) {
   return intent
-    .locator(
-      `[id="${intentLocationIdPrefix(locationPath)}-body"], li[data-folder-path="${locationPath}"] > ul`,
-    )
+    .locator(`li[data-folder-path=${JSON.stringify(locationPath)}] > ul`)
     .locator("button.story-review-folder");
 }
 
@@ -139,18 +136,13 @@ export const countLocationsReads = (page: Page) =>
     (params) => params.get("intent") === "locations",
   );
 
-// Every Intent group header starts collapsed with no file/list body shown.
+// Only top-level folders are visible when the repository tree first opens.
 export async function expectIntentGroupsCollapsed(intent: Locator) {
-  const toggles = intent.locator("button.intent-location-toggle");
+  const toggles = intent.locator("button.story-review-folder:visible");
   await expect(toggles.first()).toBeVisible();
-  const count = await toggles.count();
-  expect(count).toBeGreaterThan(0);
-  for (let i = 0; i < count; i += 1) {
-    await expect(toggles.nth(i)).toHaveAttribute("aria-expanded", "false");
-  }
-  await expect(intent.locator(".intent-location-body")).toHaveCount(0);
+  for (const toggle of await toggles.all())
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
 }
-
 // Intent shown for this project in place of Development's content: the
 // selected project and perspective are clear, and the content says no intent
 // locations are configured, naming the setting and file, without that

@@ -44,6 +44,14 @@ export async function expectSourceTargetLine(source: Locator, line: number) {
   await expect(sourceLineNumbers(target)).toHaveText(String(line));
 }
 
+export async function openLocationSummary(intent: Locator, path: string) {
+  await (await revealIntentLocation(intent, path)).click();
+  return intent.getByRole("region", { name: "Summary", exact: true });
+}
+
+export const testConfiguration = (summary: Locator) =>
+  summary.getByRole("list", { name: "Test configuration", exact: true });
+
 // A labelled Intent location lists its include-matched specs, omits helpers,
 // and opens exact source text under that location's canonical path.
 export async function expectLabelledEntrySource(
@@ -55,9 +63,11 @@ export async function expectLabelledEntrySource(
   expectedLines: readonly string[],
 ) {
   const heading = await revealIntentLocation(intent, locationPath);
-  await expect(heading).toContainText(label);
+  await expect(
+    heading.getByText(locationPath.split("/").at(-1) ?? "", { exact: true }),
+  ).toBeVisible();
   await expect(intentGroupToggle(intent, locationPath)).toHaveAccessibleName(
-    `Expand ${label}`,
+    `Expand ${locationPath}`,
   );
   await heading.click();
   const summary = intent.getByRole("region", {

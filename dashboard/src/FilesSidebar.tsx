@@ -2,8 +2,8 @@
 // (`./IntentFilesDrawer.tsx`, `./ReviewFilesDrawer.tsx`): docked where the
 // view has room, keeping the view's own choice; a drawer where room is
 // tight. Each newly entered view, and each entry into tight room, starts the
-// drawer closed to leave the reader available, and choosing a file closes it
-// to expose that reading.
+// drawer closed to leave the reader available, and choosing a reading closes it to
+// expose that reading.
 
 import { type ReactNode, useCallback, useState } from "react";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
@@ -11,7 +11,7 @@ import { DrawerBackdrop, useDrawerKeys } from "./SidebarDrawer.tsx";
 
 export type FilesSidebar = FileBrowserPlace & {
   readonly onShow: (shown: boolean) => void;
-  readonly onFileChosen: () => void;
+  readonly onReadingChosen: () => void;
   readonly backdrop: ReactNode;
 };
 
@@ -48,14 +48,14 @@ export function useFilesSidebar({
     },
     [narrow, id, setDocked],
   );
-  const onFileChosen = useCallback(() => {
+  const onReadingChosen = useCallback(() => {
     if (narrow) close();
   }, [narrow, close]);
   return {
     id,
     shown: narrow ? open : docked,
     onShow,
-    onFileChosen,
+    onReadingChosen,
     backdrop: (
       <DrawerBackdrop
         open={open}

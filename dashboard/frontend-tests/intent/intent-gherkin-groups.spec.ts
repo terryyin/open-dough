@@ -1,9 +1,4 @@
-// Intent location groups expand exclusively on the page's Intent body
-// (./intent-ci-page-mount.ts, ../../src/IntentPerspective.tsx,
-// ../../src/IntentLocationGroup.tsx): they start collapsed, one body opens at
-// a time, all can close, Purpose survives collapsing its group, empty and
-// unsupported bodies take part, nested folder toggles stay local, and with no
-// story selected each header spans the column apart from its rows.
+// Project Intent discloses repository ancestors and configured roots independently.
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
@@ -11,10 +6,7 @@ import { unreadCiReads } from "../../test-support/component-mount/unreadPageRead
 import { fileName } from "./intent-browser-page.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import { intentReadsPublishing } from "./intent-revision-fixtures.ts";
-import {
-  intentScopeTree,
-  locationHeaderLook,
-} from "./intent-scope-tree-page.ts";
+import { intentScopeTree, locationHeader } from "./intent-scope-tree-page.ts";
 
 const featuresPath = "e2e_test/features";
 const packagedPath = "e2e_test/packaged/features";
@@ -28,7 +20,7 @@ const files: Readonly<Record<string, string>> = {
   [packagedFile]: "Feature: Packaged\n",
 };
 
-async function mountGroups() {
+async function mountProjectTree() {
   const work = makeMe.aPublishedWork
     .of(makeMe.aPublishedSource.pygardon.please())
     .at("e7".repeat(20))
@@ -68,100 +60,73 @@ async function mountGroups() {
   return intentScopeTree();
 }
 
-const bodyText = () =>
-  page.getByRole("main", { name: "Intent", exact: true }).query()
-    ?.textContent ?? "";
-
-test("location groups start collapsed and expand exclusively, keeping Purpose across collapse and nested folders local", async () => {
-  const tree = await mountGroups();
-  const features = tree.toggle(featuresPath);
-  const packaged = tree.toggle(packagedPath);
-  const empty = tree.toggle("empty_features");
-  for (const path of [featuresPath, packagedPath, "empty_features"])
-    await tree.toggle(path).isExpanded(false);
-  await tree.toggle("frontend/src").isExpanded(false);
-
-  await features.click();
-  await tree.toggle("recall").click();
-  const recall = await tree.openFile(recallPath);
-  await packaged.click();
-  await features.isExpanded(false);
-  await packaged.isExpanded(true);
-  await tree.hidesFile(recallPath);
-  await packaged.click();
-  await packaged.isExpanded(false);
-
-  // Purpose keeps the selected file while its group collapses.
-  await features.click();
-  await recall.shows("Feature: Recall a note");
-  await features.click();
-  await features.isExpanded(false);
-  await recall.shows("Feature: Recall a note");
-  await features.click();
+test("collapsed Project Intent hides deeper roots and carries the cue on each closed ancestor", async () => {
+  const tree = await mountProjectTree();
+  await tree.toggle("e2e_test").isExpanded(false);
+  expect(
+    locationHeader("e2e_test").getAttribute("data-intent-folder-cue"),
+  ).toBe("ancestor");
   await expect
-    .element(fileName(recallPath))
-    .toHaveAttribute("aria-pressed", "true");
+    .element(page.getByRole("button", { name: featuresPath, exact: true }))
+    .not.toBeInTheDocument();
 
-  // Empty and unsupported bodies take part in exclusive expansion.
-  await empty.click();
-  await features.isExpanded(false);
-  await expect.poll(bodyText).toContain(emptyNotice);
-  await tree.toggle("frontend/src").click();
-  await empty.isExpanded(false);
-  await expect.poll(bodyText).not.toContain(emptyNotice);
+  await tree.name("e2e_test").click();
   await expect
-    .poll(bodyText)
-    .toContain("Kind unfamiliar-language is not yet supported.");
-
-  // A nested folder toggle leaves its group open.
-  await features.click();
-  const folder = tree.toggle("recall");
-  await folder.isExpanded(true);
-  await folder.click();
-  await folder.isExpanded(false);
-  await features.isExpanded(true);
-  await tree.hidesFile(recallPath);
-  await folder.click();
-  await folder.isExpanded(true);
+    .element(page.getByRole("heading", { name: "e2e_test", exact: true }))
+    .toBeVisible();
+  await tree.toggle("e2e_test").click();
+  expect(
+    locationHeader("e2e_test").getAttribute("data-intent-folder-cue"),
+  ).toBeNull();
+  expect(
+    locationHeader("packaged").getAttribute("data-intent-folder-cue"),
+  ).toBe("ancestor");
+  expect(
+    locationHeader(featuresPath).getAttribute("data-intent-folder-cue"),
+  ).toBe("root");
+  await expect
+    .element(page.getByRole("button", { name: featuresPath, exact: true }))
+    .toHaveAccessibleDescription("1 file");
+  expect(locationHeader(featuresPath).querySelector("code")?.textContent).toBe(
+    "features",
+  );
+  await tree.toggle(featuresPath).click();
+  expect(
+    locationHeader(featuresPath).getAttribute("data-intent-folder-cue"),
+  ).toBe("root");
 });
 
-test("with no story selected, full-width bold location headers stand apart from their rows; selection fills one header and expansion shows only in its toggle", async () => {
-  const tree = await mountGroups();
+test("Project Intent discloses roots independently and keeps Purpose when closing the selected file's root", async () => {
+  const tree = await mountProjectTree();
+  await tree.toggle("e2e_test").click();
   await tree.toggle(featuresPath).click();
   await tree.toggle("recall").click();
-  await tree.name(packagedPath).click();
-  await tree.name(packagedPath).isSelected(true);
+  const recall = await tree.openFile(recallPath);
+  await tree.toggle("packaged").click();
+  await tree.toggle(packagedPath).click();
   await tree.toggle(featuresPath).isExpanded(true);
-  await tree.toggle(packagedPath).isExpanded(false);
+  await expect.element(fileName(packagedFile)).toBeVisible();
+  await recall.shows("Feature: Recall a note");
+  await tree.toggle(featuresPath).click();
+  await tree.hidesFile(recallPath);
+  await tree.toggle(packagedPath).isExpanded(true);
+  await recall.shows("Feature: Recall a note");
+});
 
-  const transparent = "rgba(0, 0, 0, 0)";
-  const fileRow = fileName(recallPath).element();
-  const folderRow = document.querySelector(".story-review-folder-row");
-  expect(folderRow).not.toBeNull();
-  const rowBackgrounds = [folderRow as Element, fileRow].map(
-    (row) => getComputedStyle(row).backgroundColor,
+test("empty and unsupported roots remain selectable and explain their configuration in Summary", async () => {
+  const tree = await mountProjectTree();
+  await tree.name("empty_features").click();
+  await tree.toggle("empty_features").isExpanded(false);
+  await tree.summarizes("gherkin", "0 files", emptyNotice);
+  await tree.toggle("frontend").click();
+  await tree.name("frontend/src").click();
+  await tree.toggle("frontend/src").isExpanded(false);
+  await tree.summarizes(
+    "unfamiliar-language",
+    "0 files",
+    "Kind unfamiliar-language is not yet supported.",
   );
-  expect(rowBackgrounds).toEqual([transparent, transparent]);
-
-  const expanded = locationHeaderLook(featuresPath);
-  const selected = locationHeaderLook(packagedPath);
-  expect(expanded.background).not.toBe(transparent);
-  for (const path of ["empty_features", "frontend/src"])
-    expect(locationHeaderLook(path).background).toBe(expanded.background);
-  expect(selected.background).not.toBe(expanded.background);
-  expect(selected.background).not.toBe(transparent);
-  for (const path of [
-    featuresPath,
-    packagedPath,
-    "empty_features",
-    "frontend/src",
-  ]) {
-    const look = locationHeaderLook(path);
-    expect(look).toMatchObject({
-      mark: "none",
-      controlsShowHeader: true,
-      fullWidth: true,
-    });
-    expect(look.labelWeight).toBeGreaterThanOrEqual(600);
-  }
+  expect(
+    locationHeader("frontend/src").getAttribute("data-intent-folder-cue"),
+  ).toBe("root");
 });

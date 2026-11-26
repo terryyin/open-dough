@@ -96,7 +96,8 @@ test("a recorded location opens its file read at the shown revision in Purpose, 
   ).isSelected();
   await (
     await intentBrowser().showsFolderExpanded(pygardonFeatures.folder)
-  ).showsFolderExpanded("review/boundary");
+  ).showsFolderExpanded(at("review"));
+  await intentBrowser().showsFolderExpanded(at("review/boundary"));
 
   await candidates.choose();
   await userEvent.click(

@@ -50,6 +50,7 @@ test("Intent fills the height below the banner; the location browser meets the l
     reads: { intent, ci: unreadCiReads },
   });
   const tree = intentScopeTree();
+  await tree.toggle("e2e_test").click();
   await tree.toggle(featuresPath).click();
   await tree.toggle("area").click();
   await (await tree.openFile(longPath)).shows("Feature: Long");

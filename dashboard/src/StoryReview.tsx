@@ -123,7 +123,7 @@ export function StoryReview({
           subject={subject}
           headingId={headingId}
           browser={files}
-          onFileChosen={files.onFileChosen}
+          onFileChosen={files.onReadingChosen}
         />
       </div>
     </section>

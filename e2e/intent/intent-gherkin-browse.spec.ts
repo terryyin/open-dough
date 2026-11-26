@@ -3,6 +3,8 @@ import {
   sourceFile,
   sourceLineNumbers,
   sourceText,
+  openLocationSummary,
+  testConfiguration,
 } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent browses and reads configured Gherkin source at the observed revision
 // (../../dashboard/src/IntentPerspective.tsx): Doughnut-like and Pygardon-like locations,
@@ -21,7 +23,6 @@ import {
   expandIntentGroup,
   expectAddress,
   expectIntentGroupsCollapsed,
-  intentGroupToggle,
   purposeRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { intentModeTab } from "../../dashboard/test-support/intentModePage.ts";
@@ -59,13 +60,11 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
   await expect(
     intent.getByRole("heading", { name: "No story selected", exact: true }),
   ).toBeVisible();
-  await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
-  await expect(
-    intent.locator(
-      'button.intent-location-name[data-location-path="e2e_test/features"]',
-    ),
-  ).toContainText("gherkin");
   await expectIntentGroupsCollapsed(intent);
+  const config = testConfiguration(
+    await openLocationSummary(intent, "e2e_test/features"),
+  );
+  await expect(config).toContainText("gherkin");
 
   await test.step("selecting a nested feature shows exact text, line numbers and the observed revision", async () => {
     await expandIntentGroup(intent, "e2e_test/features");
@@ -134,10 +133,6 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     await expect(
       sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toHaveCount(0);
-    await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
-    await expect(
-      intentGroupToggle(intent, "e2e_test/packaged/features"),
-    ).toBeVisible();
     await expectIntentGroupsCollapsed(intent);
     await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
       "aria-selected",

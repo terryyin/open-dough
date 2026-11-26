@@ -2,6 +2,8 @@ import {
   fileSource,
   sourceLineText,
   sourceFile,
+  openLocationSummary,
+  testConfiguration,
 } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent code browse for locations declared by source entries with syntax
 // hints (../../dashboard/src/IntentPerspective.tsx): Doughnut's `scripts` holding Bash
@@ -15,7 +17,6 @@ import {
   expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
-  intentLocationName,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   colourOf,
@@ -78,24 +79,21 @@ test("Intent lists sources locations' Bash, Node and Java files, opens each with
   await intentChoice.click();
   await expectIntentGroupsCollapsed(intent);
 
-  await test.step("the header names the location's patterns with no kind", async () => {
-    const heading = intentLocationName(intent, "scripts");
-    await expect(heading).toHaveAccessibleName(
-      "scripts **/*.test **/*.test.mjs",
+  await test.step("Summary shows the sources patterns without a top-level kind", async () => {
+    const config = testConfiguration(
+      await openLocationSummary(intent, "scripts"),
     );
-    await expect(heading.locator("code")).toHaveText([
-      "scripts",
-      "**/*.test",
-      "**/*.test.mjs",
-    ]);
-    await expect(heading.locator(".intent-location-kind")).toHaveCount(0);
+    for (const [syntax, pattern] of [
+      ["shell", "**/*.test"],
+      ["javascript", "**/*.test.mjs"],
+    ] as const) {
+      const entry = config.getByRole("listitem").filter({ hasText: syntax });
+      await expect(entry.getByText(pattern, { exact: true })).toBeVisible();
+    }
   });
 
   await test.step("both kinds of test share one tree; a helper .mjs stays out", async () => {
     await expandIntentGroup(intent, "scripts");
-    await expect(
-      intent.getByLabel("**/*.test, **/*.test.mjs files under scripts"),
-    ).toBeVisible();
     await expandIntentFolders(intent, "scripts");
     await expect(sourceFile(intent, shellTest)).toBeVisible();
     await expect(sourceFile(intent, nodeTestPath)).toBeVisible();
@@ -154,8 +152,8 @@ test("Intent lists sources locations' Bash, Node and Java files, opens each with
   });
 
   await test.step("a sources location with no matching files names its patterns", async () => {
-    await expandIntentGroup(intent, "e2e");
-    await expect(intent.locator(".intent-location-problem")).toHaveText(
+    const summary = await openLocationSummary(intent, "e2e");
+    await expect(summary.locator(".intent-location-problem")).toHaveText(
       "No files matching **/*.check are published at e2e for this revision.",
     );
   });

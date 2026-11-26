@@ -16,20 +16,6 @@ export function declaredPatternsOf(
   return location.include ?? [];
 }
 
-// The kind a location names, or undefined for one declared by source entries.
-export function declaredKindOf(location: IntentLocation): string | undefined {
-  return "sources" in location ? undefined : location.kind;
-}
-
-// The location's selection in words: its kind and patterns, comma separated.
-export function selectionPhrase(location: IntentLocation): string {
-  const kind = declaredKindOf(location);
-  return [
-    ...(kind === undefined ? [] : [kind]),
-    ...declaredPatternsOf(location),
-  ].join(", ");
-}
-
 export function locationExplanation(location: IntentLocation): string {
   const patterns = declaredPatternsOf(location);
   if (!("sources" in location)) {

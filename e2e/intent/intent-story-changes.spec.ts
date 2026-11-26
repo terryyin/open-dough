@@ -183,7 +183,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(header.region).toHaveCount(0);
-    await expect(story.tree).toHaveCount(0);
+    await expect(story.tree).toBeVisible();
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
     // Intent now shows Project Intent, whose reading never borrowed the

@@ -141,10 +141,9 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
       ["b.spec.ts", "1 passed test case", "0 ms"],
     ]);
     await expectAncestorEvidence(summary, project.revision);
-    await expect(intentFolderName(intent, "folder")).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await expect(
+      intentFolderName(intent, "dashboard/tests/folder"),
+    ).toHaveAttribute("aria-pressed", "true");
   });
 
   await test.step("Enter on a child folder's name selects and reveals it with its own immediate children only", async () => {
@@ -160,10 +159,9 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
       ],
       ["c.spec.ts", "1 passed and 1 other test cases", "45 ms"],
     ]);
-    await expect(intentFolderName(intent, "nested")).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await expect(
+      intentFolderName(intent, "dashboard/tests/folder/nested"),
+    ).toHaveAttribute("aria-pressed", "true");
     await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
       "aria-expanded",
       "true",

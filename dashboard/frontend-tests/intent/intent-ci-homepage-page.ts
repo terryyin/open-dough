@@ -49,7 +49,7 @@ export function presentElement<T>(found: T | null | undefined): T {
 
 const locationRow = (locationPath: string) =>
   document.querySelector<HTMLElement>(
-    `.intent-location-header:has(> button[data-location-path="${CSS.escape(locationPath)}"]), li[data-folder-path="${CSS.escape(locationPath)}"] > [data-intent-folder-cue="root"]`,
+    `li[data-folder-path="${CSS.escape(locationPath)}"] > [data-intent-folder-cue="root"]`,
   );
 
 const locationNameElement = (locationPath: string) =>
@@ -70,18 +70,14 @@ async function disclose(toggle: HTMLButtonElement) {
   }
 }
 
-async function revealLocationAncestors(locationPath: string) {
-  const row = presentElement(locationRow(locationPath));
-  const ancestors: Element[] = [];
-  let item = row.closest("li[data-folder-path]");
-  while (
-    (item = item?.parentElement?.closest("li[data-folder-path]") ?? null)
-  ) {
-    ancestors.unshift(item);
-  }
-  for (const ancestor of ancestors) {
-    const ancestorRow = presentElement(ancestor.querySelector(":scope > div"));
-    await disclose(presentElement(rowToggle(ancestorRow)));
+export async function revealLocationAncestors(path: string) {
+  const parts = path.split("/");
+  for (let depth = 1; depth < parts.length; depth += 1) {
+    const ancestor = CSS.escape(parts.slice(0, depth).join("/"));
+    const row = presentElement(
+      document.querySelector(`li[data-folder-path="${ancestor}"] > div`),
+    );
+    await disclose(presentElement(rowToggle(row)));
   }
 }
 

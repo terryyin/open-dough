@@ -96,7 +96,7 @@ to
 
 Reported: slice 1 — "Trunk amendment f97792f9b requires Summary selection to expose the reader at phone width in both views."
 Story clause: "When Files is a drawer, choosing a configured Intent root or nested folder that opens Summary closes Files so the reader is immediately available."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `intent-files-drawer.spec.ts` opens Files and discloses a root before selecting its Summary and a nested Summary in both Project and Taken story readings, at 390 and 1280 pixels. It observes the selected Summary path and drawer or docked visibility after each choice.
 
 ### G2. Select an ancestor of empty Intent roots
 
@@ -274,7 +274,7 @@ Accepted proof (focused one-worker runs under `caffeinate -s -i`):
 ### 4. Browse Project Intent in the shared folder tree
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mounted Vitest Browser Mode Project Intent tree, cues, and candidate-open
 specs, the Files drawer and docked selection checks above, and E2E Project
 Intent journeys (`intent-code-browse*.spec.ts`,
@@ -299,6 +299,26 @@ Retire `IntentLocationGroup.tsx`, any remaining use of
 `story-review-files.css`, `change-kinds.css`, and `intent-ci-cues.css`. Update
 the direct header and exclusive-collapse tests to assert clean folder rows,
 ancestor/root cues, independent disclosure, and root configuration in Summary.
+
+Accepted proof (focused one-worker runs under `caffeinate -s -i`):
+
+- `intent-gherkin-groups.spec.ts` and `intent-entry-folder-summaries.spec.ts`
+  observe the shared Project tree with configured, empty, and unsupported
+  roots, its independent disclosure and selection, cues, counts, and Summary.
+  `intent-files-drawer.spec.ts` covers narrow and docked Summary selection in
+  both Project and story review, and its existing file actions still pass.
+- Scoped single-run and comparison proof, branch and revision labels, and
+  candidate return and exact ancestor reveal passed in mounted Chromium.
+  The final 15-case batch covered tree, drawer, and candidate observations.
+  Two ordinary Review drawer and two retained renderer cases also passed.
+- The independent refactor passed 23 mounted cases for the shared reveal
+  request, exact ancestor disclosure, Summary, and candidate return, plus
+  dashboard typecheck. See `refactor-4-report.md` in the same Git evidence.
+- Nineteen distinct E2E cases passed for Project and story navigation,
+  configuration in Summary, CI and file drill-down, candidates, and
+  accepted-revision reading. Dashboard typecheck passed. See
+  `slice-4-report.md` and `slice-4-*.log.run.json` in Git
+  `open-dough/evidence` for literal commands, setup, and test locations.
 
 ## Verification and plan review
 

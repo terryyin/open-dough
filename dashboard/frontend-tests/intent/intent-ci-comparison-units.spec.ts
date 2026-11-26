@@ -61,7 +61,7 @@ test("with case and file units, the location tree, location and folder Summary a
   await expect
     .element(tree.getByRole("button", { name: new RegExp(`^${entry}, `) }))
     .toHaveAccessibleName(
-      `${entry}, typescript, **/*.spec.ts, 5 → 6 test cases (+1) → 7 test cases (+2), +10.0 s; ${files}, 0 ms`,
+      `${entry}, 5 → 6 test cases (+1) → 7 test cases (+2), +10.0 s; ${files}, 0 ms`,
     );
   await tree.getByRole("button", { name: "Expand folder" }).click();
   const file = tree.getByRole("button", { name: new RegExp(`^${modified}, `) });

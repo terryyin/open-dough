@@ -171,6 +171,7 @@ test("tree files and Intent root rows show shared CI cues with distinct selectio
       }),
     )
     .toBeVisible();
+  await scopeToggle("dashboard").click();
   await expect.element(scopeName(location)).toBeVisible();
   expect(
     intentPage

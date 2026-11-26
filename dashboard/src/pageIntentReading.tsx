@@ -1,8 +1,8 @@
 // The Intent reading place of the project the page shows: what is selected
 // (`./intentWorkspaceSelection.ts`), the record entry to return to, the reveal
 // round, Purpose/Proof choice (`./IntentFileReading.tsx`), the reading pane's
-// scroll offset, and the tree's arrangement: the expanded location, each
-// location's open folders (`./useLocationOpenFolders.ts`), the last reveal
+// scroll offset, and the tree's arrangement: open folders
+// (`./useIntentOpenFolders.ts`), the last reveal
 // request, and **Selected story only** with the expansion it asked for
 // (`./useIntentStoryTree.ts`). Disposable page state (ADR 0008), in memory
 // only, kept by the page (`./PageFrame.tsx`) beside the chosen mode

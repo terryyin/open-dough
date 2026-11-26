@@ -5,6 +5,10 @@ import { expect, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
 import { activateButton } from "../page-objects/activateButton.ts";
+import {
+  locationNameDrawn,
+  revealLocationAncestors,
+} from "./intent-ci-homepage-page.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
 
 // The disclosure toggle of the location or folder at `path`.
@@ -75,20 +79,34 @@ export function intentBrowser() {
     },
     // Opens the file, expanding its folder when collapsed.
     async open(path: string) {
-      const toggle = scopeToggle(path.slice(0, path.lastIndexOf("/")));
-      await expect.element(toggle).toBeVisible();
-      if (toggle.element().getAttribute("aria-expanded") === "false")
-        await userEvent.click(toggle);
+      await expect
+        .poll(
+          () =>
+            document.querySelector(
+              `button[data-repository-path="${CSS.escape(path)}"]`,
+            ) !== null,
+        )
+        .toBe(true);
+      await revealLocationAncestors(path);
       await userEvent.click(fileName(path));
       return intentFileReading(path);
     },
     async showsFolderExpanded(path: string) {
       await expect
-        .element(scopeToggle(path))
-        .toHaveAttribute("aria-expanded", "true");
+        .poll(() => {
+          const toggle = document.querySelector(
+            `li[data-folder-path="${CSS.escape(path)}"] > div > button[aria-expanded]`,
+          );
+          return toggle?.checkVisibility()
+            ? toggle.getAttribute("aria-expanded")
+            : null;
+        })
+        .toBe("true");
       return browser;
     },
     async showsLocation(path: string) {
+      await locationNameDrawn(path);
+      await revealLocationAncestors(path);
       await expect.element(scopeName(path)).toBeVisible();
       return browser;
     },

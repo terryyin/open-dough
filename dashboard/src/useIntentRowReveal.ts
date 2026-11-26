@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { revealRow } from "./StoryReviewFileMoves.tsx";
-import type { TreeReveal } from "./useLocationOpenFolders.ts";
+import type { TreeReveal } from "./useIntentOpenFolders.ts";
 
 export function useIntentRowReveal(request: TreeReveal | undefined) {
   const section = useRef<HTMLElement>(null);

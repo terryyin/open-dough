@@ -26,7 +26,7 @@ import type { PublishedSource } from "./publishedSource.ts";
 import { intentStoryPathAttributes } from "./storyCardFocus.ts";
 import { useFirstStoryChangedFile } from "./useFirstStoryChangedFile.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
-import type { TreeReveal } from "./useLocationOpenFolders.ts";
+import type { TreeReveal } from "./useIntentOpenFolders.ts";
 import type { ComparedStory, StorySummary } from "./IntentStorySummary.tsx";
 import type { StoryResultBrowse } from "./useStoryResultRead.tsx";
 
@@ -77,10 +77,6 @@ export function IntentBrowser({
   const [returnEntrySlug, setReturnEntrySlug] = useKeptReading<
     string | undefined
   >("returnEntrySlug", () => undefined);
-  const [expandedPath, setExpandedPath] = useKeptArrangement<string | null>(
-    "expandedPath",
-    () => null,
-  );
   const [reveal, setReveal] = useKeptArrangement<TreeReveal | undefined>(
     "reveal",
     () => undefined,
@@ -100,14 +96,9 @@ export function IntentBrowser({
     project?.onModeChange("ci");
   }
 
-  function revealInTree(path: string, location: string | undefined) {
-    if (location !== undefined) setExpandedPath(location);
-    setReveal({ path });
-  }
-
   function moveTo(path: string) {
     select({ path, scope: "file" });
-    revealInTree(path, undefined);
+    setReveal({ path });
     fileReading.readingArea.current?.scrollTo({ top: 0 });
   }
 
@@ -120,7 +111,7 @@ export function IntentBrowser({
     );
     fileReading.setTab("purpose");
     setRevealedOpens((n) => n + 1);
-    revealInTree(target.path, owningLocation(locations, target)?.path);
+    setReveal({ path: target.path });
   }
   useFirstStoryChangedFile({
     project: source.id,
@@ -145,11 +136,13 @@ export function IntentBrowser({
           selection={treeSelection}
           onSelect={(next) => {
             select(next);
-            if (next.scope === "file") files.onFileChosen();
+            if (
+              next.scope === "file" ||
+              owningLocation(locations, next) !== undefined
+            )
+              files.onReadingChosen();
           }}
           reveal={reveal}
-          expandedPath={expandedPath}
-          onExpandedPath={setExpandedPath}
         />
       </div>
       <div
