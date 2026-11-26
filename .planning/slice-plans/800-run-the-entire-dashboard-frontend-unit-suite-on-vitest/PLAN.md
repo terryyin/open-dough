@@ -187,7 +187,7 @@ for slice 5.
 ### 5. Documentation, CI and output settings name only the Vitest frontend runner
 
 Type: Structure
-Status: planned
+Status: done
 
 Update `dashboard/frontend-tests/README.md`, the North Star topic's
 "still to retire" wording,
@@ -209,7 +209,10 @@ every `browser-test-group.yml` step is shared, and the kept Vitest
 `test-results/` still uploads on failure. Lint, typecheck and the CI-structure
 tests pass. `groupFiles(frontendGroup, split)` selects 329, 215 and 114
 files for unsplit, `1/2` and `2/2`, with no overlap, missing or extra file.
-Branch CI is pending on the published revision.
+Branch CI run 45802037367 on `0e2b7139` passed both `dashboard-frontend`
+shards. It published `dashboard-frontend-times-1` and `-2` for
+`ci-shard-balance`, frontend proof fragments for both parts,
+`frontend-test-proof-attempt-1`, and a green `ci-proof`.
 
 ### 6. Mounted Dashboard reads use their supplied readers
 
