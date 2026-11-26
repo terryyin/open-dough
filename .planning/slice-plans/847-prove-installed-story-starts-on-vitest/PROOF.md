@@ -186,6 +186,8 @@ original attempt and dispatch, and its refusal preserves origin and the
 kept state with no dispatch. See `847-s7-return.md`.
 The independent refactor removed the unused HTTP retry and kept-start
 test exports after tracing their last callers. See `847-s7-refactor-return.md`.
+Published as `daa4334d4f2f994a6936ec06433621f110740863` on the story branch,
+above `419e10dc658e13406c4b7fa7b27c51a5097eb000`, with CI unobserved.
 
 ## Final local gate
 
@@ -210,3 +212,11 @@ case remained above the 100 ms reference.
 The separate E2E gate passed the seven retained cases and the added
 Codex execution restart. See the case and command records in the checkout's
 Git evidence directory under `847-final-backend` and `847-final-e2e`.
+
+The retrospective reproduced a focused selector defect in the execution
+model cases. The runner looked for a literal parameter placeholder and
+skipped both. The two cases now register with their literal display names
+and share the same assertion body. The case filter passed two Node cases,
+and the full file passed all four in `847-review-literal-names.json` and
+`847-review-full-file-repaired.json`. Their assertions and the scope of the
+campaign gate are unchanged.

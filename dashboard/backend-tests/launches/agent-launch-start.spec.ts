@@ -10,6 +10,7 @@ import { localFolder, type LocalFolder } from "../../server/localFolder.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import { startStore, type StartStore } from "../../server/startStore.ts";
 import { startOf, type StoryStartInputs } from "../../server/startWorkflows.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
 import {
   queuedIdentity,
   queuedTitle,
@@ -36,13 +37,14 @@ beforeAll(async () => {
   }
 });
 
-const test = base.extend<{
+type StartFixture = {
   origin: StartOrigin;
-  home: string;
   folder: LocalFolder;
   store: StartStore;
   inputs: StoryStartInputs;
-}>({
+};
+
+const test = base.extend<StartFixture & { home: string }>({
   // Vitest requires a destructured fixture argument even with no dependencies.
   // eslint-disable-next-line no-empty-pattern
   origin: async ({}, use) => {
@@ -72,75 +74,83 @@ const test = base.extend<{
   },
 });
 
-test.for([
-  { model: "opus", request: namedRequest },
-  { model: "Default", request: defaultRequest },
-])(
-  "publishes the Take and keeps the handoff ($model model)",
-  async ({ request }, { origin, folder, store, inputs }) => {
-    const result = await started(
-      source,
-      request,
-      folder,
-      new StartProgress(),
-      inputs,
-      "start-attempt",
-    );
+async function expectPublishedTake(
+  request: AgentLaunchRequest,
+  { origin, folder, store, inputs }: StartFixture,
+) {
+  const result = await started(
+    source,
+    request,
+    folder,
+    new StartProgress(),
+    inputs,
+    "start-attempt",
+  );
 
-    if (
-      result.kind !== "established" ||
-      !("start" in result.handoff.established)
-    )
-      throw new Error(
-        `Expected an established execution start: ${JSON.stringify(result)}`,
-      );
-    const start = result.handoff.established.start;
-    const branch = "claude/prepare-the-queued-start";
-    const workspace = path.join(
-      origin.project,
-      ".worktrees",
-      "prepare-the-queued-start",
+  if (result.kind !== "established" || !("start" in result.handoff.established))
+    throw new Error(
+      `Expected an established execution start: ${JSON.stringify(result)}`,
     );
-    const publishedSha = (await origin.originGit("rev-parse", "main")).trim();
-    const profiles = await origin.takenProfiles();
-    expect(profiles).toEqual([
-      expect.objectContaining({
-        identity: queuedIdentity,
-        host: "claude",
-        mode: "story-branch",
-        branch,
-      }),
-    ]);
-    expect(profiles[0]?.["model"]).toBe(request.model);
-    expect((await origin.originGit("rev-parse", branch)).trim()).toBe(
-      publishedSha,
-    );
-    expect("publisherId" in start && start.publisherId).toMatch(
-      /^dashboard-.+-open-dough$/,
-    );
-    expect(start).toMatchObject({
+  const start = result.handoff.established.start;
+  const branch = "claude/prepare-the-queued-start";
+  const workspace = path.join(
+    origin.project,
+    ".worktrees",
+    "prepare-the-queued-start",
+  );
+  const publishedSha = (await origin.originGit("rev-parse", "main")).trim();
+  const profiles = await origin.takenProfiles();
+  expect(profiles).toEqual([
+    expect.objectContaining({
       identity: queuedIdentity,
-      workspace,
-      branch,
+      host: "claude",
       mode: "story-branch",
-      remote: "origin",
-      target: "main",
-      publishedSha,
-    });
-    expect(result.workspace.path).toBe(workspace);
-    expect(existsSync(workspace)).toBe(true);
-    expect(result.handoff.formatted.split("\n")).toEqual(
-      expect.arrayContaining([
-        "Established start:",
-        `- identity: ${queuedIdentity}`,
-        `- workspace: ${workspace}`,
-        `- branch: ${branch}`,
-        `- publishedSha: ${publishedSha}`,
-      ]),
-    );
-    expect((await store.kept(source.id, queuedIdentity))?.start).toEqual(start);
-  },
-);
+      branch,
+    }),
+  ]);
+  expect(profiles[0]?.["model"]).toBe(request.model);
+  expect((await origin.originGit("rev-parse", branch)).trim()).toBe(
+    publishedSha,
+  );
+  expect("publisherId" in start && start.publisherId).toMatch(
+    /^dashboard-.+-open-dough$/,
+  );
+  expect(start).toMatchObject({
+    identity: queuedIdentity,
+    workspace,
+    branch,
+    mode: "story-branch",
+    remote: "origin",
+    target: "main",
+    publishedSha,
+  });
+  expect(result.workspace.path).toBe(workspace);
+  expect(existsSync(workspace)).toBe(true);
+  expect(result.handoff.formatted.split("\n")).toEqual(
+    expect.arrayContaining([
+      "Established start:",
+      `- identity: ${queuedIdentity}`,
+      `- workspace: ${workspace}`,
+      `- branch: ${branch}`,
+      `- publishedSha: ${publishedSha}`,
+    ]),
+  );
+  expect((await store.kept(source.id, queuedIdentity))?.start).toEqual(start);
+}
+
+test("publishes the Take and keeps the handoff (opus model)", ({
+  origin,
+  folder,
+  store,
+  inputs,
+}) => expectPublishedTake(namedRequest, { origin, folder, store, inputs }));
+
+test("publishes the Take and keeps the handoff (Default model)", ({
+  origin,
+  folder,
+  store,
+  inputs,
+}) => expectPublishedTake(defaultRequest, { origin, folder, store, inputs }));
 
 test("refuses to publish to an origin outside the catalog project", async ({
   origin,
