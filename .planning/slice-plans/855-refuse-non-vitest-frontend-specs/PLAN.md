@@ -162,3 +162,10 @@ frontend shards, timings and proof publication.
   frontend test proof. Retained diagnostics included
   `dashboard-frontend-failure-output-1`, all three backend `failure-output`
   artifacts and all six E2E `failure-output` artifacts.
+
+## Execution complete
+
+Product advice: No change. The baseline and delivered observations establish
+that the frontend runner now reports selections it cannot run, and its CI
+proof remains available. The current Dashboard test renovation priorities
+still apply.
