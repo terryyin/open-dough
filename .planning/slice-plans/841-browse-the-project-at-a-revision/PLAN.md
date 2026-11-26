@@ -84,7 +84,7 @@ the consumers and repository operations this plan uses.
 | --- | --- |
 | `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/intent/authenticated-read-intent-locations.spec.ts dashboard/backend-tests/intent/authenticated-read-intent-selection.spec.ts dashboard/backend-tests/review/story-review-published-taken.spec.ts --workers=1 --reporter=line` | 7 location cases and 7 Vitest published-review cases passed. A matched path reads at its pin, and the generic route refuses a nonmatching neighbor. A named published pair retained its exact file after origin moved, without another remote request. A locally present unpublished commit and an unlisted path were refused. Slice 1 proves the new project admission separately and leaves this `file-at` admission unchanged. |
 | Node ESM in this worktree, importing `runGit` and `textAtTree`. For `d31aee723^` and `d31aee723`, used `rev-parse <revision>^{tree}`, `ls-tree -r -z <tree>` and `textAtTree(cwd, tree, "dashboard/src/IntentBrowser.tsx", signal)`, comparing each result with `git show <revision>:dashboard/src/IntentBrowser.tsx`. | The trees beginning `cd33d814a1d5` and `705a5e80ebff` listed 7,586 and 7,588 blob paths, both including root `README.md` and the selected source. Text matched the respective Git object and differed between revisions (9,131 and 8,485 bytes). A repository hierarchy and source can use the same local pin. |
-| `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-revision-apply.spec.ts dashboard/frontend-tests/intent/intent-source-target-recovery.spec.ts dashboard/frontend-tests/intent/intent-project-scope-glance.spec.ts dashboard/frontend-tests/intent/intent-project-visit-selection.spec.ts` | 6 passed. A later revision waited for **Show latest**, the old reading survived a held or failed source answer, and a removed selection cleared its source and explained its absence. Clearing a story showed the project CI view. `useIntentLocations` already keeps the shown locations while the next revision is read. Slice 5 gives the new inventory that same hold and advances only when the inventory and settings are one revision. |
+| `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-revision-apply.spec.ts dashboard/frontend-tests/intent/intent-source-target-recovery.spec.ts dashboard/frontend-tests/intent/intent-project-scope-glance.spec.ts dashboard/frontend-tests/intent/intent-project-visit-selection.spec.ts` | 6 passed. A later revision waited for **Show latest**, the old reading survived a held or failed source answer, and a removed selection cleared its source and explained its absence. Clearing a story showed the project CI view. `useIntentLocations` already keeps the shown locations while the next revision is read. Slice 6 gives the new inventory that same hold and advances only when the inventory and settings are one revision. |
 | `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/intent/intent-code-browse-projects.spec.ts e2e/intent/intent-file-purpose-proof.spec.ts e2e/intent/intent-project-visit-ci.spec.ts --workers=1 --reporter=line` | 3 passed (19.5s). The browse journey still lists matched tests and omits product and support files. File Purpose and Proof survived moving among tests. The project CI visit checked the routed trunk and story heads, kept the file browser on the published revision while trunk judgments advanced, and **Show latest** moved the browser onto the already judged trunk revision. |
 
 ## Outside-in proof
@@ -94,7 +94,7 @@ the consumers and repository operations this plan uses.
 | Inventory and literal text use the same admitted published revision. A newer target, a locally present unpublished object, an absent path, and a nontext blob get their distinct outcomes. | 1. Route a configured project to a real origin with two differing commits, a literal path with spaces, a removed file, and an unrelated unpublished commit. Assert the full path set and exact texts, one shared cold sync through `syncedReviewRepository`, reuse on path navigation, and no change to the legacy `file-at` admission. |
 | The default tree lists production source, documents, and tests. Regular and Intent folders use the shared selection behavior. The filter narrows mixed folders and keeps location cues. A no-locations project opens a tracked document. | 3. Mount Project Intent with mixed tracked paths and distinct configured/unconfigured answers, verifying the filter, selection, and no-locations cases. 4. Extend a real-origin browser journey to open the actual source. |
 | Test Proof names the measured build, an ordinary file has an honest missing-evidence explanation, and **Home** restores the existing project overview with the filter kept. | 4. Compare the rendered file Proof and CI overview using the same fixture's measured build and CI change. Assert Home while the filter is on and confirm the same build and change on return. |
-| Path navigation keeps the shown pin. **Show latest** advances tree/settings/source coherently, explains deletion, and keeps the old usable reading if an inventory update is held or fails. | 5. Hold and fail the new inventory answer while the new locations answer independently, then retry. Assert A stays usable until B's matching data is available, B reads exact replacement source, and a path removed at B has no stale text. Resolve an obsolete request after navigation and check that it cannot replace the active reading. |
+| Path navigation keeps the shown pin. **Show latest** advances tree/settings/source coherently, explains deletion, and keeps the old usable reading if an inventory update is held or fails. | 6. Hold and fail the new inventory answer while the new locations answer independently, then retry. Assert A stays usable until B's matching data is available, B reads exact replacement source, and a path removed at B has no stale text. Resolve an obsolete request after navigation and check that it cannot replace the active reading. |
 
 ## Slices
 
@@ -208,7 +208,7 @@ Delivered: the second test in
 opens production, document and test source at A while B is available, over
 the A/B history in
 [intentProjectSourceFixtures.ts](../../../dashboard/test-support/intentProjectSourceFixtures.ts),
-which slice 5 can reuse. An ordinary project file's Proof uses the existing
+which slice 6 can reuse. An ordinary project file's Proof uses the existing
 "declares no entry holding <path>" wording. After trunk moves, the CI
 overview judges B while the browser stays at A.
 
@@ -217,7 +217,20 @@ changed): the combined slice needed fixture migration, a whole-project
 branch, a file-size extraction and a new journey, which did not fit one
 15-minute slice. Slices 2–4 replace it.
 
-### 5. Keep the current reading until Show latest can replace it
+### 5. Answer the project tree in every mounted Project Intent fixture
+
+Type: Structure
+Status: planned
+Proof: `npm run typecheck:dashboard` and the mounted intent, navigation and
+configuration suites, unchanged in behavior.
+
+Nineteen of the 22 fixtures built through `makeMe.anIntentReadSource` never
+answer `readProjectTree`, so their tree falls back to the configured location
+files. Add a MakeMe step that answers the tree from the case's own location
+files without calling `readLocations` again (read-count specs depend on
+that), and move those fixtures onto it. Nothing visible changes.
+
+### 6. Keep the current reading until Show latest can replace it
 
 Type: Behavior
 Status: planned
@@ -235,6 +248,20 @@ independent of the browsing filter. Reuse the existing source transition
 and missing-path views. A retained path reads the new blob, and a removed
 path clears its old source.
 
+Today `useIntentLocations` moves `shownRevision` to B once B's settings
+settle, and `useProjectTreeRead` reads only at `shownRevision`. Read the tree
+at the reading revision and advance the shown pair only when both answers
+are at B, taking A's locations from `keptIntentLocationsAt`. Keep this
+pairing in project scope, because `useShownIntentLocations` also serves story
+pages. Route an update failure to `IntentRevisionNotice`'s failed update and
+Retry, and a first-open failure to the Retry `settledLocationsOf` offers,
+replacing the alert in `useProjectTreeRead.tsx`. On first open, show a
+pending state instead of a location-files tree.
+
+Learning from the first slice-5 attempt (1.2 active minutes, nothing
+changed): ending the interim tree turns an unanswered fixture read into a
+pending state, so the fixture migration became its own Structure slice.
+
 ## Consumer trace and local gates
 
 - Recheck the shipped supplier paths before editing. Keep one revision-pinned
@@ -250,7 +277,7 @@ path clears its old source.
   `dashboard/server/authenticatedRead.ts` 241, and
   `dashboard/server/requestedRead.ts` 233. Route the new handler through a
   cohesive project-read module in slice 1. Keep the project inventory
-  lifecycle with the project reading in slices 3 and 5. Preserve shared
+  lifecycle with the project reading in slices 3 and 6. Preserve shared
   source, selection and proof rendering and keep edited files within the
   project file-size check.
 - Run each slice's focused tests, `npm run typecheck:dashboard` for changed
@@ -261,22 +288,22 @@ path clears its old source.
   Dough Post-change Refactor before each slice commit.
 - Refined during execution: the original slice 2 was split into slices
   2–4 (reader and fixture structure, whole-project tree and source, real
-  journey with Proof and Home). Five slices fit the eight-slice cap, and
-  each now has one proof loop within the 15-active-minute budget. Locations
-  already hold their previous answer, so the plan does not replace the tree
-  with an updating state before slice 5.
+  journey with Proof and Home), and the original slice 3, later 5, into
+  slices 5–6 (fixture tree answers, then the Show latest hold). Six slices
+  fit the eight-slice cap, and each has one proof loop within the
+  15-active-minute budget. No slice has overrun.
 
 ## Story obligations
 
 ### G1. Project tree shows only location files while its inventory is unread
 Reported: slice 3 — "While the paths are not read, the browser lists the configured location files; a failed read says why and offers Retry."
 Story clause: "List the published repository's tracked paths by default"
-Disposition: interim until slices 5
+Disposition: interim until slices 6
 
 ### G2. Project tree read failure and Retry are unobserved and use a new surface
 Reported: slice 3 — "Untested: the error message and Retry shown when the project tree read fails (in useProjectTreeRead.tsx)."
 Story clause: "If the new inventory cannot be read, the current reading remains usable while the developer retries."
-Disposition: receiving slice 5
+Disposition: receiving slice 6
 
 ### G3. Optimization Candidates lost its no-locations explanation
 Reported: slice 3 — "the Optimization Candidates view shows its panel instead of the explanation"
