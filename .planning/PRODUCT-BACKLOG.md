@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [with the new distribution installation, …](seeds/SEED-444-ad-hoc-work.md#ad-hoc-work) — SEED-444#ad-hoc-work
-
 ## Backlog list
 
 - [Share completed Intent review response watching across E2E specs](seeds/SEED-420-unified-intent-review.md#share-completed-intent-review-response-watching) — SEED-420#share-completed-intent-review-response-watching
