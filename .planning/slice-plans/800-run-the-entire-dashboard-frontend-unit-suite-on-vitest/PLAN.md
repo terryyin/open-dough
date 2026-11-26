@@ -202,6 +202,15 @@ fragments feed `ci-shard-balance` and `ci-proof` respectively. Keep the CI
 browser install and cache for mounted Chromium and the shared upload
 contract for E2E and backend.
 
+**Local proof.** The README and North Star name only the Vitest frontend
+runner. The frontend `playwright-report/` ignore and an orphaned
+`terminalSubstituteApplication.ts` are gone. The workflows needed no change:
+every `browser-test-group.yml` step is shared, and the kept Vitest
+`test-results/` still uploads on failure. Lint, typecheck and the CI-structure
+tests pass. `groupFiles(frontendGroup, split)` selects 329, 215 and 114
+files for unsplit, `1/2` and `2/2`, with no overlap, missing or extra file.
+Branch CI is pending on the published revision.
+
 ### 6. Mounted Dashboard reads use their supplied readers
 
 Type: Structure
