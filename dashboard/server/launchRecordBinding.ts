@@ -1,6 +1,6 @@
 // Binding takes the attempt lock before the record lock, like completion delivery.
 import { completionClosure, returnedOutcome } from "./completionClosure.ts";
-import { doneSessionRecord, type NativeDoneMarks } from "./doneMarks.ts";
+import { doneSessionRecord, type ReportedDone } from "./doneMarks.ts";
 import { type CompletionReport } from "../src/completionReport.ts";
 import { withKeptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
@@ -18,7 +18,7 @@ import { noteSharedCheckouts } from "./sharedCheckoutNotes.ts";
 export async function keepRecord(
   sourceId: string,
   record: LaunchRecord,
-  doneMarks: NativeDoneMarks,
+  doneMarks: ReportedDone,
 ): Promise<void> {
   const earlyReport = await bindRecord(sourceId, record);
   try {

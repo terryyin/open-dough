@@ -122,12 +122,27 @@ the findings below.
   `publishedReview()`) leaves `feedbackMaintenanceCheck.ts` as its own
   module. The read's failure paths are tested at that module.
 
+## Execution context
+
+- Story Branch Mode. Published Take `30000855dabe3893b6bacedefe9b091288c7337e`,
+  starting at `9063489578dce292132da71da99337178bbffcdb`. The established start
+  reported Changed since readiness review. The story scope and plan still agree.
+- Owned Dashboard worktree `.worktrees/restore-dropped-session-workspace-proof-in-node`,
+  branch `codex/restore-dropped-session-workspace-proof-in-node`, publisher
+  `dashboard-territory.local-open-dough`, agent Kaoru-chan. Integration checkout
+  `/Users/terryyin/git/open-dough`, target `origin/main`.
+- Ordinary publication and GitHub Actions `ci.yml` observation follow the remote
+  execution branch. Codex coordinator `seed-413-854-a3f5b09a`, mailbox
+  `/tmp/dough-ci-501/watch-jekBo8`, cell `g620:10`, session `13436`, PID `9831`.
+- Locked `npm ci`, Dashboard typecheck, and the Chromium prerequisite check
+  passed in the owned checkout. No new replanning permission was selected.
+
 ## Ordered slices
 
 ### 1. Share the attempt run contract instead of repeating its setup
 
 Type: Structure
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Removes finding 6's repeated attempt-run setup, branching bodies and
@@ -143,6 +158,16 @@ recomposition.
 Proof. The eight `attemptRun` specs pass on one worker with unchanged case
 observations and counts, aside from split cases. Typecheck and eslint are
 clean, and each touched file is at most 250 lines after Prettier.
+
+Outcome (9.2 active minutes). The eight Node specs retained all 22 baseline
+cases and passed alongside the existing two worker-settlement cases. The
+isolated Start and second-server Chromium journeys passed and observed the
+durable publication receipt and both worker steps through the production
+adapter. Admission and interruption cases use three-second polling budgets
+inside the default five-second tests. The competing-claim spec formatted to
+222 lines, and all affected files formatted to at most 250. Dashboard typecheck
+and targeted ESLint passed. Independent refactoring reused the worktree reader
+and a stateless Done substitute. Its eight affected cases and typecheck passed.
 
 ### 2. Restore the kept-start continuation observations
 

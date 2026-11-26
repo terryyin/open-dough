@@ -12,10 +12,9 @@ import { promisify } from "node:util";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { NativeDoneMarks } from "../../server/doneMarks.ts";
-import { attemptRun } from "../../server/launchRun.ts";
-import { machineFolder } from "../../server/localFolder.ts";
+import { attemptRun, type AttemptRunServices } from "../../server/launchRun.ts";
 import type { NativeDispatch } from "../../server/nativeSessionRun.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import type {
@@ -35,8 +34,14 @@ import { worktree } from "../../test-support/support/startSessionLanding.ts";
 const exec = promisify(execFile);
 const source = makeMe.aPublishedSource.openDough.please();
 const repository = queuedReadyRepository().please();
-const workspaces = ["isolated", "default-checkout"] as const;
-type Workspace = (typeof workspaces)[number];
+const workspaces = [
+  {
+    workspace: "isolated",
+    openedIn: (project: string) => worktree(project, "held-admission"),
+  },
+  { workspace: "default-checkout", openedIn: (project: string) => project },
+] as const;
+type Workspace = (typeof workspaces)[number]["workspace"];
 
 type Dispatched = {
   readonly request: RecordedLaunchRequest;
@@ -46,7 +51,6 @@ type Dispatched = {
 
 let origin: StartOrigin;
 let unmount: () => void;
-let marks: NativeDoneMarks;
 let dispatched: Dispatched[];
 let runs: Promise<LaunchResult>[];
 
@@ -85,16 +89,10 @@ beforeEach(async () => {
   // Kept attempts, starts and records live in this test's own machine.
   vi.stubEnv("HOME", path.join(origin.machine, "home"));
   unmount = mountProjectConfiguration("production");
-  marks = new NativeDoneMarks({
-    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
-    hostFor: () => undefined,
-    reportingFolder: machineFolder,
-  });
 });
 
 afterEach(async () => {
   await Promise.allSettled(runs);
-  await marks.close();
   unmount();
   vi.unstubAllEnvs();
   origin.cleanup();
@@ -102,60 +100,46 @@ afterEach(async () => {
 
 const attemptFor = (title: string, workspace: Workspace) =>
   makeMe.anAcceptedAttempt
-    .requesting(
-      makeMe.aLaunchRequest
-        .adHoc()
-        .withInstruction(title)
-        .withPolicy({ workspace, landing: "review" })
-        .please(),
-    )
-    .acceptedAt(new Date().toISOString())
+    .adHocStart({ workspace, landing: "review" }, { instruction: title })
     .please();
 
 function run(
   attempt: ReturnType<typeof attemptFor>,
-  notePublication: (receipt: PublicationReceipt) => Promise<void> = () =>
-    Promise.resolve(),
+  notes: AttemptRunServices["notes"] = {},
 ) {
-  const note = () => Promise.resolve();
   const running = attemptRun(
     source,
+    new OwnedAttempts().own(attempt.request, attempt),
     {
-      request: attempt.request,
-      attempt,
-      controller: new AbortController(),
-      changes: 0,
+      progress: new StartProgress(),
+      doneMarks: { reported: vi.fn() },
+      native,
+      notes,
     },
-    notePublication,
-    note,
-    note,
-    { progress: new StartProgress(), doneMarks: marks, native },
   );
   runs.push(running);
   return running;
 }
 
-const cwdOf = (workspace: Workspace, slug: string) =>
-  workspace === "isolated" ? worktree(origin.project, slug) : origin.project;
-
-for (const workspace of workspaces) {
+for (const { workspace, openedIn } of workspaces) {
   test(`a ${workspace} Start dispatches nothing while its admission is held and then opens on the published Taken story`, async () => {
     const title = "Held admission";
     const before = await originMain();
     const hold = origin.holdPushes();
     const result = run(attemptFor(title, workspace));
 
-    await vi.waitFor(
-      () => {
-        expect(hold.isHeld()).toBe(true);
-      },
-      {
-        timeout: 30_000,
-      },
-    );
-    expect(dispatched).toEqual([]);
-    expect(await originMain()).toBe(before);
-    hold.release();
+    try {
+      await vi.waitFor(
+        () => {
+          expect(hold.isHeld()).toBe(true);
+        },
+        { timeout: 3_000 },
+      );
+      expect(dispatched).toEqual([]);
+      expect(await originMain()).toBe(before);
+    } finally {
+      hold.release();
+    }
 
     expect(await result).toMatchObject({ kind: "launched" });
     const published = await admittedStory(origin, title);
@@ -164,7 +148,7 @@ for (const workspace of workspaces) {
         request: expect.objectContaining({
           storyIdentity: published.identity,
         }) as unknown,
-        cwd: cwdOf(workspace, "held-admission"),
+        cwd: openedIn(origin.project),
         originMain: published.revision,
       },
     ]);
@@ -197,9 +181,10 @@ for (const workspace of workspaces) {
   test(`a ${workspace} Start whose publication reply was lost reconciles that claim on Continue`, async () => {
     const title = "Retry admission";
     const attempt = attemptFor(title, workspace);
-    const lost = await run(attempt, () =>
-      Promise.reject(new Error("Cannot write the publication receipt")),
-    );
+    const lost = await run(attempt, {
+      publication: () =>
+        Promise.reject(new Error("Cannot write the publication receipt")),
+    });
     const published = await admittedStory(origin, title);
 
     expect(lost).toMatchObject({
@@ -215,7 +200,9 @@ for (const workspace of workspaces) {
     const noted = vi.fn<(receipt: PublicationReceipt) => Promise<void>>(() =>
       Promise.resolve(),
     );
-    expect(await run(attempt, noted)).toMatchObject({ kind: "launched" });
+    expect(await run(attempt, { publication: noted })).toMatchObject({
+      kind: "launched",
+    });
     expect(noted).toHaveBeenCalledWith({
       kind: "published",
       identity: published.identity,

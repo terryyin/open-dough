@@ -17,10 +17,7 @@ import { LaunchRequestBuilder } from "./launchRequestTestData.mjs";
 /** @typedef {import("./launchRequestTestData.mjs").IncomingStoryFacts} IncomingStoryFacts */
 /** @typedef {import("./launchRequestTestData.mjs").IncomingAdHocFacts} IncomingAdHocFacts */
 
-// One accepted attempt. Choose its request; it is otherwise accepted at a
-// fixed instant under a fixed ID, has published nothing, and has not settled.
-// Nothing settles it but a stated outcome or completed report, and no
-// settlement time is implied by either.
+// By default an attempt has a fixed id and time, with no publication or outcome.
 export class AcceptedAttemptBuilder {
   #id = "00000000-0000-4000-8000-00000000a771";
   /** @type {AgentLaunchRequest | undefined} */
@@ -53,30 +50,19 @@ export class AcceptedAttemptBuilder {
     return this;
   }
 
-  /**
-   * The exact incoming request the attempt keeps.
-   * @param {AgentLaunchRequest} request
-   */
+  /** @param {AgentLaunchRequest} request the exact incoming request */
   requesting(request) {
     this.#request = structuredClone(request);
     return this;
   }
 
-  /**
-   * An execution start of the story, in the `open-dough` project with
-   * `claude` unless stated.
-   * @param {IncomingStoryFacts} facts
-   */
+  /** @param {IncomingStoryFacts} facts an execution start of the story */
   executing(facts) {
     this.#request = new LaunchRequestBuilder().executing(facts).please();
     return this;
   }
 
-  /**
-   * A refinement start of the story, in the `open-dough` project with
-   * `claude` unless stated.
-   * @param {IncomingStoryFacts} facts
-   */
+  /** @param {IncomingStoryFacts} facts a refinement start of the story */
   refining(facts) {
     this.#request = new LaunchRequestBuilder().refining(facts).please();
     return this;
@@ -90,6 +76,19 @@ export class AcceptedAttemptBuilder {
   adHoc(facts = {}) {
     this.#request = new LaunchRequestBuilder().adHoc(facts).please();
     return this;
+  }
+
+  /**
+   * An ad hoc Start accepted now, with the developer's workspace and landing choices.
+   * @param {import("../../../dashboard/src/launchRequest.ts").UnattachedSessionPolicy} policy
+   * @param {IncomingAdHocFacts} [facts]
+   */
+  adHocStart(policy, facts) {
+    this.#request = new LaunchRequestBuilder()
+      .adHoc(facts)
+      .withPolicy(policy)
+      .please();
+    return this.acceptedAt(new Date().toISOString());
   }
 
   /** @param {string} at an ISO date-time */

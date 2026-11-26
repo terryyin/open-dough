@@ -38,6 +38,8 @@ export type DoneCollaborators = {
   readonly capture?: BranchCapture;
 };
 
+export type ReportedDone = Pick<NativeDoneMarks, "reported">;
+
 // Quiet reports continue native Done outside reporting locks.
 // The developer's Done takes over a reported rename.
 export class NativeDoneMarks {

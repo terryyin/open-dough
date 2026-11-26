@@ -21,6 +21,7 @@ import { launchHost } from "../../server/launchHosts.ts";
 import { attemptRun } from "../../server/launchRun.ts";
 import { keptRecords } from "../../server/launchRecordStore.ts";
 import { machineFolder } from "../../server/localFolder.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import { startStore, type StartStore } from "../../server/startStore.ts";
@@ -54,7 +55,6 @@ const fakeHelper = path.join(
   "dashboard/test-support/support/fakeReleaseApply.sh",
 );
 const session = makeMe.aHostSession.claude({ sessionId: "claude-1" }).please();
-const note = () => Promise.resolve();
 
 let origin: StartOrigin;
 let store: StartStore;
@@ -98,15 +98,7 @@ beforeEach(async () => {
   try {
     first = await attemptRun(
       source,
-      {
-        request,
-        attempt: accepted().please(),
-        controller: new AbortController(),
-        changes: 0,
-      },
-      note,
-      note,
-      note,
+      new OwnedAttempts().own(request, accepted().please()),
       { progress: new StartProgress(), doneMarks: marks, native: launchHost },
     );
   } finally {

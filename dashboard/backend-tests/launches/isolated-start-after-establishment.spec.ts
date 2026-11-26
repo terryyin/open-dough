@@ -13,11 +13,10 @@ import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { attemptRun } from "../../server/launchRun.ts";
-import { machineFolder } from "../../server/localFolder.ts";
 import type { NativeDispatch } from "../../server/nativeSessionRun.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import type {
@@ -48,7 +47,6 @@ type Dispatched = {
 
 let origin: StartOrigin;
 let unmount: () => void;
-let marks: NativeDoneMarks;
 let dispatched: Dispatched[];
 let refusals: number;
 
@@ -91,15 +89,9 @@ beforeEach(async () => {
   // Kept attempts, starts and records live in this test's own machine.
   vi.stubEnv("HOME", path.join(origin.machine, "home"));
   unmount = mountProjectConfiguration("production");
-  marks = new NativeDoneMarks({
-    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
-    hostFor: () => undefined,
-    reportingFolder: machineFolder,
-  });
 });
 
-afterEach(async () => {
-  await marks.close();
+afterEach(() => {
   unmount();
   vi.unstubAllEnvs();
   origin.cleanup();
@@ -116,33 +108,17 @@ const formatterPath = () =>
 
 const isolatedAttempt = (landing: "review" | "auto-land") =>
   makeMe.anAcceptedAttempt
-    .requesting(
-      makeMe.aLaunchRequest
-        .adHoc()
-        .withInstruction("Session")
-        .withPolicy({ workspace: "isolated", landing })
-        .please(),
-    )
-    .acceptedAt(new Date().toISOString())
+    .adHocStart({ workspace: "isolated", landing }, { instruction: "Session" })
     .please();
 
 const run = (
   attempt: ReturnType<typeof isolatedAttempt>,
 ): Promise<LaunchResult> => {
-  const note = () => Promise.resolve();
-  return attemptRun(
-    source,
-    {
-      request: attempt.request,
-      attempt,
-      controller: new AbortController(),
-      changes: 0,
-    },
-    note,
-    note,
-    note,
-    { progress: new StartProgress(), doneMarks: marks, native },
-  );
+  return attemptRun(source, new OwnedAttempts().own(attempt.request, attempt), {
+    progress: new StartProgress(),
+    doneMarks: { reported: vi.fn() },
+    native,
+  });
 };
 
 test("a native stop keeps the established start, and Continue resumes its workspace, branch, landing and input", async () => {

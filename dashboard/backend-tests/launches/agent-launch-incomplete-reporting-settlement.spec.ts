@@ -17,10 +17,9 @@ import {
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { claudeHost } from "../../server/claudeHost.ts";
-import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { launchHost } from "../../server/launchHosts.ts";
 import { attemptRun } from "../../server/launchRun.ts";
-import { machineFolder } from "../../server/localFolder.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { reportingInstruction } from "../../server/reportingInstruction.ts";
 import { StartProgress } from "../../server/startProgress.ts";
@@ -61,13 +60,11 @@ const attempt = makeMe.anAcceptedAttempt
   .reportingTo(reportingOrigin)
   .publicationUnknown()
   .please();
-const note = () => Promise.resolve();
 
 let origin: StartOrigin;
 let home: string;
 let store: StartStore;
 let unmount: () => void;
-let marks: NativeDoneMarks;
 let pending: Promise<LaunchResult> | undefined;
 let dispatch: MockInstance<typeof claudeHost.launch>;
 const publication = vi.fn<(receipt: PublicationReceipt) => Promise<void>>();
@@ -89,11 +86,6 @@ beforeEach(async () => {
   vi.spyOn(claudeHost, "executionStartRefusal").mockResolvedValue(undefined);
   unmount = mountProjectConfiguration("production");
   store = startStore("execution", home);
-  marks = new NativeDoneMarks({
-    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
-    hostFor: () => undefined,
-    reportingFolder: machineFolder,
-  });
   dispatch = vi.spyOn(claudeHost, "launch").mockResolvedValue({
     kind: "launched",
     session: makeMe.aHostSession.claude({ sessionId: "claude-1" }).please(),
@@ -104,7 +96,6 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await Promise.allSettled([pending]);
-  await marks.close();
   vi.restoreAllMocks();
   unmount();
   vi.unstubAllEnvs();
@@ -112,14 +103,12 @@ afterEach(async () => {
 });
 
 function run() {
-  pending = attemptRun(
-    source,
-    { request, attempt, controller: new AbortController(), changes: 0 },
-    publication,
-    note,
-    note,
-    { progress: new StartProgress(), doneMarks: marks, native: launchHost },
-  );
+  pending = attemptRun(source, new OwnedAttempts().own(request, attempt), {
+    progress: new StartProgress(),
+    doneMarks: { reported: vi.fn() },
+    native: launchHost,
+    notes: { publication },
+  });
   return pending;
 }
 

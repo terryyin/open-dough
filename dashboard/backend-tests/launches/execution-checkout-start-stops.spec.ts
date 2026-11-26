@@ -13,12 +13,11 @@ import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { attemptRun } from "../../server/launchRun.ts";
 import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
-import { machineFolder } from "../../server/localFolder.ts";
 import type { NativeDispatch } from "../../server/nativeSessionRun.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import type {
@@ -48,7 +47,6 @@ type Dispatched = {
 
 let origin: StartOrigin;
 let unmount: () => void;
-let marks: NativeDoneMarks;
 let dispatched: Dispatched[];
 let refusals: number;
 let progress: StartProgress;
@@ -93,15 +91,9 @@ beforeEach(async () => {
   // Kept attempts, starts and records live in this test's own machine.
   vi.stubEnv("HOME", path.join(origin.machine, "home"));
   unmount = mountProjectConfiguration("production");
-  marks = new NativeDoneMarks({
-    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
-    hostFor: () => undefined,
-    reportingFolder: machineFolder,
-  });
 });
 
-afterEach(async () => {
-  await marks.close();
+afterEach(() => {
   unmount();
   vi.unstubAllEnvs();
   origin.cleanup();
@@ -109,30 +101,15 @@ afterEach(async () => {
 
 const attempt = () =>
   makeMe.anAcceptedAttempt
-    .requesting(
-      makeMe.aLaunchRequest
-        .adHoc()
-        .withPolicy({ workspace: "default-checkout", landing: "auto-land" })
-        .please(),
-    )
-    .acceptedAt(new Date().toISOString())
+    .adHocStart({ workspace: "default-checkout", landing: "auto-land" })
     .please();
 
 const run = (kept: ReturnType<typeof attempt>): Promise<LaunchResult> => {
-  const note = () => Promise.resolve();
-  return attemptRun(
-    source,
-    {
-      request: kept.request,
-      attempt: kept,
-      controller: new AbortController(),
-      changes: 0,
-    },
-    note,
-    note,
-    note,
-    { progress, doneMarks: marks, native },
-  );
+  return attemptRun(source, new OwnedAttempts().own(kept.request, kept), {
+    progress,
+    doneMarks: { reported: vi.fn() },
+    native,
+  });
 };
 
 test("a kept execution checkout start asks about changes made since, then continues there without a second start", async () => {
