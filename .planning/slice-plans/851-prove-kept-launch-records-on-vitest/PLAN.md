@@ -182,6 +182,15 @@ specs (51 cases) and the three e2e consumers of the machine-record helpers
 (7 cases) pass. Across the four slices, no helper in the five named
 test-support files lost its last caller.
 
+## Execution complete
+
+Product advice: no change to priorities. When runner cutover's dependency
+on this story is resolved, record the following: the catalog fixture
+observations of `test-support/support/catalogProjectOrigin.ts` were the
+only content left in the deleted `agent-launch-records-shared-machine.spec.ts`
+(recoverable at `48e1d1f37`), and they now fall under cutover's harness and
+fixture boundary.
+
 ## Proof ownership and local gate
 
 Files are relative to `dashboard/backend-tests/launches/`.
