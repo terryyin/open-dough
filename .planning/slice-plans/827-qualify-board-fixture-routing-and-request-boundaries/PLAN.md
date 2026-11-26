@@ -66,7 +66,7 @@ to use local repositories so Git cannot hit live GitHub from the test machine.
   Vitest and use the existing browser journeys for the browser outcomes. Keep
   actions and observations at their page-object cues under
   [Act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows).
-- Use the [fixture audit inventory](fixture-audit.md) to locate consumers, then
+- Use the fixture audit inventory retained in Git history to locate consumers, then
   follow each affected case from its publication or failure setup to the
   request and result it proves. A successful REST answer read after the event
   is a discovery signal. Check the configured ref in each distinct served HOME
@@ -414,11 +414,11 @@ Dashboard typecheck, and the two-server cleanup probe passed.
 ### 10. Qualify both suites and retire the diagnostic
 
 Type: Behavior
-Status: planned
+Status: done
 
-Replay the [scratch audit](ref-audit.patch.b64) with physical checkout-local
-dependencies. Reconcile its events with each qualified fixture and the
-[previous inventory](fixture-audit.md). Explain each residual by consumer,
+Replay the scratch audit with physical checkout-local dependencies.
+Reconcile its events with each qualified fixture and the earlier inventory
+retained in Git history. Explain each residual by consumer,
 operation, relevant HOME, and event, with proof for a still-live REST call or
 an intentional setup/failure. Check unserved refs, failed transport, and held
 or advanced publications at their event. An unexplained Board pin belongs
@@ -490,19 +490,61 @@ execution limit while preserving its proof and the original story outcome.
 The full gate owns both open obligations until the two complete suites and a
 current audit establish them.
 
+#### Accepted qualification
+
+The first replay at `2dd0bc9ee` completed 786 browser cases and surfaced two
+Intent timing failures. The Done card rendered before its separate
+follow-up response. The CI history case spent over 13 seconds waiting for
+an unrelated Board read. The custom follow-up scenario now observes its
+own project-wide response before checking the card. The history scenarios
+enter Project Intent directly with the same published commit and CI
+answers. All nine affected cases and typecheck passed. The independent
+review preserved the original behavior assertions and defaults.
+
+The repaired full E2E run passed **788 tests** in 26.4 minutes with two
+workers and the ref audit enabled. The full audited Dashboard Backend Test
+passed **1,049 Playwright tests** with one skip and **985 Vitest tests**.
+The backend run used the same fixture and runtime sources. The intervening
+repair changed only browser test entry and readiness cues. Both suite runs
+used an AC-powered Mac, physical checkout-local dependencies and the plan's
+local gate. The resumed independent refactor of the static fixtures was
+already included in both runs. Terminal records are
+`resume-qualify-e2e-repair.log.run.json` and
+`resume-qualify-backend.log.run.json` in Git evidence.
+
+The passing runs recorded 20 browser events and 46 backend events. The
+index gives the consumer, repository, ref, pins, and affected HOME per
+row. It samples Git after producing the REST answer. The operation and
+publication cues determine the dispositions below.
+
+| Events | Disposition and proof |
+| --- | --- |
+| E2E 1–15, 20 | The installed Claude and Codex verification, model, Story Card, and session sidebar cases explicitly freeze the earlier Board snapshot during a native push. Each proves the original Git pin before opening, and checks the intended new pin at its explicit `showPublished` advance. Cases that keep the original view check startup uncertainty, refusal, recovery, or control protection at that event. |
+| E2E 16–17 | The feedback-maintenance scheduled check in `feedback-maintenance-launch.spec.ts` returned the prior watch-list pin while the native origin advanced. Two registered HOMEs sampled the new ref. The Board was opened at the exact prior pin before the preview service was replaced by the boundary service. The case verifies the new pin and exactly one watch-list read at each revision. |
+| E2E 18–19 | Responsive reconciliation releases an earlier held REST answer after the native Take and checks real Git at the old and new publication cues. The read-failure case supplies the malformed `main` value and observes failure without a confirmed snapshot. |
+| Backend 1–34, 46 | The feedback scheduler and native launch tests exercise a watch-list check without a Board visit. Their independent admission, due-date, and launch evidence stays at that operation. |
+| Backend 35–40 | Incident recording verifies the first Git pin and returned HTTP revision before deliberately withdrawing the route. Output-bound verifies HTTP 502 after one oversized ref answer. The remaining events are explicit scheduled `since` or stream `at` fallback after failed listing, timeout, or output bounds. |
+| Backend 41–45 | The isolated shared ref/backlog and first-open delay or malformed controls retain their exact legacy membership dispatch for plan 828. The standalone Actions case has no Dashboard HOME. Its companion verifies the live Git pin from a routed HOME. |
+
+`resume-qualify-return.md`, `resume-qualify-safe-index.tsv`, and
+`resume-qualify-e2e-repair-index.tsv` retain the run-specific groups and
+event locations in Git evidence. The original diagnostic and inventory are
+recoverable from `2dd0bc9ee`. The scratch source edits, patch and inventory
+were removed. Plan 828 carries the remaining legacy membership proof cues.
+
 ## Story obligations
 
 ### G1. Cold Board fixtures still advertise a different pin from Git
 
 Reported: slice 8 — "The full ref audit confirmed cold Board opens in which the routed Git ref differs from the fixture publication."
 Story clause: "A successful open's configured repository and ref must reach its fixture commit in each HOME that uses it."
-Disposition: receiving slice 10
+Disposition: proved by slice 10: Accepted qualification, exact Board-open and advance cues and the event dispositions for both audited suites.
 
 ### G2. The full E2E gate and mismatch attribution remain open
 
 Reported: slice 8 — "The full E2E run failed three responsive-launch cases. A focused repeat passed, and confirmed Board pin gaps and unattributed audit groups remain."
 Story clause: "Pass the full Dashboard Backend Test and E2E Test suites with every diagnostic mismatch explained, then remove the scratch diagnostic."
-Disposition: receiving slice 10
+Disposition: proved by slice 10: Accepted qualification, passing full E2E and Dashboard Backend Test records, residual dispositions, and diagnostic retirement.
 
 ## Local gate
 
