@@ -581,3 +581,18 @@ Eight slices. Rereviewed at `53b05ed59` after the cutover dependency was
 satisfied: the mapped paths, retained boundaries and production owners
 exist, and the one unowned cutover spec joins slice 1. No slice-specific
 concern remains.
+
+## Execution complete
+
+Product advice:
+- Run the correction
+  [Restore dropped session workspace proof](../854-restore-session-workspace-vitest-proof/PLAN.md)
+  before the queued launch families
+  [Launch starts and recovery](../846-prove-launch-starts-and-recovery-on-vitest/PLAN.md)
+  and [Host launch choices and first input](../849-prove-native-first-input-on-vitest/PLAN.md).
+  - Its first slice settles the `attemptRun` services contract and the
+    accepted-attempt MakeMe step. Those families would otherwise copy the
+    same setup.
+  - Its last slice moves this story's remaining Codex isolated case off the
+    legacy backend runner. Runner retirement waits on that.
+- The process review is deferred to wrap-up's Intent Coverage check.

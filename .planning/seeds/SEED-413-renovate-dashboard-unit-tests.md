@@ -284,6 +284,25 @@ their own stories.
 
 **Split from.** [Launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
 
+<a id="restore-session-workspace-vitest-proof"></a>
+
+### Restore dropped session workspace proof in Node Vitest
+
+**Identity:** SEED-413#restore-session-workspace-vitest-proof
+
+**Goal.** Dashboard maintainers get the session workspace and scheduled
+feedback observations that the [Node Vitest move](#prove-session-workspace-starts-on-vitest)
+dropped or credited to checks that do not assert them, and that move's last
+mapped spec leaves the legacy backend runner.
+
+**Scope.** Correct that story's delivered proof only. Restore each lost
+observation at a typed production boundary. Convert the retained Codex
+isolated spec. Collapse the duplicated attempt-run setup and the oversize
+or branching specs the review found. Product behavior and that story's
+promises stay unchanged.
+
+**Plan.** [Restore dropped session workspace proof](../slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md)
+
 <a id="prove-native-first-input-on-vitest"></a>
 
 ### Prove host launch choices and first input in Node Vitest
