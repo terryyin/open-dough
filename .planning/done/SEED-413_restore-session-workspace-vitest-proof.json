@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#restore-session-workspace-vitest-proof",
+  "title": "Restore dropped session workspace proof in Node Vitest",
+  "completedAt": "2026-11-26T13:42:07.255Z",
+  "developer": "Terry Yin",
+  "agent": "Kaoru-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

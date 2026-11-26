@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_restore-session-workspace-vitest-proof.json",
+      "identity": "SEED-413#restore-session-workspace-vitest-proof",
+      "completedAt": "2026-11-26T13:42:07.255Z",
+      "blob": "3d247433e28fbbb9f3ca30d9e8f8c92468f02d89"
+    },
+    {
       "fileName": "SEED-413_prove-native-first-input-on-vitest.json",
       "identity": "SEED-413#prove-native-first-input-on-vitest",
       "completedAt": "2026-11-26T11:26:35.050Z",
