@@ -88,7 +88,8 @@ behavioral evidence and take a comparable pair for any performance claim.
   published as `075273945e40df16be58719e50909cedb945feec`. Its push also
   superseded the slice 5 run with no failed job. The worktree-update CI
   repair published as `28b7d90c26821bf0d5208205dfd601117fc1343f`. Slice 7
-  published as `c4cb45e4b05ca899d88971b6ae6a9524ac18661c`.
+  published as `c4cb45e4b05ca899d88971b6ae6a9524ac18661c`. Slice 8
+  published as `d301b17b75798f48604da5bdd14d0fea0d8a77f4` with the same observer.
 - Locked checkout install, native Chromium prerequisite check, and Dashboard
   typecheck passed. Retain the existing eight-slice scope and use the
   recorded baseline for behavior on the unchanged launch paths.
@@ -453,6 +454,39 @@ Use awake macOS on AC under `caffeinate -s -i` for long local checks per
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 to every failure and repair handoff. Keep default test timeouts.
 
+## Cumulative candidate proof
+
+Candidate `d301b17b75798f48604da5bdd14d0fea0d8a77f4` passed on
+awake macOS on AC with Node 24.21.0, one worker and the locked dependencies.
+The tests ran sequentially under `caffeinate -s -i`. Load varied across
+the recorded baseline and candidate, so the wall and case times describe
+their respective runs.
+
+The maintained backend partition classified all 21 selected specs as Node
+Vitest, with zero Playwright cases. The 79 legacy case observations are
+accounted for by the eight slice mappings. Independent cases increase the
+migrated Node count to 84. The separate unchanged Node creation control has
+four cases. A worker shutdown case belongs to the real-process E2E suite.
+
+| Selection | Cases | Summed case time | Elapsed |
+| --- | ---: | ---: | ---: |
+| Migrated Node Vitest | 84 | 89.576 s | 113.74 s including the control |
+| Existing Node creation control | 4 | 0.068 s | Included above |
+| Existing retained Chromium E2E | 23 | 97.298 s | 108.34 s including the worker case |
+| Worker shutdown and restart Chromium E2E | 1 | 3.912 s | Included above |
+
+Twenty-one migrated Node tests took at most 100 ms. Migrated case times
+ranged from 2.89 ms to 3.179 s, including per-case setup. Both selections
+had zero retries.
+
+```sh
+backend_selection='launches/agent-launch-(ad-hoc-codex-recovery-boundary|boundary|claude-handoff|codex-(catalog|creation-boundary|duplicate|effort-boundary|lifetime|model-boundary|options|reconciliation-boundary|startup|verify-boundary)|creation-gates-boundary|cursor-model-(admission|verification)|duplicate|environment|model-admission|model-boundary|creation-recovery)\.spec\.ts$'
+e2e_selection='e2e/launches/agent-launch-(ad-hoc-codex-recovery|claude-verification|codex(-creation|-effort|-model|-reconciliation|-recheck|-stale-effort|-worker-shutdown)?|creation-gates|cursor-model(-effort|-verification)?|unconfirmed-input)\.spec\.ts$'
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$backend_selection" --workers=1
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- "$e2e_selection" --workers=1
+caffeinate -s -i npm run typecheck:dashboard
+```
+
 ## Plan review
 
 Slice-plan refinement split Claude model and environment from process
@@ -461,3 +495,10 @@ Model choices, durable identity, matching history and competing attempts
 each use the production operation that owns the decision. Each estimate
 fits the 15-minute active-work limit. No remaining slice-specific concern
 was identified in the reviewed proof paths.
+
+## Execution complete
+
+Product advice: Once this story lands, satisfy the existing native first-input
+prerequisite for backend runner retirement with the migrated backend selection
+and retained worker shutdown proof. Keep current campaign order. The completed
+proof and implementation review identify no separate correction.
