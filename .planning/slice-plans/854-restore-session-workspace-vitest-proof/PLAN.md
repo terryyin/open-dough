@@ -169,6 +169,13 @@ inside the default five-second tests. The competing-claim spec formatted to
 and targeted ESLint passed. Independent refactoring reused the worktree reader
 and a stateless Done substitute. Its eight affected cases and typecheck passed.
 
+Branch CI run `45819534993` revealed one dynamically loaded fixture still
+calling the old positional publication callback. The legacy
+`accepted-attempt-settlement.spec.ts` reproduced the 30-second timeout. With
+the fixture taking the named callback, its genuine follower request arrived
+while the store lock was held, and the settled outcome arrived after lock
+release. The case passed in 877 ms with no retries.
+
 ### 2. Restore the kept-start continuation observations
 
 Type: Behavior
