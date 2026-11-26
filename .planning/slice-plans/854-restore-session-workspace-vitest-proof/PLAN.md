@@ -81,6 +81,13 @@ the findings below.
      test limit:
      - `admitted-session-start.spec.ts:153`;
      - `isolated-start-before-establishment.spec.ts:187`.
+   - Several real-Git cases run close to the 5 s default limit. Wrap-up's
+     Intent Coverage probe at `29d112fb` saw the confirmed review and
+     auto-land Start cases in `ad-hoc-existing-changes-start.spec.ts`
+     (lines 160 and 178) exceed 5000 ms in all four local runs, at load
+     average 30–51. Branch CI run 45791889476 passed them. Other cases at
+     3.5–3.8 s: `retained-landing-after-expiry.spec.ts:150` and
+     `story-bound-landing-capture.spec.ts:150`.
 
 ## Preserved promises and constraints
 
@@ -130,11 +137,16 @@ override inside its test. Bring `admitted-session-competing-claim.spec.ts`
 under 250 lines by that recomposition. Then compare the landing specs'
 Start-to-reporting setup and compose it the same way where it shares a
 production contract.
+Reduce the cost of the near-limit real-Git cases, so they finish well
+within the default limit under local load. Find where the time goes, such
+as repeated origin preparation or the installed start, before changing it.
+Use an in-test override only where the remaining time is essential.
 
 Proof. Every touched spec passes on one worker with unchanged case
 observations and counts, aside from split cases. Typecheck and eslint are
 clean, and each file is at most 250 lines after Prettier. Record before and
-after summed case time.
+after summed case time. Rerun the near-limit cases under comparable local load
+and record their times and the load average.
 
 ### 2. Restore the kept-start continuation observations
 
