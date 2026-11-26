@@ -1,144 +1,219 @@
-// Hold real worker-file replacements to observe exclusion before spawn is
-// retained, and after child exit before the native worker is retained.
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+// The persisted worker keeps a second owner out before the start script's note
+// and between the script's exit and the native worker's replacement.
+import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import * as completionReporting from "../../server/completionReporting.ts";
+import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
+import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
+import type { LaunchHost } from "../../server/launchHosts.ts";
+import { attemptRun } from "../../server/launchRun.ts";
+import * as launchStart from "../../server/launchStart.ts";
+import { localFolder } from "../../server/localFolder.ts";
+import { machineDashboardPath } from "../../server/machineHome.ts";
 import {
-  accept,
-  attempts,
-  continueAttempt,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  answerOf,
-  request,
-  type Problem,
-} from "../../test-support/keptExecutionStart.ts";
-import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import { fsPromisesHook } from "../../test-support/support/serverFsHook.ts";
-import { startOrigin } from "../../test-support/support/startOrigin.ts";
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { startOf } from "../../server/startWorkflows.ts";
+import { defaultSessionPolicy } from "../../src/agentLaunch.ts";
 
-test("the persisted server worker protects initial preparation and the child-to-native write window", async () => {
-  const origin = await startOrigin(queuedReadyRepository().please());
-  const hold = path.join(origin.machine, "hold-worker-note");
-  const reached = path.join(origin.machine, "worker-note-held");
-  const hook = fsPromisesHook(
-    path.join(origin.machine, "worker-hold.mjs"),
-    "rename",
-    `async (from, to, ...args) => {
- if (String(to).endsWith('/launch-attempts.json') && fs.existsSync(${JSON.stringify(hold)})) {
-  const stage = fs.readFileSync(${JSON.stringify(hold)}, 'utf8');
-  const worker = Object.values(JSON.parse(fs.readFileSync(from, 'utf8'))).flat()[0]?.worker;
-  if (worker && ((stage === 'spawn' && worker.pid !== process.pid) || (stage === 'launch' && worker.step === 'launch'))) {
-   fs.writeFileSync(${JSON.stringify(reached)}, JSON.stringify(worker));
-   await heldWhile(${JSON.stringify(hold)}, 60000);
-  }
- }
- return original(from, to, ...args);
-}`,
+function held() {
+  let release = () => {};
+  const released = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { released, release };
+}
+
+// Holds the attempt-file replacement that records the native worker.
+let nativeNote:
+  | {
+      readonly file: string;
+      readonly reach: () => void;
+      released: Promise<void>;
+    }
+  | undefined;
+
+vi.mock(import("node:fs/promises"), async (original) => {
+  const fs = await original();
+  return {
+    ...fs,
+    rename: async (from, to) => {
+      const hold = nativeNote;
+      if (hold?.file === to) {
+        const contents = await fs.readFile(from, "utf8");
+        if (/"step":\s*"launch"/.test(contents)) {
+          nativeNote = undefined;
+          hold.reach();
+          await hold.released;
+        }
+      }
+      await fs.rename(from, to);
+    },
+  };
+});
+
+test("a live recorded server refuses a second owner before the script note and after the script exits", async () => {
+  const story = { identity: "SEED-001#handoff", title: "Hand off a worker" };
+  const source = makeMe.aPublishedSource.openDough.please();
+  const request = makeMe.aLaunchRequest
+    .executing({ ...story, source: source.id })
+    .please();
+  const home = mkdtempSync(path.join(tmpdir(), "dough-worker-handoff-"));
+  const first = new LaunchAttemptOwner();
+  const second = new LaunchAttemptOwner();
+  const beforeScript = held();
+  const afterExit = held();
+  let reachNative = () => {};
+  const nativeReached = new Promise<void>((resolve) => {
+    reachNative = resolve;
+  });
+  let scriptReached = () => {};
+  const scriptHeld = new Promise<void>((resolve) => {
+    scriptReached = resolve;
+  });
+  onTestFinished(async () => {
+    beforeScript.release();
+    afterExit.release();
+    first.close();
+    second.close();
+    try {
+      await first.drain();
+    } finally {
+      nativeNote = undefined;
+      vi.restoreAllMocks();
+      vi.unstubAllEnvs();
+      rmSync(home, { recursive: true, force: true });
+    }
+  });
+  vi.stubEnv("HOME", home);
+  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
+  onTestFinished(mountProjectConfiguration("development"));
+  appendConfiguredProject(
+    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
   );
-  const push = origin.holdPushes();
-  let first: DashboardServer | undefined;
-  let second: DashboardServer | undefined;
-  try {
-    first = await startDashboardServer({
-      mode: "boundary",
-      liveServer: "separate process",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 60_000,
-      extraEnv: hook,
+  nativeNote = {
+    file: machineDashboardPath("launch-attempts.json"),
+    reach: reachNative,
+    released: afterExit.released,
+  };
+
+  const workspace = localFolder(home);
+  const workflow = startOf("execution");
+  const { start, session } = makeMe.aLaunchRecord
+    .executing(story)
+    .onStoryBranch({ workspace: workspace.shown, branch: "claude/handoff" })
+    .inClaudeSession({ sessionId: "handoff-session" })
+    .please();
+  assert(start !== undefined && "publishedSha" in start);
+  assert(workflow !== undefined);
+  let scriptPid: number | undefined;
+  vi.spyOn(launchStart, "started").mockImplementation(
+    async (...[, , , , , , , noteWorker]) => {
+      scriptReached();
+      await beforeScript.released;
+      const script = spawn(process.execPath, ["-e", ""], { stdio: "ignore" });
+      const exited = new Promise((resolve) => {
+        script.once("exit", resolve);
+      });
+      assert(script.pid !== undefined);
+      scriptPid = script.pid;
+      await noteWorker?.(script.pid);
+      await exited;
+      return {
+        kind: "established",
+        workflow,
+        policy: defaultSessionPolicy,
+        handoff: { established: { start } },
+        workspace,
+      };
+    },
+  );
+  vi.spyOn(completionReporting, "reportingContext").mockImplementation(
+    (attempt) =>
+      Promise.resolve({
+        reporting: {
+          origin: "http://127.0.0.1:4173",
+          reference: attempt.id,
+          command: "report completion",
+        },
+      }),
+  );
+  const launch = vi.fn<LaunchHost["launch"]>(() =>
+    Promise.resolve({
+      kind: "launched",
+      session,
+      sessionState: makeMe.aSessionState.unknown().please(),
+    }),
+  );
+  const recover = vi.fn<NonNullable<LaunchHost["recover"]>>(() => {
+    throw new Error("Unexpected recovery.");
+  });
+  const progress = new StartProgress();
+  const run: AttemptRun = (own, notes) =>
+    attemptRun(source, own, {
+      progress,
+      notes,
+      doneMarks: { reported: vi.fn() },
+      native: () => ({ launch, recover }),
     });
-    first.claudeScenario("held");
-    writeFileSync(hold, "spawn");
-    const accepted = await answerOf<{ attempt: { id: string } }>(
-      accept(first, request),
-    );
-    const heldWorker = () =>
-      existsSync(reached)
-        ? (JSON.parse(readFileSync(reached, "utf8")) as {
-            pid: number;
-            step: string;
-          })
-        : undefined;
-    await expect
-      .poll(heldWorker, { timeout: 30_000 })
-      .toMatchObject({ step: "start" });
-    const scriptPid = heldWorker()?.pid;
-    if (scriptPid === undefined) throw new Error("Missing spawned worker");
-    second = await startDashboardServer({
-      mode: "boundary",
-      liveServer: "separate process",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-    });
-    expect((await attempts(second))[0]).toMatchObject({
-      owned: false,
-      running: true,
-      worker: { pid: first.pid, serverPid: first.pid, step: "start" },
-    });
+  const competitor = vi.fn<AttemptRun>(() => {
+    throw new Error("Unexpected competing dispatch.");
+  });
+
+  const accepted = await first.accept(request, run);
+  assert.equal(accepted.kind, "accepted");
+  const { id } = accepted.attempt;
+  const refusesBoth = async (worker: object) => {
+    expect((await second.attempts()).attempts).toMatchObject([
+      { id, owned: false, running: true, worker },
+    ]);
     expect(
-      await answerOf<Problem>(continueAttempt(second, accepted.attempt.id)),
+      await second.continueAttempt(
+        source.id,
+        id,
+        () => Promise.resolve(undefined),
+        competitor,
+      ),
     ).toMatchObject({
       kind: "uncertain",
-      explanation: expect.stringContaining("already running"),
+      explanation: expect.stringContaining("already running") as unknown,
     });
-    expect(await answerOf<Problem>(accept(second, request))).toMatchObject({
+    expect(await second.accept(request, competitor)).toMatchObject({
       kind: "failed",
       reason: "already-starting",
     });
-    rmSync(hold);
-    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
-    const observingServer = second;
-    await expect
-      .poll(async () => (await attempts(observingServer))[0]?.worker?.pid)
-      .toBe(scriptPid);
-    rmSync(reached);
-    writeFileSync(hold, "launch");
-    push.release();
-    await expect
-      .poll(heldWorker, { timeout: 30_000 })
-      .toMatchObject({ step: "launch" });
-    expect(() => process.kill(scriptPid, 0)).toThrow();
-    // The store still carries the dead script, but its recorded server is
-    // alive and doing this handoff. Continue cannot duplicate that path.
-    expect((await attempts(second))[0]).toMatchObject({
-      owned: false,
-      running: true,
-      worker: { pid: scriptPid, serverPid: first.pid, step: "start" },
-    });
-    expect(
-      await answerOf<Problem>(continueAttempt(second, accepted.attempt.id)),
-    ).toMatchObject({
-      kind: "uncertain",
-      explanation: expect.stringContaining("already running"),
-    });
-    expect(await answerOf<Problem>(accept(second, request))).toMatchObject({
-      kind: "failed",
-      reason: "already-starting",
-    });
-    rmSync(hold);
-    const runningServer = first;
-    await expect
-      .poll(() => runningServer.claudeLaunchCalls().length, { timeout: 30_000 })
-      .toBe(1);
-    first.releaseHeldClaude();
-    expect((await settledOutcome(first, accepted.attempt.id)).kind).toBe(
-      "launched",
-    );
-    expect((await attempts(second))[0]).toMatchObject({ running: false });
-    expect((await attempts(second))[0]?.worker).toBeUndefined();
-    expect(await origin.takenProfiles()).toHaveLength(1);
-    expect(first.claudeLaunchCalls()).toHaveLength(1);
-  } finally {
-    rmSync(hold, { force: true });
-    push.release();
-    await second?.close();
-    await first?.close();
-    origin.cleanup();
-  }
+  };
+
+  await scriptHeld;
+  await refusesBoth({
+    pid: process.pid,
+    serverPid: process.pid,
+    step: "start",
+  });
+  beforeScript.release();
+
+  await nativeReached;
+  assert(scriptPid !== undefined);
+  expect(() => process.kill(scriptPid ?? 0, 0)).toThrow();
+  await refusesBoth({ pid: scriptPid, serverPid: process.pid, step: "start" });
+  expect(launch).not.toHaveBeenCalled();
+  afterExit.release();
+
+  await first.drain();
+  expect(launch).toHaveBeenCalledTimes(1);
+  expect(competitor).not.toHaveBeenCalled();
+  const [settled] = (await second.attempts()).attempts;
+  expect(settled).toMatchObject({
+    id,
+    running: false,
+    outcome: { kind: "launched" },
+  });
+  expect(settled?.worker).toBeUndefined();
 });

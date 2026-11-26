@@ -155,7 +155,7 @@ changed, through the existing `storyLaunchChoices` page object.
 ### 4. Protect both worker handoff windows
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Replace the duplicate server setup in `agent-launch-worker-handoff` with two
@@ -170,6 +170,16 @@ competitor too early fails the check. After settlement the worker is cleared.
 The [second-server](../../../e2e/launches/agent-launch-second-server.spec.ts)
 and [orphan](../../../e2e/launches/agent-launch-second-server-orphan.spec.ts)
 journeys own actual server death, child survival and one published claim.
+
+Delivered: one Node case where both owners share the test process, so
+`process.pid` is the live recorded server and a real `node -e ""` child
+supplies the dead script worker. A held `rename` keeps the native-worker
+replacement. The five-spec selection passed 8 of 8 on Node. The new spec
+passed five times alone. Dropping `serverPid` from `attemptWorker` or
+treating an unowned worker as not running failed it. The `heldWhile` hook
+preamble lost its only user and was removed. Its consumers, the completion
+recovery and start-store specs, passed. Refactor pass skipped: only the
+subject spec changed, plus that dead-code removal.
 
 ### 5. Answer a change wait from the reader's observed count
 

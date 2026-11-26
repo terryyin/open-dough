@@ -5,9 +5,7 @@
 import { writeFileSync } from "node:fs";
 
 // `replacement` is the source of the replacing async function. In it,
-// `original` is the replaced function, `fs` is `node:fs`, and
-// `await heldWhile(marker, ms)` waits while the file `marker` exists, at most
-// `ms` milliseconds.
+// `original` is the replaced function and `fs` is `node:fs`.
 export function fsPromisesHook(
   module: string,
   name: "mkdir" | "rename" | "writeFile" | "rm",
@@ -16,10 +14,6 @@ export function fsPromisesHook(
   writeFileSync(
     module,
     `import fs from 'node:fs'; import promises from 'node:fs/promises'; import {syncBuiltinESMExports} from 'node:module';
-const heldWhile = async (marker, ms) => {
- const deadline = Date.now() + ms;
- while (fs.existsSync(marker) && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 25));
-};
 const original = promises.${name};
 promises.${name} = ${replacement};
 syncBuiltinESMExports();`,
