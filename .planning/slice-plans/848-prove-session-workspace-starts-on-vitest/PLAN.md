@@ -294,7 +294,7 @@ start, private stores and a separate `HOME` per case.
 ### 5. Capture a landing under the selected authority
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Proof. Feed the delivered launch policy to the production start and the
@@ -310,6 +310,44 @@ preparation. Keep installed discovery and actual Git publication in E2E.
 The typed receiver covers matching and refusal variants at its actual
 boundary, with receipts and persisted state as observations.
 
+Outcome (9 active minutes). `story-bound-landing-capture.spec.ts` (2 node
+cases) runs an isolated Wait for review Start through production
+`started()`, `prepareAttemptReporting`, `keepAttempt` and `handleLanding`.
+It uses the machine `LandingStores`, a real bare origin and
+`makeMe.aLandingSubmission`. No native dispatch is needed, so it adds no
+copy of the attempt-run setup.
+
+- The kept attempt binds the landing repository to the common Git
+  directory, the session workspace and branch, the Taken story, the origin
+  and `refs/heads/main`.
+- The first input runs in this order: the Established session block, the
+  reporting block with `--landing-context`, the story, then the text.
+- Six refusals leave no preparation, no held pins and an unchanged origin.
+  A missing identity, another story, a foreign remote and a foreign target
+  each get a 409 that refuses the landing as unauthorized. A `codex` host
+  and another dashboard origin each get a 404 for an unknown reporting
+  launch.
+- Prepare pins the base and revision under `refs/open-dough/one-shot/…`.
+  After the push, record returns the same receipt as
+  `pending-native-session`, which is correct before any launch record
+  exists.
+- `recorded` with a launch record stays with the landing-context E2E and
+  `declared-blank-launch-publication.spec.ts`. Installed discovery and Git
+  publication also stay in E2E.
+- Slice 2's `ad-hoc-existing-changes-start.spec.ts` already shows that
+  confirming existing changes keeps the selected landing.
+- The submission carries no workspace or branch. That guard is in
+  `retainedLandingDecision.ts`, and slice 6 owns it.
+- Removed `agent-launch-start-session-landing-admission` and
+  `-landing-boundary`, and the support function
+  `expectBorrowedLandingArtifacts`, whose last consumer was one of those
+  specs.
+- Cost, one worker: 3 Playwright cases took 17.5 s summed and 20.7 s wall.
+  The 2 node cases take 3.4 s summed.
+- No separate refactor pass ran. The change is the slice's own spec, dead
+  support removal and comment pointers, and no refactor-check candidate
+  was found.
+
 ### 6. Read the accepted comparison after startup expiry
 
 Type: Behavior
@@ -322,7 +360,9 @@ with the attempt actually absent and the retained record still present.
 An unacknowledged reporting reply replays the same pair and does not
 republish Git. Compare the prepared pins, accepted revision and retained
 receipt, and observe unchanged attempt-store state on the retained path.
-Refuse changed or deleted authority without recreating the record. Use
+Refuse changed or deleted authority without recreating the record.
+Include the workspace and branch mismatch guard in
+`retainedLandingDecision.ts` that slice 5 could not reach. Use
 `LandingSubmission`, the retained authority read from the real machine
 record, a controlled clock for expiry, and the private origin. The actual
 publisher's retry belongs to the retained installed/E2E journey.

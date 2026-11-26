@@ -7,8 +7,8 @@
 // Automatically land retains the execution checkout policy and admits its
 // story from a separate claim checkout. The blank terminal leaves first
 // input to the developer while the installed publisher can find the story's
-// landing context. Raw requests are
-// in ../../dashboard/backend-tests/launches/agent-launch-start-session-landing-boundary.spec.ts.
+// landing context. The typed Start and confirmation are
+// in ../../dashboard/backend-tests/launches/ad-hoc-existing-changes-start.spec.ts.
 
 import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";

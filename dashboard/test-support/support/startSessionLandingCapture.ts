@@ -5,7 +5,6 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // a raw landing request, and a landing made through the installed
 // publication (./startSessionLandingContext.ts) as the launch record keeps it.
 
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import type { LandingRepository } from "../../src/launchLanding.ts";
@@ -30,7 +29,7 @@ export type UnattachedPolicy = {
   workspace: "isolated" | "default-checkout";
   landing: "review" | "auto-land";
 };
-export const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
+const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
 
 // Launches over raw HTTP and answers the record kept and the first message.
 export async function launched(dashboard: DashboardServer, body: object) {
@@ -117,58 +116,6 @@ export function expectedBorrowedLandingAuthority({
       publishedSha,
     },
   } satisfies LandingRepository;
-}
-
-export function expectBorrowedLandingArtifacts(
-  dashboard: DashboardServer,
-  record: LaunchRecord,
-  expected: { workspace: string; identity: string; publishedSha: string },
-) {
-  const reporting = record.request.reporting;
-  if (reporting === undefined) throw new Error("Missing reporting.");
-  const { reference } = reporting;
-  const directory = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/reporting",
-    reference,
-  );
-  const file = path.join(directory, "landing-context.json");
-  expect(reporting.landingContext).toBe(file);
-  const authority = expectedBorrowedLandingAuthority({
-    home: dashboard.home,
-    reference,
-    ...expected,
-  });
-  const { repository, workspace, branch, identity, remote, target, admission } =
-    authority;
-  const context = {
-    origin: dashboard.origin,
-    source: "open-dough",
-    host: "claude",
-    reference,
-    identity,
-    remote,
-    target,
-  };
-  expect(JSON.parse(readFileSync(file, "utf8"))).toEqual(context);
-  expect(
-    keptAttempts(dashboard).find((entry) => entry.id === reference)
-      ?.landingRepository,
-  ).toEqual(authority);
-  expect(
-    JSON.parse(
-      readFileSync(path.join(directory, "admitted-claim.json"), "utf8"),
-    ),
-  ).toEqual({ ...context, nativeWorkspace: workspace, admission });
-  expect(
-    JSON.parse(
-      readFileSync(
-        path.join(directory, "first-landing-expectation.json"),
-        "utf8",
-      ),
-    ),
-  ).toEqual({ repository, workspace, branch });
-  return reference;
 }
 
 // A raw landing request: a preparation unless told otherwise.
