@@ -63,12 +63,49 @@ execution's performance claim.
 | Restart, handoff, verification and reconciliation reach their real consumers | The launch E2E command below passed all eight Chromium cases on the first attempt, in 101.80 s wall and 92.146 s summed. It recovered the original claim after the owner process exited, followed one session across servers, verified the session in the kept workspace, and reconciled after the completed report and published Take were read. |
 | The updater waits through settlement on its actual preview | The watcher E2E command below passed all ten Chromium deployment cases on the first attempt, in 89.41 s wall and 66.362 s summed. The held-update case observed 503 at closed admission while the old preview still served, then saw the accepted attempt settled in the first drain receipt before replacement. |
 
+## Execution context
+
+- Story Branch Mode in `/Users/terryyin/git/open-dough/.worktrees/prove-dashboard-launch-starts-and-recovery-in-no`
+  on `codex/prove-dashboard-launch-starts-and-recovery-in-no`. Publisher
+  `dashboard-territory.local-open-dough`, agent Koharu-chan, integration
+  `origin/main`. The established published claim and first increment's
+  publication base were `dddc9adfa11f8553d23b4a28442291757d6e2f05` on
+  the remote execution branch. Starting revision `1c30d89b7f57f2b85239f7ef2fc503fef08c97a5`.
+  The start reported changed readiness. The source and plan matched trunk
+  `6b267497e02efe0c5c24f0fdcccd17b900641fee` at execution entry.
+- Locked npm setup, Chromium 158.0.8127.18 prerequisite, and Dashboard
+  typecheck passed on Node 24.21.0. GitHub Actions `ci.yml` observes
+  `terryyin/open-dough` on the execution branch through coordinator
+  `seed-413-launch-vitest-543ac591`, directory `/tmp/dough-ci-501/watch-yG851C`,
+  PID 18942, session 86483, cell `g573:12`.
+- The mapped backend baseline at the published claim passed all 60 cases
+  with one worker on awake macOS on AC. Chromium selected 54 cases in 14
+  specs (47.831 s summed, 0–4,794 ms reported, 26 at or below 100 ms).
+  Node selected six cases in three controls (0.795 s summed, 0.481–266.093
+  ms, three at or below 100 ms). The selection took 55.60 s elapsed.
+  The run record is `backend-baseline.json` in the worktree's Git evidence
+  directory. Host load at setup was 7.71 over one minute with 48% memory
+  free and other browser processes present. Repeat one worker on the same
+  AC-powered host and reconsider the relative-cost claim if load or
+  competing proof changes materially.
+- The retained launch E2E selection at the claim passed all eight cases in
+  five specs on the first attempt (44.038 s summed, 47.53 s elapsed). The
+  one-worker run overlapped the first slice's editing period. The proof
+  record is `launch-e2e-baseline.json` in the worktree's Git evidence
+  directory. Reuse this observation while the product and E2E paths match.
+- The retained `agent-launch-publication-receipt-failure.spec.ts` passed
+  both execution and refinement cases on the first attempt (10.697 s
+  summed, 15.92 s elapsed). The real installed publication succeeded, the
+  failed receipt stopped native dispatch, and Continue kept the same
+  attempt, publication, worktree and claim. The proof record is
+  `receipt-failure-e2e.json` in the same evidence directory.
+
 ## Ordered slices
 
 ### 1. Refuse an invalid launch before dispatch
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 
 Proof: Malformed or disallowed inputs reach the production request admission
@@ -78,6 +115,20 @@ JSON, wrong workflow, identity, title, instruction, and change query.
 Supply an admitted origin, configured source lookup and tracked launch
 operations for the applicable checks. Verify real successful dispatch in
 the retained Start journeys. Convert `agent-launch-refusal.spec.ts`.
+
+Accepted proof: the maintained backend selector ran 30 Node cases and
+zero Chromium cases for this spec. All 23 legacy cases have receiving
+assertions, with compound change-query and JSON cases made individual and
+one explicit malformed Continue case added. `expectRefusal` observes the
+production status, body and absence of Start and Continue calls on each
+refusal. The successful absent-attempt read uses the real owner on the
+private configured machine. Dashboard typecheck passed. The retained
+restart E2E begins through the real Start and observes the accepted
+attempt eventually settle with one native launch. The focused selector is
+`launches/agent-launch-refusal\.spec\.ts$`. See `slice-1-return.md` and
+`slice-1-reviewed-refusals.json` in the Git evidence directory. The change is
+confined to the subject spec, with reusable production admission and
+local test setup, so the acceptance review found no refactor candidate.
 
 ### 2. Keep the exact request before starting work
 
@@ -94,6 +145,14 @@ that removal of the caller's wait does not stop settlement. Retain the
 independent-writer case for the cross-process lock and the installed
 baseline's first-input and Git publication signals through the retained
 E2E. Convert `agent-launch-acceptance.spec.ts`.
+
+Replace the existing 260-line spec's HTTP, Git origin, native-process
+setup and teardown with its cohesive launch-owner cases. Keep one spec
+under 250 lines around the attempt lifecycle, with private machine files
+and typed handoffs. The named E2E consumers keep the actual Git and
+native effects, including the existing publication receipt failure
+journey. The baseline selector and shared browser fixtures remain
+available to their other callers.
 
 ### 3. Keep settlement observable while writing
 
