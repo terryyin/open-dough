@@ -2,119 +2,175 @@
 
 **Identity:** SEED-324#close-landed-ci-repeat-check-gaps
 **Source:** [canonical story](../../seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
-**Disposition:** unfinished; early return to the backlog authorized by Terry on 2026-11-14.
-**Next slice:** 3. Slices 1–2 are delivered; 3 is partial; 4–8 are unstarted.
+**Disposition:** unfinished. Terry authorized the early return to the backlog on 2026-11-14.
+**Next slice:** 3. Slices 1–2 are delivered. Slices 3–8 were realigned on
+2026-11-27 to typed handlers on plain Node Vitest, as the story's approved
+scope extension of 2026-11-19 requires.
 
 ## Early-return handoff
 
-Preserve this story, plan, implementation and acceptance gaps.
-This execution ends and releases darren-chan; it does not complete the story.
-A future execution starts from the queued item after its recorded dependency
-is satisfied. Do not revive the old watchers or repeat completed slices blindly.
+The early return released darren-chan without completing the story. A
+future execution starts from the queued item. Do not revive the old watchers
+or repeat slices 1–2.
 
 The full pre-return record is recoverable from
-`1e7e6f98153870b4ce04fb347d882dc79ece1975:.planning/slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md`.
-That checkpoint also preserves the entire partial implementation.
-It was reconciled with main7a100c396 in merge694219d0b.
-Historical observer commands and elapsed-time logs are evidence, not instructions.
-Use this plan and [handoff evidence](handoff-evidence.md) for the new execution.
+`1e7e6f98153870b4ce04fb347d882dc79ece1975:.planning/slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md`,
+including fault recipes F1–F28, P1–P5 and the partial slice-3 implementation.
+It was reconciled with main7a100c396 in merge694219d0b. Historical observer
+commands and elapsed-time logs are evidence, not instructions. Use this plan
+and [handoff evidence](handoff-evidence.md).
 
-Terry explicitly requests this story at the top of Backlog list with a blocking
-dependency on SEED-332#answer-fake-gh-reads-in-process (philip-chan).
-The canonical dependency block in the story is authoritative.
-Shared fixture performance/stability is the supplier's responsibility;
-integrating its outcome and proving this correction remain consumer work.
+The supplier dependency on SEED-332#answer-fake-gh-reads-in-process is
+satisfied (accepted at `c5a700892`). The story's dependency block is
+authoritative.
 
 ## Preserved work and qualified proof
 
-- Partial slice 3: stage-file split; shared waitingRequest/aWholePass;
-  adapter prior-state readiness and coherent matching-card observations;
-  pending server-start ownership; origin-owned standalone collector teardown.
-- Approved product repair: read-scoped immutable completion/claim-history reuse.
-  Keep mutable reads live, abort/error behavior and shallow-history semantics.
-  Real-Git tests cover successful and negative graph walks after deepening.
-- Isolated historical proof includes twelve history/endpoint cases and seven
-  native lifetime/caller cases, plus typecheck. It is not three current family
-  passes or the required natural-load profile.
-- The supplier's ordinary-pool full passed2793 cases with one expected benchmark
-  skip. Its later receiving diagnostic passed75/75 after adopting7a100c396.
-  These are supplier observations, not acceptance of this unfinished correction.
-- Slices 1–2 implementation stays done; renew affected proof after reconciliation
-  of CI-glance vocabulary, settled-clock helpers and fixture changes.
+- Delivered on trunk from the partial slice 3: stage-file split, shared
+  waitingRequest/aWholePass, adapter prior-state readiness, pending
+  server-start ownership and origin-owned standalone collector teardown. The
+  realigned slices retire the HTTP and scenario parts of this support. They
+  keep the product changes.
+- Approved product repair: completion/claim-history reuse scoped to one
+  reader. Mutable reads stay live, and abort/error and shallow-history
+  semantics are kept. The real-Git
+  [history semantics cases](../../../dashboard/backend-tests/intent/published-story-history-semantics.spec.ts)
+  already run on Node Vitest and stay as they are.
+- Isolated historical proof and the supplier's diagnostics are observations,
+  not acceptance of this correction.
 
 ## Scope and execution limits
 
-When realigning slices 3–8, [call each typed handler](../../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
-with the state and services its stage uses. For example, the ancestry case
-requires real Git history and the origin under examination. It should run
-without an HTTP server or a rerun-request fixture.
+Prove each stage by [calling its typed handler](../../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+with the state and services that stage uses, in a spec that imports `test`
+from `vitest`, as the
+[backend test README](../../../dashboard/backend-tests/README.md#which-entry-a-case-uses)
+describes. Follow the [North Star](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support).
+Add nothing to `dashboard/test-support/` except MakeMe builders. Delete
+support that loses its last consumer. A case needs no started server, no
+mounted boundary, no fake `gh` binary and no native collector process.
+GitHub is substituted only at the typed `gh` seam that `createGitHubActions`
+already accepts, using the shared `githubApi`/`scriptedGithub` fixtures in
+`Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs`.
+The project's CI adapter is substituted only at its typed command-reader
+contract, as [`landed-ci-scope-adapter-identity.spec.ts`](../../../dashboard/backend-tests/intent/landed-ci-scope-adapter-identity.spec.ts)
+does with `ciAdapterProofReader`.
 
-Keep all prior seven-case promises and faults F1–F11/F14–F24.
-F1 is caught by the default 30-second case bound, as in plan 599.
-The product-code exception is Terry's bounded immutable-history optimization;
-it authorizes no cross-request cache, transport redesign or weakened test bound.
-Retain default30s cases/5s expectations, no sleeps, retries, skips, test.slow()
-or timeout overrides. Apply the selected MakeMe/page-object conventions.
-Use the existing rerun, ledger, held-answer and product-proof owners.
+Production code may be reshaped for testability without changing behavior
+(story extension, 2026-11-19). That covers threading typed inputs and
+exporting handlers from their adapters. It does not authorize new product
+behavior, a cross-request cache, a transport redesign or a weakened bound.
+
+Keep every scenario fact, expected answer and observation of the moved cases:
+the request count, the saved intent before submission, accepted/refused/
+uncertain kinds, card fields and the ledger evidence. Each fault in the
+checkpoint's F1–F28 table moves with its case and must fail its new owner.
+A fault whose code is in deleted support goes with that support, and the
+slice that deletes the support records this. F1 now fails at the receipt
+journey's request expectation instead of a case timeout.
+
+Keep the runner's default timeouts. Use no sleeps, retries, skips,
+`test.slow()` or timeout overrides. Apply the selected MakeMe and
+page-object conventions. The phone E2E journeys from slices 1–2 and the
+other E2E paths in [proof-selection.txt](proof-selection.txt) stay on
+Playwright, unchanged except for imports of retired support.
 
 The [repository failure policy](../../../AGENTS.md#failing-and-flaky-tests)
-applies as written to every slice, delegation and repair handoff.
-At an exact active repair owner, preserve its files and record the coordination
-boundary. Attribution to earlier commits is never a failure exemption.
+applies to every slice, delegation and repair handoff. Attribution to
+earlier commits never exempts a failure. Each attempt is bounded. After a
+failure, diagnose it before running again. When a required host window or
+human decision is missing, return a precise handoff. Never leave an
+open-ended watcher running.
 
-A future attempt must be bounded: obtain the supplier outcome, reconcile it,
-and run the next focused proof. After a failure, diagnose before another run.
-When a required host window or human decision is absent, return a precise handoff.
-Do not leave an open-ended watcher or repeatedly run until green.
+Exclusions:
+
+- `landed-ci-server-lifetime.spec.ts` proves the shared `dashboardServer`
+  fixture, not product behavior. It stays on its current runner. Runner
+  cutover (SEED-413#retire-legacy-dashboard-backend-runner) owns it along
+  with the other test-infrastructure specs. Slice 5 still proves G4 with it.
+- Process-held start origins stay in `startOriginPreparation.ts`. That module
+  already owns them, and about 45 Node Vitest launch specs reach them only
+  through `keepStartedOrigin`. A separate module would grow test support,
+  which the North Star forbids. The earlier "process-held origins module"
+  slice is dropped for this reason.
+- SEED-319#hold-landed-ci-follow-up-observations-under-load stays separate.
+  It may retire once these cases leave HTTP.
 
 ## Verification
 
-Local gates use fully awake AC macOS under
-`caffeinate -s -i`.
-On battery, keep the lid open under `caffeinate -i` and audit sleep.
-Put Homebrew Bash first on PATH; unset NO_COLOR, FORCE_COLOR and
-GIT_ALTERNATE_OBJECT_DIRECTORIES for direct dashboard tests.
+Run local gates on a fully awake Mac on AC power under `caffeinate -s -i`. On
+battery, keep the lid open, run under `caffeinate -i` and audit sleep. Put
+Homebrew Bash first on PATH. For direct dashboard tests, unset NO_COLOR,
+FORCE_COLOR and GIT_ALTERNATE_OBJECT_DIRECTORIES. Run focused backend specs
+with `npm run test:dashboard:backend -- <specs>`, which runs Node Vitest files
+in place, and E2E specs with `npm run test:e2e -- <specs>`. Before running,
+list the current selection, because Playwright silently ignores absent paths.
+Accepting a changed case or support change needs three consecutive passes.
+E2E runs use two workers.
 
-[proof-selection.txt](proof-selection.txt) retains the slice3–5 family:
-18 spec files, previously56 cases, named from the repository root: the
-`dashboard/backend-tests/` ones run through `npm run test:dashboard:backend`
-and the `e2e/` ones through `npm run test:e2e`. List the current selection before running;
-Playwright silently ignores absent paths. Use two workers and require three
-consecutive current passes for changed cases/support before slice acceptance.
-The early-return preservation run is one run, not those three passes.
+For each support removal or contract change, run the
+[consumer trace](../../../.claude/skills/dough-execute-plan/scripts/consumer-trace.mjs)
+against the actual change base, with the retired exports and call forms as
+terms. Give every caller a `run`, `reused` or `excluded` disposition.
 
-For support moves in3/4/8, run consumer-trace with the actual change base and
-retired exports/effects. Give every caller a run, reused or reasoned excluded
-disposition. Run distinct reached behavior beyond the named starting selection.
+Run each fault singly as a scratch edit and observe its named failure.
+Restore the edit before committing. Ledger serialization stays with
+`bash scripts/test.sh tests/support/ci-follow-up-ledger.test.mjs`. Lint and
+typecheck remain the commit-hook gates.
 
-Run the ledger suite through `bash scripts/test.sh tests/support/ci-follow-up-ledger.test.mjs`.
-Run fault controls singly on scratch changes at load about27 or less; observe the
-named failure and restore before commit. Original fault recipes and P1–P5
-preparation observations are recoverable from the pre-return checkpoint above.
-Lint/typecheck remain the normal check-only commit-hook gates.
+Final acceptance runs once, after slice 8. Run the first nine entries of
+[proof-selection.txt](proof-selection.txt), plus
+`e2e/intent/intent-ci-follow-up-custom.spec.ts` for G3, through
+`bash scripts/dashboard-repeat.sh 1 <group command> <specs>`, once for each
+group they span (`test:dashboard:backend`, `test:e2e`). Use two workers, no
+reporter override, and each group's proof record
+(`OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`, `OPEN_DOUGH_E2E_PROOF_RECORD`).
+Start only in a natural, CPU-bound window where the one-minute load is 30–50,
+and require the load to stay in range before and after. Every case must pass
+within 25 s. Burner-induced load and quiet passes do not count; Terry has not
+waived this. If no window occurs, stop and report the missing proof instead of
+waiting. Then finish through ordinary Story Branch wrap-up, confirm the
+accepted landing receipt, and require a successful hosted CI completion for the
+final trunk revision with the observer confirmed stopped.
 
-Once, after slice8, run the original nine-spec selection through
-`bash scripts/dashboard-repeat.sh 1 <group command> <specs>` for each group it
-spans (`test:dashboard:backend`, `test:e2e`), two workers, no reporter
-override, with that group's proof record (`OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`,
-`OPEN_DOUGH_E2E_PROOF_RECORD`). Start only in a natural CPU-bound
-one-minute load30–50 window; before and after must remain in range.
-Every case passes within25s. Burners and quiet passes do not count.
-The nine specs are the first nine entries of proof-selection.txt.
-If the window is absent, stop and report the missing proof rather than waiting
-indefinitely. Terry has not waived this acceptance requirement.
-Finish integration on the authorized trunk through ordinary Story Branch wrap-up
-and confirm its accepted landing receipt. Diagnose and repair failures on
-published revisions. Require a successful hosted CI completion receipt for the
-final accepted trunk revision with confirmed observer shutdown. The early-return
-publication records partial delivery.
+## Decisive premises
+
+| Premise | Consuming operation | Observation | Result |
+| --- | --- | --- | --- |
+| A real-Git completed-story follow-up runs in Node Vitest through a typed handler | Slices 3–6 call follow-up handlers over real Git | `npm run test:dashboard:backend -- dashboard/backend-tests/intent/landed-ci-follow-up-reading.spec.ts` at `f2405f76b`, 2026-11-27, load about 10 | 2/2 passed, 1.2 s and 0.9 s |
+| A typed adapter reader substitutes the CI adapter in Node Vitest | Slice 6 | `npm run test:dashboard:backend -- dashboard/backend-tests/intent/landed-ci-scope-adapter-identity.spec.ts` at `f2405f76b`, 2026-11-27 | 1/1 passed, 270 ms |
+| Follow-up collection cannot be called with typed state today | Slice 3's contract change | Read at `f2405f76b`: `collectCiFollowUps` reads `projectEnvironment()`, `readFollowUps()`, the checkout's `ciConfiguration` and `configuredRepeatProvider`. `githubRepeatProvider` reaches GitHub through `readGitHubActions`, `exactRepeatRun` and the shared `repeatGitHubWorkflow` request owner, with no seam. The card answer `followUpAnswer` is private behind `answerCiFollowUp`. | Confirmed. Slice 3 narrows these contracts |
+| The receipt stage is reachable without HTTP | Slice 5 | Read at `f2405f76b`: `deliverLanding` → `pinNewLanding` → `registerFollowUpReceipt`. `landed-ci-scope-proof-completion.spec.ts` already calls `deliverLanding` on Node Vitest | Confirmed |
+| A later start-origin revision naming the first revision as parent fails with "Unknown parent" | Slice 8 | Scratch Vitest in the job directory at `f2405f76b`: `prepareStartOrigin` with first revision `first`, `OPEN_DOUGH_START_ORIGIN_PREPARATION` set to it, then `initializeStartOrigin(..., "claude", first → second → third{parents:[first]})` | **False.** The origin's `main` has `third`'s parent equal to `first`'s commit. Slice 8 adds the missing regression check only; no fixture repair |
+| A natural one-minute load of 30–50 occurs during execution | Final acceptance | `uptime` at 07:22 and 07:25 on 2026-11-27: 8.6 and 10.7. Earlier executions saw natural loads of 30.9–38.9, 34.9 and 67.8, but never on demand | **Open host condition.** See the remaining concern |
 
 ## Remaining preparation concern
 
-Before another long execution, establish a bounded way to obtain the required
-natural-load observation. Earlier quiet passes and passive monitoring did not
-settle that host premise. This concern is separate from the supplier dependency;
-the recorded readiness judgment must describe it honestly.
+Slice-plan refinement ran as part of this realignment. Slices 3–8 were
+replaced and the count stays at eight. No concern was found about slice
+boundaries, cumulative design or proof ownership in slices 3–7.
+
+Slice 8 has a sizing concern. G3 and G6 were E2E timeouts under natural load
+with no causal diagnosis, and these slices do not change those journeys. If
+the final window reproduces either one, slice 8 needs a repair of unknown
+size.
+
+A further concern blocks readiness. The final acceptance needs a natural 30–50
+one-minute load window, and no bounded way to obtain one exists. The plan
+stops and reports rather than waiting. Until Terry decides how the window is
+obtained, completion depends on a host condition outside the execution's
+control.
+
+## Cumulative design
+
+One rule applies to every stage: collection's follow-up pass is a typed
+handler over the ledger file, kept history, a completion check and a repeat
+provider, and each provider reaches its CI service through a typed seam.
+Slice 3 establishes this. Slices 4–6 add cases on the same contract without
+new recognizers. The receipt stage enters through the existing typed
+`deliverLanding`. Cards are read through one exported typed card handler.
+The kept proof (slice 7) and ancestry (slice 8) cases use contracts that
+already exist.
 
 ## Ordered slices
 
@@ -133,101 +189,162 @@ assertion caught the overflow.
 Type: Behavior
 Status: done
 Proof: Keep the finished-warning observation in the same phone journey. The
-accepted-request backend case retains `in_progress` and its F16 owner.
+accepted-request case retains `in_progress` and its F16 owner.
 Accepted: [Queued-repeat phone journey](../../../e2e/intent/recently-done-ci-automatic-repeat.spec.ts)
 passed three times at two workers, published as
 `7348487b92dd963babcf946e3dc163ae0f3e2d0a`. It read queued progress and then
-the warning for the 106-second finished repeat. F27/P4 failed at “progress saved”.
+the warning for the 106-second finished repeat. F27/P4 failed at "progress saved".
 
-### 3. The automatic-repeat checks are filed by the stage they start from
+### 3. Kept-receipt and saved-request stages are checked by calling typed collection
 Type: Structure
 Status: planned
-Proof: current family three consecutive passes, unchanged moved titles/assertions,
-F2/F8 refused, F9 uncertain and F4 saved-outcome controls. Resolve G1–G6.
-Implementation is partial and preserved; first reconcile the supplier's published
-fixture interfaces, CI-glance wording and settled-clock helper rename.
-Keep only the receipt journey in automatic-repeat; eligible-receipt owns refused/
-uncertain; verdict owns saved accepted outcome. waitingRequest owns run72 and
-aWholePass reads its run. Preserve the scenario facts, expected answers,
-independent restart and ledger evidence, native lifetime and real-history tests.
-One focused diagnostic may identify a concrete remaining fault; do not repeat
-the family or extend product scope without the necessary causal evidence.
+Proof: The converted cases pass three times. F2, F8, F9, F4 and F16 each fail
+their case. The consumer trace covers `collectCiFollowUps`,
+`githubRepeatProvider`, `configuredRepeatProvider`, `answerCiFollowUp` and the
+retired support exports. The E2E journeys in proof-selection.txt that read
+cards pass three times at two workers, because they observe the production
+adapter wiring.
 
-### 4. One owner answers, holds and counts rerun requests, and arrangements layer one way
-Type: Structure
-Status: planned
-Proof: family three current passes, consumer dispositions, no retired exports/
-call forms; F2/F8/F14 still fail their owners.
-providerRepeatRun answers/holds its run; rerunRuns is the only count.
-Compose existing held replies and one fallback layer in ciFollowUpRepeatRun.
-Remove scenario.serve(), OtherAnswers and competing scenario rerun ownership.
+Weakness removed: the stage cases start a boundary server, a fake `gh`
+binary and HTTP card reads to reach logic one process can call. Under load
+30–50 this caused the G1–G6 failures.
 
-### 5. A dashboard sends no rerun request for a landing another dashboard spent during its preparation
+Change:
+
+- `collectCiFollowUps` takes typed input: source, kept history, ledger home,
+  the configured and retained provider resolvers, a completion check and the
+  signal. Its caller in `landedCiCollection.ts` resolves the environment,
+  checkout configuration, `landingCompletesStory` and the providers.
+- `githubRepeatProvider` takes a typed GitHub seam (`gh` reads and the
+  repeat submission). Production passes `readGitHubActions` and
+  `repeatGitHubWorkflow`.
+- Export the card answer as a typed handler over source and ledger.
+  `answerCiFollowUp` keeps request admission.
+- Convert `landed-ci-repeat-eligible-receipt` (refused, uncertain),
+  `landed-ci-repeat-accepted-request` and `landed-ci-repeat-verdict` in place
+  to Node Vitest. Arrange kept state with a private ledger home and MakeMe
+  ledger and history entries, script GitHub through `githubApi`, and read
+  cards through the typed handler.
+- Delete the support these specs alone used.
+
+Next Behavior enabled: slice 4's race case.
+
+### 4. A dashboard sends no rerun request for a landing another dashboard spent during its preparation
 Type: Behavior
 Status: planned
-Proof: new eligible-receipt case three passes; F12 and F25 each fail rerun requests;
-retain the independent ledger test “two independent processes serialize spend.”
-Hold run71's first preparation read after pre-check, write another writer's
-accepted request through the real ledger lock, release and complete a pass.
-Expect no provider rerun and preserve the accepted reference/submission.
+Proof: The new eligible-receipt case passes three times. F12 and F25 each fail
+it on rerun requests. The ledger test "two independent processes serialize
+spend" stays green.
 
-### 6. The kept scope proof is what collection keeps
+Behavior: run 71's kept eligible receipt has passed the ledger pre-check, and
+its first GitHub preparation read is held at the `gh` seam. Another writer
+then saves an accepted request through the real ledger lock. When the read
+is released and collection finishes, no rerun is sent, and the other
+writer's accepted reference and submission are preserved.
+
+### 5. Receipt, admission and reconciliation stages are checked by calling typed handlers
 Type: Structure
 Status: planned
-Proof: completion spec three passes and F28 discrimination.
-For identical run63/revision/files, compare the complete collected proof directly
-with keptScopeFileProof, including zero-duration file evidence. Do not rewrap it.
-The builder already agrees; add protection without inventing representation drift.
+Proof: The converted cases pass three times. F1, F14 and F15 fail the receipt
+journey, and the admission and reconciliation faults fail their cases. The
+consumer trace covers the retired GitHub scenario support. G2 and G4 are
+proved as their entries require. `landed-ci-server-lifetime` passes three
+times.
 
-### 7. A later start-origin revision may name the first revision as its parent
+Change:
+
+- Convert `landed-ci-automatic-repeat` to deliver the 105-second Done
+  receipt through `deliverLanding` with real Git and five kept measured
+  priors, then call typed collection. Observe the intent saved before the
+  held submission, one run-71 request, accepted after release, and the card.
+- Convert `landed-ci-repeat-admission` (three cases) and
+  `landed-ci-repeat-reconciliation` in place on the same contract.
+- Delete the GitHub scenario support that no remaining consumer uses,
+  including `prepareRepeatScenario`, `serve()`, OtherAnswers,
+  `ciFollowUpRepeatRun`, `ciFollowUpRepeatStage` and the HTTP card reader.
+  Rerun answering and counting then belong to each case's scripted `gh`
+  seam, and provider layering disappears. E2E imports such as
+  `keepFollowUpEntries` and `savedRepeatRequest` stay until their last
+  consumer goes.
+
+### 6. Adapter repeat stages are checked by calling typed collection
 Type: Structure
 Status: planned
-Proof: meaningful real-origin parents case, three passes, isolation/demand/refresh
-consumers. Retained preparation reproduced Unknown parent.
-Seed initializeStartOrigin's parent map with first revision name → checkout HEAD
-before later commits. Assert actual origin-main ancestry.
+Proof: The converted cases pass three times. The interruption case observes
+retained intent with no resend after abort. The consumer trace covers
+`ciFollowUpAdapterScenario`, `ciFollowUpCollectionCommands`,
+`ciFollowUpAdapterAssertions` and the collector-lifetime spec. G1 and G5 are
+proved as their entries require.
 
-### 8. The origins one process holds have their own module
+Change:
+
+- `adapterRepeatProvider` takes typed adapter operations (discovery, rebuild
+  request and proof read). The configured adapter command supplies them in
+  production.
+- Convert `landed-ci-adapter-repeat`, `-rejections` and `-comparability` in
+  place on the slice-3 contract. Each card is read once through the typed
+  handler.
+- Delete the native standalone collector support and
+  `landed-ci-collector-lifetime.spec.ts` once nothing starts that collector.
+  G9's process-lifetime purpose goes with it, and this slice records that.
+
+### 7. The kept scope proof is what collection keeps
 Type: Structure
 Status: planned
-Proof: isolation, demand, ambiguous completed-story association, new parent case
-and kept-story consumers three passes; full consumer dispositions; final load proof.
-Move privatelyPrepared/privateDirectories/exit cleanup/keepStartedOrigin/
-preparedPrivately to one process-held owner. Keep run-wide preparation and the
-installation layer in startOriginPreparation; preparedStartOrigin keeps answers.
-Update keptPublishedStory, pageTest and fixture-origins documentation.
+Proof: The completion spec passes three times. F28 fails it.
+Change: in `landed-ci-scope-proof-completion.spec.ts` on Node Vitest, compare
+the complete proof collected for run 63 directly with `keptScopeFileProof` for
+the same revision and files, including zero-duration file evidence. Do not
+rewrap it.
+
+### 8. A later start-origin revision keeps the first revision as its declared parent
+Type: Structure
+Status: planned
+Proof: The new Node Vitest case passes three times. It fails when
+`declaredParents` is dropped from `initializeStartOrigin`'s later-revision
+commit, as a scratch edit.
+Change: call `prepareStartOrigin` and `initializeStartOrigin` with real Git
+on the shared-preparation path. Use a description whose later revision names
+the first revision as a parent, and assert the origin `main` ancestry. The
+fixture already preserves this ancestry (see premise row), so this slice adds
+the regression check only. Run the final acceptance after this slice.
+
+G3 and G6 are E2E journeys under load that no earlier slice changes. Prove
+them in the final load window: `intent-ci-follow-up-custom` (G3) joins that
+run, and `intent-project-scope-timing-refresh` (G6) is already in it. If
+either fails there, diagnose it from a `--trace=on` run before any repair.
 
 ## Story obligations
 
 ### G1. Adapter-comparability failures during slice 3 proof
 Reported: slice 3 — "The first focused family run, launched at natural load 67.80, has observed adapter-comparability polls timing out with stale accepted/intent explanations instead of the expected mismatch or incomplete-proof verdict. Terminal inventory and causal diagnosis remain outstanding."
 Story clause: "Every check still passes at load 30–50 within the default timeouts."
-Disposition: return
+Disposition: receiving slice 6
 
 ### G2. Reconciliation submission observation can precede its prerequisites
 Reported: slice 3 — "The second renewed family run failed multiple-attempt reconciliation: after receipt ingestion the five-second initial rerun-count poll still read zero, at observed natural load 34.94. That is within the promised range; diagnosis and repair remain owed."
 Story clause: "Moving the support owners preserves the existing receipt journey and stage checks."
-Disposition: return
+Disposition: receiving slice 5
 
 ### G3. Custom comparison reading exceeds its case budget
 Reported: slice 3 — "The second renewed family run timed out at 30 seconds while the recovered custom comparison still read Reading retained CI follow-up, after the same case’s slow-outcome navigation. Existing bounds remain unchanged; diagnosis and repair remain owed."
 Story clause: "Every check still passes at load 30–50 within the default timeouts."
-Disposition: return
+Disposition: receiving slice 8
 
 ### G4. Teardown can lose a server whose startup is pending
 Reported: slice 3 — "The real pending-start regression failed on the old fixture with the late server still running after teardown. The original refusal timeout also reached origin cleanup while a restarted server was still starting, producing ENOTEMPTY."
 Story clause: "finds one owner for each support responsibility"
-Disposition: return
+Disposition: receiving slice 5
 
 ### G5. A second fresh card read assumes continued history availability
 Reported: slice 3 — "Malformed-JSON rejection first observed its matching card, but a second fresh endpoint read supplied no card. Each read independently resolves published completion history; the first successful read does not establish the second read’s availability."
 Story clause: "Every check still passes at load 30–50 within the default timeouts."
-Disposition: return
+Disposition: receiving slice 6
 
 ### G6. Refresh proof exhausts its case budget on unrelated comparison reads
 Reported: slice 3 — "The third renewed family run had 54 passes and one refresh-case timeout at 30 seconds, with natural load 30.89 to 38.90. Trace shows an initial CI comparison read taking 9.249 seconds, later revision checking taking 5.83 seconds, and another read drain at the deadline; kept worker preparation is outside that case budget."
 Story clause: "Every check still passes at load 30–50 within the default timeouts."
-Disposition: return
+Disposition: receiving slice 8
 
 ### G7. A shallow negative ancestry result can change after deepening
 Reported: slice 3 — "A real Git shallow boundary makes ancestry return false/exit 1 before deepening and true after removal. The prototype retained the rejected exit-1 query and incorrectly kept returning false in the same reader; the new regression reproduced this mismatch."
