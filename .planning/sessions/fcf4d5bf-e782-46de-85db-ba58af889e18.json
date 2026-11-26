@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "fcf4d5bf-e782-46de-85db-ba58af889e18",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-26T07:52:33.786Z",
+  "story": "SEED-420#put-comparison-follow-up-by-story-notes",
+  "ranges": [
+    {
+      "base": "b934554e75928a5ef20eabc0cf8b84e8dccd0dc1",
+      "candidate": "87878c41e899f2f96f1fe045abf23091a71c3657"
+    }
+  ]
+}
