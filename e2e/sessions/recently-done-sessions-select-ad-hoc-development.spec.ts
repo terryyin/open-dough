@@ -10,7 +10,7 @@ import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { expectProjectChoice } from "../../dashboard/test-support/projectChoice.ts";
 import { recentlyDoneParts } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { openSessionsSidebar } from "../../dashboard/test-support/sessionsSidebarPage.ts";
-import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
+import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedStory.ts";
 import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
 import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
@@ -42,7 +42,6 @@ test("selecting an ad hoc session whose Done story is beyond the Board window re
   await pausePageClockAt(page, new Date(now));
   const linked = await retainAdHocCompletedStory(dashboard, origin, {
     title: sessionTitle,
-    withStoryBinding: true,
   });
   const execution = makeMe.aLaunchRecord
     .executing({ identity: linked.identity, title: executionTitle })

@@ -55,7 +55,7 @@ export type CommittedOrigin = {
 };
 
 export function publishCommittedOrigin(
-  source: Page | FakeGitHub,
+  pageOrGitHub: Page | FakeGitHub,
   options: {
     readonly repoDir: string;
     readonly revision: string;
@@ -67,8 +67,9 @@ export function publishCommittedOrigin(
     readonly realHistory?: boolean;
   },
 ): Promise<CommittedOrigin> {
+  const github =
+    "serve" in pageOrGitHub ? pageOrGitHub : githubFor(pageOrGitHub);
   const { repoDir, repository, branch = "main" } = options;
-  const github = "serve" in source ? source : githubFor(source);
   let revision = options.revision;
   const follows = options.follows === true;
   // The revision `main` names now.

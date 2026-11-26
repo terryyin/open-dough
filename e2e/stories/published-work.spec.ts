@@ -7,11 +7,7 @@ import {
   openDirection,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  commitAnswer,
-  publishOrigin,
-  rawFileAnswer,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedBacklog } from "../../dashboard/test-support/publishedOrigin.ts";
 import { expectSideBySideInOrder } from "../../dashboard/test-support/pageLayout.ts";
 import {
   canonicalRecord,
@@ -22,7 +18,6 @@ import {
 } from "../../dashboard/test-support/storyCardControls.ts";
 import { storyDetail } from "../../dashboard/test-support/storyCardSelection.ts";
 
-const revision = "4f2a9c1e7b3d5a6089c0d1e2f3a4b5c6d7e8f901";
 const installTitle = "Repair the installer's update report";
 const overviewTitle = "See the project's published work in a story dashboard";
 const sourceTitle = "Prepare stories in a clear developer workspace workflow";
@@ -30,8 +25,6 @@ const queueTitle = "Queue trunk integration for agents on the same machine";
 const externalNoteTitle = "Show <em>markup</em> in a title as the text it is";
 const externalNote = "https://status.example.com/notes/2026-09?view=full#api";
 const installPlan = "slice-plans/059-installer-update-report/PLAN.md";
-const workspaceFile = `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`;
-const workspaceSource = `${workspaceFile}#planning-workspace-procedure`;
 
 // Exact bytes under proof: the shared reader reads each spelling a published
 // backlog may hold, among them the older identity shorthand (`— SEED-008`)
@@ -72,13 +65,16 @@ test("published Board shows Backlog and Taken work read at one revision", async 
   const retrievedAt = new Date("2026-09-20T08:30:00.000Z");
   await page.clock.setFixedTime(retrievedAt);
   let releaseRef: () => void = () => undefined;
-  const requests = await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: { revision, answer: rawFileAnswer(publishedBacklog) },
-    refHeldUntil: new Promise<void>((resolve) => {
-      releaseRef = resolve;
-    }),
+  const refHeldUntil = new Promise<void>((resolve) => {
+    releaseRef = resolve;
   });
+  const { revision, requests } = publishCommittedBacklog(
+    page,
+    publishedBacklog,
+    refHeldUntil,
+  );
+  const workspaceFile = `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`;
+  const workspaceSource = `${workspaceFile}#planning-workspace-procedure`;
   const externalReads: string[] = [];
   await page.context().route("https://status.example.com/**", async (route) => {
     externalReads.push(route.request().url());

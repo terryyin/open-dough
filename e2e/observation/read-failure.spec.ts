@@ -15,11 +15,10 @@ import {
 import {
   commitAnswer,
   noConnection,
-  notFoundAnswer,
   pathsRead,
+  publishCommittedBacklog,
   publishOrigin,
   rateLimitedAnswer,
-  rawFileAnswer,
   type Origin,
 } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
@@ -32,7 +31,6 @@ import { describedBacklog } from "../../dashboard/test-support/describedRevision
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { BacklogEntry } from "../../Distribution/tests/support/makeMe.mjs";
 
-const revision = "5e".repeat(20);
 const repairPlan = "slice-plans/059-installer-update-report/PLAN.md";
 const repair = makeMe.aBacklogEntry
   .with({
@@ -65,16 +63,9 @@ function backlogWith(queued: BacklogEntry[], tail = ""): string {
   return `${valid}${tail}`;
 }
 
-function publishedAs(markdown: string): Origin {
-  return {
-    ref: commitAnswer(revision),
-    backlog: { revision, answer: rawFileAnswer(markdown) },
-  };
-}
-
 const failedOpenings: {
   when: string;
-  origin: Origin;
+  origin: Origin | string;
   problem: string;
   recovery?: string;
 }[] = [
@@ -101,14 +92,15 @@ const failedOpenings: {
   },
   {
     when: "one entry line among valid ones is malformed",
-    origin: publishedAs(
-      backlogWith([claims], "- Queue trunk integration, without a link\n"),
+    origin: backlogWith(
+      [claims],
+      "- Queue trunk integration, without a link\n",
     ),
     problem: 'Unsupported entry in "## Backlog list" at line 14',
   },
   {
     when: "the same work is recorded in Taken and again in Backlog",
-    origin: publishedAs(backlogWith([claims], `${repairLine}\n`)),
+    origin: backlogWith([claims], `${repairLine}\n`),
     // The reader's words whole, as its report, then the dashboard's own: said
     // once here, while the other refusals are told apart by the reader's words.
     problem:
@@ -116,7 +108,7 @@ const failedOpenings: {
   },
   {
     when: "an entry carries a field the shared reader does not support",
-    origin: publishedAs(backlogWith([], `${claimsLine} (column: review)\n`)),
+    origin: backlogWith([], `${claimsLine} (column: review)\n`),
     problem: 'Unsupported entry detail in "## Backlog list" at line 13',
   },
 ];
@@ -125,7 +117,8 @@ for (const { when, origin, problem, recovery } of failedOpenings) {
   test(`read failure and retry shows a read problem and no snapshot when ${when}`, async ({
     page,
   }) => {
-    await publishOrigin(page, origin);
+    if (typeof origin === "string") publishCommittedBacklog(page, origin);
+    else await publishOrigin(page, origin);
     await page.goto("/");
     await expectProblemAndNoSnapshot(page, problem, recovery);
     if (recovery?.includes("asks GitHub nothing until")) {
@@ -143,10 +136,7 @@ for (const { when, origin, problem, recovery } of failedOpenings) {
 test("read failure names a missing published backlog concisely and keeps project switching available", async ({
   page,
 }) => {
-  await publishOrigin(page, {
-    ref: commitAnswer(revision),
-    backlog: { revision, answer: notFoundAnswer() },
-  });
+  publishCommittedBacklog(page, null);
   await page.goto("/");
   const message =
     "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).";
@@ -160,13 +150,11 @@ test("read failure and retry is not caused by an unknown section, which adds no 
   page,
 }) => {
   const underReview = "Follow a story on its published branch";
-  await publishOrigin(
+  publishCommittedBacklog(
     page,
-    publishedAs(
-      backlogWith(
-        [claims],
-        `\n## Review\n\n- [${underReview}](seeds/SEED-021-progress.md#follow) — SEED-021#follow\n`,
-      ),
+    backlogWith(
+      [claims],
+      `\n## Review\n\n- [${underReview}](seeds/SEED-021-progress.md#follow) — SEED-021#follow\n`,
     ),
   );
   await page.goto("/");

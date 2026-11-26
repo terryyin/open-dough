@@ -8,6 +8,7 @@ import {
   type DashboardServerMode,
   type developmentBoundary,
 } from "./dashboardServer.ts";
+import { everyRepository, publishes, startFakeGitHub } from "./fakeGitHub.ts";
 
 // Real dev, preview and boundary servers sharing one machine HOME, for System
 // settings journeys and their boundary specs. Only outbound provider egress is
@@ -47,9 +48,15 @@ globalThis.fetch = async (input, options) => {
   const home = path.join(machine, "home");
   const directory = path.join(home, ".open-dough/dashboard/credentials");
   const servers = new Set<DashboardServer>();
+  const published = publishes({});
+  const githubReady = startFakeGitHub().then((github) => {
+    github.serve(everyRepository, published);
+    return github;
+  });
   return {
     machine,
     home,
+    publishedRevision: published.revision,
     credentialDirectory: directory,
     credentialFile: path.join(directory, "openai.json"),
     temporaryPermissions: () =>
@@ -66,6 +73,7 @@ globalThis.fetch = async (input, options) => {
       const server = await startDashboardServer({
         ...(typeof launch === "string" ? { mode: launch } : launch),
         machine,
+        github: await githubReady,
         port,
         configureDevelopmentProjects: false,
         prebuilt: sharedDashboardBuild,
@@ -82,8 +90,17 @@ globalThis.fetch = async (input, options) => {
       servers.delete(server);
     },
     async close() {
-      await Promise.all([...servers].map((server) => server.close()));
-      rmSync(machine, { recursive: true, force: true });
+      const closed = await Promise.allSettled(
+        [...servers].map((server) => server.close()),
+      );
+      try {
+        await (await githubReady).close();
+      } finally {
+        rmSync(machine, { recursive: true, force: true });
+      }
+      for (const result of closed) {
+        if (result.status === "rejected") throw result.reason;
+      }
     },
   };
 }

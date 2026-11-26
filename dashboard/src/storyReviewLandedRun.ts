@@ -10,7 +10,11 @@ import {
 } from "./launchRecord.ts";
 import type { EstablishedSession } from "./unattachedSession.ts";
 import { launchSubject } from "./launchWorkflow.ts";
-import { launchLandingSchema, type LaunchLanding } from "./launchLanding.ts";
+import {
+  historicalUnboundLanding,
+  launchLandingSchema,
+  type LaunchLanding,
+} from "./launchLanding.ts";
 import { sessionKey } from "./sessionReference.ts";
 
 export type ReviewLandedRun = {
@@ -29,7 +33,8 @@ export function reviewLandedRunsOf(
       const established =
         record.start ??
         record.preparation ??
-        (record.landing?.identity === identity
+        (record.landing?.identity === identity ||
+        historicalUnboundLanding(record) !== undefined
           ? record.establishedSession
           : undefined);
       if (

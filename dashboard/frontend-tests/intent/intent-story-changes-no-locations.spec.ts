@@ -28,7 +28,7 @@ test("without configured Intent locations the CI view offers the story's changed
       ),
     )
     .toBeVisible();
-  const outside = story.outsideGroup;
+  const outside = story.tree;
   await expect
     .element(
       outside.getByRole("button", {
@@ -46,18 +46,35 @@ test("without configured Intent locations the CI view offers the story's changed
     changed.notes,
     "Renamed dashboard/tests/between/moved.spec.ts → tests/moved.sh",
   ])
-    await expect.element(story.outsideFile(name)).toBeVisible();
+    await expect.element(story.file(name)).toBeVisible();
   await expect.element(story.folderToggle("docs", true)).toBeVisible();
 
-  await activateComparisonControl(story.outsideFile(changed.product));
+  await activateComparisonControl(story.file(changed.product));
   await expect.poll(story.diffName).toBe(changed.product);
   await expect.poll(story.diffCode).toContain("product change");
   expect(reads.diffs).toEqual([productPath]);
 });
 
-async function showsUnavailableChanges(explanation: string) {
+test("without configured Intent locations Intent only lists no paths, keeps the configuration notice, and off lists the changes again", async () => {
+  await openStoryChanges({ hasLocations: false });
   const story = intentStoryCompare();
   await story.browseFiles();
+  await expect.element(story.file(changed.product)).toBeVisible();
+  await story.intentOnly.click();
+  await expect.element(story.file(changed.product)).not.toBeInTheDocument();
+  await expect
+    .element(
+      story.sidebar.getByText(
+        /^No Intent locations are configured for Open Dough\./,
+      ),
+    )
+    .toBeVisible();
+  await story.intentOnly.click();
+  await expect.element(story.file(changed.product)).toBeVisible();
+});
+
+async function showsUnavailableChanges(explanation: string) {
+  const story = intentStoryCompare();
   await expect
     .element(story.header.getByRole("status"))
     .toHaveTextContent("No comparison is available.");

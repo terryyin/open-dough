@@ -14,6 +14,7 @@
 import { expect } from "@playwright/test";
 import { launchRequest } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { serveInstalledOpenDough } from "../../dashboard/test-support/installedCatalogPublication.ts";
 import {
   afterFurtherListings,
   becomes,
@@ -59,6 +60,7 @@ test.describe("a session that starts needing the developer raises one macOS noti
     ]);
 
     await afterFurtherListings(server);
+    await serveInstalledOpenDough(server);
     await page.goto(server.baseURL);
     await page.reload();
     await afterFurtherListings(server);

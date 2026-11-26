@@ -99,7 +99,7 @@ async function readStoryChanges() {
   });
   await mounted.selectStory(failingStory.identity, failingStory.title);
   await story.browseFiles();
-  await selectBrowsedFile();
+  await selectBrowsedFile("story");
   return { judgedBranches, reviews, fileReads, mounted };
 }
 

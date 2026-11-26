@@ -44,6 +44,7 @@ import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts
 import { admittedStory } from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { serveInstalledCatalogProject } from "../../dashboard/test-support/installedCatalogPublication.ts";
 
 test.use({
   projectFolders: ["open-dough", "pygardon"],
@@ -165,6 +166,7 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
   dashboard.claudeScenario("launched");
   await openJourney(page, launchJourney);
   const { recentlyDone } = parts(page);
+  await serveInstalledCatalogProject(dashboard, "pygardon");
   await chooseProject(page, "Pygardon");
   const dialog = startSessionDialog(page, "Pygardon");
 

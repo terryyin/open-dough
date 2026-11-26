@@ -14,6 +14,7 @@ import type { PublishedWork } from "../../src/publishedWork.ts";
 import { RecentlyDoneLinkSources } from "../../src/recentlyDoneShownLinks.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
+import { withStoryResultFixture } from "../../test-support/component-mount/storyResultFixture.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { useMountedLaunchAttempts } from "../launches/mounted-launch-attempts.ts";
@@ -51,25 +52,29 @@ function StoryIntentLaunches({
   );
 }
 
-// Begin at the selected story. Story selection and the dashboard frame have
-// their own proofs; the case supplies the selection and Intent's read replies.
+// Begin at the selected story with Files docked unless `viewport` says
+// otherwise. Story selection and the dashboard frame have their own proofs; the
+// case supplies the selection and Intent's read replies.
 export async function mountStoryIntent({
   work,
   identity,
   machine = makeMe.aMachineAnswer.please(),
   launchSource = unansweredLaunches,
   reads,
-  viewport,
+  viewport = { width: 1280, height: 800 },
 }: {
   readonly work: PublishedWork;
   readonly identity: string;
   readonly machine?: MachineAnswer;
   readonly launchSource?: LaunchAttemptSource;
   readonly reads: Partial<PageReads>;
-  readonly viewport?: { readonly width: number; readonly height: number };
+  readonly viewport?:
+    { readonly width: number; readonly height: number } | undefined;
 }) {
   const { source } = work;
-  const pageReads = pageReadsSupplying(reads);
+  const pageReads = pageReadsSupplying(
+    withStoryResultFixture(reads, () => work),
+  );
   const projects = [source];
   const project = {
     mode: "ci",
@@ -103,7 +108,7 @@ export async function mountStoryIntent({
     </PageReadsOnPage>
   );
   const mounted = await mountComponent(view(identity), {
-    ...(viewport === undefined ? {} : { viewport }),
+    viewport,
     fillsViewport: true,
   });
   return {

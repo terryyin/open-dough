@@ -1,7 +1,7 @@
 // After worktree/branch retirement and trunk advance, selecting the retained
 // ad hoc row reaches the story's historical Review and Intent coverage
 // (../../dashboard/src/recentlyDoneSelection.ts) without rewriting Ad hoc. Reuses the
-// real completion publish path (../../dashboard/test-support/support/adHocCompletedAssociation.ts) and
+// real completion publish path (../../dashboard/test-support/support/adHocCompletedStory.ts) and
 // Intent review helpers (../../dashboard/test-support/support/intentStoryPage.ts).
 import {
   expect,
@@ -9,7 +9,7 @@ import {
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
-import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
+import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedStory.ts";
 import {
   browseStoryFiles,
   chooseStoryTab,
@@ -36,7 +36,6 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
   test.setTimeout(120_000);
   publishIntentTrunk(origin.project);
   const linked = await retainAdHocCompletedStory(dashboard, origin, {
-    withStoryBinding: true,
     title: sessionTitle,
     intentCoverage: {
       report:

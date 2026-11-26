@@ -6,7 +6,6 @@
 // commit between (./revisionReuseBoundary.ts).
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
-import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import { refusedMarker } from "../../test-support/support/sharedReads.ts";
 import {
   noConnection,
@@ -18,6 +17,7 @@ import {
   madeBy,
   modified,
   named,
+  serveReusePublication,
 } from "../../test-support/revisionReuseOrigin.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 
@@ -29,24 +29,24 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
   const { server, at, asked, publishedAt, movedTo } = revisionReuseBoundary();
 
   test("a comparison that fails is not remembered: that read is answered from GitHub, and a later read compares again and reuses", async () => {
-    const [a, b] = [named("aa"), named("ba")];
     const files = origin.labeled("failing").please().files;
-    const published = await publishedAt(a, files);
-    await movedTo(published, a, { revision: b, files }, [
+    const published = await publishedAt(files);
+    const { revision: a } = published;
+    const b = await movedTo(published, a, { files }, [
       madeBy("ca", [modified("src/app.ts")]),
     ]);
     const succeeding = published.compared.get(`${a}...${b}`);
     published.compared.set(`${a}...${b}`, () => noConnection);
 
     expect(await asked(() => at(b).backlog())).toEqual([
-      `content ${origin.paths.backlog}@ba`,
+      `content ${origin.paths.backlog}@${b}`,
     ]);
     let seed: Answer | undefined;
     expect(
       await asked(async () => {
         seed = await at(b).file(origin.paths.seed);
       }),
-    ).toEqual(["compare aa...ba", `content ${origin.paths.seed}@ba`]);
+    ).toEqual([`compare ${a}...${b}`, `content ${origin.paths.seed}@${b}`]);
     expect(seed).toEqual({
       status: 200,
       body: {
@@ -60,21 +60,21 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
       published.compared.set(`${a}...${b}`, succeeding);
     }
     expect(await asked(() => at(b).file(origin.paths.plan))).toEqual([
-      "compare aa...ba",
-      "commit ca",
+      `compare ${a}...${b}`,
+      `commit ${named("ca")}`,
     ]);
   });
 
   test("a commit between that fails to be read is not remembered: that read is answered from GitHub, and a later read asks the commit again and reuses", async () => {
-    const [a, b] = [named("ac"), named("bc")];
     const files = origin.labeled("failing commit").please().files;
-    const published = await publishedAt(a, files);
+    const published = await publishedAt(files);
+    const { revision: a } = published;
     const between = madeBy("cc", [modified("src/app.ts")]);
-    await movedTo(published, a, { revision: b, files }, [between]);
+    const b = await movedTo(published, a, { files }, [between]);
     published.made.delete(between.sha);
 
     expect(await asked(() => at(b).backlog())).toEqual([
-      `content ${origin.paths.backlog}@bc`,
+      `content ${origin.paths.backlog}@${b}`,
     ]);
     let seed: Answer | undefined;
     expect(
@@ -82,9 +82,9 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
         seed = await at(b).file(origin.paths.seed);
       }),
     ).toEqual([
-      "compare ac...bc",
-      "commit cc",
-      `content ${origin.paths.seed}@bc`,
+      `compare ${a}...${b}`,
+      `commit ${named("cc")}`,
+      `content ${origin.paths.seed}@${b}`,
     ]);
     expect(seed).toEqual({
       status: 200,
@@ -97,16 +97,16 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
 
     published.made.set(between.sha, between);
     expect(await asked(() => at(b).file(origin.paths.plan))).toEqual([
-      "compare ac...bc",
-      "commit cc",
+      `compare ${a}...${b}`,
+      `commit ${named("cc")}`,
     ]);
   });
 
   test("the backlog at B is answered while the comparison is held, and a burst of reads there shares one comparison and one read of the commit between", async () => {
-    const [a, b] = [named("ae"), named("be")];
     const files = origin.labeled("burst").please().files;
-    const published = await publishedAt(a, files);
-    await movedTo(published, a, { revision: b, files }, [
+    const published = await publishedAt(files);
+    const { revision: a } = published;
+    const b = await movedTo(published, a, { files }, [
       madeBy("ce", [modified("src/app.ts")]),
     ]);
     // The comparison is answered once the first read has asked for it, while
@@ -115,7 +115,7 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
     const released = new Promise<void>((resolve) => {
       release = resolve;
     });
-    server().github.serve(everyRepository, async (call) => {
+    serveReusePublication(server().github, published, async (call) => {
       if (call.request.kind === "compare") await released;
       return answerFrom(published, call);
     });
@@ -151,9 +151,9 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
       for (const answer of await answers) expect(answer.status).toBe(200);
     });
     expect(calls).toEqual([
-      `content ${origin.paths.backlog}@be`,
-      "compare ae...be",
-      "commit ce",
+      `content ${origin.paths.backlog}@${b}`,
+      `compare ${a}...${b}`,
+      `commit ${named("ce")}`,
     ]);
   });
 });
@@ -165,10 +165,10 @@ test.describe("authenticated read reuse at a newly named revision under a rate l
   const { at, asked, publishedAt, movedTo } = revisionReuseBoundary();
 
   test("a comparison GitHub refuses with Retry-After leaves the backlog answered, and is reported as a rate limit for a record, reading nothing for it", async () => {
-    const [a, b] = [named("ab"), named("bb")];
     const files = origin.labeled("limited").please().files;
-    const published = await publishedAt(a, files);
-    await movedTo(published, a, { revision: b, files });
+    const published = await publishedAt(files);
+    const { revision: a } = published;
+    const b = await movedTo(published, a, { files });
     published.compared.set(`${a}...${b}`, () =>
       rateLimitedAnswer(403, { "Retry-After": "120" }),
     );
@@ -182,7 +182,7 @@ test.describe("authenticated read reuse at a newly named revision under a rate l
       await asked(async () => {
         limited = await at(b).file(origin.paths.seed);
       }),
-    ).toEqual(["compare ab...bb"]);
+    ).toEqual([`compare ${a}...${b}`]);
     expect(limited).toMatchObject({
       status: 502,
       body: { retryAfterSeconds: 120 },

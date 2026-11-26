@@ -21,6 +21,7 @@ import {
   establishedFacts,
   type Established,
   type PlannedStart,
+  type StoryStartRuntime,
 } from "./startLaunch.ts";
 import {
   beginPreparation,
@@ -29,7 +30,13 @@ import {
 } from "./preparationStart.ts";
 import type { LocalFolder } from "./localFolder.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
-import type { StartsWorkflow } from "./startStore.ts";
+import type { StartStore, StartsWorkflow } from "./startStore.ts";
+
+export type StoryStartInputs = {
+  readonly store: (workflow: StartsWorkflow) => StartStore;
+  readonly env: NodeJS.ProcessEnv;
+  readonly warningMs?: number;
+};
 
 // A story launch's established start or preparation.
 type StoryLaunch = EstablishedLaunch<Established>;
@@ -104,7 +111,7 @@ export type StartWorkflow = {
     request: StoryLaunchRequest,
     project: LocalFolder,
     progress: WorkflowProgress,
-    noteWorker: (pid: number) => Promise<void>,
+    runtime: StoryStartRuntime,
   ): Promise<PlannedStart>;
   format(
     project: LocalFolder,

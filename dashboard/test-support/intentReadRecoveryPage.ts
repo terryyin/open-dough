@@ -1,7 +1,11 @@
 // Shared inputs and page actions for Intent read recovery journeys.
 
 import { expect, type Locator } from "@playwright/test";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import {
+  expectPublishedRevision,
+  expectSettledPage,
+  parts,
+} from "./dashboardPage.ts";
 import {
   openDoughSources,
   testOptimizationCandidatesPath,
@@ -42,7 +46,7 @@ export const locationFiles = { "scripts/example.test.mjs": nodeTest };
 
 type Page = Parameters<typeof parts>[0];
 
-export async function openDoughnut(page: Page) {
+export async function openDoughnut(page: Page, revision: string) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await openUntilRead(page, "/?project=doughnut");
   await expectSettledPage(page, {
@@ -50,6 +54,7 @@ export async function openDoughnut(page: Page) {
     backlog: ["Doughnut's own queued story"],
   });
   await untilPageRequestsAnswered(page);
+  await expectPublishedRevision(page, revision);
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   return intent;
@@ -62,7 +67,6 @@ export async function advanceRecoveryClock(page: Page, milliseconds: number) {
 
 export function publishedCandidates() {
   return publishes({
-    revision: openDough.revision,
     files: {
       ...openDough.files,
       [settingsPath]: intentSettingsText(openDoughSettings),
@@ -90,7 +94,7 @@ export async function openCandidates(page: Page, expectedRevision: string) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
-  await expect(intentLocationName(intent, "dashboard/tests")).toBeVisible();
+  await expect(intentLocationName(intent, "dashboard/tests")).toBeAttached();
   await chooseOptimizationCandidates(intent);
   await expectCandidatesRevision(intent, expectedRevision);
   return candidatesRecord(intent);

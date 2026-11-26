@@ -5,15 +5,11 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "./pageTest.ts";
 import { ciFollowUpEndpoint } from "../../src/ciFollowUp.ts";
 import { parts } from "../dashboardPage.ts";
-import {
-  browseStoryFiles,
-  chooseStoryTab,
-  intentFile,
-  storyOnly,
-} from "./intentStoryPage.ts";
+import { showIntentFiles, uncoverIntentReader } from "../intentModePage.ts";
+import { chooseStoryTab, intentFile, changesOnly } from "./intentStoryPage.ts";
 import {
   expandIntentGroup,
-  intentLocationName,
+  revealIntentLocation,
   fileReadingTab,
   proofRegion,
 } from "../intentPerspectivePage.ts";
@@ -27,6 +23,23 @@ export const ciFollowUpCard = (page: Page, title: string) =>
   page.getByRole("article", { name: title, exact: true });
 export const ciFollowUpWarning = (card: Locator) =>
   card.getByLabel("CI timing follow-up");
+
+// The Board can show the Done card before its project-wide follow-up is read.
+export async function openBoardWithCiFollowUp(
+  page: Page,
+  baseURL: string,
+  project: string,
+) {
+  const board = new URL(baseURL);
+  board.searchParams.set("project", project);
+  const read = new URL(ciFollowUpEndpoint, board);
+  read.searchParams.set("id", project);
+  const [answer] = await Promise.all([
+    page.waitForResponse(read.href),
+    page.goto(board.href),
+  ]);
+  await answer.finished();
+}
 
 // The Done card of `title` brought into view: a phone shows one Board column
 // at a time, and a card in a column paged away is attached but not shown.
@@ -143,9 +156,11 @@ export async function expectOriginalProofNavigation(
   },
 ) {
   const { intent } = parts(page);
-  await browseStoryFiles(intent);
-  if (await storyOnly(intent).isChecked()) await storyOnly(intent).uncheck();
-  await intentLocationName(intent, expected.location).click();
+  await showIntentFiles(intent);
+  if (await changesOnly(intent).isChecked())
+    await changesOnly(intent).uncheck();
+  await (await revealIntentLocation(intent, expected.location)).click();
+  await uncoverIntentReader(intent);
   const summary = summaryRegion(intent);
   await expect(
     attemptLink(evidenceLabels(summary), expected.originalAttempt),
@@ -161,6 +176,7 @@ export async function expectOriginalProofNavigation(
   await expect(evidenceLabels(summary), "no story framing").not.toContainText(
     expected.absentFraming,
   );
+  await showIntentFiles(intent);
   await expandIntentGroup(intent, expected.location);
   await intentFile(intent, expected.file).click();
   await fileReadingTab(intent, "Proof").click();

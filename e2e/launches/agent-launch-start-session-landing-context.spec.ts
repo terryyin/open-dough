@@ -15,12 +15,15 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
   openBacklog,
+  originMain,
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
@@ -34,7 +37,9 @@ test("Isolated workspace · Automatically land carries its landing context and c
   dashboard,
   origin,
 }) => {
-  await openBacklog(page, origin);
+  const initialRevision = await originMain(origin);
+  await openBacklog(page, origin, true);
+  expectServedHomesReach(dashboard.github, defaultRepository, initialRevision);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
   await radio(dialog, "Workspace", "Isolated workspace").check();
@@ -68,4 +73,9 @@ test("Isolated workspace · Automatically land carries its landing context and c
     landing: "auto-land",
   });
   await expectCapturedLanding(dashboard, origin, record, "isolated.txt");
+  expectServedHomesReach(
+    dashboard.github,
+    defaultRepository,
+    await originMain(origin),
+  );
 });

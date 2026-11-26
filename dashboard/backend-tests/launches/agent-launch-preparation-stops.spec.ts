@@ -1,157 +1,155 @@
-// A refinement launch whose preparation start stops launches nothing and
-// answers "Launch failed:" with why (../../server/preparationResult.ts
-// `preparationRefusal`), over raw HTTP against the real installed
-// `preparation-assignment.mjs` and a real bare origin
-// (../../test-support/support/startOrigin.ts), with the synthetic `claude`: the story not
-// queued, every agent name held, a workspace that cannot be selected. Each
-// leaves no session and no progress phase. The table's mapping of the
-// remaining stop statuses is ./preparation-start-result.spec.ts.
-
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+// A definite preparation refusal clears its progress and keeps no start.
+import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { renderAgentProfile } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
-  launch,
-  runningStarts,
-} from "../../test-support/agentLaunchBoundary.ts";
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from "vitest";
+import { agentNames } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  publicationOf,
+  started,
+  type Started,
+} from "../../server/launchStart.ts";
+import { localFolder, type LocalFolder } from "../../server/localFolder.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { startStore, type StartStore } from "../../server/startStore.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
 const exec = promisify(execFile);
-
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
 const request = makeMe.aLaunchRequest
   .refining({ identity: queuedIdentity, title: queuedTitle })
   .please();
+const slug = "prepare-the-queued-start";
 
-test.describe("refinement preparation start that stops", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
+let origin: StartOrigin;
+let home: string;
+let folder: LocalFolder;
+let store: StartStore;
+let attempt: Promise<Started> | undefined;
 
-  test.beforeEach(async () => {
-    origin = await startOrigin(queuedReadyRepository().please());
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-    });
-  });
-
-  test.afterEach(async () => {
-    await server.close();
-    origin.cleanup();
-  });
-
-  async function refused(body: object): Promise<string> {
-    server.claudeScenario("launched");
-    const response = await launch(server, body);
-    const answer = JSON.parse(response.body) as {
-      kind: string;
-      reason: string;
-      explanation: string;
-    };
-    expect(answer, response.body).toMatchObject({
-      kind: "failed",
-      reason: "start-refused",
-    });
-    expect(server.claudeLaunchCalls()).toEqual([]);
-    expect(await runningStarts(server)).toEqual([]);
-    return answer.explanation;
+beforeAll(async () => {
+  const initial = await startOrigin(repository);
+  try {
+    keepStartedOrigin("claude", repository, initial);
+  } finally {
+    initial.cleanup();
   }
+});
 
-  // The stop leaves no workspace and no branch of this launch behind.
-  async function expectNoWorkspaceLeft(): Promise<void> {
-    const worktrees = path.join(origin.project, ".worktrees");
-    expect(existsSync(path.join(worktrees, "prepare-the-queued-start"))).toBe(
-      false,
-    );
-    const { stdout } = await exec("git", ["branch", "--list", "claude/*"], {
-      cwd: origin.project,
-    });
-    expect(stdout.trim()).toBe("");
-    const listed = await exec("git", ["worktree", "list", "--porcelain"], {
-      cwd: origin.project,
-    });
-    expect(listed.stdout).not.toContain("prepare-the-queued-start");
-    // The kept start goes with the workspace: nothing was assigned to resume.
-    const store = path.join(
-      origin.machine,
-      "home/.open-dough/dashboard/refinement-starts.json",
-    );
-    const kept = existsSync(store)
-      ? (JSON.parse(readFileSync(store, "utf8")) as Record<string, object>)
-      : {};
-    expect(Object.values(kept["open-dough"] ?? {})).toEqual([]);
-  }
+beforeEach(async () => {
+  attempt = undefined;
+  origin = await startOrigin(repository);
+  home = path.join(origin.machine, "home");
+  folder = localFolder("~/git/open-dough", home);
+  store = startStore("refinement", home);
+});
 
-  test("a story not queued in Backlog is not started and makes no workspace", async () => {
-    expect(await refused({ ...request, identity: "SEED-A#not-queued" })).toBe(
-      "The story is not queued in Backlog on origin, so it cannot be started. Nothing was launched.",
+afterEach(async () => {
+  await Promise.allSettled([attempt]);
+  origin.cleanup();
+});
+
+async function refused(
+  request: AgentLaunchRequest,
+  originalHead: string,
+): Promise<string> {
+  assert(request.workflow === "refinement");
+  const progress = new StartProgress();
+  attempt = started(
+    source,
+    request,
+    folder,
+    progress,
+    { store: () => store, env: { ...process.env, HOME: home } },
+    "refinement-attempt",
+  );
+  const result = await attempt;
+  if (result.kind !== "stopped" || result.result.kind !== "failed")
+    throw new Error(
+      `Expected a refused preparation: ${JSON.stringify(result)}`,
     );
-    expect(await origin.takenProfiles()).toEqual([]);
-    expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
-    await expectNoWorkspaceLeft();
+  expect(result.result.reason).toBe("start-refused");
+  expect(publicationOf(result, undefined)).toEqual({ kind: "none" });
+  expect(progress.all()).toEqual([]);
+
+  const git = (...args: string[]) => exec("git", args, { cwd: origin.project });
+  const [head, kept, branches, worktrees] = await Promise.all([
+    origin.originGit("rev-parse", "main"),
+    store.kept(source.id, request.identity),
+    git("branch", "--list", "claude/*"),
+    git("worktree", "list", "--porcelain"),
+  ]);
+  expect(head.trim()).toBe(originalHead);
+  expect(kept).toBeUndefined();
+  expect(branches.stdout.trim()).toBe("");
+  expect(worktrees.stdout).not.toContain(slug);
+  expect(existsSync(path.join(origin.project, ".worktrees", slug))).toBe(false);
+  return result.result.explanation;
+}
+
+test("refuses an unqueued story without creating a workspace", async () => {
+  const unqueued = makeMe.aLaunchRequest
+    .refining({ identity: "SEED-A#not-queued", title: queuedTitle })
+    .please();
+
+  expect(await refused(unqueued, origin.revision("base"))).toBe(
+    "The story is not queued in Backlog on origin, so it cannot be started. Nothing was launched.",
+  );
+  expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
+});
+
+describe("when every agent name is held", () => {
+  let heldHead: string;
+  let heldProfiles: Awaited<ReturnType<StartOrigin["takenProfiles"]>>;
+
+  beforeEach(async () => {
+    heldHead = await origin.publishRevision({
+      message: "Hold every agent name",
+      agentProfiles: agentNames.map((name) =>
+        makeMe.anAgentProfile
+          .preparing({ name, identity: "SEED-B#b" })
+          .please(),
+      ),
+    });
+    heldProfiles = await origin.takenProfiles();
   });
 
-  test("every agent name held stops and lists the holders", async () => {
-    const { agentNames } =
-      await import("../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs");
-    const agents = path.join(origin.project, ".planning", "agents");
-    mkdirSync(agents, { recursive: true });
-    for (const name of agentNames) {
-      writeFileSync(
-        path.join(agents, `${name.toLowerCase()}-chan.json`),
-        renderAgentProfile(
-          makeMe.anAgentProfile
-            .preparing({
-              name,
-              identity: "SEED-B#b",
-            })
-            .please(),
-        ),
-      );
-    }
-    await exec("git", ["add", "."], { cwd: origin.project });
-    await exec("git", ["commit", "-m", "hold every name"], {
-      cwd: origin.project,
-    });
-    await exec("git", ["push", "origin", "main"], { cwd: origin.project });
-    const held = await origin.takenProfiles();
+  test("refuses preparation and lists the holders", async () => {
+    const holders = agentNames
+      .map((name) => `${name}-chan`)
+      .sort()
+      .join(", ");
 
-    const explanation = await refused(request);
-    expect(explanation).toBe(
-      `Every agent name is held on origin (${agentNames
-        .map((name) => `${name}-chan`)
-        .sort()
-        .join(
-          ", ",
-        )}), so no agent is free to prepare the story. Nothing was launched.`,
+    expect(await refused(request, heldHead)).toBe(
+      `Every agent name is held on origin (${holders}), so no agent is free to prepare the story. Nothing was launched.`,
     );
-    expect(await origin.takenProfiles()).toEqual(held);
-    await expectNoWorkspaceLeft();
+    expect(await origin.takenProfiles()).toEqual(heldProfiles);
   });
+});
 
-  test("a workspace that cannot be created is not used", async () => {
-    // A file where the worktrees folder belongs: Git cannot add a worktree.
-    writeFileSync(path.join(origin.project, ".worktrees"), "in the way\n");
-    const explanation = await refused(request);
-    expect(explanation).toMatch(
-      /^The workspace could not be set up: .+\. Nothing was launched\.$/s,
-    );
-    expect(await origin.takenProfiles()).toEqual([]);
-    await expectNoWorkspaceLeft();
-  });
+test("refuses preparation when Git cannot create the worktree", async () => {
+  writeFileSync(path.join(origin.project, ".worktrees"), "in the way\n");
+
+  expect(await refused(request, origin.revision("base"))).toMatch(
+    /^The workspace could not be set up: .+\. Nothing was launched\.$/s,
+  );
 });

@@ -1,11 +1,11 @@
-// Real published completion, confirmed association and local review saves.
+// Real published completion, linked sessions and local review saves.
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
+import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedStory.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
@@ -48,8 +48,7 @@ test("confirmed Ad hoc and repeated story sessions share review changes while un
     "Ad hoc completed session with a long title that remains readable in session details";
   const linked = await retainAdHocCompletedStory(dashboard, origin, {
     title,
-    withStoryBinding: true,
-    landing: { repository: path.join(origin.project, ".git") },
+    landingRepository: path.join(origin.project, ".git"),
   });
   const secondTitle = "Another session of the same completed story";
   const message = "Completed the shared story.";

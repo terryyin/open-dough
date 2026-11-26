@@ -92,7 +92,7 @@ function resumesReviewAt(requestUrl: string, revision: string) {
   );
 }
 
-const firstChanged = "Added dashboard/tests/boundary/b.spec.ts";
+const firstChanged = "Deleted .planning/agents/yui-chan.json";
 const kept = "dashboard/tests/boundary/kept.spec.ts";
 
 test("cold review panes share initial sync and only the remaining pane opens the historical comparison", async ({
@@ -184,9 +184,11 @@ test("cold review panes share initial sync and only the remaining pane opens the
   });
   await test.step("And the first changed file is selected with its diff", async () => {
     await remaining.files.expectSelected(firstChanged);
-    await remaining.diffs.expectShows(firstChanged, "+added");
+    await remaining.diffs.expectShows(firstChanged, '-  "agent": "Yui-chan",');
   });
-  await test.step("When I choose the unchanged test file", () =>
+  await test.step("When I list the revision", () =>
+    remaining.files.listRevision());
+  await test.step("And I choose the unchanged test file", () =>
     remaining.files.choose(kept));
   await test.step("Then its source comes from the published completion", () =>
     remaining.expectHistoricalSource(kept, completion, "kept 11"));

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "60b05a29-9f4a-48a8-b189-4cf49d61314c",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-25T23:55:03.873Z",
+  "story": "SEED-443#simplify-intent-comparison-test-setup",
+  "ranges": [
+    {
+      "base": "31f12483d6f545fa61a1712ef899ca68aa574498",
+      "candidate": "5517682b8b5c5808cb1551bbb61d280ac1fa0215"
+    },
+    {
+      "base": "5517682b8b5c5808cb1551bbb61d280ac1fa0215",
+      "candidate": "2eae844d2864874cd3b83f61b5d27dddd18ef023"
+    },
+    {
+      "base": "2eae844d2864874cd3b83f61b5d27dddd18ef023",
+      "candidate": "a7ff4964385027af4d43cba500fde4ef897abe50"
+    }
+  ]
+}

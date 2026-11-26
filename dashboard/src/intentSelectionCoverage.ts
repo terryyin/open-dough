@@ -55,14 +55,23 @@ export function filesOfSelection(
 }
 
 // Whether the shown tree holds the selected path: a configured location, a
-// listed file, or a folder some listed file lies under.
+// listed file, or a folder that holds a listed file or configured root.
 export function treeHoldsSelection(
   locations: readonly IntentLocation[],
   treeFiles: ReadonlyMap<string, unknown>,
   selection: IntentSelection,
 ): boolean {
-  if (selectionScope(selection) === "location")
+  const scope = selectionScope(selection);
+  if (scope === "location")
     return owningLocation(locations, selection) !== undefined;
+  if (
+    scope === "folder" &&
+    locations.some(
+      ({ path }) =>
+        path === selection.path || path.startsWith(`${selection.path}/`),
+    )
+  )
+    return true;
   return filesOfSelection(treeFiles, selection).length > 0;
 }
 

@@ -44,6 +44,7 @@ import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedFiles } from "../../test-support/describedRevisions.ts";
 import { backlogPath } from "../../test-support/publishedOriginBasics.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -121,11 +122,13 @@ test.describe("authenticated read boundary (development environment)", () => {
     const published = publishes({ files, backlog: files[backlogPath] ?? "" });
     const { revision } = published;
     server.github.serve(everyRepository, published);
+    expectServedHomesReach(server.github, knownRepository, revision);
     const membership = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
       headers: { Origin: server.origin },
     });
     expect(membership.status).toBe(200);
+    expect(JSON.parse(membership.body)).toMatchObject({ revision });
     const callsBefore = server.ghCalls().length;
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(seedPath)}`,
@@ -172,11 +175,13 @@ test.describe("authenticated read boundary (development environment)", () => {
     });
     const { revision } = published;
     server.github.serve(everyRepository, published);
+    expectServedHomesReach(server.github, knownRepository, revision);
     const membership = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
       headers: { Origin: server.origin },
     });
     expect(membership.status).toBe(200);
+    expect(JSON.parse(membership.body)).toMatchObject({ revision });
 
     const callsBefore = server.ghCalls().length;
     const response = await rawRequest({

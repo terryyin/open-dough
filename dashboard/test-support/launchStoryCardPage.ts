@@ -8,6 +8,7 @@ import { cpSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { githubFor } from "./dashboardTest.ts";
 import {
   expectSettledPage,
   parts,
@@ -22,7 +23,14 @@ import {
 } from "./launchJourney.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { optionsDefinitionSchema } from "../src/commandOptions.ts";
+import { hostName } from "../src/sessionCapabilities.ts";
+import type { SessionReference } from "../src/sessionReference.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
+import { defaultRepository } from "./publishedOriginBasics.ts";
+import {
+  expectServedHomesReach,
+  routeServedHomesToPublication,
+} from "./support/fixtureOriginRoute.ts";
 import { sessionDetailsControl } from "./support/sessionEntryDisclosure.ts";
 import { radio } from "./support/sessionDialog.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
@@ -90,8 +98,11 @@ export async function openTakenBacklog(page: Page, journey: LaunchJourney) {
   await publishCommittedOrigin(page, {
     repoDir: journey.origin,
     revision: journey.taken,
-    repository: "terryyin/open-dough",
+    repository: defaultRepository,
   });
+  const github = githubFor(page);
+  routeServedHomesToPublication(github, defaultRepository);
+  expectServedHomesReach(github, defaultRepository, journey.taken);
   await page.goto("/");
   await expectSettledPage(page, takenBacklogStories);
   return backlogLaunchers(page);
@@ -178,9 +189,13 @@ export async function showsRecordedRefinementOptions(
 export const startSession = (page: Page, project: string) =>
   page.getByRole("button", { name: `Start session in ${project}` });
 
-export const startSessionDialog = (page: Page, project: string) =>
+export const startSessionDialog = (
+  page: Page,
+  project: string,
+  host: SessionReference["host"] = "claude",
+) =>
   page.getByRole("dialog", {
-    name: `Start a session in ${project} in Claude Code`,
+    name: `Start a session in ${project} in ${hostName(host)}`,
   });
 
 export async function openStartSession(page: Page, project: string) {

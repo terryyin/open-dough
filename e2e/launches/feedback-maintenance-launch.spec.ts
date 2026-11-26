@@ -16,7 +16,8 @@ import { queuedReadyRepository } from "../../Distribution/tests/support/queued-r
 import type { Page } from "@playwright/test";
 import { openDoughFolder } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
@@ -29,7 +30,7 @@ import {
   invocation,
   launchedInput,
   maintenanceRecords,
-  pushWatchList,
+  serveWatchListHistory,
   serverOn,
   turnOn,
   watchListDue,
@@ -48,9 +49,9 @@ test("a reached due date starts one Feedback maintenance session in Open Dough's
   github,
 }) => {
   const origin = await startOrigin(queuedReadyRepository().please());
-  const moving = await publishMovingOrigin(github);
+  const moving = await serveWatchListHistory(origin, github);
   const yesterday = dayFromToday(-1);
-  const first = pushWatchList(moving, watchListDue(yesterday));
+  const first = await moving.publish(watchListDue(yesterday));
   let server = await serverOn(origin, github, "preview");
   try {
     server.claudeScenario("launched");
@@ -73,6 +74,8 @@ test("a reached due date starts one Feedback maintenance session in Open Dough's
     expect(record?.request.policy).toBeUndefined();
     expect(record?.doneAt).toBeUndefined();
 
+    const admitted = await moving.descendantOf(first);
+    expectServedHomesReach(github, defaultRepository, admitted);
     const entry = await sessionsSidebar(page, server);
     await expect(entry("Feedback maintenance")).toBeVisible();
     await expect(entry("Feedback maintenance")).toHaveAttribute(
@@ -103,14 +106,17 @@ test("a reached due date starts one Feedback maintenance session in Open Dough's
     await afterFurtherListings(server);
     expect(server.claudeLaunchCalls()).toHaveLength(1);
     expect(server.notifierCalls()).toEqual([]);
-    // The served revision's watch list is read once, whatever the checks.
-    expect(watchListReads(moving)).toEqual([first]);
+    // Each observed revision's watch list is read once.
+    expect(watchListReads(moving)).toEqual([first, admitted]);
 
     // The cycle advances its due date: read once at the new revision, not due.
-    const advanced = pushWatchList(moving, watchListDue(dayFromToday(1)));
-    await expect.poll(() => watchListReads(moving)).toEqual([first, advanced]);
+    const advanced = await moving.publish(watchListDue(dayFromToday(1)));
+    expectServedHomesReach(github, defaultRepository, advanced);
+    await expect
+      .poll(() => watchListReads(moving))
+      .toEqual([first, admitted, advanced]);
     await afterFurtherChecks(moving);
-    expect(watchListReads(moving)).toEqual([first, advanced]);
+    expect(watchListReads(moving)).toEqual([first, admitted, advanced]);
     expect(server.claudeLaunchCalls()).toHaveLength(1);
     expect(await maintenanceRecords(server)).toHaveLength(1);
     expect(server.notifierCalls()).toEqual([]);

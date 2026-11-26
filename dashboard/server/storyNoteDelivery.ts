@@ -8,6 +8,7 @@ import { onRecordsDelivered } from "./launchRecordDelivery.ts";
 import { deliverAttachedStoryNotes } from "./storyNotes.ts";
 
 async function markAttachedNotes(
+  notesFile: string,
   project: string,
   record: LaunchRecord,
 ): Promise<void> {
@@ -21,6 +22,7 @@ async function markAttachedNotes(
   )
     return;
   await deliverAttachedStoryNotes(
+    notesFile,
     project,
     followUp.story.identity,
     followUp.notes,
@@ -29,11 +31,11 @@ async function markAttachedNotes(
 
 // Dashboard boundary and Cursor's runner process both write launch records;
 // each must install so a later confirmation marks notes.
-export function installStoryNoteDelivery(): void {
+export function installStoryNoteDelivery(notesFile: string): void {
   onRecordsDelivered(async (entries) => {
     for (const { project, record } of entries) {
       try {
-        await markAttachedNotes(project, record);
+        await markAttachedNotes(notesFile, project, record);
       } catch {
         // Launch write already landed; notes stay waiting for a later confirm.
       }

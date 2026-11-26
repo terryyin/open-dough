@@ -19,6 +19,8 @@ import {
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../test-support/describedRevisions.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
+import { keepingOrigin } from "../../test-support/support/publishedRepository.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -46,7 +48,10 @@ test.describe("authenticated read boundary backlog (development environment)", (
   });
 
   test("reads the backlog pinned to the named revision without resolving main", async () => {
-    server.github.serve(everyRepository, publishes({ backlog }));
+    server.github.serve(
+      everyRepository,
+      publishes({ revision: revisionB, backlog }),
+    );
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=pygardon&revision=${revisionB}`,
       headers: { Origin: server.origin },
@@ -120,6 +125,7 @@ test.describe("authenticated read boundary backlog (development environment)", (
     };
 
     server.github.serve(everyRepository, published);
+    expectServedHomesReach(server.github, knownRepository, revision);
     let callsBefore = server.ghCalls().length;
     const first = await membership();
     const second = await membership();
@@ -138,6 +144,7 @@ test.describe("authenticated read boundary backlog (development environment)", (
     const next = publishes({ backlog: nextBacklog });
     const nextRevision = next.revision;
     server.github.serve(everyRepository, next);
+    expectServedHomesReach(server.github, knownRepository, nextRevision);
     callsBefore = server.ghCalls().length;
     expect(await membership()).toMatchObject({
       revision: nextRevision,
@@ -156,15 +163,21 @@ test.describe("authenticated read boundary backlog (development environment)", (
     const published = publishes({ backlog });
     const { revision } = published;
     let refuse = true;
-    server.github.serve(everyRepository, (call) =>
-      refuse && call.request.kind === "content"
-        ? Promise.resolve({
-            status: 500,
-            contentType: "application/json",
-            body: "{}",
-          })
-        : published(call),
+    server.github.serve(
+      everyRepository,
+      keepingOrigin(
+        (call) =>
+          refuse && call.request.kind === "content"
+            ? Promise.resolve({
+                status: 500,
+                contentType: "application/json",
+                body: "{}",
+              })
+            : published(call),
+        published,
+      ),
     );
+    expectServedHomesReach(server.github, knownRepository, revision);
     const failed = await membershipRead();
     expect(failed.status).toBe(502);
     expect((JSON.parse(failed.body) as { error: string }).error).toContain(

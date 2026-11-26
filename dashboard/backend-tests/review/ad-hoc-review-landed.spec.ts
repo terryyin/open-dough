@@ -18,7 +18,9 @@ const file = "delivered[1].txt";
 
 // A Done ad hoc session whose launch reports through a published session
 // reference and kept the accepted pair of a configured project's history.
-async function aDoneSessionReportingThroughReference() {
+async function aDoneSessionReportingThroughReference({
+  legacyCapture = false,
+} = {}) {
   const { repository, home } = await configuredFixtureProject(
     makeMe.aRepository
       .withRevision("base")
@@ -51,7 +53,7 @@ async function aDoneSessionReportingThroughReference() {
       makeMe.aLaunchLanding
         .capturedFrom({
           repository: unavailable,
-          identity,
+          ...(legacyCapture ? {} : { identity }),
         })
         .forLaunch(reference)
         .comparing({ base, revision: accepted })
@@ -66,9 +68,9 @@ async function aDoneSessionReportingThroughReference() {
   return { repository, subject, base, accepted };
 }
 
-test("a story-linked Done session reads a legacy accepted pair through origin without its capture repository", async () => {
+test("a migrated Done session reads its original unbound comparison through origin without the capture repository", async () => {
   const { repository, subject, base, accepted } =
-    await aDoneSessionReportingThroughReference();
+    await aDoneSessionReportingThroughReference({ legacyCapture: true });
   const signal = new AbortController().signal;
   const snapshot = async () =>
     storyReview(await reviewInput({ subject, reference }, signal), signal);

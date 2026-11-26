@@ -28,6 +28,7 @@ import {
   openSummary,
   scopeFigures,
   scopeTable,
+  showsSummaryPath,
 } from "./intent-summary-proof-page.ts";
 
 const twiceZoomedViewport = { width: 640, height: 450 };
@@ -82,6 +83,19 @@ test("a CI file the tree does not list under a listed folder counts once, in tha
     "1 file not in the tree",
     "Not in the tree: dashboard/tests/folder/old.spec.ts",
   );
+});
+
+test("a nested Summary identifies the measured run and the newer tree", async () => {
+  await mountAttemptSummary(summaryEntries(true));
+  const summary = await openSummary("dashboard/tests");
+  await userEvent.click(childName(summary, "folder/"));
+  await showsSummaryPath(summary, "dashboard/tests/folder");
+  await expectEvidenceLabels(evidenceLabels(summary), [
+    "Run 41 · attempt 1",
+    "Revision a1b2c3d",
+    "Branch main",
+    "Tree at b2b2b2b — newer files unproved here",
+  ]);
 });
 
 test("at 200% zoom and on a narrow window a folder's Summary figures and table read whole within the reading pane, nothing scrolling sideways", async () => {

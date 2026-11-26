@@ -55,6 +55,7 @@ test("adding an initially unconfigured retained Codex project prepares its passi
     await page.goto(server.baseURL);
     expect(await machineSessions(server)).toEqual([]);
     expect(existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "")).toBe(false);
+    fixture.expectAddedRef(server);
     await addProjectOnPage(page);
     const recent = page.getByRole("region", { name: "Taken", exact: true });
     await expect(recent).toContainText("Ready for review", { timeout: 5_000 });
@@ -74,6 +75,7 @@ test("adding an initially unconfigured retained Codex project prepares its passi
       }),
     ).toContainText("Ready for review");
     await expect(page).toHaveURL(/project=sample-app/);
+    fixture.expectAddedRef(server);
     await reloadUntilRead(page);
     await expect(recent).toContainText("Ready for review", { timeout: 5_000 });
     expect(daemonStarts(native)).toHaveLength(1);

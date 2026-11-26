@@ -3,7 +3,6 @@ import { onTestFinished } from "vitest";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { AcceptanceAnswer } from "../../src/agentLaunchClient.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
-import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
 import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type {
@@ -67,7 +66,6 @@ export function boardFrameObservationSupplying(
     machineAnswer = emptyMachineAnswer(),
     machineRead,
     accept,
-    association,
     doneCatalog,
   }: {
     initialSnapshot?: Error | Promise<PublishedWork>;
@@ -80,8 +78,6 @@ export function boardFrameObservationSupplying(
     accept?: (
       ...args: Parameters<MachineReadSource["requestAcceptance"]>
     ) => Promise<AcceptanceAnswer>;
-    // The completed-story association an ad hoc row's choice reads.
-    association?: MachineReadSource["readCompletedStoryAssociation"];
     // A case-owned done catalog read, in place of each snapshot's catalog.
     doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
   } = {},
@@ -197,10 +193,7 @@ export function boardFrameObservationSupplying(
     },
   };
 
-  const fullAnswer = (): MachineSessionsRead => ({
-    ...machineAnswer,
-    revision: machineAnswer.revision ?? "m".repeat(40),
-  });
+  const revision = machineAnswer.revision ?? "m".repeat(40);
 
   const machine: MachineReadSource = {
     ...pageReadsSupplying({}).machine,
@@ -208,18 +201,13 @@ export function boardFrameObservationSupplying(
     waitForAttemptChange: () => Promise.resolve(undefined),
     readSessionsSince:
       machineRead ??
-      ((...[held, , options]) => {
-        if (
-          options?.fresh !== true &&
-          held !== undefined &&
-          held === (machineAnswer.revision ?? "m".repeat(40))
-        ) {
-          return Promise.resolve({
-            unchanged: true,
-            revision: held,
-          });
-        }
-        return Promise.resolve(fullAnswer());
+      ((...args) => {
+        const [held, , options] = args;
+        return Promise.resolve(
+          options?.fresh !== true && held === revision
+            ? { unchanged: true, revision }
+            : { ...machineAnswer, revision },
+        );
       }),
     requestAcceptance:
       accept ??
@@ -228,8 +216,6 @@ export function boardFrameObservationSupplying(
           kind: "failed",
           explanation: "This Board frame supplies no acceptance.",
         })),
-    readCompletedStoryAssociation:
-      association ?? (() => Promise.resolve({ kind: "absent" as const })),
   };
 
   return {

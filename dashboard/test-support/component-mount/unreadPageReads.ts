@@ -85,7 +85,6 @@ const unreadObservation: PublishedObservationReadSource = {
 const unreadMachine: MachineReadSource = {
   readSessionsSince: unread("machine sessions"),
   requestAcceptance: unread("agent acceptance"),
-  readCompletedStoryAssociation: unread("completed-story association"),
   readHistorySince: unread("session history"),
   waitForAttemptChange: unread("launch attempt change"),
   deleteRecord: unread("session record deletion"),
@@ -100,6 +99,7 @@ export const pageReadsSupplying = (
   intent: unreadIntentReads,
   ci: unreadCiReads,
   review: unreadReviewReads,
+  storyResult: unread("story result"),
   sessions: unreadSessionServices,
   transcription: {
     configured: unread("transcription configuration"),

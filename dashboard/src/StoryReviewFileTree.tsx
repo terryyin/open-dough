@@ -51,11 +51,20 @@ function FolderCount({
   );
 }
 
-// Opt-in Intent path: folder icon toggles disclosure; name selects (or toggles
-// when already selected). Review changes omits this and keeps one row.
+// Opt-in Intent path: the icon discloses the folder and the name selects it.
 export type FolderSelection = {
   readonly selectedPath: string;
   readonly onSelect: (folderPath: string) => void;
+  readonly present?: (path: string) =>
+    | {
+        readonly row: {
+          readonly className: string;
+          readonly [attribute: `data-${string}`]: string | undefined;
+        };
+        readonly nameLabel?: string;
+        readonly toggleLabel?: string;
+      }
+    | undefined;
 };
 
 // The browser's rows under one folder, or the top level: a folder's
@@ -115,18 +124,25 @@ export function FileTree<T extends PathBearing>({
         ) : null;
         if (folderSelection !== undefined) {
           const folderSelected = folderSelection.selectedPath === node.path;
+          const presentation = folderSelection.present?.(node.path);
+          const disclosure = folderCollapsed ? "Expand" : "Collapse";
           return (
             <li
               key={`folder:${node.path}`}
+              data-folder-path={node.path}
               data-contains-changes={node.containsChanges || undefined}
             >
-              <div className="story-review-folder-row">
+              <div
+                className="story-review-folder-row"
+                {...presentation?.row}
+                data-selected={folderSelected || undefined}
+              >
                 <button
                   type="button"
                   className="story-review-folder"
                   aria-expanded={!folderCollapsed}
                   aria-controls={rowsId}
-                  aria-label={`${folderCollapsed ? "Expand" : "Collapse"} ${node.name}`}
+                  aria-label={`${disclosure} ${presentation?.toggleLabel ?? node.name}`}
                   onClick={() => {
                     onToggle(node.path);
                   }}
@@ -137,6 +153,12 @@ export function FileTree<T extends PathBearing>({
                   type="button"
                   className="story-review-folder-name"
                   aria-pressed={folderSelected}
+                  aria-label={presentation?.nameLabel}
+                  aria-description={
+                    folderCollapsed && presentation?.nameLabel !== undefined
+                      ? `${node.fileCount} ${fileCountWords(node.fileCount)}`
+                      : undefined
+                  }
                   onClick={() => {
                     folderSelection.onSelect(node.path);
                   }}

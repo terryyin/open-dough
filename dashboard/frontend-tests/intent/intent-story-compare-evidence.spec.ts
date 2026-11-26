@@ -2,7 +2,7 @@
 // a captured run's recorded revisions. A choice without that pair keeps the
 // whole-story comparison and note.
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import {
@@ -15,12 +15,16 @@ import {
   doneIdentity,
   openDoneStoryComparison,
 } from "./intent-story-compare-stories.ts";
+import {
+  childName,
+  openSummary,
+  showsSummaryPath,
+} from "./intent-summary-proof-page.ts";
 
 async function openProof(
   story: ReturnType<typeof intentStoryCompare>,
   file: ReturnType<typeof story.file>,
 ) {
-  await story.browseFiles();
   await activateComparisonControl(file);
   await story.chooseProof();
 }
@@ -179,5 +183,15 @@ test("a captured run without recorded revisions keeps the whole-story CI compari
   await comparisonRead(() => story.noteBuild("Intent coverage")).toBe(
     doneCompletion.slice(0, 7),
   );
+  await story.browseFiles();
+  const summary = await openSummary("dashboard/tests");
+  await userEvent.click(childName(summary, "folder/"));
+  await showsSummaryPath(summary, "dashboard/tests/folder");
+  const summaryNote = page
+    .getByRole("note")
+    .filter({ hasText: "Describes the whole story" });
+  await expect
+    .element(summaryNote.getByText(doneCompletion.slice(0, 7), { exact: true }))
+    .toBeVisible();
   expect(requested).toBe(false);
 });

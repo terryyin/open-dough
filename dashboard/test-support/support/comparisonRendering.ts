@@ -26,7 +26,6 @@ export type ComparisonMarkup = (
 
 export type ComparisonRenderer = {
   readonly markup: ComparisonMarkup;
-  readonly treeMarkup: (facts: ComparedStory) => string;
   readonly css: string;
   /** Private Vite optimizer cache for this renderer; removed by close(). */
   readonly viteCacheDir: string;
@@ -68,12 +67,6 @@ export async function createComparisonRenderer(): Promise<ComparisonRenderer> {
     const loaded = await compiler.ssrLoadModule(
       path.join(repoRoot, "dashboard/test-support/comparison-mount/render.tsx"),
     );
-    const tree = await compiler.ssrLoadModule(
-      path.join(
-        repoRoot,
-        "dashboard/test-support/comparison-mount/tree-render.tsx",
-      ),
-    );
     const built = await sharedDashboardBuild();
     const index = readFileSync(path.join(built, "index.html"), "utf8");
     const css = [...index.matchAll(/href="([^"]+\.css)"/g)]
@@ -87,9 +80,6 @@ export async function createComparisonRenderer(): Promise<ComparisonRenderer> {
     const owned = compiler;
     return {
       markup: loaded["comparisonMarkup"] as ComparisonMarkup,
-      treeMarkup: tree[
-        "comparisonTreeMarkup"
-      ] as ComparisonRenderer["treeMarkup"],
       css,
       viteCacheDir,
       close: () => releaseComparisonVite(owned, viteCacheDir),
@@ -137,12 +127,4 @@ async function presentComparison(
     `<!doctype html><html lang="en"><head><meta charset="UTF-8"><style data-intent-comparison-css>${renderer.css}</style></head><body><div id="root">${markup}</div></body></html>`,
   );
   renderedPages.add(page);
-}
-
-export async function renderComparisonTree(
-  page: Page,
-  renderer: ComparisonRenderer,
-  facts: ComparedStory,
-) {
-  await presentComparison(page, renderer, renderer.treeMarkup(facts));
 }

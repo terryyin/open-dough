@@ -25,13 +25,13 @@ import type {
   ReviewedFileText,
   StoryReview,
 } from "../src/storyReviewContract.ts";
+import type { StoryReviewResult } from "../src/storyReviewResult.ts";
 import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 
 import type { submitCompletion } from "./completionReporting.ts";
 import type { submitSessionBranchEntry } from "./sessionBranchEntry.ts";
 
 import type { LandingReceipt } from "../src/launchLanding.ts";
-import type { CompletedStoryAssociation } from "./completedStoryAssociation.ts";
 
 export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: { readonly path: string } }
@@ -50,12 +50,12 @@ export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: StoryReview }
   | { readonly status: number; readonly body: ReviewedFileDiff }
   | { readonly status: number; readonly body: ReviewedFileText }
+  | { readonly status: number; readonly body: StoryReviewResult }
   | { readonly status: number; readonly body: RunningCursorSessions }
   | { readonly status: number; readonly body: Acceptance }
   | { readonly status: number; readonly body: ChangedAnswer }
   | { readonly status: number; readonly body: ReconciledAnswer }
   | { readonly status: number; readonly body: VerifiedAnswer }
-  | { readonly status: number; readonly body: CompletedStoryAssociation }
   // An answer serialized once and shared (`./machineSessionObservation.ts`),
   // with its shared gzip encoding when it has one.
   | ({ readonly status: number } & SharedAnswer)

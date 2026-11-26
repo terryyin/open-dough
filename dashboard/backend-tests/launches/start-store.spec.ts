@@ -14,35 +14,38 @@ import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { fsSyncHook } from "../../test-support/support/serverFsHook.ts";
 import {
-  keepStart,
   keptStart,
   keptStartsByProject,
-  removeStart,
   resumeArguments,
-  updateStart,
+  startStore,
   type StartRecord,
 } from "../../server/startStore.ts";
 
-const written: StartRecord = {
-  host: "claude",
-  identity: "SEED-A#a",
-  publisherId: "dashboard-host-open-dough",
-  workspace: "/p/.worktrees/a",
-  branch: "claude/a",
-  model: "opus",
-  startedAt: "2026-09-30T10:00:00.000Z",
-};
+const written = makeMe.aStartRecord
+  .with({
+    host: "claude",
+    identity: "SEED-A#a",
+    publisherId: "dashboard-host-open-dough",
+    workspace: "/p/.worktrees/a",
+    branch: "claude/a",
+    model: "opus",
+    startedAt: "2026-09-30T10:00:00.000Z",
+  })
+  .please();
 
 let home: string;
 let previousHome: string | undefined;
+let starts: ReturnType<typeof startStore>;
 
 test.beforeEach(() => {
   previousHome = process.env["HOME"];
   home = mkdtempSync(path.join(tmpdir(), "dough-start-store-"));
   process.env["HOME"] = home;
+  starts = startStore("execution", home);
 });
 
 test.afterEach(() => {
@@ -56,15 +59,15 @@ test.afterEach(() => {
 
 test("keeps a start written ahead, by project and story, and none for another story", async () => {
   expect(await keptStart("open-dough", written.identity)).toBeUndefined();
-  await keepStart("open-dough", written);
+  await starts.keep("open-dough", written);
   expect(await keptStart("open-dough", written.identity)).toEqual(written);
   expect(await keptStart("open-dough", "SEED-B#b")).toBeUndefined();
   expect(await keptStart("other", written.identity)).toBeUndefined();
 });
 
 test("updates the kept start with what the script reported, and ignores a start no longer kept", async () => {
-  await keepStart("open-dough", written);
-  await updateStart("open-dough", written.identity, {
+  await starts.keep("open-dough", written);
+  await starts.update("open-dough", written.identity, {
     startingRevision: "aaa",
     candidateSha: "bbb",
   });
@@ -73,12 +76,12 @@ test("updates the kept start with what the script reported, and ignores a start 
     startingRevision: "aaa",
     candidateSha: "bbb",
   });
-  await updateStart("open-dough", "SEED-B#b", { candidateSha: "ccc" });
+  await starts.update("open-dough", "SEED-B#b", { candidateSha: "ccc" });
   expect(await keptStart("open-dough", "SEED-B#b")).toBeUndefined();
 });
 
 test("a held write lock refuses without changing the document or removing the holder's lock", async () => {
-  await keepStart("open-dough", written);
+  await starts.keep("open-dough", written);
   const file = path.join(
     home,
     ".open-dough",
@@ -90,7 +93,7 @@ test("a held write lock refuses without changing the document or removing the ho
   mkdirSync(lock);
 
   await expect(
-    updateStart("open-dough", written.identity, {
+    starts.update("open-dough", written.identity, {
       candidateSha: "must-not-be-written",
     }),
   ).rejects.toThrow(
@@ -104,7 +107,7 @@ test("a held write lock refuses without changing the document or removing the ho
 
   // Only the owner releases the lock; a subsequent writer then succeeds.
   rmSync(lock, { recursive: true });
-  await updateStart("open-dough", written.identity, {
+  await starts.update("open-dough", written.identity, {
     candidateSha: "accepted",
   });
   expect(await keptStart("open-dough", written.identity)).toEqual({
@@ -114,7 +117,7 @@ test("a held write lock refuses without changing the document or removing the ho
 });
 
 test("a lock whose recorded owner process is gone is reclaimed so the write proceeds", async () => {
-  await keepStart("open-dough", written);
+  await starts.keep("open-dough", written);
   const file = path.join(
     home,
     ".open-dough",
@@ -126,7 +129,7 @@ test("a lock whose recorded owner process is gone is reclaimed so the write proc
   // A pid that cannot be alive on this machine: larger than any kernel pid.
   writeFileSync(path.join(lock, "owner"), "2147483647\n");
 
-  await updateStart("open-dough", written.identity, {
+  await starts.update("open-dough", written.identity, {
     candidateSha: "reclaimed",
   });
   expect(await keptStart("open-dough", written.identity)).toEqual({
@@ -140,12 +143,12 @@ test("a lock whose recorded owner process is gone is reclaimed so the write proc
 // write it is in; here it ends having taken the lock, before its owner
 // record is written.
 test("a writer that ends before recording itself as the lock's owner leaves no lock, so the next write proceeds", async () => {
-  await keepStart("open-dough", written);
+  await starts.keep("open-dough", written);
   const writer = path.join(home, "writer.mjs");
   writeFileSync(
     writer,
-    `import { updateStart } from ${JSON.stringify(fileURLToPath(new URL("../../server/startStore.ts", import.meta.url)))};
-await updateStart("open-dough", ${JSON.stringify(written.identity)}, { candidateSha: "lost" });`,
+    `import { startStore } from ${JSON.stringify(fileURLToPath(new URL("../../server/startStore.ts", import.meta.url)))};
+await startStore("execution").update("open-dough", ${JSON.stringify(written.identity)}, { candidateSha: "lost" });`,
   );
   const endAtOwner = fsSyncHook(
     path.join(home, "end-at-owner.mjs"),
@@ -159,7 +162,7 @@ await updateStart("open-dough", ${JSON.stringify(written.identity)}, { candidate
     env: { ...process.env, HOME: home, ...endAtOwner },
   });
 
-  await updateStart("open-dough", written.identity, {
+  await starts.update("open-dough", written.identity, {
     candidateSha: "written",
   });
   expect(await keptStart("open-dough", written.identity)).toEqual({
@@ -172,13 +175,13 @@ await updateStart("open-dough", ${JSON.stringify(written.identity)}, { candidate
 });
 
 test("keeps one start per story, replaced when written again, and removes one alone", async () => {
-  await keepStart("open-dough", written);
-  await keepStart("open-dough", { ...written, identity: "SEED-B#b" });
-  await keepStart("open-dough", { ...written, branch: "claude/a-again" });
+  await starts.keep("open-dough", written);
+  await starts.keep("open-dough", { ...written, identity: "SEED-B#b" });
+  await starts.keep("open-dough", { ...written, branch: "claude/a-again" });
   expect(await keptStart("open-dough", written.identity)).toMatchObject({
     branch: "claude/a-again",
   });
-  await removeStart("open-dough", written.identity);
+  await starts.remove("open-dough", written.identity);
   expect(await keptStart("open-dough", written.identity)).toBeUndefined();
   expect(await keptStartsByProject()).toEqual(
     new Map([["open-dough", [{ ...written, identity: "SEED-B#b" }]]]),
@@ -222,12 +225,9 @@ test("a predecessor hostless file decodes as Claude without quarantine and keeps
   expect(await keptStart("open-dough", written.identity, "refinement")).toEqual(
     written,
   );
-  await updateStart(
-    "open-dough",
-    written.identity,
-    { candidateSha: "bbb" },
-    "refinement",
-  );
+  await startStore("refinement", home).update("open-dough", written.identity, {
+    candidateSha: "bbb",
+  });
   expect(await keptStart("open-dough", written.identity, "refinement")).toEqual(
     { ...written, candidateSha: "bbb" },
   );

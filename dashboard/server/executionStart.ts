@@ -15,6 +15,7 @@ import {
   publisherId,
   type PlannedStart,
   type StartAttempt,
+  type StoryStartRuntime,
 } from "./startLaunch.ts";
 import {
   establishedOneShot,
@@ -23,14 +24,7 @@ import {
   recordStop,
 } from "./startRecording.ts";
 import { keepsStart, refusal } from "./startResult.ts";
-import {
-  keepStart,
-  keptStart,
-  resumeArguments,
-  updateStart,
-} from "./startStore.ts";
-
-const workflow = "execution";
+import { resumeArguments } from "./startStore.ts";
 
 // Runs one start, registered in progress before the script starts.
 export async function beginStart(
@@ -38,13 +32,13 @@ export async function beginStart(
   request: StoryLaunchRequest,
   project: LocalFolder,
   progress: WorkflowProgress,
-  noteWorker: (pid: number) => Promise<void> = async () => {},
+  runtime: StoryStartRuntime,
 ): Promise<PlannedStart> {
   if (!(await establishesStart(project, request.host))) {
     return { kind: "not-applicable" };
   }
   return gatedStart(source, request, project, progress, "Take", () =>
-    runningStart(source, request, project, progress, noteWorker),
+    runningStart(source, request, project, progress, runtime),
   );
 }
 
@@ -57,10 +51,10 @@ async function runningStart(
   request: StoryLaunchRequest,
   project: LocalFolder,
   progress: WorkflowProgress,
-  noteWorker: (pid: number) => Promise<void> = async () => {},
+  { store, env, noteWorker }: StoryStartRuntime,
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was.
-  const kept = await keptStart(source.id, request.identity, workflow);
+  const kept = await store.kept(source.id, request.identity);
   const { workspace, branch, model, effort, policy } = await startChoice(
     project,
     request,
@@ -71,6 +65,7 @@ async function runningStart(
   if (!oneShot && kept?.start === undefined) {
     const explanation = await launchHost(request.host)?.executionStartRefusal?.(
       workspace,
+      env,
     );
     if (explanation !== undefined) {
       progress.clear(source.id, request.identity);
@@ -104,21 +99,17 @@ async function runningStart(
         : await lostStartArguments(kept.workspace, kept.branch);
   // Written ahead of the script, so a start whose result is lost is still
   // known.
-  await keepStart(
-    source.id,
-    {
-      ...kept,
-      host: request.host,
-      identity: facts.identity,
-      ...(oneShot ? { policy } : { publisherId: facts.publisherId }),
-      workspace: facts.workspace,
-      branch: facts.branch,
-      ...(model === undefined ? {} : { model }),
-      ...(effort === undefined ? {} : { effort }),
-      startedAt: new Date().toISOString(),
-    },
-    workflow,
-  );
+  await store.keep(source.id, {
+    ...kept,
+    host: request.host,
+    identity: facts.identity,
+    ...(oneShot ? { policy } : { publisherId: facts.publisherId }),
+    workspace: facts.workspace,
+    branch: facts.branch,
+    ...(model === undefined ? {} : { model }),
+    ...(effort === undefined ? {} : { effort }),
+    startedAt: new Date().toISOString(),
+  });
   const attempt = runStartScript(
     [
       ...policyArguments(policy, project),
@@ -144,6 +135,7 @@ async function runningStart(
     project,
     request.host,
     noteWorker,
+    env,
   ).then(async (result): Promise<StartAttempt> => {
     // The record follows the script's result even when the launch stopped
     // waiting for it.
@@ -156,14 +148,12 @@ async function runningStart(
         result.kind === "accepted"
           ? establishedStart(facts, result, kept?.start)
           : establishedOneShot(where, result, policy);
-      await record(() =>
-        updateStart(source.id, request.identity, { start }, workflow),
-      );
+      await record(() => store.update(source.id, request.identity, { start }));
       return { kind: "established", start };
     }
     try {
       await record(() =>
-        recordStop(workflow, source.id, request.identity, result),
+        recordStop(store, source.id, request.identity, result),
       );
       const owner =
         result.kind === "stopped" && result.status === "conflict"

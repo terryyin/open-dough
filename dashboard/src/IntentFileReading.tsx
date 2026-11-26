@@ -35,7 +35,8 @@ import {
   intentTabPanelAttributes,
   type IntentTabOption,
 } from "./IntentTabs.tsx";
-import { useKeptReading, useKeptReadingScroll } from "./pageIntentReading.tsx";
+import { useKeptReadingScroll } from "./keptReadingScroll.ts";
+import { useKeptReading } from "./pageIntentReading.tsx";
 import { useStoryCiReturn } from "./intentStoryTabs.tsx";
 import { IntentComparedFile } from "./IntentComparedFile.tsx";
 import "./intent-file-reading.css";

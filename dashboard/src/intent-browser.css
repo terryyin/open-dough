@@ -42,11 +42,9 @@
 
 .intent-home-button {
   flex: none;
-  align-self: flex-start;
   display: grid;
   place-items: center;
   padding: var(--space-1);
-  margin: var(--space-2) var(--space-3);
   background: transparent;
   color: inherit;
   border: 1px solid var(--line);
@@ -73,12 +71,18 @@
   overflow-anchor: none;
 }
 
-/* The browser pane scrolls as one; its locations are sections within it, not
-   boxes that scroll themselves. */
+/* The browser pane scrolls as one; the tree itself can extend across it. */
 .intent-locations {
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--line);
+}
+
+.intent-locations > .intent-file-tree {
+  flex: none;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
 }
 
 .intent-reading {
@@ -92,16 +96,42 @@
   outline-offset: -3px;
 }
 
-/* Narrow, the browser sits above the reading pane and keeps part of the
-   height; each still scrolls on its own. */
+/* Narrow, Files lies over the full-size reader as a drawer
+   (./IntentFilesDrawer.tsx), below the banner row, with its backdrop
+   (./sidebar-drawer.css); the list keeps its own scroll. */
 @media (max-width: 52rem) {
   .intent-browser {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 40%) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
   }
 
   .intent-locations {
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
+    position: fixed;
+    top: var(--banner-height, 0px);
+    bottom: 0;
+    left: 0;
+    z-index: 8;
+    width: min(20rem, 85vw);
+    background: var(--raised-surface);
+    border-right: 1px solid var(--edge);
+    box-shadow: var(--shadow-2);
+  }
+
+  .sidebar-drawer-backdrop:has(+ .intent-locations) {
+    display: block;
+  }
+
+  /* A selected story's files toggle leads the comparison bar in its header
+     (./IntentHeader.tsx), so its drawer lies over the browser below that
+     header, leaving the toggle uncovered. */
+  .intent-page-frame[data-intent-context="story"] + .intent-browser {
+    position: relative;
+  }
+
+  .intent-page-frame[data-intent-context="story"]
+    + .intent-browser
+    > .intent-locations {
+    position: absolute;
+    top: 0;
   }
 }

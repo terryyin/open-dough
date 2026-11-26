@@ -12,6 +12,34 @@ import type { ReactNode } from "react";
 import "./intent-explanations.css";
 import "./intent-summary.css";
 
+function LocationConfiguration({
+  location,
+}: {
+  readonly location: IntentLocation;
+}) {
+  const sources =
+    "sources" in location
+      ? location.sources
+      : [{ syntax: location.kind, include: location.include ?? [] }];
+
+  return (
+    <ul
+      className="intent-summary-configuration"
+      role="list"
+      aria-label="Test configuration"
+    >
+      {sources.map(({ syntax, include }, index) => (
+        <li key={index}>
+          {syntax && <span>{syntax}</span>}
+          {include.map((pattern, at) => (
+            <code key={at}>{pattern}</code>
+          ))}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function IntentSummaryView({
   path,
   files,
@@ -25,19 +53,21 @@ export function IntentSummaryView({
   readonly location: IntentLocation;
   readonly children: ReactNode;
 }) {
+  const root = path === location.path;
   return (
     <section className="intent-summary" aria-label="Summary">
       <h3>Summary</h3>
-      {path === location.path && location.label !== undefined && (
+      {root && location.label !== undefined && (
         <p className="intent-summary-label">{location.label}</p>
       )}
       <p className="intent-summary-path">
         <code>{path}</code>
       </p>
+      {root && <LocationConfiguration location={location} />}
       <p className="intent-summary-files">
         {files.length} {intentFileCountWords(files.length)}
       </p>
-      {location.problem !== undefined && (
+      {root && location.problem !== undefined && (
         <p className="intent-location-problem">
           {locationExplanation(location)}
         </p>

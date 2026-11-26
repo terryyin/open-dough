@@ -1,6 +1,7 @@
 // Distinct server lifetimes and deliberately shared owners keep their scope.
 import { fileURLToPath } from "node:url";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
+import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
 import {
   developmentBoundary,
   startDashboardServer,
@@ -10,6 +11,7 @@ import {
   publishes,
   startFakeGitHub,
 } from "../../test-support/support/fakeGitHub.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 import { requestOwnerWithClock } from "../../test-support/support/listingReuseWithOwnerClock.ts";
 import { readAt } from "../../test-support/support/sharedReads.ts";
 import {
@@ -88,6 +90,7 @@ test("two dashboards and the installed diagnostic use one fast owner", async ({
   const { revision } = published;
   machine.serve(withWorkflow(published));
   try {
+    expectServedHomesReach(machine.github, defaultRepository, revision);
     const answers = await Promise.all(
       [machine.first, machine.second].map((server) => readAt(server, "")),
     );

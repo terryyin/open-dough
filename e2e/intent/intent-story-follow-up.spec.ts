@@ -166,7 +166,7 @@ Review the whole comparison
     expect(whole).not.toContain("<line-notes>");
   });
   await test.step("When I follow up on a file outside every Intent location", async () => {
-    await review.outsideDiff(landing);
+    await review.diff(landing);
     const composer = await review.followUpFile(storyName);
     await composer.start("Review the new export");
   });

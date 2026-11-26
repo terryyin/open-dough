@@ -9,6 +9,7 @@ import type { PublishedSource } from "./publishedSource.ts";
 import { shortRevision } from "./publishedWork.ts";
 import { useIntentLocations } from "./useIntentLocations.ts";
 import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
+import { storyResultPin } from "./useStoryResultRead.tsx";
 import "./intent-explanations.css";
 
 export function useHistoricalIntentLocations(
@@ -18,11 +19,13 @@ export function useHistoricalIntentLocations(
   const comparison = summary.comparison;
   const review = defaultReviewOf(comparison);
   const revision =
-    review?.kind === "published"
-      ? review.completion
-      : review?.kind === "landed"
-        ? review.landing.revision
-        : undefined;
+    storyResultPin(comparison) !== undefined
+      ? undefined
+      : review?.kind === "published"
+        ? review.completion
+        : review?.kind === "landed"
+          ? review.landing.revision
+          : undefined;
   const { intent, shownRevision, retryLocations } = useIntentLocations(
     source,
     revision,

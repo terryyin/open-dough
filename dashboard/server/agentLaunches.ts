@@ -16,14 +16,17 @@ import {
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { LaunchAdmission } from "./launchAdmission.ts";
-import { configuredProjects } from "./projectConfiguration.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
 import { changedAttempt } from "./launchAttemptChanges.ts";
-import { keptCreations, keptRecordsByProject } from "./launchRecordStore.ts";
+import {
+  keptCreations,
+  keptRecordsByProject,
+  pendingInputOf,
+} from "./launchRecordStore.ts";
 import {
   lookupRecordedSession,
   type Recorded,
@@ -44,14 +47,15 @@ import {
   sessionPolicies,
 } from "./launchCatalog.ts";
 import { executionCheckout } from "./executionCheckout.ts";
-import { machineFolder } from "./localFolder.ts";
 import {
   applyPreparedWorktreeUpdate,
   prepareWorktreeUpdate,
 } from "./worktreeUpdateRetry.ts";
 import { acceptLaunchRequest } from "./agentLaunchAccept.ts";
-import { storyOf } from "../src/launchWorkflow.ts";
+import { observedMachineRecords } from "./machineSessionObservation.ts";
 import { withUnboundRecovery } from "./unboundLaunchRecovery.ts";
+import { followUpStorySessions, publishedDoneStory } from "./followUpStory.ts";
+import { machineStoryNotesFile } from "./storyNotes.ts";
 
 // How long a launch verification waits for its host's session listing.
 const verifyWaitMs = 10_000;
@@ -70,16 +74,9 @@ export class AgentLaunches {
   // A session bound after its quiet report has its native Done started there.
   constructor(private readonly doneMarks: NativeDoneMarks) {}
 
-  async machineSessions(): Promise<readonly LaunchWithState[]> {
+  async machineObservation() {
     await this.savedSessionServices.refresh();
-    const kept = await keptRecordsByProject();
-    return withStates(
-      machineFolder(),
-      configuredProjects()
-        .flatMap((source) => kept.get(source.id) ?? [])
-        .filter((record) => storyOf(record.request) !== undefined),
-      "recurring",
-    );
+    return observedMachineRecords(await keptRecordsByProject());
   }
 
   async creations() {
@@ -165,6 +162,12 @@ export class AgentLaunches {
         request,
         this.runAttempt(source),
         (id) => this.continueRequest(source, id),
+        {
+          notesFile: machineStoryNotesFile(),
+          publishedDoneStory,
+          followUpStorySessions,
+          pendingInputOf,
+        },
         reportingOrigin,
       ),
     );

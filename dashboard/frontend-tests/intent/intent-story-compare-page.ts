@@ -3,7 +3,7 @@
 // header's comparison summary, the details its eye reveals (the revisions
 // and Refresh), its Compare group (the comparison choice, the story's commits,
 // the uncommitted check and the range read), Story Home's evidence tabs,
-// and the file list, folders, filter and diff in the story browser.
+// the story's file browser (./intent-story-files-page.ts) and the diff.
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import "../page-objects/cssLocator.ts";
@@ -11,16 +11,11 @@ import {
   intentReadingPane as readingPane,
   scrollReadingHalfway,
 } from "./intent-browser-page.ts";
-
-const escaped = (name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+import { fileLayout } from "./intent-file-layout-page.ts";
+import { intentStoryFiles } from "./intent-story-files-page.ts";
 
 const textOf = (element: Element | null | undefined) =>
   element?.textContent ?? "";
-
-// A listed file's control is named by its kind and path.
-const fileNamed = (name: string) => ({
-  name: new RegExp(`^${escaped(name)}(?:,|$)`),
-});
 
 // These cases exercise the response to activation. Keyboard and pointer
 // behavior use browser input in the cases that exercise those interactions.
@@ -54,18 +49,11 @@ export function intentStoryCompare() {
   });
   const viewTab = (name: View) =>
     storyViews.getByRole("tab", { name, exact: true });
-  const sidebar = intent.getByCSS(".intent-locations");
-  const showFiles = intent.getByRole("button", {
-    name: "Show files",
-    exact: true,
-  });
   const home = intent.getByRole("button", { name: "Home", exact: true });
   const pathReading = intent.getByRole("region", { name: "Path reading" });
-  const browseFiles = async () => {
-    if (showFiles.query() !== null) await activateComparisonControl(showFiles);
-  };
+  const files = intentStoryFiles();
   const goHome = async () => {
-    await browseFiles();
+    await files.browseFiles();
     await activateComparisonControl(home);
   };
   const view = (name: View) => {
@@ -84,9 +72,6 @@ export function intentStoryCompare() {
       : view(name);
   const alert = header.getByRole("alert");
   const retryControl = alert.getByRole("button", { name: "Retry" });
-  const outsideGroup = intent.getByRole("region", {
-    name: "Outside Intent locations",
-  });
   const summary = header.getByRole("group", { name: "Comparison summary" });
   const details = header.getByRole("group", { name: "Review details" });
   const refreshButton = details.getByRole("button", { name: "Refresh" });
@@ -96,12 +81,15 @@ export function intentStoryCompare() {
       name: `${shown ? "Hide" : "Show"} review details`,
       exact: true,
     });
+  // The eye is reached past an open Files drawer, which closes first.
   const openDetails = async () => {
+    await fileLayout().uncoverReader();
     const eye = detailsEye(false);
     if (eye.query() !== null) await userEvent.click(eye);
     await expect.element(details).toBeVisible();
   };
   return {
+    ...files,
     header,
     filesToggle: intent.getByRole("button", { name: /^(Hide|Show) files$/ }),
     headerText: () => textOf(header.element()),
@@ -116,13 +104,6 @@ export function intentStoryCompare() {
     chooseRun: (key: string) => activateComparisonControl(runChoice(key)),
     chooseLatestLanding: () =>
       activateComparisonControl(landingChoices.first()),
-    // The story's changed files outside every location.
-    outsideGroup,
-    outside: () => textOf(outsideGroup.query()),
-    onlyChangedFiles: intent.getByRole("checkbox", {
-      name: "Selected story only",
-      exact: true,
-    }),
     // A CI view's text, Proof that of the selected file's Proof tab.
     viewText: (name: CiView) => textOf(ciView(name)),
     // What a CI view says while another comparison than the default is
@@ -140,9 +121,6 @@ export function intentStoryCompare() {
       activateComparisonControl(
         fileTabs.getByRole("tab", { name: "Purpose", exact: true }),
       ),
-    // A changed file outside every location, by its kind and path.
-    outsideFile: (name: string) =>
-      outsideGroup.getByRole("button", fileNamed(name)),
     // The CI comparison identity labels Proof reads for `identity`.
     proofLabels: (identity: string) =>
       [
@@ -165,10 +143,10 @@ export function intentStoryCompare() {
     pressedControlCount: () =>
       intent.element().querySelectorAll('[aria-pressed="true"]').length,
     // Comparison facts can expand independently of the header, apart from
-    // the summary's eye.
+    // the summary's eye and the Files toggle, whose drawer starts closed.
     collapsedControl: header.getByRole("button", {
       expanded: false,
-      name: /^(?!Branch |Show review details$)/,
+      name: /^(?!Branch |Show review details$|Show files$)/,
     }),
     revisions: () =>
       textOf(header.element().querySelector(".intent-story-revisions")),
@@ -213,20 +191,10 @@ export function intentStoryCompare() {
       if (pathReading.query() !== null) await goHome();
       await activateComparisonControl(viewTab(name));
     },
-    browseFiles,
     goHome,
     home,
     pathReading,
-    sidebar,
     homeReading: intent.getByCSS(".intent-story-home"),
-    // A listed file's control, named by its kind and path.
-    file: (name: string) => sidebar.getByRole("button", fileNamed(name)),
-    // A location's or folder's toggle, by its name and whether it is open.
-    folderToggle: (name: string, open: boolean) =>
-      intent.getByRole("button", {
-        name: `${open ? "Collapse" : "Expand"} ${name}`,
-        exact: true,
-      }),
     readingShown: () => readingPane()?.checkVisibility() ?? false,
     readingText: () => textOf(readingPane()),
     readingOffset: () => readingPane()?.scrollTop,
@@ -234,7 +202,7 @@ export function intentStoryCompare() {
     purposeText: () => textOf(purpose.element()),
     diffName: () =>
       textOf(
-        purpose.element().querySelector(".story-review-diff-heading h3"),
+        purpose.query()?.querySelector(".story-review-diff-heading h3"),
       ).trim(),
     diffCode: () =>
       textOf(purpose.element().querySelector(".story-review-code")),

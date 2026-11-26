@@ -2,6 +2,54 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-installed-story-starts-on-vitest.json",
+      "identity": "SEED-413#prove-installed-story-starts-on-vitest",
+      "completedAt": "2026-11-26T02:44:45.536Z",
+      "blob": "1510ceafeb218b36abada2c8847643565b9c7d76"
+    },
+    {
+      "fileName": "SEED-430_qualify-board-fixture-routing-and-request-boundaries.json",
+      "identity": "SEED-430#qualify-board-fixture-routing-and-request-boundaries",
+      "completedAt": "2026-11-26T02:29:40.699Z",
+      "blob": "9623d294efda467e079441fab263b36584ab4449"
+    },
+    {
+      "fileName": "SEED-420_filter-review-files.json",
+      "identity": "SEED-420#filter-review-files",
+      "completedAt": "2026-11-26T02:07:18.746Z",
+      "blob": "1b783a8378879823432240e743da9d05e7b35f49"
+    },
+    {
+      "fileName": "SEED-420_recognize-intent-folders-and-read-proof.json",
+      "identity": "SEED-420#recognize-intent-folders-and-read-proof",
+      "completedAt": "2026-11-26T01:43:33.094Z",
+      "blob": "dbff658d50eb96756dd1381ea9ffe57a13d867c3"
+    },
+    {
+      "fileName": "SEED-443_simplify-intent-comparison-test-setup.json",
+      "identity": "SEED-443#simplify-intent-comparison-test-setup",
+      "completedAt": "2026-11-25T23:38:10.142Z",
+      "blob": "816d8ca1ffc2faabe923e4039ba64214dfdc7636"
+    },
+    {
+      "fileName": "SEED-417_use-sidebars-consistently-across-the-dashboard.json",
+      "identity": "SEED-417#use-sidebars-consistently-across-the-dashboard",
+      "completedAt": "2026-11-25T17:30:25.522Z",
+      "blob": "5ab78afa1fda236b60a41d6d0925fac5ab94d005"
+    },
+    {
+      "fileName": "SEED-413_finish-backend-vitest-renovation-after-launch-attachments.json",
+      "identity": "SEED-413#finish-backend-vitest-renovation-after-launch-attachments",
+      "completedAt": "2026-11-25T16:35:04.466Z",
+      "blob": "c9ede4326f969ceb4de3ca467fd465c86780fdea"
+    },
+    {
+      "fileName": "SEED-420_browse-one-selectable-review-tree.json",
+      "identity": "SEED-420#browse-one-selectable-review-tree",
+      "completedAt": "2026-11-25T15:54:56.820Z",
+      "blob": "32b5e01fefb29cb4041b88ef9245f72b4fc87231"
+    },
+    {
       "fileName": "SEED-442_exercise-board-navigation-on-published-story-fixtures.json",
       "identity": "SEED-442#exercise-board-navigation-on-published-story-fixtures",
       "completedAt": "2026-11-25T15:48:32.070Z",

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-430#qualify-board-fixture-routing-and-request-boundaries",
+  "title": "Qualify Board fixture routing and request boundaries",
+  "completedAt": "2026-11-26T02:29:40.699Z",
+  "developer": "Terry Yin",
+  "agent": "Julia-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** For SEED-430#qualify-board-fixture-routing-and-request-boundaries at `aace1441ab919315ccdf7a827bc530ba58a4c6ee`, the maintained test caught a named republication that left an already-served HOME at the earlier commit.\n\nIn a detached scratch worktree, I removed the call that drops a named publication's previous rewrite in `routeOriginThroughServedHomes` in `dashboard/test-support/support/fixtureOriginRoute.ts`. The scratch witness used the same fake GitHub publisher and wrapped replacement at `fixture/release-board` on `release+stable`. Independent file-only `git ls-remote` calls verified that both HOMEs registered before replacement still reached `6f60357283379abe397bf8da7ec3b890b9202718`. A HOME registered after replacement reached `f0f7dbc8f7136e5b069f4c152ab966ef04c9d4cf`, confirming that the replacement existed and was reachable.\n\nIn `dashboard/backend-tests/runtime/committed-origin-routing.spec.ts:105`, the first exact replacement assertion for the early HOME failed with those expected and received commits. The early failure stops the maintained case before its late-HOME assertion. The explicit HOME precedence case and three other controls passed. Using the same focused backend command, all five cases passed on the baseline, one failed and four passed with the fault, and all five passed after restoration. The restored HEAD, index, and working tree matched the pre-probe state. The scratch worktree and its Git directory were removed.\n\nNext proof action is to retain the exact replacement assertion. This result settles the targeted fixture republish check. Plan 828 separately owns the published Board transport cutover.\n\n- **Test runtime.** 6.70 s measured by Vitest across all three runs. Baseline 4.07 s, fault 1.28 s, restored 1.35 s.\n- **Human effort.** Unavailable. No human intervention was observed or timed.\n- **Agent effort.** Unavailable. The host supplied elapsed time and runner durations without a separate active-agent measurement.\n\n\n- **Invocation-to-report elapsed.** 111439 ms (measured), from 1795660019000 to 1795660130439 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition: aace1441ab919315ccdf7a827bc530ba58a4c6ee, Caught. Retain the existing exact replacement assertion. No follow-up.\n"
+  }
+}

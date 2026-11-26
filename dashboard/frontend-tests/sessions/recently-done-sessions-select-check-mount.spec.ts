@@ -5,7 +5,6 @@
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import type { CompletedStoryAssociationAnswer } from "../../src/completedStoryAssociation.ts";
 import {
   adHocTitle,
   checkAgain,
@@ -19,37 +18,9 @@ import {
   takenTitle,
 } from "./recently-done-selection-mount-page.ts";
 
-test("a held association is superseded by a later choice, whose project stands when the first answers", async () => {
-  let answer: (said: CompletedStoryAssociationAnswer) => void = () => {};
-  const shown = await openSelection({
-    association: () =>
-      new Promise((resolve) => {
-        answer = resolve;
-      }),
-  });
-
-  await shown.select(adHocTitle).click();
-  await expect.poll(() => shown.choiceStatus(adHocTitle)).toBeTruthy();
-  await shown.select(linked.title).click();
-  await expect.element(projectShown()).toHaveAccessibleName("Pygardon");
-  answer({ kind: "linked", identity: "SEED-9#doughnut-done" });
-
-  await expect
-    .element(shown.select(linked.title))
-    .toHaveAttribute("aria-pressed", "true");
-  await expect
-    .element(shown.select(adHocTitle))
-    .toHaveAttribute("aria-pressed", "false");
-  await expect.element(projectShown()).toHaveAccessibleName("Pygardon");
-});
-
 test("an unanswered catalog check says checking until a later choice supersedes it, and a failed one is said apart from a miss, leaving project and Open usable", async () => {
   const catalog = pygardonCatalog();
-  const shown = await openSelection({
-    doneCatalog: catalog.read,
-    association: () =>
-      Promise.resolve({ kind: "linked", identity: "SEED-9#doughnut-done" }),
-  });
+  const shown = await openSelection({ doneCatalog: catalog.read });
 
   catalog.hold();
   await shown.select(linked.title).click();
@@ -112,41 +83,6 @@ test("a catalog naming the story's done record unreadable, or not describing the
     .element(shown.select(linked.title))
     .toHaveAttribute("aria-pressed", "true");
   await expect.element(projectShown()).toHaveAccessibleName("Open Dough");
-});
-
-test("an unreadable or refused ad hoc association is said apart from a miss and leaves the story; selecting again links its Done story", async () => {
-  const unreadable = "Its claim evidence could not be read.";
-  let association: () => Promise<CompletedStoryAssociationAnswer> = () =>
-    Promise.resolve({ kind: "unavailable", explanation: unreadable });
-  const shown = await openSelection({ association: () => association() });
-  await readInIntent();
-
-  await shown.select(adHocTitle).click();
-  await expect
-    .poll(() => shown.choiceStatus(adHocTitle))
-    .toBe(
-      `Its published done story could not be checked. ${unreadable} ${checkAgain}`,
-    );
-
-  const refused = "The launch boundary refused the association read.";
-  association = () => Promise.reject(new Error(refused));
-  await shown.select(adHocTitle).click();
-  await expect
-    .poll(() => shown.choiceStatus(adHocTitle))
-    .toBe(
-      `Its published done story could not be checked. ${refused} ${checkAgain}`,
-    );
-  await expect.element(intent()).not.toHaveAttribute("data-selected-story");
-  await expect.element(projectShown()).toHaveAccessibleName("Open Dough");
-
-  association = () =>
-    Promise.resolve({ kind: "linked", identity: "SEED-9#doughnut-done" });
-  await shown.select(adHocTitle).click();
-  await expect.element(projectShown()).toHaveAccessibleName("Doughnut");
-  await expect
-    .element(intent())
-    .toHaveAttribute("data-selected-story", "SEED-9#doughnut-done");
-  expect(shown.choiceStatus(adHocTitle)).toBeUndefined();
 });
 
 test("choosing another project while a linked row is still checked abandons the check, keeping the reader in the project they chose", async () => {

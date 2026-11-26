@@ -10,9 +10,11 @@ import {
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
+  expectPublishedRevision,
   expectSettledPage,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import { serveCommitted } from "../../dashboard/test-support/committedFiles.ts";
 import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   credit,
@@ -40,7 +42,7 @@ import {
   opened,
   justTaken,
   profilePath,
-  revision,
+  repository,
   takes,
 } from "../../dashboard/test-support/sliceClockRecords.ts";
 import { detailRecovery } from "../../dashboard/test-support/transientRecoveryPage.ts";
@@ -66,7 +68,6 @@ async function openWithYumaRefused(
   await pausePageClockAt(page, opened);
   let refuse = true;
   const published = publishes({
-    revision,
     files: { ...files, ".planning/open-dough.json": "{}\n" },
     committed,
     history: {
@@ -75,13 +76,14 @@ async function openWithYumaRefused(
       [profilePath("Sola")]: solaHistory,
     },
   });
-  githubFor(page).serve("terryyin/open-dough", (call) =>
+  const revision = serveCommitted(page, repository, published, (call) =>
     refuse && refused(call.request)
       ? Promise.resolve(noConnection)
       : published(call),
   );
   await page.goto("/");
   await expectSettledPage(page);
+  await expectPublishedRevision(page, revision);
   const yumaCard = storyCard(parts(page).taken, justTaken);
   await expect(credit(yumaCard).humanGap).toHaveText("Human developer unknown");
   await expect(yumaCard).toContainText("Current slice time unavailable");
@@ -95,13 +97,14 @@ async function openWithYumaRefused(
       refuse = false;
     },
     asked: githubFor(page).calls.length,
+    revision,
   };
 }
 
 test("a refused profile history recovers human credit and Take clock from one shared addition without reload", async ({
   page,
 }) => {
-  const { heal, asked } = await openWithYumaRefused(page, {
+  const { heal, asked, revision } = await openWithYumaRefused(page, {
     yumaHistory: [yumaAddition],
     solaHistory: [pathChange(0x53, "added", "   ")],
     refused: isYumaHistory,

@@ -1,3 +1,4 @@
+import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 import { expectFileComparisonRow } from "../../dashboard/test-support/intentFileProofPage.ts";
 // A completed story's unchanged file reads Purpose from its landed revision,
@@ -10,7 +11,6 @@ import {
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   fileReadingTab,
   proofRegion,
@@ -23,7 +23,10 @@ import {
   intentDiffReading,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { selectDoneStoryForChanges } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
+import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
 import { unchangedFileRow } from "../../dashboard/test-support/support/summaryComparisonFileExpectedRows.ts";
+
+const unchangedPath = "dashboard/tests/root.spec.ts";
 
 for (const variant of [undefined, "own-conflict-extra"] as const) {
   test(`a done story's unchanged file reads its landed source and compact Proof with ${variant ?? "clean merges"}`, async ({
@@ -33,26 +36,19 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     const setup = await publishSummaryComparisonStory(page, origin, {
       variant,
     });
-    const unchangedReads: string[] = [];
-    page.on("request", (request) => {
-      const url = new URL(request.url());
-      if (
-        url.pathname === authenticatedReadEndpoint &&
-        url.searchParams.get("path") === "dashboard/tests/root.spec.ts"
-      )
-        unchangedReads.push(url.searchParams.get("revision") ?? "");
-    });
+    const { text: unchangedReads } = trackStoryResultReads(page, unchangedPath);
     const { intent } = await selectDoneStoryForChanges(page);
-    await intentFile(intent, "dashboard/tests/root.spec.ts").click();
+    await listStoryRevision(intent);
+    await intentFile(intent, unchangedPath).click();
     await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
       "aria-selected",
       "true",
     );
     const purposeOnly = purposeRegion(intent);
     await expect(purposeOnly).toContainText("root 11");
-    await expect(
-      sourceRevision(intent, "dashboard/tests/root.spec.ts"),
-    ).toContainText(`at revision ${setup.completion.slice(0, 7)}`);
+    await expect(sourceRevision(intent, unchangedPath)).toContainText(
+      `at revision ${setup.completion.slice(0, 7)}`,
+    );
     expect(unchangedReads).toEqual([setup.completion]);
     await expect(
       intentFile(intent, "dashboard/tests/later.spec.ts"),
@@ -62,13 +58,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     await fileReadingTab(intent, "Proof").click();
     await untilPageReadsAnswered(page);
     const rootProof = proofRegion(intent);
-    await expectFileComparisonRow(
-      rootProof,
-      "dashboard/tests/root.spec.ts",
-      unchangedFileRow,
-    );
+    await expectFileComparisonRow(rootProof, unchangedPath, unchangedFileRow);
     if (variant === undefined) {
-      await expectProofRowCues(rootProof, "dashboard/tests/root.spec.ts", {
+      await expectProofRowCues(rootProof, unchangedPath, {
         count: "none",
         duration: "none",
         countReason: "unchanged",

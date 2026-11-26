@@ -3,6 +3,7 @@
 // file's row with its line counts, and the selected file's diff and code.
 import { expect } from "vitest";
 import { userEvent, type Locator } from "vitest/browser";
+import { sidebarPlacement } from "../../test-support/sidebarPlacement.ts";
 
 export function reviewFiles(region: Locator) {
   const list = (name: string) =>
@@ -16,6 +17,19 @@ export function reviewFiles(region: Locator) {
     const pane = diff(file).element().querySelector(".story-review-code");
     if (!pane) throw new Error(`No code shown for ${file}.`);
     return pane;
+  };
+  const filesToggle = region.getByRole("button", {
+    name: /^(Hide|Show) files$/,
+  });
+  // Files shown before its tree is used: a narrow review keeps it in a
+  // drawer that starts closed and closes on each choice. Waits out the
+  // moment its state and style disagree after the room changes.
+  const showTree = async () => {
+    const placement = () => sidebarPlacement(filesToggle.element());
+    await expect.poll(placement).not.toBe("pending");
+    if (placement() !== "hidden") return;
+    await filesToggle.click();
+    await expect.poll(placement).not.toBe("hidden");
   };
   const files = {
     async expectListed(name: string) {
@@ -36,7 +50,9 @@ export function reviewFiles(region: Locator) {
       return files;
     },
 
+    // Chooses the file in Files, opening Files first where it is closed.
     async chooseFile(file: string) {
+      await showTree();
       await row(file).click();
       return files;
     },
@@ -75,6 +91,7 @@ export function reviewFiles(region: Locator) {
     },
 
     async chooseFileByKeyboard(file: string) {
+      await showTree();
       (row(file).element() as HTMLElement).focus();
       await userEvent.keyboard("{Enter}");
       return files;

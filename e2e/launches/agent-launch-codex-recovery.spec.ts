@@ -1,5 +1,4 @@
-// Uncertain first input retains exact native continuation across restart,
-// resumed by continuing its attempt.
+// Continue recovers exact native first input across a Dashboard restart.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -25,11 +24,15 @@ import {
   attempts,
   continued,
   launch,
+  keptStarts,
   refinementRequest,
   machineSessions,
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { expectInstalledCodexStoryInput } from "./codexLaunchObservation.ts";
+import { expectExecutionInput } from "../../dashboard/test-support/support/codexStartAssertions.ts";
+import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ originRepository: queuedDashboardRepository().please() });
 
@@ -166,3 +169,82 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
     }
   });
 }
+
+test("a restarted Dashboard continues a Codex execution with the original Take and input", async ({
+  dashboard,
+  origin,
+  codexProtocol,
+  machine,
+}) => {
+  const native = codexProtocol;
+  if (native === undefined) throw new Error("Missing native fixture.");
+  const workspace = path.join(origin.project, ".worktrees", "story-a");
+  const original = (await origin.originGit("rev-parse", "main")).trim();
+  const request = makeMe.aLaunchRequest
+    .executing({ identity: queuedIdentity, title: "Story A", host: "codex" })
+    .withInstruction("Implement the selected slice.")
+    .please();
+  native.hold = true;
+  const pending = launch(dashboard, request);
+  await expect.poll(() => native.history.length, { timeout: 30_000 }).toBe(1);
+  native.failConnection();
+  expect(JSON.parse((await pending).body)).toMatchObject({ kind: "uncertain" });
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
+  const [profile] = await origin.takenProfiles();
+  const [before] = stored(dashboard.home);
+  expect(before).toMatchObject({
+    start: { workspace, publishedSha: revision },
+    firstInput: { state: "uncertain" },
+    session: { sessionId: native.threadId, continuation: { workspace } },
+  });
+  await dashboard.close();
+  await expect.poll(() => native.sockets.size).toBe(0);
+  native.resumeStatus = "completed";
+  const restarted = await startDashboardServer({
+    mode: "boundary",
+    machine,
+    github: dashboard.github,
+    codexProtocol: native,
+  });
+  try {
+    const [attempt] = await attempts(restarted);
+    const response = await continued(restarted, attempt?.id ?? "");
+    expect(JSON.parse(response.body), response.body).toMatchObject({
+      kind: "launched",
+    });
+    const [after] = stored(restarted.home);
+    expect(after?.start).toEqual(before?.start);
+    expect(after?.session).toEqual(before?.session);
+    expectExecutionInput(
+      after,
+      native,
+      workspace,
+      original,
+      revision,
+      profile?.["agent"],
+      dashboard,
+    );
+    expect(
+      native.calls.filter(
+        ({ method, params }) =>
+          method === "thread/start" ||
+          method === "thread/resume" ||
+          (method === "thread/read" && params["includeTurns"] === true),
+      ),
+    ).toEqual([
+      { method: "thread/start", params: { cwd: workspace } },
+      {
+        method: "thread/read",
+        params: { threadId: native.threadId, includeTurns: true },
+      },
+      { method: "thread/resume", params: { threadId: native.threadId } },
+    ]);
+    expect(await origin.takenProfiles()).toEqual([profile]);
+    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(revision);
+    expect(await keptStarts(restarted)).toEqual([]);
+    expect(stored(restarted.home)).toHaveLength(1);
+    expect(restarted.claudeLaunchCalls()).toEqual([]);
+  } finally {
+    await restarted.close();
+  }
+});

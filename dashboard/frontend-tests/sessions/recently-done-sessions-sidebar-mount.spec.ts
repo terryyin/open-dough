@@ -123,16 +123,27 @@ test("Recently done reads, reveals 20, 40 and 45 newest first, keeps that range 
     vi.useRealTimers();
   });
   // Two of them share a completion time and keep their order.
-  const { titles, records } = fortyFiveDoneSessions(Date.now());
+  const selectStory = makeMe.aDoneRecord
+    .completed({
+      identity: "SEED-401#older-cross-project",
+      title: "Older cross-project story",
+      completedAt: minutesAgo(90),
+    })
+    .please();
+  const { titles, records } = fortyFiveDoneSessions(
+    Date.now(),
+    undefined,
+    selectStory.identity,
+  );
   const machine = machineReader(
     makeMe.aMachineAnswer.observingUnavailable(...records).please(),
   );
   const releaseFirst = machine.hold();
-  const selectStory = "SEED-401#older-cross-project";
   const shown = await mountSessions(machine, {
     awaitSessionsRead: false,
-    association: () =>
-      Promise.resolve({ kind: "linked", identity: selectStory }),
+    done: {
+      doughnut: makeMe.aDoneCatalog.holding([selectStory]).please().done,
+    },
   });
   await shown.header.click();
   await expect

@@ -470,12 +470,10 @@ including launch lookup, attempt continuation in the isolated rehearsal,
 and published review. Save a restorable original and account for each
 converted, retained, or archived row in the affected stores.
 
-The developer approved the cutover with the required proof and writer hold.
-
-After proof and before triggering the production watcher, the production
-owner approves the cutover window and its
-[Dough Land `--keep-worktree` step](../../../.agents/skills/dough-land/SKILL.md#establish-completion-before-landing).
-This checkpoint covers landing the reviewed story branch and the coordinated
+The developer approved the cutover window and the
+[Dough Land `--keep-worktree` step](../../../.agents/skills/dough-land/SKILL.md#establish-completion-before-landing)
+subject to proof and the writer hold. This checkpoint covers landing the
+reviewed story branch and the coordinated
 installed-client update and Dashboard activation under their existing
 authority. Hold writers and automatic replacement before that landing,
 reinventory production, and apply the rehearsed store switch with verified
@@ -493,6 +491,123 @@ shell job. Count Dashboard frontend/backend `--list` and E2E
 `--list --reporter=list` rows once per runner. Record the case counts and
 isolate unrelated trunk deltas. Require both production areas and the
 combined case count to fall.
+
+At the slice 10 entry, published slice 9 (`60677275`) contains 51,215
+Distribution source lines and 131,501 Dashboard source lines. Compared
+with the shared trunk base at `856f35e31`, those are increases of 472 and
+53 lines. Exact runner discovery and hosted Node leaves give 5,803
+combined cases at `60677275`, 5,806 at the shared base, and 5,767 at the
+execution base. The shared trunk changes add 39 cases and this branch
+removes three on that base. The source reduction remains open. See
+`slice-10-source-counts-start.json`, `slice-10-published-case-counts.json`
+and `slice-10-shared-base-case-counts.json` in Git evidence. The shared
+base's hosted leaf proof is from `3328db809`, which differs from
+`856f35e31` only in this story's seed document.
+
+The private integration with trunk `2b69bc19` resolved concurrent Dashboard
+fixture and reader changes. Retiring the legacy association reader and
+preserving its exact Review and receipt replay reduces Dashboard by 296
+lines. Consolidating the installed established-session guidance reduces
+Distribution by 72 lines. The combined tree with the maintenance and
+terminal compatibility changes measures 51,147 Distribution lines and
+132,289 Dashboard lines, compared with 50,747 and 132,494 on that trunk.
+Distribution remains 400 lines above the comparison and Dashboard is 205
+below it. See `slice-10-final-integrated-source-counts.json` in worktree
+Git evidence.
+The remaining previously suggested Distribution deletions serve live
+publication, native follow-up or recovery paths.
+
+The fresh private copy contains 1,734 launch records, 1,753 attempts and
+336 history entries. The published reader parses all three stores. Eight
+open sessions match the native binding, checkout and cached published
+story. A recheck also matched the Claude native checkout to its saved
+preparation, landing authority and attempt, and confirmed its Taken story
+at the exact current upstream tip. The remaining open Cursor runner and
+saved row name a checkout that no longer exists and have no matching Git
+worktree registration. Its cached trunk tip matches the current upstream
+tip, and the Taken and Done records at that tip do not corroborate the
+story. That open session required an evidenced disposition. The single
+unresolved attempt has its reporting companion. Fifteen missing
+reporting directories are referenced solely by settled attempts.
+
+The developer later confirmed the other sessions had closed. The Dashboard
+reader parsed 1,735 rows and found one open launch, this execution. Its
+native Codex ID, accepted attempt, workspace and Taken story match at the
+current upstream tip. The former open Cursor row has a Done mark and
+retained reporting files. The runner still holds it at the follow-up prompt.
+Carry the row and its companions into closed-record reconciliation. One
+unresolved attempt still has reporting and no launch record. See
+`slice-10-recheck-open-after-user-update.json` and
+`slice-10-recheck-open-disposition.json` in the worktree's Git evidence.
+
+The developer authorized finishing the prerequisite work before the single
+production switch. A later private capture accounts for all 3,824 launches,
+attempts and history rows. Its migration rehearsal retained the one open
+Codex launch, corroborated 25 closed ad hoc launches (24 new bindings) and
+restored all 16,943 captured files by hash. The real published-session
+reader returned 24 original ranges across 16 close records. The other nine
+legacy comparisons need the migrated candidate's Review and exact receipt
+retry checks. Preserve their landing, authority and report bytes. See
+`slice-10-closed-migration.Y8M9wiVq` in the common Git evidence. A post-landing
+held-writer snapshot must include this launch's first accepted comparison
+receipt before the replacement store is built.
+
+The migration retains the exact completed automatic maintenance record, its
+settled attempt and reporting directory as scheduler evidence. Without the
+record, the scheduler could start a second cycle for the same served date
+or Settings could lose its Done result. The private reader now accepts
+1,545 launches, 1,564 attempts and 336 history rows. Both the current due
+date and the historical served date preserve their original scheduler
+decisions. See `scheduler-preserved` in the same private evidence. The
+normal story and terminal readers must continue to exclude this row.
+
+The deployed reader at `c51f8636` was independently copied with its build
+and runtime dependencies and served its exact content in a private preview.
+Its drain and shutdown completed. This is the pinned rollback reader.
+The activation review found the system watcher, native writer agents and
+Caddy ingress need separate holds. The old preview must retain the exact
+first-landing path until its receipt settles. See
+`slice-10-activation-review.fCmYLqBw/REPORT.md` and the pinned-reader proof
+recorded from this worktree's Git evidence.
+
+The independently reviewed integrated reader read the full reconciled
+private store and opened the retained launch, with no held open rows. Its
+local gate passed Dashboard typecheck, eight Node cases, eighteen terminal
+and Continue boundary cases, five mounted cases and four browser Review
+journeys. The published guidance reproduces the exact native handoff block.
+The final Dashboard discovery removed 15 cases on the current trunk base.
+The published candidate is needed for exact hosted Distribution proof and
+the like-for-like combined count. The planned status remains pending the
+source decision and the authorized production activation. See
+`slice-10-combined-candidate-focused.log`, the three final candidate list
+logs, and `slice-10-integrated-store-verification-directory.txt` in worktree
+Git evidence. The private transfer proof exercised a successful apply,
+automatic restore, interrupted journal recovery and exact rollback while
+preserving unrelated files. Its retained helper and commands are in
+`slice-10-store-transfer.IiMLlL7K/REPORT.md` in common Git evidence.
+
+The historical unbound Claude row is now marked done in the fresh copy.
+Replaying Continue with its original copy verifies the native ID and
+checkout, then fails because the original request carries follow-up
+metadata. The existing recovery filter skips that shape. A private
+single-guard experiment recovered the same attempt and terminal twice
+without a fresh launch or publication callback. The exact runner did not
+attach a live terminal. The published reader still refuses the original
+shape. Keep the exact replay and distinguish it from current open rows.
+The full published payload installed in a private client with matching
+native roots and complete hook registration. See `slice-10-rehearsal.xO4uGJ`
+under the story's common Git evidence directory for the snapshot, report
+and later native and upstream corroboration. Production is still running
+the prior reader and store.
+
+The production action paused at 13.1 active minutes with 1.9 remaining while
+its dependencies are prepared and verified privately. The final slice is
+already the tenth and the retained behavior requires one production switch.
+The published slice 9 revision passed exact branch CI in run
+`45717852906`, attempt 1. The observer then exited on a GitHub authentication
+error after reporting the successful revision. Its notification was
+acknowledged and PID `30861` exited. See `slice-10-start-ci-await.log` and
+`slice-10-blocked-observer-stop.log` in the worktree's Git evidence.
 
 ## Proof gates and concern review
 

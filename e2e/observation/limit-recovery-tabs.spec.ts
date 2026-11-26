@@ -38,7 +38,6 @@ import {
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
-import { keepingOrigin } from "../../dashboard/test-support/support/publishedRepository.ts";
 import {
   inspectedDetail,
   storyCard,
@@ -83,7 +82,7 @@ test("two tabs recover together once the wait ends, each question reaching GitHu
   const published = publishes({ files: { ...files, [settingPath]: "{}\n" } });
   const { revision } = published;
   const answers = limiting(page, published, 2);
-  const answer = keepingOrigin(answers.answer, published);
+  const { answer } = answers;
   github.serve(repository, answer);
   expect(
     await remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {

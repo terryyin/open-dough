@@ -1,10 +1,11 @@
+import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Both the banner and the Done card read the immutable completion even
 // while the retained workspace holds later uncommitted edits.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
+import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -88,21 +89,10 @@ test("a readable Done workspace cannot replace published locations, inventory, u
     origin,
     { implementation, later, local },
   );
-  const locations: string[] = [];
-  const sourceReads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "locations"
-    )
-      locations.push(url.searchParams.get("revision") ?? "");
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("path") === "dashboard/tests/boundary/kept.spec.ts"
-    )
-      sourceReads.push(url.searchParams.get("revision") ?? "");
-  });
+  const { inventory: locations, text: sourceReads } = trackStoryResultReads(
+    page,
+    "dashboard/tests/boundary/kept.spec.ts",
+  );
   const received = page.waitForResponse(
     (response) => new URL(response.url()).pathname === storyReviewEndpoint,
   );
@@ -125,6 +115,7 @@ test("a readable Done workspace cannot replace published locations, inventory, u
     0,
   );
   expect(locations).toContain(completion);
+  await listStoryRevision(intent);
   await intentFile(intent, "dashboard/tests/boundary/kept.spec.ts").click();
   await expect(purposeRegion(intent)).toContainText("kept 11");
   await expect(purposeRegion(intent)).not.toContainText("source rewrite");
@@ -188,7 +179,6 @@ test("unrecoverable history remains unavailable despite a readable Done workspac
     kind: "unavailable",
     explanation: expect.stringMatching(/claim|history/),
   });
-  await browseStoryFiles(intent);
   await expect(filesColumn(intent)).toHaveCount(0);
   await expect(
     intent.getByText(

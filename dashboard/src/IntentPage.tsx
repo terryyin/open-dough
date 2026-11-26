@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { FileBrowserToggle } from "./FileBrowserToggle.tsx";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { IntentBrowserFrame } from "./IntentBrowserFrame.tsx";
+import { useIntentFiles } from "./IntentFilesDrawer.tsx";
 import { intentBrowserSource } from "./intentBrowserSource.ts";
 import { focusReturnEntry } from "./IntentCandidatesSections.tsx";
 import { IntentCiComparisonPreference } from "./IntentCiComparisonPreference.tsx";
@@ -26,7 +27,6 @@ import {
 } from "./IntentTabs.tsx";
 import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";
 import type { ModeChoice } from "./pageIntentMode.tsx";
-import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { intentHomeMarks } from "./storyCardFocus.ts";
@@ -35,6 +35,7 @@ import {
   storyReviewFileReadiness,
   useStoryReviewArrival,
 } from "./useFirstStoryChangedFile.ts";
+import { useStoryResultBrowse } from "./useStoryResultRead.tsx";
 import "./intent-page.css";
 
 export type IntentPageStory = {
@@ -54,28 +55,36 @@ export function IntentPage({
   readonly project: ModeChoice;
   readonly story?: IntentPageStory;
 }) {
-  const { notice, locations, shownRevision } = shown;
+  const { notice, shownRevision } = shown;
+  const result = useStoryResultBrowse(story?.summary.comparison, source.label);
   const {
     comparisonSourceUnavailable,
     locations: browserLocations,
     revision: browserRevision,
     explanation,
     lead,
-  } = intentBrowserSource(shown, story?.summary.comparison);
+  } = result === undefined
+    ? intentBrowserSource(shown, story?.summary.comparison)
+    : {
+        comparisonSourceUnavailable: false,
+        locations: result.locations,
+        revision: result.pin.revision,
+        explanation: undefined,
+        lead: result.lead,
+      };
   const { tab, chooseTab } = useStoryTab(story?.selection);
   const hasBrowser =
     browserLocations !== undefined && browserRevision !== undefined;
-  const [filesShown, setFilesShown] = useKeptReading("filesShown", () => true);
   const tabsIdPrefix =
     story === undefined
       ? project.modeIdPrefix
       : `${project.modeIdPrefix}-story`;
   const fileReadiness = storyReviewFileReadiness(
     story?.summary.comparison,
-    shown.reading === true,
+    result?.reading ?? shown.reading === true,
     hasBrowser,
   );
-  const files = { id: `${tabsIdPrefix}-locations`, shown: filesShown };
+  const files = useIntentFiles(`${tabsIdPrefix}-locations`);
   const { selection, clearSelection, setSelection } =
     useIntentWorkspaceSelection();
   const readingId = `${tabsIdPrefix}-path-reading`;
@@ -112,7 +121,7 @@ export function IntentPage({
           ? files
           : undefined
       }
-      onShowBrowser={setFilesShown}
+      onShowBrowser={files.onShow}
     />
   );
   const browser = hasBrowser && (
@@ -121,6 +130,7 @@ export function IntentPage({
       revision={browserRevision}
       locations={browserLocations}
       lead={lead}
+      result={result}
       project={story === undefined ? project : undefined}
       storySummary={story?.summary}
       story={story?.compared}
@@ -130,7 +140,14 @@ export function IntentPage({
       storyPath={
         story === undefined
           ? undefined
-          : { id: readingId, hidden: !pathVisible, onHome: returnToCi }
+          : {
+              id: readingId,
+              hidden: !pathVisible,
+              onHome: () => {
+                files.onReadingChosen();
+                returnToCi();
+              },
+            }
       }
     />
   );
@@ -182,7 +199,7 @@ export function IntentPage({
       {story === undefined ? (
         browser
       ) : (
-        <IntentBrowserFrame filesShown={hasBrowser && filesShown}>
+        <IntentBrowserFrame filesShown={hasBrowser && files.shown}>
           {browser}
           <IntentStoryEvidence
             story={story.summary}
@@ -198,7 +215,7 @@ export function IntentPage({
   );
   const navigablePage = (
     <IntentCiEntryNavigation
-      locations={locations}
+      locations={result?.locations ?? shown.locations}
       panelId={
         story === undefined ? intentTabPanelId(tabsIdPrefix, "ci") : readingId
       }

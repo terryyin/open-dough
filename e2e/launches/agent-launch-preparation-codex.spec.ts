@@ -8,6 +8,7 @@ import {
   launchRequest,
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { expectCodexRetryProgress } from "../../dashboard/test-support/support/codexRetryPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
@@ -39,12 +40,15 @@ test("Codex refusal retains its published preparation; the page resumes the same
 }) => {
   if (codexProtocol === undefined) throw new Error("Native fixture missing.");
   const native = codexProtocol;
+  const before = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    revision: before,
     repository: "terryyin/open-dough",
+    follows: true,
   });
   await pausePageClockAt(page, new Date());
+  expectServedHomesReach(github, published.repository, before);
   await page.goto("/");
   const card = parts(page).backlog.getByRole("article", {
     name: "Story A",
@@ -117,7 +121,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     [],
   );
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
-  published.advanceTo(publishedSha);
+  expectServedHomesReach(github, published.repository, publishedSha);
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
   const restarted = await startDashboardServer({
@@ -131,6 +135,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     codexProtocol: native,
   });
   try {
+    expectServedHomesReach(github, published.repository, publishedSha);
     await reloadUntilRead(page);
     await expect(
       card.getByText("Ready for execution", { exact: true }),

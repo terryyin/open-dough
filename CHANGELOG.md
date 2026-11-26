@@ -1,3 +1,15 @@
+## 0.3.115 - 2026-11-26
+
+- Execute Plan loads guidance as each step's prerequisites are met. It tells coordinators how to recover truncated authoritative passages and find a replacement when a named tool is unavailable. CI completion keeps managed recovery in the completion guide and retires the separate reference.
+- Story Branch wrap-up requires the integration receipt's target ref when publishing a session record. It supports repositories whose trunk is named something other than `main` and uses the receipt's remote when it differs from `origin`.
+- Dashboard Story Home shows CI and coverage for the selected story. Intent and Review changes share the selectable Files tree and offer a drawer on narrow screens. Story Notes confirm delivery to the native session, and Add Project discovers the default branch from Git. Dashboard coverage for launch options, attachments, and Story Notes now exercises typed backend entry points.
+
+The Promoted payload contains 367 files. Four paths changed and one was retired, with no additions. Dashboard and test infrastructure changes are in the source repository.
+
+Release-source, self-installation, Dashboard type-check, and five focused Distribution checks passed at `0c83777b1`. The focused checks cover payload links, ordinary removal of retired files, managed CI completion recovery and Story Branch session-record publication. [Hosted CI passed at `c3c21bfb0`](https://github.com/terryyin/open-dough/actions/runs/45723157518). [CI for the source candidate](https://github.com/terryyin/open-dough/actions/runs/45727889897) was running at the release check.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), the [accepted Codex startup traces](https://github.com/terryyin/open-dough/blob/73d7e84afc6f9597796993c2e39c7a81fc73db66/.planning/slice-plans/835-load-execution-guidance-for-the-current-phase/PLAN.md#accepted-slice-1-proof) cover the shipped Execute Plan entry. The candidate returned fewer guidance bytes with no truncation in the matched start. The comparison did not establish a reduction in total effort. A fresh Claude Code 2.1.332 session on 26 November loaded the candidate, verified Bash hook readiness, armed one observer on the fixture's Story Branch, delegated the slice and stopped the observer. The fixture's proof passed and its refs stayed fixed. The probe exercised startup and shutdown without a hosted CI verdict. Existing evidence covers unchanged discovery and hook registration. No release exception was used.
+
 ## 0.3.114 - 2026-11-25
 
 - Installation now derives the complete payload from `Distribution/src/skills/`. Updates verify each installed root against its own release's inventory and accept ordinary updates from the newest or immediately preceding numeric release. Older installations require explicit force. An unchanged former Claude Code asynchronous wake hook is removed during update. Locally edited hook entries are preserved.

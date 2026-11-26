@@ -5,6 +5,7 @@
 // sidebar is 16rem and nothing is kept, and the divider's own resizing is
 // ./story-review-files-divider.spec.ts.
 import { expect, onTestFinished, test } from "vitest";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewedPublishedSessionSubject } from "../../src/reviewedWorkSubject.ts";
 import {
@@ -94,4 +95,17 @@ test("where the browser refuses storage, the sidebar is 16rem and resizes withou
   await review.dragFilesDivider(48);
   await review.expectSidebarWidth(16 * rem + 48);
   expect(errors).toEqual([]);
+});
+
+test("the chosen file sidebar width returns once a narrow review is docked again", async () => {
+  freshStorageWatchingErrors();
+  const review = await mountReviewChanges(oneFile, adHocSession, desktop);
+  await review.pressOnFilesDivider("ArrowRight", 3);
+  await review.expectSidebarWidth(19 * rem);
+
+  await page.viewport(390, 720);
+  await review.expectFilesToggleNamed("Show files");
+  await page.viewport(1280, 720);
+  await review.expectFilesToggleNamed("Hide files");
+  await review.expectSidebarWidth(19 * rem);
 });

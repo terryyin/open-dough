@@ -1,3 +1,4 @@
+import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   chooseTimingUnit,
   scopeHistory,
@@ -19,10 +20,8 @@ import { expectStackedInOrder } from "../../dashboard/test-support/partArrangeme
 // additional real landing submission nudges collection with Intent closed.
 // No history answer or retained proof payload is injected into the product.
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import {
-  purposeRegion,
-  intentLocationName,
-} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { purposeRegion } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { openSummary } from "../../dashboard/test-support/intentSummaryCiProofFixtures.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   collectingLandedCi,
@@ -36,7 +35,7 @@ import {
 import { openSummaryComparison } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
 import { land } from "../../dashboard/test-support/support/startSessionLandingContext.ts";
 import {
-  intentFile,
+  chooseIntentFile,
   storyTitle,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
@@ -205,9 +204,10 @@ test("a Done entry shows collector-acquired test timing through its middle landi
 
   // Visit the existing Purpose reading, then the same entry Summary. These
   // source reads are allowed; neither visit acquires historical CI evidence.
-  await intentFile(intent, "dashboard/tests/root.spec.ts").click();
+  await listStoryRevision(intent);
+  await chooseIntentFile(intent, "dashboard/tests/root.spec.ts");
   await expect(purposeRegion(intent)).toBeVisible();
-  await intentLocationName(intent, "dashboard/tests").click();
+  await openSummary(intent, "dashboard/tests");
   await expect(scopeHistoryChart(history, "test cases").marks).toHaveCount(2);
   await expect(storyTitle(intent)).toHaveText("Story A");
   await expectComparison();
@@ -217,9 +217,9 @@ test("a Done entry shows collector-acquired test timing through its middle landi
   await withBrokenCollectedHistory(dashboard.home, async (restore) => {
     const failed = await read();
     expectUnreadableHistoryAnswer(failed);
-    await intentFile(intent, "dashboard/tests/root.spec.ts").click();
+    await chooseIntentFile(intent, "dashboard/tests/root.spec.ts");
     await expect(purposeRegion(intent)).toBeVisible();
-    await intentLocationName(intent, "dashboard/tests").click();
+    await openSummary(intent, "dashboard/tests");
     const shown = scopeHistoryReading(history);
     await expect(shown.failure).toContainText(
       "The collected CI history could not be read.",

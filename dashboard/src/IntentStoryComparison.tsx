@@ -25,6 +25,7 @@ import {
   reviewSyncFailure,
   type UnreadComparison,
 } from "./StoryReviewFeedback.tsx";
+import { storyChangesGapWords as gapWords } from "./storyChangesGapWords.ts";
 
 // What Intent knows of the selected story's comparison.
 export type LensComparison =
@@ -134,7 +135,7 @@ export function CompactComparisonState({
   )
     return (
       <p className="intent-story-state quiet" role="status">
-        Reading the story&apos;s changes…
+        {gapWords.reading}
         {comparison.state === "compared" &&
           " The previous comparison stays visible."}
       </p>
@@ -152,13 +153,13 @@ export function CompactComparisonState({
   if (comparison.state === "unavailable")
     return (
       <p className="intent-story-state" role="status">
-        No comparison is available.
+        {gapWords.unavailable}
       </p>
     );
   if (comparison.state === "failed")
     return (
       <p className="intent-story-state" role="alert">
-        The story&apos;s changes could not be read.{" "}
+        {gapWords.failed}{" "}
         <button type="button" onClick={onRetry}>
           Retry
         </button>
@@ -167,7 +168,7 @@ export function CompactComparisonState({
   if (comparison.state === "unreadable")
     return (
       <p className="intent-story-state" role="alert">
-        The chosen changes could not be read.
+        {gapWords.unreadable}
         {comparison.unreadable.failed && (
           <>
             {" "}

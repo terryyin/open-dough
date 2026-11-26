@@ -1,133 +1,176 @@
-// A result-store failure is beyond the page's control: the real installed
-// script publishes, then a bare-origin hook denies machine-directory writes.
-// Shared started() must preserve its result, including past its warning threshold.
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { chmodSync, readFileSync, statSync, writeFileSync } from "node:fs";
+// The installed command's accepted publication survives a local result write failure.
+import { readdirSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { started } from "../../server/launchStart.ts";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import {
+  publicationOf,
+  started,
+  type Started,
+} from "../../server/launchStart.ts";
+import { localFolder, type LocalFolder } from "../../server/localFolder.ts";
 import { StartProgress } from "../../server/startProgress.ts";
-import { keptStart } from "../../server/startStore.ts";
-import { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
-const defaultSource = productionSeedProjects[0];
-if (defaultSource === undefined)
-  throw new Error("The test requires the seeded first project.");
+import { startStore, type StartStore } from "../../server/startStore.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
+  type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
-for (const expired of [false, true]) {
-  test(`post-publication recording failure preserves preparation (${expired ? "slow start" : "ordinary wait"})`, async () => {
-    const origin = await startOrigin(queuedReadyRepository().please(), {
-      host: "codex",
-    });
-    const previousHome = process.env["HOME"];
-    const previousWait = process.env["DOUGH_START_TIMEOUT_MS"];
-    process.env["HOME"] = path.join(origin.machine, "home");
-    process.env["DOUGH_START_TIMEOUT_MS"] = expired ? "1" : "60000";
-    const directory = path.join(origin.machine, "home/.open-dough/dashboard");
-    const hook = path.join(origin.origin, "hooks", "post-receive");
-    writeFileSync(hook, `#!/bin/sh\nsleep 0.2\nchmod 0555 '${directory}'\n`);
-    chmodSync(hook, 0o755);
-    const unhandled: unknown[] = [];
-    const rejected = (reason: unknown) => {
-      unhandled.push(reason);
-    };
-    process.on("unhandledRejection", rejected);
-    const request = makeMe.aLaunchRequest
-      .refining({
-        identity: queuedIdentity,
-        title: queuedTitle,
-        source: defaultSource.id,
-        host: "codex",
-      })
-      .please();
-    const project = { path: origin.project, shown: "~/git/open-dough" };
-    const progress = new StartProgress();
-    try {
-      const outcome = await started(
-        defaultSource,
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
+const request = makeMe.aLaunchRequest
+  .refining({ identity: queuedIdentity, title: queuedTitle, host: "codex" })
+  .please();
+const slug = "prepare-the-queued-start";
+const branch = `codex/${slug}`;
+let origin: StartOrigin;
+let folder: LocalFolder;
+let store: StartStore;
+let env: NodeJS.ProcessEnv;
+let workspace: string;
+let running: Promise<Started> | undefined;
+
+beforeAll(async () => {
+  const initial = await startOrigin(repository, { host: "codex" });
+  try {
+    keepStartedOrigin("codex", repository, initial);
+  } finally {
+    initial.cleanup();
+  }
+});
+
+beforeEach(async () => {
+  running = undefined;
+  origin = await startOrigin(repository, { host: "codex" });
+  const home = path.join(origin.machine, "home");
+  folder = localFolder("~/git/open-dough", home);
+  env = { ...process.env, HOME: home };
+  store = startStore("refinement", home);
+  workspace = path.join(origin.project, ".worktrees", slug);
+});
+
+afterEach(async () => {
+  try {
+    await Promise.allSettled([running]);
+  } finally {
+    origin.cleanup();
+  }
+});
+
+for (const slow of [false, true]) {
+  const timing = slow ? "slow start" : "ordinary wait";
+  describe(timing, () => {
+    let outcome: Started;
+    let warning: string | undefined;
+    let publishedAtWrite: string;
+
+    beforeEach(async () => {
+      warning = undefined;
+      publishedAtWrite = "";
+      const unwritable: StartStore = {
+        ...store,
+        update: async () => {
+          publishedAtWrite = (
+            await origin.originGit("rev-parse", "main")
+          ).trim();
+          throw new Error("The preparation result could not be written");
+        },
+      };
+      running = started(
+        source,
         request,
-        project,
-        progress,
-        "attempt",
+        folder,
+        new StartProgress(),
+        { store: () => unwritable, env, warningMs: slow ? 1 : 60_000 },
+        "initial-refinement",
+        (time) => {
+          warning = time;
+          return Promise.resolve();
+        },
       );
-      expect(outcome).toMatchObject({ kind: "established" });
-      if (outcome.kind !== "established")
-        throw new Error("Published handoff missing.");
-      expect(outcome.handoff.established).toMatchObject({
-        preparation: { identity: queuedIdentity },
-      });
-      expect(outcome.handoff.formatted).toContain("Established preparation:");
-      progress.for("refinement").clear(defaultSource.id, queuedIdentity);
-      expect(statSync(directory).mode & 0o777).toBe(0o555);
-      const retained = await keptStart(
-        defaultSource.id,
-        queuedIdentity,
-        "refinement",
-      );
+      outcome = await running;
+    });
+
+    test("post-publication recording failure preserves preparation", async () => {
+      if (slow) expect(warning).toMatch(/^\d{4}-/);
+      else expect(warning).toBeUndefined();
+      const [retained, head, profiles] = await Promise.all([
+        store.kept(source.id, queuedIdentity),
+        origin.originGit("rev-parse", "main"),
+        origin.takenProfiles(),
+      ]);
+      const published = head.trim();
+      expect(published).not.toBe(origin.revision("base"));
+      expect(publishedAtWrite).toBe(published);
       expect(retained).toMatchObject({
-        host: "codex",
-        workspace: path.join(
-          origin.project,
-          ".worktrees",
-          "prepare-the-queued-start",
-        ),
-        branch: "codex/prepare-the-queued-start",
-      });
-      // The write-ahead record remains readable, but the post-publication
-      // result could not be written. Origin and the returned handoff still win.
-      expect(retained?.preparation).toBeUndefined();
-      expect(
-        readFileSync(path.join(directory, "refinement-starts.json"), "utf8"),
-      ).not.toContain('"preparation"');
-      const published = (await origin.originGit("rev-parse", "main")).trim();
-      const profiles = await origin.takenProfiles();
-      expect(profiles).toHaveLength(1);
-      expect(profiles[0]).toMatchObject({
-        activity: "preparation",
-        host: "codex",
         identity: queuedIdentity,
+        host: "codex",
+        workspace,
+        branch,
       });
-      expect(outcome.handoff.established).toMatchObject({
-        preparation: { publishedSha: published },
+      expect(retained?.preparation).toBeUndefined();
+      expect(profiles).toMatchObject([
+        { activity: "preparation", host: "codex", identity: queuedIdentity },
+      ]);
+      expect(outcome).toMatchObject({
+        kind: "established",
+        handoff: {
+          established: {
+            preparation: {
+              identity: queuedIdentity,
+              workspace,
+              publishedSha: published,
+            },
+          },
+        },
       });
+      if (outcome.kind !== "established")
+        throw new Error("Published handoff missing");
+      expect(outcome.handoff.formatted).toContain("Established preparation:");
       expect(outcome.handoff.formatted).toContain(
         `- publishedSha: ${published}`,
       );
-      await new Promise<void>((resolve) => setImmediate(resolve));
-      expect(unhandled).toEqual([]);
-      chmodSync(directory, 0o755);
-      chmodSync(hook, 0o644);
-      process.env["DOUGH_START_TIMEOUT_MS"] = "60000";
-      const resumed = await started(
-        defaultSource,
+      expect(publicationOf(outcome, undefined)).toEqual({
+        kind: "published",
+        revision: published,
+      });
+
+      running = started(
+        source,
         request,
-        project,
-        progress,
-        "attempt",
+        folder,
+        new StartProgress(),
+        { store: () => store, env },
+        "continued-refinement",
       );
-      expect(resumed).toMatchObject({ kind: "established" });
-      expect(await origin.takenProfiles()).toEqual(profiles);
-      expect((await origin.originGit("rev-parse", "main")).trim()).toBe(
-        published,
-      );
-    } finally {
-      process.removeListener("unhandledRejection", rejected);
-      try {
-        chmodSync(directory, 0o755);
-      } catch {
-        /* No store yet on an early failure. */
-      }
-      if (previousHome === undefined) delete process.env["HOME"];
-      else process.env["HOME"] = previousHome;
-      if (previousWait === undefined)
-        delete process.env["DOUGH_START_TIMEOUT_MS"];
-      else process.env["DOUGH_START_TIMEOUT_MS"] = previousWait;
-      origin.cleanup();
-    }
+      const resumed = await running;
+      expect(resumed).toMatchObject({
+        kind: "established",
+        workspace: { path: workspace },
+        handoff: {
+          established: {
+            preparation: { identity: queuedIdentity, workspace, branch },
+          },
+        },
+      });
+      const [nextHead, nextProfiles] = await Promise.all([
+        origin.originGit("rev-parse", "main"),
+        origin.takenProfiles(),
+      ]);
+      expect(nextHead).toBe(head);
+      expect(nextProfiles).toEqual(profiles);
+      expect(readdirSync(path.dirname(workspace))).toEqual([slug]);
+    });
   });
 }

@@ -3,12 +3,12 @@
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { pressAt } from "../navigation/board-reading-page.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { fullSha } from "./intent-ci-status-fixtures.ts";
+import { fileLayout } from "./intent-file-layout-page.ts";
 
 export const workOf = (
   source: PublishedSource,
@@ -47,33 +47,60 @@ export function presentElement<T>(found: T | null | undefined): T {
   return found;
 }
 
-// Opens the location and each of its closed folders; already open ones stay
-// open.
-export async function expandLocationAndFolders(locationPath: string) {
-  const bodyId = `${intentLocationIdPrefix(locationPath)}-body`;
-  const locationToggle = () =>
-    document.querySelector<HTMLButtonElement>(
-      `button.intent-location-toggle[aria-controls="${bodyId}"]`,
-    );
-  const closed = () =>
-    document.querySelector<HTMLElement>(
-      `button.intent-location-toggle[aria-controls="${bodyId}"][aria-expanded="false"], #${CSS.escape(bodyId)} button.story-review-folder[aria-expanded="false"]`,
-    );
-  await expect.poll(() => locationToggle() !== null).toBe(true);
-  for (let toggle = closed(); toggle !== null; toggle = closed()) {
+const locationRow = (locationPath: string) =>
+  document.querySelector<HTMLElement>(
+    `li[data-folder-path="${CSS.escape(locationPath)}"] > [data-intent-folder-cue="root"]`,
+  );
+
+const locationNameElement = (locationPath: string) =>
+  locationRow(locationPath)?.querySelector<HTMLElement>(
+    ":scope > button[aria-pressed]",
+  ) ?? null;
+
+const rowToggle = (row: Element) =>
+  row.querySelector<HTMLButtonElement>(":scope > button[aria-expanded]");
+
+async function disclose(toggle: HTMLButtonElement) {
+  if (toggle.getAttribute("aria-expanded") === "false") {
     await userEvent.click(page.elementLocator(toggle));
-    // Located again: the opened toggle's name says Collapse.
+    // Opening changes the accessible name used by elementLocator.
     await expect
       .element(page.elementLocator(toggle))
       .toHaveAttribute("aria-expanded", "true");
   }
-  return locationToggle;
 }
 
-const locationNameElement = (locationPath: string) =>
-  document.querySelector<HTMLElement>(
-    `button.intent-location-name[data-location-path="${locationPath}"]`,
+export async function revealLocationAncestors(path: string) {
+  const parts = path.split("/");
+  for (let depth = 1; depth < parts.length; depth += 1) {
+    const ancestor = CSS.escape(parts.slice(0, depth).join("/"));
+    const row = presentElement(
+      document.querySelector(`li[data-folder-path="${ancestor}"] > div`),
+    );
+    await disclose(presentElement(rowToggle(row)));
+  }
+}
+
+// Open the location and its descendants, keeping any folders already open.
+export async function expandLocationAndFolders(locationPath: string) {
+  await locationNameDrawn(locationPath);
+  await revealLocationAncestors(locationPath);
+  const locationToggle = () =>
+    rowToggle(presentElement(locationRow(locationPath)));
+  const root = presentElement(locationToggle());
+  await disclose(root);
+  const body = document.getElementById(
+    root.getAttribute("aria-controls") ?? "",
   );
+  const closed = () =>
+    body?.querySelector<HTMLButtonElement>(
+      'button.story-review-folder[aria-expanded="false"]',
+    ) ?? null;
+  for (let toggle = closed(); toggle !== null; toggle = closed()) {
+    await disclose(toggle);
+  }
+  return locationToggle;
+}
 
 export const locationNameControl = (locationPath: string) =>
   page.elementLocator(presentElement(locationNameElement(locationPath)));
@@ -97,11 +124,14 @@ export function locationNameDrawn(locationPath: string) {
 }
 
 // Presses the drawn name of the location at LOCATIONPATH with the mouse on its
-// first line of words; a narrow page shows a wrapped name only in part. A
-// comparison arriving at any moment renames the button, so the press locates
-// it by path, never by name.
+// first line of words, opening Files first where a narrow page keeps it in a
+// closed drawer; a narrow page shows a wrapped name only in part. A comparison
+// arriving at any moment renames the button, so the press locates it by path,
+// never by name.
 export async function pressLocationName(locationPath: string) {
   await locationNameDrawn(locationPath);
+  await fileLayout().showFiles();
+  await revealLocationAncestors(locationPath);
   const name = presentElement(locationNameElement(locationPath));
   name.scrollIntoView({ block: "nearest", inline: "nearest" });
   const words = document.createRange();

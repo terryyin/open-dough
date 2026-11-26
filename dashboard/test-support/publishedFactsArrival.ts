@@ -10,6 +10,7 @@ import {
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
+import { serveCommitted } from "./committedFiles.ts";
 import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
@@ -152,7 +153,6 @@ const groupOf = (request: GhRequest): FactGroup | undefined => {
 export async function heldFactGroups(page: Page) {
   await pausePageClockAt(page, opened);
   const trunk = publishes({
-    revision,
     files: publishedTrunk().files,
     // Bound-recovery journeys need every Taken clock answerable so an
     // unrelated unread plan time does not keep scheduling detail recovery
@@ -185,7 +185,7 @@ export async function heldFactGroups(page: Page) {
       : trunk(call);
   }, groupOf);
   const github = githubFor(page);
-  github.serve(repository, held.answer);
+  const revision = serveCommitted(page, repository, trunk, held.answer);
   await page.goto("/");
   await expectMembership(page, {
     taken: stories.map(({ title }) => title),
@@ -202,6 +202,7 @@ export async function heldFactGroups(page: Page) {
     .toBe(3);
   const { taken, backlog, recentlyDone, problem } = parts(page);
   return {
+    revision,
     branchCard: taken.getByRole("article", { name: afterTake }),
     trunkCard: taken.getByRole("article", { name: justTaken }),
     queuedCard: backlog.getByRole("article", { name: preparing }),

@@ -19,8 +19,8 @@ and a presentation case in `../frontend-tests/`.
 ## Which entry a case uses
 
 Call the typed handler in this process on plain Node Vitest, in a spec that
-imports its `test` from `vitest`. When a case exercises a store, give it a
-temporary machine home and use the store's document format, such as
+imports its `test` from `vitest`. When a handler accepts a store file, give
+each case a private file and use the store's document format, such as
 `makeMe.aStoredStoryNotesDocument` for Story Notes. The adapter's request
 admission is a unit case too: it takes the request as typed values (method,
 URL, body reader) and any process-wide lookup as a function, and the case
@@ -31,7 +31,7 @@ shared origin, method, caching and status framing stay with their own
 existing cases.
 
 Story Notes is the reference family: `review/story-notes.spec.ts` calls
-`storyNotes(project, change?)` from `dashboard/server/storyNotes.ts`, and
+`storyNotes(file, project, change?)` from `dashboard/server/storyNotes.ts`, and
 `review/story-notes-request.spec.ts` calls its request admission,
 `admittedStoryNotesRequest`. Dashboard Test Support is frozen: new cases add
 only MakeMe builders to `../test-support/`.

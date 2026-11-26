@@ -19,7 +19,6 @@ import {
   doughnutRepository,
   doughnutSharedGoal,
   doughnutSharedTitle,
-  revisionDoughnut,
 } from "../../dashboard/test-support/doughnutProject.ts";
 import { selectSettledDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
 import {
@@ -170,12 +169,7 @@ for (const outcome of ["success", "failure"] as const) {
     // the fake gh finish; it does not revive a response in the selected page.
     await expectOnlyDoughnut(page, shown, factsA, saved);
     await expectNextProjectCheck(page, doughnutRepository);
-    expectOnlyProjectAsked(
-      page,
-      atSwitch,
-      doughnutRepository,
-      revisionDoughnut,
-    );
+    expectOnlyProjectAsked(page, atSwitch, doughnutRepository, shown.revision);
     await expectOnlyDoughnut(page, shown, factsA, saved);
     expect(errors).toEqual([]);
   });
@@ -190,7 +184,7 @@ for (const outcome of ["success", "failure"] as const) {
       afterGitHubStops,
     );
     const { A: factsA, B: factsB } = origin.facts;
-    await selectSettledDoughnut(page);
+    const shown = await selectSettledDoughnut(page);
     const current = origin.push("B", pendingB);
     const atReturn = githubFor(page).calls.length;
     await projectTab(page, "Open Dough").check();
@@ -210,7 +204,7 @@ for (const outcome of ["success", "failure"] as const) {
       await expect(projectTab(page, "Open Dough")).toBeChecked();
       await expect(parts(page).board).not.toContainText(doughnutSharedGoal);
       await expect(
-        parts(page).board.locator(`a[href*="${revisionDoughnut}"]`),
+        parts(page).board.locator(`a[href*="${shown.revision}"]`),
       ).toHaveCount(0);
     });
     await test.step("B's later real reads finish the same current observation", async () => {

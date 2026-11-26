@@ -1,11 +1,7 @@
 // One selection after a card arrival, made from the settled displayed tree.
-import { useEffect, useLayoutEffect, useRef } from "react";
-import type { IntentLocation } from "./authenticatedIntentRead.ts";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
-import {
-  intentChangedFileOrder,
-  type StoryOverlay,
-} from "./intentStoryOverlay.ts";
+import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import {
   useFinishStoryReviewOpening,
@@ -37,42 +33,49 @@ export function useFirstStoryChangedFile({
   project,
   storyIdentity,
   canChooseFile,
-  locations,
-  overlay,
+  changedFiles,
   hasSelection,
   open,
 }: {
   readonly project: string;
   readonly storyIdentity: string | undefined;
   readonly canChooseFile: boolean;
-  readonly locations: readonly IntentLocation[];
-  readonly overlay: StoryOverlay;
+  readonly changedFiles: readonly IntentTreeFile[];
   readonly hasSelection: boolean;
   readonly open: (selection: IntentSelection) => void;
 }) {
   const opening = useStoryReviewOpening(project);
   const finish = useFinishStoryReviewOpening();
+  // A file the reader chooses after a render commits, before that render's
+  // effect runs, is already the selection: the effect leaves it.
+  const chosen = useRef(hasSelection);
+  useLayoutEffect(() => {
+    chosen.current = hasSelection;
+  });
   useEffect(() => {
     if (
       opening === undefined ||
       opening.identity !== storyIdentity ||
-      hasSelection ||
+      chosen.current ||
       !canChooseFile
     )
       return;
-    const [first] = intentChangedFileOrder(locations, overlay);
+    const [first] = changedFiles;
     if (first === undefined) finish?.(opening);
     else open({ path: first.path, scope: "file" });
   }, [
     opening,
     storyIdentity,
     canChooseFile,
-    locations,
-    overlay,
+    changedFiles,
     hasSelection,
     open,
     finish,
   ]);
+  // The reader's own choice, noted as it is made.
+  return useCallback(() => {
+    chosen.current = true;
+  }, []);
 }
 
 // Hold focus on the visible comparison feedback while the first path loads.

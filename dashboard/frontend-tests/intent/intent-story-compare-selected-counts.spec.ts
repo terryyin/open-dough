@@ -108,7 +108,6 @@ async function openCapturedRun({
     },
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   return { story, file: story.file(`Modified ${filePath}`), observedAttempts };
 }
 
@@ -128,6 +127,7 @@ async function openFileProof(
   story: ReturnType<typeof intentStoryCompare>,
   file: Locator,
 ) {
+  await story.browseFiles();
   await activateComparisonControl(file);
   await story.chooseProof();
   const name = `CI proof of ${filePath}`;

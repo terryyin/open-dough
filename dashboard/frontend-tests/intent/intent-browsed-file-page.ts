@@ -8,6 +8,7 @@ import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { expandLocationAndFolders } from "./intent-ci-homepage-page.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 // Nested in a folder the reader opens under its location.
 export const browsed = "dashboard/tests/nested/browse.spec.ts";
@@ -36,18 +37,26 @@ export function intentReadsRecording(fileReads: string[]): IntentReadSource {
 }
 
 const intent = page.getByRole("main", { name: "Intent", exact: true });
-// The browsed spec's control, named by its path after any change kind.
+// The browsed spec's control, named by its path after any change kind; it
+// keeps its state while a closed Files drawer hides it.
 export const fileControl = () =>
   intent.getByRole("button", {
     name: new RegExp(`(^|\\s)${browsed.replaceAll(".", "\\.")}(,|$)`),
+    includeHidden: true,
   });
 export const purpose = intent.getByRole("region", {
   name: "Purpose",
   exact: true,
 });
 
-export async function selectBrowsedFile() {
-  await expandLocationAndFolders("dashboard/tests");
+export async function selectBrowsedFile(
+  scope: "project" | "story" = "project",
+) {
+  if (scope === "story") {
+    await intentStoryCompare().expandFolderPath("dashboard/tests/nested");
+  } else {
+    await expandLocationAndFolders("dashboard/tests");
+  }
   await userEvent.click(fileControl());
   await expectFileRead();
 }

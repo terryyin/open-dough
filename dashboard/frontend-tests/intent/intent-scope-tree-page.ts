@@ -1,6 +1,6 @@
 // Intent's location and folder tree as the reader operates it: disclosure
 // toggles, selectable location and folder names, and the selected scope's
-// Summary (../../src/IntentLocationHeader.tsx, ../../src/StoryReviewFileTree.tsx,
+// Summary (../../src/IntentFileTree.tsx, ../../src/StoryReviewFileTree.tsx,
 // ../../src/IntentSummary.tsx). An opened file reads through
 // ./intent-file-reading-page.ts.
 import { expect } from "vitest";
@@ -47,10 +47,11 @@ export function locationHeader(path: string) {
 
 export function locationHeaderLook(path: string) {
   const header = locationHeader(path);
-  const column = header.closest(".intent-locations") ?? header;
+  const column =
+    header.closest("li[data-folder-path], .intent-locations") ?? header;
   const box = header.getBoundingClientRect();
   const columnLeft = column.getBoundingClientRect().left + column.clientLeft;
-  const label = header.querySelector(".intent-location-name > *") ?? header;
+  const label = header.querySelector(".story-review-folder-name") ?? header;
   return {
     background: getComputedStyle(header).backgroundColor,
     mark: getComputedStyle(header).boxShadow,

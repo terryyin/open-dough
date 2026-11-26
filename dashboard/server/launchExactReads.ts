@@ -2,11 +2,6 @@
 import { agentChangedEndpoint } from "../src/agentLaunch.ts";
 import { finalReportEndpoint } from "../src/finalReportContract.ts";
 import {
-  completedStoryAssociationEndpoint,
-  completedStoryAssociationRequest,
-  type AdmittedCompletedStoryAssociation,
-} from "./completedStoryAssociationAdmission.ts";
-import {
   changedRequest,
   type AdmittedChanged,
 } from "./launchAttemptChanges.ts";
@@ -20,10 +15,7 @@ import {
 } from "./storyReviewExactReads.ts";
 
 export type LaunchExactAdmitted =
-  | AdmittedChanged
-  | AdmittedFinalReport
-  | AdmittedCompletedStoryAssociation
-  | StoryReviewExactRead;
+  AdmittedChanged | AdmittedFinalReport | StoryReviewExactRead;
 
 export const launchExactReads = new Map<
   string,
@@ -31,6 +23,5 @@ export const launchExactReads = new Map<
 >([
   [agentChangedEndpoint, changedRequest],
   [finalReportEndpoint, finalReportRequest],
-  [completedStoryAssociationEndpoint, completedStoryAssociationRequest],
   ...storyReviewExactReads,
 ]);

@@ -29,7 +29,6 @@ import {
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { selectSettledDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
-import { revisionDoughnut } from "../../dashboard/test-support/doughnutProject.ts";
 import {
   filesBesideUnreachable,
   opened as limitedOpened,
@@ -134,7 +133,7 @@ test("switching projects abandons a late detail answer from the previous observa
   const shown = await selectSettledDoughnut(page);
   releaseDetail();
   await expect(parts(page).readRevision).toContainText(
-    shortRevision(revisionDoughnut),
+    shortRevision(shown.revision),
   );
   await expect(shown.link).toBeFocused();
   await expect(page.locator("body")).not.toContainText(dashboardStory);

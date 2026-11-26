@@ -9,6 +9,7 @@ import {
 import {
   expectMembership,
   parts,
+  shortRevision,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { passPageMs } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
@@ -22,17 +23,9 @@ import {
   routeFailingRevisionStreams,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
 import { revisionStreamSilenceMs } from "../../dashboard/src/revisionStreamSchedule.ts";
-import {
-  publishMovingOrigin,
-  noConnection,
-} from "../../dashboard/test-support/publishedOrigin.ts";
-import {
-  doughnutBacklog,
-  doughnutRecords,
-  doughnutRepository,
-  revisionDoughnut,
-  doughnutSharedTitle,
-} from "../../dashboard/test-support/doughnutProject.ts";
+import { noConnection } from "../../dashboard/test-support/publishedOrigin.ts";
+import { serveDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
+import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
@@ -203,8 +196,7 @@ test("an old project's outstanding answer cannot confirm the newly selected proj
   await mark.shows("connected");
   const releaseOld = origin.hold("main");
   await untilMatchingRefsSince(page, githubFor(page).calls.length, 1);
-  const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
+  const revision = serveDoughnut(page);
   let releaseNext = () => {};
   const opening = new Promise<void>((resolve) => {
     releaseNext = resolve;
@@ -228,6 +220,9 @@ test("an old project's outstanding answer cannot confirm the newly selected proj
     releaseNext();
     await mark.shows("connected");
     await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(revision),
+    );
   } finally {
     releaseOld();
     releaseNext();

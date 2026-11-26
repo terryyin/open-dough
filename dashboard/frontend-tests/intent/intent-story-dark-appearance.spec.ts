@@ -93,7 +93,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
       .element(page.getByRole(role, { name: switchName }))
       .not.toBeInTheDocument();
 
-  await story.browseFiles();
+  await story.listRevision();
   const folder = scopeToggle("folder");
   await expect.element(folder).toBeVisible();
   if (folder.element().getAttribute("aria-expanded") === "false")
@@ -105,10 +105,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
   for (const width of [1280, 390] as const) {
     await page.viewport(width, 844);
     await darkSurface();
-    await files.toggle.click();
-    await files.showsFiles(false);
-    await files.toggle.click();
-    await files.showsFiles(true);
+    await files.showFiles();
     await intentPage.screenshot({
       path: `../test-results/story-dark-${width}.png`,
     });

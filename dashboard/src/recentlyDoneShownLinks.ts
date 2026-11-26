@@ -1,6 +1,5 @@
 // Read only the completed-story evidence required by shown sidebar rows.
-// Story launches share one catalog per project, reusing the Board's current
-// catalog. Ad hoc links retain the server's confirmed association semantics.
+// Launches share one catalog per project, reusing the Board's current catalog.
 // This owner never navigates or opens/attaches a session.
 import { createContext, useContext, useEffect, useState } from "react";
 import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
@@ -9,7 +8,6 @@ import { useDoneLinkReads } from "./pageReads.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import {
-  associatedIdentity,
   catalogNow,
   currentCatalog,
   doneStoryMustBeRecent,
@@ -70,12 +68,12 @@ export function useShownDoneLinks(
       await withinReadWait(controller.signal, async (signal) =>
         Promise.all(
           configured.map(async (source) => {
-            const relevant = listed.filter(
-              (record) => record.request.source === source.id,
-            );
-            const launches = relevant.filter(
-              (record) => launchSubject(record.request).identity !== undefined,
-            );
+            const launches = listed.flatMap((record) => {
+              if (record.request.source !== source.id) return [];
+              const identity = launchSubject(record.request).identity;
+              return identity === undefined ? [] : [{ record, identity }];
+            });
+            if (launches.length === 0) return;
             const catalog = async (): Promise<DoneStories | undefined> => {
               const current = currentCatalog(work, source.id);
               if (current !== undefined) return current;
@@ -87,42 +85,17 @@ export function useShownDoneLinks(
                 return undefined;
               }
             };
-            await Promise.all([
-              ...(launches.length === 0
-                ? []
-                : [
-                    catalog().then((done) => {
-                      if (done?.status !== "catalogued") return;
-                      for (const record of launches) {
-                        const identity = launchSubject(record.request).identity;
-                        if (
-                          identity !== undefined &&
-                          linkIn(done, identity, {
-                            recentOnly: doneStoryMustBeRecent(record),
-                          }) === "linked"
-                        )
-                          links.set(sessionKey(record.session), identity);
-                      }
-                      publish();
-                    }),
-                  ]),
-              ...relevant
-                .filter(
-                  (record) =>
-                    launchSubject(record.request).identity === undefined,
-                )
-                .map(async (record) => {
-                  const associated = await associatedIdentity(
-                    reads,
-                    source,
-                    record,
-                    signal,
-                  );
-                  if (typeof associated === "object" && "kind" in associated)
-                    links.set(sessionKey(record.session), associated.identity);
-                  publish();
-                }),
-            ]);
+            const done = await catalog();
+            if (done?.status !== "catalogued") return;
+            for (const { record, identity } of launches) {
+              if (
+                linkIn(done, identity, {
+                  recentOnly: doneStoryMustBeRecent(record),
+                }) === "linked"
+              )
+                links.set(sessionKey(record.session), identity);
+            }
+            publish();
           }),
         ),
       );

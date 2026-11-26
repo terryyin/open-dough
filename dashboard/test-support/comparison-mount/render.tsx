@@ -10,7 +10,7 @@ import { IntentFileProofView } from "../../src/IntentFileProofView.tsx";
 import { scopeEvidenceOf } from "../../src/IntentScopeEvidence.tsx";
 import {
   intentStoryOverlay,
-  overlayFilesByPath,
+  intentLocationFiles,
 } from "../../src/intentStoryOverlay.ts";
 import {
   filesOfSelection,
@@ -63,10 +63,14 @@ export function comparisonMarkup(
   const { scope } = facts;
   const evidence = scopeEvidenceOf(preparedComparisonEvidence(facts));
   const overlay = intentStoryOverlay(scope.locations, scope.changed);
-  const treeFiles = overlayFilesByPath(scope.locations, overlay);
+  const treeFiles = overlay.files;
   const selection = scope.selection;
   const location = owningLocation(scope.locations, selection);
-  const inventory = filesOfSelection(treeFiles, selection);
+  const scopeFiles =
+    location === undefined
+      ? treeFiles
+      : intentLocationFiles(treeFiles, location);
+  const inventory = filesOfSelection(scopeFiles, selection);
   const content =
     selection.scope === "file" ? (
       <section aria-label="Proof">
@@ -88,7 +92,7 @@ export function comparisonMarkup(
           path={selection.path}
           inventory={inventory}
           revision={scope.revision}
-          treeFiles={treeFiles}
+          treeFiles={scopeFiles}
           evidence={evidence}
           preference={preference}
           sorting={sorting}

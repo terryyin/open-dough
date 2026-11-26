@@ -1,23 +1,20 @@
 import { codePane, expectContextRead } from "./reviewPanes.ts";
 import {
-  browseStoryFiles,
   chooseStoryTab,
   expectStoryTab,
-  filesColumn,
   storySummary,
   storyFilesReading,
   storyTabPanel,
   storyViews,
 } from "../intentModePage.ts";
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
-// read of the page: the selected story's header and views, the contains-changes
-// background, the "Selected story only" toggle, and a changed file's diff in
-// Intent's Purpose. Scenarios that read several of these hold `intentStory`.
+// read of the page: the selected story's header and views, its repository
+// tree (./intentStoryTreePage.ts), and a changed file's diff in Intent's
+// Purpose. Scenarios that read several of these hold `intentStory`.
 // Arranging the taken story: ./selectTakenStoryInIntent.ts. A row's
 // change-kind style: ./changeKindStyle.ts.
 
 import { expect, type Locator } from "@playwright/test";
-import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
 import {
@@ -25,6 +22,7 @@ import {
   fileFollowUpDialog,
   followUpComposer,
 } from "./fileFollowUpPage.ts";
+import { intentFile, storyTree } from "./intentStoryTreePage.ts";
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -45,6 +43,20 @@ export {
   browseStoryFiles,
   chooseStoryTab,
 } from "../intentModePage.ts";
+export {
+  background,
+  changesOnly,
+  chooseIntentFile,
+  expectInventoryRead,
+  expectNoIntentFile,
+  folderItem,
+  folderRow,
+  folderToggle,
+  intentFile,
+  listStoryRevision,
+  repositoryFolder,
+  repositoryTree,
+} from "./intentStoryTreePage.ts";
 
 // Story-specific readings within the persistent selected-story header.
 export function storyHeaderReading(intent: Locator) {
@@ -91,52 +103,6 @@ export async function storyHeaderDetail(intent: Locator) {
   return header;
 }
 
-// The "Selected story only" toggle.
-export const storyOnly = (intent: Locator) =>
-  intent.getByRole("checkbox", { name: "Selected story only", exact: true });
-
-// A file's control in Intent's tree, by its accessible name: its full path,
-// or for a changed file its kind and path as Review changes names it. A story
-// comparison may append Proof's Counts and after-side words after a comma.
-const fileName = (name: string) =>
-  new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:,|$)`);
-export const intentFile = (intent: Locator, name: string) =>
-  filesColumn(intent).getByRole("button", { name: fileName(name) });
-
-// The story's changed files outside every location, after the locations.
-export const outsideGroup = (intent: Locator) =>
-  filesColumn(intent).getByRole("region", {
-    name: "Outside Intent locations",
-  });
-
-// A folder's toggle in Intent, by the folder's name and whether it is open.
-export const folderToggle = (intent: Locator, name: string, open: boolean) =>
-  intent.getByRole("button", {
-    name: `${open ? "Collapse" : "Expand"} ${name}`,
-    exact: true,
-  });
-
-// A folder's row (toggle and name) in Intent, and the list item it heads,
-// which carries the contains-changes mark.
-export const folderRow = (intent: Locator, name: string) =>
-  intent.locator(".story-review-folder-row").filter({
-    has: intent
-      .page()
-      .locator(`button.story-review-folder[aria-label$=" ${name}"]`),
-  });
-
-export const folderItem = (intent: Locator, name: string) =>
-  folderRow(intent, name).locator("xpath=..");
-
-// One configured location's group in Intent.
-export const locationGroup = (intent: Locator, locationPath: string) =>
-  intent.locator(
-    `section.intent-location:has(> .intent-location-header > [aria-controls="${intentLocationIdPrefix(locationPath)}-body"])`,
-  );
-
-export const background = (row: Locator) =>
-  row.evaluate((element) => getComputedStyle(element).backgroundColor);
-
 // Read the already selected diff without selecting a file or changing its place.
 export function intentDiffReading(intent: Locator) {
   const purpose = purposeRegion(intent);
@@ -165,9 +131,6 @@ async function selectedDiff(intent: Locator, row: Locator, name: string) {
 export const intentDiff = (intent: Locator, name: string) =>
   selectedDiff(intent, intentFile(intent, name), name);
 
-const outsideFile = (intent: Locator, name: string) =>
-  outsideGroup(intent).getByRole("button", { name: fileName(name) });
-
 // Opens the Start session dialog from a Follow up control in Intent.
 async function followUpFrom(intent: Locator, control: Locator) {
   await control.click();
@@ -180,23 +143,12 @@ async function followUpFrom(intent: Locator, control: Locator) {
 // compare; `background` stays a measurement the scenario compares itself.
 export function intentStory(intent: Locator) {
   return {
+    ...storyTree(intent),
     summary: storySummary(intent),
     header: storyHeaderReading(intent),
     title: storyTitle(intent),
     views: storyViews(intent),
     diffReading: intentDiffReading(intent),
-    storyOnly: (scope?: Locator) => storyOnly(scope ?? intent),
-    file: (name: string) => intentFile(intent, name),
-    folderToggle: (name: string, open: boolean) =>
-      folderToggle(intent, name, open),
-    folderRow: (name: string) => folderRow(intent, name),
-    folderItem: (name: string) => folderItem(intent, name),
-    locationGroup: (path: string) => locationGroup(intent, path),
-    outside: outsideGroup(intent),
-    groups: filesColumn(intent).locator(":scope section"),
-    outsideFile: (name: string) => outsideFile(intent, name),
-    // An outside file's row, which carries its change marker.
-    outsideRow: (name: string) => outsideFile(intent, name).locator("xpath=.."),
     headerDetail: () => storyHeaderDetail(intent),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
       chooseStoryTab(intent, name),
@@ -204,7 +156,6 @@ export function intentStory(intent: Locator) {
       expectStoryTab(intent, name),
     panel: (name: Parameters<typeof storyTabPanel>[1]) =>
       storyTabPanel(intent, name),
-    browseFiles: () => browseStoryFiles(intent),
     filesReading: storyFilesReading(intent),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     followUpComparison: () =>
@@ -221,7 +172,5 @@ export function intentStory(intent: Locator) {
     followUpFile: (storyName: string) =>
       followUpFrom(intent, fileFollowUp(intent, storyName)),
     diff: (name: string) => intentDiff(intent, name),
-    outsideDiff: (name: string) =>
-      selectedDiff(intent, outsideFile(intent, name), name),
   };
 }

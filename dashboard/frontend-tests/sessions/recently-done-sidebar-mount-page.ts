@@ -7,7 +7,6 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { DoneStories } from "../../src/doneStories.ts";
-import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
 import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { SessionServices } from "../../src/sessionServices.ts";
@@ -117,7 +116,6 @@ export async function mountSessions(
   {
     awaitSessionsRead = true,
     done = {},
-    association,
     doneCatalog,
     doneBodies,
     view = "stories",
@@ -127,8 +125,6 @@ export async function mountSessions(
     awaitSessionsRead?: boolean;
     // Each project's published done catalog; others list none.
     done?: DoneCatalogs;
-    // The completed-story association an ad hoc row's choice reads.
-    association?: MachineReadSource["readCompletedStoryAssociation"];
     // A case-owned done catalog read in place of the projects' catalogs.
     doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
     // The done record bodies a Board's Recently done cards read.
@@ -147,10 +143,7 @@ export async function mountSessions(
     first,
     { width: 1280, height: 800 },
     view,
-    {
-      ...("read" in answer ? { read: answer.read } : { answer }),
-      ...(association === undefined ? {} : { association }),
-    },
+    "read" in answer ? { read: answer.read } : { answer },
     {
       otherWork,
       awaitSessionsRead,

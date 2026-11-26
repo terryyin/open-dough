@@ -4,11 +4,13 @@ import type { Page } from "@playwright/test";
 import { expect } from "../dashboardTest.ts";
 import { keptStarts, runningStarts } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
+import { installedStoryBoard } from "../installedStoryCardPage.ts";
 import { expectStartNote } from "../storyCardControls.ts";
 import { parts } from "../dashboardPage.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
+import { expectServedHomesReach } from "./fixtureOriginRoute.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 
 // A page just loaded shows its board only once its published read answers,
@@ -40,15 +42,18 @@ export async function expectStartProgress(
   const native = codexProtocol;
   dashboard.claudeScenario("held");
   if (native !== undefined) native.holdCreation = true;
+  const before = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    revision: before,
     repository: "terryyin/open-dough",
+    follows: true,
   });
   const backlogCard = parts(page).backlog.getByRole("article", {
     name: "Story A",
     exact: true,
   });
+  expectServedHomesReach(dashboard.github, published.repository, before);
   await page.goto("/");
   await readColumns(page);
   if (workflow === "execution") {
@@ -97,6 +102,7 @@ export async function expectStartProgress(
       }),
     ]);
   const observer = await page.context().newPage();
+  expectServedHomesReach(dashboard.github, published.repository, before);
   await observer.goto(dashboard.baseURL);
   await readColumns(observer);
   const observeCard = observer.getByRole("article", {
@@ -121,14 +127,16 @@ export async function expectStartProgress(
     .poll(() => runningStarts(dashboard), { timeout: 30_000 })
     .toEqual(running("launching"));
   const words = `Starting ${workflow} in ${host === "codex" ? "Codex" : "Claude Code"}…`;
-  await expect(backlogCard).toContainText(words);
+  await expect(installedStoryBoard(page).card("Story A")).toContainText(words);
   await expect(observeCard).toContainText(words);
+  const assigned = (await origin.originGit("rev-parse", "main")).trim();
+  expect(assigned).not.toBe(before);
+  expectServedHomesReach(dashboard.github, published.repository, assigned);
   await observer.reload();
   await readColumns(observer);
   await expect(observeCard).toContainText(words);
   await expect(observeCard).not.toContainText(`Preparing ${workflow}…`);
-  // The actual assignment is now published; phase survives new placement.
-  published.advanceTo((await origin.originGit("rev-parse", "main")).trim());
+  // The published assignment retains its launch phase in both views.
   await page.reload();
   await observer.reload();
   await readColumns(page, observer);

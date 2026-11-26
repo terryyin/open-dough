@@ -111,16 +111,11 @@
   min-width: 0;
 }
 
-/* The browser and the diff side by side need their two bases and the gap
-   between them; narrower, the browser sits above the diff. */
-@container story-review-body (width < 34.75rem) {
-  .story-review-workarea {
-    flex-direction: column;
-  }
-
-  .story-review-diff {
-    flex: 1 1 0;
-  }
+/* While its Files drawer is open the review panel rises over the page, so
+   the drawer's backdrop (./ReviewFilesDrawer.tsx) takes every outside
+   gesture, banner included. */
+.story-review:has(> .sidebar-drawer-over-page) {
+  z-index: 7;
 }
 
 /* A marked story's comparison switch: its choices side by side. */

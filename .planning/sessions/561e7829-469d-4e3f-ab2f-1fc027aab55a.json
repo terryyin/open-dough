@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "561e7829-469d-4e3f-ab2f-1fc027aab55a",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-26T00:10:34.169Z",
+  "story": "SEED-444#ad-hoc-work",
+  "ranges": [
+    {
+      "base": "6805b4e84405c7387afe31a95a730cd2bfb499b2",
+      "candidate": "6805b4e84405c7387afe31a95a730cd2bfb499b2"
+    }
+  ]
+}

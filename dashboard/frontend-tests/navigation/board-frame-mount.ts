@@ -38,7 +38,6 @@ export type BoardFrameMachine = {
   readonly accept?: (
     ...args: Parameters<MachineReadSource["requestAcceptance"]>
   ) => Promise<AcceptanceAnswer>;
-  readonly association?: MachineReadSource["readCompletedStoryAssociation"];
 };
 
 function DashboardWithSettings({
@@ -120,9 +119,6 @@ export async function mountBoardFrame(
     machineAnswer: machine.answer ?? emptyMachineAnswer(),
     ...(machine.read === undefined ? {} : { machineRead: machine.read }),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),
-    ...(machine.association === undefined
-      ? {}
-      : { association: machine.association }),
     ...(doneCatalog === undefined ? {} : { doneCatalog }),
   });
   const projects = snapshots.map(({ source }) => source);

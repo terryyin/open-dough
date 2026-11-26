@@ -19,10 +19,6 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import {
-  backlogPath,
-  publishMovingOrigin,
-} from "../../dashboard/test-support/publishedOrigin.ts";
 import { shownDoneSessionEntriesOf } from "../../dashboard/test-support/dashboardPage.ts";
 import { dayFromToday } from "../../dashboard/test-support/support/feedbackMaintenanceDue.ts";
 import {
@@ -30,7 +26,7 @@ import {
   invocation,
   launchedInput,
   maintenanceRecords,
-  pushWatchList,
+  serveWatchListHistory,
   serverOn,
   turnOn,
   watchListDue,
@@ -50,16 +46,17 @@ test("the row says running while the automatic session is open and, once it ends
   github,
 }) => {
   const origin = await startOrigin(queuedReadyRepository().please());
-  const moving = await publishMovingOrigin(github);
+  const moving = await serveWatchListHistory(origin, github);
   const due = dayFromToday(-1);
-  const served = pushWatchList(moving, watchListDue(due));
+  const served = await moving.publish(watchListDue(due));
   const server = await serverOn(origin, github, "preview");
   try {
     server.claudeScenario("launched");
     turnOn(origin);
     const input = await launchedInput(server);
+    const admitted = await moving.descendantOf(served);
 
-    await openDashboard(page, server);
+    await openDashboard(page, server, admitted);
     await expect(row(page)).toHaveText("Feedback maintenance is running");
     await openSettings(page, server);
     await expect(settingsLine(page)).toHaveText(
@@ -71,8 +68,8 @@ test("the row says running while the automatic session is open and, once it ends
     await expect
       .poll(async () => (await maintenanceRecords(server))[0]?.doneAt)
       .toEqual(expect.any(String));
-    await afterFurtherChecks(moving);
-    await openDashboard(page, server);
+    await expect.poll(() => watchListReads(moving)).toEqual([served, admitted]);
+    await openDashboard(page, server, admitted);
     await expect(row(page)).toHaveText(
       `Feedback maintenance due since ${due}; its automatic session did not complete`,
     );
@@ -82,7 +79,7 @@ test("the row says running while the automatic session is open and, once it ends
     );
 
     // The developer starts the cycle by hand through the ordinary dialog.
-    await openDashboard(page, server);
+    await openDashboard(page, server, admitted);
     await startSession(page, "Open Dough").click();
     const dialog = startSessionDialog(page, "Open Dough");
     await startSessionField(dialog).fill(invocation);
@@ -100,8 +97,11 @@ test("the row says running while the automatic session is open and, once it ends
       workflow: "ad-hoc",
       instruction: invocation,
     });
-    await openDashboard(page, server);
+    const manuallyAdmitted = await moving.descendantOf(admitted);
+    await openDashboard(page, server, manuallyAdmitted);
     await expect(row(page)).toHaveText("Feedback maintenance is running");
+
+    expect(watchListReads(moving)).toEqual([served, admitted]);
 
     // The manual run is marked done and the cycle's advanced date published.
     expect(
@@ -112,11 +112,16 @@ test("the row says running while the automatic session is open and, once it ends
         })
       ).status,
     ).toBe(200);
+    await expect
+      .poll(() => watchListReads(moving))
+      .toEqual([served, admitted, manuallyAdmitted]);
     const next = dayFromToday(6);
-    const advanced = pushWatchList(moving, watchListDue(next));
-    await expect.poll(() => watchListReads(moving)).toEqual([served, advanced]);
+    const advanced = await moving.publish(watchListDue(next));
+    await expect
+      .poll(() => watchListReads(moving))
+      .toEqual([served, admitted, manuallyAdmitted, advanced]);
     await afterFurtherChecks(moving);
-    await openDashboard(page, server);
+    await openDashboard(page, server, advanced);
     await expect(row(page)).toHaveCount(0);
     await openSettings(page, server);
     await expect(settingsLine(page)).toHaveText(
@@ -135,9 +140,9 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
   github,
 }) => {
   const origin = await startOrigin(queuedReadyRepository().please());
-  const moving = await publishMovingOrigin(github);
+  const moving = await serveWatchListHistory(origin, github);
   const due = dayFromToday(-1);
-  const served = pushWatchList(moving, watchListDue(due));
+  const served = await moving.publish(watchListDue(due));
   // Authorized before the server starts, so its first check launches; the
   // next check comes after the test.
   turnOn(origin);
@@ -152,11 +157,7 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
     server.claudeScenario("launched");
     const input = await launchedInput(server);
 
-    const admittedBacklog = await origin.originGit(
-      "show",
-      `main:${backlogPath}`,
-    );
-    pushWatchList(moving, watchListDue(dayFromToday(6)), admittedBacklog);
+    const advanced = await moving.publish(watchListDue(dayFromToday(6)));
     await reportingThrough(origin, input)({ message: "" });
     await expect
       .poll(async () => (await maintenanceRecords(server))[0]?.doneAt)
@@ -168,7 +169,7 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
     );
     // The owning Taken story's Done history comes from the same sessions
     // answer as the row.
-    await openDashboard(page, server);
+    await openDashboard(page, server, advanced);
     await expect(
       await shownDoneSessionEntriesOf(page, "Feedback maintenance"),
     ).toBeVisible();
@@ -186,9 +187,9 @@ test("an automatic session that ended unavailable without a done mark is, after 
   github,
 }) => {
   const origin = await startOrigin(queuedReadyRepository().please());
-  const moving = await publishMovingOrigin(github);
+  const moving = await serveWatchListHistory(origin, github);
   const due = dayFromToday(-1);
-  pushWatchList(moving, watchListDue(due));
+  const served = await moving.publish(watchListDue(due));
   let server = await serverOn(origin, github, "preview");
   try {
     server.claudeScenario("launched");
@@ -196,6 +197,7 @@ test("an automatic session that ended unavailable without a done mark is, after 
     await launchedInput(server);
     const [record] = await maintenanceRecords(server);
     const session = record?.session.sessionId ?? "";
+    const admitted = await moving.descendantOf(served);
 
     // The session ends without a report or a done mark, and the dashboard
     // restarts on its port, forgetting what it last read.
@@ -206,7 +208,7 @@ test("an automatic session that ended unavailable without a done mark is, after 
     server.claudeScenario("launched");
     await afterFurtherChecks(moving);
 
-    await openDashboard(page, server);
+    await openDashboard(page, server, admitted);
     await expect(row(page)).toHaveText(
       `Feedback maintenance due since ${due}; its automatic session did not complete`,
     );

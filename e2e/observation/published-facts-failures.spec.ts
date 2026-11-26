@@ -27,7 +27,6 @@ import {
   takenCanonicalPath,
   purpose,
 } from "../../dashboard/test-support/publishedFactsArrival.ts";
-import { revision } from "../../dashboard/test-support/sliceClockRecords.ts";
 import {
   expectCanonicalFacts,
   expectStoryCardAssignments,
@@ -104,11 +103,11 @@ test("an ordinary canonical failure keeps completed assignments and done stories
 test("an ordinary profile failure keeps preparation and done facts and makes assignments unknown on cards and the roster", async ({
   page,
 }) => {
-  const { branchCard, queuedCard, doneCard, problem, release, fail } =
+  const { branchCard, queuedCard, doneCard, problem, release, fail, revision } =
     await heldFactGroups(page);
   release("preparation");
   release("done");
-  await expectCanonicalFacts(queuedCard);
+  await expectCanonicalFacts(queuedCard, revision);
   await expectDoneFacts(doneCard);
   await expect(branchCard).toContainText("Reading agent profile…");
 
@@ -124,7 +123,7 @@ test("an ordinary profile failure keeps preparation and done facts and makes ass
   await expect(branchCard).toContainText(
     "The Take time cannot be determined because agent profiles could not be read.",
   );
-  await expectCanonicalFacts(queuedCard);
+  await expectCanonicalFacts(queuedCard, revision);
   await expectDoneFacts(doneCard);
   await expectNoOrphanReading(page);
   await expect(problem).toHaveCount(0);
@@ -140,7 +139,7 @@ test("an ordinary profile failure keeps preparation and done facts and makes ass
   await expect(roster).not.toContainText("Reading agent profile…");
   await back.click();
   await expect(credit(branchCard).owner).toHaveText(profilesGap);
-  await expectCanonicalFacts(queuedCard);
+  await expectCanonicalFacts(queuedCard, revision);
   await expectDoneFacts(doneCard);
   await expectNoOrphanReading(page);
   await expect(problem).toHaveCount(0);
@@ -149,11 +148,11 @@ test("an ordinary profile failure keeps preparation and done facts and makes ass
 test("an ordinary done-record failure stays in Recently done while preparation, assignments, branch progress, and clocks remain useful", async ({
   page,
 }) => {
-  const { branchCard, queuedCard, doneCard, problem, release, fail } =
+  const { branchCard, queuedCard, doneCard, problem, release, fail, revision } =
     await heldFactGroups(page);
   release("preparation");
   release("profiles");
-  await expectCanonicalFacts(queuedCard);
+  await expectCanonicalFacts(queuedCard, revision);
   await expectStoryCardAssignments(branchCard, queuedCard);
   await expect(branchCard).toContainText("Current slice started 7 min ago");
   await expect(doneCard).toHaveCount(0);
@@ -166,7 +165,7 @@ test("an ordinary done-record failure stays in Recently done while preparation, 
     "GitHub answered HTTP 404",
   );
   await expect(doneCard).toHaveCount(0);
-  await expectCanonicalFacts(queuedCard);
+  await expectCanonicalFacts(queuedCard, revision);
   await expectStoryCardAssignments(branchCard, queuedCard);
   await expect(sliceProgress(branchCard)).toContainText(
     "0 of 2 slices recorded complete",
@@ -180,7 +179,7 @@ test("an ordinary done-record failure stays in Recently done while preparation, 
 test("the existing 30-second core bound keeps assignments and done facts, leaves a standing preparation gap, and the page's recovery closes it without reload", async ({
   page,
 }) => {
-  const { branchCard, queuedCard, doneCard, problem, release } =
+  const { branchCard, queuedCard, doneCard, problem, release, revision } =
     await heldFactGroups(page);
   release("profiles");
   release("done");
@@ -221,7 +220,7 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
 
   release("preparation");
   await page.clock.runFor(1_250);
-  await expectCanonicalFacts(queuedCard);
+  await expectCanonicalFacts(queuedCard, revision);
   await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
   await expect(sliceProgress(branchCard)).toContainText(

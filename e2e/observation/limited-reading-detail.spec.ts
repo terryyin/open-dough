@@ -39,21 +39,19 @@ import {
   plannedSeed,
   plannedTitle,
   repository,
-  revision,
   titles,
   withheldSeed,
   withheldTitle,
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
+import { serveCommitted } from "../../dashboard/test-support/committedFiles.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 
 test("limiting a detail read keeps the snapshot, labels what the limit withheld, says once when reading resumes, and asks nothing until then", async ({
   page,
 }) => {
-  const { answers, other } = await openedBeside(
-    page,
-    opened,
-    publishes({ revision, files }),
-  );
+  const published = publishes({ files });
+  const { revision } = published;
+  const { answers, other } = await openedBeside(page, opened, published);
   // The planned story's record reaches GitHub before the limit; its plan is
   // asked only after.
   answers.limit(isContent(withheldSeed), isContent(plannedSeed));
@@ -105,8 +103,9 @@ test("a limit naming a time already passed waits as one naming none: the page sa
   await pausePageClockAt(page, opened);
   // GitHub refuses the withheld record with `Retry-After: 0`, and never lifts
   // the refusal.
-  const answers = limiting(page, publishes({ revision, files }), 0);
-  githubFor(page).serve(repository, answers.answer);
+  const published = publishes({ files });
+  const answers = limiting(page, published, 0);
+  serveCommitted(page, repository, published, answers.answer);
   answers.limit(isContent(withheldSeed), isContent(plannedSeed));
   await page.goto("/");
   await expectSettledPage(page, titles);

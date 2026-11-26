@@ -5,7 +5,7 @@ import {
 } from "../../dashboard/test-support/intentModePage.ts";
 // A Taken card's empty area selects its story: one header above the views
 // names it, its revisions and outside count, and offers Project Intent and
-// Review changes. Changes starts with "Selected story only"; the whole
+// Review changes. Changes starts with "Changes only" on; off, the whole
 // tree shows change styling, auto-opened containing folders and the first
 // changed location. Header appearance is proved by the mounted sidebar spec.
 // Changed Purpose matches Review
@@ -38,9 +38,11 @@ import {
 } from "../../dashboard/test-support/support/changeKindStyle.ts";
 import { changed } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import {
+  expandIntentGroup,
   intentGroupToggle,
   intentLocationName,
   purposeRegion,
+  revealIntentLocation,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 
 test("Intent highlights a selected Taken story's test changes over the published tree, each changed file with Review changes' own diff", async ({
@@ -69,7 +71,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
     await expect(story.views).toHaveText("CI comparisonIntent coverage");
     await expect(storyHomeButton(intent)).toBeVisible();
-    await expect(story.storyOnly(column)).not.toBeChecked();
+    await expect(story.changesOnly(column)).toBeChecked();
   });
 
   await test.step("the persistent header names the story and its published comparison", async () => {
@@ -82,12 +84,12 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
   });
 
-  await test.step("the changed files outside every location are listed once each after the locations", async () => {
-    await expect(story.outside.getByText("App.tsx")).toHaveCount(1);
-    await expect(story.outside.getByText(/notes\.md/)).toHaveCount(1);
+  await test.step("the changed product and document files each have one repository row", async () => {
+    await expect(story.tree.getByText("App.tsx")).toHaveCount(1);
+    await expect(story.tree.getByText(/notes\.md/)).toHaveCount(1);
   });
 
-  await test.step("the first changed location and its folders containing changes are open; the rest stay collapsed", async () => {
+  await test.step("the first changed location and its folders containing changes are open; the rest stay collapsed and unchanged folders are not listed", async () => {
     await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
       "aria-expanded",
       "true",
@@ -98,6 +100,12 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
     for (const name of ["arriving", "boundary", "out"])
       await expect(story.folderToggle(name, true)).toBeVisible();
+    await expect(story.folderToggle("other", false)).toHaveCount(0);
+    await expect(story.file("dashboard/tests/other/c.spec.ts")).toHaveCount(0);
+  });
+
+  await test.step("turning Changes only off lists the revision's unchanged files, their folders collapsed", async () => {
+    await story.changesOnly(column).uncheck();
     await expect(story.folderToggle("other", false)).toBeVisible();
     await expect(story.file("dashboard/tests/other/c.spec.ts")).toBeHidden();
   });
@@ -119,26 +127,36 @@ test("Intent highlights a selected Taken story's test changes over the published
   });
 
   await test.step("changed folders share the contains-changes background and changed locations remain marked", async () => {
-    const marked = await background(story.folderRow("boundary"));
+    const marked = await background(
+      story.folderRowAt("dashboard/tests/boundary"),
+    );
     expect(marked).not.toBe("rgba(0, 0, 0, 0)");
-    for (const name of ["arriving", "boundary", "out"]) {
-      await expect(story.folderItem(name)).toHaveAttribute(
+    for (const path of [
+      "dashboard/tests/arriving",
+      "dashboard/tests/boundary",
+      "scripts",
+    ]) {
+      await expect(story.folderAt(path)).toHaveAttribute(
         "data-contains-changes",
         "true",
       );
-      expect(await background(story.folderRow(name))).toBe(marked);
+      expect(await background(story.folderRowAt(path))).toBe(marked);
     }
-    await expect(story.folderItem("other")).not.toHaveAttribute(
+    await expect(story.folderAt("dashboard/tests/other")).not.toHaveAttribute(
       "data-contains-changes",
     );
-    expect(await background(story.folderRow("other"))).not.toBe(marked);
+    expect(
+      await background(story.folderRowAt("dashboard/tests/other")),
+    ).not.toBe(marked);
     for (const location of ["dashboard/tests", "tests"]) {
-      await expect(story.locationGroup(location)).toHaveAttribute(
+      await expect(story.folderAt(location)).toHaveAttribute(
         "data-contains-changes",
         "true",
       );
     }
-    await intentLocationName(intent, "dashboard/tests").click();
+    await story.folderToggle("dashboard", true).click();
+    const root = await revealIntentLocation(intent, "dashboard/tests");
+    await root.click();
     await expect(intentLocationName(intent, "dashboard/tests")).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -147,6 +165,9 @@ test("Intent highlights a selected Taken story's test changes over the published
       "aria-expanded",
       "true",
     );
+    await story.folderToggle("dashboard", true).click();
+    await expandIntentGroup(intent, "dashboard/tests");
+    await expect(story.file(changed.modified)).toBeVisible();
   });
 
   await test.step("a changed file's Purpose is its diff", async () => {
@@ -168,7 +189,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(header.region).toHaveCount(0);
-    await expect(story.outside).toHaveCount(0);
+    await expect(story.tree).toBeVisible();
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
     // Intent now shows Project Intent, whose reading never borrowed the

@@ -1,5 +1,5 @@
 // A page outliving its dashboard process: one preview-mode page is reloaded
-// across a restart on the same machine (../../dashboard/test-support/responsiveRecovery.ts), and shows
+// across a restart on the same machine and shows
 // the same cards, retrieved anew, from answers the first process retained
 // (../../dashboard/server/retainedAnswers.ts) after asking GitHub only for the configured
 // ref and the recorded story branch head (../../dashboard/test-support/retainedAnswersJourney.ts).
@@ -7,13 +7,17 @@
 import {
   expectSettledPage,
   parts,
+  shortRevision,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { restart } from "../../dashboard/test-support/responsiveRecovery.ts";
+import {
+  sharedDashboardBuild,
+  startDashboardServer,
+} from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   backlogPath,
   named,
 } from "../../dashboard/test-support/revisionReuseOrigin.ts";
-import { described } from "../../dashboard/test-support/revisionReuseCalls.ts";
+import { describedExactly } from "../../dashboard/test-support/revisionReuseCalls.ts";
 import {
   expect,
   published,
@@ -27,33 +31,47 @@ test.describe("a page outliving its dashboard process (preview launch mode)", ()
     github,
     machine,
   }) => {
-    const project = published("page", named("a5"), named("b5"));
+    const project = published("page", named("b5"));
+    const revision = project.publication.revision;
     project.serve(github);
+    project.expectRef(github);
     await page.goto("/");
     await expectSettledPage(page);
-    const { board } = parts(page);
+    const { board, readRevision, retrievedAt } = parts(page);
+    await expect(readRevision).toContainText(shortRevision(revision));
     // What the cards say, however the browser lays it out.
     const said = async () =>
       ((await board.textContent()) ?? "").replace(/\s+/g, " ");
     const cards = await said();
-    const retrievedAt = await parts(page).retrievedAt.getAttribute("datetime");
-    expect(github.calls.map(described)).toContain(`content ${backlogPath}@a5`);
+    const firstRetrievedAt = await retrievedAt.getAttribute("datetime");
+    expect(github.calls.map(describedExactly)).toContain(
+      `content ${backlogPath}@${revision}`,
+    );
 
     const before = github.calls.length;
-    const restarted = await restart(dashboard, { machine }, github);
+    await dashboard.close();
+    const restarted = await startDashboardServer({
+      mode: "preview",
+      prebuilt: sharedDashboardBuild,
+      github,
+      machine,
+      port: Number(new URL(dashboard.baseURL).port),
+    });
     try {
+      project.expectRef(restarted.github);
       await page.reload();
       await expectSettledPage(page);
+      await expect(readRevision).toContainText(shortRevision(revision));
       expect(await said()).toBe(cards);
-      await expect(parts(page).retrievedAt).not.toHaveAttribute(
+      await expect(retrievedAt).not.toHaveAttribute(
         "datetime",
-        retrievedAt ?? "",
+        firstRetrievedAt ?? "",
       );
       expect(
         github.calls
           .slice(before)
           .filter(({ request }) => request.kind !== "matching-refs")
-          .map(described)
+          .map(describedExactly)
           .sort(),
       ).toEqual([`branch ${project.branch}`, "ref"]);
     } finally {

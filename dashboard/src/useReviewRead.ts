@@ -10,9 +10,13 @@
 // anything else, and every failure, is asked again. A kept answer shows as
 // the reader renders, without a reading moment.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { keptAnswer, memoizedAnswer } from "./answerMemo.ts";
-import { useReviewReads } from "./pageReads.tsx";
+import {
+  heldOnPage,
+  useReviewReads,
+  useStoryResultReads,
+} from "./pageReads.tsx";
 import type { ReviewInitialSyncProgress } from "./reviewInitialSync.ts";
 import { useStateKeyedBy } from "./stateKeyedBy.ts";
 import {
@@ -20,10 +24,21 @@ import {
   type ReviewRead,
   type ReviewSource,
 } from "./reviewSource.ts";
+import type { StoryReviewResult } from "./storyReviewResult.ts";
+
+let nextResultPage = 0;
+const useResultPage = heldOnPage(() => String(++nextResultPage));
 
 type AnswerOf<Read extends keyof ReviewSource> = Awaited<
   ReturnType<ReviewSource[Read]>
 >;
+
+type ReviewReadControls<Answer> = {
+  readonly round?: number;
+  readonly enabled?: boolean;
+  readonly fixed?: (answer: Answer) => boolean;
+  readonly readKey?: string | undefined;
+};
 
 export type ReviewInitialSyncFeedback =
   | Extract<ReviewInitialSyncProgress, { kind: "running" }>
@@ -41,20 +56,31 @@ export type ReviewReadState<Answer> = {
 export function useReviewRead<Read extends keyof ReviewSource>(
   endpoint: Read,
   query: ReviewQuery,
-  {
-    round = 0,
-    enabled = true,
-    fixed,
-    readKey,
-  }: {
-    readonly round?: number;
-    readonly enabled?: boolean;
-    readonly fixed?: (answer: AnswerOf<Read>) => boolean;
-    readonly readKey?: string | undefined;
-  } = {},
+  controls: ReviewReadControls<AnswerOf<Read>> = {},
 ): ReviewReadState<AnswerOf<Read>> {
-  type Answer = AnswerOf<Read>;
   const source = useReviewReads();
+  const readAnswer = useMemo(
+    () => (source[endpoint] as ReviewRead<AnswerOf<Read>>).bind(source),
+    [source, endpoint],
+  );
+  return useReviewAnswer(readAnswer, endpoint, query, controls);
+}
+
+export function useStoryReviewResult(
+  query: ReviewQuery,
+  controls: ReviewReadControls<StoryReviewResult>,
+): ReviewReadState<StoryReviewResult> {
+  const readAnswer = useStoryResultReads();
+  const page = useResultPage();
+  return useReviewAnswer(readAnswer, `result/${page}`, query, controls);
+}
+
+function useReviewAnswer<Answer>(
+  readAnswer: ReviewRead<Answer>,
+  cachePrefix: string,
+  query: ReviewQuery,
+  { round = 0, enabled = true, fixed, readKey }: ReviewReadControls<Answer>,
+): ReviewReadState<Answer> {
   const [read, setRead] = useState<{
     answer?: Answer;
     problem?: string;
@@ -69,7 +95,7 @@ export function useReviewRead<Read extends keyof ReviewSource>(
   // Only the read started by the click can request a new sync attempt.
   const startedRetry = useRef<typeof retry>(undefined);
   const of = `${selection}#${String(retry?.attempt ?? 0)}`;
-  const key = `${endpoint}?${search}`;
+  const key = `${cachePrefix}?${search}`;
   useEffect(() => {
     if (!enabled) return;
     const retryInitialSync =
@@ -78,7 +104,7 @@ export function useReviewRead<Read extends keyof ReviewSource>(
     const controller = new AbortController();
     const asked = Object.fromEntries(new URLSearchParams(search));
     const ask = (signal: AbortSignal) =>
-      (source[endpoint] as ReviewRead<Answer>)(asked, signal, {
+      readAnswer(asked, signal, {
         retryInitialSync,
         onInitialSync(initialSync) {
           if (!signal.aborted) setRead({ of, initialSync });
@@ -110,7 +136,7 @@ export function useReviewRead<Read extends keyof ReviewSource>(
     return () => {
       controller.abort();
     };
-  }, [source, endpoint, key, search, of, enabled, fixed, retry]);
+  }, [readAnswer, key, search, of, enabled, fixed, retry]);
   const kept =
     enabled && fixed !== undefined
       ? (keptAnswer(key) as Answer | undefined)

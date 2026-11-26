@@ -7,7 +7,7 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { expect } from "./dashboardTest.ts";
+import { expect, githubFor } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import {
@@ -15,12 +15,16 @@ import {
   doughnutHistory,
   doughnutRecords,
   doughnutRepository,
-  revisionDoughnut,
 } from "./doughnutProject.ts";
 import type { StoryColumnsJourney } from "./launchJourney.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
-import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { publishMovingHistory } from "./publishedMovingOrigin.ts";
+import { defaultRepository } from "./publishedOriginBasics.ts";
+import {
+  expectServedHomesReach,
+  routeServedHomesToPublication,
+} from "./support/fixtureOriginRoute.ts";
+import { commitPublishedOrigin } from "./support/publishedOrigin.ts";
 import {
   openUntilRead,
   untilPageRequestsAnswered,
@@ -37,16 +41,27 @@ export async function openStoryColumnsJourney(
     afterGitHubStops: (cleanup: () => Promise<void>) => void;
   },
 ) {
+  const github = githubFor(page);
   const origin = await publishCommittedOrigin(page, {
     repoDir: columnsJourney.origin,
     revision: columnsJourney.queued,
-    repository: "terryyin/open-dough",
+    repository: defaultRepository,
   });
-  let doughnutRevision = revisionDoughnut;
+  routeServedHomesToPublication(github, defaultRepository);
+  expectServedHomesReach(github, defaultRepository, columnsJourney.queued);
+  let doughnutRevision: string;
   if (sessionNavigation === undefined) {
-    // Launch journeys retain their own configured checkout and auxiliary data.
-    const doughnut = await publishMovingOrigin(page, doughnutRepository);
-    doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
+    const doughnut = commitPublishedOrigin({
+      branch: "main",
+      backlog: doughnutBacklog,
+      files: doughnutRecords,
+    });
+    await publishCommittedOrigin(page, {
+      repoDir: doughnut.origin,
+      revision: doughnut.revision,
+      repository: doughnutRepository,
+    });
+    doughnutRevision = doughnut.revision;
   } else {
     // Existing sessions attach in their local folders. These journeys do
     // not start workflows from a catalog-installed checkout.
@@ -66,6 +81,8 @@ export async function openStoryColumnsJourney(
     );
     doughnutRevision = doughnut.revisions.published;
   }
+  routeServedHomesToPublication(github, doughnutRepository);
+  expectServedHomesReach(github, doughnutRepository, doughnutRevision);
   await openUntilRead(page);
   const { backlog, readRevision } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
@@ -92,6 +109,7 @@ export async function openStoryColumnsJourney(
         | { reload?: undefined; pace: () => Promise<void> } = {},
     ) => {
       origin.advanceTo(revision);
+      expectServedHomesReach(github, defaultRepository, revision);
       if (pace !== undefined) await pace();
       else if (reload) await page.reload();
       else {

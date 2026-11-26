@@ -5,9 +5,12 @@ import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { backlogLaunchers, instructionField } from "./launchStoryCardPage.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { githubFor } from "./dashboardTest.ts";
 import { tapWhereShown } from "./pageLayout.ts";
+import { defaultRepository } from "./publishedOriginBasics.ts";
 import { storyCard } from "./storyCardControls.ts";
 import type { Workflow } from "./storyColumnsPage.ts";
+import { expectServedHomesReach } from "./support/fixtureOriginRoute.ts";
 import { originMain, radio } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 
@@ -16,17 +19,22 @@ export async function openInstalledStoryBoard(
   origin: StartOrigin,
   { follows = true }: { follows?: boolean } = {},
 ) {
+  const initialRevision = await originMain(origin);
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: await originMain(origin),
-    repository: "terryyin/open-dough",
+    revision: initialRevision,
+    repository: defaultRepository,
     follows,
   });
+  const github = githubFor(page);
+  expectServedHomesReach(github, defaultRepository, initialRevision);
   await openUntilRead(page);
   return {
     ...installedStoryBoard(page),
     async showPublished() {
-      published.advanceTo(await originMain(origin));
+      const revision = await originMain(origin);
+      published.advanceTo(revision);
+      expectServedHomesReach(github, defaultRepository, revision);
       await reloadUntilRead(page);
     },
   };

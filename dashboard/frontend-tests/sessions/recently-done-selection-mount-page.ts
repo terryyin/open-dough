@@ -16,6 +16,10 @@ export const linked = {
   title: "Pygardon finished story",
 };
 export const adHocTitle = "Doughnut ad hoc session";
+const doughnutStory = {
+  identity: "SEED-9#doughnut-done",
+  title: "Doughnut done story",
+};
 export const takenTitle = "Pygardon's taken story session";
 
 const linkedRecord = makeMe.aLaunchRecord
@@ -39,6 +43,7 @@ export const adHocRecord = makeMe.aLaunchRecord
     instruction: "Tidy Doughnut's notes",
     title: adHocTitle,
     source: "doughnut",
+    storyIdentity: doughnutStory.identity,
   })
   .inClaudeSession({ sessionId: "ad-hoc-done" })
   .launchedAt(minutesAgo(60))
@@ -74,7 +79,17 @@ export const catalogued = ({
 });
 // Pygardon's published done catalog naming the linked story.
 export const pygardonLinkedCatalog = catalogued(pygardonDone);
-const pygardonListsLinked: DoneCatalogs = { pygardon: pygardonDone.done };
+const doughnutDone = makeMe.aDoneCatalog
+  .holding([
+    makeMe.aDoneRecord
+      .completed({ ...doughnutStory, completedAt: minutesAgo(2) })
+      .please(),
+  ])
+  .please();
+const linkedCatalogs: DoneCatalogs = {
+  pygardon: pygardonDone.done,
+  doughnut: doughnutDone.done,
+};
 
 export const projectShown = () =>
   page.getByRole("radiogroup", { name: "Project" }).getByRole("radio", {
@@ -126,8 +141,14 @@ export async function openSelection(
       : answer
     ).please(),
     {
-      done: pygardonListsLinked,
-      doneBodies: pygardonDone.doneReads,
+      done: linkedCatalogs,
+      doneBodies: {
+        readBodies: (source, ...request) =>
+          (source.id === "doughnut"
+            ? doughnutDone
+            : pygardonDone
+          ).doneReads.readBodies(source, ...request),
+      },
       ...options,
     },
   );
@@ -150,6 +171,8 @@ export function pygardonCatalog() {
   let asked = 0;
   return {
     read: (source: { id: string }) => {
+      if (source.id === "doughnut")
+        return Promise.resolve(catalogued(doughnutDone));
       if (source.id !== "pygardon") return none();
       asked += 1;
       return next();

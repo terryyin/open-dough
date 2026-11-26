@@ -14,12 +14,11 @@ import { fileURLToPath } from "node:url";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "vitest";
 import { fsPromisesHook } from "../../test-support/support/serverFsHook.ts";
-import { keepStart, keptStart, updateStart } from "../../server/startStore.ts";
+import { startStore } from "../../server/startStore.ts";
 
 test("a writer ending at the first turn after lock creation leaves its start update retryable", async () => {
   const home = mkdtempSync(path.join(tmpdir(), "dough-store-exit-lock-"));
-  const previousHome = process.env["HOME"];
-  process.env["HOME"] = home;
+  const starts = startStore("execution", home);
   try {
     const written = makeMe.aStartRecord
       .with({
@@ -31,14 +30,14 @@ test("a writer ending at the first turn after lock creation leaves its start upd
         startedAt: "2026-11-10T00:00:00.000Z",
       })
       .please();
-    await keepStart("open-dough", written);
+    await starts.keep("open-dough", written);
     const file = path.join(home, ".open-dough/dashboard/execution-starts.json");
     const before = readFileSync(file, "utf8");
     const writer = path.join(home, "writer.mjs");
     writeFileSync(
       writer,
-      `import { updateStart } from ${JSON.stringify(fileURLToPath(new URL("../../server/startStore.ts", import.meta.url)))};
-await updateStart("open-dough", ${JSON.stringify(written.identity)}, { candidateSha: "interrupted" });`,
+      `import { startStore } from ${JSON.stringify(fileURLToPath(new URL("../../server/startStore.ts", import.meta.url)))};
+await startStore("execution").update("open-dough", ${JSON.stringify(written.identity)}, { candidateSha: "interrupted" });`,
     );
     const reached = path.join(home, "lock-created");
     // The first event-loop turn after filesystem creation can run server shutdown.
@@ -67,17 +66,15 @@ await updateStart("open-dough", ${JSON.stringify(written.identity)}, { candidate
     });
     expect(readFileSync(reached, "utf8")).toBe("created");
     expect(readFileSync(file, "utf8")).toBe(before);
-    await updateStart("open-dough", written.identity, {
+    await starts.update("open-dough", written.identity, {
       candidateSha: "recovered",
     });
     expect(existsSync(`${file}.lock`)).toBe(false);
-    expect(await keptStart("open-dough", written.identity)).toEqual({
+    expect(await starts.kept("open-dough", written.identity)).toEqual({
       ...written,
       candidateSha: "recovered",
     });
   } finally {
-    if (previousHome === undefined) delete process.env["HOME"];
-    else process.env["HOME"] = previousHome;
     rmSync(home, { recursive: true, force: true });
   }
 });
@@ -85,8 +82,7 @@ await updateStart("open-dough", ${JSON.stringify(written.identity)}, { candidate
 for (const abandoned of [false, true]) {
   test(`a writer ending during ${abandoned ? "abandoned" : "owned"} lock removal leaves its start update retryable`, async () => {
     const home = mkdtempSync(path.join(tmpdir(), "dough-store-release-lock-"));
-    const previousHome = process.env["HOME"];
-    process.env["HOME"] = home;
+    const starts = startStore("execution", home);
     try {
       const written = makeMe.aStartRecord
         .with({
@@ -98,7 +94,7 @@ for (const abandoned of [false, true]) {
           startedAt: "2026-11-10T00:00:00.000Z",
         })
         .please();
-      await keepStart("open-dough", written);
+      await starts.keep("open-dough", written);
       const file = path.join(
         home,
         ".open-dough/dashboard/execution-starts.json",
@@ -106,8 +102,8 @@ for (const abandoned of [false, true]) {
       const writer = path.join(home, "writer.mjs");
       writeFileSync(
         writer,
-        `import { updateStart } from ${JSON.stringify(fileURLToPath(new URL("../../server/startStore.ts", import.meta.url)))};
-  await updateStart("open-dough", ${JSON.stringify(written.identity)}, { candidateSha: "committed" });`,
+        `import { startStore } from ${JSON.stringify(fileURLToPath(new URL("../../server/startStore.ts", import.meta.url)))};
+  await startStore("execution").update("open-dough", ${JSON.stringify(written.identity)}, { candidateSha: "committed" });`,
       );
       if (abandoned) {
         mkdirSync(`${file}.lock`);
@@ -142,20 +138,18 @@ for (const abandoned of [false, true]) {
         env: { ...process.env, HOME: home, ...exitDuringRemoval },
       });
       expect(readFileSync(reached, "utf8")).toBe("release");
-      expect(await keptStart("open-dough", written.identity)).toEqual(
+      expect(await starts.kept("open-dough", written.identity)).toEqual(
         abandoned ? written : { ...written, candidateSha: "committed" },
       );
-      await updateStart("open-dough", written.identity, {
+      await starts.update("open-dough", written.identity, {
         candidateSha: "resumed",
       });
       expect(existsSync(`${file}.lock`)).toBe(false);
-      expect(await keptStart("open-dough", written.identity)).toEqual({
+      expect(await starts.kept("open-dough", written.identity)).toEqual({
         ...written,
         candidateSha: "resumed",
       });
     } finally {
-      if (previousHome === undefined) delete process.env["HOME"];
-      else process.env["HOME"] = previousHome;
       rmSync(home, { recursive: true, force: true });
     }
   });

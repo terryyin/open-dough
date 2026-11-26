@@ -2,12 +2,17 @@
 import type { IncomingMessage } from "node:http";
 import { attachOpens, recordedWorkspace, storyOf } from "../src/agentLaunch.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
+import { historicalFeedbackCompletion } from "../src/feedbackMaintenanceDue.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import { launchHost } from "./launchHosts.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { localFolder } from "./localFolder.ts";
-import { knownSource, recordedSession } from "./sessionAdmission.ts";
+import {
+  knownSource,
+  noSuchSession,
+  recordedSession,
+} from "./sessionAdmission.ts";
 
 // An upgrade attaches only a kept session through its host’s supported
 // operation, in an existing folder, unless the host confirms it unavailable.
@@ -27,6 +32,7 @@ export async function admittedAttach(
     sessionId: url.searchParams.get("session") ?? "",
     host: host.data,
   });
+  if (historicalFeedbackCompletion(record)) throw noSuchSession();
   const hostBoundary = launchHost(record.session.host);
   if (hostBoundary?.attach === undefined) {
     throw new RefusedRequest(

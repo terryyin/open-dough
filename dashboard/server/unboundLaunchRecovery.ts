@@ -17,7 +17,8 @@ function couldRecoverUnboundLaunch(attempt: LaunchAttemptRecord): boolean {
   return (
     attempt.request.workflow === "ad-hoc" &&
     attempt.request.host === "claude" &&
-    attempt.request.followUp === undefined &&
+    (attempt.request.followUp === undefined ||
+      attempt.outcome?.kind === "launched") &&
     attempt.publication.kind === "none" &&
     attempt.reportingDeletedAt === undefined &&
     attempt.completion?.outcome !== "completed"

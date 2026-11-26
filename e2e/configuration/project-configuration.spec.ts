@@ -23,6 +23,7 @@ import { productionSeedProjects } from "../../dashboard/server/projectConfigurat
 import {
   parts,
   sessionEntryShowing,
+  shortRevision,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 
@@ -84,16 +85,17 @@ test("saved projects retain order and default selection across restart", async (
   page,
 }) => {
   // Unlike the seeded catalog: unsorted, on custom refs and checkouts.
-  const saved = JSON.stringify([
-    makeMe.aConfiguredProject
-      .with({
-        id: "zebra",
-        label: "Zebra",
-        repository: "example/zebra",
-        ref: "trunk",
-        localPath: "~/work/zebra",
-      })
-      .please(),
+  const zebra = makeMe.aConfiguredProject
+    .with({
+      id: "zebra",
+      label: "Zebra",
+      repository: "example/zebra",
+      ref: "trunk",
+      localPath: "~/work/zebra",
+    })
+    .please();
+  const saved = fixture.saveProjects([
+    zebra,
     makeMe.aConfiguredProject
       .with({
         id: "apple",
@@ -104,9 +106,9 @@ test("saved projects retain order and default selection across restart", async (
       })
       .please(),
   ]);
-  fixture.save(saved);
   for (let run = 0; run < 2; run += 1) {
     const server = await fixture.start("preview");
+    const revision = fixture.expectPublishedRef(server, zebra);
     await openUntilRead(page, `${server.baseURL}/?project=unknown`);
     const group = page.getByRole("radiogroup", { name: "Project" });
     await expect(group.getByRole("radio")).toHaveCount(2);
@@ -115,6 +117,9 @@ test("saved projects retain order and default selection across restart", async (
       group.getByRole("radio", { name: "Zebra", exact: true }),
     ).toBeChecked();
     await expect(page).toHaveURL(`${server.baseURL}/`);
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(revision),
+    );
     await expect(
       page.getByRole("region", { name: "Recently done", exact: true }),
     ).toBeVisible();

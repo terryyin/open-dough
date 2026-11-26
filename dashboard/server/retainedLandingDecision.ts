@@ -1,5 +1,8 @@
 // Retained-record landings: declared branch handoffs and expired attempts.
-import { landingReportingReference } from "../src/launchLanding.ts";
+import {
+  historicalUnboundLanding,
+  landingReportingReference,
+} from "../src/launchLanding.ts";
 import { launchRetentionDays, type LaunchRecord } from "../src/launchRecord.ts";
 import { storyOf } from "../src/launchWorkflow.ts";
 import { sessionKey } from "../src/sessionReference.ts";
@@ -18,6 +21,7 @@ import {
 import {
   authorizedLanding,
   resolveLandingComparison,
+  sameComparison,
 } from "./launchLandingReservation.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
@@ -121,9 +125,55 @@ function expiredAttemptRecord({
   return record;
 }
 
+// A converted closed launch has a story, while its original accepted landing
+// receipt remains unbound. It can replay only that receipt, without writing.
+function replayHistoricalLanding({
+  attempts,
+  records,
+  report,
+  origin,
+  operation,
+}: LandingDecisionInput): LandingDecision | undefined {
+  const record = records.find(
+    (entry) =>
+      entry.request.source === report.source &&
+      entry.session.host === report.host &&
+      storyOf(entry.request) !== undefined &&
+      historicalUnboundLanding(entry)?.reference === report.reference,
+  );
+  if (record === undefined) return undefined;
+  const landing = historicalUnboundLanding(record);
+  const saved = record.landingReporting;
+  if (
+    landing === undefined ||
+    record.request.host !== report.host ||
+    record.request.reporting?.origin !== origin ||
+    saved?.origin !== origin ||
+    saved.authority.identity !== undefined ||
+    saved.authority.repository !== landing.repository
+  )
+    throw new RefusedRequest(
+      409,
+      "This is not the established launch's authorized landing.",
+    );
+  if (saved.deletedAt !== undefined)
+    throw new RefusedRequest(409, "The reporting session was deleted.");
+  if (attempts.some((attempt) => attempt.id === report.reference))
+    reportingAttempt(attempts, report, origin);
+  authorizedLanding(saved.authority, report);
+  sameComparison(landing, report);
+  return {
+    landing,
+    isNew: false,
+    state: operation === "prepare" ? "prepared" : "recorded",
+  };
+}
+
 export async function decideRetainedLanding(
   input: LandingDecisionInput,
 ): Promise<LandingDecision | undefined> {
+  const replay = replayHistoricalLanding(input);
+  if (replay !== undefined) return replay;
   const { records, report, origin, operation, receiptId, receivedAt } = input;
   const record =
     declaredLandingRecord(records, report, origin) ??

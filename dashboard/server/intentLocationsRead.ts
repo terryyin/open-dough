@@ -14,6 +14,7 @@ import type { ReportedFailure } from "./readFailureMessage.ts";
 import type { RefusedParameters } from "./refusedParameters.ts";
 import {
   declaredLocations,
+  intentLocationAnswer,
   intentSettingsTextAt,
   type DeclaredLocation,
   type IntentLocation,
@@ -82,7 +83,7 @@ async function filesUnderLocation(
   location: DeclaredLocation,
   signal: AbortSignal,
   naming: (reading: string) => void,
-): Promise<readonly string[]> {
+): Promise<string[]> {
   const sources = sourceEntriesOf(location);
   if (sources === undefined) return [];
   naming(readingPathAt(location.path, revision));
@@ -96,22 +97,6 @@ async function filesUnderLocation(
     if (matchingSourceEntry(entry.path, sources) === undefined) return [];
     return [`${location.path}/${entry.path}`];
   });
-}
-
-// A location's answer carries its declaration as settings gave it
-// (`./intentLocationsSettings.ts`): a kind with any include patterns, or its
-// source entries with no kind.
-function locationAnswer(
-  location: DeclaredLocation,
-  files: readonly string[],
-): IntentLocation {
-  if (sourceEntriesOf(location) === undefined) {
-    return { ...location, files: [], problem: "unsupported-kind" };
-  }
-  if (files.length === 0) {
-    return { ...location, files: [], problem: "no-matching-files" };
-  }
-  return { ...location, files };
 }
 
 // Performs one Intent locations read: the configured locations and the
@@ -159,7 +144,7 @@ export async function performIntentLocationsRead(
       signal,
       naming,
     );
-    locations.push(locationAnswer(location, files));
+    locations.push(intentLocationAnswer(location, files));
   }
   return answered({ revision, locations });
 }

@@ -5,6 +5,7 @@
 import type { Page } from "@playwright/test";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
+import { storyReviewResultEndpoint } from "../../src/storyReviewResult.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
@@ -20,11 +21,16 @@ export function recordIntentLocations(page: Page) {
   });
   page.on("request", (request) => {
     const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "locations"
-    ) {
-      locations.push(url.searchParams.get("revision") ?? "");
+    const revision =
+      url.pathname === storyReviewResultEndpoint &&
+      !url.searchParams.has("path")
+        ? url.searchParams.get("completion")
+        : url.pathname === authenticatedReadEndpoint &&
+            url.searchParams.get("intent") === "locations"
+          ? url.searchParams.get("revision")
+          : null;
+    if (revision !== null) {
+      locations.push(revision);
       noteFirstRequest();
     }
   });

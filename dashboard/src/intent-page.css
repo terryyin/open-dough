@@ -204,21 +204,13 @@
   overflow-wrap: anywhere;
 }
 
-/* "Selected story only" heading the Changes tree. */
-.intent-story-scope {
+/* The Changes tree's message when no location's test file changed. */
+.intent-story-none {
   flex: none;
+  margin: 0;
   padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--line);
   line-height: 1.5;
-}
-
-.intent-story-scope p {
-  margin: var(--space-1) 0 0;
-}
-
-.intent-story-only {
-  display: block;
-  cursor: pointer;
 }
 
 .intent-story-diff > .story-review-diff-heading {

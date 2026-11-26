@@ -82,7 +82,7 @@ const candidatesTab = intentViewTab("Optimization Candidates");
 const { record } = intentCandidates();
 const purpose = page.getByRole("region", { name: "Purpose", exact: true });
 const locationsFolder = page.getByRole("button", {
-  name: `Expand ${pygardonFeatures.folder}`,
+  name: "Expand e2e_test",
 });
 const labels = (required: boolean) =>
   findingEntryFields

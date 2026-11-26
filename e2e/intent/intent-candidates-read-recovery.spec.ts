@@ -5,10 +5,10 @@
 
 import {
   expect,
-  githubFor,
   pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
+import { serveCommitted } from "../../dashboard/test-support/committedFiles.ts";
 import { openDough } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import {
   advanceRecoveryClock,
@@ -30,11 +30,17 @@ test.describe("with a short GitHub read bound", () => {
     page,
   }) => {
     await pausePageClockAt(page, opened);
-    const held = holdingAnswer(publishedCandidates(), isCandidatesContent);
-    githubFor(page).serve(openDough.repository, held.answer);
+    const published = publishedCandidates();
+    const held = holdingAnswer(published, isCandidatesContent);
+    const revision = serveCommitted(
+      page,
+      openDough.repository,
+      published,
+      held.answer,
+    );
     const reads = countCandidatesReads(page);
     const timedOutAnswer = page.waitForResponse(candidatesRequest);
-    const record = await openCandidates(page, openDough.revision);
+    const record = await openCandidates(page, revision);
     const problem = readFailure(record);
     try {
       await expect(problem).toContainText(
@@ -47,7 +53,7 @@ test.describe("with a short GitHub read bound", () => {
       const response = await timedOutAnswer;
       expect(response.status()).toBe(200);
       expect(await response.json()).toEqual({
-        revision: openDough.revision,
+        revision,
         candidates: null,
         candidatesProblem: "unreadable",
         recovery: "transient",

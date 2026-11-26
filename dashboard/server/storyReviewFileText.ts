@@ -1,6 +1,7 @@
 // Revision-consistent file text at an admitted comparison's trees: the same
 // rule the file-text endpoint and file-anchored follow-up line checks share.
 import { gitProblem, runGit } from "./gitRunner.ts";
+import { storyReviewTreeEntry } from "./storyReviewTreeEntry.ts";
 
 const outputLimit = 64 * 1024 * 1024;
 
@@ -18,31 +19,32 @@ export async function textAtTree(
 ): Promise<SideRead> {
   try {
     const { stdout: listed } = await runGit(
-      ["ls-tree", "-z", tree, "--", filePath],
+      [
+        "--literal-pathspecs",
+        "ls-tree",
+        "--full-tree",
+        "-z",
+        tree,
+        "--",
+        filePath,
+      ],
       { cwd: repository, signal, maxBuffer: outputLimit },
     );
     if (listed === "") return { kind: "absent" };
-    const entry = /^(\d+) (\S+) ([0-9a-f]+)\t/.exec(listed);
-    if (entry === null)
+    const entry = storyReviewTreeEntry(listed.slice(0, listed.indexOf("\0")));
+    if (entry === undefined)
       return {
         kind: "unavailable",
         explanation:
           "The file's text could not be read: unexpected tree entry.",
       };
-    const type = entry[2];
-    const object = entry[3];
-    if (type === undefined || object === undefined)
-      return {
-        kind: "unavailable",
-        explanation:
-          "The file's text could not be read: unexpected tree entry.",
-      };
-    if (type !== "blob")
+    if (entry.path !== filePath) return { kind: "absent" };
+    if (entry.type !== "blob")
       return {
         kind: "unavailable",
         explanation: "The path is not a file at that revision.",
       };
-    const { stdout } = await runGit(["cat-file", "blob", object], {
+    const { stdout } = await runGit(["cat-file", "blob", entry.object], {
       cwd: repository,
       signal,
       maxBuffer: outputLimit,

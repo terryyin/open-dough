@@ -66,9 +66,8 @@ test("including merged changes leaves CI comparison and file Proof at the measur
   const story = intentStoryCompare();
   const measured = measuredLanded.slice(0, 7);
 
-  await story.browseFiles();
   await activateComparisonControl(story.includeMerged);
-  await activateComparisonControl(story.outsideFile(`Added ${incomingPath}`));
+  await activateComparisonControl(story.file(`Added ${incomingPath}`));
   await story.chooseProof();
 
   await comparisonRead(() => story.proofLabels(doneIdentity)).not.toEqual([]);
@@ -100,11 +99,10 @@ test("a captured landed run reads its own diff pair after a branch comparison in
   });
   const story = intentStoryCompare();
 
-  await story.browseFiles();
   await activateComparisonControl(story.includeMerged);
   await comparisonRead(story.revisions).toContain(`Baseline ${widenedFrom}.`);
   await story.chooseLatestLanding();
-  await activateComparisonControl(story.outsideFile(`Added ${capturePath}`));
+  await activateComparisonControl(story.file(`Added ${capturePath}`));
 
   await comparisonRead(requestedDiff).toMatchObject({
     path: capturePath,
@@ -113,7 +111,7 @@ test("a captured landed run reads its own diff pair after a branch comparison in
   });
   expect(story.revisions()).toContain(`From ${captureFrom} to ${captureTree}.`);
   expect(story.includeMerged.query()).toBeNull();
-  expect(story.outsideFile(`Added ${incomingPath}`).query()).toBeNull();
+  expect(story.file(`Added ${incomingPath}`).query()).toBeNull();
 });
 
 test("changing stories clears the widened choice and gives Trunk Mode its own fixed diff pair", async () => {
@@ -136,12 +134,10 @@ test("changing stories clears the widened choice and gives Trunk Mode its own fi
   });
   const story = intentStoryCompare();
 
-  await story.browseFiles();
   await activateComparisonControl(story.includeMerged);
   await comparisonRead(story.revisions).toContain(`Baseline ${widenedFrom}.`);
   await mounted.selectStory(trunkStory.identity);
-  await story.browseFiles();
-  await activateComparisonControl(story.outsideFile(`Added ${trunkPath}`));
+  await activateComparisonControl(story.file(`Added ${trunkPath}`));
 
   await comparisonRead(requestedDiff).toMatchObject({
     path: trunkPath,
@@ -150,12 +146,11 @@ test("changing stories clears the widened choice and gives Trunk Mode its own fi
   });
   expect(story.includeMerged.query()).toBeNull();
   expect(story.revisions()).toContain(`Completion ${trunkCompletion}.`);
-  expect(story.outsideFile(`Added ${incomingPath}`).query()).toBeNull();
+  expect(story.file(`Added ${incomingPath}`).query()).toBeNull();
 
   await mounted.selectDoneStory();
-  await story.browseFiles();
-  await expect.element(story.outsideFile(`Added ${branchPath}`)).toBeVisible();
-  expect(story.outsideFile(`Added ${incomingPath}`).query()).toBeNull();
+  await expect.element(story.file(`Added ${branchPath}`)).toBeVisible();
+  expect(story.file(`Added ${incomingPath}`).query()).toBeNull();
   expect((story.includeMerged.element() as HTMLInputElement).checked).toBe(
     false,
   );
@@ -179,18 +174,14 @@ test("a late branch comparison cannot replace another story's explanation or fil
     },
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
   await activateComparisonControl(story.includeMerged);
-  await expect
-    .element(story.outsideFile(`Added ${incomingPath}`))
-    .toBeVisible();
+  await expect.element(story.file(`Added ${incomingPath}`)).toBeVisible();
   holdBranchRead = true;
   await story.openDetails();
   await activateComparisonControl(story.refreshButton);
   await comparisonRead(held.asked).toBe(true);
 
   await mounted.selectStory(trunkStory.identity);
-  await story.browseFiles();
   await comparisonRead(story.headerText).toContain(gap);
   await expect.element(story.includeMerged).not.toBeInTheDocument();
   expect(branchSignal?.aborted).toBe(true);
@@ -203,10 +194,8 @@ test("a late branch comparison cannot replace another story's explanation or fil
   await new Promise((resolve) => requestAnimationFrame(resolve));
   await new Promise((resolve) => requestAnimationFrame(resolve));
   expect(story.headerText()).toContain(gap);
+  await expect.element(story.file(`Added ${latePath}`)).not.toBeInTheDocument();
   await expect
-    .element(story.outsideFile(`Added ${latePath}`))
-    .not.toBeInTheDocument();
-  await expect
-    .element(story.outsideFile(`Added ${incomingPath}`))
+    .element(story.file(`Added ${incomingPath}`))
     .not.toBeInTheDocument();
 });

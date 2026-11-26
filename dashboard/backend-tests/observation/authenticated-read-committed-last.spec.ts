@@ -17,21 +17,16 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
-import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
-import {
-  describedRevision,
-  withBacklogFallback,
-} from "../../test-support/describedRevisions.ts";
+import { publishes } from "../../test-support/support/fakeGitHub.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
+import { describedFiles } from "../../test-support/describedRevisions.ts";
+import { backlogPath } from "../../test-support/publishedOriginBasics.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
 
 const knownSourceId = "open-dough";
 const knownRepository = "terryyin/open-dough";
-const revision = "ef".repeat(20);
 const seedPath = ".planning/seeds/SEED-clock.md";
 const profilePath = ".planning/agents/yui-chan.json";
 const secretsPath = ".planning/secrets/not-in-backlog.md";
@@ -45,29 +40,33 @@ const clockStory = makeMe.aBacklogEntry
   })
   .please();
 // Yui holds the Taken clock story on trunk.
-const published = describedRevision(
-  makeMe.aRepository
-    .withRevision("clock", {
-      backlog: {
-        taken: [clockStory],
-      },
-      files: {
-        [seedPath]: `# Seed\n\n**Identity:** ${clockStory.identity}\n`,
-      },
-      agentProfiles: [
-        makeMe.anAgentProfile
-          .executing({
-            name: "Yui",
-            identity: clockStory.identity,
-            mode: "trunk",
-            branch: "origin/main",
-          })
-          .please(),
-      ],
-    })
-    .please(),
-  revision,
-);
+const files = describedFiles({
+  backlog: {
+    taken: [clockStory],
+  },
+  files: {
+    [seedPath]: `# Seed\n\n**Identity:** ${clockStory.identity}\n`,
+  },
+  agentProfiles: [
+    makeMe.anAgentProfile
+      .executing({
+        name: "Yui",
+        identity: clockStory.identity,
+        mode: "trunk",
+        branch: "origin/main",
+      })
+      .please(),
+  ],
+});
+const published = publishes({
+  files,
+  backlog: files[backlogPath] ?? "",
+  committed: {
+    [seedPath]: new Date(updatedAt),
+    [profilePath]: new Date(updatedAt),
+  },
+});
+const { revision } = published;
 
 test.describe("authenticated read committed=last (development environment)", () => {
   let server: DashboardServer;
@@ -80,19 +79,6 @@ test.describe("authenticated read committed=last (development environment)", () 
     await server.close();
   });
 
-  const publishClockRevision = () => {
-    server.github.serve(
-      everyRepository,
-      publishes({
-        ...withBacklogFallback(published),
-        committed: {
-          [seedPath]: new Date(updatedAt),
-          [profilePath]: new Date(updatedAt),
-        },
-      }),
-    );
-  };
-
   const read = (query: string) =>
     rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}${query}`,
@@ -102,7 +88,11 @@ test.describe("authenticated read committed=last (development environment)", () 
   // The membership and the canonical record are read first, as the page
   // reads them, so the records deciding reachability are already pinned.
   const pinReachability = async () => {
-    expect((await read("")).status).toBe(200);
+    server.github.serve(knownRepository, published);
+    expectServedHomesReach(server.github, knownRepository, revision);
+    const membership = await read("");
+    expect(membership.status).toBe(200);
+    expect(JSON.parse(membership.body)).toMatchObject({ revision });
     expect(
       (await read(`&revision=${revision}&path=${encodeURIComponent(seedPath)}`))
         .status,
@@ -110,7 +100,6 @@ test.describe("authenticated read committed=last (development environment)", () 
   };
 
   test("answers when a reachable record was last committed and pins once per revision and path", async () => {
-    publishClockRevision();
     await pinReachability();
 
     const commitTime = `&revision=${revision}&path=${encodeURIComponent(seedPath)}&committed=last`;
@@ -140,7 +129,6 @@ test.describe("authenticated read committed=last (development environment)", () 
   });
 
   test("refuses an agent profile or an unreached path without asking for that path", async () => {
-    publishClockRevision();
     await pinReachability();
 
     // A listed agent profile's Take is its addition (`committed=added`),

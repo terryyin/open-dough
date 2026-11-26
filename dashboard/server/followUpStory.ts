@@ -56,10 +56,10 @@ const notTaken = () =>
     "The story this follows up is not published in Taken.",
   );
 
-async function publishedDoneStory(
+export async function publishedDoneStory(
   source: PublishedSource,
   { identity, revision }: { identity: string; revision: string },
-  signal: AbortSignal,
+  signal = admissionBound(),
 ): Promise<DoneStory> {
   const file = doneRecordFileName(identity);
   let outcome;
@@ -116,6 +116,7 @@ type FollowUpCard = Extract<FollowUp, { story: unknown }>["story"];
 export async function publishedFollowUpCardStory(
   source: PublishedSource,
   card: Pick<FollowUpCard, "identity" | "revision" | "status">,
+  readDone: typeof publishedDoneStory,
 ): Promise<
   | ({ readonly status: "taken" } & Pick<WorkEntry, "identity" | "title">)
   | ({ readonly status: "done" } & DoneStory)
@@ -123,7 +124,7 @@ export async function publishedFollowUpCardStory(
   const signal = admissionBound();
   if (card.status !== "taken") {
     return {
-      ...(await publishedDoneStory(source, card, signal)),
+      ...(await readDone(source, card, signal)),
       status: "done",
     };
   }

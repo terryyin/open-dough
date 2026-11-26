@@ -10,6 +10,8 @@
 // authenticated-read-refusal.spec.ts; this suite proves their shared upgrade guard.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepMoreLaunchRecordsBesideServer } from "../../test-support/support/launchStore.ts";
 import {
   openDoughFolder,
   recordsOf,
@@ -125,6 +127,28 @@ test.describe(`agent terminal boundary`, () => {
     } finally {
       server.claudeListingFails(false);
     }
+  });
+
+  test("a saved completed automatic feedback run cannot open a terminal by its exact old URL", async () => {
+    const title = "Historical feedback maintenance";
+    const sessionId = server.claudeListsSession({
+      name: title,
+      cwd: openDoughFolder(server),
+      startedAt: Date.now(),
+    });
+    const saved = makeMe.aLaunchRecord
+      .adHoc({ title, maintenance: { due: "2026-11-19" } })
+      .inClaudeSession({ sessionId })
+      .markedDone()
+      .please();
+    await keepMoreLaunchRecordsBesideServer(server, [saved]);
+    const callsBefore = server.claudeCalls().length;
+    expect(
+      await refusedStatus(terminalUrl(server, "open-dough", sessionId), {
+        origin: server.origin,
+      }),
+    ).toBe(404);
+    expect(server.claudeCalls()).toHaveLength(callsBefore);
   });
 
   const sameOrigin = () => ({ origin: server.origin });

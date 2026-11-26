@@ -19,7 +19,6 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { machineHome } from "../../dashboard/test-support/machineLaunchRecords.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
-import { browseStoryFiles } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   openUntilRead,
   untilPublishedWorkRead,
@@ -173,7 +172,6 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await expect(
     intentMain.getByRole("heading", { name: sessionTitle, exact: true }),
   ).toBeVisible();
-  await browseStoryFiles(intentMain);
   await expect(intentMain).toContainText(
     "Intent locations for Doughnut could not be read.",
   );

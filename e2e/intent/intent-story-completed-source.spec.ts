@@ -4,9 +4,8 @@
 // Real CLI completion and publication: ../../dashboard/test-support/support/intentCompletedStory.ts.
 // Changed-file overlay and Review equality: ./intent-story-completed.spec.ts.
 
-import type { Page } from "@playwright/test";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
+import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
@@ -58,19 +57,6 @@ function trunkAfterCompletion() {
     .please().revisions[0];
 }
 
-function trackIntentLocationRevisions(page: Page) {
-  const locations: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "locations"
-    )
-      locations.push(url.searchParams.get("revision") ?? "");
-  });
-  return locations;
-}
-
 test("a Done story keeps landing locations, inventory and unchanged source after trunk renames and deletes tests and removes settings", async ({
   page,
   origin,
@@ -81,7 +67,7 @@ test("a Done story keeps landing locations, inventory and unchanged source after
   );
   const locations =
     await test.step("And I track the revisions used to read Intent locations", () =>
-      trackIntentLocationRevisions(page));
+      trackStoryResultReads(page).inventory);
   const { intent, story, completion } =
     await test.step("When I open Story A in Intent", async () => {
       const { intent, completion } = await selectCompletedStoryInIntent(
@@ -107,8 +93,10 @@ test("a Done story keeps landing locations, inventory and unchanged source after
   await test.step("And Intent reads locations at the completion revision", () => {
     expect(locations).toContain(completion);
   });
-  await test.step("When I select the test that the story left unchanged", () =>
-    story.file(keptFile).click());
+  await test.step("When I list the revision and select the test that the story left unchanged", async () => {
+    await story.changesOnly().uncheck();
+    await story.file(keptFile).click();
+  });
   await test.step("Then its source is shown as it was at completion", async () => {
     await expect(purposeRegion(intent)).toContainText("kept 11");
     await expect(purposeRegion(intent)).not.toContainText(
@@ -172,9 +160,9 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
     await expect(story.header.revisions).toHaveCount(0);
   });
   await test.step("And no test inventory is rendered", async () => {
-    await expect(story.storyOnly()).toHaveCount(0);
+    await expect(story.changesOnly()).toHaveCount(0);
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
-    await expect(story.outside).toHaveCount(0);
+    await expect(story.tree).toHaveCount(0);
   });
   await test.step("And no empty-inventory notice appears", () =>
     expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0));

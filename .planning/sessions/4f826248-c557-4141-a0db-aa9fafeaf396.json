@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "4f826248-c557-4141-a0db-aa9fafeaf396",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-25T23:01:08.600Z",
+  "story": "SEED-413#prove-native-first-input-on-vitest",
+  "ranges": [
+    {
+      "base": "52544c358a47df9019c163d45dcb0625b47b9271",
+      "candidate": "eda151bfbb52d88d0d2854abaf01ab514cfbbd17"
+    }
+  ]
+}

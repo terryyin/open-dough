@@ -11,8 +11,9 @@ import {
 } from "../../dashboard/src/storyReviewContract.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 import {
-  expandIntentGroup,
+  intentLocationName,
   purposeRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { recentlyDoneParts } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
@@ -27,11 +28,11 @@ import {
   commitBacklogCompletion,
   publishCompletedStory,
 } from "../../dashboard/test-support/support/completedStoryPublication.ts";
+import { waitForLandedReview } from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
-  browseStoryFiles,
-  intentDiff,
-  intentFile,
+  listStoryRevision,
+  intentStory,
   showComparisonDetails,
   storySummary,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
@@ -95,6 +96,7 @@ test("selecting another Done story opens its published default after reading the
       files: {
         ".planning/open-dough.json": JSON.stringify(settings),
         "second/tests/b.spec.ts": "second story published source\n",
+        "docs/notes.md": "rewritten guide for Story B\n",
       },
     })
     .please().revisions[0];
@@ -150,26 +152,27 @@ test("selecting another Done story opens its published default after reading the
       landingRevision: firstCapture.revision,
     },
   );
-  const landedRead = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname === storyReviewEndpoint &&
-      url.searchParams.get("run") === first.reporting.reference
-    );
-  });
+  const landedRead = waitForLandedReview(page, first.reporting.reference);
   const landing = new ReviewLandedRun(storySummary(intent), () =>
     showComparisonDetails(storySummary(intent)),
   );
   await landing.choose(first.reporting.reference);
-  expect(
-    storyReviewSchema.parse(await (await landedRead).json()),
-  ).toMatchObject({
+  expect(await landedRead).toMatchObject({
     kind: "landed",
     tree: firstCapture.revision,
     selectedRun: first.reporting.reference,
   });
   await landing.expectShown(firstCapture.revision);
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
+
+  await listStoryRevision(intent);
+  const firstTree = intentStory(intent);
+  await firstTree.expandFolderPath("docs");
+  await firstTree.file("docs/notes.md").click();
+  await expect(purposeRegion(intent)).toContainText("notes 11");
+  await expect(sourceRevision(intent, "docs/notes.md")).toContainText(
+    firstCapture.revision.slice(0, 7),
+  );
 
   const runRequests: string[] = [];
   page.on("request", (request) => {
@@ -211,13 +214,20 @@ test("selecting another Done story opens its published default after reading the
       "data-state",
       "compared",
     );
-    await browseStoryFiles(intent);
-    await expandIntentGroup(intent, "second/tests");
-    await expect(intentFile(intent, "dashboard/tests/a.spec.ts")).toHaveCount(
+    await listStoryRevision(intent);
+    const story = intentStory(intent);
+    await story.expandFolderPath("second/tests");
+    await expect(story.file("Modified dashboard/tests/a.spec.ts")).toHaveCount(
       0,
     );
-    expect(await intentDiff(intent, "Added second/tests/b.spec.ts")).toContain(
+    await expect(intentLocationName(intent, "dashboard/tests")).toHaveCount(0);
+    await expect(intentLocationName(intent, "second/tests")).toBeVisible();
+    expect(await story.diff("Added second/tests/b.spec.ts")).toContain(
       "second story published source",
+    );
+    await story.expandFolderPath("docs");
+    expect(await story.diff("Modified docs/notes.md")).toContain(
+      "rewritten guide for Story B",
     );
     expect(runRequests).toEqual([]);
   } finally {

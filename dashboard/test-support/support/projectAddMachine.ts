@@ -8,7 +8,8 @@ import {
   type DashboardServerMode,
 } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
-import { everyRepository, publishes } from "./fakeGitHub.ts";
+import { publishes } from "./fakeGitHub.ts";
+import { expectServedHomesReach } from "./fixtureOriginRoute.ts";
 import { git } from "./launchLanding.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { initializeStartOrigin } from "./startOriginInitialization.ts";
@@ -19,6 +20,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   projectConfigurationFile,
   projectEnvironmentOf,
+  seededProjectPublications,
 } from "./projectConfiguration.ts";
 
 export const addedRepository = "example/sample-app";
@@ -34,7 +36,6 @@ export function projectAddMachine() {
     backlog: describedBacklog(makeMe.aRepository.please()),
   };
   const published = publishes(facts);
-  const otherProjects = publishes({ ...facts, revision: published.revision });
   const localBranch = commitPublishedOrigin({
     branch: "local-checkout",
     backlog: null,
@@ -71,6 +72,10 @@ export function projectAddMachine() {
       "rev-parse",
       addedBranch,
     );
+  const serveSeeds = seededProjectPublications();
+  const expectAddedRef = ({ github }: DashboardServer) => {
+    expectServedHomesReach(github, addedRepository, addedTip(), addedBranch);
+  };
   // The file a server of that mode keeps its projects in.
   const configurationFile = (mode: DashboardServerMode) =>
     projectConfigurationFile(
@@ -136,6 +141,7 @@ export function projectAddMachine() {
         gitHubRepositoryUrl(addedRepository),
       );
     },
+    expectAddedRef,
     async start(
       mode: DashboardServerMode,
       readTimeoutMs?: number,
@@ -149,7 +155,7 @@ export function projectAddMachine() {
         readTimeoutMs,
         codexProtocol,
       });
-      server.github.serve(everyRepository, otherProjects);
+      serveSeeds(server.github);
       if (installed)
         await publishCommittedOrigin(server.github, {
           repository: addedRepository,

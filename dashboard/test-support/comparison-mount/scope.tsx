@@ -2,17 +2,18 @@
 import { useState } from "react";
 import { IntentSummary } from "../../src/IntentSummary.tsx";
 import { IntentFileProof } from "../../src/IntentFileProof.tsx";
-import { IntentLocationGroup } from "../../src/IntentLocationGroup.tsx";
+import { IntentFileTree } from "../../src/IntentFileTree.tsx";
 import {
   intentStoryOverlay,
-  overlayFilesByPath,
+  intentLocationFiles,
+  storyRepositoryTree,
 } from "../../src/intentStoryOverlay.ts";
 import {
   owningLocation,
   filesOfSelection,
 } from "../../src/intentSelectionCoverage.ts";
 import { selectionScope } from "../../src/intentWorkspaceSelection.ts";
-import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
+import { reviewFoldersHolding } from "../../src/reviewFileTree.ts";
 import type { ComparisonScope } from "../support/comparisonMountTypes.ts";
 
 export function ComparisonMountScope({
@@ -21,36 +22,33 @@ export function ComparisonMountScope({
   readonly facts: ComparisonScope;
 }) {
   const [selection, setSelection] = useState(facts.selection);
-  const [expanded, setExpanded] = useState(
-    () => new Set(facts.locations.map(({ path }) => path)),
-  );
   const overlay = intentStoryOverlay(facts.locations, facts.changed);
-  const treeFiles = overlayFilesByPath(facts.locations, overlay);
+  const shown = storyRepositoryTree(facts.locations, overlay, false);
+  const treeFiles = overlay.files;
   const location = owningLocation(facts.locations, selection);
+  const scopeFiles =
+    location === undefined
+      ? treeFiles
+      : intentLocationFiles(treeFiles, location);
   return (
     <>
       <nav className="intent-locations" aria-label="Intent files">
-        {facts.locations.map((one, index) => (
-          <IntentLocationGroup
-            key={one.path}
-            location={one}
-            files={overlay.locations[index]?.files ?? []}
-            containsChanges={overlay.locations[index]?.containsChanges ?? false}
-            expansion={undefined}
-            selection={selection}
-            onSelect={setSelection}
-            idPrefix={intentLocationIdPrefix(one.path)}
-            expanded={expanded.has(one.path)}
-            onToggle={() => {
-              setExpanded((before) => {
-                const next = new Set(before);
-                if (next.has(one.path)) next.delete(one.path);
-                else next.add(one.path);
-                return next;
-              });
-            }}
-          />
-        ))}
+        <IntentFileTree
+          shown={shown}
+          owner=""
+          expansion={{
+            round: 0,
+            folders: [
+              ...facts.locations.flatMap(({ path }) =>
+                reviewFoldersHolding(shown.nodes, `${path}/`),
+              ),
+              ...reviewFoldersHolding(shown.nodes, facts.selection.path),
+            ],
+          }}
+          selection={selection}
+          onSelect={setSelection}
+          reveal={undefined}
+        />
       </nav>
       {selectionScope(selection) === "file" ? (
         <section aria-label="Proof">
@@ -65,8 +63,8 @@ export function ComparisonMountScope({
           <IntentSummary
             key={`${facts.revision}:${selection.path}`}
             path={selection.path}
-            files={filesOfSelection(treeFiles, selection)}
-            treeFiles={treeFiles}
+            files={filesOfSelection(scopeFiles, selection)}
+            treeFiles={scopeFiles}
             location={location}
             revision={facts.revision}
             onOpen={setSelection}

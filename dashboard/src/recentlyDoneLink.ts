@@ -1,5 +1,4 @@
-// Whether a Recently done sessions row's story is listed in a published done
-// catalog, and how an ad hoc row recovers its completed-story identity.
+// Whether a Recently done sessions row's story is listed in a published done catalog.
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { LaunchRecord } from "./agentLaunch.ts";
 import {
@@ -7,27 +6,16 @@ import {
   recentDoneRecords,
   type DoneStories,
 } from "./doneStories.ts";
-import type { MachineReadSource } from "./machineReadSource.ts";
 import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 
-// The page's reads a row's link uses: another project's snapshot and done
-// catalog, and an ad hoc session's completed-story association.
 export type DoneLinkReads = Pick<
   PublishedObservationReadSource,
   "readSnapshot" | "readDoneCatalog"
-> &
-  Pick<MachineReadSource, "readCompletedStoryAssociation">;
+>;
 
 export type DoneLink = "linked" | "absent" | { readonly problem: string };
-
-// Association result for an ad hoc row: the Done identity, a confirmed miss,
-// or an unreadability problem. Distinct from DoneLink's catalog "linked".
-export type AssociationAnswer =
-  | "absent"
-  | { readonly problem: string }
-  | { readonly kind: "linked"; readonly identity: string };
 
 // Ad hoc sessions can still reopen an older published story from the sidebar.
 export const doneStoryMustBeRecent = (record: LaunchRecord) =>
@@ -86,27 +74,6 @@ export async function readLink(
     return done.status === "catalogued"
       ? linkIn(done, identity, { recentOnly })
       : { problem: done.problem };
-  } catch (error) {
-    return { problem: error instanceof Error ? error.message : String(error) };
-  }
-}
-
-export async function associatedIdentity(
-  reads: DoneLinkReads,
-  source: PublishedSource,
-  record: LaunchRecord,
-  signal: AbortSignal,
-): Promise<AssociationAnswer> {
-  try {
-    const answer = await reads.readCompletedStoryAssociation(
-      source.id,
-      record.session,
-      signal,
-    );
-    if (answer.kind === "linked")
-      return { kind: "linked", identity: answer.identity };
-    if (answer.kind === "absent") return "absent";
-    return { problem: answer.explanation };
   } catch (error) {
     return { problem: error instanceof Error ? error.message : String(error) };
   }

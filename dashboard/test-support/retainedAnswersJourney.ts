@@ -1,6 +1,4 @@
-// Retained-answers specs publish one project with a recorded story branch
-// and read it through the local authenticated read boundary. Each test owns
-// the machine directory where answers survive from one process to the next.
+// Each test owns the machine where its pinned reads survive process restarts.
 
 import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -14,7 +12,9 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
-import { everyRepository, type FakeGitHub } from "./support/fakeGitHub.ts";
+import { defaultRepository as repository } from "./publishedOriginBasics.ts";
+import type { FakeGitHub } from "./support/fakeGitHub.ts";
+import { expectServedHomesReach } from "./support/fixtureOriginRoute.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
@@ -25,22 +25,22 @@ import {
 } from "./pathHistoryAnswers.ts";
 import {
   answerFrom,
+  advanceReusePublication,
   filesFor,
-  moved,
   otherProfilePath,
   otherSeedPath,
   planPath,
   profilePath,
+  restoreReusePublication,
+  reusePublication,
   seedPath,
+  serveReusePublication,
   sourceId,
   type Files,
-  type Publication,
 } from "./revisionReuseOrigin.ts";
-import { described } from "./revisionReuseCalls.ts";
+import { describedExactly } from "./revisionReuseCalls.ts";
 
-export { expect };
-
-export const repository = "terryyin/open-dough";
+export { expect, repository };
 
 // A machine directory each test owns, outliving every server it starts.
 export const test = base.extend<{ machine: string }>({
@@ -63,8 +63,6 @@ export const entryFile = (machine: string, revision: string, entry: string) =>
     `${createHash("sha256").update(`${repository}\0${revision}\0${entry}`).digest("hex")}.json`,
   );
 
-// Every history a page asks at a commit, each dated days before now, so a
-// clock shown from it reads the same however long the journey takes.
 export const daysAgo = (days: number) =>
   new Date(Date.now() - days * 86_400_000);
 const history: PathHistories = {
@@ -85,37 +83,22 @@ const history: PathHistories = {
   ],
 };
 
-// One project published at `revision`, with its Story Branch Mode entry's
-// branch at `head`; `failing` answers chosen requests otherwise. Its ref
-// moves on when `movedTo` says.
+// A routed trunk with explicitly controlled REST branch and history answers.
 export function published(
   label: string,
-  revision: string,
   head: string,
   failing: (request: GhRequest) => OriginAnswer | undefined = () => undefined,
 ) {
   const files = filesFor(label);
-  const publication: Publication = {
-    trunk: { revision },
-    revisions: new Map([
-      [revision, files],
-      [head, files],
-    ]),
-    branches: new Map([[`story/${label}`, head]]),
-    compared: new Map(),
-    made: new Map(),
-    histories: new Map([
-      [revision, history],
-      [head, history],
-    ]),
-  };
+  const publication = reusePublication(files, history);
+  const branch = `story/${label}`;
+  publication.revisions.set(head, files);
+  publication.branches.set(branch, head);
+  publication.histories?.set(head, history);
   return {
-    branch: `story/${label}`,
+    branch,
     publication,
-    // The ref moves to `next`, publishing `files` there, by the commits `by`
-    // after the revision it named, each heading the history of every path it
-    // modified.
-    movedTo(next: string, files: Files, by: readonly MadeCommit[]) {
+    movedTo(files: Files, by: readonly MadeCommit[]) {
       const histories: Record<string, PathHistories[string]> = { ...history };
       for (const { files: changed, ...made } of by) {
         for (const { filename } of changed) {
@@ -125,10 +108,17 @@ export function published(
           ];
         }
       }
-      moved(publication, next, files, histories, by);
+      const next = { files, history: histories };
+      return advanceReusePublication(publication, next, by);
+    },
+    restoreInitialRevision() {
+      restoreReusePublication(publication);
+    },
+    expectRef(github: FakeGitHub) {
+      expectServedHomesReach(github, repository, publication.trunk.revision);
     },
     serve(github: FakeGitHub, fails = failing) {
-      github.serve(everyRepository, (call) =>
+      serveReusePublication(github, publication, (call) =>
         Promise.resolve(fails(call.request) ?? answerFrom(publication, call)),
       );
     },
@@ -165,17 +155,19 @@ async function readDone(server: DashboardServer, at: string): Promise<Answer> {
   );
 }
 
-// Everything a page reads of the project at the revision its ref names:
-// membership, records, plan, profiles and their additions, done records
-// through their catalog, last commit times, and the recorded story branch's
-// head with its plan and last commit time there. Membership's `askedAt` is
-// returned beside.
-export async function readProject(server: DashboardServer, branch: string) {
+// Reads the project at its routed trunk and the recorded story branch head.
+export async function readProject(
+  server: DashboardServer,
+  project: ReturnType<typeof published>,
+) {
+  const { branch, publication } = project;
+  project.expectRef(server.github);
   const membership = await read(server, "");
   const { askedAt, ...shown } = membership.body as {
     revision: string;
     askedAt: string;
   };
+  expect(shown.revision).toBe(publication.trunk.revision);
   const at = `&revision=${shown.revision}`;
   const answers: Answer[] = [{ status: membership.status, body: shown }];
   const reads = [
@@ -196,6 +188,7 @@ export async function readProject(server: DashboardServer, branch: string) {
   const onBranch = await read(server, `${at}&branch=${branch}`);
   answers.push(onBranch);
   const { head } = onBranch.body as { head: string };
+  expect(head).toBe(publication.branches.get(branch));
   for (const query of [
     `&path=${encodeURIComponent(planPath)}`,
     `&path=${encodeURIComponent(planPath)}&committed=last`,
@@ -219,7 +212,7 @@ export async function readProject(server: DashboardServer, branch: string) {
 export async function asked<T>(github: FakeGitHub, run: () => Promise<T>) {
   const before = github.calls.length;
   const result = await run();
-  return { result, calls: github.calls.slice(before).map(described) };
+  return { result, calls: github.calls.slice(before).map(describedExactly) };
 }
 
 // A fresh boundary process on `machine`'s home, closed after `use`.

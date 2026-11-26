@@ -26,14 +26,17 @@
 // wait, then is told to ask again; one leaving never ends the observation for
 // the others.
 
-import type {
-  Alerts,
-  AttemptObservation,
-  KeptStart,
-  LaunchWithState,
-  OfferedDefinition,
-  RunningStart,
+import {
+  storyOf,
+  type Alerts,
+  type AttemptObservation,
+  type KeptStart,
+  type LaunchRecord,
+  type LaunchWithState,
+  type OfferedDefinition,
+  type RunningStart,
 } from "../src/agentLaunch.ts";
+import { historicalFeedbackCompletion } from "../src/feedbackMaintenanceDue.ts";
 import type { FeedbackMaintenanceState } from "../src/feedbackMaintenanceState.ts";
 import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
@@ -42,6 +45,8 @@ import { type SharedAnswer, SharedGzip } from "./agentLaunchResponse.ts";
 import type { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
 import { hostOperations } from "./launchHosts.ts";
 import { localWorkspaces } from "./localWorkspaces.ts";
+import { machineFolder } from "./localFolder.ts";
+import { withStates } from "./launchStates.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { machineDocumentsRevision } from "./machineJsonStore.ts";
 import {
@@ -111,6 +116,25 @@ export async function machineSessionInputs(): Promise<readonly unknown[]> {
   return [configuredProjects(), await machineDocumentsRevision()];
 }
 
+// Observe visible story sessions and the closed automatic runs the Settings
+// status still needs. Closed historical runs require no native observation.
+export async function observedMachineRecords(
+  kept: ReadonlyMap<string, readonly LaunchRecord[]>,
+) {
+  const stored = configuredProjects().flatMap(({ id }) => kept.get(id) ?? []);
+  const visible = stored.filter(
+    ({ request }) => storyOf(request) !== undefined,
+  );
+  const completedFeedback = stored
+    .filter(historicalFeedbackCompletion)
+    .map((record): LaunchWithState => ({
+      ...record,
+      sessionState: { kind: "unknown" },
+    }));
+  const records = await withStates(machineFolder(), visible, "recurring");
+  return { records, completedFeedback };
+}
+
 // The machine's sessions as `launches` and the server's state read them now.
 export async function readMachineSessions(
   launches: AgentLaunches,
@@ -118,8 +142,11 @@ export async function readMachineSessions(
   maintenance: Pick<FeedbackMaintenanceCheck, "state">,
 ): Promise<MachineSessionsReading> {
   const { attempts, readable } = await launches.attempts();
-  const records = await launches.machineSessions();
-  const feedbackMaintenance = maintenance.state(records, attempts);
+  const { records, completedFeedback } = await launches.machineObservation();
+  const feedbackMaintenance = maintenance.state(
+    [...records, ...completedFeedback],
+    attempts,
+  );
   return {
     records,
     ...(feedbackMaintenance !== undefined && { feedbackMaintenance }),

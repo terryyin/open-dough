@@ -2,6 +2,7 @@ import { expect } from "vitest";
 import { page, type Locator } from "vitest/browser";
 import { ciReadingText } from "./intent-attempt-proof-page.ts";
 import { pressLocationName } from "./intent-ci-homepage-page.ts";
+import { fileLayout } from "./intent-file-layout-page.ts";
 
 const columns = ["Scope", "Counts", "Test execution time"] as const;
 type ScopeRow = readonly [name: string, counts: string, executionTime: string];
@@ -19,11 +20,13 @@ export async function showsSummaryPath(summary: Locator, path: string) {
     .toBe(path);
 }
 
-// The Summary of the location at PATH, opened by pressing its name.
+// The Summary of the location at PATH, opened by pressing its name and
+// uncovered where Files lies over it as a drawer.
 export async function openSummary(path: string) {
   await pressLocationName(path);
   const summary = summaryRegion();
   await showsSummaryPath(summary, path);
+  await fileLayout().uncoverReader();
   return summary;
 }
 

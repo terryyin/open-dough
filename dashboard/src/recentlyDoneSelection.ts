@@ -18,7 +18,6 @@ import {
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import {
-  associatedIdentity,
   currentCatalog,
   doneStoryMustBeRecent,
   linkIn,
@@ -88,18 +87,18 @@ export function useRecentlyDoneSelection(
   const select = (record: LaunchRecord) => {
     abandonCheck();
     const key = sessionKey(record.session);
-    const { identity: requested } = launchSubject(record.request);
+    const { identity } = launchSubject(record.request);
     const source = projects.find(({ id }) => id === record.request.source);
     const clear = () => {
       setChoice(undefined);
       now.current.goTo();
     };
-    if (source === undefined) {
+    if (source === undefined || identity === undefined) {
       clear();
       return;
     }
-    const settle = (link: DoneLink, identity?: string) => {
-      if (link === "linked" && identity !== undefined) {
+    const settle = (link: DoneLink) => {
+      if (link === "linked") {
         const story = { project: source.id, identity };
         setChoice({ key, kind: "linked", story });
         selection.api.select(story);
@@ -115,50 +114,21 @@ export function useRecentlyDoneSelection(
         clear();
       }
     };
-    const checkCatalog = (identity: string, recentOnly: boolean) => {
-      // Use the page as it is when the association answers, not the work
-      // snapshot from the click that started an earlier unread check.
-      const shown = currentCatalog(now.current.stories.work, source.id);
-      if (shown !== undefined) {
-        settle(linkIn(shown, identity, { recentOnly }), identity);
-        return;
-      }
-      const controller = new AbortController();
-      checking.current = controller;
-      setChoice({ key, kind: "checking" });
-      goTo();
-      void readLink(
-        reads,
-        source,
-        identity,
-        controller.signal,
-        recentOnly,
-      ).then((link) => {
-        if (checking.current !== controller) return;
-        checking.current = undefined;
-        settle(link, identity);
-      });
-    };
-    if (requested !== undefined) {
-      checkCatalog(requested, doneStoryMustBeRecent(record));
+    const recentOnly = doneStoryMustBeRecent(record);
+    const shown = currentCatalog(now.current.stories.work, source.id);
+    if (shown !== undefined) {
+      settle(linkIn(shown, identity, { recentOnly }));
       return;
     }
     const controller = new AbortController();
     checking.current = controller;
     setChoice({ key, kind: "checking" });
     goTo();
-    void associatedIdentity(reads, source, record, controller.signal).then(
-      (answer) => {
+    void readLink(reads, source, identity, controller.signal, recentOnly).then(
+      (link) => {
         if (checking.current !== controller) return;
         checking.current = undefined;
-        // Association already validated published claim/completion evidence.
-        // Select that identity without the recent-window catalog gate story
-        // launches use; Board reveal may still include a catalogued older Done.
-        if (typeof answer === "object" && "kind" in answer) {
-          settle("linked", answer.identity);
-          return;
-        }
-        settle(answer);
+        settle(link);
       },
     );
   };

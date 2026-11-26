@@ -21,6 +21,7 @@ import {
   type GhCall,
   type RepositoryAnswerer,
 } from "./fakeGitHub.ts";
+import { keepingOrigin } from "./publishedRepository.ts";
 import { refusedMarker } from "./sharedReads.ts";
 
 const diagnosticEntry = fileURLToPath(
@@ -38,14 +39,17 @@ export const isWorkflowRead = ({ argv }: GhCall) =>
 export function withWorkflow(
   published: RepositoryAnswerer,
 ): RepositoryAnswerer {
-  return (call) =>
-    isWorkflowRead(call)
-      ? Promise.resolve({
-          status: 200,
-          contentType: "application/json; charset=utf-8",
-          body: JSON.stringify({ id: 7001, name: "CI", state: "active" }),
-        })
-      : published(call);
+  return keepingOrigin(
+    (call) =>
+      isWorkflowRead(call)
+        ? Promise.resolve({
+            status: 200,
+            contentType: "application/json; charset=utf-8",
+            body: JSON.stringify({ id: 7001, name: "CI", state: "active" }),
+          })
+        : published(call),
+    published,
+  );
 }
 
 export type CiRead = {

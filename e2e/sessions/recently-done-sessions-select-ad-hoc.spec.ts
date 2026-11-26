@@ -12,7 +12,7 @@ import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { expectProjectChoice } from "../../dashboard/test-support/projectChoice.ts";
 import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
-import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
+import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedStory.ts";
 import {
   chooseStoryTab,
   storyTitle,
@@ -42,8 +42,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story an
   publishIntentTrunk(origin.project);
   const linked = await retainAdHocCompletedStory(dashboard, origin, {
     title: sessionTitle,
-    withStoryBinding: true,
-    landing: { repository: path.join(origin.project, ".git") },
+    landingRepository: path.join(origin.project, ".git"),
     intentCoverage: {
       report:
         "Outcome: Caught\nPromise: Range-resume assessment survives cleanup.\nFault: Drop saved coverage after retirement.\nEvidence: The Range-resume baseline matched after restoration.\n",

@@ -5,6 +5,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
+import { serveCommitted } from "./committedFiles.ts";
 import {
   expectMembership,
   expectSettledPage,
@@ -16,15 +17,21 @@ import {
   doughnutRecords,
   doughnutRepository,
   doughnutSharedTitle,
-  revisionDoughnut,
 } from "./doughnutProject.ts";
-import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { backlogPath } from "./publishedOriginBasics.ts";
+import { publishes } from "./support/fakeGitHub.ts";
 import { projectTab } from "./projectChoice.ts";
 import { focusCanonicalRecord, storyCard } from "./storyCardControls.ts";
 
+export function serveDoughnut(page: Page): string {
+  const published = publishes({
+    files: { [backlogPath]: doughnutBacklog, ...doughnutRecords },
+  });
+  return serveCommitted(page, doughnutRepository, published, published);
+}
+
 export async function selectSettledDoughnut(page: Page) {
-  const origin = await publishMovingOrigin(page, doughnutRepository);
-  origin.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
+  const revision = serveDoughnut(page);
   const { backlog, readRevision } = parts(page);
   // This fixture has no assignments or Taken plans, so its profile and done
   // catalog responses finish every independent read beside preparation. Observe them
@@ -37,7 +44,7 @@ export async function selectSettledDoughnut(page: Page) {
         return (
           url.pathname === "/__authenticated-read" &&
           url.searchParams.get("source") === "doughnut" &&
-          url.searchParams.get("revision") === revisionDoughnut &&
+          url.searchParams.get("revision") === revision &&
           url.searchParams.get(group) ===
             (group === "agents" ? "profiles" : "catalog")
         );
@@ -56,10 +63,11 @@ export async function selectSettledDoughnut(page: Page) {
   for (const response of await independentReads)
     expect(response.ok()).toBe(true);
   await expectSettledPage(page, shown);
-  await expect(readRevision).toContainText(shortRevision(revisionDoughnut));
+  await expect(readRevision).toContainText(shortRevision(revision));
   return {
     card,
     link,
+    revision,
     retrievedAt: await parts(page).retrievedAt.getAttribute("datetime"),
   };
 }

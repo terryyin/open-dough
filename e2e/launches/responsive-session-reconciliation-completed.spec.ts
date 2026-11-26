@@ -15,11 +15,10 @@ import {
   attemptsInHistory,
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
-import {
-  commitAnswer,
-  noConnection,
-} from "../../dashboard/test-support/originAnswers.ts";
+import { publishMain } from "../../dashboard/test-support/committedOriginRepo.ts";
+import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import {
   expectRecoveryOffered,
   expectStaticallyProtected,
@@ -34,6 +33,7 @@ import {
   test,
 } from "../../dashboard/test-support/responsiveStart.ts";
 import { reportingChild } from "../../dashboard/test-support/support/completionRecovery.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -46,6 +46,8 @@ test("a start whose server closed while its session launched reconciles once tha
   github,
 }) => {
   dashboard.claudeScenario("held");
+  const before = (await origin.originGit("rev-parse", "main")).trim();
+  expectServedHomesReach(github, defaultRepository, before);
   const { published, story, takenStory, other } = await openStories(
     page,
     origin,
@@ -76,6 +78,7 @@ test("a start whose server closed while its session launched reconciles once tha
 
   const restarted = await restart(dashboard, origin, github);
   try {
+    expectServedHomesReach(github, published.repository, publication.revision);
     expect(await attempts(restarted)).toEqual([
       expect.objectContaining({
         id: launching?.id,
@@ -116,7 +119,8 @@ test("a start whose server closed while its session launched reconciles once tha
     // Trunk moved past the published Take: the next full read reconciles it.
     restoreMain();
     const descendant = await commitOn(origin, publication.revision);
-    published.answerWith("main", commitAnswer(descendant));
+    publishMain(origin.origin, descendant);
+    expectServedHomesReach(github, published.repository, descendant);
     await reloadUntilRead(page);
     await expect(page.getByRole("status").first()).toContainText(
       `Published work read at revision ${descendant.slice(0, 7)}`,

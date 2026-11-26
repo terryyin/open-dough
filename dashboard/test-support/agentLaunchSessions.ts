@@ -60,15 +60,6 @@ export async function establishingProjects(
     .establishing;
 }
 
-// The projects whose installed skill ships the preparation start and its
-// formatter, as the boundary answers the machine's sessions.
-export async function establishingPreparation(
-  server: DashboardServer,
-): Promise<string[]> {
-  return (await sessionsAnswer<{ establishingPreparation: string[] }>(server))
-    .establishingPreparation;
-}
-
 // One project's records among the machine's sessions.
 function projectRecords(
   sessions: readonly unknown[],

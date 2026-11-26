@@ -84,8 +84,11 @@ const missingClaude =
 
 export async function claudeExecutionStartRefusal(
   folder: LocalFolder,
+  env: NodeJS.ProcessEnv,
 ): Promise<string | undefined> {
-  return (await claudeExecutableMissing(folder)) ? missingClaude : undefined;
+  return (await claudeExecutableMissing(folder, env))
+    ? missingClaude
+    : undefined;
 }
 
 function timedOut(): HostLaunch {

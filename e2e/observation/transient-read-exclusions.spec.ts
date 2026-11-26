@@ -23,17 +23,12 @@ import {
 import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
-  commitAnswer,
   httpErrorAnswer,
-  notFoundAnswer,
-  publishMovingOrigin,
+  publishCommittedBacklog,
   publishOrigin,
 } from "../../dashboard/test-support/publishedOrigin.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
-import {
-  refreshHistory,
-  revisionA,
-} from "../../dashboard/test-support/refreshJourney.ts";
+import { refreshHistory } from "../../dashboard/test-support/refreshJourney.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   mainReads,
@@ -63,10 +58,7 @@ for (const { when, origin, problem } of [
   },
   {
     when: "HTTP 404",
-    origin: {
-      ref: commitAnswer(revisionA),
-      backlog: { revision: revisionA, answer: notFoundAnswer() },
-    },
+    origin: null,
     problem:
       "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
   },
@@ -81,7 +73,10 @@ for (const { when, origin, problem } of [
     page,
   }) => {
     await pausePageClockAt(page, opened);
-    const requested = await publishOrigin(page, origin);
+    const requested =
+      origin === null
+        ? publishCommittedBacklog(page, null).requests
+        : await publishOrigin(page, origin);
     await page.goto("/");
     await expectProblemAndNoSnapshot(page, problem);
     await untilPageReadsAnswered(page);
@@ -93,7 +88,7 @@ for (const { when, origin, problem } of [
     );
     expect(
       githubFor(page).calls.filter((call) => call.request.kind === "ref"),
-    ).toHaveLength(origin.backlog === undefined ? asked : 1);
+    ).toHaveLength(origin === null ? 1 : asked);
   });
 }
 
@@ -101,10 +96,9 @@ test("a malformed backlog stays a reload problem and is not asked again", async 
   page,
 }) => {
   await pausePageClockAt(page, opened);
-  const origin = await publishMovingOrigin(page);
   // An empty valid backlog followed by the literal malformed entry.
-  origin.push(
-    revisionA,
+  const origin = publishCommittedBacklog(
+    page,
     `${describedBacklog(makeMe.aRepository.please())}- Queue trunk integration, without a link\n`,
   );
   await page.goto("/");

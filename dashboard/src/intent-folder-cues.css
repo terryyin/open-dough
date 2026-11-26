@@ -1,0 +1,33 @@
+/* Intent roots keep their own surface while open or collapsed. A collapsed
+   ancestor carries a lighter version of the same location colour. */
+.story-review-folder-row[data-intent-folder-cue] {
+  background: var(--intent-folder-surface);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+}
+
+[data-intent-folder-cue="root"] {
+  --intent-folder-surface: var(--location-header);
+}
+
+[data-intent-folder-cue="ancestor"] {
+  --intent-folder-surface: color-mix(
+    in srgb,
+    var(--location-header) 42%,
+    transparent
+  );
+}
+
+.story-review-folder-row[data-intent-folder-cue][data-selected] {
+  border-color: var(--accent);
+}
+
+.story-review-folder-row[data-intent-folder-cue][data-selected]:not(
+    [class*="intent-ci-cue-duration-"]
+  ) {
+  background: color-mix(
+    in srgb,
+    var(--accent) 12%,
+    var(--intent-folder-surface)
+  );
+}

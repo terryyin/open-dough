@@ -25,9 +25,8 @@ import {
   expectLabelInFull,
 } from "./ciEvidenceLabelsPage.ts";
 import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
-import { intentLocationName } from "./intentPerspectivePage.ts";
-import { browseStoryFiles } from "./support/intentStoryPage.ts";
-import { storyIntentFrame } from "./intentModePage.ts";
+import { revealIntentLocation } from "./intentPerspectivePage.ts";
+import { showIntentFiles, uncoverIntentReader } from "./intentModePage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { OriginAnswer } from "./originAnswers.ts";
@@ -160,13 +159,15 @@ export async function openIntent(
   return { project, ci, intent, home, bodyReads };
 }
 
-// With a selected story, Summaries are read in its Changes view.
+// Files opens to press the location, which leaves a selected story's Home
+// for its reading, and a drawer of it closes to uncover the Summary.
 export async function openSummary(intent: Locator, location: string) {
-  if ((await storyIntentFrame(intent).count()) > 0)
-    await browseStoryFiles(intent);
-  await intentLocationName(intent, location).click();
+  await showIntentFiles(intent);
+  const name = await revealIntentLocation(intent, location);
+  await name.click();
   const summary = summaryRegion(intent);
   await expect(summary.locator(".intent-summary-path")).toHaveText(location);
+  await uncoverIntentReader(intent);
   return summary;
 }
 

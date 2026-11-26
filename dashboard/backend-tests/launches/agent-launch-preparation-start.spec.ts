@@ -1,174 +1,176 @@
-// A refinement launch establishes its preparation before the session
-// (../../server/preparationStart.ts), over raw HTTP against the real installed
-// `preparation-assignment.mjs` and a real bare origin
-// (../../test-support/support/startOrigin.ts), with the synthetic `claude`: origin ends up
-// holding the Preparing profile (host claude, the chosen model, no Taken
-// profile), and the session starts in the new workspace under the project's
-// `.worktrees/` with the established preparation in its instruction. A
-// project whose installed skill lacks the start or formatter launches as
-// before. The launch record keeps the established preparation under its own
-// schema (no publisher ID, mode, or plan), and the sessions answer lists the
-// projects whose installed skill ships the start and formatter.
-
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { existsSync, realpathSync, rmSync } from "node:fs";
+// The refinement start publishes and keeps its preparation before dispatch.
+import { existsSync, rmSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeAll, beforeEach, expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
-  establishingPreparation,
-  launch,
-  recordsOf,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  publicationOf,
+  started,
+  type Started,
+} from "../../server/launchStart.ts";
+import { localFolder, type LocalFolder } from "../../server/localFolder.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { startStore, type StartStore } from "../../server/startStore.ts";
+import { startOf } from "../../server/startWorkflows.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
-const request = makeMe.aLaunchRequest
-  .refining({ identity: queuedIdentity, title: queuedTitle })
-  .withInstruction("Focus on the examples.")
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
+const story = { identity: queuedIdentity, title: queuedTitle };
+const defaultRequest = makeMe.aLaunchRequest.refining(story).please();
+const opusRequest = makeMe.aLaunchRequest
+  .refining(story)
+  .requestingModel("opus")
   .please();
 const slug = "prepare-the-queued-start";
+const branch = `claude/${slug}`;
 
-// The profiles origin's trunk holds for one kind of activity.
-async function profilesOf(
-  origin: StartOrigin,
-  activity: string,
-): Promise<Record<string, unknown>[]> {
-  return (await origin.takenProfiles()).filter(
-    (profile) => profile["activity"] === activity,
+let origin: StartOrigin;
+let home: string;
+let folder: LocalFolder;
+let store: StartStore;
+let progress: StartProgress;
+let attempt: Promise<Started> | undefined;
+
+beforeAll(async () => {
+  const initial = await startOrigin(repository);
+  try {
+    keepStartedOrigin("claude", repository, initial);
+  } finally {
+    initial.cleanup();
+  }
+});
+
+beforeEach(async () => {
+  attempt = undefined;
+  origin = await startOrigin(repository);
+  home = path.join(origin.machine, "home");
+  folder = localFolder("~/git/open-dough", home);
+  store = startStore("refinement", home);
+  progress = new StartProgress();
+});
+
+afterEach(async () => {
+  await Promise.allSettled([attempt]);
+  origin.cleanup();
+});
+
+function start(request: AgentLaunchRequest): Promise<Started> {
+  attempt = started(
+    source,
+    request,
+    folder,
+    progress,
+    { store: () => store, env: { ...process.env, HOME: home } },
+    "refinement-attempt",
   );
+  return attempt;
 }
 
-for (const model of ["opus", undefined] as const) {
-  test.describe(`refinement preparation start (${model ?? "Default"} model)`, () => {
-    let origin: StartOrigin;
-    let server: DashboardServer;
+for (const [model, request] of [
+  ["Opus", opusRequest],
+  ["Default", defaultRequest],
+] as const) {
+  test(`publishes Preparing and keeps the handoff (${model} model)`, async () => {
+    const result = await start(request);
+    if (
+      result.kind !== "established" ||
+      !("preparation" in result.handoff.established)
+    )
+      throw new Error(
+        `Expected an established preparation: ${JSON.stringify(result)}`,
+      );
 
-    test.beforeAll(async () => {
-      origin = await startOrigin(queuedReadyRepository().please());
-      server = await startDashboardServer({
-        mode: "boundary",
-        machine: origin.machine,
-        projectFolders: ["open-dough"],
-        launchTimeoutMs: 30_000,
-      });
+    const preparation = result.handoff.established.preparation;
+    const workspace = path.join(origin.project, ".worktrees", slug);
+    const [head, profiles, kept] = await Promise.all([
+      origin.originGit("rev-parse", "main"),
+      origin.takenProfiles(),
+      store.kept(source.id, queuedIdentity),
+    ]);
+    const publishedSha = head.trim();
+    expect(publishedSha).not.toBe(origin.revision("base"));
+    expect(profiles).toHaveLength(1);
+    const [profile] = profiles;
+    expect(profile).toMatchObject({
+      identity: queuedIdentity,
+      activity: "preparation",
+      host: "claude",
     });
-
-    test.afterAll(async () => {
-      await server.close();
-      origin.cleanup();
+    expect(profile?.["model"]).toBe(request.model);
+    const agent = profile?.["agent"];
+    expect(typeof agent).toBe("string");
+    expect(preparation).toEqual({
+      identity: queuedIdentity,
+      workspace,
+      branch,
+      remote: "origin",
+      target: "main",
+      publishedSha,
+      agent,
     });
-
-    test("publishes Preparing, opens the session in the workspace with the block, and keeps the preparation on the record", async () => {
-      server.claudeScenario("launched");
-      const response = await launch(server, { ...request, model });
-      expect(JSON.parse(response.body), response.body).toMatchObject({
-        kind: "launched",
-      });
-
-      const preparing = await profilesOf(origin, "preparation");
-      expect(preparing).toHaveLength(1);
-      expect(preparing[0]).toMatchObject({
-        identity: queuedIdentity,
-        host: "claude",
-      });
-      expect(preparing[0]?.["model"]).toBe(model);
-      expect(await profilesOf(origin, "execution")).toEqual([]);
-
-      const workspace = path.join(origin.project, ".worktrees", slug);
-      const publishedSha = (await origin.originGit("rev-parse", "main")).trim();
-      const [call] = server.claudeLaunchCalls();
-      expect(call?.cwd).toBe(realpathSync(workspace));
-      const instruction = call?.argv.at(-1) ?? "";
-      const [skill, block, reporting, developer] = instruction.split("\n\n");
-      expect(reporting).toContain("Dashboard reporting context:");
-      expect(skill).toBe(`/dough-story-refinement ${queuedIdentity}`);
-      expect(developer).toBe("Focus on the examples.");
-      const lines = (block ?? "").split("\n");
-      expect(lines.slice(0, 2)).toEqual([
-        "Established preparation:",
-        `- identity: ${queuedIdentity}`,
-      ]);
-      for (const line of [
-        `- workspace: ${workspace}`,
-        `- branch: claude/${slug}`,
-        "- remote: origin",
-        "- target: main",
-        `- publishedSha: ${publishedSha}`,
-        `- integration checkout: ${origin.project}`,
-      ]) {
-        expect(lines).toContain(line);
-      }
-
-      expect(await establishingPreparation(server)).toEqual(["open-dough"]);
-      const [record] = (await recordsOf(server, "open-dough")) as Record<
-        string,
-        unknown
-      >[];
-      expect(record?.["start"]).toBeUndefined();
-      expect(record?.["preparation"]).toEqual({
-        identity: queuedIdentity,
-        workspace,
-        branch: `claude/${slug}`,
-        remote: "origin",
-        target: "main",
-        publishedSha,
-        agent: expect.any(String),
-      });
+    expect(publicationOf(result, undefined)).toEqual({
+      kind: "published",
+      revision: publishedSha,
     });
+    expect(result.workspace.path).toBe(workspace);
+    expect(existsSync(workspace)).toBe(true);
+    const lines = result.handoff.formatted?.split("\n") ?? [];
+    expect(lines.slice(0, 2)).toEqual([
+      "Established preparation:",
+      `- identity: ${queuedIdentity}`,
+    ]);
+    for (const line of [
+      `- workspace: ${workspace}`,
+      `- branch: ${branch}`,
+      `- agent: ${String(agent)}`,
+      "- remote: origin",
+      "- target: main",
+      `- publishedSha: ${publishedSha}`,
+      `- integration checkout: ${origin.project}`,
+    ]) {
+      expect(lines).toContain(line);
+    }
+    expect(kept).toMatchObject({
+      host: "claude",
+      workspace,
+      branch,
+      preparation,
+    });
+    expect(kept?.publisherId).toBeUndefined();
+    expect(kept?.start).toBeUndefined();
+    expect(kept?.model).toBe(request.model);
   });
 }
 
-test.describe("refinement of a project whose installed skill lacks the preparation formatter", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
+test("the missing preparation formatter leaves the native launch without a start", async () => {
+  const workflow = startOf("refinement");
+  expect(await workflow?.establishes(folder, "claude")).toBe(true);
+  rmSync(
+    path.join(
+      origin.project,
+      ".claude/skills/dough-story-refinement/scripts/established-preparation.mjs",
+    ),
+  );
+  expect(await workflow?.establishes(folder, "claude")).toBe(false);
 
-  test.beforeAll(async () => {
-    origin = await startOrigin(queuedReadyRepository().please());
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-    });
-  });
+  const result = await start(defaultRequest);
 
-  test.afterAll(async () => {
-    await server.close();
-    origin.cleanup();
-  });
-
-  test("launches as before, in the execution checkout, with no workspace and no profile", async () => {
-    rmSync(
-      path.join(
-        origin.project,
-        ".claude/skills/dough-story-refinement/scripts/established-preparation.mjs",
-      ),
-    );
-    expect(await establishingPreparation(server)).toEqual([]);
-    server.claudeScenario("launched");
-    const response = await launch(server, request);
-    expect(JSON.parse(response.body), response.body).toMatchObject({
-      kind: "launched",
-    });
-
-    expect(await origin.takenProfiles()).toEqual([]);
-    expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
-    const [call] = server.claudeLaunchCalls();
-    expect(call?.cwd).toBe(realpathSync(origin.project));
-    const [skill, reporting, developer] = (call?.argv.at(-1) ?? "").split(
-      "\n\n",
-    );
-    expect(skill).toBe(`/dough-story-refinement ${queuedIdentity}`);
-    expect(reporting).toContain("Dashboard reporting context:");
-    expect(developer).toBe("Focus on the examples.");
-  });
+  expect(result).toEqual({ kind: "none" });
+  expect(progress.all()).toEqual([]);
+  const [head, kept] = await Promise.all([
+    origin.originGit("rev-parse", "main"),
+    store.kept(source.id, queuedIdentity),
+  ]);
+  expect(head.trim()).toBe(origin.revision("base"));
+  expect(kept).toBeUndefined();
+  expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
 });

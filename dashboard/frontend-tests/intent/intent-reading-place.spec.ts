@@ -2,7 +2,7 @@
 // (../../src/pageIntentReading.tsx): with a selected Taken story whose
 // changes add a long spec two folders deep, that file selected with Purpose
 // scrolled shows the same after the story's other views
-// (../../src/intentStoryTabs.tsx); with "Selected story only" on and a folder
+// (../../src/intentStoryTabs.tsx); with "Changes only" on and a folder
 // collapsed by hand as well, all of it shows the same after Development and
 // back on the same Changes view. Neither return reads the locations nor the
 // file's diff or published text again (../../src/answerMemo.ts). Another
@@ -132,13 +132,12 @@ async function openStoryChanges() {
       .please(),
   });
   await mounted.selectStory(storyA.identity, storyA.title);
-  await story.browseFiles();
   return { ...mounted, reads };
 }
 
-test("the deep spec read with Selected story only on, out collapsed and Purpose scrolled is shown the same after Development and back, without reading again", async () => {
+test("the deep spec read with Changes only on, out collapsed and Purpose scrolled is shown the same after Development and back, without reading again", async () => {
   const mounted = await openStoryChanges();
-  await story.onlyChangedFiles.click();
+  await expect.element(story.changesOnly).toBeChecked();
   await story.folderToggle("out", true).click();
   await story.file(deepSpec).click();
   await expect.poll(story.diffCode).toContain("long 120");
@@ -151,7 +150,7 @@ test("the deep spec read with Selected story only on, out collapsed and Purpose 
   await mounted.showIntent();
   await expect.element(story.pathReading).toBeVisible();
 
-  await expect.element(story.onlyChangedFiles).toBeChecked();
+  await expect.element(story.changesOnly).toBeChecked();
   await expect
     .element(story.file(deepSpec))
     .toHaveAttribute("aria-pressed", "true");
@@ -166,7 +165,7 @@ test("the deep spec read with Selected story only on, out collapsed and Purpose 
 
 test("another project shows none of the reading place, and choosing the project again starts its reading afresh", async () => {
   const mounted = await openStoryChanges();
-  await story.onlyChangedFiles.click();
+  await story.changesOnly.click();
   await story.folderToggle("out", true).click();
   await story.file(deepSpec).click();
   await expect.poll(story.diffCode).toContain("long 120");
@@ -192,7 +191,7 @@ test("another project shows none of the reading place, and choosing the project 
   await expect
     .element(intent.getByRole("region", { name: "Purpose", exact: true }))
     .not.toBeInTheDocument();
-  await expect.element(story.onlyChangedFiles).not.toBeChecked();
+  await expect.element(story.changesOnly).toBeChecked();
   await expect.element(story.folderToggle("out", true)).toBeVisible();
   await expect
     .element(story.file(deepSpec))

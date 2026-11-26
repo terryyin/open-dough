@@ -12,6 +12,8 @@ import {
   terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
+import { publishCommittedMembership } from "../../dashboard/test-support/localTakenSessions.ts";
+import { pygardonRepository } from "../../dashboard/test-support/pygardonProject.ts";
 import {
   chooseProject,
   expandStoryCardDoneHistory,
@@ -65,6 +67,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
   await expect(active).toHaveCount(1);
   await expect(sessionEntriesIn(recent)).toHaveCount(0);
   const sessionId = await sessionNamedBy(active);
+  publishCommittedMembership(page, pygardonRepository);
   await chooseProject(page, "Pygardon");
   await expectProjectChoice(page, "Pygardon");
 

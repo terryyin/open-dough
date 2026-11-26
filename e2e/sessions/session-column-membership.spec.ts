@@ -13,8 +13,7 @@ import {
   terminalPanel,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
-  publishMembership,
-  queuedStoryTaken,
+  publishTakenMembership,
   savedLocalSessionRecords as savedRecords,
 } from "../../dashboard/test-support/localTakenSessions.ts";
 import {
@@ -25,7 +24,7 @@ import {
 import {
   columnCountOf,
   expectMembership,
-  shortRevision,
+  expectPublishedRevision,
   parts,
   sessionEntriesIn,
   sessionEntryShowing,
@@ -59,6 +58,7 @@ test.use({
 test("Taken counts published stories, with their own sessions nested and unmatched launches excluded", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
   const now = Date.now();
   const id = (name: string, before: number) =>
@@ -84,10 +84,11 @@ test("Taken counts published stories, with their own sessions nested and unmatch
     local,
   ]);
   await composeSession(dashboard, "doughnut");
-  await publishMembership(page, { backlog: queuedStoryTaken });
+  const membership = await publishTakenMembership(page, afterGitHubStops);
   await page.setViewportSize({ width: 40 * rem, height: 900 });
   await page.goto("/");
   await expectMembership(page, { taken: [queuedTitle], backlog: [] });
+  await expectPublishedRevision(page, membership.firstRevision);
   await expect(columnPagingControl(page, "Taken")).toHaveText("Taken 1 entry");
   await showColumn(page, "Taken");
   const { taken, recentlyDone } = parts(page);
@@ -98,16 +99,15 @@ test("Taken counts published stories, with their own sessions nested and unmatch
   await expect(taken.locator(":scope > ol > li > article")).toHaveCount(1);
   await expect(storyCard(taken, queuedTitle)).toBeVisible();
   await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
-  await publishMembership(page, { at: "d3".repeat(20) });
+  await expect(taken).not.toContainText("No Taken entries");
+  const unplannedRevision = membership.publishUnplanned();
   await page.reload();
   await expectMembership(page, { taken: [], backlog: [] });
   await expect(sessionEntriesIn(taken)).toHaveCount(0);
   await expect(columnCountOf(taken)).toHaveText("0 entries");
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
-  await expect(parts(page).readRevision).toContainText(
-    shortRevision("d3".repeat(20)),
-  );
+  await expectPublishedRevision(page, unplannedRevision);
 });
 
 function keepLocalSession(
@@ -195,9 +195,10 @@ test("a session on a Done story retains its state if marking Done or reopening i
 test("deleting a Taken story's last session returns the keyboard to its card and keeps the story counted", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
   keepLocalSession(dashboard, "the only local session", queuedIdentity);
-  await publishMembership(page, { backlog: queuedStoryTaken });
+  await publishTakenMembership(page, afterGitHubStops);
   await page.goto("/");
   dashboard.claudeListingFails(true);
   await reloadUntilRead(page);

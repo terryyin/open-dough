@@ -3,6 +3,8 @@ import {
   fileSource,
   sourceFile,
   sourceLineText,
+  openLocationSummary,
+  testConfiguration,
 } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent lists and reads configured code test source at the observed revision
 // (../../dashboard/src/IntentPerspective.tsx): include-pattern matches, helpers/product
@@ -18,9 +20,7 @@ import {
   expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
-  intentGroupToggle,
   intentFolderName,
-  intentLocationName,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { expectKeywordAndStringColours } from "../../dashboard/test-support/pageColours.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -111,16 +111,18 @@ test("Intent lists matched code test files under include patterns, omits helpers
   ).toBeVisible();
   await expectIntentGroupsCollapsed(intent);
 
-  await test.step("Ex 1: TypeScript specs among helpers; heading names patterns; selecting shows exact text, revision, and kind styling", async () => {
-    const testsHeading = intentLocationName(intent, "dashboard/tests");
-    await expect(intentGroupToggle(intent, "dashboard/tests")).toBeVisible();
-    await expect(testsHeading).toBeVisible();
-    await expect(testsHeading).toContainText("typescript");
-    await expect(testsHeading).toContainText("**/*.spec.ts");
+  await test.step("Ex 1: TypeScript specs among helpers; Summary names patterns; selecting shows exact text, revision, and kind styling", async () => {
+    const config = testConfiguration(
+      await openLocationSummary(intent, "dashboard/tests"),
+    );
+    await expect(config).toContainText("typescript");
+    await expect(config).toContainText("**/*.spec.ts");
     await expandIntentGroup(intent, "dashboard/tests");
     await expandIntentFolders(intent, "dashboard/tests");
     for (const [group, file] of groupedSources) {
-      await expect(intentFolderName(intent, group)).toBeVisible();
+      await expect(
+        intentFolderName(intent, `dashboard/tests/${group}`),
+      ).toBeVisible();
       await expect(
         sourceFile(intent, `dashboard/tests/${group}/${file}`),
       ).toBeVisible();
@@ -170,22 +172,15 @@ test("Intent lists matched code test files under include patterns, omits helpers
 
   await test.step("A labelled backend entry keeps its canonical source path and feature folders", async () => {
     const locationPath = "dashboard/backend-tests";
-    const heading = intentLocationName(intent, locationPath);
-    await expect(heading).toContainText("Dashboard Backend Test");
-    await expect(intentGroupToggle(intent, locationPath)).toHaveAccessibleName(
-      "Expand Dashboard Backend Test",
-    );
-    await heading.click();
-    const summary = intent.getByRole("region", {
-      name: "Summary",
-      exact: true,
-    });
+    const summary = await openLocationSummary(intent, locationPath);
     await expect(summary).toContainText("Dashboard Backend Test");
     await expect(summary).toContainText(locationPath);
     await expandIntentGroup(intent, locationPath);
     await expandIntentFolders(intent, locationPath);
     for (const [group, file] of backendGroupedSources) {
-      await expect(intentFolderName(intent, group)).toBeVisible();
+      await expect(
+        intentFolderName(intent, `${locationPath}/${group}`),
+      ).toBeVisible();
       await expect(
         sourceFile(intent, `${locationPath}/${group}/${file}`),
       ).toBeVisible();
@@ -201,7 +196,9 @@ test("Intent lists matched code test files under include patterns, omits helpers
   });
 
   await test.step("Ex 4 shell: top-level *.sh listed; support scripts omitted; selecting shows kind styling", async () => {
-    const shellHeading = intentLocationName(intent, "tests");
+    const shellHeading = testConfiguration(
+      await openLocationSummary(intent, "tests"),
+    );
     await expect(shellHeading).toContainText("shell");
     await expect(shellHeading).toContainText("*.sh");
     await expandIntentGroup(intent, "tests");

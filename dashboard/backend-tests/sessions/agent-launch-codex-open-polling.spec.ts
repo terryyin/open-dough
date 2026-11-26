@@ -62,10 +62,23 @@ test("recurring observation reads open Codex conversations and resumes reading t
     );
   }
   const open = launch("open").launchedAt(new Date().toISOString()).please();
-  await replaceRecords(() => ({ [source.id]: [...retained, open] }));
+  const historicalFeedback = makeMe.aLaunchRecord
+    .adHoc({
+      title: "Saved maintenance run",
+      maintenance: { due: "2026-11-19" },
+    })
+    .markedDone()
+    .please();
+  await replaceRecords(() => ({
+    [source.id]: [...retained, open, historicalFeedback],
+  }));
   const launches = new AgentLaunches(marks);
   try {
-    const rows = await launches.machineSessions();
+    const { records: rows, completedFeedback } =
+      await launches.machineObservation();
+    expect(completedFeedback).toEqual([
+      { ...historicalFeedback, sessionState: { kind: "unknown" } },
+    ]);
     expect(batches).toEqual([["open"]]);
     expect(
       rows.map((row) => [row.session.sessionId, sessionShown(row).label]),
@@ -85,7 +98,7 @@ test("recurring observation reads open Codex conversations and resumes reading t
     expect(observed.sessionState).toEqual(working);
 
     await setRecordDoneAt(source.id, saved.session, undefined);
-    const reopenedRows = await launches.machineSessions();
+    const { records: reopenedRows } = await launches.machineObservation();
     expect(batches).toEqual([["open"], ["saved-0"], ["saved-0", "open"]]);
     expect(
       reopenedRows

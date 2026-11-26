@@ -6,7 +6,6 @@ import type { Page } from "@playwright/test";
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { completedStoryAssociationEndpoint } from "../../src/completedStoryAssociation.ts";
 import { hostStatusEndpoint } from "../../src/hostStatus.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { projectListEndpoint } from "../../src/projectConfiguration.ts";
@@ -19,7 +18,6 @@ import { storyNotesEndpoint } from "../../src/storyNote.ts";
 import { installFrontendStoryNotes } from "./frontendStoryNotes.ts";
 import { storyReviewStateEndpoint } from "../../src/storyReviewState.ts";
 import { answerAuthenticatedRead } from "./frontendAuthenticatedReadSubstitute.ts";
-import { installFrontendCompletedStoryAssociation } from "./frontendCompletedStoryAssociation.ts";
 import { installFrontendStoryReview } from "./frontendStoryReview.ts";
 import { installFrontendStoryReviewState } from "./frontendStoryReviewState.ts";
 import {
@@ -32,10 +30,6 @@ import {
 } from "./frontendSubstituteAnswers.ts";
 
 export { installAttachedTerminalSubstitute } from "./frontendTerminalSubstitute.ts";
-export {
-  installFrontendCompletedStoryAssociation,
-  type FrontendCompletedStoryAssociation,
-} from "./frontendCompletedStoryAssociation.ts";
 export {
   installFrontendStoryReview,
   type FrontendStoryReview,
@@ -85,8 +79,6 @@ export async function installFrontendServiceSubstitutes(
       await fulfillJson(route, state.machine);
     },
   );
-  // Controllable completed-story association; default settle is a miss.
-  await installFrontendCompletedStoryAssociation(page);
   // Controllable story review states; default settle is every story unreviewed.
   await installFrontendStoryReviewState(page);
   await installFrontendStoryNotes(page);
@@ -114,7 +106,6 @@ export async function installFrontendServiceSubstitutes(
     projectListEndpoint,
     authenticatedReadEndpoint,
     agentLaunchEndpoint,
-    completedStoryAssociationEndpoint,
     storyReviewStateEndpoint,
     storyNotesEndpoint,
     storyReviewEndpoint,

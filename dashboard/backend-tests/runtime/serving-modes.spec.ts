@@ -20,10 +20,12 @@ import {
   terminalUrl,
 } from "../../test-support/agentTerminalBoundary.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
+import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
+import { publishes } from "../../test-support/support/fakeGitHub.ts";
 import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
+  expectServedHomesReach,
+  routeServedHomesToPublication,
+} from "../../test-support/support/fixtureOriginRoute.ts";
 import {
   otherProjectEnvironment,
   projectConfigurationFile,
@@ -71,7 +73,8 @@ test.describe("serving modes mount the same boundaries", () => {
           projectFolders: ["open-dough"],
           prebuilt: sharedDashboardBuild,
         });
-        server.github.serve(everyRepository, published);
+        server.github.serve(defaultRepository, published);
+        routeServedHomesToPublication(server.github, defaultRepository);
         return [mode, server] as const;
       }),
     );
@@ -139,12 +142,13 @@ test.describe("serving modes mount the same boundaries", () => {
   });
 
   test("the authenticated read boundary answers the same published read and the same refusal in both", async () => {
-    const read = await asked((server) =>
-      rawRequest({
+    const read = await asked((server) => {
+      expectServedHomesReach(server.github, defaultRepository, revision);
+      return rawRequest({
         url: `${server.baseURL}/__authenticated-read?source=open-dough`,
         headers: { Origin: server.origin },
-      }),
-    );
+      });
+    });
     expect(read.dev.status).toBe(200);
     expect(read.dev.body).toMatchObject({ revision });
     expect(timeless(read.preview)).toEqual(timeless(read.dev));

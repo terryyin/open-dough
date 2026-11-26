@@ -3,7 +3,7 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { emulateMedia } from "../review/browser-session.ts";
 import { scopeName, scopeToggle } from "./intent-browser-page.ts";
-import { intentPage } from "./intent-file-layout-page.ts";
+import { fileLayout, intentPage } from "./intent-file-layout-page.ts";
 import {
   locationHeader,
   locationHeaderLook,
@@ -38,7 +38,7 @@ function selectionLook(element: Element) {
   return { background: style.backgroundColor, border: style.borderColor };
 }
 
-test("tree file rows and location headers show shared CI cues with distinct selection and focus", async () => {
+test("tree files and Intent root rows show shared CI cues with distinct selection and focus", async () => {
   const comparison = makeMe.aStoryReview
     .published(doneCompletion)
     .modifying(filePath)
@@ -68,7 +68,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
   await expect
     .element(name)
     .toHaveAccessibleName(
-      "dashboard/tests, typescript, **/*.spec.ts, 4 → 6 test cases (+2) → 5 test cases (+1), +6.5 s",
+      "dashboard/tests, 4 → 6 test cases (+2) → 5 test cases (+1), +6.5 s",
     );
   await expect
     .poll(() => cueState(file.query()))
@@ -112,7 +112,9 @@ test("tree file rows and location headers show shared CI cues with distinct sele
 
   const header = locationHeader(location);
   expect(
-    header.closest(".intent-location")?.getAttribute("data-contains-changes"),
+    header
+      .closest("li[data-folder-path]")
+      ?.getAttribute("data-contains-changes"),
   ).toBe("true");
   const mark = locationHeaderLook(location);
   expect(mark.mark).toMatch(/rgb/);
@@ -149,6 +151,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
       .toBe(true);
     for (const width of [1280, 390]) {
       await page.viewport(width, 844);
+      await fileLayout().showFiles();
       await expect.element(name).toBeVisible();
       await expect.element(file).toBeVisible();
       expect(locationHeaderLook(location).fullWidth).toBe(true);
@@ -168,6 +171,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
       }),
     )
     .toBeVisible();
+  await scopeToggle("dashboard").click();
   await expect.element(scopeName(location)).toBeVisible();
   expect(
     intentPage

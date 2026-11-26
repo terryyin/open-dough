@@ -19,6 +19,7 @@ import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   chooseCiStatus,
+  ciPanel,
   judged,
   publishProject,
   runUrl,
@@ -133,7 +134,10 @@ export async function openJudgedCiStatus(page: Page) {
         .please(),
     ]),
   );
-  return openProjectCiStatus(page);
+  await page.goto("/?project=open-dough&perspective=intent");
+  const panel = ciPanel(parts(page).intent);
+  await expect(panel).toBeVisible();
+  return panel;
 }
 
 // The day `at` falls on, on the reader's clock, as the history says a build's

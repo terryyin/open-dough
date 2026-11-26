@@ -1,8 +1,13 @@
 // A real completed Story Branch comparison keeps a rename's original diff
 // and outside-location route to Review changes after trunk renames it again.
 
+import { fileComparisonCell } from "../../dashboard/test-support/intentFileProofPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import {
+  expandIntentGroup,
+  fileReadingTab,
+  proofRegion,
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   expect,
   test,
@@ -15,7 +20,7 @@ import { selectDoneStoryForSummaryComparison } from "../../dashboard/test-suppor
 import {
   intentDiff,
   intentFile,
-  storyOnly,
+  changesOnly,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { lines } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
@@ -42,10 +47,18 @@ test("a Done Story Branch rename keeps its original diff and Review changes afte
   const original = await intentDiff(intent, name);
   expect(original).toContain("renamed");
   expect(original).not.toContain("later trunk rewrite");
-  await storyOnly(intent).check();
+  await changesOnly(intent).check();
   expect(await intentDiff(intent, name)).toBe(original);
   await expect(intentFile(intent, name)).toHaveAttribute(
     "aria-pressed",
     "true",
   );
+  await fileReadingTab(intent, "Proof").click();
+  await expect(
+    fileComparisonCell(
+      proofRegion(intent),
+      "dashboard/tests/renamed.spec.ts",
+      "Baseline",
+    ),
+  ).toHaveText("2.0 s (was tests/old.sh)");
 });

@@ -1,4 +1,9 @@
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../Distribution/tests/support/queued-repository.mjs";
+import type { Page } from "@playwright/test";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
@@ -6,6 +11,7 @@ import {
   chooseStoryTab,
   expectStoryTab,
 } from "../../dashboard/test-support/intentModePage.ts";
+import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   emptyArea,
@@ -15,9 +21,11 @@ import { keepLaunchRecords } from "../../dashboard/test-support/support/launchSt
 import {
   expectIntentReviewFocused,
   expectIntentReviewOpened,
-  openIntentReviewChanges,
 } from "../../dashboard/test-support/reviewChangesPage.ts";
-import { intentDiffReading } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import {
+  intentDiffReading,
+  intentStory,
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
 import { intentReviewFiles } from "../../dashboard/test-support/intentReviewFiles.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
@@ -26,7 +34,11 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import {
+  queuedIdentity,
+  type StartOrigin,
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   commitAll,
   writeAt,
@@ -37,13 +49,19 @@ import {
   terminalPanel,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 
-const firstFile = "Added z-tests/nested/first.spec.ts";
+const firstFile = "Added a-tests/second-folder/second.spec.ts";
+const storyFile = "Added story.txt";
+const changedFiles = [
+  firstFile,
+  "Added z-tests/nested/first.spec.ts",
+  storyFile,
+];
 
-test("the Taken Story card opens the first changed file beside its terminal and Back returns to that card", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
+async function openTakenStory(
+  page: Page,
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+) {
   await origin.publishRevision({
     files: {
       ".planning/open-dough.json": intentSettingsText(
@@ -64,7 +82,13 @@ test("the Taken Story card opens the first changed file beside its terminal and 
       "a-tests/kept.spec.ts": "kept second location\n",
     },
   });
-  const { workspace, branch } = await origin.takenInTrunkMode("trunk-review");
+  const { workspace, branch } = await origin.publishTake({
+    agent: "Eimi",
+    story: storyA,
+    queued: [storyB],
+    mode: "trunk",
+    slug: "trunk-review",
+  });
   const session = dashboard.claudeListsSession({
     name: "Story A",
     cwd: workspace,
@@ -81,12 +105,12 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   writeAt(
     workspace,
     "z-tests/nested/first.spec.ts",
-    "first in the displayed tree\n",
+    "first configured location\n",
   );
   writeAt(
     workspace,
-    "a-tests/second.spec.ts",
-    "second in the displayed tree\n",
+    "a-tests/second-folder/second.spec.ts",
+    "first by repository order\n",
   );
   commitAll(workspace, "Publish the story files");
   push(workspace);
@@ -95,14 +119,27 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await showColumn(page, "Taken");
   const { intent, board, taken, development, intentChoice } = parts(page);
   const card = taken.getByRole("article", { name: "Story A", exact: true });
+  return { card, intent, board, development, intentChoice, session };
+}
+
+test("the Taken Story card opens the first changed file beside its terminal and Back returns to that card", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const { card, intent, board, development, intentChoice, session } =
+    await openTakenStory(page, dashboard, origin);
   const files = intentReviewFiles(intent);
   await emptyArea(card).click();
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
   await browseStoryFiles(intent);
   await files.expectNoSelection();
-  await files.collapseFolder("nested");
-  await files.collapseLocation("z-tests");
+  await files.expectChangedFiles(changedFiles);
+  await expandIntentGroup(intent, "a-tests");
+  await intentStory(intent).expandFolderPath("a-tests/second-folder");
+  await files.collapseFolder("second-folder");
+  await files.collapseLocation("a-tests");
   await development.click();
 
   await openTerminalControl(card).click();
@@ -117,7 +154,7 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await files.expectSelected(firstFile);
   const reading = intentDiffReading(intent);
   await expect(reading.name).toHaveText(firstFile);
-  await expect(reading.container).toContainText("first in the displayed tree");
+  await expect(reading.container).toContainText("first by repository order");
   await expectIntentReviewFocused(intent);
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
   await page.goBack();
@@ -125,26 +162,41 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await expectSelected(card, true);
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
   expect(dashboard.claudeAttaches()).toEqual(attached);
+});
 
-  const review = await openIntentReviewChanges(page, card);
-  await review.expectText("Published trunk");
-  await review.files.expectOutsideFiles(1, ["Added story.txt"]);
-  await review.files.choose("Added story.txt");
-  await expect(reading.name).toHaveText("Added story.txt");
+test("Review changes remembers the chosen file across views and deselection restores the story inventory", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const { card, intent, development, intentChoice, session } =
+    await openTakenStory(page, dashboard, origin);
+  const files = intentReviewFiles(intent);
+  const reading = intentDiffReading(intent);
+  await openTerminalControl(card).click();
+  const terminal = terminalPanel(page);
+  await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
+
+  await reviewChanges(card).press("Enter");
+  await expect(intentStory(intent).summary).toContainText("Published trunk");
+  await files.expectChangedFiles(changedFiles);
+  await expect(files.row(storyFile)).toBeVisible();
+  await files.row(storyFile).click();
+  await expect(reading.name).toHaveText(storyFile);
 
   await development.click();
   await expectSelected(card, true);
-  await openIntentReviewChanges(page, card);
+  await reviewChanges(card).press("Enter");
   await expectIntentReviewOpened(intent);
-  await review.files.expectSelected("Added story.txt");
-  await expect(reading.name).toHaveText("Added story.txt");
+  await files.expectSelected(storyFile);
+  await expect(reading.name).toHaveText(storyFile);
 
   await chooseStoryTab(intent, "Intent coverage");
   await development.click();
-  await openIntentReviewChanges(page, card);
+  await reviewChanges(card).press("Enter");
   await expectIntentReviewOpened(intent);
-  await review.files.expectSelected("Added story.txt");
-  await expect(reading.name).toHaveText("Added story.txt");
+  await files.expectSelected(storyFile);
+  await expect(reading.name).toHaveText(storyFile);
 
   await development.click();
   await emptyArea(card).click();
@@ -154,6 +206,7 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
   await browseStoryFiles(intent);
-  await review.files.expectOutsideFiles(1, ["Added story.txt"]);
+  await files.expectChangedFiles(changedFiles);
+  await expect(files.row(storyFile)).toBeVisible();
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
 });

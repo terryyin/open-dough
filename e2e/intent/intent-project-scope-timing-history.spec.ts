@@ -24,7 +24,10 @@ import {
   scopeTable,
 } from "../../dashboard/test-support/intentScopeProofPage.ts";
 import { openSummary } from "../../dashboard/test-support/intentSummaryCiProofFixtures.ts";
-import { intentFile } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import {
+  chooseIntentFile,
+  expectNoIntentFile,
+} from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishSummaryComparisonStory } from "../../dashboard/test-support/support/intentSummaryStoryComparisonFixture.ts";
 import {
   recheckingLandedCi,
@@ -187,9 +190,7 @@ test("Project Intent reads dated entry, nested folder and file history through i
     await expectAboveTable("dashboard/tests/folder");
     await childName(summary, "nested/").first().click();
     await expectBuilds("test cases", ["8.0 s", "11.0 s", "9.0 s"]);
-    await expect(
-      intentFile(intent, "dashboard/tests/folder/ghost.spec.ts"),
-    ).toHaveCount(0);
+    await expectNoIntentFile(intent, "dashboard/tests/folder/ghost.spec.ts");
     await childName(summary, "c.spec.ts").first().click();
     await expect(purposeRegion(intent)).toBeVisible();
     await fileReadingTab(intent, "Proof").click();
@@ -211,7 +212,7 @@ test("Project Intent reads dated entry, nested folder and file history through i
         new Date().toISOString(),
       );
       expectUnreadableHistoryAnswer(failed);
-      await intentFile(intent, "dashboard/tests/root.spec.ts").click();
+      await chooseIntentFile(intent, "dashboard/tests/root.spec.ts");
       await expect(shown.failure).toContainText(
         "The collected CI history could not be read.",
       );

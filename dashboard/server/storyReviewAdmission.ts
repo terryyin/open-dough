@@ -10,7 +10,7 @@ import type { ReviewedFileInput } from "./storyReviewInput.ts";
 import { admitPublishedSessionFile } from "./publishedSessionReview.ts";
 import { reviewRepositoryPath } from "./reviewRepository.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { publishedTakenReview } from "./storyReviewPublishedTaken.ts";
+import { requirePublishedHead } from "./storyReviewPublishedAdmission.ts";
 
 // Admit the read file against its subject's comparison: a story's
 // published completion, landed run, or published session.
@@ -38,18 +38,16 @@ export async function admitReviewedFile(
         400,
         "The file names multiple review comparisons.",
       );
-    const review = await publishedTakenReview(source, identity, signal, {
-      head: publishedHead,
-    });
-    if (
-      review.kind !== "published-taken" ||
-      !belongsOnPublishedStory(review, file)
-    )
+    const review = await requirePublishedHead(
+      source,
+      identity,
+      publishedHead,
+      signal,
+    );
+    if (!belongsOnPublishedStory(review, file))
       throw new RefusedRequest(
         409,
-        review.kind === "unavailable"
-          ? review.explanation
-          : "The file or comparison does not belong to this published head.",
+        "The file or comparison does not belong to this published head.",
       );
     return { repository: reviewRepositoryPath(source), ...file };
   }

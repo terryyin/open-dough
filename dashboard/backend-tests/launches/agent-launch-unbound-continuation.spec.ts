@@ -1,3 +1,4 @@
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
 import {
   attemptsAttending,
@@ -11,13 +12,20 @@ import { originMain } from "../../test-support/support/sessionDialog.ts";
 
 test.use({ serverMode: "boundary" });
 
-test("Continue verifies a historical Claude session in its original checkout without publishing or starting another", async ({
+test("Continue verifies a settled historical Claude follow-up in its original checkout without publishing or starting another", async ({
   dashboard,
   origin,
 }) => {
+  const followUp = makeMe.aFollowUp
+    .ofSession({
+      host: "claude",
+      sessionId: "earlier-saved-session",
+    })
+    .please();
   const { attempt, launch, sessionId } = await keepHistoricalClaudeStart(
     dashboard,
     origin.project,
+    followUp,
   );
   const trunk = await originMain(origin);
   const originalListing = dashboard.claudeListing();

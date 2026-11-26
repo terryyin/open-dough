@@ -5,9 +5,9 @@
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   fileReadingTab,
-  intentLocationName,
   proofRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { openSummary } from "../../dashboard/test-support/intentSummaryCiProofFixtures.ts";
 import {
   chooseTimingUnit,
   expectScopeReadout,
@@ -20,7 +20,7 @@ import { summaryComparisonChanges } from "../../dashboard/test-support/support/i
 import { declaredSummaryComparisonEndpointsIn } from "../../dashboard/test-support/support/intentSummaryStoryComparisonRepository.ts";
 import { serveSummaryComparisonStory } from "../../dashboard/test-support/support/intentSummaryStoryComparisonServing.ts";
 import {
-  intentFile,
+  chooseIntentFile,
   storyTitle,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { keepLandedCiHistory } from "../../dashboard/test-support/support/landedCiHistory.ts";
@@ -91,8 +91,8 @@ test("partial selected timing beside a zero prior average and missing terminal i
       },
     }),
   );
-  await intentFile(intent, summaryComparisonChanges.modified).click();
-  await intentLocationName(intent, "dashboard/tests").click();
+  await chooseIntentFile(intent, summaryComparisonChanges.modified);
+  await openSummary(intent, "dashboard/tests");
   await childName(summary, "folder/").first().click();
   const unidentified =
     "Prior-build average · Scope identity unavailable · 0 prior builds used";
@@ -108,7 +108,7 @@ test("partial selected timing beside a zero prior average and missing terminal i
     6,
   );
   await expect(history).toContainText(unidentified);
-  await intentFile(intent, summaryComparisonChanges.modified).click();
+  await chooseIntentFile(intent, summaryComparisonChanges.modified);
   await fileReadingTab(intent, "Proof").click();
   await expect(proofRegion(intent)).toContainText(unidentified);
   await expect(storyTitle(intent)).toHaveText("Story A");

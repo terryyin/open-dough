@@ -36,7 +36,7 @@ import {
   type ProjectStarts,
 } from "./keptStarts.ts";
 import { readMachineJson, type MachineJsonStore } from "./machineJsonStore.ts";
-import { machineDashboardPath } from "./machineHome.ts";
+import { machineDocumentAt } from "./machineHome.ts";
 
 export const startRecordSchema = z.object({
   identity: z.string().min(1),
@@ -75,13 +75,51 @@ export type StartsWorkflow = Extract<
   "execution" | "refinement"
 >;
 
-function startStore(
+function startDocument(
   workflow: StartsWorkflow,
+  home?: string,
 ): MachineJsonStore<ProjectStarts<StartRecord>> {
   return {
-    file: machineDashboardPath(`${workflow}-starts.json`),
+    file: machineDocumentAt(`${workflow}-starts.json`, home),
     schema: storeSchema,
     empty: {},
+  };
+}
+
+type NewStartRecord = Omit<StartRecord, "host"> & {
+  readonly host?: StartRecord["host"];
+};
+
+export type StartStore = {
+  kept(sourceId: string, identity: string): Promise<StartRecord | undefined>;
+  keep(sourceId: string, start: NewStartRecord): Promise<void>;
+  update(
+    sourceId: string,
+    identity: string,
+    change: Partial<StartRecord>,
+  ): Promise<void>;
+  remove(sourceId: string, identity: string): Promise<void>;
+};
+
+// The machine's kept starts for one workflow, bound to its document.
+export function startStore(
+  workflow: StartsWorkflow,
+  home?: string,
+): StartStore {
+  const document = startDocument(workflow, home);
+  return {
+    kept: (sourceId, identity) => keptIn(document, sourceId, identity),
+    keep: (sourceId, start) =>
+      keepIn(document, sourceId, start.identity, {
+        ...start,
+        host: start.host ?? "claude",
+      }),
+    update: (sourceId, identity, change) =>
+      changeKept(document, sourceId, identity, (kept) => ({
+        ...kept,
+        ...change,
+      })),
+    remove: (sourceId, identity) => removeKept(document, sourceId, identity),
   };
 }
 
@@ -92,13 +130,13 @@ export const keptStart = (
   identity: string,
   workflow: StartsWorkflow = "execution",
 ): Promise<StartRecord | undefined> =>
-  keptIn(startStore(workflow), sourceId, identity);
+  startStore(workflow).kept(sourceId, identity);
 
 // Every project's kept starts, by project id.
 export async function keptStartsByProject(
   workflow: StartsWorkflow = "execution",
 ): Promise<ReadonlyMap<string, readonly StartRecord[]>> {
-  const read = await readMachineJson(startStore(workflow));
+  const read = await readMachineJson(startDocument(workflow));
   return new Map(
     read.kind === "document"
       ? Object.entries(read.document).map(([id, starts]) => [
@@ -109,37 +147,6 @@ export async function keptStartsByProject(
   );
 }
 
-// Writes a start ahead of its script, replacing any kept start of the story.
-export const keepStart = (
-  sourceId: string,
-  record: Omit<StartRecord, "host"> & { readonly host?: StartRecord["host"] },
-  workflow: StartsWorkflow = "execution",
-): Promise<void> =>
-  keepIn(startStore(workflow), sourceId, record.identity, {
-    ...record,
-    host: record.host ?? "claude",
-  });
-
-// Merges what the script reported into the story's kept start; nothing when
-// none is kept any more.
-export const updateStart = (
-  sourceId: string,
-  identity: string,
-  change: Partial<StartRecord>,
-  workflow: StartsWorkflow = "execution",
-): Promise<void> =>
-  changeKept(startStore(workflow), sourceId, identity, (kept) => ({
-    ...kept,
-    ...change,
-  }));
-
-// Removes the story's kept start, leaving the project's others.
-export const removeStart = (
-  sourceId: string,
-  identity: string,
-  workflow: StartsWorkflow = "execution",
-): Promise<void> => removeKept(startStore(workflow), sourceId, identity);
-
 // Removes the story's kept start whose established facts the launched
 // session's record holds: once its session is recorded, the start is spent.
 export async function removeLaunchedStart(
@@ -148,7 +155,7 @@ export async function removeLaunchedStart(
 ): Promise<void> {
   const facts = record.start ?? record.preparation;
   if (facts !== undefined && record.request.workflow !== "ad-hoc")
-    await removeStart(sourceId, facts.identity, record.request.workflow);
+    await startStore(record.request.workflow).remove(sourceId, facts.identity);
 }
 
 // The script arguments that resume a kept start's retained claim commit, when

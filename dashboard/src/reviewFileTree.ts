@@ -61,22 +61,29 @@ const byName = (a: { name: string }, b: { name: string }) =>
 function arranged<T extends PathBearing>(
   folder: Building<T>,
   at: string,
+  compact: boolean,
 ): PathTreeNode<T>[] {
   const folders = [...folder.folders].map(([name, inner]) =>
-    compacted(name, inner, at === "" ? name : `${at}/${name}`),
+    folderNode(name, inner, at === "" ? name : `${at}/${name}`, compact),
   );
   return [...folders.sort(byName), ...[...folder.files].sort(byName)];
 }
 
-function compacted<T extends PathBearing>(
+function folderNode<T extends PathBearing>(
   name: string,
   folder: Building<T>,
   path: string,
+  compact: boolean,
 ): PathFolderNode<T> {
   const [only] = folder.folders;
-  if (folder.files.length === 0 && folder.folders.size === 1 && only)
-    return compacted(`${name}/${only[0]}`, only[1], `${path}/${only[0]}`);
-  const children = arranged(folder, path);
+  if (compact && folder.files.length === 0 && folder.folders.size === 1 && only)
+    return folderNode(
+      `${name}/${only[0]}`,
+      only[1],
+      `${path}/${only[0]}`,
+      compact,
+    );
+  const children = arranged(folder, path, compact);
   const fileCount = children.reduce(
     (sum, child) => sum + (child.kind === "folder" ? child.fileCount : 1),
     0,
@@ -93,20 +100,31 @@ function compacted<T extends PathBearing>(
 
 export function reviewFileTree<T extends PathBearing>(
   files: readonly T[],
+  {
+    compact = true,
+    folders = [],
+  }: {
+    readonly compact?: boolean;
+    readonly folders?: readonly string[];
+  } = {},
 ): readonly PathTreeNode<T>[] {
   const root = building<T>();
-  for (const file of files) {
-    const segments = file.path.split("/");
-    const name = segments.pop() ?? file.path;
+  function ensureFolder(segments: readonly string[]) {
     let folder = root;
     for (const segment of segments) {
       const inner = folder.folders.get(segment) ?? building<T>();
       folder.folders.set(segment, inner);
       folder = inner;
     }
-    folder.files.push({ kind: "file", name, file });
+    return folder;
   }
-  return arranged(root, "");
+  for (const path of folders) ensureFolder(path.split("/"));
+  for (const file of files) {
+    const segments = file.path.split("/");
+    const name = segments.pop() ?? file.path;
+    ensureFolder(segments).files.push({ kind: "file", name, file });
+  }
+  return arranged(root, "", compact);
 }
 
 // Whether any of the nodes is, or holds, a changed item.
@@ -153,16 +171,4 @@ export function reviewFoldersHolding<T extends PathBearing>(
     }
   }
   return [];
-}
-
-// Every folder that contains a changed item, outer folders before the
-// folders they hold.
-export function reviewFoldersContainingChanges<T extends PathBearing>(
-  nodes: readonly PathTreeNode<T>[],
-): readonly string[] {
-  return nodes.flatMap((node) =>
-    node.kind === "folder" && node.containsChanges
-      ? [node.path, ...reviewFoldersContainingChanges(node.children)]
-      : [],
-  );
 }

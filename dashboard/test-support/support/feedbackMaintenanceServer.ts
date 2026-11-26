@@ -5,8 +5,9 @@
 import path from "node:path";
 import { expect } from "@playwright/test";
 import { recordsOf } from "../agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { describedBacklog } from "../describedRevisions.ts";
-import type { MovingOrigin } from "../publishedOrigin.ts";
+import { defaultRepository, type MovingOrigin } from "../publishedOrigin.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { feedbackWatchListPath as watchList } from "../../src/feedbackReview.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -24,12 +25,15 @@ import {
   withdrawFeedbackMaintenance,
 } from "./feedbackMaintenanceDue.ts";
 import type { StartOrigin } from "./startOrigin.ts";
+import { git } from "./startOriginObservation.ts";
 
 export const invocation = "/maintain-feedback-cycle";
 
 // The watch list reviewed a week ago with its next review due `reviewAfter`.
 export const watchListDue = (reviewAfter: string) =>
   dueWatchList(reviewAfter, dayFromToday(-7));
+
+type FeedbackMaintenanceReads = Pick<MovingOrigin, "requests">;
 
 let revisions = 0;
 // Pushes Open Dough's main with this watch list, or none.
@@ -46,6 +50,38 @@ export function pushWatchList(
     text === undefined ? {} : { [watchList]: text },
   );
   return revision;
+}
+
+// Git and REST follow the same origin, including story admissions that occur
+// between the cycle's watch-list publications.
+export async function serveWatchListHistory(
+  origin: StartOrigin,
+  github: FakeGitHub,
+) {
+  const trunk = async () =>
+    (await origin.originGit("rev-parse", "main")).trim();
+  const published = await publishCommittedOrigin(github, {
+    repoDir: origin.origin,
+    repository: defaultRepository,
+    revision: await trunk(),
+    follows: true,
+  });
+  return {
+    requests: published.requests,
+    async descendantOf(revision: string): Promise<string> {
+      const tip = await trunk();
+      await origin.originGit("merge-base", "--is-ancestor", revision, tip);
+      return tip;
+    },
+    async publish(text: string): Promise<string> {
+      await git(origin.project, "fetch", "--quiet", "origin", "main");
+      await git(origin.project, "merge", "--ff-only", "FETCH_HEAD");
+      return origin.publishRevision({
+        message: "Publish the feedback maintenance watch list",
+        files: { [watchList]: text },
+      });
+    },
+  };
 }
 
 const machineHome = (origin: StartOrigin) => path.join(origin.machine, "home");
@@ -83,17 +119,19 @@ export function serverOn(
 }
 
 // How often the server has resolved Open Dough's main.
-export const refReads = (moving: MovingOrigin) =>
+export const refReads = (moving: FeedbackMaintenanceReads) =>
   moving.requests.filter(({ request }) => request.kind === "ref").length;
 
 // Waits until the server has checked GitHub twice more.
-export async function afterFurtherChecks(moving: MovingOrigin): Promise<void> {
+export async function afterFurtherChecks(
+  moving: FeedbackMaintenanceReads,
+): Promise<void> {
   const before = refReads(moving);
   await expect.poll(() => refReads(moving)).toBeGreaterThanOrEqual(before + 2);
 }
 
 // The watch list reads the server asked for, by revision.
-export const watchListReads = (moving: MovingOrigin) =>
+export const watchListReads = (moving: FeedbackMaintenanceReads) =>
   moving.requests.flatMap(({ request }) =>
     request.kind === "content" && request.path === watchList
       ? [request.revision]
