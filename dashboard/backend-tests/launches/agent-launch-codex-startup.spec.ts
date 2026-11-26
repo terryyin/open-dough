@@ -16,10 +16,8 @@ import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { keptRecords } from "../../server/launchRecordStore.ts";
 import { machineFolder } from "../../server/localFolder.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
-import { admittedAttach } from "../../server/terminalAdmission.ts";
+import { attachableSession } from "../../server/terminalAdmission.ts";
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
-import { IncomingMessage } from "node:http";
-import { Socket } from "node:net";
 import {
   codexEndpoint,
   fakeCodexHost,
@@ -124,18 +122,13 @@ test("saved Codex conversation reconnects after daemon loss at startup", async (
   passive(native.calls);
   expect(await keptRecords(source)).toEqual([saved]);
 
-  const origin = "http://127.0.0.1:4173";
-  const socket = new Socket();
-  Object.defineProperty(socket, "remoteAddress", { value: "127.0.0.1" });
-  const request = new IncomingMessage(socket);
-  request.headers = { origin, host: new URL(origin).host };
-  const terminalUrl = new URL(agentTerminalEndpoint, origin);
+  const terminalUrl = new URL(agentTerminalEndpoint, "http://127.0.0.1:4173");
   terminalUrl.search = new URLSearchParams({
     source,
     host: "codex",
     session: sessionId,
   }).toString();
-  const admitted = await admittedAttach(request, terminalUrl, launches);
+  const admitted = await attachableSession(terminalUrl, launches);
   const terminal = codexHost.attach?.(admitted.session, admitted.folder, {
     cols: 80,
     rows: 24,

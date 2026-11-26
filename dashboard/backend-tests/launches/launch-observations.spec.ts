@@ -1,16 +1,15 @@
 // The shared observation seam receives saved targets and isolates native errors.
 // Browser/HTTP journeys in the session, alert and terminal specs prove meanings.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, expect, test, vi } from "vitest";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { claudeHost } from "../../server/claudeHost.ts";
 import { codexHost } from "../../server/codexHost.ts";
 import { withStates } from "../../server/launchStates.ts";
-import { launchRequest } from "../../test-support/agentLaunchBoundary.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const folder = { path: "/unused", shown: "unused" };
 // Two kept launches whose sessions share one native ID on different hosts.
-const story = { identity: launchRequest.identity, title: launchRequest.title };
+const story = { identity: "SEED-001#first", title: "First story" };
 const targets: readonly LaunchRecord[] = [
   makeMe.aLaunchRecord
     .executing(story)
@@ -28,89 +27,73 @@ const targets: readonly LaunchRecord[] = [
     .please(),
 ];
 
-// Only this test process's host objects are substituted; no native runtime or
-// server process is reached, and both boundaries are restored in finally.
-test.describe("record-targeted host observations", () => {
-  test.describe.configure({ mode: "serial" });
+// Only this process's host reads are substituted; no native runtime is reached.
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
-  test("passes saved records to each host and preserves healthy observations when another host throws", async () => {
-    const claude = claudeHost.sessions;
-    const codex = codexHost.sessions;
-    try {
-      claudeHost.sessions = (records, observedFolder, signal) => {
-        expect(records).toEqual([targets[0]]);
-        expect(observedFolder).toEqual(folder);
-        expect(signal.aborted).toBe(false);
-        return Promise.reject(new Error("native read failed"));
-      };
-      codexHost.sessions = (records) => {
-        expect(records).toEqual([targets[1]]);
-        return Promise.resolve(
-          records.map(({ session }) => ({
-            session,
-            sessionState: makeMe.aSessionState.retained("review").please(),
-          })),
-        );
-      };
-      const answer = await withStates(folder, targets);
-      expect(answer.map(({ session }) => session)).toEqual(
-        targets.map(({ session }) => session),
-      );
-      expect(answer.map(({ sessionState }) => sessionState)).toEqual([
-        { kind: "unknown" },
-        { kind: "available", availability: "retained", activity: "review" },
-      ]);
-    } finally {
-      if (claude === undefined) delete claudeHost.sessions;
-      else claudeHost.sessions = claude;
-      if (codex === undefined) delete codexHost.sessions;
-      else codexHost.sessions = codex;
-    }
-  });
+test("passes saved records to each host and preserves healthy observations when another host throws", async () => {
+  const claude = vi
+    .spyOn(claudeHost, "sessions")
+    .mockRejectedValue(new Error("native read failed"));
+  const codex = vi.spyOn(codexHost, "sessions").mockImplementation((records) =>
+    Promise.resolve(
+      records.map(({ session }) => ({
+        session,
+        sessionState: makeMe.aSessionState.retained("review").please(),
+      })),
+    ),
+  );
 
-  test("bounds an unsettled host read and treats omitted targets as unknown rather than confirmed absence", async () => {
-    const claude = claudeHost.sessions;
-    const codex = codexHost.sessions;
-    let observedSignal: AbortSignal | undefined;
-    const timeout = Object.getOwnPropertyDescriptor(AbortSignal, "timeout");
-    if (timeout === undefined) throw new Error("Missing abort deadline.");
-    const deadline = new AbortController();
-    const waits: number[] = [];
-    // Control only the external deadline, retaining the real observation race.
-    AbortSignal.timeout = (ms) => {
-      waits.push(ms);
-      return deadline.signal;
-    };
-    try {
-      claudeHost.sessions = (records, observedFolder, signal) => {
-        expect(records).toEqual([targets[0]]);
-        expect(observedFolder).toEqual(folder);
-        observedSignal = signal;
-        return new Promise(() => {});
-      };
-      codexHost.sessions = () => Promise.resolve([]);
-      let settled = false;
-      const reading = withStates(folder, targets).then((states) => {
-        settled = true;
-        return states;
-      });
-      await new Promise<void>((resolve) => setImmediate(resolve));
-      expect(waits).toEqual([10_000, 10_000]);
-      expect(observedSignal).toBe(deadline.signal);
-      expect(observedSignal?.aborted).toBe(false);
-      expect(settled).toBe(false);
-      deadline.abort();
-      expect((await reading).map(({ sessionState }) => sessionState)).toEqual([
-        { kind: "unknown" },
-        { kind: "unknown" },
-      ]);
-      expect(observedSignal?.aborted).toBe(true);
-    } finally {
-      Object.defineProperty(AbortSignal, "timeout", timeout);
-      if (claude === undefined) delete claudeHost.sessions;
-      else claudeHost.sessions = claude;
-      if (codex === undefined) delete codexHost.sessions;
-      else codexHost.sessions = codex;
-    }
+  const answer = await withStates(folder, targets);
+
+  expect(claude).toHaveBeenCalledExactlyOnceWith(
+    [targets[0]],
+    folder,
+    expect.objectContaining({ aborted: false }),
+  );
+  expect(codex).toHaveBeenCalledExactlyOnceWith(
+    [targets[1]],
+    folder,
+    expect.anything(),
+  );
+  expect(answer.map(({ session }) => session)).toEqual(
+    targets.map(({ session }) => session),
+  );
+  expect(answer.map(({ sessionState }) => sessionState)).toEqual([
+    { kind: "unknown" },
+    { kind: "available", availability: "retained", activity: "review" },
+  ]);
+});
+
+test("bounds an unsettled host read and treats omitted targets as unknown rather than confirmed absence", async () => {
+  // Control only the external deadline, retaining the real observation race.
+  const deadline = new AbortController();
+  const timeout = vi
+    .spyOn(AbortSignal, "timeout")
+    .mockReturnValue(deadline.signal);
+  const claude = vi
+    .spyOn(claudeHost, "sessions")
+    .mockReturnValue(new Promise(() => {}));
+  vi.spyOn(codexHost, "sessions").mockResolvedValue([]);
+  let settled = false;
+  const reading = withStates(folder, targets).then((states) => {
+    settled = true;
+    return states;
   });
+  await new Promise<void>((resolve) => setImmediate(resolve));
+
+  expect(timeout.mock.calls).toEqual([[10_000], [10_000]]);
+  expect(claude).toHaveBeenCalledExactlyOnceWith(
+    [targets[0]],
+    folder,
+    deadline.signal,
+  );
+  expect(deadline.signal.aborted).toBe(false);
+  expect(settled).toBe(false);
+  deadline.abort();
+  expect((await reading).map(({ sessionState }) => sessionState)).toEqual([
+    { kind: "unknown" },
+    { kind: "unknown" },
+  ]);
 });

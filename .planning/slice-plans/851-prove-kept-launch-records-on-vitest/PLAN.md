@@ -154,7 +154,7 @@ now check with `node:assert`, so both runners share them.
 ### 4. Keep equal native IDs bound to their own host
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Keep a predecessor Claude record and a Codex record with the same
@@ -169,6 +169,18 @@ Delete naming Codex leaves only the marked Claude record. Convert
 `claudeHost.sessions`, `codexHost.sessions` and `AbortSignal.timeout`.
 Keep the failed-host isolation, the 10,000 ms bound and the
 unknown-not-absent result. Convert `agent-launch-host-identity.spec.ts`.
+
+Outcome: both specs keep their names and run in Vitest. Host identity
+takes 150–180 ms and installs a non-serving fake Codex, because a real
+`codex` on PATH otherwise starts. The observations take 1–3 ms. The refactor
+pass split two behavior-preserving production seams: `admittedDone(body,
+launches)` in `sessionAdmission.ts` and `attachableSession(url, launches)`
+in `terminalAdmission.ts`. Both specs, and `agent-launch-codex-startup.spec.ts`,
+now call these instead of building HTTP requests. `machineRecordNames.ts`
+checks with `node:assert`. The Done, Delete, terminal and attachment backend
+specs (51 cases) and the three e2e consumers of the machine-record helpers
+(7 cases) pass. Across the four slices, no helper in the five named
+test-support files lost its last caller.
 
 ## Proof ownership and local gate
 
@@ -211,3 +223,22 @@ Refinement was not needed. The four slices map one-to-one to the
 story's observable record outcomes. Each converts complete legacy specs or
 named cases, so no slice depends on another's interim state. No
 slice-specific concern remained after this review.
+
+## Execution proof
+
+Both runs used one worker under `caffeinate -s -i` on AC power, with the
+command above.
+
+| Run | Revision | Load average | Engine and cases | Summed case time | Wall |
+| --- | --- | --- | --- | --- | --- |
+| Baseline | `48e1d1f37` | about 15 | 18 Chromium and 3 Node, all passed | 39.0 s Chromium (1–10,027 ms each) | 50.7 s |
+| Candidate | slice 4 tree | about 5 | 26 Node, no Chromium, all passed | 3.9 s (0.2–1,032 ms each, 12 at or below 100 ms) | 6.5 s |
+
+The candidate selection adds `launch-records-across-processes`,
+`launch-record-store` and `agent-launch-boundary` (7 cases, 2.2 s, six of
+them existing before this story). All 18 legacy Chromium cases are accounted
+for in slices 1–4, and the selection now selects no Playwright case. The load
+averages differ, so the ratio is approximate. The removal of the Chromium
+cases and the 10 s lock wait accounts for the difference. Two cases stay above
+100 ms because they start a real process: the forked records child and the
+native start.

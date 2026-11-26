@@ -14,14 +14,22 @@ import {
   recordedSession,
 } from "./sessionAdmission.ts";
 
-// An upgrade attaches only a kept session through its host’s supported
-// operation, in an existing folder, unless the host confirms it unavailable.
+// A loopback upgrade naming a session it may attach.
 export async function admittedAttach(
   req: IncomingMessage,
   url: URL,
   launches: AgentLaunches,
 ): Promise<TerminalSession> {
   verifyLocalOrigin(req);
+  return attachableSession(url, launches);
+}
+
+// An upgrade attaches only a kept session through its host’s supported
+// operation, in an existing folder, unless the host confirms it unavailable.
+export async function attachableSession(
+  url: URL,
+  launches: AgentLaunches,
+): Promise<TerminalSession> {
   const source = knownSource(url.searchParams.get("source"));
   const host = sessionHostSchema.safeParse(
     url.searchParams.get("host") ?? "claude",
