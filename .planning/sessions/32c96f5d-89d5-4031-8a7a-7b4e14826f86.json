@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "sessionId": "32c96f5d-89d5-4031-8a7a-7b4e14826f86",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-26T16:45:53.172Z",
+  "story": "SEED-413#prove-launch-worker-recovery-on-vitest",
+  "ranges": [
+    {
+      "base": "28748827843071f1a79648c944a81c9655ec5353",
+      "candidate": "3dbdce970c07f0bd18169cb59ed883ab916cdb33"
+    },
+    {
+      "base": "3dbdce970c07f0bd18169cb59ed883ab916cdb33",
+      "candidate": "eb69fde0fc0a3d58a0617a18161f9d0eac414690"
+    },
+    {
+      "base": "eb69fde0fc0a3d58a0617a18161f9d0eac414690",
+      "candidate": "67b9ca61c8e771abaf45c0497320dbe350946086"
+    },
+    {
+      "base": "67b9ca61c8e771abaf45c0497320dbe350946086",
+      "candidate": "c18137621db72fff9c566c93180b94cc0148f477"
+    },
+    {
+      "base": "c18137621db72fff9c566c93180b94cc0148f477",
+      "candidate": "44e537ecba8027ea5579db87625141b4272e46f4"
+    },
+    {
+      "base": "44e537ecba8027ea5579db87625141b4272e46f4",
+      "candidate": "0b96bf5219304263fd98d93d555fd2160824317d"
+    },
+    {
+      "base": "0b96bf5219304263fd98d93d555fd2160824317d",
+      "candidate": "7af0fb4a6daf8c48f87848633ffafce1ddd172bc"
+    },
+    {
+      "base": "7af0fb4a6daf8c48f87848633ffafce1ddd172bc",
+      "candidate": "752cf9e16f8910c7eff1628714f0b5c89aec9762"
+    },
+    {
+      "base": "c8f3aa8590a9b6beb5b997819ba872feb8d72125",
+      "candidate": "c1bfd37e335f29b08ecc984dbede82b0a35228ef"
+    },
+    {
+      "base": "23e911e465339f1b371fd9e36cc99a583c580ac1",
+      "candidate": "de2f51e2bfc092b3fdbaf9dbbb7ddcf524b2e5a3"
+    }
+  ]
+}
