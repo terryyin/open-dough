@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Hibiki-chan",
-  "email": "hibiki-chan@example.org",
-  "identity": "SEED-420#keep-project-reading-until-show-latest",
-  "mode": "story-branch",
-  "branch": "claude/keep-the-project-reading-until-show-latest-can-r",
-  "host": "claude"
-}
