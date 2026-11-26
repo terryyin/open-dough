@@ -44,6 +44,8 @@ import {
 import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
+import { publishCommittedMembership } from "../../dashboard/test-support/localTakenSessions.ts";
+import { pygardonRepository } from "../../dashboard/test-support/pygardonProject.ts";
 
 test.use({
   projectFolders: ["open-dough", "pygardon"],
@@ -185,6 +187,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
         blank ? "Awaiting first instruction" : "Ready for review",
       );
       expect(stored(restarted.home)[0]).toEqual(saved);
+      publishCommittedMembership(page, pygardonRepository);
       await chooseProject(page, "Pygardon");
       const sidebar = sessionsSidebarParts(page);
       await sidebar.button.click();

@@ -383,7 +383,7 @@ records.
 ### 9. Open static detail and recovery cases at their real publication
 
 Type: Behavior
-Status: planned
+Status: done
 
 Materialize the cold publications for the recorded profile latency, credit
 and detail recovery, Intent candidate/settings recovery, and remaining
@@ -394,6 +394,22 @@ advance. For settings and alert callers that incidentally open a Board in an
 installed catalog, judge which existing publication supplies that open before
 changing routing. Keep intentional scheduler or transport-only controls with
 their live operations. Use only the affected E2E and backend checks.
+
+The static recovery cases open their profile, seed, Intent, and membership
+data at materialized Git pins. Taken membership and profile refresh also
+verify the new ref before their scripted advance is read. Intent guards,
+raw history failures, and held details keep their previous REST operations.
+Alert and continuation pages follow the installed catalog commit. Pygardon
+tab switches read a real empty publication. Both System settings servers
+share the fallback publication when they also share a HOME. All 46 focused
+E2E cases, four backend configuration cases, and Dashboard typecheck passed.
+The exact commands and old event dispositions are in
+`resume-static-detail-return.md` and its terminal run records in Git evidence.
+The independent refactor reused the existing published-revision page check,
+and closed both dashboard services before shutting down the shared GitHub
+listener and removing the settings HOME, including on a dashboard close
+failure. All 27 affected E2E and four backend configuration cases,
+Dashboard typecheck, and the two-server cleanup probe passed.
 
 ### 10. Qualify both suites and retire the diagnostic
 

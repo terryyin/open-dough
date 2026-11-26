@@ -3,15 +3,18 @@
 // publishes the files; the page decides everything shown.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
-  shortRevision,
+  expect,
+  githubFor,
+  test,
+} from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  expectPublishedRevision,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  defaultRepository as repository,
-  publishFiles,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { defaultRepository as repository } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedFileHistory } from "../../dashboard/test-support/committedFiles.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   expectMark,
   expectPortrait,
@@ -25,55 +28,58 @@ import {
   openUntilRead,
   reloadUntilRead,
 } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { describedRevisions } from "../../dashboard/test-support/describedRevisions.ts";
 
 const trunkStory = "See who owns Taken work";
 const identity = "SEED-021#identify-taken-work-owner";
 
 // Revision A publishes no agent profiles; revision B adds Akiho's.
-const { A, B } = describedRevisions(
-  makeMe.aRepository
-    .withRevision("A", {
-      backlog: {
-        taken: [
-          makeMe.aBacklogEntry
-            .with({
-              title: trunkStory,
-              identity,
-              href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
-            })
-            .please(),
-        ],
-      },
-    })
-    .withRevision("B", {
-      agentProfiles: [
-        makeMe.anAgentProfile
-          .executing({
-            name: "Akiho",
+const history = makeMe.aRepository
+  .withRevision("A", {
+    backlog: {
+      taken: [
+        makeMe.aBacklogEntry
+          .with({
+            title: trunkStory,
             identity,
-            mode: "trunk",
-            branch: "origin/main",
+            href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
           })
           .please(),
       ],
-    })
-    .please(),
-  { A: "a1".repeat(20), B: "b2".repeat(20) },
-);
+    },
+  })
+  .withRevision("B", {
+    agentProfiles: [
+      makeMe.anAgentProfile
+        .executing({
+          name: "Akiho",
+          identity,
+          mode: "trunk",
+          branch: "origin/main",
+        })
+        .please(),
+    ],
+  })
+  .please();
 
 test("a project without agent profiles still loads, and a reload shows a profile published since", async ({
   page,
+  afterGitHubStops,
 }) => {
-  await publishFiles(page, { repository, ...A });
+  const published = await publishCommittedFileHistory(page, history, {
+    repository,
+    trunk: "A",
+    afterGitHubStops,
+  });
+  const { A, B } = published.published;
+  expectServedHomesReach(githubFor(page), repository, A.revision);
 
   await openUntilRead(page);
 
-  const { taken, problem, readRevision } = parts(page);
+  const { taken, problem } = parts(page);
   const card = storyCard(taken, trunkStory);
 
   await test.step("with no profile directory at the revision, the owner is not recorded and nothing fails", async () => {
-    await expect(readRevision).toContainText(shortRevision(A.revision));
+    await expectPublishedRevision(page, A.revision);
     await expect(card).toContainText("Owner not recorded");
     await expect(credit(card).portrait).toHaveCount(0);
     await expect(card.locator("img")).toHaveCount(0);
@@ -81,9 +87,10 @@ test("a project without agent profiles still loads, and a reload shows a profile
   });
 
   await test.step("after a reload, the profile published at the new revision is shown", async () => {
-    await publishFiles(page, { repository, ...B });
+    published.moveTrunk(B);
+    expectServedHomesReach(githubFor(page), repository, B.revision);
     await reloadUntilRead(page);
-    await expect(readRevision).toContainText(shortRevision(B.revision));
+    await expectPublishedRevision(page, B.revision);
     await expect(card).not.toContainText("Owner not recorded");
     await expectPortrait(card, "Akiho-chan", {
       atlas: 1,

@@ -7,6 +7,7 @@ import {
   pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
+import { serveCommitted } from "../../dashboard/test-support/committedFiles.ts";
 import {
   doughnut,
   doughnutSettings,
@@ -34,42 +35,49 @@ import { untilReported } from "../../dashboard/test-support/support/directedWait
 import { headsChecks } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
 
+const publishedLocations = () =>
+  publishes({
+    files: {
+      ...doughnut.files,
+      [settingsPath]: intentSettingsText(doughnutSettings),
+      ...locationFiles,
+    },
+  });
+
 for (const failure of ["settings", "listing"] as const) {
   test(`a boundary-classified transient Intent ${failure} failure recovers at the same revision`, async ({
     page,
   }) => {
     await pausePageClockAt(page, opened);
-    const published = publishes({
-      revision: doughnut.revision,
-      files: {
-        ...doughnut.files,
-        [settingsPath]: intentSettingsText(doughnutSettings),
-        ...locationFiles,
-      },
-    });
+    const published = publishedLocations();
     let unavailable = true;
-    githubFor(page).serve(doughnut.repository, async (call) => {
-      const { request } = call;
-      if (unavailable) {
-        if (
-          failure === "settings" &&
-          request.kind === "content" &&
-          request.path === settingsPath
-        ) {
-          return noConnection;
+    const revision = serveCommitted(
+      page,
+      doughnut.repository,
+      published,
+      async (call) => {
+        const { request } = call;
+        if (unavailable) {
+          if (
+            failure === "settings" &&
+            request.kind === "content" &&
+            request.path === settingsPath
+          ) {
+            return noConnection;
+          }
+          if (
+            failure === "listing" &&
+            request.kind === "tree" &&
+            request.path === "scripts"
+          ) {
+            return httpErrorAnswer(503);
+          }
         }
-        if (
-          failure === "listing" &&
-          request.kind === "tree" &&
-          request.path === "scripts"
-        ) {
-          return httpErrorAnswer(503);
-        }
-      }
-      return published(call);
-    });
+        return published(call);
+      },
+    );
     const reads = countLocationsReads(page);
-    const intent = await openDoughnut(page);
+    const intent = await openDoughnut(page, revision);
     await expect(readFailure(intent)).toContainText(
       failure === "settings"
         ? `${settingsPath} could not be read`
@@ -92,23 +100,21 @@ test("rate-limited Intent locations reread when the standing limit ends", async 
   page,
 }) => {
   await pausePageClockAt(page, opened);
-  const published = publishes({
-    revision: doughnut.revision,
-    files: {
-      ...doughnut.files,
-      ".planning/open-dough.json": intentSettingsText(doughnutSettings),
-      ...locationFiles,
-    },
-  });
+  const published = publishedLocations();
   const directedSeconds = 2;
   const answers = limiting(page, published, directedSeconds);
   answers.limit(
     (request) => request.kind === "tree" && request.path === "scripts",
   );
-  githubFor(page).serve(doughnut.repository, answers.answer);
+  const revision = serveCommitted(
+    page,
+    doughnut.repository,
+    published,
+    answers.answer,
+  );
   const reads = countLocationsReads(page);
 
-  const intent = await openDoughnut(page);
+  const intent = await openDoughnut(page, revision);
   await expect(readFailure(intent)).toContainText("GitHub limited the rate");
   const resumesAt = await noticedResumeTime(page);
   const limitSeenAt = answers.lift();

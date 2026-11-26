@@ -21,6 +21,7 @@ import {
   machineSessions,
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
+import { serveInstalledOpenDough } from "../../dashboard/test-support/installedCatalogPublication.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -43,8 +44,12 @@ const test = base.extend<{
       alertCheckMs: 100,
       notifier,
     });
-    await use(server);
-    await server.close();
+    try {
+      await serveInstalledOpenDough(server);
+      await use(server);
+    } finally {
+      await server.close();
+    }
   },
 });
 

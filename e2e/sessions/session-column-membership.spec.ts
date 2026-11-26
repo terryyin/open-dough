@@ -15,8 +15,7 @@ import {
 import {
   localEntries,
   publishCommittedMembership,
-  publishMembership,
-  queuedStoryTaken,
+  publishTakenMembership,
   savedLocalSessionRecords as savedRecords,
 } from "../../dashboard/test-support/localTakenSessions.ts";
 import {
@@ -27,7 +26,7 @@ import {
 import {
   columnCountOf,
   expectMembership,
-  shortRevision,
+  expectPublishedRevision,
   parts,
   sessionEntriesIn,
   sessionEntryShowing,
@@ -57,6 +56,7 @@ test.use({
 test("one Taken story with two sessions and one local session means two entries; published ordering precedes newest local launches, and another project's session is excluded", async ({
   page,
   dashboard,
+  afterGitHubStops,
 }) => {
   const now = Date.now();
   const id = (name: string, before: number) =>
@@ -82,10 +82,11 @@ test("one Taken story with two sessions and one local session means two entries;
     local,
   ]);
   await composeSession(dashboard, "doughnut");
-  await publishMembership(page, { backlog: queuedStoryTaken });
+  const membership = await publishTakenMembership(page, afterGitHubStops);
   await page.setViewportSize({ width: 40 * rem, height: 900 });
   await page.goto("/");
   await expectMembership(page, { taken: [queuedTitle], backlog: [] });
+  await expectPublishedRevision(page, membership.firstRevision);
   await expect(columnPagingControl(page, "Taken")).toHaveText(
     "Taken 2 entries",
   );
@@ -108,7 +109,7 @@ test("one Taken story with two sessions and one local session means two entries;
   ).toHaveCount(0);
   await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
   await expect(taken).not.toContainText("No Taken entries");
-  await publishMembership(page, { at: "d3".repeat(20) });
+  const unplannedRevision = membership.publishUnplanned();
   await page.reload();
   await expectMembership(page, { taken: [], backlog: [] });
   for (const [index, key] of [
@@ -137,9 +138,7 @@ test("one Taken story with two sessions and one local session means two entries;
   await expect(columnCountOf(taken)).toHaveText("0 entries");
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(sessionEntriesIn(recentlyDone)).toHaveCount(3);
-  await expect(parts(page).readRevision).toContainText(
-    shortRevision("d3".repeat(20)),
-  );
+  await expectPublishedRevision(page, unplannedRevision);
   expect(
     (await savedRecords(dashboard)).every(
       (record) => record.doneAt !== undefined,
