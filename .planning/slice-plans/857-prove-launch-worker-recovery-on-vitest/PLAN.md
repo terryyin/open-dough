@@ -4,159 +4,227 @@
 
 **Source:** [Prove Dashboard worker recovery and drain in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-worker-recovery-on-vitest)
 
-**Replacement trace:** `SEED-413#prove-launch-starts-and-recovery-on-vitest`, former plan 846 slices 5–8. The developer
-kept the delivered admission and settlement work under the original identity.
-The new slices 1–4 map to former slices 5–8 in that order.
-
-Disposition: awaiting story refinement — not ready for slice-plan refinement or execution.
-
 ## Goal and scope
 
-Give Dashboard maintainers fast typed proof that Continue recovers the same
-interrupted attempt, the native handoff preserves worker ownership, change
-reads and reconciliation use the currently held state, and drain waits for
-settlement. Move the six legacy backend specs mapped below to Node Vitest.
-Keep real server restart, Git publication, native input and preview replacement
-with their maintained E2E journeys.
+Give maintainers fast feedback on the launch decisions that protect an accepted
+attempt through interruption, retry, settlement and Dashboard replacement. Move
+the 16 cases in six backend Playwright specs to typed Node Vitest or their
+receiving E2E journeys. Preserve real process, native input, Git and deployment
+observations. Runner cutover and unrelated launch families have separate owners.
 
-## Decisions and proof to carry forward
+Former plan 846 delivered admission and settlement through slice 4. Its slices
+5–8 transferred here. Former slice 5 maps to 1–3 below, 6 to 4, 7 to 5–6 and
+8 to 7. The supplier's [landed plan](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/slice-plans/846-prove-launch-starts-and-recovery-on-vitest/PLAN.md)
+and the seed's satisfied dependency retain that history.
 
-- Use the existing [launch owner](../../../dashboard/server/launchAttemptOwner.ts),
-  [continuation owner](../../../dashboard/server/launchAttemptContinuation.ts)
-  and [machine JSON store](../../../dashboard/server/machineJsonStore.ts).
-  Use typed requests, private machine files and held effects. Keep the real
-  process at the boundary where its liveness or restart is the observation.
-- Use [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) and the existing
-  [page objects](../../../.agents/skills/dough-page-objects/SKILL.md) where selected.
-  Reuse the existing proof seams. Remove support only after its last caller moves.
-- The original plan's eight retained launch E2E cases passed at execution
-  entry, including restart, orphaned worker recovery, verification and
-  reconciliation. The watcher E2E was also previously observed with held
-  admission and a settled outcome before preview replacement. Recheck the
-  surviving callers on the follow-up's integrated base and reuse evidence
-  only when the behavior, setup and observation still match.
-- The [unverified slice 1 patch](SLICE-1-IN-PROGRESS.patch) preserves the
-  four in-progress test files from former slice 5. Its base was
-  `0e58f2b6b2d1b8dd19448887d2fb5203b134ba5c`; the original local stash OID
-  was `fb912b73b25715ba9388f02248c51b6fae666a83`. The patch is preparation
-  evidence. It is not an accepted implementation. In the new checkout,
-  compare its paths with the integrated tree and use `git apply --check`
-  before choosing whether to recover it. Then check both retained restart
-  and verification journeys and the exact Node receiving assertions.
+## Current decisions
 
-## Decisive premises to recheck during refinement
+- Apply the North Star topics [Make production code directly testable](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
+  and [Plain Vitest for unit tests](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).
+  Use typed owners and MakeMe data with private machine files. Keep process
+  observations at their current receivers. The phone journey also follows
+  [Act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows).
+- [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  favors a direct domain model. [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+  places attempts on the machine and published story claims in Git. Under
+  [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md),
+  compare the same behavioral workload, setup, support removed and elapsed
+  feedback time. Report the native and deployment costs separately.
+- PFE found the production owner and locked readmission in
+  [LaunchAttemptOwner](../../../dashboard/server/launchAttemptOwner.ts) and
+  [admitAttempt](../../../dashboard/server/launchAttemptAdmit.ts). A retry runs
+  from the request reread under the machine lock. An eligible recorded launch
+  can settle before pre-launch checks. Worker liveness, freshness of a read
+  and admission during drain are separate decisions over that same attempt.
+  Use the installed [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md)
+  selection for backend data and [page objects](../../../.agents/skills/dough-page-objects/SKILL.md)
+  for the E2E interaction. Add no test-support wrapper.
 
-| Premise | Consuming operation and required evidence |
+## Decisive premises and baseline
+
+Observed at `2a141478d649a326982889c87422ca1a5d362ac6` on 26 November
+2026 in the owned preparation checkout, macOS on AC, Node 24.21.0, locked
+`npm ci`, one worker per command under `caffeinate -s -i`. The host had
+47% free memory and a load average of 6.47 at entry. Some runs overlapped.
+Use the measurements for selection and sizing. Take a matched pair without
+overlap for a speed claim.
+
+| Consuming operation | Observed result |
 | --- | --- |
-| Each mapped legacy assertion still owns a surviving behavior | Run the exact remaining backend selector on its integrated base and record browser and Node cases by path. Trace shared support before any removal. |
-| The retained E2E reaches the necessary process boundary | Check receiving assertions for same attempt, workspace and input, worker liveness, published reconciliation and viewer replacement before removing a legacy assertion. Use the exact journeys named by each slice. |
+| Backend command below on the integrated source | All 16 legacy Chromium cases and six Node controls passed first try in 56.16 s wall. The case times and ownership are listed below. |
+| [Parked patch](SLICE-1-IN-PROGRESS.patch), originally against `0e58f2b6b` (stash `fb912b73b25715ba9388f02248c51b6fae666a83`) | `git apply --check` passed for all four paths. Applied in scratch, its three specs plus the own-record race ran 12 Node cases. Nine passed. Two lacked the required observed session state and one never reached host recovery. Typecheck also rejected the obsolete run arguments and `Promise.withResolvers`. Recover only the portions assigned to the current slice. |
+| Typed continuation on the current contracts | Scratch used `attemptRun(source, own, { progress, notes, doneMarks, native })`, `AttemptRun(own, notes)`, explicit MakeMe session state and ordinary held promises. The one-shot fixture reported `notes.publication({ kind: "none" })` before timing out. All 15 cases in the three patch specs plus `agent-launch-{open-session-continue,own-record-continuation-race}` passed, as did Dashboard typecheck. Dropping effort from the dispatch to `owned.own` on retry failed the two-request assertion at `max`; restoring it passed. Dropping it before the locked reread had no effect. |
+| Launch E2E command below | All 11 Chromium cases passed first try in 80.70 s wall. Restart observed one attempt ID, Take, worktree and launch. The second-server cases observed the live child and the later native worker, then a recoverable claim after owner death. Completed reconciliation read a descendant of the Take and found the durable marker on reload. Verification checked the native listing and one launch. |
+| Native receivers for retry | The Codex lost-acknowledgment case counted one thread and one turn and observed resumed history. Disabling the production history match in scratch changed the Continue answer from launched to uncertain and failed that case. It passed after restoration. In the phone recovery journey, selecting `max` through `storyLaunchChoices` and reading both synthetic Claude invocations yielded `["max", "max"]` after the explicit Continue. The unchanged journey previously checked only the instruction on both calls. |
+| Whole serial watcher command below | All 10 deployment cases passed first try in 112.01 s wall. [The held update](../../../e2e/runtime/productionHeldUpdate.ts) observed the old PID serving, 503 on Start, the accepted ID in the first drain receipt, and the same launched session on the replacement. The Node slice owns Continue's 503 and the separate publication hold. |
+
+The patch and fault edits were reverted after observation. No slice has been
+delivered. Backend paths below are relative to `dashboard/backend-tests/launches`.
+
+| Baseline spec (omit `.spec.ts`) | Case times in ms, in runner order | Receiving slices |
+| --- | --- | --- |
+| agent-launch-continuation-interrupted | 3085 | 2 |
+| agent-launch-uncertain-continuation | 5011, 5765, 1196, 1156, 1023, 1080, 1040 | 1, 3 |
+| agent-launch-worker-handoff | 3850 | 4 |
+| agent-launch-change-wait | 4486, 4093, 470 | 5 |
+| settled-attempt-reconciliation | 4, 3, 9 | 6 |
+| dashboard-update-drain | 3685 | 7 |
+| Node controls (cross-server accept, admission close, worker) | 484, 535, 545 / 13 / 51, 1 | 2–7 as affected |
 
 ## Ordered slices
 
-### 1. Resume an interrupted attempt once with the kept input
-
-Type: Behavior
-Status: planned
-Estimate: 12–15 active minutes.
-
-Proof: Arrange a kept interrupted attempt via its typed request and
-worker and record inputs. Start refuses and Continue reuses the same
-attempt, workspace and effort. Observe the kept first input when retry
-is warranted and refuse another dispatch once that input is confirmed.
-During a slow but live launch, keep Continue refused until the worker
-settles and read its eventual outcome.
-Use the [restart E2E](../../../e2e/launches/responsive-session-recovery-restart.spec.ts)
-for real server replacement and [recovery verification](../../../e2e/launches/responsive-session-recovery-verification.spec.ts)
-for recovery of uncertain first input. Run those journeys before removing
-the legacy process checks. Compare the actual receiving assertions with the legacy variants before
-removal. Carry a missing second-input, workspace or retained-effort
-observation into the smallest matching journey.
-Keep this slice scoped to the generic attempt owner and preserve the
-host-specific input rules via their coverage owners.
-
-The existing `agent-launch-codex-recovery.spec.ts` already exercises
-Continue across a server restart, keeps the native workspace and first
-input, and asserts one native `turn/start` when history confirms receipt.
-Run it to receive the equivalent legacy process observations. The
-Intent code-browse spec builds its named `ownRecordContinuation.ts`
-sample from a literal fixture, so retiring the actual launch helper
-does not reach that consumer. Check executable references before removal.
-
-### 2. Protect the transition to the native worker
+### 1. Settle Continue from its own launch before checking the checkout
 
 Type: Behavior
 Status: planned
 Estimate: 10–15 active minutes.
 
-Proof: Pass persisted server, child and native worker facts through the
-typed launch owner and production worker-state checks. Protect both sides
-of the handoff from a competing Start or Continue. The
-[second-server E2E](../../../e2e/launches/agent-launch-second-server.spec.ts)
-observes the live script through native confirmation. The
-[orphan E2E](../../../e2e/launches/agent-launch-second-server-orphan.spec.ts)
-kills the owner, sees its child still running, and resumes the same
-published claim after exit. Preserve those process signals while removing
-the duplicate backend server journey.
+Call `LaunchAttemptOwner.continueAttempt` on interrupted and uncertain
+execution and refinement records. With two eligible records and distractors
+of another workflow, story or earlier time, observe the newest eligible
+session, cleared worker and warning, and one durable settlement. Preserve
+compatibility with existing launch records lacking explicit first-input state.
+A missing checkout refuses a fresh Start but permits settlement from the
+record. A failed attempt-file replacement preserves both stores and refuses
+without dispatch. A pre-acceptance record alone cannot settle the attempt.
 
-### 3. Read changes and reconcile a settled attempt
+Use the confirmed-continuation part of the patch and the existing
+`agent-launch-open-session-continue` and `agent-launch-own-record-continuation-race`
+controls. Assert the precheck and run were never called on own settlement.
+Remove only the five received cases from the legacy uncertain spec and its
+sole runtime import of `ownRecordContinuation.ts`. The Intent code-browse
+journey supplies that filename and its source as fixture literals. The
+consumer trace found no runtime dependency there.
 
-Type: Behavior
-Status: planned
-Estimate: 10–15 active minutes.
-
-Proof: With a held change count and typed attempt owner, observe a newer
-owned change immediately and an unchanged non-owner answer at its configured
-bound. An outcome or a later completed session report can justify
-reconciliation only when that evidence is current for the read. Verify the
-reconciled marker in the real attempt file and refusals for active and
-unresolved evidence. Keep the
-[completed-reconciliation E2E](../../../e2e/launches/responsive-session-reconciliation-completed.spec.ts)
-for the published Take read. Convert the change and reconciliation specs.
-
-### 4. Wait for durable settlement before replacing the Dashboard
+### 2. Recover the interrupted attempt's original conversation
 
 Type: Behavior
 Status: planned
 Estimate: 10–15 active minutes.
 
-Proof: Submit typed Start and Continue with an outstanding acceptance and
-run `drain` through the production composition of `LaunchAdmission` and
-`LaunchAttemptOwner`. Both new calls receive the 503 refusal. Hold the
-publication and native confirmation handoffs in turn, and verify that drain
-resolves only after the final outcome is readable. Run the existing
-[production updater E2E](../../../e2e/runtime/production-watcher-updates.spec.ts)
-through the existing held-update journey. The watcher requests drain while
-a session-store lock holds native startup, proves the current preview stays
-up and refuses new starts, and observes the same accepted attempt settled
-before replacement. Preserve that journey while removing
-`dashboard-update-drain.spec.ts`.
+Convert `agent-launch-continuation-interrupted` in place. With a dead worker,
+a pending first input and retained workspace, refuse fresh Starts of either
+workflow, unknown IDs, wrong projects and premature reconciliation without
+writing. Continue the original ID through the real owner and `attemptRun`
+with its current services. Observe the saved record at native recovery,
+confirmed input, same request and acceptance time, one session, no new launch,
+refusal after settlement and idempotent reconciliation. Use the
+[Codex recovery](../../../e2e/launches/agent-launch-codex-recovery.spec.ts)
+assertions on native thread, cwd and turn count alongside
+[restart](../../../e2e/launches/responsive-session-recovery-restart.spec.ts)
+and [verification](../../../e2e/launches/responsive-session-recovery-verification.spec.ts).
+A held host callback alone cannot establish native receipt.
 
-## Proof ownership and local gate
+### 3. Retry a timed-out launch at its saved effort while protecting a live launch
 
-Files are relative to `dashboard/backend-tests/launches/`.
+Type: Behavior
+Status: planned
+Estimate: 10–15 active minutes.
 
-| Slice | Legacy selection | Observable proof |
-| --- | --- | --- |
-| 1 | `agent-launch-continuation-interrupted.spec.ts`, `agent-launch-uncertain-continuation.spec.ts` | Same attempt, workspace, effort and input, observed once at native receipt |
-| 2 | `agent-launch-worker-handoff.spec.ts` | Durable handoff protects both sides and second process follows the same claim |
-| 3 | `agent-launch-change-wait.spec.ts`, `settled-attempt-reconciliation.spec.ts` | Change counts and bound, outcome or report freshness, reconciliation proof |
-| 4 | `dashboard-update-drain.spec.ts` | 503 refusals and pending drain up to durable native confirmation |
+Convert the last two `agent-launch-uncertain-continuation` cases. A timed-out
+one-shot refuses both fresh workflows, retries its kept request only on
+Continue, then refuses another Continue. Exercise slow-but-live as the
+counterexample with held `AttemptRunNotes.slow` and a publication before final
+settlement. Observe one dispatch, the same ID, cleared warning and worker.
+Use the verified patch adaptations above. Preserve the native effort check at
+the existing [phone recovery journey](../../../e2e/launches/agent-launch-story-card-problems.spec.ts)
+by selecting `max` and reading both actual Claude arguments. Keep its
+existing first-input, call-count and user-visible assertions.
 
-Use fresh absolute proof output paths from the repo root with one worker.
-Record case and engine counts, per-case time and elapsed selection time.
-Preserve full behavioral coverage across Node and the named E2E journeys.
-The drain journey shares a serial deployment, so run the whole spec when
-that boundary changes. Use the same workload for a timing comparison.
+### 4. Protect both worker handoff windows
+
+Type: Behavior
+Status: planned
+Estimate: 10–15 active minutes.
+
+Replace the duplicate server setup in `agent-launch-worker-handoff` with two
+owners over one private attempt file. Observe the durable server worker before
+the child's note is written. After a real child's exit, hold replacement by
+the native worker while the recorded server still lives. At each window the
+other owner reads running but unowned, refuses Start and Continue, and
+dispatches nothing. Use the existing worker-note and file-replacement seams
+in `launch-attempt-worker` and `agent-launch-acceptance-kept-first`. Drive
+the note through its producer so deleting the server PID or admitting a
+competitor too early fails the check. After settlement the worker is cleared.
+The [second-server](../../../e2e/launches/agent-launch-second-server.spec.ts)
+and [orphan](../../../e2e/launches/agent-launch-second-server-orphan.spec.ts)
+journeys own actual server death, child survival and one published claim.
+
+### 5. Answer a change wait from the reader's observed count
+
+Type: Behavior
+Status: planned
+Estimate: 8–12 active minutes.
+
+Convert `agent-launch-change-wait` at `changedAttempt(owner, id, waitMs, seen)`.
+Let a real owner publish a worker note before the reader waits. The stale
+count immediately receives the newer worker and count. The current count
+waits for the next note or settlement. For a different live process the
+answer stays pending until its bound and returns unchanged. A persisted
+worker of this server, before local ownership, answers immediately. Control
+the timer at the wait boundary and read the owner's actual observations.
+
+### 6. Reconcile only from sufficiently recent settlement evidence
+
+Type: Behavior
+Status: planned
+Estimate: 5–10 active minutes.
+
+Convert the three already direct `settled-attempt-reconciliation` cases.
+Exercise `settlement`, `askedAfterSettling` and the machine reconciliation
+write. An outcome takes precedence over a completed report, a historical
+outcome can lack a time, and an unfinished report alone cannot settle.
+Check just before, at and after the report time. Inspect the persisted marker
+after success and its absence on running, interrupted or uncertain attempts.
+The [completed-report journey](../../../e2e/launches/responsive-session-reconciliation-completed.spec.ts)
+owns the published read, failed refresh, restored story actions and reload.
+
+### 7. Drain the accepted launch before replacing its preview
+
+Type: Behavior
+Status: planned
+Estimate: 10–15 active minutes.
+
+Convert `dashboard-update-drain` at the typed `AgentLaunches` entry.
+Use its production composition of `LaunchAdmission` and `LaunchAttemptOwner`.
+Hold admission as it registers, then hold publication and native confirmation.
+After drain closes admission, Start and Continue reject with status 503.
+Releasing publication alone leaves drain pending. At its resolution read the
+launched outcome for the accepted ID from disk, one session and one dispatch.
+Reuse the held-write pattern in `agent-launch-acceptance-kept-first` to
+distinguish a settled callback from a completed durable write. The whole
+[watcher journey](../../../e2e/runtime/production-watcher-updates.spec.ts)
+owns HTTP, live preview continuity and replacement at the original URL.
+
+## Proof and local gate
+
+From the checkout root use fresh absolute proof paths and one worker. For
+the final comparison include every surviving receiver, including any renamed
+Node spec, and account for retired paths. All six original paths must have
+a disposition and the backend selection must have zero Chromium cases.
+The backend selector includes the proposed confirmed-continuation spec
+so it also runs after that file is added. Run the phone journey with the launch selection for slice 3.
 
 ```sh
-selection='launches/(agent-launch-(change-wait|continuation-interrupted|uncertain-continuation|worker-handoff|cross-server-accept)|dashboard-update-drain|settled-attempt-reconciliation|launch-attempt-(admission-close|worker))\.spec\.ts$'
-caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
-caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/launches/(agent-launch-second-server(-orphan)?|responsive-session-(recovery-(restart|verification)|reconciliation-completed))\.spec\.ts$' --workers=1
-caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$drain_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/runtime/production-watcher-updates\.spec\.ts$' --workers=1
+proof=$(mktemp -d)
+selection='launches/(agent-launch-(change-wait|confirmed-continuation|continuation-interrupted|uncertain-continuation|worker-handoff|cross-server-accept)|dashboard-update-drain|settled-attempt-reconciliation|launch-attempt-(admission-close|worker))\.spec\.ts$'
+launch='e2e/launches/(agent-launch-(codex-recovery|second-server(-orphan)?)|responsive-session-(recovery-(restart|verification)|reconciliation-completed))\.spec\.ts$'
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$proof/backend.json" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$proof/launch.json" /usr/bin/time -p npm run test:e2e -- "$launch" --workers=1
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$proof/phone.json" npm run test:e2e -- 'e2e/launches/agent-launch-story-card-problems\.spec\.ts$' --workers=1
+caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$proof/drain.json" /usr/bin/time -p npm run test:e2e -- 'e2e/runtime/production-watcher-updates\.spec\.ts$' --workers=1
 ```
 
-Run affected consumers from the [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
-and `npm run typecheck:dashboard` for changed typed contracts. Run long local
-checks on awake macOS on AC under `caffeinate -s -i` per [AGENTS.md](../../../AGENTS.md).
-Apply the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
-to each failure and repair handoff. Keep default test timeouts.
+Run the focused receiving specs per slice. Trace changed support and its
+callers with the [consumer-trace procedure](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
+before removal. Run `npm run typecheck:dashboard` for typed changes and apply
+the independent refactoring and delivery gates before each slice commit. Use
+the default timeouts and run long local checks on awake macOS on AC under
+`caffeinate -s -i` per [AGENTS.md](../../../AGENTS.md). Apply the shared
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+to every failure and repair handoff.
+
+Slice-plan refinement split continuation by its three distinct receivers and
+separated waiting for a change from recording reconciliation. All seven slices
+retain one proof loop within the active-time limit. No remaining slice-specific
+concern was identified.

@@ -208,23 +208,38 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#prove-launch-worker-recovery-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md","assessment":"not-ready","reasons":["Refine the four mapped slices and verify the surviving backend selectors, retained E2E receiving assertions, and applicability of the unverified continuation patch on the integrated base."],"basis":{"document":"343d724080617d2dee98800ad788d32019da81cfc7754259d1e658fa6f1c4f99","plan":"81099d8870d3adf0db84b8e90117e1a4f7e4847199a30d7147c31c11251b165c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f2100dd22fbbfadffeb3656dc54d2e099685370ca7b587ccd78c5b4ba67d40a","plan":"1a4d629815e58e03d4bc78762f214e2f04a7afbe9ee10847ce26119e754caa1c"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-413#prove-launch-worker-recovery-on-vitest","dependencies":[{"supplier":{"identity":"SEED-413#prove-launch-starts-and-recovery-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest"},"implementation":"Integrate the kept-first admission, durable settlement, and own-launch continuation proofs.","rationale":"The follow-up reuses the integrated attempt owner proofs and must inventory the remaining legacy paths and their support from that boundary before applying the parked changes.","condition":"The eight legacy admission and settlement paths are disposed of on origin/main with the typed guard and settlement proofs in place.","state":"satisfied","resolution":{"revision":"420905723de59e71180451879726f684dcc7915e","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest","summary":"The retained launch admission and settlement plan accounts for all eight legacy spec paths. The replaced fixture-only spec was removed with its fixture. The seven surviving paths and maintained cross-server, admission-close and worker controls passed in the one-worker Node Vitest selection, with zero Chromium selections. The integrated 61-case check also passed both worktree-retry cases and Dashboard typecheck. The plan preserves the receiving real process, Git and native E2E observations. The six worker recovery and drain paths remain assigned to the queued follow-up.\nCondition satisfied: The eight legacy admission and settlement paths are disposed of on origin/main with the typed guard and settlement proofs in place.\nAccepted integration: 6eaca3b874431ad8c5e1dca386b6a4dc6b49e5ac on origin/refs/heads/main."}}]}
 ```
 
-- **Goal.** Dashboard maintainers get quick proof that an interrupted launch
-  resumes its original attempt and that replacing the Dashboard preserves
-  durable ownership and settlement.
-- **Scope.** Move the six remaining legacy backend specs in former slices
-  5–8 to typed Node Vitest proof. Keep real restart, worker liveness,
-  Git publication, native receipt and preview replacement with their E2E owners.
-- **Key examples.** Continue reuses the kept attempt, workspace, effort and
-  input. Competing callers cannot overwrite a live worker. Change and
-  reconciliation reads use the current evidence. During drain, new Start
-  and Continue receive 503 until the existing attempt's final outcome is kept.
-- **Mapped slices.** See [plan 857](../slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md).
+- **Goal.** Dashboard maintainers can check changes to launch recovery and
+  update drain quickly in Node, with a real process observing each promise
+  that depends on a restart, native receipt, Git publication or preview replacement.
+- **Scope.** Account for all 16 cases in the six remaining backend Playwright
+  specs for continuation, worker handoff, change waits, reconciliation and
+  drain. Exercise the production owners with typed requests and private
+  machine records. The backend runner cutover belongs to its existing story.
+- **Key examples.**
+  - After a restart, fresh starts of the same story are refused. Continue
+    recovers the original attempt, workspace and first input. Matching native
+    history confirms receipt without a second send. An eligible own launch
+    record settles the attempt even when its checkout has since disappeared.
+  - When a launch times out, an explicit Continue uses its saved effort on
+    the second invocation. A slow worker that is still alive keeps ownership
+    through the handoff and finishes once without a retry.
+  - An owner that missed a change sees it immediately. A reader caught up
+    with that owner waits for its next change. A different server observing
+    live work waits out its bound.
+  - A completed report can settle an attempt with no recorded outcome. A
+    read requested at the report time is too early. The first qualifying
+    read can reconcile it, and another read sees the same durable marker.
+  - When an update closes admission, new Start and Continue receive 503.
+    Releasing the publication hold leaves drain pending through native
+    confirmation. The old preview can be replaced once the accepted
+    attempt's final outcome is readable.
+- **Slice plan.** [Worker recovery and drain](../slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md).
 - **Replacement trace.** Split from [the delivered admission and settlement story](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest)
   after its fourth slice.
 
