@@ -174,6 +174,12 @@ planned E2E specs plus three the consumer trace added 10 passed; backend
 answer, so reading the tree before its locations answer hangs them; the tree
 is therefore read at the shown locations' revision.
 
+## Execution complete
+
+Product advice: no change. The story's promises are delivered and SEED-420
+holds no further queued story; the recurring mounted-builder coupling is
+process learning (DD-646), not a product priority.
+
 ## Plan review
 
 Refinement ran on the provisional plan: a Structure slice for the
