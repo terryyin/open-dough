@@ -8,8 +8,8 @@
 on 2026-11-26, former plan 828 slices 4–6. That story's slices 1–3 are the
 shared verified-origin check and the detail proofs that leave membership out.
 Uncommitted slice 1 edits below remain in worktree
-`/Users/terryyin/git/open-dough/.worktrees/open-the-published-board-at-verified-git-trunk`
-on `cursor/open-the-published-board-at-verified-git-trunk`. Do not revert them
+`/Users/terryyin/git/open-dough/.worktrees/open-the-board-from-the-verified-git-trunk`
+on `claude/open-the-board-from-the-verified-git-trunk`. Do not revert them
 and do not treat them as part of the landed first half. Continue from that
 worktree while it still holds the edits.
 

@@ -108,8 +108,8 @@ Split from [SEED-430#open-and-refresh-board-at-verified-trunk](https://github.co
 on 2026-11-26 at the delivered boundary after that story's slices 1–3.
 Recover that story from the before-cleanup revision after wrap-up deletes
 its section. Uncommitted slice 1 edits stay in worktree
-`/Users/terryyin/git/open-dough/.worktrees/open-the-published-board-at-verified-git-trunk`
-on `cursor/open-the-published-board-at-verified-git-trunk` and are not part
+`/Users/terryyin/git/open-dough/.worktrees/open-the-board-from-the-verified-git-trunk`
+on `claude/open-the-board-from-the-verified-git-trunk` and are not part
 of the landed first half.
 
 **Goal.** A developer can open the Board and see what is published, even
