@@ -104,6 +104,9 @@ execution's performance claim.
   workflow and branch. The former attempt's complete diagnostic lists
   zero failed jobs. The workflow cancels superseded push runs, so completion
   remains attached to the newer candidate.
+- The next push at `678668f9d` likewise superseded CI run 45772659282.
+  The cancelled attempt lists zero failed jobs in its complete diagnostic.
+  The new same-target run is 45773942749.
 
 ## Ordered slices
 
@@ -205,7 +208,7 @@ candidate in the subject specs.
 ### 4. Protect an open story and continue only its own launch
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Pass the configured source, typed requests and real kept records
@@ -217,6 +220,19 @@ Continue sees the newer running or settled state and re-reads an own
 record that appeared after pre-acceptance. Assert that the refused paths
 preserve store bytes. Retire the three open-session and own-record cases
 only after observing all three results at the typed boundary.
+
+Accepted proof: 18 migrated Node cases and three independent-writer
+controls passed with zero Chromium. The configured launch owner refuses
+open or unreadable records without dispatch and leaves both files intact,
+while other stories and released records stay eligible. Continue settles
+its own record on the original attempt without a new effect. At the real
+machine lock it preserves newer running and settled attempts and picks up
+a record added after pre-acceptance. The retained story-card E2E passed
+Mark Done, Delete record and stale-dialog refusal (one case, 13.113 s
+case time, 19.93 s elapsed). Dashboard typecheck passed. The independent
+refactor review made no edits and confirmed both former callers of
+`openStorySessionAcceptance.ts` migrated. See `slice-4-return.md`,
+`slice-4-final-open-session.json`, and `open-session-e2e.json` in Git evidence.
 
 ### 5. Resume an interrupted attempt once with the kept input
 
@@ -238,6 +254,14 @@ removal. Carry a missing second-input, workspace or retained-effort
 observation into the smallest matching journey.
 Keep this slice scoped to the generic attempt owner and preserve the
 host-specific input rules via their coverage owners.
+
+The existing `agent-launch-codex-recovery.spec.ts` already exercises
+Continue across a server restart, keeps the native workspace and first
+input, and asserts one native `turn/start` when history confirms receipt.
+Run it to receive the equivalent legacy process observations. The
+Intent code-browse spec builds its named `ownRecordContinuation.ts`
+sample from a literal fixture, so retiring the actual launch helper
+does not reach that consumer. Check executable references before removal.
 
 ### 6. Protect the transition to the native worker
 
