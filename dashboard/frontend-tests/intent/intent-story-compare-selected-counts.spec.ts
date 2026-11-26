@@ -127,6 +127,7 @@ async function openFileProof(
   story: ReturnType<typeof intentStoryCompare>,
   file: Locator,
 ) {
+  await story.browseFiles();
   await activateComparisonControl(file);
   await story.chooseProof();
   const name = `CI proof of ${filePath}`;

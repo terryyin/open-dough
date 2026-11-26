@@ -9,7 +9,6 @@
 // place: ./intentReadingPlacePage.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { intentLocationIdPrefix } from "../src/intentLocationIds.ts";
 import { parts } from "./dashboardParts.ts";
 import { countAuthenticatedReads } from "./support/frontendAuthenticatedReadControl.ts";
 
@@ -30,43 +29,70 @@ export function expectAddress(
   }).toEqual({ view: null, ...expected });
 }
 
-// Toggle disclosure for one configured Intent location path (expansion only).
-export function intentGroupToggle(intent: Locator, locationPath: string) {
-  const bodyId = `${intentLocationIdPrefix(locationPath)}-body`;
+function intentLocationRow(intent: Locator, locationPath: string) {
+  const path = JSON.stringify(locationPath);
   return intent.locator(
-    `button.intent-location-toggle[aria-controls="${bodyId}"], li[data-folder-path="${locationPath}"] > .intent-location-header > button.intent-location-toggle`,
+    `li[data-folder-path=${path}] > [data-intent-folder-cue="root"]`,
   );
 }
 
-// Selectable name for one configured Intent location path.
+const disclosure = (row: Locator) =>
+  row.locator(":scope > button[aria-expanded]");
+const locationName = (row: Locator) =>
+  row.locator(":scope > button[aria-pressed]");
+
+// Controls for observing a configured location without changing disclosure.
+export function intentGroupToggle(intent: Locator, locationPath: string) {
+  return disclosure(intentLocationRow(intent, locationPath));
+}
+
 export function intentLocationName(intent: Locator, locationPath: string) {
-  return intent.locator(
-    `button.intent-location-name[data-location-path="${locationPath}"]`,
+  return locationName(intentLocationRow(intent, locationPath));
+}
+
+async function expandToggle(toggle: Locator) {
+  await expect(toggle).toBeVisible();
+  if ((await toggle.getAttribute("aria-expanded")) === "false")
+    await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+}
+
+async function revealLocationRow(intent: Locator, locationPath: string) {
+  const row = intentLocationRow(intent, locationPath);
+  // A configured row can be inside a closed folder. Wait for its real
+  // identity before acting, since the provisional tree can have a plain folder.
+  await expect(row).toBeAttached();
+  const ancestors = row.locator(
+    "xpath=ancestor::li[@data-folder-path][position() > 1]",
   );
+  for (const ancestor of await ancestors.all())
+    await expandToggle(disclosure(ancestor.locator(":scope > div")));
+  return row;
+}
+
+export async function revealIntentLocation(
+  intent: Locator,
+  locationPath: string,
+) {
+  return locationName(await revealLocationRow(intent, locationPath));
 }
 
 // Selectable name for one Intent folder under the shared file tree.
-export function intentFolderName(intent: Locator, folderName: string) {
-  return intent
-    .locator("button.story-review-folder-name")
-    .filter({ hasText: folderName });
+export function intentFolderName(intent: Locator, path: string) {
+  return locationName(
+    intent.locator(`li[data-folder-path=${JSON.stringify(path)}] > div`),
+  );
 }
 
-// Expand the owning Intent group when it is collapsed (exclusive expand).
+// Disclose the location after revealing its ancestors.
 export async function expandIntentGroup(intent: Locator, locationPath: string) {
-  const toggle = intentGroupToggle(intent, locationPath);
-  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
-    await toggle.click();
-  }
-  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expandToggle(disclosure(await revealLocationRow(intent, locationPath)));
 }
 
 // The folder toggles inside one expanded Intent location's body.
 function intentFolderToggles(intent: Locator, locationPath: string) {
   return intent
-    .locator(
-      `[id="${intentLocationIdPrefix(locationPath)}-body"], li[data-folder-path="${locationPath}"] > ul`,
-    )
+    .locator(`li[data-folder-path=${JSON.stringify(locationPath)}] > ul`)
     .locator("button.story-review-folder");
 }
 
@@ -110,18 +136,13 @@ export const countLocationsReads = (page: Page) =>
     (params) => params.get("intent") === "locations",
   );
 
-// Every Intent group header starts collapsed with no file/list body shown.
+// Only top-level folders are visible when the repository tree first opens.
 export async function expectIntentGroupsCollapsed(intent: Locator) {
-  const toggles = intent.locator("button.intent-location-toggle");
+  const toggles = intent.locator("button.story-review-folder:visible");
   await expect(toggles.first()).toBeVisible();
-  const count = await toggles.count();
-  expect(count).toBeGreaterThan(0);
-  for (let i = 0; i < count; i += 1) {
-    await expect(toggles.nth(i)).toHaveAttribute("aria-expanded", "false");
-  }
-  await expect(intent.locator(".intent-location-body")).toHaveCount(0);
+  for (const toggle of await toggles.all())
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
 }
-
 // Intent shown for this project in place of Development's content: the
 // selected project and perspective are clear, and the content says no intent
 // locations are configured, naming the setting and file, without that

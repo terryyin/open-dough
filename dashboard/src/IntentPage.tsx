@@ -144,7 +144,7 @@ export function IntentPage({
               id: readingId,
               hidden: !pathVisible,
               onHome: () => {
-                files.onFileChosen();
+                files.onReadingChosen();
                 returnToCi();
               },
             }

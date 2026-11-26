@@ -24,63 +24,73 @@
   }
 }
 
-.intent-ci-cue-count-fewer-light {
-  box-shadow: inset var(--ci-cue-border-light) 0 0 var(--ci-cue-fewer);
-}
-
+.intent-ci-cue-count-fewer-light,
 .intent-ci-cue-count-fewer-strong {
-  box-shadow: inset var(--ci-cue-border-strong) 0 0 var(--ci-cue-fewer);
+  --ci-count-color: var(--ci-cue-fewer);
 }
 
-.intent-ci-cue-count-more-light {
-  box-shadow: inset var(--ci-cue-border-light) 0 0 var(--ci-cue-more);
-}
-
+.intent-ci-cue-count-more-light,
 .intent-ci-cue-count-more-strong {
-  box-shadow: inset var(--ci-cue-border-strong) 0 0 var(--ci-cue-more);
+  --ci-count-color: var(--ci-cue-more);
+}
+
+.intent-ci-cue-count-fewer-light,
+.intent-ci-cue-count-more-light {
+  --ci-count-width: var(--ci-cue-border-light);
+}
+
+.intent-ci-cue-count-fewer-strong,
+.intent-ci-cue-count-more-strong {
+  --ci-count-width: var(--ci-cue-border-strong);
+}
+
+.intent-ci-cue-count-fewer-light,
+.intent-ci-cue-count-fewer-strong,
+.intent-ci-cue-count-more-light,
+.intent-ci-cue-count-more-strong {
+  box-shadow: inset var(--ci-count-width) 0 0 var(--ci-count-color);
 }
 
 /* Tree file buttons beat `.story-review-files button { background: none }`
-   (./story-review.css). Location headers beat their own background
-   (./intent-location-group.css). Selection fill yields to the tint via :not in
+   (./story-review.css). Intent folder rows keep their underlying surface. Selection fill yields to the tint via :not in
    ./story-review-files.css. */
 .intent-ci-cue-duration-faster-light,
 .story-review-files button.intent-ci-cue-duration-faster-light,
-.intent-location-header.intent-ci-cue-duration-faster-light {
+.story-review-folder-row[data-intent-folder-cue].intent-ci-cue-duration-faster-light {
   background: color-mix(
     in srgb,
     var(--ci-cue-faster) var(--ci-cue-tint-light),
-    transparent
+    var(--intent-folder-surface, transparent)
   );
 }
 
 .intent-ci-cue-duration-faster-strong,
 .story-review-files button.intent-ci-cue-duration-faster-strong,
-.intent-location-header.intent-ci-cue-duration-faster-strong {
+.story-review-folder-row[data-intent-folder-cue].intent-ci-cue-duration-faster-strong {
   background: color-mix(
     in srgb,
     var(--ci-cue-faster) var(--ci-cue-tint-strong),
-    transparent
+    var(--intent-folder-surface, transparent)
   );
 }
 
 .intent-ci-cue-duration-slower-light,
 .story-review-files button.intent-ci-cue-duration-slower-light,
-.intent-location-header.intent-ci-cue-duration-slower-light {
+.story-review-folder-row[data-intent-folder-cue].intent-ci-cue-duration-slower-light {
   background: color-mix(
     in srgb,
     var(--ci-cue-slower) var(--ci-cue-tint-light),
-    transparent
+    var(--intent-folder-surface, transparent)
   );
 }
 
 .intent-ci-cue-duration-slower-strong,
 .story-review-files button.intent-ci-cue-duration-slower-strong,
-.intent-location-header.intent-ci-cue-duration-slower-strong {
+.story-review-folder-row[data-intent-folder-cue].intent-ci-cue-duration-slower-strong {
   background: color-mix(
     in srgb,
     var(--ci-cue-slower) var(--ci-cue-tint-strong),
-    transparent
+    var(--intent-folder-surface, transparent)
   );
 }
 
@@ -92,8 +102,7 @@
 }
 
 /* Tree file rows: keep cue padding so the tint and inset count edge read on
-   the control, distinct from keyboard focus. Location headers stay square
-   bands across the locations column (./intent-location-group.css). */
+   the control, distinct from keyboard focus. */
 .story-review-files li button[class*="intent-ci-cue-"] {
   border-radius: var(--radius-sm);
 }

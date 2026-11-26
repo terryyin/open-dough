@@ -71,15 +71,14 @@
   overflow-anchor: none;
 }
 
-/* The browser pane scrolls as one; its locations are sections within it, not
-   boxes that scroll themselves. */
+/* The browser pane scrolls as one; the tree itself can extend across it. */
 .intent-locations {
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--line);
 }
 
-.intent-locations > .intent-story-tree {
+.intent-locations > .intent-file-tree {
   flex: none;
   overflow: visible;
   border: 0;

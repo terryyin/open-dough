@@ -1,71 +1,53 @@
 import { useLayoutEffect, useRef } from "react";
-import type { IntentLocation } from "./authenticatedIntentRead.ts";
+import { scopeCueElementAttrs } from "./ciScopeComparisonCuePresentation.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
-import { IntentLocationHeader } from "./IntentLocationHeader.tsx";
-import { intentLocationIdPrefix } from "./intentLocationIds.ts";
+import { intentFolderCues } from "./intentFolderCues.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
-import {
-  storyOverlayExpansion,
-  type StoryOverlay,
-  type storyRepositoryTree,
-} from "./intentStoryOverlay.ts";
+import type { storyRepositoryTree } from "./intentStoryOverlay.ts";
 import { IntentTreeFileRow } from "./IntentTreeFileRow.tsx";
-import { treeComparisonReadingOf } from "./intentTreeComparison.ts";
+import {
+  treeComparisonAccessibleName,
+  treeComparisonReadingOf,
+  treeLocationComparisonOf,
+} from "./intentTreeComparison.ts";
 import {
   selectionScope,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
-import { reviewFoldersHolding } from "./reviewFileTree.ts";
 import { FileTree } from "./StoryReviewFileTree.tsx";
 import { useIntentRowReveal } from "./useIntentRowReveal.ts";
 import {
-  useLocationOpenFolders,
+  useIntentOpenFolders,
   type TreeReveal,
-} from "./useLocationOpenFolders.ts";
+  type TreeExpansion,
+} from "./useIntentOpenFolders.ts";
+import "./intent-folder-cues.css";
 
-export function IntentStoryFileTree({
-  locations,
-  overlay,
+export function IntentFileTree({
   shown,
-  round,
+  expansion,
   selection,
   onSelect,
   reveal,
 }: {
-  readonly locations: readonly IntentLocation[];
-  readonly overlay: StoryOverlay;
   readonly shown: ReturnType<typeof storyRepositoryTree>;
-  readonly round: number | string | undefined;
+  readonly expansion: TreeExpansion | undefined;
   readonly selection: IntentSelection;
   readonly onSelect: (next: IntentSelection) => void;
   readonly reveal: TreeReveal | undefined;
 }) {
-  const { nodes: tree, roots, changedFiles } = shown;
+  const { nodes: tree, roots } = shown;
   const requested =
     reveal !== undefined && reveal.path === selection.path ? reveal : undefined;
   const section = useIntentRowReveal(requested);
-  const { collapsed, toggleFolder } = useLocationOpenFolders({
-    location: "",
+  const { collapsed, toggleFolder } = useIntentOpenFolders({
     tree,
     revealPath: selection.path,
-    expansion:
-      round === undefined
-        ? undefined
-        : {
-            round,
-            folders: [
-              ...storyOverlayExpansion(locations, overlay, tree, changedFiles),
-              ...(round === 0
-                ? []
-                : reviewFoldersHolding(tree, selection.path)),
-            ],
-          },
-    reveal:
-      requested === undefined
-        ? undefined
-        : { request: requested, path: requested.path },
+    expansion,
+    reveal: requested,
   });
   const comparison = treeComparisonReadingOf(useIntentCiEvidence());
+  const cues = intentFolderCues(tree, collapsed, new Set(roots.keys()));
   const scope = selectionScope(selection);
   const focusedFile = useRef<HTMLButtonElement | undefined>(undefined);
   // A selected file may temporarily leave the inventory while its pin is
@@ -91,7 +73,7 @@ export function IntentStoryFileTree({
   if (tree.length === 0) return null;
   return (
     <section
-      className="intent-story-tree story-review-files"
+      className="intent-file-tree story-review-files"
       ref={section}
       onFocus={({ target }) => {
         focusedFile.current =
@@ -113,34 +95,37 @@ export function IntentStoryFileTree({
         }}
         collapsed={collapsed}
         onToggle={toggleFolder}
-        idPrefix="intent-story-tree"
+        idPrefix="intent-file-tree"
         folderSelection={{
           selectedPath:
             scope === "folder" || scope === "location" ? selection.path : "",
           onSelect: (path) => {
-            onSelect({ path, scope: "folder" });
+            onSelect({ path, scope: roots.has(path) ? "location" : "folder" });
           },
-          renderFolder: ({
-            path,
-            name,
-            rowsId,
-            expanded,
-            selected,
-            onToggle,
-          }) => {
-            const location = roots.get(path);
-            return location === undefined ? undefined : (
-              <IntentLocationHeader
-                location={location}
-                reading={comparison}
-                selected={selected}
-                idPrefix={intentLocationIdPrefix(path)}
-                expanded={expanded}
-                onToggle={onToggle}
-                onSelect={onSelect}
-                folder={{ name, rowsId }}
-              />
+          present: (path) => {
+            const cue = cues.get(path);
+            if (cue === undefined) return undefined;
+            const compared =
+              cue === "root"
+                ? treeLocationComparisonOf(comparison, path)
+                : undefined;
+            const row = scopeCueElementAttrs(
+              "story-review-folder-row",
+              compared?.cues,
             );
+            return {
+              row: {
+                ...row,
+                "data-intent-folder-cue": cue,
+              },
+              ...(cue === "root" && {
+                toggleLabel: path,
+                nameLabel:
+                  compared === undefined
+                    ? path
+                    : treeComparisonAccessibleName(path, compared),
+              }),
+            };
           },
         }}
         renderFile={({ file, name, selected, onSelect: select }) => (

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_recognize-intent-folders-and-read-proof.json",
+      "identity": "SEED-420#recognize-intent-folders-and-read-proof",
+      "completedAt": "2026-11-26T01:43:33.094Z",
+      "blob": "dbff658d50eb96756dd1381ea9ffe57a13d867c3"
+    },
+    {
       "fileName": "SEED-443_simplify-intent-comparison-test-setup.json",
       "identity": "SEED-443#simplify-intent-comparison-test-setup",
       "completedAt": "2026-11-25T23:38:10.142Z",

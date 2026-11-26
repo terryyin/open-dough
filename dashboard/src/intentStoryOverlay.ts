@@ -95,19 +95,24 @@ export function storyFilePath(overlay: StoryOverlay, path: string): string {
   return overlay.renamedPaths.get(path) ?? path;
 }
 
-// Scope Summary reads the configured location even if a file moved out.
+// A location Summary uses the destination when it matches, or the former
+// path when a rename moved the file out of this location.
 export function intentLocationFiles(
   files: ReadonlyMap<string, IntentTreeFile>,
   location: IntentLocation,
 ): ReadonlyMap<string, IntentTreeFile> {
-  const published = new Set(location.files);
   const scoped = new Map<string, IntentTreeFile>();
   for (const file of files.values()) {
-    const path = file.proofPath ?? file.path;
+    const destinationMatches = locationSelectsRepositoryPath(
+      file.path,
+      location,
+    );
+    const path = destinationMatches
+      ? file.path
+      : baselinePathOf(file, file.path);
     if (
-      !published.has(path) &&
-      (file.change === undefined ||
-        !locationSelectsRepositoryPath(path, location))
+      !destinationMatches &&
+      (path === file.path || !locationSelectsRepositoryPath(path, location))
     )
       continue;
     if (path === file.path || !scoped.has(path)) scoped.set(path, file);

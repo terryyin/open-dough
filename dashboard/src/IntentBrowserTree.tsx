@@ -1,14 +1,12 @@
-// The story's repository tree or Project Intent's configured location groups.
-
+// Project Intent and story review share the selectable repository tree.
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
-import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
-import { intentLocationIdPrefix } from "./intentLocationIds.ts";
-import { IntentStoryFileTree } from "./IntentStoryFileTree.tsx";
+import { IntentFileTree } from "./IntentFileTree.tsx";
 import { StoryTreeScopeNote } from "./IntentStorySummary.tsx";
+import { storyOverlayExpansion } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
-import { intentLocationFiles } from "./intentStoryOverlay.ts";
+import { reviewFoldersHolding } from "./reviewFileTree.ts";
 import type { useIntentStoryTree } from "./useIntentStoryTree.ts";
-import type { TreeReveal } from "./useLocationOpenFolders.ts";
+import type { TreeReveal } from "./useIntentOpenFolders.ts";
 
 export function IntentBrowserTree({
   locations,
@@ -17,8 +15,6 @@ export function IntentBrowserTree({
   selection,
   onSelect,
   reveal,
-  expandedPath,
-  onExpandedPath,
 }: {
   readonly locations: readonly IntentLocation[];
   readonly tree: ReturnType<typeof useIntentStoryTree>;
@@ -26,52 +22,35 @@ export function IntentBrowserTree({
   readonly selection: IntentSelection;
   readonly onSelect: (next: IntentSelection) => void;
   readonly reveal: TreeReveal | undefined;
-  readonly expandedPath: string | null;
-  readonly onExpandedPath: (
-    update: (was: string | null) => string | null,
-  ) => void;
 }) {
-  if (storySelected)
-    return (
-      <>
-        {tree.scope && <StoryTreeScopeNote scope={tree.scope} />}
-        <IntentStoryFileTree
-          locations={locations}
-          overlay={tree.overlay}
-          shown={tree.shown}
-          round={tree.round}
-          selection={selection}
-          onSelect={onSelect}
-          reveal={reveal}
-        />
-      </>
-    );
+  const { shown, overlay, round, scope } = tree;
+  const expansion =
+    !storySelected || round === undefined
+      ? undefined
+      : {
+          round,
+          folders: [
+            ...storyOverlayExpansion(
+              locations,
+              overlay,
+              shown.nodes,
+              shown.changedFiles,
+            ),
+            ...(round === 0
+              ? []
+              : reviewFoldersHolding(shown.nodes, selection.path)),
+          ],
+        };
   return (
     <>
-      {locations.map((location) => {
-        const files = intentLocationFiles(tree.overlay.files, location);
-        return (
-          <IntentLocationGroup
-            key={location.path}
-            location={location}
-            files={[...files].map(([path, file]) => ({
-              ...file,
-              path: path.slice(location.path.length + 1),
-            }))}
-            containsChanges={tree.overlay.changedLocations.has(location.path)}
-            selection={selection}
-            onSelect={onSelect}
-            reveal={reveal}
-            idPrefix={intentLocationIdPrefix(location.path)}
-            expanded={expandedPath === location.path}
-            onToggle={() => {
-              onExpandedPath((was) =>
-                was === location.path ? null : location.path,
-              );
-            }}
-          />
-        );
-      })}
+      {scope !== undefined && <StoryTreeScopeNote scope={scope} />}
+      <IntentFileTree
+        shown={shown}
+        expansion={expansion}
+        selection={selection}
+        onSelect={onSelect}
+        reveal={reveal}
+      />
     </>
   );
 }

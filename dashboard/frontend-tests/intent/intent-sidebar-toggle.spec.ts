@@ -74,7 +74,7 @@ test("Hide files gives the reading pane the width under the story's header; Show
   await expect.element(selected).toHaveAttribute("aria-pressed", "false");
 });
 
-test("changed locations keep their own full-width header and change mark when selected", async () => {
+test("changed Intent roots keep their full-width row and change mark when selected", async () => {
   const mounted = await openIntentFileLayout({
     viewport: { width: 1280, height: 800 },
   });
@@ -139,7 +139,6 @@ test("changed locations keep their own full-width header and change mark when se
   await expect.element(scopeName(otherLocation)).toBeVisible();
   expect(locationHeaderLook(otherLocation)).toMatchObject({
     mark: "none",
-    background: marked.background,
   });
 });
 

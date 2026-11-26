@@ -9,7 +9,7 @@ import { showIntentFiles, uncoverIntentReader } from "../intentModePage.ts";
 import { chooseStoryTab, intentFile, storyOnly } from "./intentStoryPage.ts";
 import {
   expandIntentGroup,
-  intentLocationName,
+  revealIntentLocation,
   fileReadingTab,
   proofRegion,
 } from "../intentPerspectivePage.ts";
@@ -141,7 +141,7 @@ export async function expectOriginalProofNavigation(
   const { intent } = parts(page);
   await showIntentFiles(intent);
   if (await storyOnly(intent).isChecked()) await storyOnly(intent).uncheck();
-  await intentLocationName(intent, expected.location).click();
+  await (await revealIntentLocation(intent, expected.location)).click();
   await uncoverIntentReader(intent);
   const summary = summaryRegion(intent);
   await expect(

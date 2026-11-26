@@ -7,9 +7,22 @@
 }
 
 .intent-summary-path,
+.intent-summary-configuration,
 .intent-summary-files,
 .intent-summary-evidence-absent {
   margin: 0 0 var(--space-2);
+}
+
+.intent-summary-configuration {
+  list-style: none;
+  padding: 0;
+}
+
+.intent-summary-configuration li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-2);
+  overflow-wrap: anywhere;
 }
 
 /* The selected scope's own figures above its table

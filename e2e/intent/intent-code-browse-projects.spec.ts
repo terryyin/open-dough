@@ -1,6 +1,8 @@
 import {
   fileSource,
   sourceFile,
+  openLocationSummary,
+  testConfiguration,
 } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent code browse for Doughnut javascript and Pygardon TypeScript/Python
 // locations (../../dashboard/src/IntentPerspective.tsx). Companion to
@@ -16,7 +18,6 @@ import {
   expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
-  intentLocationName,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { expectKeywordAndStringColours } from "../../dashboard/test-support/pageColours.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -56,9 +57,9 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
   await expectIntentGroupsCollapsed(intent);
 
   await test.step("Ex 4 javascript: matched *.test.mjs listed; fixtures omitted; selecting shows kind styling", async () => {
-    await expect(intentLocationName(intent, "scripts")).toContainText(
-      "**/*.test.mjs",
-    );
+    await expect(
+      testConfiguration(await openLocationSummary(intent, "scripts")),
+    ).toContainText("**/*.test.mjs");
     await expandIntentGroup(intent, "scripts");
     await expect(
       sourceFile(intent, "scripts/backend-test-worktree-admission.test.mjs"),
@@ -89,7 +90,9 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
     await page.goto("/?project=pygardon&perspective=intent");
     await openUntilRead(page, "/?project=pygardon&perspective=intent");
     await expectIntentGroupsCollapsed(intent);
-    const frontendHeading = intentLocationName(intent, "frontend/src");
+    const frontendHeading = testConfiguration(
+      await openLocationSummary(intent, "frontend/src"),
+    );
     await expect(frontendHeading).toContainText("**/*.spec.tsx");
     await expandIntentGroup(intent, "frontend/src");
     await expandIntentFolders(intent, "frontend/src");
@@ -114,7 +117,9 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
     await expect(tsxSource).toContainText('return "devices";');
     await expectKeywordAndStringColours(tsxSource, /^return$/, /^"devices"$/);
 
-    const pythonHeading = intentLocationName(intent, "tests");
+    const pythonHeading = testConfiguration(
+      await openLocationSummary(intent, "tests"),
+    );
     await expect(pythonHeading).toContainText("python");
     await expect(pythonHeading).toContainText("**/test_*.py");
     await expandIntentGroup(intent, "tests");

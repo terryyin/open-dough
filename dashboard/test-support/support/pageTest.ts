@@ -183,23 +183,17 @@ const workerTest = base.extend<
 });
 
 // Renders a compared story (`makeMe.aComparedStory`) into the page through
-// the worker's comparison renderer, answering the comparison region; the
-// tree form renders the Intent file tree's comparison readings.
+// the worker's comparison renderer, answering the comparison region.
 export const test = workerTest.extend<{
   renderComparison: (
     story: ComparedStory,
     options?: ComparisonRenderOptions,
   ) => ReturnType<typeof import("./comparisonRendering.ts").renderComparison>;
-  renderComparisonTree: (story: ComparedStory) => Promise<void>;
 }>({
   renderComparison: async ({ page, comparisonRenderer }, use) => {
     const { renderComparison } = await import("./comparisonRendering.ts");
     await use((story, options) =>
       renderComparison(page, comparisonRenderer, story, options),
     );
-  },
-  renderComparisonTree: async ({ page, comparisonRenderer }, use) => {
-    const { renderComparisonTree } = await import("./comparisonRendering.ts");
-    await use((story) => renderComparisonTree(page, comparisonRenderer, story));
   },
 });

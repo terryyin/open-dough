@@ -39,7 +39,7 @@ test("every rename has one destination row and every deletion keeps its removed 
   const inIntent = new Map<string, string>();
 
   await test.step("a folder's Summary lists the files its tree shows, the story's added one included", async () => {
-    await intentFolderName(intent, "boundary").click();
+    await intentFolderName(intent, "dashboard/tests/boundary").click();
     const summary = summaryRegion(intent);
     await expect(summary.locator(".intent-summary-path")).toHaveText(
       "dashboard/tests/boundary",
@@ -122,7 +122,7 @@ test("folder proof opens a former path at its destination and Board re-entry kee
 
   const story = intentStory(intent);
   await story.expandFolderPath("dashboard/tests/out");
-  await intentFolderName(intent, "out").click();
+  await intentFolderName(intent, "dashboard/tests/out").click();
   const summary = summaryRegion(intent);
   await expectChildNames(summary, ["leaving.spec.ts"]);
   await childName(summary, "leaving.spec.ts").click();

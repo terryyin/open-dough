@@ -6,12 +6,16 @@ import {
 } from "../configuration/system-settings-browser.ts";
 import { center } from "../navigation/board-reading-page.ts";
 import { sessions as sessionsButton } from "../navigation/dashboard-header-reading.ts";
-import { scopeToggle } from "./intent-browser-page.ts";
+import { scopeName, scopeToggle } from "./intent-browser-page.ts";
 import {
   deepFile,
   openIntentFileLayout,
 } from "./intent-file-layout-fixture.ts";
 import { fileLayout, projectView } from "./intent-file-layout-page.ts";
+import {
+  showsSummaryPath,
+  summaryRegion,
+} from "./intent-summary-proof-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 const clickAt = (point: { x: number; y: number }) =>
@@ -189,3 +193,31 @@ test("on a phone, the Sessions shortcut over an open Files drawer leaves one dra
     .toHaveAttribute("aria-expanded", "false");
   await files.showsFiles(false);
 });
+
+for (const selected of [false, true]) {
+  for (const width of [390, 1280]) {
+    test(`${selected ? "story" : "Project Intent"} opens folder Summary at ${width}px`, async () => {
+      await openIntentFileLayout({
+        viewport: { width, height: 844 },
+        selected,
+      });
+      const files = fileLayout();
+      await files.showFiles();
+      const root = "dashboard/tests";
+      if (!selected) await scopeToggle("dashboard").click();
+      const disclosure = scopeToggle(root);
+      await expect.element(disclosure).toBeVisible();
+      if (disclosure.element().getAttribute("aria-expanded") === "true")
+        await disclosure.click();
+      await disclosure.click();
+      await files.showsFiles(true);
+      await scopeName(root).click();
+      await files.showsFiles(width > 390);
+      await showsSummaryPath(summaryRegion(), root);
+      await files.showFiles();
+      await scopeName("boundary").click();
+      await files.showsFiles(width > 390);
+      await showsSummaryPath(summaryRegion(), `${root}/boundary`);
+    });
+  }
+}

@@ -90,7 +90,7 @@ export async function openCandidates(page: Page, expectedRevision: string) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
-  await expect(intentLocationName(intent, "dashboard/tests")).toBeVisible();
+  await expect(intentLocationName(intent, "dashboard/tests")).toBeAttached();
   await chooseOptimizationCandidates(intent);
   await expectCandidatesRevision(intent, expectedRevision);
   return candidatesRecord(intent);

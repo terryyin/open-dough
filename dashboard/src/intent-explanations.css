@@ -1,7 +1,7 @@
 /* Intent's explanations in place of what it cannot read or show: unset or
    unusable location settings (./IntentLocationsUnavailable.tsx,
    ./useHistoricalIntentLocations.tsx), a location's or file's failed read
-   (./IntentLocationGroup.tsx, ./IntentSummaryView.tsx,
+   (./IntentSummaryView.tsx,
    ./IntentFileReading.tsx) and the candidates record's
    (./IntentCandidatesRecord.tsx), each with its retry beside the words. */
 

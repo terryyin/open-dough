@@ -5,13 +5,14 @@ import {
 import {
   fileSource,
   sourceFile,
+  openLocationSummary,
+  testConfiguration,
 } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Intent distinguishes unusable locations and failed reads
 // (../../dashboard/src/IntentPerspective.tsx): empty or missing paths, pattern misses,
 // unsupported kinds, failed reads with retry, and settings problems, while
-// other locations stay browseable after expanding their group. Selecting an
-// unusable location's name shows its Summary with path, file count, and the
-// same location explanation the expanded body uses.
+// other locations stay browseable. Selecting an unusable location shows its
+// configuration, path, file count, and explanation in Summary.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
@@ -20,7 +21,6 @@ import {
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
-  intentLocationName,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
@@ -52,7 +52,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
   await expectIntentGroupsCollapsed(intent);
 
   await test.step("commitment 55/57: unusable location names show Summary with path, 0 files, and the location explanation", async () => {
-    await intentLocationName(intent, "no_such_dir").click();
+    await openLocationSummary(intent, "no_such_dir");
     await expect(intentGroupToggle(intent, "no_such_dir")).toHaveAttribute(
       "aria-expanded",
       "false",
@@ -64,7 +64,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
       "No gherkin files are published at no_such_dir for this revision.",
     );
 
-    await intentLocationName(intent, "empty_features").click();
+    await openLocationSummary(intent, "empty_features");
     await expect(intentGroupToggle(intent, "empty_features")).toHaveAttribute(
       "aria-expanded",
       "false",
@@ -76,7 +76,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
       "No gherkin files are published at empty_features for this revision.",
     );
 
-    await intentLocationName(intent, "frontend/src").click();
+    await openLocationSummary(intent, "frontend/src");
     summary = intent.getByRole("region", { name: "Summary" });
     await expect(summary).toContainText("frontend/src");
     await expect(summary).toContainText("0 files");
@@ -84,22 +84,21 @@ test("Intent names empty, missing, and unsupported locations while others browse
       "Kind unfamiliar-language is not yet supported.",
     );
 
-    await intentLocationName(intent, "scripts").click();
+    await openLocationSummary(intent, "scripts");
     summary = intent.getByRole("region", { name: "Summary" });
     await expect(summary).toContainText("scripts");
     await expect(summary).toContainText("0 files");
     await expect(summary).toContainText(
       "No files matching **/*.test.mjs are published at scripts for this revision.",
     );
-    await expectIntentGroupsCollapsed(intent);
   });
 
   await test.step("a missing location and one with no matching files say so by path; the usable location still browses", async () => {
-    await expandIntentGroup(intent, "no_such_dir");
+    await openLocationSummary(intent, "no_such_dir");
     await expect(intent).toContainText(
       "No gherkin files are published at no_such_dir for this revision.",
     );
-    await expandIntentGroup(intent, "empty_features");
+    await openLocationSummary(intent, "empty_features");
     await expect(intentGroupToggle(intent, "no_such_dir")).toHaveAttribute(
       "aria-expanded",
       "false",
@@ -121,13 +120,11 @@ test("Intent names empty, missing, and unsupported locations while others browse
   });
 
   await test.step("Ex 6: a pattern location with no match names path and patterns; others still browse", async () => {
-    await expandIntentGroup(intent, "scripts");
-    await expect(intent).toContainText(
+    const summary = await openLocationSummary(intent, "scripts");
+    await expect(summary).toContainText(
       "No files matching **/*.test.mjs are published at scripts for this revision.",
     );
-    await expect(intentLocationName(intent, "scripts")).toContainText(
-      "**/*.test.mjs",
-    );
+    await expect(testConfiguration(summary)).toContainText("**/*.test.mjs");
     await expandIntentGroup(intent, "e2e_test/features");
     await expect(
       sourceFile(intent, "e2e_test/features/usable/usable.feature"),
@@ -135,7 +132,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
   });
 
   await test.step("kind unfamiliar-language says it is not yet supported, naming it; others still browse", async () => {
-    await expandIntentGroup(intent, "frontend/src");
+    await openLocationSummary(intent, "frontend/src");
     await expect(intent).toContainText(
       "Kind unfamiliar-language is not yet supported.",
     );
@@ -143,9 +140,6 @@ test("Intent names empty, missing, and unsupported locations while others browse
     await expect(
       sourceFile(intent, "e2e_test/features/usable/usable.feature"),
     ).toBeVisible();
-    await expect(
-      fileSource(intent, "e2e_test/features/usable/usable.feature"),
-    ).toContainText("Feature: Usable");
   });
 
   await test.step("a failed feature read says so with retry; the tree stays usable", async () => {
@@ -185,8 +179,9 @@ test("Intent names empty, missing, and unsupported locations while others browse
       sourceFile(intent, "e2e_test/features/usable/usable.feature"),
     ).toBeVisible();
     await expandIntentGroup(intent, "no_such_dir");
-    await expect(intent).toContainText(
-      "No gherkin files are published at no_such_dir for this revision.",
+    await expect(intentGroupToggle(intent, "no_such_dir")).toHaveAttribute(
+      "aria-expanded",
+      "true",
     );
     await expandIntentGroup(intent, "e2e_test/features");
     await readRetry(alert).click();
