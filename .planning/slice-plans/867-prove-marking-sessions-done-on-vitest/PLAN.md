@@ -11,6 +11,10 @@
 - Locked `npm ci` and `npm run typecheck:dashboard` passed in the execution checkout with Node 24.21.0. No overrun replanning was requested.
 - CI source `terryyin/open-dough`, `ci.yml` (CI). Codex observer `codex-seed413-native-b8ed378a`, directory `/tmp/dough-ci-501/watch-AsT9Qs`, PID `68371`, shell session `20325`, cell `g651:7`.
 
+- Slice 1 accepted on the story branch at `bdc37046e17fd70b846bd1711d68f8ef655da7df`.
+
+- CI repair accepted at `0ababc6ed7b054062072a420500d552a25c4c733`. [The repair record](diagnosis-done-listing-retention.md) retains the failing and passing browser observations.
+
 ## Goal and scope
 
 Give Dashboard maintainers fast, typed Node Vitest proof of how the
@@ -146,7 +150,7 @@ production seams reused, with no new support API or refactor candidate.
 ### 2. Rename through the open or a private terminal, and name why a rename did not settle
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: With an open attachment stood in at `DoneTerminals`, Mark as done types
@@ -159,6 +163,12 @@ working when the wait ends each name their cause and are still stopped, and
 the later Mark as done renames them once they are idle. Convert
 `agent-launch-done.spec.ts` and `agent-launch-done-rename-wait.spec.ts`. Use
 `DOUGH_DONE_RENAME_WAIT_MS` as the legacy server did.
+
+Accepted proof: `npm run test:dashboard:backend -- 'sessions/agent-launch-done(-rename-wait)?\.spec\.ts$' --workers=1` ran five Node cases, zero Chromium cases and zero retries. Summed case time was 7.028 s versus 9.306 s at the legacy baseline. Native key pauses and deliberate waits account for cases above 100 ms. Assertions cover the open attachment's exact keys and end, the private PTY's rename and hang-up, the stored control-character and timeout causes, and settling on a later idle attempt. The Dashboard typecheck and `git diff --check` passed. See `slice2-return.md` and its receipts in the Git evidence directory.
+
+Only the two subject specs changed. The typed terminal and fake host boundaries supply the existing observations, with no new support API or refactor candidate. The separate browser fixture repair did not invalidate this proof.
+
+The open-attachment spec passed again after its mock's unused parameter was omitted (`slice2-tuple.json`).
 
 ### 3. Wait for a private composer, and abandon a rename when the server closes
 

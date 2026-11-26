@@ -1,144 +1,162 @@
 // Manual Done's bounded Claude Code rename failures retain their cause and
-// still stop the session. External fake revival supplies a new running-session
-// precondition, rather than proving the deferred retry of a stopped session.
-// The local launch boundary runs against the synthetic Claude, never the real
-// host. Native listing stop/removal cases are in ./agent-launch-done-stop.spec.ts;
-// server-close abandonment is in ./agent-launch-done-close.spec.ts.
-// Private composer readiness is in ./agent-launch-done-prompt.spec.ts.
-
-import { mkdtempSync, rmSync } from "node:fs";
+// still stop the session. The fake supplies a new idle session for a retry.
+import { mkdirSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { AgentTerminals } from "../../server/agentTerminals.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { executionCheckout } from "../../server/executionCheckout.ts";
+import { launchHost } from "../../server/launchHosts.ts";
+import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { machineFolder, type LocalFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import {
-  markDone,
-  openDoughFolder,
-  title,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  composeSession,
-  openTerminal,
-  shows,
-} from "../../test-support/agentTerminalBoundary.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  installFakeClaude,
+  type FakeClaudeControls,
+} from "../../test-support/support/fakeClaude.ts";
 
-const launchName = `Open Dough · Execution · ${title}`;
+const source = makeMe.aPublishedSource.openDough.please();
+const sessionId = "588c4c19-0000-4000-8000-000000000003";
+const shortId = sessionId.slice(0, 8);
 
-test.describe("manual Done when Claude Code rename does not settle", () => {
-  test.describe.configure({ mode: "serial" });
-  let machine: string;
-  let server: DashboardServer;
+let claude: FakeClaudeControls;
+let folder: LocalFolder;
+let marks: NativeDoneMarks;
+let launches: AgentLaunches;
 
-  test.beforeAll(async () => {
-    machine = mkdtempSync(path.join(tmpdir(), "dough-done-rename-wait-"));
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine,
-      projectFolders: ["open-dough"],
-      doneRenameWaitMs: 2_000,
-    });
+beforeEach(() => {
+  const machine = realpathSync(
+    mkdtempSync(path.join(tmpdir(), "dough-done-rename-wait-")),
+  );
+  const fixture = installFakeClaude(
+    machine,
+    { binDir: machine, path: process.env.PATH ?? "" },
+    { doneRenameWaitMs: 2_000 },
+  );
+  for (const [key, value] of Object.entries(fixture.env))
+    vi.stubEnv(key, value);
+  const unmount = mountProjectConfiguration("production");
+  claude = fixture.controls;
+  folder = executionCheckout(source);
+  mkdirSync(folder.path);
+  const terminals = new AgentTerminals(null, () =>
+    Promise.reject(new Error("This test runs without terminal upgrades.")),
+  );
+  marks = new NativeDoneMarks({
+    terminals,
+    hostFor: launchHost,
+    reportingFolder: machineFolder,
   });
-
-  test.afterAll(async () => {
-    await server.close();
+  launches = new AgentLaunches(marks);
+  onTestFinished(async () => {
+    launches.close();
+    await marks.close();
+    terminals.close();
+    await launches.drain();
+    unmount();
+    vi.unstubAllEnvs();
     rmSync(machine, { recursive: true, force: true });
   });
+});
 
-  const markSessionDone = (session: { readonly sessionId: string }) =>
-    markDone(server, { source: "open-dough", session: session.sessionId });
+async function keepSession(appearance: "working-idle" | "working") {
+  const record = makeMe.aLaunchRecord
+    .executing({
+      source: source.id,
+      identity: "SEED-867#native-done",
+      title: "Finish this session",
+    })
+    .inClaudeSession({ sessionId, shortId })
+    .please();
+  await bindRecord(source.id, record);
+  claude.claudeListingBecomes([
+    makeMe.aClaudeListingRow
+      .background({
+        sessionId,
+        name: record.session.name,
+        cwd: folder.path,
+        startedAt: Date.parse(record.launchedAt),
+      })
+      .as(appearance)
+      .please(),
+  ]);
+  return record;
+}
 
-  test("marks an idle session whose typed rename is never listed once the wait ends and still stops it; Mark as done renames it given a new running-session precondition", async () => {
-    const session = await composeSession(server);
-    const terminal = await openTerminal(server, session);
-    expect(await shows(terminal, "attached")).toBe(true);
-    server.claudeSessionBecomes(session.sessionId, "working-idle");
-    server.claudeRenamesIgnored(true);
-    const stopsBefore = server.claudeStopCalls().length;
-    const removalsBefore = server.claudeRemovalCalls().length;
-    try {
-      const response = await markSessionDone(session);
+const listed = () =>
+  claude.claudeListing().find((row) => row["sessionId"] === sessionId);
 
-      expect(response.status).toBe(200);
-      expect(JSON.parse(response.body)).toMatchObject({
-        record: {
-          doneAt: expect.any(String),
-          doneProblem:
-            "Local done mark retained. Claude Code rename failed: The native rename could not be confirmed.",
-          session: { sessionId: session.sessionId, name: launchName },
-          sessionState: {
-            kind: "available",
-            availability: "retained",
-            activity: "interrupted",
-          },
-        },
-      });
-    } finally {
-      server.claudeRenamesIgnored(false);
-    }
-    expect(server.claudeAttaches().at(-1)?.lines).toEqual([
-      `/rename done-${launchName}`,
-    ]);
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toMatchObject({ name: launchName, state: "stopped" });
-    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
-      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
-    ]);
-    expect(server.claudeRemovalCalls().slice(removalsBefore)).toEqual([]);
+test("retains an unconfirmed rename cause, stops the session and renames it when idle again", async () => {
+  const record = await keepSession("working-idle");
+  const name = `done-${record.session.name}`;
+  claude.claudeRenamesIgnored(true);
 
-    // The fake supplies a new running-session precondition. This does not
-    // prove recovery of the session that manual Done stopped.
-    server.claudeSessionBecomes(session.sessionId, "done-live");
-    const retried = await markDone(server, {
-      source: "open-dough",
-      session: session.sessionId,
-    });
-    expect(retried.status).toBe(200);
-    expect(JSON.parse(retried.body)).not.toHaveProperty("record.doneProblem");
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toMatchObject({ name: `done-${launchName}` });
+  const marked = await marks.markDone(source, record, folder, launches);
+
+  expect(Date.parse(marked.doneAt ?? "")).not.toBeNaN();
+  expect(await keptRecords(source.id)).toMatchObject([
+    {
+      doneAt: marked.doneAt,
+      doneProblem:
+        "Local done mark retained. Claude Code rename failed: The native rename could not be confirmed.",
+      session: record.session,
+    },
+  ]);
+  expect((await launches.stateOf(source, marked)).sessionState).toMatchObject({
+    kind: "available",
+    availability: "retained",
+    activity: "interrupted",
   });
-
-  test("never attaches to a session still working, names that cause once the wait ends, and still stops it; Mark as done renames it given a new running-session precondition", async () => {
-    const session = await composeSession(server);
-    server.claudeSessionBecomes(session.sessionId, "working");
-    const attachesBefore = server.claudeAttaches().length;
-    const stopsBefore = server.claudeStopCalls().length;
-
-    const response = await markDone(server, {
-      source: "open-dough",
-      session: session.sessionId,
-    });
-
-    expect(response.status).toBe(200);
-    expect(JSON.parse(response.body)).toMatchObject({
-      record: {
-        doneAt: expect.any(String),
-        doneProblem:
-          "Local done mark retained. Claude Code rename failed: The session was still working when the wait ended.",
-        session: { sessionId: session.sessionId, name: launchName },
-      },
-    });
-    expect(server.claudeAttaches().slice(attachesBefore)).toEqual([]);
-    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
-      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
-    ]);
-
-    // The fake supplies running and idle, not a retry of a stopped session.
-    server.claudeSessionBecomes(session.sessionId, "done-live");
-    const retried = await markDone(server, {
-      source: "open-dough",
-      session: session.sessionId,
-    });
-    expect(retried.status).toBe(200);
-    expect(JSON.parse(retried.body)).not.toHaveProperty("record.doneProblem");
-    expect(server.claudeAttaches().slice(attachesBefore)).toHaveLength(1);
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toMatchObject({ name: `done-${launchName}` });
+  expect(claude.claudeAttaches()).toEqual([
+    expect.objectContaining({ id: shortId, lines: [`/rename ${name}`] }),
+  ]);
+  expect(listed()).toMatchObject({
+    name: record.session.name,
+    state: "stopped",
   });
+  expect(claude.claudeStopCalls()).toEqual([
+    { argv: ["stop", shortId], cwd: folder.path },
+  ]);
+  expect(claude.claudeRemovalCalls()).toEqual([]);
+
+  claude.claudeRenamesIgnored(false);
+  claude.claudeSessionBecomes(sessionId, "done-live");
+  await marks.markDone(source, marked, folder, launches);
+
+  const [kept] = await keptRecords(source.id);
+  expect(kept?.doneProblem).toBeUndefined();
+  expect(claude.claudeAttaches()).toHaveLength(2);
+  expect(listed()).toMatchObject({ name });
+});
+
+test("names a still-working session's exhausted wait without attaching, stops it and renames it when idle", async () => {
+  const record = await keepSession("working");
+
+  const marked = await marks.markDone(source, record, folder, launches);
+
+  expect(Date.parse(marked.doneAt ?? "")).not.toBeNaN();
+  expect(await keptRecords(source.id)).toMatchObject([
+    {
+      doneAt: marked.doneAt,
+      doneProblem:
+        "Local done mark retained. Claude Code rename failed: The session was still working when the wait ended.",
+      session: record.session,
+    },
+  ]);
+  expect(claude.claudeAttaches()).toEqual([]);
+  expect(claude.claudeStopCalls()).toEqual([
+    { argv: ["stop", shortId], cwd: folder.path },
+  ]);
+
+  claude.claudeSessionBecomes(sessionId, "done-live");
+  await marks.markDone(source, marked, folder, launches);
+
+  const [kept] = await keptRecords(source.id);
+  expect(kept?.doneProblem).toBeUndefined();
+  expect(claude.claudeAttaches()).toHaveLength(1);
+  expect(listed()).toMatchObject({ name: `done-${record.session.name}` });
 });
