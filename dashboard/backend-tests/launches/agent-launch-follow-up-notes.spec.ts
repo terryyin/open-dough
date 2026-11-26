@@ -10,7 +10,6 @@ import { admittedLaunchRequest } from "../../server/agentLaunchAdmission.ts";
 import { withFollowUpContext } from "../../server/followUpAdmission.ts";
 import { recordedRequest } from "../../server/hostLaunch.ts";
 import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
-import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
 import {
   keepAttempt,
   keptAttempts,
@@ -27,12 +26,10 @@ import {
 import { StartProgress } from "../../server/startProgress.ts";
 import { storyNotes } from "../../server/storyNotes.ts";
 import { unattachedInput } from "../../server/unattachedInput.ts";
-import type {
-  AgentLaunchRequest,
-  RecordedLaunchRequest,
-} from "../../src/agentLaunch.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
 import type { DoneStory } from "../../src/doneRecord.ts";
 import { storyNoteVersion } from "../../src/storyNote.ts";
+import { receivingHost } from "../support/receivingHost.ts";
 
 const story: Pick<DoneStory, "identity" | "title" | "completedAt"> =
   makeMe.aDoneRecord
@@ -129,30 +126,7 @@ async function arrangeRefusedFollowUp(instruction: string) {
   await replaceRecords((kept) => ({ ...kept, [project.id]: [native] }));
 
   const progress = new StartProgress();
-  const received: {
-    id: string;
-    request: RecordedLaunchRequest;
-    input: string | undefined;
-  }[] = [];
-  const run: AttemptRun = ({ attempt, request: receiving }) => {
-    const request = recordedRequest(receiving, new Date(attempt.acceptedAt));
-    received.push({
-      id: attempt.id,
-      request,
-      input: unattachedInput(request, undefined),
-    });
-    return Promise.resolve({
-      kind: "launched",
-      record: {
-        ...makeMe.aLaunchRecord
-          .adHoc({ title: request.title, source: project.id })
-          .inClaudeSession({ sessionId: attempt.id })
-          .please(),
-        request,
-        sessionState: makeMe.aSessionState.loaded("working").please(),
-      },
-    });
-  };
+  const { run, received } = receivingHost(project.id);
   const launch = async (request: AgentLaunchRequest) => {
     const accepted = await acceptLaunchRequest(
       owner,

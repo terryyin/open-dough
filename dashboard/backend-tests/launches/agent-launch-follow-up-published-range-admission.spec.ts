@@ -5,11 +5,6 @@ import {
   otherStory,
   recoverStory,
 } from "../../test-support/support/followUpStories.ts";
-import { ordinaryJourneyCompletedHistory } from "../../test-support/support/completedFollowUpHistory.ts";
-import {
-  publishedReviewOf,
-  serveDoneAtTrunk,
-} from "../../test-support/support/followUpCompletedFile.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { publishes } from "../../test-support/support/publishedRepository.ts";
 import { publishStorySession } from "../../test-support/support/storySessionPublication.ts";
@@ -105,36 +100,4 @@ test("a published file Follow up requires the exact recorded range, literal path
   });
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
   expect(await originMain(origin)).toBe(before);
-});
-
-test.describe("a published whole-story comparison", () => {
-  test.use({ originRepository: ordinaryJourneyCompletedHistory() });
-
-  test("refuses a different tree before starting a host", async ({
-    dashboard,
-    origin,
-  }) => {
-    const { revision, story } = await serveDoneAtTrunk(dashboard, origin);
-    const completion = origin.revision("completion");
-    const { baseline } = await publishedReviewOf(dashboard, completion);
-    const followUp = makeMe.aFollowUp.ofStory(story, revision).please();
-    if (!("story" in followUp)) throw new Error("Expected a story follow-up");
-    dashboard.claudeScenario("launched");
-
-    const response = await accept(dashboard, {
-      ...request,
-      followUp: {
-        story: {
-          ...followUp.story,
-          comparison: { completion, baseline, tree: completion },
-        },
-      },
-    });
-
-    expect(response.status, response.body).toBe(409);
-    expect(response.body).toContain(
-      "The comparison does not belong to this published completion.",
-    );
-    expect(dashboard.claudeCalls()).toEqual([]);
-  });
 });

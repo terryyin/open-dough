@@ -61,12 +61,12 @@ dispatch. This story checks the target evidence that enters those operations.
 | Whole landed pair is checked at Start | The selected mismatched-pair case passed in the full baseline. In scratch, bypassing only the landed pair check in `admitStoryComparison` made the same maintained case fail with 200 instead of 409. After restoration the case passed on the same one-worker selection. | Slice 1 keeps the admission observation and reproduces the failure under the replacement proof. |
 | Browser selection reaches actual first input | The one-worker `e2e/intent/intent-story-follow-up.spec.ts` command below reached two Chromium journeys and both passed. Shell wall time was 16.20 s. | Both journeys stay as witnesses to browser-to-agent receipt. |
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 ### 1. Admit the whole selected comparison
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 11–14 active minutes.
 
 Map the three `agent-launch-follow-up-landed-comparison-admission` cases
@@ -75,6 +75,16 @@ Use a `PublishedSource`, the story, `FollowUpComparison`, and records for the
 retained and published landing. Start returns admitted evidence with the exact
 pair. A wrong baseline, tree, or foreign reference refuses with the existing
 reason before acceptance or host invocation. Keep the whole-target browser receipt.
+
+Delivered: the landed-comparison spec now runs four Node cases through
+`acceptLaunchRequest`, `withFollowUpContext` and `admitStoryComparison` over a
+private fixture origin; the range spec's whole-tree refusal moved into it.
+Bypassing `requireLandedPair` failed only the mismatch case. The selection
+ran 18 cases in 41.5 s (was 68.0 s); the four Node cases take 0.8–1.7 s each,
+mostly fixture history and Review sync. Start reads the already-synced Review
+repository, so tests sync it before Start. The shared receiving host lives in
+`dashboard/backend-tests/support/receivingHost.ts`; move `aDoneStoryStart()`
+beside it when slice 2 needs it.
 
 ### 2. Admit the file and line on the historical pair
 
