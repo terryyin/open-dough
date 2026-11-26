@@ -40,72 +40,115 @@ from origin's symbolic `HEAD` when configuring a project.
 
 <a id="open-and-refresh-board-at-verified-trunk"></a>
 
-### Open and refresh the published Board from local Git
+### Open the published Board at verified Git trunk
 
 **Identity:** SEED-430#open-and-refresh-board-at-verified-trunk
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9a356c706fed654fdc9909832ad06869c12165d9387847bb500002183570e546","plan":"e932c1725588a4f69febb52a4730b899c9fa97e03f5f76123df26ccfe059013d"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-430#open-and-refresh-board-at-verified-trunk","dependencies":[{"supplier":{"identity":"SEED-430#qualify-board-fixture-routing-and-request-boundaries","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries"},"implementation":"A real-origin fixture surface for the Board membership cutover","rationale":"Changing the authenticated ref dispatch affects every Board open. The current suites need their routed origins and live REST proofs before that switch can be proved.","condition":"Both fixture suites pass with real routed Board pins and every remaining audit mismatch assigned to a still-live operation with proof","state":"satisfied","resolution":{"revision":"e9927c794bfa23ff057573099cecc8551ce1a51c","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries","summary":"Plan 827 passed 788 E2E tests and 1,049 Playwright plus 985 Vitest backend cases, with one backend skip. Its Accepted qualification records all 20 browser and 46 backend audit events at exact fixture publication, live REST or deliberate control cues. Successful first opens and scripted advances verified the routed Git pin, including repeated named publication. The isolated wrap-up fault that kept an early HOME on the old commit was caught by the maintained exact-pin routing test, which passed after restoration. Plan 828 retains the exact legacy membership dispatch controls to replace during the cutover.\nCondition satisfied: Both fixture suites pass with real routed Board pins and every remaining audit mismatch assigned to a still-live operation with proof\nAccepted integration: 524f99699e38373bcae9d3ecf0b790e0d8711f3c on origin/refs/heads/main."}}]}
 ```
 
-**Goal.** A developer can open the Board and confirm what is published,
-even when the execution checkout is absent or behind. The Board shows
-the backlog at the verified published trunk, names when it was last
-confirmed, and explains a failed Refresh.
+**Goal.** A developer can open the Board and see what is published, even
+when the execution checkout is absent or behind. The Board shows the
+backlog at the published trunk that origin verifies and explains a cold
+open that cannot be verified.
 
-**Scope.** Open and manual Refresh resolve the configured trunk on origin
-and read the backlog at that exact revision from the dashboard's Review
-repository, within the Board's wait bound. Refresh is an action on the
-open Board. The developer can keep working from the confirmed view while
-the check is pending. A successful unchanged check advances the
-confirmation time without fetching. A changed check advances the view
-and time together once that revision's backlog is readable. A failed
-check keeps the earlier confirmation and shows the problem. A Board
-without a prior confirmed view shows the failure as unavailable.
-Explicit access refusal retains its established outcome. A missing trunk,
-unreadable backlog, or unverified local commit cannot establish a Board
-confirmation. Admission still follows the configured source and existing
-read rules.
+**Scope.** Every read that today resolves the configured trunk through the
+authenticated `ref` operation resolves it on origin instead: opening the
+dashboard, selecting a project, reloading, and launch reconciliation's
+fresh read. The read verifies the exact revision origin advertises, takes its
+objects into the dashboard's Review repository, and reads the backlog at
+that revision within the Board's wait bound. Eligible concurrent opens of one
+project share a check, different projects proceed independently, and a
+departing waiter releases only its own wait. Each open checks origin; its
+time remains the observation start used for launch reconciliation.
 
-The fixture qualification story supplies a real routed origin for each
-Board-opening fixture. Open and manual Refresh use the same verified Git path,
-including on failure. Before closing this story, remove every temporary
-implementation or fixture bridge and every superseded path that loses its
-last caller, including the old REST membership path. Remove the associated
-tests, fixtures, and documentation that only served those paths. Keep the
-behavioral proof for promises that continue on the Git path or through
-another live caller. The
-[published-progress story](#follow-published-progress-from-local-git)
-owns migrating automatic observation, watched branches, the other
-published records, and Review callers to the verified observation. Those
-live callers define the scope of any shared REST helpers this story retains.
+An unavailable origin, a missing trunk, an unreadable backlog, or a fetched
+commit other than the verified one cannot establish a Board, and nothing
+falls back to GitHub REST membership. With no Board shown, the failure is
+shown as unavailable. Explicit access refusal retains its established
+outcome. With a Board already shown, a failed read keeps it beside the
+existing failure notice. Admission still follows the configured source and
+existing read rules.
+
+Remove the REST membership dispatch and every path, test control, fixture
+and document that loses its last caller with it. Proofs of a continuing
+promise move to the Git path or stay at another live caller.
+`resolveRevisionViaGh` keeps its scheduled-check, feedback-maintenance and
+follow-up callers. Detail reads keep their current transports. The
+[Refresh story](#refresh-published-board-in-place) owns the visible
+confirmation time, manual Refresh, durable confirmation and fetch elision.
+The [published-progress story](#follow-published-progress-from-local-git)
+owns automatic observation, watched branches, other published records and
+Review callers.
 
 **Architecture.** Reuse the dashboard-owned Review repository and its Git
 transport under [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
-The Board's confirmation binds the origin-verified revision and its
-confirmation time in one update after checking the backlog at the pin.
-Git may already hold candidate objects when that update fails. Readers
-continue to use the last confirmed pin and access is still evaluated
-against the configured source.
+Readers use only a revision verified against origin's advertisement and
+checked for a readable backlog. Git may hold candidate objects from a failed
+check; they confer no admission.
 
 **Key examples.**
 
 - Given an accessible origin and an absent execution checkout, open a
-  Board with no prior confirmation. It shows the backlog and time for the
-  exact verified trunk without GitHub REST membership reads. If origin
-  is unavailable on that first open, there is no confirmed Board even
-  if the old REST endpoint could answer. An explicit refusal is reported
-  as such.
+  Board. It shows the backlog for the exact verified trunk without any
+  GitHub REST membership read.
+- Given two tabs opening one project while the Git transfer is held, both
+  wait on one check and show the same revision. Closing one tab leaves the
+  other's read to finish; a second project opens independently.
+- Given an origin that cannot be reached on a cold open, no Board is shown
+  even though the REST endpoint could answer, and the page says it is
+  unavailable. An origin whose trunk is missing, or whose backlog cannot be
+  read at the verified revision, also shows no Board. An explicit refusal is
+  reported as a refusal.
+
+<a id="refresh-published-board-in-place"></a>
+
+### Refresh the published Board in place
+
+**Identity:** SEED-430#refresh-published-board-in-place
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-430#refresh-published-board-in-place","dependencies":[{"supplier":{"identity":"SEED-430#open-and-refresh-board-at-verified-trunk","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk"},"implementation":"The verified Git trunk check behind every Board open, with the REST membership dispatch removed","rationale":"Refresh runs the same verified check and extends its result with a durable confirmation; building it beside the REST dispatch would duplicate the check and its failure handling.","condition":"The Board opens at a verified Git trunk revision with no REST membership dispatch, and both Dashboard suites pass","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/853-refresh-published-board-in-place/PLAN.md","assessment":"not-ready","reasons":["Plan 853's slices are provisional until plan 828 lands; the durable confirmation store design and the warm Refresh path (fetch elision, timing) are unmeasured against the landed verified check."],"basis":{"document":"03a136e1609003a16088531cb54075bfb3a956e0bd4d9716deb246e922c4cca5","plan":"25813e655e75efaa9721e27e8485977bf34c754bb6dc0bfdad9d427e8468ba76"}}
+```
+
+**Goal.** A developer can confirm what is published without reloading the
+page. The Board names when it was last confirmed and explains a failed
+Refresh while the developer keeps working from the confirmed view.
+
+**Scope.** The Board perspective's project actions row shows a quiet
+"Checked <time>" note and an icon button labeled "Refresh", with the same
+wording and icon as System settings Usage and the Review panel. Refresh runs
+the same verified Git check as an open. While it is pending, the Board keeps
+the confirmed backlog and time and says it is checking origin; the button
+stays focusable but unavailable. A successful unchanged check advances the
+confirmation time without fetching. A changed check advances the view and
+time together once that revision's backlog is readable. A failed check
+keeps the earlier view and time and shows the problem beside them.
+
+The dashboard binds the verified revision and its confirmation time in one
+durable update, so a failed update or a restart leaves the earlier
+confirmation readable. An open with a confirmation at origin's advertised
+revision also skips the fetch. Until the published-progress story migrates
+automatic observation, an automatic check that advances the Board shows
+that read's time, and an earlier automatic read cannot replace a later
+manual confirmation.
+
+**Key examples.**
+
 - Given a Board confirmed at A and origin advertising B, press Refresh.
-  While B is being checked, the Board shows A and A's confirmation time.
-  If B's fetch or confirmation write fails, A and its time stay and the
-  failure is visible. If another Refresh can verify B, the displayed
-  revision and time advance together.
-- Given a warm Board and reachable origin still at its confirmed
-  revision, press Refresh. The later check updates the confirmation
-  time without fetching. Record cold and warm request counts and timing.
+  While B is being checked, the Board shows A and A's time. If B's fetch or
+  confirmation write fails, A and its time stay and the failure is shown.
+  A later Refresh that verifies B advances the revision and time together.
+- Given a warm Board whose origin is still at the confirmed revision, press
+  Refresh. The time advances and nothing is fetched. Record cold and warm
+  request counts and timing.
+- Given a confirmation at A and a restarted dashboard, open the Board. It
+  shows A's revision once origin still advertises A, without fetching.
 
 <a id="follow-published-progress-from-local-git"></a>
 
@@ -116,7 +159,7 @@ against the configured source.
 {"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/823-follow-published-progress-from-local-git/PLAN.md"}
 ```
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-430#follow-published-progress-from-local-git","dependencies":[{"supplier":{"identity":"SEED-430#read-published-project-data-from-local-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git"},"implementation":"Board-opening test fixtures that publish through real routed Git origins","rationale":"The Board's Git read can only be proved where the suites hold a real origin at the answered revision; switching it first would break every Board open in the suites.","condition":"SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.","state":"satisfied","resolution":{"revision":"1e2edf48ff3abdb521ad2bef8828b47dafa80eef","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git","summary":"Origin main accepted f05e15351e85617fab1bf8fa97b8f7f6c0eb7568. At the before-cleanup revision, plan 819 slices 1-4 are done: publishCommittedOrigin routes its origin through every dashboard HOME its fake GitHub serves and keeps the origin's main at the answered revision; publishes() without a revision commits a real origin that serving by name routes, with a republication replacing only its own earlier route; the default answer commits a real origin linked for the seeded projects; answer wrappers keep their origin. committed-origin-actions.spec.ts checks ls-remote under the dashboard HOME, and both full suites passed on each slice. Intent Coverage at 4baf31b4f found the republication path missing from maintained checks; plan 824 slice 6 owns that proof.\nCondition satisfied: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nCondition satisfied: SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nAccepted integration: f05e15351e85617fab1bf8fa97b8f7f6c0eb7568 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-430#open-and-refresh-board-at-verified-trunk","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk"},"implementation":"Verified local trunk observation behind the Board’s cold open and Refresh","rationale":"Automatic observation, branch progress, pinned records, Review sharing and containment extend the verified observation.","condition":"The Board opens and refreshes from a verified local trunk pin, with atomic confirmation, and both migrated fixture suites pass","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-430#follow-published-progress-from-local-git","dependencies":[{"supplier":{"identity":"SEED-430#read-published-project-data-from-local-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git"},"implementation":"Board-opening test fixtures that publish through real routed Git origins","rationale":"The Board's Git read can only be proved where the suites hold a real origin at the answered revision; switching it first would break every Board open in the suites.","condition":"SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.","state":"satisfied","resolution":{"revision":"1e2edf48ff3abdb521ad2bef8828b47dafa80eef","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git","summary":"Origin main accepted f05e15351e85617fab1bf8fa97b8f7f6c0eb7568. At the before-cleanup revision, plan 819 slices 1-4 are done: publishCommittedOrigin routes its origin through every dashboard HOME its fake GitHub serves and keeps the origin's main at the answered revision; publishes() without a revision commits a real origin that serving by name routes, with a republication replacing only its own earlier route; the default answer commits a real origin linked for the seeded projects; answer wrappers keep their origin. committed-origin-actions.spec.ts checks ls-remote under the dashboard HOME, and both full suites passed on each slice. Intent Coverage at 4baf31b4f found the republication path missing from maintained checks; plan 824 slice 6 owns that proof.\nCondition satisfied: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nCondition satisfied: SEED-430#read-published-project-data-from-local-git has landed on origin/main: committed origins, publishes() and the default answer publish through real routed origins whose main holds the answered revision.\nAccepted integration: f05e15351e85617fab1bf8fa97b8f7f6c0eb7568 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-430#open-and-refresh-board-at-verified-trunk","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk"},"implementation":"Verified local trunk check behind every Board open","rationale":"Automatic observation, branch progress, pinned records, Review sharing and containment extend the verified observation.","condition":"The Board opens from a verified local trunk pin with no REST membership dispatch, and both migrated fixture suites pass","state":"waiting"},{"supplier":{"identity":"SEED-430#refresh-published-board-in-place","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place"},"implementation":"Verified local trunk observation behind the Board's open and Refresh, with durable atomic confirmation","rationale":"Automatic observation, branch progress, pinned records, Review sharing and containment extend the verified observation and its confirmation.","condition":"The Board opens and refreshes from a verified local trunk pin, with atomic confirmation, and both migrated fixture suites pass","state":"waiting"}]}
 ```
 
 **Goal.** A developer can follow changes on origin and inspect published
