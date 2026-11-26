@@ -209,7 +209,11 @@ export class AgentLaunches {
 
   private runAttempt(source: PublishedSource): AttemptRun {
     return (...args) =>
-      attemptRun(source, ...args, this.progress, this.doneMarks);
+      attemptRun(source, ...args, {
+        progress: this.progress,
+        doneMarks: this.doneMarks,
+        native: launchHost,
+      });
   }
 
   reconcile(source: PublishedSource, id: string) {

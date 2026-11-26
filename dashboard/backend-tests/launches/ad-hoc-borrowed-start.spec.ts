@@ -2,7 +2,7 @@
 // start publishes its Taken story from an owned claim checkout to the bare
 // origin and answers the session start before any native launch, leaving the
 // borrowed checkout's HEAD, index and changes as they were. The launch keeps
-// that checkout and its common repository (../../server/launchRun.ts).
+// that checkout and its common repository (../../server/nativeSessionRun.ts).
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";

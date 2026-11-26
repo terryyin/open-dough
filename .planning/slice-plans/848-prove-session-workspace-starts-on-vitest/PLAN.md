@@ -180,7 +180,7 @@ names the path instead of asking to install Cursor.
 ### 3. Open the isolated checkout only after published admission
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Proof. Give the production Start owner a typed isolated request and a
@@ -199,6 +199,36 @@ Slice 1 found no held-admission observation for the borrowed start, and
 slice 2 removed the Cursor isolated case that read Cursor's `--workspace`
 argument naming the new worktree. Observe both here at the same native
 dispatch, or name a retained check that does.
+
+Outcome (6 active minutes). `attemptRun` now takes its native dispatch as
+a typed service. Production passes the `launchHost` registry from
+`agentLaunches.ts`. The refactor moved the native session into
+`nativeSessionRun.ts` and kept the workflow start in `launchRun.ts`
+(257 to 189 lines).
+
+- `admitted-session-start.spec.ts` (6 node cases) runs the isolated and
+  borrowed workspaces through `attemptRun` with a recording dispatch, a
+  real bare origin and the installed start.
+  - Held admission: while the origin's pre-receive hook holds the
+    publish, there are zero dispatches and the origin is unchanged. After
+    release there is one dispatch on the published Taken identity and
+    revision, in the selected workspace.
+  - Origin mismatch: the start is refused with zero dispatches.
+  - Lost publication reply: the claim is kept with `publishedSha`. On
+    Continue, the same receipt is noted, there is no new claim, and there
+    is one dispatch.
+- `admitted-session-competing-claim.spec.ts` (1 case) owns the lost
+  isolated claim. The competitor stays intact and Continue drafts a new
+  identity with one dispatch. The case measured 6.2 s, so it alone
+  overrides its timeout.
+- Retained owners: `agent-launch-start-session-isolated-codex.spec.ts`
+  stays as the Codex owner of `thread/start` cwd and ordered input,
+  because the isolated E2E is Claude-only. `e2e/launches/agent-launch-start-cursor.spec.ts`
+  maps a created worktree to Cursor's `--workspace`. No check reads that
+  argument for an ad hoc isolated start itself.
+- Removed `admitted-session-refusal` (2 cases) and `admitted-session-retry`
+  (3 cases). The 5 Playwright cases took 12.5 s summed; the 7 node cases
+  take about 15 s, held by the real origin hooks and the race.
 
 ### 4. Continue from the kept checkout and policy
 
