@@ -212,3 +212,66 @@ The next publication withdraws the two temporary instrumented files
 to their exact pre-diagnosis contents. Its ordinary push-triggered run
 checks that restored tree once. That run does not test the previous
 disconnect's cause. Stop at its result and preserve the evidence.
+
+## Round 2: archived hosted timelines
+
+Question: does a runner image, elapsed time, last completed case, or
+preceding warning distinguish the three known hosted failures? Compare
+all three exact shard 1/2 logs to the restored uninstrumented run. This
+round reads archives only and launches no tests or CI.
+
+| Run / attempt / job | Seconds after Vitest RUN | Completed files | Passing cases | Last passing spec in log |
+| --- | ---: | ---: | ---: | --- |
+| `45345208843/1/138278006284` | 94.227 | 170/205 | 478 | `side-panel-width-files-room` |
+| `45514916618/1/138871754089` | 99.570 | 189/200 | 496 | `intent-revision-notice` |
+| `45733591466/1/139621469022` | 160.739 | 190/212 | 539 | `accessible-board-scroll` |
+| `45740233475/1/139643135216` (restored) | 169.02 | 212/212 | 564 | All completed |
+
+The failed elapsed times use the Vitest `RUN` line and serialized error
+line. The restored elapsed time is Vitest's reported duration. The
+failing `createTesters` call names a different next file in each run:
+`intent-project-scope-history-source-identity`,
+`intent-summary-story-comparison-presentation-bindings`, and
+`intent-project-scope-history-remount`, in order. All three passed in
+the restored run. The last passing case appears 8, 22 and 11 ms before
+the respective serialized error. The logs lack worker identities at
+those result lines, so they cannot connect the passing case to the
+disconnected orchestrator.
+
+All four jobs used Ubuntu 24.04 x64, Node 24.21.0, Vitest 5.1.0, and
+the same Playwright Chromium cache key. The first two failures used
+runner image `20261116.133.1`; the third failure and the restored
+success used `20261116.376.1`. Each showed the same diff-review
+ResizeObserver warning followed by at least 187 passing cases. Each
+failure occurred at least 271 seconds before the suite deadline, and
+after prerequisite acquisition had finished. The restored run took
+longer than all three failure intervals. Of the eight non-cancelled
+workflow runs on this story branch through the restored run, seven
+passed frontend shard 1/2, including the instrumented attempt. The
+one shard 1/2 failure is the disconnect recorded here.
+
+The shared evidence is a socket closing while an orchestrator was
+dispatching a late-queue file. The archives report no initiating
+navigation, page crash, process exit, heartbeat timeout, reconnect or
+cancellation. A fixed elapsed deadline, the observed warning, and a
+single named spec do not explain the three failures. The leading
+hypothesis remains an unexpected browser or orchestrator lifecycle
+event; these logs leave a socket-only failure possible as well. The
+next discriminating evidence is the first lifecycle timeline from a
+naturally failing hosted x64 run. An additional unchanged run would
+repeat the prior observation. A longer-lived capture on ordinary
+hosted runs would require a decision about where to retain it.
+
+Git evidence files are `847-archive-<job-id>.log` for the four jobs.
+The restored run verifies `5ebbb46662fa87ce2835269bf47dc7f9dfbb4058`;
+its diff from `64018ca45` is confined to the story's planning files.
+No new diagnostic or test code is parked in the worktree.
+The clock is paused after round 2 at 14.2 cumulative active minutes.
+
+## One-time exception
+
+The developer replied `exception` to the request for a one-time Story
+Wrap Up exception for run `45733591466`, attempt 1, frontend shard 1/2,
+job `139621469022`. This settles that failure's disposition for this
+story. The disconnect's cause remains unresolved. The restored story
+branch run and the required trunk CI still supply their own proof.
