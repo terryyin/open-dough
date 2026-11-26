@@ -281,3 +281,23 @@ Slice-plan refinement split continuation by its three distinct receivers and
 separated waiting for a change from recording reconciliation. All seven slices
 retain one proof loop within the active-time limit. No remaining slice-specific
 concern was identified.
+
+Final gate at `7af0fb4a6` on 27 November 2026, AC power under
+`caffeinate -s -i`, one worker per command, run sequentially without
+overlap. The load average was 11.29 at start and 7.72 at end. Every case
+passed first try. The backend selection ran 23 Node cases and no Chromium
+case in 8.71 s wall, against 56.16 s for 16 Chromium and 6 Node cases at the
+baseline. The launch journeys passed 11 of 11 in 64.74 s, the phone journey
+1 of 1, and the watcher journey 10 of 10 in 46.73 s. Each of the six
+original paths now runs on Node in place, and
+`agent-launch-confirmed-continuation` was added.
+
+## Execution complete
+
+Product advice: no change to priorities. Wrap-up should dispose of one
+follow-up candidate. `LaunchAttemptOwner`, the attempt store and project
+configuration read HOME and mounted configuration, so every launch-owner
+spec repeats a stubbed HOME, configuration and owner teardown. This is the
+ambient-store pattern SEED-413 already splits into typed decisions for
+session and landing stores. Extending it to launch attempts would let these
+specs compose typed machine state.
