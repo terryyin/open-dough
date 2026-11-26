@@ -1,17 +1,16 @@
 // A follow-up's source is part of its launch's identity over raw HTTP, with a
 // real bare origin (../../test-support/support/startOrigin.ts) and the synthetic
-// `claude`: two sources with the same words are two launches, repeating one
-// resumes its kept start, even after the source record is gone, a continuation
-// resends the recorded context, and admission refuses context text a page
-// composed or a source the project no longer keeps. What the first input
-// holds: agent-launch-follow-up-boundary.spec.ts.
+// `claude`. Two sources and resuming a kept start, including after the source
+// record is gone, are agent-launch-follow-up-attempt-identity.spec.ts. What
+// remains here: a forged context and a fresh image claim after that expiry,
+// a continuation that resends the recorded context, and admission refusing
+// context text a page composed or a source the project no longer keeps.
 
 import {
   accept,
   attempts,
   continued,
   launch,
-  recordsOf,
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
   launchAttachmentEndpoint,
@@ -30,8 +29,6 @@ import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   partsOf,
-  quiet,
-  quietContext,
   reported,
   reportedContext,
   request,
@@ -43,33 +40,6 @@ import {
 test.use({ serverMode: "boundary" });
 test.beforeEach(publishFollowUpSources);
 
-test("follow-ups of two sessions with the same words and choices are two launches", async ({
-  dashboard,
-}) => {
-  const source = reported(dashboard.home);
-  keepLaunchRecords(dashboard, [source, quiet]);
-  dashboard.claudeScenario("launched");
-
-  for (const followed of [source, quiet]) {
-    const launched = await answerOf(
-      launch(dashboard, {
-        ...request,
-        instruction: "Continue",
-        followUp: makeMe.aFollowUp.ofSession(followed).please(),
-      }),
-    );
-    expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  }
-
-  const calls = dashboard.claudeLaunchCalls();
-  expect(calls).toHaveLength(2);
-  expect(calls[0]?.argv.at(-1)).toContain(reportedContext);
-  expect(calls[1]?.argv.at(-1)).toContain(quietContext);
-  const ids = (await attempts(dashboard)).map(({ id }) => id);
-  expect(new Set(ids).size).toBe(2);
-  expect(await recordsOf(dashboard, "open-dough")).toHaveLength(4);
-});
-
 test.describe("a follow-up whose established start is kept after the host refused", () => {
   const followUpStart = (source: LaunchRecord) => ({
     ...request,
@@ -78,30 +48,7 @@ test.describe("a follow-up whose established start is kept after the host refuse
     followUp: makeMe.aFollowUp.ofSession(source).please(),
   });
 
-  test("is resumed by repeating the same follow-up", async ({ dashboard }) => {
-    const source = reported(dashboard.home);
-    keepLaunchRecords(dashboard, [source]);
-    dashboard.claudeScenario("refused");
-    const refused = await answerOf(launch(dashboard, followUpStart(source)));
-    expect(refused).toMatchObject({ kind: "failed", reason: "refused" });
-    const [failed] = await attempts(dashboard);
-
-    dashboard.claudeScenario("launched");
-    const resumed = await answerOf(launch(dashboard, followUpStart(source)));
-
-    expect(resumed.kind, JSON.stringify(resumed)).toBe("launched");
-    expect(await attempts(dashboard)).toEqual([
-      expect.objectContaining({
-        id: failed?.id,
-        acceptedAt: failed?.acceptedAt,
-      }),
-    ]);
-    const calls = dashboard.claudeLaunchCalls();
-    expect(calls).toHaveLength(2);
-    expect(calls[1]?.argv.at(-1)).toContain(reportedContext);
-  });
-
-  test("repeating a retained follow-up after source expiry resumes it with the saved context", async ({
+  test("refuses a forged context and a fresh image claim after the source record is gone", async ({
     dashboard,
   }) => {
     const source = reported(dashboard.home);
@@ -113,8 +60,6 @@ test.describe("a follow-up whose established start is kept after the host refuse
       reason: "refused",
       sessionStartKept: true,
     });
-    const [failed] = await attempts(dashboard);
-    if (failed === undefined) throw new Error("Missing retained attempt");
     keepLaunchRecords(dashboard, []);
 
     dashboard.claudeScenario("launched");
@@ -147,20 +92,6 @@ test.describe("a follow-up whose established start is kept after the host refuse
       listedMachineDirs(launchAttachmentClaimsRoot(dashboard.home)),
     ).toEqual([]);
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-
-    const resumed = await answerOf(launch(dashboard, followUp));
-    expect(resumed.kind, JSON.stringify(resumed)).toBe("launched");
-    expect(await attempts(dashboard)).toEqual([
-      expect.objectContaining({ id: failed.id, acceptedAt: failed.acceptedAt }),
-    ]);
-    const calls = dashboard.claudeLaunchCalls();
-    expect(calls).toHaveLength(2);
-    expect(partsOf(calls[1]?.argv.at(-1), reportedContext).after).toEqual([
-      followUp.instruction,
-    ]);
-    expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
-      followUp: { ...followUp.followUp, context: reportedContext },
-    });
   });
 
   test("sends the recorded context on Continue after the source record is gone", async ({
