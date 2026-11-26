@@ -37,7 +37,7 @@ points are [IntentPage](../../dashboard/src/IntentPage.tsx),
 
 **Identity:** SEED-420#keep-project-reading-until-show-latest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/855-keep-project-reading-until-show-latest/PLAN.md","assessment":"not-ready","reasons":["Slices 1 and 2 are provisional from a non-converged attempt and need slice-plan refinement against the attempt evidence and the retrospective's refinement input before execution.","The cause of the CI overview no longer advancing to the observed trunk judgment in five E2E cases is unobserved; compare the attempt with a baseline before planning slice 2's proof."],"basis":{"document":"a78e68abd8659c4c7f902a3db994fa0fc0fb16f0ac2a26e698f17de46c0b3289","plan":"c594ee177d177c4a665eda539d9c95056f92179bd5aa8b806c75be08c051335d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/855-keep-project-reading-until-show-latest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9c6acd1e88bf5d1ac7f30d59d47451523a0a46c26cda6a42756e71b54117480b","plan":"bfc2662072c23d0f35292bbf42a251bedd705a94896ee49ec59d23c0e4c4a777"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-420#keep-project-reading-until-show-latest","dependencies":[{"supplier":{"identity":"SEED-420#browse-the-project-at-a-revision","href":"seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision"},"implementation":"Project Intent's whole-project tree and file reads at the shown revision","rationale":"This story holds and replaces the project reading that the supplier introduces. Its reading hooks, project tree read and mounted fixtures exist only on the supplier's execution branch until it lands, so starting earlier would rebuild or conflict with that unlanded work.","condition":"Project Intent lists every tracked path at the shown revision through the project tree read, reads selected source through the project file read, and its mounted fixtures answer the project tree.","state":"satisfied","resolution":{"revision":"33c048704c68d68815d8e8eb40e2cd695375c573","path":".planning/seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision","summary":"Plan 841 slices 1-5 are done at the before-cleanup revision and integrated on main at 51a2dc8de. Project Intent lists every tracked path at the shown revision through the project tree read (dashboard/server/projectBrowseRead.ts, dashboard/src/useProjectTreeRead.tsx; proved by dashboard/backend-tests/intent/authenticated-read-project-browse.spec.ts and dashboard/frontend-tests/intent/intent-project-browse.spec.ts), reads selected source through the project file read (useIntentFileRead.ts; Intent Coverage at 7624ed6e7 caught routing it back to the upstream read in e2e/intent/intent-recorded-purpose-read.spec.ts), and mounted fixtures answer the project tree through makeMe.anIntentReadSource (dashboard/test-support/intentReadSourceTestData.ts). CI passed on b5e826604 and on the before-cleanup revision 33c048704.\nCondition satisfied: Project Intent lists every tracked path at the shown revision through the project tree read, reads selected source through the project file read, and its mounted fixtures answer the project tree.\nCondition satisfied: Project Intent lists every tracked path at the shown revision through the project tree read, reads selected source through the project file read, and its mounted fixtures answer the project tree.\nAccepted integration: 51a2dc8de3e9370624aecedb0061d4ad89197dfa on origin/refs/heads/main."}}]}
@@ -53,7 +53,8 @@ newer revision only when its tree and settings can replace the reading.
 **Scope.** With no story selected, Project Intent shows the full tracked
 tree only once it is read. Before the first tree arrives it says the project
 files are being read instead of listing only the configured location files,
-and the Files toggle stays available. **Show latest** applies an update when
+and the Files toggle, its column and the project CI view stay in place while
+they are read. **Show latest** applies an update when
 the new tree and its Intent locations are both available for that revision,
 and preserves the existing retry and missing-path explanations. A failed
 tree read uses the existing failed-update notice or first-open retry, not a
@@ -68,7 +69,10 @@ cannot replace the reading.
   the developer retries.
 - On first open, before the project tree is read, the page says the project
   files are being read rather than showing only the location files, and a
-  failed read offers Retry.
+  failed read offers Retry. On a phone with Files hidden, that message and
+  Retry stay in view above the reading.
+- A developer who opened the CI history evidence while the project files are
+  read keeps it open, with focus where it was, when the tree arrives.
 
 **Effort hypothesis:** M, medium confidence. The first attempt showed the
 hold spans two reading hooks, mounted fixtures, focus and fake-timer cases,
