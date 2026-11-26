@@ -489,8 +489,9 @@ Count tracked UTF-8 lines in `Distribution/src`, `dashboard/src`, and
 bash scripts/test-jobs.sh` with matching Node leaf proof and one case per
 shell job. Count Dashboard frontend/backend `--list` and E2E
 `--list --reporter=list` rows once per runner. Record the case counts and
-isolate unrelated trunk deltas. Require both production areas and the
-combined case count to fall.
+isolate unrelated trunk deltas. Require Dashboard source and the combined
+case count to fall. The developer approved the measured increase of 400
+Distribution source lines for this cutover on November 26, 2026.
 
 At the slice 10 entry, published slice 9 (`60677275`) contains 51,215
 Distribution source lines and 131,501 Dashboard source lines. Compared
@@ -596,6 +597,40 @@ automatic restore, interrupted journal recovery and exact rollback while
 preserving unrelated files. Its retained helper and commands are in
 `slice-10-store-transfer.IiMLlL7K/REPORT.md` in common Git evidence.
 
+The repaired candidate is published at `6309fcc4` on the execution branch.
+Exact branch CI passed in run `45757487446`, attempt 1. The comparable
+counts are 5,856 combined cases against 5,868, 51,147 Distribution lines
+against 50,747, and 132,289 Dashboard lines against 132,494. See
+`slice-10-repaired-comparison-summary.json` and
+`slice-10-hosted-repair-ci-await.log` in worktree Git evidence.
+The latest private snapshot read on that exact candidate accounted for all
+3,824 rows and 16,943 files and resolved the sole open launch. Its directory
+is recorded in `slice-10-published-candidate-stage.txt`. The production
+cutover proceeds under the developer's approval of the measured 400-line
+Distribution increase. The first trunk landing, its receipt, the writer
+hold and the production readback remain pending.
+The observer stopped with all three earlier failure events delivered, no
+unread events and PID `84786` exited. See
+`slice-10-size-decision-observer-exit.json` in worktree Git evidence.
+
+The approved cutover preflight confirmed the actual Codex identity and
+matched the installed handoff only to that identity. Claude Code and Cursor
+CLI are signed out on this Mac. Their real-host checks reached authentication
+before shell tool execution. Resolve those two checks or record an explicit
+release exception before the first trunk landing. The private proof is
+`slice-10-real-native-acceptance.e49CHLEX/native-acceptance-summary.json`.
+All six configured client checkouts passed update preflight. The next
+numeric release is `0.3.116` after rechecking tags. The release source and
+self-installation checks passed. See `slice-10-client-readiness.2PDD57iK` in
+common Git evidence.
+
+The same-user writer hold passed a disposable process rehearsal, including
+exact process identity, an interrupted hold and recovery, and the old
+preview's local landing receipt route while starts were drained. The
+common Git evidence paths are recorded in `slice-10-fence-directory.txt`
+and `slice-10-approved-production-directory.txt`. They retain the live
+preflight checks and the installed history-preserving publisher handoff.
+
 The historical unbound Claude row is now marked done in the fresh copy.
 Replaying Continue with its original copy verifies the native ID and
 checkout, then fails because the original request carries follow-up
@@ -691,4 +726,4 @@ Disposition: proved by slice 7: `recently-done-progressive-navigation.spec.ts` m
 ### G10. The current source totals still exceed the baseline
 Reported: slice 8 — "Against the shared trunk base at 856f35e31, the refactored candidate through slice 8 adds 265 Distribution source lines and 53 Dashboard source lines. The measurement uses tracked UTF-8 source and Markdown plus the slice 8 working diff, before cutover-only cleanup. See slice-8-inflight-shared-base-counts.json and slice-8-refactored-source-delta.txt."
 Story clause: "Record comparable source and executable case counts to show that both production surfaces and their combined proof footprint shrink."
-Disposition: receiving slice 10
+Disposition: owner changed "For this cutover, accept the measured increase of 400 Distribution source lines."

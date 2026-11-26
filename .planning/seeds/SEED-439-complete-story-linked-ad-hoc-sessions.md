@@ -55,12 +55,18 @@ defines those responsibilities.
   guidance. Remove the remaining legacy standalone frontend cases and keep
   applicable story-linked selection, review and warning coverage.
   [Runner retirement](SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner)
-  waits for that removal. Record comparable source and executable case counts
-  to show that both production surfaces and their combined proof footprint
-  shrink.
+  waits for that removal. Record comparable source and executable case counts.
+  Dashboard source and the combined executable case count must shrink.
+  For this cutover, accept the measured increase of 400 Distribution source
+  lines.
 - Session selection within Intent, follow-up context composition, open
   follow-up card cues and Review repository adoption have their own stories.
   This story preserves those readers' published comparison contract.
+
+**Cutover size decision, November 26, 2026.** The original criterion read
+“Record comparable source and executable case counts to show that both
+production surfaces and their combined proof footprint shrink.” The
+developer approved the measured Distribution increase for this cutover.
 
 **UI.** **Start session** shows admission in progress. A refusal explains the
 reason and offers retry for that attempt. Use the existing instruction label
