@@ -94,7 +94,7 @@ selections keep exit 1, or 0 with `--pass-with-no-tests`. Run the
 ### 2. The runner kind and failure output are named once
 
 Type: Structure
-Status: planned
+Status: done
 
 Derive `direct` from the roster (finding 3), rename the failure-output
 artifact and its comment with its readers (finding 4), fix the stale
@@ -150,3 +150,15 @@ frontend shards, timings and proof publication.
   reusable workflow resolve to that path under `dashboard-frontend-failure-output-1`
   and `dashboard-frontend-failure-output-2`. The independent refactor pass
   found no changes needed.
+
+### Slice 2 hosted proof
+
+- [Branch CI run 45825587181, attempt 1](https://github.com/terryyin/open-dough/actions/runs/45825587181/attempts/1)
+  passed for `370efdc845e45530cd1ba4519b8a4d16180ccdac`, including lint and
+  typecheck. Both frontend shard jobs executed the browser suite, kept per-spec
+  timing, published proof fragments and ran the renamed upload step.
+- GitHub retained both `dashboard-frontend-times-*` files and both frontend
+  proof fragments for attempt 1, plus the consolidated CI proof summary and
+  frontend test proof. Retained diagnostics included
+  `dashboard-frontend-failure-output-1`, all three backend `failure-output`
+  artifacts and all six E2E `failure-output` artifacts.
