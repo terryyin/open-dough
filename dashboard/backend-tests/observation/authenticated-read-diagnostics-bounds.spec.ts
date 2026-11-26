@@ -32,6 +32,7 @@ import {
   checkedAt,
   pinnedAt,
   pinnedRead,
+  readUrl,
 } from "../../test-support/support/sharedReads.ts";
 import { keepingOrigin } from "../../test-support/support/publishedRepository.ts";
 import {
@@ -134,7 +135,10 @@ test("ordinary waiter departure does not record a diagnostic failure", async () 
   try {
     isolated.github.serve(everyRepository, hangs);
     const abandoned = abandonedRequest({
-      url: `${isolated.baseURL}/__authenticated-read?source=${knownSourceId}${pinnedRead}`,
+      url: readUrl(isolated.baseURL, {
+        source: knownSourceId,
+        query: pinnedRead,
+      }),
       headers: { Origin: isolated.origin },
     });
     await expect

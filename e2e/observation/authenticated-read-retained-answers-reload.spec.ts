@@ -1,8 +1,8 @@
 // A page outliving its dashboard process: one preview-mode page is reloaded
 // across a restart on the same machine and shows
 // the same cards, retrieved anew, from answers the first process retained
-// (../../dashboard/server/retainedAnswers.ts) after asking GitHub only for the configured
-// ref and the recorded story branch head (../../dashboard/test-support/retainedAnswersJourney.ts).
+// (../../dashboard/server/retainedAnswers.ts) after asking GitHub, beside membership,
+// only for the recorded story branch head (../../dashboard/test-support/retainedAnswersJourney.ts).
 
 import {
   expectSettledPage,
@@ -14,8 +14,8 @@ import {
   startDashboardServer,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
-  backlogPath,
   named,
+  seedPath,
 } from "../../dashboard/test-support/revisionReuseOrigin.ts";
 import { describedExactly } from "../../dashboard/test-support/revisionReuseCalls.ts";
 import {
@@ -25,7 +25,7 @@ import {
 } from "../../dashboard/test-support/retainedAnswersJourney.ts";
 
 test.describe("a page outliving its dashboard process (preview launch mode)", () => {
-  test("a reload after a restart on the same machine shows the same cards, retrieved anew, asking only the ref and the branch head", async ({
+  test("a reload after a restart on the same machine shows the same cards, retrieved anew, asking only the branch head beside membership", async ({
     page,
     dashboard,
     github,
@@ -45,7 +45,7 @@ test.describe("a page outliving its dashboard process (preview launch mode)", ()
     const cards = await said();
     const firstRetrievedAt = await retrievedAt.getAttribute("datetime");
     expect(github.calls.map(describedExactly)).toContain(
-      `content ${backlogPath}@${revision}`,
+      `content ${seedPath}@${revision}`,
     );
 
     const before = github.calls.length;
@@ -70,10 +70,13 @@ test.describe("a page outliving its dashboard process (preview launch mode)", ()
       expect(
         github.calls
           .slice(before)
-          .filter(({ request }) => request.kind !== "matching-refs")
+          .filter(
+            ({ request }) =>
+              request.kind !== "matching-refs" && request.kind !== "ref",
+          )
           .map(describedExactly)
           .sort(),
-      ).toEqual([`branch ${project.branch}`, "ref"]);
+      ).toEqual([`branch ${project.branch}`]);
     } finally {
       await restarted.close();
     }

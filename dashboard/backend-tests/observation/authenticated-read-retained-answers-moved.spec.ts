@@ -57,12 +57,12 @@ async function firstVisit(
 const atRevision = (calls: readonly string[]) =>
   calls.filter((call) => /^(content|listing|commit-list) /.test(call)).sort();
 
-// Every record, listing, and history a first visit reads at the new pin,
-// but the listed profiles and done record, whose texts are kept by blob.
+// Every record, listing, and history a first visit reads at the new pin
+// beside membership, but the listed profiles and done record, whose texts are
+// kept by blob.
 const readAt = (revision: string) =>
   [
     ...[
-      origin.paths.backlog,
       origin.paths.seed,
       origin.paths.otherSeed,
       origin.paths.plan,
@@ -89,7 +89,7 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
     await github.close();
   });
 
-  test("a later process whose ref names B, one commit after A that changed a seed, asks the ref, the backlog at B, the comparison, that commit, and the seed's text and history", async ({
+  test("a later process whose ref names B, one commit after A that changed a seed, asks, beside membership, the comparison, that commit, and the seed's text and history", async ({
     machine,
   }) => {
     const project = published("moved", named("c6"));
@@ -127,8 +127,6 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
     );
     allAnswered(second.result.answers);
     expect(second.calls).toEqual([
-      "ref",
-      `content ${origin.paths.backlog}@${b}`,
       `compare ${a}...${b}`,
       `commit ${named("d6")}`,
       `content ${origin.paths.seed}@${b}`,

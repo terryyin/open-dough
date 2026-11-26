@@ -37,9 +37,16 @@ open itself (listed in the seed).
 - `dashboard/test-support/support/sharedReads.ts` holds one helper per read
   form (`revisionCheck`/`checkedAt`, `pinnedRead`/`pinnedAt`, and `readUrl`
   for a raw request) instead of inline bare `?source=` URLs in each spec.
-- Call accounting leaves membership reads (`ref` and its backlog content) out
-  in one place: `retainedAnswersJourney.asked`, `revisionReuseCalls`, and
-  `originObservation`'s reads-beside-checks.
+- Backend call accounting leaves membership reads (`ref` and its backlog
+  content) out in one place: `membershipRead` marks a membership read's gh
+  calls and `describedBesideMembership` drops them
+  ([revisionReuseCalls.ts](../../../dashboard/test-support/revisionReuseCalls.ts)),
+  used by `retainedAnswersJourney.asked`. `originObservation`'s
+  reads-beside-checks stays as it is: in the browser's raw calls a membership
+  backlog read looks like the backlog read a moved-trunk check makes, which
+  other specs assert. The Board open story's switch already retargets the
+  specs that expect `ref main` there (`shared-observer-reads`,
+  `unchanged-records-refresh`, `reopened-project-reads`).
 - E2E recovery cases open the Board first, then fail `main` with
   `answerWith("main", …)` and `passTimeUntilAsked`, so the failure lands on a
   check with the snapshot kept. `publishedTarget` keeps mapping both `ref`
@@ -106,7 +113,7 @@ minutes.
 ### 3. Leave membership reads out of call accounting
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The central filter leaves membership reads out of compared call
 lists. Retarget `authenticated-read-retained-answers` (except the logged-out
@@ -145,6 +152,11 @@ Slice 2 (2026-11-27): all 12 specs pass on trunk and under the patch;
 (only the cold read stamps it), so compared answers need no stripping;
 serving-modes no longer asserts the stamp, which stays with the Board open
 story's cold read.
+
+Slice 3 (2026-11-27): the slice specs pass on trunk and under the patch,
+except the excluded logged-out cold-open case of
+`authenticated-read-retained-answers`. Under the switch, `compare a...b`
+happens on the first later pinned read, not inside the membership read.
 
 Spec classification comes from the plan 856 slice 1 run logs, under load
 with two suites running at once (2026-11-26). Eight backend specs that seemed
