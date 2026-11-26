@@ -207,3 +207,10 @@ warning threshold inside slice 3. Seven slices fit the eight-slice limit.
 Prospective estimates assume the installed commands keep their current
 arguments and result shapes. No unresolved slice-specific concern remained
 after this review.
+
+## Execution complete
+
+Product advice: Keep the existing backend runner retirement prerequisite
+until this migration is integrated on trunk. The covered starts now have
+Node proof at the installed command and typed Dashboard boundary. Keep the
+native E2E journeys as proof of actual dispatch and restart.

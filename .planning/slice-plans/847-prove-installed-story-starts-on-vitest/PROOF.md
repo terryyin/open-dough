@@ -220,3 +220,22 @@ and share the same assertion body. The case filter passed two Node cases,
 and the full file passed all four in `847-review-literal-names.json` and
 `847-review-full-file-repaired.json`. Their assertions and the scope of the
 campaign gate are unchanged.
+Published the focused selector repair as
+`64018ca4590afbec200848fc082fd83b50a43797` on the story branch.
+
+## Retrospective
+
+Reviewed the ready plan at the established Take and the eight published
+implementation commits recorded here. The tracked source and plan on trunk
+were unchanged at the review boundary. The scoped migration covers the
+published assignment, kept start and reporting contracts using existing
+test support. Typed tests drove the migration. The added E2E
+case protects the actual Codex input and session across a Dashboard restart.
+The existing backend runner retirement story still owns the cutover after
+its prerequisite migrations are integrated.
+
+The product review settled the focused selector defect described above.
+Applicable CI remains unobserved. Process review is enabled and deferred
+until Story Wrap Up obtains an Intent Coverage result for the rewritten
+proof. That closure carries the original selection, run records and settled
+product review.
