@@ -17,14 +17,14 @@ no correctness bug in product or runner code, and these residues.
 
 ## Findings
 
-1. **Silent skip.** `dashboard/frontend.vitest.config.mts:28-30` keeps
-   only `isVitestFile` specs, and `scripts/dashboard-group-run.mjs:119-125`
+1. **Silent skip.** `dashboard/frontend.vitest.config.mts:43-45` keeps
+   only `isVitestFile` specs, and `scripts/dashboard-group-run.mjs:110-125`
    and `:192-194` drop non-Vitest files when the group has no Playwright
    config. A frontend spec without a Vitest import is neither run nor
    listed, and CI stays green. Before the cutover Playwright ran it and it
-   failed loudly. Every current frontend spec imports Vitest, so nothing is
-   skipped yet. The config comment at `:26` still names "the group's
-   Playwright specs".
+   failed loudly. All 330 frontend specs import Vitest (observed at
+   `906348957`), so nothing is skipped yet. The config comment at `:41-42`
+   still names "the group's Playwright specs".
 2. **Option ignored on an empty selection.** `dashboard-group-run.mjs:192-194`
    returns `noTests` before the native-option check at `:196-205`.
    `-- --retries 2 nomatch --pass-with-no-tests` exits 0 without refusing
@@ -37,9 +37,10 @@ no correctness bug in product or runner code, and these residues.
    `.github/workflows/browser-test-group.yml:183-191` uploads Vitest
    screenshots for `dashboard-frontend` as `<group>-playwright-report-N`,
    and its comment describes an HTML report.
+   `Distribution/tests/ci/ci-container.md:118` reads it by that name.
 5. **Stale comments.** `dashboard/test-support/support/dashboardBuild.ts:23`
-   names a static server, and `runnerConfig.mjs:28` names a mixed frontend
-   run.
+   names a static server, and `support/runnerConfig.mjs:28` names a mixed
+   frontend run.
 6. **One-consumer fixture module.** `support/frontendStoryReviewFixtures.ts`
    is a 10-line id table used only by
    `frontend-tests/review/story-review-details.spec.ts:5`, in the
@@ -51,6 +52,9 @@ no correctness bug in product or runner code, and these residues.
   runs and publishes CI proof on Vitest alone, with no path to
   `@playwright/test`. The backend group's two-engine path, shards, proof
   labels and timing artifacts stay unchanged.
+- `dashboard/frontend.vitest.config.mts` also holds a temporary hosted
+  disconnect capture (`40d40ac51`, cutoff 2026-11-29) owned by its own
+  diagnosis. Leave it as trunk has it when this work runs.
 - Keep the `No tests found` / `--pass-with-no-tests` policy for an empty
   selection.
 - Follow [Plain Vitest for unit tests; Playwright only for E2E](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).

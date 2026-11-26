@@ -513,7 +513,7 @@ links to completed proof.
 
 **Identity:** SEED-413#refuse-non-vitest-frontend-specs
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/855-refuse-non-vitest-frontend-specs/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/855-refuse-non-vitest-frontend-specs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a71cbdfe5b57f2df7a17de990126f4c6c9fa9543ba2018a2704a0ce00f20fe35","plan":"ea6c2576ea44db213a2ca2fca1c3cc41490938bf772fdf4818eb430252883b15"}}
 ```
 
 **Goal.** Dashboard maintainers learn at once when a frontend spec cannot
