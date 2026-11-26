@@ -90,7 +90,7 @@ and take a comparable pair for the execution's performance claim.
 ### 1. Resolve a follow-up's session source from typed inputs
 
 Type: Structure
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Behavior: the retained session and its published story membership are inputs
@@ -239,6 +239,25 @@ Use awake macOS on AC under `caffeinate -s -i` for long local checks per
 [AGENTS.md](../../../AGENTS.md). Apply the shared
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
 to every failure and repair handoff. Keep default test timeouts.
+
+## Execution
+
+- Mode: story-branch. Identity: SEED-413#prove-follow-up-context-on-vitest. Publisher: dashboard-territory.local-open-dough. Agent: Shunka-chan.
+- Workspace: `/Users/terryyin/git/open-dough/.worktrees/prove-retained-follow-up-context-in-node-vitest`, branch `cursor/prove-retained-follow-up-context-in-node-vitest`, reused from the established start. Starting revision `0633724b8d68d501eafaf4884ca22b04ab91659e`.
+- Accepted publication: `2b92b4894804637356af4100c48bf331abcd853a` on `origin/cursor/prove-retained-follow-up-context-in-node-vitest`. That Take is the previously published base. The claim's CI is `pendingCi: unobserved` (published before this coordinator's story-branch observer was armed).
+- Readiness: Changed since readiness review. Recorded Ready stands; Take did not renew it.
+- Replanning: existing planning authority (neither `--replan` nor `--no-replan`).
+- Checkout setup: locked `npm ci` (lockfile unchanged) and `npm run typecheck:dashboard` passed on Node v24.21.0.
+
+## Learnings
+
+- `FollowUpContextInput` carries `keptSession` and `requirePublishedFollowUpSessionStory`. `followUpContextInput()` is the production composition both `AgentLaunches.accept` and `startedRun` pass. `publishedDoneStory` decides from a `DoneStoryCatalogRead`; its default still calls `performDoneCatalogRead` once, and the refusal text is unchanged.
+- `agent-launch-follow-up-notes.spec.ts` was 249 lines. Putting the two new fields on separate lines, as formatting does, would have made it 251. The refused-follow-up arrangement now lives in `refusedNotesFollowUp.ts` (194 lines) and the spec is 63. Both are under the 250-line check.
+- The seven-spec run after that composition was 25/25 in about 25s. The earlier 65s baseline on the same selection was at a higher load. The difference is the host, not this edit.
+
+## Accepted proof
+
+Slice 1. Promise: a follow-up's kept session and published story membership are inputs of context resolution, the Done record's catalog read is a typed input, and the seven legacy specs still pass. Boundary: production follow-up admission through the backend Playwright runner. Setup: those seven specs, unchanged. Command: `npm run test:dashboard:backend -- 'launches/agent-launch-follow-up-(boundary|story|identity|live|codex|cursor|membership)\.spec\.ts$' --workers=1`. Result: 25/25 passed, `strictStatus` passed, about 25s, recorded in the checkout evidence as `slice1-refactor-backend-proof.json`, after `followUpContextInput()` replaced the two inline objects. `npm run typecheck:dashboard` exited 0. The two notes specs, 9/9, passed again after the arrangement move, including both cases in `agent-launch-follow-up-notes.spec.ts`. Caller-supplied catalog outcomes stay with slice 3.
 
 ## Plan review
 

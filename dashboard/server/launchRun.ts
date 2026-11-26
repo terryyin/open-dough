@@ -27,7 +27,10 @@ import {
 import { takeTerminalHandoff, withTerminalHandoff } from "./terminalHandoff.ts";
 import { launchWait } from "./launchWait.ts";
 import { storyOf } from "../src/launchWorkflow.ts";
-import { retainedFollowUpWithStory } from "./followUpAdmission.ts";
+import {
+  followUpContextInput,
+  retainedFollowUpWithStory,
+} from "./followUpAdmission.ts";
 import {
   nativeSessionRun,
   type NativeSessionServices,
@@ -64,7 +67,11 @@ async function startedRun(
   const { controller, attempt } = owned;
   const { progress, notes } = services;
   const noteWorker = notes?.worker;
-  const request = await retainedFollowUpWithStory(owned.request, source);
+  const request = await retainedFollowUpWithStory(
+    owned.request,
+    source,
+    followUpContextInput(),
+  );
   if (request === undefined)
     return refusedUnboundStart("The retained follow-up");
   const attachTerminal = takeTerminalHandoff(attempt.id);
