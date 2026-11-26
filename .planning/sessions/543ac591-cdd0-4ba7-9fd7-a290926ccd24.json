@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "sessionId": "543ac591-cdd0-4ba7-9fd7-a290926ccd24",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-26T14:57:08.026Z",
+  "story": "SEED-413#prove-launch-starts-and-recovery-on-vitest",
+  "ranges": [
+    {
+      "base": "dddc9adfa11f8553d23b4a28442291757d6e2f05",
+      "candidate": "452af72a9ce8b6ebc538e591ef3591b232a1a3fe"
+    },
+    {
+      "base": "452af72a9ce8b6ebc538e591ef3591b232a1a3fe",
+      "candidate": "2d2e72a79db9d3494b80f7f01bae4469d0bd2b34"
+    },
+    {
+      "base": "2d2e72a79db9d3494b80f7f01bae4469d0bd2b34",
+      "candidate": "678668f9d6b86e0765de2e94f6660ec99ace9d28"
+    },
+    {
+      "base": "678668f9d6b86e0765de2e94f6660ec99ace9d28",
+      "candidate": "0e58f2b6b2d1b8dd19448887d2fb5203b134ba5c"
+    },
+    {
+      "base": "0e58f2b6b2d1b8dd19448887d2fb5203b134ba5c",
+      "candidate": "2b7802bd0a9f3bb551bccc27d93d19b33afcd0cc"
+    },
+    {
+      "base": "2b7802bd0a9f3bb551bccc27d93d19b33afcd0cc",
+      "candidate": "91f7d9c2cad286691c6ee01ba37aa80bb8c4b389"
+    },
+    {
+      "base": "91f7d9c2cad286691c6ee01ba37aa80bb8c4b389",
+      "candidate": "148a70d04b6f3037e47a9890dca02cf97a8d034c"
+    },
+    {
+      "base": "148a70d04b6f3037e47a9890dca02cf97a8d034c",
+      "candidate": "7984549d478bc4213f3841f171764ca028dbfe7f"
+    },
+    {
+      "base": "7984549d478bc4213f3841f171764ca028dbfe7f",
+      "candidate": "2383c6df7ea795adec02b7d11dfe5d0a91a03259"
+    },
+    {
+      "base": "2383c6df7ea795adec02b7d11dfe5d0a91a03259",
+      "candidate": "39d0aafd3ce7b4b555723ac5390f4c6bb2bd17d3"
+    },
+    {
+      "base": "39d0aafd3ce7b4b555723ac5390f4c6bb2bd17d3",
+      "candidate": "ddb350ac3be0f808f0e843cb4594b57b252c8e6b"
+    },
+    {
+      "base": "6eaca3b874431ad8c5e1dca386b6a4dc6b49e5ac",
+      "candidate": "6aee7c0fd8e2a103e4840036e0075e7d917a3c79"
+    }
+  ]
+}
