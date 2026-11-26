@@ -358,6 +358,35 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 - **Safe stopping point.** Settings and lifecycle behavior remain visible
   through typed checks and representative actual serving or installed proof.
 
+<a id="prove-launch-attempts-with-typed-state"></a>
+
+### Prove Dashboard launch attempts with typed machine state
+
+**Identity:** SEED-413#prove-launch-attempts-with-typed-state
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** Developers changing launch recovery or drain need Node Vitest
+  cases that show which machine state drives each decision. `LaunchAttemptOwner`,
+  the attempt store, and project configuration currently pull state from the
+  environment. Launch-owner cases repeat a stubbed `HOME`, mounted project
+  configuration, and owner teardown to exercise those decisions.
+- **Evaluation.** Launch-owner decision cases compose typed attempts and
+  project state directly, without a stubbed `HOME` or mounted configuration.
+  A retry after interruption uses the retained attempt identity and request.
+  An update drain refuses new starts and continuations and waits until the
+  accepted attempt's outcome is durably recorded.
+- **Boundary.** Extend the typed decision and persistence split used for
+  session and landing state to launch attempts. Keep focused production
+  adapter proof for persistence and configuration, and preserve the real
+  process, Git, and native checks that observe those boundaries. Keep the
+  existing launch assertions and avoid new test-support wrappers. Runner
+  removal belongs to [runner cutover](#retire-legacy-dashboard-backend-runner).
+- **Baseline.** [Worker recovery and drain](https://github.com/terryyin/open-dough/blob/23e911e465339f1b371fd9e36cc99a583c580ac1/.planning/slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md#execution-complete)
+  landed at `62522f4f`. Its focused selection ran 23 Node cases in 8.71 s.
+  Use the same selection to compare runtime and check for lost observations.
+
 <a id="retire-legacy-dashboard-backend-runner"></a>
 
 ### Run the entire Dashboard backend unit suite on Node Vitest
