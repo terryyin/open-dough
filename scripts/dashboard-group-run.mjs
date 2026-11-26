@@ -1,7 +1,7 @@
-// A dashboard group run over two engines: the group's Vitest files through
-// its Vitest config, and its retained Playwright specs through its Playwright
-// config. The run owns the group's deadline, local suite admission, split,
-// listing, times and proof record (OPEN_DOUGH_<group>_*).
+// A dashboard group run: the group's Vitest files through its Vitest config
+// and, when the group names a Playwright config, its retained Playwright
+// specs through that config. The run owns the group's deadline, local suite
+// admission, split, listing, times and proof record (OPEN_DOUGH_<group>_*).
 import { randomUUID } from "node:crypto";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { availableParallelism, tmpdir } from "node:os";
@@ -57,12 +57,20 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
   const deadlineSetting = `${prefix}_DEADLINE_MS`;
   const argv = process.argv.slice(2);
   const stop = new AbortController();
-  const playwright = retainedPlaywright({
-    repository,
-    config: path.join(dashboard, group.config),
-    argv,
-    signal: stop.signal,
-  });
+  const playwright =
+    group.config === undefined
+      ? undefined
+      : retainedPlaywright({
+          repository,
+          config: path.join(dashboard, group.config),
+          argv,
+          signal: stop.signal,
+        });
+
+  function noTests(args) {
+    if (!args.allowEmpty) console.error("Error: No tests found.");
+    return args.allowEmpty ? 0 : 1;
+  }
 
   async function groupRun(args, files) {
     const deadline = remainingSuiteTime(
@@ -109,12 +117,12 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
         signal: stop.signal,
       });
       const retains =
+        playwright !== undefined &&
         files.some((file) => !file.vitest) &&
         (await playwright.selects(args, privateEnvironment, scratch));
       if (!vitest.files.length) {
         if (retains) return await playwright.run(argv);
-        if (!args.allowEmpty) console.error("Error: No tests found.");
-        return args.allowEmpty ? 0 : 1;
+        return noTests(args);
       }
       const native = retains
         ? {
@@ -182,13 +190,18 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
       ? all.filter((file) => matchesGroupFile(file, args))
       : [];
     if (!args || !files.some((file) => file.vitest)) {
+      if (playwright === undefined)
+        return noTests(args ?? groupArguments(argv));
       return await playwright.run(argv);
     } else if (
       args.nativeOptions.length ||
       (args.project && args.project !== "chromium")
     ) {
+      const direct = playwright
+        ? "Use the direct Playwright config for engine-specific options. "
+        : "";
       throw new Error(
-        `Use the direct Playwright config for engine-specific options. The ${group.command} command accepts paths, grep, list, workers and the chromium project.`,
+        `${direct}The ${group.command} command accepts paths, grep, list, workers and the chromium project.`,
       );
     }
     return await groupRun(args, files);

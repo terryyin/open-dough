@@ -27,8 +27,10 @@ test("each browser group's job names its own command, settings, root and shards"
     const { inputs, directory, root, shards, prefix } = group;
     // Its job runs the command its runner declares.
     assert.equal(group.command, inputs.command, group.job);
-    // Its times file labels specs relative to its configuration's directory.
-    assert.match(group.configText, /\n {2}testDir: "\.",\n/, group.config);
+    // Its times file labels specs relative to its Playwright configuration's
+    // directory.
+    if (group.config)
+      assert.match(group.configText, /\n {2}testDir: "\.",\n/, group.config);
     // Job settings agree with the configuration's prefix.
     assert.equal(inputs.settings, prefix, group.config);
     // Its root, holding its outputs and naming its proof entry, is its

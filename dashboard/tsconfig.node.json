@@ -10,7 +10,6 @@
   "exclude": ["test-support/comparison-mount", "test-support/component-mount"],
   "include": [
     "vite.config.mts",
-    "frontend.playwright.config.ts",
     "frontend.vitest.config.mts",
     "backend.vitest.config.mts",
     "backend.playwright.config.ts",

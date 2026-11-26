@@ -1,5 +1,5 @@
 // Dashboard Frontend Test: the frontend group's mounted Vitest specs in
-// Chromium beside its retained Playwright specs (./dashboard-group-run.mjs).
+// Chromium (./dashboard-group-run.mjs).
 import { runDashboardGroup } from "./dashboard-group-run.mjs";
 import { frontendGroup } from "../dashboard/test-support/support/browserTestGroups.mjs";
 

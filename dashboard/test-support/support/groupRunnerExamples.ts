@@ -1,22 +1,28 @@
 // Each runner owning one group, with one quick case of its own as its
-// arguments; `config`, `directory` (the config's testDir) and `root` are
+// arguments; `config`, `directory` (the configs' directory) and `root` are
 // relative to the repository; `job` is its CI job in .github/workflows/ci.yml.
+// `direct` names a Playwright config a run may also start from directly;
+// Dashboard Frontend Test runs on Vitest through its npm command alone.
 export const groupRunnerExamples = [
   {
     name: "Dashboard Frontend Test",
     script: "test:dashboard:frontend",
-    config: "dashboard/frontend.playwright.config.ts",
+    config: "dashboard/frontend.vitest.config.mts",
+    direct: false,
+    project: "mounted-chromium",
     prefix: "OPEN_DOUGH_DASHBOARD_FRONTEND",
     directory: "dashboard",
     root: "dashboard/frontend-tests",
     job: "dashboard-frontend",
-    spec: "test-harness/control-reachability-observation.spec.ts",
-    grep: "a control revealed by earlier scrolling is still checked",
+    spec: "intent/intent-ci-comparison-head.spec.ts",
+    grep: "a Taken comparison keeps the same observed tip",
   },
   {
     name: "Dashboard Backend Test",
     script: "test:dashboard:backend",
     config: "dashboard/backend.playwright.config.ts",
+    direct: true,
+    project: "chromium",
     prefix: "OPEN_DOUGH_DASHBOARD_BACKEND",
     directory: "dashboard",
     root: "dashboard/backend-tests",
@@ -28,6 +34,8 @@ export const groupRunnerExamples = [
     name: "E2E Test",
     script: "test:e2e",
     config: "e2e/playwright.config.ts",
+    direct: true,
+    project: "chromium",
     prefix: "OPEN_DOUGH_E2E",
     directory: "e2e",
     root: "e2e",

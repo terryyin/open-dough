@@ -112,7 +112,7 @@ spec), so slice 2 publishes together with slice 3.
 ### 3. The frontend group command runs on Vitest alone
 
 Type: Structure
-Status: planned
+Status: done
 
 Make the group run accept a group without a Playwright config. Remove the
 frontend config from `browserTestGroups.mjs`. Delete
@@ -131,6 +131,17 @@ writes a record with the same labels. The four backend specs pass through
 `npm run test:dashboard:backend --`, and a backend listing still includes
 both engines. The Distribution support tests pass through
 `scripts/test.sh <files>`.
+
+**Accepted proof.** The frontend listing shows 835 Vitest rows and no
+Playwright row. File and title selection work, and an empty selection exits
+1, or 0 with `--pass-with-no-tests`. A proof record keeps the baseline
+labels. The legacy-only `test-preparation-frontend` spec and its fixture
+are deleted with `frontendGlobalSetup.ts`. `runner-ownership`,
+`dashboard-artifact-demand`, `run-processes`, the backend listing (both
+engines), the Distribution `local-test-suite*`, `ci-browser-groups` and
+`browser-group-shards` tests, typecheck and lint pass.
+`frontend-tests/README.md` and the `playwright-report/` ignore stay for
+slice 5.
 
 ### 4. No built-app substitute support remains for frontend unit tests
 

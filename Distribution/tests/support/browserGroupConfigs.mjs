@@ -2,7 +2,8 @@
 // `browserGroups`), joined to the declaration its runner takes for the same
 // job (dashboard/test-support/support/browserTestGroups.mjs): its npm
 // command, settings prefix, test root, `directory` (repository-relative) and
-// Playwright `config` (repository-relative), with `configText` to read.
+// Playwright `config` (repository-relative) unless it runs on Vitest alone,
+// with `configText` to read.
 import { readFileSync } from "node:fs";
 import { posix, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,7 +15,7 @@ export const browserGroupConfigs = browserGroups.map(({ job, inputs }) => {
   const directory =
     declared &&
     relative(fileURLToPath(root), fileURLToPath(declared.directory));
-  const config = declared && posix.join(directory, declared.config);
+  const config = declared?.config && posix.join(directory, declared.config);
   return {
     ...declared,
     job,

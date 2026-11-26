@@ -69,9 +69,6 @@ export function suiteRunnerLayer() {
       files: {
         ...runner.files,
         ...helpers.files,
-        "dashboard/frontend.playwright.config.mts": withFramework(
-          "dashboard/frontend.playwright.config.ts",
-        ),
         "dashboard/backend.playwright.config.mts": withFramework(
           "dashboard/backend.playwright.config.ts",
         ),
@@ -124,7 +121,6 @@ exit "\${PROBE_EXIT:-0}"
           '#!/usr/bin/env bash\nmkdir -p "$OBSERVE"\ntouch "$OBSERVE/start"\n',
         ...Object.fromEntries(
           [
-            ["frontend", "./frontend.playwright.config.mts"],
             ["backend", "./backend.playwright.config.mts"],
             ["e2e", "../e2e/playwright.config.mts"],
           ].map(([runner, config]) => [

@@ -1,7 +1,7 @@
 // What every test group's Playwright configuration does for its own run
 // before Playwright starts it, and the run options they share. Each
-// configuration (../../frontend.playwright.config.ts,
-// ../../backend.playwright.config.ts, ../../../e2e/playwright.config.ts)
+// configuration (../../backend.playwright.config.ts,
+// ../../../e2e/playwright.config.ts)
 // runs its own group (./browserTestGroups.mjs) with its own settings prefix,
 // root, CI job and output directory and keeps its own global setup, so no
 // run reads another runner's split, times, proof record, deadline or output

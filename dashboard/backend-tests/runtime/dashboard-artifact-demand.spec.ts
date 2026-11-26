@@ -231,7 +231,6 @@ proveArtifact(
 // Each other group runner's own setup shares the app build the same way and
 // removes it when interrupted.
 for (const [runner, file] of [
-  ["Dashboard Frontend Test", "frontendGlobalSetup.ts"],
   ["Dashboard Backend Test", "backendGlobalSetup.ts"],
   ["E2E Test", "e2eGlobalSetup.ts"],
 ] as const)
