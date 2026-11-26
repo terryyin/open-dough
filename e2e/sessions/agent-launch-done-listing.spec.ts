@@ -46,7 +46,6 @@ const backlogStoryTitle = "Story A";
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
 const minute = 60_000;
-const opened = Date.parse("2026-10-28T10:00:00.000Z");
 const retainedStory = (index: number) => ({
   identity: `SEED-900#retained-${String(index)}`,
   title: `Retained story ${String(index + 1)}`,
@@ -54,8 +53,11 @@ const retainedStory = (index: number) => ({
 
 // Retained done sessions at several ages, one of them a Backlog story's,
 // each with a report and every part of the detail the history keeps.
-function retainedSessions(dashboard: DashboardServer): LaunchRecord[] {
-  const detailed = replayRecords(dashboard.home, "unix://unused", opened)
+function retainedSessions(
+  dashboard: DashboardServer,
+  openedAt: number,
+): LaunchRecord[] {
+  const detailed = replayRecords(dashboard.home, "unix://unused", openedAt)
     .records.filter(
       ({ doneAt, session }) =>
         doneAt !== undefined && session.host === "claude",
@@ -63,7 +65,7 @@ function retainedSessions(dashboard: DashboardServer): LaunchRecord[] {
     .slice(0, 5);
   return detailed.map((detail, index) => {
     const title = `Retained session ${String(index + 1)}`;
-    const launchedAt = opened - (index * 3 + 1) * 60 * minute;
+    const launchedAt = openedAt - (index * 3 + 1) * 60 * minute;
     const sessionId = dashboard.claudeListsSession({
       name: title,
       cwd: dashboard.home,
@@ -175,7 +177,9 @@ test("retained sessions listed by their listing facts show as the full answer sh
   dashboard,
   origin,
 }) => {
-  const retained = retainedSessions(dashboard);
+  // The server applies retention against its wall clock.
+  const openedAt = Date.now();
+  const retained = retainedSessions(dashboard, openedAt);
   const message = retained[1]?.completion?.message ?? "";
   expect(message).not.toBe("");
   await origin.publishRevision({
@@ -184,13 +188,13 @@ test("retained sessions listed by their listing facts show as the full answer sh
       makeMe.aDoneRecord
         .completed({
           ...retainedStory(index),
-          completedAt: new Date(opened - index * 60 * minute).toISOString(),
+          completedAt: new Date(openedAt - index * 60 * minute).toISOString(),
         })
         .please(),
     ),
   });
   keepLaunchStore(dashboard, { "open-dough": retained });
-  await pausePageClockAt(page, new Date(opened));
+  await pausePageClockAt(page, new Date(openedAt));
   await showPage(page, origin);
   const listed = await shownRetained(page);
 
