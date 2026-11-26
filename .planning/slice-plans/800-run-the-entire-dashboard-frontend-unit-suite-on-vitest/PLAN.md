@@ -80,20 +80,34 @@ failing consumers, with their revision. If any legacy spec outside
 If a consumer falls outside slices 3–5, replan those slices before
 continuing.
 
-### 2. Harness proof keeps only genuine measurement, touch and reachability checks
+### 2. Playwright observation helpers keep their proof in the backend group
 
 Type: Structure
-Status: planned
+Status: done
 
-Audit the three `pageTest.ts` harness specs. Move each genuine assertion to
-a Vitest owner, either an existing observation spec or the measured
-component. Retire assertions that prove only scaffolding being deleted, and
-map each retired case to its reason in this plan.
+The three legacy `test-harness/` specs prove Playwright-only helpers that
+E2E and backend page objects use: `expectEveryControlReachable` and
+`tapWhereShown` (`controlReachability.ts`), the four arrangement checks
+(`partArrangement.ts`) and `scrollByTouch` (`touchGestures.ts`). They need
+`Locator`, `page.touchscreen` and CDP sessions, which the in-browser Vitest
+mounts lack, and they touch no built-app substitute. Move the three specs
+unchanged into `dashboard/backend-tests/observation/`, keeping all 11 cases
+on the shared `pageTest.ts` base. The separately scheduled backend migration
+decides their later home.
 
-**Proof.** Each moved assertion fails under a scratch break of the behavior
-it measures, then passes once the break is reverted. Run the moved files
-through `npm run test:dashboard:frontend -- <files>`. No `test-harness/`
-spec imports `pageTest.ts`.
+**Proof.** Each moved spec fails under a scratch break of the helper it
+measures and passes once the break is reverted, run through
+`npm run --silent test:dashboard:backend -- <files> --workers=2`. The
+frontend listing shows no `test-harness/` spec importing `pageTest.ts`, and
+the backend listing includes the 11 cases.
+
+**Accepted proof.** All 11 cases moved with their names; none retired.
+Scratch breaks of `expectEveryControlReachable`, `expectStackedInOrder` and
+`scrollByTouch` failed each moved spec through the backend command, and the
+reverted run passed 11 cases. Typecheck and lint passed. The move leaves
+`runner-ownership` "Dashboard Frontend Test runs started beside each other"
+without its frontend example (`groupRunnerExamples.ts` names the moved
+spec), so slice 2 publishes together with slice 3.
 
 ### 3. The frontend group command runs on Vitest alone
 
