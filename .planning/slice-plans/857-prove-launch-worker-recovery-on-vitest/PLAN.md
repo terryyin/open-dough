@@ -106,7 +106,7 @@ those production stores read the environment rather than typed inputs.
 ### 2. Recover the interrupted attempt's original conversation
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Convert `agent-launch-continuation-interrupted` in place. With a dead worker,
@@ -121,6 +121,13 @@ assertions on native thread, cwd and turn count alongside
 [restart](../../../e2e/launches/responsive-session-recovery-restart.spec.ts)
 and [verification](../../../e2e/launches/responsive-session-recovery-verification.spec.ts).
 A held host callback alone cannot establish native receipt.
+
+Delivered: the spec is one Node case through `attemptRun` with
+`native: () => ({ launch, recover })`, replacing the patch's host spies. The
+four-spec focused selection passed 14 of 14 on Node with no Chromium case.
+Letting reconciliation write before settlement failed it. Native receipt stays
+with the three E2E receivers, which were unchanged. Refactor pass skipped: only
+the subject spec changed, and its setup repetition is slice 1's follow-up.
 
 ### 3. Retry a timed-out launch at its saved effort while protecting a live launch
 

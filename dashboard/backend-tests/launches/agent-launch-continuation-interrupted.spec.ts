@@ -1,175 +1,212 @@
-// Continuing a kept launch attempt that needs reconciliation
-// (../../server/launchAttemptOwner.ts), over raw HTTP: an attempt left unsettled
-// by a server that closed blocks a fresh start of its story on the restarted
-// server, and only its own continuation resumes it -- under the same attempt
-// identity and the existing recovery rules, here Codex's recovery of an
-// unconfirmed first input, which resumes the recorded conversation without
-// submitting it again. A continuation the service cannot match to a kept
-// attempt that needs it is refused with nothing started; such an attempt, or
-// one this machine does not keep, is never noted reconciled. Unreadable kept
-// attempts: ../../../e2e/launches/agent-launch-continuation.spec.ts. A story
-// whose latest attempt settled uncertain blocks a fresh start the same way
-// (./agent-launch-uncertain-continuation.spec.ts).
-
-import { randomUUID } from "node:crypto";
-import type { AttemptObservation } from "../../src/agentLaunch.ts";
-import {
-  accept,
-  attempts,
-  continueAttempt,
-  noteReconciled,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  keptAttempts,
-  settledOutcome,
-} from "../../test-support/acceptedAttempts.ts";
-import {
-  test,
-  expect,
-  stored,
-} from "../../test-support/support/codexLaunch.ts";
-import {
-  sharedDashboardBuild,
-  startDashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
+import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
+import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
+import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
+import type { LaunchHost } from "../../server/launchHosts.ts";
+import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { attemptRun } from "../../server/launchRun.ts";
+import { machineDashboardPath } from "../../server/machineHome.ts";
+import {
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
+import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 
-test.use({ projectFolders: ["open-dough"] });
-
-type Answer = {
-  kind: string;
-  reason?: string;
-  explanation?: string;
-  attempt?: AttemptObservation;
+const source = makeMe.aPublishedSource.openDough.please();
+const story = {
+  source: source.id,
+  identity: "SEED-052#recover",
+  title: "Recover this story",
+  host: "codex" as const,
+  instruction: "Continue with the original input.",
 };
+const policy = {
+  tracking: "one-shot",
+  workspace: "isolated",
+  landing: "review",
+} as const;
 
-const answerOf = (response: { body: string }) =>
-  JSON.parse(response.body) as Answer;
-
-test("an attempt a closed server left unsettled blocks a fresh start of its story and is resumed only by its own continuation, without a second input", async ({
-  dashboard,
-  codexProtocol,
-  machine,
-  github,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture.");
-  native.hold = true;
-  const request = makeMe.aLaunchRequest
-    .refining({ ...storyA, host: "codex" })
-    .withPolicy({
-      tracking: "one-shot",
-      workspace: "isolated",
-      landing: "review",
-    })
-    .please();
-  const accepted = answerOf(await accept(dashboard, request)).attempt;
-  if (accepted === undefined) throw new Error("The launch was not accepted.");
-  const inputs = () =>
-    native.calls.filter((call) => call.method === "turn/start");
-  await expect.poll(() => inputs().length).toBe(1);
-  // The installed one-shot prepares its workspace without publishing.
-  const [running] = await attempts(dashboard);
-  expect(running).toMatchObject({ publication: { kind: "none" }, owned: true });
-  await dashboard.close();
-  await expect.poll(() => native.sockets.size).toBe(0);
-  native.release();
-  native.resumeStatus = "completed";
-
-  const restarted = await startDashboardServer({
-    mode: "preview",
-    prebuilt: sharedDashboardBuild,
-    machine,
-    github,
-    codexProtocol,
-    projectFolders: ["open-dough"],
+function machine() {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-interrupted-attempt-"));
+  vi.stubEnv("HOME", home);
+  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
+  const unmount = mountProjectConfiguration("development");
+  const owner = new LaunchAttemptOwner();
+  onTestFinished(async () => {
+    owner.close();
+    try {
+      await owner.drain();
+    } finally {
+      unmount();
+      vi.unstubAllEnvs();
+      rmSync(home, { recursive: true, force: true });
+    }
   });
-  try {
-    // No server runs it now, so it has no next change to count.
-    const interrupted = {
-      ...running,
-      owned: false,
-      running: false,
-      changes: undefined,
-    };
-    expect(await attempts(restarted)).toEqual([interrupted]);
-    // No workflow's fresh start of the story is accepted.
-    for (const workflow of ["refinement", "execution"]) {
-      expect(
-        answerOf(await accept(restarted, { ...request, workflow })),
-      ).toMatchObject({
-        kind: "failed",
-        reason: "already-starting",
-        explanation: expect.stringContaining(
-          "An earlier start of this story on this machine was interrupted and needs reconciliation",
-        ),
-      });
-    }
-    expect(
-      answerOf(await continueAttempt(restarted, randomUUID())),
-    ).toMatchObject({ kind: "failed", reason: "refused" });
-    expect(
-      answerOf(await continueAttempt(restarted, accepted.id, "doughnut")),
-    ).toMatchObject({ kind: "failed", reason: "refused" });
-    // Nor is it, or an attempt this machine does not keep, noted reconciled.
-    for (const [attempt, source] of [
-      [randomUUID(), "open-dough"],
-      [accepted.id, "doughnut"],
-      [accepted.id, "open-dough"],
-    ] as const) {
-      expect(
-        answerOf(await noteReconciled(restarted, attempt, source)),
-      ).toMatchObject({ kind: "refused" });
-    }
-    expect(await attempts(restarted)).toEqual([interrupted]);
+  appendConfiguredProject(
+    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
+  );
+  return { home, owner };
+}
 
-    const continued = answerOf(await continueAttempt(restarted, accepted.id));
-    expect(continued).toMatchObject({
-      kind: "accepted",
-      attempt: {
-        id: accepted.id,
-        request,
-        acceptedAt: accepted.acceptedAt,
-        owned: true,
-      },
+test("only the interrupted attempt recovers its original conversation, once, without a second input", async () => {
+  const { home, owner } = machine();
+  const request = makeMe.aLaunchRequest
+    .refining(story)
+    .withPolicy(policy)
+    .please();
+  const acceptedAt = new Date().toISOString();
+  // Its worker died before the first input was confirmed.
+  const attempt = makeMe.anAcceptedAttempt
+    .requesting(request)
+    .acceptedAt(acceptedAt)
+    .workedBy({ pid: 2147483647, step: "launch", notedAt: acceptedAt })
+    .please();
+  await keepAttempt(attempt);
+  const workspace = path.join(home, "kept-workspace");
+  const pending = {
+    state: "uncertain",
+    instruction: story.instruction,
+  } as const;
+  const record = makeMe.aLaunchRecord
+    .refining(story)
+    .onStoryBranch({
+      tracking: "one-shot",
+      role: policy.workspace,
+      landing: policy.landing,
+      workspace,
+      branch: "codex/story",
+    })
+    .inCodexSession({
+      sessionId: "interrupted-thread",
+      continuation: { workspace, endpoint: "unix:///saved-codex.sock" },
+    })
+    .withFirstInput(pending)
+    .launchedAt(acceptedAt)
+    .please();
+  keepLaunchStore(home, { [source.id]: [record] });
+
+  const confirmed = {
+    ...pending,
+    state: "confirmed",
+    turnId: "original-turn",
+  } as const;
+  const atRecovery: unknown[] = [];
+  const recover = vi.fn<NonNullable<LaunchHost["recover"]>>(
+    async (...[kept, , evidence]) => {
+      atRecovery.push(await keptRecords(source.id), await keptAttempts());
+      await evidence.session(kept.session, confirmed);
+      return {
+        kind: "launched",
+        session: kept.session,
+        sessionState: { kind: "unknown" },
+      };
+    },
+  );
+  const launch = vi.fn<LaunchHost["launch"]>(() => {
+    throw new Error("Unexpected new native launch.");
+  });
+  const progress = new StartProgress();
+  const run = vi.fn<AttemptRun>((own, notes) =>
+    attemptRun(source, own, {
+      progress,
+      notes,
+      doneMarks: { reported: vi.fn() },
+      native: () => ({ launch, recover }),
+    }),
+  );
+  const before = vi.fn((id: string, kept: AgentLaunchRequest) =>
+    preContinuationAnswer(source, id, kept, progress),
+  );
+  const continuation = (project: string, id: string) =>
+    owner.continueAttempt(project, id, (kept) => before(id, kept), run);
+  const file = machineDashboardPath("launch-attempts.json");
+  const original = readFileSync(file, "utf8");
+
+  expect((await owner.attempts()).attempts).toEqual([
+    { ...attempt, running: false, owned: false },
+  ]);
+  for (const workflow of ["execution", "refinement"] as const) {
+    const fresh = makeMe.aLaunchRequest
+      .ofWorkflow(workflow, story)
+      .withPolicy(policy)
+      .please();
+    expect(await owner.accept(fresh, run)).toMatchObject({
+      kind: "failed",
+      reason: "already-starting",
+      explanation: expect.stringContaining(
+        "was interrupted and needs reconciliation",
+      ) as unknown,
     });
-    const outcome = await settledOutcome(restarted, accepted.id);
-    expect(outcome).toEqual({
-      kind: "launched",
-      session: { host: "codex", sessionId: native.threadId },
-    });
-    expect(keptAttempts(restarted)).toEqual([
-      expect.objectContaining({
-        id: accepted.id,
-        acceptedAt: accepted.acceptedAt,
-        request,
-        outcome,
-      }),
-    ]);
-    // A settled attempt is no longer continued.
-    expect(
-      answerOf(await continueAttempt(restarted, accepted.id)),
-    ).toMatchObject({ kind: "failed", reason: "refused" });
-    // Settled, it is noted reconciled once; noting it again changes nothing.
-    const noted = answerOf(await noteReconciled(restarted, accepted.id));
-    expect(noted).toMatchObject({
-      kind: "reconciled",
-      attempt: { id: accepted.id, outcome, reconciledAt: expect.any(String) },
-    });
-    expect(answerOf(await noteReconciled(restarted, accepted.id))).toEqual(
-      noted,
-    );
-    expect(keptAttempts(restarted)).toEqual([
-      expect.objectContaining({
-        id: accepted.id,
-        reconciledAt: noted.attempt?.reconciledAt,
-      }),
-    ]);
-    expect(inputs()).toHaveLength(1);
-    expect(stored(restarted.home)).toHaveLength(1);
-    expect(stored(restarted.home)[0]?.session.sessionId).toBe(native.threadId);
-  } finally {
-    await restarted.close();
   }
+  const unknown = "00000000-0000-4000-8000-00000000aaaa";
+  for (const [project, id] of [
+    [source.id, unknown],
+    ["doughnut", attempt.id],
+  ] as const) {
+    expect(await continuation(project, id)).toMatchObject({
+      kind: "failed",
+      reason: "refused",
+    });
+    expect(await owner.reconcile(project, id)).toHaveProperty(
+      "kind",
+      "refused",
+    );
+  }
+  // Unsettled, it is not noted reconciled either.
+  expect(await owner.reconcile(source.id, attempt.id)).toHaveProperty(
+    "kind",
+    "refused",
+  );
+  expect(readFileSync(file, "utf8")).toBe(original);
+  expect(before).not.toHaveBeenCalled();
+  expect(run).not.toHaveBeenCalled();
+
+  expect(await continuation(source.id, attempt.id)).toMatchObject({
+    kind: "accepted",
+    attempt: { id: attempt.id, acceptedAt, request, owned: true },
+  });
+  await owner.drain();
+  expect(before).toHaveBeenCalledExactlyOnceWith(attempt.id, request);
+  // Native recovery received the saved conversation of the original attempt.
+  expect(recover).toHaveBeenCalledOnce();
+  expect(recover.mock.calls[0]?.[0]).toEqual(record);
+  expect(atRecovery).toEqual([
+    [record],
+    [expect.objectContaining({ id: attempt.id, acceptedAt, request })],
+  ]);
+  expect(launch).not.toHaveBeenCalled();
+  expect(await keptRecords(source.id)).toEqual([
+    { ...record, firstInput: confirmed },
+  ]);
+  const outcome = {
+    kind: "launched",
+    session: { host: "codex", sessionId: record.session.sessionId },
+  };
+  expect(await keptAttempts()).toMatchObject([
+    { id: attempt.id, acceptedAt, request, outcome },
+  ]);
+
+  // Settled, it is no longer continued.
+  expect(await continuation(source.id, attempt.id)).toMatchObject({
+    kind: "failed",
+    reason: "refused",
+  });
+  expect(run).toHaveBeenCalledOnce();
+
+  // It is noted reconciled once; noting it again changes nothing.
+  const noted = await owner.reconcile(source.id, attempt.id);
+  assert.equal(noted.kind, "reconciled");
+  expect(noted.attempt).toMatchObject({ id: attempt.id, outcome });
+  expect(noted.attempt.reconciledAt).toMatch(/\S/);
+  const reconciled = readFileSync(file, "utf8");
+  expect(await owner.reconcile(source.id, attempt.id)).toEqual(noted);
+  expect(readFileSync(file, "utf8")).toBe(reconciled);
 });
