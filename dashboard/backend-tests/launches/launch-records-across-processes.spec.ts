@@ -6,13 +6,7 @@
 import assert from "node:assert/strict";
 import { fork } from "node:child_process";
 import { on } from "node:events";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  utimesSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -31,6 +25,7 @@ import type { PublishedSource } from "../../src/publishedSource.ts";
 import { alertReading } from "../../src/sessionShown.ts";
 import { attentionCount } from "../../src/sessionCounts.ts";
 import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
+import { settleFile } from "../../test-support/support/machineFileIdentity.ts";
 
 const childMode = "--launch-records-child";
 const records = z.array(launchRecordSchema);
@@ -114,12 +109,6 @@ function privateMachine(): string {
   return machine;
 }
 
-// Dates the store a minute back, so this process holds what it parsed.
-function settleStore(): void {
-  const earlier = new Date(Date.now() - 60_000);
-  utimesSync(machineDashboardPath("agent-launches.json"), earlier, earlier);
-}
-
 const everyOther = <T>(items: readonly T[], offset: 0 | 1): T[] =>
   items.filter((...[, index]) => index % 2 === offset);
 
@@ -153,7 +142,7 @@ if (process.argv[2] === childMode) {
   }) => {
     const kept = execution("10000000-0000-4000-8000-000000000001").please();
     await replaceRecords(() => ({ [source.id]: [kept] }));
-    settleStore();
+    settleFile(machineDashboardPath("agent-launches.json"));
     expect(await keptRecords(source.id)).toEqual([kept]);
     expect(await keptRecords(source.id)).toEqual([kept]);
 

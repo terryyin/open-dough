@@ -130,7 +130,7 @@ two child protocols differ. No test-support helper lost its last caller.
 ### 3. Recover unreadable stores and expire done records
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Proof: Replace a store this process already read with an unreadable file
@@ -143,6 +143,13 @@ ago and one marked 31 days ago, reads keep all three in the file. The
 next recording drops only the 31-day record. Convert
 `agent-launch-records-replaced.spec.ts` case 2 and
 `agent-launch-records.spec.ts` cases 2–3.
+
+Outcome: `launch-record-store.spec.ts` holds the three cases in Vitest
+(7–58 ms each, private `HOME`, no child), and both legacy records specs are
+deleted. Retention reads the real clock, so `daysAgo` places the done marks
+a day either side of the 30-day bound. `settleFile` and
+`replaceFileKeepingTimes` in `test-support/support/machineFileIdentity.ts`
+now check with `node:assert`, so both runners share them.
 
 ### 4. Keep equal native IDs bound to their own host
 
