@@ -256,56 +256,6 @@ promises stay unchanged.
 
 **Plan.** [Restore dropped session workspace proof](../slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md)
 
-<a id="prove-native-first-input-on-vitest"></a>
-
-### Prove host launch choices and first input in Node Vitest
-
-**Identity:** SEED-413#prove-native-first-input-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/849-prove-native-first-input-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aee1a362a23a71aca56ef70a5bab8f0a35d5944a1da25ff73477f6edff1dd66f","plan":"663d66254fc851e83340e9e0da9e9cae57e67ef838e61764cf5aa282b95332dc"}}
-```
-
-- **Goal.** Give Dashboard maintainers fast Node Vitest feedback on the
-  developer's Claude, Codex, or Cursor model and effort choices, and on
-  whether first input was sent or safely recovered in the original native
-  conversation. This family can then leave the mixed backend runner.
-- **Scope.** Move the 15 legacy native-dispatch and first-input specs
-  owned by the [plan](../slice-plans/849-prove-native-first-input-on-vitest/PLAN.md)
-  off backend Playwright. Cover host discovery, model and effort
-  admission and refusal, durable creation before first input, uncertain
-  first-input recovery, connection loss and startup reconnection, and
-  competing starts through typed production operations. Preserve the
-  story-linked start and the saved attempt's original workspace and
-  request. Retain real process or protocol proof where dispatch,
-  cancellation, loss, or reconnection supplies the observation. The
-  [coverage map](#backend-vitest-replacement-coverage) assigns installed
-  starts, workspace choices, follow-up context, kept records, and
-  session or terminal lifecycle to their own stories.
-- **Key examples.**
-  - Given a Claude, Codex, or Cursor launch with a listed model and
-    effort, those choices reach the native process or protocol and stay
-    in the kept record. An unlisted model, unsupported effort, or
-    unestablished Cursor scope is refused before create-chat or first
-    input. Unavailable discovery still permits a configured default,
-    blank input, or predecessor record where the host allows it.
-  - Given durable native identity recording that fails, first input does
-    not run and the known continuation is explained. Unreadable creation
-    evidence refuses Codex before native creation while Claude can still
-    be admitted, and the evidence file remains.
-  - Given a lost first-input acknowledgment, matching history confirms
-    the original input. An explicit refusal can allow the saved input
-    once in the same conversation. Unreadable, missing, empty, unrelated,
-    or wrong-workspace history never authorizes a resend. For a blank
-    story-linked Codex launch, matching conversation and workspace
-    evidence with the known history refusal can confirm persistence with
-    zero native turns. Competing held starts send only one native input.
-    Distinct instructions stay independent.
-  - Given host connection loss after acknowledgment, recovery and
-    disposal remain observable. A saved Codex conversation reconnects
-    after daemon loss at startup.
-- **Mapped slices.** See the [plan](../slice-plans/849-prove-native-first-input-on-vitest/PLAN.md).
-- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
-
 <a id="prove-follow-up-context-on-vitest"></a>
 
 ### Prove retained follow-up context in Node Vitest
@@ -495,7 +445,7 @@ or removed once its behavior or duplicate is accounted for.
 | 14 launch admission, attempt and worker specs | [Launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest) |
 | 15 installed execution and refinement specs | [Installed story starts](https://github.com/terryyin/open-dough/blob/79475eaef07720be5bdd25722433060d62f8a19a/.planning/slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md), completed on Node Vitest with native dispatch and restart in E2E |
 | 18 workspace and scheduled launch specs, plus the cutover's later `admitted-session-duplicate.spec.ts` | [Session workspace choices](https://github.com/terryyin/open-dough/blob/daea1238c354addf980ff601d7b794fe4523c927/.planning/slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md), completed on Node Vitest except the Codex isolated case, which [its correction](#restore-session-workspace-vitest-proof) moves |
-| 15 native dispatch and first-input specs | [Prove host launch choices and first input in Node Vitest](#prove-native-first-input-on-vitest) |
+| 15 native dispatch and first-input specs | [Host choices and first input](https://github.com/terryyin/open-dough/blob/eac4d5e9e4041f64f603a5afc08378552a9c433c/.planning/slice-plans/849-prove-native-first-input-on-vitest/PLAN.md), completed on Node Vitest with worker shutdown and restart in E2E |
 | 6 ordinary follow-up context specs | [Prove retained follow-up context in Node Vitest](#prove-follow-up-context-on-vitest) |
 | 7 retained launch record specs | [Prove retained launch records in Node Vitest](#prove-kept-launch-records-on-vitest) |
 | Four `start-origin-{default,demand,isolation,private}` specs | [Runner cutover](#retire-legacy-dashboard-backend-runner), preserving private installed fixture behavior wherever it remains in use |
