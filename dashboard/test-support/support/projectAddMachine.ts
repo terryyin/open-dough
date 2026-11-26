@@ -17,6 +17,7 @@ import { gitHubRepositoryUrl } from "./fixtureOriginRoute.ts";
 import { commitPublishedOrigin } from "./publishedOrigin.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { takenStoryFiles } from "./retainedProjectStory.ts";
 import {
   projectConfigurationFile,
   projectEnvironmentOf,
@@ -27,15 +28,22 @@ export const addedRepository = "example/sample-app";
 export const addedBranch = "release+stable";
 export const addedLocalPath = "~/work/private-checkout";
 
-export function projectAddMachine() {
+export function projectAddMachine(
+  retainedStory?: Parameters<typeof takenStoryFiles>[0][number],
+) {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-project-add-"));
   const checkout = path.join(machine, "home/work/private-checkout");
   const installedOrigin = path.join(machine, "sample-app.git");
-  const facts = {
+  const repository =
+    retainedStory === undefined
+      ? makeMe.aRepository.please()
+      : makeMe.aRepository
+          .withRevision("base", { files: takenStoryFiles([retainedStory]) })
+          .please();
+  const published = publishes({
     defaultBranch: addedBranch,
-    backlog: describedBacklog(makeMe.aRepository.please()),
-  };
-  const published = publishes(facts);
+    backlog: describedBacklog(repository),
+  });
   const localBranch = commitPublishedOrigin({
     branch: "local-checkout",
     backlog: null,
@@ -96,7 +104,7 @@ export function projectAddMachine() {
         checkout,
         addedRepository,
         "claude",
-        makeMe.aRepository.please(),
+        repository,
       );
       git(installedOrigin, "branch", addedBranch, "main");
       git(installedOrigin, "symbolic-ref", "HEAD", `refs/heads/${addedBranch}`);

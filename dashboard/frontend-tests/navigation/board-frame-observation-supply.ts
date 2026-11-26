@@ -193,8 +193,6 @@ export function boardFrameObservationSupplying(
     },
   };
 
-  const revision = machineAnswer.revision ?? "m".repeat(40);
-
   const machine: MachineReadSource = {
     ...pageReadsSupplying({}).machine,
     readHistorySince: () => Promise.resolve(undefined),
@@ -203,6 +201,7 @@ export function boardFrameObservationSupplying(
       machineRead ??
       ((...args) => {
         const [held, , options] = args;
+        const revision = machineAnswer.revision ?? "m".repeat(40);
         return Promise.resolve(
           options?.fresh !== true && held === revision
             ? { unchanged: true, revision }

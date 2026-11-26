@@ -576,9 +576,19 @@ local gate passed Dashboard typecheck, eight Node cases, eighteen terminal
 and Continue boundary cases, five mounted cases and four browser Review
 journeys. The published guidance reproduces the exact native handoff block.
 The final Dashboard discovery removed 15 cases on the current trunk base.
-The published candidate is needed for exact hosted Distribution proof and
-the like-for-like combined count. The planned status remains pending the
-source decision and the authorized production activation. See
+The exact Distribution fragments for published candidate `6dc31fef1`
+count 2,359 cases, three more than the matching trunk proof. The combined
+footprint is 5,856 against 5,868 on the comparable base. The production
+source and activation gates are still open. GitHub run `45756056000`,
+attempt 1, surfaced three fixture boundaries. The restored-project fixture
+now commits its retained story before serving its first origin, the
+mounted Board reads the current revision on each poll, and the retained
+read fixture restores Git's actual branch together with its advertised
+revision. The exact local repairs passed five restored/Add cases, five
+mounted cases, both retained-read cases and Dashboard typecheck. They
+change neither product source nor case discovery. Keep the exact CI
+result separate from the case measurement. See
+`slice-10-published-cutover-case-counts.json`,
 `slice-10-combined-candidate-focused.log`, the three final candidate list
 logs, and `slice-10-integrated-store-verification-directory.txt` in worktree
 Git evidence. The private transfer proof exercised a successful apply,

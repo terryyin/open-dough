@@ -16,7 +16,6 @@ import type {
   PathHistories,
 } from "./pathHistoryAnswers.ts";
 import { aheadBy, type Comparison } from "./comparisonAnswers.ts";
-import { publishBranch } from "./committedOriginRepo.ts";
 import { defaultRepository } from "./publishedOriginBasics.ts";
 import { answerFrom } from "./revisionReuseAnswers.ts";
 import type { FakeGitHub, RepositoryAnswerer } from "./support/fakeGitHub.ts";
@@ -139,10 +138,15 @@ export async function advanceReusePublication(
 
 export function restoreReusePublication(publication: ReusePublication): void {
   const { origin, revision, trunk } = publication;
+  // Restore the index and working tree before moving the checked-out ref.
   execFileSync("git", ["read-tree", "--reset", "-u", revision], {
     cwd: origin,
   });
-  publishBranch(origin, "main", revision);
+  execFileSync(
+    "git",
+    ["update-ref", "refs/heads/main", revision, trunk.revision],
+    { cwd: origin },
+  );
   trunk.revision = revision;
 }
 
