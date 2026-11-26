@@ -170,7 +170,7 @@ for the Backlog card offer. Convert `agent-launch-preparation-resume`,
 ### 6. Continue Codex refinement only with its Git-verified allocation
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: After a real Codex preparation is published, build its kept start

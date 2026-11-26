@@ -25,7 +25,7 @@ Files in the following map are relative to `dashboard/backend-tests/launches/`.
 | 3 | `agent-launch-start-resume.spec.ts`, `agent-launch-start-codex-recovery.spec.ts` | Same claim and workspace after slow, stopped, lost and Codex acknowledgment cases. Three stopped or lost-workspace cases select `agent-launch-start-lost.spec.ts` on the candidate. |
 | 4 | `agent-launch-preparation-start.spec.ts`, `agent-launch-preparation-stops.spec.ts` | Preparing on origin, kept preparation, stops with nothing kept |
 | 5 | `agent-launch-preparation-resume.spec.ts`, `agent-launch-preparation-continuation-refusal.spec.ts`, `agent-launch-preparation-store-failure.spec.ts` | One profile across slow, stopped, interrupted and refused starts. Store failure preserves preparation. Unannounced cases select `agent-launch-preparation-unannounced.spec.ts` on the candidate. |
-| 6 | `agent-launch-preparation-codex-continuation.spec.ts`, `agent-launch-preparation-codex-retry.spec.ts` | Git-verified continuation, refused damaged retry, origin unchanged |
+| 6 | `agent-launch-preparation-codex-continuation.spec.ts`, `agent-launch-preparation-codex-retry.spec.ts` | Git-verified continuation, refused damaged retry, origin unchanged. Missing-workspace cases select `agent-launch-preparation-codex-lost-workspace.spec.ts` on the candidate. |
 | 7 | `agent-launch-incomplete-reporting-settlement.spec.ts`, `agent-launch-update-worktree-retry.spec.ts` | Missing helper refused before dispatch, updater apply resumes once |
 
 For the first and final comparisons, use fresh absolute proof paths from
@@ -36,7 +36,7 @@ its proof owner. Confirm discrimination for any legacy assertion retired as
 redundant.
 
 ```sh
-selection='launches/agent-launch-(start(-refusal|-taken-refused|-duplicate|-resume|-lost|-codex-recovery)?|preparation-(start|stops|resume|unannounced|continuation-refusal|store-failure|codex-continuation|codex-retry)|incomplete-reporting-settlement|update-worktree-retry)\.spec\.ts$'
+selection='launches/agent-launch-(start(-refusal|-taken-refused|-duplicate|-resume|-lost|-codex-recovery)?|preparation-(start|stops|resume|unannounced|continuation-refusal|store-failure|codex-continuation|codex-retry|codex-lost-workspace)|incomplete-reporting-settlement|update-worktree-retry)\.spec\.ts$'
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/launches/agent-launch-(start-(phases|taken)|preparation-(phases|kept|codex-retry)|codex-recovery)\.spec\.ts$' --workers=1
 ```
@@ -155,3 +155,19 @@ E2E supplies native refusal and same-workspace retry. See `847-s5-return.md`.
 The independent refactor removed the legacy preparation fixture after its
 last callers moved. The accepted checks still apply.
 See `847-s5-refactor-return.md`.
+Published as `069b26a068c7342d9db96168e9d9fe68303fec53` on the story branch,
+above `4686067b120630730e3bdbdf11e326b84328957f`, with CI unobserved.
+
+### Slice 6
+
+All 12 Codex continuation and retained damage cases passed in Node across
+three specs, with no Chromium selections (18.295 s summed, 22.71 s
+elapsed). Git verifies the same allocation for legacy SHA omission and lost
+results. Each refusal preserves the damaged local evidence and original
+publication, including the older installed script and lost workspace case.
+The retained Codex native continuation E2E and Dashboard typecheck also
+passed. See `847-s6-return.md` for the mapping to native refusal and retry.
+The three changed specs use the existing private-origin and typed store
+boundaries. The product and shared fixture search found no refactor needed.
+All eight damaged retries passed after the final setup cleanup in
+`847-s6-damage-setup.json`.

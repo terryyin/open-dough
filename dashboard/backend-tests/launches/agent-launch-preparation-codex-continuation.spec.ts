@@ -1,86 +1,128 @@
-// Retained receipts can be incomplete; only real Git allocation verifies continuation.
-import { readFileSync, writeFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+// Retained local evidence can be incomplete. Git verifies its allocation.
+import { execFile } from "node:child_process";
 import path from "node:path";
-import { keptStarts, launch } from "../../test-support/agentLaunchBoundary.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { stored } from "../../test-support/support/codexLaunch.ts";
-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
-import type { StartRecord } from "../../server/startStore.ts";
+import { promisify } from "node:util";
+import { afterEach, beforeAll, beforeEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { started, type Started } from "../../server/launchStart.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import {
+  startStore,
+  type StartRecord,
+  type StartStore,
+} from "../../server/startStore.ts";
+import {
+  queuedIdentity,
+  startOrigin,
+  type StartOrigin,
+} from "../../test-support/support/startOrigin.ts";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
-// No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary", preparationHost: "codex" });
+const exec = promisify(execFile);
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
+const request = makeMe.aLaunchRequest
+  .refining({ identity: queuedIdentity, title: "Story A", host: "codex" })
+  .please();
+
+let origin: StartOrigin;
+let store: StartStore;
+let home: string;
+let retained: StartRecord;
+let preparation: Exclude<
+  NonNullable<StartRecord["preparation"]>,
+  { tracking: "one-shot" }
+>;
+let profiles: Record<string, unknown>[];
+let publication: string;
+let pending: Promise<Started> | undefined;
+
+beforeAll(async () => {
+  const initial = await startOrigin(repository, { host: "codex" });
+  try {
+    keepStartedOrigin("codex", repository, initial);
+  } finally {
+    initial.cleanup();
+  }
+});
+
+function start() {
+  pending = started(
+    source,
+    request,
+    { path: origin.project, shown: "~/git/open-dough" },
+    new StartProgress(),
+    { store: () => store, env: { ...process.env, HOME: home } },
+    "refinement-attempt",
+  );
+  return pending;
+}
+
+beforeEach(async () => {
+  pending = undefined;
+  origin = await startOrigin(repository, { host: "codex" });
+  home = path.join(origin.machine, "home");
+  store = startStore("refinement", home);
+
+  expect(await start()).toMatchObject({ kind: "established" });
+  const [kept, head, assignments] = await Promise.all([
+    store.kept(source.id, queuedIdentity),
+    origin.originGit("rev-parse", "main"),
+    origin.takenProfiles(),
+  ]);
+  if (kept?.preparation === undefined || "tracking" in kept.preparation)
+    throw new Error("Expected a published preparation.");
+  retained = kept;
+  preparation = kept.preparation;
+  publication = head.trim();
+  profiles = assignments;
+  expect(preparation.publishedSha).toBe(publication);
+});
+
+afterEach(async () => {
+  await Promise.allSettled([pending]);
+  origin.cleanup();
+});
 
 for (const evidence of ["legacy-sha", "lost-result"] as const) {
-  test(`Codex retained ${evidence} continues only the workspace's verified allocation`, async ({
-    dashboard,
-    origin,
-    codexProtocol,
-  }) => {
-    const native = codexProtocol;
-    if (native === undefined) throw new Error("Native fixture missing.");
-    const request = makeMe.aLaunchRequest
-      .refining({
-        identity: queuedIdentity,
-        title: "Story A",
-        host: "codex",
-      })
-      .please();
-    native.refuseCreation = true;
-    expect((await launch(dashboard, request)).body).toContain(
-      "Codex refused to create",
+  test(`Codex retained ${evidence} continues only the workspace's verified allocation`, async () => {
+    await store.keep(
+      source.id,
+      makeMe.aStartRecord
+        .with({
+          ...retained,
+          preparation:
+            evidence === "legacy-sha"
+              ? { ...preparation, publishedSha: undefined }
+              : undefined,
+        })
+        .please(),
     );
-    const profiles = await origin.takenProfiles();
-    const publication = (await origin.originGit("rev-parse", "main")).trim();
-    const startsFile = path.join(
-      dashboard.home,
-      ".open-dough/dashboard/refinement-starts.json",
-    );
-    const starts = JSON.parse(readFileSync(startsFile, "utf8")) as Record<
-      string,
-      Record<string, StartRecord>
-    >;
-    const retained = starts["open-dough"]?.[queuedIdentity];
-    if (retained?.preparation === undefined)
-      throw new Error("Published preparation missing from fixture start.");
-    if ("tracking" in retained.preparation)
-      throw new Error("Fixture start unexpectedly established one-shot.");
-    const preparation = retained.preparation;
-    if (evidence === "legacy-sha") delete preparation.publishedSha;
-    else delete retained.preparation;
-    writeFileSync(startsFile, JSON.stringify(starts));
-    native.refuseCreation = false;
-    expect((await launch(dashboard, request)).body).toContain(
-      '"kind":"launched"',
-    );
-    expect(await origin.takenProfiles()).toEqual(profiles);
-    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(
-      publication,
-    );
-    expect(stored(dashboard.home)[0]?.preparation).toMatchObject({
+
+    const outcome = await start();
+    const [head, assignments, kept, ref] = await Promise.all([
+      origin.originGit("rev-parse", "main"),
+      origin.takenProfiles(),
+      store.kept(source.id, queuedIdentity),
+      exec("git", ["rev-parse", "refs/worktree/dough/preparation-assignment"], {
+        cwd: preparation.workspace,
+      }),
+    ]);
+
+    const assignment = {
       agent: preparation.agent,
       workspace: preparation.workspace,
       branch: preparation.branch,
+    };
+    expect(outcome).toMatchObject({
+      kind: "established",
+      workspace: { path: preparation.workspace },
+      handoff: { established: { preparation: assignment } },
     });
-    expect(await keptStarts(dashboard)).toEqual([]);
-    expect(
-      native.calls.filter(({ method }) => method === "thread/start"),
-    ).toHaveLength(2);
-    expect(
-      native.calls.filter(({ method }) => method === "turn/start"),
-    ).toHaveLength(1);
-    expect(
-      execFileSync(
-        "git",
-        [
-          "-C",
-          preparation.workspace,
-          "rev-parse",
-          "refs/worktree/dough/preparation-assignment",
-        ],
-        { encoding: "utf8" },
-      ).trim(),
-    ).toBe(publication);
+    expect(kept?.preparation).toMatchObject(assignment);
+    expect(head.trim()).toBe(publication);
+    expect(assignments).toEqual(profiles);
+    expect(ref.stdout.trim()).toBe(publication);
   });
 }
