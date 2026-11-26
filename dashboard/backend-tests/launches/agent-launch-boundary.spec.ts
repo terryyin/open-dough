@@ -1,254 +1,230 @@
-// Raw HTTP and the synthetic Claude boundary for an installed story launch.
-// The installed workflow publishes and the native launch receives its result.
-
+// The typed launch owner keeps a Claude session only after native confirmation.
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, realpathSync, rmSync, symlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
-  launch,
-  openDoughFolder,
-  recordsOf,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { expect } from "../../test-support/support/pageTest.ts";
-import { waitUntil } from "../../test-support/support/waitUntil.ts";
-import { processRunning } from "../../test-support/support/processGroup.ts";
-import { git } from "../../test-support/support/startOriginObservation.ts";
-import {
-  expectStoryInput,
-  launchClaude,
-  queuedExecution,
-  roughRefinement,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
   test,
-} from "../support/installedClaudeLaunch.ts";
+  vi,
+} from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  queuedReadyRepository,
+  storyA,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import * as baseCi from "../../server/baseCiJudgment.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { machineFolder } from "../../server/localFolder.ts";
+import {
+  configuredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
+import {
+  installFakeClaude,
+  type FakeClaudeControls,
+} from "../../test-support/support/fakeClaude.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
+import {
+  startOrigin,
+  type StartOrigin,
+} from "../../test-support/support/startOrigin.ts";
+import { git } from "../../test-support/support/startOriginObservation.ts";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
-const launchWaitMs = 4_000;
+const repository = queuedReadyRepository().please();
+const source = makeMe.aPublishedSource.openDough.please();
+const execution = makeMe.aLaunchRequest.executing(storyA).please();
+const reportingOrigin = "http://127.0.0.1:4173";
+let origin: StartOrigin;
+let native: FakeClaudeControls;
+let home: string;
+let launches: AgentLaunches;
+let marks: NativeDoneMarks;
+let unmount: () => void;
 
-test("launches Claude Code in the installed execution workspace and keeps the confirmed record", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude({ mountBoundary: true });
-  const result = await launchClaude(server, queuedExecution);
-  const { record } = result;
-  const name = `Open Dough · Execution · ${queuedExecution.title}`;
-  expect(record.request).toMatchObject(queuedExecution);
-  expect(record.session).toMatchObject({ host: "claude", name });
-  if (record.session.host !== "claude")
-    throw new Error("Missing Claude session");
-  const { shortId, sessionId } = record.session;
-  expect(shortId).toMatch(/^[0-9a-f]{8}$/);
-  expect(sessionId.startsWith(shortId)).toBe(true);
-
-  const project = openDoughFolder(server);
-  const workspace = path.join(project, ".worktrees", "story-a");
-  const origin = await git(project, "remote", "get-url", "origin");
-  expect(record.start).toMatchObject({
-    branch: "claude/story-a",
-    mode: "story-branch",
-    publishedSha: await git(origin, "rev-parse", "main"),
-  });
-  expect(realpathSync(record.start?.workspace ?? "")).toBe(workspace);
-  expectStoryInput(server, result, {
-    command: `/dough-execute-plan ${queuedExecution.identity}`,
-    identity: queuedExecution.identity,
-  });
-  // The launch runs in its workspace. The host listing confirms it from the project.
-  expect(
-    server
-      .claudeCalls()
-      .filter((call) => [project, workspace].includes(call.cwd)),
-  ).toEqual([
-    {
-      argv: [
-        "--bg",
-        "--name",
-        name,
-        "--effort",
-        "medium",
-        "--disallowedTools",
-        "Artifact",
-        "--",
-        result.started.instruction,
-      ],
-      cwd: workspace,
-    },
-    { argv: ["agents", "--json", "--all"], cwd: project },
-  ]);
-  expect(await recordsOf(server, "open-dough")).toEqual([record]);
-  expect(await recordsOf(server, "doughnut")).toEqual([]);
+beforeAll(async () => {
+  const prepared = await startOrigin(repository);
+  try {
+    keepStartedOrigin("claude", repository, prepared);
+  } finally {
+    prepared.cleanup();
+  }
 });
 
-test("launches refinement on its own skill and name and hands off the developer's instruction", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude({ mountBoundary: true });
-  const instruction = "Focus on the empty-state wording";
-  const result = await launchClaude(server, {
-    ...roughRefinement,
-    instruction,
-  });
-  const name = `Open Dough · Refinement · ${roughRefinement.title}`;
-  expect(result.record.request).toMatchObject({
-    workflow: "refinement",
-    instruction,
-  });
-  expect(result.record.session.name).toBe(name);
-  expect(result.started).toMatchObject({ name, effort: "medium" });
-  const project = openDoughFolder(server);
-  const origin = await git(project, "remote", "get-url", "origin");
-  expect(result.record.preparation).toMatchObject({
-    branch: "claude/story-c",
-    publishedSha: await git(origin, "rev-parse", "main"),
-  });
-  expect(realpathSync(result.record.preparation?.workspace ?? "")).toBe(
-    path.join(project, ".worktrees", "story-c"),
+beforeEach(async () => {
+  origin = await startOrigin(repository);
+  const fixture = installFakeClaude(
+    origin.machine,
+    { binDir: origin.machine, path: process.env.PATH ?? "" },
+    {},
   );
-  expectStoryInput(server, result, {
-    command: `/dough-story-refinement ${roughRefinement.identity}`,
-    identity: roughRefinement.identity,
-    instruction,
+  native = fixture.controls;
+  for (const [key, value] of Object.entries(fixture.env))
+    vi.stubEnv(key, value);
+  home = path.join(origin.machine, "home");
+  vi.spyOn(baseCi, "judgeBranchCi").mockResolvedValue({
+    state: "pass",
+    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    subject: "Fixture base",
+    laterWithoutResult: 0,
   });
+  unmount = mountProjectConfiguration("production");
+  marks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: () => undefined,
+    reportingFolder: machineFolder,
+  });
+  launches = new AgentLaunches(marks);
 });
 
-test("names the missing execution checkout and starts no claude", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude({ mountBoundary: true });
-  const callsBefore = server.claudeCalls().length;
-  const response = await launch(server, {
-    ...queuedExecution,
-    source: "doughnut",
-  });
+afterEach(async () => {
+  // In a failing timeout test, closing first still ends the held process.
+  launches.close();
+  await launches.drain();
+  await marks.close();
+  unmount();
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  origin.cleanup();
+});
 
-  expect(response.status).toBe(200);
-  const answer = JSON.parse(response.body) as { explanation: string };
+async function accept(request: AgentLaunchRequest) {
+  const accepted = await launches.accept(source, request, reportingOrigin);
+  if (accepted.kind !== "accepted") {
+    throw new Error(`Expected an accepted launch: ${JSON.stringify(accepted)}`);
+  }
+  return accepted.attempt.id;
+}
+
+async function settle(id: string) {
+  await launches.drain();
+  return (await launches.attempts()).attempts.find(
+    (attempt) => attempt.id === id,
+  )?.outcome;
+}
+
+async function launch() {
+  return settle(await accept(execution));
+}
+
+test("names a missing execution checkout without starting Claude", async () => {
+  const missing = configuredProject("doughnut");
+  if (missing === undefined) throw new Error("Expected a configured project.");
+  const request = makeMe.aLaunchRequest
+    .executing({ ...storyA, source: missing.id })
+    .please();
+  const answer = await launches.accept(missing, request, reportingOrigin);
   expect(answer).toMatchObject({
     kind: "failed",
     reason: "folder-not-found",
+    explanation: expect.stringContaining("~/git/doughnut") as unknown,
   });
-  expect(answer.explanation).toContain("~/git/doughnut");
-  expect(server.claudeCalls()).toHaveLength(callsBefore);
-  expect(await recordsOf(server, "doughnut")).toEqual([]);
+  expect(native.claudeCalls()).toEqual([]);
+  expect(await keptRecords(missing.id)).toEqual([]);
 });
 
-for (const failure of [
-  { scenario: "untrusted", reason: "folder-not-trusted" },
-  { scenario: "refused", reason: "refused" },
-] as const) {
-  test(`answers ${failure.reason} without forwarding claude's own words, and keeps no record`, async ({
-    installedClaude,
-  }) => {
-    const server = await installedClaude({ mountBoundary: true });
-    server.claudeScenario(failure.scenario);
-    const recordsBefore = (await recordsOf(server, "open-dough")).length;
-    const response = await launch(server, queuedExecution);
-
-    expect(response.status).toBe(200);
-    const answer = JSON.parse(response.body) as { explanation: string };
-    expect(answer).toMatchObject({
-      kind: "failed",
-      reason: failure.reason,
-    });
-    expect(answer.explanation).toContain("Run `claude` in that folder once");
-    expect(answer.explanation).toContain("~/git/open-dough");
-    expect(response.body).not.toContain(server.home);
-    expect(response.body).not.toContain("secret-marker-from-claude-stderr");
-    expect(await recordsOf(server, "open-dough")).toHaveLength(recordsBefore);
-  });
-}
-
-test("answers uncertain when claude reports a session its listing does not show", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude({ mountBoundary: true });
-  server.claudeScenario("unlisted");
-  const recordsBefore = (await recordsOf(server, "open-dough")).length;
-  const callsBefore = server.claudeCalls().length;
-  const response = await launch(server, queuedExecution);
-
-  const answer = JSON.parse(response.body) as { explanation: string };
-  expect(answer).toMatchObject({
-    kind: "uncertain",
-    reason: "unconfirmed",
-  });
-  expect(answer.explanation).toContain("claude agents");
-  expect(
-    server
-      .claudeCalls()
-      .slice(callsBefore)
-      .map((call) => call.argv[0]),
-  ).toEqual(["--bg", "agents"]);
-  expect(await recordsOf(server, "open-dough")).toHaveLength(recordsBefore);
-});
-
-test("answers uncertain once the launch wait expires, and ends the waiting claude", async ({
-  installedClaude,
-}) => {
-  const server = await installedClaude({
-    mountBoundary: true,
-    launchTimeoutMs: launchWaitMs,
-  });
-  server.claudeScenario("hang");
-  const recordsBefore = (await recordsOf(server, "open-dough")).length;
-  const started = Date.now();
-  const response = await launch(server, queuedExecution);
-
-  expect(Date.now() - started).toBeGreaterThanOrEqual(launchWaitMs - 100);
-  const answer = JSON.parse(response.body) as { explanation: string };
-  expect(answer).toMatchObject({ kind: "uncertain", reason: "timed-out" });
-  expect(answer.explanation).toContain("claude agents");
-  expect(
-    await waitUntil(() => !processRunning(server.heldClaudePid()), {
-      timeoutMs: 5_000,
-    }),
-  ).toBe(true);
-  expect(server.heldClaudeEndedBy()).toBe("SIGTERM");
-  expect(await recordsOf(server, "open-dough")).toHaveLength(recordsBefore);
-});
-
-test("refuses before publishing a Take when Claude Code is absent", async ({
-  installedClaude,
-}) => {
-  const bin = mkdtempSync(path.join(tmpdir(), "dough-start-git-only-"));
-  try {
-    // Give the installed start Git and its local transport without exposing a real Claude.
-    const gitPath = execFileSync("sh", ["-c", "command -v git"], {
-      encoding: "utf8",
-    }).trim();
-    const gitHelpers = execFileSync(gitPath, ["--exec-path"], {
-      encoding: "utf8",
-    }).trim();
-    symlinkSync(gitPath, path.join(bin, "git"));
-    for (const helper of ["git-upload-pack", "git-receive-pack"])
-      symlinkSync(path.join(gitHelpers, helper), path.join(bin, helper));
-    const server = await installedClaude({
-      claude: "absent",
-      pathPrefix: [bin],
-    });
-    const project = openDoughFolder(server);
-    const origin = await git(project, "remote", "get-url", "origin");
-    const main = await git(origin, "rev-parse", "refs/heads/main");
-    const worktrees = await git(project, "worktree", "list", "--porcelain");
-    const response = await launch(server, queuedExecution);
-
-    expect(response.status).toBe(200);
-    expect(JSON.parse(response.body)).toMatchObject({
-      kind: "failed",
-      reason: "start-refused",
-      explanation:
-        "Claude Code (`claude`) was not found on this machine. Install it to start a session.",
-    });
-    expect(await git(origin, "rev-parse", "refs/heads/main")).toBe(main);
-    const worktreesAfter = await git(
-      project,
-      "worktree",
-      "list",
-      "--porcelain",
+describe("a published story launching without an installed start", () => {
+  beforeEach(() => {
+    rmSync(
+      path.join(
+        origin.project,
+        ".claude/skills/dough-execute-plan/scripts/established-start.mjs",
+      ),
     );
-    expect(worktreesAfter).toBe(worktrees);
-    expect(server.claudeCalls()).toEqual([]);
-    expect(await recordsOf(server, "open-dough")).toEqual([]);
-  } finally {
-    rmSync(bin, { recursive: true, force: true });
-  }
+  });
+
+  test.each([
+    { scenario: "untrusted", reason: "folder-not-trusted" },
+    { scenario: "refused", reason: "refused" },
+  ] as const)(
+    "keeps no session after $reason and explains it without forwarding native stderr",
+    async ({ scenario, reason }) => {
+      native.claudeScenario(scenario);
+      const answer = await launch();
+      if (answer?.kind !== "failed")
+        throw new Error(`Expected a failure: ${JSON.stringify(answer)}`);
+      expect(answer.reason).toBe(reason);
+      expect(answer.explanation).toContain("Run `claude` in that folder once");
+      expect(answer.explanation).toContain("~/git/open-dough");
+      expect(answer.explanation).not.toContain(home);
+      expect(answer.explanation).not.toContain(
+        "secret-marker-from-claude-stderr",
+      );
+      expect(native.claudeCalls().map(({ argv }) => argv[0])).toEqual(["--bg"]);
+      expect(await keptRecords(source.id)).toEqual([]);
+    },
+  );
+
+  test("answers uncertain when the reported session is absent from Claude's listing", async () => {
+    native.claudeScenario("unlisted");
+    expect(await launch()).toMatchObject({
+      kind: "uncertain",
+      reason: "unconfirmed",
+      explanation: expect.stringContaining("claude agents") as unknown,
+    });
+    expect(native.claudeCalls().map(({ argv }) => argv[0])).toEqual([
+      "--bg",
+      "agents",
+    ]);
+    expect(await keptRecords(source.id)).toEqual([]);
+  });
+
+  test("ends the waiting Claude process with SIGTERM when launch times out", async () => {
+    const endWait = path.join(origin.machine, "end-launch-wait");
+    vi.stubEnv("DOUGH_TEST_LAUNCH_WAIT_END_FILE", endWait);
+    native.claudeScenario("hang");
+    const id = await accept(execution);
+
+    await expect
+      .poll(() => native.heldClaudePid(), { timeout: 4_000 })
+      .toEqual(expect.any(Number));
+    const pid = native.heldClaudePid();
+    expect(processRunning(pid)).toBe(true);
+    writeFileSync(endWait, "");
+    expect(await settle(id)).toMatchObject({
+      kind: "uncertain",
+      reason: "timed-out",
+      explanation: expect.stringContaining("claude agents") as unknown,
+    });
+    await expect.poll(() => processRunning(pid)).toBe(false);
+    expect(native.heldClaudeEndedBy()).toBe("SIGTERM");
+    expect(await keptRecords(source.id)).toEqual([]);
+  });
+});
+
+test("refuses before publishing a Take when Claude is absent", async () => {
+  const bin = path.join(origin.machine, "git-only");
+  mkdirSync(bin);
+  symlinkSync(
+    execFileSync("which", ["git"], { encoding: "utf8" }).trim(),
+    path.join(bin, "git"),
+  );
+  const main = await origin.originGit("rev-parse", "refs/heads/main");
+  const worktrees = await git(
+    origin.project,
+    "worktree",
+    "list",
+    "--porcelain",
+  );
+  vi.stubEnv("PATH", bin);
+
+  expect(await launch()).toMatchObject({
+    kind: "failed",
+    reason: "start-refused",
+    explanation:
+      "Claude Code (`claude`) was not found on this machine. Install it to start a session.",
+  });
+  expect(await origin.originGit("rev-parse", "refs/heads/main")).toBe(main);
+  expect(await git(origin.project, "worktree", "list", "--porcelain")).toBe(
+    worktrees,
+  );
+  expect(native.claudeCalls()).toEqual([]);
+  expect(await keptRecords(source.id)).toEqual([]);
 });

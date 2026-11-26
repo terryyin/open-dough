@@ -77,6 +77,8 @@ behavioral evidence and take a comparable pair for any performance claim.
   starting revision `01fa9d50fe2b5445ed8f3a80ceee53930ee5a8a5`.
   Established claim `365c7c69bbdc91f7ca9c1b5119e34b20f9fcf724` is
   confirmed on the remote execution branch.
+  Slice 1 published as `d6691f5bb35fc2214a1629e7ec873dcdbabe158e`
+  on that branch with observer registration.
 - Locked checkout install, native Chromium prerequisite check, and Dashboard
   typecheck passed. Retain the existing eight-slice scope and use the
   recorded baseline for behavior on the unchanged launch paths.
@@ -128,7 +130,7 @@ reporting observers.
 ### 2. Confirm or end the Claude process started for a story
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Proof: Account for `agent-launch-boundary.spec.ts` (254 lines). Partition
@@ -143,6 +145,41 @@ check accounts for its observations. Keep the
 [Claude verification E2E](../../../e2e/launches/agent-launch-claude-verification.spec.ts)
 and [unconfirmed-input E2E](../../../e2e/launches/agent-launch-unconfirmed-input.spec.ts)
 for verification and kept-record recovery.
+
+Accepted proof: All eight cases run in Node Vitest. The Claude handoff spec
+keeps execution and refinement on actual private Git origins. It matches
+the launch and confirmation listing arguments and working directories,
+the native identity, the recorded origin revision, workspace and branch,
+and the transmitted command, reporting context and developer input.
+The boundary spec observes missing checkout and absent Claude, safe
+untrusted-folder and native refusal answers, an unlisted session, and a
+controlled launch wait that ends the held process with SIGTERM and leaves
+no record. The missing-Claude case checks that trunk and worktrees are
+unchanged. Removed fixture entry points had no consumers. The unchanged
+change-wait consumer still uses the retained queued request fixture.
+
+The backend selector
+`launches/agent-launch-(boundary|claude-handoff)\.spec\.ts$` passed all
+eight cases in two Node files and selected zero Playwright cases. Measured
+11.753 s summed and 21.32 s wall. The two real-Git handoffs took 7.62 s
+combined, and all eight were above 100 ms. The unchanged control selection
+of model-boundary, start, preparation-start and change-wait passed 15 Node
+and three Chromium checks. Dashboard typecheck passed. Concurrent work
+loaded all 16 logical CPUs during an earlier run. The host outcome tests
+now use an already published story through the native handoff fallback
+to remove incidental installation work. The independent refactor moved
+the model spec's private origin and host setup to its setup hook,
+preserving the actual installed start in each case. All eight model
+cases and Dashboard typecheck passed after that change. The run measured
+24.938 s summed, including setup, and 28.88 s wall at lower machine load.
+All checks use default timeouts.
+
+Workspace-choice sibling `SEED-413#prove-session-workspace-starts-on-vitest`
+landed at `23f2e537f`. Integrated pinned trunk `6bce7ce06` in merge
+`ef0e5de2b` because the sibling extracted the native run and changed the
+retained unconfirmed-input E2E. The combined backend replay passed 41
+Node cases and three retained Chromium change-wait cases. The affected
+unconfirmed-input Chromium E2E passed on the combined tree.
 
 ### 3. Admit Codex model and effort before acknowledging input
 

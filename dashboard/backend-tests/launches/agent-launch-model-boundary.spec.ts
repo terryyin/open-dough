@@ -1,5 +1,4 @@
-import { mkdtempSync, realpathSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { realpathSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -34,8 +33,7 @@ const storyRequest = makeMe.aLaunchRequest.executing(storyA).please();
 const draftRequest = makeMe.aLaunchRequest.adHoc().please();
 const reportingOrigin = "http://127.0.0.1:4173";
 
-let root: string;
-let origin: StartOrigin | undefined;
+let origin: StartOrigin;
 let claude: ReturnType<typeof installFakeClaude>["controls"];
 let unmount: () => void;
 let marks: NativeDoneMarks;
@@ -50,15 +48,21 @@ beforeAll(async () => {
   }
 });
 
-beforeEach(() => {
-  root = mkdtempSync(path.join(tmpdir(), "dough-claude-model-"));
+beforeEach(async () => {
+  origin = await startOrigin(repository);
   const native = installFakeClaude(
-    root,
-    { binDir: root, path: process.env["PATH"] ?? "" },
+    origin.machine,
+    { binDir: origin.machine, path: process.env["PATH"] ?? "" },
     {},
   );
   claude = native.controls;
   for (const [key, value] of Object.entries(native.env)) vi.stubEnv(key, value);
+  vi.spyOn(baseCi, "judgeBranchCi").mockResolvedValue({
+    state: "pass",
+    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    subject: "Fixture base",
+    laterWithoutResult: 0,
+  });
   unmount = mountProjectConfiguration("production");
   marks = new NativeDoneMarks({
     terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
@@ -75,21 +79,10 @@ afterEach(async () => {
   unmount();
   vi.restoreAllMocks();
   vi.unstubAllEnvs();
-  origin?.cleanup();
-  origin = undefined;
-  rmSync(root, { recursive: true, force: true });
+  origin.cleanup();
 });
 
 async function settle(request: AgentLaunchRequest) {
-  const project = await startOrigin(repository);
-  origin = project;
-  vi.stubEnv("HOME", path.join(project.machine, "home"));
-  vi.spyOn(baseCi, "judgeBranchCi").mockResolvedValue({
-    state: "pass",
-    revision: (await project.originGit("rev-parse", "main")).trim(),
-    subject: "Fixture base",
-    laterWithoutResult: 0,
-  });
   await admitLaunchSettings(request, claudeHost);
   const accepted = await launches.accept(source, request, reportingOrigin);
   if (accepted.kind !== "accepted")
@@ -97,7 +90,7 @@ async function settle(request: AgentLaunchRequest) {
   await launches.drain();
   const { attempts } = await launches.attempts();
   return {
-    project,
+    project: origin,
     outcome: attempts.find(({ id }) => id === accepted.attempt.id)?.outcome,
     kept: await keptRecords(source.id),
   };
