@@ -38,6 +38,60 @@ and [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-lo
 [Add Project](../../dashboard/server/projectAddition.ts) resolves the default branch
 from origin's symbolic `HEAD` when configuring a project.
 
+<a id="move-authenticated-read-proofs-off-the-board-ref-read"></a>
+
+### Move authenticated-read proofs off the Board's ref read
+
+**Identity:** SEED-430#move-authenticated-read-proofs-off-the-board-ref-read
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"da1a7484de2a63c4eead5a09c7ad7bfd737d7ab27a553da2edbb06c81dd20aff","plan":"b172e311c7c18a55ae3ae8036a737aa5af69d7a489a90a4c14e6d4733f569889"}}
+```
+
+Split on 2026-11-26 from the
+[Board open story](#open-the-board-from-the-verified-git-trunk) as its
+prerequisite. That story's slice 1 switch, held uncommitted in its
+workspace, failed about 31 spec files whose tests reach general
+authenticated-read behavior through the Board's REST `ref` read, which the
+Git open no longer asks.
+
+**Goal.** A maintainer can switch the Board's cold open to Git without
+losing proof of the authenticated-read behavior that other REST reads still
+depend on. Those proofs reach the behavior through a REST read that
+survives the switch, and both Dashboard suites stay green before and after it.
+
+**Scope.** Retarget tests whose subject is general authenticated-read,
+fake-gh or test-support behavior and that trigger it through the cold `ref`
+read (`?source=` with no revision, or an origin `ref` answer set before
+the first open). They trigger it through the revision check (`&since=`), a
+pinned read (`&revision=`), or a failed check after the Board has opened. The
+covered behaviors are failure classification, diagnostics and incident
+records, output and process bounds, held gh lifecycle, directed waits and
+cooldown, the shared request owner, retained-answer and reuse call
+accounting, project isolation counts, and transient recovery after a failed
+check. Assertions keep their promise and change only the read category or
+the gh call they name. Product code does not change.
+
+Cases whose promise is the Board's cold open through REST stay with the
+Board open story, which replaces them with Git failures: `read-failure`,
+`transient-read-exclusions`, `project-read-recovery`,
+`project-read-isolation`'s held first open, `authenticated-project-observation`,
+the cold-open cases of `transient-read-recovery`, the reload step shared by
+the `limited-reading-*` specs, `authenticated-read-revision-backlog`, and
+the logged-out cold-open case in `authenticated-read-retained-answers`.
+
+**Key examples.**
+
+- Given a fake gh that answers the revision check with HTTP 503, a read
+  with `&since=` reports the same "while reading main of" failure and
+  records an incident in the `revision-check` category.
+- Given retained answers across a restart, the compared call lists leave
+  out the Board's membership reads and still show every retained detail
+  read once.
+- Given an opened Board, a later check that loses its connection keeps the
+  shown snapshot, and the next successful check recovers it.
+- With the Board open story's switch applied, every retargeted spec passes
+  unchanged.
+
 <a id="open-the-board-from-the-verified-git-trunk"></a>
 
 ### Open the Board from the verified Git trunk
@@ -47,7 +101,7 @@ from origin's symbolic `HEAD` when configuring a project.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ba63ad9284fbd10d045b7ffc9c2d43d3ce645d270d371874a45731e5d54588b6","plan":"4c478e9d3f396d1c939533a6c9e4ddab8667d09677a87964454671cc3a4b6085"}}
 ```
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-430#open-the-board-from-the-verified-git-trunk","dependencies":[{"supplier":{"identity":"SEED-430#open-and-refresh-board-at-verified-trunk","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk"},"implementation":"The shared verified-origin trunk check, and detail, credit, and recovery proofs that leave REST membership out of their compared lists","rationale":"The Board open switches the ref case onto that check. Building another check would duplicate the probe, fetch, and sharing already landed.","condition":"The shared verified-origin trunk check and the detail, credit, and recovery proofs that leave REST membership out of their compared lists are on origin/main","state":"satisfied","resolution":{"revision":"374ccd86b15fdb1909590cc447b863bb34bb65f6","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk","summary":"Slices 1–3 are on origin/main through 81c2cab55021673e9d04dde1d1b873cd47eb0be9. The verified-origin trunk check and the shared check are published at 2dca752cf7bf75737c07f6f84635967658514c53 and c532c7b0ae87b4b257231cf69b2a31c00aab18a6. The detail, credit, and recovery proofs that leave REST membership out of their compared lists are published at 11264ea38b4a45592ff54328f60ef90a33899870. The before-cleanup revision 374ccd86b15fdb1909590cc447b863bb34bb65f6 records that delivered story before its section was removed.\nCondition satisfied: The shared verified-origin trunk check and the detail, credit, and recovery proofs that leave REST membership out of their compared lists are on origin/main\nAccepted integration: 81c2cab55021673e9d04dde1d1b873cd47eb0be9 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"identity":"SEED-430#open-the-board-from-the-verified-git-trunk","dependencies":[{"supplier":{"identity":"SEED-430#open-and-refresh-board-at-verified-trunk","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk"},"implementation":"The shared verified-origin trunk check, and detail, credit, and recovery proofs that leave REST membership out of their compared lists","rationale":"The Board open switches the ref case onto that check. Building another check would duplicate the probe, fetch, and sharing already landed.","condition":"The shared verified-origin trunk check and the detail, credit, and recovery proofs that leave REST membership out of their compared lists are on origin/main","state":"satisfied","resolution":{"revision":"374ccd86b15fdb1909590cc447b863bb34bb65f6","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk","summary":"Slices 1–3 are on origin/main through 81c2cab55021673e9d04dde1d1b873cd47eb0be9. The verified-origin trunk check and the shared check are published at 2dca752cf7bf75737c07f6f84635967658514c53 and c532c7b0ae87b4b257231cf69b2a31c00aab18a6. The detail, credit, and recovery proofs that leave REST membership out of their compared lists are published at 11264ea38b4a45592ff54328f60ef90a33899870. The before-cleanup revision 374ccd86b15fdb1909590cc447b863bb34bb65f6 records that delivered story before its section was removed.\nCondition satisfied: The shared verified-origin trunk check and the detail, credit, and recovery proofs that leave REST membership out of their compared lists are on origin/main\nAccepted integration: 81c2cab55021673e9d04dde1d1b873cd47eb0be9 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-430#move-authenticated-read-proofs-off-the-board-ref-read","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#move-authenticated-read-proofs-off-the-board-ref-read"},"implementation":"Authenticated-read, fake-gh and recovery proofs that reach their behavior through a REST read that survives the Board's Git open","rationale":"The Git open stops asking the REST ref that about 31 spec files use to trigger general authenticated-read behavior. Switching first would break those suites or delete coverage that other REST readers still need; retargeting them inside the switch overran its slice.","condition":"The retargeted specs are on origin/main and pass both on trunk and with the Board's Git open server patch applied","state":"waiting"}]}
 ```
 
 Split from [SEED-430#open-and-refresh-board-at-verified-trunk](https://github.com/terryyin/open-dough/blob/374ccd86b15fdb1909590cc447b863bb34bb65f6/.planning/seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk)

@@ -26,6 +26,11 @@ automatic observation, branches, other records, and Review callers
 
 ## Current decisions
 
+- Execution resumes only after
+  [plan 858](../858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md)
+  lands; its server patch is this plan's slice 1 switch. Slice 1 then
+  reruns its proof on the merged trunk.
+
 - The switch point is the `ref` case in
   [performed reads](../../../dashboard/server/performedRead.ts). It calls the
   shared verified-origin check and does not fall back to REST.
@@ -89,6 +94,16 @@ membership, showing zero fallback attempts. Preserve the first-open failure
 wait and cross-project isolation through the real Git boundary. Budget 12
 active minutes.
 
+Move to Git cold failures, or delete where a kept case already proves the
+promise, the REST cold-open cases the split left here: `read-failure`,
+`transient-read-exclusions`, `project-read-recovery`, `project-read-isolation`'s
+held first open, `authenticated-project-observation`, the empty-page,
+pinned-backlog and stalled cases of `transient-read-recovery`, the reload step
+in `limitedReadingJourney.ts` shared by the `limited-reading-*` specs,
+`authenticated-read-revision-backlog`, and the logged-out cold-open case of
+`authenticated-read-retained-answers`. This outgrows the budget: refine this
+slice before execution resumes.
+
 ### 3. Retire the old membership-only support
 
 Type: Structure
@@ -108,6 +123,17 @@ published. This plan's slice 1 has the uncommitted Git trunk switch and
 stopped during proof. `published-work.spec.ts` and
 `transient-read-recovery.spec.ts` still hold the REST ref and were not
 re-proved against the Git open.
+
+On 2026-11-26 the slice 1 switch was carried into this workspace. The named
+specs and `published-work.spec.ts` pass against the Git open; the two
+promises pass. It also fails about 45 other spec files (roughly 67 cases;
+run logs `s1-backend.log` and `s1-e2e-obs.log` in the checkout's
+`open-dough/evidence`). They produce generic authenticated-read behavior
+(incident records, diagnostics, rate-limit waits, cooldown, subprocess and
+output bounds, retained answers, shared request owner, in-process fake gh)
+and cold-open failures by failing the REST `ref` answer, which the Git open
+no longer asks. The plan's premise that only the named specs move is false.
+Execution stopped for a scope decision; slice 1 is not delivered.
 
 ## Local gate
 
