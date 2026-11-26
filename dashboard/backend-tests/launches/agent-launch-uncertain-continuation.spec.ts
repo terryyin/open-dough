@@ -1,166 +1,187 @@
-// A story start that settled while its session or its publication may or may
-// not exist (../../server/launchAttemptOwner.ts), over raw HTTP: its story stays
-// unresolved, so a fresh start of it from any workflow is refused with nothing
-// started, and only that attempt's own continuation resumes it, under the same
-// attempt identity.
-
+import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import type { AttemptObservation } from "../../src/agentLaunch.ts";
+import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
+import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
+import { keptAttempts } from "../../server/launchAttemptStore.ts";
+import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
+import { machineDashboardPath } from "../../server/machineHome.ts";
 import {
-  accept,
-  attempts,
-  continueAttempt,
-  launchRequest,
-  runningStarts,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
-import { test as startTest } from "../../test-support/support/startOriginTest.ts";
-import { test, expect } from "../../test-support/support/codexLaunch.ts";
-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
 
-// No page: the local boundaries alone answer these requests.
-test.use({
-  serverMode: "boundary",
-  projectFolders: ["open-dough"],
-});
-
-type Answer = {
-  kind: string;
-  attempt?: AttemptObservation;
+const source = makeMe.aPublishedSource.openDough.please();
+const story = {
+  source: source.id,
+  identity: "SEED-052#continue",
+  title: "Continue this story",
 };
+const refining = makeMe.aLaunchRequest
+  .refining(story)
+  .withPolicy({
+    tracking: "one-shot",
+    workspace: "isolated",
+    landing: "review",
+  })
+  .withEffort("max")
+  .please();
+const executing = makeMe.aLaunchRequest.executing(story).please();
+const timedOut = {
+  kind: "uncertain",
+  reason: "timed-out",
+  explanation: "The native launch wait expired.",
+} as const;
+const alreadyStarting = { kind: "failed", reason: "already-starting" };
 
-const answerOf = (response: { body: string }) =>
-  JSON.parse(response.body) as Answer;
-
-const unresolvedStart = {
-  kind: "failed",
-  reason: "already-starting",
-  explanation: expect.stringContaining(
-    "Recheck or continue it from Startup recovery.",
-  ),
-};
-
-test.describe("a story start whose launch wait expired", () => {
-  test.use({ launchTimeoutMs: 3_000 });
-
-  test("blocks a fresh start of its story from any workflow, and is resumed only by its own continuation at its recorded effort", async ({
-    dashboard,
-  }) => {
-    dashboard.claudeScenario("hang");
-    const request = makeMe.aLaunchRequest
-      .refining(storyA)
-      .withPolicy({
-        tracking: "one-shot",
-        workspace: "isolated",
-        landing: "review",
-      })
-      .withEffort("max")
-      .please();
-    const accepted = answerOf(await accept(dashboard, request));
-    const id = accepted.attempt?.id ?? "";
-    expect(await settledOutcome(dashboard, id)).toMatchObject({
-      kind: "uncertain",
-      reason: "timed-out",
-    });
-    const [uncertain] = await attempts(dashboard);
-    expect(uncertain).toMatchObject({
-      id,
-      running: false,
-      publication: { kind: "none" },
-    });
-    expect(uncertain?.worker).toBeUndefined();
-    expect(uncertain?.slowSince).toBeUndefined();
-
-    for (const workflow of ["refinement", "execution"])
-      expect(
-        answerOf(await accept(dashboard, { ...request, workflow })),
-      ).toMatchObject(unresolvedStart);
-    expect(await attempts(dashboard)).toEqual([uncertain]);
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-
-    dashboard.claudeScenario("launched");
-    expect(answerOf(await continueAttempt(dashboard, id))).toMatchObject({
-      kind: "accepted",
-      attempt: { id, acceptedAt: uncertain?.acceptedAt },
-    });
-    expect(await settledOutcome(dashboard, id)).toMatchObject({
-      kind: "launched",
-    });
-    expect(answerOf(await continueAttempt(dashboard, id))).toMatchObject({
-      kind: "failed",
-      reason: "refused",
-    });
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
-    expect(dashboard.claudeLaunches().map(({ effort }) => effort)).toEqual([
-      "max",
-      "max",
-    ]);
+function machine() {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-uncertain-attempt-"));
+  vi.stubEnv("HOME", home);
+  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
+  const unmount = mountProjectConfiguration("development");
+  const owner = new LaunchAttemptOwner();
+  onTestFinished(async () => {
+    owner.close();
+    try {
+      await owner.drain();
+    } finally {
+      unmount();
+      vi.unstubAllEnvs();
+      rmSync(home, { recursive: true, force: true });
+    }
   });
+  appendConfiguredProject(
+    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
+  );
+  const progress = new StartProgress();
+  return {
+    owner,
+    file: machineDashboardPath("launch-attempts.json"),
+    continueAttempt: (id: string, run: AttemptRun) =>
+      owner.continueAttempt(
+        source.id,
+        id,
+        (request) => preContinuationAnswer(source, id, request, progress),
+        run,
+      ),
+  };
+}
+
+test("only Continue retries a timed-out start with its kept request and effort", async () => {
+  const { owner, file, continueAttempt } = machine();
+  const record = makeMe.anObservedLaunch
+    .of(makeMe.aLaunchRecord.refining(story).please())
+    .withSessionState(makeMe.aSessionState.unknown().please())
+    .please();
+  // The one-shot prepares its workspace without publishing, then times out.
+  const run = vi
+    .fn<AttemptRun>()
+    .mockImplementationOnce(async (...[, notes]) => {
+      await notes.publication({ kind: "none" });
+      return timedOut;
+    })
+    .mockResolvedValueOnce({ kind: "launched", record });
+  const accepted = await owner.accept(refining, run);
+  assert.equal(accepted.kind, "accepted");
+  const { id, acceptedAt } = accepted.attempt;
+  await owner.drain();
+  const [uncertain] = (await owner.attempts()).attempts;
+  expect(uncertain).toMatchObject({
+    id,
+    running: false,
+    publication: { kind: "none" },
+    outcome: timedOut,
+  });
+  expect(uncertain?.worker).toBeUndefined();
+  expect(uncertain?.slowSince).toBeUndefined();
+  const before = readFileSync(file, "utf8");
+
+  for (const request of [refining, executing])
+    expect(await owner.accept(request, run)).toMatchObject({
+      ...alreadyStarting,
+      explanation: expect.stringContaining(
+        "Recheck or continue it from Startup recovery.",
+      ) as unknown,
+    });
+  expect(readFileSync(file, "utf8")).toBe(before);
+  expect(run).toHaveBeenCalledOnce();
+
+  expect(await continueAttempt(id, run)).toMatchObject({
+    kind: "accepted",
+    attempt: { id, acceptedAt, request: refining },
+  });
+  await owner.drain();
+  expect(await keptAttempts()).toMatchObject([
+    { id, acceptedAt, outcome: { kind: "launched" } },
+  ]);
+  expect(await continueAttempt(id, run)).toMatchObject({
+    kind: "failed",
+    reason: "refused",
+  });
+  expect(run.mock.calls.map(([own]) => own.request)).toEqual([
+    refining,
+    refining,
+  ]);
 });
 
-startTest.describe("a story start that crosses its warning threshold", () => {
-  startTest.use({ startTimeoutMs: 3_000, launchTimeoutMs: 60_000 });
+test("a slow live start refuses Start and Continue until it settles", async () => {
+  const { owner, file, continueAttempt } = machine();
+  const slow = new Date().toISOString();
+  let warn = () => {};
+  const warned = new Promise<void>((resolve) => {
+    warn = resolve;
+  });
+  let complete = () => {};
+  const completed = new Promise<void>((resolve) => {
+    complete = resolve;
+  });
+  const record = makeMe.anObservedLaunch
+    .of(makeMe.aLaunchRecord.executing(story).please())
+    .withSessionState(makeMe.aSessionState.unknown().please())
+    .please();
+  const publication = { kind: "published", revision: "b2".repeat(20) } as const;
+  const run = vi.fn<AttemptRun>(async (...[, notes]) => {
+    await notes.slow(slow);
+    warn();
+    await completed;
+    await notes.publication(publication);
+    return { kind: "launched", record };
+  });
 
-  startTest(
-    "refuses duplicates and Continue while running, then launches automatically",
-    async ({ dashboard, origin }) => {
-      const push = origin.holdPushes();
-      const story = {
-        ...launchRequest,
-        identity: queuedIdentity,
-        title: "Story A",
-      };
-      const id = answerOf(await accept(dashboard, story)).attempt?.id ?? "";
-      await expect
-        .poll(async () => (await attempts(dashboard))[0]?.slowSince, {
-          timeout: 30_000,
-        })
-        .toBeDefined();
-      const [slow] = await attempts(dashboard);
-      expect(slow).toMatchObject({
-        id,
-        owned: true,
-        publication: { kind: "unknown" },
-      });
-      expect(slow?.outcome).toBeUndefined();
-      expect(
-        answerOf(await accept(dashboard, { ...story, workflow: "refinement" })),
-      ).toMatchObject({
-        kind: "failed",
-        reason: "already-starting",
-      });
-      expect(answerOf(await accept(dashboard, story))).toMatchObject({
-        kind: "failed",
-        reason: "already-starting",
-      });
-      expect(answerOf(await continueAttempt(dashboard, id))).toMatchObject({
-        kind: "uncertain",
-        explanation: expect.stringContaining("already running"),
-      });
-      // Recording the warning can change its timestamp and observation count.
-      expect(await attempts(dashboard)).toEqual([
-        {
-          ...slow,
-          slowSince: expect.any(String),
-          changes: expect.any(Number) as unknown,
-        },
-      ]);
-      expect(dashboard.claudeLaunchCalls()).toEqual([]);
-      push.release();
-      expect(await settledOutcome(dashboard, id)).toMatchObject({
-        kind: "launched",
-      });
-      const [launched] = await attempts(dashboard);
-      expect(launched).toMatchObject({
-        id,
-        acceptedAt: slow?.acceptedAt,
-        publication: { kind: "published" },
-      });
-      expect(launched?.slowSince).toBeUndefined();
-      expect(await runningStarts(dashboard)).toEqual([]);
-      expect(await origin.takenProfiles()).toHaveLength(1);
-      expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-    },
-  );
+  const accepted = await owner.accept(executing, run);
+  assert.equal(accepted.kind, "accepted");
+  const { id, acceptedAt } = accepted.attempt;
+  try {
+    await warned;
+    const held = readFileSync(file, "utf8");
+    expect((await owner.attempts()).attempts).toMatchObject([
+      { id, owned: true, slowSince: slow, publication: { kind: "unknown" } },
+    ]);
+    for (const request of [executing, refining])
+      expect(await owner.accept(request, run)).toMatchObject(alreadyStarting);
+    expect(await continueAttempt(id, run)).toMatchObject({
+      kind: "uncertain",
+      explanation: expect.stringContaining("already running") as unknown,
+    });
+    expect(readFileSync(file, "utf8")).toBe(held);
+    expect(run).toHaveBeenCalledOnce();
+  } finally {
+    complete();
+  }
+
+  await owner.drain();
+  const [launched] = (await keptAttempts()) ?? [];
+  expect(launched).toMatchObject({
+    id,
+    acceptedAt,
+    publication,
+    outcome: { kind: "launched" },
+  });
+  expect(launched?.slowSince).toBeUndefined();
+  expect(launched?.worker).toBeUndefined();
+  expect(run).toHaveBeenCalledOnce();
 });

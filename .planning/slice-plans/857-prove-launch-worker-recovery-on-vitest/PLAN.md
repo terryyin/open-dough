@@ -132,7 +132,7 @@ the subject spec changed, and its setup repetition is slice 1's follow-up.
 ### 3. Retry a timed-out launch at its saved effort while protecting a live launch
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Convert the last two `agent-launch-uncertain-continuation` cases. A timed-out
@@ -144,6 +144,13 @@ Use the verified patch adaptations above. Preserve the native effort check at
 the existing [phone recovery journey](../../../e2e/launches/agent-launch-story-card-problems.spec.ts)
 by selecting `max` and reading both actual Claude arguments. Keep its
 existing first-input, call-count and user-visible assertions.
+
+Delivered: `agent-launch-uncertain-continuation` stays in place as two Node
+cases with no Chromium case. An observed launch needs explicit session state.
+The five-spec focused selection passed 16 of 16, and the phone journey passed
+with `["max", "max"]`. Dropping effort from the retry dispatch failed the Node
+retry case and the phone journey. Refactor pass skipped: only the subject specs
+changed, through the existing `storyLaunchChoices` page object.
 
 ### 4. Protect both worker handoff windows
 

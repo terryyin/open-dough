@@ -14,6 +14,7 @@ import {
   parts,
   storyCardSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import { storyLaunchChoices } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { tapWhereShown } from "../../dashboard/test-support/pageLayout.ts";
 import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
@@ -44,6 +45,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
       const draft =
         "Keep this instruction.\n\nExplain an uncertain launch before continuing.";
       await launch.instruction.fill(draft);
+      await storyLaunchChoices(launch.dialog).effort.selectOption("max");
       await page.setViewportSize({ width: 390, height: 300 });
       await expect(launch.instruction).toHaveValue(draft);
       expect(dashboard.claudeLaunchCalls()).toEqual([]);
@@ -95,6 +97,11 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
       ).toEqual([
         { invocation: "/dough-execute-plan SEED-B#b", instruction: draft },
         { invocation: "/dough-execute-plan SEED-B#b", instruction: draft },
+      ]);
+      // The explicit Continue starts again at the effort the Start chose.
+      expect(dashboard.claudeLaunches().map(({ effort }) => effort)).toEqual([
+        "max",
+        "max",
       ]);
       const entry = await session.getAttribute("data-shows-session");
       await board.showPublished();
