@@ -171,3 +171,42 @@ The three changed specs use the existing private-origin and typed store
 boundaries. The product and shared fixture search found no refactor needed.
 All eight damaged retries passed after the final setup cleanup in
 `847-s6-damage-setup.json`.
+Published as `419e10dc658e13406c4b7fa7b27c51a5097eb000` on the story branch,
+above `069b26a068c7342d9db96168e9d9fe68303fec53`, with CI unobserved.
+
+### Slice 7
+
+All five reporting and updater cases passed in Node with zero Chromium
+selections (12.552 s summed, 16.91 s elapsed). Dashboard typechecking
+passed. A known incomplete worktree refuses before dispatch, a fresh
+incomplete worktree refuses after the real Take, and an older compatible
+installation prepares reporting for its typed dispatch. The updater must
+target the exact kept worktree without force. Its success resumes one
+original attempt and dispatch, and its refusal preserves origin and the
+kept state with no dispatch. See `847-s7-return.md`.
+The independent refactor removed the unused HTTP retry and kept-start
+test exports after tracing their last callers. See `847-s7-refactor-return.md`.
+
+## Final local gate
+
+Both runs used Node 24.21.0, one worker and awake macOS on AC. The focused
+backend gate passed all 48 cases on the first attempt in Node Vitest
+across 18 specs, with zero backend Chromium selections. The three extra
+files carry cases split out of the original 15 specs. The slice reports
+map their individual legacy observations to Node or to the retained native
+boundaries. No default timeout changed.
+
+| Selection | Engine and cases | Summed case time | Elapsed | Case range | At or below 100 ms |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Execution-base backend | Chromium, 48 | 183.711 s | 203.37 s | 265–7,725 ms | 0 |
+| Final backend | Node, 48 | 85.993 s | 110.52 s | 236–4,502 ms | 0 |
+| Retained E2E | Chromium, 8 | 29.949 s | 33.76 s | 2,167–4,934 ms | 0 |
+
+The backend elapsed time fell 46% in these runs. Load was 11–15 during the
+candidate backend gate and 12–23 around the execution-base run. The
+preparation baseline at load 6–10 was 114.24 s elapsed and 98.994 s
+summed. Those load differences limit the timing comparison. Every Git
+case remained above the 100 ms reference.
+The separate E2E gate passed the seven retained cases and the added
+Codex execution restart. See the case and command records in the checkout's
+Git evidence directory under `847-final-backend` and `847-final-e2e`.

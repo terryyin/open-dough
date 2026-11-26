@@ -1,11 +1,10 @@
-// Shared launch-boundary HTTP helpers for Start, Continue, update-worktree,
-// reconciliation, done/delete, and machine session reads.
+// Shared launch-boundary HTTP helpers for Start, Continue, reconciliation,
+// done/delete, and machine session reads.
 
 import {
   agentAcceptEndpoint,
   agentContinueEndpoint,
   agentReconciledEndpoint,
-  agentUpdateWorktreeEndpoint,
   type AttemptObservation,
 } from "../src/agentLaunch.ts";
 import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
@@ -78,14 +77,6 @@ export async function continued(
   attempt: string,
 ): Promise<RawResponse> {
   return followed(server, await continueAttempt(server, attempt));
-}
-
-// Applies the release updater to the attempt's worktree, then continues it.
-export async function updateWorktreeRetried(
-  server: DashboardServer,
-  attempt: string,
-): Promise<RawResponse> {
-  return followed(server, await updateWorktreeAttempt(server, attempt));
 }
 
 // The acceptance answer when nothing was accepted, otherwise what the
@@ -198,12 +189,6 @@ export const continueAttempt = (
   attempt: string,
   source = "open-dough",
 ) => post(server, agentContinueEndpoint, { source, attempt });
-
-export const updateWorktreeAttempt = (
-  server: DashboardServer,
-  attempt: string,
-  source = "open-dough",
-) => post(server, agentUpdateWorktreeEndpoint, { source, attempt });
 
 // Notes that the project's kept attempt `attempt` reconciled with published
 // state, answered with the attempt so noted or why not.

@@ -186,7 +186,7 @@ for the dialog's single refusal. Convert
 ### 7. Restore reporting support on a kept installed start
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Through `attemptRun` with typed inputs, Continue on a kept start whose
