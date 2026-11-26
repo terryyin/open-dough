@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rina-chan",
+  "email": "rina-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-420#browse-the-project-at-a-revision",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
