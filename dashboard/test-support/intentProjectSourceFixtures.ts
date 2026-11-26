@@ -14,6 +14,7 @@ import {
   summaryTreeSources,
 } from "./intentSummaryCiProofFixtures.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { intentSettingsText } from "./support/intentSettingsFile.ts";
 
 export const browsedAt = (at: "A" | "B") => ({
@@ -51,6 +52,9 @@ export async function openIntentAtABeforeB(
   });
   let head = project.revisions.A;
   const opened = await openPublishedIntent(page, project, () => head, { zip });
+  // The opening judgment reads A's history and runs; trunk moves only once
+  // it is answered.
+  await untilPageReadsAnswered(page);
   head = project.revisions.B;
   project.moveTrunk(project.at("B"));
   return opened;
