@@ -28,6 +28,7 @@ export function IntentStoryFileTree({
   overlay,
   shown,
   round,
+  owner,
   selection,
   onSelect,
   reveal,
@@ -36,6 +37,9 @@ export function IntentStoryFileTree({
   readonly overlay: StoryOverlay;
   readonly shown: ReturnType<typeof storyRepositoryTree>;
   readonly round: number | string | undefined;
+  // The story whose arrangement the folders keep, so another story's open
+  // folders and the reader's choices never carry over.
+  readonly owner: string;
   readonly selection: IntentSelection;
   readonly onSelect: (next: IntentSelection) => void;
   readonly reveal: TreeReveal | undefined;
@@ -45,7 +49,7 @@ export function IntentStoryFileTree({
     reveal !== undefined && reveal.path === selection.path ? reveal : undefined;
   const section = useIntentRowReveal(requested);
   const { collapsed, toggleFolder } = useLocationOpenFolders({
-    location: "",
+    location: owner,
     tree,
     revealPath: selection.path,
     expansion:

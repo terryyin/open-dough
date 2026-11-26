@@ -12,14 +12,20 @@ import {
 export function useIntentStoryTree({
   locations,
   story,
+  storyIdentity,
   inventory,
   comparisonReading,
+  resultReading,
   resultKey,
 }: {
   readonly locations: readonly IntentLocation[];
   readonly story: ComparedStory | undefined;
+  // The selected story, owning the tree's folder arrangement.
+  readonly storyIdentity?: string | undefined;
   readonly inventory?: readonly string[] | undefined;
   readonly comparisonReading?: boolean;
+  // The result's inventory, which names the configured roots, is read.
+  readonly resultReading?: boolean | undefined;
   readonly resultKey?: string | undefined;
 }) {
   const changes = story?.shown.comparison.files;
@@ -53,8 +59,11 @@ export function useIntentStoryTree({
   return {
     overlay,
     shown,
+    owner: storyIdentity ?? "",
+    // No expansion is asked for until the comparison and the roots it
+    // reveals are known.
     round:
-      comparisonReading === true
+      comparisonReading === true || resultReading === true
         ? undefined
         : resultKey === undefined
           ? round

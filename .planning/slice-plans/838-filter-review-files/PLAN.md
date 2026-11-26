@@ -156,9 +156,9 @@ reader's choice; `useFirstStoryChangedFile` now yields to it. Open: the
 product wiring of that choice is proved only by the end-to-end
 `story-review-diff-line-follow-up`, not a mounted `IntentBrowser` case.
 `story-card-review-intent` flaked when the inventory's later expansion
-round closed roots the first round opened. The owner chose to hold the
-story's folder reveal until the inventory names the roots, keep the
-reader's folder choices per story, and have expand steps wait for the
+round closed roots the first round opened. On the owner's choice the
+story's folder reveal now waits for the inventory to name the roots, the
+reader's folder choices are kept per story, and expand steps wait for the
 inventory.
 
 ### 2. Narrow the same inventory to Intent

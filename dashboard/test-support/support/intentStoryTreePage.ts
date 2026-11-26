@@ -83,6 +83,14 @@ export const repositoryFolder = (intent: Locator, path: string) =>
 export const background = (row: Locator) =>
   row.evaluate((element) => getComputedStyle(element).backgroundColor);
 
+// The story's folders reveal once its inventory names the configured roots,
+// so a step reads a folder's state only after that.
+export async function expectInventoryRead(intent: Locator) {
+  await expect(
+    filesColumn(intent).getByText("Reading repository files…"),
+  ).toHaveCount(0);
+}
+
 // The selected story's tree, held by `intentStory`.
 export function storyTree(intent: Locator) {
   return {
@@ -99,6 +107,7 @@ export function storyTree(intent: Locator) {
         ":scope > .story-review-folder-row",
       ),
     async expandFolderPath(path: string) {
+      await expectInventoryRead(intent);
       let ancestor = "";
       for (const segment of path.split("/")) {
         ancestor = ancestor ? `${ancestor}/${segment}` : segment;

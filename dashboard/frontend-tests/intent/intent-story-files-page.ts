@@ -29,6 +29,27 @@ export function intentStoryFiles() {
   // is narrow: each newly entered view starts it closed, and choosing a file
   // closes it.
   const browseFiles = () => fileLayout().showFiles();
+  // The story's folders reveal once its inventory names the configured
+  // roots, so a folder's state is read only after that.
+  const inventoryRead = () =>
+    expect
+      .element(sidebar.getByText("Reading repository files…"))
+      .not.toBeInTheDocument();
+  // Opens each folder on PATH as the tree shows it now.
+  async function expandShownFolderPath(path: string) {
+    await browseFiles();
+    let ancestor = "";
+    for (const segment of path.split("/")) {
+      ancestor = ancestor ? `${ancestor}/${segment}` : segment;
+      const toggle = folder(ancestor).getByCSS(
+        ":scope > div > button[aria-expanded]",
+      );
+      await expect.element(toggle).toBeVisible();
+      if (toggle.element().getAttribute("aria-expanded") === "false")
+        await userEvent.click(toggle);
+      await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+    }
+  }
   return {
     browseFiles,
     sidebar,
@@ -37,18 +58,12 @@ export function intentStoryFiles() {
     folder,
     async expandFolderPath(path: string) {
       await browseFiles();
-      let ancestor = "";
-      for (const segment of path.split("/")) {
-        ancestor = ancestor ? `${ancestor}/${segment}` : segment;
-        const toggle = folder(ancestor).getByCSS(
-          ":scope > div > button[aria-expanded]",
-        );
-        await expect.element(toggle).toBeVisible();
-        if (toggle.element().getAttribute("aria-expanded") === "false")
-          await userEvent.click(toggle);
-        await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
-      }
+      await inventoryRead();
+      await expandShownFolderPath(path);
     },
+    // Opens folders while the inventory may still be read.
+    expandShownFolderPath,
+    inventoryRead,
     changesOnly,
     // Turns Changes only off, listing the repository at the revision.
     async listRevision() {

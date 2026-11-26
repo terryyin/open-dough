@@ -5,8 +5,10 @@
 // (an open from the candidates record or a summary), even for the selection
 // already made, so a test opened from elsewhere shows selected in the tree.
 // Each new expansion a selected story's overlay asks for opens exactly the
-// folders it names. The open folders are kept per location with the tree's
-// arrangement (`./pageIntentReading.tsx`), so they outlast leaving Intent.
+// folders it names, except that a folder the reader opened or closed by hand
+// keeps that choice. The open folders and those choices are kept per location
+// with the tree's arrangement (`./pageIntentReading.tsx`), so they outlast
+// leaving Intent.
 
 import { useKeptArrangement } from "./pageIntentReading.tsx";
 import {
@@ -63,6 +65,11 @@ export function useLocationOpenFolders<T extends PathBearing>({
     kept("requested"),
     () => reveal?.request,
   );
+  // Whether each folder the reader toggled was left open.
+  const [chosen, setChosen] = useKeptArrangement<ReadonlyMap<string, boolean>>(
+    kept("chosen"),
+    () => new Map(),
+  );
   const [expandedRound, setExpandedRound] = useKeptArrangement<
     LocationExpansion["round"] | undefined
   >(kept("expandedRound"), () => undefined);
@@ -78,7 +85,12 @@ export function useLocationOpenFolders<T extends PathBearing>({
   }
   if (expansion !== undefined && expansion.round !== expandedRound) {
     setExpandedRound(expansion.round);
-    open = new Set(expansion.folders);
+    const next = new Set(expansion.folders);
+    for (const [folderPath, isOpen] of chosen) {
+      if (isOpen) next.add(folderPath);
+      else next.delete(folderPath);
+    }
+    open = next;
     setOpenFolders(open);
   }
   if (revealed !== revealPath) {
@@ -94,6 +106,7 @@ export function useLocationOpenFolders<T extends PathBearing>({
   );
 
   function toggleFolder(folderPath: string) {
+    setChosen((was) => new Map(was).set(folderPath, !open.has(folderPath)));
     setOpenFolders((was) => {
       const next = new Set(was);
       if (next.has(folderPath)) next.delete(folderPath);

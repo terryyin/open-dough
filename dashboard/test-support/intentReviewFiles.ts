@@ -7,6 +7,7 @@ import {
   repositoryTree,
   repositoryFolder,
   changesOnly,
+  expectInventoryRead,
   listStoryRevision,
 } from "./support/intentStoryPage.ts";
 import { expectTreeRows, fileLineCounts } from "./support/reviewTreeRows.ts";
@@ -118,6 +119,7 @@ export class IntentReviewFiles {
 
   async expandFolder(name: string) {
     await this.shown();
+    await expectInventoryRead(this.#intent);
     await folderToggle(this.#intent, name, false).click();
     await expect(folderToggle(this.#intent, name, true)).toBeVisible();
     return this;

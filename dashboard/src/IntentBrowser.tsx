@@ -68,8 +68,10 @@ export function IntentBrowser({
   const storyTree = useIntentStoryTree({
     locations,
     story,
+    storyIdentity: storySummary?.story.identity,
     inventory: result?.paths,
     comparisonReading,
+    resultReading: result?.reading,
     resultKey: result?.key,
   });
   const selection = storyFileSelection(storyTree.overlay, keptSelection);

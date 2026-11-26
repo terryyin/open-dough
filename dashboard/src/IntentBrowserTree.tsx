@@ -40,6 +40,7 @@ export function IntentBrowserTree({
           overlay={tree.overlay}
           shown={tree.shown}
           round={tree.round}
+          owner={tree.owner}
           selection={selection}
           onSelect={onSelect}
           reveal={reveal}

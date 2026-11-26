@@ -47,6 +47,7 @@ export {
   background,
   changesOnly,
   chooseIntentFile,
+  expectInventoryRead,
   expectNoIntentFile,
   folderItem,
   folderRow,
