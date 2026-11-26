@@ -86,7 +86,8 @@ behavioral evidence and take a comparable pair for any performance claim.
   at `ead706721f4417cbe8d2d98bbfe6aeaa71df772d`. The slice 4 CI run
   was cancelled by that later branch push with no failed job. Slice 6
   published as `075273945e40df16be58719e50909cedb945feec`. Its push also
-  superseded the slice 5 run with no failed job.
+  superseded the slice 5 run with no failed job. The worktree-update CI
+  repair published as `28b7d90c26821bf0d5208205dfd601117fc1343f`.
 - Locked checkout install, native Chromium prerequisite check, and Dashboard
   typecheck passed. Retain the existing eight-slice scope and use the
   recorded baseline for behavior on the unchanged launch paths.
@@ -341,7 +342,7 @@ The shared product operation and other launch tests stayed untouched.
 ### 7. Respect host connection loss and startup reconnection
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Proof: An active detached caller still records acknowledgment; a later
@@ -357,6 +358,29 @@ in its saved workspace. Move that case to the Codex launch E2E family if
 direct Node startup cannot observe both transitions. Keep the real worker
 shutdown and restart observation from the lifetime spec with a process
 owner, including previously published story and landing authority.
+
+Accepted proof: Nine of the ten legacy cases run in Node. The lifetime
+spec closes the caller response while the native turn is held, observes
+acknowledgment and later connection loss, separates racing completion
+from disconnect, and checks the deleted record remains absent. The
+startup spec observes daemon invocation from saved state before any
+read, the developer environment and actual PTY attach to the original
+thread in its distinct saved workspace. The four startup states preserve
+the applicable records.
+
+The selector `launches/agent-launch-codex-(lifetime|startup)\.spec\.ts$`
+passed all nine Node cases with zero Playwright cases, taking 4.851 s
+summed and 6.94 s wall. Four cases took at most 100 ms. Dashboard typecheck
+passed.
+
+The tenth legacy case moved to
+[worker shutdown E2E](../../../e2e/launches/agent-launch-codex-worker-shutdown.spec.ts).
+The real worker shutdown closes the native connection without interrupting
+the turn. The replacement worker reads the same unsettled attempt,
+reporting, published story, and landing authority. Chromium passed that
+single case in 3.436 s, 4.97 s wall. Include it in the story gate. The
+three subject specs reuse existing boundary and fixture owners. No further
+refactor was needed.
 
 ### 8. Send only one input during competing native starts
 
