@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "ca2248f6-daef-4ad7-a9e6-97e2e1237f97",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-26T07:29:42.821Z",
+  "story": "SEED-413#prove-session-notifications-through-typed-observations",
+  "ranges": [
+    {
+      "base": "574daf0571dddd528a4ad843f69a791f77f8b2e6",
+      "candidate": "31e97464a4c2728fa4756d64265c1be173a28d02"
+    }
+  ]
+}
