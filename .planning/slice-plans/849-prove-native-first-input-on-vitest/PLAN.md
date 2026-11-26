@@ -84,7 +84,9 @@ behavioral evidence and take a comparable pair for any performance claim.
   on the same target. Slice 4 published as
   `61c47088b1e5d2976bc4bb08d262fdf5e5b8ff0e`, followed by slice 5
   at `ead706721f4417cbe8d2d98bbfe6aeaa71df772d`. The slice 4 CI run
-  was cancelled by that later branch push with no failed job.
+  was cancelled by that later branch push with no failed job. Slice 6
+  published as `075273945e40df16be58719e50909cedb945feec`. Its push also
+  superseded the slice 5 run with no failed job.
 - Locked checkout install, native Chromium prerequisite check, and Dashboard
   typecheck passed. Retain the existing eight-slice scope and use the
   recorded baseline for behavior on the unchanged launch paths.
@@ -328,6 +330,13 @@ Measured 3.170 s summed and individual cases from 1.024 to 1.117 s.
 Dashboard typecheck passed. The subject specs reuse the existing typed
 attempt inputs, real stores, and protocol fixture. No further refactor
 was needed.
+
+Branch CI's worktree-update retry check failed on the slice 6 revision.
+The fixture now waits for the live owner's settled refusal and separately
+reads the durable refusal before retry. The reproduced ordering accepts
+the retry after this change, and both focused retry cases and typecheck
+passed. Follow the [diagnosis record](diagnosis-worktree-retry-ci.md).
+The shared product operation and other launch tests stayed untouched.
 
 ### 7. Respect host connection loss and startup reconnection
 
