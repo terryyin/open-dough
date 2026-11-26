@@ -1,11 +1,9 @@
 import { expect } from "vitest";
 import { page } from "vitest/browser";
-import type { ReactNode } from "react";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import { IntentPerspective } from "../../src/IntentPerspective.tsx";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
-import type { LaunchAttemptSource } from "../../src/launchAttempts.ts";
 import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
 import { SessionsOnPage } from "../../src/pageSessions.ts";
@@ -16,41 +14,7 @@ import { mountComponent } from "../../test-support/component-mount/mountComponen
 import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { withStoryResultFixture } from "../../test-support/component-mount/storyResultFixture.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { unanswered } from "../../test-support/support/waitUntil.ts";
-import { useMountedLaunchAttempts } from "../launches/mounted-launch-attempts.ts";
 import { inertPageSessions } from "../sessions/inert-page-sessions.ts";
-
-const unansweredLaunches: LaunchAttemptSource = {
-  accept: unanswered,
-  waitForChange: unanswered,
-};
-
-function StoryIntentLaunches({
-  machine,
-  source,
-  children,
-}: {
-  readonly machine: MachineAnswer;
-  readonly source: LaunchAttemptSource;
-  readonly children: ReactNode;
-}) {
-  const { adHocAttemptOf, startAdHoc } = useMountedLaunchAttempts(
-    machine,
-    source,
-    0,
-  );
-  return (
-    <LaunchesOnPage
-      value={{
-        ...machineSessionsAnswering({ answer: machine }),
-        adHocAttemptOf,
-        startAdHoc,
-      }}
-    >
-      <SessionsOnPage value={inertPageSessions}>{children}</SessionsOnPage>
-    </LaunchesOnPage>
-  );
-}
 
 // Begin at the selected story with Files docked unless `viewport` says
 // otherwise. Story selection and the dashboard frame have their own proofs; the
@@ -59,14 +23,12 @@ export async function mountStoryIntent({
   work,
   identity,
   machine = makeMe.aMachineAnswer.please(),
-  launchSource = unansweredLaunches,
   reads,
   viewport = { width: 1280, height: 800 },
 }: {
   readonly work: PublishedWork;
   readonly identity: string;
   readonly machine?: MachineAnswer;
-  readonly launchSource?: LaunchAttemptSource;
   readonly reads: Partial<PageReads>;
   readonly viewport?:
     { readonly width: number; readonly height: number } | undefined;
@@ -75,6 +37,7 @@ export async function mountStoryIntent({
   const pageReads = pageReadsSupplying(
     withStoryResultFixture(reads, () => work),
   );
+  const launches = machineSessionsAnswering({ answer: machine });
   const projects = [source];
   const project = {
     mode: "ci",
@@ -87,22 +50,24 @@ export async function mountStoryIntent({
         <RecentlyDoneLinkSources
           value={{ projects, selected: source.id, work }}
         >
-          <StoryIntentLaunches machine={machine} source={launchSource}>
-            <IntentReadRecovery visibility="visible" limitStands={false}>
-              <IntentPerspective
-                source={source}
-                work={work}
-                records={machine.records}
-                workspaces={machine.workspaces}
-                selection={
-                  selected === undefined
-                    ? undefined
-                    : { project: source.id, identity: selected }
-                }
-                project={project}
-              />
-            </IntentReadRecovery>
-          </StoryIntentLaunches>
+          <LaunchesOnPage value={launches}>
+            <SessionsOnPage value={inertPageSessions}>
+              <IntentReadRecovery visibility="visible" limitStands={false}>
+                <IntentPerspective
+                  source={source}
+                  work={work}
+                  records={launches.records}
+                  workspaces={launches.workspaces}
+                  selection={
+                    selected === undefined
+                      ? undefined
+                      : { project: source.id, identity: selected }
+                  }
+                  project={project}
+                />
+              </IntentReadRecovery>
+            </SessionsOnPage>
+          </LaunchesOnPage>
         </RecentlyDoneLinkSources>
       </ProjectsOnPage>
     </PageReadsOnPage>
