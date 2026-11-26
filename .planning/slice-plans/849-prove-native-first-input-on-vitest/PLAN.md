@@ -87,7 +87,8 @@ behavioral evidence and take a comparable pair for any performance claim.
   was cancelled by that later branch push with no failed job. Slice 6
   published as `075273945e40df16be58719e50909cedb945feec`. Its push also
   superseded the slice 5 run with no failed job. The worktree-update CI
-  repair published as `28b7d90c26821bf0d5208205dfd601117fc1343f`.
+  repair published as `28b7d90c26821bf0d5208205dfd601117fc1343f`. Slice 7
+  published as `c4cb45e4b05ca899d88971b6ae6a9524ac18661c`.
 - Locked checkout install, native Chromium prerequisite check, and Dashboard
   typecheck passed. Retain the existing eight-slice scope and use the
   recorded baseline for behavior on the unchanged launch paths.
@@ -385,7 +386,7 @@ refactor was needed.
 ### 8. Send only one input during competing native starts
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Proof: Overlapping launches for the same subject make one native
@@ -394,6 +395,19 @@ launch. Caller detachment keeps the gate until startup completion releases
 it while the agent works. Native refusal releases the gate for a retry.
 Distinct Claude instructions remain independent while both launches are
 held. Convert `agent-launch-duplicate.spec.ts`.
+
+Accepted proof: The two host-specific Node specs observe all 13 legacy
+cases. Held launches enforce the gate with one native operation and retain
+the original story choices. Settled startup allows another launch while
+the earlier session stays active. Native refusal permits retry and two
+distinct Claude instructions reach independent processes while both wait.
+
+The selector `launches/agent-launch-(codex-)?duplicate\.spec\.ts$` passed
+13 Node cases and zero Playwright cases. Measured 18.552 s summed and
+21.46 s wall, with individual cases from 176 ms to 2.462 s. Dashboard
+typecheck passed. The subject specs keep the existing process and protocol
+fixtures and use the typed readiness and settlement observations. No
+further refactor was needed.
 
 ## Proof ownership and local gate
 

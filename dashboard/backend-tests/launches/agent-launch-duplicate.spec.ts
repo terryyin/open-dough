@@ -1,240 +1,245 @@
-// Real HTTP admission and launch lifetime, with only native answers held.
+// Competing starts at the Claude startup boundary.
 import { rmSync } from "node:fs";
+import path from "node:path";
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { test, expect } from "../../test-support/support/codexLaunch.ts";
 import {
-  accept,
-  launch,
-  recordsOf,
-  openDoughFolder,
-} from "../../test-support/agentLaunchBoundary.ts";
+  queuedReadyRepository,
+  storyA,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { claudeHost } from "../../server/claudeHost.ts";
+import { admitLaunchSettings } from "../../server/launchSettingsAdmission.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
-import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
-import type { AttemptObservation } from "../../src/agentLaunch.ts";
-import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { withSelectedOptions } from "../../server/launchOptions.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { localFolder, machineFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
+import {
+  installFakeClaude,
+  type FakeClaudeControls,
+} from "../../test-support/support/fakeClaude.ts";
+import {
+  startOrigin,
+  type StartOrigin,
+} from "../../test-support/support/startOrigin.ts";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
-test.use({
-  serverMode: "boundary",
-  projectFolders: ["open-dough"],
-  launchTimeoutMs: 30_000,
-});
-
+const repository = queuedReadyRepository().please();
+const source = makeMe.aPublishedSource.openDough.please();
 const duplicate = {
   kind: "uncertain",
   reason: "unconfirmed",
   explanation:
     "This launch is already being reconciled or submitted. Wait for its result; no duplicate input or conversation was created.",
 };
-const answerOf = async (pending: ReturnType<typeof launch>) =>
-  JSON.parse((await pending).body) as { kind: string; reason?: string };
-const callsTo = (native: FakeCodex, method: string) =>
-  native.calls.filter((call) => call.method === method);
+const instructed = makeMe.aLaunchRequest
+  .adHoc({ host: "claude", instruction: "Investigate." })
+  .please();
+const blank = makeMe.aLaunchRequest
+  .adHoc({ host: "claude", instruction: "" })
+  .please();
+const story = { ...storyA, host: "claude" as const };
 
-function awaitingNativeCall(
-  host: "claude" | "codex",
-  dashboard: DashboardServer,
-  native: FakeCodex,
-  codexCommand = "turn/start",
-) {
-  const count = () =>
-    host === "claude"
-      ? dashboard.claudeLaunchCalls().length
-      : callsTo(native, codexCommand).length;
-  return expect.poll(count, { timeout: 0 }).toBe(1);
-}
+let origin: StartOrigin;
+let native: FakeClaudeControls;
+let launches: AgentLaunches;
+let marks: NativeDoneMarks;
+let unmount: () => void;
 
-for (const host of ["claude", "codex"] as const) {
-  for (const subject of ["instruction", "blank", "start-less story"] as const) {
-    test(`${host}: overlapping ${subject} launch makes one native conversation and input`, async ({
-      dashboard,
-      codexProtocol,
-    }) => {
-      const native = codexProtocol;
-      if (native === undefined) throw new Error("Missing native fixture.");
-      if (subject === "start-less story") {
-        const path = openDoughFolder(dashboard);
-        const skill = "dough-story-refinement";
-        const project = { path, shown: path };
-        const scripts = installedSkillPath(host, project, skill, "scripts");
-        rmSync(`${scripts}/preparation-assignment.mjs`);
-      }
-      const request =
-        subject === "start-less story"
-          ? makeMe.aLaunchRequest.refining({ ...storyA, host }).please()
-          : makeMe.aLaunchRequest
-              .adHoc({
-                host,
-                instruction: subject === "blank" ? "" : "Investigate.",
-              })
-              .please();
-      dashboard.claudeScenario("held");
-      native.hold = true;
-      native.holdCreation = subject === "blank";
-      const first = launch(dashboard, request);
-      const command = subject === "blank" ? "thread/start" : "turn/start";
-      await awaitingNativeCall(host, dashboard, native, command);
-      expect(await answerOf(launch(dashboard, request))).toEqual(duplicate);
-      if (host === "claude")
-        expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-      else {
-        expect(callsTo(native, "thread/start")).toHaveLength(1);
-        expect(callsTo(native, "turn/start")).toHaveLength(
-          subject === "blank" ? 0 : 1,
-        );
-      }
-      dashboard.releaseHeldClaude();
-      native.release();
-      expect((await answerOf(first)).kind).toBe("launched");
-      const records = await recordsOf(dashboard, "open-dough");
-      expect(records).toHaveLength(1);
-      expect(records[0]).not.toHaveProperty("preparation");
-    });
+beforeAll(async () => {
+  const prepared = await startOrigin(repository, { host: "claude" });
+  try {
+    keepStartedOrigin("claude", repository, prepared);
+  } finally {
+    prepared.cleanup();
   }
+});
 
-  test(`${host}: story choice changes cannot bypass an in-flight launch`, async ({
-    dashboard,
-    codexProtocol,
-  }) => {
-    const native = codexProtocol;
-    const instruction = "Original intent.";
-    if (native === undefined) throw new Error("Missing native fixture.");
-    const request = makeMe.aLaunchRequest
-      .refining({ ...storyA, host })
-      .withInstruction(instruction)
-      .please();
-    dashboard.claudeScenario("held");
-    native.hold = true;
-    const first = launch(dashboard, request);
-    await awaitingNativeCall(host, dashboard, native);
-    expect(
-      await answerOf(
-        launch(dashboard, {
-          ...request,
-          title: "Changed title",
-          instruction: "Changed intent.",
-          options: ["--explore"],
-          ...(host === "claude" ? { model: "opus" } : {}),
-        }),
-      ),
-    ).toEqual(duplicate);
-    dashboard.releaseHeldClaude();
-    native.release();
-    expect((await answerOf(first)).kind).toBe("launched");
-    const records = await recordsOf(dashboard, "open-dough");
-    expect(records).toHaveLength(1);
-    expect(records[0]).toMatchObject({
-      request,
-      preparation: { identity: storyA.identity },
-    });
-    if (host === "claude") {
-      expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-      expect(dashboard.claudeLaunches()[0]?.instruction).toContain(instruction);
-    } else {
-      expect(callsTo(native, "thread/start")).toHaveLength(1);
-      const inputs = callsTo(native, "turn/start");
-      expect(inputs).toHaveLength(1);
-      expect(inputs[0]?.params["input"]).toContainEqual(
-        expect.objectContaining({ text: expect.stringContaining(instruction) }),
-      );
-    }
+beforeEach(async () => {
+  origin = await startOrigin(repository, { host: "claude" });
+  const fixture = installFakeClaude(
+    origin.machine,
+    { binDir: origin.machine, path: process.env.PATH ?? "" },
+    {},
+  );
+  native = fixture.controls;
+  for (const [key, value] of Object.entries(fixture.env))
+    vi.stubEnv(key, value);
+  vi.stubEnv("HOME", path.join(origin.machine, "home"));
+  unmount = mountProjectConfiguration("production");
+  marks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: () => undefined,
+    reportingFolder: machineFolder,
   });
+  launches = new AgentLaunches(marks);
+});
 
-  test(`${host}: caller detachment keeps the gate and startup completion releases it while the agent works`, async ({
-    dashboard,
-    codexProtocol,
-  }) => {
-    const native = codexProtocol;
-    if (native === undefined) throw new Error("Missing native fixture.");
-    const request = makeMe.aLaunchRequest
-      .adHoc({ host, instruction: "Investigate." })
-      .please();
-    dashboard.claudeScenario("held");
-    native.hold = true;
-    // The caller is gone once acceptance answered; the launch goes on.
-    const first = JSON.parse((await accept(dashboard, request)).body) as {
-      kind: string;
-      attempt: AttemptObservation;
-    };
-    expect(first).toMatchObject({ kind: "accepted" });
-    await awaitingNativeCall(host, dashboard, native);
-    expect(await answerOf(launch(dashboard, request))).toEqual(duplicate);
-    dashboard.releaseHeldClaude();
-    native.release();
-    // Startup settlement releases the gate after keeping the launch record.
-    expect(await settledOutcome(dashboard, first.attempt.id)).toMatchObject({
-      kind: "launched",
-      session: { host },
-    });
-    expect((await recordsOf(dashboard, "open-dough"))[0]).toMatchObject(
-      host === "codex"
-        ? { firstInput: { state: "confirmed" } }
-        : { session: { host } },
-    );
-    // Native work remains active; only the startup lifetime has settled.
-    if (host === "claude")
-      expect(dashboard.claudeListing()[0]).toMatchObject({ state: "working" });
-    else {
-      expect(native.sockets.size).toBeGreaterThan(0);
-      native.hold = false;
-      native.threadId = "second-native-thread";
-    }
-    expect((await answerOf(launch(dashboard, request))).kind).toBe("launched");
-    expect(await recordsOf(dashboard, "open-dough")).toHaveLength(2);
-    if (host === "claude")
-      expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
-    else {
-      expect(callsTo(native, "thread/start")).toHaveLength(2);
-      expect(callsTo(native, "turn/start")).toHaveLength(2);
-    }
-  });
+afterEach(async () => {
+  launches.close();
+  native.releaseHeldClaude();
+  await launches.drain();
+  await marks.close();
+  unmount();
+  vi.unstubAllEnvs();
+  origin.cleanup();
+});
 
-  test(`${host}: native refusal releases the in-flight gate for a retry`, async ({
-    dashboard,
-    codexProtocol,
-  }) => {
-    const native = codexProtocol;
-    if (native === undefined) throw new Error("Missing native fixture.");
-    const request = makeMe.aLaunchRequest
-      .adHoc({ host, instruction: "Investigate." })
-      .please();
-    dashboard.claudeScenario("refused");
-    native.refuseCreation = true;
-    expect(await answerOf(launch(dashboard, request))).toMatchObject({
-      kind: "failed",
-      reason: "refused",
-    });
-    dashboard.claudeScenario("launched");
-    native.refuseCreation = false;
-    expect((await answerOf(launch(dashboard, request))).kind).toBe("launched");
-    expect(await recordsOf(dashboard, "open-dough")).toHaveLength(1);
-    if (host === "claude")
-      expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
-    else expect(callsTo(native, "thread/start")).toHaveLength(2);
-  });
+const accept = (request: AgentLaunchRequest) =>
+  launches.accept(source, request, "http://127.0.0.1:4173");
+const records = () => keptRecords(source.id);
+
+async function started(request: AgentLaunchRequest) {
+  const accepted = await accept(request);
+  if (accepted.kind !== "accepted")
+    throw new Error(`Expected acceptance: ${JSON.stringify(accepted)}`);
+  return accepted.attempt;
 }
 
-test("distinct Claude instructions remain independent while both launches are held", async ({
-  dashboard,
-}) => {
-  dashboard.claudeScenario("held");
+async function settled(id: string) {
+  let seen: number | undefined;
+  for (;;) {
+    const { attempt } = await launches.changed(id, 4_000, seen);
+    if (attempt?.running === false) return attempt.outcome;
+    if (attempt === undefined || attempt.changes === seen)
+      throw new Error("The accepted launch did not settle.");
+    seen = attempt.changes;
+  }
+}
+
+async function held(request: AgentLaunchRequest, count = 1) {
+  const attempt = await started(request);
+  await expect
+    .poll(() => native.claudeLaunches(), { timeout: 3_000 })
+    .toHaveLength(count);
+  return attempt;
+}
+
+async function expectSingleLaunch(request: AgentLaunchRequest) {
+  native.claudeScenario("held");
+  const first = await held(request);
+
+  expect(await accept(request)).toEqual(duplicate);
+  expect(native.claudeLaunches()).toHaveLength(1);
+
+  native.releaseHeldClaude();
+  expect(await settled(first.id)).toMatchObject({ kind: "launched" });
+  expect(native.claudeLaunches()).toHaveLength(1);
+  const kept = await records();
+  expect(kept).toHaveLength(1);
+  expect(kept[0]).not.toHaveProperty("preparation");
+}
+
+test("overlapping Claude instruction starts dispatch only once", async () => {
+  await expectSingleLaunch(instructed);
+  expect(native.claudeLaunches()[0]?.instruction).toContain("Investigate.");
+});
+
+test("overlapping Claude blank starts dispatch only once without input", async () => {
+  await expectSingleLaunch(blank);
+  expect(native.claudeLaunches()[0]).not.toHaveProperty("instruction");
+});
+
+test("an overlapping start-less Claude story dispatches only once", async () => {
+  const scripts = installedSkillPath(
+    "claude",
+    localFolder(origin.project),
+    "dough-story-refinement",
+    "scripts",
+  );
+  rmSync(path.join(scripts, "preparation-assignment.mjs"));
+
+  await expectSingleLaunch(makeMe.aLaunchRequest.refining(story).please());
+});
+
+test("changed Claude story choices cannot bypass an in-flight launch", async () => {
+  const instruction = "Original intent.";
   const request = makeMe.aLaunchRequest
+    .refining(story)
+    .withInstruction(instruction)
+    .please();
+  const changed = makeMe.aLaunchRequest
+    .refining({ ...story, title: "Changed title" })
+    .withInstruction("Changed intent.")
+    .withOptions(["--explore"])
+    .requestingModel("opus")
+    .please();
+  await admitLaunchSettings(changed, claudeHost);
+  native.claudeScenario("held");
+  const selected = await withSelectedOptions(
+    changed,
+    localFolder(origin.project),
+  );
+
+  const first = await held(request);
+  expect(await accept(selected)).toEqual(duplicate);
+  native.releaseHeldClaude();
+
+  expect(await settled(first.id)).toMatchObject({ kind: "launched" });
+  expect(native.claudeLaunches()).toHaveLength(1);
+  expect(native.claudeLaunches()[0]?.instruction).toContain(instruction);
+  expect(await records()).toMatchObject([
+    { request, preparation: { identity: storyA.identity } },
+  ]);
+});
+
+test("Claude keeps the gate after acceptance and releases it while native work continues", async () => {
+  native.claudeScenario("held");
+  const first = await held(instructed);
+
+  expect(await accept(instructed)).toEqual(duplicate);
+  native.releaseHeldClaude();
+  expect(await settled(first.id)).toMatchObject({
+    kind: "launched",
+    session: { host: "claude" },
+  });
+  expect(await records()).toMatchObject([{ session: { host: "claude" } }]);
+
+  expect(native.claudeListing()[0]).toMatchObject({ state: "working" });
+  expect(await settled((await started(instructed)).id)).toMatchObject({
+    kind: "launched",
+  });
+  expect(await records()).toHaveLength(2);
+  expect(native.claudeLaunches()).toHaveLength(2);
+});
+
+test("Claude native refusal releases the gate for a retry", async () => {
+  native.claudeScenario("refused");
+
+  expect(await settled((await started(instructed)).id)).toMatchObject({
+    kind: "failed",
+    reason: "refused",
+  });
+  native.claudeScenario("launched");
+  expect(await settled((await started(instructed)).id)).toMatchObject({
+    kind: "launched",
+  });
+
+  expect(await records()).toHaveLength(1);
+  expect(native.claudeLaunches()).toHaveLength(2);
+});
+
+test("distinct Claude instructions remain independent while both launches are held", async () => {
+  const first = makeMe.aLaunchRequest
     .adHoc({ instruction: "First subject." })
     .please();
-  const first = launch(dashboard, request);
-  await expect
-    .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
-    .toHaveLength(1);
-  const second = launch(dashboard, {
-    ...request,
-    instruction: "Second subject.",
-  });
-  await expect
-    .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
-    .toHaveLength(2);
-  dashboard.releaseHeldClaude();
-  expect((await answerOf(first)).kind).toBe("launched");
-  expect((await answerOf(second)).kind).toBe("launched");
-  expect(await recordsOf(dashboard, "open-dough")).toHaveLength(2);
+  const second = makeMe.aLaunchRequest
+    .adHoc({ instruction: "Second subject." })
+    .please();
+  native.claudeScenario("held");
+
+  const firstAttempt = await held(first);
+  const secondAttempt = await held(second, 2);
+  expect(native.claudeLaunches()).toMatchObject([
+    { instruction: expect.stringContaining("First subject.") as unknown },
+    { instruction: expect.stringContaining("Second subject.") as unknown },
+  ]);
+  native.releaseHeldClaude();
+
+  expect(await settled(firstAttempt.id)).toMatchObject({ kind: "launched" });
+  expect(await settled(secondAttempt.id)).toMatchObject({ kind: "launched" });
+  expect(await records()).toHaveLength(2);
 });
