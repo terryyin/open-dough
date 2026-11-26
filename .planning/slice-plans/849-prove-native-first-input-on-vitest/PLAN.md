@@ -81,7 +81,8 @@ behavioral evidence and take a comparable pair for any performance claim.
   on that branch with observer registration. Slice 2 published as
   `25be1d9a8661191589c44e60165edfd5186055a8` with the workspace-start merge
   and the same observer. Slice 3 published as `ade5fff4c67f06d1fa9ddbd84d69c1557b067df8`
-  on the same target.
+  on the same target. Slice 4 published as
+  `61c47088b1e5d2976bc4bb08d262fdf5e5b8ff0e`.
 - Locked checkout install, native Chromium prerequisite check, and Dashboard
   typecheck passed. Retain the existing eight-slice scope and use the
   recorded baseline for behavior on the unchanged launch paths.
@@ -256,7 +257,7 @@ further refactor was needed.
 ### 5. Record creation before sending first input
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 
 Proof: Failed durable identity recording prevents first input and explains
@@ -268,6 +269,23 @@ native creation, admits Claude, and preserves the evidence file. Convert
 [Codex creation E2E](../../../e2e/launches/agent-launch-codex-creation.spec.ts)
 and [creation-gates E2E](../../../e2e/launches/agent-launch-creation-gates.spec.ts)
 for protocol evidence and unavailable recovery advice.
+
+Accepted proof: The failed identity write leaves the actual native thread
+and its unresolved creation evidence, explains the exact quoted
+continuation, closes the connection, and submits no turn. The next
+Start leaves one total thread. Because the read-only store also prevents
+attempt persistence, the test observes the typed in-memory attempt result.
+The unreadable-record case checks the original bytes and empty Codex
+creation log before a Claude start, then observes the Claude record and
+the preserved unreadable copy.
+
+The backend selector
+`launches/agent-launch-(codex-creation-boundary|creation-gates-boundary|creation-recovery)\.spec\.ts$`
+passed two migrated Node cases and four existing Node controls, with
+zero Playwright cases. The migrated checks took 3.117 s summed, the
+controls took 48 ms summed, and the selection took 6.18 s wall.
+Dashboard typecheck passed. The two subject specs use the existing host
+and persistence owners. No further refactor was needed.
 
 ### 6. Recover uncertain first input only with matching evidence
 
