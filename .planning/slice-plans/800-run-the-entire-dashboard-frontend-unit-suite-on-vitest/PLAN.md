@@ -53,8 +53,8 @@ removing the remaining standalone legacy frontend cases from trunk.
 
 | Consuming operation | Observation and result |
 | --- | --- |
-| Legacy specs this story moves | At `910772218` on macOS AC power, `caffeinate -s -i npm run --silent test:dashboard:frontend -- --list` succeeded. Its 32 Playwright rows comprise the 21 standalone cases across ten specs and 11 harness cases: observation measurements (4), control reachability (6) and touch reading (1). Slice 1 repeats the actual listing after SEED-432. |
-| Consumers of the retired modules | The source trace at `910772218` reaches the backend preparation/ownership specs, Distribution runner fixtures and tests, shared `pageTest.ts`, and the mounted Intent comparison scope. The backend static app server and comparison renderer specs exercise their respective retiring harnesses. Slice 1 verifies the post-supplier consumer set through a scratch removal and the consuming commands. |
+| Legacy specs this story moves | At `e63a4f2f3` (after SEED-432), `caffeinate -s -i npm run --silent test:dashboard:frontend -- --list` lists 846 rows: 835 `mounted-chromium` (Vitest) and 11 legacy `chromium` rows, all in `test-harness/`: `control-reachability-observation` (6), `observation-measurements` (4) and `touch-reading-observation` (1). No legacy spec remains outside `test-harness/`. |
+| Consumers of the retired modules | Slice 1 scratch removal at `e63a4f2f3` (frontend config, `frontend.playwright.config.ts`, all `support/frontend*.ts`, comparison-mount bundle and renderer, the comparison extensions in `pageTest.ts`, the three harness specs and `frontend-app-server.spec.ts`) failed: the frontend listing (`dashboard-group-run.mjs` joins a missing `group.config`); typecheck and lint in `test-preparation-budget/frontend.proof.ts`, `artifact-demand/app.proof.ts` and `unregistered.proof.ts`, `intent/intent-ci-scope-page.tsx` (`ComparisonMountScope`), `backend-tests/runtime/comparison-renderer-vite-cache.spec.ts`, `accessibleBoard.ts`, `intentPerspectivePage.ts`, `frontend-tests/review/story-review-details.spec.ts` and `e2e/intent/intent-read-boundary-recovery.spec.ts`; the four backend preparation/ownership specs; and 13 Distribution `local-test-suite*` cases that copy the deleted config (`local-test-suite-checkout.mjs:72-73,127`). `dashboard/tsconfig.app.json` includes the comparison-mount bundle and `eslint.config.mjs` names it. Three `frontend*` modules still serve surviving code: `accessibleBoard.ts` keeps an unused `publishLargeBacklog(FrontendServiceState)`; E2E `intent-read-boundary-recovery` counts reads through `countAuthenticatedReads` from `frontendAuthenticatedReadControl.ts`; the Vitest `story-review-details` spec takes `frontendReviewIds` through `frontendStoryReview.ts`, which imports Playwright types. `e2e/intent/intent-code-browse.spec.ts` names a harness spec path only as fixture data, and the Distribution evaluation overlay's `frontendApp.ts` is its own client copy. |
 | CI shard partition | At `910772218`, the runner's `groupFiles(frontendGroup, split)` for unsplit, `1/2` and `2/2` selected 332, 205 and 127 files. The split sets had no overlap, missing or extra files. Slice 5 checks the updated file partition and publication on branch CI. Slice 7 compares executed case identities. |
 | Typed readers reach mounted consumers | At `910772218`, a cold scratch case in `launches/launch-record-details` opened Session details on a saved allocation and refused `/__authenticated-read`. It failed on that request with default readers. With both existing `PageReads.observation` readers wired and the five private defaults removed, it displayed the supplied credit, asked the supplied readers exactly once at the saved revision and made zero authenticated requests. `caffeinate -s -i npm run --silent test:dashboard:frontend -- launches/launch-record-details sessions/compact-session-entry-cursor --workers=2` passed 5 cases with the direct mounts supplying the page context. `caffeinate -s -i npm run --silent typecheck:dashboard` identified the shared Intent read spec as the remaining caller before its reader was supplied. Typecheck then passed, and `caffeinate -s -i npm run --silent test:dashboard:backend -- intent/intent-shared-reads --workers=2 --reporter=line` passed all 7 cases. Scratch edits were reverted. |
 | Local proof route | In this preparation worktree, `caffeinate -s -i npm ci` on AC power succeeded with pinned Node 24.21.0. The full listing and the focused Chromium and backend runs above reached their consumers. Repeat the pinned dependency setup in execution. Slice 7 owns the complete timed run. |
@@ -64,7 +64,7 @@ removing the remaining standalone legacy frontend cases from trunk.
 ### 1. Probe: only the harness still uses the legacy frontend runner
 
 Type: Structure
-Status: planned
+Status: done
 
 At fetched trunk, after the supplier has landed, list the frontend group
 and record the legacy cases by file. In scratch, remove the frontend
@@ -124,14 +124,21 @@ Type: Structure
 Status: planned
 
 Delete `frontendApp.ts`, `frontendAppServer.ts`, the static comparison
-bundle and renderer, the comparison-only extensions in `pageTest.ts`,
-`frontendServiceSubstitutes.ts`,
-`frontendSubstituteAnswers.ts`, and the spent `frontend*` substitute, rule
-and route-state modules. Keep the shared Playwright fixture base for E2E
-and backend. Move `ComparisonMountScope` and its input type out of the
-static comparison mount to the existing mounted Intent scope fixture
-owner. Drop the harness-only backend specs and preserve generic app
-artifact and process ownership checks through the surviving runners.
+bundle and renderer with its `tsconfig.app.json` and `eslint.config.mjs`
+entries, the comparison-only extensions in `pageTest.ts`,
+`frontendServiceSubstitutes.ts`, `frontendSubstituteAnswers.ts`, and the
+spent `frontend*` substitute, rule and route-state modules. Keep the shared
+Playwright fixture base for E2E and backend. Move `ComparisonMountScope`
+and its input type out of the static comparison mount to the existing
+mounted Intent scope fixture owner. Delete the unused `publishLargeBacklog`
+with `frontendServiceState.ts`. Move the authenticated-read counting that
+E2E `intent-read-boundary-recovery` uses next to its page object in
+`intentPerspectivePage.ts`. Give `story-review-details` its review ids
+from `frontendStoryReviewFixtures.ts`, which imports no Playwright, and
+delete `frontendStoryReview.ts` with its answer and route modules. Drop
+the harness-only backend specs, including
+`comparison-renderer-vite-cache`, and preserve generic app artifact and
+process ownership checks through the surviving runners.
 
 **Proof.** Typecheck and lint pass. Search `dashboard/` and `scripts/` for
 retired modules and frontend `@playwright/test` imports, including imports
