@@ -188,3 +188,27 @@ workflow are ready for the one coordinator-owned hosted observation.
 There are no parked product or test changes on this worktree. This
 diagnosis record and the two temporary instrumentation files are the
 only uncommitted changes at handoff.
+
+## Hosted result and withdrawal
+
+The single instrumented push at
+`5c4e1a2b631c7fdb919199c1a448c302e5045cb7` passed in workflow run
+45739110922, attempt 1. Frontend shard 1 job 139639456918 completed
+212 files and 564 cases in 112.71 s. The four orchestrator pages loaded
+normally and the provider initiated cleanup after the test summary.
+Chromium exited with code 0. Cgroup memory and host OOM counters stayed
+at zero, and available temporary storage stayed near 93 GB.
+`847-diagnostic-45739110922-frontend.log` holds the complete timeline.
+
+The original disconnect did not recur in this one hosted attempt.
+The successful timeline validates the instrumentation and leaves the
+cause of run 45733591466 open. Existing Linux replay was arm64, and
+the available local Colima profiles are also arm64. Another identical
+hosted run would repeat the same experiment. The next useful evidence
+is a lifecycle trace from a naturally failing hosted x64 run, or a
+hosted reproducer that identifies the event preceding the disconnect.
+
+The next publication withdraws the two temporary instrumented files
+to their exact pre-diagnosis contents. Its ordinary push-triggered run
+checks that restored tree once. That run does not test the previous
+disconnect's cause. Stop at its result and preserve the evidence.
