@@ -393,7 +393,7 @@ it. A Date-only fake clock expires the attempt through the production
 ### 7. Prune only the expired attempt's startup evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 6–10 active minutes.
 
 Proof. Place old settled, current settled and unsettled
@@ -405,6 +405,27 @@ after. Confirm cleanup follows a successful replacement and touches only
 the expired attempt's evidence. Keep the actual filesystem, clock and
 worktree in the test. The retained landing reader is slice 6's separate
 consumer of the evidence that survives.
+
+Outcome (4 active minutes). `expired-attempt-pruning.spec.ts` (2 node
+cases) uses a private machine store, a real checkout with a
+`claude/session` worktree, and the Date-only fake clock.
+
+- The production `keepAttempt` write keeps exactly the unsettled and
+  current attempts.
+- It removes the expired attempts' kept starts and attachment directories
+  in both projects.
+- It keeps another project's start under the same key, the launch
+  records, the worktree list, refs and branch.
+- A `replaceAttempts` that leaves the store, or one that throws, removes
+  nothing.
+- Removed `agent-launch-start-session-retention`. Its held installed
+  Start was only setup, and slices 3 and 4 and the isolated E2E still
+  cover it. One Playwright case took 2.8 s; the two node cases take
+  0.3 s.
+- Builder catch: `makeMe.anAcceptedAttempt.ended({ kind: "uncertain" })`
+  without `explanation` builds an attempt the store's schema rejects.
+- No separate refactor pass ran. The change is the slice's own spec, and
+  no refactor-check candidate was found.
 
 ### 8. Admit one scheduled feedback session and notify once
 
