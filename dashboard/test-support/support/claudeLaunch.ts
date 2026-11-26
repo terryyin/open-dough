@@ -1,7 +1,7 @@
 // One `claude --bg` launch the fake recorded, as tests read it: each option
 // by name, and the instruction after the `--` that ends the options. A test
 // about one of them reads that one; the whole command line is the subject of
-// one boundary spec alone (../../backend-tests/launches/agent-launch-boundary.spec.ts).
+// the handoff spec (../../backend-tests/launches/agent-launch-claude-handoff.spec.ts).
 import type { ClaudeCall } from "./fakeClaudeControls.ts";
 
 export type ClaudeLaunch = {

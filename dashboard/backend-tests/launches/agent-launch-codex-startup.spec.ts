@@ -1,194 +1,236 @@
-// Saved conversations survive machine restart; startup restores only the daemon,
-// in the developer's shell environment when the dashboard starts as a
-// deployment's does (../../test-support/support/launchEnvironment.ts).
-import { test, expect } from "../../test-support/support/pageTest.ts";
+// Startup restores the service a saved conversation needs. It observes without resuming it.
 import {
-  mkdtempSync,
-  rmSync,
   existsSync,
+  mkdirSync,
+  mkdtempSync,
   realpathSync,
+  rmSync,
   symlinkSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { codexHost } from "../../server/codexHost.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { machineFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import { admittedAttach } from "../../server/terminalAdmission.ts";
+import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
+import { IncomingMessage } from "node:http";
+import { Socket } from "node:net";
 import {
   codexEndpoint,
   fakeCodexHost,
   installFakeCodex,
+  type FakeCodex,
 } from "../../test-support/support/fakeCodex.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   observationRecord,
   saveObservations,
-  observationStates,
   observed,
   passive,
   daemonStarts,
   codexEnvironments,
 } from "../../test-support/support/codexObservation.ts";
-import {
-  openCodexTerminal,
-  codexAttaches,
-} from "../../test-support/support/codexTerminal.ts";
-import { stored } from "../../test-support/support/codexLaunch.ts";
-import {
-  notRefinedIdentity,
-  notRefinedStory,
-} from "../../test-support/launchJourney.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { codexAttaches } from "../../test-support/support/codexTerminal.ts";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
 } from "../../test-support/support/launchEnvironment.ts";
 
-test(`saved Codex conversation reconnects after daemon loss at startup`, async () => {
-  const machine = mkdtempSync(path.join(tmpdir(), "dough-codex-startup-"));
+const source = "open-dough";
+const sessionId = "saved-conversation";
+
+async function machine(serve: Parameters<typeof installFakeCodex>[2]) {
+  const directory = mkdtempSync(path.join(tmpdir(), "dough-codex-startup-"));
   const native = await installFakeCodex(
-    machine,
+    directory,
     process.env["PATH"] ?? "",
-    "on-start",
+    serve,
   );
-  const home = path.join(machine, "home");
-  // A kept Codex thread with its saved workspace and app-server endpoint.
-  const workspace = path.join(home, "git", "open-dough");
+  const home = path.join(directory, "home");
+  const workspace = path.join(home, "git", source);
+  mkdirSync(workspace, { recursive: true });
+  onTestFinished(async () => {
+    await native.close();
+    vi.unstubAllEnvs();
+    rmSync(directory, { recursive: true, force: true });
+  });
+  for (const [key, value] of Object.entries(native.env)) vi.stubEnv(key, value);
+  vi.stubEnv("HOME", home);
+  return { directory, native, home };
+}
+
+function startDashboard() {
+  const unmount = mountProjectConfiguration("production");
+  const marks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: () => undefined,
+    reportingFolder: machineFolder,
+  });
+  const launches = new AgentLaunches(marks);
+  onTestFinished(async () => {
+    launches.close();
+    await marks.close();
+    unmount();
+  });
+  return launches;
+}
+
+test("saved Codex conversation reconnects after daemon loss at startup", async () => {
+  const { directory, native, home } = await machine("on-start");
+  const workspace = path.join(directory, "saved-worktree");
+  mkdirSync(workspace);
   const endpoint = codexEndpoint(native);
-  const saved = makeMe.aLaunchRecord
-    .refining({ identity: notRefinedIdentity, title: notRefinedStory })
-    .inCodexSession({
-      sessionId: "saved-conversation",
-      continuation: { workspace, endpoint },
-    })
-    .please();
-  // This helper needs only HOME: the record exists before the server starts.
+  const saved = observationRecord({ home }, native, sessionId, { workspace });
   saveObservations({ home }, [saved]);
-  observed(native, "saved-conversation", { type: "notLoaded" }, "completed");
+  observed(native, sessionId, { type: "notLoaded" }, "completed");
   expect(existsSync(native.env["FAKE_CODEX_SOCKET"] ?? "")).toBe(false);
-  const start = deploymentLikeStart(path.join(machine, "deployment"));
-  start.create();
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    codexProtocol: native,
-    projectFolders: ["open-dough"],
-    pathPrefix: start.pathPrefix,
-    extraEnv: start.extraEnv,
+  const deployment = deploymentLikeStart(path.join(directory, "deployment"));
+  deployment.create();
+  for (const [key, value] of Object.entries(deployment.extraEnv))
+    vi.stubEnv(key, value);
+  vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv(
+    "PATH",
+    [...deployment.pathPrefix, native.env["PATH"]].join(path.delimiter),
+  );
+
+  const launches = startDashboard();
+
+  // Construction restores the daemon before any call to the session read or attach.
+  await expect
+    .poll(() => existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? ""))
+    .toBe(true);
+  expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(home) }]);
+  const daemonEnvironments = codexEnvironments(native, "app-server");
+  expect(daemonEnvironments).toHaveLength(1);
+  expectDeveloperShellEnvironment(
+    daemonEnvironments[0],
+    fakeCodexHost("FAKE_CODEX_SOCKET"),
+  );
+  expect(
+    (await launches.machineObservation()).records.map(
+      ({ session, sessionState }) => [session.sessionId, sessionState],
+    ),
+  ).toEqual([
+    [
+      sessionId,
+      { kind: "available", availability: "retained", activity: "review" },
+    ],
+  ]);
+  passive(native.calls);
+  expect(await keptRecords(source)).toEqual([saved]);
+
+  const origin = "http://127.0.0.1:4173";
+  const socket = new Socket();
+  Object.defineProperty(socket, "remoteAddress", { value: "127.0.0.1" });
+  const request = new IncomingMessage(socket);
+  request.headers = { origin, host: new URL(origin).host };
+  const terminalUrl = new URL(agentTerminalEndpoint, origin);
+  terminalUrl.search = new URLSearchParams({
+    source,
+    host: "codex",
+    session: sessionId,
+  }).toString();
+  const admitted = await admittedAttach(request, terminalUrl, launches);
+  const terminal = codexHost.attach?.(admitted.session, admitted.folder, {
+    cols: 80,
+    rows: 24,
+  });
+  if (terminal === undefined || !("pty" in terminal))
+    throw new Error("Expected the saved Codex terminal.");
+  const exited = new Promise<void>((resolve) => {
+    terminal.pty.onExit(() => {
+      resolve();
+    });
   });
   try {
-    // No launch or HTTP read is needed to start the vendor service.
-    await expect
-      .poll(() => existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? ""))
-      .toBe(true);
-    expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(home) }]);
-    const daemonEnvironments = codexEnvironments(native, "app-server");
-    expect(daemonEnvironments).toHaveLength(1);
-    expectDeveloperShellEnvironment(
-      daemonEnvironments[0],
-      fakeCodexHost("FAKE_CODEX_SOCKET"),
-    );
-    expect(
-      (await observationStates(server)).map(({ session, sessionState }) => [
-        session.sessionId,
-        sessionState,
-      ]),
-    ).toEqual([
-      [
-        "saved-conversation",
-        { kind: "available", availability: "retained", activity: "review" },
+    await expect.poll(() => codexAttaches(native)).toHaveLength(1);
+    expect(codexAttaches(native)[0]).toMatchObject({
+      cwd: realpathSync(workspace),
+      args: [
+        "resume",
+        "--remote",
+        endpoint,
+        "--cd",
+        workspace,
+        "--no-alt-screen",
+        sessionId,
       ],
-    ]);
-    passive(native.calls);
-    expect(stored(home)).toEqual([saved]);
-    const terminal = await openCodexTerminal(server, "saved-conversation");
-    try {
-      await expect.poll(() => codexAttaches(native).length).toBe(1);
-      // The terminal resumes that thread at the saved endpoint and workspace.
-      expect(codexAttaches(native)[0]).toMatchObject({
-        cwd: realpathSync(workspace),
-        args: [
-          "resume",
-          "--remote",
-          endpoint,
-          "--cd",
-          workspace,
-          "--no-alt-screen",
-          "saved-conversation",
-        ],
-      });
-    } finally {
-      terminal.socket.close();
-    }
-    expect(stored(home)).toEqual([saved]);
+    });
   } finally {
-    await server.close();
-    await native.close();
-    rmSync(machine, { recursive: true, force: true });
+    terminal.pty.kill("SIGHUP");
+    await exited;
   }
+  expect(await keptRecords(source)).toEqual([saved]);
 });
 
-for (const scenario of [
-  "already-running",
-  "refused",
-  "absent",
-  "no-sessions",
-] as const) {
-  test(`dashboard startup preserves records with ${scenario} Codex`, async () => {
-    const machine = mkdtempSync(path.join(tmpdir(), "dough-codex-startup-"));
-    const native = await installFakeCodex(
-      machine,
-      process.env["PATH"] ?? "",
-      scenario !== "refused" && scenario !== "absent",
-    );
-    const home = path.join(machine, "home");
-    const saved = observationRecord({ home }, native, "saved-conversation");
-    const records = scenario === "no-sessions" ? [] : [saved];
-    saveObservations({ home }, records);
-    observed(
-      native,
-      "saved-conversation",
-      { type: "active", activeFlags: [] },
-      "inProgress",
-    );
+function saveActiveConversation(native: FakeCodex, home: string) {
+  const saved = observationRecord({ home }, native, sessionId);
+  saveObservations({ home }, [saved]);
+  observed(
+    native,
+    sessionId,
+    { type: "active", activeFlags: [] },
+    "inProgress",
+  );
+  return saved;
+}
+
+test("dashboard startup uses an already-running Codex service once across repeated observations", async () => {
+  const { native, home } = await machine(true);
+  const saved = saveActiveConversation(native, home);
+
+  const launches = startDashboard();
+
+  expect(
+    (await launches.machineObservation()).records.map(
+      ({ sessionState }) => sessionState,
+    ),
+  ).toEqual([
+    { kind: "available", availability: "loaded", activity: "working" },
+  ]);
+  expect(daemonStarts(native)).toHaveLength(1);
+  await launches.machineObservation();
+  expect(daemonStarts(native)).toHaveLength(1);
+  passive(native.calls);
+  expect(await keptRecords(source)).toEqual([saved]);
+});
+
+test.each(["refused", "absent"])(
+  "dashboard startup preserves a conversation when Codex is %s",
+  async (scenario) => {
+    const { native, home } = await machine(false);
+    const saved = saveActiveConversation(native, home);
     if (scenario === "absent") {
       rmSync(path.join(native.binDir, "codex"));
       symlinkSync(process.execPath, path.join(native.binDir, "node"));
+      vi.stubEnv("PATH", native.binDir);
     }
-    const server = await startDashboardServer({
-      mode: "boundary",
-      machine,
-      codexProtocol: native,
-      projectFolders: ["open-dough"],
-      ...(scenario === "absent" ? { extraEnv: { PATH: native.binDir } } : {}),
-    });
-    try {
-      const states = await observationStates(server);
-      expect(states.map(({ sessionState }) => sessionState)).toEqual(
-        scenario === "no-sessions"
-          ? []
-          : scenario === "refused" || scenario === "absent"
-            ? [{ kind: "unknown" }]
-            : [
-                {
-                  kind: "available",
-                  availability: "loaded",
-                  activity: "working",
-                },
-              ],
-      );
-      if (scenario === "already-running") {
-        expect(daemonStarts(native)).toHaveLength(1);
-        await observationStates(server);
-        expect(daemonStarts(native)).toHaveLength(1);
-      } else if (scenario === "no-sessions") {
-        expect(existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "")).toBe(
-          false,
-        );
-      }
-      passive(native.calls);
-      expect(stored(home)).toEqual(records);
-    } finally {
-      await server.close();
-      await native.close();
-      rmSync(machine, { recursive: true, force: true });
-    }
-  });
-}
+
+    const launches = startDashboard();
+
+    expect(
+      (await launches.machineObservation()).records.map(
+        ({ sessionState }) => sessionState,
+      ),
+    ).toEqual([{ kind: "unknown" }]);
+    passive(native.calls);
+    expect(await keptRecords(source)).toEqual([saved]);
+  },
+);
+
+test("dashboard startup has no Codex daemon to restore without a saved conversation", async () => {
+  const { native, home } = await machine(true);
+  saveObservations({ home }, []);
+
+  const launches = startDashboard();
+
+  expect((await launches.machineObservation()).records).toEqual([]);
+  expect(existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "")).toBe(false);
+  passive(native.calls);
+  expect(await keptRecords(source)).toEqual([]);
+});

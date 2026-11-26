@@ -1,211 +1,237 @@
-// The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
-// at the boundary server, for a launch that asks for a model: a story or ad
-// hoc session starts with `--model <alias>`, a request without a model passes
-// none, the record keeps the alias, and a model outside the table is refused
-// before any `claude` runs. A chosen effort, or Open Dough's default `medium`
-// when none is chosen, goes as `--effort <level>` and is kept in the record;
-// one outside Claude Code's levels is refused the same way. A refused launch
-// names the model asked for. The synthetic `claude`
-// (../../test-support/fixtures/fake-claude) records every call.
-
-import { expect } from "../../test-support/support/pageTest.ts";
-import {
-  launch,
-  machineSessions,
-  openDoughFolder,
-} from "../../test-support/agentLaunchBoundary.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { expectAdHocReportingInput } from "../../test-support/support/reportingInputAssertions.ts";
-import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import {
-  expectStoryInput,
-  launchClaude,
-  otherExecution,
-  queuedExecution,
-  test,
-} from "../support/installedClaudeLaunch.ts";
+import { realpathSync } from "node:fs";
+import path from "node:path";
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  queuedReadyRepository,
+  storyA,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import * as baseCi from "../../server/baseCiJudgment.ts";
+import { claudeHost } from "../../server/claudeHost.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { admitLaunchSettings } from "../../server/launchSettingsAdmission.ts";
+import { machineFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
+import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
+import {
+  expectAdHocReportingInput,
+  expectReportingBlock,
+  installedStoryLaunchInput,
+} from "../../test-support/support/reportingInputAssertions.ts";
+import {
+  startOrigin,
+  type StartOrigin,
+} from "../../test-support/support/startOrigin.ts";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
-const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
-const timeLabel = /^Ad hoc work — \d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/;
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
+const storyRequest = makeMe.aLaunchRequest.executing(storyA).please();
+const draftRequest = makeMe.aLaunchRequest.adHoc().please();
+const reportingOrigin = "http://127.0.0.1:4173";
 
-test.describe(`agent launch boundary, chosen model`, () => {
-  let server: DashboardServer;
+let origin: StartOrigin;
+let claude: ReturnType<typeof installFakeClaude>["controls"];
+let unmount: () => void;
+let marks: NativeDoneMarks;
+let launches: AgentLaunches;
 
-  test.beforeEach(async ({ installedClaude }) => {
-    server = await installedClaude({ codex: true });
-  });
-
-  async function execute(body: unknown, instruction = "") {
-    const result = await launchClaude(server, body);
-    expectStoryInput(server, result, {
-      command: `/dough-execute-plan ${queuedExecution.identity}`,
-      identity: queuedExecution.identity,
-      instruction,
-    });
-    return result;
+beforeAll(async () => {
+  const prepared = await startOrigin(repository);
+  try {
+    keepStartedOrigin("claude", repository, prepared);
+  } finally {
+    prepared.cleanup();
   }
+});
 
-  test("starts a story session on the chosen model and keeps the alias", async () => {
-    const request = makeMe.aLaunchRequest
-      .executing(storyA)
-      .requestingModel("opus")
-      .withInstruction("go")
-      .please();
-    const { record, started } = await execute(request, "go");
-
-    expect(started.model).toBe("opus");
-    expect(record.request).toMatchObject(request);
-    expect(await machineSessions(server)).toContainEqual(
-      expect.objectContaining({ request: record.request }),
-    );
+beforeEach(async () => {
+  origin = await startOrigin(repository);
+  const native = installFakeClaude(
+    origin.machine,
+    { binDir: origin.machine, path: process.env["PATH"] ?? "" },
+    {},
+  );
+  claude = native.controls;
+  for (const [key, value] of Object.entries(native.env)) vi.stubEnv(key, value);
+  vi.spyOn(baseCi, "judgeBranchCi").mockResolvedValue({
+    state: "pass",
+    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    subject: "Fixture base",
+    laterWithoutResult: 0,
   });
-
-  test("starts an ad hoc session with no text on the chosen model and no prompt", async () => {
-    const request = makeMe.aLaunchRequest
-      .adHoc()
-      .requestingModel("sonnet")
-      .please();
-    const { record, started } = await launchClaude(server, request);
-
-    expect(started.cwd).toBe(openDoughFolder(server));
-    expect(started.model).toBe("sonnet");
-    expect(started).not.toHaveProperty("instruction");
-    expect(started.name).toBe(`Open Dough · Ad hoc · ${record.request.title}`);
-    expect(record.request.title).toMatch(timeLabel);
-    expect(record.request).toMatchObject(request);
-    expect(await machineSessions(server)).toContainEqual(
-      expect.objectContaining({ request: record.request }),
-    );
+  unmount = mountProjectConfiguration("production");
+  marks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: () => undefined,
+    reportingFolder: machineFolder,
   });
+  launches = new AgentLaunches(marks);
+});
 
-  test("starts an ad hoc session on the chosen model with its text", async () => {
-    const instruction = "look at the build";
-    const { record, started } = await launchClaude(
-      server,
-      makeMe.aLaunchRequest
-        .adHoc({ instruction })
-        .requestingModel("fable")
-        .please(),
-    );
+afterEach(async () => {
+  await launches.drain();
+  launches.close();
+  await marks.close();
+  unmount();
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  origin.cleanup();
+});
 
-    expect(started).toMatchObject({
-      model: "fable",
-      cwd: openDoughFolder(server),
-    });
-    expectAdHocReportingInput(
-      started.instruction ?? "",
-      instruction,
-      record.request,
-      server,
-    );
-  });
+async function settle(request: AgentLaunchRequest) {
+  await admitLaunchSettings(request, claudeHost);
+  const accepted = await launches.accept(source, request, reportingOrigin);
+  if (accepted.kind !== "accepted")
+    throw new Error(`Expected an accepted launch: ${JSON.stringify(accepted)}`);
+  await launches.drain();
+  const { attempts } = await launches.attempts();
+  return {
+    project: origin,
+    outcome: attempts.find(({ id }) => id === accepted.attempt.id)?.outcome,
+    kept: await keptRecords(source.id),
+  };
+}
 
-  test("starts a story session at the chosen effort and keeps it", async () => {
-    const request = makeMe.aLaunchRequest
-      .executing(storyA)
-      .requestingModel("opus")
-      .withEffort("high")
-      .withInstruction("go")
-      .please();
-    const { record, started } = await execute(request, "go");
+async function launched(request: AgentLaunchRequest) {
+  const { project, outcome, kept } = await settle(request);
+  if (outcome?.kind !== "launched")
+    throw new Error(`Expected a confirmed launch: ${JSON.stringify(outcome)}`);
+  const [started] = claude.claudeLaunches();
+  expect(claude.claudeLaunches()).toHaveLength(1);
+  const saved = kept.find(
+    ({ session }) =>
+      session.sessionId === outcome.session.sessionId &&
+      session.host === outcome.session.host,
+  );
+  if (started === undefined || saved === undefined)
+    throw new Error("Expected the native process and its kept record.");
+  return { project, started, saved };
+}
 
-    expect(started).toMatchObject({
-      name: `Open Dough · Execution · ${queuedExecution.title}`,
-      model: "opus",
-      effort: "high",
-    });
-    expect(record.request).toMatchObject(request);
-    expect(await machineSessions(server)).toContainEqual(
-      expect.objectContaining({ request: record.request }),
-    );
-  });
+test("sends the story's chosen model and keeps the alias", async () => {
+  const request = makeMe.aLaunchRequest
+    .executing(storyA)
+    .requestingModel("opus")
+    .withInstruction("go")
+    .please();
+  const { project, started, saved } = await launched(request);
 
-  test("passes Open Dough's default effort when none is chosen, and its record keeps it", async () => {
-    const story = await execute(queuedExecution);
-    expect(story.started).not.toHaveProperty("model");
-    expect(story.started.effort).toBe("medium");
-    expect(story.record.request).not.toHaveProperty("model");
-    expect(story.record.request.effort).toBe("medium");
-
-    const adHoc = await launchClaude(server, adHocRequest);
-    expect(adHoc.started.cwd).toBe(openDoughFolder(server));
-    expect(adHoc.started).not.toHaveProperty("model");
-    expect(adHoc.started.effort).toBe("medium");
-    expect(adHoc.record.request).not.toHaveProperty("model");
-    expect(adHoc.record.request.effort).toBe("medium");
-  });
-
-  test("refuses a Claude Code effort outside its levels before starting claude, naming them", async () => {
-    server.claudeScenario("launched");
-    const callsBefore = server.claudeCalls().length;
-    const response = await launch(server, {
-      ...queuedExecution,
-      effort: "extreme",
-    });
-
-    expect(response.status).toBe(400);
-    expect(response.body).toContain(
-      "Claude Code reasoning effort must be one of low, medium, high, xhigh, max.",
-    );
-    expect(server.claudeCalls()).toHaveLength(callsBefore);
-  });
-
-  for (const [request, model] of [
-    ["an alias outside the table", "haiku"],
-    ["a full model name", "gpt"],
-    ["an empty string", ""],
-    ["a number", 4],
-    ["null", null],
-  ] as const) {
-    for (const [kind, body] of [
-      ["story", queuedExecution],
-      ["ad hoc", adHocRequest],
-    ] as const) {
-      test(`refuses ${request} as the model of ${kind} requests before starting claude`, async () => {
-        server.claudeScenario("launched");
-        const callsBefore = server.claudeCalls().length;
-        const response = await launch(server, { ...body, model });
-
-        expect(response.status).toBe(400);
-        expect(server.claudeCalls()).toHaveLength(callsBefore);
-      });
-    }
-  }
-
-  for (const [kind, body] of [
-    ["story", queuedExecution],
-    ["ad hoc", adHocRequest],
-  ] as const) {
-    test(`refuses a model with Codex on ${kind} requests before starting claude`, async () => {
-      server.claudeScenario("launched");
-      const callsBefore = server.claudeCalls().length;
-      const response = await launch(server, {
-        ...body,
-        host: "codex",
-        model: "opus",
-      });
-
-      expect(response.status).toBe(400);
-      expect(server.claudeCalls()).toHaveLength(callsBefore);
-    });
-  }
-
-  test("names the model asked for when claude refuses the launch, and none otherwise", async () => {
-    server.claudeScenario("refused");
-    const recordsBefore = (await machineSessions(server)).length;
-    const asked = await launch(server, { ...queuedExecution, model: "opus" });
-    const plain = await launch(server, otherExecution);
-
-    const askedAnswer = JSON.parse(asked.body) as { explanation: string };
-    const plainAnswer = JSON.parse(plain.body) as { explanation: string };
-    expect(askedAnswer).toMatchObject({ kind: "failed", reason: "refused" });
-    expect(askedAnswer.explanation).toContain("with model Opus");
-    expect(askedAnswer.explanation).toContain(
-      "Run `claude` in that folder once",
-    );
-    expect(plainAnswer).toMatchObject({ kind: "failed", reason: "refused" });
-    expect(plainAnswer.explanation).not.toContain("model");
-    expect(await machineSessions(server)).toHaveLength(recordsBefore);
+  expect(started.model).toBe(request.model);
+  expect(saved.request).toMatchObject(request);
+  const input = installedStoryLaunchInput(started.instruction);
+  expect(input.invocation).toBe(`/dough-execute-plan ${storyA.identity}`);
+  expect(input.instruction).toBe(request.instruction);
+  const claim = saved.start;
+  if (claim === undefined || "tracking" in claim)
+    throw new Error("Missing execution claim.");
+  expect(input.handoff?.split("\n").slice(0, 2)).toEqual([
+    "Established start:",
+    `- identity: ${storyA.identity}`,
+  ]);
+  expect(input.handoff).toContain(`- publishedSha: ${claim.publishedSha}`);
+  expect(input.handoff).toContain(`- workspace: ${claim.workspace}`);
+  expect(input.handoff).toContain(`- branch: ${claim.branch}`);
+  expect(started.cwd).toBe(realpathSync(claim.workspace));
+  expectReportingBlock(input.reporting, saved.request, {
+    home: path.join(project.machine, "home"),
+    origin: reportingOrigin,
   });
 });
+
+test("starts an admitted blank session with the chosen model and no prompt", async () => {
+  const request = makeMe.aLaunchRequest
+    .adHoc()
+    .requestingModel("sonnet")
+    .please();
+  const { project, started, saved } = await launched(request);
+
+  expect(started).toMatchObject({
+    cwd: realpathSync(project.project),
+    model: request.model,
+    name: `Open Dough · Ad hoc · ${saved.request.title}`,
+  });
+  expect(started).not.toHaveProperty("instruction");
+  expect(saved.request.title).toMatch(
+    /^Ad hoc work — \d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/,
+  );
+  expect(saved.request).toMatchObject(request);
+});
+
+test("sends the admitted session's text on its chosen model", async () => {
+  const request = makeMe.aLaunchRequest
+    .adHoc({ instruction: "look at the build" })
+    .requestingModel("fable")
+    .please();
+  const { project, started, saved } = await launched(request);
+
+  expect(started).toMatchObject({
+    model: request.model,
+    cwd: realpathSync(project.project),
+  });
+  expectAdHocReportingInput(
+    started.instruction ?? "",
+    request.instruction ?? "",
+    saved.request,
+    {
+      home: path.join(project.machine, "home"),
+      origin: reportingOrigin,
+    },
+  );
+});
+
+test("sends and retains the story's chosen effort", async () => {
+  const request = makeMe.aLaunchRequest
+    .executing(storyA)
+    .requestingModel("opus")
+    .withEffort("high")
+    .withInstruction("go")
+    .please();
+  const { started, saved } = await launched(request);
+
+  expect(started).toMatchObject({
+    name: `Open Dough · Execution · ${storyA.title}`,
+    model: request.model,
+    effort: request.effort,
+  });
+  expect(saved.request).toMatchObject(request);
+});
+
+test.each([
+  { kind: "a story", request: storyRequest },
+  { kind: "an admitted session", request: draftRequest },
+] as const)(
+  "sends and retains the default effort without pinning a model for $kind",
+  async ({ request }) => {
+    const { started, saved } = await launched(request);
+
+    expect(started.effort).toBe("medium");
+    expect(saved.request.effort).toBe("medium");
+    expect(started).not.toHaveProperty("model");
+    expect(saved.request).not.toHaveProperty("model");
+  },
+);
+
+test.each([
+  ["opus", "with model Opus"],
+  [undefined, undefined],
+] as const)(
+  "explains a native refusal with model choice %s without keeping a session",
+  async (model, named) => {
+    claude.claudeScenario("refused");
+    const request = makeMe.aLaunchRequest.executing(storyA);
+    if (model !== undefined) request.requestingModel(model);
+    const { outcome, kept } = await settle(request.please());
+
+    if (outcome?.kind !== "failed")
+      throw new Error(`Expected native refusal: ${JSON.stringify(outcome)}`);
+    expect(outcome.reason).toBe("refused");
+    expect(outcome.explanation).toContain("Run `claude` in that folder once");
+    if (named === undefined) expect(outcome.explanation).not.toContain("model");
+    else expect(outcome.explanation).toContain(named);
+    expect(kept).toEqual([]);
+  },
+);

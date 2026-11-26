@@ -126,14 +126,29 @@ beforeEach(async () => {
   await keepAttempt(attempt);
   const resumed = await launches.continueAttempt(source, attempt.id);
   expect(resumed.kind).toBe("accepted");
-  const readAttempt = async () =>
-    (await keptAttempts())?.find(({ id }) => id === attempt.id);
-  await expect.poll(readAttempt).toMatchObject({
-    outcome: { kind: "failed", reason: "refused", worktreeUpdateNeeded: true },
-  });
-  const outcome = (await readAttempt())?.outcome;
+  // The durable write can be visible before the owner is ready for a retry.
+  await expect
+    .poll(async () => {
+      const { attempts } = await launches.attempts();
+      return attempts.find(({ id }) => id === attempt.id);
+    })
+    .toMatchObject({
+      running: false,
+      outcome: {
+        kind: "failed",
+        reason: "refused",
+        worktreeUpdateNeeded: true,
+      },
+    });
+  const outcome = (await keptAttempts())?.find(
+    ({ id }) => id === attempt.id,
+  )?.outcome;
   if (outcome?.kind !== "failed")
     throw new Error("Expected reporting refusal.");
+  expect(outcome).toMatchObject({
+    reason: "refused",
+    worktreeUpdateNeeded: true,
+  });
   expect(outcome.explanation).toContain(missing);
   expect(dispatch).not.toHaveBeenCalled();
 });
@@ -159,7 +174,11 @@ test("applies the updater to the exact kept worktree and resumes that attempt on
   const acceptance = await launches.updateWorktreeAndRetry(source, id);
   await launches.drain();
 
-  expect(acceptance).toMatchObject({ kind: "accepted", attempt: { id } });
+  if (acceptance.kind !== "accepted")
+    throw new Error(
+      `Expected the worktree update to resume: ${JSON.stringify(acceptance)}`,
+    );
+  expect(acceptance.attempt.id).toBe(id);
   const { attempts } = await launches.attempts();
   expect(attempts).toMatchObject([
     {
