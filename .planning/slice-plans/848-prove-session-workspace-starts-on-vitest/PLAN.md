@@ -8,8 +8,8 @@
 
 Move the surviving backend unit proof for workspace choice, confirmation,
 story admission, startup recovery, landing, expiry, and scheduled feedback
-from the legacy runner to Node Vitest. All 18 original paths below need a
-disposition. Preserve native dispatch, installed command and Git proof at
+from the legacy runner to Node Vitest. All 18 original paths below, and the
+cutover's `admitted-session-duplicate.spec.ts`, need a disposition. Preserve native dispatch, installed command and Git proof at
 their actual boundaries. The [campaign coverage map](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage)
 assigns the generic launch lifecycle, host options and protocol, ordinary
 follow-up, retained record readers, and runner removal to other stories.
@@ -53,8 +53,8 @@ production data migration belong to SEED-439.
 
 | Consuming operation | Observation and remaining check |
 | --- | --- |
-| Identify the legacy paths to account for before choosing replacement cases. | At preparation revision `bc84dff4a`, Node 24.21.0 ran the maintained `groupFiles(backendGroup)` selector against the 18 basenames in the mapped plan. All 18 matched exactly once and selected Playwright. The original run at `07435ba0f` passed 40 legacy cases on their first attempt, with 182.387 s summed case time. That is historical context for the pre-cutover contract. |
-| Establish the replacement baseline and prove installed admission and landing at the delivered boundaries. | Trunk already contains SEED-432's isolated admission at `3edf13a3f`. The inspected SEED-439 branch plan at `4122661d6` records a held scheduled Take, installed reporting of a bound comparison, and recovery of an unbound attempt, but still has a blank-start policy slice and the production switch outstanding. Its branch already rewrites the mapped default-start, receipt and landing specs and adds scheduled admission and unbound recovery proof. Slice 1 probes the integrated replacements and reruns the selected baseline in the owned checkout after the dependency clears. Current branch and historical timings do not establish the integrated result. |
+| Identify the legacy paths to account for before choosing replacement cases. | At preparation revision `53b05ed59`, after SEED-439 integrated, Node 24.21.0 ran the maintained `groupFiles(backendGroup)` selector (603 backend specs, 310 Vitest). All 18 mapped basenames still exist under `dashboard/backend-tests/launches/`, each matched once and selects Playwright. The cutover rewrote ten of them and added `admitted-session-duplicate.spec.ts` (Playwright, one case per Claude and Codex host: the borrowed checkout opens only after its claim reaches the origin). No other story owned it, so slice 1 does. The original run at `07435ba0f` passed 40 legacy cases with 182.387 s summed case time; that is historical pre-cutover context. |
+| Establish the replacement baseline and prove installed admission and landing at the delivered boundaries. | The integrated contract is [plan 833](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md) at `1ee3eb03b`, accepted as `672ce9a0c`. Blank Start stays blank at the native host, and the landing selection reaches the invoked workflow through its existing handoff (its slice 9, G5 and G6). At `53b05ed59`, every retained E2E path and production owner this plan names exists, along with the delivered `e2e/launches/agent-launch-unbound-continuation.spec.ts`. Slice 1 reruns the scoped backend baseline in the owned checkout before editing; it measures cost and does not decide a slice's outcome. |
 
 ## Ordered slices
 
@@ -64,8 +64,9 @@ Type: Behavior
 Status: planned
 Estimate: 12–15 active minutes.
 
-Begin with the cutover probe. Read its accepted revision and trace all 18
-mapped paths through renames, removals, and replacement assertions. Run the
+Begin with the cutover probe. Trace all 18 mapped paths and
+`admitted-session-duplicate.spec.ts` through the cutover's rewrites and
+replacement assertions. Run the
 runner listing and a focused built-in borrowed Start against the delivered
 profile with a private origin. Confirm the actual story binding at dispatch,
 and locate the live blank-start, scheduled, and landing readers. Capture the
@@ -228,7 +229,7 @@ story-linked equivalent.
 
 | Slice | Historical paths and independently retained observations |
 | --- | --- |
-| 1 | `agent-launch-ad-hoc-boundary.spec.ts`, `agent-launch-ad-hoc-sessions.spec.ts` for request, checkout, title, record and inventory. Keep `e2e/launches/agent-launch-ad-hoc.spec.ts` and `agent-launch-ad-hoc-instructed.spec.ts` for the visible blank/instructed session and terminal behavior. |
+| 1 | `agent-launch-ad-hoc-boundary.spec.ts`, `agent-launch-ad-hoc-sessions.spec.ts` for request, checkout, title, record and inventory, and the cutover's `admitted-session-duplicate.spec.ts` for claim publication before the borrowed checkout opens with HEAD and index intact. Keep `e2e/launches/agent-launch-ad-hoc.spec.ts` and `agent-launch-ad-hoc-instructed.spec.ts` for the visible blank/instructed session and terminal behavior. |
 | 2 | `agent-launch-start-session-existing-changes-boundary.spec.ts`, `agent-launch-ad-hoc-cursor-established.spec.ts`, `agent-launch-ad-hoc-codex-input.spec.ts` for the confirmation, exact input, cwd and dirty checkout. The latter also contributes scheduled skill input to slice 8. Preserve the Cursor cases' blank and isolated handoffs and stale-workspace refusal through the reached production and native checks. Inspect `e2e/launches/agent-launch-start-session-existing-changes.spec.ts`, `agent-launch-ad-hoc-codex.spec.ts` and `agent-launch-ad-hoc-cursor.spec.ts` before dropping any protocol assertion. |
 | 3 | `admitted-session-refusal.spec.ts`, `admitted-session-retry.spec.ts`, `agent-launch-start-session-isolated-codex.spec.ts`. Preserve real admitted checkout and publication ordering in `e2e/launches/agent-launch-start-session-isolated.spec.ts`; retain the Codex native variant for cwd and ordered materialization if the E2E lacks it. |
 | 4 | `agent-launch-start-session-failed-boundary.spec.ts`, `agent-launch-start-session-identity.spec.ts`, `agent-launch-start-session-kept.spec.ts`, `agent-launch-start-session-lost.spec.ts`, `agent-launch-start-session-stops.spec.ts`. Keep `e2e/launches/agent-launch-start-session-recovery.spec.ts`, `agent-launch-start-session-failed.spec.ts`, `agent-launch-ad-hoc-codex-recovery.spec.ts` and the delivered unbound-continuation journey for their distinct UI, real installed and native observations. |
@@ -273,6 +274,7 @@ story-linked equivalent.
 
 Slice-plan refinement was unnecessary because each slice has a distinct
 observation and uses the same delivered launch and retention boundaries.
-Eight slices. No further slice-specific concern was found on the reviewed
-basis. The recorded cutover dependency holds Start, and the first slice
-checks the delivered proof selection and baseline before conversion.
+Eight slices. Rereviewed at `53b05ed59` after the cutover dependency was
+satisfied: the mapped paths, retained boundaries and production owners
+exist, and the one unowned cutover spec joins slice 1. No slice-specific
+concern remains.

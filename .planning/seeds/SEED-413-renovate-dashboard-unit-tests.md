@@ -243,7 +243,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 {"schemaVersion":1,"identity":"SEED-413#prove-session-workspace-starts-on-vitest","dependencies":[{"supplier":{"identity":"SEED-439#complete-story-linked-ad-hoc-sessions","href":"seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions"},"implementation":"Integrate the story-linked Dashboard start, scheduled feedback admission and landing contracts, including the settled blank-start policy and retirement of standalone startup.","rationale":"The mapped specs and their shared fixtures are already being rewritten or retired by this cutover. The first migration slice must inventory and baseline the surviving production paths on trunk. Porting today's standalone startup, reporting or landing expectations would migrate a retiring contract and would not give that baseline.","condition":"SEED-439 is integrated on trunk with story-linked default and isolated starts, scheduled feedback admission, and retained landing including the decided blank-start policy. Superseded standalone startup paths have their disposition recorded.","state":"satisfied","resolution":{"revision":"1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8","path":".planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions","summary":"Slices 1 and 2 admitted borrowed and isolated Dashboard starts under a published Taken story before native dispatch, including scheduled feedback. Slices 4, 7, 8 and 9 retired standalone startup and kept the bound landing path, including blank Start and a handoff to only the matching native identity. Hosted candidate CI run 45757487446, actual native checks across Codex, Claude Code and Cursor, and slice 10 production readback validate the delivered prerequisite. The consumer still owns moving surviving test cases to Node Vitest.\nCondition satisfied: SEED-439 is integrated on trunk with story-linked default and isolated starts, scheduled feedback admission, and retained landing including the decided blank-start policy. Superseded standalone startup paths have their disposition recorded.\nAccepted integration: 672ce9a0c25054f195e0444aee529e689238a1f5 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c78c3cd457d0dafb362a4a6dbddaa388a0882299b944677b6e49050dca8103c8","plan":"92e9ef662e4ea7ce21bd3a547fdf543a4605e9961b8661333a8195051c05663b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1d06a5912ac986b8b97a67e93e532163b509b1f3391fe31bdc1913bac1f9d985","plan":"7c38f923bf0025b0a22e9ea67f917accda2919c1383457d34a7f4aff007058b4"}}
 ```
 
 **Goal.** Give Dashboard maintainers fast Node Vitest proof that a session
@@ -252,7 +252,8 @@ story before dispatch, and can recover the same start and its accepted landing.
 Give scheduled feedback launches the same admission coverage and preserve
 their one-time attention notification.
 
-**Scope.** Account for all 18 mapped backend specs against the integrated
+**Scope.** Account for all 18 mapped backend specs, and the borrowed-admission
+spec the cutover added, against the integrated
 [story-linked session cutover](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions).
 Move surviving workspace, confirmation, admission, recovery, retention, and
 scheduled-launch unit cases to typed production entry points in Node Vitest.
@@ -519,7 +520,7 @@ or removed once its behavior or duplicate is accounted for.
 | `agent-launch-options-rules.spec.ts` | [Runner cutover](#retire-legacy-dashboard-backend-runner), while it is a runner specimen |
 | 14 launch admission, attempt and worker specs | [Launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest) |
 | 15 installed execution and refinement specs | [Installed story starts](https://github.com/terryyin/open-dough/blob/79475eaef07720be5bdd25722433060d62f8a19a/.planning/slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md), completed on Node Vitest with native dispatch and restart in E2E |
-| 18 workspace and scheduled launch specs | [Prove Dashboard session workspace choices in Node Vitest](#prove-session-workspace-starts-on-vitest) |
+| 18 workspace and scheduled launch specs, plus the cutover's later `admitted-session-duplicate.spec.ts` | [Prove Dashboard session workspace choices in Node Vitest](#prove-session-workspace-starts-on-vitest) |
 | 15 native dispatch and first-input specs | [Prove host launch choices and first input in Node Vitest](#prove-native-first-input-on-vitest) |
 | 6 ordinary follow-up context specs | [Prove retained follow-up context in Node Vitest](#prove-follow-up-context-on-vitest) |
 | 7 retained launch record specs | [Prove retained launch records in Node Vitest](#prove-kept-launch-records-on-vitest) |
