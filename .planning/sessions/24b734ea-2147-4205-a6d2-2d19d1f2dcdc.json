@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sessionId": "24b734ea-2147-4205-a6d2-2d19d1f2dcdc",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-26T14:08:52.682Z",
+  "story": "SEED-413#prove-kept-launch-records-on-vitest",
+  "ranges": [
+    {
+      "base": "48e1d1f37a34bb4830a6e54d70c1c5d507a18aa5",
+      "candidate": "b574175d2d07c05fd2a3098d377975f3659f9d8d"
+    },
+    {
+      "base": "b574175d2d07c05fd2a3098d377975f3659f9d8d",
+      "candidate": "f49e0ff44fa1e83ed9e23cdee326754777f84eb0"
+    },
+    {
+      "base": "f49e0ff44fa1e83ed9e23cdee326754777f84eb0",
+      "candidate": "bf8cb8b8c5a5dbe4de4c81dc6500f5459988619e"
+    },
+    {
+      "base": "bf8cb8b8c5a5dbe4de4c81dc6500f5459988619e",
+      "candidate": "b883f38b4b01c4b06800479fde94abda41a5bc76"
+    },
+    {
+      "base": "b883f38b4b01c4b06800479fde94abda41a5bc76",
+      "candidate": "6fd3c41ec7428066c5feeab7f251a7b79fdc36b4"
+    },
+    {
+      "base": "29e3287e862e5d5415d32653b3e71c91287b90a8",
+      "candidate": "45ceaf1f226f37a3ca015e124ef38626a775ffca"
+    }
+  ]
+}
