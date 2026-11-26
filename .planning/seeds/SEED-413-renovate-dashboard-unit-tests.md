@@ -262,15 +262,64 @@ promises stay unchanged.
 
 **Identity:** SEED-413#prove-follow-up-context-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"923787162c9dded3f2835a7645760f354220f47bfb91c908136a873eea6c5c82","plan":"ff92da91dd39e136070b8d4ff41eddd7a4f6cde53fb06cf3ccf38596443d61c9"}}
 ```
 
-- **For / why.** A developer continuing a follow-up gets fast proof that the correct source context reaches the receiving agent even after the original record expires.
-- **Boundary.** Cover ordinary story and session context, source identity, input order, and retry. Reconcile source-story binding with [story-linked ad hoc sessions](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions). The coverage map assigns Story Notes and published comparison selectors to their owners.
-- **Evaluation.** Two source sessions with the same instruction remain distinct. Repeating one after expiry sends its saved context and preserves the developer's instruction.
-- **Effort hypothesis.** M, low confidence. Cover the retained context through the corresponding host inputs.
-- **Mapped slices.** See the [provisional plan](../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md).
+- **Goal.** Developers changing the Dashboard's follow-up get fast, typed Node
+  Vitest proof that the receiving agent is sent the right source context, the
+  developer's own request and the reporting context, in that order, and that a
+  retry still sends them after the source record is gone.
+- **Scope.** Move the six legacy specs `agent-launch-follow-up-{boundary,story,identity,live,codex,cursor}.spec.ts`
+  (22 cases) and the post-split `agent-launch-follow-up-membership.spec.ts`
+  (three cases, added with the
+  [story-linked ad hoc sessions](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions)
+  binding) off backend Playwright, and account for each observation. Cover
+  the context of a retained session and of a Done story with the Done
+  sessions it selects (a Taken card's follow-up stays with its page journey);
+  what the first input holds and its order on every
+  host; a source's binding to a published story; the identity of a follow-up,
+  its repetition and its continuation after the source expires; and
+  admission that refuses page-composed context, a source the project no
+  longer keeps, or a story membership that is missing, unbound or supplied by
+  the page. Prove them through typed answers and kept records: the
+  admission and first-input builders take the sources they read as typed
+  values, and add no server, request or boundary wrapper to test support.
+  Cases that need a real second process, a real Git origin or a native host
+  keep only that boundary. The
+  [coverage map](#backend-vitest-replacement-coverage) assigns Story Notes,
+  published file, comparison and range selectors, attachment admission,
+  isolated workspace choice and native first input to their owners; this
+  story keeps only what follow-up adds to them, and product behavior stays
+  unchanged.
+- **Key examples.**
+  - Given a Done session retained with a final report, a follow-up names only
+    that session. The first input holds its context, the developer's text,
+    then the reporting context; a blank request sends no part of its own and
+    takes its launch time as title. With an isolated workspace the session's
+    block and the reporting context come first. A report longer than the
+    request field's limit is sent whole. The source stays Done and unchanged.
+  - Given a published Done story with a quiet session kept for it and
+    another still open, a follow-up at the revision shown sends the story's
+    facts and only the selected sessions' context; with no session kept it
+    says so. A story the revision does not publish, or whose record cannot be
+    read, refuses the follow-up before any host starts.
+  - Given two sources with the same instruction, they are two launches.
+    Repeating one after the host refused resumes its kept start, sends its
+    saved context and the instruction once, and keeps the first attempt's
+    identity, even though the source has expired and a page-composed
+    context is refused. A refused follow-up leaves no attachment claimed.
+  - Given a follow-up that Codex or Cursor accepted only in part, Continue
+    or a repeat after the source and attempt records are gone sends the
+    recorded context unchanged, including a legacy story attempt whose
+    instruction was saved apart from its context.
+  - Given a follow-up running on another server, repeating it after the
+    source expires answers with the running attempt and starts nothing.
+  - Given a session with no story binding, a binding the published project
+    does not list, or one the page supplies, no follow-up starts and nothing
+    is kept.
 - **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+
+**Plan.** [Prove retained follow-up context in Node Vitest](../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md)
 
 <a id="prove-kept-launch-records-on-vitest"></a>
 
