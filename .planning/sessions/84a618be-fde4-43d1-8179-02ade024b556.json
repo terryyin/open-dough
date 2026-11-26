@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "sessionId": "84a618be-fde4-43d1-8179-02ade024b556",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-26T02:46:54.676Z",
+  "story": "SEED-430#qualify-board-fixture-routing-and-request-boundaries",
+  "ranges": [
+    {
+      "base": "4f25aa5672565f1efc25d58165a5ab021b1d00ff",
+      "candidate": "7c954f1e668e8f3b80b9826427ca9fa7e5f55af3"
+    },
+    {
+      "base": "7c954f1e668e8f3b80b9826427ca9fa7e5f55af3",
+      "candidate": "101de9d0126dd464ba87c7a6af09bc222eea37a1"
+    },
+    {
+      "base": "101de9d0126dd464ba87c7a6af09bc222eea37a1",
+      "candidate": "5a9fec4bdb98e028b75f6196ec576efda4db7e67"
+    },
+    {
+      "base": "5a9fec4bdb98e028b75f6196ec576efda4db7e67",
+      "candidate": "19155baeed81cea37a81d9fc36b5fa182cff369f"
+    },
+    {
+      "base": "19155baeed81cea37a81d9fc36b5fa182cff369f",
+      "candidate": "c079d58448a0f61315757a55530890a0d1e259a9"
+    },
+    {
+      "base": "c079d58448a0f61315757a55530890a0d1e259a9",
+      "candidate": "29d99bedecbd7ecfbdb7e501d2d5e844011649f6"
+    },
+    {
+      "base": "29d99bedecbd7ecfbdb7e501d2d5e844011649f6",
+      "candidate": "6f977bf308801717590a25837af53bdff9c5a99b"
+    },
+    {
+      "base": "6f977bf308801717590a25837af53bdff9c5a99b",
+      "candidate": "15d2769924469d9e07e55d0cacec0d2d2ee01fcb"
+    },
+    {
+      "base": "15d2769924469d9e07e55d0cacec0d2d2ee01fcb",
+      "candidate": "fb2f5c24a90661ffb8842475dca83c75b1115f74"
+    },
+    {
+      "base": "fb2f5c24a90661ffb8842475dca83c75b1115f74",
+      "candidate": "dddae27b49ef5906409f940f88d38a1c7ccee496"
+    },
+    {
+      "base": "dddae27b49ef5906409f940f88d38a1c7ccee496",
+      "candidate": "7041dc830b863fabd771f2d652592c6a0d2ac9b0"
+    },
+    {
+      "base": "7041dc830b863fabd771f2d652592c6a0d2ac9b0",
+      "candidate": "ad0187bf009c66745ab07cd3f742736c78b05996"
+    },
+    {
+      "base": "ad0187bf009c66745ab07cd3f742736c78b05996",
+      "candidate": "eebcb41fa14e001f294b96a096d5d46c74700467"
+    },
+    {
+      "base": "eebcb41fa14e001f294b96a096d5d46c74700467",
+      "candidate": "2dd0bc9ee0119a8944d70d56abf0f83518fac3d1"
+    },
+    {
+      "base": "2dd0bc9ee0119a8944d70d56abf0f83518fac3d1",
+      "candidate": "cbf160dbda216edf0cee1cb3439868564c0c207c"
+    },
+    {
+      "base": "cbf160dbda216edf0cee1cb3439868564c0c207c",
+      "candidate": "aace1441ab919315ccdf7a827bc530ba58a4c6ee"
+    },
+    {
+      "base": "aace1441ab919315ccdf7a827bc530ba58a4c6ee",
+      "candidate": "2d191cab80af38f8b9136487cbbd4b3699761130"
+    },
+    {
+      "base": "524f99699e38373bcae9d3ecf0b790e0d8711f3c",
+      "candidate": "4f380640daeed592ee3778fd2f57361dd1c08fb1"
+    }
+  ]
+}
