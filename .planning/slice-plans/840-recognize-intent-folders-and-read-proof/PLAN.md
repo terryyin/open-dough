@@ -15,7 +15,7 @@ story delivered the single uncompacted repository path tree, with a path
 view for regular folders and Summary for Intent folders. Replacing
 **Selected story only** with **Intent only** and
 **Changes only** belongs to
-[SEED-420#filter-review-files](../../seeds/SEED-420-unified-intent-review.md#filter-review-files),
+[SEED-420#filter-review-files](https://github.com/terryyin/open-dough/blob/a40805a4e6914dce18caf003e66042c92f3dd630/.planning/seeds/SEED-420-unified-intent-review.md#filter-review-files),
 and expanding whole-project inventory beyond configured Intent locations belongs
 to
 [SEED-420#browse-the-project-at-a-revision](../../seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision).
