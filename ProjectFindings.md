@@ -403,25 +403,6 @@ The behavior review asks for one representative walk of a changed skill. An impl
   - Observed effect: one extra walker run (~76 s) in slice 1; no rework of accepted behavior.
   - Inference: `.agents/skills/author-open-dough-skills/SKILL.md#behavior-review` could ask that the walk be performed by an agent that did not write the change, given only the guidance and the situation.
 
-<a id="dd-593"></a>
-
-## DD-593 — A mixed frontend selection silently ran only its Vitest specs
-
-`npm run test:dashboard:frontend -- <selections>` given both mounted Vitest
-specs and retained Playwright specs ran only the Vitest ones. A passing
-Playwright run printed nothing, so a green command did not show whether the
-Playwright selection ran.
-
-### Occurrences
-- Execution: SEED-413#optimization-candidates-revision-cases (plan 729-optimization-candidates-revision-cases; first related implementation commit `69932767d6ac27534e57e336e7d466c546df48b5`)
-  - Timestamp: unknown (2026-11-20, slice 1 and slice 2 proof, before `69932767d` at 2026-11-20T16:12:29+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.109 (installed `.claude/skills/dough-update/VERSION`)
-  - Evidence: slice 1's combined selection of the new mounted spec, the built-app spec and `intent-source-target-recovery-mounted` reported 3 Vitest tests and no Playwright case. The built-app spec had to be run alone with `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` to confirm it passed. In slice 2 the first before/after timing set for the built-app spec was discarded because its silent output could not show the cases ran, and the set was rerun with proof records.
-  - Observed effect: one discarded three-run timing set and extra solo runs; no wrong result was accepted.
-  - Inference: `scripts/test-frontend.mjs` could report the Playwright selection's case count, or refuse a mixed selection, until the North Star's Playwright removal from `dashboard/frontend-tests/` retires the dual runner.
-
 <a id="dd-617"></a>
 
 ## DD-617 — One implementer's concurrent Distribution and backend suites pushed two untouched backend cases past Vitest's 5 s default

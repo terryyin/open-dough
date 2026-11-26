@@ -483,7 +483,11 @@ their own stories.
   present, and the four `start-origin-*` private fixture contracts. Replace harness contracts still in use and retire cases proving
   removed setup. Remove the backend Playwright config, the backend dual-runner
   path and unused backend request/server wrappers. Keep test contracts shared
-  by frontend or E2E until their own last consumer is gone.
+  by frontend or E2E until their own last consumer is gone. The three
+  `observation/` specs that the frontend runner retirement moved
+  (`control-reachability-observation`, `observation-measurements` and
+  `touch-reading-observation`, 11 cases) prove Playwright-only helpers that
+  E2E and backend page objects use; give them a home that keeps that proof.
 - **Prerequisite.** The product stories in the coverage map, attachment admission and the
   repeat correction supply the product-proof disposition needed before
   removing the legacy runner. Recount from fetched trunk and account for
@@ -766,6 +770,9 @@ or the report states the remaining cost.
 ### Refuse frontend specs the Vitest-only runner would skip
 
 **Identity:** SEED-413#refuse-non-vitest-frontend-specs
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/855-refuse-non-vitest-frontend-specs/PLAN.md"}
+```
 
 **Goal.** Dashboard maintainers learn at once when a frontend spec cannot
 run, rather than CI passing without it, after the
