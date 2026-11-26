@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, onTestFinished, test } from "vitest";
@@ -11,6 +10,7 @@ import {
   backlogPath,
   bareReview,
   git,
+  heldUploadPack,
   opened,
   readUntilClosed,
   signalFifo,
@@ -73,29 +73,11 @@ test("a transfer held while the ref moves from A to B is rejected, and a retry s
   if (publishedA === undefined)
     throw new Error("Revision a was not materialized.");
   git(repository.origin, "update-ref", "refs/heads/main", publishedA);
-  const log = path.join(repository.fixture, "upload-pack.log");
-  const heldFifo = path.join(repository.fixture, "held-upload-pack");
-  const releaseFifo = path.join(repository.fixture, "release-upload-pack");
-  const released = path.join(repository.fixture, "upload-pack-released");
-  const gate = path.join(repository.fixture, "hold-upload-pack");
-  writeFileSync(log, "");
-  execFileSync("mkfifo", [heldFifo, releaseFifo]);
-  writeFileSync(
-    gate,
-    `#!/bin/sh
-n=$(wc -l < "${log}" | tr -d ' ')
-printf 'call\\n' >> "${log}"
-if [ "$n" != 0 ] && [ ! -f "${released}" ]; then
-  printf 'held\\n' >> "${log}"
-  printf 'held\\n' > "${heldFifo}"
-  read -r _ < "${releaseFifo}"
-  : > "${released}"
-fi
-exec git upload-pack "$@"
-`,
-    { mode: 0o755 },
+  const { heldFifo, releaseFifo } = heldUploadPack(
+    repository.fixture,
+    reviewRepositoryPath(source),
+    repository.origin,
   );
-  bareReview(reviewRepositoryPath(source), repository.origin, gate);
   const held = readUntilClosed(heldFifo);
   const first = read();
   onTestFinished(async () => {

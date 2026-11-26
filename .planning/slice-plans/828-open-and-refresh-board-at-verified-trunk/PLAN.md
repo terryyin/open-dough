@@ -85,8 +85,8 @@ repository, skipping the transfer is permitted but not promised here.
 - Hold a real Git transfer by pointing the Review repository's
   `remote.origin.uploadpack` at a gate script, as the landed
   [Review initial sync case](../../../e2e/review/story-review-initial-sync.spec.ts)
-  does. Slice 2 lifts it into test support for the browser and backend
-  shared-open, first-open and pending cases. The probe runs inside the
+  does. The fifo gate stays `heldUploadPack` in the review case module;
+test support gains no wrapper. The probe runs inside the
   Review repository against the remote name `origin`, so `ls-remote` and fetch
   both pass through the gate.
 - Reuse the MakeMe [repository materializer](../../../Distribution/tests/support/repository-fixture.mjs),
@@ -145,17 +145,17 @@ for any other 128. The spec and `npm run --silent typecheck:dashboard` exited 0.
 ### 2. Share bounded Git checks between eligible opens
 
 Type: Structure
-Status: planned
+Status: done
 
-Change: Run the slice 1 check inside SharedObservation keyed by project,
-origin URL and credential. A qualifying open joins; a departing waiter
-releases only itself; a different project checks independently; the Board
-deadline ends the wait. Lift the upload-pack gate into test support. This
-enables slice 4's held-open proofs.
+Change: Run the slice 1 check inside one SharedObservation per project,
+origin URL and credential. One instance waits out a different key, so a
+second project needs its own. A qualifying open joins; a departing waiter
+releases only itself; the Board deadline ends the wait. The fifo gate is
+`heldUploadPack` beside the review cases. This enables slice 4.
 
-Proof: Hold the real transfer, join a second open, cancel one and release the
-other; show a second project progresses and deadline disposal. Budget 14
-active minutes.
+Proof: Accepted in `shared-verified-origin-trunk.spec.ts`: one shared fetch,
+one waiter leaves, a second project proceeds, and a 50ms join is unanswered.
+The specs and `typecheck:dashboard` exited 0.
 
 ### 3. Prove detail and recovery reads apart from membership
 
@@ -222,9 +222,11 @@ temporary obligations under
 
 ## Learnings
 
-Slice 1 overran twice on 2026-11-26 (`storyOverruns` 2): 18.5 minutes with no
-edit, then 16.6 with the cases green and typecheck still red. Cold discovery
-failed the size assumption. Slices 2–6 and the story boundary stay.
+On 2026-11-26 slice 1 overran twice and slice 2 overran at 17.1 minutes
+(`storyOverruns` 3) after moving only the fifo gate. Delivered value is the
+published candidate check. Remaining scope is the shared check and slices
+3–6. Cold discovery, not a second outcome, broke the size assumption, so
+the story and slice 2 stay.
 
 ## Plan refinement
 

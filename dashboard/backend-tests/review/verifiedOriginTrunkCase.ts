@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { constants, mkdirSync } from "node:fs";
+import { constants, mkdirSync, writeFileSync } from "node:fs";
 import { open } from "node:fs/promises";
 import path from "node:path";
 import { onTestFinished, vi } from "vitest";
@@ -39,15 +39,50 @@ export async function opened(
   };
 }
 
+// The fifo gate stays beside these cases. `dashboard/test-support/` holds
+// MakeMe builders and page objects only, so the gate is not lifted there.
+// `ls-remote` and fetch both run it when the remote name is `origin`.
+export function heldUploadPack(
+  fixture: string,
+  reviewDirectory: string,
+  origin: string,
+) {
+  const log = path.join(fixture, "upload-pack.log");
+  const heldFifo = path.join(fixture, "held-upload-pack");
+  const releaseFifo = path.join(fixture, "release-upload-pack");
+  const released = path.join(fixture, "upload-pack-released");
+  const gate = path.join(fixture, "hold-upload-pack");
+  writeFileSync(log, "");
+  execFileSync("mkfifo", [heldFifo, releaseFifo]);
+  writeFileSync(
+    gate,
+    `#!/bin/sh
+n=$(wc -l < "${log}" | tr -d ' ')
+printf 'call\\n' >> "${log}"
+if [ "$n" != 0 ] && [ ! -f "${released}" ]; then
+  printf 'held\\n' >> "${log}"
+  printf 'held\\n' > "${heldFifo}"
+  read -r _ < "${releaseFifo}"
+  : > "${released}"
+fi
+exec git upload-pack "$@"
+`,
+    { mode: 0o755 },
+  );
+  bareReview(reviewDirectory, origin, gate);
+  return { log, heldFifo, releaseFifo };
+}
+
 export function bareReview(
   directory: string,
   origin: string,
-  uploadpack: string,
+  uploadpack?: string,
 ) {
   mkdirSync(directory, { recursive: true });
   git(directory, "init", "--bare", "--quiet");
   git(directory, "remote", "add", "origin", origin);
-  git(directory, "config", "remote.origin.uploadpack", uploadpack);
+  if (uploadpack !== undefined)
+    git(directory, "config", "remote.origin.uploadpack", uploadpack);
 }
 
 export async function readUntilClosed(fifo: string) {
