@@ -10,7 +10,6 @@
 import { realpathSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
-import { stored } from "../../test-support/support/codexLaunch.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import {
@@ -21,8 +20,6 @@ import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,
-  quiet,
-  quietContext,
   reported,
   reportedContext,
   request,
@@ -33,72 +30,6 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 test.beforeEach(publishFollowUpSources);
-
-test("Execution checkout · Wait for review sends the context, then the request, then the reporting context, keeps it on the request and leaves the source unchanged", async ({
-  dashboard,
-  origin,
-}) => {
-  const source = reported(dashboard.home);
-  keepLaunchRecords(dashboard, [source, quiet]);
-  dashboard.claudeScenario("launched");
-  const text = "Is it still slow?";
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...request,
-      instruction: text,
-      followUp: makeMe.aFollowUp.ofSession(source).please(),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  const [call, ...others] = dashboard.claudeLaunchCalls();
-  expect(others).toEqual([]);
-  expect(call?.cwd).toBe(realpathSync(origin.project));
-  expectFollowUpInput(call?.argv.at(-1), {
-    context: reportedContext,
-    own: text,
-    request: launched.record?.request,
-    server: dashboard,
-  });
-  expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
-    title: text,
-    instruction: text,
-    followUp: makeMe.aFollowUp
-      .ofSession(source)
-      .withContext(reportedContext)
-      .please(),
-  });
-  expect(launched.record).not.toHaveProperty("establishedSession");
-  // The source stays Done and unchanged.
-  expect(stored(dashboard.home).slice(0, 2)).toEqual([source, quiet]);
-});
-
-test("a blank follow-up on the execution checkout sends the context and the reporting context, labelled by its launch time", async ({
-  dashboard,
-}) => {
-  keepLaunchRecords(dashboard, [quiet]);
-  dashboard.claudeScenario("launched");
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...request,
-      instruction: "  ",
-      followUp: makeMe.aFollowUp.ofSession(quiet).please(),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  const [call] = dashboard.claudeLaunchCalls();
-  expectFollowUpInput(call?.argv.at(-1), {
-    context: quietContext,
-    request: launched.record?.request,
-    server: dashboard,
-  });
-  expect(launched.record?.request.title).toMatch(
-    /^\d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/,
-  );
-});
 
 test("Isolated workspace sends its block and the reporting context, then the context and the request", async ({
   dashboard,
