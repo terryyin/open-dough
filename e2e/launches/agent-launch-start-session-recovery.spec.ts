@@ -6,10 +6,12 @@
 // branch that start goes on in and report unresolved admission; Continue is
 // refused while that start still runs, then resumes the same workspace and
 // branch, opens the session there with its block, and runs no second start or
-// workspace selection. A start lost with its server:
-// ../../dashboard/backend-tests/launches/agent-launch-start-session-lost.spec.ts.
-// Execution checkout, a refused start, and a conversation whose first input is
-// unconfirmed: ../../dashboard/backend-tests/launches/agent-launch-start-session-kept.spec.ts.
+// workspace selection. A start stopped before or after its workspace:
+// ../../dashboard/backend-tests/launches/isolated-start-before-establishment.spec.ts.
+// A refused start: ../../dashboard/backend-tests/launches/isolated-start-after-establishment.spec.ts.
+// Execution checkout: ../../dashboard/backend-tests/launches/execution-checkout-start-stops.spec.ts.
+// A conversation whose first input is unconfirmed:
+// ../../dashboard/backend-tests/launches/pending-input-continuation.spec.ts.
 
 import {
   admittedStory,

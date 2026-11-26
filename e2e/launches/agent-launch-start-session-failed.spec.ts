@@ -5,8 +5,8 @@ import {
 // A definite native refusal after establishment keeps its session start; the
 // page offers recovery without native uncertainty and an identical Start
 // resumes the same attempt. It drives a real installed start and bare
-// origin, with a synthetic host. Continue at the raw launch boundary:
-// ../../dashboard/backend-tests/launches/agent-launch-start-session-failed-boundary.spec.ts.
+// origin, with a synthetic host. Continue at the attempt run:
+// ../../dashboard/backend-tests/launches/isolated-start-after-establishment.spec.ts.
 import { realpathSync } from "node:fs";
 import type { LaunchWithState } from "../../dashboard/src/launchRecord.ts";
 import {

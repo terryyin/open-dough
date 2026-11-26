@@ -11,7 +11,7 @@
 // landing preserves the choice through Back and carries its established block.
 // Clean default launches belong to ./agent-launch-ad-hoc.spec.ts; the launch
 // boundary's policy and confirmation rules to
-// ../../dashboard/backend-tests/launches/agent-launch-start-session-existing-changes-boundary.spec.ts.
+// ../../dashboard/backend-tests/launches/ad-hoc-existing-changes-start.spec.ts.
 
 import { execFileSync } from "node:child_process";
 import { appendFileSync } from "node:fs";

@@ -84,7 +84,10 @@ import {
   readMachineSessions,
 } from "./machineSessionObservation.ts";
 import { dashboardOrigin } from "./dashboardOrigin.ts";
-import { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
+import {
+  FeedbackMaintenanceCheck,
+  publishedReview,
+} from "./feedbackMaintenanceCheck.ts";
 import { LandedCiCollection } from "./landedCiCollection.ts";
 import { ReviewInitialSync } from "./reviewInitialSync.ts";
 import { installReviewInitialSyncMiddleware } from "./reviewInitialSyncBoundary.ts";
@@ -113,8 +116,10 @@ export function installAgentLaunchMiddleware(
     },
   });
   const launches: AgentLaunches = new AgentLaunches(doneMarks);
-  const maintenance = new FeedbackMaintenanceCheck(launches, () =>
-    dashboardOrigin(httpServer),
+  const maintenance = new FeedbackMaintenanceCheck(
+    launches,
+    () => dashboardOrigin(httpServer),
+    publishedReview(),
   );
   const landedCi = new LandedCiCollection();
   const reviewInitialSync = new ReviewInitialSync();

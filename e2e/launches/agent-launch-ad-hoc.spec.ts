@@ -1,7 +1,7 @@
 // Start session's optional text goes to the selected project's execution checkout; the
 // session reads under its Taken story card and in the sidebar. The real
 // boundary launches synthetic Claude (../../dashboard/test-support/fixtures/fake-claude);
-// naming is ../../dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
+// titles are ../../dashboard/backend-tests/launches/ad-hoc-start-labels.spec.ts.
 // Start session placement and availability are covered by
 // ../../dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts.
 // Its dialog is covered by ../../dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts.

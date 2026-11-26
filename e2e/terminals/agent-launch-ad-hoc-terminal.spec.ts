@@ -80,7 +80,7 @@ function publishScrollableBacklog(project: string) {
 // Accepted cost: one real ad hoc launch, the only full proof that a session
 // started with nothing typed opens in the terminal at once with the keyboard
 // in it. Its arguments are proved in
-// ../../dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
+// ../launches/agent-launch-ad-hoc.spec.ts.
 test("starting with nothing typed opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session", async ({
   page,
   dashboard,

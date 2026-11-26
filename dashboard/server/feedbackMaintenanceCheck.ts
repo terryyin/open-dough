@@ -114,11 +114,48 @@ async function maintenanceSessions(
   return observedSessions(source.id, [...open, ...done], attempts);
 }
 
+// The watch list's review at a project's current revision, `unread` when a
+// read failed.
+export type ReviewRead = (
+  source: PublishedSource,
+  signal: AbortSignal,
+) => Promise<FeedbackReview | { readonly kind: "unread" }>;
+
+// Reads the review through `gh` at the ref's current revision, remembering
+// the text read there.
+export function publishedReview(): ReviewRead {
+  const pinned = new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
+  return async (source, signal) => {
+    let revision: string;
+    try {
+      ({ revision } = await withReadDiagnosticContext(
+        { source: source.id, category: "ref" },
+        () => resolveRevisionViaGh(source.repository, source.ref, signal),
+      ));
+    } catch {
+      return { kind: "unread" };
+    }
+    try {
+      return readFeedbackReview(
+        await withReadDiagnosticContext(
+          { source: source.id, category: "content", pin: revision },
+          () =>
+            pinned.namedRevisionText(
+              source,
+              revision,
+              feedbackWatchListPath,
+              signal,
+            ),
+        ),
+      );
+    } catch (error) {
+      return isNotFound(error) ? { kind: "absent" } : { kind: "unread" };
+    }
+  };
+}
+
 export class FeedbackMaintenanceCheck {
   private readonly stopped = new AbortController();
-  private readonly pinned = new PinnedTexts(
-    new RevisionMemo(new RetainedAnswers()),
-  );
   // The last observation, for the project it was taken in; none while no
   // configured project is Open Dough's.
   private observation:
@@ -127,6 +164,7 @@ export class FeedbackMaintenanceCheck {
   constructor(
     private readonly launches: Launches,
     private readonly origin: () => string | undefined,
+    private readonly readReview: ReviewRead,
   ) {
     // The sessions answer says where maintenance stands from the server's
     // first answer, before the first check once it listens.
@@ -145,39 +183,6 @@ export class FeedbackMaintenanceCheck {
       await this.check(signal);
       return undefined;
     });
-  }
-
-  // The watch list's review at the ref's current revision, `unread` when
-  // either read failed.
-  private async review(
-    source: PublishedSource,
-    signal: AbortSignal,
-  ): Promise<FeedbackReview | { readonly kind: "unread" }> {
-    let revision: string;
-    try {
-      ({ revision } = await withReadDiagnosticContext(
-        { source: source.id, category: "ref" },
-        () => resolveRevisionViaGh(source.repository, source.ref, signal),
-      ));
-    } catch {
-      return { kind: "unread" };
-    }
-    try {
-      return readFeedbackReview(
-        await withReadDiagnosticContext(
-          { source: source.id, category: "content", pin: revision },
-          () =>
-            this.pinned.namedRevisionText(
-              source,
-              revision,
-              feedbackWatchListPath,
-              signal,
-            ),
-        ),
-      );
-    } catch (error) {
-      return isNotFound(error) ? { kind: "absent" } : { kind: "unread" };
-    }
   }
 
   // Observes the authorization in the project the cycle runs in, keeping the
@@ -226,7 +231,7 @@ export class FeedbackMaintenanceCheck {
       this.release();
       return;
     }
-    const review = await this.review(source, signal);
+    const review = await this.readReview(source, signal);
     if (signal.aborted) return;
     const readAt = new Date().toISOString();
     this.observation = { ...observed, review, readAt, held: last?.held };

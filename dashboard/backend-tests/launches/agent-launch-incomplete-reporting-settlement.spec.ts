@@ -18,6 +18,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { claudeHost } from "../../server/claudeHost.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { launchHost } from "../../server/launchHosts.ts";
 import { attemptRun } from "../../server/launchRun.ts";
 import { machineFolder } from "../../server/localFolder.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
@@ -117,8 +118,7 @@ function run() {
     publication,
     note,
     note,
-    new StartProgress(),
-    marks,
+    { progress: new StartProgress(), doneMarks: marks, native: launchHost },
   );
   return pending;
 }

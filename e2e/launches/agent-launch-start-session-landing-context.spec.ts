@@ -4,9 +4,9 @@
 // file binds the launch and story to its remote and trunk target. The publisher
 // prepares the comparison before push and the launch keeps the accepted pair
 // under that story. Default-main handoff belongs to the automatic-landing page
-// journey; shared capture variations belong to the one-shot landing suite. Which
-// launches a landing is captured for, and the installed delivery command,
-// are in ../../dashboard/backend-tests/launches/agent-launch-start-session-landing-admission.spec.ts.
+// journey; shared capture variations belong to the one-shot landing suite. The
+// story's landing authority and its refusals are in
+// ../../dashboard/backend-tests/launches/story-bound-landing-capture.spec.ts.
 
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";

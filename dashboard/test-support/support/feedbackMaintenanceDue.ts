@@ -1,7 +1,7 @@
 // Preconditions for the feedback maintenance check: a published watch list
 // whose review block names a due date, and this machine's standing
 // authorization written as the System settings section saves it.
-import { chmodSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { localDate } from "../../src/feedbackMaintenanceDue.ts";
 import { feedbackReviewFence } from "../../src/feedbackReview.ts";
@@ -50,9 +50,4 @@ export function authorizeFeedbackMaintenance(
     JSON.stringify(makeMe.aFeedbackMaintenanceChoice.with(choice).please()),
   );
   chmodSync(file, 0o600);
-}
-
-// Turns the standing authorization off in `home`.
-export function withdrawFeedbackMaintenance(home: string): void {
-  rmSync(settingFile(home), { force: true });
 }

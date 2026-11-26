@@ -1,32 +1,18 @@
 // An accepted launch attempt's run (`./launchAttemptOwner.ts`): its workflow
-// start, then the common native launch/recovery lifetime, which preserves the
-// original request and established facts while its host owns native input
-// and reconciliation.
+// start, then the common native launch/recovery lifetime
+// (`./nativeSessionRun.ts`), which preserves the original request and
+// established facts while its host owns native input and reconciliation.
 import { homedir } from "node:os";
 import {
   type PublicationReceipt,
   type LaunchAttemptRecord,
-  type RecordedLaunchRequest,
-  type LaunchRecord,
   type LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { executionCheckout } from "./executionCheckout.ts";
-import { type LocalFolder } from "./localFolder.ts";
-import {
-  establishedLaunch,
-  publicationOf,
-  started,
-  startTimeoutMs,
-  type Started,
-} from "./launchStart.ts";
-import { launchHost } from "./launchHosts.ts";
-import { launchRecording } from "./launchRecording.ts";
-import { shownLaunchWorkspace } from "./launchWorkspace.ts";
-import { launchRecord } from "./launchRecord.ts";
-import { defaultLaunchStartFacts } from "./defaultLaunchStart.ts";
-import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
-import { removeLaunchedStart, startStore } from "./startStore.ts";
+import { publicationOf, started, startTimeoutMs } from "./launchStart.ts";
+import { pendingInputOf } from "./launchRecordStore.ts";
+import { startStore } from "./startStore.ts";
 import {
   publicationRecordingFailure,
   settleSessionResult,
@@ -36,7 +22,6 @@ import type { OwnedAttempt } from "./ownedAttempts.ts";
 import { attemptWorker } from "./launchAttemptWorker.ts";
 import { establishedFacts } from "./startLaunch.ts";
 import type { StartProgress } from "./startProgress.ts";
-import type { NativeDoneMarks } from "./doneMarks.ts";
 import { keepAttempt } from "./launchAttemptStore.ts";
 import {
   prepareAttemptReporting,
@@ -46,6 +31,16 @@ import { takeTerminalHandoff, withTerminalHandoff } from "./terminalHandoff.ts";
 import { launchWait } from "./launchWait.ts";
 import { storyOf } from "../src/launchWorkflow.ts";
 import { retainedFollowUpWithStory } from "./followUpAdmission.ts";
+import {
+  nativeSessionRun,
+  type NativeSessionServices,
+} from "./nativeSessionRun.ts";
+
+// What this server lends each attempt's run: its start progress, and the
+// done marks and native dispatch of the session it opens.
+export type AttemptRunServices = NativeSessionServices & {
+  readonly progress: StartProgress;
+};
 
 // Runs the attempt and settles its retained session establishment.
 export async function attemptRun(
@@ -56,8 +51,7 @@ export async function attemptRun(
   noteWorker: (
     worker: NonNullable<LaunchAttemptRecord["worker"]>,
   ) => Promise<void>,
-  progress: StartProgress,
-  doneMarks: NativeDoneMarks,
+  services: AttemptRunServices,
 ): Promise<LaunchResult> {
   const result = await startedRun(
     source,
@@ -65,8 +59,7 @@ export async function attemptRun(
     notePublication,
     noteSlow,
     noteWorker,
-    progress,
-    doneMarks,
+    services,
   );
   return settleSessionResult(source, own.request, own.attempt.id, result);
 }
@@ -84,11 +77,11 @@ async function startedRun(
   noteWorker: (
     worker: NonNullable<LaunchAttemptRecord["worker"]>,
   ) => Promise<void>,
-  progress: StartProgress,
-  doneMarks: NativeDoneMarks,
+  services: AttemptRunServices,
 ): Promise<LaunchResult> {
   const owned = own;
   const { controller, attempt } = owned;
+  const { progress } = services;
   const request = await retainedFollowUpWithStory(owned.request, source);
   if (request === undefined)
     return refusedUnboundStart("The retained follow-up");
@@ -174,14 +167,14 @@ async function startedRun(
       controller.abort();
     });
     return await withTerminalHandoff(attachTerminal, () =>
-      launchRun(
+      nativeSessionRun(
         source,
         recording,
         folder,
         began,
         start,
         controller,
-        doneMarks,
+        services,
         pending,
       ),
     );
@@ -193,65 +186,4 @@ async function startedRun(
         .clear(source.id, establishedFacts(start.handoff.established).identity);
     }
   }
-}
-
-async function launchRun(
-  source: PublishedSource,
-  recording: RecordedLaunchRequest,
-  folder: LocalFolder,
-  began: Date,
-  start: Exclude<Started, { kind: "stopped" }>,
-  controller: AbortController,
-  doneMarks: NativeDoneMarks,
-  pending?: LaunchRecord,
-): Promise<LaunchResult> {
-  const host = launchHost(recording.host);
-  if (host === undefined) {
-    throw new Error("An admitted launch has no available host.");
-  }
-  const facts =
-    pending ??
-    establishedLaunch(start)?.handoff.established ??
-    (await defaultLaunchStartFacts(recording, folder));
-  const evidence = launchRecording(recording, began, facts, pending, doneMarks);
-  const launched =
-    pending === undefined
-      ? await host.launch(
-          source,
-          recording,
-          folder,
-          controller.signal,
-          establishedLaunch(start),
-          evidence,
-        )
-      : host.recover === undefined
-        ? ({
-            kind: "uncertain",
-            reason: "unconfirmed",
-            explanation:
-              "This launch's recorded conversation has a first input that is not confirmed, so no other conversation was started. Check the recorded conversation for that input.",
-          } as const)
-        : await host.recover(pending, controller.signal, evidence);
-  if (launched.kind !== "launched") {
-    return start.kind === "established" && launched.kind === "failed"
-      ? {
-          ...launched,
-          explanation: `${launched.explanation} ${start.workflow.publishedWithoutSession(start)}`,
-        }
-      : launched;
-  }
-  const record =
-    evidence.retained ??
-    launchRecord(recording, launched.session, facts, new Date().toISOString());
-  if (evidence.retained === undefined)
-    await keepRecord(source.id, record, doneMarks);
-  await removeLaunchedStart(source.id, record);
-  return {
-    kind: "launched",
-    record: {
-      ...record,
-      ...shownLaunchWorkspace(record, folder),
-      sessionState: launched.sessionState,
-    },
-  };
 }
