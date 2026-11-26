@@ -6,7 +6,7 @@ import {
   expandIntentFolders,
   expandIntentGroup,
   intentGroupToggle,
-  intentLocationName,
+  revealIntentLocation,
 } from "./intentPerspectivePage.ts";
 
 // Scope is the locations tree or the candidate entry that offers this file.
@@ -54,7 +54,7 @@ export async function expectLabelledEntrySource(
   omittedHelper: string,
   expectedLines: readonly string[],
 ) {
-  const heading = intentLocationName(intent, locationPath);
+  const heading = await revealIntentLocation(intent, locationPath);
   await expect(heading).toContainText(label);
   await expect(intentGroupToggle(intent, locationPath)).toHaveAccessibleName(
     `Expand ${label}`,

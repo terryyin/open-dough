@@ -38,9 +38,11 @@ import {
 } from "../../dashboard/test-support/support/changeKindStyle.ts";
 import { changed } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import {
+  expandIntentGroup,
   intentGroupToggle,
   intentLocationName,
   purposeRegion,
+  revealIntentLocation,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
 
 test("Intent highlights a selected Taken story's test changes over the published tree, each changed file with Review changes' own diff", async ({
@@ -146,7 +148,9 @@ test("Intent highlights a selected Taken story's test changes over the published
         "true",
       );
     }
-    await intentLocationName(intent, "dashboard/tests").click();
+    await story.folderToggle("dashboard", true).click();
+    const root = await revealIntentLocation(intent, "dashboard/tests");
+    await root.click();
     await expect(intentLocationName(intent, "dashboard/tests")).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -155,6 +159,9 @@ test("Intent highlights a selected Taken story's test changes over the published
       "aria-expanded",
       "true",
     );
+    await story.folderToggle("dashboard", true).click();
+    await expandIntentGroup(intent, "dashboard/tests");
+    await expect(story.file(changed.modified)).toBeVisible();
   });
 
   await test.step("a changed file's Purpose is its diff", async () => {

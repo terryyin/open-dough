@@ -236,7 +236,7 @@ Accepted proof (focused runs on the Story Branch Mode checkout under
 ### 3. Isolate Project Intent page objects from location-group selectors
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Re-run `e2e/intent/intent-summary-ci-proof.spec.ts`,
 `e2e/intent/intent-file-purpose-proof.spec.ts`,
 `e2e/intent/intent-ci-proof-units.spec.ts`, and affected mounted Intent specs
@@ -251,6 +251,25 @@ assuming flat `.intent-location-toggle` / `.intent-location-body` wrappers in
 every caller. Keep external behavior unchanged in this slice so slice 4 can
 switch Project Intent onto the shared folder tree and update only assertions
 whose promised UI changed.
+
+Accepted proof (focused one-worker runs under `caffeinate -s -i`):
+
+- The 9 selected E2E checks passed. The real-Git
+  `intent-story-changes.spec.ts` closes the ancestor and uses the shared
+  location actions to both select and disclose the exact configured root.
+  Project Summary, file Purpose/Proof, and prior-build cases exercise the
+  same helpers with the existing flat location structure.
+- The mounted Summary and homepage cases preserve scoped reading, keyboard
+  return, focus, and disclosure across both entry points. The targeted
+  14-case run verified the resolved button after its accessible name changes.
+  The separate system-appearance case and dashboard typecheck passed.
+- The Story-card journey uses an existing real-Git Take fixture and waits on
+  visible UI state. The independent Review/Back and remembered-file cases
+  finished in 21.9 s and 15.8 s in the isolated test command under the
+  unchanged 30 s timeout, preserving terminal and inventory observations.
+  Literal commands, setup, outcomes, and consumer decisions are in
+  `slice-3-report.md` and `slice-3-*.log.run.json` in Git
+  `open-dough/evidence`.
 
 ### 4. Browse Project Intent in the shared folder tree
 

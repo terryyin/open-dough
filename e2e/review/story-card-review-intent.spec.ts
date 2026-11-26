@@ -1,4 +1,9 @@
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../Distribution/tests/support/queued-repository.mjs";
+import type { Page } from "@playwright/test";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
@@ -16,7 +21,6 @@ import { keepLaunchRecords } from "../../dashboard/test-support/support/launchSt
 import {
   expectIntentReviewFocused,
   expectIntentReviewOpened,
-  openIntentReviewChanges,
 } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   intentDiffReading,
@@ -30,7 +34,11 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import {
+  queuedIdentity,
+  type StartOrigin,
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   commitAll,
   writeAt,
@@ -49,11 +57,11 @@ const changedFiles = [
   storyFile,
 ];
 
-test("the Taken Story card opens the first changed file beside its terminal and Back returns to that card", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
+async function openTakenStory(
+  page: Page,
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+) {
   await origin.publishRevision({
     files: {
       ".planning/open-dough.json": intentSettingsText(
@@ -74,7 +82,13 @@ test("the Taken Story card opens the first changed file beside its terminal and 
       "a-tests/kept.spec.ts": "kept second location\n",
     },
   });
-  const { workspace, branch } = await origin.takenInTrunkMode("trunk-review");
+  const { workspace, branch } = await origin.publishTake({
+    agent: "Eimi",
+    story: storyA,
+    queued: [storyB],
+    mode: "trunk",
+    slug: "trunk-review",
+  });
   const session = dashboard.claudeListsSession({
     name: "Story A",
     cwd: workspace,
@@ -105,6 +119,16 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await showColumn(page, "Taken");
   const { intent, board, taken, development, intentChoice } = parts(page);
   const card = taken.getByRole("article", { name: "Story A", exact: true });
+  return { card, intent, board, development, intentChoice, session };
+}
+
+test("the Taken Story card opens the first changed file beside its terminal and Back returns to that card", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const { card, intent, board, development, intentChoice, session } =
+    await openTakenStory(page, dashboard, origin);
   const files = intentReviewFiles(intent);
   await emptyArea(card).click();
   await intentChoice.click();
@@ -138,26 +162,40 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await expectSelected(card, true);
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
   expect(dashboard.claudeAttaches()).toEqual(attached);
+});
 
-  const review = await openIntentReviewChanges(page, card);
-  await review.expectText("Published trunk");
-  await review.files.expectChangedFiles(changedFiles);
-  await expect(review.files.row(storyFile)).toBeVisible();
-  await review.files.choose(storyFile);
+test("Review changes remembers the chosen file across views and deselection restores the story inventory", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const { card, intent, development, intentChoice, session } =
+    await openTakenStory(page, dashboard, origin);
+  const files = intentReviewFiles(intent);
+  const reading = intentDiffReading(intent);
+  await openTerminalControl(card).click();
+  const terminal = terminalPanel(page);
+  await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
+
+  await reviewChanges(card).press("Enter");
+  await expect(intentStory(intent).summary).toContainText("Published trunk");
+  await files.expectChangedFiles(changedFiles);
+  await expect(files.row(storyFile)).toBeVisible();
+  await files.row(storyFile).click();
   await expect(reading.name).toHaveText(storyFile);
 
   await development.click();
   await expectSelected(card, true);
-  await openIntentReviewChanges(page, card);
+  await reviewChanges(card).press("Enter");
   await expectIntentReviewOpened(intent);
-  await review.files.expectSelected(storyFile);
+  await files.expectSelected(storyFile);
   await expect(reading.name).toHaveText(storyFile);
 
   await chooseStoryTab(intent, "Intent coverage");
   await development.click();
-  await openIntentReviewChanges(page, card);
+  await reviewChanges(card).press("Enter");
   await expectIntentReviewOpened(intent);
-  await review.files.expectSelected(storyFile);
+  await files.expectSelected(storyFile);
   await expect(reading.name).toHaveText(storyFile);
 
   await development.click();
@@ -168,7 +206,7 @@ test("the Taken Story card opens the first changed file beside its terminal and 
   await intentChoice.click();
   await expectStoryTab(intent, "CI comparison");
   await browseStoryFiles(intent);
-  await review.files.expectChangedFiles(changedFiles);
-  await expect(review.files.row(storyFile)).toBeVisible();
+  await files.expectChangedFiles(changedFiles);
+  await expect(files.row(storyFile)).toBeVisible();
   await expect(terminal).toContainText(`attached ${session.slice(0, 8)}`);
 });

@@ -25,7 +25,7 @@ import {
   expectLabelInFull,
 } from "./ciEvidenceLabelsPage.ts";
 import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
-import { intentLocationName } from "./intentPerspectivePage.ts";
+import { revealIntentLocation } from "./intentPerspectivePage.ts";
 import { showIntentFiles, uncoverIntentReader } from "./intentModePage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -163,7 +163,8 @@ export async function openIntent(
 // for its reading, and a drawer of it closes to uncover the Summary.
 export async function openSummary(intent: Locator, location: string) {
   await showIntentFiles(intent);
-  await intentLocationName(intent, location).click();
+  const name = await revealIntentLocation(intent, location);
+  await name.click();
   const summary = summaryRegion(intent);
   await expect(summary.locator(".intent-summary-path")).toHaveText(location);
   await uncoverIntentReader(intent);
