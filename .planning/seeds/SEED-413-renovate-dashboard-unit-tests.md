@@ -290,21 +290,22 @@ their own stories.
 
 **Identity:** SEED-413#prove-native-first-input-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/849-prove-native-first-input-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3c3c09e231060cd1d7b090c3256aa4fad833ff96138d90fc9764cd91f08f651f","plan":"e17f3d48268449c813d1188c6900158b1c96d5d3c614beb67531f4b1094ff343"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/849-prove-native-first-input-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aee1a362a23a71aca56ef70a5bab8f0a35d5944a1da25ff73477f6edff1dd66f","plan":"663d66254fc851e83340e9e0da9e9cae57e67ef838e61764cf5aa282b95332dc"}}
 ```
 
-- **Goal.** Developers choosing Claude, Codex, or Cursor get fast proof
-  that the chosen model and effort reach the native process, and that a
-  recovered conversation receives first input only once when matching
-  evidence authorizes it.
+- **Goal.** Give Dashboard maintainers fast Node Vitest feedback on the
+  developer's Claude, Codex, or Cursor model and effort choices, and on
+  whether first input was sent or safely recovered in the original native
+  conversation. This family can then leave the mixed backend runner.
 - **Scope.** Move the 15 legacy native-dispatch and first-input specs
   owned by the [plan](../slice-plans/849-prove-native-first-input-on-vitest/PLAN.md)
   off backend Playwright. Cover host discovery, model and effort
   admission and refusal, durable creation before first input, uncertain
   first-input recovery, connection loss and startup reconnection, and
-  competing starts for Claude, Codex, and Cursor through typed
-  operations. Retain actual process or protocol proof where that
-  boundary observes dispatch, cancellation, loss, or recovery. The
+  competing starts through typed production operations. Preserve the
+  story-linked start and the saved attempt's original workspace and
+  request. Retain real process or protocol proof where dispatch,
+  cancellation, loss, or reconnection supplies the observation. The
   [coverage map](#backend-vitest-replacement-coverage) assigns installed
   starts, workspace choices, follow-up context, kept records, and
   session or terminal lifecycle to their own stories.
@@ -319,16 +320,17 @@ their own stories.
     not run and the known continuation is explained. Unreadable creation
     evidence refuses Codex before native creation while Claude can still
     be admitted, and the evidence file remains.
-  - Given an uncertain first input, only matching acknowledgment or
-    known refusal settles the original input. Unreadable, missing,
-    empty, unrelated, or wrong-workspace history never authorizes a
-    resend. Competing held starts send only one native input; distinct
-    instructions stay independent.
+  - Given a lost first-input acknowledgment, matching history confirms
+    the original input. An explicit refusal can allow the saved input
+    once in the same conversation. Unreadable, missing, empty, unrelated,
+    or wrong-workspace history never authorizes a resend. For a blank
+    story-linked Codex launch, matching conversation and workspace
+    evidence with the known history refusal can confirm persistence with
+    zero native turns. Competing held starts send only one native input.
+    Distinct instructions stay independent.
   - Given host connection loss after acknowledgment, recovery and
     disposal remain observable. A saved Codex conversation reconnects
     after daemon loss at startup.
-- **Effort hypothesis.** L, low confidence. Count separate protocol
-  outcomes and existing E2E owners before combining cases.
 - **Mapped slices.** See the [plan](../slice-plans/849-prove-native-first-input-on-vitest/PLAN.md).
 - **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
 
