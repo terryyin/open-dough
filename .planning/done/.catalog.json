@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_recognize-intent-folders-and-read-proof.json",
+      "identity": "SEED-420#recognize-intent-folders-and-read-proof",
+      "completedAt": "2026-11-26T01:43:33.094Z",
+      "blob": "dbff658d50eb96756dd1381ea9ffe57a13d867c3"
+    },
+    {
       "fileName": "SEED-417_use-sidebars-consistently-across-the-dashboard.json",
       "identity": "SEED-417#use-sidebars-consistently-across-the-dashboard",
       "completedAt": "2026-11-25T17:30:25.522Z",
