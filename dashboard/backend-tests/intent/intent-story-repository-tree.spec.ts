@@ -1,6 +1,6 @@
 // The repository tree a story's comparison lists over the published Intent
-// locations (../support/storyComparisonPaths.ts): what Changes only lists,
-// its empty match, and the folders the story opens.
+// locations (../support/storyComparisonPaths.ts): what Changes only and
+// Intent only list, their empty match, and the folders the story opens.
 
 import { expect, test } from "vitest";
 import {
@@ -47,6 +47,45 @@ test("Changes only over a comparison with no changed path matches nothing", () =
     changedFiles: [],
   });
   expect(storyRepositoryTree(locations, overlay, false).noMatch).toBe(false);
+});
+
+// Paths no configured location selects, on either side of a change.
+const outsideIntent = ["dashboard/src/app.ts", "docs/renamed-notes.md"];
+
+test("Intent only keeps the changes a location selects, a rename by either path and a deletion by its path", () => {
+  const overlay = intentStoryOverlay(locations, changes);
+  const both = storyRepositoryTree(locations, overlay, true, true);
+  expect(both.changedFiles.map(({ path }) => path)).toEqual(
+    order.filter((path) => !outsideIntent.includes(path)),
+  );
+  expect(both.noMatch).toBe(false);
+});
+
+test("Intent only with Changes only off lists the selected revision paths and admitted changes", () => {
+  const overlay = intentStoryOverlay(locations, changes);
+  const intent = storyRepositoryTree(locations, overlay, false, true);
+  expect([...intent.files.keys()]).toEqual(
+    [...overlay.files.keys()].filter((path) => !outsideIntent.includes(path)),
+  );
+});
+
+test("both filters over a production-only change match nothing", () => {
+  const productOnly = intentStoryOverlay(locations, [
+    changes[6] as ReviewedFile,
+  ]);
+  expect(storyRepositoryTree(locations, productOnly, true, true)).toMatchObject(
+    { noMatch: true, changedFiles: [] },
+  );
+});
+
+test("without locations Intent only lists nothing and leaves the reason to the configuration notice", () => {
+  const unconfigured = intentStoryOverlay([], changes);
+  const none = storyRepositoryTree([], unconfigured, false, true);
+  expect(none.files.size).toBe(0);
+  expect(none.noMatch).toBe(false);
+  expect(storyRepositoryTree([], unconfigured, false).files.size).toBe(
+    changes.length,
+  );
 });
 
 test("the story opens the first changed location and the folders holding changes, restricted or not", () => {

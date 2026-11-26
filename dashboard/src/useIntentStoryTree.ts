@@ -3,11 +3,19 @@
 import { useMemo } from "react";
 import { useKeptArrangement } from "./pageIntentReading.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
-import type { ComparedStory, StoryTreeScope } from "./IntentStorySummary.tsx";
+import type { ComparedStory } from "./IntentStorySummary.tsx";
+import type { FilesFilter } from "./FilesSidebarActions.tsx";
 import {
   intentStoryOverlay,
   storyRepositoryTree,
 } from "./intentStoryOverlay.ts";
+
+// A compared story's "Changes only" filter and whether the chosen filters
+// leave no path; only the locations browser has them.
+export type StoryTreeScope = {
+  readonly changesOnly: FilesFilter;
+  readonly noMatch: boolean;
+};
 
 export function useIntentStoryTree({
   locations,
@@ -37,28 +45,43 @@ export function useIntentStoryTree({
   // An unread or unavailable comparison narrows nothing.
   const changesOnly =
     changes !== undefined && comparisonReading !== true && only;
+  // Intent only is off unless kept, in a story and in whole-project scope.
+  const [intentOnly, setIntentOnly] = useKeptArrangement(
+    "intentOnly",
+    () => false,
+  );
   const shown = useMemo(
-    () => storyRepositoryTree(locations, overlay, changesOnly),
-    [locations, overlay, changesOnly],
+    () => storyRepositoryTree(locations, overlay, changesOnly, intentOnly),
+    [locations, overlay, changesOnly, intentOnly],
   );
   // The expansion the story's overlay last asked for here: when it first had
   // one, and at each toggle.
   const [round, setRound] = useKeptArrangement("storyExpansionRound", () => 0);
   if (story !== undefined && round === 0) setRound(1);
+  // A filter's choice asks the story's expansion afresh.
+  const filterOf = (
+    label: string,
+    checked: boolean,
+    choose: (next: boolean) => void,
+  ): FilesFilter => ({
+    label,
+    checked,
+    onToggle: (next) => {
+      choose(next);
+      setRound((previous) => previous + 1);
+    },
+  });
   const scope: StoryTreeScope | undefined =
     story === undefined
       ? undefined
       : {
-          only,
+          changesOnly: filterOf("Changes only", only, setOnly),
           noMatch: shown.noMatch,
-          onOnly: (next) => {
-            setOnly(next);
-            setRound((previous) => previous + 1);
-          },
         };
   return {
     overlay,
     shown,
+    intentOnly: filterOf("Intent only", intentOnly, setIntentOnly),
     owner: storyIdentity ?? "",
     // No expansion is asked for until the comparison and the roots it
     // reveals are known.

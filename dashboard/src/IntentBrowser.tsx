@@ -139,7 +139,11 @@ export function IntentBrowser({
       {files.backdrop}
       <div className="intent-locations" id={files.id} hidden={!files.shown}>
         <h3 className="visually-hidden">Purpose locations</h3>
-        <IntentFilesActions path={storyPath} scope={storyTree.scope} />
+        <IntentFilesActions
+          path={storyPath}
+          intentOnly={storyTree.intentOnly}
+          changesOnly={storyTree.scope?.changesOnly}
+        />
         {lead}
         <IntentBrowserTree
           locations={locations}

@@ -9,8 +9,8 @@
 // (`./pageIntentMode.tsx`) so it outlasts Intent's own mount: switching to
 // Development and back restores it, and a project change starts that
 // project's reading afresh. The arrangement belongs to the story selected
-// while it was made: a story selected while Intent is hidden starts the tree
-// afresh when Intent opens, while the selection and reading stay.
+// while it was made, and outlasts a whole-project visit: another story starts
+// the tree afresh when Intent opens, while the selection and reading stay.
 //
 // Intent mounted without the page keeps a place only for its own mount.
 //
@@ -27,11 +27,9 @@ import {
   createContext,
   useContext,
   useEffect,
-  useLayoutEffect,
   useState,
   type Dispatch,
   type ReactNode,
-  type RefObject,
   type SetStateAction,
 } from "react";
 
@@ -41,9 +39,11 @@ type Kept = Map<string, unknown>;
 type Place = {
   readonly project: string;
   readonly reading: Kept;
-  // The arrangement and the selected story it was made for.
+  // The arrangement and the selected story it was made for, and the one
+  // made with no story selected; neither replaces the other.
   arrangement: Kept;
   arrangedFor: string | undefined;
+  projectArrangement: Kept;
   // The reading pane's scroll offset in each scope.
   readonly scrollTops: Map<string, number>;
 };
@@ -53,6 +53,7 @@ const freshPlace = (project: string): Place => ({
   reading: new Map(),
   arrangement: new Map(),
   arrangedFor: undefined,
+  projectArrangement: new Map(),
   scrollTops: new Map(),
 });
 
@@ -101,13 +102,19 @@ export function IntentReadingPlace({
     return {
       place,
       arrangement:
-        place.arrangedFor === story
-          ? place.arrangement
-          : new Map<string, unknown>(),
+        story === undefined
+          ? place.projectArrangement
+          : place.arrangedFor === story
+            ? place.arrangement
+            : new Map<string, unknown>(),
     };
   });
   useEffect(() => {
     const { place, arrangement } = mounted;
+    if (story === undefined) {
+      place.projectArrangement = arrangement;
+      return;
+    }
     place.arrangement = arrangement;
     place.arrangedFor = story;
   }, [mounted, story]);
@@ -211,39 +218,9 @@ export function useKeptArrangement<T>(
   );
 }
 
-// Keeps the reading pane's scroll offset while content still arrives or
-// lengthens (for example Proof figures settling under the chosen tab).
-// Restoring stops only when the developer scrolls, presses a key or uses a
-// pointer in the pane; ending on the first successful match let later growth
-// move the place through scroll anchoring.
-export function useKeptReadingScroll(pane: RefObject<HTMLElement | null>) {
+// The project's place and `key` within the current scope, for state kept
+// beside the place's own (`./keptReadingScroll.ts`).
+export function useScopedPlace(key: string) {
   const { place } = useMounted();
-  const scope = scopedKey(useContext(ReadingScope), "scrollTop");
-  useLayoutEffect(() => {
-    const element = pane.current;
-    if (element === null) return;
-    let restoring = place.scrollTops.get(scope) ?? 0;
-    const restore = () => {
-      if (restoring === 0) return;
-      element.scrollTop = restoring;
-    };
-    const grown = new ResizeObserver(restore);
-    function stop() {
-      restoring = 0;
-      grown.disconnect();
-    }
-    const record = () => {
-      if (restoring === 0) place.scrollTops.set(scope, element.scrollTop);
-    };
-    const interactions = ["wheel", "touchstart", "keydown", "pointerdown"];
-    for (const each of interactions) element.addEventListener(each, stop);
-    element.addEventListener("scroll", record);
-    for (const child of element.children) grown.observe(child);
-    restore();
-    return () => {
-      grown.disconnect();
-      for (const each of interactions) element.removeEventListener(each, stop);
-      element.removeEventListener("scroll", record);
-    };
-  }, [pane, place, scope]);
+  return { place, key: scopedKey(useContext(ReadingScope), key) };
 }

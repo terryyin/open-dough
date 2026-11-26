@@ -164,7 +164,7 @@ inventory.
 ### 2. Narrow the same inventory to Intent
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The intersection, whole-project, and no-locations journeys in the
 proof map.
 
@@ -175,6 +175,13 @@ and apply **Intent only** to the inventory that scope shows, including a
 repository with no configured locations. Showing the whole repository there
 belongs to project browsing once it uses this tree. An open production file
 stays open when **Intent only** hides it.
+
+Learnings: the reading place now keeps a whole-project arrangement apart
+from the story's, and the story's arrangement outlasts a whole-project
+visit, so returning to that story restores **Changes only** while another
+story starts afresh. One message, "No files match the chosen filters",
+serves both scopes through `filtersMatchNothing`. With a story whose
+comparison is unread the note does not show; slice 3 owns that state.
 
 ### 3. Explain an unusable changes filter and leave Home evidence
 

@@ -4,9 +4,12 @@ import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentStoryFileTree } from "./IntentStoryFileTree.tsx";
-import { StoryTreeScopeNote } from "./IntentStorySummary.tsx";
+import { NoFilesMatchNote } from "./FilesSidebarActions.tsx";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
-import { intentLocationFiles } from "./intentStoryOverlay.ts";
+import {
+  filtersMatchNothing,
+  intentLocationFiles,
+} from "./intentStoryOverlay.ts";
 import type { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
 
@@ -34,7 +37,7 @@ export function IntentBrowserTree({
   if (storySelected)
     return (
       <>
-        {tree.scope && <StoryTreeScopeNote scope={tree.scope} />}
+        {tree.scope && <NoFilesMatchNote noMatch={tree.scope.noMatch} />}
         <IntentStoryFileTree
           locations={locations}
           overlay={tree.overlay}
@@ -47,10 +50,26 @@ export function IntentBrowserTree({
         />
       </>
     );
+  const groups = locations.map(
+    (location) =>
+      [
+        location,
+        intentLocationFiles(
+          tree.overlay.files,
+          location,
+          tree.intentOnly.checked,
+        ),
+      ] as const,
+  );
+  const noMatch = filtersMatchNothing(
+    { changesOnly: false, intentOnly: tree.intentOnly.checked },
+    locations,
+    groups.reduce((listed, [, files]) => listed + files.size, 0),
+  );
   return (
     <>
-      {locations.map((location) => {
-        const files = intentLocationFiles(tree.overlay.files, location);
+      <NoFilesMatchNote noMatch={noMatch} />
+      {groups.map(([location, files]) => {
         return (
           <IntentLocationGroup
             key={location.path}

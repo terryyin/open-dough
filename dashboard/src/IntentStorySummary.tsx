@@ -1,6 +1,6 @@
 // The selected story and comparison retained by Intent's evidence/reading
-// owners, plus the story-only tree scope choice. The shared persistent
-// header lives in IntentHeader; the page layout lives in IntentPage.
+// owners. The shared persistent header lives in IntentHeader; the page layout
+// lives in IntentPage.
 
 import {
   defaultReviewOf,
@@ -29,14 +29,6 @@ export type ComparedStory = {
   // While another comparison than the default is chosen, the CI views'
   // whole-story note.
   readonly wholeStory: boolean;
-};
-
-// The "Changes only" choice over a compared story's tree and whether no
-// path matches it; only the locations browser has them.
-export type StoryTreeScope = {
-  readonly only: boolean;
-  readonly noMatch: boolean;
-  readonly onOnly: (only: boolean) => void;
 };
 
 // The selected story, what is known of its comparison, and the way to read
@@ -134,27 +126,4 @@ export function storyCiEvidenceOptionsOf(summary: StorySummary | undefined) {
     ...publishedDoneEvidenceOf(summary),
     ...settledComparisonEvidenceOf(summary),
   };
-}
-
-// The Changes tree's "Changes only" filter for the Files sidebar's row, and
-// its message when no path matches it.
-export function changesOnlyFilterOf(scope: StoryTreeScope) {
-  return {
-    label: "Changes only",
-    checked: scope.only,
-    onToggle: scope.onOnly,
-  };
-}
-
-export function StoryTreeScopeNote({
-  scope,
-}: {
-  readonly scope: StoryTreeScope;
-}) {
-  if (!scope.noMatch) return null;
-  return (
-    <p className="intent-story-none" role="status">
-      No changed files match in this comparison
-    </p>
-  );
 }

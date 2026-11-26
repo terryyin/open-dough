@@ -16,11 +16,6 @@ import { intentFileReading } from "./intent-file-reading-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 
-const noMatchingChanges = page.getByText(
-  "No changed files match in this comparison",
-  { exact: true },
-);
-
 async function showsStoryExpansion() {
   await expect
     .element(scopeToggle("dashboard/tests"))
@@ -57,7 +52,7 @@ test("Changes only starts on and lists just the story's changed paths; off lists
   for (const name of [keptPath, otherPath])
     await expect.element(story.file(name)).not.toBeInTheDocument();
   await expect.element(scopeToggle("other")).not.toBeInTheDocument();
-  await expect.element(noMatchingChanges).not.toBeInTheDocument();
+  await expect.element(story.noMatch).not.toBeInTheDocument();
 
   const file = story.file(changed.modified);
   await file.click();
@@ -115,7 +110,7 @@ test("a product-only comparison lists just that file, and an empty comparison sa
   await expect.poll(story.revisions).toContain("Published story branch");
   await expect.element(story.changesOnly).toBeChecked();
   await expect.element(story.file(changed.product)).toBeVisible();
-  await expect.element(noMatchingChanges).not.toBeInTheDocument();
+  await expect.element(story.noMatch).not.toBeInTheDocument();
   await expect.element(scopeToggle("dashboard/tests")).not.toBeInTheDocument();
 
   await story.changesOnly.click();
@@ -127,11 +122,11 @@ test("a product-only comparison lists just that file, and an empty comparison sa
   await story.refresh();
   await expect.element(story.file(changed.product)).not.toBeInTheDocument();
   await story.changesOnly.click();
-  await expect.element(noMatchingChanges).toBeVisible();
+  await expect.element(story.noMatch).toBeVisible();
   await expect.element(story.changesOnly).toBeChecked();
 
   await story.changesOnly.click();
-  await expect.element(noMatchingChanges).not.toBeInTheDocument();
+  await expect.element(story.noMatch).not.toBeInTheDocument();
   await scopeToggle("dashboard/tests").click();
   await story.file(modifiedPath).click();
   await intentFileReading(modifiedPath).shows("a 11");

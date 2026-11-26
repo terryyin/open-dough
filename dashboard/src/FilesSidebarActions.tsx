@@ -2,13 +2,10 @@
 // filters, in that order in one row, each present only when its owner
 // supplies it; a crowded filter wraps its label within its own control.
 // Whole-project scope has no Changes only. The row lays the actions out;
-// their owners keep what each action does.
+// their owners keep what each action does. Below it, a notice says when the
+// chosen filters leave no path.
 import "./files-sidebar-actions.css";
 import { StoryHomeButton, type StoryPath } from "./IntentStoryEvidence.tsx";
-import {
-  changesOnlyFilterOf,
-  type StoryTreeScope,
-} from "./IntentStorySummary.tsx";
 
 export type FilesFilter = {
   readonly label: string;
@@ -61,26 +58,39 @@ export function FilesSidebarActionsRow({
   );
 }
 
-// Intent's row: a story supplies Home and its Changes tree's story-only
-// choice; whole-project Intent has no supplied action yet.
+// Intent's row: a story supplies Home, Intent only and Changes only;
+// whole-project Intent supplies Intent only.
 export function IntentFilesActions({
   path,
-  scope,
+  intentOnly,
+  changesOnly,
 }: {
   readonly path: StoryPath | undefined;
-  readonly scope: StoryTreeScope | undefined;
+  readonly intentOnly: FilesFilter;
+  readonly changesOnly: FilesFilter | undefined;
 }) {
   return (
     <FilesSidebarActionsRow
       actions={
-        path || scope
+        path || changesOnly
           ? {
               scope: "story",
               onHome: path?.onHome,
-              changesOnly: scope && changesOnlyFilterOf(scope),
+              intentOnly,
+              changesOnly,
             }
-          : { scope: "project" }
+          : { scope: "project", intentOnly }
       }
     />
+  );
+}
+
+// The Files sidebar's notice when the chosen filters leave no path.
+export function NoFilesMatchNote({ noMatch }: { readonly noMatch: boolean }) {
+  if (!noMatch) return null;
+  return (
+    <p className="intent-story-none" role="status">
+      No files match the chosen filters
+    </p>
   );
 }

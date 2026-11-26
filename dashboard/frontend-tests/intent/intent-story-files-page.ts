@@ -1,6 +1,7 @@
 // The selected story's file browser in a mounted Intent view, as the
 // comparison (./intent-story-compare-page.ts) lists it: the repository tree
-// and its folders, the Changes only filter, and the listed files' controls.
+// and its folders, the Intent only and Changes only filters with their
+// no-match notice, and the listed files' controls.
 import { expect } from "vitest";
 import { userEvent } from "vitest/browser";
 import "../page-objects/cssLocator.ts";
@@ -23,6 +24,10 @@ export function intentStoryFiles() {
     tree.getByCSS(`li[data-folder-path="${CSS.escape(path)}"]`);
   const changesOnly = intent.getByRole("checkbox", {
     name: "Changes only",
+    exact: true,
+  });
+  const intentOnly = intent.getByRole("checkbox", {
+    name: "Intent only",
     exact: true,
   });
   // Files shown without choosing a path, opening its drawer where the page
@@ -65,6 +70,11 @@ export function intentStoryFiles() {
     expandShownFolderPath,
     inventoryRead,
     changesOnly,
+    intentOnly,
+    // The notice that the chosen filters leave no path.
+    noMatch: intent.getByText("No files match the chosen filters", {
+      exact: true,
+    }),
     // Turns Changes only off, listing the repository at the revision.
     async listRevision() {
       await browseFiles();
