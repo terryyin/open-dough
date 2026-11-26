@@ -69,6 +69,20 @@ test("Intent only with Changes only off lists the selected revision paths and ad
   );
 });
 
+test("without a usable comparison Intent only still narrows the inventory to the paths a location selects", () => {
+  const selected = locations.flatMap(({ files }) => files);
+  const unread = intentStoryOverlay(locations, undefined, [
+    ...selected,
+    "docs/guide.md",
+  ]);
+  const intent = storyRepositoryTree(locations, unread, false, true);
+  expect([...intent.files.keys()].sort()).toEqual([...selected].sort());
+  expect(storyRepositoryTree(locations, unread, false).files).toHaveProperty(
+    "size",
+    selected.length + 1,
+  );
+});
+
 test("both filters over a production-only change match nothing", () => {
   const productOnly = intentStoryOverlay(locations, [
     changes[6] as ReviewedFile,

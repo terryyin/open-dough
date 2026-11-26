@@ -2,6 +2,7 @@
 import { RefreshedHistoricalComparison } from "./StoryReviewHistoricalOutcome.tsx";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
 import { Moment } from "./Moment.tsx";
+import { storyChangesGapWords } from "./storyChangesGapWords.ts";
 import type { ReviewSyncFailure, StoryReview } from "./storyReviewContract.ts";
 import type { ReviewReadState } from "./useReviewRead.ts";
 
@@ -44,7 +45,7 @@ export function ReviewFeedback({
   const syncFailure = reviewSyncFailure(review);
   return (
     <div role="status">
-      {reading && !showsChanges && <p>Reading the story&apos;s changes…</p>}
+      {reading && !showsChanges && <p>{storyChangesGapWords.reading}</p>}
       {reading && showsChanges && (
         <p>
           Refreshing the review… What is shown is still the snapshot taken

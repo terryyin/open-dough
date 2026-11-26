@@ -70,7 +70,7 @@ export function IntentBrowser({
     story,
     storyIdentity: storySummary?.story.identity,
     inventory: result?.paths,
-    comparisonReading,
+    comparison: storySummary?.comparison,
     resultReading: result?.reading,
     resultKey: result?.key,
   });

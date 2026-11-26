@@ -4,13 +4,15 @@ import { useMemo } from "react";
 import { useKeptArrangement } from "./pageIntentReading.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { ComparedStory } from "./IntentStorySummary.tsx";
+import type { LensComparison } from "./IntentStoryComparison.tsx";
 import type { FilesFilter } from "./FilesSidebarActions.tsx";
+import { unappliedChanges } from "./storyChangesGapWords.ts";
 import {
   intentStoryOverlay,
   storyRepositoryTree,
 } from "./intentStoryOverlay.ts";
 
-// A compared story's "Changes only" filter and whether the chosen filters
+// A selected story's "Changes only" filter and whether the chosen filters
 // leave no path; only the locations browser has them.
 export type StoryTreeScope = {
   readonly changesOnly: FilesFilter;
@@ -22,7 +24,7 @@ export function useIntentStoryTree({
   story,
   storyIdentity,
   inventory,
-  comparisonReading,
+  comparison,
   resultReading,
   resultKey,
 }: {
@@ -31,7 +33,8 @@ export function useIntentStoryTree({
   // The selected story, owning the tree's folder arrangement.
   readonly storyIdentity?: string | undefined;
   readonly inventory?: readonly string[] | undefined;
-  readonly comparisonReading?: boolean;
+  // What is known of the selected story's comparison.
+  readonly comparison?: LensComparison | undefined;
   // The result's inventory, which names the configured roots, is read.
   readonly resultReading?: boolean | undefined;
   readonly resultKey?: string | undefined;
@@ -42,9 +45,11 @@ export function useIntentStoryTree({
     [locations, changes, inventory],
   );
   const [only, setOnly] = useKeptArrangement("changesOnly", () => true);
-  // An unread or unavailable comparison narrows nothing.
-  const changesOnly =
-    changes !== undefined && comparisonReading !== true && only;
+  const comparisonReading = comparison?.state === "reading";
+  // Only a compared story has changes; any other comparison narrows nothing
+  // and says why, and the kept choice applies once the comparison is usable.
+  const unapplied = unappliedChanges(comparison);
+  const changesOnly = changes !== undefined && only;
   // Intent only is off unless kept, in a story and in whole-project scope.
   const [intentOnly, setIntentOnly] = useKeptArrangement(
     "intentOnly",
@@ -72,10 +77,13 @@ export function useIntentStoryTree({
     },
   });
   const scope: StoryTreeScope | undefined =
-    story === undefined
+    storyIdentity === undefined
       ? undefined
       : {
-          changesOnly: filterOf("Changes only", only, setOnly),
+          changesOnly: {
+            ...filterOf("Changes only", only, setOnly),
+            unapplied,
+          },
           noMatch: shown.noMatch,
         };
   return {
@@ -86,7 +94,7 @@ export function useIntentStoryTree({
     // No expansion is asked for until the comparison and the roots it
     // reveals are known.
     round:
-      comparisonReading === true || resultReading === true
+      comparisonReading || resultReading === true
         ? undefined
         : resultKey === undefined
           ? round

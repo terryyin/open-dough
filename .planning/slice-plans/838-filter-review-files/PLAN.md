@@ -186,7 +186,7 @@ comparison is unread the note does not show; slice 3 owns that state.
 ### 3. Explain an unusable changes filter and leave Home evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The comparison-gap and unchanged-failure Home journeys in the proof
 map.
 
@@ -195,6 +195,12 @@ explains why it is not applied. **Intent only** still applies. The existing
 comparison retry reads it again, and the kept **Changes only** choice
 applies once the comparison is usable. Story Home still shows an unchanged
 failing test's contribution while the browser hides that path.
+
+Learnings: the note's wording derives from the comparison's own status
+texts in `storyChangesGapWords.ts`, so the two cannot drift. The Done-story
+fixture shows no file browser while its comparison is read, and the
+Taken-story fixture lists no file outside Intent locations, so **Intent
+only** during a gap is proved by the direct repository-tree case.
 
 ## Verification and plan review
 
@@ -208,4 +214,4 @@ This review found no remaining slice-specific concern.
 ### G1. An unusable comparison's Changes only has no explanation yet
 Reported: slice 1 — "No narrowing while the comparison is unusable: only covered indirectly; slice 3 owns the explicit assertion."
 Story clause: "When the story's comparison is still being read, has failed, or is unavailable, **Changes only** explains why it is unavailable and does not narrow the inventory."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts` reading, failed and unavailable cases assert the explanation, an untouched file still listed, and Changes only narrowing again after Retry or the finished read; `intent-story-repository-tree.spec.ts` shows Intent only narrowing with no usable comparison, which `useIntentStoryTree` passes through in every comparison state.

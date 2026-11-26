@@ -80,7 +80,10 @@ test("Changes only starts on and lists just the story's changed paths; off lists
 
   await mounted.selectStory(storyB.identity, storyB.title);
   await story.browseFiles();
-  await expect.element(story.changesOnly).not.toBeInTheDocument();
+  await expect.element(story.changesOnly).toBeChecked();
+  await expect
+    .element(story.changesOnly)
+    .toHaveAccessibleDescription("Not applied: no comparison is available.");
 
   await mounted.selectStoryA();
   await story.browseFiles();
