@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-launch-worker-recovery-on-vitest.json",
+      "identity": "SEED-413#prove-launch-worker-recovery-on-vitest",
+      "completedAt": "2026-11-26T16:35:23.416Z",
+      "blob": "964a5ccbfc030b20aa3effb6d5abc64a2d081d33"
+    },
+    {
       "fileName": "SEED-413_prove-launch-starts-and-recovery-on-vitest.json",
       "identity": "SEED-413#prove-launch-starts-and-recovery-on-vitest",
       "completedAt": "2026-11-26T14:44:54.474Z",
