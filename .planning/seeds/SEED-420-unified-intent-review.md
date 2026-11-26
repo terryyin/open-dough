@@ -93,28 +93,47 @@ test locations while preserving revision-pinned reads.
 
 **Identity:** SEED-420#share-completed-intent-review-response-watching
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/852-share-completed-intent-review-response-watching/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"65723da868ba1455181a5711f5ba8fa4c0a50b5c95fa10352d07187898e38ecc","plan":"cbe0bb6bd617a4f66b70ec238e266b56b68e8f9d6b0f5f5dbaee7f0fb526bda4"}}
 ```
 
 **Goal.** Dashboard test maintainers can change how completed story-review
 responses are captured and parsed in one place while keeping each journey's
 review evidence explicit.
 
-**Scope.** Reuse the response-watching and parsing pattern in
-[`completedReviewRequests.ts`](../../dashboard/test-support/support/completedReviewRequests.ts)
-for the repeated historical story-review watchers in these four E2E specs:
+**Scope.** Add one historical story-review watcher beside the existing
+[`waitForLandedReview`](../../dashboard/test-support/support/completedReviewRequests.ts)
+and use it for every E2E spec that repeats the inline watcher matching the
+story-review endpoint with `historical=true`:
 
+- [`intent-ci-done-prior-provenance`](../../e2e/intent/intent-ci-done-prior-provenance.spec.ts)
 - [`intent-done-completion-provenance`](../../e2e/intent/intent-done-completion-provenance.spec.ts)
+- [`intent-done-default-answer-selection`](../../e2e/intent/intent-done-default-answer-selection.spec.ts),
+  which also matches the story identity
 - [`intent-done-prior-execution`](../../e2e/intent/intent-done-prior-execution.spec.ts)
 - [`intent-done-retained-landing`](../../e2e/intent/intent-done-retained-landing.spec.ts)
 - [`intent-story-becomes-done`](../../e2e/intent/intent-story-becomes-done.spec.ts)
 
-**Acceptance.** All four specs use the shared capture for historical review
-responses and keep their existing assertions. The watcher is armed before the
-action that triggers the request and matches the story-review endpoint with
-`historical=true`. Keep the Taken response observation in the transition
-journey and the unavailable-history observations in the affected specs.
-Run the four specs through the existing E2E entry point.
+The original candidate named four specs; the other two repeat the same watcher,
+so leaving them would keep the capture in more than one place. The watcher is
+armed before the action that triggers the request, and the spec still asserts
+the parsed answer itself. Keep the Taken response observation and the explicit
+run request listener in the transition journey, the direct `getReview`
+unavailable-history read in the prior-execution journey, and the frontend
+endpoint rule in Dashboard Test Support unchanged.
+
+**Key examples.**
+
+- Selecting a Done story in Intent after arming the shared watcher yields the
+  parsed published answer, and the completion-provenance spec still asserts
+  its completion and absent selected run.
+- In the retained-landing shallow-history case, the same watcher yields the
+  unavailable answer, and the spec's explanation and empty-files assertions
+  are unchanged.
+- In the default-answer-selection journey, the watcher keeps its match on the
+  queued identity, and the later landed-run read still uses
+  `waitForLandedReview`.
+- After the change, no E2E spec matches `historical=true` inline; all six run
+  through the existing E2E entry point.
 
 ## Order and scope
 
