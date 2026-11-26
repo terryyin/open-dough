@@ -140,7 +140,7 @@ export function profileAdditionsAt(
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
-  readAddition: typeof readProfileAdditionAt = readProfileAdditionAt,
+  readAddition: typeof readProfileAdditionAt,
 ): ProfileAdditions {
   const asked = new Map<string, Promise<ProfileAddition>>();
   return (profilePath) => {

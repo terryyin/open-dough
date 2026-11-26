@@ -4,8 +4,10 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { SessionEntry } from "../../src/SessionEntry.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { SessionsOnPage } from "../../src/pageSessions.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { inertPageSessions } from "./inert-page-sessions.ts";
 import { sessionEntry } from "./session-card-page.ts";
 
@@ -25,12 +27,18 @@ test("a working Cursor entry keeps its resume command selectable and reports cop
     .withSessionState(makeMe.aSessionState.loaded("working").please())
     .please();
   await mountComponent(
-    createElement(ProjectsOnPage, {
-      projects: [],
-      replaceProjects: () => undefined,
-      children: createElement(SessionsOnPage, {
-        value: { ...inertPageSessions, hostOperations: machine.hostOperations },
-        children: createElement(SessionEntry, { record, onStoryCard: true }),
+    createElement(PageReadsOnPage, {
+      reads: pageReadsSupplying({}),
+      children: createElement(ProjectsOnPage, {
+        projects: [],
+        replaceProjects: () => undefined,
+        children: createElement(SessionsOnPage, {
+          value: {
+            ...inertPageSessions,
+            hostOperations: machine.hostOperations,
+          },
+          children: createElement(SessionEntry, { record, onStoryCard: true }),
+        }),
       }),
     }),
   );

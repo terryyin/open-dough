@@ -217,7 +217,7 @@ shards. It published `dashboard-frontend-times-1` and `-2` for
 ### 6. Mounted Dashboard reads use their supplied readers
 
 Type: Structure
-Status: planned
+Status: done
 
 Require an explicit reader for `cataloguedAt`, `readDoneStories`,
 `readIntentLocationsAt`, `readAssignments` and `profileAdditionsAt`. Use the
@@ -236,6 +236,16 @@ Use cold reads and make an unexpected authenticated read fail the case.
 Check the focused session mounts and the backend shared-read spec before the
 final suite measurement. Preserve the existing E2E session-attribution
 journey through authenticated composition.
+
+**Accepted proof.** The five readers are required parameters, and
+typecheck passes at every call site. `SessionAssignment` reads through
+`useSessionAssignmentReads()` from the page's observation source.
+`sessions/session-assignment-reads` shows the credited human from the
+supplied replies, asks each reader once at the saved revision and makes no
+authenticated read. It fails when the hook returns the authenticated reads.
+The session mounts (5 cases), the Done catalog, review syntax and Intent
+location mounts (21), backend `intent-shared-reads` (7), lint and E2E
+`session-attribution` pass.
 
 ### 7. The complete frontend group is measured against the campaign baseline
 

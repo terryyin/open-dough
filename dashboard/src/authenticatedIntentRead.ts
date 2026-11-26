@@ -89,7 +89,7 @@ export function readIntentLocationsAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
-  readLocations: typeof requestIntentLocationsAt = requestIntentLocationsAt,
+  readLocations: typeof requestIntentLocationsAt,
 ): Promise<IntentLocations> {
   return memoizedAnswer(
     locationsQuery(source, revision),
