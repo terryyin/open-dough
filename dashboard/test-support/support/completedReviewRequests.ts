@@ -41,12 +41,27 @@ export async function readLandedReview(
   return storyReviewSchema.parse(await response.json());
 }
 
-export async function waitForLandedReview(page: Page, run: string) {
+export function waitForLandedReview(page: Page, run: string) {
+  return waitForCompletedReview(page, (query) => query.get("run") === run);
+}
+
+export function waitForHistoricalReview(page: Page, identity?: string) {
+  return waitForCompletedReview(
+    page,
+    (query) =>
+      query.get("historical") === "true" &&
+      (identity === undefined || query.get("identity") === identity),
+  );
+}
+
+async function waitForCompletedReview(
+  page: Page,
+  matchesQuery: (query: URLSearchParams) => boolean,
+) {
   const response = await page.waitForResponse((candidate) => {
     const url = new URL(candidate.url());
     return (
-      url.pathname === storyReviewEndpoint &&
-      url.searchParams.get("run") === run
+      url.pathname === storyReviewEndpoint && matchesQuery(url.searchParams)
     );
   });
   return storyReviewSchema.parse(await response.json());

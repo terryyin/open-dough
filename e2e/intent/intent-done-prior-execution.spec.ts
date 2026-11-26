@@ -10,6 +10,7 @@ import {
 import {
   completedReviewQuery,
   getReview,
+  waitForHistoricalReview,
 } from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
@@ -95,15 +96,9 @@ test("a Done story's later completion outranks its execution launch's first capt
     repository: "terryyin/open-dough",
     follows: true,
   });
-  const received = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname === storyReviewEndpoint &&
-      url.searchParams.get("historical") === "true"
-    );
-  });
+  const received = waitForHistoricalReview(page);
   const { intent } = await selectDoneStoryInIntent(page);
-  expect(storyReviewSchema.parse(await (await received).json())).toMatchObject({
+  expect(await received).toMatchObject({
     kind: "published",
     completion,
   });

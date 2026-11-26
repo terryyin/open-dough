@@ -50,7 +50,7 @@ Hosted CI runs these specs in E2E shard 3 (`e2e/intent/**`).
 
 ### 1. One historical review watcher serves every completed Intent journey
 Type: Structure
-Status: planned
+Status: done
 Proof: the six-spec E2E run above passes; no inline `historical=true` watcher remains under `e2e/`.
 
 Structure: add the shared watcher and use it in the six specs, removing each
@@ -58,6 +58,21 @@ spec's now-unused `storyReviewEndpoint` or `storyReviewSchema` imports only
 where nothing else in that spec uses them. External behavior is unchanged.
 This slice owns the test-suite weakness directly: six copies of the same
 response capture and parse.
+
+## Execution evidence
+
+- Story Branch Mode on `origin/codex/share-completed-intent-review-response-watching`,
+  integrating into `origin/main`. The accepted Take was
+  `7cb2b5b5b27a005ffdc75fc9eb14ddcfc9abfd58`.
+- GitHub Actions `ci.yml` monitors the execution branch through Codex coordinator
+  `seed420-2f93db6d`, mailbox `/tmp/dough-ci-501/watch-6YE05Q`, stream session
+  `41949` and yielded cell `g575:11`.
+- The historical and landed watchers now share browser response capture and
+  schema parsing. The focused Playwright run after that refactor passed all 11
+  cases on their first attempt, including the eight planned Intent cases and
+  the landed-review consumers. `refactor-e2e-proof.json` and the command record
+  are in the checkout's Git evidence directory. Dashboard typecheck passed and
+  the planned search found no inline historical watcher under `e2e/`.
 
 ## Current decisions
 

@@ -6,6 +6,7 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
+import { waitForHistoricalReview } from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import {
   pausePageClock,
   passTimeUntilChecked,
@@ -92,13 +93,7 @@ test("a selected Taken story moves from published trunk to its published complet
     if (url.pathname === storyReviewEndpoint && url.searchParams.has("run"))
       explicitRuns.push(url.searchParams.get("run") ?? "");
   });
-  const completed = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname === storyReviewEndpoint &&
-      url.searchParams.get("historical") === "true"
-    );
-  });
+  const completed = waitForHistoricalReview(page);
   await origin.originGit(
     "update-ref",
     "refs/heads/main",
@@ -107,9 +102,10 @@ test("a selected Taken story moves from published trunk to its published complet
   );
   published.advanceTo(story.completion);
   await passTimeUntilChecked(page);
-  expect(storyReviewSchema.parse(await (await completed).json())).toMatchObject(
-    { kind: "published", completion: story.completion },
-  );
+  expect(await completed).toMatchObject({
+    kind: "published",
+    completion: story.completion,
+  });
   await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
   await expect(storyHeaderReading(intent).done).toHaveText("Done");
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
