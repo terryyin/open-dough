@@ -1,0 +1,683 @@
+diff --git a/dashboard/frontend-tests/intent/intent-browser-page.ts b/dashboard/frontend-tests/intent/intent-browser-page.ts
+index 1048f5055..dde852ac3 100644
+--- a/dashboard/frontend-tests/intent/intent-browser-page.ts
++++ b/dashboard/frontend-tests/intent/intent-browser-page.ts
+@@ -121,6 +121,10 @@ export function intentBrowser() {
+         .not.toHaveAttribute("aria-pressed", "true");
+       return browser;
+     },
++    async listsNoFile(path: string) {
++      await expect.element(fileName(path)).not.toBeInTheDocument();
++      return browser;
++    },
+     async showsNoSource() {
+       await expect
+         .element(page.getByLabelText(/ source$/).first())
+diff --git a/dashboard/frontend-tests/intent/intent-candidates-publication.ts b/dashboard/frontend-tests/intent/intent-candidates-publication.ts
+index 956c28125..6038094ed 100644
+--- a/dashboard/frontend-tests/intent/intent-candidates-publication.ts
++++ b/dashboard/frontend-tests/intent/intent-candidates-publication.ts
+@@ -47,6 +47,10 @@ function withTests(
+         : read;
+     },
+     files: { ...features.files, ...readsOf(tests) },
++    readTree: async (signal) => [
++      ...(await features.readTree(signal)),
++      ...Object.keys(tests),
++    ],
+   };
+ }
+
+diff --git a/dashboard/frontend-tests/intent/intent-revision-apply.spec.ts b/dashboard/frontend-tests/intent/intent-revision-apply.spec.ts
+index 7700d2553..5190f2f27 100644
+--- a/dashboard/frontend-tests/intent/intent-revision-apply.spec.ts
++++ b/dashboard/frontend-tests/intent/intent-revision-apply.spec.ts
+@@ -6,13 +6,16 @@
+ // ./intent-revision-update-failures.spec.ts.
+ // Reopening Intent: ./intent-revision-notice.spec.ts.
+ import { expect, test, vi } from "vitest";
++import { page, userEvent } from "vitest/browser";
+ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+ import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
+ import { shortRevision as short } from "../../src/publishedWork.ts";
++import { ReadProblem } from "../../src/readProblem.ts";
+ import { intentBrowser } from "./intent-browser-page.ts";
+ import {
+   featuresOpening,
+   heldAnswer,
++  type FeaturePublication,
+   mountProjectIntent,
+   publishedFeatures,
+ } from "./intent-revision-fixtures.ts";
+@@ -20,6 +23,15 @@ import { intentRevisionNotice } from "./intent-revision-notice-page.ts";
+
+ const { folder, jobs, diskSpace } = pygardonFeatures;
+
++// `publication` tracking the project's README beside its features.
++const withReadme = (publication: FeaturePublication): FeaturePublication => ({
++  ...publication,
++  readTree: async (signal) => [
++    "README.md",
++    ...(await publication.readTree(signal)),
++  ],
++});
++
+ test("newer revisions wait behind one notice, and Show latest keeps the reading while the latest is read", async () => {
+   const [a, b, c] = ["d4".repeat(20), "e7".repeat(20), "e8".repeat(20)];
+   const intermediate = featuresOpening("Restore a job");
+@@ -83,3 +95,96 @@ test("a selected feature the latest revision deleted is explained, with nothing
+   await browser.hasPaneFocused();
+   await browser.isAt(c);
+ });
++
++test("before the project files are read the page says so instead of listing only the location files, and a failed read retries", async () => {
++  const a = "da".repeat(20);
++  const opening = withReadme(featuresOpening("Archive a job"));
++  const tree = heldAnswer(opening.readTree);
++  tree.read.mockRejectedValueOnce(new ReadProblem("The tree is unavailable."));
++  await mountProjectIntent(a, { [a]: { ...opening, readTree: tree.read } });
++  const browser = intentBrowser();
++
++  await expect
++    .element(page.getByRole("alert"))
++    .toHaveTextContent(
++      "Project files for Pygardon could not be read: The tree is unavailable. Retry",
++    );
++  await browser.listsNoFile(jobs);
++  await userEvent.click(page.getByRole("button", { name: "Retry" }));
++  await expect.element(page.getByText("Reading project files…")).toBeVisible();
++  await browser.listsNoFile(jobs);
++
++  tree.release();
++  await browser.listsUnselected("README.md");
++  await browser.isAt(a);
++});
++
++test("Show latest keeps the whole reading of A while B's project files fail or are read, then reads B", async () => {
++  const [a, b] = ["db".repeat(20), "eb".repeat(20)];
++  const latest = withReadme(featuresOpening("Purge a job"));
++  const latestTree = heldAnswer(latest.readTree);
++  latestTree.read.mockRejectedValueOnce(
++    new ReadProblem("The tree is unavailable."),
++  );
++  const intent = await mountProjectIntent(a, {
++    [a]: withReadme(featuresOpening("Archive a job")),
++    [b]: { ...latest, readTree: latestTree.read },
++  });
++  const browser = intentBrowser();
++  const notice = intentRevisionNotice();
++  const jobsReading = await browser.open(jobs);
++  await jobsReading.shows("Scenario: Archive a job");
++  await intent.offerRevision(b);
++
++  await notice.showLatest();
++  await notice.reads(
++    `Revision ${short(b)} could not be read: The tree is unavailable.`,
++  );
++  await browser.isAt(a);
++  await browser.listsUnselected("README.md");
++  await jobsReading.shows("Scenario: Archive a job");
++  await jobsReading.isSelected();
++
++  await notice.retry();
++  await notice.reads("Updating…");
++  await browser.isAt(a);
++  await jobsReading.shows("Scenario: Archive a job");
++
++  latestTree.release();
++  await jobsReading.shows("Scenario: Purge a job");
++  await browser.isAt(b);
++  await browser.listsUnselected("README.md");
++  await notice.isGone();
++});
++
++test("a project files read the reading moved past cannot replace the reading", async () => {
++  const [a, b, c] = ["dc".repeat(20), "ec".repeat(20), "fc".repeat(20)];
++  const passed = withReadme(featuresOpening("Restore a job"));
++  const passedTree = heldAnswer(passed.readTree);
++  const intent = await mountProjectIntent(a, {
++    [a]: withReadme(featuresOpening("Archive a job")),
++    [b]: { ...passed, readTree: passedTree.read },
++    [c]: publishedFeatures(
++      makeMe.somePublishedFiles.ofPygardonFeatures.withoutJobs().please(),
++    ),
++  });
++  const browser = intentBrowser();
++  const notice = intentRevisionNotice();
++  const jobsReading = await browser.open(jobs);
++  await jobsReading.shows("Scenario: Archive a job");
++  await intent.offerRevision(b);
++  await notice.showLatest();
++  await notice.reads("Updating…");
++  await intent.offerRevision(c);
++  await notice.showLatest();
++  await browser.isAt(c);
++  await browser.explains(`${jobs} is not in revision ${short(c)}`);
++  await browser.showsNoSource();
++
++  passedTree.release();
++  await expect.poll(() => passedTree.read.mock.calls.length).toBe(1);
++  await browser.isAt(c);
++  await browser.listsNoFile("README.md");
++  await browser.explains(`${jobs} is not in revision ${short(c)}`);
++  await browser.showsNoSource();
++});
+diff --git a/dashboard/frontend-tests/intent/intent-revision-fixtures.ts b/dashboard/frontend-tests/intent/intent-revision-fixtures.ts
+index 06e893d1d..0352d59d0 100644
+--- a/dashboard/frontend-tests/intent/intent-revision-fixtures.ts
++++ b/dashboard/frontend-tests/intent/intent-revision-fixtures.ts
+@@ -17,6 +17,8 @@ type Read<T> = (signal: AbortSignal) => Promise<T>;
+ export type FeaturePublication = {
+   readonly readLocations: Read<IntentLocations>;
+   readonly files: Readonly<Record<string, Read<string>>>;
++  // The whole project's tracked paths.
++  readonly readTree: Read<readonly string[]>;
+ };
+
+ export function publishedFeatures(
+@@ -36,6 +38,7 @@ export function publishedFeatures(
+   return {
+     readLocations: () => Promise.resolve(locations),
+     files: readsOf(files),
++    readTree: () => Promise.resolve(Object.keys(files)),
+   };
+ }
+
+@@ -109,6 +112,8 @@ export async function mountProjectIntent(
+         return fixtureFor(publication.files, path)(signal);
+       },
+       readCandidates: () => Promise.resolve({ status: "absent" }),
++      readProjectTree: (...[, requestedRevision, signal]) =>
++        fixtureFor(publications, requestedRevision).readTree(signal),
+     })
+     .please();
+   return mountIntentReading(readSource, revision, "ci");
+diff --git a/dashboard/src/IntentBrowser.tsx b/dashboard/src/IntentBrowser.tsx
+index c0770c095..749d4ab43 100644
+--- a/dashboard/src/IntentBrowser.tsx
++++ b/dashboard/src/IntentBrowser.tsx
+@@ -142,7 +142,6 @@ export function IntentBrowser({
+           intentOnly={storyTree.intentOnly}
+           changesOnly={storyTree.scope?.changesOnly}
+         />
+-        {projectTree?.lead}
+         {leadInFiles && lead}
+         <IntentBrowserTree
+           locations={locations}
+diff --git a/dashboard/src/IntentLocationsUnavailable.tsx b/dashboard/src/IntentLocationsUnavailable.tsx
+index be34fc6cb..f59eec4a2 100644
+--- a/dashboard/src/IntentLocationsUnavailable.tsx
++++ b/dashboard/src/IntentLocationsUnavailable.tsx
+@@ -9,6 +9,7 @@ import type {
+   IntentLocations,
+   IntentSettingsProblem,
+ } from "./authenticatedIntentRead.ts";
++import type { ReadProblem } from "./readProblem.ts";
+ import type { IntentLocationsFailure } from "./useIntentLocations.ts";
+ import "./intent-explanations.css";
+
+@@ -26,15 +27,11 @@ export function settledLocationsOf(
+   if ("failed" in intent) {
+     return {
+       unavailable: (
+-        <p className="intent-settings-problem" role="alert">
+-          Intent locations for {label} could not be read
+-          {intent.failed === undefined
+-            ? "."
+-            : `: ${intent.failed.message}`}{" "}
+-          <button type="button" onClick={onRetry}>
+-            Retry
+-          </button>
+-        </p>
++        <FailedIntentRead
++          subject={`Intent locations for ${label}`}
++          failed={intent.failed}
++          onRetry={onRetry}
++        />
+       ),
+     };
+   }
+@@ -56,6 +53,27 @@ export function settledLocationsOf(
+   }
+ }
+
++// A failed read of what Intent shows, saying why when known, with Retry.
++export function FailedIntentRead({
++  subject,
++  failed,
++  onRetry,
++}: {
++  readonly subject: string;
++  readonly failed: ReadProblem | undefined;
++  readonly onRetry: () => void;
++}) {
++  return (
++    <p className="intent-settings-problem" role="alert">
++      {subject} could not be read
++      {failed === undefined ? "." : `: ${failed.message}`}{" "}
++      <button type="button" onClick={onRetry}>
++        Retry
++      </button>
++    </p>
++  );
++}
++
+ export function LocationsNotConfigured({ label }: { readonly label: string }) {
+   return (
+     <p className="intent-not-configured">
+diff --git a/dashboard/src/IntentPage.tsx b/dashboard/src/IntentPage.tsx
+index d404737f0..426079273 100644
+--- a/dashboard/src/IntentPage.tsx
++++ b/dashboard/src/IntentPage.tsx
+@@ -36,7 +36,7 @@ import {
+   useStoryReviewArrival,
+ } from "./useFirstStoryChangedFile.ts";
+ import { useStoryResultBrowse } from "./useStoryResultRead.tsx";
+-import { useProjectTreeRead } from "./useProjectTreeRead.tsx";
++import { useProjectReading } from "./useProjectTreeRead.tsx";
+ import "./intent-page.css";
+
+ export type IntentPageStory = {
+@@ -47,7 +47,7 @@ export type IntentPageStory = {
+
+ export function IntentPage({
+   source,
+-  shown,
++  shown: followed,
+   project,
+   story,
+ }: {
+@@ -56,12 +56,13 @@ export function IntentPage({
+   readonly project: ModeChoice;
+   readonly story?: IntentPageStory;
+ }) {
+-  const { notice, shownRevision } = shown;
+-  const result = useStoryResultBrowse(story?.summary.comparison, source.label);
+-  const projectTree = useProjectTreeRead(
++  const { shown, tree: projectTree } = useProjectReading(
+     source,
+-    story === undefined ? shownRevision : undefined,
++    followed,
++    story === undefined,
+   );
++  const { notice, shownRevision } = shown;
++  const result = useStoryResultBrowse(story?.summary.comparison, source.label);
+   const {
+     comparisonSourceUnavailable,
+     locations: browserLocations,
+@@ -122,7 +123,8 @@ export function IntentPage({
+     <FileBrowserToggle
+       icon
+       browser={
+-        hasBrowser && (story !== undefined || project.mode === "ci")
++        (hasBrowser || projectTree.pending === true) &&
++        (story !== undefined || project.mode === "ci")
+           ? files
+           : undefined
+       }
+diff --git a/dashboard/src/useProjectTreeRead.tsx b/dashboard/src/useProjectTreeRead.tsx
+index 0bb90e31d..697187168 100644
+--- a/dashboard/src/useProjectTreeRead.tsx
++++ b/dashboard/src/useProjectTreeRead.tsx
+@@ -1,67 +1,177 @@
+-// The whole project's tracked paths at the revision Project Intent shows,
+-// read once per revision through the page's Intent reads
+-// (`./intentReadSource.ts`). While the paths are not read, the browser lists
+-// the configured location files; a failed read says why and offers Retry.
++// Project Intent's reading (`./IntentPage.tsx`): the followed locations
++// (`./useShownIntentLocations.tsx`) paired with the whole project's tracked
++// paths, read through the page's Intent reads (`./intentReadSource.ts`) at
++// Intent's reading revision. The pair advances to a revision only once both
++// its locations and its paths are read; until then the last read pair stays
++// shown with its own revision, marked as updating in the revision notice, and
++// a failed paths read is that notice's failed update with its Retry. Before a
++// first pair is read the page says the project files are read, and a failed
++// first read explains itself with Retry (`./IntentLocationsUnavailable.tsx`).
++// Story pages keep the followed locations alone.
+
+-import { useEffect, useState, type ReactNode } from "react";
++import { useEffect, useState } from "react";
++import { keptIntentLocationsAt } from "./authenticatedIntentRead.ts";
++import {
++  FailedIntentRead,
++  settledLocationsOf,
++  type SettledLocations,
++} from "./IntentLocationsUnavailable.tsx";
++import { IntentRevisionNotice } from "./IntentRevisionNotice.tsx";
++import { useKeptReading } from "./pageIntentReading.tsx";
+ import { useIntentReads } from "./pageReads.tsx";
+ import type { PublishedSource } from "./publishedSource.ts";
+ import { ReadProblem } from "./readProblem.ts";
++import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
+
+ type TreeRead =
+   | { readonly revision: string; readonly paths: readonly string[] }
+-  | { readonly revision: string; readonly problem: string };
++  | { readonly revision: string; readonly failed: ReadProblem | undefined };
++
++type ReadPair = {
++  readonly revision: string;
++  readonly paths: readonly string[];
++};
++
++const unavailableOf = (settled: SettledLocations) =>
++  "unavailable" in settled ? settled.unavailable : undefined;
+
+ export type ProjectTree = {
+   readonly paths: readonly string[] | undefined;
+-  readonly lead: ReactNode;
++  // Whether the project files are read before a first reading shows, while
++  // Files stays available.
++  readonly pending?: true;
+ };
+
+-export function useProjectTreeRead(
++export function useProjectReading(
+   source: PublishedSource,
+-  revision: string | undefined,
+-): ProjectTree {
++  shown: ShownIntentLocations,
++  active: boolean,
++): { readonly shown: ShownIntentLocations; readonly tree: ProjectTree } {
+   const { readProjectTree } = useIntentReads();
++  const { follow } = shown;
++  const reading = active ? follow?.reading : undefined;
+   const [read, setRead] = useState<TreeRead | undefined>(undefined);
++  // The last read pair stays with the reading place, so returning to Intent
++  // shows it at once without asking again.
++  const [pair, setPair] = useKeptReading<ReadPair | undefined>(
++    "project-pair",
++    () => undefined,
++  );
++  const keptAtReading = pair?.revision === reading;
+   const [round, setRound] = useState(0);
+   useEffect(() => {
+-    if (revision === undefined) return;
++    if (reading === undefined || (keptAtReading && round === 0)) return;
+     const controller = new AbortController();
+-    readProjectTree(source, revision, controller.signal)
++    // A Retry reads as reading again.
++    setRead((last) =>
++      last !== undefined && "failed" in last ? undefined : last,
++    );
++    readProjectTree(source, reading, controller.signal)
+       .then((paths) => {
+-        if (!controller.signal.aborted) setRead({ revision, paths });
++        if (!controller.signal.aborted) setRead({ revision: reading, paths });
+       })
+       .catch((error: unknown) => {
+         if (controller.signal.aborted) return;
+         setRead({
+-          revision,
+-          problem:
+-            error instanceof ReadProblem
+-              ? error.message
+-              : "The project tree could not be read.",
++          revision: reading,
++          failed: error instanceof ReadProblem ? error : undefined,
+         });
+       });
+     return () => {
+       controller.abort();
+     };
+-  }, [source, revision, round, readProjectTree]);
+-  const current = read?.revision === revision ? read : undefined;
+-  if (current === undefined || "paths" in current)
+-    return { paths: current?.paths, lead: undefined };
++  }, [source, reading, round, readProjectTree, keptAtReading]);
++
++  const browsable =
++    shown.locations !== undefined || (shown.unconfigured && !shown.reading);
++  const current = read?.revision === reading ? read : undefined;
++  const arrived =
++    current !== undefined &&
++    "paths" in current &&
++    browsable &&
++    shown.shownRevision === reading
++      ? { revision: current.revision, paths: current.paths }
++      : undefined;
++  useEffect(() => {
++    if (arrived !== undefined && arrived.revision !== pair?.revision) {
++      setPair(arrived);
++    }
++  }, [arrived, pair?.revision, setPair]);
++  if (!active || follow === undefined) {
++    return { shown, tree: { paths: undefined } };
++  }
++
++  const retryTree = () => {
++    setRound((n) => n + 1);
++  };
++  const treeFailure =
++    current !== undefined && "failed" in current ? current : undefined;
++  // Settled locations the browser cannot show replace the reading at once.
++  if (!browsable && !shown.reading && shown.shownRevision === reading) {
++    return { shown, tree: { paths: undefined } };
++  }
++  const held = arrived ?? pair;
++  if (held === undefined) {
++    // Nothing read to show yet: the locations' own explanation, or the
++    // project files being read or failed.
++    if (!browsable) return { shown, tree: { paths: undefined } };
++    return {
++      shown: {
++        ...shown,
++        locations: undefined,
++        unconfigured: false,
++        reading: true,
++        explanation:
++          treeFailure === undefined ? (
++            <p className="quiet">Reading project files…</p>
++          ) : (
++            <FailedIntentRead
++              subject={`Project files for ${source.label}`}
++              failed={treeFailure.failed}
++              onRetry={retryTree}
++            />
++          ),
++      },
++      tree: { paths: undefined, pending: true },
++    };
++  }
++  const failedUpdate =
++    follow.failedUpdate ??
++    (treeFailure === undefined || held.revision === reading
++      ? undefined
++      : { revision: treeFailure.revision, failed: treeFailure.failed });
++  const notice = (
++    <IntentRevisionNotice
++      shown={held.revision}
++      observed={follow.observed}
++      updating={held.revision !== reading && failedUpdate === undefined}
++      failedUpdate={failedUpdate}
++      onShowLatest={follow.showLatest}
++      onRetry={
++        follow.failedUpdate === undefined ? retryTree : follow.retryLocations
++      }
++    />
++  );
++  if (held.revision === shown.shownRevision) {
++    return { shown: { ...shown, notice }, tree: held };
++  }
++  const kept = keptIntentLocationsAt(source, held.revision);
++  const settled =
++    kept === undefined
++      ? undefined
++      : settledLocationsOf(kept, source.label, follow.retryLocations);
+   return {
+-    paths: undefined,
+-    lead: (
+-      <p role="alert" className="intent-settings-problem">
+-        Project files could not be read: {current.problem}{" "}
+-        <button
+-          type="button"
+-          onClick={() => {
+-            setRound((n) => n + 1);
+-          }}
+-        >
+-          Retry
+-        </button>
+-      </p>
+-    ),
++    shown: {
++      ...shown,
++      notice,
++      shownRevision: held.revision,
++      locations:
++        settled !== undefined && "locations" in settled
++          ? settled.locations
++          : undefined,
++      unconfigured: kept?.status === "not-configured",
++      explanation: settled === undefined ? undefined : unavailableOf(settled),
++    },
++    tree: held,
+   };
+ }
+diff --git a/dashboard/src/useShownIntentLocations.tsx b/dashboard/src/useShownIntentLocations.tsx
+index a2155c232..2ee62256a 100644
+--- a/dashboard/src/useShownIntentLocations.tsx
++++ b/dashboard/src/useShownIntentLocations.tsx
+@@ -17,10 +17,25 @@ import {
+ } from "./IntentRevisionNotice.tsx";
+ import type { PublishedSource } from "./publishedSource.ts";
+ import type { PublishedWork } from "./publishedWork.ts";
+-import { useIntentLocations } from "./useIntentLocations.ts";
++import {
++  useIntentLocations,
++  type FailedLocationsUpdate,
++} from "./useIntentLocations.ts";
++
++// What the notice follows: Intent's reading and observed revisions, Show
++// latest, the failed read of the reading revision and its Retry.
++export type FollowedRevision = {
++  readonly reading: string | undefined;
++  readonly observed: string | undefined;
++  readonly showLatest: (() => void) | undefined;
++  readonly failedUpdate: FailedLocationsUpdate | undefined;
++  readonly retryLocations: () => void;
++};
+
+ export type ShownIntentLocations = {
+   readonly notice: ReactNode;
++  // Present while the reading follows the project's observed revision.
++  readonly follow?: FollowedRevision;
+   readonly reading?: true;
+   // The revision whose locations are shown, once one is.
+   readonly shownRevision: string | undefined;
+@@ -56,6 +71,7 @@ export function useShownIntentLocations(
+       : settledLocationsOf(intent, source.label, retryLocations);
+   return {
+     notice,
++    follow: { reading, observed, showLatest, failedUpdate, retryLocations },
+     ...(settled === undefined ? { reading: true } : {}),
+     shownRevision,
+     locations:
+diff --git a/dashboard/test-support/intentReadSourceTestData.ts b/dashboard/test-support/intentReadSourceTestData.ts
+index bbc1d0779..72c09ba91 100644
+--- a/dashboard/test-support/intentReadSourceTestData.ts
++++ b/dashboard/test-support/intentReadSourceTestData.ts
+@@ -1,11 +1,15 @@
+ // A case's Intent reads (`../src/intentReadSource.ts`). The case supplies its
+ // locations, file and candidates reads; unless told, the whole project's tree
+-// at a revision answers the files of the locations the case's own locations
+-// read answered there, without asking that read again, and stays unanswered
+-// while that read has not answered configured locations. A project file reads
++// at a revision answers the files of the locations the page kept from the
++// case's own locations read there (none when none are configured), without
++// asking that read again, and stays unanswered until then or while the
++// settings have a problem. A project file reads
+ // as the case's file read answers that path.
+
+-import type { IntentLocations } from "../src/authenticatedIntentRead.ts";
++import {
++  keptIntentLocationsAt,
++  type IntentLocations,
++} from "../src/authenticatedIntentRead.ts";
+ import type { IntentReadSource } from "../src/intentReadSource.ts";
+
+ type CaseReads = Pick<
+@@ -25,53 +29,44 @@ export class IntentReadSourceBuilder {
+   please(): IntentReadSource {
+     const reads = this.#reads;
+     if (reads === undefined) throw new Error("An Intent read source reads");
+-    const answered = new LocationFilesByRevision();
+     return {
+-      readProjectTree: (...[, revision, signal]) =>
+-        answered.treeAt(revision, signal),
++      readProjectTree: (...[source, revision, signal]) =>
++        keptLocationFiles(
++          () => keptIntentLocationsAt(source, revision),
++          signal,
++        ),
+       readProjectFile: reads.readFile,
+       ...reads,
+-      readLocations: (...args) => {
+-        const [, revision] = args;
+-        return reads.readLocations(...args).then((locations) => {
+-          answered.note(revision, locations);
+-          return locations;
+-        });
+-      },
+     };
+   }
+ }
+
+-// The location files each revision's locations read answered, and the tree
+-// reads waiting for them.
+-class LocationFilesByRevision {
+-  readonly #files = new Map<string, readonly string[]>();
+-  readonly #waiting = new Map<
+-    string,
+-    Array<(files: readonly string[]) => void>
+-  >();
++// The files of configured `locations`, none when none are configured, and
++// no answer for a settings problem.
++const filesOf = (locations: IntentLocations) =>
++  locations.status === "settings-problem"
++    ? undefined
++    : locations.status === "configured"
++      ? [...new Set(locations.locations.flatMap((location) => location.files))]
++      : [];
+
+-  note(revision: string, locations: IntentLocations) {
+-    if (locations.status !== "configured") return;
+-    const files = [
+-      ...new Set(locations.locations.flatMap((location) => location.files)),
+-    ];
+-    this.#files.set(revision, files);
+-    for (const answer of this.#waiting.get(revision) ?? []) answer(files);
+-    this.#waiting.delete(revision);
+-  }
+-
+-  treeAt(revision: string, signal: AbortSignal) {
+-    const files = this.#files.get(revision);
+-    if (files !== undefined) return Promise.resolve(files);
+-    return new Promise<readonly string[]>((resolve, reject) => {
+-      this.#waiting.set(revision, [
+-        ...(this.#waiting.get(revision) ?? []),
+-        resolve,
+-      ]);
+-      signal.addEventListener("abort", () => {
++// The location files once the page keeps its locations answer, which it does
++// when the case's locations read answers; aborted with the read.
++function keptLocationFiles(
++  kept: () => IntentLocations | undefined,
++  signal: AbortSignal,
++) {
++  return new Promise<readonly string[]>((resolve, reject) => {
++    const check = () => {
++      if (signal.aborted) {
+         reject(new Error("The project tree read was aborted."));
+-      });
+-    });
+-  }
++        return;
++      }
++      const answered = kept();
++      const files = answered === undefined ? undefined : filesOf(answered);
++      if (files === undefined) setTimeout(check, 5);
++      else resolve(files);
++    };
++    check();
++  });
+ }

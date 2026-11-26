@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep the project reading until Show latest can replace it](seeds/SEED-420-unified-intent-review.md#keep-project-reading-until-show-latest) — SEED-420#keep-project-reading-until-show-latest
 - [Open the published Board at verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
