@@ -1,10 +1,9 @@
 // A follow-up started with Cursor over raw HTTP, with the real installed start
 // (../../test-support/support/cursorStart.ts) and the fixture `cursor-agent`:
-// Cursor's first prompt has Claude's follow-up layout (expectFollowUpInput in
-// ./followUpBoundaryCases.ts; Claude's: agent-launch-follow-up-boundary.spec.ts).
-// A blank follow-up with a chosen model is admitted, because
-// its context is a first prompt, and a start continued after the source
-// record is gone sends the recorded context. Codex's:
+// Cursor's first prompt has the follow-up layout (expectFollowUpInput in
+// ./followUpBoundaryCases.ts). A start continued after the source record is
+// gone sends the recorded context. A blank request with a chosen model is
+// agent-launch-follow-up-established-input.spec.ts. Codex's:
 // agent-launch-follow-up-codex.spec.ts.
 
 import { realpathSync } from "node:fs";
@@ -30,12 +29,9 @@ import {
 } from "../../test-support/support/followUpStories.ts";
 import { publishes } from "../../test-support/support/publishedRepository.ts";
 import { isolatedSession } from "../../test-support/support/startSessionLanding.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,
-  quiet,
-  quietContext,
   request,
   publishFollowUpSources,
   sourceStory,
@@ -57,41 +53,6 @@ async function promptOf(cursor: FakeCursor) {
   await expect.poll(() => cursor.input(client.pid)).toMatch(/\r$/u);
   return { client, prompt: cursor.input(client.pid).replace(/\r$/u, "") };
 }
-
-test("a blank follow-up with a chosen model on the execution checkout starts on that model with the context and the reporting context", async ({
-  dashboard,
-  origin,
-  cursor,
-}) => {
-  keepLaunchRecords(dashboard, [quiet]);
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...cursorRequest,
-      model: "gpt-5.2",
-      followUp: makeMe.aFollowUp.ofSession(quiet).please(),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  expect(launched.record?.request).toMatchObject({ model: "gpt-5.2" });
-  expect(launched.record?.request).not.toHaveProperty("instruction");
-  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
-  const { client, prompt } = await promptOf(cursor);
-  expect(client.args).toEqual([
-    "--workspace",
-    origin.project,
-    "--resume",
-    cursor.sessionId,
-    "--model",
-    "gpt-5.2",
-  ]);
-  expectFollowUpInput(prompt, {
-    context: quietContext,
-    request: launched.record?.request,
-    server: dashboard,
-  });
-});
 
 test("with Isolated workspace, Continue sends the saved story follow-up message after the source record is gone", async ({
   dashboard,

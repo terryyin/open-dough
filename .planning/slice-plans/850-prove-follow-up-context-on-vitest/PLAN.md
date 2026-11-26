@@ -125,7 +125,7 @@ colocated module if the spec would pass that.
 ### 3. Send an established session's block, a long report, and a blank Cursor model
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12 active minutes.
 
 Proof: With an established session its block and the reporting context come
@@ -258,7 +258,7 @@ to every failure and repair handoff. Keep default test timeouts.
 
 - Mode: story-branch. Identity: SEED-413#prove-follow-up-context-on-vitest. Publisher: dashboard-territory.local-open-dough. Agent: Shunka-chan.
 - Workspace: `/Users/terryyin/git/open-dough/.worktrees/prove-retained-follow-up-context-in-node-vitest`, branch `cursor/prove-retained-follow-up-context-in-node-vitest`, reused from the established start. Starting revision `0633724b8d68d501eafaf4884ca22b04ab91659e`.
-- Accepted publication: `ef7b128ab81ed99b3c83fef95b68d7cee9ccbe24` on `origin/cursor/prove-retained-follow-up-context-in-node-vitest`. Previously published base for the next increment. The Take `2b92b4894804637356af4100c48bf331abcd853a` remains the claim; its CI is `pendingCi: unobserved`. Observer: `/tmp/dough-ci-501/watch-DljhmU`, GitHub Actions `ci.yml` (display name CI), reused for this branch.
+- Accepted publication: `d16457e9649c2909f40c286ebda34285e74da372` on `origin/cursor/prove-retained-follow-up-context-in-node-vitest`. Previously published base for the next increment. The Take `2b92b4894804637356af4100c48bf331abcd853a` remains the claim; its CI is `pendingCi: unobserved`. Observer: `/tmp/dough-ci-501/watch-DljhmU`, GitHub Actions `ci.yml` (display name CI), reused for this branch.
 - Readiness: Changed since readiness review. Recorded Ready stands; Take did not renew it.
 - Replanning: existing planning authority (neither `--replan` nor `--no-replan`).
 - Checkout setup: locked `npm ci` (lockfile unchanged) and `npm run typecheck:dashboard` passed on Node v24.21.0.
@@ -269,12 +269,15 @@ to every failure and repair handoff. Keep default test timeouts.
 - `agent-launch-follow-up-notes.spec.ts` was 249 lines. Putting the two new fields on separate lines, as formatting does, would have made it 251. The refused-follow-up arrangement now lives in `refusedNotesFollowUp.ts` (194 lines) and the spec is 63. Both are under the 250-line check.
 - The seven-spec run after that composition was 25/25 in about 25s. The earlier 65s baseline on the same selection was at a higher load. The difference is the host, not this edit.
 - Slice 2's first attempt overran at 17.3 active minutes with no proof. The draft spec was 268 lines and the blank-model Cursor case had been removed from Playwright before a Vitest replacement passed. That attempt was reverted. The false sizing assumption: the four boundary cases and the Cursor model case, including retiring the Playwright spec and staying under 250 lines, fit in one 15-minute slice. Those cases are now slices 2 and 3. This is the story's first overrun.
+- Slice 3's proof had already passed when the clock was paused at 15.2 active minutes, so the story's second overrun is that pause, not a failed proof. Remaining slices 4 to 8 are separate families already bounded in this plan. Continue them one at a time. The delivered value so far is the typed follow-up inputs, the execution-checkout order, and the established-session, long-report, and blank-model cases.
 
 ## Accepted proof
 
 Slice 1. Promise: a follow-up's kept session and published story membership are inputs of context resolution, the Done record's catalog read is a typed input, and the seven legacy specs still pass. Boundary: production follow-up admission through the backend Playwright runner. Setup: those seven specs, unchanged. Command: `npm run test:dashboard:backend -- 'launches/agent-launch-follow-up-(boundary|story|identity|live|codex|cursor|membership)\.spec\.ts$' --workers=1`. Result: 25/25 passed, `strictStatus` passed, about 25s, recorded in the checkout evidence as `slice1-refactor-backend-proof.json`, after `followUpContextInput()` replaced the two inline objects. `npm run typecheck:dashboard` exited 0. The two notes specs, 9/9, passed again after the arrangement move, including both cases in `agent-launch-follow-up-notes.spec.ts`. Caller-supplied catalog outcomes stay with slice 4.
 
 Slice 2. Promise: on the execution checkout a retained session's context comes first, then the developer's text, then the reporting context; a blank request sends no part of its own and is titled by its launch time; the source records stay unchanged. Boundary: `withFollowUpContext`, `recordedRequest`, `unattachedInput`, `codexInput`, and `cursorPrompt`. Setup: a MakeMe Done session and a typed `FollowUpContextInput`. Command: `npm run test:dashboard:backend -- launches/agent-launch-follow-up-session-input.spec.ts --workers=1`. Result: 2 passed, 8 ms and 1 ms, exit 0, `slice2.log.run.json`. The isolated-workspace and long-report cases remain in the Playwright boundary spec for slice 3. Refactor pass skipped: the edit is these tests only, and it adds no production concept past the typed inputs slice 1 already published.
+
+Slice 3. Promise: an established session's block and the reporting context come first, then the retained context and the request; a final report longer than the instruction limit is sent whole beside a request at that limit; a blank Cursor request records its chosen model and is titled by its launch time. Boundary: `unattachedInput`, `codexInput`, and `cursorPrompt`, with the block from `formatEstablishedSession`. Setup: a MakeMe Done session and a typed `FollowUpContextInput`. Command: `npm run test:dashboard:backend -- launches/agent-launch-follow-up-established-input.spec.ts --workers=1`. Result: 3 passed (8 ms, 2 ms, 1 ms), exit 0, `slice3.log.run.json`. The boundary Playwright spec is removed. The two Cursor Continue tests stay for slice 7. Refactor pass skipped: the new spec repeats slice 2's expected-context text rather than a second production rule. Native Cursor arguments stay with their owner.
 
 ## Plan review
 
