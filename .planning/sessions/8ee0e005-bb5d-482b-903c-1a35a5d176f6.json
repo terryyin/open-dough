@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "sessionId": "8ee0e005-bb5d-482b-903c-1a35a5d176f6",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-26T11:35:42.567Z",
+  "story": "SEED-413#prove-native-first-input-on-vitest",
+  "ranges": [
+    {
+      "base": "365c7c69bbdc91f7ca9c1b5119e34b20f9fcf724",
+      "candidate": "d6691f5bb35fc2214a1629e7ec873dcdbabe158e"
+    },
+    {
+      "base": "d6691f5bb35fc2214a1629e7ec873dcdbabe158e",
+      "candidate": "25be1d9a8661191589c44e60165edfd5186055a8"
+    },
+    {
+      "base": "25be1d9a8661191589c44e60165edfd5186055a8",
+      "candidate": "ade5fff4c67f06d1fa9ddbd84d69c1557b067df8"
+    },
+    {
+      "base": "ade5fff4c67f06d1fa9ddbd84d69c1557b067df8",
+      "candidate": "61c47088b1e5d2976bc4bb08d262fdf5e5b8ff0e"
+    },
+    {
+      "base": "61c47088b1e5d2976bc4bb08d262fdf5e5b8ff0e",
+      "candidate": "ead706721f4417cbe8d2d98bbfe6aeaa71df772d"
+    },
+    {
+      "base": "ead706721f4417cbe8d2d98bbfe6aeaa71df772d",
+      "candidate": "075273945e40df16be58719e50909cedb945feec"
+    },
+    {
+      "base": "075273945e40df16be58719e50909cedb945feec",
+      "candidate": "28b7d90c26821bf0d5208205dfd601117fc1343f"
+    },
+    {
+      "base": "28b7d90c26821bf0d5208205dfd601117fc1343f",
+      "candidate": "c4cb45e4b05ca899d88971b6ae6a9524ac18661c"
+    },
+    {
+      "base": "c4cb45e4b05ca899d88971b6ae6a9524ac18661c",
+      "candidate": "d301b17b75798f48604da5bdd14d0fea0d8a77f4"
+    },
+    {
+      "base": "d301b17b75798f48604da5bdd14d0fea0d8a77f4",
+      "candidate": "eac4d5e9e4041f64f603a5afc08378552a9c433c"
+    },
+    {
+      "base": "eac4d5e9e4041f64f603a5afc08378552a9c433c",
+      "candidate": "18fa4498b36be5c90b046c4248bfa8e2ef666567"
+    },
+    {
+      "base": "cbab58ebbe335734f8990002e6fb50fec0df4738",
+      "candidate": "134046ab40c06acdf238becf3e15f35f1799e4fe"
+    }
+  ]
+}
