@@ -36,7 +36,7 @@ import {
   useStoryReviewArrival,
 } from "./useFirstStoryChangedFile.ts";
 import { useStoryResultBrowse } from "./useStoryResultRead.tsx";
-import { useProjectTreeRead } from "./useProjectTreeRead.tsx";
+import { useProjectReading } from "./useProjectReading.ts";
 import "./intent-page.css";
 
 export type IntentPageStory = {
@@ -47,7 +47,7 @@ export type IntentPageStory = {
 
 export function IntentPage({
   source,
-  shown,
+  shown: followed,
   project,
   story,
 }: {
@@ -56,27 +56,25 @@ export function IntentPage({
   readonly project: ModeChoice;
   readonly story?: IntentPageStory;
 }) {
+  const { shown, project: projectReading } = useProjectReading(
+    source,
+    followed,
+    story === undefined ? project : undefined,
+  );
   const { notice, shownRevision } = shown;
   const result = useStoryResultBrowse(story?.summary.comparison, source.label);
-  const projectTree = useProjectTreeRead(
-    source,
-    story === undefined ? shownRevision : undefined,
-  );
   const {
     comparisonSourceUnavailable,
     locations: browserLocations,
     revision: browserRevision,
     explanation,
     lead,
-  } = result === undefined
-    ? intentBrowserSource(shown, story?.summary.comparison, story === undefined)
-    : {
-        comparisonSourceUnavailable: false,
-        locations: result.locations,
-        revision: result.pin.revision,
-        explanation: undefined,
-        lead: result.lead,
-      };
+  } = intentBrowserSource(
+    shown,
+    story?.summary.comparison,
+    projectReading !== undefined,
+    result,
+  );
   const { tab, chooseTab } = useStoryTab(story?.selection);
   const hasBrowser =
     browserLocations !== undefined && browserRevision !== undefined;
@@ -136,8 +134,7 @@ export function IntentPage({
       locations={browserLocations}
       lead={lead}
       result={result}
-      projectTree={projectTree}
-      project={story === undefined ? project : undefined}
+      project={projectReading}
       storySummary={story?.summary}
       story={story?.compared}
       reviewFileReady={fileReadiness === "ready"}

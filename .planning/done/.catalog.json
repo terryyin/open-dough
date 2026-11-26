@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_keep-project-reading-until-show-latest.json",
+      "identity": "SEED-420#keep-project-reading-until-show-latest",
+      "completedAt": "2026-11-26T16:25:03.396Z",
+      "blob": "1bb9ec86e42ecab4631c7ca2961ae67f4b063707"
+    },
+    {
       "fileName": "SEED-413_prove-launch-starts-and-recovery-on-vitest.json",
       "identity": "SEED-413#prove-launch-starts-and-recovery-on-vitest",
       "completedAt": "2026-11-26T14:44:54.474Z",

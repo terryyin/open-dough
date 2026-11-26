@@ -17,6 +17,8 @@ type Read<T> = (signal: AbortSignal) => Promise<T>;
 export type FeaturePublication = {
   readonly readLocations: Read<IntentLocations>;
   readonly files: Readonly<Record<string, Read<string>>>;
+  // The project tree, when the case answers it rather than the locations.
+  readonly readTree?: Read<readonly string[]>;
 };
 
 export function publishedFeatures(
@@ -99,6 +101,7 @@ export async function mountProjectIntent(
 ) {
   const readSource: IntentReadSource = makeMe.anIntentReadSource
     .reading({
+      ...treeReads(publications),
       readLocations(...[, requestedRevision, signal]) {
         return fixtureFor(publications, requestedRevision).readLocations(
           signal,
@@ -112,6 +115,23 @@ export async function mountProjectIntent(
     })
     .please();
   return mountIntentReading(readSource, revision, "ci");
+}
+
+// The project tree read of each publication answering its own, if any have.
+function treeReads(
+  publications: Readonly<Record<string, FeaturePublication>>,
+): Partial<Pick<IntentReadSource, "readProjectTree">> {
+  if (Object.values(publications).every((p) => p.readTree === undefined))
+    return {};
+  return {
+    readProjectTree(...[, requestedRevision, signal]) {
+      const publication = fixtureFor(publications, requestedRevision);
+      return (
+        publication.readTree ??
+        (() => Promise.resolve(Object.keys(publication.files)))
+      )(signal);
+    },
+  };
 }
 
 // Mounts the page's production Intent body on Pygardon's work at `revision`,

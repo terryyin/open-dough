@@ -1,12 +1,14 @@
 // Intent's CI status homepage on a phone judging main's run 41 passed at
 // a1b2c3d with its Proof, main's CI time without runner waits history
-// answered by `answer`: the CI status page object, that history's region, its
+// answered by `answer` (and Intent read through `intent`, unconfigured unless
+// given): the CI status page object, that history's region, its
 // heading's text once shown, a chart mark by its accessible name and each
 // history read the page asked, in order; and the reader's journeys on it:
 // opening its Builds and evidence by keyboard from Check again, and finding
 // what scrolls sideways on the phone.
 import { expect } from "vitest";
 import { userEvent } from "vitest/browser";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { MeasuredHistory } from "../../src/landedCiHistory.ts";
 import { judgedRun, mountJudgedRunProof } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
@@ -22,7 +24,10 @@ export const trunkBuild = {
   completedAt: "2026-11-05T10:06:05Z",
 };
 
-export async function openTrunkHistory(answer: MeasuredHistory) {
+export async function openTrunkHistory(
+  answer: MeasuredHistory,
+  intent?: IntentReadSource,
+) {
   const historyReads: string[] = [];
   await mountJudgedRunProof({
     entries: [],
@@ -32,6 +37,7 @@ export async function openTrunkHistory(answer: MeasuredHistory) {
       completedAt: trunkBuild.completedAt,
     },
     viewport: { width: 390, height: 844 },
+    ...(intent && { intent }),
     ci: {
       readHistory: (source) => {
         historyReads.push(source.id);
