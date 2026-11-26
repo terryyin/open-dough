@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "af07b52c-38ff-47a7-beb3-04f2816888ce",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-26T12:53:05.591Z",
+  "story": "SEED-413#prove-kept-launch-records-on-vitest",
+  "ranges": [
+    {
+      "base": "b2e6f2a0dbdf4b2d795d99e320563369d6ee369c",
+      "candidate": "f5390e4cd6e7fc544d14d0783a6e9a6f60693adc"
+    }
+  ]
+}
