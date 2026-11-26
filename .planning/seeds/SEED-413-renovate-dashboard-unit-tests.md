@@ -1200,3 +1200,26 @@ A scratch experiment in this checkout ran 24 copies of one history-render
 case at two workers. It took 3.63 s wall in separate files and 2.32 s together.
 This establishes a file cost for that component. Measure the full group to
 judge the campaign outcome.
+
+#### Frontend campaign ledger
+
+| Campaign work | Legacy cases | Outcome |
+| --- | ---: | --- |
+| Families before the split (Story Notes to the Review changes panel) | see the sections above | Moved to mounted Vitest; each section names the cases and the assertions they kept |
+| Stories 1 to 8a of the [remaining renovation](#renovate-later-dashboard-frontend-unit-test-families) | 583 | Moved to mounted Vitest; SEED-439 removed 21 standalone cases with their product paths |
+| Story 8b, [runner retirement](#retire-legacy-dashboard-frontend-runner) | 11 | The three `test-harness/` specs moved unchanged to `backend-tests/observation/` on `pageTest.ts`, with none retired. The legacy frontend config, setup, built-app app and substitutes were retired, the five `PageReads` readers became required, and the group runs Vitest alone |
+
+At `a46b574a4` on 2026-11-26, the complete command
+`caffeinate -s -i npm run --silent test:dashboard:frontend -- --workers=2`
+on AC power took **4 min 8 s** including preparation, against the 7 min
+15 s baseline (43% less), at one-minute load 3.25 → 5.76. All 940 cases
+in 330 files passed on the first attempt, including one deliberate
+`test.fails` guard, with 433.7 summed case-seconds against 837.8. CI run
+45804248046's two shards executed 578 and 362 cases whose union matched
+the local execution with no missing, extra or duplicate case. The
+one-minute goal is missed by about three minutes. Intent (344 cases,
+165 s) and Navigation (123, 90 s) carry most of the summed time. The
+slowest cases are touch terminal selection (4.5 s, 3.7 s), the pinned
+project banner across widths (4.5 s), the accessible Board reflow and
+Board swipe (2.9–3.0 s). The slowest file is `intent-files-drawer`
+(9.8 s).

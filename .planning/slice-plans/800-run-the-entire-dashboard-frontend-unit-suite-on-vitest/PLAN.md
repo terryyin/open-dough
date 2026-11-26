@@ -250,7 +250,7 @@ location mounts (21), backend `intent-shared-reads` (7), lint and E2E
 ### 7. The complete frontend group is measured against the campaign baseline
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the complete frontend group at two workers, including preparation
 → one local run → elapsed time, case counts, and the slowest remaining
@@ -266,6 +266,14 @@ revision. Compare execution to execution because discovery can report
 parameterized case declarations without expanding their rows. Every case
 passes on the first attempt. Report the actual time and any remaining cost,
 including proof promoted to E2E.
+
+**Accepted proof.** At `a46b574a4` the complete group took 4 min 8 s at
+two workers (load 3.25 → 5.76), 43% under the baseline and about three
+minutes over the one-minute target. All 940 cases passed on the first
+attempt. CI run 45804248046's two shards executed the same 940 cases with
+no missing, extra or duplicate case. The seed's
+[frontend campaign ledger](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#frontend-renovation-evidence)
+records the counts and slowest cases.
 
 ## Concern evidence
 
