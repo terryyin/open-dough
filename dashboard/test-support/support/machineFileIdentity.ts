@@ -2,8 +2,8 @@
 // inode, modification time, and size a server trusts to answer what it last
 // parsed instead of parsing again.
 
+import assert from "node:assert/strict";
 import { renameSync, statSync, utimesSync, writeFileSync } from "node:fs";
-import { expect } from "./pageTest.ts";
 
 // Dates the file a minute back, so its identity is settled and a server holds
 // what it parsed from it.
@@ -17,7 +17,11 @@ export function settleFile(file: string): void {
 // differs.
 export function replaceFileKeepingTimes(file: string, text: string): void {
   const { atime, mtime, size } = statSync(file);
-  expect(Buffer.byteLength(text)).toBe(size);
+  assert.equal(
+    Buffer.byteLength(text),
+    size,
+    "The replacement keeps the size.",
+  );
   const temporary = `${file}.replacement.tmp`;
   writeFileSync(temporary, text);
   utimesSync(temporary, atime, mtime);

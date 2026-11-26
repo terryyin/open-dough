@@ -299,50 +299,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Prove retained follow-up context in Node Vitest](../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md)
 
-<a id="prove-kept-launch-records-on-vitest"></a>
-
-### Prove retained launch records in Node Vitest
-
-**Identity:** SEED-413#prove-kept-launch-records-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c66cbb5b20ebd1ab93edf341b3bad77d19d5c4191220c89c8c3dc0147a4970be","plan":"cf8812b2b23c3f534513ca2d545b0a4eaadbfbdbf1559df8231c38858e0f5638"}}
-```
-
-- **Goal.** Developers changing how the Dashboard keeps launches get fast,
-  typed Node Vitest proof that kept starts and launch records survive
-  restart, reads from another Dashboard process, replacement and expiry,
-  and that each native session stays bound to its own host.
-- **Scope.** Move the seven legacy specs the
-  [plan](../slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md)
-  maps off backend Playwright, through the existing start store, launch
-  record store, done-mark, deletion and host-observation operations. Use a
-  real second Node process where another writer or reader is the
-  observation, and real machine files for locks, replacement and
-  unreadable copies. Start no Dashboard server or Vite host for these
-  cases. The catalog fixture observations in the shared-machine spec
-  check test support, not product records, so
-  [runner cutover](#retire-legacy-dashboard-backend-runner) owns them. Product
-  behavior stays unchanged.
-- **Key examples.**
-  - Given a store this process has already read, another process records a
-    launch: the next read here answers both records. A replacement that is
-    unreadable but has the same size and time answers no records and stays
-    in place. The next launch moves it aside next to any earlier
-    unreadable copy.
-  - Given 24 kept sessions, two processes mark them done concurrently: every
-    done mark survives, and a later native completion revives no review
-    attention.
-  - An unclosed record is kept however old it is. A done record is dropped
-    on the next write once 30 days have passed since it was marked done.
-  - Given a refused native start, its start stays kept and is never reported
-    running. A held store lock refuses a write and leaves the document
-    unchanged. A lock whose owner has gone is reclaimed.
-  - Given a Claude and a Codex record with the same native ID, each host
-    reads only its own record. A Done or Delete naming Codex changes only
-    the Codex record and calls Claude for nothing. One that names no host
-    addresses Claude. A host whose read fails or never settles leaves the
-    other host's healthy observation intact.
-
 <a id="prove-native-session-and-terminal-lifecycle-on-vitest"></a>
 
 ### Prove native session and terminal lifecycle in Node Vitest
@@ -506,7 +462,7 @@ or removed once its behavior or duplicate is accounted for.
 | 18 workspace and scheduled launch specs, plus the cutover's later `admitted-session-duplicate.spec.ts` | [Session workspace choices](https://github.com/terryyin/open-dough/blob/daea1238c354addf980ff601d7b794fe4523c927/.planning/slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md), completed on Node Vitest, including the isolated Codex case and restored observations in [plan 854](https://github.com/terryyin/open-dough/blob/cfd4dcfac7e06fa70e73be54cca2ad6626b1ab36/.planning/slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md) |
 | 15 native dispatch and first-input specs | [Host choices and first input](https://github.com/terryyin/open-dough/blob/eac4d5e9e4041f64f603a5afc08378552a9c433c/.planning/slice-plans/849-prove-native-first-input-on-vitest/PLAN.md), completed on Node Vitest with worker shutdown and restart in E2E |
 | 6 ordinary follow-up context specs | [Prove retained follow-up context in Node Vitest](#prove-follow-up-context-on-vitest) |
-| 7 retained launch record specs | [Prove retained launch records in Node Vitest](#prove-kept-launch-records-on-vitest) |
+| 7 retained launch record specs | [Retained launch records](https://github.com/terryyin/open-dough/blob/29e3287e862e5d5415d32653b3e71c91287b90a8/.planning/slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md), completed on Node Vitest; the shared-machine spec's catalog fixture checks moved to [runner cutover](#retire-legacy-dashboard-backend-runner) |
 | Four `start-origin-{default,demand,isolation,private}` specs | [Runner cutover](#retire-legacy-dashboard-backend-runner), preserving private installed fixture behavior wherever it remains in use |
 | 50 session and 12 terminal specs | [Native session and terminal lifecycle](#prove-native-session-and-terminal-lifecycle-on-vitest) |
 | Eleven Playwright Intent paths named in the [repeat proof selection](../slice-plans/607-close-landed-ci-repeat-check-gaps/proof-selection.txt) | [Automatic repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps), including its failure and load proof |

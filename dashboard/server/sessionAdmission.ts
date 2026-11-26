@@ -87,15 +87,15 @@ export async function namedKeptSession(
   return record;
 }
 
-// The recorded session a done mark or a delete names, in its project.
-export async function namedSession(
-  req: IncomingMessage,
+// The recorded session a done mark's or a delete's body names, in its project.
+async function namedSession(
+  body: unknown,
   launches: AgentLaunches,
   kind: "done" | "delete",
 ) {
   const schema =
     kind === "done" ? markDoneRequestSchema : deleteRecordRequestSchema;
-  const parsed = schema.safeParse(await jsonBody(req));
+  const parsed = schema.safeParse(body);
   if (!parsed.success) {
     throw new RefusedRequest(400, `The ${kind} request is malformed.`);
   }
@@ -132,13 +132,17 @@ export async function unreadReportSession(req: IncomingMessage): Promise<{
   return { source, record: { ...record, completion } };
 }
 
-// A done mark on a recorded session, which its host can stop, which has
-// reported, or whose host's Done is a local acknowledgement only.
 export async function doneRequest(
   req: IncomingMessage,
   launches: AgentLaunches,
 ) {
-  const { source, record, folder } = await namedSession(req, launches, "done");
+  return admittedDone(await jsonBody(req), launches);
+}
+
+// A done mark on a recorded session, which its host can stop, which has
+// reported, or whose host's Done is a local acknowledgement only.
+export async function admittedDone(body: unknown, launches: AgentLaunches) {
+  const { source, record, folder } = await namedSession(body, launches, "done");
   const host = launchHost(record.session.host);
   if (
     record.completion === undefined &&
@@ -176,7 +180,11 @@ export async function deleteRequest(
   req: IncomingMessage,
   launches: AgentLaunches,
 ) {
-  const { source, record } = await namedSession(req, launches, "delete");
+  const { source, record } = await namedSession(
+    await jsonBody(req),
+    launches,
+    "delete",
+  );
   return { kind: "delete" as const, source, record };
 }
 

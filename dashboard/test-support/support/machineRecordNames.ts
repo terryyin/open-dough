@@ -5,9 +5,9 @@
 // whether it exists says nothing about the records a test asserts on; it is
 // operational evidence, not one of them.
 
+import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
-import { expect } from "@playwright/test";
 
 const incidentRecordDirectory = "incidents";
 
@@ -59,7 +59,11 @@ export function expectPreservedMachineRecordContents(
 ): void {
   for (const [name, text] of before)
     if (text !== undefined)
-      expect(readFileSync(path.join(directory, name), "utf8")).toBe(text);
+      assert.equal(
+        readFileSync(path.join(directory, name), "utf8"),
+        text,
+        `${name} keeps its text.`,
+      );
 }
 
 // Same entry names as the snapshot, and every snapped file's text preserved.
@@ -67,6 +71,10 @@ export function expectUnchangedMachineRecords(
   directory: string,
   before: Map<string, string | undefined>,
 ): void {
-  expect(machineRecordNames(directory)).toEqual([...before.keys()].sort());
+  assert.deepEqual(
+    machineRecordNames(directory),
+    [...before.keys()].sort(),
+    "The machine records keep their names.",
+  );
   expectPreservedMachineRecordContents(directory, before);
 }
