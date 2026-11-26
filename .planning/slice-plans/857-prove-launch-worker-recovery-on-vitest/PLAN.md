@@ -76,7 +76,7 @@ delivered. Backend paths below are relative to `dashboard/backend-tests/launches
 ### 1. Settle Continue from its own launch before checking the checkout
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Call `LaunchAttemptOwner.continueAttempt` on interrupted and uncertain
@@ -95,6 +95,13 @@ Remove only the five received cases from the legacy uncertain spec and its
 sole runtime import of `ownRecordContinuation.ts`. The Intent code-browse
 journey supplies that filename and its source as fixture literals. The
 consumer trace found no runtime dependency there.
+
+Delivered: `agent-launch-confirmed-continuation` holds six Node cases. The
+focused selection with the two remaining uncertain Chromium cases and both
+controls passed 15 of 15. Letting own settlement run the precheck failed five
+of the six. `ownRecordContinuation.ts` was deleted. Refactor follow-up for
+wrap-up: launch-owner specs repeat HOME, configuration and owner setup because
+those production stores read the environment rather than typed inputs.
 
 ### 2. Recover the interrupted attempt's original conversation
 
