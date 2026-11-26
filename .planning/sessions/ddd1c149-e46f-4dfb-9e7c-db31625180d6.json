@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "ddd1c149-e46f-4dfb-9e7c-db31625180d6",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-26T06:56:05.915Z",
+  "story": "SEED-420#browse-the-project-at-a-revision",
+  "ranges": [
+    {
+      "base": "7cb2b5b5b27a005ffdc75fc9eb14ddcfc9abfd58",
+      "candidate": "8a111897ae2cd255c93449f654cd683233d2123b"
+    }
+  ]
+}
