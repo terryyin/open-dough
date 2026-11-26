@@ -1,221 +1,229 @@
-// Mark as done when Claude Code's session listing decides stop or removal, at the
-// local launch boundary (../../server/launchBoundary.ts, ../../server/doneMarks.ts),
-// over raw HTTP and a raw terminal socket: a session Claude Code no longer
-// lists is only marked, never stopped; one whose listing cannot be read is
-// still stopped; one listed as exited has its job removed with `claude rm`,
-// neither renamed nor stopped, keeping Done with the cause when the removal
-// fails until a later Mark as done removes it. Rename wait failures are in
-// ./agent-launch-done-rename-wait.spec.ts; shutdown abandonment is in
-// ./agent-launch-done-close.spec.ts. The whole-flow
-// cases are ./agent-launch-done.spec.ts. The machine directory holds HOME and
-// the synthetic `claude`'s (../../test-support/fixtures/fake-claude) state; the real one is
-// never reached.
-
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+// A developer's Done uses what Claude Code lists to choose stop or removal.
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { executionCheckout } from "../../server/executionCheckout.ts";
+import { launchHost } from "../../server/launchHosts.ts";
+import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { machineFolder, type LocalFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import {
-  identity,
-  markDone,
-  openDoughFolder,
-  recordsOf,
-  title,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
-import { retainedDoneAt } from "../../test-support/machineLaunchRecords.ts";
-import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  installFakeClaude,
+  type FakeClaudeControls,
+} from "../../test-support/support/fakeClaude.ts";
 
-const launchName = `Open Dough · Execution · ${title}`;
+const source = makeMe.aPublishedSource.openDough.please();
+const sessionId = "588c4c19-0000-4000-8000-000000000001";
+const shortId = sessionId.slice(0, 8);
+const launch = () =>
+  makeMe.aLaunchRecord
+    .executing({
+      source: source.id,
+      identity: "SEED-867#native-done",
+      title: "Finish this session",
+    })
+    .inClaudeSession({ sessionId, shortId });
+const withAttachment = vi.fn((): never => {
+  throw new Error("No rename terminal should be needed.");
+});
 
-test.describe("marking a session done by what Claude Code lists", () => {
-  test.describe.configure({ mode: "serial" });
-  let machine: string;
-  let server: DashboardServer;
+let claude: FakeClaudeControls;
+let folder: LocalFolder;
+let marks: NativeDoneMarks;
+let launches: AgentLaunches;
 
-  test.beforeAll(async () => {
-    machine = mkdtempSync(path.join(tmpdir(), "dough-done-stop-"));
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine,
-      projectFolders: ["open-dough"],
-      doneRenameWaitMs: 2_000,
-    });
+beforeEach(() => {
+  const machine = realpathSync(
+    mkdtempSync(path.join(tmpdir(), "dough-done-stop-")),
+  );
+  const fixture = installFakeClaude(
+    machine,
+    { binDir: machine, path: process.env.PATH ?? "" },
+    {},
+  );
+  for (const [key, value] of Object.entries(fixture.env))
+    vi.stubEnv(key, value);
+  const unmount = mountProjectConfiguration("production");
+  claude = fixture.controls;
+  folder = executionCheckout(source);
+  mkdirSync(folder.path);
+  withAttachment.mockClear();
+  marks = new NativeDoneMarks({
+    terminals: { withAttachment, endAttachments: vi.fn() },
+    hostFor: launchHost,
+    reportingFolder: machineFolder,
   });
-
-  test.afterAll(async () => {
-    await server.close();
+  launches = new AgentLaunches(marks);
+  onTestFinished(async () => {
+    launches.close();
+    await marks.close();
+    await launches.drain();
+    unmount();
+    vi.unstubAllEnvs();
     rmSync(machine, { recursive: true, force: true });
   });
+});
 
-  const markSessionDone = (session: { readonly sessionId: string }) =>
-    markDone(server, { source: "open-dough", session: session.sessionId });
+async function keepListed(
+  record: LaunchRecord,
+  appearance: "working" | "done-exited",
+) {
+  await bindRecord(source.id, record);
+  claude.claudeListingBecomes([
+    makeMe.aClaudeListingRow
+      .background({
+        sessionId,
+        name: record.session.name,
+        cwd: folder.path,
+        startedAt: Date.parse(record.launchedAt),
+      })
+      .as(appearance)
+      .please(),
+  ]);
+}
 
-  test("marks a session Claude Code no longer lists without stopping it", async () => {
-    const session = await composeSession(server);
-    server.claudeSessionBecomes(session.sessionId, "forgotten");
-    const attachesBefore = server.claudeAttaches().length;
-    const stopsBefore = server.claudeStopCalls().length;
-    const removalsBefore = server.claudeRemovalCalls().length;
+test("keeps Done with the rename cause when Claude Code no longer lists the session", async () => {
+  const record = launch().please();
+  await keepListed(record, "working");
+  claude.claudeSessionBecomes(sessionId, "forgotten");
 
-    const response = await markSessionDone(session);
+  const marked = await marks.markDone(source, record, folder, launches);
 
-    expect(response.status).toBe(200);
-    expect(JSON.parse(response.body)).toMatchObject({
-      record: {
-        doneAt: expect.any(String),
-        doneProblem:
-          "Local done mark retained. Claude Code rename failed: The session is no longer running, so it was not renamed.",
-        session: { sessionId: session.sessionId, name: launchName },
-        sessionState: { kind: "unavailable" },
-      },
-    });
-    expect(server.claudeAttaches().slice(attachesBefore)).toEqual([]);
-    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([]);
-    expect(server.claudeRemovalCalls().slice(removalsBefore)).toEqual([]);
+  expect(await keptRecords(source.id)).toMatchObject([
+    {
+      doneAt: expect.any(String) as unknown,
+      doneProblem:
+        "Local done mark retained. Claude Code rename failed: The session is no longer running, so it was not renamed.",
+      session: { sessionId, name: record.session.name },
+    },
+  ]);
+  expect((await launches.stateOf(source, marked)).sessionState.kind).toBe(
+    "unavailable",
+  );
+  expect(withAttachment).not.toHaveBeenCalled();
+  expect(claude.claudeAttaches()).toEqual([]);
+  expect(claude.claudeStopCalls()).toEqual([]);
+  expect(claude.claudeRemovalCalls()).toEqual([]);
+});
+
+test("removes an exited session's Claude Code job without renaming or stopping it", async () => {
+  const record = launch().please();
+  await keepListed(record, "done-exited");
+
+  const marked = await marks.markDone(source, record, folder, launches);
+
+  const [kept] = await keptRecords(source.id);
+  expect(kept).toMatchObject({
+    doneAt: expect.any(String) as unknown,
+    session: { sessionId, name: record.session.name },
   });
+  expect(kept).not.toHaveProperty("doneProblem");
+  expect((await launches.stateOf(source, marked)).sessionState.kind).toBe(
+    "unavailable",
+  );
+  expect(claude.claudeRemovalCalls()).toEqual([
+    { argv: ["rm", shortId], cwd: folder.path },
+  ]);
+  expect(withAttachment).not.toHaveBeenCalled();
+  expect(claude.claudeAttaches()).toEqual([]);
+  expect(claude.claudeStopCalls()).toEqual([]);
+  expect(claude.claudeListing()).not.toContainEqual(
+    expect.objectContaining({ sessionId }),
+  );
+  expect(existsSync(folder.path)).toBe(true);
+});
 
-  test("removes an exited session's job with claude rm, neither renaming nor stopping it", async () => {
-    const session = await composeSession(server);
-    server.claudeSessionBecomes(session.sessionId, "done-exited");
-    const stopsBefore = server.claudeStopCalls().length;
-    const removalsBefore = server.claudeRemovalCalls().length;
-    const attachesBefore = server.claudeAttaches().length;
+test("keeps a failed removal's cause and retries the job removal on the next Done", async () => {
+  const record = launch().please();
+  await keepListed(record, "done-exited");
+  claude.claudeRemovalFails(true);
 
-    const response = await markSessionDone(session);
+  const failed = await marks.markDone(source, record, folder, launches);
 
-    expect(response.status).toBe(200);
-    const { record } = JSON.parse(response.body) as {
-      record: Record<string, unknown>;
-    };
-    expect(record).toMatchObject({
-      doneAt: expect.any(String),
-      session: { sessionId: session.sessionId, name: launchName },
-      sessionState: { kind: "unavailable" },
-    });
-    expect(record).not.toHaveProperty("doneProblem");
-    expect(server.claudeRemovalCalls().slice(removalsBefore)).toEqual([
-      { argv: ["rm", session.shortId], cwd: openDoughFolder(server) },
-    ]);
-    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([]);
-    expect(server.claudeAttaches().length).toBe(attachesBefore);
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toBeUndefined();
-    expect(existsSync(path.join(server.home, "git", "open-dough"))).toBe(true);
-  });
+  expect(await keptRecords(source.id)).toMatchObject([
+    {
+      doneAt: expect.any(String) as unknown,
+      session: { sessionId, name: record.session.name },
+      doneProblem:
+        "Local done mark retained. Claude Code removal failed: Claude Code refused to remove the session.",
+    },
+  ]);
+  expect(JSON.stringify(failed)).not.toContain("secret-marker-from-claude-rm");
+  expect(claude.claudeRemovalCalls()).toEqual([
+    { argv: ["rm", shortId], cwd: folder.path },
+  ]);
 
-  test("keeps Done with the removal's cause when claude rm fails, and a later Mark as done retries it", async () => {
-    const session = await composeSession(server);
-    server.claudeSessionBecomes(session.sessionId, "done-exited");
-    const removalsBefore = server.claudeRemovalCalls().length;
-    server.claudeRemovalFails(true);
-    let failed: Awaited<ReturnType<typeof markSessionDone>>;
-    try {
-      failed = await markSessionDone(session);
-    } finally {
-      server.claudeRemovalFails(false);
-    }
+  claude.claudeRemovalFails(false);
+  await marks.markDone(source, failed, folder, launches);
 
-    expect(failed.status).toBe(200);
-    expect(JSON.parse(failed.body)).toMatchObject({
-      record: {
-        doneAt: expect.any(String),
-        session: { sessionId: session.sessionId, name: launchName },
-        doneProblem:
-          "Local done mark retained. Claude Code removal failed: Claude Code refused to remove the session.",
-      },
-    });
-    expect(failed.body).not.toContain("secret-marker-from-claude-rm");
-    expect(server.claudeRemovalCalls().length).toBe(removalsBefore + 1);
+  const [kept] = await keptRecords(source.id);
+  expect(kept).toMatchObject({ doneAt: expect.any(String) as unknown });
+  expect(kept).not.toHaveProperty("doneProblem");
+  expect(claude.claudeRemovalCalls()).toEqual([
+    { argv: ["rm", shortId], cwd: folder.path },
+    { argv: ["rm", shortId], cwd: folder.path },
+  ]);
+  expect(claude.claudeListing()).not.toContainEqual(
+    expect.objectContaining({ sessionId }),
+  );
+});
 
-    const retried = await markSessionDone(session);
+test("clears an earlier stop failure by removing the exited session's job", async () => {
+  const problem =
+    "Local done mark retained. Claude Code stop failed: The native operation could not be confirmed.";
+  const day = 24 * 60 * 60 * 1000;
+  const today = Date.now();
+  const record = launch()
+    .launchedAt(new Date(today - 2 * day).toISOString())
+    .markedDoneAt(new Date(today - day).toISOString(), { problem })
+    .please();
+  await keepListed(record, "done-exited");
+  expect(await keptRecords(source.id)).toMatchObject([
+    { session: { sessionId }, doneProblem: problem },
+  ]);
 
-    expect(retried.status).toBe(200);
-    const { record } = JSON.parse(retried.body) as {
-      record: Record<string, unknown>;
-    };
-    expect(record).toMatchObject({ doneAt: expect.any(String) });
-    expect(record).not.toHaveProperty("doneProblem");
-    expect(server.claudeRemovalCalls().slice(removalsBefore)).toEqual([
-      { argv: ["rm", session.shortId], cwd: openDoughFolder(server) },
-      { argv: ["rm", session.shortId], cwd: openDoughFolder(server) },
-    ]);
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toBeUndefined();
-  });
+  await marks.markDone(source, record, folder, launches);
 
-  test("clears a stored stop failure by removing the exited session's job", async () => {
-    // An earlier Mark as done a day ago could not stop the session natively.
-    const doneProblem =
-      "Local done mark retained. Claude Code stop failed: The native operation could not be confirmed.";
-    const launchedAt = Date.now() - 2 * 24 * 60 * 60 * 1000;
-    const sessionId = server.claudeListsSession({
-      name: title,
-      cwd: openDoughFolder(server),
-      startedAt: launchedAt,
-    });
-    const session = { sessionId, shortId: sessionId.slice(0, 8) };
-    keepMoreLaunchRecords(server, [
-      makeMe.aLaunchRecord
-        .executing({ identity: `${identity}#earlier-done`, title })
-        .inClaudeSession(session)
-        .launchedAt(new Date(launchedAt).toISOString())
-        .markedDoneAt(retainedDoneAt(), { problem: doneProblem })
-        .please(),
-    ]);
-    server.claudeSessionBecomes(session.sessionId, "done-exited");
-    expect(await recordsOf(server, "open-dough")).toContainEqual(
-      expect.objectContaining({
-        session: expect.objectContaining({ sessionId: session.sessionId }),
-        doneProblem,
-      }),
-    );
-    const stopsBefore = server.claudeStopCalls().length;
-    const removalsBefore = server.claudeRemovalCalls().length;
+  const [kept] = await keptRecords(source.id);
+  expect(kept).toMatchObject({ doneAt: expect.any(String) as unknown });
+  expect(kept).not.toHaveProperty("doneProblem");
+  expect(claude.claudeRemovalCalls()).toEqual([
+    { argv: ["rm", shortId], cwd: folder.path },
+  ]);
+  expect(claude.claudeStopCalls()).toEqual([]);
+});
 
-    const response = await markSessionDone(session);
+test("stops a session even when its Claude Code listing cannot be read", async () => {
+  const record = launch().please();
+  await keepListed(record, "working");
+  claude.claudeListingFails(true);
+  vi.stubEnv("DOUGH_DONE_RENAME_WAIT_MS", "200");
 
-    expect(response.status).toBe(200);
-    const { record } = JSON.parse(response.body) as {
-      record: Record<string, unknown>;
-    };
-    expect(record).toMatchObject({ doneAt: expect.any(String) });
-    expect(record).not.toHaveProperty("doneProblem");
-    expect(server.claudeRemovalCalls().slice(removalsBefore)).toEqual([
-      { argv: ["rm", session.shortId], cwd: openDoughFolder(server) },
-    ]);
-    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([]);
-  });
+  const marked = await marks.markDone(source, record, folder, launches);
 
-  test("still stops a session whose listing cannot be read", async () => {
-    const session = await composeSession(server);
-    const stopsBefore = server.claudeStopCalls().length;
-    const removalsBefore = server.claudeRemovalCalls().length;
-    server.claudeListingFails(true);
-    try {
-      const response = await markSessionDone(session);
-
-      expect(response.status).toBe(200);
-      expect(JSON.parse(response.body)).toMatchObject({
-        record: {
-          doneAt: expect.any(String),
-          session: { sessionId: session.sessionId, name: launchName },
-          sessionState: { kind: "unknown" },
-        },
-      });
-    } finally {
-      server.claudeListingFails(false);
-    }
-    expect(server.claudeStopCalls().slice(stopsBefore)).toEqual([
-      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
-    ]);
-    expect(server.claudeRemovalCalls().slice(removalsBefore)).toEqual([]);
-  });
+  expect(await keptRecords(source.id)).toMatchObject([
+    {
+      doneAt: expect.any(String) as unknown,
+      session: { sessionId, name: record.session.name },
+    },
+  ]);
+  expect((await launches.stateOf(source, marked)).sessionState.kind).toBe(
+    "unknown",
+  );
+  expect(claude.claudeStopCalls()).toEqual([
+    { argv: ["stop", shortId], cwd: folder.path },
+  ]);
+  expect(claude.claudeRemovalCalls()).toEqual([]);
 });

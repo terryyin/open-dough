@@ -4,6 +4,13 @@
 
 **Source:** [Prove marking sessions done, stopping, deleting and reopening in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest)
 
+## Execution context
+
+- Story Branch Mode in `.worktrees/prove-marking-sessions-done-stopping-deleting-an`, branch `codex/prove-marking-sessions-done-stopping-deleting-an`. The integration checkout is `/Users/terryyin/git/open-dough` and the integration target is `origin/main`.
+- Publisher `dashboard-territory.local-open-dough`, agent Rina-chan, starting revision `604f6388be7656b86698d32d329d1d0fdd910304`. The established claim `6e0e357049abe45803e713db9f6801a5e8d15572` was accepted on trunk and the story branch. This execution's CI observer covers the story branch.
+- Locked `npm ci` and `npm run typecheck:dashboard` passed in the execution checkout with Node 24.21.0. No overrun replanning was requested.
+- CI source `terryyin/open-dough`, `ci.yml` (CI). Codex observer `codex-seed413-native-b8ed378a`, directory `/tmp/dough-ci-501/watch-AsT9Qs`, PID `68371`, shell session `20325`, cell `g651:7`.
+
 ## Goal and scope
 
 Give Dashboard maintainers fast, typed Node Vitest proof of how the
@@ -94,7 +101,7 @@ evidence and take a comparable pair for the execution's performance claim.
 ### 1. Mark a Claude Code session Done by what Claude Code lists, or refuse it
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: With a private HOME, a kept MakeMe record and the fake `claude`,
@@ -116,6 +123,25 @@ missing execution checkout and a malformed body, each before `claude` runs.
 Convert `agent-launch-done-stop.spec.ts` and the non-origin cases of
 `agent-launch-done-refusal.spec.ts`. Convert `done-question-rule.spec.ts` to
 Vitest in place.
+
+Accepted proof: the maintained backend selector with
+`'sessions/(agent-launch-done-(stop|refusal)|done-question-rule)\.spec\.ts$' --workers=1`
+ran 16 Node cases, zero Chromium cases, zero retries, 1.063 s summed case time
+and 3.484 s runner elapsed. The listing tests observe the fresh store and the
+fake's native trace. The four admission cases cover five refused inputs and keep
+the record unmarked and the native session busy. All seven question outputs
+remain covered. Origin refusal reuses premise 4. `npm run typecheck:dashboard`
+and `git diff --check` passed. See `slice1-return.md` and its run receipts in
+the checkout's Git evidence directory.
+The same selection passed again after six Vitest matchers were typed for lint
+(`slice1-typed-matchers.json`).
+
+Use a canonical temporary root when asserting the cwd recorded by a native
+process. The initial proof reported Darwin's `/var` and `/private/var` alias
+as a mismatch. The corrected fixture kept the exact cwd assertion.
+
+The slice edits only its subject specs. Inspection found existing fixture and
+production seams reused, with no new support API or refactor candidate.
 
 ### 2. Rename through the open or a private terminal, and name why a rename did not settle
 
@@ -234,6 +260,13 @@ test-support exports or files that lost their last caller. Run the final
 comparison and the retained E2E journeys.
 
 ## Proof ownership and local gate
+
+The execution baseline at `6e0e357049abe45803e713db9f6801a5e8d15572` ran the
+backend command below on the awake macOS host on AC, with the locked install
+and one worker. All 58 Chromium cases passed on their first attempt. Wall
+time was 90.37 s, summed case time was 69.661 s, and 51 cases exceeded
+100 ms. The raw record is `baseline.json` in the checkout's Git evidence
+directory. Load was comparable to preparation (about 12 at the run).
 
 Files in the following map are relative to `dashboard/backend-tests/sessions/`.
 

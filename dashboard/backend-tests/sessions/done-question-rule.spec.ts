@@ -4,15 +4,15 @@
 // held-screen words count as working and waiting. A pure reading of one
 // record; the page journeys are ./agent-launch-done-question*.spec.ts.
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  stillWorking,
-  waitingForInput,
-} from "../../test-support/support/markDone.ts";
 import type { CompletionReport } from "../../src/completionReport.ts";
 import type { SessionState } from "../../src/launchRecord.ts";
 import { unfinishedIntention } from "../../src/sessionShown.ts";
+
+const stillWorking =
+  "This session is still working. Marking it done asks it to stop.";
+const waitingForInput = "This session is waiting for your input.";
 
 // Cursor's held screens are literal words, so a changed Cursor label fails here.
 const cases: readonly {
