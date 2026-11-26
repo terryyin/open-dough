@@ -150,7 +150,7 @@ each stop with no workspace, kept start or progress phase. Convert
 ### 5. Recover the original Preparing assignment after an interruption
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: A slow start past the warning threshold establishes with one profile.

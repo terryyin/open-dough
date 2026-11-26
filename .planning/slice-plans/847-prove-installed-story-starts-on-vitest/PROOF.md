@@ -24,7 +24,7 @@ Files in the following map are relative to `dashboard/backend-tests/launches/`.
 | 2 | `agent-launch-start-refusal.spec.ts`, `agent-launch-start-taken-refused.spec.ts`, `agent-launch-start-duplicate.spec.ts` | Refusal wording, no additional publication, correct kept-start disposition, one claim and workspace under overlap |
 | 3 | `agent-launch-start-resume.spec.ts`, `agent-launch-start-codex-recovery.spec.ts` | Same claim and workspace after slow, stopped, lost and Codex acknowledgment cases. Three stopped or lost-workspace cases select `agent-launch-start-lost.spec.ts` on the candidate. |
 | 4 | `agent-launch-preparation-start.spec.ts`, `agent-launch-preparation-stops.spec.ts` | Preparing on origin, kept preparation, stops with nothing kept |
-| 5 | `agent-launch-preparation-resume.spec.ts`, `agent-launch-preparation-continuation-refusal.spec.ts`, `agent-launch-preparation-store-failure.spec.ts` | One profile across slow, stopped, interrupted and refused starts; store failure preserves preparation |
+| 5 | `agent-launch-preparation-resume.spec.ts`, `agent-launch-preparation-continuation-refusal.spec.ts`, `agent-launch-preparation-store-failure.spec.ts` | One profile across slow, stopped, interrupted and refused starts. Store failure preserves preparation. Unannounced cases select `agent-launch-preparation-unannounced.spec.ts` on the candidate. |
 | 6 | `agent-launch-preparation-codex-continuation.spec.ts`, `agent-launch-preparation-codex-retry.spec.ts` | Git-verified continuation, refused damaged retry, origin unchanged |
 | 7 | `agent-launch-incomplete-reporting-settlement.spec.ts`, `agent-launch-update-worktree-retry.spec.ts` | Missing helper refused before dispatch, updater apply resumes once |
 
@@ -36,7 +36,7 @@ its proof owner. Confirm discrimination for any legacy assertion retired as
 redundant.
 
 ```sh
-selection='launches/agent-launch-(start(-refusal|-taken-refused|-duplicate|-resume|-lost|-codex-recovery)?|preparation-(start|stops|resume|continuation-refusal|store-failure|codex-continuation|codex-retry)|incomplete-reporting-settlement|update-worktree-retry)\.spec\.ts$'
+selection='launches/agent-launch-(start(-refusal|-taken-refused|-duplicate|-resume|-lost|-codex-recovery)?|preparation-(start|stops|resume|unannounced|continuation-refusal|store-failure|codex-continuation|codex-retry)|incomplete-reporting-settlement|update-worktree-retry)\.spec\.ts$'
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/launches/agent-launch-(start-(phases|taken)|preparation-(phases|kept|codex-retry)|codex-recovery)\.spec\.ts$' --workers=1
 ```
@@ -139,3 +139,19 @@ and its re-export. Typechecking passed after removal.
 See `847-s4-refactor-return.md`.
 The final model cases have explicit display names. All three preparation
 start cases passed in `847-s4-exact-model-cases.json`.
+Published as `4686067b120630730e3bdbdf11e326b84328957f` on the story branch,
+above `657324f08e8a00f1cae1f270b67532c87bfe65ea`, with CI unobserved.
+
+### Slice 5
+
+All eight cases passed in Node across four specs with zero Chromium
+selections (21.814 s summed, 31.04 s elapsed), and typechecking passed.
+The typed store failure observes the real origin revision at the rejected
+write. The returned handoff and retained draft survive, and the next
+start ties the same workspace and profile to that revision without a new
+publication. Interrupted precommit, retained refusal and unannounced
+retry check their own retained dispositions. The existing Backlog-card
+E2E supplies native refusal and same-workspace retry. See `847-s5-return.md`.
+The independent refactor removed the legacy preparation fixture after its
+last callers moved. The accepted checks still apply.
+See `847-s5-refactor-return.md`.
