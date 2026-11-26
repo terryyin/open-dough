@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Julia-chan",
-  "email": "julia-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-413#restore-session-workspace-vitest-proof",
-  "host": "claude"
-}

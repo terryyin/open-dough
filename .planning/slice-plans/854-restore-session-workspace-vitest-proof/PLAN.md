@@ -130,25 +130,19 @@ Type: Structure
 Status: planned
 Estimate: 12–15 active minutes.
 
-Move `attemptRun`'s note callbacks into its services object, updating
-`agentLaunches.ts` and every caller. Add the accepted-ad-hoc-attempt MakeMe
-step. Recompose the six specs and the two older `attemptRun` specs on them.
-Give each branching case its own test with expectations in its parameter
-table. Drop the ineffective `vi.waitFor` timeouts, or make an essential
-override inside its test. Bring `admitted-session-competing-claim.spec.ts`
-under 250 lines by that recomposition. Then compare the landing specs'
-Start-to-reporting setup and compose it the same way where it shares a
-production contract.
-Reduce the cost of the near-limit real-Git cases, so they finish well
-within the default limit under local load. Find where the time goes, such
-as repeated origin preparation or the installed start, before changing it.
-Use an in-test override only where the remaining time is essential.
+Removes finding 6's repeated attempt-run setup, branching bodies and
+ineffective waits. Move `attemptRun`'s note callbacks into its services
+object, updating `agentLaunches.ts` and every caller. Add the
+accepted-ad-hoc-attempt MakeMe step. Recompose the six specs and the two
+older `attemptRun` specs on them. Give each branching case its own test with
+expectations in its parameter table. Drop the ineffective `vi.waitFor`
+timeouts, or make an essential override inside its test. Bring
+`admitted-session-competing-claim.spec.ts` under 250 lines by that
+recomposition.
 
-Proof. Every touched spec passes on one worker with unchanged case
+Proof. The eight `attemptRun` specs pass on one worker with unchanged case
 observations and counts, aside from split cases. Typecheck and eslint are
-clean, and each file is at most 250 lines after Prettier. Record before and
-after summed case time. Rerun the near-limit cases under comparable local load
-and record their times and the load average.
+clean, and each touched file is at most 250 lines after Prettier.
 
 ### 2. Restore the kept-start continuation observations
 
@@ -207,6 +201,53 @@ Proof:
     developer's text.
 - Delete `agent-launch-start-session-isolated-codex.spec.ts`.
 - `--list` over the 19 mapped paths shows zero legacy cases.
+
+The Codex native dispatch is `launchHost` itself. The origin is prepared with
+`startOrigin(repository, { host: "codex" })` and the Codex layout, and the
+fake protocol's `env` is stubbed into `process.env`, which the Codex host
+reads.
+
+### 5. Bring the real-Git landing and existing-changes cases well within the default limit
+
+Type: Structure
+Status: planned
+Estimate: 12–15 active minutes.
+
+Removes finding 6's near-limit real-Git cases and the repeated
+Start-to-reporting setup in `story-bound-landing-capture.spec.ts` and
+`retained-landing-after-expiry.spec.ts`. Compose that setup from a shared
+production contract where one exists. Find where the time goes in the
+near-limit cases, such as repeated origin preparation or the installed start,
+before changing it. Use an in-test override only where the remaining time is
+essential.
+
+Proof. `ad-hoc-existing-changes-start.spec.ts`,
+`story-bound-landing-capture.spec.ts` and
+`retained-landing-after-expiry.spec.ts` pass on one worker with unchanged
+case observations and counts. Record before and after per-case times through
+`OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD` with the load average, against
+the baseline in the premise rows, under comparable local load.
+
+## Decisive premises
+
+All observations were made at `2882d92c1` in this preparation's workspace,
+on Node v24.21.0 after `npm ci`. Scratch files were deleted afterwards.
+
+| Premise | Consuming operation | Observation | Result |
+| --- | --- | --- | --- |
+| The Codex host runs over its fake protocol through `attemptRun` in Node Vitest (slice 4) | A Node Vitest `attemptRun` of an isolated ad hoc Codex Start | A scratch spec under `dashboard/backend-tests/launches/`, run through `npm run test:dashboard:backend -- --workers=1`. It used the `native` dispatch `launchHost`, `installFakeCodex` with its `env` stubbed, `startOrigin(…, { host: "codex" })` and `recordStarts(origin, "codex")` | Launched in 2.6 s at load 18. `thread/start` cwd was `.worktrees/tidy-the-readme-wording`, and the installed start took `--branch codex/tidy-the-readme-wording`. `turn/start` input began with the established block. With the Claude origin layout, the start was refused: "do not establish a session". |
+| The dropped kept-start, distinct-landing and no-policy observations still hold on current product (slice 2) | The legacy specs at `dffa94bab`, run at `2882d92c1` | `agent-launch-start-session-kept`, `-identity`, `-landing-boundary` and `-landing-retained` restored as scratch files and run with `npx playwright test -c backend.playwright.config.ts --workers=1 --reporter=line` from `dashboard/` | 6 passed, at load 10–13. Product paths since: `launchRun.ts` and `nativeSessionRun.ts` changed in `08a530c46`, with no change after `cc799350b`. |
+| The dropped scheduled feedback eligibility and failed-read observations still hold (slice 3) | `feedback-maintenance-launch.spec.ts` and its eligibility cases at `dffa94bab`, with their `feedbackMaintenanceServer.ts` and `feedbackMaintenanceDue.ts` support at that revision | Same Playwright command | 3 passed, at load 13. The maintenance-mark refusal is at `agentLaunchAdmission.ts:136`, which has not changed since `6dc31fef1`. The legacy off case also had an open invocation session, so slice 3's off-alone test is the first observation of that case, as finding 1 records. The legacy run did not exercise the missing-watch-list `absent` path, so slice 3's test is its first observation too. |
+| Near-limit real-Git cases (slice 5) | `npm run test:dashboard:backend -- --workers=1` over the three specs, with `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD` | Per-case `durationMs` at load 14–19 | `ad-hoc-existing-changes-start` :160 3254 ms and :178 4530 ms; `retained-landing-after-expiry` :150 3481 ms and :207 2423 ms; `story-bound-landing-capture` :117 2242 ms and :150 2447 ms. |
+| `feedbackMaintenanceCheck.ts` holds `publishedReview` and is over 250 lines (slice 3) | `wc -l`; `ReviewRead` at lines 119–126 | Read | 297 lines. |
+| `keptWords` has no consumer (slice 2) | `git grep keptWords` | Read | Only its definition, at `dashboard/test-support/support/keptSessionStart.ts:43`. |
+
+## Concern evidence
+
+Refinement ran. It split the original slice 1, which held two proof loops,
+into slice 1 (the attempt-run contract) and slice 5 (real-Git case cost).
+Slice 5 is placed last so that slices 2–4 keep the numbers that other
+records cite. This review found no remaining slice-specific concern.
 
 ## Local gates
 

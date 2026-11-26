@@ -240,7 +240,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#restore-session-workspace-vitest-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"15474c50669b760c29ab1fa1a28262f07e509d689bf5e6e0ad27b9639f27b8b0","plan":"3030fb1989c2421fc5d57f32e3d9b8021bff40931455679145c691dba31b282c"}}
 ```
 
 **Goal.** Dashboard maintainers get the session workspace and scheduled
