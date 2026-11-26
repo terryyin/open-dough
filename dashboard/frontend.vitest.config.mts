@@ -8,7 +8,6 @@ import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
 import { isVitestFile } from "./test-support/support/groupSelection.mjs";
 import { dashboardSpecFiles } from "./test-support/support/testFiles.mjs";
 import { useDisposableTestHome } from "./test-support/support/runnerConfig.mjs";
-import { frontendDisconnectCapture } from "./test-support/support/frontendDisconnectCapture.ts";
 
 useDisposableTestHome();
 
@@ -20,19 +19,9 @@ const desktopSpecs = [
   "dashboard/frontend-tests/terminals/agent-terminal-touch-select-desktop.spec.ts",
 ];
 
-const diagnostics =
-  process.env["GITHUB_ACTIONS"] === "true" &&
-  process.env["GITHUB_EVENT_NAME"] === "push" &&
-  process.env["GITHUB_REF"] ===
-    "refs/heads/codex/prove-dashboard-launch-starts-and-recovery-in-no" &&
-  process.env["OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT"] === "1/2"
-    ? frontendDisconnectCapture()
-    : undefined;
-const frontendProvider = diagnostics?.provider ?? playwright;
-
 export default defineConfig({
   publicDir: fileURLToPath(new URL("./public", import.meta.url)),
-  plugins: [react(), brandAssetPlugin(), diagnostics?.plugin],
+  plugins: [react(), brandAssetPlugin()],
   test: {
     // The frontend specs that import Vitest, beside the group's Playwright
     // specs (../scripts/test-frontend.mjs).
@@ -49,7 +38,7 @@ export default defineConfig({
       enabled: true,
       headless: true,
       viewport: defaultViewport,
-      provider: frontendProvider({
+      provider: playwright({
         launchOptions: { args: dashboardBrowserArgs },
         contextOptions: { hasTouch: true, viewport: defaultViewport },
       }),
@@ -60,7 +49,7 @@ export default defineConfig({
           browser: "chromium",
           name: "chromium-desktop",
           include: desktopSpecs,
-          provider: frontendProvider({
+          provider: playwright({
             launchOptions: { args: dashboardBrowserArgs },
             contextOptions: { hasTouch: false, viewport: defaultViewport },
           }),

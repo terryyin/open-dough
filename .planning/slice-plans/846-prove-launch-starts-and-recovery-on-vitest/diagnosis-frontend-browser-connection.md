@@ -236,14 +236,14 @@ The later same-session route change distinguishes the forced navigation
 from the forced socket loss. Missing lifecycle evidence in a hosted
 capture leaves the cause unresolved.
 
-One hosted execution remains authorized for this experiment. The
-coordinator owns publication and the exact CI run receipt. Inspect the
-frontend shard 1/2 job log around the capture line if it fails, and
-retain the job result if it passes. After that execution, retire the
-diagnostic by reversing only the frontend config edits and removing the
-temporary support module. Keep this diagnosis record and any hosted
-capture. Further hosted runs require a different discriminating
-experiment or a decision authorizing longer-lived capture.
+The one instrumented push `2b7802bd0` ran as 45778980880, attempt 1.
+Frontend job 139769509169 passed 217 files and 590 tests without a capture
+marker. The full job log is `ci-45778980880-frontend.log` in Git evidence.
+This result validates the instrument on a hosted success. The natural
+cause of 45775533807 remains unknown. The temporary config and support
+have been restored to the pre-experiment Git tree. Further diagnostic
+publication needs a different experiment or a longer-lived capture
+decision and owner.
 
 After HTTP upgrade typing and reporter parameter cleanup, the quiet check
 passed and the two injected traces distinguished whether the session changed
