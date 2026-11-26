@@ -202,7 +202,7 @@ Codex and Cursor journeys.
 ### 8. Answer a repeat of a follow-up running on another server
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 
 Proof: With one attempt running on the first server and its source record
@@ -210,8 +210,9 @@ gone, the second server's repeat answers `uncertain` with the running
 attempt's explanation, starts nothing and keeps one attempt. Use two owners
 over one private HOME and a real forked second process where its lock
 supplies the condition, as the independent-writer spec does. Convert
-`agent-launch-follow-up-live.spec.ts`. After slices 2 to 8, delete the
-retired specs and `followUpBoundaryCases.ts`.
+`agent-launch-follow-up-live.spec.ts`. `followUpBoundaryCases.ts` stays
+while selection, published-session, range, comparison, and file specs
+still import it.
 
 ## Proof ownership and local gate
 
@@ -258,7 +259,7 @@ to every failure and repair handoff. Keep default test timeouts.
 
 - Mode: story-branch. Identity: SEED-413#prove-follow-up-context-on-vitest. Publisher: dashboard-territory.local-open-dough. Agent: Shunka-chan.
 - Workspace: `/Users/terryyin/git/open-dough/.worktrees/prove-retained-follow-up-context-in-node-vitest`, branch `cursor/prove-retained-follow-up-context-in-node-vitest`, reused from the established start. Starting revision `0633724b8d68d501eafaf4884ca22b04ab91659e`.
-- Accepted publication: `1286d1f39bd6b8ea710bfe33557a13f6ea3309db` on `origin/cursor/prove-retained-follow-up-context-in-node-vitest`. Previously published base for the next increment. The Take `2b92b4894804637356af4100c48bf331abcd853a` remains the claim; its CI is `pendingCi: unobserved`. Observer: `/tmp/dough-ci-501/watch-DljhmU`, GitHub Actions `ci.yml` (display name CI), reused for this branch.
+- Accepted publication: `c537f403134e4dd0b15e1824f8f39ed57926d431` on `origin/cursor/prove-retained-follow-up-context-in-node-vitest`. Previously published base for the next increment. The Take `2b92b4894804637356af4100c48bf331abcd853a` remains the claim; its CI is `pendingCi: unobserved`. Observer: `/tmp/dough-ci-501/watch-DljhmU`, GitHub Actions `ci.yml` (display name CI), reused for this branch.
 - Readiness: Changed since readiness review. Recorded Ready stands; Take did not renew it.
 - Replanning: existing planning authority (neither `--replan` nor `--no-replan`).
 - Checkout setup: locked `npm ci` (lockfile unchanged) and `npm run typecheck:dashboard` passed on Node v24.21.0.
@@ -274,6 +275,7 @@ to every failure and repair handoff. Keep default test timeouts.
 - Slice 5's four tests had already passed when the clock reached 16.8 active minutes. That is the fourth overrun, again after a green proof. The resume cases need an isolated review policy so acceptance reaches the attempt owner without a Git status. Delivered value adds two sources kept apart and the same attempt resumed, including after the source record is gone. Remaining scope is slices 6 to 8. Continue them one at a time. The stop condition from slice 4 still holds: an overrun before the proof passes stops that attempt.
 - Slice 6 reached 16.4 active minutes before its proof was launched. That is the fifth overrun. The false sizing assumption: the six refusal cases, including planting an attachment claim and staying under 250 lines, fit in 15 minutes with the proof still unstarted. The written spec then passed, 7 tests, once it was run; formatting it was 260 lines, so the arrangement moved to `followUpRefusal.ts`. No further cases were added after the overrun. Remaining scope is slices 7 and 8. Continue them one at a time, and launch the proof before any cleanup that can be done after it.
 - Slice 7's four tests had already passed when the clock reached 15.9 active minutes during the Playwright removal and the report. That is the sixth overrun, after a green proof. Delivered value adds Continue after the source is gone, recovery of a pending Codex input, and a legacy Cursor story follow-up that still sends its context beside the instruction. Remaining scope is slice 8, the cross-server repeat, and deleting `followUpBoundaryCases.ts` with the last retired spec.
+- Slice 8 reached 16.3 active minutes before its proof ran. That is the seventh overrun. The first run failed because the forked process read the configured project before the parent had written it. Moving that read to after the request, the one test passed. Formatting the spec was 276 lines, so the harness moved to `followUpCrossServer.ts`. `followUpBoundaryCases.ts` stays: selection, published-session, range, comparison, and file specs still import it, and those belong to other stories. This is the last planned slice.
 
 ## Accepted proof
 
@@ -290,6 +292,8 @@ Slice 5. Promise: two sessions, or two stories, with the same words and choices 
 Slice 6. Promise: admission refuses, before any host starts and with attempts and session records unchanged, a page-composed context (400), a session the project does not keep (404), a repeat after the source is gone that claims a new image (404, the claim abandoned), a session with no story binding (404), a story the catalog does not list (404), and a binding the page supplies (400). Boundary: `acceptLaunchRequest` and `claimLaunchAttachment` over a private HOME. Setup: MakeMe sessions and a typed catalog read standing in for the published list. Command: `npm run test:dashboard:backend -- launches/agent-launch-follow-up-refusal.spec.ts --workers=1`. Result: 7 passed, exit 0. The candidate that matches this assertion is `slice6-split.log.run.json`, after the arrangement moved to `followUpRefusal.ts` so formatting stays at or under 250 lines. The first green run of the unsplit spec is `slice6.log.run.json`. `npm run typecheck:dashboard` exited 0. The membership Playwright spec is deleted. The identity spec keeps Continue for slice 7. Refactor pass skipped: the edit is these tests and their colocated arrangement, and it adds no production concept.
 
 Slice 7. Promise: Continue after the source record is gone sends the recorded context and the story binding, with the instruction once; a pending Codex input kept without its attempt is recovered as that saved text and the kept conversation; a legacy Cursor story follow-up still sends its context beside the instruction. Boundary: `acceptLaunchRequest` over a private HOME, `withFollowUpContext` with `pendingInputOf`, and `retainedFollowUpWithStory`, then `codexInput` and `cursorPrompt`. Setup: MakeMe sessions and a catalog read that fails after the first answer. Command: `npm run test:dashboard:backend -- launches/agent-launch-follow-up-continuation.spec.ts --workers=1`. Result: 4 passed, exit 0, `slice7.log.run.json`. The identity, Codex, and Cursor Playwright specs are deleted. `followUpBoundaryCases.ts` stays for slice 8. Native submission stays with its owners. Refactor pass skipped: the edit is these tests and their colocated arrangement, and it adds no production concept.
+
+Slice 8. Promise: with one attempt running and its source record gone, the other process's repeat answers `uncertain` / `unconfirmed` with "This start is already running on this machine. Wait for its result; nothing new was started.", starts nothing, and keeps that one attempt. Boundary: two `LaunchAttemptOwner`s over one private HOME, the second a forked process whose lock is the running condition. Setup: a MakeMe session and follow-up, and the real attempt file. Command: `npm run test:dashboard:backend -- launches/agent-launch-follow-up-cross-server.spec.ts --workers=1`. Result: 1 passed, exit 0. The candidate that matches this assertion is `slice8-split.log.run.json`, after the child reads the configured project once the parent has written it and the harness lives in `followUpCrossServer.ts`. The first green run of the unsplit spec is `slice8-repair.log.run.json`. `npm run typecheck:dashboard` exited 0. The live Playwright spec is deleted. `followUpBoundaryCases.ts` remains because six specs outside this story still import it. Refactor pass skipped: the edit is this test and its colocated harness, and it adds no production concept.
 
 ## Plan review
 
