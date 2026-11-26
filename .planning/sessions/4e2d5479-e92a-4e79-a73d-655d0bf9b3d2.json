@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "4e2d5479-e92a-4e79-a73d-655d0bf9b3d2",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-26T23:33:39.777Z",
+  "story": "SEED-413#prove-dashboard-configuration-and-serving-on-vitest",
+  "ranges": [
+    {
+      "base": "ed8c59cb9b8995510f9abf0f7532eec9f7143fb4",
+      "candidate": "b4768936edc8d72e6e5c920e1d3640ad74c59679"
+    }
+  ]
+}
