@@ -120,3 +120,22 @@ See `847-s3-return.md` for the observations and literal commands.
 The independent refactor retired the unused settlement helper and
 three shared fixture exports. Typechecking and whitespace checks passed.
 `847-s3-refactor-return.md` records why the behavioral evidence still applies.
+Published as `657324f08e8a00f1cae1f270b67532c87bfe65ea` on the story branch,
+above `249048a5a74c4527e911a736329c08c8eb03f019`, with CI unobserved.
+
+### Slice 4
+
+Six Preparing publication and refusal cases passed on their first Node
+run, with no Chromium selections in the two specs. The private origin
+and typed store verify the named and default Preparing handoffs. The
+three refusal cases prove unchanged origin, no kept assignment or owned
+workspace, and cleared progress. Existing E2E covers native refinement
+dispatch, handoff and model selection. Dashboard typechecking passed.
+The Node selection took 13.320 s summed and 23.90 s elapsed at load 35–38.
+That run shows the coverage move, with timing under different load from
+the Chromium baseline. See `847-s4-return.md`.
+The independent refactor retired the last unused preparation test reader
+and its re-export. Typechecking passed after removal.
+See `847-s4-refactor-return.md`.
+The final model cases have explicit display names. All three preparation
+start cases passed in `847-s4-exact-model-cases.json`.

@@ -136,7 +136,7 @@ and carry any missing native input observation into that journey. Convert
 ### 4. Publish Preparing before a refinement session is dispatched
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Proof: `started` with a refinement request publishes Preparing for host and
