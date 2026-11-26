@@ -157,7 +157,7 @@ Slice 3 is the first to run the client parsing over HTTP.
 ### 3. Browse the whole project tree and its source
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Mounted Project Intent in Vitest Browser Mode with mixed tracked
 paths and distinct configured and unconfigured answers, plus the existing
 Project Intent end-to-end journeys that the change reaches.
@@ -175,6 +175,17 @@ revision's inventory and settings. `intent-recorded-purpose-read.spec.ts`
 keeps its once-per-pin assertion, now counting `intent=project-file` reads
 instead of upstream content requests. Assertions that relied on the default
 tree excluding non-Intent files turn **Intent only** on explicitly.
+
+Delivered: [useProjectTreeRead.tsx](../../../dashboard/src/useProjectTreeRead.tsx)
+reads the tree once per shown revision, and project-scope source reads
+through `readProjectFile`. Proof:
+[intent-project-browse.spec.ts](../../../dashboard/frontend-tests/intent/intent-project-browse.spec.ts)
+and the whole `e2e/intent` folder. E2E page steps `chooseIntentOnly` and
+`noteProjectFileReads` live in `intentCodeBrowsePage.ts`. Mounted fixtures
+leave the project tree unanswered by default, so their tree is the configured
+location files; mixed-path cases answer `readProjectTree` explicitly and need
+their own revision because reads are cached per revision. `IntentPage.tsx`
+has 245 lines.
 
 ### 4. Open real source from Project Intent CI and return Home
 
@@ -241,3 +252,20 @@ path clears its old source.
   each now has one proof loop within the 15-active-minute budget. Locations
   already hold their previous answer, so the plan does not replace the tree
   with an updating state before slice 5.
+
+## Story obligations
+
+### G1. Project tree shows only location files while its inventory is unread
+Reported: slice 3 — "While the paths are not read, the browser lists the configured location files; a failed read says why and offers Retry."
+Story clause: "List the published repository's tracked paths by default"
+Disposition: interim until slices 5
+
+### G2. Project tree read failure and Retry are unobserved and use a new surface
+Reported: slice 3 — "Untested: the error message and Retry shown when the project tree read fails (in useProjectTreeRead.tsx)."
+Story clause: "If the new inventory cannot be read, the current reading remains usable while the developer retries."
+Disposition: receiving slice 5
+
+### G3. Optimization Candidates lost its no-locations explanation
+Reported: slice 3 — "the Optimization Candidates view shows its panel instead of the explanation"
+Story clause: "With no configured locations, the default tree still opens a tracked document and **Intent only** explains the empty scope."
+Disposition: proved by slice 3: the unchanged `showsExplanation("Optimization Candidates")` in dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts passes again (evidence s3r-fe3)

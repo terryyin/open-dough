@@ -6,7 +6,7 @@
 // hosts this view on its Optimization Candidates tab (`IntentCandidatesPanel`,
 // drawn by its `./IntentBrowser.tsx`), apart from location browsing.
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import {
   keptIntentCandidatesAt,
@@ -167,6 +167,7 @@ export function IntentCandidatesPanel({
   modeIdPrefix,
   returnEntrySlug,
   onOpenLocation,
+  explanation,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
@@ -175,6 +176,9 @@ export function IntentCandidatesPanel({
   readonly modeIdPrefix: string;
   readonly returnEntrySlug: string | undefined;
   readonly onOpenLocation: OpenCandidateLocation;
+  // Why the project has no Intent scope, shown in place of the record while
+  // this view is chosen.
+  readonly explanation?: ReactNode;
 }) {
   const [chosen, setChosen] = useState(mode === "candidates");
   if (mode === "candidates" && !chosen) setChosen(true);
@@ -184,7 +188,9 @@ export function IntentCandidatesPanel({
       {...intentTabPanelAttributes(modeIdPrefix, "candidates", mode)}
       tabIndex={-1}
     >
-      {chosen ? (
+      {explanation !== undefined ? (
+        mode === "candidates" && explanation
+      ) : chosen ? (
         <IntentCandidatesRecord
           source={source}
           revision={revision}

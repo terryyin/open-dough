@@ -31,6 +31,7 @@ export function useIntentFileRead({
   path,
   file,
   unread,
+  wholeProject,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
@@ -40,6 +41,8 @@ export function useIntentFileRead({
   readonly path: string;
   readonly file: boolean;
   readonly unread: boolean;
+  // Project Intent reads any tracked file through the project reader.
+  readonly wholeProject: boolean;
 }): {
   readonly read: FileRead | undefined;
   // The revision the answered read is of, and the revision whose read failed
@@ -48,7 +51,8 @@ export function useIntentFileRead({
   readonly failedRevision: string | undefined;
   readonly retry: () => void;
 } {
-  const { readFile } = useIntentReads();
+  const reads = useIntentReads();
+  const readFile = wholeProject ? reads.readProjectFile : reads.readFile;
   const [fileRead, setFileRead] = useState<RevisionRead | undefined>(undefined);
   const [fileRetry, setFileRetry] = useState(0);
   useEffect(() => {

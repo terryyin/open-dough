@@ -1,4 +1,5 @@
 import {
+  chooseIntentOnly,
   expectLabelledEntrySource,
   fileSource,
   sourceFile,
@@ -110,6 +111,7 @@ test("Intent lists matched code test files under include patterns, omits helpers
     intent.getByRole("heading", { name: "No story selected", exact: true }),
   ).toBeVisible();
   await expectIntentGroupsCollapsed(intent);
+  await chooseIntentOnly(intent);
 
   await test.step("Ex 1: TypeScript specs among helpers; Summary names patterns; selecting shows exact text, revision, and kind styling", async () => {
     const config = testConfiguration(

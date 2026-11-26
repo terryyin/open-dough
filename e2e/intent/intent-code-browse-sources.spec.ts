@@ -1,4 +1,5 @@
 import {
+  chooseIntentOnly,
   fileSource,
   sourceLineText,
   sourceFile,
@@ -78,6 +79,7 @@ test("Intent lists sources locations' Bash, Node and Java files, opens each with
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expectIntentGroupsCollapsed(intent);
+  await chooseIntentOnly(intent);
 
   await test.step("Summary shows the sources patterns without a top-level kind", async () => {
     const config = testConfiguration(

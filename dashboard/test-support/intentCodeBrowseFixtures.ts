@@ -85,14 +85,3 @@ echo ok
 export const nodeTest = `import assert from "node:assert/strict";
 assert.equal(1, 1);
 `;
-
-// How many times the page read `path`'s content from a project published by
-// `publishIntentProject`.
-export function contentReadsOf(
-  { requests }: ReturnType<typeof publishIntentProject>,
-  path: string,
-) {
-  return requests.filter(
-    ({ request }) => request.kind === "content" && request.path === path,
-  ).length;
-}

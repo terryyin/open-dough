@@ -1,7 +1,8 @@
 // A case's Intent reads (`../src/intentReadSource.ts`). The case supplies its
 // locations, file and candidates reads; unless told, the whole project's tree
-// is the files its configured locations list at that revision, and a project
-// file reads as the case's file read answers that path.
+// stays unanswered, so the browser lists its configured location files and the
+// case's location reads are not asked again, and a project file reads as the
+// case's file read answers that path.
 
 import type { IntentReadSource } from "../src/intentReadSource.ts";
 
@@ -23,12 +24,12 @@ export class IntentReadSourceBuilder {
     const reads = this.#reads;
     if (reads === undefined) throw new Error("An Intent read source reads");
     return {
-      readProjectTree: async (source, revision, signal) => {
-        const answer = await reads.readLocations(source, revision, signal);
-        return answer.status === "configured"
-          ? answer.locations.flatMap(({ files }) => files)
-          : [];
-      },
+      readProjectTree: (...[, , signal]) =>
+        new Promise<readonly string[]>((...[, reject]) => {
+          signal.addEventListener("abort", () => {
+            reject(new Error("The project tree read was aborted."));
+          });
+        }),
       readProjectFile: reads.readFile,
       ...reads,
     };

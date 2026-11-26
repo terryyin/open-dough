@@ -1,4 +1,5 @@
 import {
+  chooseIntentOnly,
   fileSource,
   sourceFile,
   sourceLineNumbers,
@@ -61,6 +62,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     intent.getByRole("heading", { name: "No story selected", exact: true }),
   ).toBeVisible();
   await expectIntentGroupsCollapsed(intent);
+  await chooseIntentOnly(intent);
   const config = testConfiguration(
     await openLocationSummary(intent, "e2e_test/features"),
   );
@@ -134,6 +136,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
       sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toHaveCount(0);
     await expectIntentGroupsCollapsed(intent);
+    await chooseIntentOnly(intent);
     await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
       "aria-selected",
       "true",

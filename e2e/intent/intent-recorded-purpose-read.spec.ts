@@ -10,9 +10,9 @@ import {
 import {
   expectSourceTargetLine,
   fileSource,
+  noteProjectFileReads,
   sourceFile,
 } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
-import { contentReadsOf } from "../../dashboard/test-support/intentCodeBrowseFixtures.ts";
 import {
   doughnutCaseFeaturePath,
   doughnutUniqueScenario,
@@ -20,10 +20,11 @@ import {
   publishDoughnutCasePosition,
 } from "../../dashboard/test-support/intentCandidatesCasePositionFixtures.ts";
 
-test("opening a recorded Purpose case acquires its pinned source from GitHub exactly once", async ({
+test("opening a recorded Purpose case reads its pinned source through the dashboard exactly once", async ({
   page,
 }) => {
-  const upstream = publishDoughnutCasePosition(page);
+  publishDoughnutCasePosition(page);
+  const projectFileReadsOf = noteProjectFileReads(page);
   await openUntilRead(page, "/?project=doughnut&perspective=intent");
   const { intent } = parts(page);
   await chooseOptimizationCandidates(intent);
@@ -36,5 +37,5 @@ test("opening a recorded Purpose case acquires its pinned source from GitHub exa
     fileSource(intent, doughnutCaseFeaturePath),
     doughnutUniqueScenarioLine,
   );
-  expect(contentReadsOf(upstream, doughnutCaseFeaturePath)).toBe(1);
+  expect(projectFileReadsOf(doughnutCaseFeaturePath)).toBe(1);
 });

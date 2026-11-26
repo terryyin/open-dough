@@ -36,6 +36,7 @@ import {
   useStoryReviewArrival,
 } from "./useFirstStoryChangedFile.ts";
 import { useStoryResultBrowse } from "./useStoryResultRead.tsx";
+import { useProjectTreeRead } from "./useProjectTreeRead.tsx";
 import "./intent-page.css";
 
 export type IntentPageStory = {
@@ -57,6 +58,10 @@ export function IntentPage({
 }) {
   const { notice, shownRevision } = shown;
   const result = useStoryResultBrowse(story?.summary.comparison, source.label);
+  const projectTree = useProjectTreeRead(
+    source,
+    story === undefined ? shownRevision : undefined,
+  );
   const {
     comparisonSourceUnavailable,
     locations: browserLocations,
@@ -64,7 +69,7 @@ export function IntentPage({
     explanation,
     lead,
   } = result === undefined
-    ? intentBrowserSource(shown, story?.summary.comparison)
+    ? intentBrowserSource(shown, story?.summary.comparison, story === undefined)
     : {
         comparisonSourceUnavailable: false,
         locations: result.locations,
@@ -131,6 +136,7 @@ export function IntentPage({
       locations={browserLocations}
       lead={lead}
       result={result}
+      projectTree={projectTree}
       project={story === undefined ? project : undefined}
       storySummary={story?.summary}
       story={story?.compared}
