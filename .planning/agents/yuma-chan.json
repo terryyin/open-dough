@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-420#browse-the-project-at-a-revision",
+  "mode": "story-branch",
+  "branch": "claude/read-the-whole-repository-and-its-ci-from-projec",
+  "host": "claude"
+}
