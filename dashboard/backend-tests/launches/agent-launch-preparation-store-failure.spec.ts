@@ -25,9 +25,7 @@ for (const expired of [false, true]) {
       host: "codex",
     });
     const previousHome = process.env["HOME"];
-    const previousWait = process.env["DOUGH_START_TIMEOUT_MS"];
     process.env["HOME"] = path.join(origin.machine, "home");
-    process.env["DOUGH_START_TIMEOUT_MS"] = expired ? "1" : "60000";
     const directory = path.join(origin.machine, "home/.open-dough/dashboard");
     const hook = path.join(origin.origin, "hooks", "post-receive");
     writeFileSync(hook, `#!/bin/sh\nsleep 0.2\nchmod 0555 '${directory}'\n`);
@@ -53,7 +51,11 @@ for (const expired of [false, true]) {
         request,
         project,
         progress,
-        { store: startStore, env: process.env },
+        {
+          store: startStore,
+          env: process.env,
+          warningMs: expired ? 1 : 60_000,
+        },
         "attempt",
       );
       expect(outcome).toMatchObject({ kind: "established" });
@@ -103,13 +105,12 @@ for (const expired of [false, true]) {
       expect(unhandled).toEqual([]);
       chmodSync(directory, 0o755);
       chmodSync(hook, 0o644);
-      process.env["DOUGH_START_TIMEOUT_MS"] = "60000";
       const resumed = await started(
         defaultSource,
         request,
         project,
         progress,
-        { store: startStore, env: process.env },
+        { store: startStore, env: process.env, warningMs: 60_000 },
         "attempt",
       );
       expect(resumed).toMatchObject({ kind: "established" });
@@ -126,9 +127,6 @@ for (const expired of [false, true]) {
       }
       if (previousHome === undefined) delete process.env["HOME"];
       else process.env["HOME"] = previousHome;
-      if (previousWait === undefined)
-        delete process.env["DOUGH_START_TIMEOUT_MS"];
-      else process.env["DOUGH_START_TIMEOUT_MS"] = previousWait;
       origin.cleanup();
     }
   });

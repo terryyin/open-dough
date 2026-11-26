@@ -22,7 +22,7 @@ Files in the following map are relative to `dashboard/backend-tests/launches/`.
 | --- | --- | --- |
 | 1 | `agent-launch-start.spec.ts` | Take on origin before establishment, kept start, catalog refusal, not-applicable start |
 | 2 | `agent-launch-start-refusal.spec.ts`, `agent-launch-start-taken-refused.spec.ts`, `agent-launch-start-duplicate.spec.ts` | Refusal wording, no additional publication, correct kept-start disposition, one claim and workspace under overlap |
-| 3 | `agent-launch-start-resume.spec.ts`, `agent-launch-start-codex-recovery.spec.ts` | Same claim and workspace after slow, stopped, lost and Codex-acknowledgment cases |
+| 3 | `agent-launch-start-resume.spec.ts`, `agent-launch-start-codex-recovery.spec.ts` | Same claim and workspace after slow, stopped, lost and Codex acknowledgment cases. Three stopped or lost-workspace cases select `agent-launch-start-lost.spec.ts` on the candidate. |
 | 4 | `agent-launch-preparation-start.spec.ts`, `agent-launch-preparation-stops.spec.ts` | Preparing on origin, kept preparation, stops with nothing kept |
 | 5 | `agent-launch-preparation-resume.spec.ts`, `agent-launch-preparation-continuation-refusal.spec.ts`, `agent-launch-preparation-store-failure.spec.ts` | One profile across slow, stopped, interrupted and refused starts; store failure preserves preparation |
 | 6 | `agent-launch-preparation-codex-continuation.spec.ts`, `agent-launch-preparation-codex-retry.spec.ts` | Git-verified continuation, refused damaged retry, origin unchanged |
@@ -36,7 +36,7 @@ its proof owner. Confirm discrimination for any legacy assertion retired as
 redundant.
 
 ```sh
-selection='launches/agent-launch-(start(-refusal|-taken-refused|-duplicate|-resume|-codex-recovery)?|preparation-(start|stops|resume|continuation-refusal|store-failure|codex-continuation|codex-retry)|incomplete-reporting-settlement|update-worktree-retry)\.spec\.ts$'
+selection='launches/agent-launch-(start(-refusal|-taken-refused|-duplicate|-resume|-lost|-codex-recovery)?|preparation-(start|stops|resume|continuation-refusal|store-failure|codex-continuation|codex-retry)|incomplete-reporting-settlement|update-worktree-retry)\.spec\.ts$'
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/launches/agent-launch-(start-(phases|taken)|preparation-(phases|kept|codex-retry)|codex-recovery)\.spec\.ts$' --workers=1
 ```
@@ -102,3 +102,21 @@ The commands, coverage map, and proof are in `847-s2-return.md`.
 The diff changed only the three migrated specs and this proof record. A
 review of their existing Git barrier, refusal wording and kept-start
 consumers found no additional refactor needed for delivery.
+Published as `249048a5a74c4527e911a736329c08c8eb03f019` on the story branch,
+above `bed7650074825e21554b2bf893895857b0edb04c`, with CI unobserved.
+
+### Slice 3
+
+The six execution recovery cases passed in Node across three files, at
+default timeouts, with zero Chromium selections. The held-origin case
+observes a warning and an unfinished Take before releasing its push. Git
+and the typed store agree on the candidate, workspace and single claim
+after recovery. The added execution Codex E2E and two retained refinement
+variants prove one native input across restart. Three Chromium consumers
+of the existing Dashboard warning and recording settings passed, and
+typechecking passed. At load 39–43, the Node results were 44.523 s summed
+and 64.61 s elapsed. Those conditions differ from the execution baseline.
+See `847-s3-return.md` for the observations and literal commands.
+The independent refactor retired the unused settlement helper and
+three shared fixture exports. Typechecking and whitespace checks passed.
+`847-s3-refactor-return.md` records why the behavioral evidence still applies.

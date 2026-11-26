@@ -17,6 +17,7 @@ import {
   establishedLaunch,
   publicationOf,
   started,
+  startTimeoutMs,
   type Started,
 } from "./launchStart.ts";
 import { launchHost } from "./launchHosts.ts";
@@ -105,6 +106,7 @@ async function startedRun(
           {
             store: (workflow) => startStore(workflow, homedir()),
             env: process.env,
+            warningMs: startTimeoutMs(),
           },
           attempt.id,
           noteSlow,

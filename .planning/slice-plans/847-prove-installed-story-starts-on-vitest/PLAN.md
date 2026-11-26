@@ -118,7 +118,7 @@ for the offer and its single session. Convert `agent-launch-start-refusal`,
 ### 3. Resume a kept Take with its original claim
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Supply a short warning threshold as a typed value. A push slower than

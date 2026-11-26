@@ -35,6 +35,7 @@ import type { StartStore, StartsWorkflow } from "./startStore.ts";
 export type StoryStartInputs = {
   readonly store: (workflow: StartsWorkflow) => StartStore;
   readonly env: NodeJS.ProcessEnv;
+  readonly warningMs?: number;
 };
 
 // A story launch's established start or preparation.

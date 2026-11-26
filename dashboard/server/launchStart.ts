@@ -182,7 +182,7 @@ export async function started(
   let slowNoted: Promise<void> | undefined;
   const timer = setTimeout(() => {
     slowNoted = noteSlow(new Date().toISOString());
-  }, startTimeoutMs());
+  }, inputs.warningMs ?? defaultStartWaitMs);
   const attempt = await planned.attempt.finally(async () => {
     clearTimeout(timer);
     // Finish the warning write before a publication receipt or outcome can
