@@ -210,7 +210,7 @@ the observed paths or their shared operations.
 ### 3. Restore scheduled feedback eligibility and review read failures
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Proof:
@@ -227,6 +227,17 @@ Proof:
   Use a private origin or the real `gh` boundary that the read wraps.
 - `feedbackMaintenanceCheck.ts` falls under 250 lines.
 - The retained scheduled E2E journeys still pass.
+
+Outcome (7.8 active minutes). The backend selection retained all ten
+baseline cases and passed 14, including the existing admission journey.
+The page-supplied mark passes schema validation and is refused by admission.
+The check loop admits nothing when off, and after a persisted Done admits the
+due date once while the unrelated session stays open and does not count.
+The moved review reader exercises the real CLI transport across a ref 403
+and a pinned watch-list 404. The scheduler formats to 245 lines. Both
+scheduled E2E journeys and all three due-row E2E cases passed. Independent
+review narrowed the eligibility assertions and its 11 affected Node cases
+passed. Dashboard typecheck and targeted ESLint passed.
 
 ### 4. Move the Codex isolated start off the legacy runner
 
