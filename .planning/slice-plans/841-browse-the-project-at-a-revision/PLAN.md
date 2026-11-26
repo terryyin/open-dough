@@ -236,6 +236,9 @@ changed. A case whose revision an earlier mount already read gets no
 locations call and keeps an unanswered tree; slice 6 cases need their own
 revision. Refactor pass skipped: one test-support file, the slice's subject,
 with no refactor-check candidate on review.
+CI repair (run 45791366547): `intent-story-compare-reading.spec.ts` now waits
+for the story inventory before capturing a folder label; an older capture
+race, not a product change.
 
 ### 6. Keep the current reading until Show latest can replace it
 

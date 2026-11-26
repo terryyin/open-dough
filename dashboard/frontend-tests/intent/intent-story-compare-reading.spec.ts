@@ -76,6 +76,8 @@ test("a pending landed run keeps the Done story's locations and CI endpoint", as
       .query()
       ?.querySelector(".story-review-folder-name")?.textContent ?? "";
   await expect.poll(locationText).not.toBe("");
+  // The folders open once the story's inventory is read.
+  await story.inventoryRead();
   const location = locationText();
 
   await story.chooseLatestLanding();
