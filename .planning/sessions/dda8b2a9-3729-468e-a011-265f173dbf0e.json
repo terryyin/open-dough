@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "dda8b2a9-3729-468e-a011-265f173dbf0e",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-26T23:30:59.635Z",
+  "story": "SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest",
+  "ranges": [
+    {
+      "base": "835e850629f04468bdfad7e9209ed8c64cb71a7d",
+      "candidate": "ec3cd7e5784de597d83186343facffdc2f3303ff"
+    }
+  ]
+}
