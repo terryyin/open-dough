@@ -45,6 +45,20 @@ fixture trees from `keptIntentLocationsAt`. Its three new cases in
   of advancing to the observed trunk judgment, cause open and not compared
   with a baseline.
 
+## Refinement input from plan 841's retrospective
+
+- Whether a reading is whole-project is decided separately in
+  `IntentPage.tsx` (the tree read's revision, `wholeProject` for
+  `intentBrowserSource`, and `project`), in `IntentBrowser.tsx`
+  (`project !== undefined` for `leadInFiles`, the Optimization Candidates
+  `explanation` and `wholeProject`), and threaded through
+  `IntentSelectionReading.tsx` into `useIntentFileRead.ts`. The attempt's
+  `useProjectReading` hook left those flags in place. Refine so project scope
+  has one owner before adding the hold.
+- The project-tree failure and Retry render only in the Files column, so they
+  are hidden at phone width, the defect class CI repair 69cd4fc fixed for the
+  no-locations explanation. Slice 1 observes the phone-width case.
+
 ## Outside-in proof
 
 | Promise | Slice and observation |

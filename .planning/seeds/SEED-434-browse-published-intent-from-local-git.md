@@ -45,3 +45,10 @@ Begin with [Intent locations](../../dashboard/server/intentLocationsRead.ts),
 [path commit time](../../dashboard/server/ghCommitTime.ts),
 [profile addition](../../dashboard/server/ghProfileAddition.ts), and
 [attribution](../../dashboard/server/additionRead.ts).
+Project Intent's whole-project tree and file reads already come from the
+Review repository through
+[projectBrowseRead.ts](../../dashboard/server/projectBrowseRead.ts); start
+from it. What remains is the story-scope generic `file-at` read, locations,
+candidates, path history and attribution. The zero-GitHub-call evaluation can
+reuse the `noteProjectFileReads` request count in
+[intentCodeBrowsePage.ts](../../dashboard/test-support/intentCodeBrowsePage.ts).
