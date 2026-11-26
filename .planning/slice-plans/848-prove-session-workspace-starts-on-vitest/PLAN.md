@@ -351,7 +351,7 @@ copy of the attempt-run setup.
 ### 6. Read the accepted comparison after startup expiry
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 
 Proof. Start from a bound launch and real Git endpoints. Exercise the
@@ -366,6 +366,29 @@ Include the workspace and branch mismatch guard in
 `LandingSubmission`, the retained authority read from the real machine
 record, a controlled clock for expiry, and the private origin. The actual
 publisher's retry belongs to the retained installed/E2E journey.
+
+Outcome (3 active minutes). `retained-landing-after-expiry.spec.ts` (2
+node cases) binds an isolated auto-land Start through `started()`,
+`prepareAttemptReporting`, `keepAttempt` and `bindRecord`, then settles
+it. A Date-only fake clock expires the attempt through the production
+`replaceAttempts`.
+
+- The retained record holds the attempt's authority and `settledAt`.
+- With the old settled attempt present, prepare pins the base and
+  revision. With the attempt dropped, record returns the same receipt as
+  `recorded` and keeps the landing and preparation.
+- A replayed record returns the identical receipt. Origin main, the pins
+  and `launch-attempts.json` stay byte-identical.
+- Each of these gets a 409 and leaves the record unchanged with no pins:
+  another story, a changed workspace, a changed branch (the
+  `expiredAttemptRecord` guard), and a deleted reporting session. After
+  `deleteRecord`, prepare gets a 404.
+- The installed reporting-only retry stays with
+  `declared-blank-launch-publication.spec.ts` and the landing-context E2E.
+- Removed `agent-launch-start-session-landing-retained`. One Playwright
+  case took 5.0 s; the two node cases take 1.3 s and 1.8 s.
+- About 45 lines of Start-to-reporting setup repeat between this spec and
+  slice 5's spec. This joins the slice 4 setup follow-up.
 
 ### 7. Prune only the expired attempt's startup evidence
 
