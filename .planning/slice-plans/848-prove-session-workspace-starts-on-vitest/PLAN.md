@@ -233,7 +233,7 @@ a typed service. Production passes the `launchHost` registry from
 ### 4. Continue from the kept checkout and policy
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof. Exercise the typed Start and Continue inputs through the delivered
@@ -249,6 +249,47 @@ A distinct landing policy cannot accidentally resume the waiting session.
 Use actual temporary Git state where slug reuse or existence is tested,
 and a held installed-result or native callback at the interrupted effect.
 Retain restart and native acknowledgment observations in E2E.
+
+Outcome (11 active minutes). All 11 legacy cases now run in Node Vitest
+through `attemptRun`: Start, then Continue on the same attempt. They use a
+recording `NativeDispatch`, a real bare origin, the recorded installed
+start, private stores and a separate `HOME` per case.
+
+- `isolated-start-after-establishment.spec.ts` covers two stops: a native
+  stop and a formatter stop. After either, Continue launches with the same
+  workspace, branch, landing and input, and runs no second installed start.
+- `isolated-start-before-establishment.spec.ts` covers three things:
+  - A stop before any workspace keeps nothing, so a fresh Start takes
+    `session-2` from a real branch.
+  - A worktree created before the reply, killed at the held start's worker.
+    The case checks the unreadable-output wording, the kept workspace and
+    branch, and the original claim identity that guards the retry.
+  - A worktree created after the reply, under the same checks.
+- `execution-checkout-start-stops.spec.ts` covers the execution checkout:
+  - a topic-branch refusal;
+  - an unreadable result that publishes nothing;
+  - a kept start that asks about existing changes on Continue, then
+    continues in the checkout.
+- `pending-input-continuation.spec.ts` covers a kept Codex record whose
+  first input is uncertain. Continue calls `recover` once and makes zero
+  launches. A distinct auto-land choice starts a new session and leaves
+  that record kept.
+- `session-policy-installation.spec.ts` covers `withSessionPolicy`
+  refusing choices the installation cannot establish.
+- Retained owners: the recovery, failed and Codex-recovery E2E journeys
+  keep the real timed-out wait, restart and native acknowledgment.
+- Removed `agent-launch-start-session-failed-boundary`, `-identity`,
+  `-kept`, `-lost` and `-stops`.
+- Cost, one worker. Before: 11 Playwright cases, 36.1 s wall. After: 11
+  node cases, about 14 s summed, 18 s wall. Git cases take 1.7–2.8 s,
+  stops about 0.4 s and policy cases a few milliseconds.
+- Follow-up for the owner: about 90 lines of attempt-run setup now repeat
+  across 8 backend specs. The repeated parts are origin preparation, the
+  `HOME` stub with project configuration and done marks, the recording
+  dispatch, and the `attemptRun` call. The plan forbids test-support
+  wrappers. Removing the repetition needs either a production-contract
+  change, such as grouping `attemptRun`'s note callbacks, or permission
+  for a shared harness.
 
 ### 5. Capture a landing under the selected authority
 
