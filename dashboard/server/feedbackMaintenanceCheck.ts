@@ -16,10 +16,11 @@
 //
 // The authorization (`./feedbackMaintenance.ts`) and this machine's launch
 // records and attempts are read first and cost no GitHub request. Only when
-// they permit does the published reader (`./feedbackMaintenanceReview.ts`)
-// read the watch list. A launch attempt keeps its marker before any side
-// effect, so a restart, a later check, or a deleted record never launches the
-// same due date again while the attempt is retained.
+// they permit, and this check is still running, does the published reader
+// (`./feedbackMaintenanceReview.ts`) read the watch list. A launch attempt
+// keeps its marker before any side effect, so a restart, a later check, or a
+// deleted record never launches the same due date again while the attempt is
+// retained.
 //
 // The check keeps its last observation: whether the authorization was on, the
 // review it last read and when, and a due date whose launch the launch gates
@@ -71,6 +72,8 @@ const originWaitMs = 250;
 function checkMs(): number {
   return configuredLimit("DOUGH_MAINTENANCE_CHECK_MS", 15 * 60_000);
 }
+
+const stopped = (signal: AbortSignal): boolean => signal.aborted;
 
 type Launches = Pick<AgentLaunches, "accept" | "attempts">;
 
@@ -179,8 +182,10 @@ export class FeedbackMaintenanceCheck {
       this.release();
       return;
     }
+    // A stop during the session read must not start the watch-list read.
+    if (stopped(signal)) return;
     const review = await this.readReview(source, signal);
-    if (signal.aborted) return;
+    if (stopped(signal)) return;
     const readAt = new Date().toISOString();
     this.observation = { ...observed, review, readAt, held: last?.held };
     const decision = dueDecision({ ...inputs, review });
