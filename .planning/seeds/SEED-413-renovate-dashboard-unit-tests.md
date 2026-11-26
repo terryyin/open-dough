@@ -342,18 +342,80 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#prove-session-completion-reporting-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ce2926336e7c138dd95af86d88a9a34cb0fd0a2fcafbb6ad8852fa8d206bb8a2","plan":"7fe6c4dec7198d8775aaafc8cf7cf21a8c4eeeda7a5acbd81ce8bd3197209e73"}}
 ```
 
-- **For / why.** Developers changing how an agent reports its completion get fast feedback on which session a report binds to and closes, and what the Dashboard keeps when a report is quiet, late, superseded or refused.
-- **Evaluation.** Given a launch whose report arrives early, late, after a newer submission or after its attempt was lost, the kept record closes only the bound session, retains the right message and claim, and never invents a binding.
-- **Boundary.** Own `sessions/agent-completion-{attempt-loss,binding,early-recovery,identity,input,quiet-closure,returned-closure,superseded}.spec.ts`,
+- **Goal.** Developers changing how an agent reports its completion get fast,
+  typed Node Vitest feedback on which session a report binds to and closes,
+  what the Dashboard keeps when a report is early, quiet, late, superseded or
+  refused, and what a final report request answers.
+- **Scope.** Move the 11 legacy specs off backend Playwright and account for
+  each observation: `sessions/agent-completion-{attempt-loss,binding,early-recovery,identity,input,quiet-closure,returned-closure,superseded}.spec.ts`,
   `sessions/admitted-session-{no-change,shared-checkout}-completion.spec.ts`
-  and `sessions/final-report-admission.spec.ts`. Keep a real host or second
-  process only where it supplies the proof.
-- **Effort hypothesis.** M, low confidence. Completion already has typed receipts; attempt loss and recovery decide how much needs a real process.
-- **Safe stopping point.** Completion reporting stays observable through typed checks with fewer agent launches.
+  and `sessions/final-report-admission.spec.ts`. Cover the reporting
+  instruction each host receives; an early report held until the native
+  session binds, through a normal launch or Recheck, and kept against late
+  native writers; a deleted early binding; attempt evidence lost mid-launch;
+  delivery identity, duplicates and refusals; a superseded submission;
+  quiet closure, which needs landing and readable closure evidence, and its
+  reporting-only recovery; closure of a story returned to the queue; the
+  completion of an admitted session; and final report admission. Prove them
+  through typed production operations and kept records: delivery, binding
+  and final report admission take the report, record and host collaborators
+  they use as typed values, and add no server, request or boundary wrapper
+  to test support. A case keeps the installed reporting command, a real
+  receiver process or real Git only where that boundary supplies the
+  observation, and keeps only that boundary. Remove support with its last
+  consumer. Product behavior stays unchanged. Mark as done and its quiet
+  rename, observation, terminal attach, the Cursor runner and retention
+  have their own sibling stories.
+- **Key examples.**
+  - Given a Codex or Cursor launch, its first input ends with the reporting
+    instruction in that host's grammar. A blank ad hoc launch gets no
+    instruction and, on Claude Code, no first input, while its kept claim
+    still holds the reporting context.
+  - Given a Claude Code launch whose report arrives before its session is
+    known, a report naming an unknown session is refused and the real one
+    answers `pending-native-session`. The session binds with that receipt,
+    stays open, and later native record writes keep it. If the record is
+    deleted before settlement, binding refuses it and a later report is
+    refused.
+  - Given attempt evidence removed or made unreadable after the native start,
+    the launch answers uncertain with the native resume identity, submits no
+    first input, keeps no record and keeps the unreadable file aside.
+  - Given two launches, the older launch's report closes only its own
+    session. Repeating a delivery answers the same receipt without writing
+    either store, and a new delivery competing with the developer's reopen
+    leaves it open. After Mark as done, a retry keeps the developer's Done
+    time. Unknown project, host, reference or session, an empty or invalid
+    message or outcome, an extra field and a cross-site origin are each
+    refused and keep the earlier message.
+  - Given a quiet report whose record write failed and a newer attention
+    report that also failed, retrying the older answers its original receipt
+    and closes nothing, and the newer retry keeps its message and stays open.
+  - Given a tracked execution, a quiet report without landing records the
+    receipt and stays open. An unacknowledged quiet report keeps its pending
+    submission and a reporting-only retry, and recovers without repeating
+    work; an unfinished report never closes; after deletion, its retry and
+    binding are refused.
+  - Given a claimed execution whose story returned to the queue, a quiet
+    report closes it and keeps the returned outcome with its receipt, at
+    delivery or later binding. Taken, unfinished or attention reports stay
+    open, a developer's earlier Done keeps its time, and a newer report
+    replaces the outcome. Only a story that left the backlog reports product
+    closure evidence.
+  - Given an admitted session, a no-change wrap-up closes its claim, keeps the
+    borrowed checkout and publishes its session record. Two launches landing
+    from one checkout each keep their own accepted range, and a landing retry
+    answers its receipt without Git. Lost accepted evidence holds the claim.
+  - Given a final report request, an unknown project, unrecorded or
+    wrong-host session, arbitrary endpoint, wrong method or cross-site origin
+    is refused before any native read. Claude Code answers that it cannot
+    read one. Cursor answers its kept message, or explains a quiet or missing
+    one, with closure evidence when kept. Codex reads its native report.
 - **Replacement trace.** Split from [native session and terminal lifecycle](https://github.com/terryyin/open-dough/blob/23c09d6e4d18b5113b45f3aed28f09e986083072/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest).
+
+**Plan.** [Prove session completion reporting in Node Vitest](../slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md)
 
 <a id="prove-native-session-observation-on-vitest"></a>
 
