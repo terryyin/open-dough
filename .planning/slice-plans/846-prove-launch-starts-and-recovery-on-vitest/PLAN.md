@@ -1,18 +1,20 @@
-# Prove Dashboard launch starts and recovery in Node Vitest
+# Prove Dashboard launch admission and settlement in Node Vitest
 
 **Identity:** SEED-413#prove-launch-starts-and-recovery-on-vitest
 
-**Source:** [Prove Dashboard launch starts and recovery in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest)
+**Source:** [Prove Dashboard launch admission and settlement in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest)
 
 ## Goal and scope
 
-Give Dashboard maintainers fast typed proof that Start keeps an attempt
-before any effect and that Continue recovers the right attempt once. Move
-the 14 legacy backend specs below off Playwright. Preserve request refusals,
-attempt identity, worker ownership, reconciliation, and drain. Keep true
-process, Git, and native input observations with E2E. The other launch
-stories and runner cutover have their own proof in the
-[campaign coverage map](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage).
+Give Dashboard maintainers fast typed proof for request refusal, durable
+kept-first admission, settlement under the write lock, and protections for
+open sessions and already confirmed own launches. Dispose of the eight
+legacy backend spec paths mapped below. Production restart, actual native
+input, Git publication and receipt failure keep their E2E observations.
+
+The developer selected the boundary after slice 4. Original slices 5–8,
+the six legacy specs they cover, and the pending slice 5 changes move to
+[Prove Dashboard worker recovery and drain in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-worker-recovery-on-vitest).
 
 ## Current decisions
 
@@ -110,11 +112,12 @@ execution's performance claim.
 - The next push at `678668f9d` likewise superseded CI run 45772659282.
   The cancelled attempt lists zero failed jobs in its complete diagnostic.
   The new same-target run is 45773942749.
-- Slice 5 is preserved in the managed CI stash. The developer ended the
-  temporary frontend capture after the watched shards had no recurrence
-  and deferred investigation until a matching failure appears in ordinary
-  CI. See the [frontend diagnosis](diagnosis-frontend-browser-connection.md)
+- The developer deferred diagnosis of the original frontend disconnect
+  until a matching failure appears again in ordinary CI. The temporary
+  capture was removed. See the [frontend diagnosis](diagnosis-frontend-browser-connection.md)
   and the [separate E2E repair](diagnosis-intent-ci-follow-up-navigation.md).
+- The in-progress slice 5 changes are recoverable through the
+  [follow-up plan](../857-prove-launch-worker-recovery-on-vitest/PLAN.md).
 - The first bounded hosted frontend capture passed. A backend test in the
   same run exposed a setup race between a readable attempt file and a
   settled owner. The [worktree retry diagnosis](diagnosis-worktree-update-retry-refusal.md)
@@ -246,87 +249,9 @@ refactor review made no edits and confirmed both former callers of
 `openStorySessionAcceptance.ts` migrated. See `slice-4-return.md`,
 `slice-4-final-open-session.json`, and `open-session-e2e.json` in Git evidence.
 
-### 5. Resume an interrupted attempt once with the kept input
-
-Type: Behavior
-Status: planned
-Estimate: 12–15 active minutes.
-
-Proof: Arrange a kept interrupted attempt via its typed request and
-worker and record inputs. Start refuses and Continue reuses the same
-attempt, workspace and effort. Observe the kept first input when retry
-is warranted and refuse another dispatch once that input is confirmed.
-During a slow but live launch, keep Continue refused until the worker
-settles and read its eventual outcome.
-Use the [restart E2E](../../../e2e/launches/responsive-session-recovery-restart.spec.ts)
-for real server replacement and [recovery verification](../../../e2e/launches/responsive-session-recovery-verification.spec.ts)
-for recovery of uncertain first input. Run those journeys before removing
-the legacy process checks. Compare the actual receiving assertions with the legacy variants before
-removal. Carry a missing second-input, workspace or retained-effort
-observation into the smallest matching journey.
-Keep this slice scoped to the generic attempt owner and preserve the
-host-specific input rules via their coverage owners.
-
-The existing `agent-launch-codex-recovery.spec.ts` already exercises
-Continue across a server restart, keeps the native workspace and first
-input, and asserts one native `turn/start` when history confirms receipt.
-Run it to receive the equivalent legacy process observations. The
-Intent code-browse spec builds its named `ownRecordContinuation.ts`
-sample from a literal fixture, so retiring the actual launch helper
-does not reach that consumer. Check executable references before removal.
-
-### 6. Protect the transition to the native worker
-
-Type: Behavior
-Status: planned
-Estimate: 10–15 active minutes.
-
-Proof: Pass persisted server, child and native worker facts through the
-typed launch owner and production worker-state checks. Protect both sides
-of the handoff from a competing Start or Continue. The
-[second-server E2E](../../../e2e/launches/agent-launch-second-server.spec.ts)
-observes the live script through native confirmation. The
-[orphan E2E](../../../e2e/launches/agent-launch-second-server-orphan.spec.ts)
-kills the owner, sees its child still running, and resumes the same
-published claim after exit. Preserve those process signals while removing
-the duplicate backend server journey.
-
-### 7. Read changes and reconcile a settled attempt
-
-Type: Behavior
-Status: planned
-Estimate: 10–15 active minutes.
-
-Proof: With a held change count and typed attempt owner, observe a newer
-owned change immediately and an unchanged non-owner answer at its configured
-bound. An outcome or a later completed session report can justify
-reconciliation only when that evidence is current for the read. Verify the
-reconciled marker in the real attempt file and refusals for active and
-unresolved evidence. Keep the
-[completed-reconciliation E2E](../../../e2e/launches/responsive-session-reconciliation-completed.spec.ts)
-for the published Take read. Convert the change and reconciliation specs.
-
-### 8. Wait for durable settlement before replacing the Dashboard
-
-Type: Behavior
-Status: planned
-Estimate: 10–15 active minutes.
-
-Proof: Submit typed Start and Continue with an outstanding acceptance and
-run `drain` through the production composition of `LaunchAdmission` and
-`LaunchAttemptOwner`. Both new calls receive the 503 refusal. Hold the
-publication and native confirmation handoffs in turn, and verify that drain
-resolves only after the final outcome is readable. Run the existing
-[production updater E2E](../../../e2e/runtime/production-watcher-updates.spec.ts)
-through the existing held-update journey. The watcher requests drain while
-a session-store lock holds native startup, proves the current preview stays
-up and refuses new starts, and observes the same accepted attempt settled
-before replacement. Preserve that journey while removing
-`dashboard-update-drain.spec.ts`.
-
 ## Proof ownership and local gate
 
-Files in the following map are relative to `dashboard/backend-tests/launches/`.
+Files are relative to `dashboard/backend-tests/launches/`.
 
 | Slice | Legacy selection | Observable proof |
 | --- | --- | --- |
@@ -334,46 +259,41 @@ Files in the following map are relative to `dashboard/backend-tests/launches/`.
 | 2 | `agent-launch-acceptance.spec.ts` | Kept exact request, no duplicate effect, refusal and receipt stops, and detached completion |
 | 3 | `agent-launch-acceptance-kept-first.spec.ts`, `agent-launch-acceptance-kept-first-cleanup.spec.ts`, `accepted-attempt-settlement.spec.ts` | Running while reporting or settlement is held, release before the follower's settled answer, and retirement of the old test-local teardown contract |
 | 4 | `agent-launch-open-session.spec.ts`, `agent-launch-open-session-continue.spec.ts`, `agent-launch-own-record-continuation-race.spec.ts` | Same-story block, own-record settlement, last evidence under lock, unreadable evidence preserved |
-| 5 | `agent-launch-continuation-interrupted.spec.ts`, `agent-launch-uncertain-continuation.spec.ts` | Same attempt, workspace, effort and input, observed once at native receipt |
-| 6 | `agent-launch-worker-handoff.spec.ts` | Durable handoff protects both sides and second process follows the same claim |
-| 7 | `agent-launch-change-wait.spec.ts`, `settled-attempt-reconciliation.spec.ts` | Change counts and bound, outcome or report freshness, reconciliation proof |
-| 8 | `dashboard-update-drain.spec.ts` | 503 refusals and pending drain up to durable native confirmation |
 
-For the first and final comparisons, use fresh absolute proof paths from
-the repo root and one worker. Repeat the baseline at the execution base if
-affected paths or the measurement conditions changed. Select the 14 mapped basenames plus the three
-existing Node controls. If a replacement moves to a new filename, add its
-exact selector to the candidate run and record the matching proof owner.
-Use the E2E selection below for retained process proof and include the
-production updater journey in slice 8. Its cases share a serial deployment,
-so run the whole spec. Confirm baseline discrimination
-for any legacy assertion retired as redundant. Use the same workload and
-machine conditions for a relative cost claim.
+The slice records above account for each migrated or retired observation
+and retain the process, Git and native proof at its existing E2E boundary.
+Check the combined maintained backend selection once with one worker and
+record its Node and Chromium counts. The earlier 14-spec benchmark describes
+the pre-split population. Use per-slice comparable evidence for that
+population's retained subset before making a time comparison.
 
 ```sh
-selection='launches/(accepted-attempt-settlement|agent-launch-(acceptance(-kept-first(-cleanup)?)?|change-wait|continuation-interrupted|cross-server-accept|open-session(-continue)?|own-record-continuation-race|refusal|uncertain-continuation|worker-handoff)|dashboard-update-drain|launch-attempt-(admission-close|worker)|settled-attempt-reconciliation)\.spec\.ts$'
+selection='launches/(accepted-attempt-settlement|agent-launch-(acceptance(-kept-first)?|cross-server-accept|open-session(-continue)?|own-record-continuation-race|refusal)|launch-attempt-(admission-close|worker))\.spec\.ts$'
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
-caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/launches/(agent-launch-second-server(-orphan)?|responsive-session-(recovery-(restart|verification)|reconciliation-completed))\.spec\.ts$' --workers=1
-caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$drain_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/runtime/production-watcher-updates\.spec\.ts$' --workers=1
 ```
-
-Run affected consumers from the [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
-and `npm run typecheck:dashboard` for changed typed contracts. Record
-engine and case counts, per-case time against roughly 100 ms, summed case
-time, elapsed selection time, and the separate cost of proof retained or
-moved to E2E. Account for every scoped legacy case before accepting zero
-Playwright selections for this boundary.
 
 Use awake macOS on AC under `caffeinate -s -i` for long local checks per
 [AGENTS.md](../../../AGENTS.md). Apply the shared
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
-to every failure and repair handoff. Keep default test timeouts.
+to each failure and repair handoff. Keep default test timeouts.
+
+## Delivered-boundary verification
+
+The retained selection passed 59 Node Vitest cases across ten files, with
+zero Chromium selections, one worker, and 4.44 s elapsed. This includes
+three maintained Node control files and the seven surviving files in
+the eight-path disposition. The full proof record is
+`retained-admission-combined.json` in worktree Git evidence. The former
+cleanup spec and its fixture were retired in slice 3. The named E2E
+observations in the slice records remain the process-side proof.
+
+The Intent Coverage check on `39d0aafd3ce7b4b555723ac5390f4c6bb2bd17d3`
+observed the durable instruction change before dispatch in a scratch
+witness. The maintained exact-disk assertion caught it; restoration passed.
+Keep that assertion. No further coverage action is needed for that path.
 
 ## Plan review
 
-Slice-plan refinement kept eight slices by retiring the test-local cleanup
-contract alongside its fixture and using the existing production watcher
-journey for the actual drain call. The slices build from admission and
-settlement to retained recovery and safe replacement. Prospective estimates
-assume the installed entry points keep their current typed boundaries.
-No unresolved slice-specific concern remained after this review.
+Slices 1–4 delivered the independent admission and settlement boundary with
+accepted focused proof. Former slices 5–8 and their remaining promises are
+mapped in [plan 857](../857-prove-launch-worker-recovery-on-vitest/PLAN.md).
