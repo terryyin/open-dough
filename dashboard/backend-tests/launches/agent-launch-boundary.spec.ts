@@ -1,6 +1,12 @@
 // The typed launch owner keeps a Claude session only after native confirmation.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import {
   afterEach,
@@ -128,6 +134,22 @@ test("names a missing execution checkout without starting Claude", async () => {
   });
   expect(native.claudeCalls()).toEqual([]);
   expect(await keptRecords(missing.id)).toEqual([]);
+});
+
+test("keeps a refused execution start in the store and never reports it running", async () => {
+  native.claudeScenario("refused");
+  expect(await launch()).toMatchObject({ kind: "failed" });
+  const stored = JSON.parse(
+    readFileSync(
+      path.join(home, ".open-dough/dashboard/execution-starts.json"),
+      "utf8",
+    ),
+  ) as Record<string, Record<string, unknown>>;
+  expect(Object.keys(stored[source.id] ?? {})).toEqual([storyA.identity]);
+  expect(await launches.keptStarts()).toEqual([
+    expect.objectContaining({ identity: storyA.identity }),
+  ]);
+  expect(launches.runningStarts()).toEqual([]);
 });
 
 describe("a published story launching without an installed start", () => {

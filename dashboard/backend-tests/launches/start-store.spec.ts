@@ -15,7 +15,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { fsSyncHook } from "../../test-support/support/serverFsHook.ts";
 import {
   keptStart,
@@ -38,22 +38,17 @@ const written = makeMe.aStartRecord
   .please();
 
 let home: string;
-let previousHome: string | undefined;
 let starts: ReturnType<typeof startStore>;
 
-test.beforeEach(() => {
-  previousHome = process.env["HOME"];
+beforeEach(() => {
   home = mkdtempSync(path.join(tmpdir(), "dough-start-store-"));
-  process.env["HOME"] = home;
+  vi.stubEnv("HOME", home);
   starts = startStore("execution", home);
 });
 
-test.afterEach(() => {
-  if (previousHome === undefined) {
-    delete process.env["HOME"];
-  } else {
-    process.env["HOME"] = previousHome;
-  }
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
   rmSync(home, { recursive: true, force: true });
 });
 
@@ -91,6 +86,11 @@ test("a held write lock refuses without changing the document or removing the ho
   const lock = `${file}.lock`;
   const before = readFileSync(file, "utf8");
   mkdirSync(lock);
+  // The store waits at most 10 s for a held lock; each clock reading here
+  // passes that bound, so the refusal comes on the first retry.
+  const now = Date.now();
+  let readings = 0;
+  vi.spyOn(Date, "now").mockImplementation(() => now + 11_000 * readings++);
 
   await expect(
     starts.update("open-dough", written.identity, {
@@ -106,6 +106,7 @@ test("a held write lock refuses without changing the document or removing the ho
   ]);
 
   // Only the owner releases the lock; a subsequent writer then succeeds.
+  vi.mocked(Date.now).mockRestore();
   rmSync(lock, { recursive: true });
   await starts.update("open-dough", written.identity, {
     candidateSha: "accepted",

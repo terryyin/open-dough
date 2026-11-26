@@ -75,7 +75,7 @@ before-and-after pair for the execution's cost claim.
 ### 1. Keep starts safely in the machine store
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Proof: Convert `start-store.spec.ts` to Vitest against a private home. Keep
@@ -89,6 +89,14 @@ survive the move. Convert `agent-launch-start-kept-not-running.spec.ts`
 into a typed `AgentLaunches` start that the fake Claude refuses. The kept
 execution start remains in `execution-starts.json`, `keptStarts()` names
 it, and `runningStarts()` is empty.
+
+Outcome: `start-store.spec.ts` runs in Vitest (eight cases, 1–302 ms).
+The 10 s case was the production `acquireWriteLock` wait in
+`dashboard/server/machineJsonLock.ts`, up to 10,000 ms for a held lock with
+no owner record. That wait stays; the case advances `Date.now` past it.
+The refused kept start is a case in `agent-launch-boundary.spec.ts`
+(3,020 ms, a native start), and its legacy spec is deleted. No
+test-support helper lost its last caller.
 
 ### 2. Read records another process wrote or marked done
 
