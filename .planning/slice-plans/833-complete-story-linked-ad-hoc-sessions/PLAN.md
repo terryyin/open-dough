@@ -616,11 +616,15 @@ unread events and PID `84786` exited. See
 The approved cutover preflight confirmed the actual Codex identity and
 matched the installed handoff only to that identity. The tool shell runs
 under the desktop user's UID and home in the macOS System launch context.
-Claude Code and Cursor CLI could not access a login there. macOS refused
-entry into the desktop audit session, so the interactive login state remains
-unverified. Resolve the two actual-host checks or record an explicit release
-exception before the first trunk landing. See
-`slice-10-interactive-auth-directory.txt` in worktree Git evidence and
+Claude Code and Cursor CLI could not access a login there, and macOS refused
+entry into the desktop audit session. The developer confirmed that both
+hosts reported an active login in the desktop terminal. The desktop runner
+checks a matching and a different native identity for each host against
+the installed candidate. Its four cases passed a self-check using controlled
+clients. The actual-host checks still need results from the desktop
+terminal before the first trunk landing. See
+`slice-10-interactive-auth-directory.txt` and
+`slice-10-desktop-check-directory.txt` in worktree Git evidence, and
 `slice-10-real-native-acceptance.e49CHLEX/native-acceptance-summary.json`
 in common Git evidence.
 All six configured client checkouts passed update preflight. The next
