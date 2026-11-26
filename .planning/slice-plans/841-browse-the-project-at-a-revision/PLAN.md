@@ -290,3 +290,18 @@ Disposition: excluded "Keeping the project reading until **Show latest** can rep
 Reported: slice 3 — "the Optimization Candidates view shows its panel instead of the explanation"
 Story clause: "With no configured locations, the default tree still opens a tracked document and **Intent only** explains the empty scope."
 Disposition: proved by slice 3: the unchanged `showsExplanation("Optimization Candidates")` in dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts passes again (evidence s3r-fe3)
+
+## Execution complete
+
+Product advice:
+
+- SEED-434 partly overlaps what shipped: project-scope tree and file reads
+  now come from the Review repository through
+  `dashboard/server/projectBrowseRead.ts`. Add it as a starting point in
+  SEED-434's Source; its remaining scope is the story-scope `file-at` read,
+  locations, candidates, path history and attribution. Its zero-GitHub-call
+  evaluation can reuse `noteProjectFileReads`.
+- Fold into plan 855's refinement: project scope is decided separately in
+  `IntentPage.tsx`, `IntentBrowser.tsx`, `IntentSelectionReading.tsx` and
+  `useIntentFileRead.ts`; and the project-tree failure and Retry render only
+  in the Files column, so they are hidden at phone width.
