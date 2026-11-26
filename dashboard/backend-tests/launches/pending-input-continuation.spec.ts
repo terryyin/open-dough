@@ -4,6 +4,7 @@
 // session instead. The attempt run (../../server/launchRun.ts) dispatches
 // through a recording native collaborator against a real bare origin. The
 // real native recovery: ../../../e2e/launches/agent-launch-ad-hoc-codex-recovery.spec.ts.
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -15,12 +16,16 @@ import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { checkoutState } from "../../test-support/support/executionCheckoutChanges.ts";
+import { isolatedAdmissionFlags } from "../../test-support/support/isolatedSessionAdmissionProof.ts";
 import {
   startOrigin,
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
 import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 import {
+  git,
+  isolatedSession,
   recordStarts,
   worktree,
   worktrees,
@@ -131,14 +136,39 @@ test("the same choices recover the uncertain conversation without a start or a s
 test("a different landing choice starts its own session and leaves the uncertain conversation waiting", async () => {
   const starts = recordStarts(origin, "codex");
   const pending = pendingConversation();
+  const waiting = worktree(origin.project, "session");
+  git(origin.project, "worktree", "add", "-b", "codex/session", waiting);
+  const note = path.join(waiting, "waiting.txt");
+  writeFileSync(note, "The waiting conversation's changes.\n");
+  const before = checkoutState(waiting);
   await keepRecord(source.id, pending, doneMarks);
 
-  expect(await run("auto-land")).toMatchObject({
+  const result = await run("auto-land");
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
+  expect(result).toMatchObject({
     kind: "launched",
-    record: { session },
+    record: {
+      session,
+      establishedSession: isolatedSession(
+        origin.project,
+        "session-2",
+        "auto-land",
+        revision,
+        "codex",
+      ),
+    },
   });
   expect(recovered).toEqual([]);
   expect(launched).toBe(1);
-  expect(starts()).toHaveLength(1);
+  expect(starts().map(({ argv }) => argv)).toEqual([
+    expect.arrayContaining(
+      isolatedAdmissionFlags(origin.project, "session-2", "codex"),
+    ),
+  ]);
+  expect(worktrees(origin.project)).toEqual(["session", "session-2"]);
+  expect(checkoutState(waiting)).toBe(before);
+  expect(readFileSync(note, "utf8")).toBe(
+    "The waiting conversation's changes.\n",
+  );
   expect(await keptRecords(source.id)).toContainEqual(pending);
 });

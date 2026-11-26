@@ -14,11 +14,15 @@ import { queuedReadyRepository } from "../../../Distribution/tests/support/queue
 import { agentLaunchRequestSchema } from "../../src/launchRequest.ts";
 import { recordedRequest } from "../../server/hostLaunch.ts";
 import { keptRecords } from "../../server/launchRecordStore.ts";
+import { attemptRun } from "../../server/launchRun.ts";
 import { started, unconfirmedStart } from "../../server/launchStart.ts";
-import { localFolder } from "../../server/localFolder.ts";
+import { localFolder, type LocalFolder } from "../../server/localFolder.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
 import { startStore } from "../../server/startStore.ts";
 import { unattachedInput } from "../../server/unattachedInput.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
 import {
   checkoutState,
   dirty,
@@ -71,8 +75,8 @@ async function changedCheckout(landing: "review" | "auto-land") {
 
 type ChangedCheckout = Awaited<ReturnType<typeof changedCheckout>>;
 
-async function fingerprintOf({ request, policy, folder }: ChangedCheckout) {
-  const found = await unconfirmedStart(source, { ...request, policy }, folder);
+async function fingerprintOf(request: AgentLaunchRequest, folder: LocalFolder) {
+  const found = await unconfirmedStart(source, request, folder);
   if (found?.kind !== "existing-changes")
     throw new Error(`Expected existing changes: ${JSON.stringify(found)}`);
   return found.fingerprint;
@@ -81,12 +85,9 @@ async function fingerprintOf({ request, policy, folder }: ChangedCheckout) {
 // Starts with the current fingerprint confirmed and composes the native first
 // input from what the launch records.
 async function confirmedStart(changed: ChangedCheckout) {
-  const fingerprint = await fingerprintOf(changed);
-  const confirmed = {
-    ...changed.request,
-    policy: changed.policy,
-    existingChanges: fingerprint,
-  };
+  const request = { ...changed.request, policy: changed.policy };
+  const fingerprint = await fingerprintOf(request, changed.folder);
+  const confirmed = { ...request, existingChanges: fingerprint };
   const start = await started(
     source,
     confirmed,
@@ -147,7 +148,7 @@ test("existing changes answer their current fingerprint, keeping nothing, until 
   expect(found[0]).toMatchObject({ kind: "existing-changes", count: 4 });
   expect(await keptRecords(source.id)).toEqual([]);
 
-  const existingChanges = await fingerprintOf(changed);
+  const existingChanges = await fingerprintOf({ ...request, policy }, folder);
   expect(
     await unconfirmedStart(
       source,
@@ -155,6 +156,44 @@ test("existing changes answer their current fingerprint, keeping nothing, until 
       folder,
     ),
   ).toBeUndefined();
+});
+
+test("a confirmed Start without a policy records the launch without a policy or an established session", async () => {
+  const { request, folder } = await changedCheckout("review");
+  const confirmed = {
+    ...request,
+    existingChanges: await fingerprintOf(request, folder),
+  };
+  expect(await unconfirmedStart(source, confirmed, folder)).toBeUndefined();
+  const accepted = makeMe.anAcceptedAttempt.requesting(confirmed).please();
+  const unmount = mountProjectConfiguration("production");
+  try {
+    const result = await attemptRun(
+      source,
+      new OwnedAttempts().own(confirmed, accepted),
+      {
+        progress: new StartProgress(),
+        doneMarks: { reported: () => undefined },
+        native: () => ({
+          launch: () =>
+            Promise.resolve({
+              kind: "launched",
+              session: makeMe.aHostSession
+                .claude({ sessionId: "claude-1" })
+                .please(),
+              sessionState: makeMe.aSessionState.loaded("working").please(),
+            }),
+        }),
+      },
+    );
+    expect(result.kind).toBe("launched");
+    const [record] = await keptRecords(source.id);
+    expect(record?.request).toMatchObject({ instruction: text });
+    expect(record?.request).not.toHaveProperty("policy");
+    expect(record).not.toHaveProperty("establishedSession");
+  } finally {
+    unmount();
+  }
 });
 
 test("a confirmed review Start keeps no confirmation, hands the developer's exact text first and leaves the checkout as it was", async () => {

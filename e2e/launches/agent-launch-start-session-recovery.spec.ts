@@ -9,7 +9,8 @@
 // workspace selection. A start stopped before or after its workspace:
 // ../../dashboard/backend-tests/launches/isolated-start-before-establishment.spec.ts.
 // A refused start: ../../dashboard/backend-tests/launches/isolated-start-after-establishment.spec.ts.
-// Execution checkout: ../../dashboard/backend-tests/launches/execution-checkout-start-stops.spec.ts.
+// The execution checkout timeout, retained claim and Continue:
+// ../../dashboard/backend-tests/launches/execution-checkout-start-stops.spec.ts.
 // A conversation whose first input is unconfirmed:
 // ../../dashboard/backend-tests/launches/pending-input-continuation.spec.ts.
 

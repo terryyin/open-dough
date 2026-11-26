@@ -179,7 +179,7 @@ release. The case passed in 877 ms with no retries.
 ### 2. Restore the kept-start continuation observations
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Proof:
@@ -195,6 +195,17 @@ Proof:
 - Confirming existing changes on a request with no policy records no
   `policy` and no `establishedSession`.
 - Use the held installed start, a real bare origin and private stores.
+
+Outcome (5.3 active minutes). The Node selection retained all nine baseline
+cases. Eleven cases passed, including the timed-out execution-checkout Start
+and confirmed Start without a policy. The timeout case observes the durable
+claim SHA at the new origin revision, then the project cwd, absent instruction,
+and persisted landing authority on Continue. The distinct choice establishes
+`session-2` while the waiting worktree and uncertain record stay intact. The
+retained Chromium isolated recovery journey passed and its header identifies
+the Node timeout owner. Dashboard typecheck and targeted ESLint passed. Only
+subject specs and the recovery header changed, with no refactor candidate in
+the observed paths or their shared operations.
 
 ### 3. Restore scheduled feedback eligibility and review read failures
 
