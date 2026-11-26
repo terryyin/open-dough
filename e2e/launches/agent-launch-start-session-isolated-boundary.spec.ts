@@ -4,7 +4,7 @@
 // and collisions belong to ../../dashboard/backend-tests/launches/launch-workspace.spec.ts. A host
 // whose installation cannot establish a session offers only the default
 // choices in the dialog; Codex's worktree start is
-// ../../dashboard/backend-tests/launches/agent-launch-start-session-isolated-codex.spec.ts.
+// ../../dashboard/backend-tests/launches/isolated-codex-session-start.spec.ts.
 // The dialog's journeys are in ./agent-launch-start-session-isolated.spec.ts.
 
 import { realpathSync } from "node:fs";

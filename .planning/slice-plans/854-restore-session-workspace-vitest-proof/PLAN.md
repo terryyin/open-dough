@@ -242,7 +242,7 @@ passed. Dashboard typecheck and targeted ESLint passed.
 ### 4. Move the Codex isolated start off the legacy runner
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Proof:
@@ -260,6 +260,19 @@ The Codex native dispatch is `launchHost` itself. The origin is prepared with
 `startOrigin(repository, { host: "codex" })` and the Codex layout, and the
 fake protocol's `env` is stubbed into `process.env`, which the Codex host
 reads.
+
+Outcome (7.1 active minutes). The Node case passed with the default limit.
+It checks the real installed branch arguments and established Git revision,
+the `thread/start` cwd, the durable reporting context, the exact order of
+the four first-input parts, and native connection teardown. The mapped listing
+went from 45 Node and one legacy case to 46 Node and zero legacy cases, with
+the other 45 titles unchanged. The separately scoped maintenance admission
+case remains with its supplier. The first Node trial hit its own test limit
+with fixture setup in the body. The focused case passed with fixture lifecycle
+in the hook, keeping the installed Start and observations in the test.
+Dashboard typecheck and targeted ESLint passed. The retained isolated Chromium
+reporting assertions still apply. Only subject specs and the cross-reference
+header changed, with no refactor candidate in their shared operations.
 
 ### 5. Bring the real-Git landing and existing-changes cases well within the default limit
 
