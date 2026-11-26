@@ -220,7 +220,7 @@ branch, a file-size extraction and a new journey, which did not fit one
 ### 5. Answer the project tree in every mounted Project Intent fixture
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `npm run typecheck:dashboard` and the mounted intent, navigation and
 configuration suites, unchanged in behavior.
 
@@ -229,6 +229,13 @@ answer `readProjectTree`, so their tree falls back to the configured location
 files. Add a MakeMe step that answers the tree from the case's own location
 files without calling `readLocations` again (read-count specs depend on
 that), and move those fixtures onto it. Nothing visible changes.
+
+Delivered: the builder's default now answers each revision's tree from the
+locations the case's own `readLocations` answered there, so no fixture
+changed. A case whose revision an earlier mount already read gets no
+locations call and keeps an unanswered tree; slice 6 cases need their own
+revision. Refactor pass skipped: one test-support file, the slice's subject,
+with no refactor-check candidate on review.
 
 ### 6. Keep the current reading until Show latest can replace it
 
