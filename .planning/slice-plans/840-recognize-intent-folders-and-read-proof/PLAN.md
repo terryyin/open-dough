@@ -320,6 +320,31 @@ Accepted proof (focused one-worker runs under `caffeinate -s -i`):
   `slice-4-report.md` and `slice-4-*.log.run.json` in Git
   `open-dough/evidence` for literal commands, setup, and test locations.
 
+CI consumer repair: Run 45731012531 at `d303911c9` found three selected
+comparison proof cases still assuming Files stayed open after a narrow
+Summary choice. `intent-story-compare-selected-counts.spec.ts` now reopens
+Files through the normal control before choosing the file. All five
+selected-count cases and eleven drawer cases passed in the focused mounted
+run. Assertions and drawer behavior are unchanged. See
+`ci-repair-selected-counts-report.md` in Git `open-dough/evidence`.
+
+## Execution complete
+
+Product advice: Keep the existing order and scope of the file filters and
+published-project browsing stories. The shared tree and Summary contracts
+are in place for those stories. No product correction is indicated by the
+delivered implementation and reviewed local proof.
+
+The review covered the four published implementation commits from
+`cf0cd72b7` through `d303911c9` against the seed and the drawer amendment.
+Mounted and Node cases drove the implementation. End-to-end checks cover
+real Git revisions, artifact reads, and cross-view navigation. The CI repair
+above preserves each reviewed product and proof conclusion. Applicable CI
+for the repaired branch remains to be observed.
+The selected process review is deferred to wrap-up. Intent Coverage is
+enabled, and the retired accordion assertions and rewritten Story-card
+proof warrant checking the protection of one replaced promise there.
+
 ## Verification and plan review
 
 - Run the installed
@@ -342,19 +367,3 @@ Accepted proof (focused one-worker runs under `caffeinate -s -i`):
   as written, apply `dough-makeme` to test data builders and
   `dough-page-objects` only where `pageObjects: true` (`e2e/`), and run
   `dough-post-change-refactor` before each slice commit.
-
-## Execution complete
-
-Product advice: Keep the existing order and scope of the file filters and
-published-project browsing stories. The shared tree and Summary contracts
-are in place for those stories. No product correction is indicated by the
-delivered implementation and reviewed local proof.
-
-The review covered the four published implementation commits from
-`cf0cd72b7` through `d303911c9` against the seed and the drawer amendment.
-Mounted and Node cases drove the implementation. End-to-end checks cover
-real Git revisions, artifact reads, and cross-view navigation. Applicable
-CI observation is unresolved after the GitHub CLI login failed.
-The selected process review is deferred to wrap-up. Intent Coverage is
-enabled, and the retired accordion assertions and rewritten Story-card
-proof warrant checking the protection of one replaced promise there.
