@@ -36,3 +36,17 @@ export const status = (project: string) =>
   execFileSync("git", ["-C", project, "status", "--porcelain"], {
     encoding: "utf8",
   });
+
+// The checkout's branch, HEAD, index and changes, which a borrowed Start
+// leaves as they were.
+export const checkoutState = (project: string) =>
+  [
+    ["symbolic-ref", "HEAD"],
+    ["rev-parse", "HEAD"],
+    ["ls-files", "--stage"],
+    ["status", "--porcelain", "--untracked-files=all"],
+  ]
+    .map((args) =>
+      execFileSync("git", ["-C", project, ...args], { encoding: "utf8" }),
+    )
+    .join("\n");

@@ -1,6 +1,6 @@
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 // A kept Claude Code conversation whose first input is unconfirmed
-// (../../dashboard/server/launchRun.ts): Claude Code writes no first-input evidence and has
+// (../../dashboard/server/nativeSessionRun.ts): Claude Code writes no first-input evidence and has
 // no native recovery, so only legacy or hand-edited launch evidence reaches
 // this. A launch matching it starts no other conversation and answers what is
 // known and what to check, read as formed under Startup recovery. The

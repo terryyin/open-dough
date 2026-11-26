@@ -17,6 +17,7 @@ import { AgentLaunches } from "../../server/agentLaunches.ts";
 import { claudeHost } from "../../server/claudeHost.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
+import { launchHost } from "../../server/launchHosts.ts";
 import { attemptRun } from "../../server/launchRun.ts";
 import { keptRecords } from "../../server/launchRecordStore.ts";
 import { machineFolder } from "../../server/localFolder.ts";
@@ -106,8 +107,7 @@ beforeEach(async () => {
       note,
       note,
       note,
-      new StartProgress(),
-      marks,
+      { progress: new StartProgress(), doneMarks: marks, native: launchHost },
     );
   } finally {
     removeHook(origin);

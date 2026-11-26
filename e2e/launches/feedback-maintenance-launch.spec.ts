@@ -6,7 +6,7 @@
 // later checks start nothing more for that due date. The cycle's own
 // completion report settles it as any ad hoc session's does. An attention
 // report, an ended or deleted session, and when nothing starts:
-// ../../dashboard/backend-tests/launches/feedback-maintenance-launch.spec.ts. Real
+// ../../dashboard/backend-tests/launches/feedback-maintenance-due-admission.spec.ts. Real
 // start, launch, installed reporting command, store and gh path; Claude,
 // GitHub and the notification sender are fakes. Checks run every 100 ms;
 // "nothing more" is asserted only after the server has asked GitHub, or
