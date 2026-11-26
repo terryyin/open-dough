@@ -12,7 +12,10 @@ import {
   memoizedAnswer,
   retainedAnswerBytes,
 } from "../../src/answerMemo.ts";
-import { readIntentLocationsAt } from "../../src/authenticatedIntentRead.ts";
+import {
+  readIntentLocationsAt,
+  requestIntentLocationsAt,
+} from "../../src/authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "../../src/authenticatedRead.ts";
 import { forgetCachedFiles } from "../../src/fileContentCache.ts";
 import { readCachedFile } from "../../src/repositoryFileReads.ts";
@@ -225,7 +228,12 @@ test("the locations of a revision are asked once, while unreadable settings are 
     ),
   );
   const read = () =>
-    readIntentLocationsAt(source, revision, new AbortController().signal);
+    readIntentLocationsAt(
+      source,
+      revision,
+      new AbortController().signal,
+      requestIntentLocationsAt,
+    );
   expect(await read()).toMatchObject({
     status: "settings-problem",
     problem: "unreadable",

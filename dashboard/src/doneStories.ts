@@ -10,7 +10,7 @@
 
 import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { isWithinDoneWindow } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { readDoneCatalogAt } from "./authenticatedDoneRead.ts";
+import type { readDoneCatalogAt } from "./authenticatedDoneRead.ts";
 import {
   gapCauseFromOutcome,
   settleAnswered,
@@ -75,7 +75,7 @@ export async function cataloguedAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
-  readCatalog: typeof readDoneCatalogAt = readDoneCatalogAt,
+  readCatalog: typeof readDoneCatalogAt,
 ): Promise<Exclude<DoneStories, { status: "loading" }>> {
   const catalog = await readCatalog(source, revision, signal);
   return catalog.status === "gap"
@@ -101,7 +101,7 @@ export async function readDoneStories(
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
-  readCatalog: typeof readDoneCatalogAt = readDoneCatalogAt,
+  readCatalog: typeof readDoneCatalogAt,
 ): Promise<DoneStories> {
   const question = doneCatalogQuestion(source, revision);
   const prior = outcomes.of(question);

@@ -3,10 +3,12 @@ import { expect, test } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { SessionsOnPage } from "../../src/pageSessions.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import { SessionEntry } from "../../src/SessionEntry.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { mountBoard } from "../navigation/board-mount.ts";
 import { boardReading as board } from "../navigation/board-reading-page.ts";
 import {
@@ -64,20 +66,23 @@ const observed = (records: readonly LaunchRecord[]) =>
 
 async function mountEntries(records: readonly LaunchRecord[]) {
   await mountComponent(
-    createElement(ProjectsOnPage, {
-      projects: [],
-      replaceProjects: () => undefined,
-      children: createElement(
-        SessionsOnPage,
-        { value: inertPageSessions },
-        observed(records).map((record) =>
-          createElement(SessionEntry, {
-            key: record.session.sessionId,
-            record,
-            onStoryCard: record.request.workflow !== "ad-hoc",
-          }),
+    createElement(PageReadsOnPage, {
+      reads: pageReadsSupplying({}),
+      children: createElement(ProjectsOnPage, {
+        projects: [],
+        replaceProjects: () => undefined,
+        children: createElement(
+          SessionsOnPage,
+          { value: inertPageSessions },
+          observed(records).map((record) =>
+            createElement(SessionEntry, {
+              key: record.session.sessionId,
+              record,
+              onStoryCard: record.request.workflow !== "ad-hoc",
+            }),
+          ),
         ),
-      ),
+      }),
     }),
   );
 }

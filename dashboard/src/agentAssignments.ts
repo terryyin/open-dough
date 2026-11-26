@@ -14,7 +14,7 @@ import {
   agentHosts,
   agentModes,
 } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { readAgentProfilesAt } from "./authenticatedProfileRead.ts";
+import type { readAgentProfilesAt } from "./authenticatedProfileRead.ts";
 import type { HumanAttribution } from "./assignmentAttribution.ts";
 import { interpretProfiles } from "./interpretAgentProfiles.ts";
 import {
@@ -136,7 +136,7 @@ export async function readAssignments(
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
-  readProfiles: typeof readAgentProfilesAt = readAgentProfilesAt,
+  readProfiles: typeof readAgentProfilesAt,
 ): Promise<ProfilesRead> {
   const question = profilesQuestion(source.id, revision);
   const prior = outcomes.of(question);

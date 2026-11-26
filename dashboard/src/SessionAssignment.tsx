@@ -12,6 +12,7 @@ import {
 } from "./agentAssignments.ts";
 import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
+import { useSessionAssignmentReads } from "./pageReads.tsx";
 import { ObservationOutcomes } from "./observationOutcomes.ts";
 import { withinReadWait } from "./readWaitBound.ts";
 import { HumanCreditBrief } from "./HumanCredit.tsx";
@@ -36,6 +37,7 @@ export function SessionAssignment({
   const source = useProjects().find(
     (project) => project.id === record.request.source,
   );
+  const { readProfiles, readProfileAddition } = useSessionAssignmentReads();
   const [assignment, setAssignment] = useState<AgentAssignment | undefined>();
   const [reading, setReading] = useState(false);
 
@@ -57,6 +59,7 @@ export function SessionAssignment({
         untilEither,
         outcomes,
         bound,
+        readProfiles,
       );
       if (profilesUnread(profiles)) return undefined;
       const own = profiles.assignments.filter(
@@ -67,7 +70,14 @@ export function SessionAssignment({
         source,
         revision,
         { ...profiles, assignments: own },
-        profileAdditionsAt(source, revision, untilEither, outcomes, bound),
+        profileAdditionsAt(
+          source,
+          revision,
+          untilEither,
+          outcomes,
+          bound,
+          readProfileAddition,
+        ),
         untilEither,
         bound,
       );
@@ -86,7 +96,7 @@ export function SessionAssignment({
     return () => {
       controller.abort();
     };
-  }, [source, revision, agent, identity]);
+  }, [source, revision, agent, identity, readProfiles, readProfileAddition]);
 
   if (agent === undefined) return null;
   const human = assignment?.human;

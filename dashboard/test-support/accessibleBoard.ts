@@ -3,10 +3,6 @@
 // preconditions; what the page shows is for each test to observe.
 
 import { describedBacklog } from "./describedRevisions.ts";
-import {
-  putFrontendBacklog,
-  type FrontendServiceState,
-} from "./support/frontendServiceState.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const revision = "7c0ffee1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f607";
@@ -107,10 +103,3 @@ export const largeBacklogRepository = (files?: Record<string, string>) =>
       ...(files === undefined ? {} : { files }),
     })
     .please();
-
-export const largeBacklog = describedBacklog(largeBacklogRepository());
-
-// The substitute project publishes the backlog too long for one screen.
-export function publishLargeBacklog(services: FrontendServiceState) {
-  putFrontendBacklog(services, { revision, backlog: largeBacklog });
-}

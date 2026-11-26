@@ -1,7 +1,8 @@
 // Each browser test group once, as its runner and its CI job both take it:
 // the npm `command` its job in ../../../.github/workflows/ci.yml runs, its
-// OPEN_DOUGH_* settings `prefix`, the `directory` its Playwright `config`
-// lives in and labels specs relative to, its test `root` there and its CI
+// OPEN_DOUGH_* settings `prefix`, the `directory` its configs live in and
+// labels specs relative to, its Playwright `config` unless it runs on Vitest
+// alone, its test `root` there and its CI
 // `job`, whose declared shards it runs (./runnerConfig.mjs
 // prepareFocusedRun). Their agreement with ci.yml:
 // ../../../Distribution/tests/support/ci-browser-groups.test.mjs.
@@ -14,7 +15,7 @@ import { ciGroupSelection } from "./testFiles.mjs";
  *   prefix: string,
  *   directory: URL,
  *   root: string,
- *   config: string,
+ *   config?: string,
  * }} BrowserTestGroup
  */
 
@@ -37,7 +38,6 @@ export const frontendGroup = {
   prefix: "OPEN_DOUGH_DASHBOARD_FRONTEND",
   directory: dashboard,
   root: "frontend-tests",
-  config: "frontend.playwright.config.ts",
 };
 
 /** @type {BrowserTestGroup} */

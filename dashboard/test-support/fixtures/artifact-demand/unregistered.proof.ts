@@ -1,10 +1,12 @@
 // Run by ../../../backend-tests/runtime/runner-ownership.spec.ts under
-// Dashboard Backend Test's setup, which registers no comparison mount.
+// Dashboard Backend Test's setup, which registers no such artifact.
 import { expect, test } from "../../support/pageTest.ts";
-import { comparisonMountBuild } from "../../support/comparisonMountArtifact.ts";
+import { requestRunArtifact } from "../../support/runArtifacts.ts";
 
 test("a request for an artifact the run does not register fails naming it", async () => {
-  await expect(comparisonMountBuild()).rejects.toThrow(
-    "Could not prepare dashboard artifact intent-comparison-mount: this run's setup does not register it.",
+  await expect(
+    requestRunArtifact("unregistered-proof-artifact"),
+  ).rejects.toThrow(
+    "Could not prepare dashboard artifact unregistered-proof-artifact: this run's setup does not register it.",
   );
 });

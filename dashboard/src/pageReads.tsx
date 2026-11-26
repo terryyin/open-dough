@@ -6,7 +6,9 @@
 // `./ConfiguredDashboard.tsx` the authenticated implementations. The dashboard
 // hands the published observation and launch owner their reads; Recently
 // done's links read another project's snapshot and done catalog through
-// `useDoneLinkReads`. Every other consumer
+// `useDoneLinkReads`, and a kept session's original allocation reads the
+// revision's profiles and additions through `useSessionAssignmentReads`.
+// Every other consumer
 // reaches them through this one entry and fails outside it.
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
@@ -171,6 +173,10 @@ export const useInstructionTranscription = (): InstructionTranscriptionSource =>
 export const useDoneRecordReads = (): DoneRecordReadSource =>
   usePageReads().done;
 export const useDoneLinkReads = (): DoneLinkReads => usePageReads().observation;
+export const useSessionAssignmentReads = (): Pick<
+  PublishedObservationReadSource,
+  "readProfiles" | "readProfileAddition"
+> => usePageReads().observation;
 export const useCiFollowUpReads = (): CiFollowUpReadSource =>
   usePageReads().ciFollowUp;
 export const useSourceHighlighter = (): SourceHighlighter =>

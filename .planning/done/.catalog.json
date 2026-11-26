@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_retire-legacy-dashboard-frontend-runner.json",
+      "identity": "SEED-413#retire-legacy-dashboard-frontend-runner",
+      "completedAt": "2026-11-26T11:03:39.656Z",
+      "blob": "7f525e1162562a437e97cab1210b477786e856ca"
+    },
+    {
       "fileName": "SEED-413_prove-session-workspace-starts-on-vitest.json",
       "identity": "SEED-413#prove-session-workspace-starts-on-vitest",
       "completedAt": "2026-11-26T09:58:40.088Z",
@@ -3342,12 +3348,6 @@
       "identity": "SEED-156#recently-done-sessions-in-sidebar",
       "completedAt": "2026-10-28T00:53:51.785Z",
       "blob": "cb17d513e5426a571e8ade6861c999b37453f95d"
-    },
-    {
-      "fileName": "SEED-153_align-dashboard-ui-domain-concepts.json",
-      "identity": "SEED-153#align-dashboard-ui-domain-concepts",
-      "completedAt": "2026-10-27T10:54:01.654Z",
-      "blob": "e4592411ec37bbe34f882fb21a45bf27d128ae02"
     }
   ],
   "unreadable": []

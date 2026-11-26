@@ -51,19 +51,18 @@ as its test families move.
 
 ## Plain Vitest for unit tests; Playwright only for E2E
 
-Remove `@playwright/test` completely from `dashboard/frontend-tests/` (and
-`dashboard/backend-tests/`), reserving Playwright (`@playwright/test` and its
-`Given / When / Then` step style) exclusively for `e2e/`. Run
-`dashboard/frontend-tests/` on **plain Vitest with embedded headless Chromium**
+Keep `@playwright/test` out of `dashboard/frontend-tests/` and remove it
+from `dashboard/backend-tests/`, reserving Playwright (`@playwright/test` and its
+`Given / When / Then` step style) exclusively for `e2e/`.
+`dashboard/frontend-tests/` runs on **plain Vitest with embedded headless Chromium**
 (Vitest Browser Mode, as in Doughnut — real Chromium DOM and CSS without
 `@playwright/test` imports, `page.route(...)`, `test.step(...)`, or page
-objects), deleting `dashboard/frontend.playwright.config.ts` and the
-dual-runner glue in `scripts/test-frontend.mjs`,
-`scripts/dashboard-group-run.mjs`, `scripts/retained-playwright.mjs`, `groupVitest.mjs`, `groupOutputs.mjs`, and `groupSelection.mjs`; move
-any true multi-service or full-reload straggler to `e2e/` (or drop duplicates)
-rather than retaining Playwright in `frontend-tests/`. Run
+objects); move any true multi-service or full-reload straggler to `e2e/` (or
+drop duplicates) rather than adding Playwright to `frontend-tests/`. Run
 `dashboard/backend-tests/` on plain Vitest in Node, deleting
-`dashboard/backend.playwright.config.ts`.
+`dashboard/backend.playwright.config.ts` and the backend group's dual-runner
+glue in `scripts/dashboard-group-run.mjs`, `scripts/retained-playwright.mjs`,
+`groupVitest.mjs`, `groupOutputs.mjs`, and `groupSelection.mjs`.
 
 Applies to all upcoming dashboard (`dashboard/server/`, `dashboard/src/`,
 `dashboard/*-tests/`, `dashboard/test-support/`), distribution (`Distribution/`),

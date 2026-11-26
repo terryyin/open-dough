@@ -2,7 +2,7 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewedPublishedSessionSubject } from "../../src/reviewedWorkSubject.ts";
-import { frontendReviewIds } from "../../test-support/support/frontendStoryReview.ts";
+import { frontendReviewIds } from "../../test-support/support/frontendStoryReviewFixtures.ts";
 import {
   adHocSession,
   mountReviewChanges,

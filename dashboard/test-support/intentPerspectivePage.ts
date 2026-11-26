@@ -10,7 +10,21 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
-import { countAuthenticatedReads } from "./support/frontendAuthenticatedReadControl.ts";
+import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
+
+// How many reads matching `which` the page has asked of the boundary from now on.
+function countAuthenticatedReads(
+  page: Page,
+  which: (params: URLSearchParams) => boolean,
+) {
+  let reads = 0;
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === authenticatedReadEndpoint && which(url.searchParams))
+      reads += 1;
+  });
+  return () => reads;
+}
 
 // The project, Development's view and the perspective the address names.
 export function expectAddress(

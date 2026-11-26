@@ -1,5 +1,5 @@
 // The lifecycle every dashboard run's global setup owns, whichever group it
-// runs (./globalSetup.ts, ./frontendGlobalSetup.ts, ./backendGlobalSetup.ts):
+// runs (./globalSetup.ts, ./backendGlobalSetup.ts):
 // it registers the artifacts that run's workers may request, and its
 // teardown, after every worker has exited, settles and removes them, ends
 // and names whatever of the run is still running (./runProcesses.ts),

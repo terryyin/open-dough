@@ -1,8 +1,8 @@
 // Each runner owning one group owns its selection, settings and output:
-// Dashboard Frontend Test (../../frontend.playwright.config.ts), Dashboard
-// Backend Test (../../backend.playwright.config.ts) and E2E Test
-// (../../../e2e/playwright.config.ts), started through npm or as a direct
-// config from another working directory, record only their own selection
+// Dashboard Frontend Test (../../frontend.vitest.config.mts, through npm
+// only), Dashboard Backend Test (../../backend.playwright.config.ts) and E2E
+// Test (../../../e2e/playwright.config.ts), started through npm or as a
+// direct config from another working directory, record only their own selection
 // through their own proof variable into their own run directory, whichever
 // other runner's share, record, times or deadline the caller's environment
 // also names; runs started beside each other keep their own run directories
@@ -33,25 +33,25 @@ test.afterAll(removeProofDirectories);
 test.describe.configure({ mode: "default" });
 
 const cli = path.join(repoRoot, "node_modules/playwright/cli.js");
-const entries = [
+const directEntries = [
   "normal npm",
   "direct config from another working directory",
 ] as const;
+type Entry = (typeof directEntries)[number] | "normal npm beside it";
+const entriesOf = (runner: GroupRunnerExample): readonly Entry[] =>
+  runner.direct ? directEntries : ["normal npm", "normal npm beside it"];
 
 // One runner's own quick case started through `entry`, handed every other
 // runner's settings as its CI shard sets them: a share that would exclude the
 // target from this runner's own shard, a record, a times file, and a deadline
 // already passed. Reading any of them would deselect the target, write
 // elsewhere or fail the run.
-function startOwnSelection(
-  runner: GroupRunnerExample,
-  entry: (typeof entries)[number],
-) {
+function startOwnSelection(runner: GroupRunnerExample, entry: Entry) {
   const directory = proofDirectory();
   const recordPath = path.join(directory, "own-proof.json");
   const configFile = path.join(repoRoot, runner.config);
   const target = path.join(repoRoot, runner.root, runner.spec);
-  const direct = entry !== "normal npm";
+  const direct = entry === "direct config from another working directory";
   const selection = [runner.spec, "--grep", runner.grep, "--workers=1"];
   const args = direct
     ? [cli, "test", "--config", configFile, ...selection]
@@ -83,7 +83,8 @@ function startOwnSelection(
 }
 
 for (const runner of groupRunnerExamples)
-  test(`${runner.name} runs started beside each other, by npm and by direct config from another working directory, each record only their own selection under their own settings in their own run directory`, async () => {
+  test(`${runner.name} runs started beside each other, ${runner.direct ? "by npm and by direct config from another working directory" : "by npm"}, each record only their own selection under their own settings in their own run directory`, async () => {
+    const entries = entriesOf(runner);
     const started = entries.map((entry) => startOwnSelection(runner, entry));
     const results = await Promise.allSettled(
       started.map(({ run }) => run.result),
@@ -93,7 +94,10 @@ for (const runner of groupRunnerExamples)
     for (const [index, own] of started.entries()) {
       expect(results[index], own.entry).toMatchObject({
         status: "fulfilled",
-        value: { status: 0, stdout: "", stderr: "" },
+        // Vitest reports its passing case; a Playwright runner stays quiet.
+        value: runner.direct
+          ? { status: 0, stdout: "", stderr: "" }
+          : { status: 0, stderr: "" },
       });
       expect(
         own.otherOutputs.filter((output) => existsSync(output)),
@@ -111,7 +115,7 @@ for (const runner of groupRunnerExamples)
         terminal: { runnerStatus: "passed", strictStatus: "passed" },
       });
       expect(record.tests[0], own.entry).toMatchObject({
-        project: "chromium",
+        project: runner.project,
         location: { file: own.target },
         attempts: [{ status: "passed" }],
       });
@@ -124,7 +128,7 @@ for (const runner of groupRunnerExamples)
       outputs.push(...runDirectories);
     }
     expect(new Set(outputs).size).toBe(entries.length);
-    if (process.env["CI"]) {
+    if (process.env["CI"] && runner.direct) {
       for (const output of outputs) {
         const report = path.join(
           output,
@@ -138,7 +142,7 @@ for (const runner of groupRunnerExamples)
     expect(outputs.every((output) => !existsSync(output))).toBe(true);
   });
 
-test("Dashboard Backend Test's setup registers no comparison mount, so a spec asking for one fails naming it", async () => {
+test("A spec asking for an artifact Dashboard Backend Test's setup does not register fails naming it", async () => {
   const run = startProofRun({
     spec: "unregistered.proof.ts",
     config: {

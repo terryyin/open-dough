@@ -2,8 +2,7 @@
 // start dashboard servers, real Git origins and synthetic hosts, prepared as
 // for any such run (./serviceRunSetup.ts), and may request what they serve
 // from: the app build, the server bundle, the installed start origins, the
-// published main sources and the story-columns history. It builds no
-// comparison mount, which only Dashboard Frontend Test renders; a workflow
+// published main sources and the story-columns history. A workflow
 // requesting an artifact this run does not register fails naming it
 // (./runArtifacts.ts). Its run identity and teardown are the shared run
 // lifecycle's (./runLifecycle.ts).

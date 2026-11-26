@@ -105,7 +105,7 @@ function proveArtifact(
           workers: 2,
           globalSetup: artifact.setup ?? setup,
         },
-        args: outcome === "interrupt" ? ["--grep", "static server"] : [],
+        args: outcome === "interrupt" ? ["--grep", "first preview server"] : [],
         env: {
           NODE_OPTIONS: [
             process.env["NODE_OPTIONS"],
@@ -231,7 +231,6 @@ proveArtifact(
 // Each other group runner's own setup shares the app build the same way and
 // removes it when interrupted.
 for (const [runner, file] of [
-  ["Dashboard Frontend Test", "frontendGlobalSetup.ts"],
   ["Dashboard Backend Test", "backendGlobalSetup.ts"],
   ["E2E Test", "e2eGlobalSetup.ts"],
 ] as const)

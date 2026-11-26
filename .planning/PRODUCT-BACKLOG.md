@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision ([plan](slice-plans/841-browse-the-project-at-a-revision/PLAN.md))
 - [Open the published Board at verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk ([plan](slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md))
 - [Prove host launch choices and first input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-first-input-on-vitest) — SEED-413#prove-native-first-input-on-vitest ([plan](slice-plans/849-prove-native-first-input-on-vitest/PLAN.md))
-- [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner ([plan](slice-plans/800-run-the-entire-dashboard-frontend-unit-suite-on-vitest/PLAN.md))
 
 ## Backlog list
 
+- [Refuse frontend specs the Vitest-only runner would skip](seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-non-vitest-frontend-specs) — SEED-413#refuse-non-vitest-frontend-specs
 - [Restore dropped session workspace proof in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#restore-session-workspace-vitest-proof) — SEED-413#restore-session-workspace-vitest-proof
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git

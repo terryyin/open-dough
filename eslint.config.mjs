@@ -28,10 +28,6 @@ const rules = {
 };
 const unusedVars = ["error", { args: "all", caughtErrors: "all" }];
 
-// The modules whose `test` runs a Frontend spec against substitutes.
-const frontendTestModules =
-  "dashboard/test-support/support/frontendApp.ts or dashboard/test-support/support/pageTest.ts";
-
 export default defineConfig(
   globalIgnores(ignores),
   {
@@ -80,7 +76,7 @@ export default defineConfig(
     // Keep the app's own sources and mounts in the DOM-enabled project.
     files: [
       "dashboard/src/**/*.{ts,mts,tsx}",
-      "dashboard/test-support/{comparison-mount,component-mount,mounted-dashboard,phone-board-mount}/**/*.{ts,mts,tsx}",
+      "dashboard/test-support/{component-mount,mounted-dashboard,phone-board-mount}/**/*.{ts,mts,tsx}",
     ],
     languageOptions: {
       parserOptions: { project: "./dashboard/tsconfig.app.json" },
@@ -125,11 +121,10 @@ export default defineConfig(
     },
   },
   {
-    // Frontend specs run the built app against substitutes, never the real
+    // Frontend specs are Vitest unit tests, never Playwright, the real
     // dashboard server, fake GitHub or fake hosts. Names are refused, not
     // modules: their helpers stay importable from dashboardTest.ts. This
-    // block replaces the shared one's options for these files, so it
-    // restates its restriction.
+    // block replaces the shared one's options for these files.
     files: ["dashboard/frontend-tests/**/*.{ts,mts,tsx}"],
     rules: {
       "no-restricted-imports": [
@@ -138,15 +133,16 @@ export default defineConfig(
           paths: [
             {
               name: "@playwright/test",
-              importNames: ["test", "default"],
-              message: `Import \`test\` from ${frontendTestModules} so the page drains its intercepted reads.`,
+              message:
+                "Frontend specs run on Vitest; Playwright serves E2E and backend specs.",
             },
           ],
           patterns: [
             {
-              regex: "(^|/)dashboardTest\\.ts$",
+              regex: "(^|/)(dashboardTest|pageTest)\\.ts$",
               importNames: ["test", "default"],
-              message: `Frontend specs take \`test\` from ${frontendTestModules}; dashboardTest.ts's \`test\` starts the real dashboard server.`,
+              message:
+                "Frontend specs take `test` from Vitest; these modules' `test` runs Playwright.",
             },
             {
               regex: ".",
@@ -157,7 +153,8 @@ export default defineConfig(
                 "installFakeCodex",
                 "installFakeCursor",
               ],
-              message: `Frontend specs do not start the dashboard server, fake GitHub or a fake host; take \`test\` from ${frontendTestModules} and substitute the services.`,
+              message:
+                "Frontend specs do not start the dashboard server, fake GitHub or a fake host; mount the component with typed sources.",
             },
           ],
         },

@@ -1,5 +1,5 @@
-// Each runner owning one group (dashboard/frontend.playwright.config.ts,
-// dashboard/backend.playwright.config.ts, e2e/playwright.config.ts) takes
+// Each Playwright runner owning one group
+// (dashboard/backend.playwright.config.ts, e2e/playwright.config.ts) takes
 // the repository admission when unfiltered, and only then: its focused runs,
 // its listing and its own CI split stay independent, and another group's
 // split does not make its run focused.
@@ -17,11 +17,6 @@ import {
 } from "./local-test-suite-fixtures.mjs";
 
 const runners = [
-  {
-    name: "Dashboard Frontend Test",
-    config: "controlled-frontend.config.mts",
-    split: "OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT",
-  },
   {
     name: "Dashboard Backend Test",
     config: "controlled-backend.config.mts",
