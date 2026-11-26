@@ -120,6 +120,11 @@ const ancestorRuns = (head: string): readonly CiRunAnswer[] => [
     .please(),
 ];
 
+type ProofDownloads = {
+  readonly zip: () => OriginAnswer | Promise<OriginAnswer>;
+  readonly artifacts?: () => OriginAnswer;
+};
+
 // Intent opened on CI status for trunk publishing FILES (by default the
 // tree above), its proof downloads answered by ARTIFACTS and ZIP.
 export async function openIntent(
@@ -128,16 +133,32 @@ export async function openIntent(
   artifacts: () => OriginAnswer = () => runArtifactsAnswer(run, artifactId),
   files: Readonly<Record<string, string>> = published,
 ) {
-  await page.setViewportSize({ width: 1280, height: 900 });
   const project = publishProject(page, openDough, files);
-  const judgment = trunkCi(project.revision, () =>
-    ancestorRuns(project.revision),
-  );
+  return openPublishedIntent(page, project, () => project.revision, {
+    zip,
+    artifacts,
+  });
+}
+
+// Intent opened on CI status for PROJECT, its trunk running at HEAD() with
+// the completed ancestor's proof downloads answered by DOWNLOADS.
+export async function openPublishedIntent<
+  Project extends { serveCi(answer: CiAnswerer): void },
+>(
+  page: Page,
+  project: Project,
+  head: () => string,
+  {
+    zip,
+    artifacts = () => runArtifactsAnswer(run, artifactId),
+  }: ProofDownloads,
+) {
+  await page.setViewportSize({ width: 1280, height: 900 });
   const ci: CiAnswerer = (call) => {
     const { request } = call;
     if (request.kind === "actions-run-artifacts") return artifacts();
     if (request.kind === "actions-artifact-zip") return zip();
-    return judgment(call);
+    return trunkCi(head(), () => ancestorRuns(head()))(call);
   };
   project.serveCi(ci);
   // Source body reads of Intent's locations: every authenticated read naming

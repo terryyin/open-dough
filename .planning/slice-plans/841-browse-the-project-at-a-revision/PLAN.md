@@ -194,7 +194,7 @@ area has no list.
 ### 4. Open real source from Project Intent CI and return Home
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: A focused routed-origin Playwright journey starting from Project
 Intent CI and opening actual production, document, and test source.
 
@@ -202,6 +202,15 @@ Keep test Purpose and Proof, use the existing evidence wording for a file
 without a CI result, and have **Home** return to the existing CI overview
 with the filter kept. Compare the rendered file Proof and CI overview with
 the fixture's measured build and CI change.
+
+Delivered: the second test in
+[intent-file-purpose-proof.spec.ts](../../../e2e/intent/intent-file-purpose-proof.spec.ts)
+opens production, document and test source at A while B is available, over
+the A/B history in
+[intentProjectSourceFixtures.ts](../../../dashboard/test-support/intentProjectSourceFixtures.ts),
+which slice 5 can reuse. An ordinary project file's Proof uses the existing
+"declares no entry holding <path>" wording. After trunk moves, the CI
+overview judges B while the browser stays at A.
 
 Learning from the first slice-2 attempt (2.8 active minutes, nothing
 changed): the combined slice needed fixture migration, a whole-project

@@ -77,11 +77,17 @@ export async function revealIntentLocation(
   return locationName(await revealLocationRow(intent, locationPath));
 }
 
+const folderRow = (intent: Locator, path: string) =>
+  intent.locator(`li[data-folder-path=${JSON.stringify(path)}] > div`);
+
 // Selectable name for one Intent folder under the shared file tree.
 export function intentFolderName(intent: Locator, path: string) {
-  return locationName(
-    intent.locator(`li[data-folder-path=${JSON.stringify(path)}] > div`),
-  );
+  return locationName(folderRow(intent, path));
+}
+
+// Open one folder of the shared file tree whose parent is already open.
+export async function expandIntentFolder(intent: Locator, path: string) {
+  await expandToggle(disclosure(folderRow(intent, path)));
 }
 
 // Disclose the location after revealing its ancestors.

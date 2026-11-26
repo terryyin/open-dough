@@ -3,6 +3,7 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
+  expandIntentFolder,
   expandIntentFolders,
   expandIntentGroup,
   intentGroupToggle,
@@ -11,10 +12,20 @@ import {
 
 // The files column lists the whole project; Intent only narrows it to the
 // files the configured locations select.
+export const intentOnly = (intent: Locator) =>
+  intent.getByRole("checkbox", { name: "Intent only", exact: true });
+
 export async function chooseIntentOnly(intent: Locator) {
-  await intent
-    .getByRole("checkbox", { name: "Intent only", exact: true })
-    .check();
+  await intentOnly(intent).check();
+}
+
+// Opens a tracked file in the whole-project tree, expanding each closed
+// folder on its path.
+export async function openProjectFile(intent: Locator, path: string) {
+  const folders = path.split("/").slice(0, -1);
+  for (let depth = 1; depth <= folders.length; depth += 1)
+    await expandIntentFolder(intent, folders.slice(0, depth).join("/"));
+  await sourceFile(intent, path).click();
 }
 
 // Notes the page's authenticated project-file reads from now on, and says
