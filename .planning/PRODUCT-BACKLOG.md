@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Complete story-linked ad hoc sessions in the Dashboard](seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions) — SEED-439#complete-story-linked-ad-hoc-sessions ([plan](slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md))
-- [Qualify Board fixture routing and request boundaries](seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries) — SEED-430#qualify-board-fixture-routing-and-request-boundaries ([plan](slice-plans/827-qualify-board-fixture-routing-and-request-boundaries/PLAN.md))
 
 ## Backlog list
 
