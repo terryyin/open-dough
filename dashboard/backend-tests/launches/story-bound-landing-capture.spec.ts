@@ -9,33 +9,32 @@
 // publisher: ../../../e2e/launches/agent-launch-start-session-landing-context.spec.ts
 // and ./declared-blank-launch-publication.spec.ts.
 import path from "node:path";
-import { afterEach, beforeAll, expect, test, vi } from "vitest";
+import { beforeAll, expect, onTestFinished, test, vi } from "vitest";
+import { LandingAuthorityBuilder } from "../../../Distribution/tests/support/launchLandingEvidenceTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { recordedRequest } from "../../server/hostLaunch.ts";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { settleAttempt } from "../../server/launchAttemptSettlement.ts";
 import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
 import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import { handleLanding } from "../../server/launchLandingReporting.ts";
-import { prepareAttemptReporting } from "../../server/launchReportingPreparation.ts";
-import { started } from "../../server/launchStart.ts";
-import { localFolder } from "../../server/localFolder.ts";
+import { attemptRun } from "../../server/launchRun.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { StartProgress } from "../../server/startProgress.ts";
-import { startStore } from "../../server/startStore.ts";
 import { unattachedInput } from "../../server/unattachedInput.ts";
-import { commit, git } from "../../test-support/support/launchLanding.ts";
 import {
-  startOrigin,
-  type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
+  commit,
+  commonGitDir,
+  git,
+} from "../../test-support/support/launchLanding.ts";
+import { startOrigin } from "../../test-support/support/startOrigin.ts";
+import { worktree } from "../../test-support/support/startSessionLanding.ts";
 import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
-const repository = queuedReadyRepository().please();
-const began = new Date();
+const repository = makeMe.aRepository.please();
 const text = "Tidy the README wording";
-
-let origin: StartOrigin | undefined;
 
 beforeAll(async () => {
   const initial = await startOrigin(repository, { host: "claude" });
@@ -46,93 +45,72 @@ beforeAll(async () => {
   }
 });
 
-afterEach(() => {
-  vi.unstubAllEnvs();
-  origin?.cleanup();
-});
-
-// The isolated review Start on its own machine, with the reporting its
-// launch keeps before the session is dispatched.
-async function reviewedStart() {
-  origin = await startOrigin(repository, { host: "claude" });
-  const home = path.join(origin.machine, "home");
-  vi.stubEnv("HOME", home);
-  const request = makeMe.aLaunchRequest
-    .adHoc()
-    .withInstruction(text)
-    .withPolicy({ workspace: "isolated", landing: "review" })
-    .please();
+test("a Wait for review Start hands its session a landing context bound to its story, workspace and target", async () => {
+  const origin = await startOrigin(repository, { host: "claude" });
+  vi.stubEnv("HOME", path.join(origin.machine, "home"));
+  const unmount = mountProjectConfiguration("production");
   const accepted = makeMe.anAcceptedAttempt
-    .requesting(request)
-    .acceptedAt(began.toISOString())
+    .adHocStart(
+      { workspace: "isolated", landing: "review" },
+      { instruction: text },
+    )
     .reportingTo(dashboardOrigin)
     .please();
-  const start = await started(
-    source,
-    request,
-    localFolder("~/git/open-dough", home),
-    new StartProgress(),
-    {
-      store: (workflow) => startStore(workflow, home),
-      env: { ...process.env, HOME: home },
-    },
-    accepted.id,
-    undefined,
-    undefined,
-    began,
+  const owned = new OwnedAttempts();
+  const own = owned.own(accepted.request, accepted);
+  let block: string | undefined;
+  let input: string | undefined;
+  onTestFinished(() => {
+    unmount();
+    vi.unstubAllEnvs();
+    origin.cleanup();
+  });
+  await settleAttempt(owned, own, (current, notes) =>
+    attemptRun(source, current, {
+      notes,
+      progress: new StartProgress(),
+      doneMarks: { reported: () => undefined },
+      native: () => ({
+        launch: (...[, recording, , , established]) => {
+          block = established?.handoff.formatted;
+          input = unattachedInput(recording, block);
+          return Promise.resolve({
+            kind: "uncertain",
+            reason: "unconfirmed",
+            explanation: "Native confirmation is pending.",
+          });
+        },
+      }),
+    }),
   );
-  if (start.kind !== "session" || start.publication.kind !== "published")
-    throw new Error(`Expected a published session: ${JSON.stringify(start)}`);
-  const attempt = { ...accepted, publication: start.publication };
-  const reporting = await prepareAttemptReporting(
-    attempt,
-    start,
-    start.workspace,
-    undefined,
-    undefined,
-  );
-  const prepared =
-    reporting.kind === "prepared" ? reporting.prepared : undefined;
-  if (prepared === undefined) throw new Error("Expected reporting.");
-  await keepAttempt({ ...attempt, ...prepared });
-  const identity = start.publication.identity;
-  if (identity === undefined) throw new Error("Expected a Taken story.");
-  const kept = (await keptAttempts())?.find((entry) => entry.id === attempt.id);
-  const recorded = {
-    ...recordedRequest(request, began),
-    storyIdentity: start.publication.identity,
-    reporting: prepared.reporting,
-  };
-  return {
-    attempt,
-    prepared,
-    authority: kept?.landingRepository,
-    identity,
-    session: start.handoff.established.establishedSession,
-    block: start.handoff.formatted,
-    input: unattachedInput(recorded, start.handoff.formatted) ?? "",
-  };
-}
-
-test("a Wait for review Start hands its session a landing context bound to its story, workspace and target", async () => {
-  const { attempt, prepared, authority, identity, session, block, input } =
-    await reviewedStart();
+  const [attempt] = (await keptAttempts()) ?? [];
+  const authority = attempt?.landingRepository;
+  const identity =
+    attempt?.publication.kind === "published"
+      ? attempt.publication.identity
+      : undefined;
+  if (
+    !attempt?.reporting ||
+    authority === undefined ||
+    identity === undefined ||
+    input === undefined
+  )
+    throw new Error(
+      `Expected the kept Start handoff: ${JSON.stringify(own.attempt)}`,
+    );
+  const prepared = attempt.reporting;
+  const workspace = worktree(origin.project, "tidy-the-readme-wording");
 
   // The kept attempt holds the capture authority the context names.
   expect(authority).toEqual({
-    repository: git(
-      session?.workspace ?? "",
-      "rev-parse",
-      "--path-format=absolute",
-      "--git-common-dir",
-    ),
-    workspace: session?.workspace,
-    branch: session?.branch,
+    repository: commonGitDir(workspace),
+    workspace,
+    branch: "claude/tidy-the-readme-wording",
     identity,
     remote: "origin",
     target: "refs/heads/main",
   });
-  expect(prepared.reporting).toMatchObject({
+  expect(prepared).toMatchObject({
     origin: dashboardOrigin,
     reference: attempt.id,
     landingContext: expect.any(String) as unknown,
@@ -140,27 +118,64 @@ test("a Wait for review Start hands its session a landing context bound to its s
   const [established, reporting, story, developer] = input.split("\n\n");
   expect(established).toBe(block);
   expect(block).toMatch(/^Established session/u);
-  expect(reporting).toContain(prepared.reporting.command);
+  expect(reporting).toContain(prepared.command);
   expect(reporting).toContain(
-    `--landing-context '${prepared.reporting.landingContext ?? ""}'`,
+    `--landing-context '${prepared.landingContext ?? ""}'`,
   );
   expect([story, developer]).toEqual([`Taken story: ${identity}`, text]);
 });
 
 test("the landing owner refuses another story, host, dashboard or target, then prepares and records the story's own comparison", async () => {
-  const { attempt, authority, identity, session } = await reviewedStart();
-  const workspace = session?.workspace ?? "";
-  const landingRepository = authority?.repository ?? "";
+  const identity = "SEED-A#a";
+  const branch = "claude/tidy-the-readme-wording";
+  const checkout = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("base")
+      .withWorkspace(branch, { from: "base" })
+      .please(),
+  );
+  onTestFinished(async () => {
+    vi.unstubAllEnvs();
+    await checkout.cleanup();
+  });
+  vi.stubEnv("HOME", path.join(checkout.fixture, "home"));
+  const { execution: workspace } = checkout;
+  if (workspace === undefined) throw new Error("Missing the launch worktree.");
+  const landingRepository = commonGitDir(workspace);
   const originMain = () =>
     git(workspace, "ls-remote", "origin", "refs/heads/main").slice(0, 40);
   const base = originMain();
   const revision = commit(workspace, "later.txt");
   const landing = makeMe.aLandingSubmission
-    .forLaunch({ reference: attempt.id, identity })
+    .forLaunch({ identity })
     .comparing({ base, revision })
     .please();
+  const pending = makeMe.anAcceptedAttempt
+    .withId(landing.reference)
+    .adHocStart(
+      { workspace: "isolated", landing: "review" },
+      { instruction: text },
+    )
+    .reportingTo(dashboardOrigin)
+    .capturingLanding({
+      reporting: {
+        origin: dashboardOrigin,
+        reference: landing.reference,
+        command: "report",
+      },
+      landingRepository: new LandingAuthorityBuilder()
+        .ofRepository(landingRepository)
+        .inWorktree({ workspace, branch })
+        .forStory(identity)
+        .please(),
+    })
+    .please();
+  await keepAttempt({
+    ...pending,
+    publication: { kind: "published", identity, revision: base },
+  });
   const kept = async () =>
-    (await keptAttempts())?.find((entry) => entry.id === attempt.id);
+    (await keptAttempts())?.find((entry) => entry.id === pending.id);
 
   // The launch's own authority guards the story, remote and target; only its
   // own host reporting to this dashboard reaches that launch at all.
@@ -199,9 +214,9 @@ test("the landing owner refuses another story, host, dashboard or target, then p
     revision,
   });
   expect((await kept())?.landingPreparations).toMatchObject([
-    { base, revision, reference: attempt.id },
+    { base, revision, reference: pending.id },
   ]);
-  const pinned = `refs/open-dough/one-shot/${attempt.id}/${landing.delivery}`;
+  const pinned = `refs/open-dough/one-shot/${pending.id}/${landing.delivery}`;
   expect(await heldLandingPins(landingRepository)).toEqual([
     { ref: `${pinned}/base`, objectId: base },
     { ref: `${pinned}/revision`, objectId: revision },
@@ -218,7 +233,7 @@ test("the landing owner refuses another story, host, dashboard or target, then p
     identity,
     base,
     revision,
-    reference: attempt.id,
+    reference: pending.id,
     receipt: preparedReceipt.receipt,
   });
 });

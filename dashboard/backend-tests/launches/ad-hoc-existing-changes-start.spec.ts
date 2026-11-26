@@ -12,6 +12,7 @@ import { afterEach, beforeAll, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { agentLaunchRequestSchema } from "../../src/launchRequest.ts";
+import { existingChanges } from "../../server/executionCheckoutChanges.ts";
 import { recordedRequest } from "../../server/hostLaunch.ts";
 import { keptRecords } from "../../server/launchRecordStore.ts";
 import { attemptRun } from "../../server/launchRun.ts";
@@ -69,7 +70,6 @@ async function changedCheckout(landing: "review" | "auto-land") {
     folder: localFolder("~/git/open-dough", home),
     request,
     policy,
-    before: checkoutState(origin.project),
   };
 }
 
@@ -86,7 +86,9 @@ async function fingerprintOf(request: AgentLaunchRequest, folder: LocalFolder) {
 // input from what the launch records.
 async function confirmedStart(changed: ChangedCheckout) {
   const request = { ...changed.request, policy: changed.policy };
-  const fingerprint = await fingerprintOf(request, changed.folder);
+  const found = await existingChanges(changed.folder);
+  if (found === undefined) throw new Error("Expected existing changes.");
+  const { fingerprint } = found;
   const confirmed = { ...request, existingChanges: fingerprint };
   const start = await started(
     source,
@@ -148,11 +150,13 @@ test("existing changes answer their current fingerprint, keeping nothing, until 
   expect(found[0]).toMatchObject({ kind: "existing-changes", count: 4 });
   expect(await keptRecords(source.id)).toEqual([]);
 
-  const existingChanges = await fingerprintOf({ ...request, policy }, folder);
+  const [warning] = found;
+  if (warning?.kind !== "existing-changes")
+    throw new Error("Expected an existing-changes warning.");
   expect(
     await unconfirmedStart(
       source,
-      { ...request, policy, existingChanges },
+      { ...request, policy, existingChanges: warning.fingerprint },
       folder,
     ),
   ).toBeUndefined();
@@ -198,6 +202,7 @@ test("a confirmed Start without a policy records the launch without a policy or 
 
 test("a confirmed review Start keeps no confirmation, hands the developer's exact text first and leaves the checkout as it was", async () => {
   const changed = await changedCheckout("review");
+  const before = checkoutState(changed.project);
   const { fingerprint, start, recorded, story, input } =
     await confirmedStart(changed);
 
@@ -211,16 +216,17 @@ test("a confirmed review Start keeps no confirmation, hands the developer's exac
   expect(start.handoff.formatted).toBeUndefined();
   expect(input.startsWith(`${text}\n\n`)).toBe(true);
   expect(input.endsWith(`\n\n${story}`)).toBe(true);
-  expect(checkoutState(changed.project)).toBe(changed.before);
+  expect(checkoutState(changed.project)).toBe(before);
 });
 
 test("a confirmed automatically landing Start hands the established block first and the developer's text last, leaving the checkout as it was", async () => {
   const changed = await changedCheckout("auto-land");
+  const before = checkoutState(changed.project);
   const { start, story, input } = await confirmedStart(changed);
 
   const block = start.handoff.formatted ?? "";
   expect(block).toMatch(/^Established session/u);
   expect(input.startsWith(`${block}\n\n`)).toBe(true);
   expect(input.endsWith(`\n\n${story}\n\n${text}`)).toBe(true);
-  expect(checkoutState(changed.project)).toBe(changed.before);
+  expect(checkoutState(changed.project)).toBe(before);
 });

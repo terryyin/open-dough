@@ -277,7 +277,7 @@ header changed, with no refactor candidate in their shared operations.
 ### 5. Bring the real-Git landing and existing-changes cases well within the default limit
 
 Type: Structure
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Removes finding 6's near-limit real-Git cases and the repeated
@@ -294,6 +294,28 @@ Proof. `ad-hoc-existing-changes-start.spec.ts`,
 case observations and counts. Record before and after per-case times through
 `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD` with the load average, against
 the baseline in the premise rows, under comparable local load.
+
+Outcome (10.5 active minutes). A bounded Git trace found that installed Start
+dominated private origin preparation. Both handoff cases now exercise real
+production settlement and Start. The separate landing guard and publisher
+cases begin with their actual durable pending or retained authority and real
+Git, so they skip the unrelated interpreter and admission setup. Confirmed
+Start cases reuse the production checkout fingerprint. All nine exact titles
+and observations passed with the default limit, as did typecheck and ESLint.
+Only the three subject specs changed and no refactor candidate remained.
+
+| Case | Plan premise at load 14–19 | Final at load 17.82–19.82 |
+| --- | ---: | ---: |
+| Confirmed review Start | 3254 ms | 2388 ms |
+| Confirmed automatically landing Start | 4530 ms | 3103 ms |
+| Bound launch retained replay | 3481 ms | 2638 ms |
+| Retained authority refusal | 2423 ms | 594 ms |
+| Review reporting handoff | 2242 ms | 2323 ms |
+| Pending landing authorization and capture | 2447 ms | 936 ms |
+
+The nine-case fresh baseline passed at a lighter load of 12.86. Relative to
+that run, the two independent landing cases improved from 1552 and 1959 ms.
+The observed whole-run wall time varied with host contention.
 
 ## Decisive premises
 
