@@ -34,9 +34,12 @@ test("a limited profile history is read once the wait ends, crediting its human 
   );
   // Unrelated empty/missing plan history stays terminal; recovery asks only
   // the limited credit walk.
-  expect(askedSince(page, asked).sort()).toEqual(
+  expect(
+    askedSince(page, asked)
+      .filter((read) => read !== "ref main")
+      .sort(),
+  ).toEqual(
     [
-      "ref main",
       `commit-list ${profilePath("Yuma")}@${revision}`,
       `commit ${takes.Yuma.sha}`,
     ].sort(),

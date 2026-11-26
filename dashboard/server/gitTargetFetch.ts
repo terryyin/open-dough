@@ -13,14 +13,16 @@ import {
 } from "./gitRunner.ts";
 
 // Read the exact named remote branch directly from its remote.
+// `config` is leading Git configuration for that one probe (`-c` …).
 export async function remoteBranchHead(
   remote: string,
   ref: string,
   call: GitCall,
+  config: readonly string[] = [],
 ): Promise<string | undefined> {
   try {
     const { stdout } = await runGit(
-      ["ls-remote", "--exit-code", "--refs", "--", remote, ref],
+      [...config, "ls-remote", "--exit-code", "--refs", "--", remote, ref],
       call,
     );
     const exact = stdout

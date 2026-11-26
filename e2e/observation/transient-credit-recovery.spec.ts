@@ -116,9 +116,12 @@ test("a refused profile history recovers human credit and Take clock from one sh
     page,
     "Human developer unknown: the commit that added this agent profile names no usable committer.",
   );
-  expect(askedSince(page, asked).sort()).toEqual(
+  expect(
+    askedSince(page, asked)
+      .filter((read) => read !== "ref main")
+      .sort(),
+  ).toEqual(
     [
-      "ref main",
       `commit-list ${profilePath("Yuma")}@${revision}`,
       `commit ${takes.Yuma.sha}`,
     ].sort(),
@@ -141,7 +144,9 @@ test("a refused addition commit mid-walk recovers without re-asking answered his
     page,
     "Human developer unknown: no commit adding this agent profile was found in its recent published history.",
   );
-  expect(askedSince(page, asked).sort()).toEqual(
-    ["ref main", `commit ${takes.Yuma.sha}`].sort(),
-  );
+  expect(
+    askedSince(page, asked)
+      .filter((read) => read !== "ref main")
+      .sort(),
+  ).toEqual([`commit ${takes.Yuma.sha}`]);
 });

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_open-and-refresh-board-at-verified-trunk.json",
+      "identity": "SEED-430#open-and-refresh-board-at-verified-trunk",
+      "completedAt": "2026-11-26T14:13:00.276Z",
+      "blob": "e8bc9b33126cc70311863dc9c03bc4590f628660"
+    },
+    {
       "fileName": "SEED-445_ad-hoc-work.json",
       "identity": "SEED-445#ad-hoc-work",
       "completedAt": "2026-11-26T14:00:06.253Z",

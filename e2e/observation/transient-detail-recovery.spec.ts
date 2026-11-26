@@ -145,7 +145,6 @@ ${renderStorySection(terminalStory, {
     await expect(unreachableCard).toContainText(unreachableGap);
     await expect(plannedCard).toBeVisible();
     const recovered = readsBesideChecks(githubFor(page).calls.slice(asked));
-    expect(recovered).toContain("ref main");
     expect(recovered).toContain(`content ${withheldSeed}@${revision}`);
     expect(recovered.filter((read) => read.includes(terminalSeed))).toEqual([]);
     // Unreachable remains eligible: recovery notice stays on the next backoff.

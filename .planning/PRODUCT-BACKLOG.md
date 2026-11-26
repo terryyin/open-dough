@@ -29,11 +29,11 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Prove Dashboard launch starts and recovery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) — SEED-413#prove-launch-starts-and-recovery-on-vitest ([plan](slice-plans/846-prove-launch-starts-and-recovery-on-vitest/PLAN.md))
-- [Open the published Board at verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk ([plan](slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md))
 - [Prove retained follow-up context in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest) — SEED-413#prove-follow-up-context-on-vitest ([plan](slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md))
 
 ## Backlog list
 
+- [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk
 - [Keep the project reading until Show latest can replace it](seeds/SEED-420-unified-intent-review.md#keep-project-reading-until-show-latest) — SEED-420#keep-project-reading-until-show-latest
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
