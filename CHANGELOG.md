@@ -1,3 +1,11 @@
+## 0.3.116 - 2026-11-26
+
+- Dashboard starts open under a published Taken story. Follow-ups keep their source story, and published review uses each session’s recorded comparison.
+- Blank Start waits for the first native input. The installed workflow carries Automatically land through the matching native session and retains each accepted comparison when a checkout serves multiple launches.
+- Closed records with verified story membership retain their exact Review and reporting evidence. The cutover archives the other historical launches and preserves the existing feedback maintenance result.
+
+[Hosted CI passed on the story candidate](https://github.com/terryyin/open-dough/actions/runs/45757487446). Release-source and self-installation checks passed. Actual Codex, Claude Code and Cursor sessions matched the retained handoff to the native identity and withheld it from a different identity. The post-landing migration rehearsal accounted for 3,821 rows and 16,948 files, retaining the one open launch and its exact landing receipt.
+
 ## 0.3.115 - 2026-11-26
 
 - Execute Plan loads guidance as each step's prerequisites are met. It tells coordinators how to recover truncated authoritative passages and find a replacement when a named tool is unavailable. CI completion keeps managed recovery in the completion guide and retires the separate reference.
