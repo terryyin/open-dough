@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "d8f228de-8a79-4041-a8c9-8a73b0302ce3",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-26T12:08:03.834Z",
+  "story": "SEED-413#refuse-non-vitest-frontend-specs",
+  "ranges": [
+    {
+      "base": "ca4b659dee0acbfcc34ce1dcd7faa77fbf22a3ff",
+      "candidate": "3e82dad2faeab043e2ec10f03920a26c065cac02"
+    }
+  ]
+}
