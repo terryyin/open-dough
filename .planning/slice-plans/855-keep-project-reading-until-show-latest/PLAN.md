@@ -112,7 +112,7 @@ three project E2E specs 4 passed; independent refactor made no edits.
 ### 2. Show a pending project tree on first open
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New mounted cases in `intent-project-browse.spec.ts` (or the
 attempt's first-open case in `intent-revision-apply.spec.ts`) for held,
 failed and retried first trees, wide and at 390px with Files hidden, and
@@ -130,6 +130,17 @@ When the tree answers, the tree fills and the lead clears without remounting
 the reading pane. The mounted builder answers each revision's tree from the
 case's own locations read there, `[]` for an unconfigured project, with no
 timers.
+
+Delivered: `useProjectTreeRead` gives `ProjectTree.unread` and the
+pending/failed lead; `IntentBrowser` renders both leads together beside the
+tree or above the reading and omits the tree while unread, keeping the Files
+column and reading pane mounted. Retry clears the old failure while it reads.
+The builder answers `[]` for an unconfigured project and also notes the
+locations the page already kept (`keptIntentLocationsAt`), since the page's
+locations cache outlives a mounted case. Proof: focused 7 passed; mounted
+intent 350 passed; `e2e/intent` 107 passed (proof record); consumer-selected
+configuration, navigation and stories suites 180 passed. Slice 3 starts from
+G3: a failed later-revision read currently hides the tree.
 
 ### 3. Keep the current reading until Show latest can replace it
 
@@ -164,9 +175,14 @@ budget with their causes observed.
 ### G1. Project tree shows only location files while its inventory is unread (first reported in plan 841 slice 3)
 Reported: slice 2 — "While the paths are not read, the browser lists the configured location files; a failed read says why and offers Retry."
 Story clause: "Before the first tree arrives it says the project files are being read instead of listing only the configured location files"
-Disposition: return
+Disposition: proved by slice 2: dashboard/frontend-tests/intent/intent-project-browse.spec.ts cases "a failed first project tree read says why with Retry and lists no location file…" and "on a phone with Files hidden…" (alert text, no specs folder, Reading project files… after Retry, tree fills)
 
 ### G2. Project tree read failure and Retry are unobserved and use a new surface (first reported in plan 841 slice 3)
 Reported: slice 3 — "Untested: the error message and Retry shown when the project tree read fails (in useProjectTreeRead.tsx)."
 Story clause: "If the new inventory cannot be read, the current reading remains usable while the developer retries."
 Disposition: return
+
+### G3. A failed later-revision tree read hides the tree (first reported in slice 2)
+Reported: slice 2 — "Because unread is true on any failure, a failed read on a later revision now hides the tree. Before, it listed the location files under the alert."
+Story clause: "If the new inventory cannot be read, the current reading remains usable while the developer retries."
+Disposition: receiving slice 3

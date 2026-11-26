@@ -126,9 +126,15 @@ export function IntentBrowser({
     open: openRevealed,
   });
 
-  // Project Intent's empty-scope explanation stays in view: beside the tree
-  // while Files shows, otherwise above the reading.
+  // Project Intent's tree reading and empty-scope explanation stay in view:
+  // beside the tree while Files shows, otherwise above the reading.
   const leadInFiles = project === undefined || files.shown;
+  const leads = (
+    <>
+      {project?.tree.lead}
+      {lead}
+    </>
+  );
   const browser = (
     <>
       {files.backdrop}
@@ -139,23 +145,24 @@ export function IntentBrowser({
           intentOnly={storyTree.intentOnly}
           changesOnly={storyTree.scope?.changesOnly}
         />
-        {project?.tree.lead}
-        {leadInFiles && lead}
-        <IntentBrowserTree
-          locations={locations}
-          tree={storyTree}
-          storySelected={storySummary !== undefined}
-          selection={treeSelection}
-          onSelect={(next) => {
-            select(next);
-            if (
-              next.scope === "file" ||
-              owningLocation(locations, next) !== undefined
-            )
-              files.onReadingChosen();
-          }}
-          reveal={reveal}
-        />
+        {leadInFiles && leads}
+        {project?.tree.unread !== true && (
+          <IntentBrowserTree
+            locations={locations}
+            tree={storyTree}
+            storySelected={storySummary !== undefined}
+            selection={treeSelection}
+            onSelect={(next) => {
+              select(next);
+              if (
+                next.scope === "file" ||
+                owningLocation(locations, next) !== undefined
+              )
+                files.onReadingChosen();
+            }}
+            reveal={reveal}
+          />
+        )}
       </div>
       <div
         ref={fileReading.readingArea}
@@ -164,7 +171,7 @@ export function IntentBrowser({
         {...(storyPath &&
           intentStoryPathAttributes(storyPath.id, storyPath.hidden))}
       >
-        {!leadInFiles && lead}
+        {!leadInFiles && leads}
         <IntentSelectionReading
           source={source}
           revision={revision}

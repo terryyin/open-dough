@@ -148,8 +148,10 @@ export async function mountJudgedRunProof({
   judgment = {},
   viewport,
   ci = {},
+  intent = unconfiguredIntentReads,
 }: {
   readonly entries: readonly CiProofEntry[];
+  readonly intent?: IntentReadSource;
   readonly judgment?: Partial<Judgment>;
   readonly viewport?: { readonly width: number; readonly height: number };
   readonly ci?: Partial<IntentCiReadSource>;
@@ -169,7 +171,7 @@ export async function mountJudgedRunProof({
     work: makeMe.aPublishedWork.of(openDoughSource).at(revision).please(),
     ...(viewport && { viewport }),
     reads: {
-      intent: unconfiguredIntentReads,
+      intent,
       ci: inertCiReads({
         readStatus: () => Promise.resolve(judged),
         readProof: () => Promise.resolve(proof),

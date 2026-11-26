@@ -1,7 +1,8 @@
 // The whole project's tracked paths at the revision Project Intent shows,
 // read once per revision through the page's Intent reads
-// (`./intentReadSource.ts`). While the paths are not read, the browser lists
-// the configured location files; a failed read says why and offers Retry.
+// (`./intentReadSource.ts`). Until the first paths are read the tree lists no
+// files and its lead says the project files are being read; a failed read
+// says why there and offers Retry.
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useIntentReads } from "./pageReads.tsx";
@@ -15,6 +16,19 @@ type TreeRead =
 export type ProjectTree = {
   readonly paths: readonly string[] | undefined;
   readonly lead: ReactNode;
+  // The browser lists no files: the first tree is being read, or a read
+  // failed.
+  readonly unread: boolean;
+};
+
+const firstTreeReading: ProjectTree = {
+  paths: undefined,
+  unread: true,
+  lead: (
+    <p role="status" className="intent-settings-problem">
+      Reading project files…
+    </p>
+  ),
 };
 
 export function useProjectTreeRead(
@@ -46,16 +60,24 @@ export function useProjectTreeRead(
     };
   }, [source, revision, round, readProjectTree]);
   const current = read?.revision === revision ? read : undefined;
-  if (current === undefined || "paths" in current)
-    return { paths: current?.paths, lead: undefined };
+  if (current !== undefined && "paths" in current)
+    return { paths: current.paths, lead: undefined, unread: false };
+  if (current === undefined)
+    // A later revision's pending tree leaves the browser to the configured
+    // location files.
+    return read === undefined
+      ? firstTreeReading
+      : { paths: undefined, lead: undefined, unread: false };
   return {
     paths: undefined,
+    unread: true,
     lead: (
       <p role="alert" className="intent-settings-problem">
         Project files could not be read: {current.problem}{" "}
         <button
           type="button"
           onClick={() => {
+            setRead(undefined);
             setRound((n) => n + 1);
           }}
         >

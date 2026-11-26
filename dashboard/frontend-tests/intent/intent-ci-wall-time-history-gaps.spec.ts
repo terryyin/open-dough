@@ -3,6 +3,8 @@
 import { expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { heldReply } from "./intent-ci-evidence-page.tsx";
+import { intentStoryFiles } from "./intent-story-files-page.ts";
 import {
   historyName,
   openTrunkHistory,
@@ -91,4 +93,41 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
   }
 
   expect(opened.scrollingSideways(), "scrolling sideways").toEqual([]);
+});
+
+test("Builds and evidence opened with a run link focused before the project tree answers stay open with that focus after it answers", async () => {
+  const tree = heldReply<readonly string[]>();
+  const answer = makeMe.aCiHistoryAnswer
+    .unmeasuredLanding({
+      revision: "e1".repeat(20),
+      receivedAt: new Date(2026, 9, 2, 12).toISOString(),
+      reason: "cancelled",
+      build: { revision: "e1".repeat(20), provenance: "exact", runId: 301 },
+    })
+    .pleaseMeasured();
+  const opened = await openTrunkHistory(
+    answer,
+    makeMe.anIntentReadSource
+      .reading({
+        readLocations: () => Promise.resolve({ status: "not-configured" }),
+        readFile: () => Promise.resolve(""),
+        readCandidates: () => Promise.resolve({ status: "absent" }),
+        readProjectTree: () => tree.promise,
+      })
+      .please(),
+  );
+  const { projectTreeReading } = intentStoryFiles();
+  await expect.element(projectTreeReading).toBeVisible();
+  const evidence = await opened.openEvidenceByKeyboard();
+  await userEvent.tab();
+  const link = evidence.getByRole("link", {
+    name: "Run 301 · attempt 1",
+    exact: true,
+  });
+  await expect.element(link).toHaveFocus();
+
+  tree.resolve([]);
+  await expect.element(projectTreeReading).not.toBeInTheDocument();
+  await expect.element(evidence).toBeVisible();
+  await expect.element(link).toHaveFocus();
 });

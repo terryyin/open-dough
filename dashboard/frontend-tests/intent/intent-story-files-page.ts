@@ -1,7 +1,8 @@
 // The selected story's file browser in a mounted Intent view, as the
 // comparison (./intent-story-compare-page.ts) lists it: the repository tree
 // and its folders, the Intent only and Changes only filters with their
-// no-match notice, and the listed files' controls.
+// no-match notice, and the listed files' controls; in Project Intent, the
+// lead while the project tree is read or its read failed, with Retry.
 import { expect } from "vitest";
 import { userEvent } from "vitest/browser";
 import "../page-objects/cssLocator.ts";
@@ -55,9 +56,20 @@ export function intentStoryFiles() {
       await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
     }
   }
+  const projectTreeProblem = intent
+    .getByRole("alert")
+    .filter({ hasText: "Project files could not be read" });
   return {
     browseFiles,
     sidebar,
+    projectTreeReading: intent.getByText("Reading project files…", {
+      exact: true,
+    }),
+    projectTreeProblem,
+    retryProjectTree: () =>
+      userEvent.click(
+        projectTreeProblem.getByRole("button", { name: "Retry", exact: true }),
+      ),
     tree,
     treeText: () => tree.query()?.textContent ?? "",
     folder,
