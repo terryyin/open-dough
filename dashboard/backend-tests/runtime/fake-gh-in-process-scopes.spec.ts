@@ -13,7 +13,7 @@ import {
 } from "../../test-support/support/fakeGitHub.ts";
 import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 import { requestOwnerWithClock } from "../../test-support/support/listingReuseWithOwnerClock.ts";
-import { readAt } from "../../test-support/support/sharedReads.ts";
+import { checkedAt } from "../../test-support/support/sharedReads.ts";
 import {
   dashboardsOnOneOwner,
   withWorkflow,
@@ -46,7 +46,7 @@ test("simultaneous servers keep distinct answers across a restart on one machine
   let restarted: typeof first | undefined;
   try {
     const answers = await Promise.all(
-      [first, second].map((server) => readAt(server, "")),
+      [first, second].map((server) => checkedAt(server)),
     );
     expect(answers.map(({ status }) => status)).toEqual([200, 200]);
     expect(
@@ -59,18 +59,21 @@ test("simultaneous servers keep distinct answers across a restart on one machine
       ...options,
       port: Number(new URL(first.baseURL).port),
     });
-    expect(JSON.parse((await readAt(restarted, "")).body)).toMatchObject({
+    expect(JSON.parse((await checkedAt(restarted)).body)).toMatchObject({
       revision: firstRevision,
     });
-    expect(JSON.parse((await readAt(second, "")).body)).toMatchObject({
+    expect(JSON.parse((await checkedAt(second)).body)).toMatchObject({
       revision: secondRevision,
     });
     expect(first.ghPid()).toBeUndefined();
     expect(second.ghPid()).toBeUndefined();
     expect(restarted.ghPid()).toBeUndefined();
     expect(client.apiLaunched()).toBe(false);
-    expect(client.github.calls.length).toBeGreaterThan(0);
-    expect(otherGitHub.calls.length).toBeGreaterThan(0);
+    for (const github of [client.github, otherGitHub]) {
+      expect(github.calls.map(({ request }) => request.kind)).toContain(
+        "matching-refs",
+      );
+    }
   } finally {
     await restarted?.close();
     await first.close();
@@ -92,7 +95,7 @@ test("two dashboards and the installed diagnostic use one fast owner", async ({
   try {
     expectServedHomesReach(machine.github, defaultRepository, revision);
     const answers = await Promise.all(
-      [machine.first, machine.second].map((server) => readAt(server, "")),
+      [machine.first, machine.second].map((server) => checkedAt(server)),
     );
     expect(answers.map(({ status }) => status)).toEqual([200, 200]);
     expect(
@@ -139,7 +142,7 @@ test("an explicitly started clock-controlled owner composes both preloads", asyn
     ...owner.wiring,
   });
   try {
-    expect(JSON.parse((await readAt(server, "")).body)).toMatchObject({
+    expect(JSON.parse((await checkedAt(server)).body)).toMatchObject({
       revision,
     });
     const before = owner.ownerNow();

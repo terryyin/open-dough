@@ -131,14 +131,19 @@ export async function servedHolding(
 export type SharedRead =
   string | { readonly source: string; readonly query: string };
 
+// The boundary address of `read` on the server at `baseURL`.
+export function readUrl(baseURL: string, read: SharedRead): string {
+  const { source, query } =
+    typeof read === "string" ? { source: "open-dough", query: read } : read;
+  return `${baseURL}/__authenticated-read?source=${source}${query}`;
+}
+
 export function readAt(
   server: Pick<DashboardServer, "baseURL" | "origin">,
   read: SharedRead,
 ): Promise<RawResponse> {
-  const { source, query } =
-    typeof read === "string" ? { source: "open-dough", query: read } : read;
   return rawRequest({
-    url: `${server.baseURL}/__authenticated-read?source=${source}${query}`,
+    url: readUrl(server.baseURL, read),
     headers: { Origin: server.origin },
   });
 }

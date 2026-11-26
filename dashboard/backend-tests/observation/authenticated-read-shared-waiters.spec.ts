@@ -26,7 +26,9 @@ import {
 import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
 import {
   askedSince,
+  pinnedRead,
   readAt,
+  readUrl,
   refusedMarker,
   servedHolding,
   sharedSeedPath,
@@ -126,7 +128,7 @@ test("closing the server ends a read two requests wait on", async () => {
     ghTransport: "cli",
   });
   server.github.serve(everyRepository, hangs);
-  const url = `${server.baseURL}/__authenticated-read?source=open-dough`;
+  const url = readUrl(server.baseURL, pinnedRead);
   abandonedRequest({ url, headers: { Origin: server.origin } });
   abandonedRequest({ url, headers: { Origin: server.origin } });
   await refusedMarker(server);

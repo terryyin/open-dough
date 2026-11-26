@@ -35,9 +35,8 @@ open itself (listed in the seed).
   (`pinnedAt`, `&revision=<sha>&path=…`), which asks gh once and records
   category `content`. Pinned reads also serve specs that need an answer.
 - `dashboard/test-support/support/sharedReads.ts` holds one helper per read
-  form (`revisionCheck`/`checkedAt`, `pinnedAt`) instead of inline bare
-  `?source=` URLs in each spec. Drop the "membership" kind from
-  `support/authenticatedReadUrl.ts`.
+  form (`revisionCheck`/`checkedAt`, `pinnedRead`/`pinnedAt`, and `readUrl`
+  for a raw request) instead of inline bare `?source=` URLs in each spec.
 - Call accounting leaves membership reads (`ref` and its backlog content) out
   in one place: `retainedAnswersJourney.asked`, `revisionReuseCalls`, and
   `originObservation`'s reads-beside-checks.
@@ -92,10 +91,10 @@ trunk and under the patch. Budget 14 active minutes.
 ### 2. Prove held gh lifecycle and directed waits without the cold read
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Retarget `authenticated-read-shared-waiters`, `-plugin-hooks`,
-`-subprocess-lifecycle` (drop the membership kind; `authenticatedReadUrl.ts` takes `revisionCheck` from `sharedReads.ts`), `-cooldown-reach`,
+`-subprocess-lifecycle` (its read kinds come from `sharedReads.ts`; `authenticatedReadUrl.ts` and its membership kind are gone), `-cooldown-reach`,
 `-directed-wait` (replace its ref entry with a revision-check entry),
 `shared-request-owner` (refuse `matching-refs` and read `&since=`), and
 `runtime/fake-gh-in-process`, `-activation`, `-scopes`, `-modes` and
@@ -113,7 +112,8 @@ Behavior: The central filter leaves membership reads out of compared call
 lists. Retarget `authenticated-read-retained-answers` (except the logged-out
 cold-open case), `-retained-answers-moved`, `-retained-answers-bounded`,
 `-revision-reuse-bounds`, and e2e `authenticated-read-retained-answers-reload`.
-In `auto-refresh-project-isolation`, `expectOnlyDoughnutAsked` stops counting
+`authenticated-read-diagnostics-bounds` (:137) and `-refusal` (:120) build
+their raw request with `readUrl`. In `auto-refresh-project-isolation`, `expectOnlyDoughnutAsked` stops counting
 the REST `ref`; checks and content still prove isolation.
 
 Proof: Run those specs on trunk and under the patch. Budget 13 active
@@ -138,6 +138,13 @@ Backend Test and E2E Test suites on trunk. Budget 14 active minutes.
 Slice 1 (2026-11-26): all 11 specs pass on trunk and under the patch.
 Later slices that count calls on a failed check expect the listing, then
 `commits/main`.
+
+Slice 2 (2026-11-27): all 12 specs pass on trunk and under the patch;
+`fake-gh-in-process-wire` needed no change. A rate-limited check asks
+`matching-refs` once (no fallback). A check's answer carries no `askedAt`
+(only the cold read stamps it), so compared answers need no stripping;
+serving-modes no longer asserts the stamp, which stays with the Board open
+story's cold read.
 
 Spec classification comes from the plan 856 slice 1 run logs, under load
 with two suites running at once (2026-11-26). Eight backend specs that seemed
