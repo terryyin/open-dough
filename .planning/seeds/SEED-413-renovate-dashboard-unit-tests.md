@@ -295,7 +295,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   - Given a session with no story binding, a binding the published project
     does not list, or one the page supplies, no follow-up starts and nothing
     is kept.
-- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+- **Replacement trace.** Split from [launch starts and recovery](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest).
 
 **Plan.** [Prove retained follow-up context in Node Vitest](../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md)
 

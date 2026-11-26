@@ -94,7 +94,7 @@ Status: done
 Estimate: 10–15 active minutes.
 
 Behavior: the retained session and its published story membership are inputs
-of the context resolution, so slices 2, 3, 5 and 6 hand them to production.
+of the context resolution, so slices 2, 3, 4, 6 and 7 hand them to production.
 `FollowUpContextInput` gains the kept-session read and the story-membership
 check, `retainedFollowUpWithStory` takes the same input, and the Done
 record's read decision takes its catalog outcome as a typed input. The
@@ -108,22 +108,35 @@ unchanged, with `npm run typecheck:dashboard`. Enables slice 2.
 
 Type: Behavior
 Status: planned
-Estimate: 12–15 active minutes.
+Estimate: 12 active minutes.
 
 Proof: Admit a follow-up of a Done session kept as a MakeMe record, resolve
 its context from typed inputs, record the request and build the first input
 with `unattachedInput`, `codexInput` and `cursorPrompt`. Claude's private
 instruction calls the same builder, and its real start stays with the page
-journeys. The context comes first, then the developer's
-text, then the reporting context. A blank request sends no part of its own
-and is titled by its launch time. With an established session its block and
-the reporting context come first. A final report longer than the
-instruction field's limit is sent whole beside a request at the limit. The
-source record is unchanged. A chosen Cursor model with a blank request is
-admitted and recorded. Convert `agent-launch-follow-up-boundary.spec.ts`.
-Keep the Claude page journeys for the real start.
+journeys. On the execution checkout the context comes first, then the
+developer's text, then the reporting context. A blank request sends no part
+of its own and is titled by its launch time. The source record is unchanged.
+Remove those two cases from `agent-launch-follow-up-boundary.spec.ts`. Keep
+the file while its isolated-workspace and long-report cases remain. Keep the
+new spec at or under 250 lines; put the kept-session arrangement in a
+colocated module if the spec would pass that.
 
-### 3. Send a Done story's facts and its selected sessions' context
+### 3. Send an established session's block, a long report, and a blank Cursor model
+
+Type: Behavior
+Status: planned
+Estimate: 12 active minutes.
+
+Proof: With an established session its block and the reporting context come
+first, then the context and the request. A final report longer than the
+instruction field's limit is sent whole beside a request at that limit. A
+chosen Cursor model with a blank request is admitted and recorded. Remove
+the remaining cases of `agent-launch-follow-up-boundary.spec.ts` and that
+one case of `agent-launch-follow-up-cursor.spec.ts`. Reuse slice 2's
+arrangement. Keep the Claude page journeys for the real start.
+
+### 4. Send a Done story's facts and its selected sessions' context
 
 Type: Behavior
 Status: planned
@@ -140,7 +153,7 @@ two sending cases of `agent-launch-follow-up-story.spec.ts` and its two
 refusals. The Codex story case's follow-up-specific observation moves here;
 its image copy and workspace stay with their owners.
 
-### 4. Keep follow-ups of different sources apart and resume the same one
+### 5. Keep follow-ups of different sources apart and resume the same one
 
 Type: Behavior
 Status: planned
@@ -155,7 +168,7 @@ Convert the two-session, resume and expiry-resume cases of
 `agent-launch-follow-up-identity.spec.ts` and the two-story case of
 `agent-launch-follow-up-story.spec.ts`.
 
-### 5. Refuse a follow-up the project cannot stand behind
+### 6. Refuse a follow-up the project cannot stand behind
 
 Type: Behavior
 Status: planned
@@ -170,7 +183,7 @@ session with no story binding or one the published project does not list
 `agent-launch-follow-up-identity.spec.ts`, the forged-context and fresh-claim
 parts of its expiry case, and `agent-launch-follow-up-membership.spec.ts`.
 
-### 6. Continue a retained follow-up after its source and attempt records are gone
+### 7. Continue a retained follow-up after its source and attempt records are gone
 
 Type: Behavior
 Status: planned
@@ -186,7 +199,7 @@ Cursor specs through the production continuation and
 `retainedFollowUpWithStory`. Native submission stays with the retained
 Codex and Cursor journeys.
 
-### 7. Answer a repeat of a follow-up running on another server
+### 8. Answer a repeat of a follow-up running on another server
 
 Type: Behavior
 Status: planned
@@ -197,7 +210,7 @@ gone, the second server's repeat answers `uncertain` with the running
 attempt's explanation, starts nothing and keeps one attempt. Use two owners
 over one private HOME and a real forked second process where its lock
 supplies the condition, as the independent-writer spec does. Convert
-`agent-launch-follow-up-live.spec.ts`. After slices 2 to 7, delete the
+`agent-launch-follow-up-live.spec.ts`. After slices 2 to 8, delete the
 retired specs and `followUpBoundaryCases.ts`.
 
 ## Proof ownership and local gate
@@ -207,12 +220,13 @@ Files in the following map are relative to `dashboard/backend-tests/launches/`.
 | Slice | Legacy selection | Observable proof |
 | --- | --- | --- |
 | 1 | the seven specs | Existing behavior and types stay green |
-| 2 | `agent-launch-follow-up-boundary.spec.ts` (4), `agent-launch-follow-up-cursor.spec.ts` (blank request with a chosen model) | Order, blank request, established-session block, whole long report, unchanged source, Cursor model with no instruction |
-| 3 | `agent-launch-follow-up-story.spec.ts` (two sending and two refusal cases), `agent-launch-follow-up-codex.spec.ts` (story case) | Story facts, selected sessions only, no-session wording, 404 and 502 before any start |
-| 4 | `agent-launch-follow-up-identity.spec.ts` (two sessions, resume, expiry resume), `agent-launch-follow-up-story.spec.ts` (two stories) | Two sources, two attempts; same attempt resumed with saved context |
-| 5 | `agent-launch-follow-up-identity.spec.ts` (two refusals, expiry refusals), `agent-launch-follow-up-membership.spec.ts` (3) | Forged context, unkept source, claimed image and binding refusals before any start |
-| 6 | `agent-launch-follow-up-identity.spec.ts` (Continue), `agent-launch-follow-up-codex.spec.ts` (two), `agent-launch-follow-up-cursor.spec.ts` (two) | Recorded context sent after expiry, pending Codex input recovered, legacy Cursor instruction kept |
-| 7 | `agent-launch-follow-up-live.spec.ts` | Running attempt answered from a second process, nothing started |
+| 2 | `agent-launch-follow-up-boundary.spec.ts` (execution-checkout order, blank request) | Context, then the request, then the reporting context; blank request titled by launch time; source unchanged |
+| 3 | `agent-launch-follow-up-boundary.spec.ts` (isolated workspace, long report), `agent-launch-follow-up-cursor.spec.ts` (blank request with a chosen model) | Established-session block first, whole long report, Cursor model with no instruction |
+| 4 | `agent-launch-follow-up-story.spec.ts` (two sending and two refusal cases), `agent-launch-follow-up-codex.spec.ts` (story case) | Story facts, selected sessions only, no-session wording, 404 and 502 before any start |
+| 5 | `agent-launch-follow-up-identity.spec.ts` (two sessions, resume, expiry resume), `agent-launch-follow-up-story.spec.ts` (two stories) | Two sources, two attempts; same attempt resumed with saved context |
+| 6 | `agent-launch-follow-up-identity.spec.ts` (two refusals, expiry refusals), `agent-launch-follow-up-membership.spec.ts` (3) | Forged context, unkept source, claimed image and binding refusals before any start |
+| 7 | `agent-launch-follow-up-identity.spec.ts` (Continue), `agent-launch-follow-up-codex.spec.ts` (two), `agent-launch-follow-up-cursor.spec.ts` (two) | Recorded context sent after expiry, pending Codex input recovered, legacy Cursor instruction kept |
+| 8 | `agent-launch-follow-up-live.spec.ts` | Running attempt answered from a second process, nothing started |
 
 For the first and final comparisons, use fresh absolute proof paths from the
 repo root and one worker, and repeat the baseline at the execution base if
@@ -244,7 +258,7 @@ to every failure and repair handoff. Keep default test timeouts.
 
 - Mode: story-branch. Identity: SEED-413#prove-follow-up-context-on-vitest. Publisher: dashboard-territory.local-open-dough. Agent: Shunka-chan.
 - Workspace: `/Users/terryyin/git/open-dough/.worktrees/prove-retained-follow-up-context-in-node-vitest`, branch `cursor/prove-retained-follow-up-context-in-node-vitest`, reused from the established start. Starting revision `0633724b8d68d501eafaf4884ca22b04ab91659e`.
-- Accepted publication: `2b92b4894804637356af4100c48bf331abcd853a` on `origin/cursor/prove-retained-follow-up-context-in-node-vitest`. That Take is the previously published base. The claim's CI is `pendingCi: unobserved` (published before this coordinator's story-branch observer was armed).
+- Accepted publication: `86e6cc4e6f7499dccc09dac4144b2f5156a86057` on `origin/cursor/prove-retained-follow-up-context-in-node-vitest`. Previously published base for the next increment. The Take `2b92b4894804637356af4100c48bf331abcd853a` remains the claim; its CI is `pendingCi: unobserved`. Observer: `/tmp/dough-ci-501/watch-DljhmU`, GitHub Actions `ci.yml` (display name CI), reused for this branch.
 - Readiness: Changed since readiness review. Recorded Ready stands; Take did not renew it.
 - Replanning: existing planning authority (neither `--replan` nor `--no-replan`).
 - Checkout setup: locked `npm ci` (lockfile unchanged) and `npm run typecheck:dashboard` passed on Node v24.21.0.
@@ -254,6 +268,7 @@ to every failure and repair handoff. Keep default test timeouts.
 - `FollowUpContextInput` carries `keptSession` and `requirePublishedFollowUpSessionStory`. `followUpContextInput()` is the production composition both `AgentLaunches.accept` and `startedRun` pass. `publishedDoneStory` decides from a `DoneStoryCatalogRead`; its default still calls `performDoneCatalogRead` once, and the refusal text is unchanged.
 - `agent-launch-follow-up-notes.spec.ts` was 249 lines. Putting the two new fields on separate lines, as formatting does, would have made it 251. The refused-follow-up arrangement now lives in `refusedNotesFollowUp.ts` (194 lines) and the spec is 63. Both are under the 250-line check.
 - The seven-spec run after that composition was 25/25 in about 25s. The earlier 65s baseline on the same selection was at a higher load. The difference is the host, not this edit.
+- Slice 2's first attempt overran at 17.3 active minutes with no proof. The draft spec was 268 lines and the blank-model Cursor case had been removed from Playwright before a Vitest replacement passed. That attempt was reverted. The false sizing assumption: the four boundary cases and the Cursor model case, including retiring the Playwright spec and staying under 250 lines, fit in one 15-minute slice. Those cases are now slices 2 and 3. This is the story's first overrun.
 
 ## Accepted proof
 
@@ -264,7 +279,7 @@ Slice 1. Promise: a follow-up's kept session and published story membership are 
 Slice-plan refinement was not needed: the Structure slice comes first and only
 opens the typed inputs that the Behavior slices consume, and each Behavior
 slice owns one observable family and removes its legacy cases. This review
-found no remaining slice-specific concern. Slices 4 to 6 convert five legacy
+found no remaining slice-specific concern. Slices 5 to 7 convert five legacy
 cases each from shared attempt, record and host setup; their estimates assume
 one MakeMe attempt builder per slice and an owner that needs no server, as
 the cross-server spec shows.
