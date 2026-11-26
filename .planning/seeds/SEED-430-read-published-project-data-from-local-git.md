@@ -38,47 +38,6 @@ and [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-lo
 [Add Project](../../dashboard/server/projectAddition.ts) resolves the default branch
 from origin's symbolic `HEAD` when configuring a project.
 
-<a id="open-and-refresh-board-at-verified-trunk"></a>
-
-### Verify origin trunk and detach membership from detail proofs
-
-**Identity:** SEED-430#open-and-refresh-board-at-verified-trunk
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9a356c706fed654fdc9909832ad06869c12165d9387847bb500002183570e546","plan":"e932c1725588a4f69febb52a4730b899c9fa97e03f5f76123df26ccfe059013d"}}
-```
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-430#open-and-refresh-board-at-verified-trunk","dependencies":[{"supplier":{"identity":"SEED-430#qualify-board-fixture-routing-and-request-boundaries","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries"},"implementation":"A real-origin fixture surface for the Board membership cutover","rationale":"Changing the authenticated ref dispatch affects every Board open. The current suites need their routed origins and live REST proofs before that switch can be proved.","condition":"Both fixture suites pass with real routed Board pins and every remaining audit mismatch assigned to a still-live operation with proof","state":"satisfied","resolution":{"revision":"e9927c794bfa23ff057573099cecc8551ce1a51c","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#qualify-board-fixture-routing-and-request-boundaries","summary":"Plan 827 passed 788 E2E tests and 1,049 Playwright plus 985 Vitest backend cases, with one backend skip. Its Accepted qualification records all 20 browser and 46 backend audit events at exact fixture publication, live REST or deliberate control cues. Successful first opens and scripted advances verified the routed Git pin, including repeated named publication. The isolated wrap-up fault that kept an early HOME on the old commit was caught by the maintained exact-pin routing test, which passed after restoration. Plan 828 retains the exact legacy membership dispatch controls to replace during the cutover.\nCondition satisfied: Both fixture suites pass with real routed Board pins and every remaining audit mismatch assigned to a still-live operation with proof\nAccepted integration: 524f99699e38373bcae9d3ecf0b790e0d8711f3c on origin/refs/heads/main."}}]}
-```
-
-**Goal.** A developer can trust one check of the exact trunk origin
-advertises, shared by eligible opens, and the Board's detail, credit, and
-recovery proofs compare those reads without treating REST membership as
-part of the result.
-
-**Scope.** The check probes the configured ref, fetches that advertised
-commit into the Review repository, and reads the backlog only at the probed
-commit. Refusal, a missing trunk, and unavailability stay distinct. Eligible
-opens of one project, origin, and credential share one check; a departing
-waiter releases only itself; a second project proceeds on its own. The
-detail, credit, and recovery proofs compare their own reads and leave the
-membership operation out of the compared list. Opening the Board on that
-check, cold failure copy, and removal of the REST membership dispatch belong
-to [Open the Board from the verified Git trunk](#open-the-board-from-the-verified-git-trunk).
-
-**Architecture.** Reuse the dashboard-owned Review repository and its Git
-transport under [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
-The check admits only a revision verified against origin's advertisement.
-Git may hold candidate objects from a failed check; they confer no admission.
-
-**Key examples.**
-
-- Given an origin whose advertised trunk moves during the transfer, the
-  check rejects that fetch and accepts the newly advertised commit.
-- Given two opens of one project while the transfer is held, one fetch
-  serves both, and a second project fetches on its own.
-- Given a detail, credit, or recovery case, the compared list omits the
-  membership read and still requires the reads that case promises.
-
 <a id="open-the-board-from-the-verified-git-trunk"></a>
 
 ### Open the Board from the verified Git trunk
@@ -91,7 +50,7 @@ Git may hold candidate objects from a failed check; they confer no admission.
 {"schemaVersion":1,"identity":"SEED-430#open-the-board-from-the-verified-git-trunk","dependencies":[{"supplier":{"identity":"SEED-430#open-and-refresh-board-at-verified-trunk","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk"},"implementation":"The shared verified-origin trunk check, and detail, credit, and recovery proofs that leave REST membership out of their compared lists","rationale":"The Board open switches the ref case onto that check. Building another check would duplicate the probe, fetch, and sharing already landed.","condition":"The shared verified-origin trunk check and the detail, credit, and recovery proofs that leave REST membership out of their compared lists are on origin/main","state":"waiting"}]}
 ```
 
-Split from [SEED-430#open-and-refresh-board-at-verified-trunk](#open-and-refresh-board-at-verified-trunk)
+Split from [SEED-430#open-and-refresh-board-at-verified-trunk](https://github.com/terryyin/open-dough/blob/374ccd86b15fdb1909590cc447b863bb34bb65f6/.planning/seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk)
 on 2026-11-26 at the delivered boundary after that story's slices 1–3.
 Recover that story from the before-cleanup revision after wrap-up deletes
 its section. Uncommitted slice 1 edits stay in worktree

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_open-and-refresh-board-at-verified-trunk.json",
+      "identity": "SEED-430#open-and-refresh-board-at-verified-trunk",
+      "completedAt": "2026-11-26T14:13:00.276Z",
+      "blob": "e8bc9b33126cc70311863dc9c03bc4590f628660"
+    },
+    {
       "fileName": "SEED-439_complete-story-linked-ad-hoc-sessions.json",
       "identity": "SEED-439#complete-story-linked-ad-hoc-sessions",
       "completedAt": "2026-11-26T06:14:14.077Z",
@@ -3330,42 +3336,6 @@
       "identity": "SEED-156#recently-done-sessions-in-sidebar",
       "completedAt": "2026-10-28T00:53:51.785Z",
       "blob": "cb17d513e5426a571e8ade6861c999b37453f95d"
-    },
-    {
-      "fileName": "SEED-153_align-dashboard-ui-domain-concepts.json",
-      "identity": "SEED-153#align-dashboard-ui-domain-concepts",
-      "completedAt": "2026-10-27T10:54:01.654Z",
-      "blob": "e4592411ec37bbe34f882fb21a45bf27d128ae02"
-    },
-    {
-      "fileName": "SEED-154_keep-visit-receipts-after-acceptance.json",
-      "identity": "SEED-154#keep-visit-receipts-after-acceptance",
-      "completedAt": "2026-10-27T09:39:38.589Z",
-      "blob": "e981ef62ab86a61c1d8f75e25befd4d210882707"
-    },
-    {
-      "fileName": "SEED-155_cursor-background-work-reads-working.json",
-      "identity": "SEED-155#cursor-background-work-reads-working",
-      "completedAt": "2026-10-27T08:59:33.854Z",
-      "blob": "186e1dbf4b5d4eb268c56976609716024b915896"
-    },
-    {
-      "fileName": "SEED-154_harden-supplier-visit-trigger-and-settlement.json",
-      "identity": "SEED-154#harden-supplier-visit-trigger-and-settlement",
-      "completedAt": "2026-10-27T08:52:56.755Z",
-      "blob": "0640768b1b37e4a7d770ae75d883e8426ec5d733"
-    },
-    {
-      "fileName": "SEED-154_distinguish-documentation-anchors-in-consumer-discovery.json",
-      "identity": "SEED-154#distinguish-documentation-anchors-in-consumer-discovery",
-      "completedAt": "2026-10-27T08:25:25.075Z",
-      "blob": "6de587cc588ea0592e9c65d71c707b9a0b3a2008"
-    },
-    {
-      "fileName": "SEED-154_reconcile-current-consumers-after-supplier-integration.json",
-      "identity": "SEED-154#reconcile-current-consumers-after-supplier-integration",
-      "completedAt": "2026-10-27T07:41:25.020Z",
-      "blob": "ea244ae660a88e3c3d18f4b1285648166f27c80a"
     }
   ],
   "unreadable": []

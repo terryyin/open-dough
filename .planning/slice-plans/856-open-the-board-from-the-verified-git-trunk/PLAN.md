@@ -4,7 +4,7 @@
 
 **Identity:** SEED-430#open-the-board-from-the-verified-git-trunk
 
-**Split from:** [SEED-430#open-and-refresh-board-at-verified-trunk](../../seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk)
+**Split from:** [SEED-430#open-and-refresh-board-at-verified-trunk](https://github.com/terryyin/open-dough/blob/374ccd86b15fdb1909590cc447b863bb34bb65f6/.planning/seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk)
 on 2026-11-26, former plan 828 slices 4–6. That story's slices 1–3 are the
 shared verified-origin check and the detail proofs that leave membership out.
 Uncommitted slice 1 edits below remain in worktree
