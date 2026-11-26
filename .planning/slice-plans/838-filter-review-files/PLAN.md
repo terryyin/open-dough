@@ -149,6 +149,18 @@ for wrap-up: `intent-done-completion-provenance`, `intent-done-prior-execution`,
 hand-write the story-review response watcher `completedReviewRequests.ts`
 offers.
 
+CI repair of slice 1 (run 45721457178): the consumer trace missed
+`e2e/review` journeys that open an untouched file; they list the revision
+first. The automatic first changed-file opening could override the
+reader's choice; `useFirstStoryChangedFile` now yields to it. Open: the
+product wiring of that choice is proved only by the end-to-end
+`story-review-diff-line-follow-up`, not a mounted `IntentBrowser` case.
+`story-card-review-intent` flaked when the inventory's later expansion
+round closed roots the first round opened. The owner chose to hold the
+story's folder reveal until the inventory names the roots, keep the
+reader's folder choices per story, and have expand steps wait for the
+inventory.
+
 ### 2. Narrow the same inventory to Intent
 
 Type: Behavior

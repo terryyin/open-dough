@@ -63,6 +63,7 @@ async function inspectDelivered(
     /^No Intent locations are configured for Open Dough\./,
   );
   const unchanged = "trunk.txt";
+  await review.files.listRevision();
   await review.files.choose(unchanged);
   await review.expectHistoricalSource(
     unchanged,

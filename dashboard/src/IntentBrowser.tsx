@@ -95,6 +95,7 @@ export function IntentBrowser({
     project === undefined || project.mode === "ci" ? selection : { path: "" };
 
   function select(next: IntentSelection, entrySlug?: string) {
+    noteChoice();
     setSelection(next);
     setReturnEntrySlug(entrySlug);
     project?.onModeChange("ci");
@@ -122,7 +123,7 @@ export function IntentBrowser({
     setRevealedOpens((n) => n + 1);
     revealInTree(target.path, owningLocation(locations, target)?.path);
   }
-  useFirstStoryChangedFile({
+  const noteChoice = useFirstStoryChangedFile({
     project: source.id,
     storyIdentity: storySummary?.story.identity,
     canChooseFile: reviewFileReady,

@@ -186,7 +186,9 @@ test("cold review panes share initial sync and only the remaining pane opens the
     await remaining.files.expectSelected(firstChanged);
     await remaining.diffs.expectShows(firstChanged, '-  "agent": "Yui-chan",');
   });
-  await test.step("When I choose the unchanged test file", () =>
+  await test.step("When I list the revision", () =>
+    remaining.files.listRevision());
+  await test.step("And I choose the unchanged test file", () =>
     remaining.files.choose(kept));
   await test.step("Then its source comes from the published completion", () =>
     remaining.expectHistoricalSource(kept, completion, "kept 11"));

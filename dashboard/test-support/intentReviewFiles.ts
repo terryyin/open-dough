@@ -7,6 +7,7 @@ import {
   repositoryTree,
   repositoryFolder,
   changesOnly,
+  listStoryRevision,
 } from "./support/intentStoryPage.ts";
 import { expectTreeRows, fileLineCounts } from "./support/reviewTreeRows.ts";
 
@@ -68,6 +69,13 @@ export class IntentReviewFiles {
   async showOnlyChanged() {
     await this.shown();
     await changesOnly(this.#intent).check();
+    return this;
+  }
+
+  // Turns Changes only off: the tree lists the repository at the revision,
+  // its unchanged files included.
+  async listRevision() {
+    await listStoryRevision(this.#intent);
     return this;
   }
 
