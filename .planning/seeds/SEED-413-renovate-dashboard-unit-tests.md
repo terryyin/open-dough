@@ -278,15 +278,43 @@ promises stay unchanged.
 
 **Identity:** SEED-413#prove-kept-launch-records-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c66cbb5b20ebd1ab93edf341b3bad77d19d5c4191220c89c8c3dc0147a4970be","plan":"cf8812b2b23c3f534513ca2d545b0a4eaadbfbdbf1559df8231c38858e0f5638"}}
 ```
 
-- **For / why.** A developer reading the Dashboard gets fast proof that retained launches and their native session identities survive restart and reads from another server.
-- **Boundary.** Cover kept-start store behavior, host-qualified identities, concurrent record writes, replacement, and per-host observation. Retain true multiprocess or filesystem evidence where it supplies the result.
-- **Evaluation.** A second server sees a newly replaced record. An unreadable replacement remains recoverable. Equal native identifiers from different hosts retain separate reads and actions.
-- **Effort hypothesis.** M, low confidence. Existing typed store and observer seams can remove incidental native starts.
-- **Mapped slices.** See the [provisional plan](../slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md).
-- **Replacement trace.** Split from [launch starts and recovery](#prove-launch-starts-and-recovery-on-vitest).
+- **Goal.** Developers changing how the Dashboard keeps launches get fast,
+  typed Node Vitest proof that kept starts and launch records survive
+  restart, reads from another Dashboard process, replacement and expiry,
+  and that each native session stays bound to its own host.
+- **Scope.** Move the seven legacy specs the
+  [plan](../slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md)
+  maps off backend Playwright, through the existing start store, launch
+  record store, done-mark, deletion and host-observation operations. Use a
+  real second Node process where another writer or reader is the
+  observation, and real machine files for locks, replacement and
+  unreadable copies. Start no Dashboard server or Vite host for these
+  cases. The catalog fixture observations in the shared-machine spec
+  check test support, not product records, so
+  [runner cutover](#retire-legacy-dashboard-backend-runner) owns them. Product
+  behavior stays unchanged.
+- **Key examples.**
+  - Given a store this process has already read, another process records a
+    launch: the next read here answers both records. A replacement that is
+    unreadable but has the same size and time answers no records and stays
+    in place. The next launch moves it aside next to any earlier
+    unreadable copy.
+  - Given 24 kept sessions, two processes mark them done concurrently: every
+    done mark survives, and a later native completion revives no review
+    attention.
+  - An unclosed record is kept however old it is. A done record is dropped
+    on the next write once 30 days have passed since it was marked done.
+  - Given a refused native start, its start stays kept and is never reported
+    running. A held store lock refuses a write and leaves the document
+    unchanged. A lock whose owner has gone is reclaimed.
+  - Given a Claude and a Codex record with the same native ID, each host
+    reads only its own record. A Done or Delete naming Codex changes only
+    the Codex record and calls Claude for nothing. One that names no host
+    addresses Claude. A host whose read fails or never settles leaves the
+    other host's healthy observation intact.
 
 <a id="prove-native-session-and-terminal-lifecycle-on-vitest"></a>
 
