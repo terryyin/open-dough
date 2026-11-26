@@ -1,260 +1,249 @@
-// A launch's acceptance by the local launch owner (../../server/agentLaunches.ts),
-// over raw HTTP against the real installed `execution-start.mjs` and a real
-// bare origin (../../test-support/support/startOrigin.ts) whose `pre-receive` hook holds the
-// Take, with the synthetic `claude` holding the session launch: acceptance
-// answers before publication with the exact request kept on this machine;
-// the launch settles after its caller is gone, its publication receipt and
-// outcome observable through the machine's sessions and its kept attempt.
-// While it is unsettled no workflow's launch of the story is accepted; the
-// same pending story start is refused as already starting. An
-// acceptance that cannot be kept starts nothing, and a failure after
-// acceptance is the owner's kept outcome rather than a crashed server.
-// Open-session refusal: agent-launch-open-session.spec.ts and
-// agent-launch-open-session-continue.spec.ts.
-
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { chmodSync, existsSync, mkdirSync, readdirSync } from "node:fs";
+import assert from "node:assert/strict";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import type { AttemptObservation } from "../../src/agentLaunch.ts";
-import {
-  accept,
-  alreadyStarting,
-  attempts,
-  keptStarts,
-  launch,
-  recordsOf,
-  runningStarts,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  keptAttempts as keptOfMachine,
-  ownedRunning,
-} from "../../test-support/acceptedAttempts.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  queuedIdentity,
-  queuedTitle,
-  startOrigin,
-  type PushHold,
-  type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
+import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
+import { keptAttempts } from "../../server/launchAttemptStore.ts";
+import * as hosts from "../../server/launchHosts.ts";
+import { attemptRun } from "../../server/launchRun.ts";
+import * as launchStart from "../../server/launchStart.ts";
+import { localFolder, machineFolder } from "../../server/localFolder.ts";
+import { machineDashboardPath } from "../../server/machineHome.ts";
+import {
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { startOf } from "../../server/startWorkflows.ts";
+import {
+  defaultSessionPolicy,
+  type PublicationReceipt,
+} from "../../src/agentLaunch.ts";
 
+let deniedFile: string | undefined;
+
+vi.mock(import("node:fs/promises"), async (importOriginal) => {
+  const fs = await importOriginal();
+  return {
+    ...fs,
+    rename: async (source, destination) => {
+      if (destination === deniedFile) {
+        throw new Error("attempt replacement denied");
+      }
+      await fs.rename(source, destination);
+    },
+  };
+});
+
+const story = { identity: "SEED-052#launch", title: "Keep this story's start" };
 const request = makeMe.aLaunchRequest
-  .executing({ identity: queuedIdentity, title: queuedTitle })
+  .executing(story)
   .withInstruction("Keep this exact instruction.")
   .please();
-// What an attempt keeps of the request, beside what acceptance adds to it.
-const keptRequest = expect.objectContaining(request);
+const reportingOrigin = "http://127.0.0.1:4173";
 
-type Answer = {
-  kind: string;
-  reason?: string;
-  explanation?: string;
-  attempt?: AttemptObservation;
-};
+function privateMachine() {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-attempt-acceptance-"));
+  vi.stubEnv("HOME", home);
+  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
+  const owner = new LaunchAttemptOwner();
+  onTestFinished(async () => {
+    try {
+      await owner.drain();
+    } finally {
+      owner.close();
+      deniedFile = undefined;
+      vi.restoreAllMocks();
+      vi.unstubAllEnvs();
+      rmSync(home, { recursive: true, force: true });
+    }
+  });
+  return { home, owner, file: machineDashboardPath("launch-attempts.json") };
+}
 
-test.describe("an accepted launch", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
-  let push: PushHold;
+function heldHandoff() {
+  let release = () => {};
+  const wait = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { wait, release };
+}
 
-  async function serve(liveServer?: string) {
-    origin = await startOrigin(queuedReadyRepository().please());
-    server = await startDashboardServer({
-      mode: "boundary",
-      liveServer,
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
+test("keeps one exact attempt before its effects and settles it after acceptance returns", async () => {
+  const { owner, file } = privateMachine();
+  const refinement = makeMe.aLaunchRequest.refining(story).please();
+  const record = makeMe.anObservedLaunch
+    .of(makeMe.aLaunchRecord.executing(story).please())
+    .withSessionState(makeMe.aSessionState.unknown().please())
+    .please();
+  const publication: PublicationReceipt = {
+    kind: "published",
+    revision: "b2".repeat(20),
+  };
+  const publish = heldHandoff();
+  const confirmNative = heldHandoff();
+  let id: string | undefined;
+  let atDispatch: unknown;
+  let receiptWrite: Promise<void> | undefined;
+  const run = vi.fn<AttemptRun>(async (own, notePublication) => {
+    id = own.attempt.id;
+    atDispatch = existsSync(file)
+      ? (JSON.parse(readFileSync(file, "utf8")) as unknown)
+      : undefined;
+    receiptWrite = publish.wait.then(() => notePublication(publication));
+    await receiptWrite;
+    await confirmNative.wait;
+    return { kind: "launched", record };
+  });
+
+  try {
+    const accepted = await owner.accept(request, run, reportingOrigin);
+    assert.equal(accepted.kind, "accepted");
+    const { acceptedAt, worker } = accepted.attempt;
+    expect(id).toBe(accepted.attempt.id);
+    expect(run).toHaveBeenCalledTimes(1);
+    expect(run.mock.calls[0]?.[0].request).toEqual(request);
+    expect(accepted.attempt.owned).toBe(true);
+    expect(worker?.notedAt).toMatch(/\S/);
+    expect(worker).toMatchObject({
+      pid: process.pid,
+      serverPid: process.pid,
+      step: "start",
     });
-    push = origin.holdPushes();
+    const exactKeptAttempt = {
+      id,
+      request,
+      acceptedAt,
+      reportingOrigin,
+      publication: { kind: "unknown" },
+      worker,
+    };
+    expect(atDispatch).toEqual({ [request.source]: [exactKeptAttempt] });
+
+    for (const competitor of [request, refinement]) {
+      expect(await owner.accept(competitor, run)).toMatchObject({
+        kind: "failed",
+        reason: "already-starting",
+      });
+    }
+
+    publish.release();
+    await receiptWrite;
+    const [awaitingNative] = (await keptAttempts()) ?? [];
+    expect(awaitingNative).toMatchObject({ id, publication });
+    expect(awaitingNative?.outcome).toBeUndefined();
+    expect(await owner.accept(refinement, run)).toMatchObject({
+      kind: "failed",
+      reason: "already-starting",
+    });
+    expect(await owner.accept(request, run)).toMatchObject({
+      kind: "uncertain",
+      reason: "unconfirmed",
+    });
+    expect(run).toHaveBeenCalledTimes(1);
+  } finally {
+    publish.release();
+    confirmNative.release();
+    await owner.drain();
   }
 
-  test.afterEach(async () => {
-    if (existsSync(machineStore())) chmodSync(machineStore(), 0o755);
-    push.release();
-    await server.close();
-    origin.cleanup();
+  const kept = await keptAttempts();
+  const { host, sessionId } = record.session;
+  const outcome = { kind: "launched", session: { host, sessionId } };
+  expect(kept).toMatchObject([{ id, request, publication, outcome }]);
+  expect(kept?.[0]?.worker).toBeUndefined();
+  expect((await owner.attempts()).attempts).toMatchObject([
+    { id, running: false, owned: false },
+  ]);
+});
+
+test("refuses a launch with no dispatch when the initial attempt cannot be kept", async () => {
+  const { owner, file } = privateMachine();
+  deniedFile = file;
+  const run = vi.fn<AttemptRun>(() => {
+    throw new Error("Unexpected launch dispatch.");
   });
 
-  const answerOf = async (
-    pending: ReturnType<typeof launch>,
-  ): Promise<Answer> => JSON.parse((await pending).body) as Answer;
+  expect(await owner.accept(request, run)).toMatchObject({
+    kind: "failed",
+    reason: "unrecorded",
+  });
+  expect(run).not.toHaveBeenCalled();
+  expect(existsSync(file)).toBe(false);
+  expect((await owner.attempts()).attempts).toEqual([]);
+});
 
-  const machineStore = () => path.join(server.home, ".open-dough", "dashboard");
-
-  const keptAttempts = () => keptOfMachine(server);
-
-  const workspaces = (): string[] => {
-    const folder = path.join(origin.project, ".worktrees");
-    return existsSync(folder) ? readdirSync(folder) : [];
-  };
-
-  test("is kept before publication and settles after its caller is gone, one start across workflows", async () => {
-    await serve("separate process");
-    server.claudeScenario("held");
-
-    const answered = await answerOf(accept(server, request));
-    expect(answered).toMatchObject({
-      kind: "accepted",
-      attempt: {
-        request: keptRequest,
-        publication: { kind: "unknown" },
-        owned: true,
-        // Admission keeps this server as the worker before start effects.
-        worker: {
-          pid: server.pid,
-          serverPid: server.pid,
-          step: "start",
-          notedAt: expect.any(String),
-        },
-      },
-    });
-    const id = answered.attempt?.id;
-    // Kept with its exact request before the start published anything. The
-    // start script may already have replaced worker.pid while step stays
-    // "start" (./agent-launch-worker-handoff.spec.ts); serverPid still names
-    // this server.
-    expect(keptAttempts()).toEqual([
-      {
-        id,
-        request: keptRequest,
-        acceptedAt: answered.attempt?.acceptedAt,
-        reportingOrigin: server.origin,
-        publication: { kind: "unknown" },
-        worker: {
-          pid: expect.any(Number),
-          serverPid: server.pid,
-          step: "start",
-          notedAt: expect.any(String),
-        },
-      },
-    ]);
-    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
-    expect(await origin.takenProfiles()).toEqual([]);
-    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
-
-    // No workflow's launch of the story is accepted while it is unsettled.
-    const refinement = makeMe.aLaunchRequest
-      .refining({ identity: queuedIdentity, title: queuedTitle })
-      .withInstruction("Keep this exact instruction.")
-      .please();
-    expect(await answerOf(accept(server, refinement))).toEqual(alreadyStarting);
-    expect(await answerOf(accept(server, request))).toEqual(alreadyStarting);
-    expect(server.claudeCalls()).toEqual([]);
-    expect(workspaces()).toHaveLength(1);
-    expect(await attempts(server)).toHaveLength(1);
-
-    // The Take is published; the session launch is still held.
-    push.release();
-    await expect
-      .poll(async () => (await attempts(server))[0]?.publication.kind, {
-        timeout: 30_000,
-      })
-      .toBe("published");
-    await expect
-      .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
-      .toBe(1);
-    const revision = (await origin.originGit("rev-parse", "main")).trim();
-    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
-    expect(keptAttempts()[0]?.publication).toEqual({
-      kind: "published",
-      revision,
-    });
-    expect(keptAttempts()[0]?.outcome).toBeUndefined();
-    expect(await answerOf(accept(server, refinement))).toEqual(alreadyStarting);
-
-    server.releaseHeldClaude();
-    await expect
-      .poll(async () => (await attempts(server))[0]?.outcome?.kind, {
-        timeout: 30_000,
-      })
-      .toBe("launched");
-    const [record] = (await recordsOf(server, "open-dough")) as {
-      session: { host: string; sessionId: string };
-    }[];
-    expect(keptAttempts()[0]).toMatchObject({
-      id,
-      request: keptRequest,
-      outcome: {
-        kind: "launched",
-        session: { host: "claude", sessionId: record?.session.sessionId },
-      },
-    });
-    expect(await attempts(server)).toEqual([
-      { ...keptAttempts()[0], owned: false, running: false },
-    ]);
-    expect(await origin.takenProfiles()).toHaveLength(1);
-    expect(workspaces()).toHaveLength(1);
-    expect(server.claudeLaunchCalls()).toHaveLength(1);
-    expect(await runningStarts(server)).toEqual([]);
-    expect(await keptStarts(server)).toEqual([]);
+test("a failed receipt write stops native launch and keeps the publication known to its owner", async () => {
+  const { home, owner, file } = privateMachine();
+  const workspace = localFolder("~/story");
+  const source = makeMe.aPublishedSource.openDough.please();
+  onTestFinished(mountProjectConfiguration("development"));
+  appendConfiguredProject(
+    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
+  );
+  const { start } = makeMe.aLaunchRecord
+    .executing(story)
+    .onStoryBranch({
+      workspace: workspace.shown,
+      branch: "claude/story",
+      agent: "Story agent",
+    })
+    .please();
+  const workflow = startOf("execution");
+  assert(start !== undefined && "publishedSha" in start);
+  assert(workflow !== undefined);
+  const publish = heldHandoff();
+  vi.spyOn(launchStart, "started").mockImplementation(async () => {
+    await publish.wait;
+    deniedFile = file;
+    return {
+      kind: "established",
+      workflow,
+      policy: defaultSessionPolicy,
+      handoff: { established: { start } },
+      workspace,
+    };
+  });
+  const native = vi.spyOn(hosts, "launchHost").mockImplementation(() => {
+    throw new Error("Unexpected native launch.");
+  });
+  const progress = new StartProgress();
+  const doneMarks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: () => undefined,
+    reportingFolder: machineFolder,
   });
 
-  test("that cannot be kept starts nothing", async () => {
-    await serve();
-    mkdirSync(machineStore(), { recursive: true });
-    chmodSync(machineStore(), 0o555);
-    server.claudeScenario("launched");
+  try {
+    const accepted = await owner.accept(
+      request,
+      (...args) => attemptRun(source, ...args, progress, doneMarks),
+      reportingOrigin,
+    );
+    assert.equal(accepted.kind, "accepted");
+    const beforePublication = readFileSync(file, "utf8");
+    publish.release();
+    await owner.drain();
 
-    expect(await answerOf(accept(server, request))).toEqual({
-      kind: "failed",
-      reason: "unrecorded",
-      explanation:
-        "This machine's launch evidence could not be written, so the launch was not accepted. Nothing was started or launched.",
-    });
-    expect(push.isHeld()).toBe(false);
-    expect(await origin.takenProfiles()).toEqual([]);
-    expect(workspaces()).toEqual([]);
-    expect(server.claudeCalls()).toEqual([]);
-    expect(await runningStarts(server)).toEqual([]);
-    expect(await keptStarts(server)).toEqual([]);
-    expect(await attempts(server)).toEqual([]);
-  });
-
-  test("whose publication receipt cannot be kept retains the known recording stop while the server goes on", async () => {
-    await serve("separate process");
-    server.claudeScenario("launched");
-    const answered = await answerOf(accept(server, request));
-    expect(answered.kind).toBe("accepted");
-    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
-
-    // The machine's store cannot be written once the Take is published.
-    chmodSync(machineStore(), 0o555);
-    push.release();
-    await expect
-      .poll(async () => (await attempts(server))[0]?.outcome, {
-        timeout: 30_000,
-      })
-      .toMatchObject({
-        kind: "failed",
-        reason: "unrecorded",
-        explanation: expect.stringContaining("Publication succeeded (Taken by"),
-      });
-    expect((await attempts(server))[0]).toMatchObject({
-      id: answered.attempt?.id,
+    expect(native).not.toHaveBeenCalled();
+    const [observed] = (await owner.attempts()).attempts;
+    expect(observed).toMatchObject({
+      id: accepted.attempt.id,
       owned: false,
       running: false,
-      publication: expect.objectContaining({ kind: "published" }),
+      publication: { kind: "published", revision: start.publishedSha },
+      outcome: { kind: "failed", reason: "unrecorded" },
     });
-    // What was kept stays as it was written before the failure: unsettled,
-    // its publication not yet known, to be reconciled.
-    expect(keptAttempts()).toEqual([
-      expect.objectContaining({
-        id: answered.attempt?.id,
-        request: keptRequest,
-        acceptedAt: answered.attempt?.acceptedAt,
-        reportingOrigin: server.origin,
-        publication: { kind: "unknown" },
-        worker: expect.objectContaining({ step: "start" }),
-      }),
-    ]);
-    expect(await origin.takenProfiles()).toHaveLength(1);
-    expect(await runningStarts(server)).toEqual([]);
-    expect(server.claudeLaunchCalls()).toEqual([]);
-  });
+    expect(observed?.outcome).toHaveProperty(
+      "explanation",
+      expect.stringContaining("Publication succeeded (Taken by Story agent"),
+    );
+    expect(readFileSync(file, "utf8")).toBe(beforePublication);
+  } finally {
+    publish.release();
+  }
 });

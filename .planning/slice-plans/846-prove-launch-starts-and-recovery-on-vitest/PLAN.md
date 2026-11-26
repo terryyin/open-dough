@@ -133,7 +133,7 @@ local test setup, so the acceptance review found no refactor candidate.
 ### 2. Keep the exact request before starting work
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Call the launch owner with a typed request, a private machine store
@@ -153,6 +153,18 @@ and typed handoffs. The named E2E consumers keep the actual Git and
 native effects, including the existing publication receipt failure
 journey. The baseline selector and shared browser fixtures remain
 available to their other callers.
+
+Accepted proof: three migrated Node cases and four retained independent
+writer and admission-close cases passed. Chromium selected zero. The
+launch effect reads the exact saved request, worker, and initial receipt
+on entry, and a held native handoff keeps competitors blocked after
+publication. The initial write refusal dispatches nothing. The actual
+`attemptRun` stops on failed receipt replacement, preserves the known
+publication in memory, and leaves the store bytes intact. The receipt
+failure and second-server journeys keep real publication and native
+effects. Dashboard typecheck passed. See `slice-2-return.md` and
+`slice-2-acceptance-2.json` in the Git evidence directory. The acceptance
+review found no refactor candidate within the cohesive subject spec.
 
 ### 3. Keep settlement observable while writing
 
