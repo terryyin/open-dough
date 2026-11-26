@@ -145,7 +145,7 @@ G3: a failed later-revision read currently hides the tree.
 ### 3. Keep the current reading until Show latest can replace it
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the mounted revision-apply and source-recovery journeys with
 held, failed, retried, and stale project inventory answers (the attempt's
 two Show latest cases are the starting point). Then
@@ -161,6 +161,18 @@ Retry. When the new pair arrives, re-evaluate the selection against the full
 inventory, independent of the browsing filter. A retained path reads the new
 blob, and a removed path clears its old source. The CI overview keeps
 advancing to the observed trunk judgment independently of the browser.
+
+Delivered: `useProjectReading` pairs the shown locations with
+the tree read at their revision and keeps the last read pair, with its own
+pin and a rebuilt `IntentRevisionNotice` (updating, or the tree failure as
+its failed update with Retry), until the new pair is read;
+`useShownIntentLocations` gains only an additive `follow` field. Proof:
+focused revision-apply 4 passed; mounted intent 352 passed; the three
+planned E2E specs plus three the consumer trace added 10 passed; backend
+`intent-location-syntax` 3 passed. Learning: fixtures that spread a built
+`IntentReadSource` and override `readLocations` bypass the builder's tree
+answer, so reading the tree before its locations answer hangs them; the tree
+is therefore read at the shown locations' revision.
 
 ## Plan review
 
@@ -180,9 +192,9 @@ Disposition: proved by slice 2: dashboard/frontend-tests/intent/intent-project-b
 ### G2. Project tree read failure and Retry are unobserved and use a new surface (first reported in plan 841 slice 3)
 Reported: slice 3 — "Untested: the error message and Retry shown when the project tree read fails (in useProjectTreeRead.tsx)."
 Story clause: "If the new inventory cannot be read, the current reading remains usable while the developer retries."
-Disposition: return
+Disposition: proved by slice 3: dashboard/frontend-tests/intent/intent-revision-apply.spec.ts case "Show latest keeps the whole reading of A while B's project files fail or are read, then reads B" (notice reads the failed update for B, page stays at A with its reading, Retry reads B)
 
 ### G3. A failed later-revision tree read hides the tree (first reported in slice 2)
 Reported: slice 2 — "Because unread is true on any failure, a failed read on a later revision now hides the tree. Before, it listed the location files under the alert."
 Story clause: "If the new inventory cannot be read, the current reading remains usable while the developer retries."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: dashboard/frontend-tests/intent/intent-revision-apply.spec.ts case "Show latest keeps the whole reading of A while B's project files fail or are read, then reads B" (after B's failed tree read the tree-only README stays listed at A)

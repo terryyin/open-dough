@@ -17,10 +17,34 @@ import {
 } from "./IntentRevisionNotice.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { useIntentLocations } from "./useIntentLocations.ts";
+import {
+  useIntentLocations,
+  type FailedLocationsUpdate,
+} from "./useIntentLocations.ts";
+
+// A reading shown at `revision` as the revision notice states it: whether it
+// is updating, the failed update and its Retry.
+type ShownReading = {
+  readonly revision: string | undefined;
+  readonly updating: boolean;
+  readonly failedUpdate: FailedLocationsUpdate | undefined;
+  readonly onRetry: () => void;
+};
+
+// What the notice follows: Intent's reading revision, the failed read of its
+// locations and their Retry, and the notice for a shown reading beside the
+// observed revision and its Show latest.
+export type FollowedRevision = {
+  readonly reading: string | undefined;
+  readonly failedUpdate: FailedLocationsUpdate | undefined;
+  readonly retryLocations: () => void;
+  readonly noticeFor: (shown: ShownReading) => ReactNode;
+};
 
 export type ShownIntentLocations = {
   readonly notice: ReactNode;
+  // Present while the reading follows the project's observed revision.
+  readonly follow?: FollowedRevision;
   readonly reading?: true;
   // The revision whose locations are shown, once one is.
   readonly shownRevision: string | undefined;
@@ -40,14 +64,14 @@ export function useShownIntentLocations(
   const { reading, showLatest } = useIntentReadingRevision(observed);
   const { intent, shownRevision, updating, failedUpdate, retryLocations } =
     useIntentLocations(source, reading);
-  const notice = (
+  const noticeFor = (shown: ShownReading) => (
     <IntentRevisionNotice
-      shown={shownRevision}
+      shown={shown.revision}
       observed={observed}
-      updating={updating}
-      failedUpdate={failedUpdate}
+      updating={shown.updating}
+      failedUpdate={shown.failedUpdate}
       onShowLatest={showLatest}
-      onRetry={retryLocations}
+      onRetry={shown.onRetry}
     />
   );
   const settled =
@@ -55,7 +79,13 @@ export function useShownIntentLocations(
       ? undefined
       : settledLocationsOf(intent, source.label, retryLocations);
   return {
-    notice,
+    notice: noticeFor({
+      revision: shownRevision,
+      updating,
+      failedUpdate,
+      onRetry: retryLocations,
+    }),
+    follow: { reading, failedUpdate, retryLocations, noticeFor },
     ...(settled === undefined ? { reading: true } : {}),
     shownRevision,
     locations:

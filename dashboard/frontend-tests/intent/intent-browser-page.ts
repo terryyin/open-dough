@@ -121,6 +121,10 @@ export function intentBrowser() {
         .not.toHaveAttribute("aria-pressed", "true");
       return browser;
     },
+    async listsNoFile(path: string) {
+      await expect.element(fileName(path)).not.toBeInTheDocument();
+      return browser;
+    },
     async showsNoSource() {
       await expect
         .element(page.getByLabelText(/ source$/).first())

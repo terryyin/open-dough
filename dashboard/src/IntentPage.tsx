@@ -47,7 +47,7 @@ export type IntentPageStory = {
 
 export function IntentPage({
   source,
-  shown,
+  shown: followed,
   project,
   story,
 }: {
@@ -56,13 +56,13 @@ export function IntentPage({
   readonly project: ModeChoice;
   readonly story?: IntentPageStory;
 }) {
-  const { notice, shownRevision } = shown;
-  const result = useStoryResultBrowse(story?.summary.comparison, source.label);
-  const projectReading = useProjectReading(
+  const { shown, project: projectReading } = useProjectReading(
     source,
-    shownRevision,
+    followed,
     story === undefined ? project : undefined,
   );
+  const { notice, shownRevision } = shown;
+  const result = useStoryResultBrowse(story?.summary.comparison, source.label);
   const {
     comparisonSourceUnavailable,
     locations: browserLocations,
