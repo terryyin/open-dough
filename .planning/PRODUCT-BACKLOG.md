@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Prove Dashboard launch starts and recovery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) — SEED-413#prove-launch-starts-and-recovery-on-vitest ([plan](slice-plans/846-prove-launch-starts-and-recovery-on-vitest/PLAN.md))
-- [Share completed Intent review response watching across E2E specs](seeds/SEED-420-unified-intent-review.md#share-completed-intent-review-response-watching) — SEED-420#share-completed-intent-review-response-watching ([plan](slice-plans/852-share-completed-intent-review-response-watching/PLAN.md))
 
 ## Backlog list
 
