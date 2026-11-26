@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Open the published Board at verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk ([plan](slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md))
 - [Prove retained launch records in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-kept-launch-records-on-vitest) — SEED-413#prove-kept-launch-records-on-vitest ([plan](slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md))
 - [“ Open the published Board at verified G…](seeds/SEED-445-ad-hoc-work.md#ad-hoc-work) — SEED-445#ad-hoc-work
+- [Prove retained follow-up context in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest) — SEED-413#prove-follow-up-context-on-vitest ([plan](slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -41,7 +42,6 @@ intent introduced or affected by a newly developed story.
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
-- [Prove retained follow-up context in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest) — SEED-413#prove-follow-up-context-on-vitest
 - [Prove native session and terminal lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest) — SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest
 - [Prove published Dashboard reads and evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest) — SEED-413#prove-published-dashboard-reads-on-vitest
 - [Prove Dashboard configuration and serving in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-dashboard-configuration-and-serving-on-vitest) — SEED-413#prove-dashboard-configuration-and-serving-on-vitest
