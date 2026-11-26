@@ -761,6 +761,23 @@ or the report states the remaining cost.
 - The behavior and case-count ledger accounts for every story in the frontend
   campaign.
 
+<a id="refuse-non-vitest-frontend-specs"></a>
+
+### Refuse frontend specs the Vitest-only runner would skip
+
+**Identity:** SEED-413#refuse-non-vitest-frontend-specs
+
+**Goal.** Dashboard maintainers learn at once when a frontend spec cannot
+run, rather than CI passing without it, after the
+[runner retirement](#retire-legacy-dashboard-frontend-runner) made the
+frontend group Vitest-only.
+
+**Scope.** Correct that story's delivered runner and its residue only: a
+frontend spec without a Vitest import, and an unsupported option with an
+empty selection, are refused by name. Name the group runner kind and the
+failure output once, and remove the comments and the one-consumer fixture
+module left by the retired runner. [Plan](../slice-plans/855-refuse-non-vitest-frontend-specs/PLAN.md).
+
 <a id="frontend-renovation-evidence"></a>
 
 ### Frontend renovation evidence

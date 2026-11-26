@@ -295,3 +295,22 @@ slice-specific concern.
   checks in slices 3 and 5: the backend listing, Distribution support
   tests, and branch CI. Run focused gates through their maintained runners,
   apply the post-change refactor, and use the commit and publication gates.
+
+## Execution complete
+
+Product advice:
+
+- The backend runner retirement must give the 11 Playwright observation
+  cases now in `dashboard/backend-tests/observation/` a home: E2E support
+  proof, or element-based helpers shared with the mounted specs. They prove
+  Playwright-only helpers that E2E and backend page objects use.
+- The one-minute target is missed by about three minutes (4 min 8 s against
+  7 min 15 s). Intent (165 s) and Navigation (90 s) carry most of the
+  summed time. Queue a speed story only when that wait matters more than
+  the queued backend migration.
+- `ProjectFindings.md` (the entry before `dd-617`) waited for the dual
+  frontend runner's retirement, which this story completed.
+- The retrospective correction
+  [SEED-413#refuse-non-vitest-frontend-specs](../855-refuse-non-vitest-frontend-specs/PLAN.md)
+  refuses frontend specs the Vitest-only runner would otherwise skip, and
+  names the runner kind and failure output once.
