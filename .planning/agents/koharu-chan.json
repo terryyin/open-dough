@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Koharu-chan",
+  "email": "koharu-chan@example.org",
+  "identity": "SEED-413#prove-published-dashboard-reads-on-vitest",
+  "mode": "story-branch",
+  "branch": "claude/prove-published-follow-up-evidence-in-node-vites",
+  "host": "claude"
+}

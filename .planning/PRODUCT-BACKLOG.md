@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Prove retained follow-up context in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest) — SEED-413#prove-follow-up-context-on-vitest ([plan](slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md))
 - [Move authenticated-read proofs off the Board's ref read](seeds/SEED-430-read-published-project-data-from-local-git.md#move-authenticated-read-proofs-off-the-board-ref-read) — SEED-430#move-authenticated-read-proofs-off-the-board-ref-read ([plan](slice-plans/858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md))
+- [Prove published Follow up evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest) — SEED-413#prove-published-dashboard-reads-on-vitest ([plan](slice-plans/859-prove-published-follow-up-evidence-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -45,7 +46,6 @@ intent introduced or affected by a newly developed story.
 - [Prove terminal attach and Cursor turns in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest) — SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest
 - [Prove Cursor runner lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-runner-lifecycle-on-vitest) — SEED-413#prove-cursor-runner-lifecycle-on-vitest
 - [Prove session retention, one-shot starts and input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-retention-and-input-on-vitest) — SEED-413#prove-session-retention-and-input-on-vitest
-- [Prove published Follow up evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest) — SEED-413#prove-published-dashboard-reads-on-vitest
 - [Prove published read admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-read-admission-via-vitest) — SEED-413#published-read-admission-via-vitest
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest
 - [Prove authenticated GitHub observation in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#authenticated-github-observation-via-vitest) — SEED-413#authenticated-github-observation-via-vitest
