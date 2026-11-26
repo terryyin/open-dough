@@ -4,10 +4,7 @@
 import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
-import {
-  storyReviewEndpoint,
-  storyReviewSchema,
-} from "../../dashboard/src/storyReviewContract.ts";
+import { waitForHistoricalReview } from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   expandIntentGroup,
@@ -76,15 +73,9 @@ test("a Done story reads its published execution instead of an earlier refinemen
     revision: completion,
     repository: "terryyin/open-dough",
   });
-  const received = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname === storyReviewEndpoint &&
-      url.searchParams.get("historical") === "true"
-    );
-  });
+  const received = waitForHistoricalReview(page);
   const { intent } = await selectDoneStoryInIntent(page);
-  const answer = storyReviewSchema.parse(await (await received).json());
+  const answer = await received;
   expect(answer).toMatchObject({ kind: "published", completion });
   expect(answer.selectedRun).toBeUndefined();
   await browseStoryFiles(intent);

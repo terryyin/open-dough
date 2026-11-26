@@ -1,9 +1,6 @@
 import { doneWallTimeHistory } from "../../dashboard/test-support/priorBuildReferencePage.ts";
 import { comparisonReading } from "../../dashboard/test-support/intentCiComparisonPage.ts";
-import {
-  storyReviewEndpoint,
-  storyReviewSchema,
-} from "../../dashboard/src/storyReviewContract.ts";
+import { waitForHistoricalReview } from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   expect,
@@ -66,17 +63,9 @@ for (const selection of ["equivalent", "later"] as const) {
       )
         representedRequests.push(url.searchParams.get("revision") ?? "");
     });
-    const published = page.waitForResponse((response) => {
-      const url = new URL(response.url());
-      return (
-        url.pathname === storyReviewEndpoint &&
-        url.searchParams.get("historical") === "true"
-      );
-    });
+    const published = waitForHistoricalReview(page);
     const { panel } = await selectDoneStoryForCiComparison(page);
-    expect(
-      storyReviewSchema.parse(await (await published).json()),
-    ).toMatchObject({
+    expect(await published).toMatchObject({
       kind: "published",
       completion: setup.completion,
       landingRevision: endpoint,

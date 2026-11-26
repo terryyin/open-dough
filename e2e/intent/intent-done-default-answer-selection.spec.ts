@@ -28,7 +28,10 @@ import {
   commitBacklogCompletion,
   publishCompletedStory,
 } from "../../dashboard/test-support/support/completedStoryPublication.ts";
-import { waitForLandedReview } from "../../dashboard/test-support/support/completedReviewRequests.ts";
+import {
+  waitForHistoricalReview,
+  waitForLandedReview,
+} from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import {
   listStoryRevision,
@@ -137,21 +140,12 @@ test("selecting another Done story opens its published default after reading the
     repository: "terryyin/open-dough",
     follows: true,
   });
-  const firstRead = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname === storyReviewEndpoint &&
-      url.searchParams.get("identity") === queuedIdentity &&
-      url.searchParams.get("historical") === "true"
-    );
-  });
+  const firstRead = waitForHistoricalReview(page, queuedIdentity);
   const { intent } = await selectDoneStoryInIntent(page);
-  expect(storyReviewSchema.parse(await (await firstRead).json())).toMatchObject(
-    {
-      kind: "published",
-      landingRevision: firstCapture.revision,
-    },
-  );
+  expect(await firstRead).toMatchObject({
+    kind: "published",
+    landingRevision: firstCapture.revision,
+  });
   const landedRead = waitForLandedReview(page, first.reporting.reference);
   const landing = new ReviewLandedRun(storySummary(intent), () =>
     showComparisonDetails(storySummary(intent)),

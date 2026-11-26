@@ -7,10 +7,7 @@ import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePag
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import { trackStoryResultReads } from "../../dashboard/test-support/support/storyResultRequests.ts";
-import {
-  storyReviewEndpoint,
-  storyReviewSchema,
-} from "../../dashboard/src/storyReviewContract.ts";
+import { waitForHistoricalReview } from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 import {
@@ -114,15 +111,9 @@ for (const history of ["published", "shallow"] as const)
       repository: "terryyin/open-dough",
       follows: true,
     });
-    const received = page.waitForResponse((response) => {
-      const url = new URL(response.url());
-      return (
-        url.pathname === storyReviewEndpoint &&
-        url.searchParams.get("historical") === "true"
-      );
-    });
+    const received = waitForHistoricalReview(page);
     const { intent } = await selectDoneStoryInIntent(page);
-    const answer = storyReviewSchema.parse(await (await received).json());
+    const answer = await received;
     if (history === "shallow") {
       expect(answer).toMatchObject({
         kind: "unavailable",
