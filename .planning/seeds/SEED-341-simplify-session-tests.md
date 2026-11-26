@@ -63,7 +63,7 @@ Refresh the Recently done review roster after
 [Review published changes](https://github.com/terryyin/open-dough/blob/d0489607774ee6a3dd2c69b3fd5e0409288e68ab/.planning/seeds/SEED-427-review-published-changes.md#review-published-changes),
 then simplify the surviving review proof alongside the other session cases.
 
-Use the [Project Intent revision family](SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)
+Use the [Project Intent revision family](https://github.com/terryyin/open-dough/blob/2294ce3f9f4fa243024941f689e862ee01b7d0bf/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)
 as the frontend example. Mount the session view with the real state owner when
 reopening or switching scopes is the behavior. Keep integrated navigation in
 a representative E2E journey, and check that an existing test proves the same

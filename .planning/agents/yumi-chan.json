@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yumi-chan",
-  "email": "yumi-chan@example.org",
-  "identity": "SEED-413#retire-legacy-dashboard-frontend-runner",
-  "mode": "story-branch",
-  "branch": "claude/run-the-entire-dashboard-frontend-unit-suite-on",
-  "host": "claude"
-}

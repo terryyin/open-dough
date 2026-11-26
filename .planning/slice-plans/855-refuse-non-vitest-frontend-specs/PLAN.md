@@ -4,8 +4,9 @@
 
 **Source:** [Refuse frontend specs the Vitest-only runner would skip](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#refuse-non-vitest-frontend-specs),
 a retrospective correction of
-[Run the entire dashboard frontend unit suite on Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner)
-(plan 800, completed on `claude/run-the-entire-dashboard-frontend-unit-suite-on`).
+[Run the entire dashboard frontend unit suite on Vitest](https://github.com/terryyin/open-dough/blob/2294ce3f9f4fa243024941f689e862ee01b7d0bf/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner)
+(completed plan at
+[`2294ce3f9`](https://github.com/terryyin/open-dough/blob/2294ce3f9f4fa243024941f689e862ee01b7d0bf/.planning/slice-plans/800-run-the-entire-dashboard-frontend-unit-suite-on-vitest/PLAN.md)).
 
 ## Provenance
 

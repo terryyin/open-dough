@@ -65,7 +65,7 @@ Story Wrap Up follow-up process.
 - A newly added test and an older case catch the same regression. The final
   slice preserves the stronger observation, removes the redundant case, and
   records the lower runnable case count.
-- The [Project Intent revision family](SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)
+- The [Project Intent revision family](https://github.com/terryyin/open-dough/blob/2294ce3f9f4fa243024941f689e862ee01b7d0bf/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)
   shows another outcome. The mounted case kept the unique notice Retry and
   dropped a file Retry already proved elsewhere. The composed E2E still
   exercises Show latest. All nine cases remained, and the measured focused

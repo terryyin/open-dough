@@ -23,11 +23,11 @@ to surviving **`e2e/`** workflows:
 
 - Single-service `dashboard/frontend-tests/` specs move to narrow owning
   component mounts in the
-  [frontend renovation stories](SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families).
+  [frontend renovation stories](https://github.com/terryyin/open-dough/blob/2294ce3f9f4fa243024941f689e862ee01b7d0bf/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families).
   The page-object hand-offs in this seed serve the surviving E2E workflows.
 - `SEED-300#express-browser-measurement-test-intent` was dropped on 2026-11-19
   (auditing and retiring `frontend-tests/test-harness/` belongs to
-  [frontend runner retirement](SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner)).
+  [frontend runner retirement](https://github.com/terryyin/open-dough/blob/2294ce3f9f4fa243024941f689e862ee01b7d0bf/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner)).
 - Keep page objects thin; weigh every helper against the
   [Architectural North Star](../NORTH-STAR.md) and
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md) so test
