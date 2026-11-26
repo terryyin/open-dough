@@ -61,7 +61,7 @@ production data migration belong to SEED-439.
 ### 1. Start in the borrowed checkout on the admitted story
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Begin with the cutover probe. Trace all 18 mapped paths and
@@ -87,6 +87,43 @@ handoff recorder. Observe that a blank launch stays blank at the actual
 host in the retained E2E. Preserve exact text at the first-input boundary
 in slice 2. Retire standalone inventory expectations with the supplier's
 story-membership proof.
+
+Outcome (7 active minutes). Probe at `dffa94bab`: all 19 mapped paths
+existed on the legacy runner and none of their assertions had moved. Live
+readers are `hostLaunch.ts`, `retainedLandingDecision.ts` and
+`branchLandingContext.ts` for blank Start and landing, and
+`feedbackMaintenanceCheck.ts` with `repeatingCheck.ts` for scheduling.
+No production seam was needed. `started()` in `launchStart.ts` already
+takes the checkout, start-store factory and env. Each case needs its own
+`HOME` (`vi.stubEnv`), or it reads the previous case's kept start. A Codex
+origin needs `startOrigin(repository, { host: "codex" })`, kept once in
+`beforeAll`.
+
+- `ad-hoc-start-labels.spec.ts` (6 node cases) owns the admitted title
+  (text, blank, spaces, control character, 40-character cut), the
+  as-typed instruction, and the refusal of an identity.
+- `ad-hoc-borrowed-start.spec.ts` (Claude instructed, Claude blank,
+  Codex) owns one published Taken story and profile on the origin when
+  Start returns. It also owns the execution checkout as workspace with
+  HEAD, symbolic-ref, index and status unchanged, and `defaultStart`'s
+  checkout and common repository. Native dispatch follows the awaited
+  `started()` in `launchRun.ts`. Slice 3 owns the held-admission zero-call
+  observation for the same contract.
+- Retained owners: `e2e/launches/agent-launch-ad-hoc.spec.ts` (session
+  name, blank prompt, cwd, session under its Taken story, sidebar).
+  `agent-launch-model-boundary.spec.ts` keeps default effort.
+  `agent-launch-refusal.spec.ts` keeps the 403, 404 and over-limit 400.
+  `agent-launch-duplicate.spec.ts` keeps the duplicate answer, and the
+  Codex input specs keep `firstInput`. Standalone inventory is retired
+  against SEED-439's story-membership proof.
+- Removed `agent-launch-ad-hoc-boundary`, `agent-launch-ad-hoc-sessions`
+  and `admitted-session-duplicate`. All their support exports keep other
+  consumers. Bash `--list` shows both new files on `[node]` and zero
+  legacy cases for the removed paths.
+- Cost, one worker: before, 13 Playwright cases, 25.6 s summed, 36.9 s
+  wall. After, 9 node cases, 7.1 s summed, 10.1 s wall, with no failures
+  or retries. The three Git cases run 2.3–3.6 s each and the title cases
+  about 1 ms.
 
 ### 2. Start with existing changes only after confirmation
 
