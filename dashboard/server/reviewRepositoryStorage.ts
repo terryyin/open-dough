@@ -76,6 +76,17 @@ async function createIfMissing(
   );
 }
 
+// The verified-trunk check shares this bare repository. Review's tracking
+// fetch and sync record stay in `fetchPublishedRef`.
+export async function ensureReviewRepository(
+  source: PublishedSource,
+  signal: AbortSignal,
+): Promise<string> {
+  const repository = reviewRepositoryPath(source);
+  await createIfMissing(repository, source, signal);
+  return repository;
+}
+
 // Each exact published ref lands on its own remote-tracking ref; no
 // wildcard, so nothing prunes refs another exact fetch brought in.
 const trackingRef = (ref: string) => `refs/remotes/origin/${ref}`;

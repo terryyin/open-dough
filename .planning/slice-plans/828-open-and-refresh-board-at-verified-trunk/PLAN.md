@@ -36,9 +36,15 @@ repository, skipping the transfer is permitted but not promised here.
   Review's tracking ref and sync record stay Review's: moving the tracking
   ref is not a Board verification (see premises). Keep Review readers working
   against the same repository.
-- Probe the configured ref with `ls-remote --exit-code`, fetch the exact
-  advertised commit, and reject a fetch whose result differs from the probed
-  commit. Read the backlog at that immutable commit with the existing Git
+- Probe the configured ref with `ls-remote --exit-code`, then fetch
+  `refs/heads/<ref>` and accept it only when `FETCH_HEAD` is the probed
+  commit. Fetching the probed SHA still returns that SHA after the branch
+  moves, so a move is visible only on the ref fetch. Do not update
+  `refs/remotes/origin/*`. An empty `remote.origin.fetch` override does not
+  stop that update once `+refs/heads/*:refs/remotes/origin/*` is configured;
+  a fresh Review repository sets only the URL, and a Board verification
+  fetch must still leave the tracking ref unmoved when a refspec is present.
+  Read the backlog at that immutable commit with the existing Git
   reader seams in [published story history](../../../dashboard/server/publishedStoryHistory.ts).
   Seed the pinned backlog memo with `PinnedMemo.remember` where reachability
   still consults it, then call `observeProjectRevision`. Keep the admission
@@ -50,7 +56,11 @@ repository, skipping the transfer is permitted but not promised here.
   `LC_ALL=C`: 401/403 stderr is refusal and takes the established refusal
   path; exit 2 under `--exit-code` after a successful probe is a missing
   trunk; any other 128, including "Repository not found" and an
-  unrecognized message, is unavailable. Reuse a check only for the same
+  unrecognized message, is unavailable. A gate failure keeps its specific
+  stderr and then Git's generic remote-repository trailer, so match
+  `could not read Username` and `returned error: 403` before treating that
+  trailer as unavailable. A missing ref exits 2 with empty stderr.
+  `Authentication failed` stays unavailable. Reuse a check only for the same
   project, origin URL and machine gh credential.
 - Own the probe-to-read interval in [SharedObservation](../../../dashboard/server/sharedObservation.ts):
   bounded waiters, a departing waiter releases only its own wait, a
@@ -117,7 +127,7 @@ when changing a reader or fixture.
 ### 1. Verify an exact origin trunk candidate
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: At the Git boundary, probe the configured ref, fetch the exact
 advertised commit into the Review repository with the bounded fetch, reject
@@ -125,10 +135,12 @@ a different fetched commit, and read the backlog at the probed commit.
 Classify refusal, missing trunk and unavailable. The Board route is
 unchanged until slice 4; this enables slice 4.
 
-Proof: Vitest at the candidate seam with real file origins: initial and
-changed publications, a held transfer while the ref moves, a missing ref, an
-unreadable backlog, and refusal versus unavailable stderr. Budget 13 active
-minutes.
+Proof: Accepted at `verifiedOriginTrunk` in `verified-origin-trunk.spec.ts`.
+`materializeRepository` and `makeMe` set the origin; the held and refusal
+cases set `remote.origin.uploadpack` and the hold waits on a fifo. Six tests
+observe the published bytes, the moved backlog, a rejected move then revision
+B, missing trunk, an unreadable backlog, `GhFailure` 401/403, and unavailable
+for any other 128. The spec and `npm run --silent typecheck:dashboard` exited 0.
 
 ### 2. Share bounded Git checks between eligible opens
 
@@ -208,12 +220,22 @@ Backend Test and E2E Test suites. Budget 13 active minutes. Close any
 temporary obligations under
 [story obligations](../../../.agents/skills/dough-execute-plan/references/story-obligations.md).
 
+## Learnings
+
+Slice 1 overran twice on 2026-11-26 (`storyOverruns` 2): 18.5 minutes with no
+edit, then 16.6 with the cases green and typecheck still red. Cold discovery
+failed the size assumption. Slices 2–6 and the story boundary stay.
+
 ## Plan refinement
 
 Refinement ran on 2026-11-26 after the fixture gate: the plan was resplit
 (Refresh moved to plan 853), the membership assertion surface was remeasured,
 and slices were redrawn so the request-list detachment precedes the switch.
 No slice-specific concern remains beyond the budgets above.
+
+## Execution identity
+
+Story Branch Mode. Reused workspace `/Users/terryyin/git/open-dough/.worktrees/open-the-published-board-at-verified-git-trunk` on `cursor/open-the-published-board-at-verified-git-trunk`. Start `c0d3dd203089472846b871fb210367a733d6a618`. Publisher `dashboard-territory.local-open-dough`, agent Sola-chan. Claim `dbce520fce73758e1ac339949e5711d1e7a73dc8` on `origin/cursor/open-the-published-board-at-verified-git-trunk`. Trunk `origin/main`.
 
 ## Local gate
 
