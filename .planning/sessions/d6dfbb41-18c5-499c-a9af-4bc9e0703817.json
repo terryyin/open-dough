@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "sessionId": "d6dfbb41-18c5-499c-a9af-4bc9e0703817",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-26T13:41:10.446Z",
+  "story": "SEED-413#refuse-non-vitest-frontend-specs",
+  "ranges": [
+    {
+      "base": "3e9f40ab1ddfbdc19c4593dbb2e6d31326401894",
+      "candidate": "a406894e2aa56de31304653464b7730390c570c0"
+    },
+    {
+      "base": "a406894e2aa56de31304653464b7730390c570c0",
+      "candidate": "370efdc845e45530cd1ba4519b8a4d16180ccdac"
+    },
+    {
+      "base": "370efdc845e45530cd1ba4519b8a4d16180ccdac",
+      "candidate": "7ded906a3532056e75901bbdfd96bbc23aa89a12"
+    },
+    {
+      "base": "7ded906a3532056e75901bbdfd96bbc23aa89a12",
+      "candidate": "567e0035099d0c854f332a5a97fa6030c2b4c6ea"
+    },
+    {
+      "base": "567e0035099d0c854f332a5a97fa6030c2b4c6ea",
+      "candidate": "f47b80a9020031c1c6d2091bda2350f04566a900"
+    }
+  ]
+}
