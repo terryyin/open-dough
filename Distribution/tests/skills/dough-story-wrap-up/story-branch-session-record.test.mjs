@@ -95,7 +95,7 @@ async function integrateStoryBranch(t, { landingContext } = {}) {
 }
 
 // The record stage as story-branch-integration.md has the agent run it.
-async function recordThroughCli(s) {
+async function recordThroughCli(s, targetRef = s.integrated.receipt.target) {
   const args = [
     join(
       s.execution,
@@ -110,15 +110,18 @@ async function recordThroughCli(s) {
     s.integrated.acceptedSha,
     "--branch",
     branch,
+    ...(targetRef ? ["--target-ref", targetRef] : []),
     ...(s.landingContext ? ["--landing-context", s.landingContext] : []),
   ];
   const run = await promisify(execFile)(process.execPath, args, {
     cwd: s.execution,
     env: s.fixture.env,
   }).catch((error) => error);
+  const output = run.stdout.trim();
   return {
     code: run.code ?? 0,
-    result: JSON.parse(run.stdout.trim().split("\n").at(-1)),
+    result: output ? JSON.parse(output.split("\n").at(-1)) : null,
+    stderr: run.stderr,
   };
 }
 
@@ -162,6 +165,14 @@ test("a launched story-branch session's record keeps its branch pairs once under
     makeMe.aLandingContext.reportingTo(receiver.origin).please(),
   );
   const s = await integrateStoryBranch(t, { landingContext });
+  const missingTarget = await recordThroughCli(s, null);
+  assert.equal(missingTarget.code, 2);
+  assert.match(missingTarget.stderr, /missing --target-ref/);
+  assert.equal(
+    await revParse(s.origin, s.integrated.receipt.target),
+    s.integrated.acceptedSha,
+  );
+
   const { code, result } = await recordThroughCli(s);
   assert.equal(code, 0, JSON.stringify(result));
   const { record } = result;
