@@ -184,7 +184,7 @@ subject spec changed, plus that dead-code removal.
 ### 5. Answer a change wait from the reader's observed count
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 
 Convert `agent-launch-change-wait` at `changedAttempt(owner, id, waitMs, seen)`.
@@ -194,6 +194,15 @@ waits for the next note or settlement. For a different live process the
 answer stays pending until its bound and returns unchanged. A persisted
 worker of this server, before local ownership, answers immediately. Control
 the timer at the wait boundary and read the owner's actual observations.
+
+Delivered: three Node cases totaling about 30 ms replaced 9 s of Chromium.
+Fake `setTimeout` and `clearTimeout` are installed just before the call, so
+they control only the bound. A settled answer carries no change count. The
+focused selection passed 8 of 8 three times. Four mutations each failed their
+case: ignoring `seen`, answering a foreign live worker at once, treating this
+server's worker as foreign, and dropping settlement's signal.
+`installedClaudeLaunch.ts` lost its last user and was deleted. Refactor pass
+skipped: only the subject spec changed, plus that dead-code removal.
 
 ### 6. Reconcile only from sufficiently recent settlement evidence
 

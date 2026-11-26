@@ -1,192 +1,189 @@
-// A wait for an accepted attempt's change (../../server/launchAttemptChanges.ts),
-// over raw HTTP with the synthetic `claude` holding the session launch: the
-// wait names how many changes its asker's observation counted, so a change
-// told while nothing waited -- here the worker's move from the start to the
-// session launch -- is answered at once instead of being missed until the
-// attempt settles, and a wait naming the current count answers at the next
-// change. A non-owner that has nothing new to tell consumes the configured
-// change bound (`DOUGH_CHANGE_WAIT_MS`, production default 30 seconds) instead
-// of waking at once, while an unsettled attempt this server's own process
-// works on is answered without that bound even before the server holds it.
-// What the page says from those answers is
-// ../../frontend-tests/launches/story-card-startup.spec.ts and
-// ../../../e2e/launches/agent-launch-second-server.spec.ts.
-
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  agentChangedEndpoint,
-  type AttemptObservation,
-} from "../../src/agentLaunch.ts";
-import { accept, attempts } from "../../test-support/agentLaunchBoundary.ts";
-import { keepMoreAttemptsBesideServer } from "../../test-support/acceptedAttempts.ts";
-import { request } from "../../test-support/keptExecutionStart.ts";
+// A wait for an accepted attempt's change (../../server/launchAttemptChanges.ts)
+// names how many changes its asker's observation counted, so a change told
+// while nothing waited is answered at once, and a wait naming the current
+// count answers at the next change. A different live server's worker can only
+// be observed after the bound; an attempt this server's own process works on
+// is answered at once even before this server holds it. What the page says
+// from those answers is ../../frontend-tests/launches/story-card-startup.spec.ts
+// and ../../../e2e/launches/agent-launch-second-server.spec.ts.
+import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { changedAttempt } from "../../server/launchAttemptChanges.ts";
+import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
+import { keepAttempt } from "../../server/launchAttemptStore.ts";
+import { attemptWorker } from "../../server/launchAttemptWorker.ts";
 import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { startOrigin } from "../../test-support/support/startOrigin.ts";
-import { queuedExecution } from "../support/installedClaudeLaunch.ts";
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
 
-async function changedBody(server: DashboardServer, id: string, seen?: number) {
-  const query =
-    seen === undefined ? `attempt=${id}` : `attempt=${id}&seen=${String(seen)}`;
-  const response = await rawRequest({
-    url: `${server.baseURL}${agentChangedEndpoint}?${query}`,
-    headers: { Origin: server.origin },
+const story = { identity: "SEED-001#wait", title: "Wait for a change" };
+const source = makeMe.aPublishedSource.openDough.please();
+const request = makeMe.aLaunchRequest
+  .executing({ ...story, source: source.id })
+  .please();
+// Long enough that only a wrong branch could reach it in a passing test.
+const unreachedBoundMs = 60_000;
+
+function privateMachine(): LaunchAttemptOwner {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-change-wait-"));
+  const owner = new LaunchAttemptOwner();
+  onTestFinished(async () => {
+    owner.close();
+    try {
+      await owner.drain();
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllEnvs();
+      rmSync(home, { recursive: true, force: true });
+    }
   });
-  expect(response.status).toBe(200);
-  return JSON.parse(response.body) as {
-    changed: boolean;
-    attempt?: AttemptObservation;
+  vi.stubEnv("HOME", home);
+  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
+  onTestFinished(mountProjectConfiguration("development"));
+  appendConfiguredProject(
+    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
+  );
+  return owner;
+}
+
+function tracked<T>(promise: Promise<T>) {
+  const state = { settled: false };
+  void promise.finally(() => {
+    state.settled = true;
+  });
+  return state;
+}
+
+function held() {
+  let release = () => {};
+  const released = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  onTestFinished(release);
+  return { released, release };
+}
+
+test("a stale count answers at once with the newer worker; the current count waits for the next note or settlement", async () => {
+  const owner = privateMachine();
+  const notedWorker = held();
+  const publish = held();
+  const settle = held();
+  const record = makeMe.anObservedLaunch
+    .of(makeMe.aLaunchRecord.executing(story).please())
+    .withSessionState(makeMe.aSessionState.unknown().please())
+    .please();
+  const accepted = await owner.accept(request, async (...[, notes]) => {
+    await notes.worker(attemptWorker("launch"));
+    notedWorker.release();
+    await publish.released;
+    await notes.publication({ kind: "none" });
+    await settle.released;
+    return { kind: "launched", record };
+  });
+  assert.equal(accepted.kind, "accepted");
+  const { id, changes: acceptedCount } = accepted.attempt;
+  expect(accepted.attempt).toMatchObject({ changes: 0 });
+  const nextChange = async (seen: number, cue: () => void) => {
+    const answer = changedAttempt(owner, id, unreachedBoundMs, seen);
+    const waiting = tracked(answer);
+    await owner.attempts();
+    expect(waiting.settled).toBe(false);
+    cue();
+    return answer;
   };
-}
 
-async function workerStep(server: DashboardServer, id: string) {
-  return (await attempts(server)).find((attempt) => attempt.id === id)?.worker
-    ?.step;
-}
-
-test("a wait naming the changes its asker saw answers at once a change told while nothing waited, and otherwise at the next change", async () => {
-  const server = await startDashboardServer({
-    mode: "boundary",
-    projectFolders: ["open-dough"],
-    launchTimeoutMs: 60_000,
+  // Nothing waits while the owner notes its move to the session launch.
+  await notedWorker.released;
+  const missed = await changedAttempt(
+    owner,
+    id,
+    unreachedBoundMs,
+    acceptedCount,
+  );
+  expect(missed).toMatchObject({
+    changed: true,
+    attempt: { running: true, worker: { step: "launch" } },
   });
-  try {
-    server.claudeScenario("held");
-    const { attempt: accepted } = JSON.parse(
-      (await accept(server, queuedExecution)).body,
-    ) as { attempt?: AttemptObservation };
-    if (accepted === undefined) throw new Error("The launch was not accepted");
-    expect(accepted).toMatchObject({ changes: 0, worker: { step: "start" } });
-    const counted = (attempt: AttemptObservation | undefined): number => {
-      if (attempt?.changes === undefined) throw new Error("No change count");
-      return attempt.changes;
-    };
+  expect(missed.attempt?.outcome).toBeUndefined();
+  const current = missed.attempt?.changes ?? 0;
+  expect(current).toBeGreaterThan(acceptedCount ?? 0);
 
-    // Nothing waits while the server moves on to the session launch.
-    await expect
-      .poll(() => workerStep(server, accepted.id), { timeout: 30_000 })
-      .toBe("launch");
-
-    const missed = await changedBody(server, accepted.id, counted(accepted));
-    expect(missed).toMatchObject({
-      changed: true,
-      attempt: { worker: { step: "launch" }, running: true },
-    });
-    expect(missed.attempt?.outcome).toBeUndefined();
-    expect(counted(missed.attempt)).toBeGreaterThan(0);
-
-    // Nothing changed since that answer, so this wait lasts until the held
-    // session launch is released and the attempt settles.
-    const next = changedBody(server, accepted.id, counted(missed.attempt));
-    server.releaseHeldClaude();
-    expect((await next).attempt?.outcome).toBeDefined();
-  } finally {
-    await server.close();
-  }
+  const published = await nextChange(current, publish.release);
+  expect(published).toMatchObject({
+    changed: true,
+    attempt: { running: true, publication: { kind: "none" } },
+  });
+  const counted = published.attempt?.changes ?? 0;
+  expect(counted).toBeGreaterThan(current);
+  // A settled attempt has no next change, so it carries no count.
+  const settled = await nextChange(counted, settle.release);
+  expect(settled).toMatchObject({
+    changed: true,
+    attempt: { running: false, outcome: { kind: "launched" } },
+  });
+  expect(settled.attempt?.changes).toBeUndefined();
 });
 
-// Observe the bound without waiting out production's 30 seconds: the server
-// under test shortens `DOUGH_CHANGE_WAIT_MS` the same way other dashboard
-// timeouts are shortened for tests.
-const observedChangeWaitMs = 500;
+test("a different live server's worker keeps the wait pending until its bound and answers unchanged", async () => {
+  const owner = privateMachine();
+  const other = spawn(process.execPath, ["-e", "setInterval(() => {}, 1e9)"], {
+    stdio: "ignore",
+  });
+  onTestFinished(() => {
+    other.kill();
+  });
+  assert(other.pid !== undefined);
+  const id = "00000000-0000-4000-8000-0000000000c2";
+  await keepAttempt(
+    makeMe.anAcceptedAttempt
+      .withId(id)
+      .requesting(request)
+      .workedBy({
+        pid: other.pid,
+        serverPid: other.pid,
+        step: "start",
+        notedAt: new Date().toISOString(),
+      })
+      .please(),
+  );
+  expect((await owner.attempts()).attempts).toMatchObject([
+    { id, owned: false, running: true },
+  ]);
 
-test("a non-owner with nothing new to tell consumes the configured change bound", async () => {
-  const origin = await startOrigin(queuedReadyRepository().please());
-  const push = origin.holdPushes();
-  let owner: DashboardServer | undefined;
-  let observer: DashboardServer | undefined;
-  try {
-    owner = await startDashboardServer({
-      mode: "boundary",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 60_000,
-      extraEnv: {
-        DOUGH_START_TIMEOUT_MS: "10000",
-        DOUGH_CHANGE_WAIT_MS: String(observedChangeWaitMs),
-      },
-    });
-    owner.claudeScenario("held");
-    const { attempt: accepted } = JSON.parse(
-      (await accept(owner, request)).body,
-    ) as { attempt?: AttemptObservation };
-    if (accepted === undefined) throw new Error("The launch was not accepted");
-    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
-    observer = await startDashboardServer({
-      mode: "boundary",
-      liveServer: "separate process",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 60_000,
-      extraEnv: {
-        DOUGH_START_TIMEOUT_MS: "10000",
-        DOUGH_CHANGE_WAIT_MS: String(observedChangeWaitMs),
-      },
-    });
-    const [live] = await attempts(observer);
-    expect(live).toMatchObject({
-      id: accepted.id,
-      owned: false,
-      running: true,
-      worker: { step: "start", pid: expect.any(Number) },
-    });
-    const began = Date.now();
-    expect(await changedBody(observer, accepted.id)).toMatchObject({
-      changed: false,
-    });
-    expect(Date.now() - began).toBeGreaterThanOrEqual(observedChangeWaitMs);
-
-    // The held start outlives its server, so it ends here, its push through,
-    // before its origin is removed.
-    push.release();
-    const starter = owner;
-    await expect
-      .poll(() => workerStep(starter, accepted.id), { timeout: 30_000 })
-      .toBe("launch");
-  } finally {
-    push.release();
-    await observer?.close();
-    await owner?.close();
-    origin.cleanup();
-  }
+  const boundMs = 500;
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+  const answer = changedAttempt(owner, id, boundMs);
+  const waiting = tracked(answer);
+  await owner.attempts();
+  await vi.advanceTimersByTimeAsync(boundMs - 1);
+  expect(waiting.settled).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
+  expect(await answer).toEqual({ changed: false });
 });
 
 // Admission keeps an attempt with this server's worker before it holds the
-// attempt in memory; a wait asked in between must not take the non-owner
-// bound for a change this server is about to tell.
-test("an unsettled attempt this server's own process works on is answered without the non-owner bound", async () => {
-  const nonOwnerBoundMs = 20_000;
-  const server = await startDashboardServer({
-    mode: "boundary",
-    liveServer: "separate process",
-    projectFolders: ["open-dough"],
-    extraEnv: { DOUGH_CHANGE_WAIT_MS: String(nonOwnerBoundMs) },
+// attempt in memory; a wait asked in between must not take the bound for a
+// change this server is about to tell.
+test("a persisted worker of this server answers at once before local ownership", async () => {
+  const owner = privateMachine();
+  const id = "00000000-0000-4000-8000-0000000000c1";
+  await keepAttempt(
+    makeMe.anAcceptedAttempt
+      .withId(id)
+      .requesting(request)
+      .workedBy(attemptWorker("start"))
+      .please(),
+  );
+  expect((await owner.attempts()).attempts).toMatchObject([
+    { id, owned: false, running: true },
+  ]);
+  expect(await changedAttempt(owner, id, unreachedBoundMs)).toEqual({
+    changed: true,
   });
-  try {
-    const id = "00000000-0000-4000-8000-0000000000c1";
-    await keepMoreAttemptsBesideServer(server, [
-      makeMe.anAcceptedAttempt
-        .withId(id)
-        .requesting(queuedExecution)
-        .workedBy({
-          pid: server.pid,
-          serverPid: server.pid,
-          step: "start",
-          notedAt: new Date().toISOString(),
-        })
-        .please(),
-    ]);
-    const [kept] = await attempts(server);
-    expect(kept).toMatchObject({ id, owned: false, running: true });
-    const began = Date.now();
-    expect(await changedBody(server, id)).toMatchObject({ changed: true });
-    expect(Date.now() - began).toBeLessThan(nonOwnerBoundMs);
-  } finally {
-    await server.close();
-  }
 });
