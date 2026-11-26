@@ -5,8 +5,8 @@
 **Identity:** SEED-430#refresh-published-board-in-place
 
 **State:** Awaiting plan realignment — not ready for execution. These mapped slices are provisional until
-[plan 828](../828-open-and-refresh-board-at-verified-trunk/PLAN.md) lands
-the verified open they extend.
+[plan 856](../856-open-the-board-from-the-verified-git-trunk/PLAN.md) lands
+the verified Board open they extend.
 
 **Split from:** Plan 828 on 2026-11-26
 (`6b267497e02efe0c5c24f0fdcccd17b900641fee:.planning/slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md`),
