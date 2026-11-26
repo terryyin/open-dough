@@ -114,5 +114,5 @@ This is observed fallback/layout parity for these journeys, not pixel-identical
 rendering or a promise to reproduce every hosted-platform difference. The
 helper stays on the host's native architecture. Do not add architecture
 emulation to chase rendering: the earlier `linux/amd64` QEMU experiment crashed
-Chromium. For other hosted-only failures, inspect CI's retained Playwright report
-and trace in `<group>-playwright-report-<shard>`.
+Chromium. For other hosted-only failures, inspect CI's retained browser
+diagnostics in `<group>-failure-output-<shard>`.

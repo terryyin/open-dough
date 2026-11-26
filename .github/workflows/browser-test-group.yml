@@ -179,14 +179,13 @@ jobs:
           entries: ${{ inputs.root }}
           report-format: playwright-record
           report: ${{ runner.temp }}/browser-proof.json
-      # The HTML report records how many browser tests the shard executed; on
-      # failure, including the run's deadline, it and test-results/ keep the
-      # completed tests' diagnostics and name the unfinished ones.
-      - name: Keep the Playwright report
+      # Keep browser diagnostics, including screenshots, traces and HTML
+      # reports where the runner produces them, even when the suite fails.
+      - name: Keep browser failure output
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ inputs.group }}-playwright-report-${{ matrix.shard }}
+          name: ${{ inputs.group }}-failure-output-${{ matrix.shard }}
           path: |
             ${{ inputs.root }}/playwright-report/
             ${{ inputs.root }}/test-results/

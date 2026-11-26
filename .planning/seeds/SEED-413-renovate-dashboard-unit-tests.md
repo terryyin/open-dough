@@ -583,23 +583,3 @@ CLI starts from 288 to six. Keep both measures. The
 [original remainder](https://github.com/terryyin/open-dough/blob/1e0e1f8767e7cebaba46182d141d75d7fb026525/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-backend-vitest-renovation-after-launch-attachments)
 retains the earlier family counts, timing samples, overlap analysis and
 links to completed proof.
-
-<a id="refuse-non-vitest-frontend-specs"></a>
-
-### Refuse frontend specs the Vitest-only runner would skip
-
-**Identity:** SEED-413#refuse-non-vitest-frontend-specs
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/855-refuse-non-vitest-frontend-specs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a71cbdfe5b57f2df7a17de990126f4c6c9fa9543ba2018a2704a0ce00f20fe35","plan":"ea6c2576ea44db213a2ca2fca1c3cc41490938bf772fdf4818eb430252883b15"}}
-```
-
-**Goal.** Dashboard maintainers learn at once when a frontend spec cannot
-run, rather than CI passing without it, after the
-[runner retirement](https://github.com/terryyin/open-dough/blob/2294ce3f9f4fa243024941f689e862ee01b7d0bf/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) made the
-frontend group Vitest-only.
-
-**Scope.** Correct that story's delivered runner and its residue only: a
-frontend spec without a Vitest import, and an unsupported option with an
-empty selection, are refused by name. Name the group runner kind and the
-failure output once, and remove the comments and the one-consumer fixture
-module left by the retired runner. [Plan](../slice-plans/855-refuse-non-vitest-frontend-specs/PLAN.md).

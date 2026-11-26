@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#refuse-non-vitest-frontend-specs",
+  "title": "Refuse frontend specs the Vitest-only runner would skip",
+  "completedAt": "2026-11-26T13:18:35.886Z",
+  "developer": "Terry Yin",
+  "agent": "Maria-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

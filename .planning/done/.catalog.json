@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_refuse-non-vitest-frontend-specs.json",
+      "identity": "SEED-413#refuse-non-vitest-frontend-specs",
+      "completedAt": "2026-11-26T13:18:35.886Z",
+      "blob": "573feaceba763c8fe51294cfe95b74341d786fce"
+    },
+    {
       "fileName": "SEED-420_browse-the-project-at-a-revision.json",
       "identity": "SEED-420#browse-the-project-at-a-revision",
       "completedAt": "2026-11-26T12:49:26.613Z",
