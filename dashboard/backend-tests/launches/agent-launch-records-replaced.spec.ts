@@ -1,6 +1,5 @@
 // What a dashboard server answers, over raw HTTP, once the launch record store
-// it already read (../../server/launchRecordDocument.ts) is replaced: its next
-// read answers what another server of this machine wrote since, and an
+// it already read (../../server/launchRecordDocument.ts) is replaced: an
 // unreadable replacement -- even one of the same size and time -- answers no
 // records and is left in place. Each test owns a fresh machine directory
 // holding HOME and the synthetic `claude`'s (../../test-support/fixtures/fake-claude) state;
@@ -22,7 +21,6 @@ import {
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   identity,
-  launch,
   recordsOf,
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
@@ -34,20 +32,15 @@ import {
   daysAgo,
   machineHome,
 } from "../../test-support/machineLaunchRecords.ts";
-import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 
 test.describe("launch records after the store a server read is replaced", () => {
   let machine: string;
   const servers: DashboardServer[] = [];
 
-  async function serverOn(
-    environment: ProjectEnvironment,
-    liveServer?: string,
-  ): Promise<DashboardServer> {
+  async function productionServer(): Promise<DashboardServer> {
     const server = await startDashboardServer({
       mode: "boundary",
-      environment,
-      liveServer,
+      environment: "production",
       machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 4_000,
@@ -71,34 +64,6 @@ test.describe("launch records after the store a server read is replaced", () => 
     rmSync(machine, { recursive: true, force: true });
   });
 
-  test("answers a launch another server recorded after this server already read the store", async () => {
-    const kept = makeMe.aLaunchRecord
-      .executing({ identity, title })
-      .inClaudeSession({ sessionId: "10000000-0000-4000-8000-000000000001" })
-      .launchedAt(daysAgo(1))
-      .please();
-    seedSettled(JSON.stringify({ "open-dough": [kept] }));
-    const reader = await serverOn("production");
-    expect(await recordsOf(reader, "open-dough")).toHaveLength(1);
-    expect(await recordsOf(reader, "open-dough")).toHaveLength(1);
-
-    const writer = await serverOn("development", "separate process");
-    writer.claudeScenario("launched");
-    const { record } = JSON.parse(
-      (await launch(writer, makeMe.aLaunchRequest.adHoc().please())).body,
-    ) as { record: { session: { sessionId: string } } };
-    expect(
-      (
-        (await recordsOf(reader, "open-dough")) as {
-          session: { sessionId: string };
-        }[]
-      ).map((entry) => entry.session.sessionId),
-    ).toEqual([
-      "10000000-0000-4000-8000-000000000001",
-      record.session.sessionId,
-    ]);
-  });
-
   test("answers no records once a store already read is replaced by an unreadable file of the same size and time, and leaves it in place", async () => {
     const good = JSON.stringify({
       "open-dough": [
@@ -112,7 +77,7 @@ test.describe("launch records after the store a server read is replaced", () => 
       ],
     });
     seedSettled(good);
-    const server = await serverOn("production");
+    const server = await productionServer();
     expect(await recordsOf(server, "open-dough")).toHaveLength(1);
 
     const unreadable = `x${good.slice(1)}`;

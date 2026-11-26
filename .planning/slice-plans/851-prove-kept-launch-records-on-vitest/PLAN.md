@@ -101,7 +101,7 @@ test-support helper lost its last caller.
 ### 2. Read records another process wrote or marked done
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: In a private machine home, this process reads a settled store. A
@@ -117,6 +117,15 @@ no alert is raised. Convert `agent-launch-records-replaced.spec.ts` case 1
 and `agent-launch-records.spec.ts` case 1. Remove the record checks of
 `agent-launch-records-shared-machine.spec.ts` and record that
 runner cutover owns its catalog fixture checks.
+
+Outcome: `launch-records-across-processes.spec.ts` holds both cases in
+Vitest (about 1.6–1.8 s each, each forking one Node child). Case 1 of the
+two records specs moved there, and `agent-launch-records-shared-machine.spec.ts`
+is deleted. Its remaining catalog fixture checks (one bare catalog origin,
+the same installed checkout for both servers, Claude cwd in that checkout)
+belong to [runner cutover](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner).
+The refactor pass kept the forked-child plumbing in each spec, because the
+two child protocols differ. No test-support helper lost its last caller.
 
 ### 3. Recover unreadable stores and expire done records
 
