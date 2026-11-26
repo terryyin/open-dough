@@ -86,7 +86,7 @@ scratch edit and reverted.
 ### 1. Give Project Intent's whole-project reading one owner
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent`
 and `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR caffeinate -s -i npm run test:e2e -- e2e/intent/intent-code-browse-projects.spec.ts e2e/intent/intent-file-purpose-proof.spec.ts e2e/intent/intent-project-visit-ci.spec.ts`
 stay green.
@@ -101,6 +101,13 @@ carries the tree, and have those consumers take it from there. Nothing
 visible changes. Enables slice 2, which gives that one reading its pending
 state. `IntentPage.tsx` is at 245 of 250 lines, so this slice keeps it under
 the limit.
+
+Delivered: `useProjectReading` (`dashboard/src/useProjectReading.ts`) is the
+one owner, returning `ModeChoice & { tree }` in Project Intent and `undefined`
+on story pages; `IntentBrowser` takes it as `project`, and
+`intentBrowserSource` absorbed the story-result branch (`IntentPage.tsx` at
+242 lines). Proof: mounted `dashboard/frontend-tests/intent` 347 passed; the
+three project E2E specs 4 passed; independent refactor made no edits.
 
 ### 2. Show a pending project tree on first open
 

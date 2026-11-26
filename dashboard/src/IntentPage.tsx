@@ -36,7 +36,7 @@ import {
   useStoryReviewArrival,
 } from "./useFirstStoryChangedFile.ts";
 import { useStoryResultBrowse } from "./useStoryResultRead.tsx";
-import { useProjectTreeRead } from "./useProjectTreeRead.tsx";
+import { useProjectReading } from "./useProjectReading.ts";
 import "./intent-page.css";
 
 export type IntentPageStory = {
@@ -58,9 +58,10 @@ export function IntentPage({
 }) {
   const { notice, shownRevision } = shown;
   const result = useStoryResultBrowse(story?.summary.comparison, source.label);
-  const projectTree = useProjectTreeRead(
+  const projectReading = useProjectReading(
     source,
-    story === undefined ? shownRevision : undefined,
+    shownRevision,
+    story === undefined ? project : undefined,
   );
   const {
     comparisonSourceUnavailable,
@@ -68,15 +69,12 @@ export function IntentPage({
     revision: browserRevision,
     explanation,
     lead,
-  } = result === undefined
-    ? intentBrowserSource(shown, story?.summary.comparison, story === undefined)
-    : {
-        comparisonSourceUnavailable: false,
-        locations: result.locations,
-        revision: result.pin.revision,
-        explanation: undefined,
-        lead: result.lead,
-      };
+  } = intentBrowserSource(
+    shown,
+    story?.summary.comparison,
+    projectReading !== undefined,
+    result,
+  );
   const { tab, chooseTab } = useStoryTab(story?.selection);
   const hasBrowser =
     browserLocations !== undefined && browserRevision !== undefined;
@@ -136,8 +134,7 @@ export function IntentPage({
       locations={browserLocations}
       lead={lead}
       result={result}
-      projectTree={projectTree}
-      project={story === undefined ? project : undefined}
+      project={projectReading}
       storySummary={story?.summary}
       story={story?.compared}
       reviewFileReady={fileReadiness === "ready"}
