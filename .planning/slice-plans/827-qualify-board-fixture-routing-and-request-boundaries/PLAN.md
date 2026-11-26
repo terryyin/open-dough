@@ -532,6 +532,19 @@ event locations in Git evidence. The original diagnostic and inventory are
 recoverable from `2dd0bc9ee`. The scratch source edits, patch and inventory
 were removed. Plan 828 carries the remaining legacy membership proof cues.
 
+#### Retrospective handoff
+
+The published qualification at `cbf160dbd` covers each original slice and
+the additional raw and static publication cases. The maintained routing
+unit cases isolate fixture Git behavior. Browser cases prove the combined
+Dashboard, Git, REST, and native launch interactions. The full browser
+failures drove the two Intent readiness repairs. The proof assigns the
+legacy membership controls to the existing cutover without a separate
+correction. Process review is selected and deferred to Story Wrap Up's
+single automatic Intent Coverage check because the work rewrote and moved
+Board fixture assertions. The branch completion receipt is pending after
+the local observer lost its GitHub CLI authentication.
+
 ## Story obligations
 
 ### G1. Cold Board fixtures still advertise a different pin from Git
@@ -580,3 +593,8 @@ remaining examples. Each migration has one outside-in proof loop around
 a fixture owner. The last slice reconciles evidence and runs the commands.
 An independent unexpected migration returns to its owning slice under the
 15-active-minute limit. This review found no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: Keep the queued Git Board cutover at its current priority.
+Plan 828 owns the remaining legacy membership proof.
