@@ -16,9 +16,12 @@ import { dependencyDisclosure } from "./storyReference.ts";
 import { expect } from "./dashboardTest.ts";
 import { preparer, preparingPath, purpose } from "./publishedFactsArrival.ts";
 import { executed } from "./recentlyDoneRecords.ts";
-import { planPath, repository, revision } from "./sliceClockRecords.ts";
+import { planPath, repository } from "./sliceClockRecords.ts";
 
-export async function expectCanonicalFacts(queuedCard: Locator) {
+export async function expectCanonicalFacts(
+  queuedCard: Locator,
+  revision: string,
+) {
   // A Ready assessment behind its blocking dependency is not yet eligible.
   await expectBadges(queuedCard, {
     shown: ["Slice planned", "Blocked by 1 dependency"],

@@ -20,7 +20,6 @@ import {
   files,
   opened,
   repository,
-  revision,
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 
@@ -30,7 +29,7 @@ test("limiting the membership read shows that nothing has been read, says once w
   const { answers, other } = await openedBeside(
     page,
     opened,
-    publishes({ revision, files }),
+    publishes({ files }),
   );
   answers.limit((request) => request.kind === "ref");
   await page.goto("/");

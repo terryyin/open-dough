@@ -12,7 +12,6 @@ import {
 } from "./recentlyDoneRecords.ts";
 
 export { repository };
-export const revision = "f7".repeat(20);
 export const doneDirectory = ".planning/done";
 
 const hour = 60 * 60_000;

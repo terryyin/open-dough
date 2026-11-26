@@ -54,6 +54,7 @@ test("Add selects, reads the repository's default branch, launches in its execut
   let server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
   await expectProjectChoice(page, "Open Dough");
+  fixture.expectAddedRef(server);
   await addProjectOnPage(page);
   await expectProjectChoice(page, "Sample App");
   await expectPublishedRevision(page, fixture.revision);
@@ -100,6 +101,7 @@ test("Add selects, reads the repository's default branch, launches in its execut
 
   await fixture.stop(server);
   server = await fixture.start("preview");
+  fixture.expectAddedRef(server);
   await openUntilRead(page, `${server.baseURL}/?project=sample-app`);
   await expectProjectChoice(page, "Sample App");
   await expectPublishedRevision(page, fixture.revision);

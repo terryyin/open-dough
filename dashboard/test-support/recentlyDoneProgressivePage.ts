@@ -10,6 +10,7 @@ import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { scrollYOf } from "./boardPage.ts";
 import { untilBoardRests } from "./boardReading.ts";
+import { serveCommitted } from "./committedFiles.ts";
 import { githubFor } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { shownEntries } from "./recentlyDoneColumn.ts";
@@ -28,7 +29,6 @@ import {
   keepProgressiveSessions,
   publishedWithCatalog,
   repository,
-  revision,
   type ProgressiveEntry,
 } from "./recentlyDoneProgressive.ts";
 
@@ -52,7 +52,7 @@ type Answering = (
   revision: string,
 ) => RepositoryAnswerer;
 
-// Opens the page over the list published at `at`, the story at `nestedIn`
+// Opens the page over the published list, the story at `nestedIn`
 // holding three sessions, GitHub answering through `answering`. The boundary
 // keeps what it read at a revision, so each publication has a revision of
 // its own.
@@ -63,7 +63,6 @@ export async function opened(
   {
     nestedIn,
     answering = (published) => published,
-    at = revision,
     workspaceTaken = false,
     also,
     beside,
@@ -71,7 +70,6 @@ export async function opened(
   }: {
     readonly nestedIn?: number;
     readonly answering?: Answering;
-    readonly at?: string;
     readonly workspaceTaken?: boolean;
     readonly also?: (now: number) => readonly LaunchRecord[];
     // Files published beside the list's (`publishedWithCatalog`).
@@ -97,15 +95,14 @@ export async function opened(
           workspaceTaken,
         );
   if (main === undefined) {
-    github.serve(
+    const published = publishes({
+      files: publishedWithCatalog(now, list, beside, workspaceTaken),
+    });
+    serveCommitted(
+      page,
       repository,
-      answering(
-        publishes({
-          revision: at,
-          files: publishedWithCatalog(now, list, beside, workspaceTaken),
-        }),
-        at,
-      ),
+      published,
+      answering(published, published.revision),
     );
   }
   await page.goto("/");

@@ -23,6 +23,8 @@ import {
 } from "../../test-support/support/fakeGitHub.ts";
 import { httpErrorAnswer } from "../../test-support/originAnswers.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 import {
   incidentEntries,
   incidentFiles,
@@ -61,8 +63,14 @@ test("a replaced server lists the failures the earlier one retained, newest firs
     try {
       // A read that succeeds starts the owner, whose record names its
       // socket and caller token.
-      github.serve(everyRepository, publishes({}));
-      expect((await read(first)).status).toBe(200);
+      const published = publishes({});
+      github.serve(everyRepository, published);
+      expectServedHomesReach(github, defaultRepository, published.revision);
+      const initial = await read(first);
+      expect(initial.status).toBe(200);
+      expect(JSON.parse(initial.body)).toMatchObject({
+        revision: published.revision,
+      });
       const [record] = owner.records() as {
         pid: number;
         protocol: number;

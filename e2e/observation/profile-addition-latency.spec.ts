@@ -16,8 +16,10 @@ import {
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
+  expectPublishedRevision,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import { serveCommitted } from "../../dashboard/test-support/committedFiles.ts";
 import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   credit,
@@ -37,7 +39,6 @@ import {
   opened,
   profilePath,
   repository,
-  revision,
   stories,
   takes,
 } from "../../dashboard/test-support/sliceClockRecords.ts";
@@ -60,7 +61,6 @@ const preparation = pathChange(0x22, "added", preparer);
 async function openedWithHeldAddition(page: Page, heldSha: string) {
   await pausePageClockAt(page, opened);
   const published = publishes({
-    revision,
     files: describedFiles(
       clockedFacts({
         queued: [
@@ -90,7 +90,7 @@ async function openedWithHeldAddition(page: Page, heldSha: string) {
     request.kind === "commit" && request.sha === heldSha;
   const { answer, release } = holdingAnswer(published, isHeld);
   const github = githubFor(page);
-  github.serve(repository, answer);
+  const revision = serveCommitted(page, repository, published, answer);
   await page.goto("/");
   await expectMembership(page, {
     taken: stories.map(({ title }) => title),
@@ -101,6 +101,7 @@ async function openedWithHeldAddition(page: Page, heldSha: string) {
     .poll(() => github.calls.some(({ request }) => isHeld(request)))
     .toBe(true);
   const { taken, backlog, problem } = parts(page);
+  await expectPublishedRevision(page, revision);
   return {
     card: storyCard(taken, afterTake),
     otherTaken: storyCard(taken, justTaken),

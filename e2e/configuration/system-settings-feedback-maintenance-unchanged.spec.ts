@@ -11,6 +11,7 @@ import {
   pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
+import { serveInstalledOpenDough } from "../../dashboard/test-support/installedCatalogPublication.ts";
 import {
   givePageItsTurns,
   untilPageRequestsAnswered,
@@ -28,7 +29,9 @@ const maintenanceLine = (page: Page) =>
 
 test("a second feedback-maintenance check on a quiet machine is answered unchanged under 1 KiB", async ({
   page,
+  dashboard,
 }) => {
+  await serveInstalledOpenDough(dashboard);
   await pausePageClockAt(page, new Date());
   await page.goto("/?view=settings");
   await expect(maintenanceLine(page)).toBeVisible();

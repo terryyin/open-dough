@@ -17,6 +17,7 @@ import {
   expectProblemAndNoSnapshot,
   expectSettledPage,
   parts,
+  shortRevision,
 } from "./dashboardPage.ts";
 import {
   checksAskedWhilePassing,
@@ -24,20 +25,20 @@ import {
 } from "./autoRefreshJourney.ts";
 import { isCheck } from "./pageRequestNotes.ts";
 import { rateLimitedAnswer } from "./publishedOrigin.ts";
-import {
-  doughnutBacklog,
-  doughnutRecords,
-  doughnutRepository,
-  doughnutSharedTitle,
-  revisionDoughnut,
-} from "./doughnutProject.ts";
+import { serveCommitted } from "./committedFiles.ts";
+import { serveDoughnut } from "./doughnutJourney.ts";
+import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   expectSameResumeTime,
   limitSaid,
   noticedResumeTime,
 } from "./limitNotice.ts";
-import { backlogPath, repository } from "./limitedReadingRecords.ts";
-import { publishes, type RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import { repository } from "./limitedReadingRecords.ts";
+import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import {
+  keepingOrigin,
+  type PublishedOriginAnswerer,
+} from "./support/publishedRepository.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { projectTab } from "./projectChoice.ts";
 import { expectEarlierSnapshotKept } from "./transientRecoveryPage.ts";
@@ -79,7 +80,7 @@ export function limiting(
     return limited;
   };
   return {
-    answer,
+    answer: keepingOrigin(answer, published),
     limit(
       chosen: (request: GhRequest) => boolean,
       ...once: readonly ((request: GhRequest) => boolean)[]
@@ -110,16 +111,13 @@ function boundaryRequestsOf(page: Page): string[] {
 // explicitly shows it: advancing the shared context clock must not let its
 // periodic check learn the limit before that step.
 async function secondTabOnDoughnut(page: Page): Promise<Page> {
-  githubFor(page).serve(
-    doughnutRepository,
-    publishes({
-      revision: revisionDoughnut,
-      files: { [backlogPath]: doughnutBacklog, ...doughnutRecords },
-    }),
-  );
+  const revision = serveDoughnut(page);
   const other = await page.context().newPage();
   await other.goto("/?project=doughnut");
   await expectSettledPage(other, doughnutTitles);
+  await expect(parts(other).readRevision).toContainText(
+    shortRevision(revision),
+  );
   await expect(parts(other).problem).toHaveCount(0);
   await setPageVisibility(other, "hidden");
   return other;
@@ -130,11 +128,11 @@ async function secondTabOnDoughnut(page: Page): Promise<Page> {
 export async function openedBeside(
   page: Page,
   at: Date,
-  published: RepositoryAnswerer,
+  published: PublishedOriginAnswerer,
 ) {
   await pausePageClockAt(page, at);
   const answers = limiting(page, published);
-  githubFor(page).serve(repository, answers.answer);
+  serveCommitted(page, repository, published, answers.answer);
   const other = await secondTabOnDoughnut(page);
   return { answers, other };
 }

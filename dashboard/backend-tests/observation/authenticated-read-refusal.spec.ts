@@ -21,6 +21,8 @@ import {
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../test-support/describedRevisions.ts";
+import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 import {
   branchReadRefusals,
   listedReadRefusals,
@@ -111,12 +113,14 @@ test.describe("authenticated read boundary refusal (development environment)", (
   // which `../../server/localOrigin.ts` now accepts in place of `Origin`.
   test("accepts a same-origin request signaled by Sec-Fetch-Site with no Origin header at all", async () => {
     server.github.serve(everyRepository, published);
+    expectServedHomesReach(server.github, defaultRepository, revision);
     const callsBefore = server.ghCalls().length;
     const response = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
       headers: { "Sec-Fetch-Site": "same-origin" },
     });
     expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toMatchObject({ revision });
     expect(server.ghCalls()).toHaveLength(callsBefore + 2);
   });
 

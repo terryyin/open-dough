@@ -85,21 +85,20 @@ async function readTwice(
   machine: string,
   github: FakeGitHub,
   project: ReturnType<typeof published>,
-  b: string,
   files: Files,
   prefix: string,
 ) {
   const first = await onMachine(machine, github, (server) =>
-    asked(github, () => readProject(server, project.branch)),
+    asked(github, () => readProject(server, project)),
   );
   allAnswered(first.result.answers);
   const atA = sizeOf(machine);
-  project.movedTo(b, files, unbounded(prefix));
+  const next = await project.movedTo(files, unbounded(prefix));
   await onMachine(machine, github, async (server) => {
-    allAnswered((await readProject(server, project.branch)).answers);
+    allAnswered((await readProject(server, project)).answers);
   });
   const atB = sizeOf(machine);
-  return { first, budget: Math.floor(atB + (atB - atA) / 2) };
+  return { first, next, budget: Math.floor(atB + (atB - atA) / 2) };
 }
 
 // What a process with `budget` asks reading the project at the ref.
@@ -112,7 +111,7 @@ const readAt = (
   onMachine(
     machine,
     github,
-    (server) => asked(github, () => readProject(server, project.branch)),
+    (server) => asked(github, () => readProject(server, project)),
     budget,
   );
 
@@ -131,21 +130,20 @@ test.describe("authenticated read answers retained within a byte budget (develop
   test("a write over the budget removes the least recently used answers: the newest revision stays cheap and the oldest rereads only what was removed", async ({
     machine,
   }) => {
-    const [a, b, c] = [named("d1"), named("d2"), named("d3")];
-    const project = published("bound", a, named("d4"));
+    const project = published("bound", named("d4"));
+    const a = project.publication.revision;
     project.serve(github);
     const { first, budget } = await readTwice(
       machine,
       github,
       project,
-      b,
       recordsAt("bound", "b"),
       "9",
     );
 
     // C, compared with B, takes the store over the budget: A, unused since
     // B was read, goes first.
-    project.movedTo(c, recordsAt("bound", "c"), unbounded("8"));
+    const c = await project.movedTo(recordsAt("bound", "c"), unbounded("8"));
     allAnswered(
       (await readAt(machine, github, project, budget)).result.answers,
     );
@@ -158,7 +156,7 @@ test.describe("authenticated read answers retained within a byte budget (develop
 
     // The ref names A again: only what the budget removed is asked again,
     // by a process whose own writes remove nothing.
-    project.publication.trunk.revision = a;
+    project.restoreInitialRevision();
     const kept = stored(machine);
     // Which revision the backlog was last answered at is written anew.
     kept.delete(
@@ -168,22 +166,22 @@ test.describe("authenticated read answers retained within a byte budget (develop
       (file) => !present(machine, a).includes(file),
     );
     const atA = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     expect(atA.result.answers).toEqual(first.result.answers);
-    const reread = atA.calls.filter((call) => call.endsWith("@d1"));
+    const reread = atA.calls.filter((call) => call.endsWith(`@${a}`));
     // Some of what A's first visit read is still kept and not asked again.
     expect(reread.length).toBeGreaterThan(0);
     expect(reread.length).toBeLessThan(
-      first.calls.filter((call) => call.endsWith("@d1")).length,
+      first.calls.filter((call) => call.endsWith(`@${a}`)).length,
     );
     expect(atA.calls.filter((call) => !reread.includes(call))).toEqual([
       "ref",
-      "compare d3...d1",
+      `compare ${c}...${a}`,
       `branch ${project.branch}`,
     ]);
     expect(reread.filter((call) => call.startsWith("content ")).sort()).toEqual(
-      removedAtA.map((file) => `content ${file}@d1`).sort(),
+      removedAtA.map((file) => `content ${file}@${a}`).sort(),
     );
     // No answer still kept was asked again and written anew.
     for (const [name, { ino }] of stored(machine)) {
@@ -195,31 +193,28 @@ test.describe("authenticated read answers retained within a byte budget (develop
   test("an answer a process used outlasts answers written after it but not used since", async ({
     machine,
   }) => {
-    const [a, b, c] = [named("e1"), named("e2"), named("e3")];
-    const project = published("lasts", a, named("e4"));
+    const project = published("lasts", named("e4"));
+    const a = project.publication.revision;
     project.serve(github);
-    const { budget } = await readTwice(
+    const { next: b, budget } = await readTwice(
       machine,
       github,
       project,
-      b,
       recordsAt("lasts", "b"),
       "8",
     );
 
     // A, written before B, is used again; then C's answers take the store
     // over the budget.
-    project.publication.trunk.revision = a;
+    project.restoreInitialRevision();
     await onMachine(
       machine,
       github,
       async (server) => {
-        const atA = await asked(github, () =>
-          readProject(server, project.branch),
-        );
+        const atA = await asked(github, () => readProject(server, project));
         expect(atA.calls).toEqual(["ref", `branch ${project.branch}`]);
-        project.movedTo(c, recordsAt("lasts", "c"), unbounded("7"));
-        allAnswered((await readProject(server, project.branch)).answers);
+        await project.movedTo(recordsAt("lasts", "c"), unbounded("7"));
+        allAnswered((await readProject(server, project)).answers);
       },
       budget,
     );
@@ -227,7 +222,7 @@ test.describe("authenticated read answers retained within a byte budget (develop
     expect(present(machine, b)).not.toContain(origin.paths.backlog);
     expect(present(machine, a)).toEqual(contentPaths);
 
-    project.publication.trunk.revision = a;
+    project.restoreInitialRevision();
     const again = await readAt(machine, github, project, budget);
     expect(again.calls).toEqual(["ref", `branch ${project.branch}`]);
   });

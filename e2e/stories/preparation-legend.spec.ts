@@ -13,10 +13,11 @@ import {
   expectProjectChoice,
   expectSettledPage,
   parts,
+  shortRevision,
   shownProjectControl,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { expectFrameIconControl } from "../../dashboard/test-support/frameIconControl.ts";
-import { publishMovingOrigin } from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedBacklog } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   box,
   compactProjectSelectCut,
@@ -237,11 +238,13 @@ for (const viewport of [
 test("preparation help is absent when there are no preparation facts", async ({
   page,
 }) => {
-  const origin = await publishMovingOrigin(page);
-  origin.push("e1".repeat(20), describedBacklog(makeMe.aRepository.please()));
-  await openUntilRead(page);
-  await expect(parts(page).backlog).toContainText(
-    "No Backlog entries are recorded.",
+  const { revision } = publishCommittedBacklog(
+    page,
+    describedBacklog(makeMe.aRepository.please()),
   );
-  await expect(parts(page).preparationHelp).toHaveCount(0);
+  await openUntilRead(page);
+  const { backlog, preparationHelp, readRevision } = parts(page);
+  await expect(backlog).toContainText("No Backlog entries are recorded.");
+  await expect(preparationHelp).toHaveCount(0);
+  await expect(readRevision).toContainText(shortRevision(revision));
 });

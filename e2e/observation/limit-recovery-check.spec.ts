@@ -24,12 +24,12 @@ import {
   filesBesideUnreachable,
   opened,
   repository,
-  revision,
   titlesBesideUnreachable,
   unreachableSeed,
   unreachableGap,
   unreachableTitle,
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
+import { serveCommitted } from "../../dashboard/test-support/committedFiles.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 
@@ -37,7 +37,8 @@ test("after a limited check, with nothing withheld, the page makes its next chec
   page,
 }) => {
   await pausePageClockAt(page, opened);
-  const published = publishes({ revision, files: filesBesideUnreachable });
+  const published = publishes({ files: filesBesideUnreachable });
+  const { revision } = published;
   const answers = limiting(
     page,
     (call) =>
@@ -49,7 +50,7 @@ test("after a limited check, with nothing withheld, the page makes its next chec
     2,
   );
   const github = githubFor(page);
-  github.serve(repository, answers.answer);
+  serveCommitted(page, repository, published, answers.answer);
   await page.goto("/");
   await expectSettledPage(page, titlesBesideUnreachable);
   const { backlog, problem, readRevision } = parts(page);

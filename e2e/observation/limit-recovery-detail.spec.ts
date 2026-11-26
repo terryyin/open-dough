@@ -40,7 +40,6 @@ import {
   plannedSeed,
   plannedTitle,
   repository,
-  revision,
   titlesBesideUnreachable,
   unreachableSeed,
   unreachableGap,
@@ -48,13 +47,15 @@ import {
   withheldSeed,
   withheldTitle,
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
+import { serveCommitted } from "../../dashboard/test-support/committedFiles.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 
 test("withheld detail is read on its own once the wait ends on a visible page, beside the snapshot it keeps, while a gap another failure left stays", async ({
   page,
 }) => {
   await pausePageClockAt(page, opened);
-  const published = publishes({ revision, files: filesBesideUnreachable });
+  const published = publishes({ files: filesBesideUnreachable });
+  const { revision } = published;
   const answers = limiting(
     page,
     (call) =>
@@ -63,7 +64,7 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
         : published(call),
     2,
   );
-  githubFor(page).serve(repository, answers.answer);
+  serveCommitted(page, repository, published, answers.answer);
   // The other records and the project setting reach GitHub before the limit;
   // the plan is asked only after it.
   answers.limit(

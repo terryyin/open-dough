@@ -13,6 +13,8 @@ import {
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { publishCommittedMembership } from "../../dashboard/test-support/localTakenSessions.ts";
+import { pygardonRepository } from "../../dashboard/test-support/pygardonProject.ts";
 import {
   chooseProject,
   expectProjectChoice,
@@ -74,6 +76,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
   await expect(active).toHaveCount(1);
   await expect(recent).toHaveCount(0);
   const sessionId = await sessionNamedBy(active);
+  publishCommittedMembership(page, pygardonRepository);
   await chooseProject(page, "Pygardon");
   await expectProjectChoice(page, "Pygardon");
 

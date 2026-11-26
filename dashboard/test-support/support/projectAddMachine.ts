@@ -8,7 +8,8 @@ import {
   type DashboardServerMode,
 } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
-import { everyRepository, publishes } from "./fakeGitHub.ts";
+import { publishes } from "./fakeGitHub.ts";
+import { expectServedHomesReach } from "./fixtureOriginRoute.ts";
 import { git } from "./launchLanding.ts";
 import { commitPublishedOrigin } from "./publishedOrigin.ts";
 import { describedBacklog } from "../describedRevisions.ts";
@@ -16,6 +17,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   projectConfigurationFile,
   projectEnvironmentOf,
+  seededProjectPublications,
 } from "./projectConfiguration.ts";
 
 export const addedRepository = "example/sample-app";
@@ -30,7 +32,6 @@ export function projectAddMachine() {
     backlog: describedBacklog(makeMe.aRepository.please()),
   };
   const published = publishes(facts);
-  const otherProjects = publishes({ ...facts, revision: published.revision });
   const localBranch = commitPublishedOrigin({
     branch: "local-checkout",
     backlog: null,
@@ -60,6 +61,15 @@ export function projectAddMachine() {
     `git@github.com:${addedRepository}.git`,
   );
   const servers: DashboardServer[] = [];
+  const serveSeeds = seededProjectPublications();
+  const expectAddedRef = ({ github }: DashboardServer) => {
+    expectServedHomesReach(
+      github,
+      addedRepository,
+      published.revision,
+      addedBranch,
+    );
+  };
   // The file a server of that mode keeps its projects in.
   const configurationFile = (mode: DashboardServerMode) =>
     projectConfigurationFile(
@@ -71,6 +81,7 @@ export function projectAddMachine() {
     checkout,
     revision: published.revision,
     configurationFile,
+    expectAddedRef,
     async start(
       mode: DashboardServerMode,
       readTimeoutMs?: number,
@@ -84,9 +95,9 @@ export function projectAddMachine() {
         readTimeoutMs,
         codexProtocol,
       });
-      server.github.serve(everyRepository, otherProjects);
-      server.github.serve(addedRepository, published);
       servers.push(server);
+      serveSeeds(server.github);
+      server.github.serve(addedRepository, published);
       return server;
     },
     async stop(server: DashboardServer) {

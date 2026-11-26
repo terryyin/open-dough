@@ -67,12 +67,12 @@ test.describe("authenticated read history reuse at a newly named revision (devel
   };
 
   test("an unrelated commit: additions and last commit times at B are answered from A without listing any history", async () => {
-    const [a, b] = [named("11"), named("12")];
     const files = origin.labeled("history-unrelated").please().files;
-    const published = await publishedAt(a, files, history);
+    const published = await publishedAt(files, history);
+    const { revision: a } = published;
     const factsAtA = await factsAt(a);
     for (const answer of factsAtA) expect(answer.status).toBe(200);
-    await movedTo(published, a, { revision: b, files, history }, [
+    const b = await movedTo(published, a, { files, history }, [
       madeBy("13", [modified("src/app.ts")]),
     ]);
 
@@ -82,10 +82,10 @@ test.describe("authenticated read history reuse at a newly named revision (devel
         factsAtB = await factsAt(b);
       }),
     ).toEqual([
-      "compare 11...12",
-      "commit 13",
+      `compare ${a}...${b}`,
+      `commit ${named("13")}`,
       // The plan's reachability reads the backlog at B itself.
-      `content ${origin.paths.backlog}@12`,
+      `content ${origin.paths.backlog}@${b}`,
     ]);
     // Each assignment keeps its own addition, not the other's of the same
     // human.
@@ -96,9 +96,9 @@ test.describe("authenticated read history reuse at a newly named revision (devel
   });
 
   test("a touched profile and plan are listed and walked at B; the untouched profile's addition is reused", async () => {
-    const [a, b] = [named("14"), named("15")];
     const files = origin.labeled("history-touched").please().files;
-    const published = await publishedAt(a, files, history);
+    const published = await publishedAt(files, history);
+    const { revision: a } = published;
     await factsAt(a);
     const changing = {
       ...pathChange(0x16, "modified", "Mo Modifier"),
@@ -109,11 +109,10 @@ test.describe("authenticated read history reuse at a newly named revision (devel
       [origin.paths.profile]: `${files[origin.paths.profile]}\n`,
       [origin.paths.plan]: "# Plan touched\n",
     };
-    await movedTo(
+    const b = await movedTo(
       published,
       a,
       {
-        revision: b,
         files: atB,
         history: {
           ...history,
@@ -138,12 +137,12 @@ test.describe("authenticated read history reuse at a newly named revision (devel
       ).sort(),
     ).toEqual(
       [
-        "compare 14...15",
-        "commit 16",
-        `content ${origin.paths.backlog}@15`,
-        "listing .planning/agents@15",
-        `commit-list ${origin.paths.profile}@15`,
-        `commit-list ${origin.paths.plan}@15`,
+        `compare ${a}...${b}`,
+        `commit ${named("16")}`,
+        `content ${origin.paths.backlog}@${b}`,
+        `listing .planning/agents@${b}`,
+        `commit-list ${origin.paths.profile}@${b}`,
+        `commit-list ${origin.paths.plan}@${b}`,
       ].sort(),
     );
     // The walk at B passes the modifying commit to the same addition, whose
@@ -159,9 +158,9 @@ test.describe("authenticated read history reuse at a newly named revision (devel
   });
 
   test("a profile removed and re-added with identical text credits the re-adding commit's committer and time", async () => {
-    const [a, b] = [named("17"), named("18")];
     const files = origin.labeled("history-readded").please().files;
-    const published = await publishedAt(a, files, history);
+    const published = await publishedAt(files, history);
+    const { revision: a } = published;
     await factsAt(a);
     const removing = {
       ...pathChange(0x19, "removed", "Remover"),
@@ -171,11 +170,10 @@ test.describe("authenticated read history reuse at a newly named revision (devel
       ...addedBy(0x1a, "Re Adder", at("5T08:00:00")),
       login: "readder",
     };
-    await movedTo(
+    const b = await movedTo(
       published,
       a,
       {
-        revision: b,
         files,
         history: {
           ...history,
@@ -207,11 +205,11 @@ test.describe("authenticated read history reuse at a newly named revision (devel
       ).sort(),
     ).toEqual(
       [
-        "compare 17...18",
-        "commit 19",
-        "commit 1a",
-        "listing .planning/agents@18",
-        `commit-list ${origin.paths.profile}@18`,
+        `compare ${a}...${b}`,
+        `commit ${named("19")}`,
+        `commit ${named("1a")}`,
+        `listing .planning/agents@${b}`,
+        `commit-list ${origin.paths.profile}@${b}`,
       ].sort(),
     );
     expect(addition?.body).toMatchObject({

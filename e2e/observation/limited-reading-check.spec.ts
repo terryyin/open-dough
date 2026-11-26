@@ -26,7 +26,6 @@ import {
   files,
   opened,
   repository,
-  revision,
   titles,
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
@@ -38,7 +37,7 @@ test("limiting a revision check keeps the snapshot, says once when reading resum
   const { answers, other } = await openedBeside(
     page,
     opened,
-    publishes({ revision, files }),
+    publishes({ files }),
   );
   await page.goto("/");
   await expectSettledPage(page, titles);

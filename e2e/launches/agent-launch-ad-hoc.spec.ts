@@ -36,6 +36,8 @@ import {
   expectNoSessionEstablishment,
 } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
+import { publishCommittedMembership } from "../../dashboard/test-support/localTakenSessions.ts";
+import { pygardonRepository } from "../../dashboard/test-support/pygardonProject.ts";
 
 test.use({
   projectFolders: ["open-dough", "pygardon"],
@@ -141,6 +143,7 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
   dashboard.claudeScenario("launched");
   await openJourney(page, launchJourney);
   const { recentlyDone } = parts(page);
+  publishCommittedMembership(page, pygardonRepository);
   await chooseProject(page, "Pygardon");
   const dialog = startSessionDialog(page, "Pygardon");
 

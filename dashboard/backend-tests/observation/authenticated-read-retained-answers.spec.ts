@@ -20,7 +20,6 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
-  everyRepository,
   startFakeGitHub,
   type FakeGitHub,
 } from "../../test-support/support/fakeGitHub.ts";
@@ -63,16 +62,17 @@ test.describe("authenticated read answers retained across dashboard processes (d
   test("a later process on the same machine asks only the ref and the recorded branch head, and answers as the first did", async ({
     machine,
   }) => {
-    const project = published("retained", named("a1"), named("b1"));
+    const project = published("retained", named("b1"));
+    const { revision } = project.publication;
     project.serve(github);
     const first = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     allAnswered(first.result.answers);
-    expect(first.calls).toContain(`content ${backlogPath}@a1`);
+    expect(first.calls).toContain(`content ${backlogPath}@${revision}`);
 
     const second = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     // Every pinned read at A, and on the branch at its head, came from what
     // the first process retained once this one heard GitHub name them.
@@ -96,7 +96,7 @@ test.describe("authenticated read answers retained across dashboard processes (d
     const elsewhere = mkdtempSync(path.join(tmpdir(), "dough-retained-"));
     try {
       const other = await onMachine(elsewhere, github, (server) =>
-        asked(github, () => readProject(server, project.branch)),
+        asked(github, () => readProject(server, project)),
       );
       expect(other.calls.sort()).toEqual([...first.calls].sort());
       expect(other.result.answers).toEqual(first.result.answers);
@@ -108,7 +108,7 @@ test.describe("authenticated read answers retained across dashboard processes (d
   test("a record that was missing, a history that failed, and one a rate limit refused are asked again by the next process", async ({
     machine,
   }) => {
-    const project = published("gaps", named("a2"), named("b2"), (request) => {
+    const project = published("gaps", named("b2"), (request) => {
       if (request.kind === "content" && request.path === otherSeedPath)
         return notFoundAnswer();
       if (request.kind === "commit-list" && request.path === profilePath)
@@ -117,9 +117,10 @@ test.describe("authenticated read answers retained across dashboard processes (d
         return rateLimitedAnswer(429, { "Retry-After": "600" });
       return undefined;
     });
+    const { revision } = project.publication;
     project.serve(github);
     const first = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     const failed = first.result.answers
       .map(({ status }, index) => (status === 200 ? undefined : index))
@@ -129,30 +130,31 @@ test.describe("authenticated read answers retained across dashboard processes (d
 
     project.serve(github, () => undefined);
     const second = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     allAnswered(second.result.answers);
     expect(second.calls).toEqual([
       "ref",
-      `content ${otherSeedPath}@a2`,
-      `commit-list ${profilePath}@a2`,
-      "commit 31",
+      `content ${otherSeedPath}@${revision}`,
+      `commit-list ${profilePath}@${revision}`,
+      `commit ${named("31")}`,
       `branch ${project.branch}`,
-      `commit-list ${seedPath}@a2`,
+      `commit-list ${seedPath}@${revision}`,
     ]);
   });
 
   test("a logged-out gh fails the later process at the ref, and a read pinned at a revision it never heard named, with no retained text answered", async ({
     machine,
   }) => {
-    const project = published("logged-out", named("a3"), named("b3"));
+    const project = published("logged-out", named("b3"));
+    const { revision } = project.publication;
     project.serve(github);
     const first = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     allAnswered(first.result.answers);
 
-    github.serve(everyRepository, () => Promise.resolve(notLoggedIn));
+    project.serve(github, () => notLoggedIn);
     const second = await onMachine(machine, github, (server) =>
       asked(github, () => read(server, "")),
     );
@@ -167,9 +169,9 @@ test.describe("authenticated read answers retained across dashboard processes (d
     // A read pinned at A, which this process never heard GitHub name, asks
     // GitHub as before rather than answering from what is retained.
     const pinned = await onMachine(machine, github, (server) =>
-      asked(github, () => read(server, `&revision=${named("a3")}`)),
+      asked(github, () => read(server, `&revision=${revision}`)),
     );
-    expect(pinned.calls).toEqual([`content ${backlogPath}@a3`]);
+    expect(pinned.calls).toEqual([`content ${backlogPath}@${revision}`]);
     expect(pinned.result.status).toBe(502);
     expect(JSON.stringify(pinned.result.body)).toContain("gh auth login");
     expect(pinned.result.body).not.toHaveProperty("backlog");
@@ -181,16 +183,17 @@ test.describe("authenticated read answers retained across dashboard processes (d
   test("a removed store, a foreign or torn entry, and a store that cannot be written are misses read again from GitHub", async ({
     machine,
   }) => {
-    const project = published("misses", named("a4"), named("b4"));
+    const project = published("misses", named("b4"));
+    const { revision } = project.publication;
     project.serve(github);
     const first = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     allAnswered(first.result.answers);
 
     rmSync(storeOn(machine), { recursive: true });
     const removed = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     expect(removed.calls.sort()).toEqual([...first.calls].sort());
     expect(removed.result.answers).toEqual(first.result.answers);
@@ -198,20 +201,20 @@ test.describe("authenticated read answers retained across dashboard processes (d
     // Another key's text where the backlog's belongs, and a seed's entry cut
     // short.
     writeFileSync(
-      entryFile(machine, named("a4"), backlogPath),
+      entryFile(machine, revision, backlogPath),
       JSON.stringify({
-        key: `${repository}\0${named("a4")}\0${seedPath}`,
+        key: `${repository}\0${revision}\0${seedPath}`,
         text: "# Not this backlog\n",
       }),
     );
-    writeFileSync(entryFile(machine, named("a4"), seedPath), '{"key":"terry');
+    writeFileSync(entryFile(machine, revision, seedPath), '{"key":"terry');
     const damaged = await onMachine(machine, github, (server) =>
-      asked(github, () => readProject(server, project.branch)),
+      asked(github, () => readProject(server, project)),
     );
     expect(damaged.calls).toEqual([
       "ref",
-      `content ${backlogPath}@a4`,
-      `content ${seedPath}@a4`,
+      `content ${backlogPath}@${revision}`,
+      `content ${seedPath}@${revision}`,
       `branch ${project.branch}`,
     ]);
     expect(damaged.result.answers).toEqual(first.result.answers);
@@ -221,7 +224,7 @@ test.describe("authenticated read answers retained across dashboard processes (d
     rmSync(storeOn(machine), { recursive: true });
     writeFileSync(storeOn(machine), "not a directory\n");
     const unwritable = await onMachine(machine, github, async (server) => ({
-      ...(await asked(github, () => readProject(server, project.branch))),
+      ...(await asked(github, () => readProject(server, project))),
       output: server.output(),
     }));
     expect(unwritable.calls.sort()).toEqual([...first.calls].sort());

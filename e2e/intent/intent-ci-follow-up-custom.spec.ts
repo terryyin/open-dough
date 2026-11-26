@@ -14,6 +14,7 @@ import { keepLaunchRecords } from "../../dashboard/test-support/support/launchSt
 import { buildKeyOf } from "../../dashboard/src/landedCiBuildKey.ts";
 import {
   ciFollowUpCard,
+  openBoardWithCiFollowUp,
   openCiFollowUp,
   retainedCiFollowUpReading,
 } from "../../dashboard/test-support/support/ciFollowUpReadingPage.ts";
@@ -166,7 +167,7 @@ test("both settled custom outcomes review exact attempts against the saved 100s 
         })
         .please(),
     ]);
-    await page.goto(dashboard.baseURL);
+    await openBoardWithCiFollowUp(page, dashboard.baseURL, "open-dough");
     const card = ciFollowUpCard(page, "Story A");
     await expect(card).toContainText(explanation);
     await expect(card).toContainText("Done");

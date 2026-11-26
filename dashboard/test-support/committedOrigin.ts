@@ -44,6 +44,7 @@ import {
   targetHistoryAnswer,
 } from "./support/baseCiActions.ts";
 import { routeOriginThroughServedHomes } from "./support/fixtureOriginRoute.ts";
+import type { FakeGitHub } from "./support/fakeGitHub.ts";
 
 export type ActionsAnswerer = (
   argv: readonly string[],
@@ -67,7 +68,7 @@ export type CommittedOrigin = {
 };
 
 export function publishCommittedOrigin(
-  page: Page,
+  pageOrGitHub: Page | FakeGitHub,
   options: {
     readonly repoDir: string;
     readonly revision: string;
@@ -78,6 +79,8 @@ export function publishCommittedOrigin(
     readonly realHistory?: boolean;
   },
 ): Promise<CommittedOrigin> {
+  const github =
+    "serve" in pageOrGitHub ? pageOrGitHub : githubFor(pageOrGitHub);
   const { repoDir, repository } = options;
   let revision = options.revision;
   const follows = options.follows === true;
@@ -95,8 +98,8 @@ export function publishCommittedOrigin(
   const history = committedHistoryAnswers(repoDir);
   if (!follows) publishMain(repoDir, revision);
 
-  routeOriginThroughServedHomes(githubFor(page), repoDir, repository);
-  githubFor(page).serve(repository, async (call) => {
+  routeOriginThroughServedHomes(github, repoDir, repository);
+  github.serve(repository, async (call) => {
     const { request, argv } = call;
     if (
       request.kind === "actions-workflow" ||

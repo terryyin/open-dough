@@ -22,10 +22,13 @@ import {
   rawRequest,
 } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { describedFiles } from "../../test-support/describedRevisions.ts";
 import {
-  describedRevision,
-  withBacklogFallback,
-} from "../../test-support/describedRevisions.ts";
+  backlogPath,
+  defaultRepository,
+} from "../../test-support/publishedOriginBasics.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
+import { keepingOrigin } from "../../test-support/support/publishedRepository.ts";
 import {
   inspect,
   knownSourceId,
@@ -167,41 +170,40 @@ test("ordinary waiter departure does not record a diagnostic failure", async () 
 test("pinned content failures carry the admitted pin without changing the shared read", async () => {
   const server = await startDashboardServer(developmentBoundary);
   try {
-    const revision = "e2".repeat(20);
     const seedPath = ".planning/seeds/SEED-diagnostics.md";
-    const published = describedRevision(
-      makeMe.aRepository
-        .withRevision("diagnostics", {
-          backlog: {
-            queued: [
-              makeMe.aBacklogEntry
-                .with({
-                  title: "Diagnostics",
-                  identity: "SEED-diagnostics#story",
-                  href: "seeds/SEED-diagnostics.md#story",
-                })
-                .please(),
-            ],
-          },
-          files: { [seedPath]: "# Seed\n" },
-        })
-        .please(),
-      revision,
-    );
+    const files = describedFiles({
+      backlog: {
+        queued: [
+          makeMe.aBacklogEntry
+            .with({
+              title: "Diagnostics",
+              identity: "SEED-diagnostics#story",
+              href: "seeds/SEED-diagnostics.md#story",
+            })
+            .please(),
+        ],
+      },
+      files: { [seedPath]: "# Seed\n" },
+    });
+    const published = publishes({ files, backlog: files[backlogPath] ?? "" });
+    const { revision } = published;
+    server.github.serve(defaultRepository, published);
+    expectServedHomesReach(server.github, defaultRepository, revision);
+    const membership = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+      headers: { Origin: server.origin },
+    });
+    expect(membership.status).toBe(200);
+    expect(JSON.parse(membership.body)).toMatchObject({ revision });
     server.github.serve(
-      everyRepository,
-      publishes(withBacklogFallback(published)),
-    );
-    expect(
-      (
-        await rawRequest({
-          url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-          headers: { Origin: server.origin },
-        })
-      ).status,
-    ).toBe(200);
-    server.github.serve(everyRepository, () =>
-      Promise.resolve(httpErrorAnswer(500)),
+      defaultRepository,
+      keepingOrigin(
+        (call) =>
+          call.request.kind === "content" && call.request.path === seedPath
+            ? Promise.resolve(httpErrorAnswer(500))
+            : published(call),
+        published,
+      ),
     );
     expect(
       (

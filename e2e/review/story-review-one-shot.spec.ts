@@ -14,7 +14,6 @@ import {
   startReviewRun,
   captureReviewRun,
   retireReviewRun,
-  openCapturedReview,
   repositoryObservation,
 } from "../../dashboard/test-support/support/oneShotReview.ts";
 import {
@@ -22,6 +21,12 @@ import {
   startDashboardServer,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
+import {
+  openBacklog,
+  originMain,
+} from "../../dashboard/test-support/support/sessionDialog.ts";
 
 test("a retired one-shot's common file browser reads only its captured pair after trunk advances, reverts the result, and the dashboard restarts", async ({
   page,
@@ -38,7 +43,11 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   mkdirSync(workspace, { recursive: true });
   const before = repositoryObservation(origin.project);
   const index = readFileSync(before.index);
-  const review = await openCapturedReview(page, origin);
+  expectServedHomesReach(dashboard.github, defaultRepository, receipt.revision);
+  const review = await openIntentReviewChanges(
+    page,
+    await openBacklog(page, origin, true),
+  );
   const { answer } = review;
   expect(answer).toMatchObject({
     kind: "landed",
@@ -91,6 +100,9 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   expect(repositoryObservation(origin.project)).toEqual(before);
   expect(readFileSync(before.index)).toEqual(index);
   advanceAndRevert(origin.project, receipt);
+  const advanced = await originMain(origin);
+  expect(advanced).not.toBe(receipt.revision);
+  expectServedHomesReach(dashboard.github, defaultRepository, advanced);
   const afterTrunk = repositoryObservation(origin.project);
   expect((await review.refreshAndAnswer()).answer).toEqual(answer);
   await diffs.expectShows("Modified text.txt", "+extra");
@@ -108,6 +120,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
     port,
   });
   try {
+    expectServedHomesReach(restarted.github, defaultRepository, advanced);
     await page.reload();
     const reopened = await openIntentReviewChanges(
       page,

@@ -19,6 +19,7 @@ import {
   snapshotMachineRecords,
 } from "../../dashboard/test-support/support/machineRecordNames.ts";
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
+import { serveInstalledOpenDough } from "../../dashboard/test-support/installedCatalogPublication.ts";
 import {
   test,
   expect,
@@ -71,6 +72,7 @@ test("unreadable kept attempts are said on the page and refuse starts, leaving t
   });
   expect(malformed.status).toBe(400);
 
+  await serveInstalledOpenDough(dashboard);
   await page.goto("/");
   const recovery = parts(page).startupRecovery;
   await expect(recovery).toContainText(

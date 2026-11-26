@@ -19,6 +19,9 @@ import {
 import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import { openSessionStartReason } from "../../dashboard/src/agentLaunch.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import { publishMain } from "../../dashboard/test-support/committedOriginRepo.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   commitAnswer,
   noConnection,
@@ -51,6 +54,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
   await pausePageClock(page);
+  expectServedHomesReach(dashboard.github, defaultRepository, before);
   const { published, story, takenStory } = await openStory(page, origin);
 
   await story.getByRole("button", { name: "Start execution" }).click();
@@ -67,7 +71,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   // before it. Release the held Claude with the push so launch settles while
   // publication is observed, and release the held tip so the stale read can
   // finish while the session appears — instead of waiting for each in turn.
-  published.answerWith("main", commitAnswer(before));
+  const restoreMain = published.answerWith("main", commitAnswer(before));
   const releaseRef = published.hold("main");
   await passTimeUntilAsked(page);
   push.release();
@@ -78,6 +82,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     })
     .toMatchObject({ kind: "published" });
   const accepted = (await origin.originGit("rev-parse", "main")).trim();
+  expectServedHomesReach(dashboard.github, published.repository, accepted);
   expect((await attempts(dashboard))[0]?.publication).toEqual({
     kind: "published",
     revision: accepted,
@@ -88,8 +93,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toContainText(waiting);
   await expectProtected(story);
 
-  // The held reads answer with the revision before the Take. Every read they
-  // lead to is answered before `main` moves, so none lands late.
+  // The held REST request completes at its earlier pin after the native Take.
   releaseRef();
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${before.slice(0, 7)}`,
@@ -97,11 +101,13 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toContainText(waiting);
   await expectProtected(story);
   await expect(takenStory).toHaveCount(0);
+  restoreMain();
 
   // An unrelated revision is not the published Take; a comparison that
   // fails proves nothing either, and is asked again for the next read.
   const unrelated = await commitOn(origin, before);
-  published.answerWith("main", commitAnswer(unrelated));
+  publishMain(origin.origin, unrelated);
+  expectServedHomesReach(dashboard.github, published.repository, unrelated);
   const restoreCompare = published.answerWith("compare", noConnection);
   await passTimeUntilChecked(page);
   await expect(story).toContainText(
@@ -122,7 +128,8 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   // The accepted revision moves the story to Taken; its actions wait for
   // every fact of the snapshot.
   const releaseSeed = published.hold(".planning/seeds/A.md");
-  published.answerWith("main", commitAnswer(accepted));
+  publishMain(origin.origin, accepted);
+  expectServedHomesReach(dashboard.github, published.repository, accepted);
   await passTimeUntilChecked(page);
   await expect(takenStory).toBeVisible();
   await expect(story).toHaveCount(0);
@@ -141,7 +148,8 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
 
   // A later revision containing it keeps them.
   const descendant = await commitOn(origin, accepted);
-  published.answerWith("main", commitAnswer(descendant));
+  publishMain(origin.origin, descendant);
+  expectServedHomesReach(dashboard.github, published.repository, descendant);
   await passTimeUntilChecked(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${descendant.slice(0, 7)}`,
@@ -183,6 +191,8 @@ test("a refinement's announcement, read before its session settles, keeps the st
 }) => {
   dashboard.claudeScenario("held");
   await pausePageClock(page);
+  const before = (await origin.originGit("rev-parse", "main")).trim();
+  expectServedHomesReach(dashboard.github, defaultRepository, before);
   const { published, story } = await openStories(page, origin);
 
   await story.getByRole("button", { name: "Start refinement" }).click();
@@ -200,6 +210,7 @@ test("a refinement's announcement, read before its session settles, keeps the st
   const accepted = (await origin.originGit("rev-parse", "main")).trim();
 
   // The announcement is read while the session is still starting.
+  expectServedHomesReach(dashboard.github, published.repository, accepted);
   await passTimeUntilChecked(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${accepted.slice(0, 7)}`,

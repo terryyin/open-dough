@@ -19,16 +19,16 @@ import {
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
-  shortRevision,
+  expectPublishedRevision,
   expectSettledPage,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import { serveCommitted } from "../../dashboard/test-support/committedFiles.ts";
 import {
   filesBesideUnreachable,
   opened,
   plannedTitle,
   repository,
-  revision,
   titlesBesideUnreachable,
   unreachableGap,
   unreachableSeed,
@@ -91,8 +91,8 @@ ${renderStorySection(terminalStory, {
 })}`,
   };
   let withheldFails = true;
-  const published = publishes({ revision, files: terminalFiles });
-  githubFor(page).serve(repository, (call) => {
+  const published = publishes({ files: terminalFiles });
+  const revision = serveCommitted(page, repository, published, (call) => {
     const { request } = call;
     if (request.kind === "content" && request.path === terminalSeed) {
       return Promise.resolve(notFoundAnswer());
@@ -110,7 +110,7 @@ ${renderStorySection(terminalStory, {
     return published(call);
   });
   await page.goto("/");
-  const { backlog, problem, readRevision } = parts(page);
+  const { backlog, problem } = parts(page);
   await expectSettledPage(page, {
     ...titlesBesideUnreachable,
     backlog: [...titlesBesideUnreachable.backlog, terminalTitle],
@@ -124,7 +124,7 @@ ${renderStorySection(terminalStory, {
   await expect(terminalCard).toContainText(unreachableGap);
   await expect(plannedCard).toBeVisible();
   await expect(plannedCard).not.toContainText("Reading preparation…");
-  await expect(readRevision).toContainText(shortRevision(revision));
+  await expectPublishedRevision(page, revision);
   await expect(problem).toContainText(detailRecovery);
   await untilPageReadsAnswered(page);
   await expectDetailRecoveryNotice(page);
@@ -133,7 +133,7 @@ ${renderStorySection(terminalStory, {
   await test.step("successful facts stay shown while recovery waits", async () => {
     await expect(plannedCard).toBeVisible();
     await expect(withheldCard).not.toContainText("Reading preparation…");
-    await expect(readRevision).toContainText(shortRevision(revision));
+    await expectPublishedRevision(page, revision);
   });
 
   await test.step("due recovery heals the temporary seed, keeps the terminal gap, and does not re-ask the terminal path", async () => {
@@ -175,7 +175,7 @@ ${renderStorySection(terminalStory, {
 test("a detail still unread at the wait bound recovers on its own at the same revision while assignments stay shown", async ({
   page,
 }) => {
-  const { branchCard, queuedCard, doneCard, problem, release } =
+  const { branchCard, queuedCard, doneCard, problem, release, revision } =
     await heldFactGroups(page);
   release("profiles");
   release("done");
@@ -204,14 +204,12 @@ test("a detail still unread at the wait bound recovers on its own at the same re
     await page.clock.runFor(1_250);
     await untilPageReadsAnswered(page);
     await expect(branchCard).not.toContainText(preparationGap);
-    await expectCanonicalFacts(queuedCard);
+    await expectCanonicalFacts(queuedCard, revision);
     await expectStoryCardAssignments(branchCard, queuedCard);
     await expectDoneFacts(doneCard);
     await expect(problem).toHaveCount(0);
-    expect(
-      contentReads(callsSince(page, from)).some((read) =>
-        read.includes(takenCanonicalPath),
-      ),
-    ).toBe(true);
+    expect(contentReads(callsSince(page, from))).toContain(
+      `${takenCanonicalPath}?ref=${revision}`,
+    );
   });
 });

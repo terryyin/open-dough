@@ -12,10 +12,7 @@ import {
   preparer,
   type FactGroup,
 } from "../../dashboard/test-support/publishedFactsArrival.ts";
-import {
-  afterTake,
-  revision,
-} from "../../dashboard/test-support/sliceClockRecords.ts";
+import { afterTake } from "../../dashboard/test-support/sliceClockRecords.ts";
 import {
   expectCanonicalFacts,
   expectStoryCardAssignments,
@@ -35,6 +32,7 @@ async function expectAssignments(
   page: Page,
   branchCard: Locator,
   queuedCard: Locator,
+  revision: string,
 ) {
   await expectStoryCardAssignments(branchCard, queuedCard);
   const { opener, member, back, roster } = rosterParts(page);
@@ -65,8 +63,15 @@ for (const order of [
     page,
   }) => {
     const errors = watchPageErrors(page);
-    const { branchCard, trunkCard, queuedCard, doneCard, problem, release } =
-      await heldFactGroups(page);
+    const {
+      branchCard,
+      trunkCard,
+      queuedCard,
+      doneCard,
+      problem,
+      release,
+      revision,
+    } = await heldFactGroups(page);
     const complete = new Set<FactGroup>();
     await expect(branchCard).toContainText("Reading preparation…");
     await expect(branchCard).toContainText("Reading agent profile…");
@@ -77,14 +82,14 @@ for (const order of [
         release(group);
         complete.add(group);
         if (complete.has("preparation")) {
-          await expectCanonicalFacts(queuedCard);
+          await expectCanonicalFacts(queuedCard, revision);
           await expect(badge(branchCard, "Slice planned")).toBeVisible();
         } else {
           await expect(branchCard).toContainText("Reading preparation…");
           await expect(queuedCard).toContainText("Reading preparation…");
         }
         if (complete.has("profiles")) {
-          await expectAssignments(page, branchCard, queuedCard);
+          await expectAssignments(page, branchCard, queuedCard, revision);
         } else {
           await expect(branchCard).toContainText("Reading agent profile…");
           await expect(branchCard).not.toContainText("Owner not recorded");

@@ -7,6 +7,8 @@ import { chmodSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   expectThemeShown,
   sampleColor,
@@ -32,6 +34,11 @@ test("terminal theme is chosen in System settings, saved on choosing, kept acros
   context,
 }) => {
   const server = await fixture.start("preview");
+  expectServedHomesReach(
+    server.github,
+    defaultRepository,
+    fixture.publishedRevision,
+  );
   await page.goto(`${server.baseURL}/?view=settings`);
   await expect(
     page.getByRole("heading", { name: "Terminal theme", exact: true }),
@@ -54,6 +61,11 @@ test("terminal theme is chosen in System settings, saved on choosing, kept acros
   await page.reload();
   await expectThemeShown(page, "Solarized Dark");
   const second = await fixture.start("dev");
+  expectServedHomesReach(
+    second.github,
+    defaultRepository,
+    fixture.publishedRevision,
+  );
   const otherPage = await context.newPage();
   await otherPage.goto(`${second.baseURL}/?view=settings`);
   await expectThemeShown(otherPage, "Solarized Dark");

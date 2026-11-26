@@ -18,18 +18,15 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
-import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
+import { publishes } from "../../test-support/support/fakeGitHub.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
+import { keepingOrigin } from "../../test-support/support/publishedRepository.ts";
 import {
   branchRefAnswer,
   headsAnswer,
 } from "../../test-support/originAnswers.ts";
-import {
-  describedRevision,
-  withBacklogFallback,
-} from "../../test-support/describedRevisions.ts";
+import { describedFiles } from "../../test-support/describedRevisions.ts";
+import { backlogPath } from "../../test-support/publishedOriginBasics.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -49,7 +46,6 @@ test.describe("authenticated read boundary on a story branch (development enviro
   });
 
   test("reads on a story branch only as a Taken entry's profile records it at the pinned revision, at a head it resolved, and refuses anything else before asking GitHub", async () => {
-    const revision = "a7".repeat(20);
     const head = "b8".repeat(20);
     const seedPath = ".planning/seeds/SEED-branch.md";
     const planPath = ".planning/slice-plans/092-branch/PLAN.md";
@@ -64,55 +60,57 @@ test.describe("authenticated read boundary on a story branch (development enviro
         .please();
     const branchStory = entry("Branch story", "story");
     const trunkStory = entry("Trunk story", "trunk");
-    const at = describedRevision(
-      makeMe.aRepository
-        .withRevision("branch", {
-          backlog: {
-            taken: [branchStory, trunkStory],
-          },
-          files: {
-            [seedPath]: `# Seed
+    const files = describedFiles({
+      backlog: {
+        taken: [branchStory, trunkStory],
+      },
+      files: {
+        [seedPath]: `# Seed
 
 ${renderStorySection(branchStory)}`,
-            [planPath]: planText,
-          },
-          storyStates: [
-            {
-              identity: branchStory.identity,
-              href: branchStory.href,
-              ...makeMe.aStoryPreparation
-                .plannedIn("../slice-plans/092-branch/PLAN.md")
-                .please(),
-            },
-          ],
-          agentProfiles: [
-            makeMe.anAgentProfile
-              .executing({
-                name: "Yui",
-                identity: branchStory.identity,
-                mode: "story-branch",
-                branch: "story/recorded",
-              })
-              .please(),
-            makeMe.anAgentProfile
-              .executing({
-                name: "Akiho",
-                identity: trunkStory.identity,
-                mode: "trunk",
-                branch: "origin/main",
-              })
-              .please(),
-          ],
-        })
-        .please(),
-      revision,
+        [planPath]: planText,
+      },
+      storyStates: [
+        {
+          identity: branchStory.identity,
+          href: branchStory.href,
+          ...makeMe.aStoryPreparation
+            .plannedIn("../slice-plans/092-branch/PLAN.md")
+            .please(),
+        },
+      ],
+      agentProfiles: [
+        makeMe.anAgentProfile
+          .executing({
+            name: "Yui",
+            identity: branchStory.identity,
+            mode: "story-branch",
+            branch: "story/recorded",
+          })
+          .please(),
+        makeMe.anAgentProfile
+          .executing({
+            name: "Akiho",
+            identity: trunkStory.identity,
+            mode: "trunk",
+            branch: "origin/main",
+          })
+          .please(),
+      ],
+    });
+    const published = publishes({ files, backlog: files[backlogPath] ?? "" });
+    const { revision } = published;
+    server.github.serve(
+      knownRepository,
+      keepingOrigin(
+        (call) =>
+          call.request.kind === "branch"
+            ? Promise.resolve(branchRefAnswer(call.request.branch, head))
+            : published(call),
+        published,
+      ),
     );
-    const published = publishes(withBacklogFallback(at));
-    server.github.serve(everyRepository, (call) =>
-      call.request.kind === "branch"
-        ? Promise.resolve(branchRefAnswer(call.request.branch, head))
-        : published(call),
-    );
+    expectServedHomesReach(server.github, knownRepository, revision);
     const read = (query: string) =>
       rawRequest({
         url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}${query}`,
@@ -120,7 +118,9 @@ ${renderStorySection(branchStory)}`,
       });
     // The records deciding what a branch may be read for are read first, as
     // the page reads them: membership, the canonical record, and profiles.
-    expect((await read("")).status).toBe(200);
+    const membership = await read("");
+    expect(membership.status).toBe(200);
+    expect(JSON.parse(membership.body)).toMatchObject({ revision });
     expect(
       (await read(`&revision=${revision}&path=${encodeURIComponent(seedPath)}`))
         .status,
@@ -193,16 +193,21 @@ ${renderStorySection(branchStory)}`,
     // A revision check watches only branches recorded at the revision shown,
     // and a head its one listing finds for one is readable at once.
     const checkedHead = "c9".repeat(20);
-    server.github.serve(everyRepository, (call) =>
-      call.request.kind === "matching-refs"
-        ? Promise.resolve(
-            headsAnswer({
-              main: revision,
-              "story/recorded": checkedHead,
-              "story/unrecorded": "d0".repeat(20),
-            }),
-          )
-        : published(call),
+    server.github.serve(
+      knownRepository,
+      keepingOrigin(
+        (call) =>
+          call.request.kind === "matching-refs"
+            ? Promise.resolve(
+                headsAnswer({
+                  main: revision,
+                  "story/recorded": checkedHead,
+                  "story/unrecorded": "d0".repeat(20),
+                }),
+              )
+            : published(call),
+        published,
+      ),
     );
     callsBefore = server.ghCalls().length;
     const unwatched = await read(

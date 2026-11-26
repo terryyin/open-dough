@@ -13,10 +13,15 @@ import {
   type PreparingJourney,
 } from "../preparingJourney.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import { defaultRepository } from "../publishedOriginBasics.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { collectAuthenticatedReads } from "./historicalCreditReads.ts";
+import {
+  expectServedHomesReach,
+  routeServedHomesToPublication,
+} from "./fixtureOriginRoute.ts";
 
 export type SessionAttributionFixture = {
   readonly journey: PreparingJourney;
@@ -53,6 +58,7 @@ export async function openSessionAttributionBoard(
       "refs/heads/main",
       revision,
     ]);
+    expectServedHomesReach(dashboard.github, defaultRepository, revision);
     await reloadUntilRead(page);
   };
   const workspace = path.join(
@@ -115,10 +121,16 @@ export async function openSessionAttributionBoard(
   await publishCommittedOrigin(page, {
     repoDir: journey.origin,
     revision: journey.announced,
-    repository: "terryyin/open-dough",
+    repository: defaultRepository,
     follows: true,
     realHistory: true,
   });
+  routeServedHomesToPublication(dashboard.github, defaultRepository);
+  expectServedHomesReach(
+    dashboard.github,
+    defaultRepository,
+    journey.announced,
+  );
   await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", { name: storyC });
   return {
