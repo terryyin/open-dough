@@ -1,12 +1,10 @@
 # Prove retained follow-up context in Node Vitest
 
-**Identity:** SEED-413#prove-follow-up-context-on-vitest
-
 **Source:** [Prove retained follow-up context in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest)
 
 Disposition: awaiting story refinement — not ready for slice-plan refinement or execution.
 
-A developer continuing a follow-up gets fast proof that the correct source context reaches the receiving agent even after the original record expires. Cover ordinary story and session context, source identity, input order, and retry. Reconcile source-story binding with [story-linked ad hoc sessions](SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions). The coverage map assigns Story Notes and published comparison selectors to their owners.
+A developer continuing a follow-up gets fast proof that the correct source context reaches the receiving agent even after the original record expires. Cover ordinary story and session context, source identity, input order, and retry. Reconcile source-story binding with [story-linked ad hoc sessions](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions). The coverage map assigns Story Notes and published comparison selectors to their owners.
 
 ## Mapped slices
 

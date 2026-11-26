@@ -1,7 +1,5 @@
 # Prove retained launch records in Node Vitest
 
-**Identity:** SEED-413#prove-kept-launch-records-on-vitest
-
 **Source:** [Prove retained launch records in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-kept-launch-records-on-vitest)
 
 Disposition: awaiting story refinement — not ready for slice-plan refinement or execution.

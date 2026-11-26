@@ -253,7 +253,7 @@ Give scheduled feedback launches the same admission coverage and preserve
 their one-time attention notification.
 
 **Scope.** Account for all 18 mapped backend specs against the integrated
-[story-linked session cutover](SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions).
+[story-linked session cutover](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions).
 Move surviving workspace, confirmation, admission, recovery, retention, and
 scheduled-launch unit cases to typed production entry points in Node Vitest.
 Keep installed command publication, native dispatch and input, and real Git
@@ -341,7 +341,7 @@ their own stories.
 ```
 
 - **For / why.** A developer continuing a follow-up gets fast proof that the correct source context reaches the receiving agent even after the original record expires.
-- **Boundary.** Cover ordinary story and session context, source identity, input order, and retry. Reconcile source-story binding with [story-linked ad hoc sessions](SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions). The coverage map assigns Story Notes and published comparison selectors to their owners.
+- **Boundary.** Cover ordinary story and session context, source identity, input order, and retry. Reconcile source-story binding with [story-linked ad hoc sessions](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions). The coverage map assigns Story Notes and published comparison selectors to their owners.
 - **Evaluation.** Two source sessions with the same instruction remain distinct. Repeating one after expiry sends its saved context and preserves the developer's instruction.
 - **Effort hypothesis.** M, low confidence. Cover the retained context through the corresponding host inputs.
 - **Mapped slices.** See the [provisional plan](../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md).
@@ -384,7 +384,7 @@ their own stories.
   native discovery, reporting, Done/read/stop/recovery, input services,
   attachment, connection lifecycle and terminal replay. Keep an actual host,
   PTY or socket in E2E when that boundary supplies the proof. Recount after
-  [story-linked ad hoc sessions](../slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md)
+  [story-linked ad hoc sessions](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md)
   changes the standalone paths. Launch admission and note delivery keep
   their own stories.
 - **Effort hypothesis.** L, low confidence. Direct record arrangement should

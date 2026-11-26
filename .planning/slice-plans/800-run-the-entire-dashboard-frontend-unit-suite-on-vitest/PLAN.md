@@ -19,7 +19,7 @@ Excluded: the backend group's own Playwright runner, which belongs to
 the separately scheduled backend migration, and E2E. Evaluation case
 overlays that run against a pinned revision are also excluded. The story
 starts when all recorded prerequisites are satisfied, including
-[SEED-439](../../seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions)
+[SEED-439](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions)
 removing the remaining standalone legacy frontend cases from trunk.
 
 ## Current decisions
