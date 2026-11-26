@@ -605,27 +605,95 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#prove-dashboard-configuration-and-serving-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/868-prove-dashboard-configuration-and-serving-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b230eec9de8dc25f07844f891e2a0c12e79522438a099031ac5f11536e3a6ebf","plan":"e276b4520b5603fafdd82514fd0788a072624a888cbf4dc81d216dd1291eaa72"}}
 ```
 
-- **For / why.** A developer changing project or machine settings, or
-  updating the Dashboard, needs fast feedback about what configuration becomes
-  effective and what the running program actually serves.
-- **Evaluation.** Given a configured project and a staged production update,
-  accepted configuration applies to the selected service and a refused
-  change leaves the previous state usable. The installed, dev, and preview
-  entry points retain the relevant serving and lifecycle proof.
-- **Boundary.** Own `configuration/` and surviving product-facing `runtime/`
-  coverage, including setup, notifier, preferences, project membership,
-  serving, deployment, update selection and watcher lifetime. Recount
-  project-add coverage after the default-branch story. Keep a real process or
-  installed journey where the product contract involves it. The final runner
-  story owns test-harness-only runtime cases.
-- **Effort hypothesis.** L, low confidence. Existing configuration
-  owners expose typed inputs. Installed program and process cases determine
-  how much work remains.
-- **Safe stopping point.** Settings and lifecycle behavior remain visible
-  through typed checks and representative actual serving or installed proof.
+- **Goal.** Developers changing Dashboard configuration (project membership,
+  machine JSON storage, OpenAI credentials, terminal theme, feedback
+  maintenance, notifier setup, and published agent settings) or serving,
+  deployment, qualification, and update-watcher behavior get fast Node Vitest
+  feedback while preserving real process, Git, filesystem, and HTTP serving
+  proof where the product contract involves them.
+- **Scope.** Move the 13 legacy Playwright specs in
+  `dashboard/backend-tests/configuration/` (39 cases:
+  `authenticated-read-agent-settings`, `feedback-maintenance-boundary`,
+  `machine-json-reuse`, `machine-json-revision`, `notifier-setup`,
+  `openai-configuration-boundary`, `openai-configuration-size`,
+  `project-add-boundary`, `project-add-validation`,
+  `project-configuration-boundary`, `project-configuration-mount-lifetime`,
+  `project-remove-boundary`, `terminal-theme-boundary`) and the nine
+  product-facing Playwright specs in `dashboard/backend-tests/runtime/`
+  (25 cases: `boundary-server`, `dev-server-cache-ownership`,
+  `production-deployment`, `production-qualification`,
+  `production-update-selection`, `production-watcher-preview`,
+  `production-watcher-refusals`, `production-watcher-setup-lifetime`,
+  `serving-modes`) off backend Playwright, accounting for all 22 specs and
+  64 cases.
+  - Prove configuration boundary admission and persistence through direct
+    production calls or in-process HTTP boundaries on Node Vitest without
+    spawning child Dashboard servers where the boundary contract does not
+    require a child process.
+  - Preserve real Git, filesystem, CLI, and process serving boundaries where
+    the product contract requires them (`project-add-validation`,
+    `project-add-boundary` transport/abort/deadline behavior, `notifier-setup`,
+    `production-qualification`, `production-update-selection`,
+    `production-deployment`, `production-watcher-preview`,
+    `production-watcher-refusals`, `boundary-server`,
+    `dev-server-cache-ownership`, and `serving-modes`), running them directly
+    in Node Vitest without Playwright's `request` fixture or browser runner.
+  - Relocate `production-watcher-setup-lifetime.spec.ts`, which exercises
+    `e2e/runtime/productionWatcherMachine.ts` with a real Playwright browser,
+    to `e2e/runtime/` beside its consumer so its browser proof stays intact
+    and off the legacy backend runner.
+  - Product behavior is unchanged. Add zero new server, request, or boundary
+    wrappers to `dashboard/test-support/`, compose typed state with MakeMe
+    where applicable, and remove any test-support helper left with no
+    remaining caller.
+  - Test-infrastructure-only `runtime/` specs (the other 30 Playwright specs)
+    and backend runner removal stay with
+    [runner cutover](#retire-legacy-dashboard-backend-runner); browser page
+    journeys stay in `e2e/configuration/` and `e2e/runtime/`.
+- **Key examples.**
+  - Given a saved OpenAI key, terminal theme, feedback maintenance choice, or
+    project list, a foreign-origin, wrong-Host, cross-site, wrong-method,
+    wrong-content-type, malformed, or oversized request is refused without
+    changing the saved file, leaking secrets, or calling `claude` or `gh`; a
+    valid save, read, exact 32 KiB UTF-8/ASCII key, or removal updates the
+    machine file and returns `Cache-Control: no-store` with no checkout paths
+    exposed.
+  - Given a project addition request, invalid URLs, missing or nested
+    checkouts, mismatched origins, duplicate ids or repositories, unreachable
+    origins, and origins without a usable default branch are refused at their
+    field without writing configuration; concurrent duplicate additions save
+    exactly one entry; client disconnect, boundary deadline, server shutdown,
+    or an unfinished body aborts the pending Git transport without writing
+    configuration.
+  - Given a machine JSON file, repeated reads parse it once while unchanged,
+    re-parse after a cross-process rename or unsettled mtime, never serve a
+    cached parse for an unreadable replacement, and advance
+    `machineDocumentsRevision` on writes and renames.
+  - Given `setup-notifier:dashboard` in an isolated HOME, missing or outdated
+    `terminal-notifier` is refused without preparing an app; on macOS, setup
+    builds, signs, and diagnoses the branded `Open Dough.app` with its
+    iconset without posting, `--test` posts one labelled notification and
+    refreshes in place, and denied permission names the settings entry.
+  - Given a pinned revision with `.planning/open-dough.json`, the profile read
+    returns its published text (or `null` when absent or unreadable), while a
+    client-supplied path to the setting file is refused with 404.
+  - Given a published `main` branch and CI workflow push exclusions,
+    qualification spans deletions, renames, and the selected commit's policy,
+    update selection keeps the last activated baseline until activation
+    succeeds, deployment verifies and stages the pinned commit in isolation
+    (and cleans up on cancellation), failed preview replacement and
+    restoration report both causes with neither preview running, and the
+    watcher refuses invalid options, unpublished `main`, or an occupied port
+    and retires its processes on shutdown.
+  - Given the bundled `boundaryServer`, `dev`, and `preview` servers, each
+    environment reads its own project configuration file, `dev` and `preview`
+    mount identical local boundaries and icon exports with Vite HMR only in
+    `dev`, and two `dev` servers keep isolated optimized module caches.
+
+**Plan.** [Prove Dashboard configuration and serving in Node Vitest](../slice-plans/868-prove-dashboard-configuration-and-serving-on-vitest/PLAN.md)
 
 <a id="prove-launch-attempts-with-typed-state"></a>
 
