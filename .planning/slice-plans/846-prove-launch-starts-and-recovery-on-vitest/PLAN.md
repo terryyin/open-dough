@@ -76,8 +76,10 @@ execution's performance claim.
 - Locked npm setup, Chromium 158.0.8127.18 prerequisite, and Dashboard
   typecheck passed on Node 24.21.0. GitHub Actions `ci.yml` observes
   `terryyin/open-dough` on the execution branch through coordinator
-  `seed-413-launch-vitest-543ac591`, directory `/tmp/dough-ci-501/watch-yG851C`,
-  PID 18942, session 86483, cell `g573:12`.
+  `seed-413-launch-vitest-543ac591`. The initial stream
+  `/tmp/dough-ci-501/watch-yG851C` stopped on the first CI handoff.
+  The resumed stream is `/tmp/dough-ci-501/watch-fJHtXy`, PID 43442,
+  session 26857, cell `g592:19`.
 - The mapped backend baseline at the published claim passed all 60 cases
   with one worker on awake macOS on AC. Chromium selected 54 cases in 14
   specs (47.831 s summed, 0–4,794 ms reported, 26 at or below 100 ms).
@@ -107,6 +109,9 @@ execution's performance claim.
 - The next push at `678668f9d` likewise superseded CI run 45772659282.
   The cancelled attempt lists zero failed jobs in its complete diagnostic.
   The new same-target run is 45773942749.
+- Slice 5 is parked in the managed CI stash while the original frontend
+  disconnect remains open. See the [frontend diagnosis](diagnosis-frontend-browser-connection.md)
+  and the [separate E2E repair](diagnosis-intent-ci-follow-up-navigation.md).
 
 ## Ordered slices
 
