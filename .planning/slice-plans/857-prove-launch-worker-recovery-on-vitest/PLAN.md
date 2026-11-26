@@ -228,7 +228,7 @@ each failed the spec. Refactor pass skipped: only the subject spec changed.
 ### 7. Drain the accepted launch before replacing its preview
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Convert `dashboard-update-drain` at the typed `AgentLaunches` entry.
@@ -241,6 +241,13 @@ Reuse the held-write pattern in `agent-launch-acceptance-kept-first` to
 distinguish a settled callback from a completed durable write. The whole
 [watcher journey](../../../e2e/runtime/production-watcher-updates.spec.ts)
 owns HTTP, live preview continuity and replacement at the original URL.
+
+Delivered: one plain Vitest case, 20–92 ms against 3685 ms, at a real
+`AgentLaunches` with the host `launch` and `launchStart.started` held. The
+pre-acceptance base-CI read is stubbed at `judgeBranchCi`, as its sibling
+launch specs do. It had cost 3.4 s. The three-spec selection passed 3 of 3
+on Node every run. Drain not awaiting the owner and Continue skipping
+admission each failed the case.
 
 ## Proof and local gate
 
