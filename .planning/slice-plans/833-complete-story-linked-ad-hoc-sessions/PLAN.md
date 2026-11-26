@@ -621,10 +621,14 @@ entry into the desktop audit session. The developer confirmed that both
 hosts reported an active login in the desktop terminal. Actual Claude Code
 shell calls returned the candidate's exact retained handoff for the
 matching native identity and no handoff for a different identity. Actual
-Cursor sessions ran the probe command, but the desktop runner did not
-observe the Cursor hook. A focused rerun observes project hook loading
-and the original handoff command separately. Cursor acceptance remains
-pending before the first trunk landing. See
+Cursor sessions ran the probe command, but the first runner's PATH shim
+did not observe the Cursor hook. The focused rerun captured actual
+`postToolUse` events from the unchanged project hook registration and ran
+the byte-matched installed script against a private store. The matching
+session received the exact handoff as attached context. The different
+identity received none. Both actual-host checks passed for `6309fcc4`.
+See `desktop-L7uMyw/result.json` and `desktop-cursor-Qonzqv/result.json`
+under the desktop check evidence directory. See also
 `slice-10-interactive-auth-directory.txt` and
 `slice-10-desktop-check-directory.txt` in worktree Git evidence, and
 `slice-10-real-native-acceptance.e49CHLEX/native-acceptance-summary.json`
