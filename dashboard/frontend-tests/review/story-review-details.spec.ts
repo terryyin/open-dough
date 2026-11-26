@@ -2,14 +2,17 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewedPublishedSessionSubject } from "../../src/reviewedWorkSubject.ts";
-import { frontendReviewIds } from "../../test-support/support/frontendStoryReviewFixtures.ts";
 import {
   adHocSession,
   mountReviewChanges,
   reviewSourceAnswering,
 } from "./story-review-panel-page.ts";
 
-const { baseline, tree, head, commit } = frontendReviewIds;
+const oid = (n: number) => n.toString(16).padStart(40, "0");
+const baseline = oid(1);
+const tree = oid(2);
+const head = oid(3);
+const commit = oid(4);
 const opened = makeMe.aStoryReview
   .publishedSession()
   .adding("first.txt")

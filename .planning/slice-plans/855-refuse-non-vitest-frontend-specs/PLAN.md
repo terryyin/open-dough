@@ -137,3 +137,16 @@ frontend shards, timings and proof publication.
   A native-only list accepted `--retries=0`. Distribution shard and group
   checks and dashboard typecheck passed. The independent refactor pass found
   no changes needed.
+- Slice 1 was accepted on the story branch at
+  `a406894e2aa56de31304653464b7730390c570c0`.
+
+### Slice 2 local proof
+
+- The four backend `runner-ownership` cases and three mounted frontend
+  `story-review-details` cases passed at first attempt. The seven focused
+  Distribution CI-structure files and dashboard typecheck passed.
+- A deliberately failing scratch Vitest case kept its `vitest.json` under
+  `dashboard/frontend-tests/test-results/`. Both shard inputs in the actual
+  reusable workflow resolve to that path under `dashboard-frontend-failure-output-1`
+  and `dashboard-frontend-failure-output-2`. The independent refactor pass
+  found no changes needed.

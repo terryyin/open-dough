@@ -20,7 +20,7 @@ export function dashboardAppArtifact() {
   ] as const;
 }
 
-// The preview or static server calls this when it is about to serve the app.
+// The preview server calls this when it is about to serve the app.
 // Custom configurations without a run owner can still serve dashboard/dist.
 export async function sharedDashboardBuild(): Promise<string> {
   return (

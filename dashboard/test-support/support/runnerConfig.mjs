@@ -24,8 +24,7 @@ import {
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
 
 export function useDisposableTestHome() {
-  // Keep Playwright's browser registry outside the temporary home, including
-  // when a mixed frontend run starts Playwright from Vitest's disposable HOME.
+  // Browser runners still need the browser registry from the original home.
   const browserPath =
     process.env["PLAYWRIGHT_BROWSERS_PATH"] ??
     process.env["npm_config_playwright_browsers_path"] ??
