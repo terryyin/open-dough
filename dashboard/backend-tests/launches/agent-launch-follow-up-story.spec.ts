@@ -1,29 +1,15 @@
-// A follow-up of a done story over raw HTTP, with a real bare origin
-// (../../test-support/support/startOrigin.ts), a synthetic `gh` answering from the
-// fake GitHub, and the synthetic `claude`: the request names the story and
-// the revision the page showed, and the server reads its published done
-// record at that revision and the Done sessions this machine keeps for it,
-// sending the story's facts and each session's context as the first input's
-// own block before the request. Two stories with the same words are two
-// launches; repeating one resumes its kept start. A story that revision does
-// not publish, or whose record cannot be read, refuses the follow-up. An
-// optional file anchor on the same source: agent-launch-follow-up-file.spec.ts
-// and agent-launch-follow-up-file-admission.spec.ts.
-// The page journey is ../../../e2e/stories/recently-done-follow-up.spec.ts.
+// Two done stories with the same words are two launches; repeating one
+// resumes its kept start. The story's facts, its selected sessions and the
+// two refusals are agent-launch-follow-up-story-input.spec.ts. An optional
+// file anchor on the same source: agent-launch-follow-up-file.spec.ts and
+// agent-launch-follow-up-file-admission.spec.ts. The page journey is
+// ../../../e2e/stories/recently-done-follow-up.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { doneRecordPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import {
-  attempts,
-  launch,
-  accept,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { stored } from "../../test-support/support/codexLaunch.ts";
-import { failsWith } from "../../test-support/support/fakeGitHub.ts";
+import { attempts, launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   doneStoryFiles,
   otherStory,
-  quietStorySessions,
   recoverStory,
   storyContextOf,
 } from "../../test-support/support/followUpStories.ts";
@@ -32,12 +18,7 @@ import { publishes } from "../../test-support/support/publishedRepository.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import {
-  answerOf,
-  expectFollowUpInput,
-  request,
-} from "./followUpBoundaryCases.ts";
+import { answerOf, request } from "./followUpBoundaryCases.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
@@ -61,91 +42,6 @@ async function publishDoneStories(
   );
   return revision;
 }
-
-test("a done story's follow-up sends sections for the story, current request and each Done session it holds", async ({
-  dashboard,
-  origin,
-}) => {
-  const revision = await publishDoneStories(dashboard, origin);
-  const doneAt = new Date();
-  const selected = quietStorySessions(dashboard.home, recoverStory, doneAt);
-  const kept = [
-    ...selected,
-    // Still open, so not on the done story's card.
-    makeMe.aLaunchRecord
-      .refining(recoverStory)
-      .inClaudeSession({ sessionId: "still-open", shortId: "still-op" })
-      .please(),
-    ...quietStorySessions(dashboard.home, otherStory, doneAt),
-  ];
-  keepLaunchRecords(dashboard, kept);
-  dashboard.claudeScenario("launched");
-  const text = "Paste still drops the last line on iPad; investigate.";
-  const message = storyContextOf(
-    recoverStory,
-    completedAt,
-    "quiet sessions",
-    text,
-  );
-  const followUp = makeMe.aFollowUp
-    .ofStory(recoverStory, revision)
-    .attachingSessions(selected);
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...request,
-      instruction: text,
-      followUp: followUp.please(),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  const [call, ...others] = dashboard.claudeLaunchCalls();
-  expect(others).toEqual([]);
-  expectFollowUpInput(call?.argv.at(-1), {
-    context: message,
-    request: launched.record?.request,
-    server: dashboard,
-  });
-  expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
-    instruction: text,
-    followUp: followUp.withContext({ message }).please(),
-  });
-  // Its facts are the done record published at the revision shown.
-  expect(dashboard.github.calls.map(({ request }) => request)).toContainEqual(
-    expect.objectContaining({
-      kind: "content",
-      path: `.planning/${doneRecordPath(recoverStory.identity)}`,
-      revision,
-    }),
-  );
-  // The story's sessions stay Done and unchanged.
-  expect(stored(dashboard.home).slice(0, kept.length)).toEqual(kept);
-});
-
-test("a done story with no session kept sends its facts and that no session context is retained", async ({
-  dashboard,
-  origin,
-}) => {
-  const revision = await publishDoneStories(dashboard, origin);
-  dashboard.claudeScenario("launched");
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...request,
-      instruction: "Continue",
-      followUp: makeMe.aFollowUp.ofStory(otherStory, revision).please(),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  const [call] = dashboard.claudeLaunchCalls();
-  expectFollowUpInput(call?.argv.at(-1), {
-    context: storyContextOf(otherStory, completedAt, "no session", "Continue"),
-    request: launched.record?.request,
-    server: dashboard,
-  });
-});
 
 test("follow-ups of two stories with the same words and choices are two launches, and repeating one resumes its kept start", async ({
   dashboard,
@@ -190,41 +86,3 @@ test("follow-ups of two stories with the same words and choices are two launches
     storyContextOf(recoverStory, completedAt, "no session", "Continue"),
   );
 });
-
-for (const refused of [
-  {
-    request: "naming a story the revision shown does not publish",
-    status: 404,
-    serve: (dashboard: DashboardServer, origin: StartOrigin) =>
-      publishDoneStories(dashboard, origin),
-    identity: "SEED-270#never-completed",
-  },
-  {
-    request: "whose done record cannot be read",
-    status: 502,
-    serve: async (dashboard: DashboardServer, origin: StartOrigin) => {
-      dashboard.github.serve(repository, failsWith("connection reset"));
-      return originMain(origin);
-    },
-    identity: recoverStory.identity,
-  },
-]) {
-  test(`refuses a follow-up ${refused.request} before starting claude`, async ({
-    dashboard,
-    origin,
-  }) => {
-    const revision = await refused.serve(dashboard, origin);
-    const kept = quietStorySessions(dashboard.home, recoverStory, new Date());
-    keepLaunchRecords(dashboard, kept);
-    dashboard.claudeScenario("launched");
-
-    const response = await accept(dashboard, {
-      ...request,
-      followUp: makeMe.aFollowUp.ofStory(refused.identity, revision).please(),
-    });
-
-    expect(response.status, response.body).toBe(refused.status);
-    expect(dashboard.claudeCalls()).toEqual([]);
-    expect(stored(dashboard.home)).toEqual(kept);
-  });
-}

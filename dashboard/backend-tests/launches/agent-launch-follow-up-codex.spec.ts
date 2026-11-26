@@ -1,10 +1,8 @@
 // A follow-up started with Codex over raw HTTP, with the real installed start
 // (../../test-support/support/codexStart.ts) and the protocol-only Codex fixture:
-// Codex's first input has Claude's follow-up layout (expectFollowUpInput in
-// ./followUpBoundaryCases.ts; Claude's: agent-launch-follow-up-boundary.spec.ts
-// and, for a done story, agent-launch-follow-up-story.spec.ts), and a start
-// retried after the source record is gone rebuilds that input from the
-// recorded request.
+// a start retried after the source record is gone rebuilds that input from the
+// recorded request, and a pending first input is recovered with its saved text.
+// A done story's Codex context is agent-launch-follow-up-story-input.spec.ts.
 // Cursor's: agent-launch-follow-up-cursor.spec.ts.
 
 import { rm } from "node:fs/promises";
@@ -16,29 +14,11 @@ import {
   launch,
 } from "../../test-support/agentLaunchBoundary.ts";
 import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
-import {
-  launchAttachmentEndpoint,
-  launchAttachmentNameHeader,
-} from "../../src/launchAttachments.ts";
 import { expect, stored, test } from "../../test-support/support/codexStart.ts";
 import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
-import {
-  doneStoryFiles,
-  quietStorySessions,
-  recoverStory,
-  storyContextOf,
-} from "../../test-support/support/followUpStories.ts";
-import { publishes } from "../../test-support/support/publishedRepository.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
-import {
-  git,
-  isolatedSession,
-} from "../../test-support/support/startSessionLanding.ts";
+import { isolatedSession } from "../../test-support/support/startSessionLanding.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import {
-  expectCopiedAttachmentPath,
-  pngA,
-} from "../../test-support/support/launchAttachmentFixtures.ts";
 import {
   answerOf,
   expectFollowUpInput,
@@ -54,7 +34,6 @@ test.beforeEach(publishFollowUpSources);
 
 const codex = { ...request, host: "codex" };
 const isolated = { workspace: "isolated", landing: "review" };
-const completedAt = "2026-11-08T09:05:00.000Z";
 
 // The text of every input Codex was handed, in order.
 const inputsOf = (native: FakeCodex) =>
@@ -67,88 +46,6 @@ const inputsOf = (native: FakeCodex) =>
       expect(input.map(({ type }) => type)).toEqual(["text"]);
       return input[0]?.text;
     });
-
-// E1.3: SEED-269's card, its done record published at the revision the page
-// showed and its two quiet Done sessions kept.
-test("a done story followed up with Codex on Isolated workspace · Wait for review opens a fresh worktree at fetched trunk with the story's context and the request", async ({
-  dashboard,
-  origin,
-  codexProtocol,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture.");
-  const trunk = await originMain(origin);
-  dashboard.github.serve(
-    "terryyin/open-dough",
-    publishes({
-      revision: trunk,
-      files: doneStoryFiles([recoverStory], completedAt),
-    }),
-  );
-  const kept = quietStorySessions(dashboard.home, recoverStory, new Date());
-  keepLaunchRecords(dashboard, kept);
-  const text = "Paste still drops the last line on iPad; investigate.";
-  const message = storyContextOf(recoverStory, completedAt, "unselected", text);
-  const uploaded = await fetch(
-    new URL(launchAttachmentEndpoint, dashboard.baseURL),
-    {
-      method: "POST",
-      headers: {
-        Origin: dashboard.origin,
-        "Content-Type": "image/png",
-        [launchAttachmentNameHeader]: "evidence.png",
-      },
-      body: Uint8Array.from(pngA),
-    },
-  );
-  expect(uploaded.status).toBe(200);
-  const { claim } = (await uploaded.json()) as { claim: string };
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...codex,
-      instruction: text,
-      attachmentClaims: [claim],
-      policy: isolated,
-      followUp: makeMe.aFollowUp.ofStory(recoverStory, trunk).please(),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  const slug = "paste-still-drops-the-last-line-on-ipad-investig";
-  const session = isolatedSession(
-    origin.project,
-    slug,
-    "review",
-    trunk,
-    "codex",
-  );
-  expect(launched.record?.establishedSession).toEqual(session);
-  expect(
-    native.calls.find((call) => call.method === "thread/start")?.params,
-  ).toMatchObject({ cwd: session.workspace });
-  expect(git(session.workspace, "rev-parse", "HEAD")).toBe(trunk);
-  const [input, ...others] = inputsOf(native);
-  expect(others).toEqual([]);
-  const [image] = launched.record?.request.attachments ?? [];
-  expectCopiedAttachmentPath(image ?? "", dashboard.home, "1-evidence.png");
-  expectFollowUpInput(input, {
-    context: message,
-    own: `Attached images:\n1. ${image}`,
-    session,
-    request: launched.record?.request,
-    server: dashboard,
-  });
-  expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
-    instruction: text,
-    followUp: makeMe.aFollowUp
-      .ofStory(recoverStory, trunk)
-      .withContext({ message })
-      .please(),
-  });
-  // The story's sessions stay Done and unchanged.
-  expect(stored(dashboard.home).slice(0, kept.length)).toEqual(kept);
-});
 
 test("Continue after Codex refused and the source record is gone rebuilds the input from the recorded context", async ({
   dashboard,
