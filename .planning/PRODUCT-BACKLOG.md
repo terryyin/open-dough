@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision ([plan](slice-plans/841-browse-the-project-at-a-revision/PLAN.md))
 - [Open the published Board at verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk ([plan](slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md))
 - [Prove Dashboard session workspace choices in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-workspace-starts-on-vitest) — SEED-413#prove-session-workspace-starts-on-vitest ([plan](slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md))
+- [Prove host launch choices and first input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-first-input-on-vitest) — SEED-413#prove-native-first-input-on-vitest ([plan](slice-plans/849-prove-native-first-input-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -40,7 +41,6 @@ intent introduced or affected by a newly developed story.
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
-- [Prove host launch choices and first input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-first-input-on-vitest) — SEED-413#prove-native-first-input-on-vitest
 - [Prove retained follow-up context in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest) — SEED-413#prove-follow-up-context-on-vitest
 - [Prove retained launch records in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-kept-launch-records-on-vitest) — SEED-413#prove-kept-launch-records-on-vitest
 - [Prove native session and terminal lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest) — SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest
