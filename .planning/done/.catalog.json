@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-439_complete-story-linked-ad-hoc-sessions.json",
+      "identity": "SEED-439#complete-story-linked-ad-hoc-sessions",
+      "completedAt": "2026-11-26T06:14:14.077Z",
+      "blob": "7ce0c4e632525381c862db3678263c18664cbb4e"
+    },
+    {
       "fileName": "SEED-413_prove-installed-story-starts-on-vitest.json",
       "identity": "SEED-413#prove-installed-story-starts-on-vitest",
       "completedAt": "2026-11-26T02:44:45.536Z",

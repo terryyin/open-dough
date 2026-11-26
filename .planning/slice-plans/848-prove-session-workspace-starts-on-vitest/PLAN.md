@@ -20,9 +20,8 @@ production data migration belong to SEED-439.
 
 - Begin from accepted trunk after the recorded SEED-439 prerequisite clears.
   Use its completion evidence to identify the delivered contract and proof
-  owners. [Plan 833](../833-complete-story-linked-ad-hoc-sessions/PLAN.md)
-  describes the supplier's work during preparation. After wrap-up, use the
-  dependency resolution's retained Git revision to recover it.
+  owners. [Plan 833](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/slice-plans/833-complete-story-linked-ad-hoc-sessions/PLAN.md)
+  records the supplier's delivered contract and acceptance evidence.
 - Follow the North Star on [direct production test boundaries](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support),
   [Vitest for unit checks and Playwright for E2E](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e),
   and [immediate browser actions](../../NORTH-STAR.md#act-as-soon-as-the-page-allows)
