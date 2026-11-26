@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "1b2e199f-0dbf-492f-82dd-8e93ce19a7e8",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-26T23:32:36.291Z",
+  "story": "SEED-324#close-landed-ci-repeat-check-gaps",
+  "ranges": [
+    {
+      "base": "3ed0f83e0fa544ebcdd0384d5a85f65b2643eb4a",
+      "candidate": "ed8c59cb9b8995510f9abf0f7532eec9f7143fb4"
+    }
+  ]
+}
