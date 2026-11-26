@@ -215,3 +215,18 @@ This review found no remaining slice-specific concern.
 Reported: slice 1 — "No narrowing while the comparison is unusable: only covered indirectly; slice 3 owns the explicit assertion."
 Story clause: "When the story's comparison is still being read, has failed, or is unavailable, **Changes only** explains why it is unavailable and does not narrow the inventory."
 Disposition: proved by slice 3: `dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts` reading, failed and unavailable cases assert the explanation, an untouched file still listed, and Changes only narrowing again after Retry or the finished read; `intent-story-repository-tree.spec.ts` shows Intent only narrowing with no usable comparison, which `useIntentStoryTree` passes through in every comparison state.
+
+## Execution complete
+
+Product advice: no change to priorities. The two filters deliver the
+story's review inventory; the next consumer is
+[project browsing](../../seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision),
+which reuses **Intent only** over the whole repository. The
+[Dashboard UX/UI North Star, Review in Intent](../../../docs/dashboard-ux-ui-north-star.md#review-in-intent)
+names both controls but not the "Not applied" note an unusable comparison
+shows; whether that note belongs there is the owner's design-placement
+choice. The reader's chosen file outranking the automatic first changed
+file is proved only by the end-to-end
+`story-review-diff-line-follow-up` journey and a hook-level case, not a
+mounted `IntentBrowser` case; Intent Coverage at wrap-up should weigh that
+promise.

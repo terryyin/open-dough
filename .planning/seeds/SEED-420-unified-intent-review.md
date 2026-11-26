@@ -72,7 +72,7 @@ folder view that lists no files stays as the
 [tree story](https://github.com/terryyin/open-dough/blob/07dad9d62ee48012ee757bf2e6858f2d7ebfeed6/.planning/seeds/SEED-420-unified-intent-review.md#browse-one-selectable-review-tree) left it. Where a folder
 lists files, those files are this inventory. The folder's proof explanation
 stays with
-[its story](#recognize-intent-folders-and-read-proof).
+[its story](https://github.com/terryyin/open-dough/blob/af4986541deba01a4177f66c9f6233ebc075a369/.planning/seeds/SEED-420-unified-intent-review.md#recognize-intent-folders-and-read-proof).
 
 On a story, with no kept choice, **Changes only** starts on and **Intent
 only** starts off. The choices stay with the reading place across leaving
