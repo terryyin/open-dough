@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_refuse-non-vitest-frontend-specs.json",
+      "identity": "SEED-413#refuse-non-vitest-frontend-specs",
+      "completedAt": "2026-11-26T13:18:35.886Z",
+      "blob": "573feaceba763c8fe51294cfe95b74341d786fce"
+    },
+    {
       "fileName": "SEED-413_prove-native-first-input-on-vitest.json",
       "identity": "SEED-413#prove-native-first-input-on-vitest",
       "completedAt": "2026-11-26T11:26:35.050Z",
