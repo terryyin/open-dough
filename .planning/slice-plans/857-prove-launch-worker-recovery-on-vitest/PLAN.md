@@ -207,7 +207,7 @@ skipped: only the subject spec changed, plus that dead-code removal.
 ### 6. Reconcile only from sufficiently recent settlement evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 5–10 active minutes.
 
 Convert the three already direct `settled-attempt-reconciliation` cases.
@@ -218,6 +218,12 @@ Check just before, at and after the report time. Inspect the persisted marker
 after success and its absence on running, interrupted or uncertain attempts.
 The [completed-report journey](../../../e2e/launches/responsive-session-reconciliation-completed.spec.ts)
 owns the published read, failed refresh, restored story actions and reload.
+
+Delivered: the three cases now run on plain Vitest with a private HOME. They
+add an outcome-settled read before the report arrives and check the before,
+at and after report times. Accepting at the report time, letting an
+unfinished report settle, or preferring the report time over the outcome
+each failed the spec. Refactor pass skipped: only the subject spec changed.
 
 ### 7. Drain the accepted launch before replacing its preview
 
