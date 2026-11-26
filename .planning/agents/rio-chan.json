@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rio-chan",
-  "email": "rio-chan@example.org",
-  "identity": "SEED-445#ad-hoc-work",
-  "mode": "trunk",
-  "branch": "origin/main",
-  "host": "cursor"
-}

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-445_ad-hoc-work.json",
+      "identity": "SEED-445#ad-hoc-work",
+      "completedAt": "2026-11-26T14:00:06.253Z",
+      "blob": "03243b68fd362f9a5ffd0d0b3218b1dc715cc952"
+    },
+    {
       "fileName": "SEED-413_prove-kept-launch-records-on-vitest.json",
       "identity": "SEED-413#prove-kept-launch-records-on-vitest",
       "completedAt": "2026-11-26T13:53:01.901Z",
