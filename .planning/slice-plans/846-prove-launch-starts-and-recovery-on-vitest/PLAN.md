@@ -110,8 +110,10 @@ execution's performance claim.
 - The next push at `678668f9d` likewise superseded CI run 45772659282.
   The cancelled attempt lists zero failed jobs in its complete diagnostic.
   The new same-target run is 45773942749.
-- Slice 5 is parked in the managed CI stash while the original frontend
-  disconnect remains open. See the [frontend diagnosis](diagnosis-frontend-browser-connection.md)
+- Slice 5 is preserved in the managed CI stash. The developer ended the
+  temporary frontend capture after the watched shards had no recurrence
+  and deferred investigation until a matching failure appears in ordinary
+  CI. See the [frontend diagnosis](diagnosis-frontend-browser-connection.md)
   and the [separate E2E repair](diagnosis-intent-ci-follow-up-navigation.md).
 - The first bounded hosted frontend capture passed. A backend test in the
   same run exposed a setup race between a readable attempt file and a

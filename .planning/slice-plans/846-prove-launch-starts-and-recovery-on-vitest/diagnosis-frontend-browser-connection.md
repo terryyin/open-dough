@@ -178,3 +178,104 @@ reported no matching Vitest failure. This accounts for one watched job.
 The log is retained as `frontend-round4-hosted-45798389009-job-139834868535.log`
 in worktree Git evidence. A separate backend assertion in job 139834868547
 does not change the frontend result.
+
+## Round 5
+
+Run 45801461664 attempt 1 frontend shard `1/2` (job 139845454044)
+passed 217 files and 590 tests on `2383c6df`, with no matching failure or
+marker. Its full log is `frontend-round4-hosted-45801461664-job-139845454044.log`
+in worktree Git evidence. It is the second watched job. The same exact
+workflow passed all 16 jobs, including the separate worktree-retry repair.
+
+The developer said “Resume” after the separate `main` diagnostic decision.
+Publish only the validated temporary observer and its frontend config from
+an independent checkout of `origin/main`. Keep the original story branch
+and its Dashboard first-landing evidence for the later story integration.
+The new instance admits ordinary GitHub-hosted `main` pushes only, with the
+same frontend shard and cutoff. No workflow or permissions change.
+
+The watched population extends to ordinary `main` pushes under the same
+global limit of 12 completed shard jobs, including the two story-branch
+jobs, or the first matching frontend disconnect or the cutoff at
+`2026-11-29T09:54:00Z`. The hypothesis is that a natural recurrence will
+retain evidence of the transport, browser or runner state that forced
+reproductions could not attribute. Validate the host/branch/shard gate
+locally once, then observe normal hosted runs. Do not add blind reruns.
+
+GitHub Actions selects `ci.yml`. The isolated publication observer is
+`frontend-disconnect-main-543ac591` at `/tmp/dough-ci-501/watch-ddB56m`.
+All ten activation checks, both quiet Chromium cases, Dashboard typecheck
+and the independent review passed. The observer body matches the earlier
+capture byte for byte. Round 5 paused at 3.4 active minutes, 32.7 cumulative.
+Managed publication accepted `40d40ac51bad8d830e952ca3df768ac6673a096f`
+onto `main` above `73b1f8eb3a035297864a2aca4fbaa1417d8142e4`. The exact
+ordinary workflow is run 45807958996. This publication contains only the
+two diagnostic paths.
+
+The isolated checkout `frontend-disconnect-diagnostic-543ac591` keeps
+the publication receipt and the read-only cross-branch capture watch in
+its worktree Git evidence. `hosted-frontend-watch.json` records completed
+shards and any stop condition, with their full logs saved before counting.
+Retain the exact `main-capture-publication.json` receipt for removal.
+
+The first `main` shard (run 45807958996 attempt 1 job 139868057286)
+passed 215 files and 578 tests with no disconnect marker. It is the third
+watched shard. The log is
+`hosted-frontend-45807958996-attempt-1-job-139868057286.log` in the isolated
+checkout's Git evidence. This `main` revision includes the comparison
+frontend-test consolidation from `87878c41`, so its total is smaller than
+the first two story-branch runs.
+
+All 16 jobs passed on the exact `main` diagnostic revision. The exact
+receipt is `main-capture-exact-ci-receipt.txt`. That publication observer
+stopped with zero unread events. A later ordinary `main` push at
+`7602f45d` gave the fourth watched shard, run 45809402713 attempt 1 job
+139873006202. The shard passed without a matching marker. The full log
+is `hosted-frontend-45809402713-attempt-1-job-139873006202.log`.
+
+The bounded read-only watch continues separately. Its ownership record
+is `hosted-frontend-watch.pid` (PID 74015 at this handoff) and its
+evidence is `hosted-frontend-watch.json` and `hosted-frontend-watch.log`.
+At this boundary the count is four, with no matching failure and no other
+eligible shard in progress. Resume from the saved stop evidence or the
+next ordinary hosted job. The source gate has the absolute cutoff. The
+watch retains any already admitted job through completion, within a
+20-minute collection deadline, and publication of the removal remains a
+coordinator operation. No changes were restored from the slice 5 stash.
+
+## Developer-directed retirement
+
+On November 26 the developer asked to remove the watch and capture if
+the failure had not recurred, and to reopen the investigation on a future
+ordinary CI failure. The read-only watch recorded six passing shards.
+After `a406894e2` changed test discovery, the watcher skipped two later
+jobs because its whole-config fingerprint changed. Both trees retained
+the same capture gate, provider hooks and observer. The log audit
+confirmed that run 45828339205 attempt 1 job 139938232197 and run
+45829697304 attempt 1 job 139942960939 each passed 216 files and 581 tests
+with no matching error or marker. The first job completed before its
+parent workflow was cancelled. No matching failure appeared in eight
+instrumented shards. The isolated checkout's Git evidence retains both
+additional logs and `hosted-frontend-watch-retirement.json`. The exact
+watcher PID 74015 exited.
+
+Remove the temporary gate and observer from both branches and verify the
+normal browser runner through ordinary CI. Preserve the newer frontend
+test selection on `main`, the existing tests, and the managed slice 5
+stash. The experiment is inconclusive about the original cause. The
+developer's deferral applies to this investigation until a new matching
+CI failure supplies evidence. Ordinary failure handling still applies.
+
+The story config matches its pre-capture blob `050d64286`. The `main`
+config retains exactly the later test discovery change from `a406894e2`
+relative to the pre-capture config. Both configs use the regular
+Playwright provider. Dashboard typecheck passed in both checkouts. The
+ordinary frontend runner on `main` passed two existing Chromium Intent
+cases with one worker. Independent review confirmed the two-path source
+removal in each checkout and no workflow or test edits.
+
+The isolated publisher accepted the `main` removal at
+`4bf8e5f05e35e85db0092990cf7937f37e2a94af`. The retained publication
+receipt and reviewed candidate/base pair are in its checkout's Git
+evidence. Verify each accepted removal in its ordinary CI before
+settling the cleanup.
