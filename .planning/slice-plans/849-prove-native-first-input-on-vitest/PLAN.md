@@ -66,12 +66,35 @@ behavioral evidence and take a comparable pair for any performance claim.
 | Existing typed seams observe durable creation and retained startup | The backend command below with `launches/agent-launch-(creation-recovery\|update-worktree-retry)\.spec\.ts$` as the selector passed six Node cases in 28.70 s wall. Creation evidence gated unreadable records and derived the Codex predecessor picker. The real-Git worktree retry applied the updater to the exact kept worktree and dispatched that attempt once, or preserved it with a refusal and no dispatch. |
 | Dialog and process journeys retain real model, creation and recovery consumers | The E2E command below passed all 23 Chromium cases on the first attempt, in 168.06 s wall and 155.593 s summed. It sent Cursor and Codex model and effort choices, verified Cursor sign-in failure, gated unreadable creation, recovered both blank and instructed Codex launches across restart, and explained unconfirmed Claude first input. |
 
+## Execution context
+
+- Story Branch Mode in the owned worktree
+  `/Users/terryyin/git/open-dough/.worktrees/prove-host-launch-choices-and-first-input-in-nod`
+  on `codex/prove-host-launch-choices-and-first-input-in-nod`. Integration
+  checkout is `/Users/terryyin/git/open-dough` and the authorized trunk
+  is `origin/main`.
+- Publisher `dashboard-territory.local-open-dough`, agent Tsubomi-chan,
+  starting revision `01fa9d50fe2b5445ed8f3a80ceee53930ee5a8a5`.
+  Established claim `365c7c69bbdc91f7ca9c1b5119e34b20f9fcf724` is
+  confirmed on the remote execution branch.
+- Locked checkout install, native Chromium prerequisite check, and Dashboard
+  typecheck passed. Retain the existing eight-slice scope and use the
+  recorded baseline for behavior on the unchanged launch paths.
+- CI workflow `ci.yml` (CI), GitHub push on the remote execution branch.
+  Codex coordinator `codex-seed413-native-input` owns
+  `/tmp/dough-ci-501/watch-aqWUbj` (PID 82813, yielded cell
+  `g594:16`, command session 40826). The trunk Take precedes this observer.
+- Local verification runs on awake macOS on AC with Node 24.21.0.
+  One other worktree had a frontend test running at setup. Sequence owned
+  long checks at one worker with `caffeinate -s -i`. Treat elapsed time as
+  descriptive unless a comparable measurement pair can be established.
+
 ## Ordered slices
 
 ### 1. Send Claude's chosen model, effort, and environment
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: With typed launch requests, a listed model and effort reach the
@@ -80,6 +103,27 @@ applies when omitted. An unlisted model or effort outside Claude's levels
 is refused before process start. A deployment-like start uses the
 developer's shell environment without Dashboard's start-up additions.
 Convert `agent-launch-environment.spec.ts` and `agent-launch-model-boundary.spec.ts`.
+
+Accepted proof: The legacy 20 cases are now 22 passing Node Vitest cases
+and zero Playwright cases. The environment spec sees the actual synthetic
+Claude process strip deployment additions and retain developer settings.
+The model boundary sees the chosen model and effort, named and default
+refusals, the published story context, blank and instructed ad hoc starts,
+and durable records. The model admission spec observes the five malformed
+or unlisted values for both request shapes, unsupported effort, and a
+Claude alias on Codex without a dispatch. Default effort and native
+refusal each split into two independent cases.
+
+The exact selector was
+`launches/agent-launch-(environment|model-admission|model-boundary)\.spec\.ts$`
+via the backend local gate with one worker. Measured 17.575 s summed and
+25.37 s wall. Thirteen admission cases finished in at most 100 ms. The
+eight real-Git dispatch cases took 1.327–3.622 s each. Typecheck passed.
+Installed execution's exact branch, workspace, and origin proof also
+remains with slice 2. These measurements describe the run under variable
+machine load. Independent refactoring was unnecessary after reviewing the
+subject specs and reusing the existing environment, protocol, and
+reporting observers.
 
 ### 2. Confirm or end the Claude process started for a story
 

@@ -1,55 +1,52 @@
-// The environment a launch runs in, at the local launch boundary
-// (../../server/launchBoundary.ts) over raw HTTP at the boundary server: a server
-// started as a deployment's is (../../test-support/support/launchEnvironment.ts) launches
-// Claude Code in the developer's shell environment. What a launch starts and
-// keeps is ./agent-launch-boundary.spec.ts. The synthetic `claude`
-// (../../test-support/fixtures/fake-claude) on each server's PATH records every call and its
-// environment; the real one is never reached.
-
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { launch } from "../../test-support/agentLaunchBoundary.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { claudeHost } from "../../server/claudeHost.ts";
+import { recordedRequest } from "../../server/hostLaunch.ts";
+import { localFolder } from "../../server/localFolder.ts";
+import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
-  type DeploymentLikeStart,
 } from "../../test-support/support/launchEnvironment.ts";
-import { queuedExecution } from "../support/installedClaudeLaunch.ts";
 
-test.describe(`agent launch environment from a deployment's start`, () => {
-  let start: DeploymentLikeStart;
-  let server: DashboardServer;
-
-  test.beforeAll(async () => {
-    start = deploymentLikeStart(
-      mkdtempSync(path.join(tmpdir(), "dough-deployment-")),
-    );
-    start.create();
-    server = await startDashboardServer({
-      mode: "boundary",
-      projectFolders: ["open-dough"],
-      pathPrefix: start.pathPrefix,
-      extraEnv: start.extraEnv,
-    });
+test("a deployed Dashboard launches Claude with the developer's shell environment", async () => {
+  const root = mkdtempSync(path.join(tmpdir(), "dough-deployment-"));
+  onTestFinished(() => {
+    vi.unstubAllEnvs();
+    rmSync(root, { recursive: true, force: true });
   });
+  const native = installFakeClaude(
+    root,
+    { binDir: root, path: process.env["PATH"] ?? "" },
+    {},
+  );
+  const start = deploymentLikeStart(path.join(root, "deployment"));
+  start.create();
+  const environment = {
+    ...native.env,
+    ...start.extraEnv,
+    PATH: [...start.pathPrefix, native.env["PATH"]].join(path.delimiter),
+    NODE_ENV: "production",
+  };
+  for (const [key, value] of Object.entries(environment))
+    vi.stubEnv(key, value);
 
-  test.afterAll(async () => {
-    await server.close();
-    start.remove();
-  });
+  const answer = await claudeHost.launch(
+    makeMe.aPublishedSource.openDough.please(),
+    recordedRequest(
+      makeMe.aLaunchRequest.executing(storyA).please(),
+      new Date(),
+    ),
+    localFolder(root),
+    new AbortController().signal,
+  );
 
-  test("launches Claude Code without the dashboard's start-up additions and with everything else", async () => {
-    server.claudeScenario("launched");
-    const response = await launch(server, queuedExecution);
-
-    expect(JSON.parse(response.body)).toMatchObject({ kind: "launched" });
-    expect(server.claudeLaunchEnvironments()).toHaveLength(1);
-    expectDeveloperShellEnvironment(server.claudeLaunchEnvironments()[0]);
-  });
+  expect(answer.kind).toBe("launched");
+  const observed = native.controls.claudeLaunchEnvironments();
+  expect(observed).toHaveLength(1);
+  expectDeveloperShellEnvironment(observed[0]);
 });
