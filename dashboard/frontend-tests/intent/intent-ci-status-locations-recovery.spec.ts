@@ -34,14 +34,16 @@ function recoveringReads() {
     )
     .please();
   const reads = {
-    intent: {
-      readLocations: () =>
-        initialLocations.asked()
-          ? Promise.resolve(configured)
-          : initialLocations.ask(),
-      readFile: () => Promise.resolve(""),
-      readCandidates: () => Promise.resolve({ status: "absent" as const }),
-    },
+    intent: makeMe.anIntentReadSource
+      .reading({
+        readLocations: () =>
+          initialLocations.asked()
+            ? Promise.resolve(configured)
+            : initialLocations.ask(),
+        readFile: () => Promise.resolve(""),
+        readCandidates: () => Promise.resolve({ status: "absent" as const }),
+      })
+      .please(),
     ci: inertCiReads({
       readKeptStatus: () => {
         ciReads.kept += 1;

@@ -134,7 +134,7 @@ cases to fit the default timeout under load.
 ### 2. Give Project Intent readers the project tree and file reads
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `npm run typecheck:dashboard` and the baseline mounted Project Intent
 specs, unchanged in behavior.
 
@@ -146,6 +146,13 @@ and frontend-test files build that source literally (for example
 `unreadPageReads.ts`). Move them onto one MakeMe builder step whose default
 tree is the fixture's configured location files and whose file read answers
 the existing per-path text, so nothing visible changes yet.
+
+Delivered: [authenticatedProjectBrowseRead.ts](../../../dashboard/src/authenticatedProjectBrowseRead.ts)
+gives `readProjectTree` and `readProjectFile`. An absent or unavailable file
+currently throws a `ReadProblem`, the same contract as `readFile`. Fixtures
+build reads through `makeMe.anIntentReadSource`
+([intentReadSourceTestData.ts](../../../dashboard/test-support/intentReadSourceTestData.ts)).
+Slice 3 is the first to run the client parsing over HTTP.
 
 ### 3. Browse the whole project tree and its source
 

@@ -14,32 +14,34 @@ const files = new Map([
   [plain, plainText],
 ]);
 export function sourceReads(reads: string[]): IntentReadSource {
-  return {
-    readLocations: () =>
-      Promise.resolve({
-        status: "configured",
-        locations: [
-          makeMe.anIntentLocation
-            .at("dashboard/tests")
-            .ofKind("typescript", ["**/*.spec.ts"])
-            .selecting(highlighted)
-            .please(),
-          makeMe.anIntentLocation
-            .at("dashboard/checks")
-            .withSources({ include: ["**/*.check"] })
-            .selecting(plain)
-            .please(),
-        ],
-      }),
-    readFile: (...[, path]) => {
-      reads.push(path);
-      const source = files.get(path);
-      return source === undefined
-        ? Promise.reject(new Error(`Unexpected Intent file: ${path}`))
-        : Promise.resolve(source);
-    },
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-  };
+  return makeMe.anIntentReadSource
+    .reading({
+      readLocations: () =>
+        Promise.resolve({
+          status: "configured",
+          locations: [
+            makeMe.anIntentLocation
+              .at("dashboard/tests")
+              .ofKind("typescript", ["**/*.spec.ts"])
+              .selecting(highlighted)
+              .please(),
+            makeMe.anIntentLocation
+              .at("dashboard/checks")
+              .withSources({ include: ["**/*.check"] })
+              .selecting(plain)
+              .please(),
+          ],
+        }),
+      readFile: (...[, path]) => {
+        reads.push(path);
+        const source = files.get(path);
+        return source === undefined
+          ? Promise.reject(new Error(`Unexpected Intent file: ${path}`))
+          : Promise.resolve(source);
+      },
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
 }
 
 export const intent = page.getByRole("main", { name: "Intent", exact: true });

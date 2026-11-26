@@ -60,16 +60,18 @@ const mountHomepage = () =>
     work: openDoughWork,
     projects: [openDoughSource, doughnutSource],
     reads: {
-      intent: {
-        readLocations: (source) =>
-          Promise.resolve(
-            source.id === doughnutSource.id
-              ? makeMe.anIntentLocationsAnswer.notConfigured().please()
-              : configuredLocations,
-          ),
-        readFile: () => Promise.resolve(browseSpecText),
-        readCandidates: () => Promise.resolve({ status: "absent" }),
-      },
+      intent: makeMe.anIntentReadSource
+        .reading({
+          readLocations: (source) =>
+            Promise.resolve(
+              source.id === doughnutSource.id
+                ? makeMe.anIntentLocationsAnswer.notConfigured().please()
+                : configuredLocations,
+            ),
+          readFile: () => Promise.resolve(browseSpecText),
+          readCandidates: () => Promise.resolve({ status: "absent" }),
+        })
+        .please(),
       ci: inertCiReads({ readStatus: () => Promise.resolve(login) }),
     },
   });

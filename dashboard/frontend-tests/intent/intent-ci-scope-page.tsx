@@ -1,3 +1,4 @@
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 // A selected story's CI comparison beside its Summary and file Proof: the
 // actual evidence owner (../../src/IntentCiEvidence.tsx) and the one Show %
 // preference in the production reading place, the story's comparison shown
@@ -47,14 +48,16 @@ function scopeOf(
 // Source text the Summary or file Proof asks for; a Summary asks for none.
 function textReads() {
   const asked: string[] = [];
-  const reads: IntentReadSource = {
-    readLocations: () => Promise.reject(new Error("No locations arranged")),
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-    readFile: (...[, path]) => {
-      asked.push(path);
-      return Promise.resolve("");
-    },
-  };
+  const reads: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations: () => Promise.reject(new Error("No locations arranged")),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+      readFile: (...[, path]) => {
+        asked.push(path);
+        return Promise.resolve("");
+      },
+    })
+    .please();
   return { asked, reads };
 }
 

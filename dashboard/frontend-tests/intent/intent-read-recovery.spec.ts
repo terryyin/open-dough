@@ -42,18 +42,20 @@ function controlledLocations(work: PublishedWork) {
     );
   let count = 0;
   let settledAt = Date.now();
-  const readSource: IntentReadSource = {
-    readLocations(source, revision) {
-      expect([source.id, revision]).toEqual([work.source.id, work.revision]);
-      count += 1;
-      return current().finally(() => {
-        settledAt = Date.now();
-      });
-    },
-    readFile: (...[, path]) =>
-      Promise.reject(new Error(`Unexpected file read for ${path}`)),
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-  };
+  const readSource: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations(source, revision) {
+        expect([source.id, revision]).toEqual([work.source.id, work.revision]);
+        count += 1;
+        return current().finally(() => {
+          settledAt = Date.now();
+        });
+      },
+      readFile: (...[, path]) =>
+        Promise.reject(new Error(`Unexpected file read for ${path}`)),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
   return {
     readSource,
     reads: () => count,

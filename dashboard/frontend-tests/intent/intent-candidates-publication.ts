@@ -71,18 +71,20 @@ export function projectsPublishedWithCandidates(
     ]),
   );
   const of = (source: PublishedSource) => fixtureFor(published, source.id);
-  const readSource: IntentReadSource = {
-    readLocations: (source, ...[, signal]) =>
-      of(source).features.readLocations(signal),
-    readFile(source, path, revision, signal) {
-      fileReads.push({ path, revision });
-      return fixtureFor(of(source).features.files, path)(signal);
-    },
-    readCandidates(source, revision) {
-      reads.push(revision);
-      return Promise.resolve(of(source).candidates);
-    },
-  };
+  const readSource: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations: (source, ...[, signal]) =>
+        of(source).features.readLocations(signal),
+      readFile(source, path, revision, signal) {
+        fileReads.push({ path, revision });
+        return fixtureFor(of(source).features.files, path)(signal);
+      },
+      readCandidates(source, revision) {
+        reads.push(revision);
+        return Promise.resolve(of(source).candidates);
+      },
+    })
+    .please();
   return { reads, fileReads, readSource };
 }
 

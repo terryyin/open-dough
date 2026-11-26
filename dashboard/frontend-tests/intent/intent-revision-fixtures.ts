@@ -84,26 +84,33 @@ export function fixtureFor<T>(
 export const intentReadsPublishing = (
   locations: IntentLocations,
   files: Readonly<Record<string, string>>,
-): IntentReadSource => ({
-  readLocations: () => Promise.resolve(locations),
-  readFile: (...[, path]) => Promise.resolve(fixtureFor(files, path)),
-  readCandidates: () => Promise.resolve({ status: "absent" }),
-});
+): IntentReadSource =>
+  makeMe.anIntentReadSource
+    .reading({
+      readLocations: () => Promise.resolve(locations),
+      readFile: (...[, path]) => Promise.resolve(fixtureFor(files, path)),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
 
 export async function mountProjectIntent(
   revision: string,
   publications: Readonly<Record<string, FeaturePublication>>,
 ) {
-  const readSource: IntentReadSource = {
-    readLocations(...[, requestedRevision, signal]) {
-      return fixtureFor(publications, requestedRevision).readLocations(signal);
-    },
-    readFile(...[, path, requestedRevision, signal]) {
-      const publication = fixtureFor(publications, requestedRevision);
-      return fixtureFor(publication.files, path)(signal);
-    },
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-  };
+  const readSource: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations(...[, requestedRevision, signal]) {
+        return fixtureFor(publications, requestedRevision).readLocations(
+          signal,
+        );
+      },
+      readFile(...[, path, requestedRevision, signal]) {
+        const publication = fixtureFor(publications, requestedRevision);
+        return fixtureFor(publication.files, path)(signal);
+      },
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
   return mountIntentReading(readSource, revision, "ci");
 }
 

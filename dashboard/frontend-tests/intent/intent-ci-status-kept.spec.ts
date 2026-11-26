@@ -45,17 +45,19 @@ test("CI homepage shows again across Development and back; Optimization Candidat
   const openDoughWork = workOf(openDoughSource, "e5e5e5e");
   const doughnutWork = workOf(doughnutSource, "f7f7f7f");
   const candidatesMarkdown = makeMe.aTestOptimizationCandidatesRecord.please();
-  const readSource: IntentReadSource = {
-    readLocations: (source) =>
-      Promise.resolve(
-        source.id === doughnutSource.id
-          ? { status: "not-configured" }
-          : configuredLocations,
-      ),
-    readFile: () => Promise.resolve(""),
-    readCandidates: () =>
-      Promise.resolve({ status: "present", text: candidatesMarkdown }),
-  };
+  const readSource: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations: (source) =>
+        Promise.resolve(
+          source.id === doughnutSource.id
+            ? { status: "not-configured" }
+            : configuredLocations,
+        ),
+      readFile: () => Promise.resolve(""),
+      readCandidates: () =>
+        Promise.resolve({ status: "present", text: candidatesMarkdown }),
+    })
+    .please();
 
   const mounted = await mountIntentCiPage({
     work: openDoughWork,
@@ -176,11 +178,13 @@ test("a new trunk revision asks for the homepage judgment again at the new head;
   const mounted = await mountIntentCiPage({
     work: initialWork,
     reads: {
-      intent: {
-        readLocations: () => Promise.resolve(configuredLocations),
-        readFile: () => Promise.resolve(""),
-        readCandidates: () => Promise.resolve({ status: "absent" }),
-      },
+      intent: makeMe.anIntentReadSource
+        .reading({
+          readLocations: () => Promise.resolve(configuredLocations),
+          readFile: () => Promise.resolve(""),
+          readCandidates: () => Promise.resolve({ status: "absent" }),
+        })
+        .please(),
       ci: inertCiReads({
         readKeptStatus: () => {
           reads.kept += 1;

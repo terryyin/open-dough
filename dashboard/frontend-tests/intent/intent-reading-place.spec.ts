@@ -87,21 +87,23 @@ const story = intentStoryCompare();
 // Intent's locations, of published text, and of a story file's diff and text.
 async function openStoryChanges() {
   const reads: string[] = [];
-  const intentReads: IntentReadSource = {
-    readLocations: (source) => {
-      reads.push("locations");
-      return Promise.resolve(
-        source.id === doughnutSource.id
-          ? { status: "not-configured" }
-          : { status: "configured", locations: [location] },
-      );
-    },
-    readFile: (...[, path]) => {
-      reads.push(`text ${path}`);
-      return Promise.resolve(`${path}\n`);
-    },
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-  };
+  const intentReads: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations: (source) => {
+        reads.push("locations");
+        return Promise.resolve(
+          source.id === doughnutSource.id
+            ? { status: "not-configured" }
+            : { status: "configured", locations: [location] },
+        );
+      },
+      readFile: (...[, path]) => {
+        reads.push(`text ${path}`);
+        return Promise.resolve(`${path}\n`);
+      },
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
   const review: ReviewSource = {
     review: () => Promise.resolve(storyReview),
     fileDiff: (query) => {

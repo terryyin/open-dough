@@ -124,11 +124,14 @@ export function inertCiReads(
 }
 
 // Intent reads of a project without configured Intent locations.
-export const unconfiguredIntentReads: IntentReadSource = {
-  readLocations: () => Promise.resolve({ status: "not-configured" }),
-  readFile: () => Promise.resolve(""),
-  readCandidates: () => Promise.resolve({ status: "absent" }),
-};
+export const unconfiguredIntentReads: IntentReadSource =
+  makeMe.anIntentReadSource
+    .reading({
+      readLocations: () => Promise.resolve({ status: "not-configured" }),
+      readFile: () => Promise.resolve(""),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
 
 // Main's run 41 at a1b2c3d, the run `mountJudgedRunProof` judges.
 export const judgedRun = {

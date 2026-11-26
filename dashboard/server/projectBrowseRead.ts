@@ -5,7 +5,10 @@
 // when the configured target fetched there contains it; a cold read joins
 // that repository's shared target sync, and a warm one fetches nothing.
 
-import { readingPathAt } from "../src/authenticatedReadRules.ts";
+import {
+  readingPathAt,
+  readingTrackedFilesAt,
+} from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   defaultGitOutputLimit as maxBuffer,
@@ -93,7 +96,7 @@ export function readingProjectBrowseOf(
 ): string {
   return read.kind === "project-file-at"
     ? readingPathAt(read.path, read.revision)
-    : `the tracked files of ${source.repository} at ${read.revision}`;
+    : readingTrackedFilesAt(source.repository, read.revision);
 }
 
 // The revision's tree when the target last fetched into `repository`

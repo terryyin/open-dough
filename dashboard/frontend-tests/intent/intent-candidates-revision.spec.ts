@@ -51,15 +51,17 @@ function recordReads(reply: Reply = present): {
   const reads: string[] = [];
   return {
     reads,
-    readSource: {
-      readLocations: () =>
-        Promise.resolve({ status: "configured", locations: [] }),
-      readCandidates(...[, revision, signal]) {
-        reads.push(revision);
-        return reply(revision, signal);
-      },
-      readFile: () => Promise.reject(new Error("no case reads a file")),
-    },
+    readSource: makeMe.anIntentReadSource
+      .reading({
+        readLocations: () =>
+          Promise.resolve({ status: "configured", locations: [] }),
+        readCandidates(...[, revision, signal]) {
+          reads.push(revision);
+          return reply(revision, signal);
+        },
+        readFile: () => Promise.reject(new Error("no case reads a file")),
+      })
+      .please(),
   };
 }
 

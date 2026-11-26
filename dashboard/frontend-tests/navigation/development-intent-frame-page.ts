@@ -1,3 +1,4 @@
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { expect } from "vitest";
 import { page } from "vitest/browser";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
@@ -35,11 +36,13 @@ function unexpectedIntentRead(): never {
   throw new Error("This test publishes no Intent locations.");
 }
 
-const intentReads: IntentReadSource = {
-  readLocations: () => Promise.resolve({ status: "not-configured" }),
-  readFile: unexpectedIntentRead,
-  readCandidates: unexpectedIntentRead,
-};
+const intentReads: IntentReadSource = makeMe.anIntentReadSource
+  .reading({
+    readLocations: () => Promise.resolve({ status: "not-configured" }),
+    readFile: unexpectedIntentRead,
+    readCandidates: unexpectedIntentRead,
+  })
+  .please();
 
 export function mountPerspectiveFrame(
   viewport = { width: 1280, height: 800 },
