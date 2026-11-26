@@ -1,9 +1,17 @@
-import { launch } from "../../test-support/agentLaunchBoundary.ts";
-import { expect, test } from "../../test-support/support/cursorStart.ts";
+import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { cursorHost } from "../../server/cursorHost.ts";
+import { admitLaunchSettings } from "../../server/launchSettingsAdmission.ts";
+import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
 
-test.use({ serverMode: "boundary" });
+const request = makeMe.aLaunchRequest
+  .adHoc({ host: "cursor" })
+  .requestingModel("gpt-5.2")
+  .withInstruction("Do work")
+  .please();
 
-for (const failure of [
+test.each([
   {
     name: "Cursor exits unsuccessfully",
     models: undefined,
@@ -18,24 +26,28 @@ for (const failure of [
     explanation:
       "Cursor CLI returned no recognizable models. Retry, or use your Cursor setting.",
   },
-]) {
-  test(`model verification explains when ${failure.name}`, async ({
-    dashboard,
-    cursor,
-  }) => {
-    cursor.listModels(failure.models, failure.stderr);
-    const response = await launch(dashboard, {
-      source: "open-dough",
-      host: "cursor",
-      workflow: "ad-hoc",
-      model: "gpt-5.2",
-      instruction: "Do work",
+])(
+  "model verification explains when $name",
+  async ({ models, stderr, explanation }) => {
+    const cursor = installFakeCursor();
+    onTestFinished(() => {
+      vi.unstubAllEnvs();
+      cursor.cleanup();
     });
+    for (const [key, value] of Object.entries(cursor.env))
+      vi.stubEnv(key, value);
+    vi.stubEnv(
+      "PATH",
+      [cursor.binDir, process.env["PATH"]].join(path.delimiter),
+    );
+    cursor.listModels(models, stderr);
 
-    expect(response.status).toBe(503);
-    expect(JSON.parse(response.body)).toEqual({
-      error: `Cursor model choices could not be verified. ${failure.explanation}`,
+    await expect(
+      admitLaunchSettings(request, cursorHost),
+    ).rejects.toMatchObject({
+      status: 503,
+      message: `Cursor model choices could not be verified. ${explanation}`,
     });
     expect(cursor.calls()).toEqual([]);
-  });
-}
+  },
+);

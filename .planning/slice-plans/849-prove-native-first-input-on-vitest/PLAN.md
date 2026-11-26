@@ -80,7 +80,8 @@ behavioral evidence and take a comparable pair for any performance claim.
   Slice 1 published as `d6691f5bb35fc2214a1629e7ec873dcdbabe158e`
   on that branch with observer registration. Slice 2 published as
   `25be1d9a8661191589c44e60165edfd5186055a8` with the workspace-start merge
-  and the same observer.
+  and the same observer. Slice 3 published as `ade5fff4c67f06d1fa9ddbd84d69c1557b067df8`
+  on the same target.
 - Locked checkout install, native Chromium prerequisite check, and Dashboard
   typecheck passed. Retain the existing eight-slice scope and use the
   recorded baseline for behavior on the unchanged launch paths.
@@ -224,7 +225,7 @@ No further refactor was needed.
 ### 4. Validate Cursor's chosen model at discovery and creation
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 
 Proof: Cursor effort admission refuses unsupported pairs and accepts a
@@ -236,6 +237,21 @@ stop. Convert `agent-launch-cursor-model-admission.spec.ts` and
 [effort](../../../e2e/launches/agent-launch-cursor-model-effort.spec.ts), and
 [verification](../../../e2e/launches/agent-launch-cursor-model-verification.spec.ts)
 E2E journeys for listed choices on the prompted run.
+
+Accepted proof: Seven Node cases replace the five legacy cases, with
+unsupported, missing, and supported effort checked independently.
+The actual Cursor runner passed `fixture-orb-low` to the prompted client
+with the retained chat ID and checkout. The kept record persisted the model
+and effort separately. Unlisted models and unavailable configuration
+scope produce no create-chat. The native discovery process supplies
+distinct safe messages for CLI exit and an unrecognizable model listing.
+
+The exact backend selector
+`launches/agent-launch-cursor-model-(admission|verification)\.spec\.ts$`
+passed all seven cases with zero Playwright cases. Measured 6.318 s summed
+and 9.89 s wall. Four cases took at most 100 ms. Dashboard typecheck passed.
+The two subject specs reuse the existing host and runner fixtures. No
+further refactor was needed.
 
 ### 5. Record creation before sending first input
 
