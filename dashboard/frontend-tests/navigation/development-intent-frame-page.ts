@@ -91,7 +91,6 @@ export async function showsUnconfiguredIntent(label: string) {
       intent.getByRole("heading", { name: "No story selected", exact: true }),
     )
     .toBeVisible();
-  await expect.element(intent.getByRole("list")).not.toBeInTheDocument();
   await expect.element(page.getByText(/Structure/)).not.toBeInTheDocument();
   await expect.element(page.getByRole("main")).toHaveLength(1);
   await expect

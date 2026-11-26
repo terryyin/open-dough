@@ -129,6 +129,9 @@ export function IntentBrowser({
     open: openRevealed,
   });
 
+  // Project Intent's empty-scope explanation stays in view: beside the tree
+  // while Files shows, otherwise above the reading.
+  const leadInFiles = project === undefined || files.shown;
   const browser = (
     <>
       {files.backdrop}
@@ -140,7 +143,7 @@ export function IntentBrowser({
           changesOnly={storyTree.scope?.changesOnly}
         />
         {projectTree?.lead}
-        {lead}
+        {leadInFiles && lead}
         <IntentBrowserTree
           locations={locations}
           tree={storyTree}
@@ -164,6 +167,7 @@ export function IntentBrowser({
         {...(storyPath &&
           intentStoryPathAttributes(storyPath.id, storyPath.hidden))}
       >
+        {!leadInFiles && lead}
         <IntentSelectionReading
           source={source}
           revision={revision}

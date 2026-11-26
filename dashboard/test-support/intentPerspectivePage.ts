@@ -167,7 +167,6 @@ export async function expectNotConfiguredIntent(page: Page, label: string) {
   await expect(explanation).toBeVisible();
   await expect(intent).toContainText("intent.locations");
   await expect(intent).toContainText(".planning/open-dough.json");
-  await expect(intent.getByRole("list")).toHaveCount(0);
   await expect(explanation).not.toContainText(
     /no (tests|proof)|(tests|proof) (are|is) (absent|missing)|passed|failed/i,
   );

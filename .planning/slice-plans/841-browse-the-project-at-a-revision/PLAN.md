@@ -186,6 +186,10 @@ leave the project tree unanswered by default, so their tree is the configured
 location files; mixed-path cases answer `readProjectTree` explicitly and need
 their own revision because reads are cached per revision. `IntentPage.tsx`
 has 245 lines.
+CI repair (run 45783681400): the no-locations explanation shows beside the
+tree while Files shows and above the reading while Files is hidden (phone
+drawer), and the not-configured helpers no longer assume an empty Intent
+area has no list.
 
 ### 4. Open real source from Project Intent CI and return Home
 
