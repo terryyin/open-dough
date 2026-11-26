@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "c90c5c10-7140-444e-9a2c-78f8a98bfb10",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-26T15:12:49.094Z",
+  "story": "SEED-413#prove-launch-worker-recovery-on-vitest",
+  "ranges": [
+    {
+      "base": "18742cea39933e5ed6c5def52815a4fb95685044",
+      "candidate": "bf0e8cf8e8c754834f4ac8d48370e86d1810fb12"
+    }
+  ]
+}
