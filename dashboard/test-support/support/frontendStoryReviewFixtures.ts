@@ -1,11 +1,4 @@
-// Shared snapshot and file-diff shapes for frontend story-review substitutes.
-
-import {
-  reviewedFileDiffSchema,
-  type ReviewedFileDiff,
-  type StoryReview,
-  type ReviewedFile,
-} from "../../src/storyReviewContract.ts";
+// Distinct object ids for mounted story-review records.
 
 const oid = (n: number) => n.toString(16).padStart(40, "0");
 
@@ -14,67 +7,4 @@ export const frontendReviewIds = {
   tree: oid(2),
   head: oid(3),
   commit: oid(4),
-  commitTree: oid(5),
-  uncommittedTree: oid(6),
 } as const;
-
-// A minimal snapshot: one added file and one commit unless overridden.
-export function frontendReviewSnapshot(
-  overrides: Partial<Extract<StoryReview, { kind: "published-taken" }>> = {},
-): Extract<StoryReview, { kind: "published-taken" }> {
-  const baseline = overrides.baseline ?? frontendReviewIds.baseline;
-  const tree = overrides.tree ?? frontendReviewIds.tree;
-  const head = overrides.head ?? frontendReviewIds.head;
-  const files = overrides.files ?? [
-    {
-      kind: "added" as const,
-      path: "story.txt",
-      lines: { added: 1, removed: 0 },
-    },
-  ];
-  return {
-    kind: "published-taken",
-    mode: overrides.mode ?? "story-branch",
-    agent: "claude",
-    remote: "origin",
-    target: overrides.target ?? "claude/taken",
-    baseline,
-    head,
-    tree,
-    files,
-    runs: overrides.runs,
-    selectedRun: overrides.selectedRun,
-  };
-}
-
-// A completed story's published comparison of `files`.
-export function frontendPublishedReview(
-  files: ReviewedFile[],
-): Extract<StoryReview, { kind: "published" }> {
-  return {
-    kind: "published",
-    completion: oid(7),
-    completedAt: "2026-01-01T00:00:00.000Z",
-    agent: "claude",
-    remote: "origin",
-    target: "main",
-    baseline: frontendReviewIds.baseline,
-    tree: frontendReviewIds.tree,
-    files,
-  };
-}
-
-export function frontendFileDiff(
-  path: string,
-  lines: readonly string[],
-): ReviewedFileDiff {
-  const printed = [
-    `diff --git a/${path} b/${path}`,
-    `--- a/${path}`,
-    `+++ b/${path}`,
-    "@@ -0,0 +1 @@",
-    ...lines.map((line) => (line.startsWith("+") ? line : `+${line}`)),
-    "",
-  ].join("\n");
-  return reviewedFileDiffSchema.parse({ kind: "diff", printed });
-}

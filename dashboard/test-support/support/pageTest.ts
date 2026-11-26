@@ -35,11 +35,6 @@
 // loads the module in a worker.
 
 import { test as base, type Fixtures } from "@playwright/test";
-import type {
-  ComparisonRenderer,
-  ComparisonRenderOptions,
-} from "./comparisonRendering.ts";
-import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import type { KeptComparedStoryBranch } from "./keptComparedStoryBranch.ts";
@@ -152,25 +147,8 @@ export const workerPreparationFixtures: Fixtures<
 };
 
 // Playwright's worker-only extension takes an empty test-fixture type.
-const workerTest = base.extend<
-  object,
-  WorkerPreparationFixtures & { comparisonRenderer: ComparisonRenderer }
->({
+export const test = base.extend<object, WorkerPreparationFixtures>({
   ...workerPreparationFixtures,
-  comparisonRenderer: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const { createComparisonRenderer } =
-        await import("./comparisonRendering.ts");
-      const renderer = await createComparisonRenderer();
-      try {
-        await use(renderer);
-      } finally {
-        await renderer.close();
-      }
-    },
-    { scope: "worker" },
-  ],
   context: async ({ context }, use) => {
     await noteRequestsInEveryPage(context);
     await use(context);
@@ -179,21 +157,5 @@ const workerTest = base.extend<
     await use(page);
     // A spec that closed its page has no handler left to finish.
     if (!page.isClosed()) await page.unrouteAll({ behavior: "wait" });
-  },
-});
-
-// Renders a compared story (`makeMe.aComparedStory`) into the page through
-// the worker's comparison renderer, answering the comparison region.
-export const test = workerTest.extend<{
-  renderComparison: (
-    story: ComparedStory,
-    options?: ComparisonRenderOptions,
-  ) => ReturnType<typeof import("./comparisonRendering.ts").renderComparison>;
-}>({
-  renderComparison: async ({ page, comparisonRenderer }, use) => {
-    const { renderComparison } = await import("./comparisonRendering.ts");
-    await use((story, options) =>
-      renderComparison(page, comparisonRenderer, story, options),
-    );
   },
 });

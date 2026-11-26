@@ -142,7 +142,7 @@ for (const runner of groupRunnerExamples)
     expect(outputs.every((output) => !existsSync(output))).toBe(true);
   });
 
-test("Dashboard Backend Test's setup registers no comparison mount, so a spec asking for one fails naming it", async () => {
+test("A spec asking for an artifact Dashboard Backend Test's setup does not register fails naming it", async () => {
   const run = startProofRun({
     spec: "unregistered.proof.ts",
     config: {

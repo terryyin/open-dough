@@ -9,12 +9,9 @@ import { coldInputPreparation } from "./publishedMainWorkerFixtures.ts";
 
 export type FixtureServerMode = "preview" | "boundary";
 type Host = "claude" | "codex";
-// What a worker serves: a server mode, or only the static app (frontend runs).
-type ServedInputs = FixtureServerMode | "app";
 
 export type ServerInputWorkerFixtures = {
   serverMode: FixtureServerMode;
-  dashboardAppReady: undefined;
   dashboardServerInputsReady: undefined;
   dashboardPreviewReady: undefined;
   dashboardBoundaryReady: undefined;
@@ -25,11 +22,10 @@ export type ServerInputWorkerFixtures = {
 };
 
 // Requests the named hosts' queued origins and what the served inputs need:
-// the app build for previews and app-only runs, the server bundle for any
-// dashboard server.
+// the app build for previews, the server bundle for any dashboard server.
 async function prepareServerInputs(
   hosts: readonly Host[],
-  served: ServedInputs | undefined,
+  served: FixtureServerMode | undefined,
 ) {
   const [artifacts, origins, app, bundle] = await Promise.all([
     import("./runArtifacts.ts"),
@@ -40,9 +36,7 @@ async function prepareServerInputs(
   await Promise.all(
     [
       ...hosts.map((host) => origins.startOriginArtifactKey(host, "queued")),
-      ...(served === "preview" || served === "app"
-        ? [app.dashboardAppArtifactKey]
-        : []),
+      ...(served === "preview" ? [app.dashboardAppArtifactKey] : []),
       ...(served === "preview" || served === "boundary"
         ? [bundle.serverBundleArtifactKey]
         : []),
@@ -50,7 +44,10 @@ async function prepareServerInputs(
   );
 }
 
-function prepared(hosts: readonly Host[], served: ServedInputs | undefined) {
+function prepared(
+  hosts: readonly Host[],
+  served: FixtureServerMode | undefined,
+) {
   // eslint-disable-next-line no-empty-pattern
   return async ({}, use: (value: undefined) => Promise<void>) => {
     await prepareServerInputs(hosts, served);
@@ -70,8 +67,6 @@ export const serverInputWorkerFixtures: Fixtures<
     },
     coldInputPreparation,
   ],
-  // Frontend runs serve only the static app build (./frontendApp.ts).
-  dashboardAppReady: [prepared([], "app"), coldInputPreparation],
   // Reading-only previews need the app and boundaries, with no installed origin.
   dashboardPreviewReady: [prepared([], "preview"), coldInputPreparation],
   // A custom boundary server needs only the server bundle.

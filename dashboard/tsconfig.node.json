@@ -7,7 +7,7 @@
     "allowJs": true,
     "checkJs": false
   },
-  "exclude": ["test-support/comparison-mount", "test-support/component-mount"],
+  "exclude": ["test-support/component-mount"],
   "include": [
     "vite.config.mts",
     "frontend.vitest.config.mts",

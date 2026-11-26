@@ -105,7 +105,7 @@ function proveArtifact(
           workers: 2,
           globalSetup: artifact.setup ?? setup,
         },
-        args: outcome === "interrupt" ? ["--grep", "static server"] : [],
+        args: outcome === "interrupt" ? ["--grep", "first preview server"] : [],
         env: {
           NODE_OPTIONS: [
             process.env["NODE_OPTIONS"],

@@ -2,15 +2,30 @@
 // actual evidence owner (../../src/IntentCiEvidence.tsx) and the one Show %
 // preference in the production reading place, the story's comparison shown
 // by IntentCiStatus, and the real location tree, Summary and file Proof
-// (../../test-support/comparison-mount/scope.tsx) over the story's typed
-// locations and overlay, all reading through typed sources.
-import type { ReactElement } from "react";
+// (IntentScope below) over the story's typed locations and overlay, all
+// reading through typed sources.
+import { useState, type ReactElement } from "react";
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { IntentCiStatus } from "../../src/IntentCiStatus.tsx";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
-import { ComparisonMountScope } from "../../test-support/comparison-mount/scope.tsx";
+import { IntentSummary } from "../../src/IntentSummary.tsx";
+import { IntentFileProof } from "../../src/IntentFileProof.tsx";
+import { IntentFileTree } from "../../src/IntentFileTree.tsx";
+import {
+  intentStoryOverlay,
+  intentLocationFiles,
+  storyRepositoryTree,
+} from "../../src/intentStoryOverlay.ts";
+import {
+  owningLocation,
+  filesOfSelection,
+} from "../../src/intentSelectionCoverage.ts";
+import { selectionScope } from "../../src/intentWorkspaceSelection.ts";
+import { reviewFoldersHolding } from "../../src/reviewFileTree.ts";
+import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
+import type { ReviewedFile } from "../../src/storyReviewFiles.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
   activeComparisonIn,
@@ -27,6 +42,74 @@ import "../../src/intent-page.css";
 const columns = ["Counts", "Baseline", "Branch", "Landed"] as const;
 type Column = (typeof columns)[number];
 
+// The story's locations, changed files and selection the scope projects.
+type IntentScopeFacts = {
+  readonly locations: readonly IntentLocation[];
+  readonly changed: readonly ReviewedFile[];
+  readonly revision: string;
+  readonly selection: {
+    readonly path: string;
+    readonly scope?: "location" | "folder" | "file";
+    readonly caseTarget?: string;
+  };
+};
+
+// Real scope projections, tree controls and public Summary navigation callbacks.
+function IntentScope({ facts }: { readonly facts: IntentScopeFacts }) {
+  const [selection, setSelection] = useState(facts.selection);
+  const overlay = intentStoryOverlay(facts.locations, facts.changed);
+  const shown = storyRepositoryTree(facts.locations, overlay, false);
+  const treeFiles = overlay.files;
+  const location = owningLocation(facts.locations, selection);
+  const scopeFiles =
+    location === undefined
+      ? treeFiles
+      : intentLocationFiles(treeFiles, location);
+  return (
+    <>
+      <nav className="intent-locations" aria-label="Intent files">
+        <IntentFileTree
+          shown={shown}
+          owner=""
+          expansion={{
+            round: 0,
+            folders: [
+              ...facts.locations.flatMap(({ path }) =>
+                reviewFoldersHolding(shown.nodes, `${path}/`),
+              ),
+              ...reviewFoldersHolding(shown.nodes, facts.selection.path),
+            ],
+          }}
+          selection={selection}
+          onSelect={setSelection}
+          reveal={undefined}
+        />
+      </nav>
+      {selectionScope(selection) === "file" ? (
+        <section aria-label="Proof">
+          <IntentFileProof
+            path={selection.path}
+            treeFile={treeFiles.get(selection.path)}
+            revision={facts.revision}
+          />
+        </section>
+      ) : (
+        location !== undefined && (
+          <IntentSummary
+            key={`${facts.revision}:${selection.path}`}
+            path={selection.path}
+            files={filesOfSelection(scopeFiles, selection)}
+            treeFiles={scopeFiles}
+            location={location}
+            revision={facts.revision}
+            onOpen={setSelection}
+          />
+        )
+      )}
+    </>
+  );
+}
+
 function scopeOf(
   story: ComparedStory,
   ci: IntentCiReadSource,
@@ -38,7 +121,7 @@ function scopeOf(
         <IntentCiStatus />
       </section>
       {story.scope !== undefined && (
-        <ComparisonMountScope key={story.identity} facts={story.scope} />
+        <IntentScope key={story.identity} facts={story.scope} />
       )}
     </StoryCiEvidence>
   );

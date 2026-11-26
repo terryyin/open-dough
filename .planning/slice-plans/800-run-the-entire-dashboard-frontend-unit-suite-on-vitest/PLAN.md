@@ -146,7 +146,7 @@ slice 5.
 ### 4. No built-app substitute support remains for frontend unit tests
 
 Type: Structure
-Status: planned
+Status: done
 
 Delete `frontendApp.ts`, `frontendAppServer.ts`, the static comparison
 bundle and renderer with its `tsconfig.app.json` and `eslint.config.mjs`
@@ -170,6 +170,19 @@ retired modules and frontend `@playwright/test` imports, including imports
 through shared helpers. Run the mounted Intent scope cases through the
 frontend group. List E2E and backend, and run a representative shared
 `pageTest.ts` case in each plus the retained artifact-demand checks.
+
+**Accepted proof.** Typecheck and lint pass, and the frontend-tests lint
+block now refuses `@playwright/test` and the Playwright test bases. No
+retired module is imported, and a transitive walk from
+`dashboard/frontend-tests` reaches no `@playwright/test`. The mounted Intent
+scope specs and `story-review-details` (10 files, 30 cases) pass. The E2E
+listing and `intent-read-boundary-recovery` pass. The backend listing,
+`dashboard-artifact-demand` and `runner-ownership` pass with the artifact
+fixtures on preview servers. Two `run-processes` cases timed out only in a
+combined run at load 45 and passed alone; branch CI rechecks them. The
+refactor removed the dead `dashboardAppReady` fixture and spent review
+fixtures. `frontend-tests/README.md` still describes the deleted modules
+for slice 5.
 
 ### 5. Documentation, CI and output settings name only the Vitest frontend runner
 

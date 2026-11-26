@@ -2,9 +2,9 @@
 // Its workers start dashboard servers, real Git origins and synthetic hosts,
 // prepared as for any such run (./serviceRunSetup.ts), and may request only
 // what backend specs serve from: the server bundle, the app build a preview
-// or static server serves, the installed start origins, the published main
-// sources and the story-columns history. It builds no comparison mount; a
-// spec requesting an artifact this run does not register fails naming it
+// serves, the installed start origins, the published main sources and the
+// story-columns history. A spec requesting an artifact this run does not
+// register fails naming it
 // (./runArtifacts.ts). Its run identity and teardown are the shared run
 // lifecycle's (./runLifecycle.ts).
 
