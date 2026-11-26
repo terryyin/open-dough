@@ -89,3 +89,84 @@ first. It needs a developer-approved scope, owner and removal boundary.
 An unchanged rerun or a single additional passing probe would not
 resolve the failure under the
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+
+## Round 4
+
+The developer said “Resume” after the bounded frontend capture proposal.
+This round prepares that experiment in the story checkout. Reuse the
+validated socket and page correlation. Retain the bounded, redacted ring
+through provider teardown and record browser process evidence when
+available. Verify a quiet pass and a controlled renderer crash once
+each with one worker before hosted use. The selected runner also has
+an active Playwright retirement story. Its current accepted change does
+not touch the capture's two files. The separate E2E repair at
+`148a70d0` must reach its hosted result before a subsequent story push
+could supersede it. No new blind CI rerun belongs to this experiment.
+
+Local proof batch, stop after one normal two-case run, one forced renderer
+crash and one Dashboard typecheck. The normal run should pass and produce
+no capture marker. A renderer crash should yield the target error and one
+marker with socket close, page crash and page close on the same anonymous
+session, then provider settlement and, where available, process exit.
+Playwright's local child handle should show the Chromium process present
+when the renderer crashes. Teardown should then account for the process
+exit separately from that crash. The existing two Intent cases are
+unchanged. The scratch injector reuses the prior DevTools probe and stays
+in worktree Git evidence.
+
+Run sequentially on awake macOS arm64 with one browser worker, AC power
+and `caffeinate -s -i`. At 09:56 UTC, the 16-CPU host had elevated but
+falling load (41.42 one-minute average), about 45% CPU idle and 43% memory
+free, with no swap changes in the samples. Other work was active.
+
+The two-case run passed and produced zero markers. The one renderer
+injection reproduced `VITEST_BROWSER_CONNECTION_CLOSED` and emitted one
+redacted marker with 13 events. Anonymous session, browser and provider
+`1` joined TCP close (7614 ms, Chromium present), page crash (7615 ms),
+test run end (7620 ms), provider close (7620 ms), and page close
+(7649 ms). Chromium disconnected at 7793 ms while the OS process was
+still present, exited at 7809 ms with status 0, and provider close
+settled at 7862 ms. The marker retained three temporary-storage samples.
+Linux cgroup and host OOM counters require the hosted run. This
+reproduces the generic error by injection. The cause of the natural
+hosted disconnect remains open.
+
+Worktree Git evidence under
+`git rev-parse --path-format=absolute --git-path open-dough/evidence`
+retains `frontend-round4-quiet.log`, `frontend-round4-renderer-crash.log`,
+`frontend-round4-renderer-crash.mjs`,
+`frontend-round4-correlation.json`, `frontend-round4-source.patch` and
+`frontend-round4-final-source-typecheck.log`, with matching `.exit` and
+`.log.run.json` files for the proof commands. Local proof used HEAD
+`148a70d04b6f3037e47a9890dca02cf97a8d034c` with the temporary capture
+applied.
+
+Dashboard typecheck passed before and after mechanical observer typing and
+callback changes. The initial read-only lint flagged seven callback typing
+and void-return style errors. One recheck passed after preserving the same
+callback arguments, event order and marker fields with explicit closure
+bodies or bound callbacks. Prettier also passed for both source files.
+The final typecheck recorded round 4 of 4 at 28.5 cumulative active minutes,
+with no overrun.
+
+The candidate uses ordinary GitHub-hosted push CI for frontend shard
+`1/2` on the story branch. Its embedded cutoff is
+`2026-11-29T09:54:00Z`. At publication the coordinator can retain that
+cutoff or set it to no more than 72 hours after enablement. The runner
+checks the cutoff when configuring the shard. A change to admit
+`refs/heads/main` requires explicitly adding it to the branch predicate
+and publishing the same temporary source on that branch. The current
+candidate covers the story branch.
+
+The hosted hypothesis is that same-session telemetry can distinguish a
+browser/renderer or runner failure from transport loss or navigation.
+The coordinator should count admitted completed shard jobs and retire
+at the first matching failure, the twelfth completed watched shard job
+or the cutoff, whichever comes first. Save the matching job's run,
+attempt, job, logs and marker before retiring the config change and
+`dashboard/test-support/support/frontendDisconnectCapture.ts` from
+each enabled branch. This stop count uses coordinator observation and
+adds no workflow state or permissions. A job already admitted at the
+cutoff may finish collecting its teardown events. The separate E2E
+repair run 45793341450 reached a passing terminal result before any
+publication of this candidate.

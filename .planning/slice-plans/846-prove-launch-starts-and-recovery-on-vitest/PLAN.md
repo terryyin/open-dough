@@ -78,8 +78,9 @@ execution's performance claim.
   `terryyin/open-dough` on the execution branch through coordinator
   `seed-413-launch-vitest-543ac591`. The initial stream
   `/tmp/dough-ci-501/watch-yG851C` stopped on the first CI handoff.
-  The resumed stream is `/tmp/dough-ci-501/watch-fJHtXy`, PID 43442,
-  session 26857, cell `g592:19`.
+  `/tmp/dough-ci-501/watch-fJHtXy` stopped on the second handoff.
+  The live stream is `/tmp/dough-ci-501/watch-wsI7Am`, PID 64227,
+  session 3872, cell `g601:11`.
 - The mapped backend baseline at the published claim passed all 60 cases
   with one worker on awake macOS on AC. Chromium selected 54 cases in 14
   specs (47.831 s summed, 0–4,794 ms reported, 26 at or below 100 ms).

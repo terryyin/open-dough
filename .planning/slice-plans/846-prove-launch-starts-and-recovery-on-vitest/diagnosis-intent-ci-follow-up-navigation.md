@@ -84,3 +84,9 @@ node .agents/skills/dough-execute-plan/scripts/slice-clock.mjs run --log "$evide
 `ci-follow-up-navigation-consumers.md` records the whole-checkout
 trace. The custom spec is the only caller of the changed helper.
 The four other importing specs use unchanged exports.
+
+Hosted run `45793341450`, attempt 1, passed for the exact published
+repair `148a70d04b6f3037e47a9890dca02cf97a8d034c`. E2E shard 3/6 job
+`139817630447` passed and its timing artifact lists the repaired custom
+follow-up spec at 9.6 s. The resumed observer returned exact-revision
+success.
