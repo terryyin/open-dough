@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Aino-chan",
+  "email": "aino-chan@example.org",
+  "identity": "SEED-413#prove-kept-launch-records-on-vitest",
+  "mode": "story-branch",
+  "branch": "claude/prove-retained-launch-records-in-node-vitest",
+  "host": "claude"
+}
