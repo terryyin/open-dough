@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "dfdcbf4c-26a5-4518-bbb5-9cfdfe03cad2",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-26T06:44:57.000Z",
+  "story": "SEED-420#share-completed-intent-review-response-watching",
+  "ranges": [
+    {
+      "base": "6b267497e02efe0c5c24f0fdcccd17b900641fee",
+      "candidate": "a12e69bf2308c46c06ba589b035ee74980538e42"
+    }
+  ]
+}
