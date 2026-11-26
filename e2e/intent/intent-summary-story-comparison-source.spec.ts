@@ -1,3 +1,4 @@
+import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 import { expectFileComparisonRow } from "../../dashboard/test-support/intentFileProofPage.ts";
 // A completed story's unchanged file reads Purpose from its landed revision,
@@ -37,6 +38,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     });
     const { text: unchangedReads } = trackStoryResultReads(page, unchangedPath);
     const { intent } = await selectDoneStoryForChanges(page);
+    await listStoryRevision(intent);
     await intentFile(intent, unchangedPath).click();
     await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
       "aria-selected",

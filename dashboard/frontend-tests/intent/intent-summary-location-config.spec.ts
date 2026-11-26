@@ -134,7 +134,7 @@ test("a mixed repository root summarizes its matching files, keeping a rename th
         locations: [location, dashboard],
       }),
   });
-  await intentStoryCompare().browseFiles();
+  await intentStoryCompare().listRevision();
 
   const summary = await openSummary(root);
   await expect

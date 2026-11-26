@@ -40,7 +40,7 @@ test("outside changes sit beside configured paths in one repository hierarchy", 
     .not.toBeInTheDocument();
 });
 
-test("an outside file reads its diff as Purpose and stays selected under Selected story only", async () => {
+test("an outside file reads its diff as Purpose and stays selected under Changes only", async () => {
   const { reads } = await openStoryChanges({
     review: () =>
       Promise.resolve(makeMe.aStoryReview.modifying(productPath).please()),
@@ -54,8 +54,8 @@ test("an outside file reads its diff as Purpose and stays selected under Selecte
   await activateComparisonControl(file);
   await expect.poll(story.diffName).toBe(changed.product);
   await expect.poll(story.diffCode).toContain("product change");
-  await activateComparisonControl(story.onlyChangedFiles);
-  await expect.element(story.onlyChangedFiles).toBeChecked();
+  await expect.element(story.changesOnly).toBeChecked();
+  await expect.element(story.changesOnly).toBeChecked();
   await expect.element(file).toHaveAttribute("aria-pressed", "true");
   await expect.poll(story.diffName).toBe(changed.product);
   expect(reads.diffs).toEqual([productPath]);

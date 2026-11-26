@@ -68,8 +68,10 @@ export function IntentBrowser({
   const storyTree = useIntentStoryTree({
     locations,
     story,
+    storyIdentity: storySummary?.story.identity,
     inventory: result?.paths,
-    comparisonReading,
+    comparison: storySummary?.comparison,
+    resultReading: result?.reading,
     resultKey: result?.key,
   });
   const selection = storyFileSelection(storyTree.overlay, keptSelection);
@@ -91,6 +93,7 @@ export function IntentBrowser({
     project === undefined || project.mode === "ci" ? selection : { path: "" };
 
   function select(next: IntentSelection, entrySlug?: string) {
+    noteChoice();
     setSelection(next);
     setReturnEntrySlug(entrySlug);
     project?.onModeChange("ci");
@@ -113,7 +116,7 @@ export function IntentBrowser({
     setRevealedOpens((n) => n + 1);
     setReveal({ path: target.path });
   }
-  useFirstStoryChangedFile({
+  const noteChoice = useFirstStoryChangedFile({
     project: source.id,
     storyIdentity: storySummary?.story.identity,
     canChooseFile: reviewFileReady,
@@ -127,7 +130,11 @@ export function IntentBrowser({
       {files.backdrop}
       <div className="intent-locations" id={files.id} hidden={!files.shown}>
         <h3 className="visually-hidden">Purpose locations</h3>
-        <IntentFilesActions path={storyPath} scope={storyTree.scope} />
+        <IntentFilesActions
+          path={storyPath}
+          intentOnly={storyTree.intentOnly}
+          changesOnly={storyTree.scope?.changesOnly}
+        />
         {lead}
         <IntentBrowserTree
           locations={locations}
@@ -159,6 +166,7 @@ export function IntentBrowser({
           comparisonReading={comparisonReading}
           locations={locations}
           treeFiles={storyTree.overlay.files}
+          listedFiles={storyTree.shown.files}
           selection={selection}
           story={story}
           changedFiles={storyTree.shown.changedFiles}

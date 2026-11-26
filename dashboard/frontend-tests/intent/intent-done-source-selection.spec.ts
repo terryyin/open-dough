@@ -62,6 +62,7 @@ test("a newly selected Done story shows only its own historical source after hel
   await expect
     .element(intentPage)
     .toHaveAttribute("data-selected-story", storyA.identity);
+  await story.listRevision();
   await story.expandFolderPath("dashboard/tests");
   await story.file(firstPath).click();
   const initial = intentFileReading(firstPath);
@@ -101,6 +102,7 @@ test("a newly selected Done story shows only its own historical source after hel
   expect(files()?.textContent).toContain("Reading repository files");
   await expect.element(purpose).not.toBeInTheDocument();
   heldLocations.resolve(locationsOf("second/tests", secondPath));
+  await story.listRevision();
 
   await story.expandFolderPath("second/tests");
   await expect.element(story.file(firstPath)).not.toBeInTheDocument();

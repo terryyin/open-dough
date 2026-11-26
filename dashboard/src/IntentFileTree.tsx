@@ -26,12 +26,15 @@ import "./intent-folder-cues.css";
 export function IntentFileTree({
   shown,
   expansion,
+  owner,
   selection,
   onSelect,
   reveal,
 }: {
   readonly shown: ReturnType<typeof storyRepositoryTree>;
   readonly expansion: TreeExpansion | undefined;
+  // The story whose arrangement the folders keep.
+  readonly owner: string;
   readonly selection: IntentSelection;
   readonly onSelect: (next: IntentSelection) => void;
   readonly reveal: TreeReveal | undefined;
@@ -41,6 +44,7 @@ export function IntentFileTree({
     reveal !== undefined && reveal.path === selection.path ? reveal : undefined;
   const section = useIntentRowReveal(requested);
   const { collapsed, toggleFolder } = useIntentOpenFolders({
+    owner,
     tree,
     revealPath: selection.path,
     expansion,

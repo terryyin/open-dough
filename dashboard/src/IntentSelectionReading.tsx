@@ -49,6 +49,7 @@ export function IntentSelectionReading({
   locations,
   selection,
   treeFiles,
+  listedFiles,
   story,
   changedFiles,
   onMove,
@@ -66,6 +67,8 @@ export function IntentSelectionReading({
   // The files the tree lists by repository path, a selected story's overlay
   // included.
   readonly treeFiles: ReadonlyMap<string, IntentTreeFile>;
+  // The files the filtered tree lists; a folder's file list shows them.
+  readonly listedFiles: ReadonlyMap<string, IntentTreeFile>;
   readonly story: ComparedStory | undefined;
   readonly changedFiles: readonly IntentTreeFile[];
   readonly onMove: (path: string) => void;
@@ -127,7 +130,10 @@ export function IntentSelectionReading({
           <IntentSummary
             key={`${revision}:${path}`}
             path={path}
-            files={filesOfSelection(scopeFiles, selection)}
+            files={filesOfSelection(
+              listedOf(scopeFiles, listedFiles),
+              selection,
+            )}
             treeFiles={scopeFiles}
             location={selectedLocation}
             revision={revision}
@@ -168,5 +174,15 @@ export function IntentSelectionReading({
         </h3>
       )}
     </>
+  );
+}
+
+// The scope's files the filtered tree still lists.
+function listedOf(
+  scopeFiles: ReadonlyMap<string, IntentTreeFile>,
+  listedFiles: ReadonlyMap<string, IntentTreeFile>,
+): ReadonlyMap<string, IntentTreeFile> {
+  return new Map(
+    [...scopeFiles].filter(([, file]) => listedFiles.has(file.path)),
   );
 }

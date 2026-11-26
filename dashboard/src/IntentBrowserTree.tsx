@@ -1,7 +1,7 @@
 // Project Intent and story review share the selectable repository tree.
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
+import { NoFilesMatchNote } from "./FilesSidebarActions.tsx";
 import { IntentFileTree } from "./IntentFileTree.tsx";
-import { StoryTreeScopeNote } from "./IntentStorySummary.tsx";
 import { storyOverlayExpansion } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import { reviewFoldersHolding } from "./reviewFileTree.ts";
@@ -23,7 +23,7 @@ export function IntentBrowserTree({
   readonly onSelect: (next: IntentSelection) => void;
   readonly reveal: TreeReveal | undefined;
 }) {
-  const { shown, overlay, round, scope } = tree;
+  const { shown, overlay, round, owner } = tree;
   const expansion =
     !storySelected || round === undefined
       ? undefined
@@ -43,10 +43,11 @@ export function IntentBrowserTree({
         };
   return (
     <>
-      {scope !== undefined && <StoryTreeScopeNote scope={scope} />}
+      <NoFilesMatchNote noMatch={shown.noMatch} />
       <IntentFileTree
         shown={shown}
         expansion={expansion}
+        owner={owner}
         selection={selection}
         onSelect={onSelect}
         reveal={reveal}

@@ -138,8 +138,7 @@ describe("the Files sidebar's first row at 320 px", () => {
     const row = story.sidebar.getByRole("group", { name: "Files actions" });
 
     await expect.element(row).toBeVisible();
-    expect(rowNames(row)).toEqual(["Home", "Selected story only"]);
-    expectOneRowInside({ row, sidebar: story.sidebar }, "Selected story only");
+    expectOneRowInside({ row, sidebar: story.sidebar });
 
     await row.getByRole("button", { name: "Home", exact: true }).click();
     await expect

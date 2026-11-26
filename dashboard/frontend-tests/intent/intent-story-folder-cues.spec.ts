@@ -46,8 +46,7 @@ async function browseStoryWithEmptyIntentRoots() {
     review: () =>
       Promise.resolve(makeMe.aStoryReview.adding("src/app.ts").please()),
   });
-  const story = intentStoryCompare();
-  await story.browseFiles();
+  await intentStoryCompare().listRevision();
 }
 
 test("opening an Intent ancestor passes its cue to the next collapsed folder and leaves roots distinct", async () => {
@@ -129,21 +128,23 @@ test("a changes-only tree gives no cue to a collapsed ancestor of an unchanged r
       ),
   });
   const story = intentStoryCompare();
-  await story.browseFiles();
+  await story.listRevision();
   await scopeToggle(ancestor).click();
   const cue = () =>
     locationHeader(ancestor).getAttribute("data-intent-folder-cue");
   expect(cue()).toBe("ancestor");
 
-  await story.onlyChangedFiles.click();
+  // The ancestor the reader closed stays closed through each filter choice.
+  await story.changesOnly.click();
   await expect.element(story.folder(root)).not.toBeInTheDocument();
-  await scopeToggle(ancestor).click();
   await expect
     .element(scopeToggle(ancestor))
     .toHaveAttribute("aria-expanded", "false");
-  expect(cue()).toBeNull();
+  await expect.poll(cue).toBeNull();
 
-  await story.onlyChangedFiles.click();
-  await scopeToggle(ancestor).click();
-  expect(cue()).toBe("ancestor");
+  await story.changesOnly.click();
+  await expect
+    .element(scopeToggle(ancestor))
+    .toHaveAttribute("aria-expanded", "false");
+  await expect.poll(cue).toBe("ancestor");
 });

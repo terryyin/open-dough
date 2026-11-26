@@ -1,3 +1,4 @@
+import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   chooseTimingUnit,
   scopeHistory,
@@ -203,6 +204,7 @@ test("a Done entry shows collector-acquired test timing through its middle landi
 
   // Visit the existing Purpose reading, then the same entry Summary. These
   // source reads are allowed; neither visit acquires historical CI evidence.
+  await listStoryRevision(intent);
   await chooseIntentFile(intent, "dashboard/tests/root.spec.ts");
   await expect(purposeRegion(intent)).toBeVisible();
   await openSummary(intent, "dashboard/tests");

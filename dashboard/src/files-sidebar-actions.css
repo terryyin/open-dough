@@ -33,3 +33,9 @@
     min-width: 44px;
   }
 }
+
+.files-actions-note {
+  margin: 0;
+  padding: var(--space-1);
+  border-bottom: 1px solid var(--line);
+}

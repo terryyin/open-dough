@@ -20,7 +20,7 @@ import { selectDoneStoryForSummaryComparison } from "../../dashboard/test-suppor
 import {
   intentDiff,
   intentFile,
-  storyOnly,
+  changesOnly,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { lines } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
@@ -47,7 +47,7 @@ test("a Done Story Branch rename keeps its original diff and Review changes afte
   const original = await intentDiff(intent, name);
   expect(original).toContain("renamed");
   expect(original).not.toContain("later trunk rewrite");
-  await storyOnly(intent).check();
+  await changesOnly(intent).check();
   expect(await intentDiff(intent, name)).toBe(original);
   await expect(intentFile(intent, name)).toHaveAttribute(
     "aria-pressed",

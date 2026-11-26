@@ -1,6 +1,6 @@
 // The selected story and comparison retained by Intent's evidence/reading
-// owners, plus the story-only tree scope choice. The shared persistent
-// header lives in IntentHeader; the page layout lives in IntentPage.
+// owners. The shared persistent header lives in IntentHeader; the page layout
+// lives in IntentPage.
 
 import {
   defaultReviewOf,
@@ -29,14 +29,6 @@ export type ComparedStory = {
   // While another comparison than the default is chosen, the CI views'
   // whole-story note.
   readonly wholeStory: boolean;
-};
-
-// The "Selected story only" choice over a compared story's tree and whether
-// no location's test file changed; only the locations browser has them.
-export type StoryTreeScope = {
-  readonly only: boolean;
-  readonly noneInLocations: boolean;
-  readonly onOnly: (only: boolean) => void;
 };
 
 // The selected story, what is known of its comparison, and the way to read
@@ -134,27 +126,4 @@ export function storyCiEvidenceOptionsOf(summary: StorySummary | undefined) {
     ...publishedDoneEvidenceOf(summary),
     ...settledComparisonEvidenceOf(summary),
   };
-}
-
-// The Changes tree's "Selected story only" filter for the Files sidebar's
-// row, and its message when no location's test file changed.
-export function storyOnlyFilterOf(scope: StoryTreeScope) {
-  return {
-    label: "Selected story only",
-    checked: scope.only,
-    onToggle: scope.onOnly,
-  };
-}
-
-export function StoryTreeScopeNote({
-  scope,
-}: {
-  readonly scope: StoryTreeScope;
-}) {
-  if (!scope.only || !scope.noneInLocations) return null;
-  return (
-    <p className="intent-story-none" role="status">
-      No test files in Intent locations changed in this story
-    </p>
-  );
 }

@@ -1,6 +1,6 @@
-// Story comparison paths over the published Intent locations, modeled on
-// ../../../e2e/intent/intent-story-changes-moves.spec.ts with an unchanged
-// location first to distinguish configured order from expansion.
+// How a story's comparison paths (../support/storyComparisonPaths.ts) are
+// placed over the published Intent locations: renames, the scope each
+// location keeps, and the files listed once outside every location.
 
 import { expect, test } from "vitest";
 import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
@@ -8,58 +8,10 @@ import {
   intentStoryOverlay,
   intentLocationFiles,
   storyFilePath,
-  storyRepositoryTree,
-  storyOverlayExpansion,
   type StoryOverlay,
 } from "../../src/intentStoryOverlay.ts";
-import type { ReviewedFile } from "../../src/storyReviewFiles.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-
-const locations: readonly IntentLocation[] = [
-  makeMe.anIntentLocation
-    .at("features")
-    .ofKind("gherkin")
-    .selecting("features/board/select.feature")
-    .please(),
-  makeMe.anIntentLocation
-    .at("dashboard/tests")
-    .ofKind("typescript", ["**/*.spec.ts"])
-    .selecting(
-      "dashboard/tests/a.spec.ts",
-      "dashboard/tests/between/moved.spec.ts",
-      "dashboard/tests/deep/b.spec.ts",
-      "dashboard/tests/leaving.spec.ts",
-    )
-    .please(),
-  makeMe.anIntentLocation
-    .at("tests")
-    .ofKind("shell", ["*.sh"])
-    .selecting("tests/check.sh")
-    .please(),
-];
-
-const changes: readonly ReviewedFile[] = [
-  { kind: "modified", path: "dashboard/tests/deep/b.spec.ts" },
-  // Absent from the published tree, as a completed story's deletion is.
-  { kind: "deleted", path: "dashboard/tests/gone.spec.ts" },
-  {
-    kind: "renamed",
-    oldPath: "scripts/arriving.spec.ts",
-    path: "dashboard/tests/arriving/arriving.spec.ts",
-  },
-  {
-    kind: "renamed",
-    oldPath: "dashboard/tests/leaving.spec.ts",
-    path: "scripts/left.spec.ts",
-  },
-  {
-    kind: "renamed",
-    oldPath: "dashboard/tests/between/moved.spec.ts",
-    path: "tests/moved.sh",
-  },
-  { kind: "renamed", oldPath: "docs/notes.md", path: "docs/renamed-notes.md" },
-  { kind: "modified", path: "dashboard/src/app.ts" },
-];
+import { changes, locations } from "../support/storyComparisonPaths.ts";
 
 // Scope projection keys are repository paths even when a rename moved out.
 const placed = (
@@ -122,52 +74,6 @@ test("without a story the tree contains the published files alone", () => {
     locations.flatMap(({ files }) => files),
   );
   expect(overlay.changedLocations.size).toBe(0);
-});
-
-test("Selected story only keeps the changed entries in the same repository order", () => {
-  const overlay = intentStoryOverlay(locations, changes);
-  const order = [
-    "dashboard/src/app.ts",
-    "dashboard/tests/arriving/arriving.spec.ts",
-    "dashboard/tests/deep/b.spec.ts",
-    "dashboard/tests/gone.spec.ts",
-    "docs/renamed-notes.md",
-    "scripts/left.spec.ts",
-    "tests/moved.sh",
-  ];
-  for (const only of [false, true]) {
-    const shown = storyRepositoryTree(locations, overlay, only);
-    expect(shown.changedFiles.map(({ path }) => path)).toEqual(order);
-    expect(shown.roots.has("features")).toBe(!only);
-  }
-});
-
-test("the story opens the first changed location and the folders holding changes, restricted or not", () => {
-  const opened = (overlay: StoryOverlay, only: boolean) => {
-    const { nodes, changedFiles } = storyRepositoryTree(
-      locations,
-      overlay,
-      only,
-    );
-    return new Set(
-      storyOverlayExpansion(locations, overlay, nodes, changedFiles),
-    );
-  };
-  const overlay = intentStoryOverlay(locations, changes);
-  const expansion = new Set([
-    "dashboard",
-    "dashboard/tests",
-    "dashboard/tests/arriving",
-    "dashboard/tests/deep",
-    "dashboard/src",
-    "docs",
-    "scripts",
-  ]);
-  expect(opened(overlay, false)).toEqual(expansion);
-  expect(opened(overlay, true)).toEqual(expansion);
-  expect(
-    opened(intentStoryOverlay(locations, [changes[6] as ReviewedFile]), false),
-  ).toEqual(new Set(["dashboard", "dashboard/src"]));
 });
 
 test("a sources location places a story's added matching file as added, and a non-matching neighbor is listed once outside", () => {

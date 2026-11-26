@@ -150,14 +150,14 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
     name: "Development",
     exact: true,
   });
-  const only = intent.getByText("Selected story only", { exact: true });
+  const only = intent.getByText("Changes only", { exact: true });
   await intentChoice.click();
   await expect
     .element(intent)
     .toHaveAttribute("data-selected-story", completed.identity);
   await expect.element(only).not.toBeInTheDocument();
   await expect
-    .element(intent.getByRole("checkbox", { name: "Selected story only" }))
+    .element(intent.getByRole("checkbox", { name: "Changes only" }))
     .not.toBeInTheDocument();
   await development.click();
   await board.expectStoryHighlight(doneCard);

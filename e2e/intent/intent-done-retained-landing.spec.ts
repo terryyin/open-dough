@@ -1,3 +1,4 @@
+import { listStoryRevision } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Done Intent reads the published completion and explains when configured
 // history cannot establish it, even with a retained launch and workspace.
@@ -144,6 +145,7 @@ for (const history of ["published", "shallow"] as const)
         intentFile(intent, `dashboard/tests/${path}.spec.ts`),
       ).toHaveCount(0);
     expect(locations).toContain(accepted);
+    await listStoryRevision(intent);
     await folderToggle(intent, "boundary", false).click();
     await intentFile(intent, unchanged).click();
     const purpose = purposeRegion(intent);

@@ -93,8 +93,10 @@ test("a Done story keeps landing locations, inventory and unchanged source after
   await test.step("And Intent reads locations at the completion revision", () => {
     expect(locations).toContain(completion);
   });
-  await test.step("When I select the test that the story left unchanged", () =>
-    story.file(keptFile).click());
+  await test.step("When I list the revision and select the test that the story left unchanged", async () => {
+    await story.changesOnly().uncheck();
+    await story.file(keptFile).click();
+  });
   await test.step("Then its source is shown as it was at completion", async () => {
     await expect(purposeRegion(intent)).toContainText("kept 11");
     await expect(purposeRegion(intent)).not.toContainText(
@@ -158,7 +160,7 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
     await expect(story.header.revisions).toHaveCount(0);
   });
   await test.step("And no test inventory is rendered", async () => {
-    await expect(story.storyOnly()).toHaveCount(0);
+    await expect(story.changesOnly()).toHaveCount(0);
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(story.tree).toHaveCount(0);
   });

@@ -7,7 +7,7 @@ import {
   chooseWholeProject,
   intentRecentStories,
 } from "./intent-recent-stories-page.ts";
-import { openDoughSource } from "./intent-ci-status-fixtures.ts";
+import { heldRead, openDoughSource } from "./intent-ci-status-fixtures.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
 import {
   changed,
@@ -21,9 +21,12 @@ import { intentStoryCompare } from "./intent-story-compare-page.ts";
 const panel = (name: string) =>
   page.getByRole("tabpanel", { name, exact: true });
 
-async function showsUsablePublishedTree() {
+async function showsUsablePublishedTree(unapplied: string) {
   const story = intentStoryCompare();
-  await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
+  await expect.element(story.changesOnly).toBeChecked();
+  await expect
+    .element(story.changesOnly)
+    .toHaveAccessibleDescription(unapplied);
   await expect
     .element(
       story.tree.getByRole("button", {
@@ -66,7 +69,7 @@ test("a story with no published changes explains that no comparison is available
     .element(story.header.getByRole("button", { name: "Retry" }))
     .not.toBeInTheDocument();
   expect(story.revisions()).toBe("");
-  await showsUsablePublishedTree();
+  await showsUsablePublishedTree("Not applied: no comparison is available.");
 });
 
 test("a failed comparison read explains itself with a retry that then shows the story's changes", async () => {
@@ -91,17 +94,39 @@ test("a failed comparison read explains itself with a retry that then shows the 
       "The published comparison could not be read. Intent shows the published tree without them.",
     );
   expect(story.revisions()).toBe("");
-  await showsUsablePublishedTree();
+  await showsUsablePublishedTree(
+    "Not applied: the story's changes could not be read.",
+  );
 
   await story.retry();
   await expect.poll(story.revisions).toContain("Published story branch");
   await expect.element(story.alert).not.toBeInTheDocument();
-  await expect.element(story.onlyChangedFiles).not.toBeChecked();
+  await expect.element(story.changesOnly).toBeChecked();
+  await expect.element(story.changesOnly).not.toHaveAccessibleDescription();
+  await expect.element(story.file(keptPath)).not.toBeInTheDocument();
   for (const name of [changed.product, changed.notes])
     await expect.element(story.file(name)).toBeVisible();
   for (const name of [changed.modified, changed.added])
     await expect.element(story.file(name)).toBeVisible();
   expect(attempts).toBe(2);
+});
+
+test("while the story's changes are read Changes only explains it is not applied, then the kept choice narrows the tree", async () => {
+  const firstRead = heldRead<ReturnType<typeof storyChanges>>();
+  await openStoryChanges({ review: () => firstRead.ask() });
+  const story = intentStoryCompare();
+  await story.browseFiles();
+  await expect.element(story.changesOnly).toBeChecked();
+  await expect
+    .element(story.changesOnly)
+    .toHaveAccessibleDescription("Not applied: reading the story's changes…");
+  await story.expandShownFolderPath("dashboard/tests/boundary");
+  await expect.element(story.file(keptPath)).toBeVisible();
+
+  firstRead.resolve(storyChanges());
+  await expect.element(story.changesOnly).not.toHaveAccessibleDescription();
+  await expect.element(story.file(changed.modified)).toBeVisible();
+  await expect.element(story.file(keptPath)).not.toBeInTheDocument();
 });
 
 test("without configured Intent locations the header names the selected story, Story Home shows CI status and the explanation, and Project Intent main's CI status beside it", async () => {
@@ -129,7 +154,7 @@ test("without configured Intent locations the header names the selected story, S
   expect(story.header.element().parentElement?.firstElementChild).toBe(
     story.header.element(),
   );
-  await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
+  await expect.element(story.changesOnly).not.toBeInTheDocument();
   await expect
     .element(story.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");

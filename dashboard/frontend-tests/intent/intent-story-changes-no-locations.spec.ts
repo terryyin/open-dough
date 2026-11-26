@@ -55,6 +55,24 @@ test("without configured Intent locations the CI view offers the story's changed
   expect(reads.diffs).toEqual([productPath]);
 });
 
+test("without configured Intent locations Intent only lists no paths, keeps the configuration notice, and off lists the changes again", async () => {
+  await openStoryChanges({ hasLocations: false });
+  const story = intentStoryCompare();
+  await story.browseFiles();
+  await expect.element(story.file(changed.product)).toBeVisible();
+  await story.intentOnly.click();
+  await expect.element(story.file(changed.product)).not.toBeInTheDocument();
+  await expect
+    .element(
+      story.sidebar.getByText(
+        /^No Intent locations are configured for Open Dough\./,
+      ),
+    )
+    .toBeVisible();
+  await story.intentOnly.click();
+  await expect.element(story.file(changed.product)).toBeVisible();
+});
+
 async function showsUnavailableChanges(explanation: string) {
   const story = intentStoryCompare();
   await expect

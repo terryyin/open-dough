@@ -1,5 +1,5 @@
 // One selection after a card arrival, made from the settled displayed tree.
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
@@ -46,11 +46,17 @@ export function useFirstStoryChangedFile({
 }) {
   const opening = useStoryReviewOpening(project);
   const finish = useFinishStoryReviewOpening();
+  // A file the reader chooses after a render commits, before that render's
+  // effect runs, is already the selection: the effect leaves it.
+  const chosen = useRef(hasSelection);
+  useLayoutEffect(() => {
+    chosen.current = hasSelection;
+  });
   useEffect(() => {
     if (
       opening === undefined ||
       opening.identity !== storyIdentity ||
-      hasSelection ||
+      chosen.current ||
       !canChooseFile
     )
       return;
@@ -66,6 +72,10 @@ export function useFirstStoryChangedFile({
     open,
     finish,
   ]);
+  // The reader's own choice, noted as it is made.
+  return useCallback(() => {
+    chosen.current = true;
+  }, []);
 }
 
 // Hold focus on the visible comparison feedback while the first path loads.

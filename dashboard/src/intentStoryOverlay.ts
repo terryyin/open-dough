@@ -124,6 +124,7 @@ export function storyRepositoryTree(
   locations: readonly IntentLocation[],
   overlay: StoryOverlay,
   changesOnly: boolean,
+  intentOnly = false,
 ) {
   const roots = new Map(
     locations.flatMap((location) =>
@@ -133,8 +134,12 @@ export function storyRepositoryTree(
     ),
   );
   const files = [...overlay.files.values()].filter(
-    (file) => !changesOnly || file.kind !== undefined,
+    (file) =>
+      (!changesOnly || file.kind !== undefined) &&
+      (!intentOnly || intentAdmits(locations, file)),
   );
+  // The listed inventory by repository path; a folder's file list reads it.
+  const listed = new Map(files.map((file) => [file.path, file] as const));
   // Keep the former folder's Summary reachable without adding a file row.
   const proofFolders = files.flatMap(({ proofPath }) =>
     proofPath === undefined
@@ -148,10 +153,42 @@ export function storyRepositoryTree(
   return {
     nodes,
     roots,
+    files: listed as ReadonlyMap<string, IntentTreeFile>,
+    noMatch: filtersMatchNothing(
+      { changesOnly, intentOnly },
+      locations,
+      files.length,
+    ),
     changedFiles: reviewFileOrder(nodes).filter(
       (file) => file.kind !== undefined,
     ),
   };
+}
+
+// A filter is on and lists no path; without configured locations the browser
+// already says that none are configured.
+export function filtersMatchNothing(
+  filters: { readonly changesOnly: boolean; readonly intentOnly: boolean },
+  locations: readonly IntentLocation[],
+  listed: number,
+): boolean {
+  return (
+    (filters.changesOnly || filters.intentOnly) &&
+    listed === 0 &&
+    !(filters.intentOnly && locations.length === 0)
+  );
+}
+
+// Intent only admits a path a configured location selects; a change keeps
+// the overlay's admission, so a rename is admitted when either path is.
+function intentAdmits(
+  locations: readonly IntentLocation[],
+  file: IntentTreeFile,
+): boolean {
+  if (file.kind !== undefined) return file.outside !== true;
+  return locations.some((location) =>
+    locationSelectsRepositoryPath(file.path, location),
+  );
 }
 
 // Reveal the first changed configured root and the folders that hold changed

@@ -35,6 +35,7 @@ export function ComparisonMountScope({
       <nav className="intent-locations" aria-label="Intent files">
         <IntentFileTree
           shown={shown}
+          owner=""
           expansion={{
             round: 0,
             folders: [

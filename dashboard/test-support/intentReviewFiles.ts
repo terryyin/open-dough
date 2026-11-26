@@ -6,7 +6,9 @@ import {
   intentFile,
   repositoryTree,
   repositoryFolder,
-  storyOnly,
+  changesOnly,
+  expectInventoryRead,
+  listStoryRevision,
 } from "./support/intentStoryPage.ts";
 import { expectTreeRows, fileLineCounts } from "./support/reviewTreeRows.ts";
 
@@ -67,7 +69,14 @@ export class IntentReviewFiles {
 
   async showOnlyChanged() {
     await this.shown();
-    await storyOnly(this.#intent).check();
+    await changesOnly(this.#intent).check();
+    return this;
+  }
+
+  // Turns Changes only off: the tree lists the repository at the revision,
+  // its unchanged files included.
+  async listRevision() {
+    await listStoryRevision(this.#intent);
     return this;
   }
 
@@ -110,6 +119,7 @@ export class IntentReviewFiles {
 
   async expandFolder(name: string) {
     await this.shown();
+    await expectInventoryRead(this.#intent);
     await folderToggle(this.#intent, name, false).click();
     await expect(folderToggle(this.#intent, name, true)).toBeVisible();
     return this;
@@ -128,6 +138,12 @@ export class IntentReviewFiles {
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    return this;
+  }
+
+  async expectChangesOnly(on: boolean) {
+    await this.shown();
+    await expect(changesOnly(this.#intent)).toBeChecked({ checked: on });
     return this;
   }
 
