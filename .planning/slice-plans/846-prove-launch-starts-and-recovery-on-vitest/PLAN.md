@@ -99,6 +99,11 @@ execution's performance claim.
   failed receipt stopped native dispatch, and Continue kept the same
   attempt, publication, worktree and claim. The proof record is
   `receipt-failure-e2e.json` in the same evidence directory.
+- CI run 45771446265 for accepted slice 1 `452af72a9` was cancelled
+  after the accepted slice 2 push started run 45772659282 on the same
+  workflow and branch. The former attempt's complete diagnostic lists
+  zero failed jobs. The workflow cancels superseded push runs, so completion
+  remains attached to the newer candidate.
 
 ## Ordered slices
 
@@ -169,7 +174,7 @@ review found no refactor candidate within the cohesive subject spec.
 ### 3. Keep settlement observable while writing
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Hold the actual write at reporting then at outcome replacement in a
@@ -184,6 +189,18 @@ and remove the temporary HTTP/Vite host in
 retired Playwright fixture itself. Remove them together with its local
 server and held-push teardown after tracing the retained follower helper
 and its callers.
+
+Accepted proof: the two migrated Node specs and admission-close control
+passed with zero Chromium selections. The production run retains the
+running answer during the real reporting and outcome replacements. The
+independent Node owner returns a stale running answer while the parent can
+read the replacement and observe the lock. Its second answer shows the
+settled outcome with the lock released. The two nested Playwright tests
+covered only the removed fixture, and the retained HTTP follower and its
+E2E callers still exercise the real process and native effects. Dashboard
+typecheck passed. See `slice-3-return.md` and `slice-3-final-settlement.json`
+in the Git evidence directory. The acceptance review found no refactor
+candidate in the subject specs.
 
 ### 4. Protect an open story and continue only its own launch
 

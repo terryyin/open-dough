@@ -1,157 +1,206 @@
-// An accepted launch's changes are kept before the local launch owner
-// (../../server/agentLaunches.ts) answers them: while the write that first keeps
-// the attempt's reporting context, then its outcome, is held just before the
-// attempts file is replaced, the machine's attempts answer the attempt as the
-// file still keeps it. The hold is a loader in the server that waits on the
-// replacement whose new document first carries the held field. The launch's
-// own lifetime is ./agent-launch-acceptance.spec.ts.
-
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+// A running launch stays observable as last kept until its replacement finishes.
+import assert from "node:assert/strict";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { accept, attempts } from "../../test-support/agentLaunchBoundary.ts";
-import {
-  keptAttempts as keptOfMachine,
-  ownedRunning,
-} from "../../test-support/acceptedAttempts.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  queuedIdentity,
-  queuedTitle,
-  startOrigin,
-  type PushHold,
-  type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
-import { fsPromisesHook } from "../../test-support/support/serverFsHook.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import * as completionReporting from "../../server/completionReporting.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { changedAttempt } from "../../server/launchAttemptChanges.ts";
+import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
+import { keptAttempts } from "../../server/launchAttemptStore.ts";
+import { launchHost } from "../../server/launchHosts.ts";
+import { attemptRun } from "../../server/launchRun.ts";
+import * as launchStart from "../../server/launchStart.ts";
+import { localFolder, machineFolder } from "../../server/localFolder.ts";
+import { machineDashboardPath } from "../../server/machineHome.ts";
+import {
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { startOf } from "../../server/startWorkflows.ts";
+import { defaultSessionPolicy } from "../../src/agentLaunch.ts";
 
-const request = makeMe.aLaunchRequest
-  .executing({ identity: queuedIdentity, title: queuedTitle })
-  .please();
+type HeldReplacement = {
+  readonly field: "reporting" | "outcome";
+  readonly reached: Promise<void>;
+  readonly reach: () => void;
+  readonly released: Promise<void>;
+  readonly release: () => void;
+};
 
-test.describe("an accepted launch whose change is being kept", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
-  let push: PushHold;
-  let acquired: {
-    origin?: StartOrigin;
-    server?: DashboardServer;
-    push?: PushHold;
-  };
+let attemptWrite:
+  | {
+      readonly file: string;
+      readonly holds: HeldReplacement[];
+    }
+  | undefined;
 
-  // While it exists, names the field whose first keeping is held.
-  const hold = () => path.join(origin.machine, "hold-kept-field");
-  // Names the field whose keeping is held now.
-  const reached = () => path.join(origin.machine, "kept-field-held");
-
-  // Loaded into the server: holds the replacement of the attempts file whose
-  // new document first carries the field `hold` names, until `hold` is gone.
-  const keepHold = () =>
-    fsPromisesHook(
-      path.join(origin.machine, "hold-kept-field.mjs"),
-      "rename",
-      `async (from, to, ...args) => {
- const hold = ${JSON.stringify(hold())};
- if (String(to).endsWith('/launch-attempts.json') && fs.existsSync(hold)) {
-  const field = JSON.stringify(fs.readFileSync(hold, 'utf8'));
-  const kept = fs.existsSync(to) ? fs.readFileSync(to, 'utf8') : '';
-  if (fs.readFileSync(from, 'utf8').includes(field) && !kept.includes(field)) {
-   fs.writeFileSync(${JSON.stringify(reached())}, fs.readFileSync(hold, 'utf8'));
-   await heldWhile(hold, 60000);
-  }
- }
- return original(from, to, ...args);
-}`,
-    );
-
-  const heldField = () =>
-    existsSync(reached()) ? readFileSync(reached(), "utf8") : undefined;
-
-  test.beforeEach(async () => {
-    acquired = {};
-    origin = await startOrigin(queuedReadyRepository().please());
-    acquired.origin = origin;
-    server = await startDashboardServer({
-      mode: "boundary",
-      liveServer: "separate process",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-      extraEnv: keepHold(),
-    });
-    acquired.server = server;
-    push = origin.holdPushes();
-    acquired.push = push;
-  });
-
-  test.afterEach(async () => {
-    try {
-      if (acquired.origin) rmSync(hold(), { force: true });
-    } finally {
-      try {
-        acquired.push?.release();
-      } finally {
-        try {
-          await acquired.server?.close();
-        } finally {
-          acquired.origin?.cleanup();
+vi.mock(import("node:fs/promises"), async (original) => {
+  const fs = await original();
+  return {
+    ...fs,
+    rename: async (from, to) => {
+      const write = attemptWrite;
+      const hold = write?.holds[0];
+      if (write?.file === to && hold !== undefined) {
+        const contents = await fs.readFile(from, "utf8");
+        if (contents.includes(`"${hold.field}":`)) {
+          write.holds.shift();
+          hold.reach();
+          await hold.released;
         }
       }
+      await fs.rename(from, to);
+    },
+  };
+});
+
+function holdReplacement(field: HeldReplacement["field"]): HeldReplacement {
+  let reach = () => {};
+  let release = () => {};
+  const reached = new Promise<void>((resolve) => {
+    reach = resolve;
+  });
+  const released = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { field, reached, reach, released, release };
+}
+
+test("keeps the running answer visible through reporting and outcome replacement", async () => {
+  const story = { identity: "SEED-001#kept-first", title: "Keep a launch" };
+  const source = makeMe.aPublishedSource.openDough.please();
+  const request = makeMe.aLaunchRequest
+    .executing({ ...story, source: source.id })
+    .please();
+  const reportingOrigin = "http://127.0.0.1:4173";
+  const home = mkdtempSync(path.join(tmpdir(), "dough-kept-first-"));
+  const owner = new LaunchAttemptOwner();
+  const reportingWrite = holdReplacement("reporting");
+  const outcomeWrite = holdReplacement("outcome");
+  onTestFinished(async () => {
+    reportingWrite.release();
+    outcomeWrite.release();
+    owner.close();
+    try {
+      await owner.drain();
+    } finally {
+      attemptWrite = undefined;
+      vi.restoreAllMocks();
+      vi.unstubAllEnvs();
+      rmSync(home, { recursive: true, force: true });
     }
   });
+  vi.stubEnv("HOME", home);
+  if (process.platform === "win32") vi.stubEnv("USERPROFILE", home);
+  onTestFinished(mountProjectConfiguration("development"));
+  appendConfiguredProject(
+    makeMe.aConfiguredProject.with({ ...source, localPath: home }).please(),
+  );
+  attemptWrite = {
+    file: machineDashboardPath("launch-attempts.json"),
+    holds: [reportingWrite, outcomeWrite],
+  };
 
-  const keptAttempts = () => keptOfMachine(server);
+  const workspace = localFolder(home);
+  const workflow = startOf("execution");
+  const { start, session } = makeMe.aLaunchRecord
+    .executing(story)
+    .onStoryBranch({ workspace: workspace.shown, branch: "claude/kept-first" })
+    .inClaudeSession({ sessionId: "kept-first-session" })
+    .please();
+  assert(start !== undefined && "publishedSha" in start);
+  assert(workflow !== undefined);
+  vi.spyOn(launchStart, "started").mockResolvedValue({
+    kind: "established",
+    workflow,
+    policy: defaultSessionPolicy,
+    handoff: { established: { start } },
+    workspace,
+  });
+  vi.spyOn(completionReporting, "reportingContext").mockImplementation(
+    (attempt) =>
+      Promise.resolve({
+        reporting: {
+          origin: reportingOrigin,
+          reference: attempt.id,
+          command: "report completion",
+        },
+      }),
+  );
+  const host = launchHost("claude");
+  assert(host !== undefined);
+  const launchNative = vi.spyOn(host, "launch").mockResolvedValue({
+    kind: "launched",
+    session,
+    sessionState: { kind: "unknown" },
+  });
+  const doneMarks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: () => undefined,
+    reportingFolder: machineFolder,
+  });
+  const progress = new StartProgress();
 
-  test("is answered as kept while its reporting context, then its outcome, is being written", async () => {
-    server.claudeScenario("held");
-    const answered = JSON.parse((await accept(server, request)).body) as {
-      kind: string;
-    };
-    expect(answered.kind).toBe("accepted");
-    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
+  const accepted = await owner.accept(
+    request,
+    (...args) => attemptRun(source, ...args, progress, doneMarks),
+    reportingOrigin,
+  );
+  assert.equal(accepted.kind, "accepted");
+  const { id, changes } = accepted.attempt;
+  assert(changes !== undefined);
+  const readChange = () => changedAttempt(owner, id, 30_000, changes);
+  const published = { kind: "published", revision: start.publishedSha };
+  const expectReplacement = ({ field, reached }: HeldReplacement) =>
+    Promise.race([
+      reached,
+      owner.drain().then(async () => {
+        const [kept] = (await keptAttempts()) ?? [];
+        throw new Error(
+          `The attempt settled before its ${field} replacement: ${JSON.stringify(kept?.outcome)}`,
+        );
+      }),
+    ]);
 
-    // Published; the write that first keeps its reporting context is held.
-    writeFileSync(hold(), "reporting");
-    push.release();
-    await expect.poll(heldField, { timeout: 30_000 }).toBe("reporting");
-    const revision = (await origin.originGit("rev-parse", "main")).trim();
-    expect(keptAttempts()[0]?.publication).toEqual({
-      kind: "published",
-      revision,
-    });
-    expect(keptAttempts()[0]?.reporting).toBeUndefined();
-    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
+  await expectReplacement(reportingWrite);
+  const [keptBeforeReporting] = (await keptAttempts()) ?? [];
+  expect(keptBeforeReporting).toMatchObject({ id, publication: published });
+  expect(keptBeforeReporting?.reporting).toBeUndefined();
+  const whileReporting = await readChange();
+  expect(whileReporting).toMatchObject({
+    changed: true,
+    attempt: { ...keptBeforeReporting, owned: true, running: true },
+  });
+  expect(whileReporting.attempt?.reporting).toBeUndefined();
+  expect(launchNative).not.toHaveBeenCalled();
 
-    rmSync(hold());
-    await expect
-      .poll(() => keptAttempts()[0]?.reporting?.reference, { timeout: 30_000 })
-      .toBe(keptAttempts()[0]?.id);
-    await expect
-      .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
-      .toBe(1);
-    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
+  reportingWrite.release();
+  await expectReplacement(outcomeWrite);
+  const [keptBeforeOutcome] = (await keptAttempts()) ?? [];
+  expect(keptBeforeOutcome?.reporting?.reference).toBe(id);
+  expect(keptBeforeOutcome?.outcome).toBeUndefined();
+  const whileSettling = await readChange();
+  expect(whileSettling).toMatchObject({
+    changed: true,
+    attempt: { ...keptBeforeOutcome, owned: true, running: true },
+  });
+  expect(whileSettling.attempt?.outcome).toBeUndefined();
+  expect(launchNative).toHaveBeenCalledTimes(1);
+  expect(launchNative.mock.calls[0]?.[1].reporting?.reference).toBe(id);
 
-    // Launched; the write that keeps its outcome is held.
-    writeFileSync(hold(), "outcome");
-    server.releaseHeldClaude();
-    await expect.poll(heldField, { timeout: 30_000 }).toBe("outcome");
-    expect(keptAttempts()[0]?.outcome).toBeUndefined();
-    expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
-
-    rmSync(hold());
-    await expect
-      .poll(() => keptAttempts()[0]?.outcome?.kind, { timeout: 30_000 })
-      .toBe("launched");
-    // The settled time is kept in a write of its own after the outcome, so
-    // the answer and the kept record agree once that write has landed.
-    await expect(async () => {
-      expect(await attempts(server)).toEqual([
-        { ...keptAttempts()[0], owned: false, running: false },
-      ]);
-    }).toPass({ timeout: 30_000 });
+  outcomeWrite.release();
+  await owner.drain();
+  const [keptSettled] = (await keptAttempts()) ?? [];
+  expect(keptSettled?.outcome).toEqual({
+    kind: "launched",
+    session: { host: "claude", sessionId: session.sessionId },
+  });
+  expect(await readChange()).toEqual({
+    changed: true,
+    attempt: { ...keptSettled, owned: false, running: false },
   });
 });
