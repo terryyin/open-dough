@@ -170,3 +170,11 @@ adds no workflow state or permissions. A job already admitted at the
 cutoff may finish collecting its teardown events. The separate E2E
 repair run 45793341450 reached a passing terminal result before any
 publication of this candidate.
+
+The first watched job, run 45798389009 attempt 1 frontend shard `1/2`
+(job 139834868535), completed successfully on `7984549d`: 217 files
+and 590 tests passed. The complete log emitted no disconnect marker and
+reported no matching Vitest failure. This accounts for one watched job.
+The log is retained as `frontend-round4-hosted-45798389009-job-139834868535.log`
+in worktree Git evidence. A separate backend assertion in job 139834868547
+does not change the frontend result.

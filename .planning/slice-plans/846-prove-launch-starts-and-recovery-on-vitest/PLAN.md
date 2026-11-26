@@ -113,6 +113,10 @@ execution's performance claim.
 - Slice 5 is parked in the managed CI stash while the original frontend
   disconnect remains open. See the [frontend diagnosis](diagnosis-frontend-browser-connection.md)
   and the [separate E2E repair](diagnosis-intent-ci-follow-up-navigation.md).
+- The first bounded hosted frontend capture passed. A backend test in the
+  same run exposed a setup race between a readable attempt file and a
+  settled owner. The [worktree retry diagnosis](diagnosis-worktree-update-retry-refusal.md)
+  retains the forced interleaving and evidence for the test setup repair.
 
 ## Ordered slices
 
