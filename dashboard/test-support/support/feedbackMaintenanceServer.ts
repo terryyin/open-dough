@@ -1,14 +1,12 @@
 // A production dashboard server checking feedback maintenance every 100 ms,
 // unless a test asks for a longer period, over Open Dough's moving fake
-// origin, with the standing authorization switched in its machine home and the
+// origin, with the standing authorization turned on in its machine home and the
 // GitHub reads it made counted, for the feedback maintenance specs.
 import path from "node:path";
 import { expect } from "@playwright/test";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { describedBacklog } from "../describedRevisions.ts";
 import { defaultRepository, type MovingOrigin } from "../publishedOrigin.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { feedbackWatchListPath as watchList } from "../../src/feedbackReview.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
@@ -22,7 +20,6 @@ import {
   authorizeFeedbackMaintenance,
   dayFromToday,
   dueWatchList,
-  withdrawFeedbackMaintenance,
 } from "./feedbackMaintenanceDue.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { git } from "./startOriginObservation.ts";
@@ -34,23 +31,6 @@ export const watchListDue = (reviewAfter: string) =>
   dueWatchList(reviewAfter, dayFromToday(-7));
 
 type FeedbackMaintenanceReads = Pick<MovingOrigin, "requests">;
-
-let revisions = 0;
-// Pushes Open Dough's main with this watch list, or none.
-export function pushWatchList(
-  moving: MovingOrigin,
-  text?: string,
-  backlog = describedBacklog(makeMe.aRepository.please()),
-): string {
-  revisions += 1;
-  const revision = revisions.toString(16).padStart(40, "a");
-  moving.push(
-    revision,
-    backlog,
-    text === undefined ? {} : { [watchList]: text },
-  );
-  return revision;
-}
 
 // Git and REST follow the same origin, including story admissions that occur
 // between the cycle's watch-list publications.
@@ -93,10 +73,6 @@ export function turnOn(origin: StartOrigin): void {
   });
 }
 
-export function turnOff(origin: StartOrigin): void {
-  withdrawFeedbackMaintenance(machineHome(origin));
-}
-
 export function serverOn(
   origin: StartOrigin,
   github: FakeGitHub,
@@ -119,7 +95,7 @@ export function serverOn(
 }
 
 // How often the server has resolved Open Dough's main.
-export const refReads = (moving: FeedbackMaintenanceReads) =>
+const refReads = (moving: FeedbackMaintenanceReads) =>
   moving.requests.filter(({ request }) => request.kind === "ref").length;
 
 // Waits until the server has checked GitHub twice more.

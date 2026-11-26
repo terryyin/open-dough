@@ -430,7 +430,7 @@ cases) uses a private machine store, a real checkout with a
 ### 8. Admit one scheduled feedback session and notify once
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Proof. An authorized due-date review and configured host choice reach the
@@ -451,6 +451,75 @@ exact bytes once; completed blank launches permit another deliberate
 session". Slice 2 and the retained Codex E2E now own the exact bytes. Port
 the repeated blank launch here, or retire it against the campaign's launch
 lifecycle owner, and remove the file.
+
+Outcome (6 active minutes). `FeedbackMaintenanceCheck` now takes its
+review read as a required collaborator. `launchBoundary.ts` supplies the
+exported production `publishedReview()`.
+`feedback-maintenance-due-admission.spec.ts` (3 node cases) drives the
+real check loop. It uses a fixed local date, the production project
+configuration, authorization in a private `HOME`, a typed review read, and
+recorded `accept`/`attempts` at the check's own `Launches` boundary.
+
+- A held admission adds no attempt, is retried, and its row shows the due
+  date and reason.
+- A due launch is admitted once with no effort set, so admission applies
+  the default. Nothing more is read or admitted while the session runs.
+  The due date stays used after the session ends and its record is
+  deleted.
+- On Codex with effort `high`, the request keeps host and effort, and
+  `codexInput` begins with `$maintain-feedback-cycle` and its skill item.
+- Nothing is admitted in these cases: the setting is off, the date is not
+  due, there is no due block, the review is unread, or an open session
+  already holds the invocation.
+- Retained owners:
+  - `session-alerts-unread-report.spec.ts` (Vitest) notifies once.
+  - `agent-launch-model-boundary.spec.ts` keeps the host's default effort.
+  - `feedback-maintenance-boundary.spec.ts` keeps the page refusal.
+  - `feedback-maintenance-admission.spec.ts` and the scheduled E2E keep
+    Codex cwd, the reporting block and the Taken story before dispatch.
+  - `agent-launch-duplicate.spec.ts`, the campaign's launch lifecycle
+    owner, keeps the repeated launch after completion.
+  - `authenticated-read-diagnostics.spec.ts` keeps the failed ref read
+    diagnostic.
+- Removed `feedback-maintenance-launch`, the reduced
+  `agent-launch-ad-hoc-codex-input`, the eligibility cases module, and the
+  support exports that only those used. Five Playwright cases took 30.8 s
+  summed; the 3 node cases take 64–252 ms.
+
+## Story comparison
+
+Every promise ran on one worker, Node 24.21.0, with locked dependencies
+and the backend proof record.
+
+- Legacy before:
+  - 45 ported Playwright cases across 18 removed paths. Per-slice summed
+    case time was 25.6, 23.1, 12.5, (36.1 wall), 17.5, 5.0, 2.8 and
+    30.8 s.
+  - All passed on the first attempt with no retries.
+  - The historical pre-cutover figure was 40 cases at 182.4 s summed. The
+    cutover had already rewritten ten files and added
+    `admitted-session-duplicate`.
+- After:
+  - The 15 new Vitest files (`story-after.json`) hold 43 node cases. All
+    passed on the first attempt with no retries.
+  - Summed case time is 42.5 s and wall time 58.4 s.
+  - 13 cases run under 100 ms. 30 cases are over, because each observes
+    real Git, an installed start or a held origin.
+- Still on Playwright:
+  - `agent-launch-start-session-isolated-codex.spec.ts` (1 case, 3.0 s) is
+    the retained Codex native owner from slice 3. It reads `thread/start`
+    cwd and ordered input, which the Claude-only isolated E2E lacks. This
+    plan retained it, so its runner move belongs with the campaign's runner
+    removal.
+  - The mapped legacy count is otherwise zero.
+- Fixtures removed: `expectBorrowedLandingArtifacts`,
+  `feedbackMaintenanceLaunchEligibilityCases.ts`, `pushWatchList`,
+  `turnOff` and `withdrawFeedbackMaintenance`.
+- Support added: one `checkoutState` reader in
+  `executionCheckoutChanges.ts`.
+- Production seams added: `attemptRun`'s typed `NativeDispatch`, which
+  `nativeSessionRun.ts` uses, and `FeedbackMaintenanceCheck`'s required
+  review read.
 
 ## Proof ownership and historical inventory
 
