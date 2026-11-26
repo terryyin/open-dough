@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Prove Dashboard launch starts and recovery in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) — SEED-413#prove-launch-starts-and-recovery-on-vitest ([plan](slice-plans/846-prove-launch-starts-and-recovery-on-vitest/PLAN.md))
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision ([plan](slice-plans/841-browse-the-project-at-a-revision/PLAN.md))
 - [Open the published Board at verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-and-refresh-board-at-verified-trunk) — SEED-430#open-and-refresh-board-at-verified-trunk ([plan](slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md))
-- [Prove Dashboard session workspace choices in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-workspace-starts-on-vitest) — SEED-413#prove-session-workspace-starts-on-vitest ([plan](slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md))
 
 ## Backlog list
 

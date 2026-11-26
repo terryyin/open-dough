@@ -4,7 +4,9 @@
 
 **Source:** [Restore dropped session workspace proof in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#restore-session-workspace-vitest-proof),
 a retrospective correction of
-[Prove Dashboard session workspace choices in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-workspace-starts-on-vitest).
+[Prove Dashboard session workspace choices in Node Vitest](https://github.com/terryyin/open-dough/blob/daea1238c354addf980ff601d7b794fe4523c927/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-workspace-starts-on-vitest)
+(completed plan at
+[`daea1238c`](https://github.com/terryyin/open-dough/blob/daea1238c354addf980ff601d7b794fe4523c927/.planning/slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md)).
 
 ## Provenance
 
