@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "identity": "SEED-413#prove-session-workspace-starts-on-vitest",
+  "mode": "story-branch",
+  "branch": "claude/prove-dashboard-session-workspace-choices-in-nod",
+  "host": "claude"
+}
