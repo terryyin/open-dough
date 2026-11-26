@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Akiho-chan",
+  "email": "akiho-chan@example.org",
+  "identity": "SEED-420#share-completed-intent-review-response-watching",
+  "mode": "story-branch",
+  "branch": "codex/share-completed-intent-review-response-watching",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
