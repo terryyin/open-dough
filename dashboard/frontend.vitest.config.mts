@@ -6,7 +6,6 @@ import { brandAssetPlugin } from "./server/brandAssetPlugin.ts";
 import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
 import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
 import { frontendDisconnectCapture } from "./test-support/support/frontendDisconnectCapture.ts";
-import { isVitestFile } from "./test-support/support/groupSelection.mjs";
 import { dashboardSpecFiles } from "./test-support/support/testFiles.mjs";
 import { useDisposableTestHome } from "./test-support/support/runnerConfig.mjs";
 
@@ -38,11 +37,9 @@ export default defineConfig({
   publicDir: fileURLToPath(new URL("./public", import.meta.url)),
   plugins: [react(), brandAssetPlugin(), diagnostics?.plugin],
   test: {
-    // The frontend specs that import Vitest, beside the group's Playwright
-    // specs (../scripts/test-frontend.mjs).
-    include: dashboardSpecFiles(import.meta.dirname, [frontendGroup.root])
-      .filter(isVitestFile)
-      .map((file) => `dashboard/${file}`),
+    include: dashboardSpecFiles(import.meta.dirname, [frontendGroup.root]).map(
+      (file) => `dashboard/${file}`,
+    ),
     includeTaskLocation: true,
     isolate: true,
     // A file's history traversals stay inside its own tester frame.

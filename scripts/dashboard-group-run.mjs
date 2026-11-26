@@ -183,26 +183,33 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
   process.once("SIGTERM", interrupt);
   try {
     const all = groupFiles(group, process.env[splitSetting]);
-    const args = all.some((file) => file.vitest)
-      ? groupArguments(argv)
-      : undefined;
-    const files = args
-      ? all.filter((file) => matchesGroupFile(file, args))
-      : [];
-    if (!args || !files.some((file) => file.vitest)) {
-      if (playwright === undefined)
-        return noTests(args ?? groupArguments(argv));
+    if (playwright && !all.some((file) => file.vitest))
       return await playwright.run(argv);
-    } else if (
-      args.nativeOptions.length ||
-      (args.project && args.project !== "chromium")
-    ) {
+    const args = groupArguments(argv);
+    const files = all.filter((file) => matchesGroupFile(file, args));
+    if (playwright && !files.some((file) => file.vitest))
+      return await playwright.run(argv);
+
+    const unsupported = [...args.nativeOptions];
+    if (args.project && args.project !== "chromium")
+      unsupported.push(`--project=${args.project}`);
+    if (unsupported.length) {
       const direct = playwright
         ? "Use the direct Playwright config for engine-specific options. "
         : "";
       throw new Error(
-        `${direct}The ${group.command} command accepts paths, grep, list, workers and the chromium project.`,
+        `${direct}The ${group.command} command does not support: ${unsupported.join(", ")}.`,
       );
+    }
+    if (!playwright) {
+      const nonVitestSpecs = files
+        .filter((file) => !file.vitest)
+        .map(({ file }) => path.relative(repository, file));
+      if (nonVitestSpecs.length)
+        throw new Error(
+          `${group.command} requires a Vitest import in: ${nonVitestSpecs.join(", ")}.`,
+        );
+      if (!files.length) return noTests(args);
     }
     return await groupRun(args, files);
   } catch (error) {

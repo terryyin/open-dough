@@ -79,7 +79,7 @@ no correctness bug in product or runner code, and these residues.
 ### 1. The frontend group refuses a spec it cannot run
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a frontend spec without a Vitest import, or a frontend
 selection with an unsupported option and no match, → the group command
@@ -110,3 +110,30 @@ frontend shards, timings and proof publication.
 
 - Run focused gates through their maintained runners; slice 2's branch CI
   checks the workflow rename.
+- Run long macOS gates on an awake machine on AC power with `caffeinate -s -i`.
+
+## Execution context
+
+- Story Branch Mode uses the established worktree and publishes increments to
+  `origin/refs/heads/codex/refuse-frontend-specs-the-vitest-only-runner-wou`.
+  The Take and first published base are `3e9f40ab1ddfbdc19c4593dbb2e6d31326401894`.
+  Trunk integration targets `origin/refs/heads/main`.
+- Branch CI source is GitHub Actions `ci.yml` for `terryyin/open-dough`.
+  Codex observer `maria-chan-855` uses `/tmp/dough-ci-501/watch-v2A8i1`,
+  PID `19370`, session `23218`, cell `g627:8`.
+- The locked npm installation, Chromium prerequisite and frontend listing all
+  passed in the execution checkout.
+
+### Slice 1 accepted proof
+
+- Before the change, list and run silently accepted a scratch non-Vitest spec
+  with `--pass-with-no-tests`, and the no-match `--retries` command exited 0.
+- After the change, the same list and run exited 1 and named the spec. A
+  listing selecting both that spec and a valid one emitted only the refusal.
+  The unsupported option exited 1 naming `--retries`. A valid empty selection
+  exited 1, or 0 with `--pass-with-no-tests`.
+- Direct Vitest file discovery listed the scratch spec. The backend group
+  passed `runner-ownership` and listed both engines in a mixed selection.
+  A native-only list accepted `--retries=0`. Distribution shard and group
+  checks and dashboard typecheck passed. The independent refactor pass found
+  no changes needed.
