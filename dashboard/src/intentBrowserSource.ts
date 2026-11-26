@@ -1,5 +1,6 @@
 // The comparison can supply changed files using its captured tree when
-// the whole story has no readable historical locations.
+// the whole story has no readable historical locations. Project Intent
+// browses the whole project, so its tree shows without configured locations.
 import {
   hasUnavailableComparisonSource,
   type LensComparison,
@@ -9,6 +10,7 @@ import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
 export function intentBrowserSource(
   shown: ShownIntentLocations,
   comparison: LensComparison | undefined,
+  wholeProject: boolean,
 ) {
   const capturedRevision =
     comparison?.state === "compared" && comparison.review?.kind === "landed"
@@ -17,8 +19,9 @@ export function intentBrowserSource(
   const comparisonSourceUnavailable =
     hasUnavailableComparisonSource(comparison);
   const listOutsideLocations =
-    comparison?.state === "compared" &&
-    (shown.unconfigured || capturedRevision !== undefined);
+    (wholeProject && shown.unconfigured) ||
+    (comparison?.state === "compared" &&
+      (shown.unconfigured || capturedRevision !== undefined));
   const locations = comparisonSourceUnavailable
     ? undefined
     : (shown.locations ?? (listOutsideLocations ? [] : undefined));

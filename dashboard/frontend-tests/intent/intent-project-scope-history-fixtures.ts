@@ -14,12 +14,15 @@ import { inertCiReads } from "./intent-ci-status-fixtures.ts";
 // reading as its own path.
 export const configuredIntentReads = (
   location: IntentLocation,
-): IntentReadSource => ({
-  readLocations: () =>
-    Promise.resolve({ status: "configured", locations: [location] }),
-  readFile: (...[, path]) => Promise.resolve(`${path}\n`),
-  readCandidates: () => Promise.resolve({ status: "absent" }),
-});
+): IntentReadSource =>
+  makeMe.anIntentReadSource
+    .reading({
+      readLocations: () =>
+        Promise.resolve({ status: "configured", locations: [location] }),
+      readFile: (...[, path]) => Promise.resolve(`${path}\n`),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
 
 // An older main observation whose live Proof is unavailable, so scope
 // histories stand without live Proof.

@@ -137,6 +137,14 @@ export function readingPathAt(path: string, revision: string): string {
   return `${path} at ${revision}`;
 }
 
+// Every path a published revision tracks (`../server/projectBrowseRead.ts`).
+export function readingTrackedFilesAt(
+  repository: string,
+  revision: string,
+): string {
+  return `the tracked files of ${repository} at ${revision}`;
+}
+
 export function readingLastCommitAt(path: string, revision: string): string {
   return `the last commit of ${path} at ${revision}`;
 }

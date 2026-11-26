@@ -51,20 +51,22 @@ function recordedReads(readFile: (revision: string) => Promise<string>): {
   const reads: string[] = [];
   return {
     reads,
-    readSource: {
-      readLocations(...[, revision]) {
-        reads.push(`locations@${revision}`);
-        return Promise.resolve(locations);
-      },
-      readCandidates(...[, revision]) {
-        reads.push(`candidates@${revision}`);
-        return Promise.resolve({ status: "present", text: candidatesRecord });
-      },
-      readFile(...[, path, revision]) {
-        reads.push(`${path}@${revision}`);
-        return readFile(revision);
-      },
-    },
+    readSource: makeMe.anIntentReadSource
+      .reading({
+        readLocations(...[, revision]) {
+          reads.push(`locations@${revision}`);
+          return Promise.resolve(locations);
+        },
+        readCandidates(...[, revision]) {
+          reads.push(`candidates@${revision}`);
+          return Promise.resolve({ status: "present", text: candidatesRecord });
+        },
+        readFile(...[, path, revision]) {
+          reads.push(`${path}@${revision}`);
+          return readFile(revision);
+        },
+      })
+      .please(),
   };
 }
 

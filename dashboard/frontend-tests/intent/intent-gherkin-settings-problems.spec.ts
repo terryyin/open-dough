@@ -47,21 +47,23 @@ function unreachableFirstLocationsRead(
     .at(work.revision)
     .please();
   let attempts = 0;
-  const readSource: IntentReadSource = {
-    readLocations(source, revision) {
-      expect(source.id).toBe(work.source.id);
-      expect(revision).toBe(work.revision);
-      attempts += 1;
-      if (attempts === 1) return Promise.reject(unreachable);
-      return Promise.resolve(afterRetry);
-    },
-    readFile(source, path, revision) {
-      expect(source.id).toBe(work.source.id);
-      expect(revision).toBe(work.revision);
-      return Promise.resolve(fixtureFor(files, path));
-    },
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-  };
+  const readSource: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations(source, revision) {
+        expect(source.id).toBe(work.source.id);
+        expect(revision).toBe(work.revision);
+        attempts += 1;
+        if (attempts === 1) return Promise.reject(unreachable);
+        return Promise.resolve(afterRetry);
+      },
+      readFile(source, path, revision) {
+        expect(source.id).toBe(work.source.id);
+        expect(revision).toBe(work.revision);
+        return Promise.resolve(fixtureFor(files, path));
+      },
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
   return { readSource, cause: unreachable.message, attempts: () => attempts };
 }
 
@@ -86,13 +88,15 @@ test("unreadable and malformed Intent settings stay distinct from not-configured
     [`${unconfigured.source.id}@${unconfigured.revision}`]:
       makeMe.anIntentLocationsAnswer.notConfigured().please(),
   };
-  const readSource: IntentReadSource = {
-    readLocations: (source, revision) =>
-      Promise.resolve(fixtureFor(answers, `${source.id}@${revision}`)),
-    readFile: (...[, path]) =>
-      Promise.reject(new Error(`Unexpected file read for ${path}`)),
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-  };
+  const readSource: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations: (source, revision) =>
+        Promise.resolve(fixtureFor(answers, `${source.id}@${revision}`)),
+      readFile: (...[, path]) =>
+        Promise.reject(new Error(`Unexpected file read for ${path}`)),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
 
   const intent = await mountReading(readSource, unreadable);
   const explanation = intentSettingsExplanation();

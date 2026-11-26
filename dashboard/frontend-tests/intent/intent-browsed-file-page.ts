@@ -26,14 +26,16 @@ const configuredLocations: IntentLocations = {
 // Intent's reads of the browsed spec, recording each file read's path and
 // revision.
 export function intentReadsRecording(fileReads: string[]): IntentReadSource {
-  return {
-    readLocations: () => Promise.resolve(configuredLocations),
-    readFile: (...[, path, revision]) => {
-      fileReads.push(`${path}@${revision}`);
-      return Promise.resolve(`import { test } from "vitest";\n`);
-    },
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-  };
+  return makeMe.anIntentReadSource
+    .reading({
+      readLocations: () => Promise.resolve(configuredLocations),
+      readFile: (...[, path, revision]) => {
+        fileReads.push(`${path}@${revision}`);
+        return Promise.resolve(`import { test } from "vitest";\n`);
+      },
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
 }
 
 const intent = page.getByRole("main", { name: "Intent", exact: true });

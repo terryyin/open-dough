@@ -27,6 +27,8 @@ const unreadIntentReads: IntentReadSource = {
   readLocations: unread("Intent locations"),
   readFile: unread("Intent file"),
   readCandidates: unread("Intent candidates"),
+  readProjectTree: unread("project tree"),
+  readProjectFile: unread("project file"),
 };
 
 export const unreadCiReads: IntentCiReadSource = {

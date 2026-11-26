@@ -59,25 +59,27 @@ test("a feature selected while startup detail completes stays selected with its 
     }
     return `# Detail for ${path}\n`;
   };
-  const intent: IntentReadSource = {
-    readLocations(source, asked) {
-      expect([source.id, asked]).toEqual([work.source.id, revision]);
-      locationsReads.push(asked);
-      return Promise.resolve({
-        status: "configured",
-        locations: [
-          makeMe.anIntentLocation
-            .at(folder)
-            .ofKind("gherkin")
-            .selecting(featurePath)
-            .please(),
-        ],
-      });
-    },
-    readFile: (...[, path]) =>
-      Promise.resolve(featureFiles[path] ?? `${path}\n`),
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-  };
+  const intent: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations(source, asked) {
+        expect([source.id, asked]).toEqual([work.source.id, revision]);
+        locationsReads.push(asked);
+        return Promise.resolve({
+          status: "configured",
+          locations: [
+            makeMe.anIntentLocation
+              .at(folder)
+              .ofKind("gherkin")
+              .selecting(featurePath)
+              .please(),
+          ],
+        });
+      },
+      readFile: (...[, path]) =>
+        Promise.resolve(featureFiles[path] ?? `${path}\n`),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
 
   await mountIntentRecovery(intent, work, detailRead);
   const browser = intentBrowser();

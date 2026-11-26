@@ -56,12 +56,14 @@ const sourceOf = (path: string) => {
   const word = path.split("/").at(-1)?.replace(".spec.ts", "") ?? "";
   return [...Array(12).keys()].map((line) => `${word} ${line}\n`).join("");
 };
-const intentReads: IntentReadSource = {
-  readLocations: () =>
-    Promise.resolve({ status: "configured", locations: [location] }),
-  readFile: (...[, path]) => Promise.resolve(sourceOf(path)),
-  readCandidates: () => Promise.resolve({ status: "absent" }),
-};
+const intentReads: IntentReadSource = makeMe.anIntentReadSource
+  .reading({
+    readLocations: () =>
+      Promise.resolve({ status: "configured", locations: [location] }),
+    readFile: (...[, path]) => Promise.resolve(sourceOf(path)),
+    readCandidates: () => Promise.resolve({ status: "absent" }),
+  })
+  .please();
 
 // Intent with Story A selected and Files docked, its review read from
 // `review`.
@@ -186,17 +188,19 @@ export async function openDoneStoryComparison({
       })
       .please(),
     reads: {
-      intent: {
-        readLocations: (...[, revision]) => {
-          locationRevisions.push(revision);
-          return Promise.resolve({
-            status: "configured",
-            locations: [...(doneStory.scope?.locations ?? [])],
-          });
-        },
-        readFile,
-        readCandidates: () => Promise.resolve({ status: "absent" }),
-      },
+      intent: makeMe.anIntentReadSource
+        .reading({
+          readLocations: (...[, revision]) => {
+            locationRevisions.push(revision);
+            return Promise.resolve({
+              status: "configured",
+              locations: [...(doneStory.scope?.locations ?? [])],
+            });
+          },
+          readFile,
+          readCandidates: () => Promise.resolve({ status: "absent" }),
+        })
+        .please(),
       ci: {
         ...scope.source,
         readDoneWallTimeHistory: unanswered,

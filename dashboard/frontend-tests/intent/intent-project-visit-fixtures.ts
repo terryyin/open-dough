@@ -90,25 +90,29 @@ export async function mountProjectVisit() {
   const filesRead = new Set<string>();
   let candidatesOnce:
     { readonly status: "present"; readonly text: string } | undefined;
-  const intentReads: IntentReadSource = {
-    readLocations: () =>
-      Promise.resolve({ status: "configured", locations: [location] }),
-    readFile: (...[, path]) => {
-      // Match answerMemo: record one published-text fetch per path.
-      if (!filesRead.has(path)) {
-        filesRead.add(path);
-        reads.push(`text ${path}`);
-      }
-      return Promise.resolve(path === candidatePath ? publishedA : `${path}\n`);
-    },
-    readCandidates: () => {
-      if (candidatesOnce === undefined) {
-        reads.push("candidates");
-        candidatesOnce = { status: "present", text: candidatesText };
-      }
-      return Promise.resolve(candidatesOnce);
-    },
-  };
+  const intentReads: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations: () =>
+        Promise.resolve({ status: "configured", locations: [location] }),
+      readFile: (...[, path]) => {
+        // Match answerMemo: record one published-text fetch per path.
+        if (!filesRead.has(path)) {
+          filesRead.add(path);
+          reads.push(`text ${path}`);
+        }
+        return Promise.resolve(
+          path === candidatePath ? publishedA : `${path}\n`,
+        );
+      },
+      readCandidates: () => {
+        if (candidatesOnce === undefined) {
+          reads.push("candidates");
+          candidatesOnce = { status: "present", text: candidatesText };
+        }
+        return Promise.resolve(candidatesOnce);
+      },
+    })
+    .please();
   const review: ReviewSource = {
     review: () => Promise.resolve(storyReview),
     fileDiff: (query) => {

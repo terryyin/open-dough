@@ -14,7 +14,7 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { reviewInput, type ReviewedFileInput } from "./storyReviewInput.ts";
-import { textAtTree } from "./storyReviewFileText.ts";
+import { textAtTree } from "./gitTreeFiles.ts";
 
 const outputLimit = 64 * 1024 * 1024;
 

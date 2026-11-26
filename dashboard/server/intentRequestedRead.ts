@@ -4,7 +4,8 @@
 // judgment named (`./intentCiProofRead.ts`), a story's CI comparison, the
 // project's collected CI history (`./intentCiHistoryRead.ts`), or a
 // refusal when `intent` is present but unknown. Each known kind parses in its
-// own module.
+// own module. Project browsing (`./projectBrowseRead.ts`) names its tree or
+// one tracked file through the same parameter.
 
 import {
   parseIntentCandidatesRead,
@@ -30,6 +31,10 @@ import {
   parseIntentCiStatusRead,
   type IntentCiStatusRead,
 } from "./intentCiStatusRead.ts";
+import {
+  parseProjectBrowseRead,
+  type ProjectBrowseRead,
+} from "./projectBrowseRead.ts";
 import { refused, type RefusedParameters } from "./refusedParameters.ts";
 
 export type IntentRequestedRead =
@@ -38,7 +43,8 @@ export type IntentRequestedRead =
   | IntentCiStatusRead
   | IntentCiProofRead
   | IntentCiComparisonRead
-  | IntentCiHistoryRead;
+  | IntentCiHistoryRead
+  | ProjectBrowseRead;
 
 const unknownIntentRefusal =
   "An Intent read names only a pinned revision and a known Intent request.";
@@ -59,6 +65,8 @@ export function parseIntentRequestedRead(
   if (ciComparison !== undefined) return ciComparison;
   const ciHistory = parseIntentCiHistoryRead(params);
   if (ciHistory !== undefined) return ciHistory;
+  const browse = parseProjectBrowseRead(params);
+  if (browse !== undefined) return browse;
   if (params.get("intent") !== null) {
     return refused(unknownIntentRefusal);
   }

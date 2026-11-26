@@ -51,17 +51,19 @@ async function mountScopeTree() {
         .please(),
     )
     .please();
-  const intent: IntentReadSource = {
-    readLocations: (...[, revision]) => {
-      expect(revision).toBe(work.revision);
-      return Promise.resolve(locations);
-    },
-    readFile: (...[, path, revision]) => {
-      expect(revision).toBe(work.revision);
-      return Promise.resolve(fixtureFor(files, path));
-    },
-    readCandidates: () => Promise.resolve({ status: "absent" }),
-  };
+  const intent: IntentReadSource = makeMe.anIntentReadSource
+    .reading({
+      readLocations: (...[, revision]) => {
+        expect(revision).toBe(work.revision);
+        return Promise.resolve(locations);
+      },
+      readFile: (...[, path, revision]) => {
+        expect(revision).toBe(work.revision);
+        return Promise.resolve(fixtureFor(files, path));
+      },
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    })
+    .please();
   await mountIntentCiPage({ work, reads: { intent, ci: unreadCiReads } });
   const tree = intentScopeTree();
   await tree.toggle("e2e_test").click();

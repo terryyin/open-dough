@@ -29,6 +29,7 @@ import { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useIntentOpenFolders.ts";
 import type { ComparedStory, StorySummary } from "./IntentStorySummary.tsx";
 import type { StoryResultBrowse } from "./useStoryResultRead.tsx";
+import type { ProjectTree } from "./useProjectTreeRead.tsx";
 
 export function IntentBrowser({
   source,
@@ -36,6 +37,7 @@ export function IntentBrowser({
   result,
   locations,
   lead,
+  projectTree,
   project,
   storySummary,
   story,
@@ -49,6 +51,8 @@ export function IntentBrowser({
   readonly result?: StoryResultBrowse | undefined;
   readonly locations: readonly IntentLocation[];
   readonly lead?: ReactNode;
+  // The whole project's tracked paths at the revision, in Project Intent.
+  readonly projectTree?: ProjectTree | undefined;
   // The selected story with what is known of its comparison, and the
   // comparison once read.
   readonly storySummary: StorySummary | undefined;
@@ -69,7 +73,7 @@ export function IntentBrowser({
     locations,
     story,
     storyIdentity: storySummary?.story.identity,
-    inventory: result?.paths,
+    inventory: result?.paths ?? projectTree?.paths,
     comparison: storySummary?.comparison,
     resultReading: result?.reading,
     resultKey: result?.key,
@@ -125,6 +129,9 @@ export function IntentBrowser({
     open: openRevealed,
   });
 
+  // Project Intent's empty-scope explanation stays in view: beside the tree
+  // while Files shows, otherwise above the reading.
+  const leadInFiles = project === undefined || files.shown;
   const browser = (
     <>
       {files.backdrop}
@@ -135,7 +142,8 @@ export function IntentBrowser({
           intentOnly={storyTree.intentOnly}
           changesOnly={storyTree.scope?.changesOnly}
         />
-        {lead}
+        {projectTree?.lead}
+        {leadInFiles && lead}
         <IntentBrowserTree
           locations={locations}
           tree={storyTree}
@@ -159,6 +167,7 @@ export function IntentBrowser({
         {...(storyPath &&
           intentStoryPathAttributes(storyPath.id, storyPath.hidden))}
       >
+        {!leadInFiles && lead}
         <IntentSelectionReading
           source={source}
           revision={revision}
@@ -175,6 +184,7 @@ export function IntentBrowser({
           readingKey={revealedOpens}
           fileReading={fileReading.place}
           storySelected={storySummary !== undefined}
+          wholeProject={project !== undefined}
         />
       </div>
     </>
@@ -194,6 +204,7 @@ export function IntentBrowser({
         modeIdPrefix={project.modeIdPrefix}
         returnEntrySlug={returnEntrySlug}
         onOpenLocation={openRevealed}
+        explanation={lead}
       />
     </>
   );

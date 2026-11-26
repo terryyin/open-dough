@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_browse-the-project-at-a-revision.json",
+      "identity": "SEED-420#browse-the-project-at-a-revision",
+      "completedAt": "2026-11-26T12:49:26.613Z",
+      "blob": "5ccc541da68cfd6524f25ca8409d2ac1c77b4658"
+    },
+    {
       "fileName": "SEED-413_prove-native-first-input-on-vitest.json",
       "identity": "SEED-413#prove-native-first-input-on-vitest",
       "completedAt": "2026-11-26T11:26:35.050Z",

@@ -1,9 +1,40 @@
-// Revision-consistent file text at an admitted comparison's trees: the same
-// rule the file-text endpoint and file-anchored follow-up line checks share.
+// Files at one Git tree object, read literally: every blob path it tracks, or
+// one path's text. Story review results, review file text, file-anchored
+// follow-ups and Project Intent browsing share these rules.
 import { gitProblem, runGit } from "./gitRunner.ts";
-import { storyReviewTreeEntry } from "./storyReviewTreeEntry.ts";
 
 const outputLimit = 64 * 1024 * 1024;
+
+// The metadata and literal path in one NUL-delimited Git tree record.
+function gitTreeEntry(record: string) {
+  const match = /^\d+ (\S+) ([0-9a-f]+)\t/.exec(record);
+  if (match === null) return undefined;
+  const [metadata, type, object] = match;
+  if (type === undefined || object === undefined) return undefined;
+  return { type, object, path: record.slice(metadata.length) };
+}
+
+export async function trackedFiles(
+  repository: string,
+  tree: string,
+  signal: AbortSignal,
+): Promise<string[]> {
+  const { stdout } = await runGit(
+    ["ls-tree", "--full-tree", "-r", "-z", tree],
+    { cwd: repository, signal, maxBuffer: outputLimit },
+  );
+  const entries = stdout.split("\0");
+  if (entries.pop() !== "") throw new Error("Incomplete Git tree listing.");
+  return entries.flatMap((record) => {
+    const entry = gitTreeEntry(record);
+    if (
+      entry === undefined ||
+      (entry.type !== "blob" && entry.type !== "commit")
+    )
+      throw new Error("Unexpected Git tree entry.");
+    return entry.type === "blob" ? [entry.path] : [];
+  });
+}
 
 export type SideRead =
   | { readonly kind: "absent" }
@@ -31,7 +62,7 @@ export async function textAtTree(
       { cwd: repository, signal, maxBuffer: outputLimit },
     );
     if (listed === "") return { kind: "absent" };
-    const entry = storyReviewTreeEntry(listed.slice(0, listed.indexOf("\0")));
+    const entry = gitTreeEntry(listed.slice(0, listed.indexOf("\0")));
     if (entry === undefined)
       return {
         kind: "unavailable",

@@ -168,7 +168,6 @@ test("the hidden column stays hidden across scopes and Development, with its own
   await expect
     .poll(() => intentPage.query()?.textContent)
     .toContain("No Intent locations are configured for Doughnut.");
-  await expect.element(files.toggle).not.toBeInTheDocument();
   await mounted.showFirstProject();
   await expect
     .element(

@@ -1,13 +1,45 @@
 // Intent file choices and source readings, shared by Code, Gherkin, Purpose
 // and candidate records (../src/IntentSourceLines.tsx).
 
-import { expect, type Locator } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import {
+  expandIntentFolder,
   expandIntentFolders,
   expandIntentGroup,
   intentGroupToggle,
   revealIntentLocation,
 } from "./intentPerspectivePage.ts";
+
+// The files column lists the whole project; Intent only narrows it to the
+// files the configured locations select.
+export const intentOnly = (intent: Locator) =>
+  intent.getByRole("checkbox", { name: "Intent only", exact: true });
+
+export async function chooseIntentOnly(intent: Locator) {
+  await intentOnly(intent).check();
+}
+
+// Opens a tracked file in the whole-project tree, expanding each closed
+// folder on its path.
+export async function openProjectFile(intent: Locator, path: string) {
+  const folders = path.split("/").slice(0, -1);
+  for (let depth = 1; depth <= folders.length; depth += 1)
+    await expandIntentFolder(intent, folders.slice(0, depth).join("/"));
+  await sourceFile(intent, path).click();
+}
+
+// Notes the page's authenticated project-file reads from now on, and says
+// how many of them read PATH.
+export function noteProjectFileReads(page: Page) {
+  const paths: string[] = [];
+  page.on("request", (request) => {
+    const query = new URL(request.url()).searchParams;
+    const path = query.get("path");
+    if (query.get("intent") === "project-file" && path !== null)
+      paths.push(path);
+  });
+  return (path: string) => paths.filter((each) => each === path).length;
+}
 
 // Scope is the locations tree or the candidate entry that offers this file.
 // CI table destinations belong to intentCiProofPage.ts's openCiEntry.

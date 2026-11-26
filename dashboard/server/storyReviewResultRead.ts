@@ -8,7 +8,8 @@ import type {
   StoryReviewResultRead,
 } from "../src/storyReviewResult.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
-import { gitProblem, runGit } from "./gitRunner.ts";
+import { gitProblem } from "./gitRunner.ts";
+import { textAtTree, trackedFiles } from "./gitTreeFiles.ts";
 import {
   declaredLocations,
   intentLocationAnswer,
@@ -17,14 +18,12 @@ import { RefusedRequest } from "./localOrigin.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { reviewRepositoryPath } from "./reviewRepository.ts";
 import { knownSource } from "./sessionAdmission.ts";
-import { textAtTree } from "./storyReviewFileText.ts";
 import { readNamedLandedReview } from "./storyReviewLandedAdmission.ts";
 import {
   requirePublishedCompletion,
   requirePublishedHead,
 } from "./storyReviewPublishedAdmission.ts";
 import type { AdmittedStoryReviewResult } from "./storyReviewResultRequest.ts";
-import { storyReviewTreeEntry } from "./storyReviewTreeEntry.ts";
 
 export async function storyReviewResultResponse(
   { read }: AdmittedStoryReviewResult,
@@ -76,28 +75,6 @@ async function admittedResult(
     tree: review.tree,
     revision,
   };
-}
-
-async function trackedFiles(
-  repository: string,
-  tree: string,
-  signal: AbortSignal,
-) {
-  const { stdout } = await runGit(
-    ["ls-tree", "--full-tree", "-r", "-z", tree],
-    { cwd: repository, signal, maxBuffer: 64 * 1024 * 1024 },
-  );
-  const entries = stdout.split("\0");
-  if (entries.pop() !== "") throw new Error("Incomplete Git tree listing.");
-  return entries.flatMap((record) => {
-    const entry = storyReviewTreeEntry(record);
-    if (
-      entry === undefined ||
-      (entry.type !== "blob" && entry.type !== "commit")
-    )
-      throw new Error("Unexpected Git tree entry.");
-    return entry.type === "blob" ? [entry.path] : [];
-  });
 }
 
 async function readStoryReviewResult(

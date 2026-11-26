@@ -37,10 +37,10 @@ function publication(held?: string) {
       locationsReads.push(args);
       return published.readSource.readLocations(...args);
     },
-    async readFile(...args) {
+    async readProjectFile(...args) {
       if (args[1] === held)
         await new Promise<void>((release) => releases.push(release));
-      return published.readSource.readFile(...args);
+      return published.readSource.readProjectFile(...args);
     },
   };
   const readsOf = (path: string) =>

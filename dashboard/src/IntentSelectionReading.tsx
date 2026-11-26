@@ -57,6 +57,7 @@ export function IntentSelectionReading({
   readingKey,
   fileReading,
   storySelected,
+  wholeProject,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
@@ -79,6 +80,8 @@ export function IntentSelectionReading({
   readonly fileReading: IntentFileReadingPlace;
   // Story Home owns the empty-path view for a selected story.
   readonly storySelected: boolean;
+  // Project Intent reads any tracked file through the project reader.
+  readonly wholeProject: boolean;
 }) {
   const scope = selectionScope(selection);
   const { path } = selection;
@@ -108,6 +111,7 @@ export function IntentSelectionReading({
     path,
     file,
     unread: result !== undefined || unread,
+    wholeProject,
   });
   const pinned = useStoryResultFile(
     result?.pin,

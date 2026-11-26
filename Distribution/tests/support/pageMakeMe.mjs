@@ -28,6 +28,7 @@ import {
   SessionStateBuilder,
 } from "./launchObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
+import { IntentReadSourceBuilder } from "../../../dashboard/test-support/intentReadSourceTestData.ts";
 import { runningCursorSessionsMakeMeProperties } from "./runningCursorSessionsTestData.mjs";
 import { StartupRecoveryItemBuilder } from "./startupRecoveryItemTestData.mjs";
 import { optionsDefinitionMakeMeProperties } from "./optionsDefinitionTestData.mjs";
@@ -64,6 +65,7 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *     readonly aSessionState: SessionStateBuilder;
  *     readonly anObservedLaunch: ObservedLaunchBuilder;
  *     readonly aMachineAnswer: MachineAnswerBuilder;
+ *     readonly anIntentReadSource: IntentReadSourceBuilder;
  *     readonly aRunningCursorSessions: import("./runningCursorSessionsTestData.mjs").RunningCursorSessionsBuilder;
  *     readonly aStartupRecoveryItem: StartupRecoveryItemBuilder;
  *     readonly aTokenIndexAnswer: TokenIndexAnswerBuilder;
@@ -187,6 +189,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new MachineAnswerBuilder();
+    },
+  },
+  anIntentReadSource: {
+    enumerable: true,
+    get() {
+      return new IntentReadSourceBuilder();
     },
   },
   aStartupRecoveryItem: {

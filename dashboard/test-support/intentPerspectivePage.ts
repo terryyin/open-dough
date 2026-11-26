@@ -91,11 +91,17 @@ export async function revealIntentLocation(
   return locationName(await revealLocationRow(intent, locationPath));
 }
 
+const folderRow = (intent: Locator, path: string) =>
+  intent.locator(`li[data-folder-path=${JSON.stringify(path)}] > div`);
+
 // Selectable name for one Intent folder under the shared file tree.
 export function intentFolderName(intent: Locator, path: string) {
-  return locationName(
-    intent.locator(`li[data-folder-path=${JSON.stringify(path)}] > div`),
-  );
+  return locationName(folderRow(intent, path));
+}
+
+// Open one folder of the shared file tree whose parent is already open.
+export async function expandIntentFolder(intent: Locator, path: string) {
+  await expandToggle(disclosure(folderRow(intent, path)));
 }
 
 // Disclose the location after revealing its ancestors.
@@ -181,7 +187,6 @@ export async function expectNotConfiguredIntent(page: Page, label: string) {
   await expect(explanation).toBeVisible();
   await expect(intent).toContainText("intent.locations");
   await expect(intent).toContainText(".planning/open-dough.json");
-  await expect(intent.getByRole("list")).toHaveCount(0);
   await expect(explanation).not.toContainText(
     /no (tests|proof)|(tests|proof) (are|is) (absent|missing)|passed|failed/i,
   );

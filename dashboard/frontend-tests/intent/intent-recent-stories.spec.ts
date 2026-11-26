@@ -38,12 +38,14 @@ import {
 } from "./intent-recent-stories-page.ts";
 
 const intentReads = {
-  intent: {
-    readLocations: () =>
-      Promise.resolve({ status: "configured" as const, locations: [] }),
-    readFile: () => Promise.reject(new Error("Unexpected file read")),
-    readCandidates: () => Promise.resolve({ status: "absent" as const }),
-  },
+  intent: makeMe.anIntentReadSource
+    .reading({
+      readLocations: () =>
+        Promise.resolve({ status: "configured" as const, locations: [] }),
+      readFile: () => Promise.reject(new Error("Unexpected file read")),
+      readCandidates: () => Promise.resolve({ status: "absent" as const }),
+    })
+    .please(),
   ci: inertCiReads(),
 };
 const recent = intentRecentStories(openDoughSource);

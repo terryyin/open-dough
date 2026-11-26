@@ -1,4 +1,5 @@
 import {
+  chooseIntentOnly,
   fileSource,
   sourceFile,
   openLocationSummary,
@@ -55,6 +56,7 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expectIntentGroupsCollapsed(intent);
+  await chooseIntentOnly(intent);
 
   await test.step("Ex 4 javascript: matched *.test.mjs listed; fixtures omitted; selecting shows kind styling", async () => {
     await expect(
@@ -90,6 +92,7 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
     await page.goto("/?project=pygardon&perspective=intent");
     await openUntilRead(page, "/?project=pygardon&perspective=intent");
     await expectIntentGroupsCollapsed(intent);
+    await chooseIntentOnly(intent);
     const frontendHeading = testConfiguration(
       await openLocationSummary(intent, "frontend/src"),
     );
