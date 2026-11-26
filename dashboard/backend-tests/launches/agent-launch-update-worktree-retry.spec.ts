@@ -1,150 +1,229 @@
-// Update worktree and retry: apply the release updater to the kept launch
-// worktree, then Continue-equivalent resume — or refuse without launching.
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { existsSync, readFileSync } from "node:fs";
+// Worktree update-and-retry repairs only the retained checkout and continues
+// the same accepted attempt. The native host boundary supplies the session.
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
-  attempts,
-  continued,
-  launch,
-  updateWorktreeRetried,
-} from "../../test-support/agentLaunchBoundary.ts";
+  afterEach,
+  beforeAll,
+  beforeEach,
+  expect,
+  test,
+  vi,
+  type MockInstance,
+} from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { claudeHost } from "../../server/claudeHost.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
+import { attemptRun } from "../../server/launchRun.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { machineFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { startStore, type StartStore } from "../../server/startStore.ts";
+import type { LaunchResult } from "../../src/agentLaunch.ts";
 import {
-  answerOf,
   installHook,
-  keptStartOf,
   removeHook,
-  request,
-  slug,
-  workspaceOf,
-  type Problem,
 } from "../../test-support/keptExecutionStart.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+import { plantIncompleteInstall } from "../../test-support/support/incompleteReportingInstall.ts";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   queuedIdentity,
+  queuedTitle,
   startOrigin,
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
-import { settledOutcome } from "../../test-support/acceptedAttempts.ts";
-import {
-  plantIncompleteInstall,
-  scriptsOf,
-} from "../../test-support/support/incompleteReportingInstall.ts";
-import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: queuedTitle })
+  .please();
+const accepted = () =>
+  makeMe.anAcceptedAttempt
+    .requesting(request)
+    .reportingTo("http://127.0.0.1:9")
+    .publicationUnknown();
 const fakeHelper = path.join(
   repoRoot,
   "dashboard/test-support/support/fakeReleaseApply.sh",
 );
+const session = makeMe.aHostSession.claude({ sessionId: "claude-1" }).please();
+const note = () => Promise.resolve();
 
-test.describe("Update worktree and retry", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer | undefined;
+let origin: StartOrigin;
+let store: StartStore;
+let unmount: () => void;
+let marks: NativeDoneMarks;
+let launches: AgentLaunches;
+let dispatch: MockInstance<typeof claudeHost.launch>;
+let missing: string;
+let workspace: string;
 
-  test.beforeEach(async () => {
-    origin = await startOrigin(queuedReadyRepository().please());
-  });
-
-  test.afterEach(async () => {
-    await server?.close();
-    origin.cleanup();
-  });
-
-  async function incompleteKeptStart(extraEnv: Record<string, string> = {}) {
-    const dashboard = await startDashboardServer({
-      mode: "boundary",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-      extraEnv: { DOUGH_START_TIMEOUT_MS: "60000", ...extraEnv },
-    });
-    server = dashboard;
-    dashboard.claudeScenario("launched");
-    installHook(origin, "echo refused >&2\nexit 1\n");
-    const first = await answerOf<Problem>(launch(dashboard, request));
-    expect(first, first.explanation).toMatchObject({
-      kind: "failed",
-      reason: "start-refused",
-    });
-    const workspace = workspaceOf(origin);
-    plantIncompleteInstall(workspace);
-    removeHook(origin);
-    const id = (await attempts(dashboard)).at(-1)?.id ?? "";
-    const refused = await answerOf<Problem>(continued(dashboard, id));
-    expect(refused).toMatchObject({
-      kind: "failed",
-      reason: "refused",
-      worktreeUpdateNeeded: true,
-    });
-    expect(dashboard.claudeLaunchCalls()).toEqual([]);
-    return { id, workspace, dashboard };
+beforeAll(async () => {
+  const initial = await startOrigin(repository);
+  try {
+    keepStartedOrigin("claude", repository, initial);
+  } finally {
+    initial.cleanup();
   }
+});
 
-  test("successful apply against the exact worktree then resumes the retained start once", async () => {
-    const applyLog = path.join(origin.machine, "fake-apply.log");
-    const { id, workspace, dashboard } = await incompleteKeptStart({
-      OPEN_DOUGH_RELEASE_HELPER: fakeHelper,
-      OPEN_DOUGH_FAKE_APPLY_LOG: applyLog,
-    });
-    expect(keptStartOf(origin)).toMatchObject({
-      identity: queuedIdentity,
-      workspace,
-      branch: `claude/${slug}`,
-    });
-    expect(
-      existsSync(
-        path.join(scriptsOf(workspace), "first-landing-expectation.mjs"),
-      ),
-    ).toBe(false);
-
-    const resumed = await answerOf<{
-      kind: string;
-      record?: { start?: { workspace?: string } };
-    }>(updateWorktreeRetried(dashboard, id));
-    expect(resumed.kind, JSON.stringify(resumed)).toBe("launched");
-    expect(resumed.record?.start?.workspace).toBe(workspace);
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-    expect(
-      existsSync(
-        path.join(scriptsOf(workspace), "first-landing-expectation.mjs"),
-      ),
-    ).toBe(true);
-    expect(readFileSync(applyLog, "utf8")).toBe(
-      `apply --target ${workspace} --platform claude\n`,
-    );
-    expect(readFileSync(applyLog, "utf8")).not.toContain("--force");
-    expect(await settledOutcome(dashboard, id)).toMatchObject({
-      kind: "launched",
-    });
-    // Same attempt and workspace; one assignment from this resume, not a
-    // replacement claim or second worktree.
-    expect(await origin.takenProfiles()).toHaveLength(1);
-    expect(keptStartOf(origin)).toBeUndefined();
+beforeEach(async () => {
+  origin = await startOrigin(repository);
+  const home = path.join(origin.machine, "home");
+  vi.stubEnv("HOME", home);
+  vi.spyOn(claudeHost, "executionStartRefusal").mockResolvedValue(undefined);
+  unmount = mountProjectConfiguration("production");
+  store = startStore("execution", home);
+  marks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: () => undefined,
+    reportingFolder: machineFolder,
+  });
+  launches = new AgentLaunches(marks);
+  dispatch = vi.spyOn(claudeHost, "launch").mockResolvedValue({
+    kind: "launched",
+    session,
+    sessionState: makeMe.aSessionState.loaded("working").please(),
   });
 
-  test("updater refusal leaves an actionable explanation and does not launch", async () => {
-    const { id, workspace, dashboard } = await incompleteKeptStart();
-    const refused = await answerOf<Problem>(
-      updateWorktreeRetried(dashboard, id),
+  installHook(origin, "echo refused >&2\nexit 1\n");
+  let first: LaunchResult;
+  try {
+    first = await attemptRun(
+      source,
+      {
+        request,
+        attempt: accepted().please(),
+        controller: new AbortController(),
+        changes: 0,
+      },
+      note,
+      note,
+      note,
+      new StartProgress(),
+      marks,
     );
-    expect(refused).toMatchObject({
-      kind: "failed",
-      reason: "refused",
-      worktreeUpdateNeeded: true,
-    });
-    expect(refused.explanation).toMatch(
-      /refused|failed|unverifiable|preserved|Nothing was launched/i,
-    );
-    expect(refused.explanation).toContain("No forced reinstall was attempted");
-    expect(dashboard.claudeLaunchCalls()).toEqual([]);
-    expect(keptStartOf(origin)).toMatchObject({
-      identity: queuedIdentity,
-      workspace,
-      branch: `claude/${slug}`,
-    });
+  } finally {
+    removeHook(origin);
+  }
+  if (first.kind !== "failed" || first.reason !== "start-refused")
+    throw new Error(`Expected a refused Take: ${JSON.stringify(first)}`);
+  const kept = await store.kept(source.id, queuedIdentity);
+  if (kept === undefined) throw new Error("Missing kept Take candidate.");
+  workspace = kept.workspace;
+  missing = plantIncompleteInstall(workspace);
+
+  const attempt = accepted()
+    .ended(first)
+    .settledAt(new Date().toISOString())
+    .please();
+  await keepAttempt(attempt);
+  const resumed = await launches.continueAttempt(source, attempt.id);
+  expect(resumed.kind).toBe("accepted");
+  const readAttempt = async () =>
+    (await keptAttempts())?.find(({ id }) => id === attempt.id);
+  await expect.poll(readAttempt).toMatchObject({
+    outcome: { kind: "failed", reason: "refused", worktreeUpdateNeeded: true },
   });
+  const outcome = (await readAttempt())?.outcome;
+  if (outcome?.kind !== "failed")
+    throw new Error("Expected reporting refusal.");
+  expect(outcome.explanation).toContain(missing);
+  expect(dispatch).not.toHaveBeenCalled();
+});
+
+afterEach(async () => {
+  await launches.drain();
+  launches.close();
+  await marks.close();
+  vi.restoreAllMocks();
+  unmount();
+  vi.unstubAllEnvs();
+  origin.cleanup();
+});
+
+test("applies the updater to the exact kept worktree and resumes that attempt once", async () => {
+  const applyLog = path.join(origin.machine, "fake-apply.log");
+  vi.stubEnv("OPEN_DOUGH_RELEASE_HELPER", fakeHelper);
+  vi.stubEnv("OPEN_DOUGH_FAKE_APPLY_LOG", applyLog);
+  const kept = await store.kept(source.id, queuedIdentity);
+  const id = accepted().please().id;
+  expect(existsSync(missing)).toBe(false);
+
+  const acceptance = await launches.updateWorktreeAndRetry(source, id);
+  await launches.drain();
+
+  expect(acceptance).toMatchObject({ kind: "accepted", attempt: { id } });
+  const { attempts } = await launches.attempts();
+  expect(attempts).toMatchObject([
+    {
+      id,
+      outcome: { kind: "launched", session: { sessionId: session.sessionId } },
+    },
+  ]);
+  expect(existsSync(missing)).toBe(true);
+  expect(readFileSync(applyLog, "utf8")).toBe(
+    `apply --target ${workspace} --platform claude\n`,
+  );
+  expect(dispatch).toHaveBeenCalledTimes(1);
+  expect(dispatch.mock.calls[0]?.[4]?.workspace.path).toBe(workspace);
+  expect(readdirSync(path.dirname(workspace))).toEqual([
+    path.basename(workspace),
+  ]);
+  expect(await keptRecords(source.id)).toMatchObject([
+    {
+      start: {
+        workspace,
+        branch: kept?.branch,
+        publishedSha: kept?.candidateSha,
+      },
+    },
+  ]);
+  expect(await origin.takenProfiles()).toMatchObject([
+    { identity: queuedIdentity },
+  ]);
+  expect((await origin.originGit("rev-parse", "main")).trim()).toBe(
+    kept?.candidateSha,
+  );
+  expect(await store.kept(source.id, queuedIdentity)).toBeUndefined();
+});
+
+test("updater refusal leaves an actionable explanation and dispatches nothing", async () => {
+  const refusedUpdater = path.join(origin.machine, "refuse-apply.sh");
+  writeFileSync(
+    refusedUpdater,
+    '#!/bin/sh\nprintf "%s\\n" "Installation preserved. Restore its release baseline before updating." >&2\nexit 1\n',
+  );
+  vi.stubEnv("OPEN_DOUGH_RELEASE_HELPER", refusedUpdater);
+  const kept = await store.kept(source.id, queuedIdentity);
+  const before = await origin.originGit("rev-parse", "main");
+
+  const refused = await launches.updateWorktreeAndRetry(
+    source,
+    accepted().please().id,
+  );
+  await launches.drain();
+
+  expect(refused).toMatchObject({
+    kind: "failed",
+    reason: "refused",
+    worktreeUpdateNeeded: true,
+  });
+  if (refused.kind !== "failed") throw new Error("Expected updater refusal.");
+  expect(refused.explanation).toContain(
+    "Restore its release baseline before updating.",
+  );
+  expect(refused.explanation).toContain(
+    "Nothing was launched. No forced reinstall was attempted.",
+  );
+  expect(existsSync(missing)).toBe(false);
+  expect(dispatch).not.toHaveBeenCalled();
+  expect(await store.kept(source.id, queuedIdentity)).toEqual(kept);
+  expect(await origin.originGit("rev-parse", "main")).toBe(before);
 });

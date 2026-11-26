@@ -1,213 +1,218 @@
-// An execution launch establishes its start before the session
-// (../../server/executionStart.ts), over raw HTTP against the real installed
-// `execution-start.mjs` and a real bare origin (../../test-support/support/startOrigin.ts),
-// with the synthetic `claude`: origin ends up holding the Taken profile that
-// names host claude and the chosen model (none on Default), the session
-// starts in the new workspace under the project's `.worktrees/` with the
-// established start in its instruction, and the kept record has the start.
-// The workspace and result rules themselves are ./launch-workspace.spec.ts
-// and ./execution-start-result.spec.ts.
-
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { existsSync, realpathSync, rmSync } from "node:fs";
+// The typed start decides what will be handed to native launch after the real
+// installed command publishes its Take on a private origin.
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  establishingProjects,
-  launch,
-  recordsOf,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+import { beforeAll, expect, test as base } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { started } from "../../server/launchStart.ts";
+import { localFolder, type LocalFolder } from "../../server/localFolder.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { startStore, type StartStore } from "../../server/startStore.ts";
+import { startOf, type StoryStartInputs } from "../../server/startWorkflows.ts";
+import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
 import {
   queuedIdentity,
   queuedTitle,
   startOrigin,
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
-const request = makeMe.aLaunchRequest
-  .executing({ identity: queuedIdentity, title: queuedTitle })
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
+const story = { identity: queuedIdentity, title: queuedTitle };
+const defaultRequest = makeMe.aLaunchRequest.executing(story).please();
+const namedRequest = makeMe.aLaunchRequest
+  .executing(story)
+  .requestingModel("opus")
   .please();
-const slug = "prepare-the-queued-start";
 
-for (const model of ["opus", undefined] as const) {
-  test.describe(`execution start (${model ?? "Default"} model)`, () => {
-    let origin: StartOrigin;
-    let server: DashboardServer;
+beforeAll(async () => {
+  const initial = await startOrigin(repository);
+  try {
+    keepStartedOrigin("claude", repository, initial);
+  } finally {
+    initial.cleanup();
+  }
+});
 
-    test.beforeAll(async () => {
-      origin = await startOrigin(queuedReadyRepository().please());
-      server = await startDashboardServer({
-        mode: "boundary",
-        machine: origin.machine,
-        projectFolders: ["open-dough"],
-        launchTimeoutMs: 30_000,
-      });
-    });
+type StartFixture = {
+  origin: StartOrigin;
+  folder: LocalFolder;
+  store: StartStore;
+  inputs: StoryStartInputs;
+};
 
-    test.afterAll(async () => {
-      await server.close();
+const test = base.extend<StartFixture & { home: string }>({
+  // Vitest requires a destructured fixture argument even with no dependencies.
+  // eslint-disable-next-line no-empty-pattern
+  origin: async ({}, use) => {
+    const origin = await startOrigin(repository);
+    try {
+      await use(origin);
+    } finally {
       origin.cleanup();
+    }
+  },
+  home: async ({ origin }, use) => use(path.join(origin.machine, "home")),
+  folder: async ({ home }, use) => use(localFolder("~/git/open-dough", home)),
+  store: async ({ home }, use) => use(startStore("execution", home)),
+  inputs: async ({ home, store }, use) => {
+    const bin = path.join(home, "bin");
+    mkdirSync(bin);
+    // The preflight checks for an executable; the start does not run the host.
+    writeFileSync(path.join(bin, "claude"), "", { mode: 0o755 });
+    await use({
+      store: () => store,
+      env: {
+        ...process.env,
+        HOME: home,
+        PATH: `${bin}${path.delimiter}${process.env["PATH"] ?? ""}`,
+      },
     });
+  },
+});
 
-    test("publishes the Take, opens the session in the workspace with the start, and keeps it", async () => {
-      server.claudeScenario("launched");
-      const response = await launch(server, { ...request, model });
-      const answer = JSON.parse(response.body) as {
-        kind: string;
-        record: { start?: Record<string, unknown> };
-      };
-      expect(answer.kind, response.body).toBe("launched");
+async function expectPublishedTake(
+  request: AgentLaunchRequest,
+  { origin, folder, store, inputs }: StartFixture,
+) {
+  const result = await started(
+    source,
+    request,
+    folder,
+    new StartProgress(),
+    inputs,
+    "start-attempt",
+  );
 
-      // Origin holds the Taken profile, naming host claude and the model.
-      const profiles = await origin.takenProfiles();
-      expect(profiles).toHaveLength(1);
-      expect(profiles[0]).toMatchObject({
-        identity: queuedIdentity,
-        host: "claude",
-        mode: "story-branch",
-        branch: `claude/${slug}`,
-      });
-      expect(profiles[0]?.["model"]).toBe(model);
-
-      // The session starts in the workspace, carrying the established start.
-      const workspace = path.join(origin.project, ".worktrees", slug);
-      const publishedSha = (await origin.originGit("rev-parse", "main")).trim();
-      const [started] = server.claudeLaunches();
-      expect(started?.cwd).toBe(realpathSync(workspace));
-      const instruction = started?.instruction ?? "";
-      expect(started?.name).toBe(`Open Dough · Execution · ${queuedTitle}`);
-      expect(started?.model).toBe(model);
-      expect(instruction.split("\n\n")[0]).toBe(
-        `/dough-execute-plan ${queuedIdentity}`,
-      );
-      const lines = instruction.split("\n");
-      expect(lines.slice(2, 4)).toEqual([
-        "Established start:",
-        `- identity: ${queuedIdentity}`,
-      ]);
-      expect(lines[4]).toMatch(/^- publisher ID: dashboard-.+-open-dough$/);
-      for (const line of [
-        `- workspace: ${workspace}`,
-        `- branch: claude/${slug}`,
-        "- mode: story-branch",
-        "- remote: origin",
-        "- target: main",
-        `- publishedSha: ${publishedSha}`,
-      ]) {
-        expect(lines).toContain(line);
-      }
-
-      // The launch record keeps the start, and the machine's sessions answer it.
-      expect(answer.record.start).toMatchObject({
-        identity: queuedIdentity,
-        workspace,
-        branch: `claude/${slug}`,
-        mode: "story-branch",
-        remote: "origin",
-        target: "main",
-        publishedSha,
-      });
-      const kept = (await recordsOf(server, "open-dough")) as {
-        start?: unknown;
-      }[];
-      expect(kept).toHaveLength(1);
-      expect(kept[0]?.start).toEqual(answer.record.start);
-    });
+  if (result.kind !== "established" || !("start" in result.handoff.established))
+    throw new Error(
+      `Expected an established execution start: ${JSON.stringify(result)}`,
+    );
+  const start = result.handoff.established.start;
+  const branch = "claude/prepare-the-queued-start";
+  const workspace = path.join(
+    origin.project,
+    ".worktrees",
+    "prepare-the-queued-start",
+  );
+  const publishedSha = (await origin.originGit("rev-parse", "main")).trim();
+  const profiles = await origin.takenProfiles();
+  expect(profiles).toEqual([
+    expect.objectContaining({
+      identity: queuedIdentity,
+      host: "claude",
+      mode: "story-branch",
+      branch,
+    }),
+  ]);
+  expect(profiles[0]?.["model"]).toBe(request.model);
+  expect((await origin.originGit("rev-parse", branch)).trim()).toBe(
+    publishedSha,
+  );
+  expect("publisherId" in start && start.publisherId).toMatch(
+    /^dashboard-.+-open-dough$/,
+  );
+  expect(start).toMatchObject({
+    identity: queuedIdentity,
+    workspace,
+    branch,
+    mode: "story-branch",
+    remote: "origin",
+    target: "main",
+    publishedSha,
   });
+  expect(result.workspace.path).toBe(workspace);
+  expect(existsSync(workspace)).toBe(true);
+  expect(result.handoff.formatted.split("\n")).toEqual(
+    expect.arrayContaining([
+      "Established start:",
+      `- identity: ${queuedIdentity}`,
+      `- workspace: ${workspace}`,
+      `- branch: ${branch}`,
+      `- publishedSha: ${publishedSha}`,
+    ]),
+  );
+  expect((await store.kept(source.id, queuedIdentity))?.start).toEqual(start);
 }
 
-test.describe("execution start of a project whose origin is not the catalog repository", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
+test("publishes the Take and keeps the handoff (opus model)", ({
+  origin,
+  folder,
+  store,
+  inputs,
+}) => expectPublishedTake(namedRequest, { origin, folder, store, inputs }));
 
-  test.beforeAll(async () => {
-    origin = await startOrigin(queuedReadyRepository().please(), {
-      repository: "someone/else",
-    });
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-    });
-  });
+test("publishes the Take and keeps the handoff (Default model)", ({
+  origin,
+  folder,
+  store,
+  inputs,
+}) => expectPublishedTake(defaultRequest, { origin, folder, store, inputs }));
 
-  test.afterAll(async () => {
-    await server.close();
-    origin.cleanup();
-  });
+test("refuses to publish to an origin outside the catalog project", async ({
+  origin,
+  folder,
+  store,
+  inputs,
+}) => {
+  const catalog = makeMe.aPublishedSource
+    .with({ ...source, repository: "someone/else" })
+    .please();
+  const before = await origin.originGit("rev-parse", "main");
 
-  test("starts nothing and launches nothing", async () => {
-    const response = await launch(server, request);
-    expect(JSON.parse(response.body)).toMatchObject({
+  const result = await started(
+    catalog,
+    defaultRequest,
+    folder,
+    new StartProgress(),
+    inputs,
+    "start-attempt",
+  );
+
+  expect(result).toMatchObject({
+    kind: "stopped",
+    result: {
       kind: "failed",
       reason: "start-refused",
       explanation:
-        "The origin of ~/git/open-dough is not terryyin/open-dough, where the Take would be published. Nothing was started or launched.",
-    });
-    expect(server.claudeCalls()).toEqual([]);
-    expect(await origin.takenProfiles()).toEqual([]);
-    expect(await recordsOf(server, "open-dough")).toEqual([]);
+        "The origin of ~/git/open-dough is not someone/else, where the Take would be published. Nothing was started or launched.",
+    },
+    publication: { kind: "none" },
   });
+  expect(await origin.originGit("rev-parse", "main")).toBe(before);
+  expect(await store.kept(source.id, queuedIdentity)).toBeUndefined();
 });
 
-test.describe("execution start of a project whose installed skill cannot continue from a start", () => {
-  let origin: StartOrigin;
-  let server: DashboardServer;
+test("falls back to a launch without a start when the installed formatter is missing", async ({
+  origin,
+  folder,
+  store,
+  inputs,
+}) => {
+  const workflow = startOf("execution");
+  expect(await workflow?.establishes(folder, "claude")).toBe(true);
+  rmSync(
+    path.join(
+      origin.project,
+      ".claude/skills/dough-execute-plan/scripts/established-start.mjs",
+    ),
+  );
+  const before = await origin.originGit("rev-parse", "main");
 
-  test.beforeAll(async () => {
-    origin = await startOrigin(queuedReadyRepository().please());
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-    });
-  });
+  const result = await started(
+    source,
+    defaultRequest,
+    folder,
+    new StartProgress(),
+    inputs,
+    "start-attempt",
+  );
 
-  test.afterAll(async () => {
-    await server.close();
-    origin.cleanup();
-  });
-
-  test("launches as before, in the execution checkout, with no Take and no workspace", async () => {
-    // The folder that ships the formatter is a project that establishes a start.
-    expect(await establishingProjects(server)).toEqual(["open-dough"]);
-
-    // An installed skill that predates the handoff does not.
-    rmSync(
-      path.join(
-        origin.project,
-        ".claude/skills/dough-execute-plan/scripts/established-start.mjs",
-      ),
-    );
-    rmSync(
-      path.join(
-        origin.project,
-        ".claude/skills/dough-execute-plan/scripts/dashboard-completion.mjs",
-      ),
-    );
-    expect(await establishingProjects(server)).toEqual([]);
-
-    server.claudeScenario("launched");
-    const response = await launch(server, request);
-    const answer = JSON.parse(response.body) as {
-      kind: string;
-      record: { start?: unknown };
-    };
-    expect(answer.kind, response.body).toBe("launched");
-
-    expect(await origin.takenProfiles()).toEqual([]);
-    expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
-    expect(server.claudeLaunches()[0]).toMatchObject({
-      cwd: realpathSync(origin.project),
-      instruction: `/dough-execute-plan ${queuedIdentity}`,
-    });
-    expect(answer.record.start).toBeUndefined();
-  });
+  expect(result).toEqual({ kind: "none" });
+  expect(await origin.originGit("rev-parse", "main")).toBe(before);
+  expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
+  expect(await store.kept(source.id, queuedIdentity)).toBeUndefined();
 });

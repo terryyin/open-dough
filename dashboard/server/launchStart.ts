@@ -22,7 +22,11 @@ import {
   type Established,
 } from "./startLaunch.ts";
 import type { StartProgress } from "./startProgress.ts";
-import { startOf, type StartWorkflow } from "./startWorkflows.ts";
+import {
+  startOf,
+  type StartWorkflow,
+  type StoryStartInputs,
+} from "./startWorkflows.ts";
 import { keptStart } from "./startStore.ts";
 import { launchStartContext } from "./launchRecord.ts";
 import { unattachedStarted } from "./unattachedStart.ts";
@@ -137,6 +141,7 @@ export async function started(
   request: AgentLaunchRequest,
   folder: LocalFolder,
   progress: StartProgress,
+  inputs: StoryStartInputs,
   attemptId: string,
   noteSlow: (slowSince: string) => Promise<void> = async () => {},
   noteWorker: (pid: number) => Promise<void> = async () => {},
@@ -157,13 +162,11 @@ export async function started(
     return { kind: "none" };
   }
   const scoped = progress.for(request.workflow);
-  const planned = await workflow.begin(
-    source,
-    request,
-    folder,
-    scoped,
+  const planned = await workflow.begin(source, request, folder, scoped, {
+    store: inputs.store(workflow.workflow),
+    env: inputs.env,
     noteWorker,
-  );
+  });
   if (planned.kind === "not-applicable") {
     return { kind: "none" };
   }
@@ -179,7 +182,7 @@ export async function started(
   let slowNoted: Promise<void> | undefined;
   const timer = setTimeout(() => {
     slowNoted = noteSlow(new Date().toISOString());
-  }, startTimeoutMs());
+  }, inputs.warningMs ?? defaultStartWaitMs);
   const attempt = await planned.attempt.finally(async () => {
     clearTimeout(timer);
     // Finish the warning write before a publication receipt or outcome can

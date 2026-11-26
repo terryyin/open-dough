@@ -28,16 +28,12 @@ import {
   startChoice,
   type PlannedStart,
   type StartAttempt,
+  type StoryStartRuntime,
 } from "./startLaunch.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import { continuedStart } from "./startPolicy.ts";
 import { establishedOneShot, record } from "./startRecording.ts";
-import {
-  keepStart,
-  keptStart,
-  removeStart,
-  updateStart,
-} from "./startStore.ts";
+import type { StartRecord } from "./startStore.ts";
 
 import {
   establishesPreparation,
@@ -48,8 +44,6 @@ export {
   formattedPreparation,
 } from "./preparationCommand.ts";
 
-const workflow = "refinement";
-
 // Runs the start for one refinement launch, or says why not. The story is in
 // `progress` from before its script runs: `preparing` while it runs, then
 // `launching` once it established the preparation, for the launch to end.
@@ -58,10 +52,10 @@ export async function beginPreparation(
   request: StoryLaunchRequest,
   project: LocalFolder,
   progress: WorkflowProgress,
-  noteWorker: (pid: number) => Promise<void> = async () => {},
+  runtime: StoryStartRuntime,
 ): Promise<PlannedStart> {
   if (!(await establishesPreparation(project, request.host))) {
-    const kept = await keptStart(source.id, request.identity, workflow);
+    const kept = await runtime.store.kept(source.id, request.identity);
     if (kept !== undefined) {
       const { workspace, branch } = await startChoice(
         project,
@@ -86,7 +80,7 @@ export async function beginPreparation(
     project,
     progress,
     "Preparing announcement",
-    () => runningPreparation(source, request, project, progress, noteWorker),
+    () => runningPreparation(source, request, project, progress, runtime),
   );
 }
 
@@ -95,11 +89,11 @@ async function runningPreparation(
   request: StoryLaunchRequest,
   project: LocalFolder,
   progress: WorkflowProgress,
-  noteWorker: (pid: number) => Promise<void> = async () => {},
+  { store, env, noteWorker }: StoryStartRuntime,
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was:
   // the same workspace, branch and policy, so the script answers `continued`.
-  const kept = await keptStart(source.id, request.identity, workflow);
+  const kept = await store.kept(source.id, request.identity);
   const { workspace, branch, model, effort, policy } = await startChoice(
     project,
     request,
@@ -144,25 +138,21 @@ async function runningPreparation(
       ? kept.preparation
       : undefined;
   const before = await beforeStart(project, workspace.path, branch);
-  const updateKept = (change: Parameters<typeof updateStart>[2]) =>
-    record(() => updateStart(source.id, request.identity, change, workflow));
+  const updateKept = (change: Partial<StartRecord>) =>
+    record(() => store.update(source.id, request.identity, change));
   // Written ahead of the script, so a start whose result is lost is still
   // known.
   if (kept === undefined)
-    await keepStart(
-      source.id,
-      {
-        host: request.host,
-        identity: request.identity,
-        workspace: workspace.path,
-        branch,
-        ...(model === undefined ? {} : { model }),
-        ...(effort === undefined ? {} : { effort }),
-        ...(oneShot ? { policy } : {}),
-        startedAt: new Date().toISOString(),
-      },
-      workflow,
-    );
+    await store.keep(source.id, {
+      host: request.host,
+      identity: request.identity,
+      workspace: workspace.path,
+      branch,
+      ...(model === undefined ? {} : { model }),
+      ...(effort === undefined ? {} : { effort }),
+      ...(oneShot ? { policy } : {}),
+      startedAt: new Date().toISOString(),
+    });
   // An old/no-result start is uncertain. Only the script's explicit verified
   // nonacceptance permits another announcement; an established start never does.
   // A one-shot start announces nothing, so it reruns its start instead.
@@ -185,6 +175,7 @@ async function runningPreparation(
     },
     project,
     continuing ? "continue" : "start",
+    env,
     noteWorker,
   ).then(async (result): Promise<StartAttempt> => {
     if (result.kind === "established" || result.kind === "prepared") {
@@ -233,7 +224,7 @@ async function runningPreparation(
     // A stop that made no assignment leaves nothing to resume and removes the
     // workspace and branch this launch created; the execution checkout existed
     // before, so it stays.
-    await record(() => removeStart(source.id, request.identity, workflow));
+    await record(() => store.remove(source.id, request.identity));
     return {
       kind: "refused",
       publishedNothing: true,

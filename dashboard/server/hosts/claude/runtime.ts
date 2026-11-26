@@ -27,8 +27,9 @@ const command = "claude";
 // Establish absence in the native launch environment without running Claude.
 export async function claudeExecutableMissing(
   folder: LocalFolder,
+  environment: NodeJS.ProcessEnv,
 ): Promise<boolean> {
-  const env = developerShellEnvironment(process.env);
+  const env = developerShellEnvironment(environment);
   const cwd = path.resolve(folder.path);
   const checkoutPrefix = path.join(cwd, path.sep);
   let candidateInCheckout = false;

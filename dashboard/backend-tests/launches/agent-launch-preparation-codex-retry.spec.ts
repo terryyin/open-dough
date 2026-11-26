@@ -1,232 +1,236 @@
-// Retained Codex preparation damage variants refuse retry at the launch
-// boundary without replacing preparation. The page path is one journey:
-// ../../../e2e/launches/agent-launch-preparation-codex-retry.spec.ts.
-import { readFileSync, existsSync, writeFileSync, rmSync } from "node:fs";
-import { execFileSync, spawnSync } from "node:child_process";
+// A damaged retained preparation blocks its own retry and preserves the
+// evidence needed to reconcile it. The Codex retry E2E owns native dispatch.
+import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
+import { rm } from "node:fs/promises";
 import path from "node:path";
-import { launch } from "../../test-support/agentLaunchBoundary.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { stored } from "../../test-support/support/codexLaunch.ts";
+import { promisify } from "node:util";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import {
+  publicationOf,
+  started,
+  type Started,
+} from "../../server/launchStart.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import {
+  startStore,
+  type StartRecord,
+  type StartStore,
+} from "../../server/startStore.ts";
 import {
   queuedIdentity,
-  otherQueuedIdentity,
+  startOrigin,
+  type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
-import type { StartRecord } from "../../server/startStore.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 
-test.use({ serverMode: "boundary", preparationHost: "codex" });
+type PublishedPreparation = Exclude<
+  NonNullable<StartRecord["preparation"]>,
+  { tracking: "one-shot" }
+>;
 
-for (const damage of [
-  "workspace",
-  "workspace-and-branch",
-  "ownership",
-  "allocation",
-  "legacy-ownership",
-  "uncertain-result",
-  "older-script",
-  "saved-allocation",
-  "retained-facts",
-  "missing-script",
-] as const) {
-  test(`Codex retained retry refuses lost ${damage} without replacing its preparation`, async ({
-    dashboard,
-    origin,
-    codexProtocol,
-  }) => {
-    if (codexProtocol === undefined) throw new Error("Native fixture missing.");
-    const native = codexProtocol;
-    const request = makeMe.aLaunchRequest
-      .refining({
-        identity: queuedIdentity,
-        title: "Story A",
-        host: "codex",
-      })
-      .please();
-    native.refuseCreation = true;
-    const first = await launch(dashboard, request);
-    expect(first.body).toContain("Codex refused to create a conversation");
-    const workspace = path.join(origin.project, ".worktrees", "story-a");
-    const startsFile = path.join(
-      dashboard.home,
-      ".open-dough/dashboard/refinement-starts.json",
-    );
-    const profiles = await origin.takenProfiles();
-    expect(profiles).toHaveLength(1);
-    const agent = String(profiles[0]?.["agent"]);
-    const publishedSha = (await origin.originGit("rev-parse", "main")).trim();
-    const git = (...args: string[]) =>
-      execFileSync("git", ["-C", origin.project, ...args], {
-        encoding: "utf8",
-      });
-    const local = (...args: string[]) =>
-      execFileSync("git", ["-C", workspace, ...args], {
-        encoding: "utf8",
-      });
-    const script = path.join(
-      origin.project,
-      ".agents/skills/dough-story-refinement/scripts/preparation-assignment.mjs",
-    );
-    const installedBytes = readFileSync(script, "utf8");
-    if (damage === "workspace" || damage === "workspace-and-branch") {
-      git("worktree", "remove", workspace);
-      if (damage === "workspace-and-branch")
-        git("branch", "-d", "codex/story-a");
-    } else if (damage === "older-script") {
-      // Exact released v0.3.51 entry; provenance is beside the offline fixture.
-      writeFileSync(
-        script,
-        readFileSync(
-          new URL(
-            "../../test-support/fixtures/preparation-assignment-v0.3.51.mjs.txt",
-            import.meta.url,
-          ),
-        ),
-      );
-      // Prove unsupported continuation while the established ownership is intact.
-      const continuation = spawnSync(
-        process.execPath,
-        [
-          script,
-          "continue",
-          "--integration",
-          origin.project,
-          "--workspace",
-          workspace,
-          "--branch",
-          "codex/story-a",
-          "--identity",
-          queuedIdentity,
-          "--remote",
-          "origin",
-          "--target",
-          "main",
-          "--push-authorized",
-          "--host",
-          "codex",
-          "--expected-agent",
-          agent,
-          "--expected-allocation",
-          publishedSha,
-        ],
-        {
-          cwd: origin.project,
-          env: { ...process.env, HOME: dashboard.home },
-          encoding: "utf8",
-        },
-      );
-      expect(continuation.error).toBeUndefined();
-      expect(continuation.status, continuation.stdout).toBe(2);
-      expect(continuation.stdout).toBe("");
-      expect(continuation.stderr).toContain(
-        "usage: preparation-assignment.mjs start",
-      );
-      expect(continuation.stderr).not.toContain(
-        "preparation-assignment.mjs continue",
-      );
-      git("worktree", "remove", workspace);
-      git("branch", "-d", "codex/story-a");
-    } else if (
-      damage === "ownership" ||
-      damage === "legacy-ownership" ||
-      damage === "uncertain-result"
-    ) {
-      local("update-ref", "-d", "refs/worktree/dough/preparation-assignment");
-    } else if (damage === "allocation") {
-      local(
+const exec = promisify(execFile);
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
+const request = makeMe.aLaunchRequest
+  .refining({ identity: queuedIdentity, title: "Story A", host: "codex" })
+  .please();
+const allocationRef = "refs/worktree/dough/preparation-assignment";
+
+let origin: StartOrigin;
+let home: string;
+let store: StartStore;
+let kept: StartRecord;
+let preparation: PublishedPreparation;
+let pending: Promise<Started> | undefined;
+
+beforeAll(async () => {
+  const initial = await startOrigin(repository, { host: "codex" });
+  try {
+    keepStartedOrigin("codex", repository, initial);
+  } finally {
+    initial.cleanup();
+  }
+});
+
+function start(progress = new StartProgress()) {
+  pending = started(
+    source,
+    request,
+    { path: origin.project, shown: "~/git/open-dough" },
+    progress,
+    { store: () => store, env: { ...process.env, HOME: home } },
+    "refinement-attempt",
+  );
+  return pending;
+}
+
+beforeEach(async () => {
+  pending = undefined;
+  origin = await startOrigin(repository, { host: "codex" });
+  home = path.join(origin.machine, "home");
+  store = startStore("refinement", home);
+  expect(await start()).toMatchObject({ kind: "established" });
+  const record = await store.kept(source.id, queuedIdentity);
+  if (record?.preparation === undefined || "tracking" in record.preparation)
+    throw new Error("Expected a published preparation.");
+  kept = record;
+  preparation = record.preparation;
+});
+
+afterEach(async () => {
+  await Promise.allSettled([pending]);
+  origin.cleanup();
+});
+
+async function git(cwd: string, ...args: string[]) {
+  return (await exec("git", args, { cwd })).stdout;
+}
+
+function removeWorkspace() {
+  return git(origin.project, "worktree", "remove", preparation.workspace);
+}
+
+function removeOwnership() {
+  return git(preparation.workspace, "update-ref", "-d", allocationRef);
+}
+
+function retainPreparation(preparation: StartRecord["preparation"]) {
+  return store.keep(
+    source.id,
+    makeMe.aStartRecord.with({ ...kept, preparation }).please(),
+  );
+}
+
+async function evidence() {
+  const [head, profiles, retained, branches, worktrees, allocation] =
+    await Promise.all([
+      origin.originGit("rev-parse", "main"),
+      origin.takenProfiles(),
+      store.kept(source.id, queuedIdentity),
+      git(
+        origin.project,
+        "for-each-ref",
+        "--format=%(refname) %(objectname)",
+        "refs/heads/",
+      ),
+      git(origin.project, "worktree", "list", "--porcelain"),
+      existsSync(preparation.workspace)
+        ? git(
+            preparation.workspace,
+            "for-each-ref",
+            "--format=%(objectname)",
+            allocationRef,
+          )
+        : undefined,
+    ]);
+  return { head, profiles, retained, branches, worktrees, allocation };
+}
+
+async function expectRefused(before: Awaited<ReturnType<typeof evidence>>) {
+  const progress = new StartProgress();
+  const outcome = await start(progress);
+  expect(outcome).toMatchObject({
+    kind: "stopped",
+    result: { kind: "failed", reason: "start-refused" },
+  });
+  if (outcome.kind !== "stopped" || outcome.result.kind !== "failed")
+    throw new Error("Expected continuation refusal.");
+  expect(outcome.result.explanation).toContain("must be reconciled");
+  expect(outcome.result.explanation).toContain("story-a");
+  expect(outcome.result.explanation).toContain("Nothing was launched.");
+  const retained = before.retained?.preparation;
+  if (retained !== undefined && !("tracking" in retained))
+    expect(outcome.result.explanation).toContain(String(retained.agent));
+  expect(publicationOf(outcome, undefined)).toEqual({ kind: "none" });
+  expect(progress.all()).toEqual([]);
+  expect(await evidence()).toEqual(before);
+  expect(existsSync(preparation.workspace)).toBe(
+    before.allocation !== undefined,
+  );
+}
+
+const damageCases = [
+  {
+    name: "workspace and branch",
+    async damage() {
+      await removeWorkspace();
+      await git(origin.project, "branch", "-d", preparation.branch);
+    },
+  },
+  { name: "ownership", damage: removeOwnership },
+  {
+    name: "allocation",
+    damage: () =>
+      git(
+        preparation.workspace,
         "update-ref",
-        "refs/worktree/dough/preparation-assignment",
-        `${publishedSha}^`,
+        allocationRef,
+        `${preparation.publishedSha}^`,
+      ),
+  },
+  {
+    name: "legacy ownership",
+    async damage() {
+      await removeOwnership();
+      await retainPreparation({ ...preparation, publishedSha: undefined });
+    },
+  },
+  {
+    name: "uncertain result",
+    async damage() {
+      await removeOwnership();
+      await retainPreparation(undefined);
+    },
+  },
+  {
+    name: "saved allocation",
+    async damage() {
+      const parent = await git(
+        preparation.workspace,
+        "rev-parse",
+        `${preparation.publishedSha}^`,
       );
-    } else if (damage === "missing-script") {
-      rmSync(script);
-    }
-    if (
-      damage === "legacy-ownership" ||
-      damage === "uncertain-result" ||
-      damage === "saved-allocation" ||
-      damage === "retained-facts"
-    ) {
-      const starts = JSON.parse(readFileSync(startsFile, "utf8")) as Record<
-        string,
-        Record<string, StartRecord>
-      >;
-      const retained = starts["open-dough"]?.[queuedIdentity];
-      if (retained?.preparation === undefined)
-        throw new Error("Published preparation missing from fixture start.");
-      if ("tracking" in retained.preparation)
-        throw new Error("Fixture start unexpectedly established one-shot.");
-      const preparation = retained.preparation;
-      if (damage === "legacy-ownership") delete preparation.publishedSha;
-      if (damage === "uncertain-result") delete retained.preparation;
-      if (damage === "saved-allocation")
-        preparation.publishedSha = local(
-          "rev-parse",
-          `${publishedSha}^`,
-        ).trim();
-      if (damage === "retained-facts") preparation.workspace = origin.project;
-      writeFileSync(startsFile, JSON.stringify(starts));
-    }
-    const startBytes = readFileSync(startsFile, "utf8");
-    const branches = git(
-      "for-each-ref",
-      "--format=%(refname) %(objectname)",
-      "refs/heads/",
-    );
-    const worktrees = git("worktree", "list", "--porcelain");
-    const allocation = existsSync(workspace)
-      ? local(
-          "for-each-ref",
-          "--format=%(objectname)",
-          "refs/worktree/dough/preparation-assignment",
-        )
-      : undefined;
-    const calls = [...native.calls];
-    native.refuseCreation = false;
-    const second = await launch(dashboard, request);
-    expect(second.body).toContain('"kind":"failed"');
-    expect(second.body).toContain("reconcile");
-    if (damage !== "uncertain-result") expect(second.body).toContain(agent);
-    expect(second.body).toContain("story-a");
-    expect(readFileSync(startsFile, "utf8")).toBe(startBytes);
-    expect(await origin.takenProfiles()).toEqual(profiles);
-    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(
-      publishedSha,
-    );
-    expect(
-      git("for-each-ref", "--format=%(refname) %(objectname)", "refs/heads/"),
-    ).toBe(branches);
-    expect(git("worktree", "list", "--porcelain")).toBe(worktrees);
-    expect(existsSync(workspace)).toBe(allocation !== undefined);
-    if (allocation !== undefined)
-      expect(
-        local(
-          "for-each-ref",
-          "--format=%(objectname)",
-          "refs/worktree/dough/preparation-assignment",
+      await retainPreparation({ ...preparation, publishedSha: parent.trim() });
+    },
+  },
+  {
+    name: "retained facts",
+    damage: () =>
+      retainPreparation({ ...preparation, workspace: origin.project }),
+  },
+  {
+    name: "missing script",
+    damage: () =>
+      rm(
+        path.join(
+          origin.project,
+          ".agents/skills/dough-story-refinement/scripts/preparation-assignment.mjs",
         ),
-      ).toBe(allocation);
-    expect(native.calls.slice(0, calls.length)).toEqual(calls);
-    const added = native.calls.slice(calls.length);
-    const discovery = new Set(["initialize", "initialized", "model/list"]);
-    expect(added.filter(({ method }) => !discovery.has(method))).toEqual([]);
-    expect(stored(dashboard.home)).toEqual([]);
-    if (damage === "missing-script") writeFileSync(script, installedBytes);
-    // One representative damage case proves an unrelated queued story still
-    // launches without replacing the retained damaged preparation; the other
-    // damage cases stop after their refusal and preservation assertions.
-    if (damage !== "workspace") return;
-    const independent = await launch(dashboard, {
-      ...request,
-      identity: otherQueuedIdentity,
-      title: "Story B",
+      ),
+  },
+];
+
+for (const variant of damageCases) {
+  describe(variant.name, () => {
+    let before: Awaited<ReturnType<typeof evidence>>;
+
+    beforeEach(async () => {
+      await variant.damage();
+      before = await evidence();
     });
-    expect(independent.body).toContain('"kind":"launched"');
-    expect(await origin.takenProfiles()).toHaveLength(2);
-    expect(
-      native.calls.filter(({ method }) => method === "turn/start"),
-    ).toHaveLength(1);
-    expect(JSON.parse(readFileSync(startsFile, "utf8"))).toEqual(
-      JSON.parse(startBytes),
-    );
+
+    test("refuses to replace the retained preparation", async () => {
+      await expectRefused(before);
+    });
   });
 }

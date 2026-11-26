@@ -35,7 +35,8 @@ export async function runPreparationCommand(
   },
   project: LocalFolder,
   operation: "start" | "continue",
-  noteWorker: (pid: number) => Promise<void> = async () => {},
+  env: NodeJS.ProcessEnv,
+  noteWorker?: (pid: number) => Promise<void>,
 ): Promise<PreparationResult> {
   const { host, model, assigned } = start;
   const args = [
@@ -72,6 +73,7 @@ export async function runPreparationCommand(
     project,
     operation,
     noteWorker,
+    env,
   );
   return output === undefined
     ? { kind: "unreadable" }

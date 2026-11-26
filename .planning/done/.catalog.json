@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-installed-story-starts-on-vitest.json",
+      "identity": "SEED-413#prove-installed-story-starts-on-vitest",
+      "completedAt": "2026-11-26T02:44:45.536Z",
+      "blob": "1510ceafeb218b36abada2c8847643565b9c7d76"
+    },
+    {
       "fileName": "SEED-430_qualify-board-fixture-routing-and-request-boundaries.json",
       "identity": "SEED-430#qualify-board-fixture-routing-and-request-boundaries",
       "completedAt": "2026-11-26T02:29:40.699Z",

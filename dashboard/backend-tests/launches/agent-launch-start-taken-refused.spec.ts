@@ -1,57 +1,80 @@
-// A refused first launch after a published claim
-// (../../server/agentLaunches.ts), over the launch boundary: its answer names
-// the Agent and workspace, and the machine names the kept start, with no
-// second claim, until a later launch opens a session. The Taken card's Start
-// that offer leads to: ../../../e2e/launches/agent-launch-start-taken.spec.ts.
-
-import { keptStarts, launch } from "../../test-support/agentLaunchBoundary.ts";
-import { expect } from "../../test-support/dashboardTest.ts";
-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { afterEach, beforeEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, workspaceShown } from "../../test-support/keptStartJourney.ts";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { started, type Started } from "../../server/launchStart.ts";
+import { localFolder, type LocalFolder } from "../../server/localFolder.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { startStore, type StartStore } from "../../server/startStore.ts";
+import {
+  queuedIdentity,
+  startOrigin,
+  type StartOrigin,
+} from "../../test-support/support/startOrigin.ts";
 
-test("a refused session launch after a published claim answers the Agent and workspace, the machine names the kept start until a session starts", async ({
-  dashboard,
-  origin,
-}) => {
-  const request = makeMe.aLaunchRequest
-    .executing({ identity: queuedIdentity, title: "Story A" })
-    .please();
-  expect(await keptStarts(dashboard)).toEqual([]);
-  dashboard.claudeScenario("refused");
-  const failed = JSON.parse((await launch(dashboard, request)).body) as {
-    kind: string;
-    reason: string;
-    explanation: string;
+const source = makeMe.aPublishedSource.openDough.please();
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: "Story A" })
+  .please();
+
+let origin: StartOrigin;
+let folder: LocalFolder;
+let store: StartStore;
+let env: NodeJS.ProcessEnv;
+let attempt: Promise<Started> | undefined;
+
+beforeEach(async () => {
+  attempt = undefined;
+  origin = await startOrigin(queuedReadyRepository().please());
+  const home = path.join(origin.machine, "home");
+  const bin = path.join(home, "bin");
+  mkdirSync(bin);
+  writeFileSync(path.join(bin, "claude"), "", { mode: 0o755 });
+  folder = localFolder("~/git/open-dough", home);
+  store = startStore("execution", home);
+  env = {
+    ...process.env,
+    HOME: home,
+    PATH: `${bin}${path.delimiter}${process.env["PATH"] ?? ""}`,
   };
-  const agent = String(
-    (await origin.takenProfiles()).find(
-      (each) => each["identity"] === queuedIdentity,
-    )?.["agent"],
+});
+
+afterEach(async () => {
+  await Promise.allSettled([attempt]);
+  origin.cleanup();
+});
+
+test("a published Take without a session names the Agent and workspace and retains the start", async () => {
+  attempt = started(
+    source,
+    request,
+    folder,
+    new StartProgress(),
+    { store: () => store, env },
+    "start-attempt",
   );
-  expect(failed).toMatchObject({ kind: "failed", reason: "refused" });
-  expect(failed.explanation).toMatch(
-    new RegExp(
-      `^Claude Code refused to start a session in ${workspaceShown}\\..* Taken by ${agent}; no session started\\. Workspace ${workspaceShown}\\.$`,
-    ),
-  );
-  expect(await keptStarts(dashboard)).toMatchObject([
-    {
-      host: "claude",
-      workflow: "execution",
-      source: "open-dough",
-      identity: queuedIdentity,
-      workspace: workspaceShown,
-      branch: "claude/story-a",
-      agent,
-    },
+  const result = await attempt;
+  if (result.kind !== "established") {
+    throw new Error(`Expected a published Take: ${JSON.stringify(result)}`);
+  }
+  const [[profile], head, kept] = await Promise.all([
+    origin.takenProfiles(),
+    origin.originGit("rev-parse", "main"),
+    store.kept(source.id, queuedIdentity),
   ]);
-
-  dashboard.claudeScenario("launched");
-  const second = JSON.parse((await launch(dashboard, request)).body) as {
-    kind: string;
-  };
-  expect(second.kind).toBe("launched");
-  expect(await keptStarts(dashboard)).toEqual([]);
-  expect(await origin.takenProfiles()).toHaveLength(1);
+  expect(profile?.["identity"]).toBe(queuedIdentity);
+  const workspace = "~/git/open-dough/.worktrees/story-a";
+  expect(result.workflow.publishedWithoutSession(result)).toBe(
+    `Taken by ${String(profile?.["agent"])}; no session started. Workspace ${workspace}.`,
+  );
+  expect(kept).toMatchObject({
+    host: "claude",
+    workspace: path.join(origin.project, ".worktrees", "story-a"),
+    branch: "claude/story-a",
+    start: {
+      agent: profile?.["agent"],
+      publishedSha: head.trim(),
+    },
+  });
 });

@@ -1,116 +1,89 @@
-// Lost first-input acknowledgment must recover the already published execution
-// and native conversation across a server restart, without another input/claim,
-// when its attempt is continued.
+// The installed Codex execution start reuses a published Take whose session
+// has yet to settle. The restart journey proves native first-input recovery.
 import { readdirSync } from "node:fs";
 import path from "node:path";
-import {
-  attempts,
-  continued,
-  launch,
-  keptStarts,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { test, expect, stored } from "../../test-support/support/codexStart.ts";
-import { expectExecutionInput } from "../../test-support/support/codexStartAssertions.ts";
-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { afterEach, beforeEach, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { started, type Started } from "../../server/launchStart.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import {
+  startStore,
+  type StartRecord,
+  type StartStore,
+} from "../../server/startStore.ts";
+import {
+  queuedIdentity,
+  startOrigin,
+  type StartOrigin,
+} from "../../test-support/support/startOrigin.ts";
 
-// No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+const source = makeMe.aPublishedSource.openDough.please();
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: "Story A", host: "codex" })
+  .please();
 
-test("execution recovery retains its claim, workspace, handoff and first input when the native acknowledgment is lost", async ({
-  dashboard,
-  origin,
-  codexProtocol,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture.");
-  const original = (await origin.originGit("rev-parse", "main")).trim();
-  const request = makeMe.aLaunchRequest
-    .executing({
-      identity: queuedIdentity,
-      title: "Story A",
-      host: "codex",
-    })
-    .withInstruction("Implement the selected slice.")
-    .please();
-  native.hold = true;
-  const pending = launch(dashboard, request);
-  await expect.poll(() => native.history.length, { timeout: 30_000 }).toBe(1);
-  const workspace = path.join(origin.project, ".worktrees", "story-a");
-  const revision = (await origin.originGit("rev-parse", "main")).trim();
-  const [profile] = await origin.takenProfiles();
-  expect(profile).toMatchObject({
+let origin: StartOrigin;
+let store: StartStore;
+let kept: StartRecord;
+let published: string;
+let pending: Promise<Started> | undefined;
+
+function start() {
+  const home = path.join(origin.machine, "home");
+  pending = started(
+    source,
+    request,
+    { path: origin.project, shown: "~/git/open-dough" },
+    new StartProgress(),
+    { store: () => store, env: { ...process.env, HOME: home } },
+    "execution-attempt",
+  );
+  return pending;
+}
+
+beforeEach(async () => {
+  pending = undefined;
+  origin = await startOrigin(queuedReadyRepository().please(), {
     host: "codex",
-    identity: queuedIdentity,
-    branch: "codex/story-a",
   });
-  const [before] = stored(dashboard.home);
-  expect(before).toMatchObject({
-    start: { workspace, publishedSha: revision },
-    firstInput: { state: "uncertain" },
-    session: { sessionId: native.threadId, continuation: { workspace } },
+  store = startStore("execution", path.join(origin.machine, "home"));
+  expect(await start()).toMatchObject({ kind: "established" });
+  const record = await store.kept(source.id, queuedIdentity);
+  if (record?.start === undefined)
+    throw new Error("Missing published Codex start");
+  kept = record;
+  published = (await origin.originGit("rev-parse", "main")).trim();
+});
+
+afterEach(async () => {
+  await Promise.allSettled([pending]);
+  origin.cleanup();
+});
+
+test("the kept Codex execution reuses its published Take and workspace", async () => {
+  const outcome = await start();
+  const [head, profiles, record] = await Promise.all([
+    origin.originGit("rev-parse", "main"),
+    origin.takenProfiles(),
+    store.kept(source.id, queuedIdentity),
+  ]);
+
+  expect(outcome).toMatchObject({
+    kind: "established",
+    handoff: { established: { start: kept.start } },
+    workspace: { path: path.join(origin.project, ".worktrees", "story-a") },
   });
-  native.failConnection();
-  const uncertain = await pending;
-  expect(JSON.parse(uncertain.body)).toMatchObject({ kind: "uncertain" });
-  await dashboard.close();
-  await expect.poll(() => native.sockets.size).toBe(0);
-  native.resumeStatus = "completed";
-  const restarted = await startDashboardServer({
-    mode: "boundary",
-    machine: origin.machine,
-    github: dashboard.github,
-    codexProtocol,
-    launchTimeoutMs: 30_000,
-  });
-  try {
-    const [attempt] = await attempts(restarted);
-    const response = await continued(restarted, attempt?.id ?? "");
-    expect(JSON.parse(response.body), response.body).toMatchObject({
-      kind: "launched",
-    });
-    const [after] = stored(restarted.home);
-    expect(after?.start).toEqual(before?.start);
-    expect(after?.session).toEqual(before?.session);
-    expectExecutionInput(
-      after,
-      native,
-      workspace,
-      original,
-      revision,
-      profile?.["agent"],
-      dashboard,
-    );
-    expect(
-      native.calls.filter((call) => call.method === "thread/start"),
-    ).toEqual([{ method: "thread/start", params: { cwd: workspace } }]);
-    expect(
-      native.calls.filter((call) => call.method === "thread/resume"),
-    ).toEqual([
-      { method: "thread/resume", params: { threadId: native.threadId } },
-    ]);
-    expect(
-      native.calls.filter(
-        (call) =>
-          call.method === "thread/read" && call.params["includeTurns"] === true,
-      ),
-    ).toEqual([
-      {
-        method: "thread/read",
-        params: { threadId: native.threadId, includeTurns: true },
-      },
-    ]);
-    expect(await origin.takenProfiles()).toEqual([profile]);
-    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(revision);
-    expect(readdirSync(path.join(origin.project, ".worktrees"))).toEqual([
-      "story-a",
-    ]);
-    expect(await keptStarts(restarted)).toEqual([]);
-    expect(stored(restarted.home)).toHaveLength(1);
-    expect(native.history).toHaveLength(1);
-    expect(restarted.claudeLaunchCalls()).toEqual([]);
-  } finally {
-    await restarted.close();
-  }
+  expect(head.trim()).toBe(published);
+  expect(record?.start).toEqual(kept.start);
+  expect(profiles).toEqual([
+    expect.objectContaining({
+      host: "codex",
+      identity: queuedIdentity,
+      branch: "codex/story-a",
+    }),
+  ]);
+  expect(readdirSync(path.join(origin.project, ".worktrees"))).toEqual([
+    "story-a",
+  ]);
 });
