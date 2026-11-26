@@ -84,7 +84,7 @@ the consumers and repository operations this plan uses.
 | --- | --- |
 | `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/intent/authenticated-read-intent-locations.spec.ts dashboard/backend-tests/intent/authenticated-read-intent-selection.spec.ts dashboard/backend-tests/review/story-review-published-taken.spec.ts --workers=1 --reporter=line` | 7 location cases and 7 Vitest published-review cases passed. A matched path reads at its pin, and the generic route refuses a nonmatching neighbor. A named published pair retained its exact file after origin moved, without another remote request. A locally present unpublished commit and an unlisted path were refused. Slice 1 proves the new project admission separately and leaves this `file-at` admission unchanged. |
 | Node ESM in this worktree, importing `runGit` and `textAtTree`. For `d31aee723^` and `d31aee723`, used `rev-parse <revision>^{tree}`, `ls-tree -r -z <tree>` and `textAtTree(cwd, tree, "dashboard/src/IntentBrowser.tsx", signal)`, comparing each result with `git show <revision>:dashboard/src/IntentBrowser.tsx`. | The trees beginning `cd33d814a1d5` and `705a5e80ebff` listed 7,586 and 7,588 blob paths, both including root `README.md` and the selected source. Text matched the respective Git object and differed between revisions (9,131 and 8,485 bytes). A repository hierarchy and source can use the same local pin. |
-| `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-revision-apply.spec.ts dashboard/frontend-tests/intent/intent-source-target-recovery.spec.ts dashboard/frontend-tests/intent/intent-project-scope-glance.spec.ts dashboard/frontend-tests/intent/intent-project-visit-selection.spec.ts` | 6 passed. A later revision waited for **Show latest**, the old reading survived a held or failed source answer, and a removed selection cleared its source and explained its absence. Clearing a story showed the project CI view. `useIntentLocations` already keeps the shown locations while the next revision is read. Slice 3 gives the new inventory that same hold and advances only when the inventory and settings are one revision. |
+| `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-revision-apply.spec.ts dashboard/frontend-tests/intent/intent-source-target-recovery.spec.ts dashboard/frontend-tests/intent/intent-project-scope-glance.spec.ts dashboard/frontend-tests/intent/intent-project-visit-selection.spec.ts` | 6 passed. A later revision waited for **Show latest**, the old reading survived a held or failed source answer, and a removed selection cleared its source and explained its absence. Clearing a story showed the project CI view. `useIntentLocations` already keeps the shown locations while the next revision is read. Slice 5 gives the new inventory that same hold and advances only when the inventory and settings are one revision. |
 | `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:e2e -- e2e/intent/intent-code-browse-projects.spec.ts e2e/intent/intent-file-purpose-proof.spec.ts e2e/intent/intent-project-visit-ci.spec.ts --workers=1 --reporter=line` | 3 passed (19.5s). The browse journey still lists matched tests and omits product and support files. File Purpose and Proof survived moving among tests. The project CI visit checked the routed trunk and story heads, kept the file browser on the published revision while trunk judgments advanced, and **Show latest** moved the browser onto the already judged trunk revision. |
 
 ## Outside-in proof
@@ -92,9 +92,9 @@ the consumers and repository operations this plan uses.
 | Promise | Slice and observation |
 | --- | --- |
 | Inventory and literal text use the same admitted published revision. A newer target, a locally present unpublished object, an absent path, and a nontext blob get their distinct outcomes. | 1. Route a configured project to a real origin with two differing commits, a literal path with spaces, a removed file, and an unrelated unpublished commit. Assert the full path set and exact texts, one shared cold sync through `syncedReviewRepository`, reuse on path navigation, and no change to the legacy `file-at` admission. |
-| The default tree lists production source, documents, and tests. Regular and Intent folders use the shared selection behavior. The filter narrows mixed folders and keeps location cues. A no-locations project opens a tracked document. | 2. Mount Project Intent with mixed tracked paths and distinct configured/unconfigured answers. Extend a real-origin browser journey to open the actual source and verify the filter, selection, and no-locations cases. |
-| Test Proof names the measured build, an ordinary file has an honest missing-evidence explanation, and **Home** restores the existing project overview with the filter kept. | 2. Compare the rendered file Proof and CI overview using the same fixture's measured build and CI change. Assert Home while the filter is on and confirm the same build and change on return. |
-| Path navigation keeps the shown pin. **Show latest** advances tree/settings/source coherently, explains deletion, and keeps the old usable reading if an inventory update is held or fails. | 3. Hold and fail the new inventory answer while the new locations answer independently, then retry. Assert A stays usable until B's matching data is available, B reads exact replacement source, and a path removed at B has no stale text. Resolve an obsolete request after navigation and check that it cannot replace the active reading. |
+| The default tree lists production source, documents, and tests. Regular and Intent folders use the shared selection behavior. The filter narrows mixed folders and keeps location cues. A no-locations project opens a tracked document. | 3. Mount Project Intent with mixed tracked paths and distinct configured/unconfigured answers, verifying the filter, selection, and no-locations cases. 4. Extend a real-origin browser journey to open the actual source. |
+| Test Proof names the measured build, an ordinary file has an honest missing-evidence explanation, and **Home** restores the existing project overview with the filter kept. | 4. Compare the rendered file Proof and CI overview using the same fixture's measured build and CI change. Assert Home while the filter is on and confirm the same build and change on return. |
+| Path navigation keeps the shown pin. **Show latest** advances tree/settings/source coherently, explains deletion, and keeps the old usable reading if an inventory update is held or fails. | 5. Hold and fail the new inventory answer while the new locations answer independently, then retry. Assert A stays usable until B's matching data is available, B reads exact replacement source, and a path removed at B has no stale text. Resolve an obsolete request after navigation and check that it cannot replace the active reading. |
 
 ## Slices
 
@@ -131,25 +131,62 @@ Backend specs built on `takenStoryReader` need
 `beforeAll(prepareRepository(takenBranchContributionHistory()))` and small
 cases to fit the default timeout under load.
 
-### 2. Browse the whole project and return to CI Home
+### 2. Give Project Intent readers the project tree and file reads
+
+Type: Structure
+Status: planned
+Proof: `npm run typecheck:dashboard` and the baseline mounted Project Intent
+specs, unchanged in behavior.
+
+Add a client reader for `intent=project-tree` and `intent=project-file`
+beside the existing authenticated Intent reads, and add both to
+`IntentReadSource` (dashboard/src/intentReadSource.ts). About 37 test-support
+and frontend-test files build that source literally (for example
+`intent-project-visit-fixtures.ts`, `intent-revision-fixtures.ts`,
+`unreadPageReads.ts`). Move them onto one MakeMe builder step whose default
+tree is the fixture's configured location files and whose file read answers
+the existing per-path text, so nothing visible changes yet.
+
+### 3. Browse the whole project tree and its source
 
 Type: Behavior
 Status: planned
-Proof: Mounted Project Intent Vitest Browser Mode and a focused routed-origin
-Playwright journey starting from Project Intent CI and opening actual
-production, document, and test source.
+Proof: Mounted Project Intent in Vitest Browser Mode with mixed tracked
+paths and distinct configured and unconfigured answers, plus the existing
+Project Intent end-to-end journeys that the change reaches.
 
 Pass the tracked paths into the existing project tree at the shown
 revision. Use the shared filter and folder Summary with that revision's
 location settings. A project with no configured locations still shows the
 full tree; **Intent only** keeps the existing empty-scope explanation
-instead of replacing that tree. Source selection uses the project reader
-for all tracked files. Keep test Purpose and Proof, use the existing
-evidence wording for a file without a CI result, and have **Home** return to
-the existing CI overview. The first open uses only the shown revision's
-inventory and settings. Moving the pin belongs to slice 3.
+instead of replacing that tree. Today `intentBrowserSource.ts` shows no
+project browser without locations, so this needs a whole-project branch.
+`IntentPage.tsx` has 239 lines, so first move the project inventory lifecycle
+into its own hook beside the project reading. Source selection uses the
+project reader for all tracked files. The first open uses only the shown
+revision's inventory and settings. `intent-recorded-purpose-read.spec.ts`
+keeps its once-per-pin assertion, now counting `intent=project-file` reads
+instead of upstream content requests. Assertions that relied on the default
+tree excluding non-Intent files turn **Intent only** on explicitly.
 
-### 3. Keep the current reading until Show latest can replace it
+### 4. Open real source from Project Intent CI and return Home
+
+Type: Behavior
+Status: planned
+Proof: A focused routed-origin Playwright journey starting from Project
+Intent CI and opening actual production, document, and test source.
+
+Keep test Purpose and Proof, use the existing evidence wording for a file
+without a CI result, and have **Home** return to the existing CI overview
+with the filter kept. Compare the rendered file Proof and CI overview with
+the fixture's measured build and CI change.
+
+Learning from the first slice-2 attempt (2.8 active minutes, nothing
+changed): the combined slice needed fixture migration, a whole-project
+branch, a file-size extraction and a new journey, which did not fit one
+15-minute slice. Slices 2–4 replace it.
+
+### 5. Keep the current reading until Show latest can replace it
 
 Type: Behavior
 Status: planned
@@ -182,7 +219,7 @@ path clears its old source.
   `dashboard/server/authenticatedRead.ts` 241, and
   `dashboard/server/requestedRead.ts` 233. Route the new handler through a
   cohesive project-read module in slice 1. Keep the project inventory
-  lifecycle with the project reading in slices 2 and 3. Preserve shared
+  lifecycle with the project reading in slices 3 and 5. Preserve shared
   source, selection and proof rendering and keep edited files within the
   project file-size check.
 - Run each slice's focused tests, `npm run typecheck:dashboard` for changed
@@ -191,10 +228,9 @@ path clears its old source.
   the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
   Apply Dough MakeMe and the page-object selection for affected tests, and
   Dough Post-change Refactor before each slice commit.
-- No separate slice-plan refinement was needed. The landed tree and filter
-  left three slices: admit a project tree before the browser uses it, open
-  that tree and return to CI, and keep the shown reading across **Show
-  latest**. Locations already hold their previous answer, so the plan does
-  not replace the tree with an updating state between those slices. Three
-  slices fit the eight-slice cap and the 15-active-minute budget per slice.
-  This assessment found no remaining slice-specific concern.
+- Refined during execution: the original slice 2 was split into slices
+  2–4 (reader and fixture structure, whole-project tree and source, real
+  journey with Proof and Home). Five slices fit the eight-slice cap, and
+  each now has one proof loop within the 15-active-minute budget. Locations
+  already hold their previous answer, so the plan does not replace the tree
+  with an updating state before slice 5.
