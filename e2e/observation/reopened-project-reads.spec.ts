@@ -62,7 +62,9 @@ import {
 // What Open Dough's repository was asked since its `before`th observed call,
 // revision checks aside: they keep their own pace.
 const askedSince = (origin: MovingFiles, before: number) =>
-  readsBesideChecks(origin.requests.slice(before)).sort();
+  readsBesideChecks(origin.requests.slice(before))
+    .filter((read) => read !== "ref main")
+    .sort();
 
 // The page once the project's membership and every fact its cards wait on are
 // read: with every read answered, no card says it is still reading any of
@@ -108,7 +110,6 @@ test("reopening an unchanged project asks only which commits its ref and story b
   });
   const { A: revisionA, B: revisionB, head: branchHead } = origin.revisions;
   const reopenedAtA = [
-    "ref main",
     `branch ${branch}`,
     `content .planning/open-dough.json@${revisionA}`,
     `content ${missingSeedPath}@${revisionA}`,
@@ -181,7 +182,6 @@ test("reopening an unchanged project asks only which commits its ref and story b
     const asked = askedSince(origin, before);
     expect(asked).toEqual(
       expect.arrayContaining([
-        "ref main",
         `branch ${branch}`,
         "compare",
         `commit ${revisionB}`,

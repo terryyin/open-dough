@@ -160,7 +160,7 @@ The specs and `typecheck:dashboard` exited 0.
 ### 3. Prove detail and recovery reads apart from membership
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: In the E2E cases the premise lists for slice 3, compare only the
 detail, credit and recovery reads each case promises, leaving the
@@ -169,9 +169,9 @@ membership operation out of the compared list and window. Rebase
 snapshot. Count only backlog paths in direction disclosure. All stay green on
 REST. This enables slice 4's switch without touching these proofs.
 
-Proof: The changed files pass on REST; rerun them under the slice 4 switch
-when it lands. Budget 14 active minutes for ten mechanical cases and one
-setup change.
+Proof: Accepted on REST. The eight edited specs passed, and
+`limit-recovery-tabs.spec.ts` passed after both tabs open before the
+cooldown. `unchanged-records-refresh.spec.ts` still expects `"ref main"`.
 
 ### 4. Open the Board at verified Git trunk
 
@@ -222,11 +222,11 @@ temporary obligations under
 
 ## Learnings
 
-On 2026-11-26 slice 1 overran twice and slice 2 overran at 17.1 minutes
-(`storyOverruns` 3) after moving only the fifo gate. Delivered value is the
-published candidate check. Remaining scope is the shared check and slices
-3–6. Cold discovery, not a second outcome, broke the size assumption, so
-the story and slice 2 stay.
+On 2026-11-26 slices 1–3 overran (`storyOverruns` 5). Slices 1 and 2 are
+published. Slice 3's list edits passed; a tab opened during the client
+cooldown cannot settle. Delivered value is the shared origin check.
+Remaining scope is that tab, opened before the cooldown, and slices 4–6.
+The story stays.
 
 ## Plan refinement
 

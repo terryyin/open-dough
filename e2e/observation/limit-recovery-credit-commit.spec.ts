@@ -32,7 +32,9 @@ test("an addition commit limited during the walk is read once the wait ends, reu
     page,
     "Human developer unknown: no commit adding this agent profile was found in its recent published history.",
   );
-  expect(askedSince(page, asked).sort()).toEqual(
-    ["ref main", `commit ${takes.Yuma.sha}`].sort(),
-  );
+  expect(
+    askedSince(page, asked)
+      .filter((read) => read !== "ref main")
+      .sort(),
+  ).toEqual([`commit ${takes.Yuma.sha}`]);
 });
