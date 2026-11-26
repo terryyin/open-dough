@@ -614,11 +614,15 @@ unread events and PID `84786` exited. See
 `slice-10-size-decision-observer-exit.json` in worktree Git evidence.
 
 The approved cutover preflight confirmed the actual Codex identity and
-matched the installed handoff only to that identity. Claude Code and Cursor
-CLI are signed out on this Mac. Their real-host checks reached authentication
-before shell tool execution. Resolve those two checks or record an explicit
-release exception before the first trunk landing. The private proof is
-`slice-10-real-native-acceptance.e49CHLEX/native-acceptance-summary.json`.
+matched the installed handoff only to that identity. The tool shell runs
+under the desktop user's UID and home in the macOS System launch context.
+Claude Code and Cursor CLI could not access a login there. macOS refused
+entry into the desktop audit session, so the interactive login state remains
+unverified. Resolve the two actual-host checks or record an explicit release
+exception before the first trunk landing. See
+`slice-10-interactive-auth-directory.txt` in worktree Git evidence and
+`slice-10-real-native-acceptance.e49CHLEX/native-acceptance-summary.json`
+in common Git evidence.
 All six configured client checkouts passed update preflight. The next
 numeric release is `0.3.116` after rechecking tags. The release source and
 self-installation checks passed. See `slice-10-client-readiness.2PDD57iK` in
