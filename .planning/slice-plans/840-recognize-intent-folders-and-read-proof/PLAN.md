@@ -342,3 +342,19 @@ Accepted proof (focused one-worker runs under `caffeinate -s -i`):
   as written, apply `dough-makeme` to test data builders and
   `dough-page-objects` only where `pageObjects: true` (`e2e/`), and run
   `dough-post-change-refactor` before each slice commit.
+
+## Execution complete
+
+Product advice: Keep the existing order and scope of the file filters and
+published-project browsing stories. The shared tree and Summary contracts
+are in place for those stories. No product correction is indicated by the
+delivered implementation and reviewed local proof.
+
+The review covered the four published implementation commits from
+`cf0cd72b7` through `d303911c9` against the seed and the drawer amendment.
+Mounted and Node cases drove the implementation. End-to-end checks cover
+real Git revisions, artifact reads, and cross-view navigation. Applicable
+CI observation is unresolved after the GitHub CLI login failed.
+The selected process review is deferred to wrap-up. Intent Coverage is
+enabled, and the retired accordion assertions and rewritten Story-card
+proof warrant checking the protection of one replaced promise there.
