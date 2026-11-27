@@ -5,7 +5,6 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { parseArgs } from "node:util";
 import { setTimeout as wait } from "node:timers/promises";
 import {
   resolvePublishedMain,
@@ -13,6 +12,11 @@ import {
 } from "../dashboard/server/productionDeployment.mjs";
 import { startProductionPreview } from "../dashboard/server/productionPreviewLifecycle.mjs";
 import { publishedUpdates } from "../dashboard/server/productionUpdates.mjs";
+import {
+  expectUsablePort,
+  loopbackPortOccupied,
+  watcherOptions,
+} from "../dashboard/server/productionWatcherStart.mjs";
 
 const developmentRoot = fileURLToPath(new URL("..", import.meta.url));
 const cancellation = new AbortController();
@@ -24,30 +28,8 @@ let staged;
 let preview;
 let candidate;
 try {
-  const { values } = parseArgs({
-    options: {
-      port: { type: "string", default: "4173" },
-      "check-interval": { type: "string", default: "30000" },
-    },
-  });
-  if (
-    !/^(0|[1-9]\d*)$/.test(values.port) ||
-    Number(values.port) > 65535 ||
-    Number(values.port) === 43127
-  ) {
-    throw new Error(
-      "Production port must be 0–65535 and distinct from development's 43127.",
-    );
-  }
-  if (
-    !/^[1-9]\d*$/.test(values["check-interval"]) ||
-    !Number.isSafeInteger(Number(values["check-interval"])) ||
-    Number(values["check-interval"]) > 2_147_483_647
-  ) {
-    throw new Error(
-      "Check interval must be a positive number of milliseconds.",
-    );
-  }
+  const options = watcherOptions(process.argv.slice(2));
+  expectUsablePort(options.port, await loopbackPortOccupied(options.port));
   // The successfully served commit; replaced only after a candidate activates.
   const initial = await resolvePublishedMain(
     developmentRoot,
@@ -67,7 +49,7 @@ try {
   preview = await startProductionPreview({
     directory: staged.directory,
     commit: initial.commit,
-    port: Number(values.port),
+    port: options.port,
     signal: cancellation.signal,
   });
   console.log(
@@ -75,7 +57,7 @@ try {
   );
   console.log("Development remains available through npm run dev:dashboard.");
   while (!cancellation.signal.aborted) {
-    await wait(Number(values["check-interval"]), undefined, {
+    await wait(options.checkInterval, undefined, {
       signal: cancellation.signal,
     });
     preview.check();

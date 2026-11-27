@@ -45,6 +45,8 @@ let pinned: string;
 let next: string;
 let served: ProductionActivation;
 let runner: { port: number; pid: number };
+// Set once the runner started, so teardown can see it retired.
+let startedRunner: number | undefined;
 let cursorSessionId: string;
 let cursorClientPid: number;
 // Setup publishes pinned main and starts the watcher; the first test observes
@@ -56,6 +58,9 @@ test.beforeAll(async ({ browser, publishedApplicationSourceReady }) => {
 });
 test.afterAll(async () => {
   await machine.close();
+  // The fixture's teardown retires the watcher's detached Cursor runner.
+  if (startedRunner !== undefined)
+    expect(processRunning(startedRunner)).toBe(false);
 });
 
 test("npm watcher activates published main and starts the Cursor runner", async () => {
@@ -63,6 +68,7 @@ test("npm watcher activates published main and starts the Cursor runner", async 
   test.setTimeout(realDeploymentTimeout);
   const watcher = machine.running();
   ({ served, runner } = await machine.activated(pinned));
+  startedRunner = runner.pid;
   expect(watcher.output()).toContain(
     `Preparing production dashboard ${pinned}.`,
   );

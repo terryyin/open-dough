@@ -77,16 +77,6 @@ export async function configureWatcherApplication(
   return { configuration, configured, env: productionBuildEnvironment(env) };
 }
 
-const watchScript = "node scripts/watch-dashboard.mjs";
-
-export function unpublishedWatcherFixture() {
-  return watcherFixture({
-    "package.json": JSON.stringify({
-      scripts: { "watch:dashboard": watchScript },
-    }),
-  });
-}
-
 export async function productionFailureFixture() {
   const vite = `node --experimental-transform-types ${shellArgument(
     path.join(repoRoot, "node_modules/vite/bin/vite.js"),
@@ -105,7 +95,7 @@ export async function productionFailureFixture() {
     "package.json": JSON.stringify({
       name,
       scripts: {
-        "watch:dashboard": watchScript,
+        "watch:dashboard": "node scripts/watch-dashboard.mjs",
         "dev:dashboard": `${vite} ${viteOptions}`,
         "build:dashboard": `${vite} build ${viteOptions}`,
         "preview:dashboard": `${vite} preview ${viteOptions}`,

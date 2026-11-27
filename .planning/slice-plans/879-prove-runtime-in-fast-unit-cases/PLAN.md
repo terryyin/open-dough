@@ -152,7 +152,7 @@ reported for a follow-up decision.
 
 ### 2. Refuse unusable watcher starts from typed state
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 Proof: `production-watcher-refusals` cases run in about 100 ms or less.
 `production-watcher-preview.spec.ts` is gone, with its behavior owned by
@@ -164,6 +164,17 @@ The case gives each as typed state. Retiring a case's live watcher and
 detached Cursor runner before removing HOME is harness teardown, not a
 product rule. Prove it where the harness owns it, or drop it when
 `production-watcher-setup-lifetime.spec.ts` owns the same cleanup.
+
+Result: `production-watcher-refusals` went from 4 cases at 2.1–6.4 s to 3
+tests (7 table rows) at 0.1–10.5 ms (load 6.9 before, 16.1 after).
+`productionWatcherStart.mjs` owns option parsing (`watcherOptions`) and the
+occupied-port refusal (`expectUsablePort`, `loopbackPortOccupied`), so
+`scripts/watch-dashboard.mjs` refuses before reading origin or staging.
+`production-watcher-preview.spec.ts` is removed: `expectProductionEnded`
+covers the only observable preview PID, because a failed candidate preview
+stops before it reports one. Runner retirement at teardown is asserted in
+`production-watcher.spec.ts`'s `afterAll`; the private `.vite` cache stays
+with `published-development-runtime.spec.ts`. No E2E case added.
 
 ### 3. Prove serving boundaries without starting servers
 Type: Behavior
