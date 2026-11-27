@@ -52,18 +52,37 @@ dashboard, watcher, preview or runner still uses, and the recent ones, stay.
 
 **Identity:** SEED-370#close-preview-incident-record-on-sighup
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/889-close-preview-incident-record-on-sighup/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5fc2bb40006d782d1606db3b60d0770722e132c57be9a08a1620c87a72ee7a94","plan":"d44ea0cd3b19c26c23498d03dc2db514fbfbf5c2830d2098c4a130e81931cb31"}}
 ```
 
-- **Goal.** A developer running the production dashboard sees an orderly
-  watcher shutdown as orderly: when the watcher ends on SIGHUP, the served
-  preview's incident record shows `process-ended` after its
-  `process-started`, so the dashboard does not read that preview as lost.
-- **Evidence.** Found 2026-11-27 while executing
-  `SEED-413#fast-runtime-unit-cases`: tying an assertion to the preview's own
-  process group in `e2e/runtime/production-watcher.spec.ts` "SIGHUP quietly
-  ends production and its checkouts…" showed `process-started` and no
-  `process-ended` for that preview. A preview replaced by the next published
-  main does record both.
-- **Key example.** The watcher serves a published commit and receives SIGHUP:
-  the preview's process entries are `process-started` then `process-ended`.
+#### Goal
+
+Give developers an accurate account of why their production dashboard stopped.
+When SIGHUP ends the watcher cleanly, the served preview closes its own incident
+record so subsequent diagnostics report that preview as ended.
+
+#### Scope
+
+Finish the served preview's record as part of the watcher's existing shutdown.
+The watcher still retires its deployment checkouts and leaves development, the
+Cursor runner, and the connected client running. An unexpectedly killed preview
+must still be reported as lost, since an end entry means the preview completed
+its own close. Deployment retention, repairs to historical records, and changes
+to the diagnostics format are outside this story.
+
+#### Key examples
+
+- With a published commit serving beside development and a connected Cursor
+  client, send SIGHUP to the watcher. After the watcher exits, the preview that
+  was serving has `process-started` followed by `process-ended` in the incident
+  record. Its URL has stopped serving and its checkouts are retired. Development,
+  the runner and the same client remain available.
+- When a published update replaces the running preview, the retired preview
+  still records its own start and end. A preview killed outright still has an
+  incomplete record and is reported as lost by subsequent diagnostics.
+
+#### Starting evidence
+
+The [fast runtime cases' execution](https://github.com/terryyin/open-dough/blob/7fdf8e265edfb72ded348f3845080a186f5a39f1/.planning/slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md#1-decide-production-deployments-from-typed-origin-and-checkout-state)
+found the missing end entry on 2026-11-27 by tracing the production watcher test
+to the served preview's process group. The replacement case observed both entries.
