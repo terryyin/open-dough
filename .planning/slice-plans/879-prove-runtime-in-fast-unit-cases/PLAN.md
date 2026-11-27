@@ -216,6 +216,13 @@ Learning: `e2e/launches/agent-launch-claude-verification.spec.ts` `:85`,
 machine (load 28–31): the Claude launch call is never seen within 5 s.
 Diagnosed separately under the failure policy.
 
+CI repair (run 45976416445): `dashboard-concurrent-runs.sh` sampled a
+removed `serving-modes` case; it now samples
+`observation/authenticated-read-revision-stream.spec.ts` "preview-mode with
+Accept-Encoding: gzip…", outside this story's folder, which still requests
+one private app build per run. The same run's dashboard-frontend browser
+connection close belongs to `SEED-413#keep-full-frontend-runs-connected`.
+
 ### 4. Prove the fake gh client and in-process owner through its wire values
 Type: Behavior
 Status: planned

@@ -34,8 +34,8 @@ run_suite() {
     cd -- "${source_dir}"
     # Drop FORCE_COLOR / NO_COLOR so a coloured coordinator shell cannot make
     # Playwright warn outside a test and fail this local concurrent contract.
-    # The HTTP icon check serves built files through preview and works in the
-    # npm test job, which has no installed browser.
+    # The sampled case starts a preview from the run's app build and asks it
+    # over HTTP, so it works in the npm test job, which has no installed browser.
     exec env -u CI -u NODE_ENV -u npm_config_local_prefix \
       -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u OPEN_DOUGH_DASHBOARD_BACKEND_DEADLINE_MS \
       -u OPEN_DOUGH_DASHBOARD_BACKEND_TIMES \
@@ -44,8 +44,8 @@ run_suite() {
       OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="${temporary_dir}/$1.proof.json" \
       OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE="${temporary_dir}/$1.artifacts" \
       npm run --silent test:dashboard:backend -- \
-      'dashboard/backend-tests/runtime/serving-modes[.]spec[.]ts$' \
-      --grep "both serve Open Dough's declared icon exports"
+      'dashboard/backend-tests/observation/authenticated-read-revision-stream[.]spec[.]ts$' \
+      --grep "preview-mode with Accept-Encoding: gzip"
   ) > "${temporary_dir}/$1.out" 2> "${temporary_dir}/$1.err"
 }
 
@@ -82,7 +82,7 @@ for (const file of process.argv.slice(2)) {
     executions.some(({ outcome }) => outcome === "expected"));
   assert.deepEqual(
     ran.map(({ titlePath }) => titlePath.at(-1)),
-    ["both serve Open Dough's declared icon exports"],
+    ["preview-mode with Accept-Encoding: gzip receives the first event promptly"],
     `${file} must pass the sampled case alone`,
   );
 }
