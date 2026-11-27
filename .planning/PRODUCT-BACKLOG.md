@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Prove published Follow up evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest) — SEED-413#prove-published-dashboard-reads-on-vitest ([plan](slice-plans/859-prove-published-follow-up-evidence-on-vitest/PLAN.md))
 - [Prove marking sessions done, stopping, deleting and reopening in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest) — SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest ([plan](slice-plans/867-prove-marking-sessions-done-on-vitest/PLAN.md))
 - [Prove session completion reporting in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-completion-reporting-on-vitest) — SEED-413#prove-session-completion-reporting-on-vitest ([plan](slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md))
-- [Prove native session observation and alerts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-observation-on-vitest) — SEED-413#prove-native-session-observation-on-vitest ([plan](slice-plans/869-prove-native-session-observation-on-vitest/PLAN.md))
 - [Prove terminal attach in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest) — SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest ([plan](slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md))
 
 ## Backlog list
