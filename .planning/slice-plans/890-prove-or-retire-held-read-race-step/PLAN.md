@@ -133,3 +133,9 @@ part of the gate.
 
 Refinement was not needed: there is one Structure slice that owns the one
 correction and its proof. No slice-specific concern remains.
+
+## Execution complete
+
+Product advice: no change. The Side panel journey keeps its final-report
+frame and one session opening; the race keeps its frontend proof in
+`intent-story-compare-fixed.spec.ts:159`. Queue order stands.
