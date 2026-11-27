@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place ([plan](slice-plans/853-refresh-published-board-in-place/PLAN.md))
 - [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected ([plan](slice-plans/881-keep-full-frontend-runs-connected/PLAN.md))
 - [Track review status for each session](seeds/SEED-418-review-published-session-changes.md#track-review-state-per-session) — SEED-418#track-review-state-per-session ([plan](slice-plans/882-track-review-status-for-each-session/PLAN.md))
+- [Prove published read admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-read-admission-via-vitest) — SEED-413#published-read-admission-via-vitest ([plan](slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -43,7 +44,6 @@ intent introduced or affected by a newly developed story.
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
-- [Prove published read admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-read-admission-via-vitest) — SEED-413#published-read-admission-via-vitest
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest
 - [Prove authenticated GitHub observation in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#authenticated-github-observation-via-vitest) — SEED-413#authenticated-github-observation-via-vitest
 - [Prove published Review comparisons in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-review-comparisons-via-vitest) — SEED-413#published-review-comparisons-via-vitest
