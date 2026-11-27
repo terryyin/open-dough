@@ -125,3 +125,15 @@ environment defect; trunk 013d9c0be does not change it. A case-local allowance
 (or a faster start) is the developer's call — not applied. Downstream default
 bounds in the same journeys (e.g. :196) also exceed 5 s at load ~70.
 Round 1 complete; cumulative active minutes ~5.
+
+## Full backend suite before landing (2026-11-27)
+
+- Full `test:dashboard:backend` at `81ffd498f` (load 21–23 after a ~20 min
+  wait for the machine-wide suite admission): 14 of 1,659 Vitest cases failed
+  in eight files, all launch and review journeys this story did not edit.
+  Hosted CI run 45998466973 on the same revision passed.
+- Rerun of only those eight files with `--workers 4` (load 12–14): 38 passed;
+  `agent-launch-duplicate.spec.ts:189` and `:225` failed again with the same
+  unseen Claude launch call. The other six files' failures were load timing.
+- Disposition pending the developer: a case-local allowance on the launch-call
+  waits, or a faster launch start.
