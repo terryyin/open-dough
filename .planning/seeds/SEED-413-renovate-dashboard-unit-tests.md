@@ -649,6 +649,32 @@ are outside this deterministic proof.
   landed at `62522f4f`. Its focused selection ran 23 Node cases in 8.71 s.
   Use the same selection to compare runtime and check for lost observations.
 
+<a id="admit-launch-requests-as-typed-values"></a>
+
+### Admit Dashboard launch requests as typed values
+
+**Identity:** SEED-413#admit-launch-requests-as-typed-values
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** Developers proving launch admission in Node Vitest reach
+  `answer()` in `dashboard/server/launchBoundaryAnswer.ts` by hand-building
+  a `Socket`, `IncomingMessage` and `ServerResponse`, because admission in
+  `agentLaunchAdmission.ts` (`launchRequest`) reads the request stream.
+  About ten backend files repeat that construction, for example
+  `launches/agent-launch-refusal.spec.ts`,
+  `launches/agent-launch-model-admission.spec.ts`,
+  `server/landingRequestAdmission.spec.ts` and
+  `sessions/agent-launch-session-refusal.spec.ts`.
+- **Evaluation.** Admission and the accept branch take a typed launch
+  request, and a thin wire adapter keeps origin checking and JSON parsing.
+  The listed specs call the typed entry for their decisions and keep one
+  wire case where status, headers or origin are the observation, without
+  new test-support wrappers.
+- **Provenance.** Named by the post-change refactor pass of
+  [session retention, one-shot starts and input](https://github.com/terryyin/open-dough/blob/162a60bd6b5378db843deadc972fbac8728c6352/.planning/slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md#3-refuse-a-session-policy-that-cannot-be-established).
+
 <a id="retire-legacy-dashboard-backend-runner"></a>
 
 ### Run the entire Dashboard backend unit suite on Node Vitest

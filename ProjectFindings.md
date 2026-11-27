@@ -444,3 +444,19 @@ The behavior review asks for one representative walk of a changed skill. An impl
   - Evidence: slice 3 added `dough-execute-plan/scripts/session-record-pruning.mjs`; its consumer trace (`s3-consumer-trace.json`, terms on the changed functions) and 61-file suite passed without `src/install/open-dough-execution-payload.sh`. The refactor pass ran `Distribution/tests/installation/execution-payload-update.sh`, which failed `ERR_MODULE_NOT_FOUND ... session-record-pruning.mjs`; the payload line was added before delivery.
   - Observed effect: caught before publication; the refactor pass took about 25 active minutes, part of it this repair.
   - Inference: a trace keyed on changed symbols cannot reach the payload list that names files; a brief that adds a Distribution script file could name the payload declaration and `execution-payload-update.sh` as proof.
+
+<a id="dd-647"></a>
+
+## DD-647 — A backend selection that matches both Vitest and Playwright specs runs only the Vitest specs and exits 0
+
+Concrete defect — `scripts/dashboard-group-run.mjs` describes a group run as the group's Vitest files plus, when the group names a Playwright config, its retained Playwright files. A focused `npm run test:dashboard:backend` selection that matched one converted Vitest spec and two still-Playwright specs ran only the Vitest spec and exited 0, so the selected Playwright specs went unproved without notice.
+
+### Occurrences
+- Execution: SEED-413#prove-session-retention-and-input-on-vitest (plan 874; first related implementation commit `a1ea886b4d7646da070e847687a1672be565b3ea`)
+  - Timestamp: 2026-11-27T11:15:40+08:00 (refactor pass run `refactor-s3-focus`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.116 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: `npm run test:dashboard:backend -- 'sessions/agent-launch-session-(refusal|kept-start|options)\.spec\.ts$' --workers=1` at `d8da4bcda` plus uncommitted slice 3 work printed only Vitest's `1 passed (1)` file and `2 passed (2)` tests and exited 0; `kept-start` and `options` were then Playwright specs. Selecting those two alone ran 12/12 Chromium cases.
+  - Observed effect: the refactor pass noticed the missing cases and proved them separately; later briefs carried "prove still-Playwright specs in a separate selection".
+  - Inference: the retained-Playwright `selects` check may reject an alternation regex that the Vitest filter accepts. An undetected skip would let a mixed migration selection report green with missing proof until the runner cutover removes Playwright from this group.
