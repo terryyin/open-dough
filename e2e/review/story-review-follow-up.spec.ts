@@ -16,9 +16,7 @@ import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { attachStoryNotes } from "../../dashboard/test-support/support/attachStoryNotesPage.ts";
 import {
-  expectFileFollowUpDialog,
   fileFollowUp,
-  fileFollowUpDialog,
   startSessionField,
 } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
 import { advanceCompletedTrunk } from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
@@ -75,21 +73,22 @@ test.describe("published file Follow up", () => {
     const comparison = `Published completion ${first.baseline} → ${first.tree}`;
     await review.expectText("Published completion");
     await review.files.choose(sharedFile);
-    const dialog = fileFollowUpDialog(page);
     // Key-example wording; Kept short enough for the session's accessible name.
     const instruction = "Check pinned revision on project switch";
 
-    await test.step("Follow up opens the existing dialog with the story and file context", async () => {
-      await review.diffs.expectFollowUp(storyName);
-      await review.diffs.followUp(storyName);
-      await expectFileFollowUpDialog(dialog, storyName, [
-        "Path: shared.txt",
-        `Comparison: ${comparison}`,
-      ]);
-      await expect(
-        dialog.getByRole("button", { name: "Attach images", exact: true }),
-      ).toBeVisible();
-    });
+    const dialog =
+      await test.step("Follow up opens the existing dialog with the story and file context", async () => {
+        await review.diffs.expectFollowUp(storyName);
+        const opened = await review.diffs.followUpFromFile(
+          sharedFile,
+          storyName,
+          ["Path: shared.txt", `Comparison: ${comparison}`],
+        );
+        await expect(
+          opened.getByRole("button", { name: "Attach images", exact: true }),
+        ).toBeVisible();
+        return opened;
+      });
 
     await test.step("the file follow-up offers the waiting note and lets me leave it out", async () => {
       await attachStoryNotes(dialog).expectChoice(false, 1, 1);
@@ -167,8 +166,6 @@ test.describe("retained Done workspace", () => {
       name: "Story A",
       exact: true,
     });
-    const dialog = fileFollowUpDialog(page);
-
     await test.step("the card offers Open terminal and no card Follow up", async () => {
       await expect(openTerminalControl(card)).toBeVisible();
       await expect(fileFollowUp(card, storyName)).toHaveCount(0);
@@ -203,11 +200,14 @@ test.describe("retained Done workspace", () => {
       const doneRecord = "Added .planning/done/SEED-A_a.json";
       await review.files.choose(doneRecord);
       await review.diffs.expectFollowUp(storyName);
-      await review.diffs.followUp(storyName);
-      await expectFileFollowUpDialog(dialog, storyName, [
-        "Path: .planning/done/SEED-A_a.json",
-        `Comparison: ${landedComparison}`,
-      ]);
+      const dialog = await review.diffs.followUpFromFile(
+        doneRecord,
+        storyName,
+        [
+          "Path: .planning/done/SEED-A_a.json",
+          `Comparison: ${landedComparison}`,
+        ],
+      );
       await dialog.getByRole("button", { name: "Cancel" }).click();
       await expect(dialog).toBeHidden();
     });

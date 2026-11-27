@@ -1,22 +1,11 @@
-// A published session's review as the developer meets
-// its panes: the file browser and the selected file's diff, each measured by
-// where it is scrolled and whether its content overflows it.
+// A review as the developer meets its panes: the file browser and the
+// selected file's diff, each measured by where it is scrolled and whether its
+// content overflows it.
 
-import { changedFilesList, fileDiff, listedFile } from "./reviewTreeRows.ts";
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator } from "@playwright/test";
 import { box } from "../pageLayout.ts";
-import { largeReviewRevision, longA } from "./largeReviewFiles.ts";
-import { expectOpenedWithKeyboard, expectReviewRead } from "./reviewRead.ts";
-import { assumeReviewChanges } from "../reviewChangesPage.ts";
-import { sidePanelPages } from "../sidePanelPages.ts";
-import { publishWorktreeReviewSession } from "./publishedReviewSession.ts";
-import { openBacklog } from "./sessionDialog.ts";
-import type { StartOrigin } from "./startOrigin.ts";
-import {
-  largeRepository,
-  storyWorktree,
-  wideLine,
-} from "./storyReviewWorktree.ts";
+import { largeReviewRevision } from "./largeReviewFiles.ts";
+import { largeRepository, wideLine } from "./storyReviewWorktree.ts";
 
 // The selected diff's independently scrollable code and rendered lines.
 export const codePane = (diff: Locator) => diff.locator(".story-review-code");
@@ -45,15 +34,6 @@ export const diffHeading = (
 
 export const scrollTopOf = (pane: Locator) =>
   pane.evaluate((element) => element.scrollTop);
-
-export const scrollLeftOf = (pane: Locator) =>
-  pane.evaluate((element) => element.scrollLeft);
-export const pageFits = (page: Page) =>
-  page.evaluate(
-    () =>
-      document.documentElement.scrollWidth <=
-      document.documentElement.clientWidth,
-  );
 
 // Scrolls a pane down to `to` px, or as far as it goes, and says where it is.
 export const scrollPane = (pane: Locator, to: number) =>
@@ -110,30 +90,3 @@ export const largeReviewRepository = largeRepository(
     wideLine,
   }),
 );
-
-// The review of an origin started from largeReviewRepository, open on the
-// first long file, selected from the end of the browser's list, which the
-// selection leaves scrolled there.
-export async function openLargeReview(page: Page, origin: StartOrigin) {
-  const { workspace, base } = storyWorktree(origin);
-  const session = publishWorktreeReviewSession(origin, workspace, base);
-  await openBacklog(page, origin);
-  await sidePanelPages(page).phase(
-    "open the published session review with the keyboard",
-    ({ board }) => board.reviewPublishedSession(session, "keyboard"),
-  );
-  const opened = await assumeReviewChanges(page);
-  const { panel, fileBrowser: browser } = opened.frame.partsToMeasure();
-  await expectOpenedWithKeyboard(panel);
-  await expectReviewRead(panel);
-  await expect(changedFilesList(browser, "63 changed files")).toBeVisible();
-  const diffOf = (name: string) => fileDiff(panel, name);
-  const codeOf = (name: string) => codePane(diffOf(name));
-  const select = async (name: string) => {
-    await listedFile(browser, name).click();
-    await expect(codeOf(name)).toBeVisible();
-  };
-  await scrollPane(browser, 100_000);
-  await select(`Added ${longA}`);
-  return { browser, diffOf, codeOf, select, opened, session };
-}

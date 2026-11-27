@@ -1,4 +1,4 @@
-/* The file browser's rows (./StoryReviewFileTree.tsx) in the story review
+/* The file browser's rows (./StoryReviewFileTree.tsx) in Intent's file tree
    (./story-review.css): folders as disclosures with their rows indented
    beneath, and files by name, each path keeping its line while the browser
    scrolls sideways. A file's kind shows in the style of its name
@@ -23,19 +23,14 @@
   display: none;
 }
 
-/* A folder's disclosure: its name, marked open or closed, and while
-   collapsed how many changed files it holds. Intent's opt-in path splits
-   folder-icon toggle (`.story-review-folder`) and selectable name
-   (`.story-review-folder-name`) in one row. */
+/* A folder's row: its folder-icon toggle (`.story-review-folder`), marked
+   open or closed, beside its selectable name (`.story-review-folder-name`)
+   and, while collapsed, how many changed files it holds. */
 .story-review-folder-row {
   display: flex;
   align-items: baseline;
   gap: 0.15rem;
   min-width: 0;
-}
-
-.story-review-files .story-review-folder {
-  font-weight: 600;
 }
 
 .story-review-folder-row > .story-review-folder {
@@ -56,12 +51,7 @@
 .story-review-folder .icon {
   width: 1em;
   height: 1em;
-  margin-inline-end: 0.3rem;
   vertical-align: -0.125em;
-}
-
-.story-review-folder-row > .story-review-folder .icon {
-  margin-inline-end: 0;
 }
 
 .story-review-folder-count {

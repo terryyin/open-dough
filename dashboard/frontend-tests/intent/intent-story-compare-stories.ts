@@ -6,6 +6,8 @@
 // worktree is retired: its review is its published completion or a captured
 // landed run.
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { MachineAnswer } from "../../src/agentLaunch.ts";
+import type { PublishedSessionRecord } from "../../src/publishedSessionRecord.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
@@ -154,8 +156,13 @@ export async function openDoneStoryComparison({
   readFile = (...[, , revision]) => Promise.resolve(`${revision}\n`),
   viewport,
   storyResult,
+  publishedSessions,
+  machine,
   ...review
 }: ReviewAnswers & {
+  // The session close records the project published, listed with its work.
+  readonly publishedSessions?: readonly PublishedSessionRecord[];
+  readonly machine?: MachineAnswer;
   readonly ci?: Partial<IntentCiReadSource>;
   readonly storyResult?: PageReads["storyResult"];
   readonly otherDone?: { readonly identity: string; readonly title: string };
@@ -185,8 +192,18 @@ export async function openDoneStoryComparison({
         taken: [],
         backlog: [],
         done,
+        ...(publishedSessions === undefined
+          ? {}
+          : {
+              publishedSessions: {
+                status: "listed",
+                revision: fullSha("a1a1a1a"),
+                sessions: publishedSessions,
+              },
+            }),
       })
       .please(),
+    ...(machine === undefined ? {} : { machine }),
     reads: {
       intent: makeMe.anIntentReadSource
         .reading({

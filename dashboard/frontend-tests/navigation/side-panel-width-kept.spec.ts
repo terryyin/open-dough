@@ -9,8 +9,8 @@ import {
   keyStep,
   measured,
   minimum,
-  mountWidthReview,
-  openReview,
+  mountWidthTerminal,
+  openTerminal,
   panel,
   press,
   sidebar,
@@ -45,7 +45,7 @@ async function halfRoom() {
 
 test("less room and Maximize temporarily fit a chosen width without replacing it", async () => {
   withWidthStorage();
-  await mountWidthReview();
+  await mountWidthTerminal();
   const chosen = (await halfRoom()) + 200;
   await drag(-200);
   await widthIs(chosen);
@@ -72,14 +72,14 @@ test("an unusable kept width starts at half the room and leaves the sidebar pref
   const errors = watchErrors();
   localStorage.setItem(sidebarKey, "true");
   localStorage.setItem(widthKey, "wide");
-  const mounted = await mountWidthReview();
+  const mounted = await mountWidthTerminal();
   await expect.element(sidebar).toBeVisible();
   await halfRoom();
   for (const [index, malformed] of ["0", "Infinity"].entries()) {
     localStorage.setItem(widthKey, malformed);
     mounted.restart(index + 1);
     await expect.element(panel).not.toBeInTheDocument();
-    await openReview();
+    await openTerminal();
     await expect.element(sidebar).toBeVisible();
     await halfRoom();
   }
@@ -91,7 +91,7 @@ test("an unusable kept width starts at half the room and leaves the sidebar pref
   expect(localStorage.getItem(widthKey)).toBe(String(chosen));
   mounted.restart(3);
   await expect.element(panel).not.toBeInTheDocument();
-  await openReview();
+  await openTerminal();
   await widthIs(chosen);
   expect(errors).toEqual([]);
 });
@@ -109,13 +109,13 @@ test("when browser storage is refused, the panel starts at half and resizes for 
   expect(() => window.localStorage.getItem(widthKey)).toThrow(
     "Storage is refused.",
   );
-  const mounted = await mountWidthReview();
+  const mounted = await mountWidthTerminal();
   const half = await halfRoom();
   await drag(-200);
   await widthIs(half + 200);
   mounted.restart(1);
   await expect.element(panel).not.toBeInTheDocument();
-  await openReview();
+  await openTerminal();
   await widthIs(half);
   expect(errors).toEqual([]);
 });

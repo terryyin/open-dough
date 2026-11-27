@@ -1,4 +1,4 @@
-// The fixed comparison shown in Intent or session review, with exact file baselines.
+// The fixed comparison shown in Intent, with exact file baselines.
 
 import type { ReviewedWork } from "./reviewedFileRead.ts";
 import type {

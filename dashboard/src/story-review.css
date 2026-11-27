@@ -1,24 +1,8 @@
-/* A session review (./StoryReview.tsx) in the page's Side panel, whose
-   frame, header, Refresh, and panel controls it shares with the terminal
-   (./side-panel.css). Beneath the header, the toolbar
-   (./story-review-toolbar.css) names the comparison; the review details it
-   reveals hold the comparison controls and context, and the top holds the
-   feedback. On touch those two share one scrollable height above the work
-   area (./story-review-touch.css). The rest of the panel's height is
-   the work area: the file browser beside the selected file's diff, each
-   scrolling on its own while what is above them stays in place and the body
-   beneath them never scrolls as a whole. The diff's heading stays above its code, which
-   scrolls within the diff (./story-review-diff.css); while the browser is
-   hidden the diff takes its room. Where the panel is too narrow for both
-   side by side, the browser sits above the diff with a bounded share of the
-   height. Files sit by name under their folders (./story-review-files.css).
-   Paths keep their lines and scroll sideways inside the file browser, and
-   code lines inside the diff, never the page. The card's action shares the launch actions' look
-   (./agent-launch.css). */
-
-.story-review-above {
-  flex: none;
-}
+/* A review's shared parts: the review details it reveals hold the comparison
+   controls and context; files sit by name under their folders
+   (./story-review-files.css) beside the selected file's diff
+   (./story-review-diff.css). The card's action shares the launch actions'
+   look (./agent-launch.css). */
 
 .story-review-inclusion {
   padding: 0.4rem 1rem;
@@ -29,7 +13,6 @@
   cursor: pointer;
 }
 
-.story-review-top p,
 .story-review-details p {
   margin: 0;
 }
@@ -44,41 +27,6 @@
   color: inherit;
   background: none;
   cursor: pointer;
-}
-
-/* Feedback sits beneath any revealed details, taking no room while silent. */
-.story-review-top [role="status"]:not(:empty) {
-  padding: 0.4rem 1rem;
-  border-bottom: 1px solid var(--line);
-}
-
-/* The body gives its height to the work area; only an explanation taller
-   than a very short panel scrolls it. Its width decides whether the panes
-   sit side by side. */
-.story-review-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 0.75rem 1rem 1rem;
-  container: story-review-body / inline-size;
-}
-
-.story-review-body p {
-  margin: 0;
-}
-
-.story-review-body code {
-  overflow-wrap: anywhere;
-}
-
-.story-review-workarea {
-  display: flex;
-  flex: 1;
-  gap: 0.75rem;
-  min-height: 0;
 }
 
 .story-review-files {
@@ -111,13 +59,6 @@
   min-width: 0;
 }
 
-/* While its Files drawer is open the review panel rises over the page, so
-   the drawer's backdrop (./ReviewFilesDrawer.tsx) takes every outside
-   gesture, banner included. */
-.story-review:has(> .sidebar-drawer-over-page) {
-  z-index: 7;
-}
-
 /* A marked story's comparison switch: its choices side by side. */
 .story-review-comparison {
   display: flex;
@@ -134,7 +75,6 @@
   border-bottom: 1px solid var(--line);
 }
 
-.story-review-top > div > p code,
 .story-review-details > div > p code {
   overflow-wrap: anywhere;
 }

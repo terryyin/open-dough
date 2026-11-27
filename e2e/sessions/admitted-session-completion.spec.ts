@@ -169,25 +169,26 @@ test("a fresh clone reads the retired admission's story and its exact published 
         ),
       );
     });
-  await test.step("Then the first comparison shows the native edit and omits later work", async () => {
-    await review.files.chooseShown(`Added ${file}`);
+  await test.step("Then Intent shows that session's first comparison: the native edit without later work", async () => {
+    await review.expectStory(title);
+    await review.files.expectOnlyChangedFile(`Added ${file}`);
+    await review.files.choose(`Added ${file}`);
     await review.diffs.expectLines("added", ["+Accepted native work"]);
-    await review.expectNoText(later);
+    await review.files.expectTreeLacksText(later);
   });
   await test.step("And the comparison has no shared checkout warning", () =>
     review.context.expectSharedCheckoutWarning(false));
   await test.step("When the reader chooses the second comparison", () =>
     review.comparison.choosePublishedRange("Published range 2 of 2"));
   await test.step("Then it shows the Done record and omits the product change and later work", async () => {
-    await review.files.chooseShown(
+    await review.files.expectChangedFile(
       `Added .planning/done/${doneRecordFileName(admitted.identity)}`,
     );
-    await review.expectNoText(file);
-    await review.expectNoText(later);
+    await review.files.expectTreeLacksText(file, later);
   });
   const { intent } =
     await test.step("When the reader opens the completed story in Intent", async () => {
-      await review.close();
+      await review.returnToDevelopment();
       return selectDoneStoryInIntent(page, title, undefined, reader.baseURL);
     });
   await test.step("Then Intent shows the completed story and its original closure revision", async () => {

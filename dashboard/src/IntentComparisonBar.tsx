@@ -3,7 +3,7 @@
 // naming the active comparison and its recorded agent, with that agent's
 // portrait when the rotation knows it, or its reading, unavailable or failed state
 // with Retry, beside the eye that reveals the comparison details. The details
-// reuse Review changes' disclosure (`./StoryReviewDetailsSection.tsx`): they
+// use the review details' disclosure (`./StoryReviewDetailsSection.tsx`): they
 // start collapsed for each story, stay open across a new read, and hold
 // Refresh, which re-reads the comparison while keeping the choice.
 
@@ -14,9 +14,9 @@ import { IconButton } from "./Icon.tsx";
 import { comparisonName } from "./StoryReviewComparison.tsx";
 import {
   ReviewDetails,
+  ReviewDetailsEye,
   useReviewDetailsPlace,
 } from "./StoryReviewDetailsSection.tsx";
-import { ReviewDetailsEye } from "./StoryReviewToolbar.tsx";
 import { landedRunName, type StoryCompare } from "./IntentStoryCompare.tsx";
 import {
   CompactComparisonState,
@@ -32,13 +32,18 @@ export function comparisonSummaryName(
   comparison: Extract<LensComparison, { state: "compared" }>,
 ) {
   const run = comparison.compare?.selectedRun;
+  const session = comparison.compare?.sessions?.find(
+    ({ key }) => key === comparison.compare?.session,
+  );
   const name =
-    run !== undefined
-      ? landedRunName(run)
-      : comparisonName(
-          comparison.compare?.shown ??
-            (comparison.review?.kind === "landed" ? "landed" : "published"),
-        );
+    session !== undefined
+      ? session.label
+      : run !== undefined
+        ? landedRunName(run)
+        : comparisonName(
+            comparison.compare?.shown ??
+              (comparison.review?.kind === "landed" ? "landed" : "published"),
+          );
   const count = comparison.shown.comparison.files.length;
   return `${name} — ${count} changed file${count === 1 ? "" : "s"}`;
 }

@@ -24,6 +24,10 @@ export class StoryReviewBuilder {
   /** @type {string | undefined} */
   #completion;
   #agent = "claude";
+  /** @type {{ ranges?: number, selectedRun?: string, shared?: true }} */
+  #session = {};
+  /** @type {{ base: string, candidate: string } | undefined} */
+  #pair;
   /**
    * @param {string} path a file the comparison adds
    * @param {number} lines how many lines long
@@ -86,9 +90,32 @@ export class StoryReviewBuilder {
     return this;
   }
 
-  // A session's published comparison.
-  publishedSession() {
+  /**
+   * A session's published comparison: when given, range `position` (from 1)
+   * of the record's `ranges`, and whether that range shared its checkout.
+   * @param {{ range?: { position: number, of: number }, shared?: true }} [recorded]
+   */
+  publishedSession(recorded = {}) {
     this.#kind = "published-session";
+    this.#session = {
+      ...(recorded.range === undefined
+        ? {}
+        : {
+            ranges: recorded.range.of,
+            selectedRun: String(recorded.range.position - 1),
+          }),
+      ...(recorded.shared === undefined ? {} : { shared: recorded.shared }),
+    };
+    return this;
+  }
+
+  /**
+   * The commits the comparison runs between, such as a session's recorded range.
+   * @param {string} base
+   * @param {string} candidate
+   */
+  between(base, candidate) {
+    this.#pair = { base, candidate };
     return this;
   }
 
@@ -147,15 +174,25 @@ export class StoryReviewBuilder {
   /** @param {string} [storyStart] @param {ReviewedFile[]} [widened] @returns {StoryReview} */
   #comparison(storyStart, widened) {
     const run = this.#selected;
-    const baseline = run?.comparison?.base ?? storyReviewIds.baseline;
-    const tree = run?.comparison?.revision ?? storyReviewIds.tree;
+    const baseline =
+      this.#pair?.base ?? run?.comparison?.base ?? storyReviewIds.baseline;
+    const tree =
+      this.#pair?.candidate ?? run?.comparison?.revision ?? storyReviewIds.tree;
     const files = structuredClone(this.#files);
     if (this.#kind === "landing-unavailable")
       return { kind: "landing-unavailable", ...this.#gap };
     if (this.#kind === "unavailable")
       return { kind: "unavailable", explanation: this.#gap.explanation };
-    if (this.#kind === "published-session")
-      return publishedSessionComparison({ baseline, tree, files });
+    if (this.#kind === "published-session") {
+      const { shared, ...ranges } = this.#session;
+      const review = publishedSessionComparison({ baseline, tree, files });
+      if (review.kind !== "published-session") return review;
+      return {
+        ...review,
+        ...ranges,
+        session: { ...review.session, ...(shared ? { shared } : {}) },
+      };
+    }
     if (this.#kind === "published")
       return publishedComparison({
         baseline,

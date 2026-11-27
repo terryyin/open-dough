@@ -111,6 +111,16 @@ export function WholeStoryNote({
 const unavailableWords =
   "No comparison is available for this story: no published changes are recorded.";
 
+// Why a chosen comparison that was read is not shown.
+export const comparisonGapOf = (
+  comparison: Exclude<LensComparison, { state: "reading" | "compared" }>,
+) =>
+  comparison.state === "unavailable"
+    ? (comparison.explanation ?? unavailableWords)
+    : comparison.state === "failed"
+      ? comparison.problem
+      : comparison.unreadable.explanation;
+
 export const hasUnavailableComparisonSource = (
   comparison: LensComparison | undefined,
 ) =>
@@ -199,7 +209,7 @@ export function ComparisonDetail({
   if (comparison.state === "unavailable")
     return (
       <p className="intent-story-problem">
-        {comparison.explanation ?? unavailableWords}
+        {comparisonGapOf(comparison)}
         {!hasUnavailableComparisonSource(comparison) &&
           (completed
             ? " The story's historical test source is unavailable."
@@ -209,7 +219,7 @@ export function ComparisonDetail({
   if (comparison.state === "failed")
     return (
       <p className="intent-story-problem">
-        {comparison.problem}{" "}
+        {comparisonGapOf(comparison)}{" "}
         {!hasUnavailableComparisonSource(comparison) &&
           (completed
             ? "The story's historical test source is unavailable."
@@ -220,7 +230,7 @@ export function ComparisonDetail({
     return (
       <>
         <p className="intent-story-problem">
-          {comparison.unreadable.explanation}
+          {comparisonGapOf(comparison)}
           {!hasUnavailableComparisonSource(comparison) &&
             " Intent shows the published tree without the chosen changes."}
         </p>

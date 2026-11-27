@@ -1,7 +1,6 @@
 // The room a resizable area shares (`./sharedRoom.ts`), as an area's box
-// shows it: the side panel's frame (`./sidePanelWidth.ts`), the Sessions
-// sidebar (`./sessionsSidebarHeights.ts`) and a review's work area
-// (`./reviewFileSidebarWidth.ts`). It is read as soon as measuring starts or
+// shows it: the side panel's frame (`./sidePanelWidth.ts`) and the Sessions
+// sidebar (`./sessionsSidebarHeights.ts`). It is read as soon as measuring starts or
 // `remeasure` changes, before that is painted, and again whenever the area or
 // another box it names changes size. A resize is laid out anew before it is
 // painted, so no area is shown sized for more room than it has. Each caller

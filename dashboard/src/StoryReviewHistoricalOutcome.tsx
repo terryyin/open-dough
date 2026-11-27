@@ -1,4 +1,4 @@
-import { changedFiles } from "./StoryReviewFileTree.tsx";
+import { changedFiles } from "./StoryReviewFileRow.tsx";
 
 export const emptyLandedReview =
   "No changes: this landed run has an empty delivered comparison.";

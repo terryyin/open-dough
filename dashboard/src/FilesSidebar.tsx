@@ -1,9 +1,8 @@
 // A Files sidebar (`./SidebarDrawer.tsx`) as its view places it
-// (`./IntentFilesDrawer.tsx`, `./ReviewFilesDrawer.tsx`): docked where the
-// view has room, keeping the view's own choice; a drawer where room is
-// tight. Each newly entered view, and each entry into tight room, starts the
-// drawer closed to leave the reader available, and choosing a reading closes it to
-// expose that reading.
+// (`./IntentFilesDrawer.tsx`): docked where the view has room, keeping the
+// view's own choice; a drawer where room is tight. Each newly entered view,
+// and each entry into tight room, starts the drawer closed to leave the
+// reader available, and choosing a reading closes it to expose that reading.
 
 import { type ReactNode, useCallback, useState } from "react";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
@@ -20,14 +19,12 @@ export function useFilesSidebar({
   narrow,
   docked,
   setDocked,
-  overPage = false,
 }: {
   readonly id: string;
   // Whether the view's room places Files over its reader.
   readonly narrow: boolean;
   readonly docked: boolean;
   readonly setDocked: (shown: boolean) => void;
-  readonly overPage?: boolean;
 }): FilesSidebar {
   // The view whose drawer is open; another view starts closed.
   const [drawerOf, setDrawerOf] = useState<string | undefined>(undefined);
@@ -56,13 +53,6 @@ export function useFilesSidebar({
     shown: narrow ? open : docked,
     onShow,
     onReadingChosen,
-    backdrop: (
-      <DrawerBackdrop
-        open={open}
-        sidebarId={id}
-        onDismiss={close}
-        overPage={overPage}
-      />
-    ),
+    backdrop: <DrawerBackdrop open={open} sidebarId={id} onDismiss={close} />,
   };
 }

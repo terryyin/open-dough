@@ -81,7 +81,7 @@ export function IntentCiStatus() {
   if (evidence.kind === "gap") return <StoryGap target={evidence} />;
   const selected = selectedComparisonOf(evidence);
   if (selected !== undefined && evidence.kind === "comparison")
-    return <SelectedCiComparison reading={selected.comparison} />;
+    return <SelectedCiComparison selected={selected} />;
   if (evidence.kind === "comparison")
     return (
       <IntentCiComparison
@@ -102,7 +102,7 @@ export function IntentCiStatus() {
         history={evidence.history}
       />
       {selected !== undefined ? (
-        <SelectedCiComparison reading={selected.comparison} />
+        <SelectedCiComparison selected={selected} />
       ) : provisional !== undefined &&
         evidence.comparisonStory !== undefined ? (
         <IntentCiComparison reading={provisional} />

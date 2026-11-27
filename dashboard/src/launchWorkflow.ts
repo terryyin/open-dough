@@ -125,6 +125,16 @@ export function launchKindName(workflow: LaunchWorkflow | "ad-hoc"): string {
   return workflow === "ad-hoc" ? adHocName : launchWorkflows[workflow].name;
 }
 
+// The name of a published session record's workflow, which spells a story
+// workflow by its skill; an unknown workflow keeps its own spelling.
+export function sessionWorkflowName(workflow: string): string {
+  if (workflow === "ad-hoc") return adHocName;
+  return (
+    Object.values(launchWorkflows).find(({ skill }) => skill === workflow)
+      ?.name ?? workflow
+  );
+}
+
 // How a startup of the kind is named, such as "execution start".
 export function startName(workflow: LaunchWorkflow | "ad-hoc"): string {
   return workflow === "ad-hoc"
