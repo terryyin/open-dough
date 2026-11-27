@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "sessionId": "b8ed378a-6174-45a5-a66f-806453797631",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T02:13:04.337Z",
+  "story": "SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest",
+  "ranges": [
+    {
+      "base": "6e0e357049abe45803e713db9f6801a5e8d15572",
+      "candidate": "bdc37046e17fd70b846bd1711d68f8ef655da7df"
+    },
+    {
+      "base": "bdc37046e17fd70b846bd1711d68f8ef655da7df",
+      "candidate": "0ababc6ed7b054062072a420500d552a25c4c733"
+    },
+    {
+      "base": "0ababc6ed7b054062072a420500d552a25c4c733",
+      "candidate": "0a78f6038f543ce3d8e7ec0f72ed29b1e780c702"
+    },
+    {
+      "base": "0a78f6038f543ce3d8e7ec0f72ed29b1e780c702",
+      "candidate": "41ca3f16a6808c5db39c8e11f440b3c247687626"
+    },
+    {
+      "base": "41ca3f16a6808c5db39c8e11f440b3c247687626",
+      "candidate": "7b8b2fd3ebe6eb8a6c5c9e232a032310c92b70f8"
+    },
+    {
+      "base": "7b8b2fd3ebe6eb8a6c5c9e232a032310c92b70f8",
+      "candidate": "8c1ab566db493f0f6d5d616118fc619a6403549c"
+    },
+    {
+      "base": "8c1ab566db493f0f6d5d616118fc619a6403549c",
+      "candidate": "241bd5b577d36fd150b97ffbfd631e71f8406367"
+    },
+    {
+      "base": "241bd5b577d36fd150b97ffbfd631e71f8406367",
+      "candidate": "82810a8f6adf0b9ed83c23315d9f6aa7f6a49a1f"
+    },
+    {
+      "base": "82810a8f6adf0b9ed83c23315d9f6aa7f6a49a1f",
+      "candidate": "2fa7e5889c04166955b599a353c9c1b24120b2af"
+    },
+    {
+      "base": "2fa7e5889c04166955b599a353c9c1b24120b2af",
+      "candidate": "b809bfb23f683a3a6aed510a0f5411451a242fe3"
+    },
+    {
+      "base": "b809bfb23f683a3a6aed510a0f5411451a242fe3",
+      "candidate": "7009a6fafd8962201e78fcd63c3f412a6c66c1b8"
+    },
+    {
+      "base": "7009a6fafd8962201e78fcd63c3f412a6c66c1b8",
+      "candidate": "8ece297414db1a0ff12b37feb44a8c8abc851ee4"
+    },
+    {
+      "base": "03e815bda8318b75c4c627022a7ed3e114f50419",
+      "candidate": "3d069ddce7f8f3b59fb7c40a18e26217ea756697"
+    }
+  ]
+}
