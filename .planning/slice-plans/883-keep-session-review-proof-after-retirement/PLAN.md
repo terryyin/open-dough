@@ -149,7 +149,7 @@ Learning: finding 2 named only `sessionEvidenceOf`. Proof also asked
 
 ### 3. Prove Intent's diff context expansion again
 Type: Structure
-Status: planned
+Status: done
 
 Change: Frontend specs prove, from the comparison's file text, closing an
 inter-hunk gap without duplicates and the remainder step, the
@@ -160,6 +160,28 @@ remove fixtures nothing uses afterwards.
 
 Proof: The new specs pass, and each rule's case fails when that rule is
 broken in `diffContextExpansion.ts` or `StoryReviewContextGap.tsx`.
+
+Accepted on `5dca9bbdc`:
+- `review/story-review-diff-context-expansion.spec.ts` proves:
+  - the directional steps without a whole-gap shortcut;
+  - the inter-hunk close with "Show 6 following lines";
+  - the end-of-file stop at 20 then 10;
+  - numbering and markers on revealed lines.
+- `e2e/intent/intent-diff-context-expansion.spec.ts` proves the hunk stays in
+  place when context is shown above it.
+- Scratch breaks, each failing its case: chunk 7; remainder ignoring `fromEnd`;
+  expansion past the remainder; the end-of-file guard; numbering +1; revealed
+  lines marked added; an extra "Show all" control; upward place-keeping
+  disabled.
+- Learning: dropping `remaining > 0` from `showDown` in
+  `StoryReviewContextGap.tsx` changes nothing, because the control row renders
+  only while lines remain. The end-of-file rule lives in
+  `diffContextExpansion.ts`.
+
+CI on `3def01aa7` (run `45996969418`): `dashboard-frontend` lost its browser
+connection after 253 of 327 files, with no assertion failure. That is the
+closure owned by the Taken `SEED-413#keep-full-frontend-runs-connected`. It is
+not repaired here.
 
 ### 4. Prove published sessions and the chosen run across a refresh
 Type: Structure

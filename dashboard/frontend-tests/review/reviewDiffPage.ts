@@ -78,12 +78,46 @@ function underlineAppearance(mark: Locator, line: Locator) {
   };
 }
 
+// How a diff line is numbered and marked, as the reader sees it.
+function lineNumbering(line: Element) {
+  return {
+    text: line.textContent,
+    old: line.getAttribute("data-old"),
+    new: line.getAttribute("data-new"),
+    kind: line.getAttribute("class"),
+  };
+}
+
+const gapNames = {
+  before: "Omitted lines before the next change",
+  between: "Omitted lines between changes",
+  after: "Omitted lines after the previous change",
+} as const;
+
+// One omitted-context gap: the expansions it offers and the lines it reveals.
+function contextGap(gap: Locator) {
+  const lines = () => gap.getByCSS("li.story-review-line").elements();
+  return {
+    gap,
+    expansions: () =>
+      gap
+        .getByRole("button")
+        .elements()
+        .map((button) => button.getAttribute("aria-label")),
+    show: (label: string) =>
+      activateButton(gap.getByRole("button", { name: label, exact: true })),
+    texts: () => lines().map((line) => line.textContent),
+    facts: () => lines().map(lineNumbering),
+  };
+}
+
 export function reviewDiffPage() {
   const reading = page.getByCSS(".story-review-code");
-  const revealedBefore = reading.getByRole("list", {
-    name: "Omitted lines before the next change",
-  });
+  const gap = (side: keyof typeof gapNames) =>
+    contextGap(reading.getByRole("list", { name: gapNames[side] }));
+  const revealedBefore = gap("before").gap;
   return {
+    contextGap: gap,
     ...diffMarks(reading).observations,
     newLine: (number: number) =>
       diffLine(
@@ -125,10 +159,7 @@ export function reviewDiffPage() {
         .getByCSS("li.story-review-line")
         .elements()
         .map((line) => ({
-          text: line.textContent,
-          old: line.getAttribute("data-old"),
-          new: line.getAttribute("data-new"),
-          kind: line.getAttribute("class"),
+          ...lineNumbering(line),
           background: getComputedStyle(line).backgroundColor,
         })),
     selectedText(first: Locator, last: Locator) {
