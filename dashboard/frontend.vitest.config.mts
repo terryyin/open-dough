@@ -1,6 +1,9 @@
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
+import { normalizePath, type Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 import { brandAssetPlugin } from "./server/brandAssetPlugin.ts";
 import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
@@ -18,9 +21,40 @@ const desktopSpecs = [
   "dashboard/frontend-tests/terminals/agent-terminal-touch-select-desktop.spec.ts",
 ];
 
+function keepVitestOrchestratorOpen(): Plugin {
+  const require = createRequire(import.meta.url);
+  const viteClient = normalizePath(
+    join(
+      dirname(require.resolve("vite/package.json")),
+      "dist/client/client.mjs",
+    ),
+  );
+  const disconnect =
+    /(if \(payload\.event === "vite:ws:disconnect"\) \{\s*if \(hasDocument && !willUnload)\)/g;
+
+  return {
+    name: "keep-vitest-orchestrator-open",
+    enforce: "post",
+    transform(code, id) {
+      if (id !== viteClient) return;
+      if ([...code.matchAll(disconnect)].length !== 1) {
+        this.error(
+          "Vite's HMR disconnect handler changed. Recheck the Vitest orchestrator reload guard.",
+        );
+      }
+      // The test RPC can still be live when Vite's separate HMR socket closes.
+      // Reloading the orchestrator would destroy that RPC and its active tests.
+      return code.replace(
+        disconnect,
+        '$1 && !(window === window.top && location.pathname === "/__vitest_test__/"))',
+      );
+    },
+  };
+}
+
 export default defineConfig({
   publicDir: fileURLToPath(new URL("./public", import.meta.url)),
-  plugins: [react(), brandAssetPlugin()],
+  plugins: [react(), brandAssetPlugin(), keepVitestOrchestratorOpen()],
   test: {
     include: dashboardSpecFiles(import.meta.dirname, [frontendGroup.root]).map(
       (file) => `dashboard/${file}`,

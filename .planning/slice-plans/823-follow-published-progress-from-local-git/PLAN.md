@@ -85,9 +85,11 @@ on trunk and on the execution branch. The starting revision was
 
 Checkout readiness passed with repository-pinned Node 24.21.0, locked npm
 dependencies, headless Chromium, and `npm run typecheck:dashboard`. The
-Codex observer follows push workflow `ci.yml` on the execution branch,
-coordinator `honoka-430-2bf89426`, directory
-`/tmp/dough-ci-501/watch-McSdYZ`, PID 94590, session 12567, cell `g743:10`.
+Codex observer follows push workflow `ci.yml` on the execution branch
+with coordinator `honoka-430-2bf89426`. The original mailbox
+`/tmp/dough-ci-501/watch-McSdYZ` stopped at the investigation handoff.
+The current mailbox is `/tmp/dough-ci-501/watch-PLfZVx`, PID 94061,
+session 24540, cell `g768:7`.
 
 ## Ordered slices
 
@@ -172,6 +174,15 @@ The delivery review found no refactor candidate in the test-only change.
 Hosted verification stopped at a frontend runner disconnect. See the
 [diagnosis record](diagnosis-frontend-browser-connection.md) for the evidence
 and the bounded attempt to identify its cause.
+
+The developer authorized fixing the reproduced trigger and continuing.
+The frontend Vitest config now suppresses Vite's HMR-disconnect reload
+on the orchestrator page. The two-spec probe passed all five cases
+after forcing HMR loss, and forcing Vitest API loss still failed with
+the expected signature. Dashboard typecheck and a normal full run of
+332 frontend files passed. The next hosted run checks normal frontend
+collection and completion with this guard. The natural trigger in the
+original failed job remains unattributed.
 
 ### 4. Follow trunk through the verified revision stream
 
