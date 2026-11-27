@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_intent-story-cases-at-component-speed.json",
+      "identity": "SEED-413#intent-story-cases-at-component-speed",
+      "completedAt": "2026-11-27T06:12:14.186Z",
+      "blob": "15ae2370ad7090cdc79eff8ae644fe28cd9fcbe1"
+    },
+    {
       "fileName": "SEED-413_share-completion-reporting-arrangement.json",
       "identity": "SEED-413#share-completion-reporting-arrangement",
       "completedAt": "2026-11-27T05:25:29.337Z",

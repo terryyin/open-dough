@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#intent-story-cases-at-component-speed",
+  "title": "Speed Intent story frontend cases toward 100 ms",
+  "completedAt": "2026-11-27T06:12:14.186Z",
+  "developer": "Terry Yin",
+  "agent": "Hitomi-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5",
+  "intentCoverage": {
+    "report": "Verdict: Caught. Checked revision 4d821cf4f6ccef8ed7185fb56b6f5f31e6062df3 (origin/main), story SEED-413#intent-story-cases-at-component-speed.\n\nPromise: clicking a story card on the Development Board selects that story, and Intent then shows it as the selected story (data-selected-story on main \"Intent\").\n\nFault: dashboard/src/Columns.tsx:128 — the cards' `toggle` replaced with a no-op, so Backlog/Taken card clicks no longer change the page selection.\n\nCommand (scratch worktree at the revision): npm run --silent test:dashboard:frontend -- dashboard/frontend-tests/navigation/story-card-selection.spec.ts dashboard/frontend-tests/intent/intent-sidebar-toggle.spec.ts dashboard/frontend-tests/intent/intent-summary-story-comparison-sort.spec.ts\n\nEvidence: baseline 6/6 passed. Under the fault 3 failed: story-card-selection.spec.ts:44 (`expectStoryHighlight`, board-reading-page.ts:148), intent-summary-story-comparison-sort.spec.ts:62 (`developmentCard(...).isSelected(true)` in `selectFromDevelopment`), intent-sidebar-toggle.spec.ts:77 (deselect never shows \"No story selected\"). Independent witness: a scratch copy of the sort spec without the `isSelected` checks failed at toHaveAttribute(\"data-selected-story\", \"SEED-B#b\"), receiving \"SEED-A#a\". Claim bounded to Columns (Backlog/Taken) cards; the Recently done card path was not faulted. Correction to the delivery commit's claim: story-card-selection.spec.ts:150–170 checks a Recently done card; the Board card → Intent check is `selectFromDevelopment` in intent-summary-story-comparison-sort.spec.ts.\n\nRestoration: fault reverted after each run, witness deleted, scratch state matched pre-probe, restored rerun passed 6/6, scratch worktree removed.\n\nWrap-up disposition: 4d821cf4f, Caught, no follow-up.\n"
+  }
+}
