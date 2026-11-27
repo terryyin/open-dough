@@ -127,7 +127,7 @@ imported synchronization holds in one hosted run of the full frontend suite.
 ### 2. Separate stream delivery from observation demand
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: split `sourceRevisionStream.ts` so per-subscriber SSE delivery and
 teardown sit apart from the project's observation demand, with unchanged
@@ -135,6 +135,11 @@ wire behavior. Enables slice 3 to swap the demand onto the verified check.
 
 Proof: existing `authenticated-read-revision-stream.spec.ts` and
 `authenticated-read-revision-stream-setup-departure.spec.ts` pass unchanged.
+
+Accepted proof: all 11 stream and setup-departure checks passed before and
+after the extraction. Eight HTTP fallback cases, 17 browser stream and
+fallback cases, and Dashboard typecheck also passed. The independent review
+confirmed the ownership split and retained the proof without edits.
 
 ### 3. Follow trunk automatically through the verified check
 
