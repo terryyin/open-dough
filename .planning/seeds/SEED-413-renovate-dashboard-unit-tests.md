@@ -383,14 +383,40 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#published-review-comparisons-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md","assessment":"not-ready","reasons":["Slice 1: the fixed Done Review browser journey timed out before the post-checkout-move Landed run cue.","Slice 4: the mixed and attributed file rows appeared, but the merge-resolution diff response exceeded the browser assertion limit before its integration edit could render.","Slice 5: the retained landing inventory and text reached the browser, but the second story's final file text and switch assertions did not finish by the test cutoff."],"basis":{"document":"59aee6e51ae34990d90c2ab4fc40f9ccb35a4c26bc44ea6f11618bfec2405b61","plan":"7d9561ffcd9d8e811a9f8f751c9c5d6434b2c19fc0dde307a8d4be7d442a8b9f"}}
 ```
 
-- **For / why.** Give developers inspecting Review fast proof that comparison and file evidence belong to the selected story and its published or landed pair.
-- **Evaluation.** When a retained comparison has a rename, merge, or ambiguous contribution, Review keeps its exact endpoints and presents the recorded reason for any gap. A foreign pair, file, or story is refused.
-- **Boundary.** Use the typed Review builder and admission operations with real Git histories and retained records. Reconcile plans 823 and 856 for shared fetch and pins. Retain actual Git process and browser interaction wherever they supply the proof.
-- **Effort hypothesis.** L, low confidence. Recount surviving proof and size the observed cases during refinement.
-- **Safe stopping point.** Every case for this outcome has a maintained owner or a recorded replacement.
+**Goal.** Give developers changing published Review comparisons fast,
+discriminating Node Vitest proof that Review shows the selected story or run
+and serves files from the same published comparison.
+
+**Scope.** Preserve completion and attribution, exact file diff and text
+admission, retained run choice, shared Done refresh and offline reads, and the
+local Review marks exercised by this family. Use typed production reads and
+admission, real Git histories and retained records where they supply evidence,
+and focused HTTP and browser checks for their own contracts. Account for the
+19 remaining Playwright specs and the two result-tree specs already replaced in
+the original 21-path inventory, with comparable one-worker before/after timings.
+Landing capture, new Board/Review refresh behavior and backend runner removal
+have their own stories.
+
+**Key examples.**
+
+- After trunk advances or a checkout moves, opening Done Review shows the
+  published completion and its files. Once synced, exact file reads stay on
+  that pair with no origin requests. An offline open reports its sync failure
+  and uses the last readable comparison if available.
+- A merge with story edits and shared conflicts shows the story's edits and
+  the recorded mixed baseline for each affected file. Incomplete claim or
+  merge evidence gives a reason with no partial file list.
+- Selecting a renamed file on an older retained run serves its diff and text
+  using the admitted old and new paths. A foreign story, pair or file is
+  refused. A native-session replacement preserves the run identity. Deletion
+  or expiry selects the next remaining capture or an explicit evidence gap.
+- Two overlapping Done opens share one fetch. A held mutation releases the
+  shared slot after the child closes. An explicit session unreview persists
+  beside a story mark until the next story-wide change.
+
 - **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
 
 **Plan.** [Prove published Review comparisons in Node Vitest](../slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md)
