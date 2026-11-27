@@ -141,6 +141,28 @@ export function keepMoreLaunchRecordsBesideServer(
   );
 }
 
+// Applies `change` to each session record the project `source` keeps, read
+// and replaced under a running server's write lock as
+// `keepMoreLaunchRecordsBesideServer` does, leaving creations and other
+// projects as kept. A page's
+// reconciliation rewrites the store after a start settles, so a test changing
+// a record its page started keeps it this way.
+export function changeKeptSessionsBesideServer(
+  home: MachineHome,
+  change: (record: LaunchRecord) => LaunchRecord,
+  source = "open-dough",
+): Promise<void> {
+  return changeMachineDocument(launchStoreFile(home), (held) => {
+    const kept = (held as LaunchStoreDocument | undefined) ?? {};
+    return {
+      ...kept,
+      [source]: (kept[source] ?? []).map((record) =>
+        "session" in record ? change(record) : record,
+      ),
+    };
+  });
+}
+
 // The kept launch records of the project `source`, written into the machine
 // store as its whole document.
 export function keepLaunchRecords(

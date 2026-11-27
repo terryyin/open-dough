@@ -179,22 +179,36 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
-<a id="diagnose-dashboard-ci-probe-flakes"></a>
+<a id="lock-launch-store-writes-beside-server"></a>
 
-### Diagnose Dashboard CI probe flakes
+### Change launch records beside a running server under its lock
 
-**Identity:** SEED-413#diagnose-dashboard-ci-probe-flakes
+**Identity:** SEED-413#lock-launch-store-writes-beside-server
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/885-diagnose-dashboard-ci-probe-flakes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"70131449f9597216c15b64c3a98779bea6c3fdd46639efd9eda88c4ee531f4bd","plan":"859ea5a60171d34f2d4fa599ba0069fb86d73e836782ac27ad738d084f7d48a1"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **Goal.** Give Dashboard maintainers an evidence-backed diagnosis and repair
-  owner for each of the two frontend flakes reported on CI probe branches.
-- **Scope.** Investigate the missed terminal presentation and the Vitest
-  browser disconnect reported alongside the Intent timing-history spec. Use
-  the probe evidence to establish what each failure shows and identify any
-  remaining gaps in attribution.
-- [Slice plan](../slice-plans/885-diagnose-dashboard-ci-probe-flakes/PLAN.md)
+- **Goal.** Dashboard maintainers get browser and backend specs that stop
+  losing a record change they make while the dashboard server runs.
+- **Scope.** A page's reconciliation rewrites `agent-launches.json` under the
+  machine-document lock about a second after a start settles. A test that
+  rewrites that store in place without the lock can lose its change. Audit
+  test-side launch-store writes made after a page start beside a running
+  server (`keepLaunchStore`, `changeLaunchStore`, `forgetLaunchSession`,
+  `keepMoreLaunchRecords`, `keepLaunchRecords`), and route them through the
+  lock. For example, make the unlocked read-modify-write helpers take the
+  lock, as `changeKeptSessionsBesideServer` and
+  `keepMoreLaunchRecordsBesideServer` already do. Writes made before the
+  server or page starts stay as they are.
+- **Evidence.** CI run `46011428917` failed
+  `e2e/sessions/cursor-session-recovery.spec.ts:166` this way. The forced
+  experiment lost `doneAt` in 2 of 3 runs with the unlocked write and in 0
+  of 5 with the locked write. Representatives to audit first:
+  `e2e/sessions/recently-done-sessions-sidebar-reopen.spec.ts`,
+  `e2e/sessions/agent-launch-retained-history.spec.ts`,
+  `e2e/launches/agent-launch-story-card-open-session.spec.ts`,
+  `dashboard/test-support/runningCursorSessionsPage.ts`, and
+  `dashboard/backend-tests/launches/agent-launch-own-record-continuation-race.spec.ts`.
 
 <a id="renovate-remaining-backend-families-after-browser-reporter"></a>
 

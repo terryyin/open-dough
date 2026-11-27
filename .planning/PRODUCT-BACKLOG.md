@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Keep Intent's session review and its proof whole after the retirement](seeds/SEED-418-review-published-session-changes.md#keep-session-review-proof-after-retirement) — SEED-418#keep-session-review-proof-after-retirement ([plan](slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md))
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest ([plan](slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md))
 - [Prove authenticated GitHub observation in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#authenticated-github-observation-via-vitest) — SEED-413#authenticated-github-observation-via-vitest ([plan](slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md))
-- [Diagnose Dashboard CI probe flakes](seeds/SEED-413-renovate-dashboard-unit-tests.md#diagnose-dashboard-ci-probe-flakes) — SEED-413#diagnose-dashboard-ci-probe-flakes ([plan](slice-plans/885-diagnose-dashboard-ci-probe-flakes/PLAN.md))
 - [Close the preview's incident record when the watcher ends on SIGHUP](seeds/SEED-370-remove-old-dashboard-deployments.md#close-preview-incident-record-on-sighup) — SEED-370#close-preview-incident-record-on-sighup ([plan](slice-plans/889-close-preview-incident-record-on-sighup/PLAN.md))
 - [Follow published progress from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git ([plan](slice-plans/823-follow-published-progress-from-local-git/PLAN.md))
 
@@ -94,3 +93,4 @@ intent introduced or affected by a newly developed story.
 - [Introduce Cucumber to E2E Test](seeds/SEED-405-introduce-cucumber-to-e2e-test.md#introduce-cucumber-to-e2e-test) — SEED-405#introduce-cucumber-to-e2e-test
 - [Recover expired session reviews from Git history](seeds/SEED-418-review-published-session-changes.md#recover-expired-session-reviews) — SEED-418#recover-expired-session-reviews
 - [Decide whether claim closure needs its own borrowed-checkout refresh rule](seeds/SEED-423-shrink-the-installed-distribution.md#decide-borrowed-checkout-refresh-rule) — SEED-423#decide-borrowed-checkout-refresh-rule
+- [Change launch records beside a running server under its lock](seeds/SEED-413-renovate-dashboard-unit-tests.md#lock-launch-store-writes-beside-server) — SEED-413#lock-launch-store-writes-beside-server

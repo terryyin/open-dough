@@ -163,7 +163,7 @@ test.each([
   "$start keyboard start sends no instruction and presents its terminal without taking focus from another task",
   async ({ typed }) => {
     const { presentTerminal, button, record } = await startWith(typed);
-    expect(presentTerminal).toHaveBeenCalledTimes(1);
+    await expect.poll(() => presentTerminal.mock.calls).toHaveLength(1);
     const [presentation] = presentTerminal.mock.calls[0] ?? [];
     expect(presentation?.record.session).toEqual(record.session);
     expect(presentation?.control).toBe(button.element());
@@ -239,7 +239,7 @@ test("a refused default admission lets Start repeat the same request and present
   answer(machine, 3);
   await expect.element(launcher).toBeEnabled();
   await expect.element(progress).not.toBeInTheDocument();
-  expect(presentTerminal).toHaveBeenCalledOnce();
+  await expect.poll(() => presentTerminal.mock.calls).toHaveLength(1);
   const [shown] = presentTerminal.mock.calls[0] ?? [];
   expect(shown?.record.session).toEqual(record.session);
   expect(shown?.control).toBe(launcher.element());
