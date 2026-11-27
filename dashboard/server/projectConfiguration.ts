@@ -47,6 +47,13 @@ function withVisibility(
   return nextHidden ? { ...project, hidden: true } : project;
 }
 
+// The list an environment starts with when it has no saved file yet.
+export function seededProjects(
+  next: ProjectEnvironment,
+): readonly ConfiguredProject[] {
+  return next === "production" ? productionSeedProjects : [];
+}
+
 export function initializeProjectConfiguration(next: ProjectEnvironment): void {
   const file = projectConfigurationFile(next);
   if (environment !== undefined && environment !== next)
@@ -62,7 +69,7 @@ export function initializeProjectConfiguration(next: ProjectEnvironment): void {
       text = readFileSync(file, "utf8");
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-      const initial = next === "production" ? productionSeedProjects : [];
+      const initial = seededProjects(next);
       writeConfiguration(file, initial);
       projects = initial;
       return;

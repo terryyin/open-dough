@@ -28,8 +28,10 @@ function takeEndFile(file: string): boolean {
 }
 
 // Calls `end` once when the wait ends. The returned function cancels it.
-export function launchWait(end: () => void): () => void {
-  const file = process.env["DOUGH_TEST_LAUNCH_WAIT_END_FILE"];
+export function launchWait(
+  end: () => void,
+  file: string | undefined = process.env["DOUGH_TEST_LAUNCH_WAIT_END_FILE"],
+): () => void {
   const finish = (): void => {
     cancel();
     end();

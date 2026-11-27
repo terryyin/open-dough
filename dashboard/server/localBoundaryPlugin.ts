@@ -13,9 +13,24 @@ import {
   type BoundaryCleanup,
   type LocalBoundary,
 } from "./localBoundary.ts";
-import { initializeProjectConfiguration } from "./projectConfiguration.ts";
+import {
+  initializeProjectConfiguration,
+  type ProjectEnvironment,
+} from "./projectConfiguration.ts";
 
-export function localBoundaryPlugin({ name, install }: LocalBoundary): Plugin {
+// The project environment each Vite serving mode opens before it mounts a
+// boundary: the dev server keeps development's, the preview production's.
+export const servingModeEnvironment = {
+  dev: "development",
+  preview: "production",
+} as const satisfies Record<string, ProjectEnvironment>;
+
+export function localBoundaryPlugin(
+  { name, install }: LocalBoundary,
+  openEnvironment: (
+    environment: ProjectEnvironment,
+  ) => void = initializeProjectConfiguration,
+): Plugin {
   // Set by whichever of the two launch-mode hooks below actually runs (dev
   // XOR preview, never both in one process); read by the matching close
   // hook.
@@ -33,11 +48,11 @@ export function localBoundaryPlugin({ name, install }: LocalBoundary): Plugin {
   return {
     name,
     async configureServer(server) {
-      initializeProjectConfiguration("development");
+      openEnvironment(servingModeEnvironment.dev);
       await mount(server.middlewares, server.httpServer);
     },
     async configurePreviewServer(server) {
-      initializeProjectConfiguration("production");
+      openEnvironment(servingModeEnvironment.preview);
       await mount(server.middlewares, server.httpServer);
     },
     closeServer() {

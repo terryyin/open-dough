@@ -9,13 +9,6 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { repoRoot } from "./repositoryRoot.ts";
 
-const declaredBrandIcons = [
-  "favicon.ico",
-  "icon-32.png",
-  "icon-16.png",
-  "icon-180.png",
-] as const;
-
 // Expects the answer at an icon's URL to be the export its file name names.
 export async function expectSuppliedIcon(url: string): Promise<void> {
   const name = path.basename(new URL(url).pathname);
@@ -33,11 +26,4 @@ export async function expectSuppliedIcon(url: string): Promise<void> {
     },
     url,
   );
-}
-
-// Expects a server at `baseURL` to answer every declared icon so.
-export async function expectSuppliedIcons(baseURL: string): Promise<void> {
-  for (const name of declaredBrandIcons) {
-    await expectSuppliedIcon(`${baseURL}/${name}`);
-  }
 }

@@ -178,10 +178,10 @@ with `published-development-runtime.spec.ts`. No E2E case added.
 
 ### 3. Prove serving boundaries without starting servers
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 20–25 active minutes.
-Proof: Every case in the eight slice-3 specs runs in about 100 ms or less,
-with mode repeats merged.
+Proof: Every case in the six remaining slice-3 specs runs in about 100 ms
+or less, with mode repeats merged.
 
 Behavior:
 - Boundary and dev serving mount the same launch, read, configuration and
@@ -189,11 +189,32 @@ Behavior:
   composes, instead of once per mode through started servers.
 - A mounted server refuses a second start and releases a refused port.
 - One project's configuration answers its own environment.
-- A committed origin route takes precedence after republication.
 - Cache budget and chosen port stay as they are.
 
 Dev cache ownership and Vite's HMR socket stay with one real dev-server
 check only if no E2E journey observes them. Name that check.
+
+Result: the six specs run every case in 0–149 ms (load 16 before, 20.8
+after); `mounted-boundary-server` 10 → 7 cases, `serving-modes` 6 → 2,
+`boundary-server` 2 → 3 typed cases. Typed seams: `localBoundaryPlugin`
+takes its environment opener, `mountedBoundaries`/`processOnly`,
+`seededProjects`, `runnerArguments`, `launchWait` takes its control file,
+and `launchClaudeStartedBy` takes the Claude starter, so the pending
+launch wait and its "uncertain, timed out" outcome are fast cases in
+`dashboard/backend-tests/launches/launch-wait-control.spec.ts`. The
+bundled boundary server's real start stays with
+`observation/host-status.spec.ts`; HMR with `production-watcher.spec.ts`;
+icons with `browser-identity.spec.ts` plus the one shared Vite config.
+Added E2E case: `e2e/runtime/dev-server-cache-ownership.spec.ts` "one dev
+server's optimized module survives another server's cache write" (moved;
+no other journey runs two dev servers). The committed-origin specs moved
+to slice 6.
+
+Learning: `e2e/launches/agent-launch-claude-verification.spec.ts` `:85`,
+`:176` and `dashboard/backend-tests/launches/agent-launch-duplicate.spec.ts`
+`:136`, `:141`, `:189`, `:225` fail identically at `5fc03cd` on this
+machine (load 28–31): the Claude launch call is never seen within 5 s.
+Diagnosed separately under the failure policy.
 
 ### 4. Prove the fake gh client and in-process owner through its wire values
 Type: Behavior
@@ -242,11 +263,17 @@ The real build under concurrent runs stays with
 Type: Behavior
 Status: planned
 Estimate: 15–20 active minutes.
-Proof: Every case in the three slice-6 specs runs in about 100 ms or less.
+Proof: Every case in the five slice-6 specs runs in about 100 ms or less.
 None runs `npm ci` or pushes to a real origin, except a single real case
 the slice names, if no E2E or runner script covers it.
 
 Behavior:
+- A committed origin route takes precedence after republication
+  (`committed-origin-routing`, `committed-origin-actions`, moved from
+  slice 3). `fixtureOriginRoute` writes HOME's routes as a series of Git
+  config writes and unsets, so first let it compute each HOME's route list
+  as data and write it once; prove the precedence on that list. Git's own
+  longest-match stays with a named journey that fetches through the routes.
 - A documentation-only publication pushes only its requested paths.
 - Full-source and application fixtures keep live bytes and stay usable
   without a run owner.
