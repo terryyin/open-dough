@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yuma-chan",
-  "email": "yuma-chan@example.org",
-  "identity": "SEED-413#prove-session-completion-reporting-on-vitest",
-  "mode": "story-branch",
-  "branch": "claude/prove-session-completion-reporting-in-node-vites",
-  "host": "claude"
-}

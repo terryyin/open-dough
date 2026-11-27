@@ -129,12 +129,7 @@ for (const { workspace, openedIn } of workspaces) {
     const result = run(attemptFor(title, workspace));
 
     try {
-      await vi.waitFor(
-        () => {
-          expect(hold.isHeld()).toBe(true);
-        },
-        { timeout: 3_000 },
-      );
+      await hold.whenHeld();
       expect(dispatched).toEqual([]);
       expect(await originMain()).toBe(before);
     } finally {

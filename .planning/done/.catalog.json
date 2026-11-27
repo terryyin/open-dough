@@ -8,6 +8,12 @@
       "blob": "56bf5241a7f42e2c1a2a41f66010b8d4b85d8332"
     },
     {
+      "fileName": "SEED-413_prove-session-completion-reporting-on-vitest.json",
+      "identity": "SEED-413#prove-session-completion-reporting-on-vitest",
+      "completedAt": "2026-11-27T02:28:43.675Z",
+      "blob": "8df42bf5857afc04191c1183f48233b88622443e"
+    },
+    {
       "fileName": "SEED-413_prove-terminal-attach-and-cursor-turns-on-vitest.json",
       "identity": "SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest",
       "completedAt": "2026-11-27T01:50:34.363Z",

@@ -47,9 +47,15 @@ const needsInput = "Needs input: Codex is waiting for your input";
 const unrecognized = "State not recognized";
 const readyForReview = "Ready for review";
 
-function observeAlerts(records: () => readonly LaunchRecord[]) {
+// A new reading reaches the native endpoint only when a poll starts, so no
+// poll mixes one reading's status with another's turns.
+function observeAlerts(
+  records: () => readonly LaunchRecord[],
+  observations: Map<string, FakeCodexObservation>,
+) {
   vi.stubEnv("DOUGH_ALERT_CHECK_MS", "20");
   let pollsStarted = 0;
+  const next = new Map<string, FakeCodexObservation>();
   const sent: TerminalNotificationContent[] = [];
   const notifier: SessionAlertNotifier = {
     probe: () => Promise.resolve(undefined),
@@ -62,6 +68,9 @@ function observeAlerts(records: () => readonly LaunchRecord[]) {
     {
       machineSessions() {
         pollsStarted++;
+        for (const [sessionId, observation] of next)
+          observations.set(sessionId, observation);
+        next.clear();
         return withStates(machineFolder(), records(), "recurring");
       },
     },
@@ -74,6 +83,9 @@ function observeAlerts(records: () => readonly LaunchRecord[]) {
   return {
     sent,
     messages: () => sent.map(({ message }) => message),
+    become(record: LaunchRecord, observation: FakeCodexObservation) {
+      next.set(record.session.sessionId, observation);
+    },
     async further() {
       // The loop never overlaps polls. Two more starts mean that at least
       // one whole poll has finished since the test supplied a new reading.
@@ -89,11 +101,14 @@ test("native transition alerts unrecognized states once and stays quiet for inco
   const native = await startNativeCodexEndpoint(privateHome());
   onTestFinished(mountProjectConfiguration("production"));
   const kept = codexRecord("alert", codexEndpoint(native));
+  native.observations.set(kept.session.sessionId, {
+    ...completed,
+    status: { type: "notLoaded" },
+  });
+  const alerts = observeAlerts(() => [kept], native.observations);
   const become = (observation: FakeCodexObservation) => {
-    native.observations.set(kept.session.sessionId, observation);
+    alerts.become(kept, observation);
   };
-  become({ ...completed, status: { type: "notLoaded" } });
-  const alerts = observeAlerts(() => [kept]);
   await alerts.further();
   expect(alerts.sent).toEqual([]);
 
@@ -163,12 +178,12 @@ test("review baselines and notifications survive failed, incomplete and omitted 
   const sentinel = codexRecord("sentinel", endpoint);
   const listed = [reviewed, sentinel];
   let kept = listed;
-  const become = (observation: FakeCodexObservation) => {
-    native.observations.set(reviewed.session.sessionId, observation);
-  };
-  become(completed);
+  native.observations.set(reviewed.session.sessionId, completed);
   native.observations.set(sentinel.session.sessionId, working);
-  const alerts = observeAlerts(() => kept);
+  const alerts = observeAlerts(() => kept, native.observations);
+  const become = (observation: FakeCodexObservation) => {
+    alerts.become(reviewed, observation);
+  };
   await alerts.further();
   expect(alerts.messages()).toEqual([]);
 

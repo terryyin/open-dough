@@ -14,6 +14,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { promisify } from "node:util";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -105,6 +106,9 @@ export const changedReviewRevision: RevisionFacts = {
 
 export type PushHold = {
   isHeld(): boolean;
+  // Settles once a push reaches the held hook, so the caller's test timeout
+  // alone bounds the wait; rejects once cleanup removes the machine first.
+  whenHeld(): Promise<void>;
   release(): void;
 };
 
@@ -195,6 +199,13 @@ export async function startOrigin(
       chmodSync(hook, 0o755);
       return {
         isHeld: () => existsSync(held),
+        async whenHeld() {
+          while (!existsSync(held)) {
+            if (!existsSync(machine))
+              throw new Error("The origin was cleaned up before a push held");
+            await delay(50);
+          }
+        },
         release: () => {
           writeFileSync(released, "");
         },

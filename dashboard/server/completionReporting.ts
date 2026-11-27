@@ -14,11 +14,10 @@ import { landingStoryOfAttempt } from "./launchLandingRecord.ts";
 import { installedExports } from "./startLaunch.ts";
 import type { LocalFolder } from "./localFolder.ts";
 import { deliverCompletion } from "./completionDelivery.ts";
-import type { NativeDoneMarks } from "./doneMarks.ts";
-import { submissionSchema } from "./completionAdmission.ts";
+import type { ReportedDone } from "./doneMarks.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
-import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import { knownSource } from "./sessionAdmission.ts";
+import { admitCompletionRequest } from "./completionAdmission.ts";
+import { verifyLocalOrigin } from "./localOrigin.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import { preparesReporting } from "./launchWorkspaceReporting.ts";
@@ -121,17 +120,18 @@ export async function reportingContext(
 
 export async function submitCompletion(
   req: IncomingMessage,
-  doneMarks: NativeDoneMarks,
+  doneMarks: ReportedDone,
 ) {
   verifyLocalOrigin(req);
-  if (req.method !== "POST")
-    throw new RefusedRequest(405, "Only POST is accepted here.");
-  const parsed = submissionSchema.safeParse(
-    await jsonBody(req, undefined, 128 * 1024),
-  );
-  if (!parsed.success)
-    throw new RefusedRequest(400, "The completion request is malformed.");
-  const report = parsed.data;
-  knownSource(report.source);
+  const report = admitCompletionRequest({
+    method: req.method,
+    origin: req.headers.origin,
+    host: req.headers.host,
+    fetchSite: req.headers["sec-fetch-site"],
+    body:
+      req.method === "POST"
+        ? await jsonBody(req, undefined, 128 * 1024)
+        : undefined,
+  });
   return deliverCompletion(report, `http://${req.headers.host}`, doneMarks);
 }

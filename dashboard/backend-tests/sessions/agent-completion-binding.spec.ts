@@ -1,246 +1,249 @@
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import {
-  keptLaunchRecords,
-  launchStoreFile,
-} from "../../test-support/support/launchStore.ts";
-import {
-  acceptanceSchema,
-  verifiedAnswerSchema,
-} from "../../src/launchOutcome.ts";
-import { markDoneAnswerSchema } from "../../src/doneMark.ts";
-import type { submitCompletion } from "../../server/completionReporting.ts";
-import { test, expect } from "../../test-support/support/pageTest.ts";
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
-import { existsSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+// An early report from an accepted queued Claude Code execution waits for its
+// native session: the reporting script's receipt stays with the attempt, binds
+// when the launch settles or a Recheck confirms it, and survives later native
+// writers and Mark as done. The attempt runs through production `attemptRun`
+// and the real Claude Code host over the synthetic `claude`, held at its
+// launch; the installed reporting script runs in process.
+import { randomUUID } from "node:crypto";
+import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { tmpdir } from "node:os";
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { machineHome } from "../../test-support/machineLaunchRecords.ts";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { deliverCompletion } from "../../server/completionDelivery.ts";
+import { NativeDoneMarks, type DoneLaunches } from "../../server/doneMarks.ts";
+import { settleAttempt } from "../../server/launchAttemptSettlement.ts";
+import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
+import { launchHost } from "../../server/launchHosts.ts";
+import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { keptRecords, updateRecord } from "../../server/launchRecordStore.ts";
+import { attemptRun } from "../../server/launchRun.ts";
+import { verifyLaunch } from "../../server/launchVerification.ts";
+import { machineFolder } from "../../server/localFolder.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
+import { completionReceiptSchema } from "../../src/completionReport.ts";
 import {
-  accept,
-  recordsOf,
-  markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
+  installFakeClaude,
+  type FakeClaudeControls,
+} from "../../test-support/support/fakeClaude.ts";
 import {
-  settledOutcome,
-  keptAttempts,
-} from "../../test-support/acceptedAttempts.ts";
-import {
-  startOrigin,
   queuedIdentity,
   queuedTitle,
+  startOrigin,
+  type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 import {
-  postCompletion,
-  recordOperation,
-} from "../../test-support/support/completionRecovery.ts";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
+  reportInstalled,
+  reportingInvocation,
+} from "../support/installedPublisher.ts";
 
-const exec = promisify(execFile);
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
+const reportingOrigin = "http://127.0.0.1:4173";
+// The developer's Done on a host that stops without renaming.
+const doneStop = vi.fn(() => Promise.resolve());
 
-for (const quiet of [false, true])
-  for (const recheck of [false, true])
-    test(`Claude early ${quiet ? "quiet completion" : "attention report"} binds through ${recheck ? "native Recheck" : "normal launch"} and survives late native writers`, async () => {
-      const origin = await startOrigin(queuedReadyRepository().please());
-      const server = await startDashboardServer({
-        mode: "boundary",
-        machine: origin.machine,
-        projectFolders: ["open-dough"],
-        launchTimeoutMs: 30000,
-        doneRenameWaitMs: 30_000,
-      });
-      try {
-        server.claudeScenario("held");
-        const accepted = acceptanceSchema.parse(
-          JSON.parse(
-            (
-              await accept(server, {
-                source: "open-dough",
-                identity: queuedIdentity,
-                title: queuedTitle,
-                workflow: "execution",
-                host: "claude",
-              })
-            ).body,
-          ),
-        );
-        expect(accepted.kind).toBe("accepted");
-        if (accepted.kind !== "accepted")
-          throw new Error("The launch was not accepted.");
-        // Take publication, the workspace and the synthetic `claude` spawn run
-        // dozens of real git and child processes, slower on a loaded machine.
-        await expect
-          .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
-          .toBe(1);
-        const call = server.claudeLaunchCalls()[0];
-        const input = call?.argv.at(-1) ?? "";
-        const command = /^- reporting command: (.+)$/m.exec(input)?.[1];
-        if (command === undefined)
-          throw new Error("No real Claude launch context");
-        expect(input).toContain(`- launch reference: ${accepted.attempt.id}`);
-        expect(server.claudeLaunches()[0]?.name).toBe(
-          "Open Dough · Execution · Prepare the queued start",
-        );
-        expect(call?.argv).not.toContain("--permission-mode");
-        const message = path.join(origin.machine, "early.txt");
-        writeFileSync(
-          message,
-          "Work unfinished: the maintainer must resolve the conflicting decision.",
-        );
-        const post = (session: string) =>
-          postCompletion(
-            server.origin,
-            makeMe.aCompletionSubmission
-              .reportingFor({ host: "claude", reference: accepted.attempt.id })
-              .fromSession(session)
-              .withOutcome("unfinished")
-              .saying("No false session receipt")
-              .please(),
-          );
-        expect((await post("not-yet-known")).status).toBe(409);
-        const reported = await exec(
-          "bash",
-          [
-            "-c",
-            quiet
-              ? `${command} --outcome completed`
-              : `${command} --outcome unfinished --message-file '${message}'`,
-          ],
-          { cwd: origin.machine },
-        );
-        const receipt = JSON.parse(reported.stdout) as Awaited<
-          ReturnType<typeof submitCompletion>
-        >;
-        expect(receipt.state).toBe("pending-native-session");
-        expect(receipt).not.toHaveProperty("session");
-        expect(
-          keptAttempts(server).find(
-            (attempt) => attempt.id === accepted.attempt.id,
-          )?.completion?.receipt,
-        ).toBe(receipt.receipt);
-        expect(existsSync(launchStoreFile(server))).toBe(false);
-        if (recheck) server.claudeListingFails(true);
-        server.releaseHeldClaude();
-        const outcome = await settledOutcome(server, accepted.attempt.id);
-        if (recheck) {
-          expect(outcome.kind).toBe("uncertain");
-          server.claudeListingFails(false);
-          const verified = await rawRequest({
-            url: `${server.baseURL}/__agent-launch/verify`,
-            method: "POST",
-            headers: {
-              Origin: server.origin,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              source: "open-dough",
-              attempt: accepted.attempt.id,
-            }),
-          });
-          expect(
-            verifiedAnswerSchema.parse(JSON.parse(verified.body)),
-          ).toMatchObject({
-            kind: "settled",
-            attempt: { outcome: { kind: "launched" } },
-          });
-        } else expect(outcome.kind).toBe("launched");
-        const [bound] = (await recordsOf(
-          server,
-          "open-dough",
-        )) as LaunchRecord[];
-        expect(bound?.completion).toMatchObject({
-          receipt: receipt.receipt,
-          reference: accepted.attempt.id,
-        });
-        expect(bound?.request.reporting?.reference).toBe(accepted.attempt.id);
-        expect(bound?.session.host).toBe("claude");
-        expect(bound?.doneAt).toBeUndefined();
-        expect(bound?.doneProblem).toBeUndefined();
-        if (bound === undefined) throw new Error("No bound record");
-        const stale = { ...bound, completion: undefined, doneAt: undefined };
-        for (const operation of ["updateRecord", "bindRecord"]) {
-          await recordOperation(server, operation, ["open-dough", stale]);
-          const [current] = (await recordsOf(
-            server,
-            "open-dough",
-          )) as LaunchRecord[];
-          expect(current?.completion?.receipt).toBe(receipt.receipt);
-          expect(current?.doneAt).toBeUndefined();
-        }
-        // Its turn has ended; the session idles until it is marked done.
-        server.claudeSessionBecomes(bound.session.sessionId, "done-live");
-        const shortId = server
-          .claudeListing()
-          .find((listed) => listed["sessionId"] === bound.session.sessionId)?.[
-          "id"
-        ];
-        expect(server.claudeAttaches()).toEqual([]);
-        expect(server.claudeStopCalls()).toEqual([]);
-        const done = await markDone(server, {
-          source: "open-dough",
-          host: "claude",
-          session: bound.session.sessionId,
-        });
-        expect(done.status).toBe(200);
-        expect(
-          markDoneAnswerSchema.parse(JSON.parse(done.body)).record.doneAt,
-        ).toBeDefined();
-        // Mark as done closes the reported session as any session: renamed
-        // through a private attachment, then stopped.
-        expect(
-          server
-            .claudeCalls()
-            .filter(
-              (entry) => entry.argv[0] === "stop" || entry.argv[0] === "attach",
-            )
-            .map((entry) => entry.argv),
-        ).toEqual([
-          ["attach", shortId],
-          ["stop", shortId],
-        ]);
-        expect(
-          keptAttempts(server).find(
-            (attempt) => attempt.id === accepted.attempt.id,
-          )?.completion?.receipt,
-        ).toBe(receipt.receipt);
-      } finally {
-        await server.close();
-        origin.cleanup();
-      }
-    });
+let origin: StartOrigin;
+let claude: FakeClaudeControls;
+let unmount: () => void;
+let marks: NativeDoneMarks;
+
+beforeAll(async () => {
+  const initial = await startOrigin(repository);
+  try {
+    keepStartedOrigin("claude", repository, initial);
+  } finally {
+    initial.cleanup();
+  }
+});
+
+beforeEach(async () => {
+  origin = await startOrigin(repository);
+  const native = installFakeClaude(
+    origin.machine,
+    { binDir: origin.machine, path: process.env["PATH"] ?? "" },
+    {},
+  );
+  claude = native.controls;
+  for (const [key, value] of Object.entries(native.env)) vi.stubEnv(key, value);
+  unmount = mountProjectConfiguration("production");
+  doneStop.mockClear();
+  marks = new NativeDoneMarks({
+    terminals: {
+      withAttachment: () =>
+        Promise.reject(new Error("This proof attaches no terminal.")),
+      endAttachments: () => undefined,
+    },
+    hostFor: () => ({ name: "Claude Code", doneStop }),
+    reportingFolder: machineFolder,
+  });
+});
+
+afterEach(() => {
+  unmount();
+  vi.unstubAllEnvs();
+  origin.cleanup();
+});
+
+const unobserved: DoneLaunches = {
+  stateOf: (...[, record]) =>
+    Promise.resolve({ ...record, sessionState: { kind: "unknown" } }),
+};
+
+async function heldLaunch() {
+  const attempt = makeMe.anAcceptedAttempt
+    .executing({ identity: queuedIdentity, title: queuedTitle })
+    .withId(randomUUID())
+    .acceptedAt(new Date().toISOString())
+    .reportingTo(reportingOrigin)
+    .please();
+  await keepAttempt(attempt);
+  claude.claudeScenario("held");
+  const owned = new OwnedAttempts();
+  const settled = settleAttempt(
+    owned,
+    owned.own(attempt.request, attempt),
+    (own, notes) =>
+      attemptRun(source, own, {
+        progress: new StartProgress(),
+        doneMarks: { reported: vi.fn() },
+        native: launchHost,
+        notes,
+      }),
+  );
+  // The Take publication and workspace run real Git before `claude`.
+  await expect
+    .poll(() => claude.claudeLaunches(), { timeout: 30_000 })
+    .toHaveLength(1);
+  return {
+    attempt,
+    settled,
+    instruction: claude.claudeLaunches()[0]?.instruction ?? "",
+    kept: async () =>
+      (await keptAttempts())?.find((entry) => entry.id === attempt.id),
+  };
+}
+type HeldLaunch = Awaited<ReturnType<typeof heldLaunch>>;
+
+// The installed script at the launch's reporting command reports early.
+async function reportEarly(launch: HeldLaunch, quiet: boolean) {
+  const command = /^- reporting command: (.+)$/m.exec(launch.instruction)?.[1];
+  if (command === undefined) throw new Error("No reporting command");
+  const { script, argv } = reportingInvocation(command);
+  const message = path.join(origin.machine, "early.txt");
+  writeFileSync(message, "Work unfinished: a decision needs the maintainer.");
+  const receipt = completionReceiptSchema.parse(
+    await reportInstalled(
+      script,
+      quiet
+        ? [...argv, "--outcome", "completed"]
+        : [...argv, "--outcome", "unfinished", "--message-file", message],
+      { reported: vi.fn() },
+    ),
+  );
+  expect(receipt.state).toBe("pending-native-session");
+  expect(receipt).not.toHaveProperty("session");
+  expect((await launch.kept())?.completion?.receipt).toBe(receipt.receipt);
+  expect(await keptRecords("open-dough")).toEqual([]);
+  return receipt.receipt;
+}
+
+async function expectBoundReceiptSurvives(launch: HeldLaunch, receipt: string) {
+  const reference = launch.attempt.id;
+  const [bound] = await keptRecords("open-dough");
+  if (bound === undefined) throw new Error("No bound record");
+  expect(bound.completion).toMatchObject({ receipt, reference });
+  expect(bound.request.reporting?.reference).toBe(reference);
+  expect(bound.session.host).toBe("claude");
+  expect(bound.doneAt).toBeUndefined();
+  expect(bound.doneProblem).toBeUndefined();
+
+  // Later native writers carry a record from before the report.
+  const stale = { ...bound, completion: undefined, doneAt: undefined };
+  for (const write of [updateRecord, bindRecord]) {
+    await write("open-dough", stale);
+    const [current] = await keptRecords("open-dough");
+    expect(current?.completion?.receipt).toBe(receipt);
+    expect(current?.doneAt).toBeUndefined();
+  }
+
+  const done = await marks.markDone(source, bound, machineFolder(), unobserved);
+  expect(done.doneAt).toBeDefined();
+  expect(doneStop).toHaveBeenCalledTimes(1);
+  const [marked] = await keptRecords("open-dough");
+  expect(marked?.completion?.receipt).toBe(receipt);
+  expect((await launch.kept())?.completion?.receipt).toBe(receipt);
+}
+
+test("a held Claude Code execution's first input names its reporting command, and a report for a not-yet-known session is refused", async () => {
+  const launch = await heldLaunch();
+  expect(launch.instruction).toContain(
+    `- launch reference: ${launch.attempt.id}`,
+  );
+  expect(launch.instruction).toMatch(/^- reporting command: /m);
+  expect(claude.claudeLaunches()[0]?.name).toBe(
+    "Open Dough · Execution · Prepare the queued start",
+  );
+  expect(claude.claudeLaunchCalls()[0]?.argv).not.toContain(
+    "--permission-mode",
+  );
+  await expect(
+    deliverCompletion(
+      makeMe.aCompletionSubmission
+        .reportingFor({ host: "claude", reference: launch.attempt.id })
+        .fromSession("not-yet-known")
+        .withOutcome("unfinished")
+        .saying("No false session receipt")
+        .please(),
+      reportingOrigin,
+      { reported: vi.fn() },
+    ),
+  ).rejects.toMatchObject({ status: 409 });
+  claude.releaseHeldClaude();
+  await launch.settled;
+});
+
+for (const quiet of [false, true]) {
+  const kind = quiet ? "quiet completion" : "attention report";
+  test(`an early ${kind} binds when its launch settles and survives later native writers and Mark as done`, async () => {
+    const launch = await heldLaunch();
+    const receipt = await reportEarly(launch, quiet);
+    claude.releaseHeldClaude();
+    await launch.settled;
+    expect((await launch.kept())?.outcome?.kind).toBe("launched");
+    await expectBoundReceiptSurvives(launch, receipt);
+  });
+
+  test(`an early ${kind} binds through a Recheck after an uncertain settlement and survives later native writers and Mark as done`, async () => {
+    const launch = await heldLaunch();
+    const receipt = await reportEarly(launch, quiet);
+    claude.claudeListingFails(true);
+    claude.releaseHeldClaude();
+    await launch.settled;
+    const uncertain = await launch.kept();
+    expect(uncertain?.outcome?.kind).toBe("uncertain");
+    if (uncertain?.request.workflow !== "execution")
+      throw new Error("No kept execution attempt");
+    claude.claudeListingFails(false);
+    const rechecked = { ...uncertain, request: uncertain.request };
+    expect(
+      await verifyLaunch(source, rechecked, AbortSignal.timeout(10_000), marks),
+    ).toMatchObject({ kind: "launched" });
+    await expectBoundReceiptSurvives(launch, receipt);
+  });
+}
 
 test("binding preserves a legacy quiet receipt without closing an unbound session", async () => {
-  const machine = mkdtempSync(path.join(tmpdir(), "dough-legacy-completion-"));
-  try {
-    const completion = makeMe.aCompletionReport.saying("").please();
-    const record: LaunchRecord = {
-      request: {
-        source: "open-dough",
-        host: "codex",
-        workflow: "ad-hoc",
-        title: "Legacy session",
-      },
-      session: {
-        host: "codex",
-        sessionId: "legacy-session",
-        name: "Legacy session",
-      },
-      launchedAt: new Date().toISOString(),
-      completion,
-    };
-    await recordOperation({ home: path.join(machine, "home") }, "bindRecord", [
-      "open-dough",
-      record,
-    ]);
-    const [bound] = keptLaunchRecords(machineHome(machine));
-    if (bound && !("session" in bound))
-      throw new Error("Expected a bound launch");
-    expect(bound?.completion).toEqual(completion);
-    expect(bound?.doneAt).toBeUndefined();
-  } finally {
-    rmSync(machine, { recursive: true, force: true });
-  }
+  const completion = makeMe.aCompletionReport.saying("").please();
+  const record = makeMe.aLaunchRecord
+    .adHoc({ instruction: "Legacy session", title: "Legacy session" })
+    .inCodexSession({ sessionId: "legacy-session" })
+    .please();
+  await bindRecord("open-dough", { ...record, completion });
+  const [bound] = await keptRecords("open-dough");
+  expect(bound?.completion).toEqual(completion);
+  expect(bound?.doneAt).toBeUndefined();
 });

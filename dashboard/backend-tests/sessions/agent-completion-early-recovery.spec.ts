@@ -1,131 +1,150 @@
-// Hold settlement before its lock acquisition, after real native binding.
+// An early Claude Code binding deleted before its attempt settles stays
+// deleted: a late native bind is refused, the attempt keeps that its
+// reporting was deleted, and a later report is refused. The attempt runs
+// through production `attemptRun` and the real Claude Code host over the
+// synthetic `claude`; its settlement is held after the native binding, and
+// the installed reporting script runs in process.
+import { randomUUID } from "node:crypto";
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import {
-  keptLaunchRecords,
-  keptLaunchStore,
-  launchStoreFile,
-} from "../../test-support/support/launchStore.ts";
-import { machineHome } from "../../test-support/machineLaunchRecords.ts";
-import { test, expect } from "../../test-support/support/pageTest.ts";
-import { existsSync, writeFileSync, rmSync } from "node:fs";
-import path from "node:path";
+import { settleAttempt } from "../../server/launchAttemptSettlement.ts";
+import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
+import { launchHost } from "../../server/launchHosts.ts";
+import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { deleteRecord, keptRecords } from "../../server/launchRecordStore.ts";
+import { attemptRun } from "../../server/launchRun.ts";
+import { OwnedAttempts } from "../../server/ownedAttempts.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import { StartProgress } from "../../server/startProgress.ts";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
-import { acceptanceSchema } from "../../src/launchOutcome.ts";
-import { accept } from "../../test-support/agentLaunchBoundary.ts";
 import {
-  keptAttempts,
-  settledOutcome,
-} from "../../test-support/acceptedAttempts.ts";
+  installFakeClaude,
+  type FakeClaudeControls,
+} from "../../test-support/support/fakeClaude.ts";
 import {
-  startOrigin,
   queuedIdentity,
   queuedTitle,
+  startOrigin,
+  type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 import {
-  reportingChild,
-  recordOperation,
-} from "../../test-support/support/completionRecovery.ts";
-import { fsSyncHook } from "../../test-support/support/serverFsHook.ts";
+  reportInstalled,
+  reportingInvocation,
+} from "../support/installedPublisher.ts";
 
-test("deleted early Claude binding cannot be resurrected before attempt settlement", async () => {
-  const origin = await startOrigin(queuedReadyRepository().please());
-  const hold = path.join(origin.machine, "hold-settlement");
-  const reached = path.join(origin.machine, "settlement-held");
-  const recordsFile = launchStoreFile(machineHome(origin.machine));
-  const holdSettlement = fsSyncHook(
-    path.join(origin.machine, "hold-settlement.mjs"),
-    "mkdirSync",
-    `(directory, ...args) => {
- if (String(directory).endsWith('/launch-attempts.json.lock') && fs.existsSync(${JSON.stringify(hold)}) && fs.existsSync(${JSON.stringify(recordsFile)})) {
-  fs.writeFileSync(${JSON.stringify(reached)}, 'held');
-  throw Object.assign(new Error("acquisition held by test"), { code: "EEXIST" });
- }
- return original(directory, ...args);
-}`,
-  );
-  const server = await startDashboardServer({
-    mode: "boundary",
-    liveServer: "separate process",
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    launchTimeoutMs: 30000,
-    extraEnv: holdSettlement,
-  });
+const source = makeMe.aPublishedSource.openDough.please();
+const repository = queuedReadyRepository().please();
+
+let origin: StartOrigin;
+let claude: FakeClaudeControls;
+let unmount: () => void;
+
+beforeAll(async () => {
+  const initial = await startOrigin(repository);
   try {
-    server.claudeScenario("held");
-    const accepted = acceptanceSchema.parse(
-      JSON.parse(
-        (
-          await accept(server, {
-            source: "open-dough",
-            host: "claude",
-            workflow: "execution",
-            identity: queuedIdentity,
-            title: queuedTitle,
-          })
-        ).body,
-      ),
-    );
-    if (accepted.kind !== "accepted") throw new Error("No accepted launch");
-    // The launch spawns the synthetic `claude`, slower on a loaded machine.
-    await expect
-      .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
-      .toBe(1);
-    const command = /^- reporting command: (.+)$/m.exec(
-      server.claudeLaunches()[0]?.instruction ?? "",
-    )?.[1];
-    if (command === undefined) throw new Error("No supplied channel");
-    const report = await reportingChild(
-      `${command} --outcome completed`,
-      origin.machine,
-    );
-    expect(report.ok).toBe(true);
-    const receipt = completionReceiptSchema.parse(JSON.parse(report.stdout));
-    expect(receipt.state).toBe("pending-native-session");
-    writeFileSync(hold, "hold");
-    server.releaseHeldClaude();
-    await expect.poll(() => existsSync(reached)).toBe(true);
-    expect(
-      keptAttempts(server).find((entry) => entry.id === accepted.attempt.id)
-        ?.outcome,
-    ).toBeUndefined();
-    const [record] = keptLaunchRecords(server);
-    if (record === undefined || !("session" in record))
-      throw new Error("No actual early binding");
-    expect(record.completion?.receipt).toBe(receipt.receipt);
-    const deleted = await recordOperation(server, "deleteRecord", [
-      "open-dough",
-      record.session,
-    ]);
-    expect(deleted.stdout.trim()).toBe("true");
-    await expect(
-      recordOperation(server, "bindRecord", [
-        "open-dough",
-        { ...record, completion: undefined, doneAt: undefined },
-      ]),
-    ).rejects.toThrow("The reporting session was deleted");
-    expect(keptLaunchStore(server)["open-dough"]).toHaveLength(0);
-    expect(
-      keptAttempts(server).find((entry) => entry.id === accepted.attempt.id)
-        ?.reportingDeletedAt,
-    ).toBeDefined();
-    expect(
-      keptAttempts(server).find((entry) => entry.id === accepted.attempt.id)
-        ?.outcome,
-    ).toBeUndefined();
-    rmSync(hold);
-    await settledOutcome(server, accepted.attempt.id);
-    const late = await reportingChild(
-      `${command} --outcome completed`,
-      origin.machine,
-    );
-    expect(late.ok).toBe(false);
-    expect(late.stdout).toBe("");
-    expect(keptLaunchStore(server)["open-dough"]).toHaveLength(0);
+    keepStartedOrigin("claude", repository, initial);
   } finally {
-    rmSync(hold, { force: true });
-    await server.close();
-    origin.cleanup();
+    initial.cleanup();
   }
+});
+
+beforeEach(async () => {
+  origin = await startOrigin(repository);
+  const native = installFakeClaude(
+    origin.machine,
+    { binDir: origin.machine, path: process.env["PATH"] ?? "" },
+    {},
+  );
+  claude = native.controls;
+  for (const [key, value] of Object.entries(native.env)) vi.stubEnv(key, value);
+  unmount = mountProjectConfiguration("production");
+});
+
+afterEach(() => {
+  unmount();
+  vi.unstubAllEnvs();
+  origin.cleanup();
+});
+
+test("a deleted early Claude Code binding cannot be resurrected before its attempt settles", async () => {
+  const attempt = makeMe.anAcceptedAttempt
+    .executing({ identity: queuedIdentity, title: queuedTitle })
+    .withId(randomUUID())
+    .acceptedAt(new Date().toISOString())
+    .reportingTo("http://127.0.0.1:4173")
+    .please();
+  await keepAttempt(attempt);
+  const kept = async () =>
+    (await keptAttempts())?.find((entry) => entry.id === attempt.id);
+  claude.claudeScenario("held");
+  let bindingKept = false;
+  let releaseSettlement = () => {};
+  const settlementHeld = new Promise<void>((resolve) => {
+    releaseSettlement = resolve;
+  });
+  const owned = new OwnedAttempts();
+  const settled = settleAttempt(
+    owned,
+    owned.own(attempt.request, attempt),
+    async (own, notes) => {
+      const result = await attemptRun(source, own, {
+        progress: new StartProgress(),
+        doneMarks: { reported: vi.fn() },
+        native: launchHost,
+        notes,
+      });
+      bindingKept = true;
+      await settlementHeld;
+      return result;
+    },
+  );
+  // The Take publication and workspace run real Git before `claude`.
+  await vi.waitFor(
+    () => {
+      expect(claude.claudeLaunches()).toHaveLength(1);
+    },
+    { timeout: 30_000 },
+  );
+  const command = /^- reporting command: (.+)$/m.exec(
+    claude.claudeLaunches()[0]?.instruction ?? "",
+  )?.[1];
+  if (command === undefined) throw new Error("No reporting command");
+  const { script, argv } = reportingInvocation(command);
+  const report = () =>
+    reportInstalled(script, [...argv, "--outcome", "completed"], {
+      reported: vi.fn(),
+    });
+  const receipt = completionReceiptSchema.parse(await report());
+  expect(receipt.state).toBe("pending-native-session");
+
+  claude.releaseHeldClaude();
+  await vi.waitFor(
+    () => {
+      expect(bindingKept).toBe(true);
+    },
+    { timeout: 10_000 },
+  );
+  expect((await kept())?.outcome).toBeUndefined();
+  const [record] = await keptRecords("open-dough");
+  if (record === undefined) throw new Error("No early binding");
+  expect(record.completion?.receipt).toBe(receipt.receipt);
+
+  expect(await deleteRecord("open-dough", record.session)).toBe(true);
+  await expect(
+    bindRecord("open-dough", {
+      ...record,
+      completion: undefined,
+      doneAt: undefined,
+    }),
+  ).rejects.toThrow("The reporting session was deleted");
+  expect(await keptRecords("open-dough")).toEqual([]);
+  expect((await kept())?.reportingDeletedAt).toBeDefined();
+  expect((await kept())?.outcome).toBeUndefined();
+
+  releaseSettlement();
+  await settled;
+  await expect(report()).rejects.toThrow();
+  expect(await keptRecords("open-dough")).toEqual([]);
 });

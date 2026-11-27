@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Prove session completion reporting in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-completion-reporting-on-vitest) — SEED-413#prove-session-completion-reporting-on-vitest ([plan](slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md))
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
 - [Prove Dashboard configuration and serving in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-dashboard-configuration-and-serving-on-vitest) — SEED-413#prove-dashboard-configuration-and-serving-on-vitest ([plan](slice-plans/868-prove-dashboard-configuration-and-serving-on-vitest/PLAN.md))
 - [Prove Cursor runner lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-runner-lifecycle-on-vitest) — SEED-413#prove-cursor-runner-lifecycle-on-vitest ([plan](slice-plans/873-prove-cursor-runner-lifecycle-on-vitest/PLAN.md))
@@ -36,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Share the completion reporting arrangement in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#share-completion-reporting-arrangement) — SEED-413#share-completion-reporting-arrangement
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git

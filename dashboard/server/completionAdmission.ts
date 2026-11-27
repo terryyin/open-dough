@@ -8,7 +8,8 @@ import {
   completionSchema,
 } from "../src/completionReport.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
-import { RefusedRequest } from "./localOrigin.ts";
+import { RefusedRequest, verifySameOrigin } from "./localOrigin.ts";
+import { knownSource } from "./sessionAdmission.ts";
 
 export const submissionSchema = z
   .strictObject({
@@ -25,6 +26,30 @@ export const submissionSchema = z
       completedWithoutAttention(report) || report.message.trim().length > 0,
   );
 export type CompletionSubmission = z.infer<typeof submissionSchema>;
+
+export type CompletionRequestAdmission = {
+  readonly method: string | undefined;
+  readonly origin: string | null | undefined;
+  readonly host: string | undefined;
+  readonly fetchSite?: string | string[] | null | undefined;
+  readonly body: unknown;
+};
+
+// Admits a completion report from its wire values: POST, local origin
+// metadata, a parsed body matching the submission, and a known project.
+// Shared by the HTTP adapter and the installed reporting script's fetch bridge.
+export function admitCompletionRequest(
+  request: CompletionRequestAdmission,
+): CompletionSubmission {
+  if (request.method !== "POST")
+    throw new RefusedRequest(405, "Only POST is accepted here.");
+  verifySameOrigin(request.origin, request.host, request.fetchSite);
+  const parsed = submissionSchema.safeParse(request.body);
+  if (!parsed.success)
+    throw new RefusedRequest(400, "The completion request is malformed.");
+  knownSource(parsed.data.source);
+  return parsed.data;
+}
 
 // The caller selects this project's records before matching the launch identity.
 export function isReportingRecord(
