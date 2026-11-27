@@ -366,14 +366,33 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#authenticated-github-observation-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e7a8441f570fec0b5a49dd59ed5697daf396596e90f2bc394d77b7c6c51f4834","plan":"4716b0677c409b45bd8ec459d74b587a0635c8f9e4357c712cedf67e664cec6e"}}
 ```
 
-- **For / why.** Give maintainers fast proof that the authenticated GitHub workload shares eligible requests, reports failures, and releases its callers and processes.
-- **Evaluation.** When two Dashboards and CI share an eligible request, the owner sends it once. A cooldown delays callers, a departing waiter leaves other work running, and an exhausted retry records the bounded incident.
-- **Boundary.** Use the surviving revision-check or pinned read for caller-specific proof. Reconcile plan 858’s trigger move. Keep real cross-process ownership and actual subprocess lifetime observations.
-- **Effort hypothesis.** L, low confidence. Recount surviving proof and size the observed cases during refinement.
-- **Safe stopping point.** Every case for this outcome has a maintained owner or a recorded replacement.
+- **Goal.** Give Dashboard and CI maintainers fast Node Vitest feedback that
+  authenticated GitHub reads share the eligible workload, honor waits and
+  request lifetimes, and leave bounded, safe evidence of failures.
+- **Scope.** Account for the 23 legacy observation paths in plan 862.
+  Preserve retry classification, cooldown and resumption, queue and sharing
+  behavior, Dashboard and CI owner wiring, actual child-process cleanup,
+  request timing, and incident evidence across shutdown and restart.
+  Use the surviving revision check for check-specific outcomes and pinned
+  reads when one upstream attempt is part of the proof. Keep real owner
+  processes, subprocesses, Git, HTTP, and durable files where their behavior
+  supplies the observation. Measure the same maintained one-worker workload
+  before and after. Board cold open and refresh routing, session and Review
+  reads, browser recovery, login isolation, and runner cutover have separate
+  owners.
+- **Key examples.** Two Dashboards and CI share the owner's eight available
+  turns. Concurrent identical reads reach GitHub once, while different
+  questions get their own answers. A directed cooldown answers queued reads
+  without dispatching them. After it expires, one read goes first, and a
+  renewed limit holds back the others. A departing pinned-read waiter leaves
+  a peer's read running. The last departure ends that child, while a check's
+  tracked listing can outlive the requesting connection. A failed shared
+  invocation leaves one safe diagnostic per observing Dashboard. After a
+  restart, the same machine retains bounded evidence with the original
+  attribution and distinguishes a clean close from a lost process.
 - **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
 
 **Plan.** [Prove authenticated GitHub observation in Node Vitest](../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md)
