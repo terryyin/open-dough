@@ -385,14 +385,42 @@ have their own stories.
 
 **Identity:** SEED-413#landing-capture-evidence-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"68efd1ac921b19403fe57ce1331a841c5a814680985deb78e274745e113a1f09","plan":"7dee15cf53398731c8c933ace984e3ce3ee42dd67e2d1a9430db02defe6877f6"}}
 ```
 
-- **For / why.** Give developers fast proof that a publication’s landing pair stays bound to the launch that published it.
-- **Evaluation.** When origin accepts a launch candidate, the capture keeps that launch’s base and candidate. A later publication, another launch, conflicting replay, or deleted source cannot replace the accepted pair.
-- **Boundary.** Use installed capture, real Git pins and persisted launch records. Retain the CLI or Git process where its boundary supplies the proof. Follow the landing context into the installed publisher, capture and recovery.
-- **Effort hypothesis.** M, low confidence. Recount surviving proof and size the observed cases during refinement.
-- **Safe stopping point.** Every case for this outcome has a maintained owner or a recorded replacement.
+- **Goal.** Give Dashboard developers fast, discriminating feedback that the
+  comparison used for a launch comes from the work origin accepted for that
+  launch. Dispose of all 12 legacy backend specs in this family so the runner
+  cutover can remove the legacy execution path.
+- **Scope.** Cover landing-context handoff, preparation and capture, one-shot
+  and Story Branch publication, native binding, recovery, and pin lifetime.
+  Keep real Git and persisted launch records wherever they supply the
+  observation. Use Node Vitest for Dashboard unit cases and keep installed
+  command, receiver, Git transport, and native interaction in maintained
+  workflow checks where their interaction supplies the proof. Account for
+  every prior case by its observed outcome. Published Review reads, UI
+  selection, completion reporting, and runner cutover have separate owners.
+  This work preserves the existing publication, capture, and retention rules.
+- **Key examples.**
+  - An installed publisher prepares the workspace candidate before push. When
+    the authorized trunk accepts it, the launch keeps that base and revision
+    pinned after retirement. A Story Branch merge compares the fetched trunk
+    tip with the accepted merge, and a fast-forward uses the accepted story
+    tip. Acceptance and capture are independent of completion and Done.
+  - A wrong launch, story, workspace candidate, remote, or target cannot claim
+    that comparison. A prepared candidate that trunk has yet to accept cannot
+    become a landing. A later trunk publication leaves the first accepted pair
+    intact.
+  - A lost record or receipt can be retried with the original input after
+    retirement. A pending receipt binds to the same launch when native
+    identity arrives. The retained launch can capture its prepared pair after
+    normal attempt expiry. Premature store loss, record expiry, and deletion
+    retain their refusal semantics. Failed pin cleanup keeps the deletion
+    intent so retry removes only that launch’s pins.
+  - A conflicted or rejected Story Branch integration can resume with its
+    resolved pair. After a retained unfinished landing, the claim, local
+    branch, and native session still support the next slice. Manual Done
+    acknowledges the session and preserves the execution record.
 - **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
 
 **Plan.** [Prove retained landing capture in Node Vitest](../slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md)
