@@ -13,9 +13,12 @@ import {
 } from "./PublishedSessionEntry.tsx";
 import {
   pairedPublished,
-  reviewableCompletions,
+  reviewablePublished,
+  reviewableSession,
+  reviewableSessions,
 } from "./recentlyDoneListing.ts";
 import type { Listed } from "./recentlyDoneView.ts";
+import { SessionReviewStateAction } from "./SessionReviewStateAction.tsx";
 import { StoryReviewStateAction } from "./StoryReviewStateAction.tsx";
 import type { StoryReviewStates } from "./storyReviewStates.ts";
 
@@ -75,8 +78,16 @@ export function ListedEntry({
       launchRecords={launches.records}
       actionsOf={(session) => {
         const comparison = publishedOf(session);
+        const reviewable = reviewableSession(session, comparison);
         return (
           <>
+            {reviewable !== undefined && (
+              <SessionReviewStateAction
+                story={record.identity}
+                session={reviewable}
+                states={reviewStates}
+              />
+            )}
             {comparison !== undefined && (
               <PublishedSessionReviewAction
                 record={comparison}
@@ -94,7 +105,17 @@ export function ListedEntry({
       }}
       publishedSessions={publishedOnly.map((session) => (
         <li key={session.sessionId}>
-          <PublishedSessionEntry record={session} sourceId={sourceId} />
+          <PublishedSessionEntry
+            record={session}
+            sourceId={sourceId}
+            reviewState={
+              <SessionReviewStateAction
+                story={record.identity}
+                session={reviewablePublished(session)}
+                states={reviewStates}
+              />
+            }
+          />
         </li>
       ))}
       selected={selectedIdentity === record.identity}
@@ -109,7 +130,7 @@ export function ListedEntry({
       reviewState={
         <StoryReviewStateAction
           identity={record.identity}
-          completions={reviewableCompletions(each)}
+          sessions={reviewableSessions(each)}
           states={reviewStates}
         />
       }

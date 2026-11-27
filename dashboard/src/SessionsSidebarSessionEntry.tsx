@@ -22,6 +22,8 @@ import { sessionKey } from "./sessionReference.ts";
 // Side panel shows its session.
 
 import { sessionReviewed, useStoryReviewStates } from "./storyReviewStates.ts";
+import { publishedRecordOf, reviewableSession } from "./recentlyDoneListing.ts";
+import { useCurrentPublishedSessions } from "./recentlyDoneShownLinks.ts";
 import { useId } from "react";
 import { ChevronRight, MessageSquareText } from "lucide-react";
 import { Icon, IconButton } from "./Icon.tsx";
@@ -78,11 +80,18 @@ export function SessionsSidebarSessionEntry({
     source,
     selection !== undefined && reviewObserved,
   );
+  // The same session as its story card counts: its published record, while
+  // its project's work is read, gives its completion.
+  const published = useCurrentPublishedSessions(source);
+  const reviewable = reviewableSession(
+    record,
+    publishedRecordOf(record, published),
+  );
   const needsReview =
     completedStory !== undefined &&
     reviewed !== undefined &&
-    record.doneAt !== undefined &&
-    !sessionReviewed(reviewed.get(completedStory), record.doneAt);
+    reviewable !== undefined &&
+    !sessionReviewed(reviewed.get(completedStory), reviewable);
   const { title, identity, name, modelWords } = launchSubject(record.request);
   const { entryClass, label, tone, unreadReportWords } = shownSession(record);
   const { note } = sessionShown(record);

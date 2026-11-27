@@ -81,9 +81,11 @@ export function catalogs(listed: Record<string, (typeof source)[]>) {
 
 // Mounts the Board with the source story's "Counterpart here" follow-up Done
 // here 6 minutes ago and its published record, from another machine, closed
-// 5 minutes ago.
+// 5 minutes ago; without `kept`, only the published record. Answers the
+// published session id.
 export async function mountKeptCounterpart(
   reviewStates?: StoryReviewStatesReadSource,
+  { kept: retained = true }: { kept?: boolean } = {},
 ) {
   const record = publishedSessionRecordSchema.parse(
     makeMe.aSessionRecord
@@ -122,10 +124,15 @@ export async function mountKeptCounterpart(
     work,
     { width: 1280, height: 900 },
     "stories",
-    { answer: makeMe.aMachineAnswer.observingDone(kept).please() },
+    {
+      answer: retained
+        ? makeMe.aMachineAnswer.observingDone(kept).please()
+        : makeMe.aMachineAnswer.please(),
+    },
     {
       done: doneBodies,
       ...(reviewStates === undefined ? {} : { reviewStates }),
     },
   );
+  return record.sessionId;
 }

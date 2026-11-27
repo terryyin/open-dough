@@ -8,6 +8,7 @@ import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
+import type { StoryReviewMark } from "../../src/storyReviewState.ts";
 import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
 import { boardWork } from "../navigation/board-work.ts";
 import { doneCard } from "../sessions/recently-done-column-page.ts";
@@ -28,28 +29,42 @@ export function reviewStateStore(
   const saved = new Map(
     Object.entries(reviewed).map(([project, ids]) => [
       project,
-      new Map(ids.map((id) => [id, markedAt[id] ?? now()])),
+      new Map<string, StoryReviewMark>(
+        ids.map((id) => [id, { reviewedAt: markedAt[id] ?? now() }]),
+      ),
     ]),
   );
   const changes: string[] = [];
   const of = (project: string) => {
-    const stories = saved.get(project) ?? new Map<string, string>();
+    const stories = saved.get(project) ?? new Map<string, StoryReviewMark>();
     saved.set(project, stories);
     return stories;
   };
   const read: StoryReviewStatesReadSource = (project, change) => {
     const stories = of(project);
     if (change !== undefined) {
-      changes.push(`${project} ${change.identity} ${String(change.reviewed)}`);
-      if (change.reviewed) stories.set(change.identity, now());
-      else stories.delete(change.identity);
+      const { identity, session, reviewed } = change;
+      changes.push(
+        `${project} ${identity}${session === undefined ? "" : ` ${session}`} ${String(reviewed)}`,
+      );
+      const mark = stories.get(identity);
+      if (session !== undefined)
+        stories.set(identity, {
+          ...mark,
+          sessions: { ...mark?.sessions, [session]: reviewed },
+        });
+      else if (reviewed) stories.set(identity, { reviewedAt: now() });
+      else stories.delete(identity);
     }
     return Promise.resolve(new Map(stories));
   };
   return {
     read,
     changes,
-    reviewed: (project: string) => [...of(project).keys()],
+    reviewed: (project: string) =>
+      [...of(project)]
+        .filter(([, mark]) => mark.reviewedAt !== undefined)
+        .map(([identity]) => identity),
   };
 }
 

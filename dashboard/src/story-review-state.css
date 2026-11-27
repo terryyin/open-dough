@@ -1,4 +1,4 @@
-/* A done story card's review state (./StoryReviewStateAction.tsx): the red
+/* A review state control (./ReviewStateControl.tsx): the red
    Mark as reviewed action, quiet Reviewed action, and what it
    says when a change could not be saved; its touch height follows
    `.start-launch-button`'s. */

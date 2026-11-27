@@ -14,7 +14,9 @@ import {
   expectReviewed,
   markAsReviewed,
   openRecentlyDone,
+  partiallyReviewed,
   reviewSaveFailure,
+  sessionReview,
   unreviewStory,
 } from "../../dashboard/test-support/doneStoryReviewPage.ts";
 import {
@@ -145,6 +147,17 @@ test("confirmed Ad hoc and repeated story sessions share review changes while un
   await unreviewStory(a, "Unreview this story?", "mouse");
   for (const name of [title, secondTitle])
     await expectSessionReviewCue(shown.row(name), true);
+  // One session's own mark clears its cue alone; unreviewing it restores it.
+  const one = sessionReview(a, secondTitle);
+  await one.markAsReviewed.click();
+  await expect(one.reviewed).toBeFocused();
+  await expect(partiallyReviewed(a)).toBeVisible();
+  await expectSessionReviewCue(shown.row(secondTitle), false);
+  await expectSessionReviewCue(shown.row(title), true);
+  await one.unreview();
+  await expect(one.markAsReviewed).toBeFocused();
+  await expectReviewed(a, false);
+  await expectSessionReviewCue(shown.row(secondTitle), true);
   await expect(finalReportText(page)).toHaveText(
     "A report that has not been acknowledged.",
   );

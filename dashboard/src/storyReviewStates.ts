@@ -6,11 +6,14 @@
 import { useSyncExternalStore } from "react";
 import { localSettingState } from "./localSettingState.ts";
 import { heldOnPagePerKey } from "./pageReads.tsx";
-import type { StoryReviewStateChange } from "./storyReviewState.ts";
+import type {
+  StoryReviewMark,
+  StoryReviewStateChange,
+} from "./storyReviewState.ts";
 
 export type StoryReviewStates = {
-  // Each marked story's `reviewedAt` by identity, once the first read answers.
-  readonly reviewed: ReadonlyMap<string, string> | undefined;
+  // Each marked story's mark by identity, once the first read answers.
+  readonly reviewed: ReadonlyMap<string, StoryReviewMark> | undefined;
   // Saves one story's state; rejects when it could not be saved.
   readonly change: (change: StoryReviewStateChange) => Promise<void>;
 };
@@ -18,11 +21,12 @@ export type StoryReviewStates = {
 const projectReviewStates = (
   source: (
     change?: StoryReviewStateChange,
-  ) => Promise<ReadonlyMap<string, string>>,
+  ) => Promise<ReadonlyMap<string, StoryReviewMark>>,
 ) =>
-  localSettingState<ReadonlyMap<string, string>, StoryReviewStateChange>(
-    source,
-  );
+  localSettingState<
+    ReadonlyMap<string, StoryReviewMark>,
+    StoryReviewStateChange
+  >(source);
 
 const useProjectReviewStates = heldOnPagePerKey((reads, project) =>
   projectReviewStates((change) => reads.reviewStates(project, change)),
@@ -42,27 +46,41 @@ export function useStoryReviewStates(
   return { reviewed, change: state.change };
 }
 
-// The one review rule: a completed session is reviewed when its completion is
-// at or before its story's saved `reviewedAt`.
-export const sessionReviewed = (
-  reviewedAt: string | undefined,
-  completedAt: string,
-): boolean =>
-  reviewedAt !== undefined && Date.parse(completedAt) <= Date.parse(reviewedAt);
+// One reviewable session: its identity (`./recentlyDoneListing.ts`) and when
+// it completed.
+export type ReviewableSession = {
+  readonly identity: string;
+  readonly completedAt: string;
+};
+
+// The one review rule: a completed session is reviewed when it has an explicit
+// mark saying so, or, with none, when its completion is at or before its
+// story's saved `reviewedAt`.
+export function sessionReviewed(
+  mark: StoryReviewMark | undefined,
+  { identity, completedAt }: ReviewableSession,
+): boolean {
+  const explicit = mark?.sessions?.[identity];
+  if (explicit !== undefined) return explicit;
+  return (
+    mark?.reviewedAt !== undefined &&
+    Date.parse(completedAt) <= Date.parse(mark.reviewedAt)
+  );
+}
 
 export type StoryReviewStatus = "unreviewed" | "partial" | "reviewed";
 
-// A story's status from its current reviewable sessions' completions; with
-// none, the saved mark alone decides.
+// A story's status from its current reviewable sessions; with none, the saved
+// `reviewedAt` alone decides.
 export function storyReviewStatus(
-  reviewedAt: string | undefined,
-  completions: readonly string[],
+  mark: StoryReviewMark | undefined,
+  sessions: readonly ReviewableSession[],
 ): StoryReviewStatus {
-  if (completions.length === 0)
-    return reviewedAt === undefined ? "unreviewed" : "reviewed";
-  const reviewed = completions.filter((completedAt) =>
-    sessionReviewed(reviewedAt, completedAt),
+  if (sessions.length === 0)
+    return mark?.reviewedAt === undefined ? "unreviewed" : "reviewed";
+  const reviewed = sessions.filter((session) =>
+    sessionReviewed(mark, session),
   ).length;
   if (reviewed === 0) return "unreviewed";
-  return reviewed === completions.length ? "reviewed" : "partial";
+  return reviewed === sessions.length ? "reviewed" : "partial";
 }

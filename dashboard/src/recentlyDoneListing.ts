@@ -7,6 +7,7 @@ import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import type { HeldEntry } from "./recentlyDoneRange.ts";
 import { reportingReferenceOf } from "./sessionListing.ts";
 import { sessionKey } from "./sessionReference.ts";
+import type { ReviewableSession } from "./storyReviewStates.ts";
 
 export type Listed = {
   readonly record: CataloguedDoneRecord;
@@ -49,38 +50,69 @@ export const holdsEntry = (
       )
     : record.identity === held.story;
 
+// The published record a retained session reports to, among `published`.
+export function publishedRecordOf(
+  session: LaunchWithState,
+  published: readonly PublishedSessionRecord[],
+) {
+  const reference = reportingReferenceOf(session);
+  return reference === undefined
+    ? undefined
+    : published.find((record) => record.sessionId === reference);
+}
+
 // An entry's published records by the retained session that reports to each,
 // and those no retained session reports to, listed on their own.
 export function pairedPublished({ sessions, followUps, published }: Listed) {
   const retained = new Set(
     [...sessions, ...followUps].map(reportingReferenceOf),
   );
-  const byReference = new Map(
-    published.map((session) => [session.sessionId, session]),
-  );
   return {
-    publishedOf: (session: LaunchWithState) => {
-      const reference = reportingReferenceOf(session);
-      return reference === undefined ? undefined : byReference.get(reference);
-    },
+    publishedOf: (session: LaunchWithState) =>
+      publishedRecordOf(session, published),
     publishedOnly: published.filter(
       (session) => !retained.has(session.sessionId),
     ),
   };
 }
 
-// When each of an entry's reviewable sessions completed, once each: a
-// completed retained session at its published record's `closedAt` when it has
-// one, else its `doneAt`, and each published-only record at its `closedAt`.
-// Open sessions have none.
-export function reviewableCompletions(listed: Listed): readonly string[] {
+// A session's one review identity: the published session id when it has one
+// (its launch's reporting reference, which its published record carries as
+// `sessionId`), else its retained host and session id.
+const reviewIdentityOf = (session: LaunchWithState) =>
+  reportingReferenceOf(session) ?? sessionKey(session.session);
+
+// A completed retained session as review counts it: at its published
+// record's `closedAt` when it has one, else at its `doneAt`. Open sessions
+// are not reviewable.
+export const reviewableSession = (
+  session: LaunchWithState,
+  published?: PublishedSessionRecord,
+): ReviewableSession | undefined =>
+  session.doneAt === undefined
+    ? undefined
+    : {
+        identity: reviewIdentityOf(session),
+        completedAt: published?.closedAt ?? session.doneAt,
+      };
+
+export const reviewablePublished = (
+  record: PublishedSessionRecord,
+): ReviewableSession => ({
+  identity: record.sessionId,
+  completedAt: record.closedAt,
+});
+
+// An entry's reviewable sessions, once each: its completed retained sessions
+// and each published-only record.
+export function reviewableSessions(
+  listed: Listed,
+): readonly ReviewableSession[] {
   const { publishedOf, publishedOnly } = pairedPublished(listed);
   return [
-    ...[...listed.sessions, ...listed.followUps].flatMap((session) =>
-      session.doneAt === undefined
-        ? []
-        : [publishedOf(session)?.closedAt ?? session.doneAt],
+    ...[...listed.sessions, ...listed.followUps].flatMap(
+      (session) => reviewableSession(session, publishedOf(session)) ?? [],
     ),
-    ...publishedOnly.map((session) => session.closedAt),
+    ...publishedOnly.map(reviewablePublished),
   ];
 }

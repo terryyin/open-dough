@@ -152,7 +152,7 @@ Learnings for slice 2:
 
 ### 2. Mark or unreview one session
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A story has two completed sessions covered by T. **Mark as
 reviewed** is not on a session yet until this slice. Marking the first
@@ -174,6 +174,21 @@ Proof: Extend the slice 1 frontend specs and
 and unreview. Extend `story-review-state-admission.spec.ts` so an explicit
 session mark survives a story `reviewedAt` that would otherwise cover it,
 and clearing the story removes it.
+
+Accepted proof (27 Nov 2026, uncommitted candidate on `320db5e96`):
+- Frontend: 11 mount specs, 91/91, including the new
+  `recently-done-session-review-mount.spec.ts`.
+- Backend: the admission spec, 4/4.
+- `npm run typecheck:dashboard` passed.
+- E2E (strict status passed, 11/11): the cue spec, the three review-state
+  specs, `story-review-completed`, `intent-done-retained-workspace`,
+  `recently-done-published-sessions` and `intent-session-scope`.
+
+Learnings:
+- A session's stored identity is its published session id or reporting
+  reference when it has one, else `host:sessionId`.
+- The confirm, failure, focus and touch-height behavior of both controls is
+  one module, `ReviewStateControl.tsx`.
 
 ## Proof ownership and local gate
 
@@ -221,7 +236,12 @@ for the same reason. Reached consumers:
 ### G1. Sidebar cue compares the retained `doneAt` (first reported in slice 1)
 Reported: slice 1 — "The sidebar row has no published record, so it compares `doneAt` instead of the published `closedAt`. The story card does use `closedAt`."
 Story clause: "A retained session and its published record count once."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `dashboard/frontend-tests/stories/recently-done-session-review-mount.spec.ts` "a kept session and its published record share one mark" sets `reviewedAt` between `doneAt` and `closedAt`; card and sidebar both read unreviewed, and marking through the card clears the sidebar cue; `e2e/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts` shows the same clearing
+
+### G2. Sidebar row of a project whose work is not shown falls back to `doneAt`
+Reported: slice 2 — "the sidebar only gets the published record for the project whose work is currently shown (it uses `useCurrentPublishedSessions`). A row from another project still uses the same session identity, so explicit marks agree, but its completion falls back to `doneAt` until that project is shown."
+Story clause: "A retained session and its published record count once."
+Disposition: no user cost "see that status on each session": the row and its explicit mark keep the one session identity, so a session or story change through the card always reaches that row; only a story mark saved between that session's local `doneAt` and its published `closedAt` can read differently, and showing that project reads the published record and agrees with its card, which is not on the page meanwhile
 
 ## Plan review
 
