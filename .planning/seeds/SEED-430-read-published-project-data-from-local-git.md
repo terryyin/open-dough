@@ -144,6 +144,23 @@ The [published-progress story](#follow-published-progress-from-local-git)
 owns automatic observation, watched branches, other published records and
 Review callers.
 
+The tests whose promise is the cold open through REST move with this story
+and are replaced with Git failures: `read-failure`,
+`transient-read-exclusions`, `project-read-recovery`,
+`project-read-isolation`'s held first open, `authenticated-project-observation`,
+the cold-open cases of `transient-read-recovery`, the hidden-page due-time
+and shared empty-page recovery cases of `transient-recovery-lifecycle`
+(recovery backoff arms only for an empty page, so a failed check after the
+Board opens cannot reach them), that an armed recovery wait stays
+project-local, the reload step shared by the `limited-reading-*` specs,
+`authenticated-read-revision-backlog`, the logged-out cold-open case in
+`authenticated-read-retained-answers`, the `askedAt` stamp of the cold read
+(no longer asserted by `serving-modes`), and the `ref main` expectations in
+`shared-observer-reads`, `unchanged-records-refresh` and
+`reopened-project-reads`. A failed revision check's listing falls back to
+`commits/main`, so it asks gh twice and records two failures; decide whether
+that remains right once the Board relies on checks.
+
 **Key examples.**
 
 - Given an accessible origin and an absent execution checkout, open a
