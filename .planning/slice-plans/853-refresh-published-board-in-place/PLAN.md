@@ -193,6 +193,15 @@ Git against a local-file origin at load ~19: cold ≈150 ms (69 ms probe +
 80 ms fetch); warm 39–67 ms probe (41, 39, 67). Learning: Playwright will
 not click an `aria-disabled` button, so the page object focuses and presses
 Enter.
+CI repair (runs 45985813983, 45986703046): two consumers the slice's trace
+listed but its proof left to CI failed. The retained-answers journeys
+compared whole membership answers across processes, which now differ in
+`confirmedAt`; `retainedAnswersJourney.ts` leaves it out as it does
+`askedAt` (retention keys and budgets pinned reads, not times). The
+accessible-Board keyboard order gained Refresh after the legend. Every
+trace-selected backend (121), frontend (119) and E2E (49) case then passed;
+see [diagnosis](diagnosis-ci-confirmedat-consumers.md). Learning: run the
+whole consumer trace before publishing a wire or rendered change.
 
 ### 5. Recover a Refresh after origin changes
 
