@@ -18,7 +18,11 @@ import { storyFollowUpSessions } from "../src/followUpSessions.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
 import type { WorkEntry } from "../src/publishedWork.ts";
-import { performDoneCatalogRead } from "./doneCatalogRead.ts";
+import {
+  performDoneCatalogRead,
+  type DoneCatalogRead,
+} from "./doneCatalogRead.ts";
+import type { Outcome } from "./readOutcome.ts";
 import { resolveRevisionViaGh } from "./ghRevision.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { listedReadConcurrency } from "./listedRecordsRead.ts";
@@ -56,20 +60,41 @@ const notTaken = () =>
     "The story this follows up is not published in Taken.",
   );
 
+// The call whose outcome `publishedDoneStory` decides from. Production
+// performs one `performDoneCatalogRead`; a caller may supply another.
+export type DoneStoryCatalogRead = (
+  source: PublishedSource,
+  read: Extract<DoneCatalogRead, { kind: "done-bodies-at" }>,
+  signal: AbortSignal,
+) => Promise<Outcome>;
+
+function readDoneStoryCatalog(
+  source: PublishedSource,
+  read: Extract<DoneCatalogRead, { kind: "done-bodies-at" }>,
+  signal: AbortSignal,
+): Promise<Outcome> {
+  return performDoneCatalogRead(
+    pinnedTexts(),
+    source,
+    read,
+    signal,
+    () => undefined,
+  );
+}
+
 export async function publishedDoneStory(
   source: PublishedSource,
   { identity, revision }: { identity: string; revision: string },
   signal = admissionBound(),
+  catalogRead: DoneStoryCatalogRead = readDoneStoryCatalog,
 ): Promise<DoneStory> {
   const file = doneRecordFileName(identity);
   let outcome;
   try {
-    outcome = await performDoneCatalogRead(
-      pinnedTexts(),
+    outcome = await catalogRead(
       source,
       { kind: "done-bodies-at", revision, files: [file] },
       signal,
-      () => undefined,
     );
   } catch {
     throw unread();
@@ -137,12 +162,13 @@ export async function publishedFollowUpCardStory(
 export async function requirePublishedFollowUpSessionStory(
   source: PublishedSource,
   identity: string,
+  catalogRead: DoneStoryCatalogRead = readDoneStoryCatalog,
 ): Promise<void> {
   const signal = admissionBound();
   const { entry, revision } = await currentMembership(source, identity, signal);
   if (entry?.list === takenHeading) return;
   if (entry !== undefined) throw notTaken();
-  await publishedDoneStory(source, { identity, revision }, signal);
+  await publishedDoneStory(source, { identity, revision }, signal, catalogRead);
 }
 
 // The published facts for the UUIDs selected, from this project's Git.

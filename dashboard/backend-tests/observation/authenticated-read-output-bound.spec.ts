@@ -3,7 +3,11 @@
 // the HTTP notice/history.
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import {
+  pinnedAt,
+  sharedSeedPath,
+  unnamedRevision,
+} from "../../test-support/support/sharedReads.ts";
 import { commitAnswer } from "../../test-support/originAnswers.ts";
 import {
   checkArgv,
@@ -37,14 +41,10 @@ test("oversized gh output names its cause without retry advice, raw output or an
         }),
       }),
     );
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-      headers: { Origin: server.origin },
-    });
+    const response = await pinnedAt(server);
     expect(response.status).toBe(502);
     expect(JSON.parse(response.body)).toEqual({
-      error:
-        "The local GitHub CLI output exceeded the request's size limit while reading main of terryyin/open-dough.",
+      error: `The local GitHub CLI output exceeded the request's size limit while reading ${sharedSeedPath} at ${unnamedRevision}.`,
     });
     expect(response.body).not.toContain(secretMarker);
     expect(response.body.length).toBeLessThan(300);
@@ -52,7 +52,7 @@ test("oversized gh output names its cause without retry advice, raw output or an
     expect(history.failures).toHaveLength(1);
     expect(history.failures[0]).toMatchObject({
       source: knownSourceId,
-      category: "ref",
+      category: "content",
       cause: "output-bound",
     });
     expect(history.failures[0]?.status).toBeUndefined();

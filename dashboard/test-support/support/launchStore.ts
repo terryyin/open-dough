@@ -107,6 +107,22 @@ export function keepMoreLaunchRecords(
   changeLaunchStore(home, (kept) => withMoreRecords(kept, records, source));
 }
 
+// Removes the project `source`'s kept record of session `sessionId`, as
+// retention can between a Start and the developer's Continue.
+export function forgetLaunchSession(
+  home: MachineHome,
+  sessionId: string,
+  source = "open-dough",
+): void {
+  changeLaunchStore(home, (kept) => ({
+    ...kept,
+    [source]: (kept[source] ?? []).filter(
+      (record) =>
+        !("session" in record) || record.session.sessionId !== sessionId,
+    ),
+  }));
+}
+
 // Appends `records` as `keepMoreLaunchRecords` does, while a running
 // dashboard server may be rewriting the store: read and replaced under that
 // server's write lock (./machineDocument.ts), so neither write undoes the

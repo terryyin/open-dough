@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { appendedFileRecords, appendedRecords } from "./appendedRecords.ts";
 import { expect } from "../dashboardTest.ts";
+import { expectPassiveCodexReads } from "./codexPassiveProtocol.ts";
 import { codexEndpoint } from "./fakeCodex.ts";
 import type { FakeCodex, FakeCodexObservation } from "./fakeCodex.ts";
 import type {
@@ -17,9 +18,7 @@ import {
   keepLaunchStore,
   keepMoreLaunchRecordsBesideServer,
 } from "./launchStore.ts";
-import { rawRequest } from "./rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { RawRequestOptions, RawResponse } from "./rawHttp.ts";
 
 export type SavedCodexSessionFacts = {
   source?: string;
@@ -114,22 +113,6 @@ export async function observationStates(
 ): Promise<LaunchWithState[]> {
   return (await machineSessions(server)) as LaunchWithState[];
 }
-// The machine's sessions ask, answered as sent: its status and exact body.
-export function sessionsRequest(server: DashboardServer): RawRequestOptions {
-  return {
-    url: `${server.baseURL}/__agent-launch`,
-    headers: { Origin: server.origin },
-  };
-}
-export function askSessions(server: DashboardServer): Promise<RawResponse> {
-  return rawRequest(sessionsRequest(server));
-}
-// Each record's session state in a sessions answer body.
-export function sessionStatesIn(body: string): unknown[] {
-  return (
-    JSON.parse(body) as { records: { sessionState: unknown }[] }
-  ).records.map(({ sessionState }) => sessionState);
-}
 export function observed(
   native: FakeCodex,
   id: string,
@@ -142,49 +125,8 @@ export function observed(
   });
 }
 
-// Waits through further polls of this session, regardless of how many other
-// sessions the server reads. Three starts establish completed intervening polls.
-export async function afterFurtherReads(
-  native: FakeCodex,
-  sessionId: string,
-): Promise<void> {
-  const reads = () =>
-    native.calls.filter(
-      (call) =>
-        call.method === "thread/read" && call.params["threadId"] === sessionId,
-    ).length;
-  const before = reads();
-  // These alert journeys poll every 50 ms; avoid backoff after a read finishes.
-  await expect
-    .poll(reads, { intervals: [50] })
-    .toBeGreaterThanOrEqual(before + 3);
-}
-
 export function passive(calls: FakeCodex["calls"]) {
-  expect(
-    calls.every(({ method }) =>
-      [
-        "initialize",
-        "initialized",
-        "thread/read",
-        "thread/turns/list",
-      ].includes(method),
-    ),
-  ).toBe(true);
-  for (const { method, params } of calls) {
-    if (method === "thread/read")
-      expect(params).toEqual({
-        threadId: expect.any(String),
-        includeTurns: false,
-      });
-    if (method === "thread/turns/list")
-      expect(params).toEqual({
-        threadId: expect.any(String),
-        limit: 1,
-        sortDirection: "desc",
-        itemsView: "notLoaded",
-      });
-  }
+  expectPassiveCodexReads(calls, expect);
 }
 
 export function daemonStarts(native: FakeCodex): unknown[] {

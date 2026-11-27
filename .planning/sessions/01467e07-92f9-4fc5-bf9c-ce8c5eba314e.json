@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "01467e07-92f9-4fc5-bf9c-ce8c5eba314e",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T00:25:52.678Z",
+  "story": "SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest",
+  "ranges": [
+    {
+      "base": "20bcf3013fdb9e3dcc535c0ce249ab46c0e80d6c",
+      "candidate": "2d51d970869985480f502e83fa60b6cd9e5080ed"
+    }
+  ]
+}

@@ -20,8 +20,7 @@ import {
   rawRequest,
 } from "../../test-support/support/rawHttp.ts";
 import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
-
-const knownSourceId = "open-dough";
+import { pinnedRead, readUrl } from "../../test-support/support/sharedReads.ts";
 
 test.describe("authenticated read boundary: closeServer/closePreviewServer hook wiring", () => {
   // This is the specific defect a coordinator review found: this project's
@@ -47,7 +46,7 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
     try {
       github.serve(everyRepository, hangs);
       abandonedRequest({
-        url: `${boundary.origin}/__authenticated-read?source=${knownSourceId}`,
+        url: readUrl(boundary.origin, pinnedRead),
         headers: { Origin: boundary.origin },
       });
       const becameAlive = await waitUntil(
@@ -67,7 +66,7 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
       expect(died).toBe(true);
       const calls = github.calls.length;
       const later = await rawRequest({
-        url: `${boundary.origin}/__authenticated-read?source=${knownSourceId}`,
+        url: readUrl(boundary.origin, pinnedRead),
         headers: { Origin: boundary.origin },
       });
       expect(later.status).toBe(503);

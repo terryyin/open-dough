@@ -1,53 +1,39 @@
+// Start of a Done story's follow-up joins each selected published session of
+// that story with its matching kept record, falls back to a kept record whose
+// session was never published, and leaves out another story's session;
+// Continue retries the kept request after the matching record is gone.
+// Local sessions only: agent-launch-follow-up-selection.spec.ts.
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keptAttempts } from "../../server/launchAttemptStore.ts";
 import {
-  attempts,
-  continued,
-  launch,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  doneStoryFiles,
   otherStory,
-  recoverStory,
   storyContextOf,
 } from "../../test-support/support/followUpStories.ts";
 import {
-  changeLaunchStore,
+  forgetLaunchSession,
   keepLaunchRecords,
 } from "../../test-support/support/launchStore.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { publishes } from "../../test-support/support/publishedRepository.ts";
+import { retainedStorySession } from "../../test-support/support/storySessionPublication.ts";
 import {
-  publishStorySession,
-  retainedStorySession,
-} from "../../test-support/support/storySessionPublication.ts";
-import { answerOf, request } from "./followUpBoundaryCases.ts";
+  aDoneStoryStart,
+  cataloguedStoryA,
+  storyA,
+} from "../support/doneStoryStart.ts";
 
-test.use({ serverMode: "boundary" });
+const instruction = "Carry these attachments";
 
-test("Start combines selected published and local facts, and Continue keeps that evidence", async ({
-  dashboard,
-  origin,
-}) => {
-  const merged = publishStorySession(
-    origin,
-    recoverStory.identity,
-    "matched-first.txt",
-    "matched-gap.txt",
-    "matched-second.txt",
-  );
-  const foreign = publishStorySession(
-    origin,
-    otherStory.identity,
-    "other-first.txt",
-    "other-gap.txt",
-    "other-second.txt",
-  );
-  const missing = makeMe.aSessionRecord
-    .forStory(recoverStory.identity)
-    .please();
+test("Start combines selected published and local facts, and Continue keeps that evidence", async () => {
+  const start = await aDoneStoryStart();
+  const { home, tree, baseline, received, refuseNext, revision } = start;
+  const first = { base: revision("shared"), candidate: revision("claim") };
+  const second = { base: baseline, candidate: tree };
+  const merged = await start.publishSession(storyA.identity, first, second);
+  const foreign = await start.publishSession(otherStory.identity, second);
+  const missing = makeMe.aSessionRecord.forStory(storyA.identity).please();
   const local = {
     sessionId: "matched-here",
-    reference: merged.record.sessionId,
+    reference: merged,
     instruction: "Request matching the published record.",
     report: "Report matching the published record.",
   };
@@ -57,71 +43,51 @@ test("Start combines selected published and local facts, and Continue keeps that
     instruction: "Only the original request is retained here.",
     report: "Only this report was kept here.",
   };
-  keepLaunchRecords(dashboard, [
-    retainedStorySession(recoverStory, local),
-    retainedStorySession(recoverStory, fallback),
+  keepLaunchRecords(home, [
+    retainedStorySession(storyA, local),
+    retainedStorySession(storyA, fallback),
   ]);
-  const completedAt = "2026-11-08T09:05:00.000Z";
-  dashboard.github.serve(
-    "terryyin/open-dough",
-    publishes({
-      revision: foreign.revision,
-      files: doneStoryFiles([recoverStory, otherStory], completedAt),
-    }),
+  const startWith = (...sessions: string[]) =>
+    start.launch(
+      makeMe.aFollowUp
+        .ofStory(storyA, tree)
+        .attachingPublishedSessions(
+          sessions.map((sessionId) => ({ sessionId })),
+        )
+        .please(),
+      cataloguedStoryA,
+      instruction,
+    );
+
+  refuseNext();
+  await startWith(merged, foreign);
+  const [saved] = (await keptAttempts()) ?? [];
+  expect(saved?.outcome).toMatchObject({ kind: "failed", reason: "refused" });
+  const retainedOnly = await startWith(missing.sessionId);
+  expect(retainedOnly.kind, JSON.stringify(retainedOnly)).toBe("accepted");
+  expect((await keptAttempts()) ?? []).toHaveLength(2);
+  forgetLaunchSession(home, local.sessionId);
+  const resumed = await start.continueAttempt(saved?.id ?? "");
+  expect(resumed.kind, JSON.stringify(resumed)).toBe("accepted");
+  expect((await keptAttempts()) ?? []).toHaveLength(2);
+
+  const [combined, degraded, continuedInput] = received.map(
+    ({ input }) => input,
   );
-  const instruction = "Carry these attachments";
-  const start = (...sessions: { sessionId: string }[]) =>
-    answerOf(
-      launch(dashboard, {
-        ...request,
-        instruction,
-        policy: { workspace: "isolated", landing: "review" },
-        followUp: makeMe.aFollowUp
-          .ofStory(recoverStory, foreign.revision)
-          .attachingPublishedSessions(sessions)
-          .please(),
-      }),
+  expect(received[2]?.id).toBe(saved?.id);
+  for (const input of [combined, degraded]) {
+    expect(input).toContain(
+      storyContextOf(storyA, storyA.completedAt, "unselected", instruction),
     );
-
-  dashboard.claudeScenario("refused");
-  const withPublication = await start(merged.record, foreign.record);
-  expect(withPublication).toMatchObject({ kind: "failed", reason: "refused" });
-  const [saved] = await attempts(dashboard);
-  if (saved === undefined) throw new Error("Expected the accepted attempt");
-
-  dashboard.claudeScenario("launched");
-  const retainedOnly = await start(missing);
-  expect(retainedOnly.kind).toBe("launched");
-  expect(await attempts(dashboard)).toHaveLength(2);
-  changeLaunchStore(dashboard, (store) => ({
-    ...store,
-    "open-dough":
-      store["open-dough"]?.filter(
-        (record) =>
-          !("session" in record) ||
-          record.session.sessionId !== local.sessionId,
-      ) ?? [],
-  }));
-  const resumed = await answerOf(continued(dashboard, saved.id));
-  expect(resumed.kind).toBe("launched");
-  expect(await attempts(dashboard)).toHaveLength(2);
-
-  const [combined, degraded, continuedInput] = dashboard
-    .claudeLaunchCalls()
-    .map((call) => call.argv.at(-1));
-  for (const received of [combined, degraded]) {
-    expect(received).toContain(
-      storyContextOf(recoverStory, completedAt, "unselected", instruction),
-    );
-    expect(received?.match(/^<session>$/gm)).toEqual(["<session>"]);
-    expect(received).not.toContain(foreign.record.sessionId);
+    expect(input?.match(/^<session>$/gm)).toEqual(["<session>"]);
+    expect(input).not.toContain(foreign);
   }
-  expect(combined).toContain(`- Published session: ${merged.record.sessionId}`);
+  expect(combined).toContain(`- Published session: ${merged}`);
   expect(combined).toContain(
-    `- Recorded range 1: ${merged.first.base} → ${merged.first.candidate}`,
+    `- Recorded range 1: ${first.base} → ${first.candidate}`,
   );
   expect(combined).toContain(
-    `- Recorded range 2: ${merged.second.base} → ${merged.second.candidate}`,
+    `- Recorded range 2: ${second.base} → ${second.candidate}`,
   );
   expect(combined).toContain(local.instruction);
   expect(combined).toContain(local.report);

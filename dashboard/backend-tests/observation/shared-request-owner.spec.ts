@@ -20,7 +20,11 @@ import {
 } from "../../test-support/support/heldGitHubAnswer.ts";
 import { inspect } from "../../test-support/support/readDiagnostics.ts";
 import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
-import { askedSince, readAt } from "../../test-support/support/sharedReads.ts";
+import {
+  askedSince,
+  readAt,
+  revisionCheck,
+} from "../../test-support/support/sharedReads.ts";
 import {
   dashboardsOnOneOwner,
   isWorkflowRead,
@@ -121,11 +125,11 @@ test("a rate limit one dashboard meets holds back the other dashboard and the CI
   machine.serve(
     answeringFirst(
       withWorkflow(publishedAt(revision)),
-      (request) => request.kind === "ref",
+      (request) => request.kind === "matching-refs",
       rateLimitedAnswer(429, { "Retry-After": "600" }),
     ),
   );
-  const refused = await timedRead(machine.first, "");
+  const refused = await timedRead(machine.first, revisionCheck);
   expect(refused.body).toMatchObject({ retryAfterSeconds: 600 });
   const before = machine.github.calls.length;
 

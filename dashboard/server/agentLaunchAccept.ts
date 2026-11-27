@@ -25,9 +25,27 @@ import {
 import type { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
 import {
   preAcceptanceAnswer,
+  preContinuationAnswer,
   replacementWriterBlock,
 } from "./launchPreAcceptance.ts";
 import type { AttemptRun } from "./launchAttemptSettlement.ts";
+import type { StartProgress } from "./startProgress.ts";
+
+// Continues the kept attempt `id` through the same pre-launch checks and run.
+export function continueKeptAttempt(
+  owner: LaunchAttemptOwner,
+  source: PublishedSource,
+  id: string,
+  progress: StartProgress,
+  run: AttemptRun,
+): Promise<Acceptance> {
+  return owner.continueAttempt(
+    source.id,
+    id,
+    (request) => preContinuationAnswer(source, id, request, progress),
+    run,
+  );
+}
 
 export async function acceptLaunchRequest(
   owner: LaunchAttemptOwner,

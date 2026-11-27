@@ -2,6 +2,30 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-published-dashboard-reads-on-vitest.json",
+      "identity": "SEED-413#prove-published-dashboard-reads-on-vitest",
+      "completedAt": "2026-11-27T01:28:13.989Z",
+      "blob": "d2af98ad5285190cf5e554f7fdc6268c4eafba36"
+    },
+    {
+      "fileName": "SEED-413_prove-native-session-observation-on-vitest.json",
+      "identity": "SEED-413#prove-native-session-observation-on-vitest",
+      "completedAt": "2026-11-27T01:19:49.140Z",
+      "blob": "86d2991c65cb53faf2730096f95af291ebe17fc8"
+    },
+    {
+      "fileName": "SEED-413_prove-follow-up-context-on-vitest.json",
+      "identity": "SEED-413#prove-follow-up-context-on-vitest",
+      "completedAt": "2026-11-27T01:14:59.248Z",
+      "blob": "ddd7767c2a6d1267cfce005bc66c882d3f1e3886"
+    },
+    {
+      "fileName": "SEED-430_move-authenticated-read-proofs-off-the-board-ref-read.json",
+      "identity": "SEED-430#move-authenticated-read-proofs-off-the-board-ref-read",
+      "completedAt": "2026-11-27T00:21:35.531Z",
+      "blob": "d8fd7f7ccf46ca192de9445c5899b8bed44799a0"
+    },
+    {
       "fileName": "SEED-413_prove-launch-worker-recovery-on-vitest.json",
       "identity": "SEED-413#prove-launch-worker-recovery-on-vitest",
       "completedAt": "2026-11-26T16:35:23.416Z",
@@ -3402,12 +3426,6 @@
       "identity": "SEED-159#cursor-start-opens-the-session",
       "completedAt": "2026-10-28T07:48:54.651Z",
       "blob": "ea8e44305461c61f20a050cb9e407e1955bcf2e8"
-    },
-    {
-      "fileName": "SEED-156_recently-done-sessions-in-sidebar.json",
-      "identity": "SEED-156#recently-done-sessions-in-sidebar",
-      "completedAt": "2026-10-28T00:53:51.785Z",
-      "blob": "cb17d513e5426a571e8ade6861c999b37453f95d"
     }
   ],
   "unreadable": []

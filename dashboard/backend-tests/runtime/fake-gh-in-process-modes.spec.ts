@@ -10,7 +10,7 @@ import {
   everyRepository,
   publishes,
 } from "../../test-support/support/fakeGitHub.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { checkedAt } from "../../test-support/support/sharedReads.ts";
 import { expect, test } from "../support/fakeGhInProcess.ts";
 
 const published = publishes({});
@@ -41,13 +41,12 @@ for (const mode of ["boundary", "dev", "preview"] as const) {
       extraEnv: { NODE_OPTIONS: `--import=${JSON.stringify(probe)}` },
     });
     try {
-      const answer = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=open-dough`,
-        headers: { Origin: server.origin },
-      });
+      const answer = await checkedAt(server);
       expect(answer.status).toBe(200);
       expect(JSON.parse(answer.body)).toMatchObject({ revision });
-      expect(client.github.calls.length).toBeGreaterThan(0);
+      expect(client.github.calls.map(({ request }) => request.kind)).toContain(
+        "matching-refs",
+      );
       expect(readFileSync(noted, "utf8")).toBe("caller preload ran");
       expect(client.apiLaunched()).toBe(false);
       expect(server.ghPid()).toBeUndefined();

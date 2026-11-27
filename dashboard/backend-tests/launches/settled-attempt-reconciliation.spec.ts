@@ -26,9 +26,13 @@ import { reconcileAttempt } from "../../server/launchAttemptReconciliation.ts";
 import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
-const acceptedAt = "2026-11-04T01:00:00.000Z";
-const outcomeAt = "2026-11-04T01:05:00.000Z";
-const receivedAt = "2026-11-04T01:10:00.000Z";
+// Recent by the real clock, which this machine's attempt store measures its
+// retention of settled attempts by.
+const minutesAgo = (minutes: number) =>
+  new Date(Date.now() - minutes * 60_000).toISOString();
+const acceptedAt = minutesAgo(15);
+const outcomeAt = minutesAgo(10);
+const receivedAt = minutesAgo(5);
 
 // An accepted start of one story that published nothing.
 const storyAttempt = () =>

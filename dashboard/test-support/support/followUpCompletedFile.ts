@@ -1,9 +1,7 @@
-// A Done story with a Published completion comparison for file-anchored
-// follow-up boundary specs: real Git publication plus the done catalog the
-// fake GitHub serves at the trunk revision the page would show. Rename and
-// journey histories: ./completedFollowUpHistory.ts.
-import { describedFiles } from "../describedRevisions.ts";
-import { doneRecordOf, type DoneStory } from "../../src/doneRecord.ts";
+// A Done story's Published completion comparison for file-anchored follow-up
+// specs: the published review the dashboard serves and the file facts a
+// follow-up names from it. Rename and journey histories:
+// ./completedFollowUpHistory.ts.
 import type { FollowUpFile } from "../../src/followUpRequest.ts";
 import {
   storyReviewEndpoint,
@@ -11,15 +9,9 @@ import {
   type ReviewedFile,
   type StoryReview,
 } from "../../src/storyReviewContract.ts";
-import { doneRecordPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { publishes } from "./publishedRepository.ts";
-import { originMain } from "./sessionDialog.ts";
-import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
-import { git, lines } from "./storyReviewWorktree.ts";
-
-const repository = "terryyin/open-dough";
+import { queuedIdentity } from "./startOrigin.ts";
+import { lines } from "./storyReviewWorktree.ts";
 
 export const renamedOldPath = "old/a.ts";
 export const renamedNewPath = "new/a.ts";
@@ -33,48 +25,6 @@ export function fromOf(
   file: ReviewedFile,
 ) {
   return file.includesTrunkFrom ?? review.baseline;
-}
-
-export async function serveDoneAtTrunk(
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-): Promise<{ revision: string; story: DoneStory }> {
-  const revision = await originMain(origin);
-  const recordPath = `.planning/${doneRecordPath(queuedIdentity)}`;
-  const text = git(origin.project, "show", `${revision}:${recordPath}`);
-  const read = doneRecordOf(recordPath.split("/").pop() ?? "", text);
-  if (read.status !== "read")
-    throw new Error(`Done record unreadable: ${read.problem}`);
-  // Serve through describedFiles so the fake listing's blob SHAs agree with
-  // the catalog the same way other follow-up story specs do.
-  dashboard.github.serve(
-    repository,
-    publishes({
-      revision,
-      files: describedFiles({
-        backlog: null,
-        doneRecords: [
-          makeMe.aDoneRecord
-            .with({
-              identity: read.story.identity,
-              title: read.story.title,
-              completedAt: read.story.completedAt,
-              ...(read.story.developer === undefined
-                ? {}
-                : { developer: read.story.developer }),
-              ...(read.story.agent === undefined
-                ? {}
-                : { agent: read.story.agent }),
-              ...(read.story.host === undefined
-                ? {}
-                : { host: read.story.host }),
-            })
-            .please(),
-        ],
-      }),
-    }),
-  );
-  return { revision, story: read.story };
 }
 
 export async function publishedReviewOf(

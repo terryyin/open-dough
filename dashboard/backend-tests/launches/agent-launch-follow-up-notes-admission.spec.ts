@@ -109,6 +109,8 @@ describe("the first input to a story follow-up", () => {
       publishedDoneStory: () => Promise.resolve(story),
       followUpStorySessions: () => Promise.resolve([]),
       pendingInputOf: () => Promise.resolve(undefined),
+      keptSession: () => Promise.resolve(undefined),
+      requirePublishedFollowUpSessionStory: () => Promise.resolve(),
     });
   }
 

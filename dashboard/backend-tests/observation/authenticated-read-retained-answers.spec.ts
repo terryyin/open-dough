@@ -1,14 +1,14 @@
 // Answers the local authenticated read boundary read at a resolved commit
 // outlive its dashboard process (../../server/retainedAnswers.ts): a later or
-// concurrent process on the same machine asks GitHub only for the configured
-// ref and each recorded story branch head at an unchanged revision, and
+// concurrent process on the same machine asks GitHub, beside its membership
+// read, only for each recorded story branch head at an unchanged revision, and
 // answers everything else as the first did. Another machine home retains
 // nothing; failed, missing, and rate-limited answers are asked again; a
 // logged-out `gh` still fails at the ref, and a read pinned at a revision the
 // process never heard GitHub name asks GitHub as before; and an absent,
 // foreign, or torn store file is a miss. Development-environment boundaries over real HTTP
-// with the synthetic `gh` count the `gh` calls each process made
-// (../../test-support/retainedAnswersJourney.ts).
+// with the synthetic `gh` count the `gh` calls each process made beside
+// membership reads (../../test-support/retainedAnswersJourney.ts).
 
 import {
   mkdtempSync,
@@ -59,7 +59,7 @@ test.describe("authenticated read answers retained across dashboard processes (d
     await github.close();
   });
 
-  test("a later process on the same machine asks only the ref and the recorded branch head, and answers as the first did", async ({
+  test("a later process on the same machine asks only the recorded branch head beside membership, and answers as the first did", async ({
     machine,
   }) => {
     const project = published("retained", named("b1"));
@@ -69,19 +69,15 @@ test.describe("authenticated read answers retained across dashboard processes (d
       asked(github, () => readProject(server, project)),
     );
     allAnswered(first.result.answers);
-    expect(first.calls).toContain(`content ${backlogPath}@${revision}`);
+    expect(first.calls).toContain(`content ${seedPath}@${revision}`);
 
     const second = await onMachine(machine, github, (server) =>
       asked(github, () => readProject(server, project)),
     );
     // Every pinned read at A, and on the branch at its head, came from what
     // the first process retained once this one heard GitHub name them.
-    expect(second.calls).toEqual(["ref", `branch ${project.branch}`]);
+    expect(second.calls).toEqual([`branch ${project.branch}`]);
     expect(second.result.answers).toEqual(first.result.answers);
-    // The ref was asked afresh, by the later process.
-    expect(Date.parse(second.result.askedAt)).toBeGreaterThan(
-      Date.parse(first.result.askedAt),
-    );
 
     // Only this user can read what is retained.
     const store = storeOn(machine);
@@ -134,7 +130,6 @@ test.describe("authenticated read answers retained across dashboard processes (d
     );
     allAnswered(second.result.answers);
     expect(second.calls).toEqual([
-      "ref",
       `content ${otherSeedPath}@${revision}`,
       `commit-list ${profilePath}@${revision}`,
       `commit ${named("31")}`,
@@ -212,8 +207,6 @@ test.describe("authenticated read answers retained across dashboard processes (d
       asked(github, () => readProject(server, project)),
     );
     expect(damaged.calls).toEqual([
-      "ref",
-      `content ${backlogPath}@${revision}`,
       `content ${seedPath}@${revision}`,
       `branch ${project.branch}`,
     ]);

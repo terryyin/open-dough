@@ -16,7 +16,7 @@ import { defaultRepository as repository } from "./publishedOriginBasics.ts";
 import type { FakeGitHub } from "./support/fakeGitHub.ts";
 import { expectServedHomesReach } from "./support/fixtureOriginRoute.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
-import { rawRequest } from "./support/rawHttp.ts";
+import { readAt } from "./support/sharedReads.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
 import {
   pathChange,
@@ -38,7 +38,10 @@ import {
   sourceId,
   type Files,
 } from "./revisionReuseOrigin.ts";
-import { describedExactly } from "./revisionReuseCalls.ts";
+import {
+  describedBesideMembership,
+  membershipRead,
+} from "./revisionReuseCalls.ts";
 
 export { expect, repository };
 
@@ -131,10 +134,7 @@ export const read = async (
   server: DashboardServer,
   query: string,
 ): Promise<Answer> => {
-  const response = await rawRequest({
-    url: `${server.baseURL}/__authenticated-read?source=${sourceId}${query}`,
-    headers: { Origin: server.origin },
-  });
+  const response = await readAt(server, { source: sourceId, query });
   return { status: response.status, body: JSON.parse(response.body) };
 };
 
@@ -162,11 +162,15 @@ export async function readProject(
 ) {
   const { branch, publication } = project;
   project.expectRef(server.github);
-  const membership = await read(server, "");
-  const { askedAt, ...shown } = membership.body as {
-    revision: string;
-    askedAt: string;
-  };
+  const membership = await membershipRead(server.github, () =>
+    read(server, ""),
+  );
+  // When membership was asked differs by process; the rest is compared.
+  const shown = Object.fromEntries(
+    Object.entries(membership.body as object).filter(
+      ([key]) => key !== "askedAt",
+    ),
+  ) as { revision: string };
   expect(shown.revision).toBe(publication.trunk.revision);
   const at = `&revision=${shown.revision}`;
   const answers: Answer[] = [{ status: membership.status, body: shown }];
@@ -205,14 +209,18 @@ export async function readProject(
       `${at}&path=${encodeURIComponent(seedPath)}&committed=last`,
     ),
   );
-  return { answers, askedAt };
+  return { answers };
 }
 
-// What GitHub was asked while `run` ran, in the order asked.
+// What GitHub was asked while `run` ran besides membership reads, in the
+// order asked.
 export async function asked<T>(github: FakeGitHub, run: () => Promise<T>) {
   const before = github.calls.length;
   const result = await run();
-  return { result, calls: github.calls.slice(before).map(describedExactly) };
+  return {
+    result,
+    calls: describedBesideMembership(github.calls.slice(before)),
+  };
 }
 
 // A fresh boundary process on `machine`'s home, closed after `use`.

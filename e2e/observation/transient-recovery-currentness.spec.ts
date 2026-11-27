@@ -13,6 +13,7 @@ import {
   checksAskedWhilePassing,
   contentReads,
   headsChecks,
+  passTimeUntilChecked,
   setPageVisibility,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
@@ -23,7 +24,6 @@ import {
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
-  expectProblemAndNoSnapshot,
   expectSettledPage,
   shortRevision,
   parts,
@@ -59,7 +59,7 @@ import {
 } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   detailRecovery,
-  transientRecovery,
+  openThenFailCheck,
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
@@ -84,18 +84,17 @@ test("recovery discovering a new revision replaces the snapshot with current fac
       { cwd: dashboard.home, env: { HOME: dashboard.home }, maxBuffer: 4096 },
     );
   expect(await routedTrunk()).toBe(revisionA);
-  const restoreMain = origin.answerWith("main", httpErrorAnswer(503));
-  await page.goto("/");
-  await expectProblemAndNoSnapshot(
+  const restoreMain = await openThenFailCheck(
     page,
+    origin,
+    titlesOfA,
+    httpErrorAnswer(503),
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    transientRecovery,
   );
-  await untilPageReadsAnswered(page);
   restoreMain();
   origin.advanceTo("B");
   expect(await routedTrunk()).toBe(revisionB);
-  await page.clock.runFor(15_250);
+  await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);
   await expectSettledPage(page, titlesOfB);
   await expect(parts(page).readRevision).toContainText(

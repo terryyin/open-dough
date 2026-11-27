@@ -131,16 +131,51 @@ export async function servedHolding(
 export type SharedRead =
   string | { readonly source: string; readonly query: string };
 
+// The boundary address of `read` on the server at `baseURL`.
+export function readUrl(baseURL: string, read: SharedRead): string {
+  const { source, query } =
+    typeof read === "string" ? { source: "open-dough", query: read } : read;
+  return `${baseURL}/__authenticated-read?source=${source}${query}`;
+}
+
 export function readAt(
   server: Pick<DashboardServer, "baseURL" | "origin">,
   read: SharedRead,
 ): Promise<RawResponse> {
-  const { source, query } =
-    typeof read === "string" ? { source: "open-dough", query: read } : read;
   return rawRequest({
-    url: `${server.baseURL}/__authenticated-read?source=${source}${query}`,
+    url: readUrl(server.baseURL, read),
     headers: { Origin: server.origin },
   });
+}
+
+// A revision no published answer names: the one a revision check was shown
+// and a pinned read pins.
+export const unnamedRevision = "ab".repeat(20);
+
+// The query asking whether main still names a revision shown, as the page's
+// scheduled checks ask it: one listing of the published branch heads, then
+// main alone when that listing fails.
+export const revisionCheck = `&since=${unnamedRevision}`;
+
+// A revision check of `source` (by default open-dough). A failure arranged at
+// `gh` fails the listing and then main, so it answers as a failed read of main
+// after asking GitHub twice.
+export function checkedAt(
+  server: Pick<DashboardServer, "baseURL" | "origin">,
+  source = "open-dough",
+): Promise<RawResponse> {
+  return readAt(server, { source, query: revisionCheck });
+}
+
+// The query reading the shared seed pinned to the unnamed revision.
+export const pinnedRead = sharedSeedRead(unnamedRevision);
+
+// A pinned read of open-dough's shared seed. It asks GitHub once, so a failure
+// arranged at `gh` answers it as one failed content read.
+export function pinnedAt(
+  server: Pick<DashboardServer, "baseURL" | "origin">,
+): Promise<RawResponse> {
+  return readAt(server, pinnedRead);
 }
 
 // A request the boundary refuses before asking GitHub. Once it is answered,

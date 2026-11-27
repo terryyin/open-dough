@@ -2,7 +2,7 @@
 // (../../server/retainedAnswers.ts): once a write takes the store over it, the
 // least recently used answers are removed until it fits, so a later process
 // rereads only what was removed while the revision read most recently costs
-// the ref and the recorded branch head only, and an answer a process used
+// the recorded branch head only beside membership, and an answer a process used
 // outlasts one written after it but never used. Each server's budget is set
 // small through `DOUGH_RETAINED_ANSWERS_BYTES`, relative to what one
 // revision's answers measure; boundary servers in the development
@@ -152,7 +152,7 @@ test.describe("authenticated read answers retained within a byte budget (develop
     expect(present(machine, a)).not.toContain(origin.paths.backlog);
 
     const atC = await readAt(machine, github, project, budget);
-    expect(atC.calls).toEqual(["ref", `branch ${project.branch}`]);
+    expect(atC.calls).toEqual([`branch ${project.branch}`]);
 
     // The ref names A again: only what the budget removed is asked again,
     // by a process whose own writes remove nothing.
@@ -176,12 +176,15 @@ test.describe("authenticated read answers retained within a byte budget (develop
       first.calls.filter((call) => call.endsWith(`@${a}`)).length,
     );
     expect(atA.calls.filter((call) => !reread.includes(call))).toEqual([
-      "ref",
       `compare ${c}...${a}`,
       `branch ${project.branch}`,
     ]);
+    // Membership reads the removed backlog itself, outside this count.
     expect(reread.filter((call) => call.startsWith("content ")).sort()).toEqual(
-      removedAtA.map((file) => `content ${file}@${a}`).sort(),
+      removedAtA
+        .filter((file) => file !== origin.paths.backlog)
+        .map((file) => `content ${file}@${a}`)
+        .sort(),
     );
     // No answer still kept was asked again and written anew.
     for (const [name, { ino }] of stored(machine)) {
@@ -212,7 +215,7 @@ test.describe("authenticated read answers retained within a byte budget (develop
       github,
       async (server) => {
         const atA = await asked(github, () => readProject(server, project));
-        expect(atA.calls).toEqual(["ref", `branch ${project.branch}`]);
+        expect(atA.calls).toEqual([`branch ${project.branch}`]);
         await project.movedTo(recordsAt("lasts", "c"), unbounded("7"));
         allAnswered((await readProject(server, project)).answers);
       },
@@ -224,6 +227,6 @@ test.describe("authenticated read answers retained within a byte budget (develop
 
     project.restoreInitialRevision();
     const again = await readAt(machine, github, project, budget);
-    expect(again.calls).toEqual(["ref", `branch ${project.branch}`]);
+    expect(again.calls).toEqual([`branch ${project.branch}`]);
   });
 });

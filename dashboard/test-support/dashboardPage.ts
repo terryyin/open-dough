@@ -36,7 +36,7 @@ async function readAndNothingMoreWillBeRead(page: Page): Promise<boolean> {
 const nothingMoreWillBeRead =
   "the page says the published work could not be read and it reads no more on its own";
 
-type StoryMembership = {
+export type StoryMembership = {
   readonly taken: string[];
   readonly backlog: string[];
 };

@@ -9,12 +9,14 @@ import * as checkoutChanges from "../../server/executionCheckoutChanges.ts";
 import {
   followUpStorySessions,
   publishedDoneStory,
+  requirePublishedFollowUpSessionStory,
 } from "../../server/followUpStory.ts";
 import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
 import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
 import { replaceAttempts } from "../../server/launchAttemptStore.ts";
 import {
   deleteRecord,
+  keptSession,
   pendingInputOf,
 } from "../../server/launchRecordStore.ts";
 import { machineDashboardPath } from "../../server/machineHome.ts";
@@ -87,6 +89,8 @@ async function admission() {
         publishedDoneStory,
         followUpStorySessions,
         pendingInputOf,
+        keptSession,
+        requirePublishedFollowUpSessionStory,
       },
     );
 

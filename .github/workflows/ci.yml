@@ -199,7 +199,7 @@ jobs:
       root: dashboard/frontend-tests
       shards: "[1, 2]"
       specs: |
-        1: dashboard/frontend-tests/intent/** dashboard/frontend-tests/navigation/** dashboard/frontend-tests/review/**
+        1: dashboard/frontend-tests/intent/** dashboard/frontend-tests/review/**
   dashboard-backend:
     uses: ./.github/workflows/browser-test-group.yml
     with:
