@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-447_clean-up-story-linked-session-tests.json",
+      "identity": "SEED-447#clean-up-story-linked-session-tests",
+      "completedAt": "2026-11-27T13:31:24.533Z",
+      "blob": "53d11cbaf00607b972622af008d02cc2a81d9522"
+    },
+    {
       "fileName": "SEED-430_refresh-published-board-in-place.json",
       "identity": "SEED-430#refresh-published-board-in-place",
       "completedAt": "2026-11-27T12:45:06.596Z",
