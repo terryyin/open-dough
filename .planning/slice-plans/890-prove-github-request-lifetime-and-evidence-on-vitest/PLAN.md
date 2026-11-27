@@ -128,6 +128,13 @@ checks and the browser journeys retain their existing owners.
   discovery. Report:
   `open-dough/evidence/slice-5-diagnostics-report.md` in this worktree's
   Git directory.
+- `dashboard/test-support/support/dashboardServer.ts` value-imports
+  `installServerTimeControls`, and that module imports `@playwright/test`.
+  A plain Vitest spec cannot use `startDashboardServer` for the production
+  diagnostics route. `startInProcessBoundaryHttp` with `"production"` is
+  the witness, after a private `HOME`, and it must be closed before a
+  development mount. The separate-process stdout check stays in the
+  Playwright file until slice 6 retires it.
 
 ## Premises and baseline
 
@@ -329,23 +336,42 @@ return 200 under the same owner. Command:
 ### 5. Admit a diagnostic read before any upstream call
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A fresh diagnostic read is empty and does no upstream work.
 Unknown source, disallowed origin, and non-GET are refused before any
 GitHub call. The production environment mounts the same route and also
 asks GitHub nothing.
 
-Proof: Use `startInProcessAuthenticatedRead` and
-`/__authenticated-read-diagnostics`. Assert an empty failure list and an
-unchanged upstream call count, then the three refusals, then the same
-empty route on the production environment. The in-memory history is one
-module-level list of 100, so this empty read runs before any case in the
-same worker records a failure.
+Proof: Use `startInProcessAuthenticatedRead` for the development route
+and `startInProcessBoundaryHttp` with `"production"` for the production
+environment. Both stay on plain Vitest. Do not import
+`dashboardServer.ts`: it loads `@playwright/test` through
+`serverTimeControls.ts`. Assert an empty failure list and an unchanged
+upstream call count, then the three refusals, then the same empty route
+on the production environment. Give that case a private `HOME` before
+mounting, so production seeds `open-dough` instead of reading a saved
+list. Close one environment before mounting the other. The in-memory
+history is one module-level list of 100, so this empty read runs before
+any case in the same worker records a failure.
 
 Legacy: the empty-history, refusal, and production-environment cases of
 `authenticated-read-diagnostics.spec.ts`. That file also holds the
 shared-failure cases, so it stays until slice 6.
+
+Accepted at `bc8fc7f1` with the Node spec uncommitted. Refactor pass
+skipped: the new file is this slice's spec, 136 lines, and it uses the
+existing in-process boundaries. No production contract changed.
+`authenticated-read-diagnostics-admission-node.spec.ts` passed 3/3. A
+development read is HTTP 200 with an empty failure list and an unchanged
+call count. Unknown source, a disallowed origin, and POST are 404, 403,
+and 405 with the call count unchanged. The production environment, mounted
+through `configurePreviewServer` on a private home, returns the same empty
+200 with its own call count unchanged. Command:
+`caffeinate -s -i npm run test:dashboard:backend -- authenticated-read-diagnostics-admission-node.spec.ts --workers=1`
+(exit 0). `npm run typecheck:dashboard` exited 0. Records:
+`slice-5-admission.log.run.json` and
+`slice-5-admission-typecheck.log.run.json`.
 
 ### 6. Record one safe diagnostic for an admitted failure
 
@@ -510,9 +536,10 @@ delivered slices share only test patterns with these slices.
 - Published claim: `735c60a52ea2cd88e8746df5e06edfcb1d9f81b2` on that story
   branch. `pendingCi: unobserved` — the claim published before this observer
   was armed. Slice 4 is published at
-  `2950e48ddd61bfbe9fde0a130028b414651b1a6e` on the same branch. That SHA is
-  the previously published base for the next increment. Unpublished
-  candidate: none.
+  `2950e48ddd61bfbe9fde0a130028b414651b1a6e`. The diagnostics split is
+  published at `bc8fc7f1d9724b44085dbf4c95324bf9a0e81404` on the same
+  branch. That SHA is the previously published base for the next
+  increment. Unpublished candidate: none.
 - CI: GitHub Actions, workflow `ci.yml` (display name `CI`, id `351271804`),
   repo `terryyin/open-dough`, branch
   `cursor/prove-github-request-lifetime-and-failure-eviden`.
