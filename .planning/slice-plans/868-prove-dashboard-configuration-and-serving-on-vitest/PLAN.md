@@ -114,7 +114,7 @@ Observed in the owned preparation checkout at `43b6506e7` on 27 November
 ### 1. Wire on-demand run artifacts into Node Vitest and relocate the browser watcher-setup spec
 
 Type: Structure
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Internal change: add `globalSetup: ["./test-support/support/backendGlobalSetup.ts"]`
@@ -135,6 +135,12 @@ Proof:
 - `caffeinate -s -i npm run test:e2e -- 'runtime/production-watcher-setup-lifetime.spec.ts' --workers=1 --reporter=list`
   passes 1 `[chromium-deployments]` case.
 - `npm run typecheck:dashboard` passes.
+
+Accepted: all three passed at `8b7f3c215` plus the slice diff (5 Node cases;
+1 `[chromium-deployments]` case in 2.4 s; typecheck, which also covers `e2e/`).
+Learning: Vitest resolves `globalSetup` from the repository root, so the
+config anchors it as `${import.meta.dirname}/test-support/...`; anchor any
+later path added to that config the same way.
 
 ### 2. Prove machine JSON storage, notifier setup, and project addition validation in Node Vitest
 

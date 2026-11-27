@@ -148,8 +148,8 @@ boundary is a page the harness opens rather than a product workflow.
 `npm run test:dashboard:backend` runs only this group. Specs that import
 `vitest` run on Vitest in Node (`../backend.vitest.config.mts`); the
 rest run on Playwright from its own configuration
-(`../backend.playwright.config.ts`). Playwright's global setup
-(`../test-support/support/backendGlobalSetup.ts`) runs the fixture executables once,
+(`../backend.playwright.config.ts`). Both engines share one global setup
+(`../test-support/support/backendGlobalSetup.ts`), which runs the fixture executables once,
 gives the run a GitHub request root that admits no owner, and registers only
 the artifacts backend specs request: the server bundle, the app build a
 preview or static server serves, the installed start origins, the published

@@ -16,5 +16,8 @@ export default defineConfig({
       .map((file) => `dashboard/${file}`),
     includeTaskLocation: true,
     environment: "node",
+    globalSetup: [
+      `${import.meta.dirname}/test-support/support/backendGlobalSetup.ts`,
+    ],
   },
 });
