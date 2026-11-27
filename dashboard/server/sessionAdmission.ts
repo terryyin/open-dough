@@ -180,11 +180,11 @@ export async function deleteRequest(
   req: IncomingMessage,
   launches: AgentLaunches,
 ) {
-  const { source, record } = await namedSession(
-    await jsonBody(req),
-    launches,
-    "delete",
-  );
+  return admittedDelete(await jsonBody(req), launches);
+}
+
+export async function admittedDelete(body: unknown, launches: AgentLaunches) {
+  const { source, record } = await namedSession(body, launches, "delete");
   return { kind: "delete" as const, source, record };
 }
 

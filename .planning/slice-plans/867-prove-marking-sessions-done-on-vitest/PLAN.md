@@ -23,6 +23,8 @@
 
 - Slice 5 accepted at `8c1ab566db493f0f6d5d616118fc619a6403549c`.
 
+- Slice 6 accepted at `241bd5b577d36fd150b97ffbfd631e71f8406367`.
+
 ## Goal and scope
 
 Give Dashboard maintainers fast, typed Node Vitest proof of how the
@@ -264,7 +266,7 @@ Only the subject spec changed. Acceptance narrowed the newer-turn assertion to t
 ### 7. Delete only a record whose session is gone, or refuse
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 14–15 active minutes.
 
 Proof: Give deletion a body-level admission beside `admittedDone` and export
@@ -277,6 +279,12 @@ known session keeps its record and the answer carries its state. An
 unrecorded session and another project's session are refused before `claude`
 runs. A record file that cannot be written answers why and keeps the record.
 Convert `agent-launch-delete.spec.ts`, except its origin case.
+
+Accepted proof: the six migrated deletion cases ran on Node in 0.213 s of summed case time versus 3.817 s for those observations on Chromium. They exercise `admittedDelete` and `deleted` through private kept records and the real Claude host, with no stop or rename. Fresh reads establish removal for gone or unreadable sessions and preservation for known, refused or unwritable cases. The shared origin owner ran in the focused suite.
+
+The consumer trace and receipts (`slice7-return.md`, `slice7-refactor-return.md` in Git evidence) cover 46 backend cases and eight affected Chromium journeys. Backend coverage includes HTTP 500 serialization, deleted answers, Cursor cleanup and Codex late results. The first six-case browser selection passed with a terminal exit receipt; individual timings were unavailable there. Two additional deletion journeys passed with recorded timings. Dashboard typecheck and whitespace check passed.
+
+The independent refactor kept the host cleanup import inside successful post-delete handling to preserve the record store's existing load boundary. It renewed the 46-case backend selection and Dashboard typecheck. Existing browser observations remain applicable, and slice 8 reruns the retained combined browser selection.
 
 ### 8. Reopen a Done session through its terminal, and retire the legacy setup
 

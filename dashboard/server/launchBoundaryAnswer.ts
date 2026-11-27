@@ -1,7 +1,6 @@
 // Answers one admitted request on the local launch boundary.
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { type LaunchWithState, recordDeletable } from "../src/agentLaunch.ts";
-import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
+import type { LaunchWithState } from "../src/agentLaunch.ts";
 import { admitted, type Admitted } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { type AgentLaunchAnswer } from "./agentLaunchResponse.ts";
@@ -15,8 +14,8 @@ import type { NativeDoneMarks } from "./doneMarks.ts";
 import type { LandedCiCollection } from "./landedCiCollection.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
 import { recoverCursorSession } from "./hosts/cursor/recover.ts";
-import { notifyRecordRemoved } from "./launchRecordRemoval.ts";
-import { deleteRecord, setRecordReportRead } from "./launchRecordStore.ts";
+import { deleted } from "./launchRecordDeletion.ts";
+import { setRecordReportRead } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { launchHostOptionsResponse } from "./launchHostOptionsResponse.ts";
 import { noSuchSession } from "./sessionAdmission.ts";
@@ -67,40 +66,6 @@ async function markedRead(
   );
   if (read === undefined) throw noSuchSession();
   return launches.stateOf(source, read);
-}
-
-async function deleted(
-  { source, record }: Extract<Admitted, { readonly kind: "delete" }>,
-  launches: AgentLaunches,
-): Promise<DeleteRecordAnswer> {
-  const joined = await launches.stateOf(source, record);
-  if (!recordDeletable(joined)) {
-    return { kind: "state-known", record: joined };
-  }
-  let wasDeleted: boolean;
-  try {
-    wasDeleted = await deleteRecord(source.id, record.session);
-  } catch (error) {
-    throw new RefusedRequest(
-      500,
-      `The session record could not be deleted: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  }
-  // Only once the record is actually gone may its host retire the
-  // session-local state that record alone remembered; a kept record
-  // (a failed deletion above) keeps that state, so a session whose
-  // record survives stays resumable exactly as before.
-  if (wasDeleted) {
-    try {
-      await notifyRecordRemoved(record);
-    } catch (error) {
-      throw new RefusedRequest(
-        500,
-        `The session record was deleted, but its session-local state could not be removed: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
-  return { kind: "deleted" };
 }
 
 export async function answer(
