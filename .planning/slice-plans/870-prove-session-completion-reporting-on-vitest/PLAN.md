@@ -304,7 +304,7 @@ does. The rename-then-stop order belongs to plan 867 and stays covered by
 ### 7. Give each host its reporting instruction, and refuse a false binding when attempt evidence is lost
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Convert the pure reporting-instruction case of
@@ -316,6 +316,17 @@ names the thread, Codex, resume and "No first input was submitted". One
 `thread/start` and no `turn/start` reach the fake, no record is kept, and
 the unreadable evidence is kept aside. Convert `agent-completion-input.spec.ts`
 and `agent-completion-attempt-loss.spec.ts`.
+
+Delivered: both specs are Node Vitest in place (input 2 cases, 0.1 s and
+1.0 s; attempt-loss 2 cases, 1.3–1.5 s). A blank launch's landing context
+comes from settlement's publication note, so the run goes through
+`settleAttempt`. `admitted-session-start`'s held-admission case failed once
+under load near 8.5, when a 3 s hold wait expired. The start origin's
+`PushHold.whenHeld()` now settles at the hook's held marker, so the default
+test timeout governs; the case took 1.7–3.3 s at loads 9–14. Four other
+specs still bound the same wait with a fixed poll:
+`agent-launch-start-duplicate`, `agent-launch-start-resume`,
+`agent-launch-preparation-resume` and `feedback-maintenance-admission`.
 
 ### 8. Complete an admitted session from a borrowed or shared checkout, and retire the legacy setup
 
