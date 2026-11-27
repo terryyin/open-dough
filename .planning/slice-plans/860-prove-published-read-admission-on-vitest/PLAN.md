@@ -21,6 +21,16 @@ GitHub Actions `ci.yml` (CI). Coordinator
 `codex-published-read-bc80104e`, directory `/tmp/dough-ci-501/watch-ZQgD5X`,
 PID 37392, shell session 42633, yielded cell `g708:11`.
 
+Slice 3 CI run 45982087565, frontend job 140448265249, showed two failures
+with active repair owners. The job's browser connection closed with
+`VITEST_BROWSER_CONNECTION_CLOSED`, the defect Ai-chan owns in plan 881.
+Its separate Done capture assertion missed the older run's location
+request. Tsukasa-chan's exact repair `730fe3185` was already published on
+`claude/choose-review-scope-from-a-compact-dropdown`. The containment writer
+was quiescent when this ownership was confirmed and resumed in place.
+No duplicate repair publication was needed. The CI diagnostic and job log
+are retained under `ci-45982087565-*` in the checkout's Git proof directory.
+
 ## Goal and scope
 
 Give Board and Review maintainers fast, direct proof of what an admitted
@@ -297,7 +307,7 @@ measured outside the case. See `s3-refactor-node.log.run.json` and
 ### 4. Answer accepted-publication containment
 
 Type: Behavior
-Status: planned
+Status: done
 
 An admitted source and two full revisions yield containment for equality
 and descendants and absence for behind, divergent and unknown accepted
@@ -310,6 +320,34 @@ relationships and a comparison-provider answer for failures. Inspect the
 actual requested base, head and repository. Preserve all 3 cases in
 `authenticated-read-containment.spec.ts` and the reader contract consumed
 by `publicationContainment.ts` and `startupReconciliation.ts`.
+
+Accepted proof. [authenticated-read-containment.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-containment.spec.ts)
+uses the parser, typed read and real bare origin history for equality,
+ahead, behind, divergence and an absent accepted commit. It asserts one
+compare with the configured Pygardon repository, accepted base, shown
+head and signal. The production CLI classifier and failure formatter
+preserve the 120-second directed wait, transient connection failure and
+malformed-answer failure. Ten malformed parameter cases assert refusal
+before dispatch. The shared HTTP witnesses keep unknown-source 404 with
+zero provider calls and 502 with directed-wait serialization. The 18
+typed cases passed before replacing the three legacy Chromium cases.
+
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/authenticated-read-(containment|http|revision-check-failures)\.spec\.ts$' --workers=1
+caffeinate -s -i npm run typecheck:dashboard
+caffeinate -s -i npm run test:e2e -- \
+  launches/responsive-session-reconciliation.spec.ts launches/responsive-session-reconciliation-kept.spec.ts \
+  -g "a Take's older snapshot|a Take no page reconciled" --workers=1
+```
+
+All 30 backend cases passed in 9.93 s. The 18 containment cases summed
+to 55 ms (maximum 15 ms), excluding shared Git setup. Typecheck and both
+real-origin reconciliation journeys passed. The latter exercised negative,
+failed and descendant answers through the browser in 23.89 s wall time.
+See `s4-return.md`, `s4-consumer-trace.md` and the run records. The sole
+changed subject spec introduces no new production representation, helper
+or fixture API, and the inspected implementation has no refactor candidate.
 
 ### 5. Distinguish an empty Done catalog from missing or inconsistent evidence
 
