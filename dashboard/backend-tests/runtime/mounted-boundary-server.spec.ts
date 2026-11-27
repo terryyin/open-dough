@@ -1,12 +1,15 @@
 // The worker's mounted dashboard server: which boundaries it mounts and how
 // the worker owns it. Its runner stand-in is proven with the private HTTP
 // fixture (../observation/private-http-stand-in-runner.spec.ts).
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { localBoundaries } from "../../server/localBoundaries.ts";
 import {
   mountedBoundaries,
   withMountedDashboard,
 } from "../../test-support/support/mountedDashboardServer.ts";
+
+// These cases exercise boundary selection and ownership without recording incidents.
+vi.mock(import("../../server/incidentRecord.ts"), () => ({}));
 
 const aDashboard = () => ({ close: () => Promise.resolve() });
 

@@ -193,10 +193,11 @@ omitted the compile-cache disable required by its existing contract case.
 The prepared invocation supplies the same value the backend group launcher
 provides. The new trace found two import-time incident revision lookups,
 owned by slice 5. No route or deployment case launched Git.
+Published on the execution branch at `61b22d6aaf7f1cb6b8e3a20c840a1fc6f48314f3`.
 
 ### 5. Isolate runtime boundary cases from the incident revision lookup
 Type: Structure
-Status: planned
+Status: done
 
 Change: the mounted-boundary and serving-mode specs use the real boundary
 table but never call the incident record. Keep each spec's incident-record
@@ -213,12 +214,18 @@ disable and a fresh Git Trace2 event file. The previous calibrated run
 found both `git rev-parse HEAD` calls. Neither should recur and no Git
 command should be recorded. The same retained runtime cases must pass.
 
+Accepted proof: all 97 cases in the 28 runtime files passed. Slice 4's
+calibrated Git Trace2 observed two real revision lookups. With the test-local
+incident substitutions and the same prepared runtime selection, the unused
+trace destination stayed absent. Both specs kept their real boundary table
+and setup assertions. The subject-spec review found no refactor to make.
+
 ## Story obligations
 
 ### G1. The runtime folder performs incident revision lookups
 Reported: slice 4 — "The folder's incidental import-time revision lookups predate these changes and still run."
 Story clause: "The folder starts no Git process."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: prepared 28-file runtime gate passed all 97 cases with zero Git Trace2 events, using the calibrated slice 4 trace as baseline.
 
 ## Decisive premises
 
