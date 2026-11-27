@@ -127,7 +127,7 @@ only Vitest output; read Playwright counts from the proof record.
 ### 2. Restore the terminal helper on the same runner
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8 active minutes.
 
 Proof: Migrate the three `cursor-runner-helper-repair-shapes` cases. Keep
@@ -135,6 +135,9 @@ the real helper file and compare its recorded and reported paths,
 including a deleted wire helper and the two startup ensures before later
 work. New work repairs the file or recorded path and keeps the runner and
 client PIDs. A subsequent Cursor launch or keep works on that same runner.
+
+Delivered: the three cases converted in place with `test.skipIf`. Vitest
+3/3 twice at load about 35, each 3.4–4.4 s under the five-second default.
 
 ### 3. Recover a dead runner and retain held-session evidence
 
