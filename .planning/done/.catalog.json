@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-session-retention-and-input-on-vitest.json",
+      "identity": "SEED-413#prove-session-retention-and-input-on-vitest",
+      "completedAt": "2026-11-27T04:22:58.100Z",
+      "blob": "d5af21b77a79b3cb24c8bfe1d84f90e557223308"
+    },
+    {
       "fileName": "SEED-413_prove-cursor-turns-on-vitest.json",
       "identity": "SEED-413#prove-cursor-turns-on-vitest",
       "completedAt": "2026-11-27T02:31:37.737Z",
