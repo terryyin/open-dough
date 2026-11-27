@@ -327,6 +327,10 @@ four Cursor-session cases (`agent-session-cursor-unavailable`,
 `cursor-session-recovery-stops`) failed at load ~20. A clean `53a1e7ab6`
 failed the same way, so the cause predates this slice; the repair is owed
 under [diagnosis-cursor-taken-session-entry.md](diagnosis-cursor-taken-session-entry.md).
+Repaired: `openTakenCursorSession` now waits through the existing
+`startedSession` step for local startup to clear, bounded by the shared
+launch wait, before counting the Taken entry. At load 17–20 the two failing
+files passed 4/4 and all 28 Cursor session cases passed.
 
 ## Concern evidence
 
