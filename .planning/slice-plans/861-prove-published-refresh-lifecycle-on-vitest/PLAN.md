@@ -301,7 +301,7 @@ cohesive split; a line cut of this spec alone is not.
 ### 6. Retry a comparison that failed and answer the backlog while it is held
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A failed comparison is not remembered: that read proceeds from
 upstream, and a later read compares again and reuses. A failed commit read
@@ -314,6 +314,21 @@ for the record.
 Proof: Direct Node Vitest on the same seam with deferred and failing
 promises. Replaces `authenticated-read-revision-reuse-failures.spec.ts` (4).
 Leave `revisionReuseBoundary.ts` and the history spec.
+
+Accepted proof at `61c12e9` with the spec uncommitted. Promise: a failed
+comparison is not kept and a later read compares again and reuses; a failed
+commit read is asked again and then reused; the backlog at B is answered
+while one comparison and one commit read are shared by the burst; Retry-After
+120 reports `retryAfterSeconds` 120 and reads nothing for the seed. Boundary:
+`PinnedTexts.reader` and `lister` with an injected comparison and commit
+reader, and `reportedFailure`. Setup and observations:
+`dashboard/backend-tests/observation/revision-reuse-failures.spec.ts` (4 tests)
+and `revisionReuseFailureHarness.ts`. Command:
+`caffeinate -s -i npm run test:dashboard:backend -- 'observation/revision-reuse-failures\.spec\.ts$' --workers=1`
+(`slice6-failures-final.log.run.json`, exit 0, 4 tests). Typecheck
+`slice6-typecheck.log.run.json`, exit 0. No production file changed.
+`revision-reuse-failures.spec.ts` is 136 lines and the harness is 243.
+Refactor pass: none — the harness is the test double, and production is unchanged.
 
 ### 7. Reuse profile-addition history across a moved revision
 
@@ -485,7 +500,7 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `fb82189b3e7e4b10f01f8709939387bce055837c` accepted on
+- Published revision `61c12e9dd1e36d9aa342584814c2d05f46cd4f73` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
