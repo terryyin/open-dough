@@ -4,48 +4,70 @@
 
 **Identity:** SEED-430#refresh-published-board-in-place
 
-**State:** Awaiting plan realignment — not ready for execution. These mapped slices are provisional;
-realign them with the verified Board open that
-[plan 856](https://github.com/terryyin/open-dough/blob/d71b0c6d6dc3c767a80efc93ac03247f467d7881/.planning/slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md) delivered.
-
 **Split from:** Plan 828 on 2026-11-26
 (`6b267497e02efe0c5c24f0fdcccd17b900641fee:.planning/slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md`),
-former slices 2, 6 and 7.
+former slices 2, 6 and 7. Realigned on 2026-11-27 with the verified Board
+open that
+[plan 856](https://github.com/terryyin/open-dough/blob/d71b0c6d6dc3c767a80efc93ac03247f467d7881/.planning/slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md)
+delivered (integrated at `72cbe76da`).
 
 ## Goal and scope
 
 Refresh the shown Board through the verified Git check, show when it was
 last confirmed, keep the confirmed view through a pending or failed Refresh,
-and bind revision and confirmation time in one durable update. Automatic
-observation stays on its current path until
-[plan 823](../823-follow-published-progress-from-local-git/PLAN.md).
+and bind revision and confirmation time in one durable update. Slices 1–2
+first correct the delivered Board open (retrospective 2026-11-27, revision
+`55b4be2bf`), because Refresh extends that same check.
+
+Exclusions: automatic observation stays on its current revision-check path
+until [plan 823](../823-follow-published-progress-from-local-git/PLAN.md);
+Review keeps its own fetch and sync record.
 
 ## Current decisions
 
 - UI (decided 2026-11-26): the Board perspective's project actions row
   ([ProjectActions](../../../dashboard/src/ProjectActions.tsx)) ends with a
-  quiet "Checked <time>" note and a `RefreshCw` icon button labeled
-  "Refresh", matching [System settings Usage](../../../dashboard/src/SystemSettingsUsage.tsx)
-  and the [Review panel](../../../dashboard/src/StoryReview.tsx). The button
+  quiet "Checked <time>" note, worded and timed as
+  [System settings Usage](../../../dashboard/src/SystemSettingsUsage.tsx)'s
+  `CheckedAt`, and an `IconButton` with `RefreshCw` labeled "Refresh", as the
+  [Review panel](../../../dashboard/src/StoryReview.tsx) has it. The button
   stays focusable and `aria-disabled` while checking. Failures use the
   existing [read failure alert](../../../dashboard/src/PublishedReadFailure.tsx).
-- Borrow the commit point from
+- One check, one freshness rule: Refresh and launch reconciliation both
+  demand the shared verified check with `SharedObservation`'s `fresh` flag,
+  so each is answered only by a check begun after it asked; opens and
+  staggered tabs keep sharing within the reuse window.
+- The Board check fetches into its own ref,
+  `refs/open-dough/board/<branch>`, instead of reading `FETCH_HEAD`. That
+  ref keeps the confirmed objects reachable (premise row 2) and keeps the
+  check apart from Review's fetches.
+- Commit point, borrowed from
   [SQLite's atomic commit](https://www.sqlite.org/atomiccommit.html#deleting_the_rollback_journal):
-  Git may hold candidate objects ahead of the commit point; readers switch
-  only when the observation is published. Reuse the Dashboard's
+  Git may hold candidate objects and the Board ref ahead of the commit point;
+  the confirmation record `{revision, confirmedAt}` beside the Review
+  repository's sync record, written through
   [durable JSON replacement](../../../dashboard/server/durableJsonReplacement.ts)
-  where it satisfies that contract. Keep observation start (`askedAt`) for
-  launch reconciliation distinct from confirmation time.
-- Reuse the Board's [fresh read and attempt state](../../../dashboard/src/publishedObservation.ts)
-  for Refresh. An earlier automatic read cannot overwrite a later manual
-  confirmation; an automatic advance shows its own read time until plan 823.
+  after the pinned backlog read, is the commit point. Readers answer only the
+  recorded confirmation. Keep observation start (`askedAt`) for launch
+  reconciliation distinct from `confirmedAt`.
+- Warm path: when the record's revision equals origin's advertised head and
+  its objects are local, the check reads the backlog there and writes a new
+  `confirmedAt` with no fetch.
+- Client: reuse the Board's [fresh read and attempt state](../../../dashboard/src/publishedObservation.ts)
+  for Refresh. An automatic advance shows its own read time until plan 823;
+  an earlier automatic read cannot overwrite a later manual confirmation.
 
-## Provisional ordered slices
+## Premises and available baselines
 
-Slices 1–2 correct the delivered Board open
-([plan 856](https://github.com/terryyin/open-dough/blob/d71b0c6d6dc3c767a80efc93ac03247f467d7881/.planning/slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md),
-retrospective 2026-11-27, revision `55b4be2bf`) before Refresh extends the
-same check.
+| Consuming operation | Observation | Remainder |
+| --- | --- | --- |
+| Warm check: `ls-remote` probe then `cat-file blob <rev>:<backlog>` with no fetch | 2026-11-27, Apple Git on this machine, isolated bare repository with `remote.origin.url` to a local origin: after one `fetch --quiet --refmap= origin refs/heads/main`, `ls-remote` returned the same SHA and `cat-file blob` read the backlog without any fetch. | Local-file transport stands in for GitHub HTTPS; `ls-remote` transfers no objects and `cat-file` is local on every transport, so the difference cannot change the outcome. |
+| Confirmed objects surviving until a restart's open | Same repository: with only `FETCH_HEAD` naming the commit, `git gc --prune=now` pruned it (`cat-file -e` failed); fetched to `refs/open-dough/board/main`, the same gc kept it. | Settled; it decides the Board-owned ref above. |
+| Stall and freshness defects slice 1 corrects | At `25f4999f2`: `SharedVerifiedOriginTrunk.check` creates an `AbortController` it never aborts and no deadline wraps its Git calls; `SharedVerifiedOriginTrunk.demand` never passes `fresh`, and production reuse is `revisionCheckReuseMs` (14 s). | Read only. Slice 1's first cases reproduce each defect (fail before the change) before its fix; a case that passes beforehand stops the slice for replanning. |
+| Shared `FETCH_HEAD` and `createIfMissing` slice 2 corrects | At `25f4999f2`: `verifiedOriginTrunk.ts:96` reads `FETCH_HEAD`, which Review's `fetchPublishedRef` also writes; both reach `createIfMissing` in `reviewRepositoryStorage.ts`. | Read only. Slice 2's concurrent case reproduces the overwrite first, as above. |
+| Proof route for the check | At `25f4999f2`, `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR caffeinate -s -i npm run test:dashboard:backend -- shared-verified-origin-trunk.spec.ts verified-origin-trunk.spec.ts shared-observation.spec.ts authenticated-read-shared-trunk.spec.ts` passed 16 cases in 23 s, including the held-transfer and refusal cases. | Baseline only; the slices own discrimination for new behavior. |
+
+## Ordered slices
 
 ### 1. Bound the verified trunk check and keep reconciliation's read fresh
 
@@ -56,21 +78,15 @@ Behavior: A Git transfer that stalls past the Board's read deadline is ended,
 so the next open or reload of that project starts a new check instead of
 joining the stalled one. Launch reconciliation's fresh read is answered only
 by a check begun after it was asked, so a launch that settles with no
-publication is reconciled on that read even within the reuse window.
+publication is reconciled on that read even within the reuse window. Remove
+the second `observeProjectRevision` call in `performedRefRead.ts` `admit`
+(the check already observes it).
 
-Evidence: `SharedVerifiedOriginTrunk.check` creates an `AbortController` it
-never aborts, and nothing times out the Git calls; the REST read it replaced
-ended at `readTimeoutMs`. `demand` never passes `SharedObservation`'s `fresh`
-flag, and production reuses a settled check for `checkReuseMs` (14 s), so
-`askedAt` can precede the settlement that `readAfresh` waits past. Tests run
-at reuse 0 and the stalled-read case releases its hold first. Also remove the
-second `observeProjectRevision` call (`performedRefRead.ts` `admit`; the
-check already observes it).
-
-Proof: Backend cases: a held transfer past the deadline is aborted and a later
-demand starts afresh; with production reuse, a fresh demand after a settled
-check starts a new one while a staggered tab still shares. One E2E
-reconciliation case at production reuse. Budget 14 active minutes.
+Proof: Backend cases in `shared-verified-origin-trunk.spec.ts`: a held
+transfer past the deadline is aborted and a later demand starts afresh; with
+production reuse, a fresh demand after a settled check starts a new one while
+a staggered tab still shares. One E2E reconciliation case at production
+reuse. Budget 14 active minutes.
 
 ### 2. Keep the Board check's fetch apart from Review's
 
@@ -78,30 +94,31 @@ Type: Behavior
 Status: planned
 
 Behavior: The Board's verified check and a Review sync on the same project
-never read each other's fetch or race creating the review repository.
-
-Evidence: the check reads `FETCH_HEAD` (`verifiedOriginTrunk.ts:96`) that
-Review's `fetchPublishedRef` also writes, and both run `createIfMissing`.
-`story-review-initial-sync.spec.ts` needs a 10-minute reuse window to keep
-the Board out of Review's upload-pack gate.
+never read each other's fetch or race creating the review repository; the
+check fetches into `refs/open-dough/board/<branch>`.
 
 Proof: Backend case: a Review fetch of another commit concurrent with the
 check leaves the check's verified revision intact; concurrent first use
-creates one repository. Budget 13 active minutes.
+creates one repository. Drop the 10-minute reuse window
+`story-review-initial-sync.spec.ts` needed to keep the Board out of Review's
+upload-pack gate, and keep it green. Budget 13 active minutes.
 
-### 3. Publish one durable confirmation
+### 3. Open from a durable confirmation without fetching
 
-Type: Structure
+Type: Behavior
 Status: planned
 
-Change: Publish the verified revision and confirmation time together after
-the pinned backlog read; with a confirmation at the advertised revision,
-probe and skip the fetch. A failed candidate or write leaves the former
-confirmation readable, including after restart.
+Behavior: A verified check publishes its revision and confirmation time
+together in one durable record after the pinned backlog read. An open whose
+record matches origin's advertised revision answers it with a new
+confirmation time and no fetch, including after a restart. A failed candidate
+or record write leaves the former confirmation readable.
 
-Proof: Observe A, move origin to B, interrupt publication after B is local,
-restart; show A and its time, then B after retry; with origin at B, a later
-time and no fetch. Budget 14 active minutes.
+Proof: Backend cases with a real origin: observe A, move origin to B, fail
+the record write after B is local, restart the server; the open answers A
+and its time with the failure reported, then B after retry; with origin at
+B, a later open answers a later time with zero fetches (counted Git calls).
+Budget 14 active minutes.
 
 ### 4. Show the confirmation and refresh an unchanged Board
 
@@ -109,27 +126,40 @@ Type: Behavior
 Status: planned
 
 Behavior: The Board shows "Checked <time>". Pressing Refresh keeps the
-backlog and time while checking; when origin still confirms it, the time
+backlog and time while checking origin, with the button focusable and
+unavailable; when origin still confirms the shown revision, the time
 advances and nothing is fetched.
 
-Proof: Drive the rendered action; check pending, exact revision, changed time
-and zero fetch; record cold and warm counts and timing; two eligible
-requests join one check. Budget 13 active minutes.
+Proof: E2E through the dashboard page objects: drive the rendered action;
+check the pending cue, exact revision, changed time and zero fetch; two
+eligible requests join one check. Record cold and warm Git request counts
+and timing in this plan. Budget 13 active minutes.
 
 ### 5. Recover a Refresh after origin changes
 
 Type: Behavior
 Status: planned
 
-Behavior: Refresh after origin advances; a failed fetch or confirmation keeps
-A and its time and shows the failure; a later Refresh publishes B and its
-time together; an earlier automatic read cannot replace it.
+Behavior: With A shown and origin at B, Refresh keeps A and its time while
+B is checked; a failed fetch or confirmation keeps A and its time and shows
+the failure; a later Refresh publishes B and its time together; an earlier
+automatic read cannot replace that confirmation.
 
-Proof: With A rendered, hold B and fail before publication; verify A and the
-failure, then recover to B; check the in-flight automatic result and the
-restart case. Budget 14 active minutes.
+Proof: E2E: with A rendered, hold B and fail before publication; verify A
+and the failure, then recover to B; settle an automatic read begun before
+the Refresh after it and check the shown time stays the Refresh's. Budget
+14 active minutes.
 
-## Resumption
+## Concern review
 
-Resume through slice-plan refinement: settle the durable store design against the landed confirmation seam,
-and measure the warm Refresh path before recording readiness.
+Refinement not needed: the realignment kept five slices, each one outcome
+and proof loop, building one model (one shared check, one fresh rule, one
+commit point). This review found no remaining slice-specific concern.
+
+## Local gate
+
+Use slice-focused checks and Dashboard typecheck for the changed boundary.
+Run long local checks fully awake on AC power under `caffeinate -s -i`.
+Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+Apply the test conventions in [AGENTS.md](../../../AGENTS.md) before
+authoring or changing proof.
