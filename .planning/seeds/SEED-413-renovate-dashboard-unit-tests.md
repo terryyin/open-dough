@@ -179,66 +179,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
-<a id="keep-full-frontend-runs-connected"></a>
-
-### Keep full Dashboard frontend runs connected to their browser
-
-**Identity:** SEED-413#keep-full-frontend-runs-connected
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/881-keep-full-frontend-runs-connected/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"89af4af2898b4b8fab4af25add78e184404c2cbd0ab42b0148c762454f4b4e9e","plan":"723862066a295ea4177d8fb7d70f5ebca0f3cf55a86057e542e294ded38d09b3"}}
-```
-
-- **Goal.** Developers and CI get a complete Dashboard frontend verdict from
-  every full `npm run test:dashboard:frontend` run. Today a run sometimes
-  stops early when a tester's browser connection closes. That turns a green
-  change red and costs a full rerun.
-- **Evidence (2026-11-27).** Locally on macOS with two workers at load 7–31,
-  five of eight full runs stopped after 201–300 of 331 files with
-  `VITEST_BROWSER_CONNECTION_CLOSED` (`[birpc] rpc is closed, cannot call
-  "createTesters"`), raised on an Intent file that never started. Baseline
-  `67d52b5fa` stopped in one of its two runs. Chromium stderr
-  (`DEBUG=pw:browser`) showed a freshly connected tester logging
-  `[vite] server connection lost` about 150 ms after `[vite] connected.`. It
-  was the same browser process, and no renderer crashed. A watcher log showed
-  no file events during a run. The largest renderer grew from ~480 MB to
-  ~1.3 GB over a run, under a 3.5 GB JS heap limit. CI shows the same closure.
-  Main run `45958801316` (`20c08633f`, job `140371568061`) reported
-  `330 passed (331)` with the same `createTesters` error from the WebSocket
-  close handler in `@vitest/browser`. It was one of two dashboard-frontend
-  failures in the last 40 main CI runs.
-- **Scope.**
-  - Find what closes the tester's server connection. The Vitest browser
-    orchestrator runs under `vitest.standalone()` in
-    `dashboard/test-support/support/groupVitest.mjs`, using the two Chromium
-    instances in `dashboard/frontend.vitest.config.mts`. Remove that cause so
-    full runs complete locally and in CI.
-  - Required restriction: rerunning dropped files or whole runs does not count
-    as the fix. The
-    [failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
-    treats rerunning until green as no fix, and a hidden closure would still
-    cost the run its time.
-  - Required restriction: keep the run's two-worker parallelism and its
-    wall time within measured noise, compared under similar load. This
-    campaign exists to make frontend feedback fast. Cutting workers or
-    serializing instances to avoid the race needs the coordinator's
-    agreement.
-  - Keep today's honest failure. A connection that really closes still fails
-    the run and names the file that never ran.
-  - Scope limits: renderer memory growth is in scope only if the diagnosis
-    shows that it causes the closure. Test selection, spec content, and
-    the backend group stay unchanged.
-- **Key examples.**
-  - At two workers and the recorded load range, eight consecutive full local
-    runs each start and report all 331 files. The evidence baseline lost
-    five of eight.
-  - CI's single dashboard-frontend shard reports every file as it settles,
-    where run `45958801316` reported `330 passed (331)`.
-  - A file whose test fails is reported as failed. Every other file still
-    starts and reports.
-  - When a tester's browser connection truly drops, for example after a
-    killed renderer, the run fails and names the file that never ran. It does
-    not report a pass.
-
 <a id="diagnose-dashboard-ci-probe-flakes"></a>
 
 ### Diagnose Dashboard CI probe flakes
@@ -252,8 +192,8 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   owner for each of the two frontend flakes reported on CI probe branches.
 - **Scope.** Investigate the missed terminal presentation and the Vitest
   browser disconnect reported alongside the Intent timing-history spec. Use
-  the probe evidence to establish what each failure shows and coordinate the
-  disconnect finding with the existing browser-connection repair.
+  the probe evidence to establish what each failure shows and identify any
+  remaining gaps in attribution.
 - [Slice plan](../slice-plans/885-diagnose-dashboard-ci-probe-flakes/PLAN.md)
 
 <a id="renovate-remaining-backend-families-after-browser-reporter"></a>
