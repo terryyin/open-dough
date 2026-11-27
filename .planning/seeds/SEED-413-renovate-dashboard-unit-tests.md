@@ -845,6 +845,15 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 - **Safe stopping point.** The standalone backend command and CI producer both
   run on Node Vitest, with full selection and proof-record discrimination
   rechecked and the legacy backend entry point removed.
+- **Conversion learnings.** From the configuration and serving migration
+  (27 November 2026):
+  - Vitest's `expect.poll` waits 1 s by default, not Playwright's 5 s.
+  - A hook timeout cannot be overridden here, so start expensive shared
+    servers lazily inside each test, bounded by that test's own timeout.
+  - Shared support asserts with `node:assert`, not Playwright `expect`, so
+    both runners can use it.
+  - `Distribution/tests/test-runner/dashboard-concurrent-runs.sh` now judges
+    its Vitest sample by proof record and standard error, not silence.
 
 <a id="backend-vitest-replacement-coverage"></a>
 
