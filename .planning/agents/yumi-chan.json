@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yumi-chan",
-  "email": "yumi-chan@example.org",
-  "identity": "SEED-413#prove-dashboard-configuration-and-serving-on-vitest",
-  "mode": "story-branch",
-  "branch": "claude/prove-dashboard-configuration-and-serving-in-nod",
-  "host": "claude"
-}

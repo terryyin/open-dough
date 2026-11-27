@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-dashboard-configuration-and-serving-on-vitest.json",
+      "identity": "SEED-413#prove-dashboard-configuration-and-serving-on-vitest",
+      "completedAt": "2026-11-27T03:47:06.812Z",
+      "blob": "bb379262f01ae8557d94b0a42a302b087c46507e"
+    },
+    {
       "fileName": "SEED-413_prove-published-dashboard-reads-on-vitest.json",
       "identity": "SEED-413#prove-published-dashboard-reads-on-vitest",
       "completedAt": "2026-11-27T01:28:13.989Z",
