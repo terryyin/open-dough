@@ -130,6 +130,75 @@ Dashboard and installed scripts share.
 - **Effort hypothesis.** S. The native evaluation tool already walks literal
   relative imports for evidence hashing.
 
+<a id="read-handoff-and-admitted-landing-from-dashboard-records"></a>
+
+### Read the blank Start handoff and admitted landing from Dashboard records
+
+**Identity:** SEED-423#read-handoff-and-admitted-landing-from-dashboard-records
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** A developer who starts a blank Dashboard session, or closes
+  a story admitted from a borrowed checkout, gets the same handoff and the
+  same published session ranges from installed scripts that read one record
+  the Dashboard wrote for them.
+- **Evaluation.** Two mechanisms from SEED-439 leave the installation:
+  - `session-landing-handoff.mjs` (4.2 KB) reads the Dashboard's private
+    `~/.open-dough/dashboard/agent-launches.json` and re-checks about thirty
+    fields of its record. The Dashboard writes a ready handoff per native
+    session when a blank Automatically land Start settles and withdraws it
+    when the launch is done or deleted. The installed script resolves the
+    session identity, confirms the workspace and branch, and prints it.
+  - `execution-session-evidence.mjs` keeps
+    `open-dough/accepted-launches/<reference>.json` in the checkout's Git
+    directory, read only by `trunk-closure-admitted-session.mjs` and never
+    removed. A range is recorded there only while the launch's first landing
+    is open, and that pair is already retained beside the landing context.
+    Claim closure takes the adopted range from the retained landing; the
+    store, its reader and the `exact`/`matchesLaunch` branch go.
+
+  The maintained specs `agent-launch-start-session-landing-policy.spec.ts`
+  and `admitted-session-shared-checkout-completion.spec.ts` still pass,
+  including two launches landing from one checkout and the held closure when
+  evidence is lost.
+- **Effort hypothesis.** M, medium confidence; about 4 KB of installed
+  script. It changes a mechanism the Dashboard and installed scripts share.
+- **Open question.** The shared-checkout uncertainty mark is stamped on the
+  range at delivery time. Removing the store needs another source for it,
+  such as the acceptance time kept with the retained landing.
+- **Depends on.** None.
+- **Safe stopping point.** Either mechanism alone.
+
+<a id="decide-borrowed-checkout-refresh-rule"></a>
+
+### Decide whether claim closure needs its own borrowed-checkout refresh rule
+
+**Identity:** SEED-423#decide-borrowed-checkout-refresh-rule
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** A maintainer knows, from an observed closure, whether a
+  borrowed checkout needs protection beyond the ordinary default-checkout
+  refresh.
+- **Evaluation.** `admittedRefreshCheckout` in
+  `trunk-closure-admitted-session.mjs` withholds the borrowed checkout from
+  `refreshDefaultCheckout`, comparing real paths, and
+  `wrap-up-closure-publication.md` says so. That refresh already
+  fast-forwards only a clean checkout strictly behind fetched trunk. Evidence
+  first: one admitted closure with the rule removed, against a borrowed
+  checkout that is clean and behind while its native session is still open,
+  shows whether the fast-forward harms that session. The result is either
+  the removal of the rule, its sentence and the alias case in
+  `admitted-session-no-change-completion.spec.ts`, or a recorded reason to
+  keep them.
+- **Effort hypothesis.** S, medium confidence; under 0.5 KB.
+- **Depends on.** None.
+- **Safe stopping point.** The recorded observation.
+
 ## Ordering and scope reduction
 
 Sharing setup, observation and completion logic across the three hosts
