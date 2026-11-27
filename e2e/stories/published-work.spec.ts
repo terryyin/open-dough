@@ -64,14 +64,9 @@ test("published Board shows Backlog and Taken work read at one revision", async 
 }) => {
   const retrievedAt = new Date("2026-09-20T08:30:00.000Z");
   await page.clock.setFixedTime(retrievedAt);
-  let releaseRef: () => void = () => undefined;
-  const refHeldUntil = new Promise<void>((resolve) => {
-    releaseRef = resolve;
-  });
   const { revision, requests } = publishCommittedBacklog(
     page,
     publishedBacklog,
-    refHeldUntil,
   );
   const workspaceFile = `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`;
   const workspaceSource = `${workspaceFile}#planning-workspace-procedure`;
@@ -85,13 +80,6 @@ test("published Board shows Backlog and Taken work read at one revision", async 
 
   const dashboard = parts(page);
   const { board, backlog, taken, recentlyDone, direction } = dashboard;
-  await test.step("reading is shown before any work or count", async () => {
-    await expect(dashboard.status).toHaveText("Reading published work…");
-    await expect(board).toHaveCount(0);
-    await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
-    releaseRef();
-  });
-
   await test.step("membership and recorded order", async () => {
     await expectMembership(page, {
       taken: [installTitle, overviewTitle],
@@ -213,18 +201,8 @@ test("published Board shows Backlog and Taken work read at one revision", async 
     await expect(page.getByRole("alert")).toHaveCount(0);
   });
 
-  await test.step("Then gh reads main and the pinned backlog in order", () => {
-    const repository = "repos/terryyin/open-dough";
-    expect(requests.map((request) => request.argv)).toEqual([
-      ["api", "--include", `${repository}/commits/main`, "--jq", ".sha"],
-      [
-        "api",
-        "--include",
-        "-H",
-        "Accept: application/vnd.github.raw",
-        `${repository}/contents/.planning/PRODUCT-BACKLOG.md?ref=${revision}`,
-      ],
-    ]);
+  await test.step("Then gh is asked neither main nor the backlog", () => {
+    expect(requests).toEqual([]);
     expect(externalReads).toEqual([]);
   });
 });

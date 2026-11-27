@@ -7,6 +7,7 @@
 // that follow the checks themselves read them from every `gh` call
 // (./autoRefreshJourney.ts's `headsChecks`).
 
+import { backlogPath } from "./publishedOriginBasics.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 
 // One `gh` invocation that asked an origin for its ref or a file.
@@ -40,6 +41,14 @@ export function readsBesideChecks(calls: readonly GhCall[]): string[] {
           return request.kind;
       }
     });
+}
+
+// The Board's REST membership reads among `readsBesideChecks` output: `main`
+// resolved, or the backlog read at a revision.
+export function restMembershipReads(reads: readonly string[]): string[] {
+  return reads.filter(
+    (read) => read === "ref main" || read.startsWith(`content ${backlogPath}@`),
+  );
 }
 
 // Notes a call among what an origin was asked, unless it is a revision check.

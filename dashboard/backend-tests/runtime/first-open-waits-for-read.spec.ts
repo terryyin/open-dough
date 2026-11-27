@@ -1,11 +1,12 @@
 // A journey's first card check after an open waits for the page's
 // published-work read to answer or fail (`untilPublishedWorkRead` in
 // ../../test-support/pageRequestNotes.ts, through `expectMembership` in ../../test-support/dashboardPage.ts),
-// not for an `expect`'s own 5 s. The page, its local authenticated read
-// boundary, and the fake GitHub behind it are the usual ones; the test only
-// decides how GitHub answers the ref.
+// not for an `expect`'s own 5 s. The page and its local authenticated read
+// boundary are the usual ones. The open follows a held Git transfer; a
+// missing trunk ends it for good.
 
-import { expect, test } from "../../test-support/dashboardTest.ts";
+import { readFileSync } from "node:fs";
+import { expect, githubFor, test } from "../../test-support/dashboardTest.ts";
 import { test as machineTest } from "../../test-support/support/pageTest.ts";
 import { expectMembership, parts } from "../../test-support/dashboardPage.ts";
 import {
@@ -13,89 +14,87 @@ import {
   untilPublishedWorkRead,
 } from "../../test-support/pageRequestNotes.ts";
 import {
-  commitAnswer,
-  publishOrigin,
-  rawFileAnswer,
-} from "../../test-support/publishedOrigin.ts";
+  readsBesideChecks,
+  restMembershipReads,
+} from "../../test-support/originObservation.ts";
+import { commitPublishedOrigin } from "../../test-support/support/publishedOrigin.ts";
 import { publishMovingHistory } from "../../test-support/publishedMovingOrigin.ts";
 import {
   backlogA,
   dashboardStory,
   refreshHistory,
-  revisionA,
   titlesOfA,
 } from "../../test-support/refreshJourney.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
-import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
-import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
 import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
+import { homeReviewRepository } from "../../test-support/support/reviewRepositoryFixture.ts";
+import {
+  bareReview,
+  heldUploadPack,
+  readUntilClosed,
+  signalFifo,
+} from "../review/verifiedOriginTrunkCase.ts";
 
 // Longer than an `expect` waits for a card (5 s, Playwright's default, which
 // playwright.config.ts leaves alone) and well inside a test's 30 s: how long
-// this slow GitHub keeps the ref answer back once the page is open. The time
+// this held Git transfer keeps the open back once the page is open. The time
 // is the precondition itself -- a check bounded by 5 s can only be outlasted
 // by an answer later than that -- and the test waits on the read, never on it.
 const slowAnswerMs = 6_000;
 
+const restMembership = (calls: Parameters<typeof readsBesideChecks>[0]) =>
+  restMembershipReads(readsBesideChecks(calls));
+
 test("a membership check right after an open waits for a published-work read slower than an expect's bound", async ({
   page,
+  dashboard,
 }) => {
-  let releaseRef: () => void = () => undefined;
-  await publishOrigin(page, {
-    ref: commitAnswer(revisionA),
-    backlog: { revision: revisionA, answer: rawFileAnswer(backlogA) },
-    refHeldUntil: new Promise<void>((resolve) => {
-      releaseRef = resolve;
-    }),
+  const published = commitPublishedOrigin({
+    branch: "main",
+    backlog: backlogA,
   });
-
+  const pack = heldUploadPack(
+    dashboard.home,
+    homeReviewRepository(dashboard.home),
+    published.origin,
+  );
+  const held = readUntilClosed(pack.heldFifo);
   await page.goto("/");
-  const answering = setTimeout(releaseRef, slowAnswerMs);
+  await expect(held).resolves.toBe("held\n");
+  expect(readFileSync(pack.log, "utf8")).toBe("call\ncall\nheld\n");
+  const answering = setTimeout(() => {
+    void signalFifo(pack.releaseFifo, true);
+  }, slowAnswerMs);
   try {
     await expectMembership(page, titlesOfA);
   } finally {
     clearTimeout(answering);
-    releaseRef();
+    await signalFifo(pack.releaseFifo, false);
   }
   await expect(parts(page).reading).toHaveCount(0);
+  expect(restMembership(githubFor(page).calls)).toEqual([]);
 });
 
 test("a published-work read that fails for good ends the wait, and the membership check then fails at once naming the titles", async ({
   page,
+  dashboard,
 }) => {
-  let releaseRef: () => void = () => undefined;
-  // An answer naming no commit is a failure the page does not read again on
-  // its own: it says to reload.
-  await publishOrigin(page, {
-    ref: commitAnswer("main"),
-    refHeldUntil: new Promise<void>((resolve) => {
-      releaseRef = resolve;
-    }),
-  });
-  const { status, problem, board } = parts(page);
+  // An absent main is a missing trunk. The page does not read again on its
+  // own: it says to reload, and it asks GitHub for no membership.
+  const absent = commitPublishedOrigin({ branch: "absent", backlog: null });
+  bareReview(homeReviewRepository(dashboard.home), absent.origin);
+  const { problem, board } = parts(page);
 
   await page.goto("/");
-  await expect(status).toHaveText("Reading published work…");
-
-  // The wait is seen pending after an expectation asked after it, which
-  // passes at once while the read is unanswered.
-  let returned = false;
-  const waited = untilPublishedWorkRead(page).then(() => {
-    returned = true;
-  });
-  await expect(status).toHaveText("Reading published work…");
-  expect(returned).toBe(false);
-
-  releaseRef();
-  await waited;
+  await expect(problem).toContainText(
+    `GitHub's answer for main of ${defaultRepository} did not name a commit.`,
+  );
   await expect(problem).toContainText("Reload the page to read again.");
+  expect(restMembership(githubFor(page).calls)).toEqual([]);
 
   // Nothing is on its way and the page reads no more on its own, so the
   // check fails without waiting out an expectation's bound: it is over
@@ -155,14 +154,20 @@ machineTest(
       mode: "preview",
       prebuilt: sharedDashboardBuild,
     });
-    const ref = holdingAnswer(
-      publishes({ backlog: backlogA }),
-      (request) => request.kind === "ref",
+    const published = commitPublishedOrigin({
+      branch: "main",
+      backlog: backlogA,
+    });
+    const pack = heldUploadPack(
+      server.home,
+      homeReviewRepository(server.home),
+      published.origin,
     );
-    server.github.serve(everyRepository, ref.answer);
+    const held = readUntilClosed(pack.heldFifo);
     const { status, board } = parts(page);
     try {
       await page.goto(server.baseURL);
+      await expect(held).resolves.toBe("held\n");
       await expect(status).toHaveText("Reading published work…");
 
       // The wait is seen pending after more page turns, asked for after it,
@@ -177,11 +182,12 @@ machineTest(
       await expect(status).toHaveText("Reading published work…");
       expect(returned).toBe(false);
 
-      ref.release();
+      await signalFifo(pack.releaseFifo, true);
       await waited;
       await expect(board.getByRole("article").first()).toBeVisible();
+      expect(restMembership(server.github.calls)).toEqual([]);
     } finally {
-      ref.release();
+      await signalFifo(pack.releaseFifo, false);
       await server.close();
     }
   },

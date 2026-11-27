@@ -41,6 +41,7 @@ import { PinnedTexts } from "./pinnedTexts.ts";
 import { RetainedAnswers } from "./retainedAnswers.ts";
 import { RevisionMemo } from "./revisionMemo.ts";
 import { RevisionChecks } from "./revisionChecks.ts";
+import { SharedVerifiedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
 import { BranchHeads } from "./branchHeads.ts";
 import { AvatarImages } from "./avatarImages.ts";
 import { performAvatarRead, type AvatarOutcome } from "./avatarRead.ts";
@@ -182,6 +183,7 @@ export function installAuthenticatedReadMiddleware(
     // Answers at resolved commits outlive this process; nothing else here does.
     pinned: new PinnedTexts(new RevisionMemo(new RetainedAnswers())),
     checks: new RevisionChecks({ tracked }),
+    trunks: new SharedVerifiedOriginTrunk(),
     branches: new BranchHeads(),
     avatars: new AvatarImages(),
   };

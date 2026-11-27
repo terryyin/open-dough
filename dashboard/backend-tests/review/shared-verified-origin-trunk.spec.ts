@@ -27,7 +27,10 @@ const published = (backlog: string) =>
 
 const observedTrunk = (revision: string, backlog: string) => ({
   kind: "observed",
-  value: { kind: "verified", revision, backlog },
+  value: {
+    askedAt: expect.any(String) as unknown,
+    trunk: { kind: "verified", revision, backlog },
+  },
 });
 
 function releaseWhenFinished(

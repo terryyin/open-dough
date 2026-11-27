@@ -27,6 +27,27 @@ export function routeOriginThroughHome(
   ]);
 }
 
+// The origin `routeOriginThroughHome` routed `repository`'s URL to under
+// `home`.
+export function routedOrigin(home: string, repository: string): string {
+  const wanted = gitHubRepositoryUrl(repository);
+  const listed = execFileSync(
+    "git",
+    ["config", "--file", path.join(home, ".gitconfig"), "--list"],
+    { encoding: "utf8" },
+  );
+  const marker = ".insteadof=";
+  for (const line of listed.split("\n")) {
+    if (!line.startsWith("url.")) continue;
+    const at = line.lastIndexOf(marker);
+    if (at === -1) continue;
+    if (line.slice(at + marker.length) === wanted) {
+      return line.slice("url.".length, at);
+    }
+  }
+  throw new Error(`No Git origin is routed for ${repository}.`);
+}
+
 const unroutedGitHub = (home: string) => path.join(home, "unrouted-github");
 
 // Every GitHub URL no fixture routes resolves to a missing local repository

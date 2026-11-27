@@ -31,6 +31,10 @@ automatic observation, branches, other records, and Review callers
   2026-11-27); its retargeted specs pass with this plan's slice 1 server
   switch applied. Slice 1 then reruns its proof on the merged trunk.
 
+- Slices 1–3 leave REST cold-open cases failing until slice 4 moves the
+  last of them. Deliver slices 1–3 as local commits
+  (`--authority local-only`) and publish them with slice 4 once its suites
+  pass, so no red revision is published.
 - The switch point is the `ref` case in
   [performed reads](../../../dashboard/server/performedRead.ts). It calls the
   shared verified-origin check and does not fall back to REST.
@@ -39,7 +43,7 @@ automatic observation, branches, other records, and Review callers
   already named still uses `backlog-at`.
 - Cold Git failure is shown as unavailable, except an explicit refusal, which
   keeps its established outcome. A pending open ends at the 30-second Board
-  deadline. Slice 5 owns that copy; slice 1 does not add it.
+  deadline. Slices 2 and 3 own that copy; slice 1 does not add it.
 - Hold a real transfer with `remote.origin.uploadpack` and `heldUploadPack`.
   Test support gains no wrapper.
 - `pinned.answeredBacklog` records the trunk backlog as the base a later
@@ -51,14 +55,16 @@ automatic observation, branches, other records, and Review callers
 | --- | --- |
 | Cold Board opens at the exact verified commit, and two tabs share one held check | Slice 1 |
 | Cold failures show no Board and never fall back to REST | Slice 2 |
-| Superseded membership paths lose their last use | Slice 3 |
+| A pending cold open ends at the deadline and recovers | Slice 3 |
+| Cold opens stay isolated per project and journey | Slice 4 |
+| Superseded membership paths lose their last use | Slice 5 |
 
 ## Ordered slices
 
 ### 1. Open the Board at verified Git trunk
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: With an accessible origin and an absent execution checkout, opening
 the Board shows the backlog at the exact verified commit. Two tabs opening
@@ -86,25 +92,46 @@ Status: planned
 
 Behavior: An unavailable origin, missing trunk, or unreadable backlog shows
 no cold Board and names the problem as unavailable; an explicit refusal keeps
-its established outcome. A pending open ends at the Board deadline and later
-recovers.
+its established outcome. Nothing falls back to REST membership.
 
-Proof: Wire mapping and rendered states with a REST fixture that would answer
-membership, showing zero fallback attempts. Preserve the first-open failure
-wait and cross-project isolation through the real Git boundary. Budget 12
-active minutes.
+Proof: Move `e2e/observation/read-failure.spec.ts` (5 cases) and
+`transient-read-exclusions.spec.ts` (5) to Git origin failures (unreachable
+origin, missing trunk, refused credential, unreadable backlog), each with a
+REST fixture that would answer membership and zero REST membership calls.
+Move or delete `authenticated-read-revision-backlog.spec.ts` and the
+logged-out cold-open case of `authenticated-read-retained-answers.spec.ts`.
+Budget 14 active minutes.
 
-Move to Git cold failures, or delete where a kept case already proves the
-promise, the REST cold-open cases the split left here: `read-failure`,
-`transient-read-exclusions`, `project-read-recovery`, `project-read-isolation`'s
-held first open, `authenticated-project-observation`, the empty-page,
-pinned-backlog and stalled cases of `transient-read-recovery`, the reload step
-in `limitedReadingJourney.ts` shared by the `limited-reading-*` specs,
-`authenticated-read-revision-backlog`, and the logged-out cold-open case of
-`authenticated-read-retained-answers`. This outgrows the budget: refine this
-slice before execution resumes.
+### 3. End a pending cold open at the deadline and recover it
 
-### 3. Retire the old membership-only support
+Type: Behavior
+Status: planned
+
+Behavior: A cold open held at the Git transfer ends at the Board deadline,
+then recovers on its own; an eligible cold failure retries on its schedule.
+
+Proof: Move the cold cases of `transient-read-recovery.spec.ts` (empty-page
+503s, pinned backlog, stalled read), `transient-recovery-lifecycle.spec.ts`
+(hidden page, two pages sharing recovery) and `project-read-recovery.spec.ts`
+(2) to an origin failure or `heldUploadPack` hold. Budget 14 active minutes.
+
+### 4. Keep cold opens isolated per project and per journey
+
+Type: Behavior
+Status: planned
+
+Behavior: A held or failed cold open of one project never affects another,
+each catalog project opens at its verified trunk, and a reload during an API
+limit opens the Board from Git.
+
+Proof: Move `project-read-isolation.spec.ts` (3) to an upload-pack hold,
+`authenticated-project-observation.spec.ts` and
+`catalogProjectExpectations.ts` off REST `commits/<ref>`, and the reload
+step in `limitedReadingJourney.ts` shared by the three `limited-reading-*`
+specs. Then run `e2e/observation`, the two story specs and the backend
+observation and runtime suites, all green. Budget 14 active minutes.
+
+### 5. Retire the old membership-only support
 
 Type: Structure
 Status: planned
@@ -135,9 +162,17 @@ and cold-open failures by failing the REST `ref` answer, which the Git open
 no longer asks. The plan's premise that only the named specs move is false.
 Execution stopped for a scope decision; slice 1 is not delivered.
 
+On 2026-11-27, after the prerequisite landed, slice 1 reran on merged trunk
+`43050914d` (load about 9). Its promises pass: `published-work`,
+`shared-observer-reads`, `first-open-waits-for-read` and
+`authenticated-read-shared`. Every other failure is a REST cold-open case
+now owned by slices 2–4, including two `transient-recovery-lifecycle` cases
+that the prerequisite left on the cold open. Run records `r2-backend` and
+`r2-e2e` are in the checkout's `open-dough/evidence`.
+
 ## Local gate
 
-Run focused checks and Dashboard typecheck for each changed boundary. Slice 3
+Run focused checks and Dashboard typecheck for each changed boundary. Slice 5
 runs both full Dashboard suites because it deletes shared fixture controls.
 Run long checks under `caffeinate -s -i` on AC power.
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).

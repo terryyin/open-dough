@@ -38,7 +38,7 @@ import {
   publishedTarget,
 } from "./publishedOriginBasics.ts";
 import { defaultPassingBaseCi } from "./support/baseCiActions.ts";
-import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import type { GhCall, RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import {
   expectServedHomesReach,
   routeServedHomesToPublication,
@@ -86,8 +86,6 @@ export type Origin = {
     readonly revision: string;
     readonly answer: OriginAnswer;
   };
-  // Holds the ref answer back until the test lets it go.
-  readonly refHeldUntil?: Promise<void>;
 };
 
 export function publishOrigin(
@@ -99,12 +97,8 @@ export function publishOrigin(
 }
 
 // Serve the same backlog bytes from a real main commit, or a 404 when the
-// backlog is absent from that commit, with the raw publisher's ref hold.
-export function publishCommittedBacklog(
-  page: Page,
-  backlog: string | null,
-  refHeldUntil?: Promise<void>,
-) {
+// backlog is absent from that commit.
+export function publishCommittedBacklog(page: Page, backlog: string | null) {
   const published = commitPublishedOrigin({ branch: "main", backlog });
   const { revision } = published;
   const requests = serveOrigin(
@@ -115,7 +109,6 @@ export function publishCommittedBacklog(
         revision,
         answer: backlog === null ? notFoundAnswer() : rawFileAnswer(backlog),
       },
-      ...(refHeldUntil === undefined ? {} : { refHeldUntil }),
     },
     defaultRepository,
     published,
@@ -133,12 +126,11 @@ function serveOrigin(
   published?: PublishedOrigin,
 ): ObservedRequest[] {
   const observed: ObservedRequest[] = [];
-  const { ref, refHeldUntil, backlog } = origin;
-  const respond: RepositoryAnswerer = async (call) => {
+  const { ref, backlog } = origin;
+  const answerFor = (call: GhCall): OriginAnswer => {
     const target = publishedTarget(call);
     if (target === "main") {
       observe(observed, call);
-      await refHeldUntil;
       return call.request.kind === "matching-refs" ? asHeadsListing(ref) : ref;
     }
     if (target !== undefined && target === backlog?.revision) {
@@ -176,6 +168,8 @@ function serveOrigin(
         : undefined);
     return defaultPassingBaseCi(request, headSha) ?? noConnection;
   };
+  const respond: RepositoryAnswerer = (call) =>
+    Promise.resolve(answerFor(call));
   githubFor(page).serve(
     repository,
     published === undefined ? respond : Object.assign(respond, published),
