@@ -352,6 +352,32 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Prove session completion reporting in Node Vitest](../slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md)
 
+<a id="share-completion-reporting-arrangement"></a>
+
+### Share the completion reporting arrangement in Node Vitest
+
+**Identity:** SEED-413#share-completion-reporting-arrangement
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/874-share-completion-reporting-arrangement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"367a4db4a4a78fdd8a9f253c4b1c4d06e9f360443682297c14b851e2f98741af","plan":"7cf6a68c747ca618be1d68af81a612ad02dea6f9aa7f26183e1e5825228ad8b7"}}
+```
+
+- **Goal.** Developers changing completion reporting read and extend the
+  four Node completion specs without repeating their private-HOME and kept
+  Codex reporting launch arrangement, and the HTTP completion path checks the
+  origin headers once.
+- **Scope.** A bounded Structure correction from the completed
+  [session completion reporting](#prove-session-completion-reporting-on-vitest)
+  story. Compose the arrangement repeated in
+  `sessions/agent-completion-{identity,refusals,quiet-recovery,later-reports}.spec.ts`
+  once, from production operations only, as a domain-named export of the
+  existing `dashboard/backend-tests/support/installedPublisher.ts`. Remove the
+  duplicated same-origin check from `submitCompletion` while keeping its
+  loopback-connection check. Add no server, request or boundary wrapper and no
+  support file. Product behavior and every existing case's observations stay
+  unchanged.
+
+**Plan.** [Share the completion reporting arrangement in Node Vitest](../slice-plans/874-share-completion-reporting-arrangement/PLAN.md)
+
 <a id="prove-terminal-attach-and-cursor-turns-on-vitest"></a>
 
 ### Prove terminal attach in Node Vitest
@@ -543,6 +569,11 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   `sessions/session-attachment-boundary.spec.ts`,
   `sessions/session-instruction-voice-boundary.spec.ts` and
   `sessions/session-workspace-retirement-startup.spec.ts`.
+  MakeMe's fixed `receivedAt` default, `fixedReceivedAt` (2026-10-01T10:00Z)
+  in `Distribution/tests/support/launchLandingTestData.mjs`, already falls
+  outside the server's 30-day real-clock retention, so retention-sensitive
+  specs anchor their records at the current time or retention reads take a
+  clock.
 - **Effort hypothesis.** M, low confidence. Records and admission already take typed inputs.
 - **Safe stopping point.** Retention, one-shot start and input admission are typed checks.
 - **Replacement trace.** Split from [native session and terminal lifecycle](https://github.com/terryyin/open-dough/blob/23c09d6e4d18b5113b45f3aed28f09e986083072/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest).
