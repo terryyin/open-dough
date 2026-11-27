@@ -291,9 +291,17 @@ Evidence (2026-11-27):
 - Local selection time before the merge, at load 20–34:
   - backend 28.7 s → 19.5 s;
   - E2E 27.0 s → 13.4 s.
-- The shared-checkout second-launch case runs about 29.6 s at load about 30,
-  against its 30 s bound. This execution repairs it with the CI repair under
-  the failure policy. See G2 for the server count.
+- Repaired: the shared-checkout second-launch case ran about 29.6 s at load
+  about 30, against its 30 s bound. Its later closure, which took about 7 s,
+  only proved the later range's uncertainty. That fact now has its own
+  one-launch case, which writes the shared-checkout note directly. The note
+  writing itself is proved in `shared-checkout-note.spec.ts`. The cases now
+  run 9–14 s of 30 s and 6–10 s of 20 s, 5 of 5 at load 19–22. See G2 for
+  the server count.
+- CI `dashboard-frontend` failed on `1442aa439` with
+  `VITEST_BROWSER_CONNECTION_CLOSED`. That is the trunk defect owned by
+  SEED-413#keep-full-frontend-runs-connected (plan 881, in progress), and
+  main fails the same way. This branch takes that fix by merging trunk.
 
 ### 4. Keep one admitted Start journey and host-specific E2E only
 Type: Structure
