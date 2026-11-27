@@ -90,7 +90,7 @@ a path.
 
 Type: Behavior
 Status: planned
-Correction from the [plan 853 retrospective](../853-refresh-published-board-in-place/PLAN.md)
+Correction from the [plan 853 retrospective](https://github.com/terryyin/open-dough/blob/07e7c56a89041f123d48d79a5dba7ddd23e72f7b/.planning/slice-plans/853-refresh-published-board-in-place/PLAN.md#execution-complete)
 (SEED-430#refresh-published-board-in-place, `d56cd6957..e5fcbb39b`).
 Behavior: When a verified check cannot record its confirmation, the server
 answers the former confirmation marked `unrecorded`; the client raises the

@@ -38,52 +38,6 @@ and [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-lo
 [Add Project](../../dashboard/server/projectAddition.ts) resolves the default branch
 from origin's symbolic `HEAD` when configuring a project.
 
-<a id="refresh-published-board-in-place"></a>
-
-### Refresh the published Board in place
-
-**Identity:** SEED-430#refresh-published-board-in-place
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-430#refresh-published-board-in-place","dependencies":[{"supplier":{"identity":"SEED-430#open-the-board-from-the-verified-git-trunk","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk"},"implementation":"The verified Git trunk check behind every Board open, with the REST membership dispatch removed","rationale":"Refresh runs the same verified check and extends its result with a durable confirmation; building it beside the REST dispatch would duplicate the check and its failure handling.","condition":"The Board opens at a verified Git trunk revision with no REST membership dispatch, and both Dashboard suites pass","state":"satisfied","resolution":{"revision":"d71b0c6d6dc3c767a80efc93ac03247f467d7881","path":".planning/seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk","summary":"Verified at accepted integration: the Board's `ref` read (open, project select, reload, launch reconciliation's fresh read) answers from the shared verified-origin trunk check in `dashboard/server/performedRefRead.ts` and the REST membership dispatch is removed; `resolveRevisionViaGh` keeps its three callers. Both Dashboard suites passed in hosted CI on the story branch (c4a757d83 run, 3d1fa24ce run 45961565842). Plan 856 slices 1-9 done; Intent Coverage caught a REST-fallback fault. Refresh's plan 853 now starts with two correction slices from this story's review.\nCondition satisfied: The Board opens at a verified Git trunk revision with no REST membership dispatch, and both Dashboard suites pass\nAccepted integration: 72cbe76dacde35db57ceac1f2592508455e4529c on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/853-refresh-published-board-in-place/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0a7439ae52c0f4b0d5ed401fde93e02ddbaa0f200feb99fb80fb0acb88bef976","plan":"48d24528c13e62bb9d84afa6738de1c75f825eed8a55d300986b94985d22452f"}}
-```
-
-**Goal.** A developer can confirm what is published without reloading the
-page. The Board names when it was last confirmed and explains a failed
-Refresh while the developer keeps working from the confirmed view.
-
-**Scope.** The Board perspective's project actions row shows a quiet
-"Checked <time>" note, worded as System settings Usage words it, and an
-icon button labeled "Refresh", as the Review panel has it. Refresh runs
-the same verified Git check as an open. While it is pending, the Board keeps
-the confirmed backlog and time and says it is checking origin; the button
-stays focusable but unavailable. A successful unchanged check advances the
-confirmation time without fetching. A changed check advances the view and
-time together once that revision's backlog is readable. A failed check
-keeps the earlier view and time and shows the problem beside them.
-
-The dashboard binds the verified revision and its confirmation time in one
-durable update, so a failed update or a restart leaves the earlier
-confirmation readable. An open with a confirmation at origin's advertised
-revision also skips the fetch. Until the published-progress story migrates
-automatic observation, an automatic check that advances the Board shows
-that read's time, and an earlier automatic read cannot replace a later
-manual confirmation.
-
-**Key examples.**
-
-- Given a Board confirmed at A and origin advertising B, press Refresh.
-  While B is being checked, the Board shows A and A's time. If B's fetch or
-  confirmation write fails, A and its time stay and the failure is shown.
-  A later Refresh that verifies B advances the revision and time together.
-- Given a warm Board whose origin is still at the confirmed revision, press
-  Refresh. The time advances and nothing is fetched. Record cold and warm
-  request counts and timing.
-- Given a confirmation at A and a restarted dashboard, open the Board. It
-  shows A's revision once origin still advertises A, without fetching.
-
 <a id="follow-published-progress-from-local-git"></a>
 
 ### Follow published progress and read Board records from local Git
