@@ -199,22 +199,99 @@ launch metadata, review status and comparison changes are outside this story.
 
 **Identity:** SEED-418#track-review-state-per-session
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/882-track-review-status-for-each-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05dc14488f5768ea5e00d0077eaad360f4e5908deab6acd049196610b25a3393","plan":"bf76f2554b8578b6705d329ffbaacb384958f622ef32716f19fb56a22872ad33"}}
 ```
 
-A developer can mark a completed session as reviewed or unreview it and see
-the saved status on its session card. The story card's **Mark as reviewed**
-action marks all of the story's current reviewable sessions as reviewed. The
-story card shows whether none, some, or all of those sessions are reviewed.
+**Goal.** A developer can record, on this machine, which of a story's
+completed sessions they have reviewed, see that status on each session, and
+see whether those sessions are all, partly, or not yet reviewed. Marking the
+story reviewed covers the sessions that are reviewable now. A session
+completed after that mark still asks for review.
 
-Migrate saved story-level review status to per-session records, preserving
-the review credit for sessions covered by the old mark. Sessions completed
-after that mark start unreviewed.
+**Scope.**
 
-Given one reviewed session and one unreviewed session, the story shows
-**Partially reviewed** and each session card shows its own status. Marking the
-story as reviewed updates both sessions. A subsequent unreviewed follow-up
-returns the story to **Partially reviewed**.
+A reviewable session is a completed session of the story shown for review: a
+retained completed session or follow-up, or a published session with no
+retained launch. A retained session and its published record count once. A
+completed session with nothing to compare is still reviewable. An open
+session is not.
+
+Each reviewable session entry offers **Mark as reviewed** while it is
+unreviewed, and **Reviewed** once it is. **Reviewed** asks "Unreview this
+session?" before clearing that session; cancelling leaves it reviewed. The
+entry shows that session's saved status. In Recently done, **Needs review**
+follows the session: it shows only while that session is unreviewed, and it
+names the session rather than the story. A reviewed session in a partly
+reviewed story does not show it.
+
+The story card derives its status from the current reviewable sessions:
+
+- When none are reviewed, it offers **Mark as reviewed** and shows no
+  reviewed badge.
+- When some are reviewed, it shows **Partially reviewed**. **Mark as
+  reviewed** marks every current reviewable session reviewed.
+- When all are reviewed, it offers **Reviewed**. Confirming "Unreview this
+  story?" clears every current reviewable session.
+
+A story with no reviewable session keeps today's control. **Mark as
+reviewed** saves that the story was reviewed; **Reviewed** clears that mark.
+
+Marks stay on this machine, survive reload and a dashboard restart, and are
+not written into the repository. A save that fails leaves the last saved
+statuses and says the review state could not be saved. Marking or unreviewing
+does not change the selected story or the Side panel.
+
+A story saved as reviewed at a time T is reviewed for every reviewable
+session completed at or before T, including one this machine learns about
+later. A session completed after T starts unreviewed. **Mark as reviewed**
+saves that time, whether or not any session is reviewable yet. Marking or
+unreviewing one session replaces that credit for that session only.
+Unreviewing the story removes the saved mark, so a session learned afterwards
+does not become reviewed from it.
+
+**Scope limits.** Intent's review, the scope dropdown, and Intent Home do not
+show or change this status. Combined review of several sessions, a separate
+status per landed run, and recovery of expired records belong to the other
+stories in this seed. Open sessions are not marked. Review marks are not
+shared with another machine: they are this developer's judgment on the
+machine serving the dashboard, the same local operational evidence
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+already keeps out of published project facts.
+
+**Key examples.**
+
+- A story has two completed sessions. Mark the first reviewed. Its entry
+  shows **Reviewed** and no **Needs review** cue; the second still offers
+  **Mark as reviewed** and shows **Needs review**. The story shows
+  **Partially reviewed**. **Mark as reviewed** on the story marks both, and
+  the story shows **Reviewed**.
+- Unreview the second session. The story returns to **Partially reviewed**
+  and that session shows **Needs review**. The first stays **Reviewed**.
+- Both sessions are reviewed. A follow-up then completes. The follow-up is
+  unreviewed, and the story shows **Partially reviewed**.
+- The story was marked reviewed before this change, when both sessions were
+  already complete. After the change both are reviewed. A follow-up that
+  completed after that mark is unreviewed, and the story shows **Partially
+  reviewed**.
+- A published session from another machine closed before that same mark.
+  This machine has no launch for it. Its entry is reviewed. A published
+  session that closed after the mark is unreviewed.
+- Unreview the story. Both current sessions are unreviewed, and a published
+  session from before the old mark that this machine loads afterwards is
+  unreviewed too.
+- The story has no completed session. **Mark as reviewed** shows
+  **Reviewed**. A session that completes afterwards is unreviewed, and the
+  story offers **Mark as reviewed**.
+- Saving fails. The entries stay as last saved and say the review state
+  could not be saved. A later successful mark is kept after reload and a
+  dashboard restart, and the repository is unchanged.
+
+**Architecture.** Review status stays machine-local, keyed by one session
+identity: the published session id when the session has one, so a retained
+launch and its published record share the mark; otherwise the retained host
+and session id. The story card's none, partial, and all status is derived
+from the current reviewable sessions and any credit inherited from a saved
+story mark. It is not a second published fact.
 
 <a id="review-selected-sessions-together"></a>
 
