@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "18496988-60fb-44c0-a82d-89f959dcf632",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T01:01:23.882Z",
+  "story": "SEED-413#prove-cursor-turns-on-vitest",
+  "ranges": [
+    {
+      "base": "0ee95ace7fb99cb373d264715fa4158883b7fbb8",
+      "candidate": "bc2a331f64b6adddeec1c6cd54b948eb11a6fe8f"
+    }
+  ]
+}
