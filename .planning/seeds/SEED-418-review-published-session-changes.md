@@ -17,29 +17,6 @@ the review destination and the Recent stories regression.
 owns story association at startup. This seed owns session attribution and session
 scope in Intent.
 
-<a id="keep-session-review-proof-after-retirement"></a>
-
-### Keep Intent's session review and its proof whole after the retirement
-
-**Identity:** SEED-418#keep-session-review-proof-after-retirement
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f602919ef9b7fe5c66379feace0e565dcb70489878a8a031bb0e82f8ef8f6e54","plan":"0168badd9a01c6193f7d70758e9df99f3f989c801477004f9751a33c80183b8e"}}
-```
-
-**Goal.** A developer reviewing a story in Intent gets the scope the story
-promised, and its maintainers keep the proof the retired Side panel review
-used to carry, so Intent's diff and session review cannot regress silently.
-
-**Scope.** Correct what the retrospective of
-[Open session changes in Intent and retire the Side panel review](https://github.com/terryyin/open-dough/blob/d60293a1adee86582e595aa450738616b4954f38/.planning/seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review)
-found: a story selected again after **Review session changes** returns to
-that session instead of **Whole story**; Proof measures the whole story
-while a chosen session is first read; the retirement deleted the only proof
-of most of Intent's diff context expansion rules and of published sessions
-kept across a refresh; the story's session list lives in Follow up's module; and some
-test support and one E2E case are left over or redundant.
-[Plan](../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md).
-
 <a id="prove-or-retire-held-read-race-step"></a>
 
 ### Retire the held-read race step that cannot fail
@@ -55,7 +32,7 @@ held-read race fails, while the stale-read guard it seemed to own stays
 proved where the race can happen.
 
 **Scope.** Correct what the retrospective of
-[Keep Intent's session review and its proof whole after the retirement](#keep-session-review-proof-after-retirement)
+[Keep Intent's session review and its proof whole after the retirement](https://github.com/terryyin/open-dough/blob/6ff9df321cea812893c411e44b3ebcb3d074df66/.planning/seeds/SEED-418-review-published-session-changes.md#keep-session-review-proof-after-retirement)
 found: the step "a held read never answers a later session's changes" in
 `e2e/navigation/side-panel-content-replacement.spec.ts` was never shown to
 fail. Remove that step and the setup only it uses, keeping the journey's

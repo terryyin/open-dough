@@ -7,9 +7,9 @@
 ## Provenance
 
 Retrospective correction of
-[SEED-418#keep-session-review-proof-after-retirement](../../seeds/SEED-418-review-published-session-changes.md#keep-session-review-proof-after-retirement),
+[SEED-418#keep-session-review-proof-after-retirement](https://github.com/terryyin/open-dough/blob/6ff9df321cea812893c411e44b3ebcb3d074df66/.planning/seeds/SEED-418-review-published-session-changes.md#keep-session-review-proof-after-retirement),
 executed in plan 883
-(`.planning/slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md`)
+(recoverable at `6ff9df321:.planning/slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md`)
 on branch `claude/keep-intent-s-session-review-and-its-proof-whole`:
 `767b1bd76` through `3494989eb`. The retrospective outcome review's finding
 F3 says G1's "the race stays proved" was not shown to distinguish. Plan 883
