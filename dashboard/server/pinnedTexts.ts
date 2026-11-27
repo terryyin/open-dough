@@ -11,6 +11,7 @@ import {
   type ListedFile,
 } from "./ghContents.ts";
 import { listRepositoryTreeViaGh, type TreeEntry } from "./ghTrees.ts";
+import { commitViaGh } from "./ghCommit.ts";
 import { lastCommitTimeViaGh } from "./ghCommitTime.ts";
 import {
   commitChangeOf,
@@ -37,16 +38,19 @@ export type RepositoryFileRead = (
 
 export class PinnedTexts extends PinnedMemo {
   // `readFile` defaults to GitHub, comparison to `touchedBetweenViaGh`,
-  // directory listing and commit time to their GitHub readers, so
-  // `new PinnedTexts(memo)` and `new PinnedTexts(memo, readFile)` stay valid.
+  // and directory listing, commit time, path history, and commit records to
+  // their GitHub readers, so `new PinnedTexts(memo)` and
+  // `new PinnedTexts(memo, readFile)` stay valid.
   constructor(
     memo: RevisionMemo,
     private readonly readFile: RepositoryFileRead = readRepositoryFileViaGh,
     touchedBetween: typeof touchedBetweenViaGh = touchedBetweenViaGh,
     private readonly listDirectory: typeof listRepositoryDirectoryViaGh = listRepositoryDirectoryViaGh,
     private readonly commitTime: typeof lastCommitTimeViaGh = lastCommitTimeViaGh,
+    private readonly listPathCommits: typeof listPathCommitsViaGh = listPathCommitsViaGh,
+    readCommit: typeof commitViaGh = commitViaGh,
   ) {
-    super(memo, touchedBetween);
+    super(memo, touchedBetween, readCommit);
   }
 
   // The backlog is read at the revision itself, never compared: membership
@@ -161,7 +165,7 @@ export class PinnedTexts extends PinnedMemo {
               `${path}\0history`,
               signal,
               () =>
-                listPathCommitsViaGh(source.repository, path, revision, signal),
+                this.listPathCommits(source.repository, path, revision, signal),
             ),
             async (commit) => commitChangeOf(await recordOf(commit), path),
           ),

@@ -61,9 +61,8 @@ Reconciliation with related work:
   `performedRevisionCheck.ts` (69), `revisionStreamObservation.ts` (102),
   `ghRevision.ts` (134), `authenticatedRead.ts` (243), and `performedRead.ts`
   (228) are within 250 lines; `sourceRevisionStream.ts` is 255 lines.
-  `pinnedMemo.ts` has almost no room. Slice 5 already extracted the
-  commit-record read into `commitRecordRead.ts` in the working tree
-  (`pinnedMemo.ts` 247 lines there) and must keep that file within 250.
+  `pinnedMemo.ts` has almost no room. Slice 5 extracts the commit-record
+  read into `commitRecordRead.ts` (`pinnedMemo.ts` stays within 250 lines).
   If slice 10 edits `sourceRevisionStream.ts`, separate per-subscriber delivery
   and teardown cleanly so every edited file stays within 250 lines.
 - Test-support cleanup: `retainedAnswersJourney.ts`, `revisionReuseOrigin.ts`,
@@ -260,7 +259,7 @@ arguments are the planned seams and default to the GitHub readers.
 ### 5. Reuse a comparison's merge and rename account
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Coinciding reads at B wait on one in-flight comparison and commit
 read. A file differing between A and B is read at B even when a merge commit
@@ -268,18 +267,36 @@ omits it. A path renamed away in the comparison, though no commit between
 names it, is missing at B. A path a commit between renames away, though the
 comparison does not name it, is missing at B and its new path is read.
 
-The uncommitted extraction stays in this slice: `commitRecordRead.ts`, an
-optional `readCommit` on `PinnedMemo` and `PinnedTexts`, and an optional
-`listPathCommits` on `PinnedTexts`. Defaults remain `commitViaGh` and
-`listPathCommitsViaGh`, so `new PinnedTexts(memo)` and
-`new PinnedTexts(memo, readFile)` stay valid. `pinnedMemo.ts` is 247 lines
-and must stay within 250.
+This slice lands `commitRecordRead.ts`, an optional `readCommit` on
+`PinnedMemo` and `PinnedTexts`, and an optional `listPathCommits` on
+`PinnedTexts`. Defaults remain `commitViaGh` and `listPathCommitsViaGh`, so
+`new PinnedTexts(memo)` and `new PinnedTexts(memo, readFile)` stay valid.
+`pinnedMemo.ts` is 247 lines and must stay within 250.
 
 Proof: Direct Node Vitest on `PinnedTexts` with a deferred comparison and
 commit read. Replaces `authenticated-read-revision-reuse-compared.spec.ts`
 (4). Also rerun the thirteen reuse cases and `npm run typecheck:dashboard`,
-because this slice lands the untested readers. Leave the failure and history
+because this slice lands the readers. Leave the failure and history
 specs, and leave `revisionReuseBoundary.ts`.
+
+Accepted proof at `fb82189` with the readers and spec uncommitted. Promise:
+one held comparison serves a coinciding read; a seed the merge omits is read
+at B; a comparison rename is missing at B; a commit rename is missing at B
+and its new path is read. Boundary: `PinnedTexts.reader` and `lister` with an
+injected comparison and commit reader. Setup and observations:
+`dashboard/backend-tests/observation/revision-reuse-compared.spec.ts` (4 tests).
+Command: `caffeinate -s -i npm run test:dashboard:backend -- 'observation/revision-reuse-compared\.spec\.ts$' --workers=1`
+(`slice5-compared-repair.log.run.json`, exit 0, 4 tests, after the backlog
+index repair). The thirteen reuse cases (`slice5-reuse.log.run.json`, exit 0),
+typecheck (`slice5-typecheck-repair.log.run.json`, exit 0), and
+`new PinnedTexts(memo)` in `review/shared-verified-origin-trunk.spec.ts`
+(`slice5-callers.log.run.json`, exit 0) passed. Consumer trace:
+`slice5-consumer-trace.log`. Production callers of `new PinnedTexts(memo)`
+keep that shape. `pinnedMemo.ts` is 247 lines, `pinnedTexts.ts` 174,
+`commitRecordRead.ts` 16. Refactor pass: no production second representation.
+The new spec is 475 lines, the same harness shape already published in the
+reuse specs (381 and 459). A shared harness for slices 6 and 7 is the
+cohesive split; a line cut of this spec alone is not.
 
 ### 6. Retry a comparison that failed and answer the backlog while it is held
 
@@ -451,6 +468,12 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   readers). Nothing else was reverted. Slice 5 is the four compared cases
   plus that parked seam. Failures are slice 6. History is slice 7. The plan
   is 10 slices, the in-progress split cap.
+- The restarted slice 5 passed its four cases, then the clock recorded 17.3
+  active minutes (`storyOverruns` 4) before the backlog-index typecheck repair
+  was run again. That repair was renewed after pause
+  (`slice5-typecheck-repair.log.run.json`, `slice5-compared-repair.log.run.json`).
+  The proof loop was already written, and the plan is at the ten-slice cap, so
+  it is not split again. Slices 6–10 stay as they are.
 
 ## Execution identity
 
@@ -462,7 +485,7 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `dbe8f349df56748491ff1cc6850a1b987b2b6c63` accepted on
+- Published revision `fb82189b3e7e4b10f01f8709939387bce055837c` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
