@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "c39fd01b-cfe3-40ba-84e0-d18026222986",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-27T07:29:31.098Z",
+  "story": "SEED-413#prove-kept-launch-records-on-vitest",
+  "ranges": [
+    {
+      "base": "b8ca5894ca9564b3e67867d84156a444f73682ba",
+      "candidate": "20c08633fa4c872ae6a976fff96cb4b0287fa673"
+    }
+  ]
+}
