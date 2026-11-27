@@ -5,62 +5,33 @@
 // reporting script runs in process; its one request reaches production
 // completion admission and delivery over a private machine home.
 import { randomUUID } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { reportingContext } from "../../server/completionReporting.ts";
-import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
-import { installedSkillPath } from "../../server/launchHosts.ts";
+import { keptAttempts } from "../../server/launchAttemptStore.ts";
 import { bindRecord } from "../../server/launchRecordBinding.ts";
 import { keptSession, updateRecord } from "../../server/launchRecordStore.ts";
-import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { queuedIdentity as identity } from "../../test-support/support/queuedStories.ts";
 import { plantTrackedClosureRepository } from "../../test-support/support/retainedReport.ts";
 import {
-  installPublisherScripts,
+  keptReportingLaunch,
+  reportingHome,
   reportInstalled,
-  reportingInvocation,
-} from "../support/installedPublisher.ts";
+} from "../support/installedReporting.ts";
 
 const origin = "http://127.0.0.1:4173";
 const title = "Prepare the queued start";
 // A kept session that neither a completion nor a Done has closed.
 const open = { completion: undefined, doneAt: undefined };
 
-// A private machine home with its catalog and a story workspace holding the
-// installed reporting scripts where a Codex launch workspace has them.
-function privateWorkspace() {
-  const root = mkdtempSync(path.join(tmpdir(), "dough-quiet-recovery-"));
-  onTestFinished(() => {
-    rmSync(root, { recursive: true, force: true });
-  });
-  vi.stubEnv("HOME", path.join(root, "home"));
-  onTestFinished(() => {
-    vi.unstubAllEnvs();
-  });
-  onTestFinished(mountProjectConfiguration("production"));
-  const workspace = path.join(root, "workspace");
-  installPublisherScripts(
-    installedSkillPath(
-      "codex",
-      { path: workspace, shown: workspace },
-      "dough-execute-plan",
-      "scripts",
-    ),
-  );
-  const dashboard = path.join(root, "home", ".open-dough", "dashboard");
-  return { root, workspace, dashboard };
-}
-
 // A kept tracked Codex execution whose workspace was retired after its
 // reporting script was installed; with `landed`, its record keeps the
 // launch's landing on the closure repository.
 async function trackedLaunch(
-  home: ReturnType<typeof privateWorkspace>,
+  home: ReturnType<typeof reportingHome>,
   { landed }: { landed: boolean },
 ) {
   const reported = vi.fn();
@@ -69,37 +40,33 @@ async function trackedLaunch(
     .reportingTo(origin)
     .withId(randomUUID())
     .please();
-  const prepared = await reportingContext(accepted, {
-    path: home.workspace,
-    shown: home.workspace,
-  });
-  if (prepared === undefined) throw new Error("No reporting prepared");
-  const { reporting } = prepared;
-  await keepAttempt({ ...accepted, reporting });
-  const claimed = makeMe.aLaunchRecord
-    .executing({ identity, title })
-    .inCodexSession({ sessionId: "tracked-native-session" })
-    .onStoryBranch({ workspace: home.workspace, branch: "codex/tracked" })
-    .reportingThrough(reporting)
-    .withFirstInput({ state: "awaiting" })
-    .please();
   // A published backlog that no longer lists the story: readable completed
   // closure.
   const repository = path.join(home.root, "closure-repository");
   const { revision } = plantTrackedClosureRepository(repository);
-  const record: LaunchRecord = landed
-    ? {
+  const { record, script, argv } = await keptReportingLaunch(
+    home.workspace,
+    accepted,
+    (reporting): LaunchRecord => {
+      const claimed = makeMe.aLaunchRecord
+        .executing({ identity, title })
+        .inCodexSession({ sessionId: "tracked-native-session" })
+        .onStoryBranch({ workspace: home.workspace, branch: "codex/tracked" })
+        .reportingThrough(reporting)
+        .withFirstInput({ state: "awaiting" })
+        .please();
+      if (!landed) return claimed;
+      return {
         ...claimed,
         landing: makeMe.aLaunchLanding
           .capturedFrom({ repository, identity })
           .comparing({ base: revision, revision })
           .forLaunch(reporting.reference)
           .please(),
-      }
-    : claimed;
-  await bindRecord("open-dough", record);
+      };
+    },
+  );
   rmSync(home.workspace, { recursive: true, force: true });
-  const { script, argv } = reportingInvocation(reporting.command);
   const kept = async () => {
     const session = await keptSession("open-dough", record.session);
     if (session === undefined) throw new Error("No kept session");
@@ -132,7 +99,9 @@ async function trackedLaunch(
 }
 
 test("an empty completed report without landing records its receipt and stays open", async () => {
-  const launch = await trackedLaunch(privateWorkspace(), { landed: false });
+  const launch = await trackedLaunch(reportingHome("dough-quiet-recovery"), {
+    landed: false,
+  });
   const receipt = completionReceiptSchema.parse(
     await launch.report("--outcome", "completed"),
   );
@@ -151,7 +120,7 @@ test("an empty completed report without landing records its receipt and stays op
 // clock reading passes the writer's ten-second deadline. Answers the
 // launch, the sender's message and its retained submission.
 async function unacknowledgedReport() {
-  const home = privateWorkspace();
+  const home = reportingHome("dough-quiet-recovery");
   const launch = await trackedLaunch(home, { landed: true });
   const recordsLock = path.join(home.dashboard, "agent-launches.json.lock");
   mkdirSync(recordsLock);

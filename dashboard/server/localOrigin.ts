@@ -68,13 +68,18 @@ export function verifySameOrigin(
   }
 }
 
-export function verifyLocalOrigin(req: IncomingMessage): void {
+// The connection itself must arrive on a loopback socket.
+export function verifyLoopbackSocket(req: IncomingMessage): void {
   if (!loopbackHostname(req.socket.remoteAddress ?? "")) {
     throw new RefusedRequest(
       403,
       "This endpoint only answers loopback connections.",
     );
   }
+}
+
+export function verifyLocalOrigin(req: IncomingMessage): void {
+  verifyLoopbackSocket(req);
   verifySameOrigin(
     req.headers.origin,
     req.headers.host,

@@ -3,24 +3,19 @@
 // reporting script runs in process; its one request reaches production
 // completion admission and delivery over a private machine home.
 import { randomUUID } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { submissionSchema } from "../../server/completionAdmission.ts";
-import { deliverCompletion } from "../../server/completionDelivery.ts";
-import { reportingContext } from "../../server/completionReporting.ts";
-import { keepAttempt } from "../../server/launchAttemptStore.ts";
-import { installedSkillPath } from "../../server/launchHosts.ts";
 import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { deliverCompletion } from "../../server/completionDelivery.ts";
 import {
   deleteRecord,
   keptRecords,
   keptSession,
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
-import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import {
   completionReceiptSchema,
   type CompletionReceipt,
@@ -28,10 +23,10 @@ import {
 import { queuedIdentity as identity } from "../../test-support/support/queuedStories.ts";
 import { plantTrackedClosureRepository } from "../../test-support/support/retainedReport.ts";
 import {
-  installPublisherScripts,
+  keptReportingLaunch,
+  reportingHome,
   reportInstalled,
-  reportingInvocation,
-} from "../support/installedPublisher.ts";
+} from "../support/installedReporting.ts";
 
 const origin = "http://127.0.0.1:4173";
 const title = "Prepare the queued start";
@@ -42,24 +37,7 @@ const title = "Prepare the queued start";
 // quiet report lost its receipt and was answered on retry: that is the old
 // receipt and its retained delivery.
 async function afterOldReceipt() {
-  const root = mkdtempSync(path.join(tmpdir(), "dough-later-reports-"));
-  onTestFinished(() => {
-    rmSync(root, { recursive: true, force: true });
-  });
-  vi.stubEnv("HOME", path.join(root, "home"));
-  onTestFinished(() => {
-    vi.unstubAllEnvs();
-  });
-  onTestFinished(mountProjectConfiguration("production"));
-  const workspace = path.join(root, "workspace");
-  installPublisherScripts(
-    installedSkillPath(
-      "codex",
-      { path: workspace, shown: workspace },
-      "dough-execute-plan",
-      "scripts",
-    ),
-  );
+  const { root, workspace } = reportingHome("dough-later-reports");
   const repository = path.join(root, "closure-repository");
   const { revision } = plantTrackedClosureRepository(repository);
 
@@ -68,30 +46,25 @@ async function afterOldReceipt() {
     .reportingTo(origin)
     .withId(randomUUID())
     .please();
-  const prepared = await reportingContext(accepted, {
-    path: workspace,
-    shown: workspace,
-  });
-  if (prepared === undefined) throw new Error("No reporting prepared");
-  const { reporting } = prepared;
-  await keepAttempt({ ...accepted, reporting });
-  const record = {
-    ...makeMe.aLaunchRecord
-      .executing({ identity, title })
-      .inCodexSession({ sessionId: "tracked-native-session" })
-      .onStoryBranch({ workspace, branch: "codex/tracked" })
-      .reportingThrough(reporting)
-      .withFirstInput({ state: "awaiting" })
-      .please(),
-    landing: makeMe.aLaunchLanding
-      .capturedFrom({ repository, identity })
-      .comparing({ base: revision, revision })
-      .forLaunch(reporting.reference)
-      .please(),
-  };
-  await bindRecord("open-dough", record);
+  const { record, script, argv } = await keptReportingLaunch(
+    workspace,
+    accepted,
+    (reporting) => ({
+      ...makeMe.aLaunchRecord
+        .executing({ identity, title })
+        .inCodexSession({ sessionId: "tracked-native-session" })
+        .onStoryBranch({ workspace, branch: "codex/tracked" })
+        .reportingThrough(reporting)
+        .withFirstInput({ state: "awaiting" })
+        .please(),
+      landing: makeMe.aLaunchLanding
+        .capturedFrom({ repository, identity })
+        .comparing({ base: revision, revision })
+        .forLaunch(reporting.reference)
+        .please(),
+    }),
+  );
   rmSync(workspace, { recursive: true, force: true });
-  const { script, argv } = reportingInvocation(reporting.command);
   const reported = vi.fn();
   // Reports `outcome` with `text` from a file removed once it returns.
   const report = (outcome: string, text = "", { lostReceipt = false } = {}) => {

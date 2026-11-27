@@ -102,7 +102,7 @@ Read at `9e1e7d150`.
 ### 1. Compose the completion reporting arrangement once and check the HTTP origin once
 
 Type: Structure
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Move the completion-reporting part of the bridge into one cohesive
@@ -117,6 +117,25 @@ socket refusal and checks the origin headers once, in
 premise 1 passes with the same 41 cases, `npm run typecheck:dashboard`
 passes, and the retained E2E journeys that post completions over HTTP pass.
 Every touched file is at or under 250 lines.
+
+Accepted proof (27 November 2026, Node 24.21.0, one worker, `caffeinate -s -i`):
+the premise-1 selection passed 41 cases; the other importers of the moved
+exports (`agent-completion-{binding,early-recovery,quiet-rename}`,
+`admitted-session-{no-change,shared-checkout}-completion`,
+`declared-{worktree,blank-launch}-publication`, `ad-hoc-session-comparisons`)
+passed 16, and after the refactor pass the seven `installedReporting.ts`
+importers passed 19 and the `Reporter` users 4; the E2E selection passed 6
+Chromium cases with zero retries (premise 4's 11 counted plan 870's wider
+retained set); `npm run typecheck:dashboard` passed.
+
+Learnings: `admitCompletionRequest` takes the body as a lazy read so the
+HTTP order stays socket 403, origin 403, 405, then body 400/413, schema 400
+and project 404; reading the body first would answer a cross-site POST with a
+bad body 400. The completion-reporting bridge now lives in
+`dashboard/backend-tests/support/installedReporting.ts` (`reportingHome`,
+`keptReportingLaunch`, `reportInstalled`, `reportingInvocation`). The refactor
+pass named the landing path's same double origin check
+(`launchLandingReporting.ts` `submitLanding`) as a follow-up for wrap-up.
 
 ## Proof ownership and local gate
 

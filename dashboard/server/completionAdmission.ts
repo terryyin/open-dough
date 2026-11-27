@@ -32,19 +32,20 @@ export type CompletionRequestAdmission = {
   readonly origin: string | null | undefined;
   readonly host: string | undefined;
   readonly fetchSite?: string | string[] | null | undefined;
-  readonly body: unknown;
+  readonly body: () => Promise<unknown>;
 };
 
-// Admits a completion report from its wire values: POST, local origin
-// metadata, a parsed body matching the submission, and a known project.
-// Shared by the HTTP adapter and the installed reporting script's fetch bridge.
-export function admitCompletionRequest(
+// Admits a completion report from its wire values: local origin metadata,
+// POST, then the body, read only once both pass, parsing as the submission
+// for a known project. Shared by the HTTP adapter and the installed reporting
+// script's fetch bridge.
+export async function admitCompletionRequest(
   request: CompletionRequestAdmission,
-): CompletionSubmission {
+): Promise<CompletionSubmission> {
+  verifySameOrigin(request.origin, request.host, request.fetchSite);
   if (request.method !== "POST")
     throw new RefusedRequest(405, "Only POST is accepted here.");
-  verifySameOrigin(request.origin, request.host, request.fetchSite);
-  const parsed = submissionSchema.safeParse(request.body);
+  const parsed = submissionSchema.safeParse(await request.body());
   if (!parsed.success)
     throw new RefusedRequest(400, "The completion request is malformed.");
   knownSource(parsed.data.source);
