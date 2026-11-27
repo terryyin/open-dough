@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-cursor-runner-lifecycle-on-vitest.json",
+      "identity": "SEED-413#prove-cursor-runner-lifecycle-on-vitest",
+      "completedAt": "2026-11-27T04:20:40.010Z",
+      "blob": "27c968c7b8e2982a8b0f18706bd714557f4be9e1"
+    },
+    {
       "fileName": "SEED-413_prove-terminal-attach-and-cursor-turns-on-vitest.json",
       "identity": "SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest",
       "completedAt": "2026-11-27T01:50:34.363Z",
