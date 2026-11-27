@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Remove leftover unbound recovery and overlapping story-linked session tests](seeds/SEED-447-clean-up-story-linked-session-tests.md#clean-up-story-linked-session-tests) — SEED-447#clean-up-story-linked-session-tests
 - [Read the blank Start handoff and admitted landing from Dashboard records](seeds/SEED-423-shrink-the-installed-distribution.md#read-handoff-and-admitted-landing-from-dashboard-records) — SEED-423#read-handoff-and-admitted-landing-from-dashboard-records
 - [Choose review scope from a compact dropdown](seeds/SEED-418-review-published-session-changes.md#review-scope-dropdown) — SEED-418#review-scope-dropdown
 - [Show the selected ad hoc session on Intent Home](seeds/SEED-418-review-published-session-changes.md#show-selected-session-in-review-home) — SEED-418#show-selected-session-in-review-home
