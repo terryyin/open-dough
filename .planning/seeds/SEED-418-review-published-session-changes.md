@@ -264,6 +264,11 @@ Switching between All changes and Landed runs preserves the chosen sessions.
 Proof names the measured revisions for that selection and offers per-range
 evidence when the combined changes have no corresponding build.
 
+Known limit to weigh when refining: the Recently done sessions sidebar reads
+published records only for the project whose work is shown, so a row from
+another project judges its review status from the local `doneAt` rather than
+the published `closedAt` until that project is shown.
+
 <a id="recover-expired-session-reviews"></a>
 
 ### Recover expired session reviews from Git history
