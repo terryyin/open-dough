@@ -25,22 +25,29 @@ function summaryPath(summary: Locator) {
 // uncovers the Summary where Files lies over it as a drawer.
 export async function openSummary(path: string) {
   const summary = summaryRegion();
-  const onIntentPage =
-    page.getByRole("main", { name: "Intent", exact: true }).query() !== null;
-  if (!onIntentPage) {
-    if (summaryPath(summary) !== path) {
-      const name = page
-        .getByRole("navigation", { name: "Intent files", exact: true })
-        .getByRole("button", { name: new RegExp(`^${path}([,\\s]|$)`) });
-      await expect.element(name).toBeVisible();
-      (name.element() as HTMLElement).click();
-    }
+  const scopeTree = () =>
+    page.getByRole("navigation", { name: "Intent files", exact: true }).query();
+  const intentPage = () =>
+    page.getByRole("main", { name: "Intent", exact: true }).query();
+  // The frame's main arrives after the mount returns. The comparison mount
+  // has the file tree and no Intent main.
+  await expect
+    .poll(() => scopeTree() !== null || intentPage() !== null)
+    .toBe(true);
+  if (intentPage() !== null) {
+    await pressLocationName(path);
     await showsSummaryPath(summary, path);
+    await fileLayout().uncoverReader();
     return summary;
   }
-  await pressLocationName(path);
+  if (summaryPath(summary) !== path) {
+    const name = page
+      .getByRole("navigation", { name: "Intent files", exact: true })
+      .getByRole("button", { name: new RegExp(`^${path}([,\\s]|$)`) });
+    await expect.element(name).toBeVisible();
+    (name.element() as HTMLElement).click();
+  }
   await showsSummaryPath(summary, path);
-  await fileLayout().uncoverReader();
   return summary;
 }
 

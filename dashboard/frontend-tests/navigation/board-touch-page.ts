@@ -100,7 +100,7 @@ function stroke(
 export function swipe(
   direction: "left" | "right",
   options: { distance?: number; cancel?: boolean; target?: Element } = {},
-) {
+): Promise<void> {
   const { distance = 160, cancel = false, target } = options;
   const room = boardReading.room();
   const from =
@@ -119,6 +119,7 @@ export function swipe(
     0,
     { cancel },
   );
+  return Promise.resolve();
 }
 
 export function readByTouch() {
