@@ -221,12 +221,7 @@ jobs:
         env:
           OPEN_DOUGH_DASHBOARD_FRONTEND_TIMES: ${{ runner.temp }}/browser-times.txt
           OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD: ${{ runner.temp }}/browser-proof.json
-          OPEN_DOUGH_FRONTEND_LIFECYCLE_DIAGNOSTIC: ${{ github.event_name == 'push' && github.ref == 'refs/heads/codex/follow-published-progress-from-local-git' && startsWith(github.event.head_commit.message, 'Diagnose the hosted frontend browser disconnect') && '1' || '' }}
-        run: |
-          if [[ "$OPEN_DOUGH_FRONTEND_LIFECYCLE_DIAGNOSTIC" == 1 ]]; then
-            export DEBUG='vitest:browser:api,vitest:browser:pool,pw:browser,vite:hmr'
-          fi
-          exec npm run test:dashboard:frontend
+        run: exec npm run test:dashboard:frontend
       - name: Keep per-spec times
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7

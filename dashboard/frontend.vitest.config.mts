@@ -1,9 +1,7 @@
 import { fileURLToPath } from "node:url";
-import type { Browser, Page } from "@playwright/test";
 import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
-import { defineConfig, type Plugin } from "vitest/config";
-import type { BrowserProvider } from "vitest/node";
+import { defineConfig } from "vitest/config";
 import { brandAssetPlugin } from "./server/brandAssetPlugin.ts";
 import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
 import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
@@ -20,115 +18,9 @@ const desktopSpecs = [
   "dashboard/frontend-tests/terminals/agent-terminal-touch-select-desktop.spec.ts",
 ];
 
-// Temporary capture of the hosted frontend orchestrator disconnect.
-const diagnoseLifecycle =
-  process.env.OPEN_DOUGH_FRONTEND_LIFECYCLE_DIAGNOSTIC === "1";
-
-function logLifecycle(event: string, details: object) {
-  console.error(
-    JSON.stringify({
-      time: new Date().toISOString(),
-      source: "frontend-browser-lifecycle",
-      event,
-      ...details,
-    }),
-  );
-}
-
-function hmrLifecycle(): Plugin {
-  let sequence = 0;
-  return {
-    name: "frontend-hmr-lifecycle",
-    configureServer(server) {
-      server.ws.on("connection", (socket) => {
-        const socketId = ++sequence;
-        logLifecycle("hmr-connected", { socketId });
-        socket.once("close", (code) => {
-          logLifecycle("hmr-closed", { socketId, code });
-        });
-      });
-    },
-  };
-}
-
-type ObservedProvider = BrowserProvider & {
-  openBrowserPage: (
-    sessionId: string,
-    options: Parameters<BrowserProvider["openPage"]>[2],
-  ) => Promise<Page>;
-};
-
-const browserIds = new WeakMap<Browser, number>();
-let nextBrowserId = 0;
-
-function frontendProvider(options: Parameters<typeof playwright>[0]) {
-  const provider = playwright(options);
-  if (!diagnoseLifecycle) return provider;
-  return {
-    ...provider,
-    providerFactory(project) {
-      const instance = provider.providerFactory(project) as ObservedProvider;
-      const openBrowserPage = instance.openBrowserPage.bind(instance);
-      const close = instance.close.bind(instance);
-      instance.openBrowserPage = async (sessionId, options) => {
-        const page = await openBrowserPage(sessionId, options);
-        const browser = page.context().browser();
-        if (browser && !browserIds.has(browser)) {
-          const browserId = ++nextBrowserId;
-          browserIds.set(browser, browserId);
-          browser.on("disconnected", () => {
-            logLifecycle("browser-disconnected", { browserId });
-          });
-        }
-        const session = {
-          project: project.name,
-          sessionId,
-          browserId: browser ? browserIds.get(browser) : undefined,
-        };
-        logLifecycle("page-open", session);
-        page.on("framenavigated", (frame) => {
-          if (frame !== page.mainFrame()) return;
-          const url = URL.parse(frame.url());
-          const orchestrator = url?.searchParams.get("sessionId") === sessionId;
-          logLifecycle("main-frame-navigated", { ...session, orchestrator });
-        });
-        page.on("websocket", (socket) => {
-          const url = URL.parse(socket.url());
-          if (
-            url?.pathname !== "/__vitest_browser_api__" ||
-            url.searchParams.get("type") !== "orchestrator"
-          ) {
-            return;
-          }
-          const connection = {
-            ...session,
-            rpcId: url.searchParams.get("rpcId"),
-          };
-          logLifecycle("orchestrator-socket-open", connection);
-          socket.on("close", () => {
-            logLifecycle("orchestrator-socket-closed", connection);
-          });
-        });
-        page.on("crash", () => {
-          logLifecycle("page-crashed", session);
-        });
-        page.on("close", () => {
-          logLifecycle("page-closed", session);
-        });
-        return page;
-      };
-      instance.close = (options) => {
-        logLifecycle("provider-close", { project: project.name });
-        return close(options);
-      };
-      return instance;
-    },
-  } satisfies typeof provider;
-}
-
 export default defineConfig({
   publicDir: fileURLToPath(new URL("./public", import.meta.url)),
-  plugins: [react(), brandAssetPlugin(), diagnoseLifecycle && hmrLifecycle()],
+  plugins: [react(), brandAssetPlugin()],
   test: {
     include: dashboardSpecFiles(import.meta.dirname, [frontendGroup.root]).map(
       (file) => `dashboard/${file}`,
@@ -146,7 +38,7 @@ export default defineConfig({
       enabled: true,
       headless: true,
       viewport: defaultViewport,
-      provider: frontendProvider({
+      provider: playwright({
         launchOptions: { args: dashboardBrowserArgs },
         contextOptions: { hasTouch: true, viewport: defaultViewport },
       }),
@@ -157,7 +49,7 @@ export default defineConfig({
           browser: "chromium",
           name: "chromium-desktop",
           include: desktopSpecs,
-          provider: frontendProvider({
+          provider: playwright({
             launchOptions: { args: dashboardBrowserArgs },
             contextOptions: { hasTouch: false, viewport: defaultViewport },
           }),

@@ -102,4 +102,33 @@ Remove both temporary source changes after the one hosted diagnostic
 job, whichever result it reports. Retain this diagnosis record and the
 parked slice separately.
 
+The [instrumented hosted frontend job](https://github.com/terryyin/open-dough/actions/runs/46026014984/job/140597489259)
+at `d469bbf9b` passed all 332 files in 170.65 seconds. It recorded 954
+passing cases and one expected failure. The final event sequence was
+normal provider teardown, HMR close code 1001, page closure, and browser
+disconnect. The unexpected failure reproduced in zero of one hosted
+captures. The log is `ci-browser-round2-hosted-frontend.log` in the
+worktree evidence directory.
+
+The same run's Distribution shares 2 and 3 failed the workflow-shape
+checks in `ci-browser-groups.test.mjs` and `ci-container-workflow.sh`.
+Both expect the standalone frontend job's single-line suite command. The
+temporary capture changed that line. Cleanup restores both instrumented
+files byte for byte to `003a5f4d0`. Run these two checks once with the
+locked repository runner to verify that restoring that command resolves
+both failures. The initial local invocation used macOS Bash 3.2 and
+stopped before running either check. Use the installed Homebrew Bash 5
+for the one corrected invocation.
+
+Both named checks passed with Bash 5 through the repository runner.
+The run record is `ci-browser-round2-cleanup-bash5.log.run.json`.
+`git diff --exit-code 003a5f4d0 -- .github/workflows/ci.yml dashboard/frontend.vitest.config.mts`
+also verified the exact restoration.
+
+The instruments observed normal teardown on both hosts. Neither attempt
+captured an unexpected socket close, and the original run has no event
+that precedes that close. Repeating those experiments would add no new
+discriminator. The runner failure remains open. The worktree and partial
+slice 4 are retained for its resolution.
+
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
