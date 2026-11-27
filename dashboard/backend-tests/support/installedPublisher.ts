@@ -1,7 +1,7 @@
-// This repository's installed publisher, run in process. Its sender reaches
-// the typed landing handler through production landing admission, so the
-// publisher's retained comparison is exactly what the handler prepares and
-// records.
+// This repository's installed publisher and reporting script, run in process.
+// Their sender reaches the typed landing handler or completion delivery
+// through production admission, so what the sender retains is exactly what
+// the receiver prepares and records.
 import { appendFileSync, copyFileSync, mkdirSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -9,6 +9,10 @@ import { pathToFileURL } from "node:url";
 import { onTestFinished, vi } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { landingReceiptSchema } from "../../src/launchLanding.ts";
+import { admitCompletionRequest } from "../../server/completionAdmission.ts";
+import { deliverCompletion } from "../../server/completionDelivery.ts";
+import { completionEndpoint } from "../../server/completionReporting.ts";
+import type { ReportedDone } from "../../server/doneMarks.ts";
 import { admitLandingRequest } from "../../server/launchLandingAdmission.ts";
 import { handleLanding } from "../../server/launchLandingReporting.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
@@ -16,30 +20,45 @@ import { capturedPublicationSchema } from "../../test-support/support/capturedPu
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 // The receiver's side of the sender's one request: production admission, then
-// the landing adapter; only the fetch stub and Response mapping stay here.
-async function receive(
-  input: string | URL | Request,
-  init?: RequestInit,
-): Promise<Response> {
-  const url = new URL(input instanceof Request ? input.url : input);
-  const headers = new Headers(init?.headers);
-  try {
-    const { operation, submission } = admitLandingRequest({
-      route: url.pathname,
+// the landing adapter or completion delivery handing a quiet report's Done to
+// `doneMarks`; only the fetch stub and Response mapping stay here.
+const receiver =
+  (doneMarks: ReportedDone) =>
+  async (
+    input: string | URL | Request,
+    init?: RequestInit,
+  ): Promise<Response> => {
+    const url = new URL(input instanceof Request ? input.url : input);
+    const headers = new Headers(init?.headers);
+    const wire = {
       method: init?.method,
       origin: headers.get("origin"),
       host: url.host,
       fetchSite: headers.get("sec-fetch-site"),
-      bodyText: typeof init?.body === "string" ? init.body : "",
-    });
-    return Response.json(
-      await handleLanding(submission, url.origin, operation),
-    );
-  } catch (error) {
-    if (!(error instanceof RefusedRequest)) throw error;
-    return Response.json({ error: error.message }, { status: error.status });
-  }
-}
+    };
+    const bodyText = typeof init?.body === "string" ? init.body : "";
+    try {
+      if (url.pathname === completionEndpoint)
+        return Response.json(
+          await deliverCompletion(
+            admitCompletionRequest({ ...wire, body: JSON.parse(bodyText) }),
+            url.origin,
+            doneMarks,
+          ),
+        );
+      const { operation, submission } = admitLandingRequest({
+        ...wire,
+        route: url.pathname,
+        bodyText,
+      });
+      return Response.json(
+        await handleLanding(submission, url.origin, operation),
+      );
+    } catch (error) {
+      if (!(error instanceof RefusedRequest)) throw error;
+      return Response.json({ error: error.message }, { status: error.status });
+    }
+  };
 
 type Publication = {
   readonly workspace: string;
@@ -63,8 +82,8 @@ export type BeforePush = {
   prepared?: readonly object[] | undefined;
 };
 
-function bridgeToReceiver() {
-  vi.stubGlobal("fetch", receive);
+function bridgeToReceiver(doneMarks: ReportedDone = { reported: vi.fn() }) {
+  vi.stubGlobal("fetch", receiver(doneMarks));
   onTestFinished(() => {
     vi.unstubAllGlobals();
   });
@@ -125,6 +144,18 @@ export async function retryInstalledLanding(landingContext: string) {
   );
 }
 
+// Reports through the installed reporting script at `script`, as its
+// reporting command runs it with `argv`, answering its printed result.
+export async function reportInstalled(
+  script: string,
+  argv: string[],
+  doneMarks: ReportedDone,
+) {
+  bridgeToReceiver(doneMarks);
+  const reporter = (await import(pathToFileURL(script).href)) as Reporter;
+  return reporter.reportCompletion(argv);
+}
+
 const publisherScripts = [
   "dashboard-completion.mjs",
   "ci-direct-entry.mjs",
@@ -132,22 +163,29 @@ const publisherScripts = [
   "first-landing-expectation.mjs",
 ];
 
+const installedScripts = path.join(
+  ".claude",
+  "skills",
+  "dough-execute-plan",
+  "scripts",
+);
+
+// Copies this repository's real publisher and reporting scripts into
+// `directory`, where a launch workspace's installed skill keeps them.
+export function installPublisherScripts(directory: string) {
+  mkdirSync(directory, { recursive: true });
+  for (const script of publisherScripts)
+    copyFileSync(
+      path.join(repoRoot, installedScripts, script),
+      path.join(directory, script),
+    );
+}
+
 // Installs this repository's real publisher scripts into `workspace`, a
 // worktree of the checkout at `integration`, outside the work its commits
 // stage.
 export function installPublisher(integration: string, workspace: string) {
-  const relative = path.join(
-    ".claude",
-    "skills",
-    "dough-execute-plan",
-    "scripts",
-  );
-  mkdirSync(path.join(workspace, relative), { recursive: true });
-  for (const script of publisherScripts)
-    copyFileSync(
-      path.join(repoRoot, relative, script),
-      path.join(workspace, relative, script),
-    );
+  installPublisherScripts(path.join(workspace, installedScripts));
   appendFileSync(
     path.join(integration, ".git", "info", "exclude"),
     "/.claude/\n",

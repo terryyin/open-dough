@@ -116,7 +116,7 @@ and take a comparable pair for the execution's performance claim.
 ### 1. Refuse a report for another launch, and keep the earlier message
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 13–15 active minutes.
 
 Proof: Add `admitCompletionRequest` beside `admitLandingRequest`, call it
@@ -130,6 +130,19 @@ another catalog project, another host, an unknown reference (404); another
 session (409); an empty attention message, an invalid outcome and an extra
 field (400); and a cross-site origin (403). Convert the second case of
 `agent-completion-identity.spec.ts`.
+
+Delivered: `admitCompletionRequest` lives in `completionAdmission.ts`
+with the submission schema. The bridge routes completion through it and
+`deliverCompletion`, and `installedPublisher.ts` exports `reportInstalled`
+and `installPublisherScripts`. The new Node spec
+`agent-completion-refusals.spec.ts` (1 case, 47 ms) owns legacy identity
+case 2; its selector joins the candidate run. Proof: 71 of 71 consumer cases
+(55 Node, 16 Chromium) and typecheck green; the refactor rerun passed 15 of
+15. Learnings: MakeMe `aLaunchRecord.adHoc` needs a `title` and takes its
+host from `inCodexSession`; Codex scripts install at
+`installedSkillPath("codex", …)`; the `production` configuration seeds
+`open-dough` and `doughnut`; an attention report also reaches
+`ReportedDone.reported`.
 
 ### 2. Close only the reporting launch's session, and let no older retry close a newer report
 
@@ -293,6 +306,10 @@ selection='sessions/(agent-completion-(attempt-loss|binding|early-recovery|ident
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/sessions/(agent-completion-(quiet|attention|attention-restart|quiet-done)|final-report-done-native|admitted-session-completion)\.spec\.ts$' --workers=1
 ```
+
+Execution baseline at `2072c2bc7` (27 November 2026, one worker,
+`caffeinate -s -i`, load 6–17): 20 Chromium cases passed on the first
+attempt in 113.42 s wall, 103.3 s summed case time.
 
 Run the affected consumers from the [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace).
 They include `launches/agent-launch-refusal.spec.ts` and every spec that

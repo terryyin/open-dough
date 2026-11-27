@@ -19,7 +19,7 @@ import {
   reportingAttempt,
   type CompletionSubmission,
 } from "./completionAdmission.ts";
-import { doneSessionRecord, type NativeDoneMarks } from "./doneMarks.ts";
+import { doneSessionRecord, type ReportedDone } from "./doneMarks.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { withBranchResultAtDone } from "./sessionBranchCapture.ts";
 
@@ -28,7 +28,7 @@ import { withBranchResultAtDone } from "./sessionBranchCapture.ts";
 export async function deliverCompletion(
   report: CompletionSubmission,
   origin: string,
-  doneMarks: NativeDoneMarks,
+  doneMarks: ReportedDone,
 ): Promise<CompletionReceipt> {
   const delivery = report.delivery ?? randomUUID();
   try {
