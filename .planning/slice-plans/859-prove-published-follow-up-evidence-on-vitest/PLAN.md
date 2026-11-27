@@ -94,7 +94,7 @@ from the current clock.
 ### 2. Admit the file and line on the historical pair
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–13 active minutes.
 
 Map the accepted retained landing and the three target refusal cases in
@@ -103,6 +103,14 @@ paths and old/new sides, a retained or completed comparison, and actual Git
 file text. Start admits the retained file and rejects unlisted paths, an
 out-of-range line, and a side without the named line. Observe no host calls
 on rejection.
+
+Delivered: two Node cases run file admission through `acceptLaunchRequest`,
+`admitFollowUpFile` and `admitHistoricalReviewedFile`; disabling the
+line-range check failed the refusal case. The two forged-context cases moved
+unchanged to `agent-launch-follow-up-forged-context.spec.ts` for slice 7, and
+the selection now names that file. The shared Start harness lives in
+`dashboard/backend-tests/support/doneStoryStart.ts`. The gate ran 16 cases in
+51.3 s; the Node cases take 1.1 and 2.8 s.
 
 ### 3. Admit the published session file range
 
@@ -172,7 +180,7 @@ any renamed paths in the selection, record a case-to-owner map when a case
 moves, and verify zero remaining Playwright selections for this story's unit paths.
 
 ```sh
-selection='launches/agent-launch-follow-up-(file-admission|file|landed-comparison-admission|published-range-admission|published-sessions|selection)\.spec\.ts$'
+selection='launches/agent-launch-follow-up-(file-admission|file|forged-context|landed-comparison-admission|published-range-admission|published-sessions|selection)\.spec\.ts$'
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR /usr/bin/time -p npm run test:e2e -- 'e2e/intent/intent-story-follow-up\.spec\.ts$' --workers=1 --reporter=line
 ```
