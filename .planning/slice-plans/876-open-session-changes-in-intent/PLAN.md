@@ -127,9 +127,13 @@ Read at `0bff20a80`.
   session into `selectedRange`, or a `selectedRangeGap` worded by
   `comparisonGapOf`; `SelectedComparisonEvidence` is `measured` or
   `unmeasured`. A chosen session never measures the whole story.
-- Follow-up for slice 4: `followUpSessions.ts` and `FollowUpSession` now hold
-  a story's sessions in general; rename when slice 4 reshapes that module
-  (reaches `dashboard/server/followUpStory.ts`, `followUpAdmission.ts`).
+- Slice 4 needed no product change: Intent's diff already carries the
+  session's comparison into `fileFollowUpTarget`. `ReviewDiffs` gained
+  `followUpFromFile` and `followUpFromLine`; slice 6 removes the Side panel's
+  own `ReviewChanges.followUpFromLine`.
+- Slice 6's shared-code audit decides the name of `followUpSessions.ts` and
+  `FollowUpSession`, which now hold a story's sessions in general (a rename
+  reaches `dashboard/server/followUpStory.ts`, `followUpAdmission.ts`).
 
 ## Decisive premises
 
@@ -191,7 +195,7 @@ its chosen run.
 
 ### 4. Follow up from a session scope uses its exact comparison
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A session is chosen in Intent on a second machine → file and line
 Follow up start with that session's published comparison and the chosen
@@ -277,6 +281,11 @@ Disposition: proved by slice 3: `dashboard/frontend-tests/intent/intent-story-co
 Reported: slice 2 — "no e2e covers this case; the frontend spec is its only proof."
 Story clause: "A session without a recorded landing stays chosen and explains that it has nothing to compare."
 Disposition: proved by slice 2: `dashboard/frontend-tests/intent/intent-story-compare-session-runs.spec.ts` "a session known only from a launch here stays chosen and published no comparison" mounts Intent with a retained launch and no record and observes the chosen radio, the explanation and zero published reads; the launch store is a browser-local input the frontend boundary owns.
+
+### G4. File Follow up from a chosen session not observed
+Reported: slice 4 — "no test opens Follow up from the file header with a session chosen."
+Story clause: "File and line Follow up use the shown comparison."
+Disposition: proved by slice 4: `e2e/intent/intent-published-range-source.spec.ts` "a second machine follows up on the exact published file" chooses the session and range 2 in Intent with no local launch, opens Follow up from the file header and observes the composer and Claude's first input carrying that session's range-2 comparison.
 
 ## Plan review
 
