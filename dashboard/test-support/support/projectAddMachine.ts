@@ -8,7 +8,7 @@ import {
   type DashboardServerMode,
 } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
-import { publishes } from "./fakeGitHub.ts";
+import { publishes, type FakeGitHub } from "./fakeGitHub.ts";
 import { expectServedHomesReach } from "./fixtureOriginRoute.ts";
 import { git } from "./launchLanding.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
@@ -90,9 +90,23 @@ export function projectAddMachine(
       path.join(machine, "home"),
       projectEnvironmentOf(mode),
     );
+  // The seeded projects and the added repository, as `github` publishes them.
+  const serveOn = async (github: FakeGitHub) => {
+    serveSeeds(github);
+    if (installed)
+      await publishCommittedOrigin(github, {
+        repository: addedRepository,
+        repoDir: installedOrigin,
+        branch: addedBranch,
+        revision: addedTip(),
+        follows: true,
+      });
+    else github.serve(addedRepository, published);
+  };
   return {
     machine,
     checkout,
+    serveOn,
     revision: published.revision,
     configurationFile,
     addedTip,
@@ -163,16 +177,7 @@ export function projectAddMachine(
         readTimeoutMs,
         codexProtocol,
       });
-      serveSeeds(server.github);
-      if (installed)
-        await publishCommittedOrigin(server.github, {
-          repository: addedRepository,
-          repoDir: installedOrigin,
-          branch: addedBranch,
-          revision: addedTip(),
-          follows: true,
-        });
-      else server.github.serve(addedRepository, published);
+      await serveOn(server.github);
       servers.push(server);
       return server;
     },

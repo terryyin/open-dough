@@ -200,7 +200,7 @@ that pull in `@playwright/test`.
 ### 4. Prove project configuration boundaries and published agent settings read in Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 20–25 active minutes.
 
 Behavior: given `installProjectConfigurationMiddleware` mounted via
@@ -220,6 +220,14 @@ Proof: Convert `project-configuration-mount-lifetime.spec.ts` (2),
 `authenticated-read-agent-settings.spec.ts` (3) to plain Vitest. Run:
 `caffeinate -s -i npm run test:dashboard:backend -- 'configuration/.*\.spec\.ts$' --workers=1 --reporter=list`
 (44 Node cases, 0 Chromium cases) and `npm run typecheck:dashboard`.
+
+Accepted: 44 Node cases across `configuration/` passed and typecheck passed;
+the 8 E2E specs using `projectAddMachine` passed after `serveOn` was exposed.
+The remove case joined `project-configuration-boundary.spec.ts` to share its
+setup. Server shutdown is proved through the boundary's close hook, the
+product path that ends pending transports; signal-to-close wiring stays with
+slice 7's serving specs. Agent settings read through the in-process
+authenticated-read boundary, since the 404 is an HTTP contract.
 
 ### 5. Prove production qualification and update selection in Node Vitest
 
