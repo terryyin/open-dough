@@ -5,7 +5,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   otherProjectEnvironment,
@@ -22,39 +22,38 @@ test("a boundary-mode server is the Node entry alone, naming no Vite and serving
     mode: "boundary",
     liveServer: "server program",
   });
-  try {
-    const bundle = server.serverBundle ?? "";
-    expect(path.basename(bundle)).toMatch(/^\.dough-server-bundle-/);
-    const command = execFileSync(
-      "ps",
-      ["-o", "command=", "-p", String(server.pid)],
-      {
-        encoding: "utf8",
-      },
-    ).trim();
-    expect(command).toBe(
-      [
-        process.execPath,
-        path.join(bundle, "boundaryServer.mjs"),
-        "--port",
-        new URL(server.baseURL).port,
-        "--strictPort",
-        "--environment",
-        "production",
-      ].join(" "),
-    );
-    expect(server.output()).not.toMatch(/vite/i);
-    const runner = await liveRunner(server.home);
-    expect(runnerCommand(runner.pid)).toBe(
-      [process.execPath, path.join(bundle, "runnerMain.mjs")].join(" "),
-    );
-    expect(server.outDir).toBeUndefined();
-    expect(
-      (await rawRequest({ url: `${server.baseURL}/`, method: "GET" })).status,
-    ).toBe(404);
-  } finally {
+  onTestFinished(async () => {
     await server.close();
-  }
+  });
+  const bundle = server.serverBundle ?? "";
+  expect(path.basename(bundle)).toMatch(/^\.dough-server-bundle-/);
+  const command = execFileSync(
+    "ps",
+    ["-o", "command=", "-p", String(server.pid)],
+    {
+      encoding: "utf8",
+    },
+  ).trim();
+  expect(command).toBe(
+    [
+      process.execPath,
+      path.join(bundle, "boundaryServer.mjs"),
+      "--port",
+      new URL(server.baseURL).port,
+      "--strictPort",
+      "--environment",
+      "production",
+    ].join(" "),
+  );
+  expect(server.output()).not.toMatch(/vite/i);
+  const runner = await liveRunner(server.home);
+  expect(runnerCommand(runner.pid)).toBe(
+    [process.execPath, path.join(bundle, "runnerMain.mjs")].join(" "),
+  );
+  expect(server.outDir).toBeUndefined();
+  expect(
+    (await rawRequest({ url: `${server.baseURL}/`, method: "GET" })).status,
+  ).toBe(404);
 });
 
 // The project list each environment answers comes from that environment's own
@@ -67,29 +66,26 @@ test("each project environment answers the project list from its own configurati
       environment,
       configureDevelopmentProjects: false,
     });
-    try {
-      const response = await rawRequest({
-        url: `${server.baseURL}/__project-configuration`,
-        headers: { "Sec-Fetch-Site": "same-origin" },
-      });
-      expect(response.status).toBe(200);
-      const file = (named: "development" | "production") =>
-        projectConfigurationFile(server.home, named);
-      expect(existsSync(file(otherProjectEnvironment(environment)))).toBe(
-        false,
-      );
-      const kept = JSON.parse(readFileSync(file(environment), "utf8")) as {
-        id: string;
-      }[];
-      return {
-        answered: (JSON.parse(response.body) as { id: string }[]).map(
-          ({ id }) => id,
-        ),
-        kept: kept.map(({ id }) => id),
-      };
-    } finally {
+    onTestFinished(async () => {
       await server.close();
-    }
+    });
+    const response = await rawRequest({
+      url: `${server.baseURL}/__project-configuration`,
+      headers: { "Sec-Fetch-Site": "same-origin" },
+    });
+    expect(response.status).toBe(200);
+    const file = (named: "development" | "production") =>
+      projectConfigurationFile(server.home, named);
+    expect(existsSync(file(otherProjectEnvironment(environment)))).toBe(false);
+    const kept = JSON.parse(readFileSync(file(environment), "utf8")) as {
+      id: string;
+    }[];
+    return {
+      answered: (JSON.parse(response.body) as { id: string }[]).map(
+        ({ id }) => id,
+      ),
+      kept: kept.map(({ id }) => id),
+    };
   };
   const production = await listed("production");
   expect(production.answered).toEqual([

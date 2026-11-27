@@ -4,13 +4,7 @@
 import WebSocket from "ws";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { afterAll, describe, expect, test } from "vitest";
-import {
-  sharedDashboardBuild,
-  startDashboardServer,
-  type DashboardServer,
-  type DashboardServerMode,
-} from "../../test-support/support/dashboardServer.ts";
+import { afterAll, describe, expect, onTestFinished, test } from "vitest";
 import {
   accept,
   launchRequest,
@@ -22,21 +16,13 @@ import {
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
 import { publishes } from "../../test-support/support/fakeGitHub.ts";
-import {
-  expectServedHomesReach,
-  routeServedHomesToPublication,
-} from "../../test-support/support/fixtureOriginRoute.ts";
+import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 import {
   otherProjectEnvironment,
   projectConfigurationFile,
   projectEnvironmentOf,
 } from "../../test-support/support/projectConfiguration.ts";
-import {
-  boundaryAnswerOf,
-  rawRequest,
-  type BoundaryAnswer,
-  type RawResponse,
-} from "../../test-support/support/rawHttp.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   checkedAt,
@@ -50,67 +36,29 @@ import {
 } from "../../test-support/support/cursorRunnerJourney.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import { expectSuppliedIcons } from "../../test-support/support/brandIcons.ts";
+import {
+  servingModePair,
+  servingModes as modes,
+  servingModeStartAllowance as startAllowance,
+} from "../../test-support/support/servingModePair.ts";
 
-type ViteMode = Extract<DashboardServerMode, "dev" | "preview">;
-const modes = ["dev", "preview"] as const;
 // An empty project's backlog.
 const backlog = describedBacklog(makeMe.aRepository.please());
 const published = publishes({ backlog });
 const { revision } = published;
-
-// Both servers start in whichever case first asks for them, within that
-// case's time limit, and close after the file's last case. Any case may run
-// first, so each allows for the start.
-let started: Promise<Record<ViteMode, DashboardServer>> | undefined;
-const startAllowance = 30_000;
-
-function servingModes(): Promise<Record<ViteMode, DashboardServer>> {
-  started ??= Promise.all(
-    modes.map(async (mode) => {
-      const server = await startDashboardServer({
-        mode,
-        projectFolders: ["open-dough"],
-        prebuilt: sharedDashboardBuild,
-      });
-      server.github.serve(defaultRepository, published);
-      routeServedHomesToPublication(server.github, defaultRepository);
-      return [mode, server] as const;
-    }),
-  ).then(
-    (servers) =>
-      Object.fromEntries(servers) as Record<ViteMode, DashboardServer>,
-  );
-  return started;
-}
+const pair = servingModePair(published);
 
 describe("serving modes mount the same boundaries", () => {
-  afterAll(async () => {
-    if (started === undefined) return;
-    const servers = await started;
-    await Promise.all(Object.values(servers).map((server) => server.close()));
-  });
-
-  // Sends the same request to each server and returns both answers, the
-  // request having seen only its own server.
-  async function asked(
-    request: (server: DashboardServer) => Promise<RawResponse>,
-  ): Promise<{ dev: BoundaryAnswer; preview: BoundaryAnswer }> {
-    const servers = await servingModes();
-    const [dev, preview] = await Promise.all([
-      request(servers.dev),
-      request(servers.preview),
-    ]);
-    return { dev: boundaryAnswerOf(dev), preview: boundaryAnswerOf(preview) };
-  }
+  afterAll(pair.close);
 
   test(
     "the launch boundary refuses the same request and lists the same sessions in both",
     async () => {
-      const servers = await servingModes();
+      const servers = await pair.servers();
       const hostCallsBefore = modes.map(
         (mode) => servers[mode].claudeCalls().length,
       );
-      const refused = await asked((server) =>
+      const refused = await pair.asked((server) =>
         accept(server, { ...launchRequest, source: "not-a-real-project" }),
       );
       expect(refused.dev.status).toBe(404);
@@ -119,7 +67,7 @@ describe("serving modes mount the same boundaries", () => {
       });
       expect(refused.preview).toEqual(refused.dev);
 
-      const listed = await asked((server) =>
+      const listed = await pair.asked((server) =>
         rawRequest({
           url: `${server.baseURL}${agentLaunchEndpoint}`,
           headers: { Origin: server.origin },
@@ -157,8 +105,8 @@ describe("serving modes mount the same boundaries", () => {
   test(
     "the authenticated read boundary answers the same published read and the same refusal in both",
     async () => {
-      const servers = await servingModes();
-      const read = await asked((server) => {
+      const servers = await pair.servers();
+      const read = await pair.asked((server) => {
         expectServedHomesReach(server.github, defaultRepository, revision);
         return checkedAt(server);
       });
@@ -173,7 +121,7 @@ describe("serving modes mount the same boundaries", () => {
         ]);
       }
 
-      const refused = await asked((server) =>
+      const refused = await pair.asked((server) =>
         rawRequest({
           url: readUrl(server.baseURL, revisionCheck),
           headers: { Origin: "http://evil.example" },
@@ -188,8 +136,8 @@ describe("serving modes mount the same boundaries", () => {
   test(
     "the project configuration boundary answers the same list in both, each from its own environment's file",
     async () => {
-      const servers = await servingModes();
-      const listed = await asked((server) =>
+      const servers = await pair.servers();
+      const listed = await pair.asked((server) =>
         rawRequest({
           url: `${server.baseURL}/__project-configuration`,
           headers: { "Sec-Fetch-Site": "same-origin" },
@@ -224,7 +172,7 @@ describe("serving modes mount the same boundaries", () => {
   test(
     "the terminal upgrade guard refuses the same upgrade in both",
     async () => {
-      const servers = await servingModes();
+      const servers = await pair.servers();
       const [dev, preview] = await Promise.all(
         modes.map((mode) =>
           refusedResponse(
@@ -242,7 +190,7 @@ describe("serving modes mount the same boundaries", () => {
   test(
     "both serve Open Dough's declared icon exports",
     async () => {
-      const servers = await servingModes();
+      const servers = await pair.servers();
       for (const { baseURL } of Object.values(servers)) {
         await expectSuppliedIcons(baseURL);
       }
@@ -253,23 +201,22 @@ describe("serving modes mount the same boundaries", () => {
   test(
     "the upgrade guard leaves Vite's own HMR socket working, which only the dev server has",
     async () => {
-      const servers = await servingModes();
+      const servers = await pair.servers();
       // Without an Origin, Vite's HMR asks for no page token.
       const hmr = new WebSocket(
         servers.dev.baseURL.replace(/^http/, "ws"),
         "vite-hmr",
       );
-      try {
-        const first = await new Promise<string>((resolve, reject) => {
-          hmr.once("message", (data: Buffer) => {
-            resolve(data.toString("utf8"));
-          });
-          hmr.once("error", reject);
-        });
-        expect(JSON.parse(first)).toMatchObject({ type: "connected" });
-      } finally {
+      onTestFinished(() => {
         hmr.close();
-      }
+      });
+      const first = await new Promise<string>((resolve, reject) => {
+        hmr.once("message", (data: Buffer) => {
+          resolve(data.toString("utf8"));
+        });
+        hmr.once("error", reject);
+      });
+      expect(JSON.parse(first)).toMatchObject({ type: "connected" });
     },
     startAllowance,
   );

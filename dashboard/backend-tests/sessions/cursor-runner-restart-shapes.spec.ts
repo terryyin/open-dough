@@ -31,7 +31,6 @@ import { processRunning } from "../../test-support/support/processGroup.ts";
 
 test("a dead pid with its stale address left behind starts a fresh current runner, and the recorded session is kept again there", async () => {
   const fixture = startRunnerProofFixture();
-  onTestFinished(fixture.restore);
   await keepWorkingClient(fixture);
   const heldPid = fixture.cursor.attaches()[0]?.pid ?? 0;
   const stale = await killCursorRunnerLeavingAddress(fixture.home);
@@ -70,7 +69,6 @@ test("a port reused after the runner died does not revive its stale address", as
         resolve();
       });
     });
-    await fixture.restore();
   });
   await keepWorkingClient(fixture);
   const stale = await killCursorRunnerLeavingAddress(fixture.home);

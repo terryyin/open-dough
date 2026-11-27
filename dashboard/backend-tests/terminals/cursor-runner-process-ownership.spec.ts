@@ -5,7 +5,7 @@
 import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import {
@@ -29,24 +29,23 @@ test("two development servers leave one runner in its own process group", async 
     startCursorDashboard(developmentBoundary, cursor, machine),
     startCursorDashboard(developmentBoundary, cursor, machine),
   ]);
-  try {
-    const runnerPid = (await liveRunner(first.home)).pid;
-    expect(readCursorRunnerAddress(second.home)?.pid).toBe(runnerPid);
-    expect(processGroup(runnerPid)).toBe(runnerPid);
-    expect(processGroup(first.pid)).not.toBe(processGroup(runnerPid));
-    expect(processGroup(second.pid)).not.toBe(processGroup(runnerPid));
-    await expect.poll(() => runnersFor(first.home), { timeout: 5_000 }).toBe(1);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    expect(runnersFor(first.home)).toBe(1);
-    expect(readCursorRunnerAddress(first.home)?.pid).toBe(runnerPid);
-    await first.close();
-    expect(processRunning(runnerPid)).toBe(true);
-    expect(processRunning(second.pid)).toBe(true);
-  } finally {
+  onTestFinished(async () => {
     await first.close();
     await second.close();
     await stopCursorRunner(path.join(machine, "home"));
     cursor.cleanup();
     rmSync(machine, { recursive: true, force: true });
-  }
+  });
+  const runnerPid = (await liveRunner(first.home)).pid;
+  expect(readCursorRunnerAddress(second.home)?.pid).toBe(runnerPid);
+  expect(processGroup(runnerPid)).toBe(runnerPid);
+  expect(processGroup(first.pid)).not.toBe(processGroup(runnerPid));
+  expect(processGroup(second.pid)).not.toBe(processGroup(runnerPid));
+  await expect.poll(() => runnersFor(first.home), { timeout: 5_000 }).toBe(1);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  expect(runnersFor(first.home)).toBe(1);
+  expect(readCursorRunnerAddress(first.home)?.pid).toBe(runnerPid);
+  await first.close();
+  expect(processRunning(runnerPid)).toBe(true);
+  expect(processRunning(second.pid)).toBe(true);
 }, 60_000);

@@ -9,7 +9,7 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
 import {
   execOnRunner,
   keepCursorClient,
@@ -62,54 +62,53 @@ test("a runner started with a deployment's start-up additions starts cursor-agen
   );
   runner.stdout.resume();
   runner.stderr.resume();
-  try {
-    await expect
-      .poll(() => readCursorRunnerAddress(home)?.pid, { timeout: 5_000 })
-      .toBe(runner.pid);
-
-    const created = await execOnRunner(
-      ["create-chat"],
-      workspace,
-      new AbortController().signal,
-      home,
-    );
-    expect(created).toMatchObject({
-      failed: false,
-      stdout: `${cursor.sessionId}\n`,
-    });
-    expect(cursor.calls()).toHaveLength(1);
-    expect(
-      developerShellViolations(cursor.calls()[0]?.env, fakeCursorHost),
-    ).toEqual([]);
-
-    const resume = ["--workspace", workspace, "--resume", cursor.sessionId];
-    const kept = await keepCursorClient(
-      {
-        command: "cursor-agent",
-        args: resume,
-        cwd: workspace,
-        cols: 80,
-        rows: 24,
-        sourceId: "open-dough",
-        session: makeMe.aHostSession
-          .cursor({ sessionId: cursor.sessionId, continuation: { workspace } })
-          .named("environment")
-          .please(),
-        instruction: "",
-      },
-      home,
-    );
-    expect(kept).toMatchObject({ kind: "kept" });
-    await expect
-      .poll(() => cursor.attaches(), { timeout: 5_000 })
-      .toHaveLength(1);
-    expect(
-      developerShellViolations(cursor.attaches()[0]?.env, fakeCursorHost),
-    ).toEqual([]);
-  } finally {
+  onTestFinished(async () => {
     await stopCursorRunner(home);
     await endGroup(runner);
     cursor.cleanup();
     rmSync(root, { recursive: true, force: true });
-  }
+  });
+  await expect
+    .poll(() => readCursorRunnerAddress(home)?.pid, { timeout: 5_000 })
+    .toBe(runner.pid);
+
+  const created = await execOnRunner(
+    ["create-chat"],
+    workspace,
+    new AbortController().signal,
+    home,
+  );
+  expect(created).toMatchObject({
+    failed: false,
+    stdout: `${cursor.sessionId}\n`,
+  });
+  expect(cursor.calls()).toHaveLength(1);
+  expect(
+    developerShellViolations(cursor.calls()[0]?.env, fakeCursorHost),
+  ).toEqual([]);
+
+  const resume = ["--workspace", workspace, "--resume", cursor.sessionId];
+  const kept = await keepCursorClient(
+    {
+      command: "cursor-agent",
+      args: resume,
+      cwd: workspace,
+      cols: 80,
+      rows: 24,
+      sourceId: "open-dough",
+      session: makeMe.aHostSession
+        .cursor({ sessionId: cursor.sessionId, continuation: { workspace } })
+        .named("environment")
+        .please(),
+      instruction: "",
+    },
+    home,
+  );
+  expect(kept).toMatchObject({ kind: "kept" });
+  await expect
+    .poll(() => cursor.attaches(), { timeout: 5_000 })
+    .toHaveLength(1);
+  expect(
+    developerShellViolations(cursor.attaches()[0]?.env, fakeCursorHost),
+  ).toEqual([]);
 });

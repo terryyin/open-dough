@@ -9,7 +9,7 @@
 // HOME and PATH for the runner client.
 import http from "node:http";
 import { rmSync } from "node:fs";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import { ensureCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { runnerBuildProofDecision } from "../../server/hosts/cursor/runnerCurrentProof.ts";
@@ -83,66 +83,61 @@ test("an unrelated process reusing the recorded pid and port proves no current b
     req.resume();
     res.end("not the Cursor runner");
   });
-  try {
-    await new Promise<void>((resolve) => {
-      unrelated.listen(0, "127.0.0.1", () => {
-        resolve();
-      });
-    });
-    const address = unrelated.address();
-    if (address === null || typeof address === "string") {
-      throw new Error("No unrelated address.");
-    }
-    writeRunnerAddress(fixture, { port: address.port, pid: process.pid });
-
-    // Start-if-absent sees an accepting address and starts nothing;
-    // that alone never makes the unrelated process look current.
-    await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(process.pid);
-
-    const created = await createChatOnRunner(fixture);
-    expect(created).toBeUndefined();
-    expect(fixture.cursor.calls()).toEqual([]);
-    expect(unrelated.listening).toBe(true);
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(process.pid);
-  } finally {
-    // restore stops the runner named by the address; clear the address
-    // naming this test process before it can be read that way.
+  onTestFinished(async () => {
+    // The fixture, cleaned up after this, stops the runner named by the
+    // address; clear the address naming this test process before it can
+    // be read that way.
     rmSync(cursorRunnerAddressFile(fixture.home), { force: true });
     await new Promise<void>((resolve) => {
       unrelated.close(() => {
         resolve();
       });
     });
-    await fixture.restore();
+  });
+  await new Promise<void>((resolve) => {
+    unrelated.listen(0, "127.0.0.1", () => {
+      resolve();
+    });
+  });
+  const address = unrelated.address();
+  if (address === null || typeof address === "string") {
+    throw new Error("No unrelated address.");
   }
+  writeRunnerAddress(fixture, { port: address.port, pid: process.pid });
+
+  // Start-if-absent sees an accepting address and starts nothing;
+  // that alone never makes the unrelated process look current.
+  await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
+  expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(process.pid);
+
+  const created = await createChatOnRunner(fixture);
+  expect(created).toBeUndefined();
+  expect(fixture.cursor.calls()).toEqual([]);
+  expect(unrelated.listening).toBe(true);
+  expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(process.pid);
 });
 
 test("a runner whose recorded build proof is stale is left by start-if-absent and replaced before the next launch", async () => {
   const fixture = startRunnerProofFixture();
-  try {
-    await keepWorkingClient(fixture);
-    const before = readCursorRunnerAddress(fixture.home);
-    const heldPid = fixture.cursor.attaches()[0]?.pid ?? 0;
-    tamperRecordedProof(fixture);
+  await keepWorkingClient(fixture);
+  const before = readCursorRunnerAddress(fixture.home);
+  const heldPid = fixture.cursor.attaches()[0]?.pid ?? 0;
+  tamperRecordedProof(fixture);
 
-    await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(before?.pid);
-    expect(processRunning(heldPid)).toBe(true);
+  await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
+  expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(before?.pid);
+  expect(processRunning(heldPid)).toBe(true);
 
-    const created = await createChatOnRunner(fixture);
-    expect(created).toMatchObject({
-      failed: false,
-      stdout: `${fixture.cursor.sessionId}\n`,
-    });
-    await expect
-      .poll(() => processRunning(before?.pid), { timeout: 5_000 })
-      .toBe(false);
-    const replacement = readCursorRunnerAddress(fixture.home);
-    expect(replacement?.pid).not.toBe(before?.pid);
-    expect(replacement?.buildId).toBe(computeRunnerBuildId());
-    expect(processRunning(heldPid)).toBe(false);
-  } finally {
-    await fixture.restore();
-  }
+  const created = await createChatOnRunner(fixture);
+  expect(created).toMatchObject({
+    failed: false,
+    stdout: `${fixture.cursor.sessionId}\n`,
+  });
+  await expect
+    .poll(() => processRunning(before?.pid), { timeout: 5_000 })
+    .toBe(false);
+  const replacement = readCursorRunnerAddress(fixture.home);
+  expect(replacement?.pid).not.toBe(before?.pid);
+  expect(replacement?.buildId).toBe(computeRunnerBuildId());
+  expect(processRunning(heldPid)).toBe(false);
 });

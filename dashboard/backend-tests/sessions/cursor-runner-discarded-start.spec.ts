@@ -8,7 +8,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
 import {
   ensureCursorRunner,
   stopCursorRunner,
@@ -39,14 +39,13 @@ test("a runner exits when its starter directory was removed before it started", 
   const exited = new Promise<number | null>((resolve) => {
     child.once("exit", resolve);
   });
-  try {
-    await expect.poll(() => child.exitCode, { timeout: 15_000 }).toBe(0);
-    expect(existsSync(directory)).toBe(false);
-  } finally {
+  onTestFinished(async () => {
     if (child.exitCode === null) child.kill("SIGKILL");
     await exited;
     rmSync(root, { recursive: true, force: true });
-  }
+  });
+  await expect.poll(() => child.exitCode, { timeout: 15_000 }).toBe(0);
+  expect(existsSync(directory)).toBe(false);
 });
 
 test("a runner started for one home does not remain under another after that home is removed", async () => {
@@ -57,16 +56,15 @@ test("a runner started for one home does not remain under another after that hom
   mkdirSync(other);
   const previous = process.env["HOME"];
   process.env["HOME"] = other;
-  try {
-    expect(await ensureCursorRunner(requested)).toBe(true);
-    rmSync(requested, { recursive: true, force: true });
-    await expect.poll(() => runnersFor(other), { timeout: 3_000 }).toBe(0);
-    await expect.poll(() => runnersFor(requested), { timeout: 3_000 }).toBe(0);
-  } finally {
+  onTestFinished(async () => {
     if (previous === undefined) delete process.env["HOME"];
     else process.env["HOME"] = previous;
     await stopCursorRunner(requested);
     await stopCursorRunner(other);
     rmSync(root, { recursive: true, force: true });
-  }
+  });
+  expect(await ensureCursorRunner(requested)).toBe(true);
+  rmSync(requested, { recursive: true, force: true });
+  await expect.poll(() => runnersFor(other), { timeout: 3_000 }).toBe(0);
+  await expect.poll(() => runnersFor(requested), { timeout: 3_000 }).toBe(0);
 });

@@ -1,6 +1,9 @@
 // Fixture and stand-ins for the runner build-proof boundary proof: a
 // fake-Cursor home and workspace, a real runner kept through it, a
 // stand-in runner answering the wire protocol, and a bridged terminal.
+// The fixture and each bridged terminal end with the Vitest case that
+// started them, a timeout included; cleanup a case registers after
+// starting the fixture runs before the fixture is restored.
 import { spawn, type ChildProcess } from "node:child_process";
 import {
   mkdirSync,
@@ -11,6 +14,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { onTestFinished } from "vitest";
 import { WebSocket, WebSocketServer } from "ws";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect } from "./pageTest.ts";
@@ -29,7 +33,6 @@ export type RunnerProofFixture = {
   readonly home: string;
   readonly workspace: string;
   readonly cursor: FakeCursor;
-  restore: () => Promise<void>;
 };
 
 export function startRunnerProofFixture(): RunnerProofFixture {
@@ -48,21 +51,16 @@ export function startRunnerProofFixture(): RunnerProofFixture {
   for (const [key, value] of Object.entries(cursor.env)) {
     process.env[key] = value;
   }
-  return {
-    root,
-    home,
-    workspace,
-    cursor,
-    restore: async () => {
-      await stopCursorRunner(home).catch(() => undefined);
-      for (const [key, value] of previous) {
-        if (value === undefined) Reflect.deleteProperty(process.env, key);
-        else process.env[key] = value;
-      }
-      cursor.cleanup();
-      rmSync(root, { recursive: true, force: true });
-    },
-  };
+  onTestFinished(async () => {
+    await stopCursorRunner(home).catch(() => undefined);
+    for (const [key, value] of previous) {
+      if (value === undefined) Reflect.deleteProperty(process.env, key);
+      else process.env[key] = value;
+    }
+    cursor.cleanup();
+    rmSync(root, { recursive: true, force: true });
+  });
+  return { root, home, workspace, cursor };
 }
 
 // The saved Cursor conversation a runner keeps or a terminal joins, in the
@@ -196,15 +194,14 @@ export async function bridgedProofTerminal(
     });
     browser.once("error", reject);
   });
-  return {
-    output: () => output,
-    close: async () => {
-      browser.close();
-      await new Promise<void>((resolve) => {
-        sockets.close(() => {
-          resolve();
-        });
+  const close = async () => {
+    browser.close();
+    await new Promise<void>((resolve) => {
+      sockets.close(() => {
+        resolve();
       });
-    },
+    });
   };
+  onTestFinished(close);
+  return { output: () => output, close };
 }
