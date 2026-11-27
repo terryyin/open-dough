@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Keep Intent's session review and its proof whole after the retirement](seeds/SEED-418-review-published-session-changes.md#keep-session-review-proof-after-retirement) — SEED-418#keep-session-review-proof-after-retirement ([plan](slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md))
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest ([plan](slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md))
 - [Prove authenticated GitHub observation in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#authenticated-github-observation-via-vitest) — SEED-413#authenticated-github-observation-via-vitest ([plan](slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md))
-- [Diagnose Dashboard CI probe flakes](seeds/SEED-413-renovate-dashboard-unit-tests.md#diagnose-dashboard-ci-probe-flakes) — SEED-413#diagnose-dashboard-ci-probe-flakes ([plan](slice-plans/885-diagnose-dashboard-ci-probe-flakes/PLAN.md))
 
 ## Backlog list
 

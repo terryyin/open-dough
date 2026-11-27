@@ -239,23 +239,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     killed renderer, the run fails and names the file that never ran. It does
     not report a pass.
 
-<a id="diagnose-dashboard-ci-probe-flakes"></a>
-
-### Diagnose Dashboard CI probe flakes
-
-**Identity:** SEED-413#diagnose-dashboard-ci-probe-flakes
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/885-diagnose-dashboard-ci-probe-flakes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"70131449f9597216c15b64c3a98779bea6c3fdd46639efd9eda88c4ee531f4bd","plan":"859ea5a60171d34f2d4fa599ba0069fb86d73e836782ac27ad738d084f7d48a1"}}
-```
-
-- **Goal.** Give Dashboard maintainers an evidence-backed diagnosis and repair
-  owner for each of the two frontend flakes reported on CI probe branches.
-- **Scope.** Investigate the missed terminal presentation and the Vitest
-  browser disconnect reported alongside the Intent timing-history spec. Use
-  the probe evidence to establish what each failure shows and coordinate the
-  disconnect finding with the existing browser-connection repair.
-- [Slice plan](../slice-plans/885-diagnose-dashboard-ci-probe-flakes/PLAN.md)
-
 <a id="lock-launch-store-writes-beside-server"></a>
 
 ### Change launch records beside a running server under its lock
