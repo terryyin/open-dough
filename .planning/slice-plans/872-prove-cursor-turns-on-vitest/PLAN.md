@@ -217,3 +217,7 @@ runner specs stay with the Cursor runner story. The five premises were
 observed in this checkout. This review found no remaining slice-specific
 concern. The per-case timeout and the kept `admit` call are the probe
 results, not open choices.
+
+## Execution complete
+
+Product advice: No backlog reorder. In wrap-up, mark the runner cutover's waiting dependency on `SEED-413#prove-cursor-turns-on-vitest` as satisfied once this is accepted on `main`. The measured gain is the engine move, not speed (75.60s -> 74.04s summed), because the real runner and fake terminal set the time; the remaining Cursor runner-lifecycle story should expect the same engine-only gain. Process review is selected and deferred into wrap-up pending automatic Dough Intent Coverage.
