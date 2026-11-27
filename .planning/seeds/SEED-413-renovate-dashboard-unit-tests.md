@@ -419,20 +419,57 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#prove-session-retention-and-input-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"57e8f8113f59576eb0b574ed429bfaf4e7e44bdc655f3ea38bd68d6b0d640730","plan":"b2c5e3cd673502c1ff7cd5d920b00c04e4779acd3c2905fc021c51b9808709f1"}}
 ```
 
-- **For / why.** Developers changing how sessions are kept, retired, started one-shot or given images and voice get fast feedback on the kept record and what each request admits.
-- **Evaluation.** Given aged-out or removed sessions, history keeps each once and an unwritable history keeps the record. A one-shot session start carries its policy or is refused before any start. Uploads and voice requests are bounded before anything is written or contacted.
-- **Boundary.** Own `sessions/launch-history-{aged-out,removed}.spec.ts`,
-  `sessions/agent-launch-retention-scope.spec.ts`,
-  `sessions/agent-launch-session-{kept-start,options,refusal}.spec.ts`,
-  `sessions/session-attachment-boundary.spec.ts`,
+**Goal.** Give Dashboard developers faster Node Vitest feedback when they
+change session retention, one-shot starts, or session input. Preserve the
+existing evidence about local records, launch policy, input and workspace
+availability as part of the backend runner migration.
+
+**Scope.** Replace the Playwright selection of the nine specs listed below
+with maintained Node Vitest proof. Use typed production operations and
+keep real storage, Git, HTTP or PTY behavior where the result depends on
+it. The [campaign coverage map](#backend-vitest-replacement-coverage)
+assigns the neighboring launch and terminal families and the runner cutover
+to their respective owners. Browser gestures and actual vendor services
+are outside this deterministic proof.
+
+- `sessions/launch-history-{aged-out,removed}.spec.ts` and
+  `sessions/agent-launch-retention-scope.spec.ts`.
+- `sessions/agent-launch-session-{kept-start,options,refusal}.spec.ts`.
+- `sessions/session-attachment-boundary.spec.ts`,
   `sessions/session-instruction-voice-boundary.spec.ts` and
   `sessions/session-workspace-retirement-startup.spec.ts`.
-- **Effort hypothesis.** M, low confidence. Records and admission already take typed inputs.
-- **Safe stopping point.** Retention, one-shot start and input admission are typed checks.
+
+**Key examples.**
+
+- A later record write archives a session marked Done 31 days ago exactly
+  once. A session marked Done 29 days ago and an older unclosed session
+  remain visible. Explicit removal archives exactly once with its own
+  reason. If the archive is unwritable, expiry stays hidden but stored and
+  can retry on a later write, while explicit removal refuses. Cursor
+  scopes retire only after their records leave. Shared configuration and
+  the saved conversation survive.
+- A supported execution or refinement start carries the selected one-shot
+  workspace and landing policy through its first input and kept record.
+  Starting leaves origin unchanged. If native launch is refused after
+  establishment, a later ordinary Start uses the kept policy and
+  workspace once. An unsupported choice is refused before establishment
+  or native dispatch.
+- A valid session image gets its own numbered file with the original
+  bytes. Invalid requests and unavailable sessions leave storage alone,
+  opaque session IDs stay within their storage directory, and a failed
+  write preserves existing data. Invalid audio never reaches the provider,
+  disconnect and shutdown cancel work in flight, and provider failures
+  return bounded public errors.
+- If a retained workspace disappears after the host check and before
+  native PTY startup, the terminal reports the missing workspace and
+  closes without attaching or reopening Done intent.
+
 - **Replacement trace.** Split from [native session and terminal lifecycle](https://github.com/terryyin/open-dough/blob/23c09d6e4d18b5113b45f3aed28f09e986083072/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest).
+
+**Plan.** [Prove session retention, one-shot starts and input in Node Vitest](../slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md)
 
 <a id="published-read-admission-via-vitest"></a>
 
