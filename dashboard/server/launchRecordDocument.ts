@@ -32,6 +32,7 @@ import {
   notifyRecordsDelivered,
 } from "./launchRecordDelivery.ts";
 import { withinRetention } from "./launchRecordRetention.ts";
+import { prepareReadyHandoffUpdate } from "./readySessionHandoffs.ts";
 
 const storeSchema = z.record(
   z.string(),
@@ -165,46 +166,52 @@ export async function replaceRecords(
     delivered: [],
     leftAsIs: false,
   };
-  await replaceMachineJson(launchStore(), async (stored) => {
-    const now = Date.now();
-    const leftAt = new Date(now).toISOString();
-    outcome.dropped = [];
-    outcome.delivered = [];
-    const { kept, agedOut } = recordRetention(stored, now);
-    const next = await change(kept);
-    outcome.leftAsIs = next === leaveMachineJson;
-    if (next === leaveMachineJson) return leaveMachineJson;
+  let publishHandoffs: (() => Promise<void>) | undefined;
+  await replaceMachineJson(
+    launchStore(),
+    async (stored) => {
+      const now = Date.now();
+      const leftAt = new Date(now).toISOString();
+      outcome.dropped = [];
+      outcome.delivered = [];
+      const { kept, agedOut } = recordRetention(stored, now);
+      const next = await change(kept);
+      outcome.leftAsIs = next === leaveMachineJson;
+      if (next === leaveMachineJson) return leaveMachineJson;
 
-    outcome.delivered = newlyDeliveredEntries(
-      sessionEntries(kept),
-      sessionEntries(next),
-    );
+      outcome.delivered = newlyDeliveredEntries(
+        sessionEntries(kept),
+        sessionEntries(next),
+      );
 
-    const nextKeys = presentKeys(next);
-    const removed = sessionEntries(kept).filter(
-      (entry) => !nextKeys.has(sessionEntryKey(entry)),
-    );
+      const nextKeys = presentKeys(next);
+      const removed = sessionEntries(kept).filter(
+        (entry) => !nextKeys.has(sessionEntryKey(entry)),
+      );
 
-    const toHistory = [
-      ...historyEntries(agedOut, "aged-out", leftAt),
-      ...historyEntries(removed, "removed", leftAt),
-    ];
-    if (toHistory.length === 0) {
-      return next;
-    }
-
-    try {
-      await appendLaunchHistory(toHistory);
-    } catch (error) {
-      if (removed.length > 0) throw error;
-      // Retention-only: keep aged-out in the operational document; the write's
-      // change still lands. Host-local retirement waits until they leave.
-      return withAgedOutRestored(next, agedOut);
-    }
-
-    outcome.dropped = agedOut.map(({ record }) => record);
-    return next;
-  });
+      const toHistory = [
+        ...historyEntries(agedOut, "aged-out", leftAt),
+        ...historyEntries(removed, "removed", leftAt),
+      ];
+      let retained = next;
+      if (toHistory.length > 0) {
+        try {
+          await appendLaunchHistory(toHistory);
+          outcome.dropped = agedOut.map(({ record }) => record);
+        } catch (error) {
+          if (removed.length > 0) throw error;
+          // Retention-only: keep aged-out in the operational document; the write's
+          // change still lands. Host-local retirement waits until they leave.
+          retained = withAgedOutRestored(next, agedOut);
+        }
+      }
+      publishHandoffs = await prepareReadyHandoffUpdate(
+        sessionEntries(retained).map(({ record }) => record),
+      );
+      return retained;
+    },
+    async () => publishHandoffs?.(),
+  );
   if (!outcome.leftAsIs && outcome.dropped.length > 0) {
     await droppedByRetention?.(outcome.dropped);
   }

@@ -118,6 +118,15 @@ export async function openLaunches({ repository, workspace, branch }) {
   return readOpenLaunches(file, workspace, branch);
 }
 
+// Whether this launch is still waiting for its first landing.
+export async function firstLandingExpected(landingContext) {
+  const absoluteContext = path.resolve(landingContext);
+  const keys = await readOptionalJson(sidecarPath(absoluteContext));
+  return (
+    keys !== undefined && (await openLaunches(keys)).includes(absoluteContext)
+  );
+}
+
 // The one open launch's expectation for this workspace/branch, or undefined
 // when none or several are open: publication never guesses between launches.
 // First trunk publication may resolve this when --landing-context is omitted.

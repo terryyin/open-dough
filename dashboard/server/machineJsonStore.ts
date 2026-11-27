@@ -176,12 +176,14 @@ export const leaveMachineJson = Symbol("leaveMachineJson");
 // machine document while the lock is held); a synchronous `change` is
 // unchanged for existing callers. Returning `leaveMachineJson` releases the
 // lock without writing. An unreadable file is moved aside and `change`
-// starts from the empty document.
+// starts from the empty document. `afterWrite` observes a successful
+// replacement while the writer still holds the lock.
 export async function replaceMachineJson<T>(
   store: MachineJsonStore<T>,
   change: (
     stored: T,
   ) => T | typeof leaveMachineJson | Promise<T | typeof leaveMachineJson>,
+  afterWrite?: () => Promise<void>,
 ): Promise<void> {
   const { file } = store;
   await mkdir(path.dirname(file), { recursive: true });
@@ -209,6 +211,7 @@ export async function replaceMachineJson<T>(
       await rename(temporary, file);
     }
     recordMachineJsonReplacement();
+    await afterWrite?.();
   } finally {
     try {
       await rm(temporary, { force: true });
