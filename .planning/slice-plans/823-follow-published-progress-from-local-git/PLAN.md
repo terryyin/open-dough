@@ -126,8 +126,8 @@ CI repair: the frontend job in [run 46020043455](https://github.com/terryyin/ope
 observed the blank Start test before its terminal presentation effect. This
 branch imports the test fix from `c446520f5`, which waits for one presentation
 and still checks the record, control, and focus. All four focused Chromium
-cases and Dashboard typecheck passed. The next push will check that the
-imported synchronization holds in one hosted run of the full frontend suite.
+cases and Dashboard typecheck passed. The full hosted frontend job passed
+on `f93c21c4e`, and all jobs passed on `759d6c4d4`.
 
 ### 2. Separate stream delivery from observation demand
 
@@ -168,6 +168,10 @@ departure cases passed, with Dashboard typecheck. The boundary still proves
 one listing per tick. The browser retains the exact single REST backlog
 read at B until the stream's verified check supplies replacement proof.
 The delivery review found no refactor candidate in the test-only change.
+
+Hosted verification stopped at a frontend runner disconnect. See the
+[diagnosis record](diagnosis-frontend-browser-connection.md) for the evidence
+and the bounded attempt to identify its cause.
 
 ### 4. Follow trunk through the verified revision stream
 
