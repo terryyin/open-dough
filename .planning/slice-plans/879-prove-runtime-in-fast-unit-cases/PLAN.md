@@ -420,6 +420,10 @@ missing-trunk and no-membership rules stay with trunk's
 `transient-read-exclusions` journeys) and keep trunk's lines in
 `transient-read-exclusions.spec.ts` with this slice's appended block.
 
+CI repair (run 45996706454): `intent-story-compare-done.spec.ts` asserted a
+Done story's location reads before the last arrived; trunk's fix
+`730fe3185` is applied unchanged.
+
 ## Concern evidence
 
 Refinement was not needed. Each slice owns one family's proof loop. There
