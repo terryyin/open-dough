@@ -94,10 +94,22 @@ pair for the execution's performance claim.
 
 ## Ordered slices
 
+Execution resumed from the accepted Take `7ccce2b093c694183ca758c8cdb1af342316e002`
+in the established Sola-chan story worktree. Increment target is
+`origin/codex/prove-native-session-observation-and-alerts-in-n`; integration is
+`origin/main`. The Codex observer for `terryyin/open-dough`, `ci.yml` (CI), is
+`sola-869-1c81d34a` at `/tmp/dough-ci-501/watch-Z1gBWo` (session 1209,
+PID 17032, cell `g656:7`).
+
+The fresh locked-install baseline at the Take selected 20 Chromium cases on
+one worker. It passed 19 and skipped the opt-in replay, with zero retries and
+88.84 s wall time. The case-level record is `baseline-backend.json` in the
+checkout's Git evidence directory.
+
 ### 1. Prove Codex read concurrency, abort cancellation, and status/failure isolation on Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Convert `agent-launch-codex-observation-concurrency.spec.ts` (2 cases)
@@ -124,6 +136,13 @@ Vitest in place, with no Dashboard server:
 
 All native calls remain passive (`initialize`, `initialized`, `thread/read`,
 `thread/turns/list`).
+
+Accepted proof: six Node cases passed across concurrency, status, and
+status-lifetime with zero retries (`slice1-refactor-final-backend.json` in
+Git evidence). Dashboard typecheck passed. The lifetime test advances the
+production 9,000 ms timeout on a controlled clock and observes the real
+socket close while the healthy endpoint remains available. The refactor
+keeps the existing Playwright assertion body and shares it with Node tests.
 
 ### 2. Prove shared machine-session observation, reuse, catalog invalidation, and read-wait bounds on Node Vitest
 
@@ -255,10 +274,12 @@ For the first and final comparisons, use fresh absolute proof paths from the
 repo root and one worker. Repeat the baseline at the execution base if
 affected paths or measurement conditions changed. Account for all 20 legacy
 cases (19 active + 1 skipped opt-in) before accepting zero Playwright
-selections for these files.
+selections for these files. The `status-lifetime` successor carries two cases
+from the status spec and joins the comparison selector. It is absent at the
+baseline revision, so the legacy selection remains the same 20 cases.
 
 ```sh
-selection='sessions/(agent-launch-codex-observation-(alerts|concurrency|sharing|status|wait)|cursor-held-sessions-revision|cursor-runner-sessions-sharing|cursor-session-alerts|sessions-replay)\.spec\.ts$'
+selection='sessions/(agent-launch-codex-observation-(alerts|concurrency|sharing|status(-lifetime)?|wait)|cursor-held-sessions-revision|cursor-runner-sessions-sharing|cursor-session-alerts|sessions-replay)\.spec\.ts$'
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_E2E_PROOF_RECORD="$e2e_proof" /usr/bin/time -p npm run test:e2e -- 'e2e/sessions/(agent-launch-codex-observation|agent-session-cursor|cursor-runner-sessions|session-alerts)\.spec\.ts$' --workers=1
 ```

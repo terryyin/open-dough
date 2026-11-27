@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { appendedFileRecords, appendedRecords } from "./appendedRecords.ts";
 import { expect } from "../dashboardTest.ts";
+import { expectPassiveCodexReads } from "./codexPassiveProtocol.ts";
 import { codexEndpoint } from "./fakeCodex.ts";
 import type { FakeCodex, FakeCodexObservation } from "./fakeCodex.ts";
 import type {
@@ -161,30 +162,7 @@ export async function afterFurtherReads(
 }
 
 export function passive(calls: FakeCodex["calls"]) {
-  expect(
-    calls.every(({ method }) =>
-      [
-        "initialize",
-        "initialized",
-        "thread/read",
-        "thread/turns/list",
-      ].includes(method),
-    ),
-  ).toBe(true);
-  for (const { method, params } of calls) {
-    if (method === "thread/read")
-      expect(params).toEqual({
-        threadId: expect.any(String),
-        includeTurns: false,
-      });
-    if (method === "thread/turns/list")
-      expect(params).toEqual({
-        threadId: expect.any(String),
-        limit: 1,
-        sortDirection: "desc",
-        itemsView: "notLoaded",
-      });
-  }
+  expectPassiveCodexReads(calls, expect);
 }
 
 export function daemonStarts(native: FakeCodex): unknown[] {
