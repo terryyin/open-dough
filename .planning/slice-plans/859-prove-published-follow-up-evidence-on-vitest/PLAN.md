@@ -115,7 +115,7 @@ the selection now names that file. The shared Start harness lives in
 ### 3. Admit the published session file range
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–11 active minutes.
 
 Move the file-range case in `agent-launch-follow-up-published-range-admission`.
@@ -123,6 +123,12 @@ Arrange a published session with multiple ordered ranges, exact paths and
 owning story. The correct range keeps its path and endpoints in the input.
 The existing wrong endpoints, path, and foreign story variants refuse before
 any host receives input. Keep the real published record and Git histories.
+
+Delivered: the range spec now runs one Node case over a real two-range
+session record on the fixture origin, through `admitFollowUpFile` and
+`admitPublishedSessionFile`; only the done-catalog answer is typed. Making
+the range match ignore the baseline failed the wrong-endpoints refusal. The
+gate ran 16 cases (7 Node) in 30.7 s.
 
 ### 4. Send the admitted file evidence in the first input
 

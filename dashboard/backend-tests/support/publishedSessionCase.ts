@@ -25,7 +25,7 @@ import { fixtureRepository, stubFixtureHome } from "./fixtureHome.ts";
 
 export const publishedIdentity = "SEED-021#review-published-session";
 
-type Pair = { readonly base: string; readonly candidate: string };
+export type Pair = { readonly base: string; readonly candidate: string };
 
 // Trunk publishes `record` at its path; answers that revision.
 export const recordPublished = (
