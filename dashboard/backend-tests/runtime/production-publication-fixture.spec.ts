@@ -1,214 +1,63 @@
-// The disposable origin receives exactly the path changes a test publishes.
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { execFile } from "node:child_process";
-import { readFile, rm, writeFile } from "node:fs/promises";
-import path from "node:path";
-import { promisify } from "node:util";
-import { publishedMainFixture } from "../../test-support/support/publishedMainFixture.ts";
-import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import { publishedMainSourceArtifact } from "../../test-support/support/publishedMainSource.ts";
-import { startRunArtifacts } from "../../test-support/support/runArtifacts.ts";
+// A published-main snapshot copies the live working tree. Its real clone and
+// publication are exercised by the production watcher journeys, which build
+// and serve from the published application source, and by
+// e2e/runtime/production-watcher-updates.spec.ts "npm watcher skips an
+// excluded-only main range…", which checks origin received only the
+// documentation paths it published.
+import { expect, test } from "vitest";
+import {
+  liveSourceFiles,
+  materializePublishedMainSource,
+} from "../../test-support/support/publishedMainSource.ts";
 
-const exec = promisify(execFile);
+test("a snapshot copies tracked and new files, without deletions or local avatars", () => {
+  const listed = [
+    "dashboard/index.html",
+    "deleted.txt",
+    "new-source.ts",
+    "dashboard/public/agent-avatars/excluded.webp",
+  ];
 
-test("a documentation-only publication pushes only its requested paths to origin main", async ({
-  publishedRepositorySourceReady,
-}) => {
-  await Promise.resolve(publishedRepositorySourceReady);
-  const fixture = await publishedMainFixture(true);
-  const origin = async (...args: string[]) =>
-    (await exec("git", ["--git-dir", fixture.origin, ...args])).stdout;
-  try {
-    await fixture.push();
-    const disposableDoc = "docs/publication-fixture-delete-target.md";
-    await fixture.commit(
-      { [disposableDoc]: "# Publication fixture delete target\n" },
-      "Add disposable documentation path",
-    );
-    await fixture.push();
-    const base = (await origin("rev-parse", "main")).trim();
-    const readme = await readFile(
-      path.join(fixture.development, "dashboard/README.md"),
-      "utf8",
-    );
-    const published = await fixture.commit(
-      {
-        "dashboard/README.md": `${readme}\nPublication fixture note.\n`,
-        "docs/publication-note.md": "# Publication note\n",
-        [disposableDoc]: null,
-      },
-      "Document only",
-    );
-    await fixture.push();
-
-    expect((await origin("rev-parse", "main")).trim()).toBe(published);
-    expect((await origin("rev-parse", `${published}^`)).trim()).toBe(base);
-    expect(
-      (await origin("diff", "--name-status", "-z", base, published))
-        .split("\0")
-        .filter(Boolean),
-    ).toEqual([
-      "M",
-      "dashboard/README.md",
-      "D",
-      disposableDoc,
-      "A",
-      "docs/publication-note.md",
-    ]);
-    for (const file of [
-      "VERSION",
-      "package.json",
-      "dashboard/index.html",
-      "dashboard/server/productionDeployment.mjs",
-    ])
-      expect(await origin("show", `${published}:${file}`)).toBe(
-        await readFile(path.join(repoRoot, file), "utf8"),
-      );
-  } finally {
-    await fixture.cleanup();
-  }
+  expect(liveSourceFiles(listed, ["deleted.txt"])).toEqual([
+    "dashboard/index.html",
+    "new-source.ts",
+  ]);
 });
 
-test("full-source fixtures preserve live bytes and publish independently after their shared source is gone", async () => {
-  const source = await materializeRepository(
-    makeMe.aRepository
-      .withRevision("source", {
-        files: {
-          "dashboard/index.html": "<title>COMMITTED</title>\n",
-          "deleted.txt": "REMOVE FROM LIVE SOURCE\n",
-          "dashboard/public/agent-avatars/excluded.webp": "LOCAL AVATAR\n",
-        },
-      })
-      .please(),
+test.for([
+  { file: "dashboard/server/new-runtime.ts", kept: true },
+  { file: "dashboard/index.html", kept: true },
+  { file: "dashboard/tsconfig.app.json", kept: true },
+  { file: ".github/workflows/ci.yml", kept: true },
+  { file: "package-lock.json", kept: true },
+  { file: ".github/workflows/other.yml", kept: false },
+  { file: "tests/maintainer.spec.ts", kept: false },
+  { file: "docs/maintainer.md", kept: false },
+  { file: ".planning/maintainer.md", kept: false },
+  { file: "dashboard/backend-tests/case.spec.ts", kept: false },
+])("the application profile keeps $file: $kept", ({ file, kept }) => {
+  expect(liveSourceFiles([file], [], "application")).toEqual(
+    kept ? [file] : [],
   );
-  let closeArtifacts: (() => Promise<void>) | undefined;
-  const fixtures: Awaited<ReturnType<typeof publishedMainFixture>>[] = [];
-  try {
-    await writeFile(
-      path.join(source.integration, "dashboard/index.html"),
-      "<title>LIVE</title>\n",
-    );
-    await rm(path.join(source.integration, "deleted.txt"));
-    await writeFile(
-      path.join(source.integration, "new-source.ts"),
-      "export const live = true;\n",
-    );
-    closeArtifacts = await startRunArtifacts(
-      new Map([publishedMainSourceArtifact(source.integration)]),
-    );
-    const created = await Promise.allSettled([
-      publishedMainFixture(true),
-      publishedMainFixture(true),
-    ]);
-    for (const result of created)
-      if (result.status === "fulfilled") fixtures.push(result.value);
-    for (const result of created)
-      if (result.status === "rejected") throw result.reason;
-    const [first, second] = fixtures;
-    if (!first || !second) throw new Error("Expected two private fixtures");
-    for (const fixture of fixtures) {
-      expect(await fixture.git("show", "HEAD:dashboard/index.html")).toBe(
-        "<title>LIVE</title>",
-      );
-      expect(await fixture.git("show", "HEAD:new-source.ts")).toBe(
-        "export const live = true;",
-      );
-      expect(
-        await fixture.git(
-          "ls-files",
-          "--",
-          "deleted.txt",
-          "dashboard/public/agent-avatars",
-        ),
-      ).toBe("");
-      expect(
-        (await exec("git", ["--git-dir", fixture.origin, "for-each-ref"]))
-          .stdout,
-      ).toBe("");
-    }
-    expect(first.env["HOME"]).toBe(first.home);
-    expect(second.env["HOME"]).toBe(second.home);
-    expect(first.home).not.toBe(second.home);
-    await writeFile(path.join(first.home, "private"), "FIRST HOME\n");
-    await expect(readFile(path.join(second.home, "private"))).rejects.toThrow();
-    await source.cleanup();
-    const close = closeArtifacts;
-    closeArtifacts = undefined;
-    await close();
-
-    const published = await first.publish(
-      { "new-source.ts": "FIRST ONLY\n" },
-      "First fixture",
-    );
-    expect(
-      (
-        await exec("git", [
-          "--git-dir",
-          first.origin,
-          "show",
-          `${published}:new-source.ts`,
-        ])
-      ).stdout,
-    ).toBe("FIRST ONLY\n");
-    expect(await second.git("status", "--porcelain")).toBe("");
-    expect(
-      await readFile(path.join(second.development, "new-source.ts"), "utf8"),
-    ).toBe("export const live = true;\n");
-    expect(
-      (await exec("git", ["--git-dir", second.origin, "for-each-ref"])).stdout,
-    ).toBe("");
-    await first.cleanup();
-    await second.push();
-    expect(
-      (
-        await exec("git", [
-          "--git-dir",
-          second.origin,
-          "show",
-          "main:new-source.ts",
-        ])
-      ).stdout,
-    ).toBe("export const live = true;\n");
-  } finally {
-    await Promise.all(fixtures.map((fixture) => fixture.cleanup()));
-    await closeArtifacts?.();
-    await source.cleanup();
-  }
 });
 
-test("a full-source fixture without a run owner keeps private publication usable", async ({
-  ownerlessPublishedMain: fixture,
-}) => {
-  try {
-    expect(
-      (await exec("git", ["--git-dir", fixture.origin, "for-each-ref"])).stdout,
-    ).toBe("");
-    await fixture.push();
-    expect(
-      (
-        await exec("git", [
-          "--git-dir",
-          fixture.origin,
-          "show",
-          "main:dashboard/server/productionDeployment.mjs",
-        ])
-      ).stdout,
-    ).toBe(
-      await readFile(
-        path.join(repoRoot, "dashboard/server/productionDeployment.mjs"),
-        "utf8",
-      ),
-    );
-  } finally {
-    // Leave the worker's fixture unpublished, as this case found it.
-    await exec("git", [
-      "--git-dir",
-      fixture.origin,
-      "update-ref",
-      "-d",
-      "refs/heads/main",
-    ]).catch(() => undefined);
-  }
+test("with no run owner answering, a fixture prepares its source itself", async () => {
+  const prepared: unknown[][] = [];
+
+  await materializePublishedMainSource(
+    "/fixture/development",
+    {},
+    "application",
+    {
+      requestSnapshot: () => Promise.resolve(undefined),
+      prepare: (...args) => {
+        prepared.push(args);
+        return Promise.resolve();
+      },
+    },
+  );
+
+  expect(prepared).toEqual([
+    ["/fixture/development", expect.any(String), {}, undefined, "application"],
+  ]);
 });

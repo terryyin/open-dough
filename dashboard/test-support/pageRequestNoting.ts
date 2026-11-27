@@ -9,6 +9,10 @@ import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { projectListEndpoint } from "../src/projectConfiguration.ts";
 
+// What noting in an open page, and the waits on what it notes, ask of a
+// page: to run their scripts in it.
+export type PageScripts = Pick<Page, "evaluate">;
+
 // A browser request to the local boundary is a revision check when it names
 // the revision the page already shows with this search parameter.
 const checkParameter = "since";
@@ -138,7 +142,7 @@ const notedRequests = {
   changeWaitPath: agentChangedEndpoint,
 };
 
-export async function noteRequestsInOpenPage(page: Page): Promise<void> {
+export async function noteRequestsInOpenPage(page: PageScripts): Promise<void> {
   await page.evaluate(noteRequestsInPage, notedRequests);
 }
 

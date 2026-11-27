@@ -132,6 +132,9 @@ async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
       return git("rev-parse", "HEAD");
     };
     const push = () => git("push", "--quiet", "origin", "main");
+    // The paths origin's `revision` changed, one per line.
+    const pushedPaths = (revision: string) =>
+      git("--git-dir", origin, "show", "--name-only", "--format=", revision);
     // Commits and pushes the requested changes as origin's new main commit.
     const publish = async (changes: PathChanges, message: string) => {
       const sha = await commit(changes, message);
@@ -161,6 +164,7 @@ async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
       git,
       commit,
       push,
+      pushedPaths,
       publish,
       markerChanges,
       async installDevelopment() {

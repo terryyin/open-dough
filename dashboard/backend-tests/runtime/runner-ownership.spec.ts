@@ -1,182 +1,177 @@
-// Each runner owning one group owns its selection, settings and output:
-// Dashboard Frontend Test (../../frontend.vitest.config.mts, through npm
-// only), Dashboard Backend Test (../../backend.playwright.config.ts) and E2E
-// Test (../../../e2e/playwright.config.ts), started through npm or as a
-// direct config from another working directory, record only their own selection
-// through their own proof variable into their own run directory, whichever
-// other runner's share, record, times or deadline the caller's environment
-// also names; runs started beside each other keep their own run directories
-// and records. A runner's setup registers only the artifacts its own specs
-// request.
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { existsSync, realpathSync } from "node:fs";
+// Each runner owning one group decides its own settings, selection and run
+// directory from the environment it is handed: Dashboard Frontend Test
+// through its npm group run's settings
+// (../../test-support/support/runnerSettings.mjs),
+// Dashboard Backend Test and E2E Test through their Playwright configuration
+// (../../test-support/support/runnerConfig.mjs), which resolves its group from
+// its own location, so a direct config from another working directory decides
+// the same. Real runs started beside each other are
+// Distribution/tests/test-runner/dashboard-concurrent-runs.sh's.
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
-import {
-  proofDirectory,
-  readProof,
-  removeProofDirectories,
-  startProofCommand,
-  startProofRun,
-  splitExcluding,
-} from "../../test-support/support/proofRecordRun.ts";
-
+import { expect, test } from "vitest";
+import { browserGroupSelection } from "../../test-support/support/browserTestGroups.mjs";
 import {
   groupRunnerExamples,
   type GroupRunnerExample,
 } from "../../test-support/support/groupRunnerExamples.ts";
+import { focusedRun } from "../../test-support/support/runnerConfig.mjs";
+import {
+  groupRunSettings,
+  runnerVariables,
+  vitestRunDirectory,
+} from "../../test-support/support/runnerSettings.mjs";
+import { selectedFiles } from "../../test-support/support/testFiles.mjs";
+import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+import {
+  requestRunArtifact,
+  startRunArtifacts,
+} from "../../test-support/support/runArtifacts.ts";
 
-test.afterAll(removeProofDirectories);
-// One worker runs these in order, so only one group's two runs share the
-// machine at a time: every group's runs at once took 18 of a case's 30
-// seconds on an ordinary four-CPU CI runner and all of them on a slower one.
-test.describe.configure({ mode: "default" });
+const records = "/runs";
+const startedAt = "2026-11-27T10:00:00.000Z";
 
-const cli = path.join(repoRoot, "node_modules/playwright/cli.js");
-const directEntries = [
-  "normal npm",
-  "direct config from another working directory",
-] as const;
-type Entry = (typeof directEntries)[number] | "normal npm beside it";
+// A group's specs as its selection sees them: the target and one other spec,
+// and, for a sharded group, a declaration whose first shard claims only the
+// other spec, so the target runs in the last.
+function groupSpecs({ group, spec }: GroupRunnerExample) {
+  const files = [
+    path.posix.join(group.root, spec),
+    path.posix.join(group.root, "elsewhere/other.spec.ts"),
+  ];
+  const label = (file: string) =>
+    path.posix.join(
+      path.relative(repoRoot, fileURLToPath(group.directory)),
+      file,
+    );
+  const declaration = {
+    file: ".github/workflows/ci.yml",
+    shares: ["1", "2"],
+    patterns: new Map([["1", [label(files[1] ?? "")]]]),
+  };
+  return group.sharded === false ? { files } : { files, declaration };
+}
 
-// One runner's own quick case started through `entry`, handed every other
-// runner's settings as its CI shard sets them: a share that would exclude the
-// target from this runner's own shard, a record, a times file, and a deadline
-// already passed. Reading any of them would deselect the target, write
-// elsewhere or fail the run.
-function startOwnSelection(runner: GroupRunnerExample, entry: Entry) {
-  const { group } = runner;
-  const groupDirectory = fileURLToPath(group.directory);
-  const directory = proofDirectory();
-  const recordPath = path.join(directory, "own-proof.json");
-  const configFile = path.join(repoRoot, runner.proofConfig);
-  const target = path.join(groupDirectory, group.root, runner.spec);
-  const direct = entry === "direct config from another working directory";
-  const selection = [runner.spec, "--grep", runner.grep, "--workers=1"];
-  const args = direct
-    ? [cli, "test", "--config", configFile, ...selection]
-    : ["run", "--silent", group.command, "--", ...selection];
-  const cwd = direct ? directory : repoRoot;
-  const others = groupRunnerExamples
-    .map(({ group }) => group.prefix)
-    .filter((prefix) => prefix !== group.prefix);
-  const excluding =
-    group.sharded === false
-      ? "not-a-split"
-      : splitExcluding(target, {
-          directory: path.relative(repoRoot, groupDirectory),
-          root: group.root,
-          job: group.job,
-        });
-  const run = startProofCommand(direct ? process.execPath : "npm", args, cwd, {
-    ...Object.fromEntries(
-      others.flatMap((prefix) => [
-        [`${prefix}_SPLIT`, excluding],
-        [`${prefix}_PROOF_RECORD`, path.join(directory, `${prefix}.json`)],
-        [`${prefix}_TIMES`, path.join(directory, `${prefix}-times.txt`)],
+// Every other runner's settings as its CI shard sets them: a share that
+// would exclude the target from this runner's own shard, a record, a times
+// file and a deadline already passed. Reading any of them would deselect the
+// target, write elsewhere or fail the run.
+function othersSettings({ group }: GroupRunnerExample) {
+  return Object.fromEntries(
+    groupRunnerExamples
+      .map((other) => other.group.prefix)
+      .filter((prefix) => prefix !== group.prefix)
+      .flatMap((prefix) => [
+        [`${prefix}_SPLIT`, "1/2"],
+        [`${prefix}_PROOF_RECORD`, `${records}/${prefix}.json`],
+        [`${prefix}_TIMES`, `${records}/${prefix}-times.txt`],
         [`${prefix}_DEADLINE_MS`, "1"],
       ]),
-    ),
-    [`${group.prefix}_PROOF_RECORD`]: recordPath,
-  });
-  const otherOutputs = others.flatMap((prefix) => [
-    path.join(directory, `${prefix}.json`),
-    path.join(directory, `${prefix}-times.txt`),
-  ]);
-  return { entry, run, recordPath, configFile, target, cwd, otherOutputs };
+  );
 }
 
-for (const runner of groupRunnerExamples) {
-  const hasPlaywrightConfig = runner.group.config !== undefined;
-  const entries: readonly Entry[] = hasPlaywrightConfig
-    ? directEntries
-    : ["normal npm", "normal npm beside it"];
-  test(`${runner.name} runs started beside each other, ${hasPlaywrightConfig ? "by npm and by direct config from another working directory" : "by npm"}, each record only their own selection under their own settings in their own run directory`, async () => {
-    const started = entries.map((entry) => startOwnSelection(runner, entry));
-    const results = await Promise.allSettled(
-      started.map(({ run }) => run.result),
-    );
-    const runRoot = path.join(
-      fileURLToPath(runner.group.directory),
-      runner.group.root,
-      "test-results",
-    );
-    const outputs: string[] = [];
-    for (const [index, own] of started.entries()) {
-      expect(results[index], own.entry).toMatchObject({
-        status: "fulfilled",
-        // Vitest reports its passing case; a Playwright runner stays quiet.
-        value: hasPlaywrightConfig
-          ? { status: 0, stdout: "", stderr: "" }
-          : { status: 0, stderr: "" },
-      });
-      expect(
-        own.otherOutputs.filter((output) => existsSync(output)),
-        own.entry,
-      ).toEqual([]);
-      const record = readProof(own.recordPath);
-      expect(record, own.entry).toMatchObject({
-        phase: "completed",
-        selectedCount: 1,
-        run: {
-          cwd: realpathSync(own.cwd),
-          configFile: own.configFile,
-          listing: false,
-        },
-        terminal: { runnerStatus: "passed", strictStatus: "passed" },
-      });
-      expect(record.tests[0], own.entry).toMatchObject({
-        project: runner.project,
-        location: { file: own.target },
-        attempts: [{ status: "passed" }],
-      });
-      // E2E Test's two projects share its run's one directory.
-      const runDirectories = [...new Set(record.run.outputDirs)];
-      expect(
-        runDirectories.map((output) => path.dirname(output)),
-        own.entry,
-      ).toEqual([runRoot]);
-      outputs.push(...runDirectories);
-    }
-    expect(new Set(outputs).size).toBe(entries.length);
-    if (process.env["CI"] && hasPlaywrightConfig) {
-      for (const output of outputs) {
-        const report = path.join(
-          output,
-          "../../playwright-report",
-          path.basename(output),
-          "index.html",
-        );
-        expect(existsSync(report), report).toBe(true);
-      }
-    }
-    expect(outputs.every((output) => !existsSync(output))).toBe(true);
-  });
-}
-
-test("A spec asking for an artifact Dashboard Backend Test's setup does not register fails naming it", async () => {
-  const run = startProofRun({
-    spec: "unregistered.proof.ts",
-    config: {
-      testDir: path.join(
-        repoRoot,
-        "dashboard/test-support/fixtures/artifact-demand",
-      ),
-      globalSetup: path.join(
-        repoRoot,
-        "dashboard/test-support/support/backendGlobalSetup.ts",
-      ),
+// What one run started at `startedAt` as process `pid` decides: the record
+// and times it writes, whether it is bounded, the run directory and CI
+// report directory it keeps and whether it selects the target spec.
+function ownRun(
+  runner: GroupRunnerExample,
+  env: Record<string, string>,
+  pid: number,
+) {
+  const { group, spec } = runner;
+  const specs = groupSpecs(runner);
+  const target = path.join(fileURLToPath(group.directory), group.root, spec);
+  if (group.config === undefined) {
+    const settings = groupRunSettings(group, env);
+    return {
+      record: settings.proofRecord,
+      times: settings.times,
+      bounded: settings.deadline !== undefined,
+      runDirectory: vitestRunDirectory(group, startedAt, pid),
+      report: undefined,
+      selected: selectedFiles(group.directory, settings.split, {
+        ...browserGroupSelection(group),
+        ...specs,
+      }).includes(path.join(group.root, spec)),
+    };
+  }
+  const run = focusedRun(
+    group,
+    {
+      ...env,
+      [runnerVariables(group.prefix).runStamp]:
+        `${startedAt.replaceAll(":", "-")}-${String(pid)}`,
     },
-  });
+    specs,
+  );
+  const [[, reporter], html] = run.options.reporter as [
+    [string, { proofRecord?: string; times?: string }],
+    [string, { outputFolder: string }]?,
+  ];
+  return {
+    record: reporter.proofRecord,
+    times: reporter.times,
+    bounded: run.options.globalTimeout !== undefined,
+    runDirectory: run.options.outputDir,
+    report: html?.[1].outputFolder,
+    selected: run.testMatch.some((pattern) => pattern.test(target)),
+  };
+}
+
+test.each(groupRunnerExamples)(
+  "$name runs started beside each other each record only their own selection under their own settings in their own run directory",
+  (runner) => {
+    const { group } = runner;
+    const root = path.join(fileURLToPath(group.directory), group.root);
+    const ownRecord = `${records}/${group.prefix}-own.json`;
+    const env = {
+      ...othersSettings(runner),
+      [`${group.prefix}_PROOF_RECORD`]: ownRecord,
+    };
+    // Two runs started in the same millisecond, the second one CI's.
+    const [local, ci] = [
+      ownRun(runner, env, 1),
+      ownRun(runner, { ...env, CI: "true" }, 2),
+    ];
+    for (const run of [local, ci])
+      expect(run).toMatchObject({
+        record: ownRecord,
+        times: undefined,
+        bounded: false,
+        selected: true,
+      });
+    const directories = [local.runDirectory, ci.runDirectory];
+    expect(
+      directories.map((directory) => path.dirname(directory ?? "")),
+    ).toEqual([
+      path.join(root, "test-results"),
+      path.join(root, "test-results"),
+    ]);
+    expect(new Set(directories).size).toBe(2);
+    // Under CI each Playwright run keeps its HTML report beside its run
+    // directory, under its own root's playwright-report/<stamp>/.
+    expect([local.report, ci.report]).toEqual([
+      undefined,
+      group.config === undefined
+        ? undefined
+        : path.join(
+            root,
+            "playwright-report",
+            path.basename(ci.runDirectory ?? ""),
+          ),
+    ]);
+  },
+);
+
+test("a spec asking for an artifact its run's setup does not register fails naming it", async () => {
+  const stop = await startRunArtifacts(new Map());
   try {
-    const result = await run.result;
-    expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
-    expect(readProof(run.recordPath)).toMatchObject({
-      selectedCount: 1,
-      terminal: { strictStatus: "passed" },
-    });
+    await expect(
+      requestRunArtifact("unregistered-proof-artifact"),
+    ).rejects.toThrow(
+      "Could not prepare dashboard artifact unregistered-proof-artifact: this run's setup does not register it.",
+    );
   } finally {
-    await run.stop();
+    await stop();
   }
 });

@@ -8,6 +8,7 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   activateComparisonControl,
   intentStoryCompare,
+  executionName,
 } from "./intent-story-compare-page.ts";
 import {
   doneIdentity,
@@ -20,7 +21,7 @@ const execution = makeMe.aSessionRecord
   .forExecutionOf(doneIdentity)
   .closedAt(new Date(Date.now() - 3_600_000).toISOString())
   .please();
-const executionName = `Execution — ${new Date(execution.closedAt).toLocaleString()}`;
+const executionScope = executionName(execution);
 const range = (position: number, shared?: true) =>
   makeMe.aStoryReview
     .publishedSession({
@@ -51,21 +52,39 @@ test("a session that recorded two ranges offers both and shows the chosen one", 
   const { opened } = openWithExecution();
   await opened;
   const story = intentStoryCompare();
-  await story.chooseScope(executionName);
+  await story.chooseScope(executionScope);
   await expect.poll(story.treeText).toContain("range-1.txt");
   await expect.element(story.choice("Published range 1 of 2")).toBeChecked();
 
   await activateComparisonControl(story.choice("Published range 2 of 2"));
   await expect.poll(story.treeText).toContain("range-2.txt");
   expect(story.treeText()).not.toContain("range-1.txt");
-  await expect.element(story.scope).toHaveTextContent(executionName);
+  await expect.element(story.scope).toHaveTextContent(executionScope);
+});
+
+test("a chosen session's range 2 stays chosen with its tree after Refresh", async () => {
+  const { opened, reads } = openWithExecution();
+  await opened;
+  const story = intentStoryCompare();
+  await story.chooseScope(executionScope);
+  await expect.poll(story.treeText).toContain("range-1.txt");
+  await activateComparisonControl(story.choice("Published range 2 of 2"));
+  await expect.poll(story.treeText).toContain("range-2.txt");
+  const before = reads.length;
+
+  await story.refresh();
+  await expect.poll(() => reads.length).toBeGreaterThan(before);
+  await expect.element(story.choice("Published range 2 of 2")).toBeChecked();
+  await expect.poll(story.treeText).toContain("range-2.txt");
+  expect(story.treeText()).not.toContain("range-1.txt");
+  await expect.element(story.scope).toHaveTextContent(executionScope);
 });
 
 test("a range that shared its checkout warns in the comparison details", async () => {
   const { opened } = openWithExecution();
   await opened;
   const story = intentStoryCompare();
-  await story.chooseScope(executionName);
+  await story.chooseScope(executionScope);
   await expect.poll(story.treeText).toContain("range-1.txt");
   await story.openDetails();
   await expect.poll(story.detailsText).toContain("Published changes");

@@ -88,7 +88,8 @@ async function mountStartSession(running: AttemptObservation) {
   };
 }
 
-async function startWith(instruction?: string) {
+async function startWith(typed?: string) {
+  const instruction = typed?.trim() || undefined;
   await emulateMedia([{ name: "prefers-reduced-motion", value: "reduce" }]);
   const accepted = makeMe.anAcceptedAttempt.adHoc(
     instruction === undefined ? {} : { instruction },
@@ -105,7 +106,7 @@ async function startWith(instruction?: string) {
   await userEvent.keyboard("{Enter}");
   const form = launchDialog("Start a session in Open Dough in Claude Code");
   await expect.element(form.instruction).toHaveFocus();
-  if (instruction !== undefined) await userEvent.keyboard(instruction);
+  if (typed !== undefined) await userEvent.keyboard(typed);
   await expect.element(form.start).toBeEnabled();
   form.start.element().focus();
   await userEvent.keyboard("{Enter}");
@@ -123,6 +124,8 @@ async function startWith(instruction?: string) {
     }),
     false,
   );
+  if (instruction === undefined)
+    expect(source.accept.mock.calls[0]?.[0]).not.toHaveProperty("instruction");
   expect(presentTerminal).not.toHaveBeenCalled();
 
   const task = page.getByRole("button", { name: otherTask });
@@ -153,14 +156,20 @@ async function startWith(instruction?: string) {
   return { presentTerminal, button, record };
 }
 
-test("a blank keyboard start presents its terminal without taking focus from another task", async () => {
-  const { presentTerminal, button, record } = await startWith();
-  expect(presentTerminal).toHaveBeenCalledTimes(1);
-  const [presentation] = presentTerminal.mock.calls[0] ?? [];
-  expect(presentation?.record.session).toEqual(record.session);
-  expect(presentation?.control).toBe(button.element());
-  expect(presentation?.takesKeyboard).toBe(false);
-});
+test.each([
+  { start: "a blank", typed: undefined },
+  { start: "a whitespace-only", typed: "   " },
+])(
+  "$start keyboard start sends no instruction and presents its terminal without taking focus from another task",
+  async ({ typed }) => {
+    const { presentTerminal, button, record } = await startWith(typed);
+    await expect.poll(() => presentTerminal.mock.calls).toHaveLength(1);
+    const [presentation] = presentTerminal.mock.calls[0] ?? [];
+    expect(presentation?.record.session).toEqual(record.session);
+    expect(presentation?.control).toBe(button.element());
+    expect(presentation?.takesKeyboard).toBe(false);
+  },
+);
 
 test("an instructed keyboard start leaves the terminal closed and keeps the other task focused", async () => {
   const { presentTerminal } = await startWith("why is CI slow?");
@@ -230,7 +239,7 @@ test("a refused default admission lets Start repeat the same request and present
   answer(machine, 3);
   await expect.element(launcher).toBeEnabled();
   await expect.element(progress).not.toBeInTheDocument();
-  expect(presentTerminal).toHaveBeenCalledOnce();
+  await expect.poll(() => presentTerminal.mock.calls).toHaveLength(1);
   const [shown] = presentTerminal.mock.calls[0] ?? [];
   expect(shown?.record.session).toEqual(record.session);
   expect(shown?.control).toBe(launcher.element());

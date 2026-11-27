@@ -16,6 +16,11 @@ import { git } from "./startOriginObservation.ts";
 
 const initializing = new Map<string, Promise<void>>();
 
+// The bare origin of the catalog project installed in `home`'s `folder`.
+export const catalogOrigin = (home: string, folder = "open-dough") => ({
+  origin: path.join(path.dirname(home), "catalog-origins", `${folder}.git`),
+});
+
 export async function prepareCatalogProjects(
   home: string,
   folders: readonly string[] = [],
@@ -41,11 +46,7 @@ async function prepareProject(home: string, folder: string) {
   );
   if (configured === undefined)
     throw new Error(`No fixture catalog project has the folder ${folder}.`);
-  const origin = path.join(
-    path.dirname(home),
-    "catalog-origins",
-    `${folder}.git`,
-  );
+  const { origin } = catalogOrigin(home, folder);
   if (
     (existsSync(project) && readdirSync(project).length !== 0) ||
     existsSync(origin)

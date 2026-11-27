@@ -19,6 +19,7 @@ import {
   readyStory,
 } from "../../dashboard/test-support/launchJourney.ts";
 import { claudeRefinementRepository } from "../../dashboard/test-support/support/claudeRefinementRepository.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import {
   expectInstalledClaudeStory,
   readClaudeLaunch,
@@ -184,6 +185,7 @@ test("a refused launch with Opus says Launch failed beside its action, closes th
   await expect(dialog).toBeHidden();
   await expect(board.launchProblem(readyStory)).toContainText(
     "Launch failed: Claude Code refused to start a session",
+    { timeout: launchWaitMs },
   );
   await expect(board.launchProblem(readyStory)).toContainText("Opus");
   await expect(storyCardSessions(board.card(readyStory))).toHaveCount(0);

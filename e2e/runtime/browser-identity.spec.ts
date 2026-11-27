@@ -1,8 +1,9 @@
 // The browser knows the dashboard as Open Dough: the page declares the supplied
 // icon exports (../../assets/brand/favicon/) for its tab, bookmarks and touch
 // icon, and the built preview answers each declared URL with that canonical
-// file's exact bytes. The dev server's same answer is proved beside the other
-// serving-mode facts (../../dashboard/backend-tests/runtime/serving-modes.spec.ts).
+// file's exact bytes. Dev serves the same exports through the one serving
+// configuration's brand asset plugin (../../dashboard/server/brandAssetPlugin.ts,
+// checked in ../../dashboard/backend-tests/runtime/serving-modes.spec.ts).
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { expectSuppliedIcon } from "../../dashboard/test-support/support/brandIcons.ts";

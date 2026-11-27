@@ -4,7 +4,10 @@
 // answers, keyed by `published`, own the Git judgment.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import {
+  executionName,
+  intentStoryCompare,
+} from "./intent-story-compare-page.ts";
 import {
   doneIdentity,
   doneSource,
@@ -69,7 +72,7 @@ test("a Done story lists its published sessions once each, oldest first", async 
   expect(await story.scopeNames()).toEqual([
     "Whole story",
     `Refinement — ${closed(firstRefinement)}`,
-    `Execution — ${closed(execution)}`,
+    executionName(execution),
     `Refinement — ${closed(secondRefinement)}`,
     `Title unavailable — ${closed(followUp)}`,
   ]);
@@ -148,10 +151,8 @@ test("a newly selected story starts at Whole story", async () => {
   const { opened } = openWithSessions();
   const mounted = await opened;
   const story = intentStoryCompare();
-  await story.chooseScope(`Execution — ${closed(execution)}`);
-  await expect
-    .element(story.scope)
-    .toHaveTextContent(`Execution — ${closed(execution)}`);
+  await story.chooseScope(executionName(execution));
+  await expect.element(story.scope).toHaveTextContent(executionName(execution));
 
   await mounted.selectStory(undefined);
   await mounted.selectStory(doneIdentity);

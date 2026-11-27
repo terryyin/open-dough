@@ -26,8 +26,6 @@ export async function selectTakenStoryInIntent(
   page: Page,
   origin: StartOrigin,
   change: (workspace: string) => void = changeIntentTests,
-  // Whether the published trunk follows the origin's main as it moves.
-  follows = false,
   story = storyA,
 ) {
   publishIntentTrunk(origin.project);
@@ -44,7 +42,7 @@ export async function selectTakenStoryInIntent(
       .commitAll("add the remaining story files")
       .please();
   git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
-  await openBacklog(page, origin, follows);
+  await openBacklog(page, origin);
   const { taken, intentChoice, intent } = parts(page);
   const card = taken.getByRole("article", { name: story.title });
   await card.getByRole("heading", { level: 3 }).click();

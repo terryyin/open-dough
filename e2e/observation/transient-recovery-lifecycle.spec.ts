@@ -133,8 +133,8 @@ test("two pages share a recovery read: one hides while the other finishes; the f
   const opens = [page, other].map((tab) => noteColdOpens(tab, "open-dough"));
   await Promise.all([page.goto("/"), other.goto("/")]);
   await transfer.held;
-  // Each page's read wait starts when it sends its read; let the bound pass
-  // only once both have.
+  // Each page's wait bound starts when it sends its cold open; both must have
+  // sent it before page time passes the bound.
   await expect.poll(() => opens.map((asked) => asked.length)).toEqual([1, 1]);
   await page.clock.runFor(30_000);
   for (const tab of [page, other])

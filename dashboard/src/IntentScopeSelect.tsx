@@ -4,7 +4,7 @@
 // choice commits the session's existing key, so options that read alike
 // still choose their own session.
 import { CompactSelect, type CompactSelectOption } from "./CompactSelect.tsx";
-import type { SessionScope } from "./followUpSessions.ts";
+import type { SessionScope } from "./storySessions.ts";
 import "./intent-scope-select.css";
 
 const wholeStory: CompactSelectOption = {

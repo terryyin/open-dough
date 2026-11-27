@@ -22,11 +22,12 @@ import {
 import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expect,
-  openCodexLaunchBoard,
   stored,
   test,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { catalogOrigin } from "../../dashboard/test-support/support/catalogProjectOrigin.ts";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 test.use({ projectFolders: ["open-dough"] });
@@ -50,7 +51,7 @@ test("an admitted blank session with unconfirmed native persistence is recovered
     intent: "blank",
   });
 
-  await openCodexLaunchBoard(page, dashboard.home);
+  await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
   await expectSettledPage(page);
   const { board } = parts(page);
   const cards = board.locator("[data-story-card]");

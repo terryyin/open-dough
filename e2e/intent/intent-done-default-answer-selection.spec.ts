@@ -1,9 +1,13 @@
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 // Switching from an explicitly selected landing to another story opens the
 // second story's published default.
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { storyB } from "../../Distribution/tests/support/queued-repository.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../Distribution/tests/support/queued-repository.mjs";
 import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import {
   storyReviewEndpoint,
@@ -21,13 +25,9 @@ import { ReviewLandedRun } from "../../dashboard/test-support/reviewChangesLande
 import { openSessionsSidebar } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   expect,
-  stored,
   test,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import {
-  commitBacklogCompletion,
-  publishCompletedStory,
-} from "../../dashboard/test-support/support/completedStoryPublication.ts";
+import { publishCompletedStory } from "../../dashboard/test-support/support/completedStoryPublication.ts";
 import {
   waitForHistoricalReview,
   waitForLandedReview,
@@ -40,11 +40,12 @@ import {
   storySummary,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
-import { capturedPublicationSchema } from "../../dashboard/test-support/support/launchLanding.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
-import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
-import { claimedLaunchWithStoryCommit } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
+import {
+  queuedIdentity,
+  queuedTitle,
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   git,
   lines,
@@ -58,10 +59,16 @@ test("selecting another Done story opens its published default after reading the
   page,
   dashboard,
   origin,
-  codexProtocol,
 }) => {
-  if (codexProtocol === undefined) throw new Error("No native fixture");
   publishIntentTrunk(origin.project);
+  const first = await origin.publishTake({
+    agent: "Yui",
+    story: storyA,
+    queued: [storyB],
+    mode: "trunk",
+    slug: "completed-a",
+  });
+  const firstBase = git(first.workspace, "rev-parse", "HEAD");
   const firstFacts = makeMe.aRepository
     .withRevision("first-story", {
       backlog: null,
@@ -70,15 +77,39 @@ test("selecting another Done story opens its published default after reading the
       },
     })
     .please().revisions[0];
-  const first = await claimedLaunchWithStoryCommit(origin, dashboard, false, {
-    host: "codex",
-    storyWork(workspace) {
-      writeRevisionFiles(workspace, firstFacts);
-      commitBacklogCompletion(workspace, "complete the first captured story");
-    },
+  writeRevisionFiles(first.workspace, firstFacts);
+  makeMe
+    .theWorkspace(first.workspace)
+    .commitAll("first story changes its tests")
+    .please();
+  git(first.workspace, "push", "--quiet", "origin", "HEAD:main");
+  const firstLanding = publishCompletedStory(origin, {
+    ...first,
+    mode: "trunk",
+    identity: storyA.identity,
+    missingAgent: false,
+    completionConflict: false,
+    skillsDirectory: ".agents/skills",
   });
-  const firstCapture = capturedPublicationSchema.parse(await first.integrated())
-    .landing.receipt;
+  const firstRun = randomUUID();
+  const firstLaunch = makeMe.aLaunchRecord
+    .executing({ identity: storyA.identity, title: queuedTitle })
+    .onStoryBranch({
+      workspace: path.join(origin.machine, "retired-story-a"),
+      branch: "codex/retired-a",
+    })
+    .reportingThrough({
+      origin: dashboard.origin,
+      reference: firstRun,
+      command: "report",
+    })
+    .withLanding(
+      makeMe.aLaunchLanding
+        .capturedFrom({ repository: origin.origin, identity: storyA.identity })
+        .comparing({ base: firstBase, revision: firstLanding }),
+    )
+    .markedDone()
+    .please();
   git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
   const second = await origin.publishTake({
     agent: "Yui",
@@ -138,7 +169,7 @@ test("selecting another Done story opens its published default after reading the
     .inClaudeSession({ sessionId: "legacy-story-b", shortId: "legacy-b" })
     .markedDone()
     .please();
-  keepLaunchRecords(dashboard, [...stored(dashboard.home), legacy]);
+  keepLaunchRecords(dashboard, [firstLaunch, legacy]);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: current,
@@ -149,19 +180,19 @@ test("selecting another Done story opens its published default after reading the
   const { intent } = await selectDoneStoryInIntent(page);
   expect(await firstRead).toMatchObject({
     kind: "published",
-    landingRevision: firstCapture.revision,
+    landingRevision: firstLanding,
   });
-  const landedRead = waitForLandedReview(page, first.reporting.reference);
+  const landedRead = waitForLandedReview(page, firstRun);
   const landing = new ReviewLandedRun(storySummary(intent), () =>
     showComparisonDetails(storySummary(intent)),
   );
-  await landing.choose(first.reporting.reference);
+  await landing.choose(firstRun);
   expect(await landedRead).toMatchObject({
     kind: "landed",
-    tree: firstCapture.revision,
-    selectedRun: first.reporting.reference,
+    tree: firstLanding,
+    selectedRun: firstRun,
   });
-  await landing.expectShown(firstCapture.revision);
+  await landing.expectShown(firstLanding);
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
 
   await listStoryRevision(intent);
@@ -170,7 +201,7 @@ test("selecting another Done story opens its published default after reading the
   await firstTree.file("docs/notes.md").click();
   await expect(purposeRegion(intent)).toContainText("notes 11");
   await expect(sourceRevision(intent, "docs/notes.md")).toContainText(
-    firstCapture.revision.slice(0, 7),
+    firstLanding.slice(0, 7),
   );
 
   const runRequests: string[] = [];

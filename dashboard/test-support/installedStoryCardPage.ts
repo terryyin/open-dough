@@ -19,12 +19,17 @@ import {
   servedHomes,
 } from "./support/fixtureOriginRoute.ts";
 import { holdLaterTrunkTransfers } from "./laterTrunkTransfers.ts";
-import { originMain, radio } from "./support/sessionDialog.ts";
-import type { StartOrigin } from "./support/startOrigin.ts";
+import {
+  originMain,
+  radio,
+  type BoardOrigin,
+} from "./support/sessionDialog.ts";
 
+// Opens the Board of an installed project whose trunk follows `origin`'s
+// main, once every served home reached it and the page read published work.
 export async function openInstalledStoryBoard(
   page: Page,
-  origin: StartOrigin,
+  origin: BoardOrigin,
   // `keepsOpenedTrunk`: every later Board read, REST and Git, keeps the
   // opened trunk while starts publish, until `showPublished`.
   { keepsOpenedTrunk = false }: { keepsOpenedTrunk?: boolean } = {},

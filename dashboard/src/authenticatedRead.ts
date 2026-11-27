@@ -44,6 +44,8 @@ const okSnapshot = z.object({
   revision: commitSha,
   backlog: z.string(),
   askedAt: z.iso.datetime().optional(),
+  confirmedAt: z.iso.datetime().optional(),
+  unrecorded: z.literal(true).optional(),
 });
 const okFile = z.object({
   revision: commitSha,
@@ -57,27 +59,37 @@ const okCommitTime = z.object({
 });
 
 // When the read resolved the ref itself, `askedAt` is when the local server
-// asked for it, by that server's clock.
+// asked for it and `confirmedAt` when origin last confirmed that revision,
+// both by that server's clock; `unrecorded` when origin's newer answer could
+// not be recorded, so that confirmation is the former one.
 export type PublishedSnapshot = {
   readonly revision: string;
   readonly backlog: string;
   readonly askedAt?: string | undefined;
+  readonly confirmedAt?: string | undefined;
+  readonly unrecorded?: true | undefined;
 };
 
 // Resolves the source's ref to one commit and reads its backlog at that
 // commit, both on the local server. Given a revision already resolved, reads
-// the backlog at exactly that commit instead of resolving the ref again.
+// the backlog at exactly that commit instead of resolving the ref again. A
+// `fresh` ref read is answered only by a server check begun after it asked.
 export async function readPublishedSnapshot(
   source: PublishedSource,
   signal: AbortSignal,
   revision?: string,
+  fresh = false,
 ): Promise<PublishedSnapshot> {
   const reading =
     revision === undefined
       ? readingRefOf(source)
       : readingPathAt(source.backlogPath, revision);
   const pinnedTo =
-    revision === undefined ? "" : `&revision=${encodeURIComponent(revision)}`;
+    revision === undefined
+      ? fresh
+        ? "&fresh=1"
+        : ""
+      : `&revision=${encodeURIComponent(revision)}`;
   const body = await authenticatedGet(
     `source=${encodeURIComponent(source.id)}${pinnedTo}`,
     reading,

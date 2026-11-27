@@ -12,7 +12,6 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   parts,
   sessionEntriesIn,
@@ -31,6 +30,9 @@ import {
   themeChoice,
   type ComputedPalette,
 } from "../../dashboard/test-support/support/terminalThemeSettingsPage.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { catalogOrigin } from "../../dashboard/test-support/support/catalogProjectOrigin.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -64,7 +66,7 @@ test("the page's terminal shows the theme chosen in System settings, live withou
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  await openCatalogLaunchBoard(page, dashboard.home);
+  await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
   const entry = sessionEntriesIn(parts(page).taken);
@@ -79,7 +81,8 @@ test("the page's terminal shows the theme chosen in System settings, live withou
     })
     .getByRole("button", { name: "Start" })
     .click();
-  await expect(rows).toContainText("attached");
+  // The start answers after its Take publication and native exchange.
+  await expect(rows).toContainText("attached", { timeout: launchWaitMs });
   await page.keyboard.type("before the theme");
   await page.keyboard.press("Enter");
   await expect(rows).toContainText("echo before the theme");

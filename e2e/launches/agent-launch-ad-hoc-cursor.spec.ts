@@ -13,13 +13,10 @@ import { realpathSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
-import { admittedStory } from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
 import {
   startSessionField,
   startedSession,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   deploymentCursorTest as test,
@@ -40,7 +37,7 @@ function recordsIn(stored: string | null): LaunchRecord[] {
 }
 
 for (const text of ["", "why is the CI slow?"]) {
-  test(`Cursor Start session ${JSON.stringify(text)} publishes its Taken story and no invented skill line`, async ({
+  test(`Cursor Start session ${JSON.stringify(text)} creates one Cursor chat with no invented skill line`, async ({
     page,
     dashboard,
     origin,
@@ -74,15 +71,6 @@ for (const text of ["", "why is the CI slow?"]) {
     if (record.session.host !== "cursor") {
       throw new Error("The recorded session is not Cursor.");
     }
-    const title = record.request.title;
-    expect(title).toMatch(
-      blank
-        ? /^Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/
-        : /^why is the CI slow\?$/,
-    );
-    await expect(storyCard(parts(page).taken, title)).toContainText(
-      cursor.sessionId,
-    );
     await expect(recent).toContainText(cursor.sessionId);
     await expect(openTerminalControl(recent)).toHaveCount(1);
     if (blank) {
@@ -93,22 +81,11 @@ for (const text of ["", "why is the CI slow?"]) {
       await expect(recent).toContainText("First input accepted");
       await expect(recent).toContainText("Ad hoc session started in Cursor");
     }
-    await expect(
-      parts(page).backlog.getByRole("article", {
-        name: "Story A",
-        exact: true,
-      }),
-    ).not.toContainText(cursor.sessionId);
 
     expect(record.request).toMatchObject({
       workflow: "ad-hoc",
       host: "cursor",
-      title,
     });
-    expect(record.request).not.toHaveProperty("identity");
-    expect(record.request).not.toHaveProperty("model");
-    expect(record).not.toHaveProperty("start");
-    expect(record).not.toHaveProperty("preparation");
     expect(record.session).toMatchObject({
       host: "cursor",
       sessionId: cursor.sessionId,
@@ -189,14 +166,6 @@ for (const text of ["", "why is the CI slow?"]) {
         });
     }
 
-    const admitted = await admittedStory(origin, title);
-    expect(admitted.revision).not.toBe(original);
-    expect(record.request).toMatchObject({ storyIdentity: admitted.identity });
-
-    const sidebar = sessionsSidebarParts(page);
-    await sidebar.button.click();
-    await expect(sidebar.entries).toHaveCount(1);
-    await expect(sidebar.entry(title)).toBeVisible();
     expect(cursor.calls()).toHaveLength(1);
     expect(dashboard.claudeLaunchCalls()).toEqual([]);
   });

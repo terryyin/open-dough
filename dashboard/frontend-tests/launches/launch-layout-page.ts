@@ -1,5 +1,6 @@
-import { expect, onTestFinished } from "vitest";
-import { cdp, page, type Locator } from "vitest/browser";
+import { expect } from "vitest";
+import { page, type Locator } from "vitest/browser";
+import { scaleDevice } from "../../test-support/component-mount/deviceScale.ts";
 
 export const narrowDialog = { width: 320, height: 640 };
 export const twiceZoomedDialog = { width: 640, height: 450 };
@@ -20,28 +21,9 @@ export async function resizeLaunchViewport({
   );
 }
 
-const chromium = () =>
-  cdp() as {
-    send(method: string, params: Record<string, unknown>): Promise<unknown>;
-  };
-
-async function useTwiceZoomedDevice() {
-  const session = chromium();
-  await session.send("Emulation.setDeviceMetricsOverride", {
-    width: 0,
-    height: 0,
-    deviceScaleFactor: 2,
-    mobile: false,
-  });
-  onTestFinished(async () => {
-    await session.send("Emulation.clearDeviceMetricsOverride", {});
-  });
-}
-
 export async function zoomToTwoHundredPercent() {
   await resizeLaunchViewport(twiceZoomedDialog);
-  await useTwiceZoomedDevice();
-  await expect.poll(() => devicePixelRatio).toBe(2);
+  await scaleDevice(2);
   expect([innerWidth, innerHeight]).toEqual([
     twiceZoomedDialog.width,
     twiceZoomedDialog.height,

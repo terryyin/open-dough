@@ -18,20 +18,25 @@ type Start = {
 };
 const started = vi.hoisted((): Start[] => []);
 
+// Every Git start, whether run to completion (`execFile`) or owned with its
+// transport through cancellation (`spawn`).
 vi.mock("node:child_process", async (original) => {
   const actual = await original<typeof import("node:child_process")>();
   const { promisify } = await import("node:util");
-  const execFile = (...call: Parameters<typeof actual.execFile>) => {
-    const [file, args, options] = call as unknown as [
-      string,
-      readonly string[] | undefined,
-      { env?: NodeJS.ProcessEnv } | undefined,
-    ];
+  const record = (
+    file: string,
+    args: readonly string[] | undefined,
+    options: { env?: NodeJS.ProcessEnv } | undefined,
+  ) => {
     started.push({
       file,
       args: args ?? [],
       path: (options?.env ?? process.env).PATH,
     });
+  };
+  const execFile = (...call: Parameters<typeof actual.execFile>) => {
+    const [file, args, options] = call as unknown as Parameters<typeof record>;
+    record(file, args, options);
     return actual.execFile(...call);
   };
   Object.assign(execFile, {
@@ -39,7 +44,12 @@ vi.mock("node:child_process", async (original) => {
       promisify.custom
     ],
   });
-  return { ...actual, execFile };
+  const spawn = (...call: Parameters<typeof actual.spawn>) => {
+    const [file, args, options] = call as unknown as Parameters<typeof record>;
+    record(file, args, options);
+    return actual.spawn(...call);
+  };
+  return { ...actual, execFile, spawn };
 });
 
 const appleOnly = "/usr/bin:/bin";

@@ -145,6 +145,15 @@ export class RepositoryBuilder {
     });
   }
 
+  /** @param {...{ identity: string, title: string }} stories taken on `base` */
+  takingStories(...stories) {
+    const taken = stories.map(({ identity, title }) => {
+      const href = `seeds/${identity.replace("#", ".md#")}`;
+      return { identity, title, href };
+    });
+    return this.withRevision("base", { backlog: { taken } });
+  }
+
   /**
    * The branch the origin and the integration checkout publish. Default `main`.
    * @param {string} trunkBranch

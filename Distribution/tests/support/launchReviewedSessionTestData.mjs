@@ -29,8 +29,9 @@ import { minutesAgo } from "./testDataDefaults.mjs";
 export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   /**
    * The session declared a branch and received its landing context for
-   * `identity`, the story its request names.
-   * @param {{ identity?: string, repository?: string, workspace?: string, branch?: string, committedTip?: string, trunkRevision?: string, origin?: string, reference?: string, deletedAt?: string }} [facts]
+   * `identity`, the story its request names. The dashboard retains the
+   * declared authority, changed by any stated `retainedAuthority` facts.
+   * @param {{ identity?: string, repository?: string, workspace?: string, branch?: string, committedTip?: string, trunkRevision?: string, origin?: string, reference?: string, deletedAt?: string, retainedAuthority?: Partial<import("../../../dashboard/src/launchLanding.ts").LandingRepository> }} [facts]
    */
   withDeclaredLanding({
     identity,
@@ -42,6 +43,7 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
     origin = "http://127.0.0.1:4173",
     reference = reportingReference,
     deletedAt,
+    retainedAuthority,
   } = {}) {
     const authorityBuilder = new LandingAuthorityBuilder()
       .ofRepository(repository)
@@ -63,7 +65,7 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
       },
     }).withLandingReporting({
       origin,
-      authority,
+      authority: { ...authority, ...retainedAuthority },
       preparations: [],
       branchContext: {
         reference,

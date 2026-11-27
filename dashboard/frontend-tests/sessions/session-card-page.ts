@@ -4,6 +4,7 @@ import {
   sessionKey,
   type SessionReference,
 } from "../../src/sessionReference.ts";
+import { expandButton } from "../page-objects/activateButton.ts";
 import "../page-objects/cssLocator.ts";
 import { readyStory } from "./session-card-mount.ts";
 
@@ -51,11 +52,7 @@ export function sessionEntry(entry: Locator) {
     exact: true,
   });
 
-  async function showActions() {
-    if (actions.element().getAttribute("aria-expanded") === "false") {
-      await userEvent.click(actions);
-    }
-  }
+  const showActions = () => expandButton(actions);
 
   return {
     entry,

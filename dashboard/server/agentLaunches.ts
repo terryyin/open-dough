@@ -51,7 +51,6 @@ import {
   continueKeptAttempt,
 } from "./agentLaunchAccept.ts";
 import { observedMachineRecords } from "./machineSessionObservation.ts";
-import { withUnboundRecovery } from "./unboundLaunchRecovery.ts";
 import { followUpContextInput } from "./followUpAdmission.ts";
 
 // How long a launch verification waits for its host's session listing.
@@ -135,7 +134,7 @@ export class AgentLaunches {
     readonly attempts: readonly AttemptObservation[];
     readonly readable: boolean;
   }> {
-    return withUnboundRecovery(await this.owner.attempts());
+    return this.owner.attempts();
   }
 
   // Waits for a change after the observation counting `seen` changes, then

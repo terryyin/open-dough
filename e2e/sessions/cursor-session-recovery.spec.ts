@@ -9,7 +9,7 @@ import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import { stopCursorRunner } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
-  expandStoryCardDoneHistory,
+  shownDoneSessionEntriesOf,
   parts,
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
@@ -34,7 +34,7 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/cursorStart.ts";
-import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { changeKeptSessionsBesideServer } from "../../dashboard/test-support/support/launchStore.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 
@@ -139,20 +139,14 @@ test("Recover with unconfirmed first input types nothing", async ({
   cursor,
 }) => {
   await openTakenCursorSession(page, origin);
-  const [record] = keptRecords(dashboard.home);
-  if (record === undefined) throw new Error("Missing record.");
-  keepLaunchStore(dashboard, {
-    "open-dough": [
-      {
-        ...record,
-        firstInput: {
-          state: "uncertain",
-          instruction: "inspect this session",
-          explanation: "not confirmed",
-        },
-      },
-    ],
-  });
+  await changeKeptSessionsBesideServer(dashboard, (record) => ({
+    ...record,
+    firstInput: {
+      state: "uncertain",
+      instruction: "inspect this session",
+      explanation: "not confirmed",
+    },
+  }));
   await endHeldClient(page, cursor, dashboard.home);
   await page.reload();
   const entry = sessionEntriesIn(parts(page).taken);
@@ -173,29 +167,25 @@ test("done and completed sessions offer no Recover", async ({
   await endHeldClient(page, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
-  keepLaunchStore(dashboard, {
-    "open-dough": [
-      { ...record, doneAt: new Date(Date.now() - 60_000).toISOString() },
-    ],
-  });
+  await changeKeptSessionsBesideServer(dashboard, (kept) => ({
+    ...kept,
+    doneAt: new Date(Date.now() - 60_000).toISOString(),
+  }));
   await reloadUntilRead(page);
   const card = storyCard(parts(page).taken, record.request.title);
-  await expandStoryCardDoneHistory(card);
+  await shownDoneSessionEntriesOf(page, record.request.title);
   let entry = sessionEntriesIn(card);
   await expect(entry).toHaveCount(1);
   await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(0);
 
-  keepLaunchStore(dashboard, {
-    "open-dough": [
-      {
-        ...record,
-        completion: makeMe.aCompletionReport
-          .withOutcome("completed")
-          .saying("Finished with attention")
-          .please(),
-      },
-    ],
-  });
+  await changeKeptSessionsBesideServer(dashboard, (kept) => ({
+    ...kept,
+    doneAt: undefined,
+    completion: makeMe.aCompletionReport
+      .withOutcome("completed")
+      .saying("Finished with attention")
+      .please(),
+  }));
   await reloadUntilRead(page);
   entry = sessionEntriesIn(parts(page).taken);
   await expect(entry).toHaveCount(1);

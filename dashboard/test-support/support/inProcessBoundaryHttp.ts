@@ -31,7 +31,7 @@ export async function startInProcessBoundaryHttp(
   port = 0,
 ): Promise<InProcessBoundaryHttp> {
   const plugins = ("install" in boundaries ? [boundaries] : boundaries).map(
-    localBoundaryPlugin,
+    (boundary) => localBoundaryPlugin(boundary),
   );
   const development = environment === "development";
   const middlewares = boundaryMiddlewareChain();

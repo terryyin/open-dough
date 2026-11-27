@@ -1,30 +1,18 @@
-// The done catalog published beside the backlog, and the done records it
-// lists, as the local authenticated read boundary
-// (../../server/doneCatalogRead.ts) reads them at a pinned revision: the catalog
-// is answered without reading a record, and only records that catalog lists
-// are read, each only when named and once per blob, at the revision and in
-// the project named. Gaps are in ./authenticated-read-done-catalog-gaps.spec.ts,
-// refused, failing, and abandoned reads in
-// ./authenticated-read-done-catalog-refusal.spec.ts. Tested directly against
-// real HTTP and a synthetic `gh` answering from the fake GitHub, observing the
-// `gh` calls that reach it (../../test-support/support/doneCatalogReads.ts).
-
+import { beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { performDoneCatalogRead } from "../../server/doneCatalogRead.ts";
+import { GhFailure, runGh } from "../../server/ghRead.ts";
+import { PinnedTexts } from "../../server/pinnedTexts.ts";
+import { reportedFailure } from "../../server/readFailureMessage.ts";
+import { RetainedAnswers } from "../../server/retainedAnswers.ts";
+import { RevisionMemo } from "../../server/revisionMemo.ts";
 import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  directoryListingAnswer,
+  listedFiles,
+} from "../../test-support/listingAnswers.ts";
 import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
-import {
-  answerOf,
   catalogOf,
   catalogPath,
-  doneCatalogReads,
   doneDirectory,
   doneRecords,
   fileOf,
@@ -33,192 +21,230 @@ import {
   publishedDone,
   revisionOf,
 } from "../../test-support/support/doneCatalogReads.ts";
-import { parseDoneRecordFile } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { parseRequest } from "../../test-support/support/ghRequest.ts";
 
-test.describe.configure({ mode: "serial" });
+vi.mock(import("../../server/ghRead.ts"), async (original) => ({
+  ...(await original()),
+  runGh: vi.fn(),
+}));
 
-test.describe("authenticated done catalog read (development environment)", () => {
-  let server: DashboardServer;
+const source = makeMe.aPublishedSource.openDough.please();
+const first = revisionOf("a1");
+const later = revisionOf("b2");
+const upstream = vi.mocked(runGh);
+let pinned: PinnedTexts;
+beforeEach(() => {
+  pinned = new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
+  upstream.mockReset();
+});
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+type Files = ReturnType<typeof publishedDone>;
+function serve(
+  pins: Readonly<Record<string, Files>>,
+  body: (path: string, text: string) => Promise<string> = (...[, text]) =>
+    Promise.resolve(text),
+) {
+  upstream.mockImplementation((args) => {
+    const request = parseRequest(args);
+    if (
+      (request.kind !== "content" && request.kind !== "listing") ||
+      request.repository !== source.repository
+    )
+      throw new Error(`Unexpected GitHub request: ${args.join(" ")}`);
+    const files = pins[request.revision];
+    if (files === undefined)
+      throw new Error(`Missing fixture pin ${request.revision}`);
+    if (request.kind === "listing")
+      return Promise.resolve(
+        directoryListingAnswer(request.path, listedFiles(files)).body,
+      );
+    const text = files[request.path];
+    if (text === undefined) throw new Error(`Unpublished path ${request.path}`);
+    return request.path === catalogPath
+      ? Promise.resolve(text)
+      : body(request.path, text);
   });
+}
 
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  const { catalogAt, bodiesAt, asked, contentAsked } = doneCatalogReads(
-    () => server,
+const contentPaths = () =>
+  upstream.mock.calls
+    .map(([args]) => parseRequest(args))
+    .flatMap((request) => (request.kind === "content" ? [request.path] : []));
+const catalog = (revision: string) =>
+  performDoneCatalogRead(
+    pinned,
+    source,
+    { kind: "done-catalog-at", revision },
+    new AbortController().signal,
+    vi.fn(),
   );
+const bodies = (revision: string, files: readonly string[], naming = vi.fn()) =>
+  performDoneCatalogRead(
+    pinned,
+    source,
+    { kind: "done-bodies-at", revision, files },
+    new AbortController().signal,
+    naming,
+  );
+const recordsIn = (files: Files) =>
+  catalogOf(files).records.map(({ fileName }) => fileName);
+const catalogAnswer = (revision: string, files: Files) => ({
+  kind: "answered",
+  answer: { revision, catalog: files[catalogPath] },
+});
+const bodyAnswer = (
+  revision: string,
+  files: Files,
+  names: readonly string[],
+) => ({
+  kind: "answered",
+  answer: {
+    revision,
+    records: names.map((name) => {
+      const path = `${doneDirectory}/${name}`;
+      return { path, text: files[path] };
+    }),
+  },
+});
 
-  test("the catalog is answered without reading a record, and only the named records are read, once", async () => {
-    const files = publishedDone({ doneRecords: doneRecords("named", 12) });
-    const published = publishes({ files });
-    const { revision } = published;
-    server.github.serve(everyRepository, published);
-    const catalog = catalogOf(files);
-
-    let before = server.github.calls.length;
-    const answered = await catalogAt(revision);
-    expect(answered.status).toBe(200);
-    expect(answerOf(answered)).toEqual({
-      revision,
-      catalog: files[catalogPath],
-    });
-    expect(asked(before)).toEqual([
-      `listing ${doneDirectory}@${revision}`,
-      `content ${catalogPath}@${revision}`,
-    ]);
-    expect(catalog.records.map(({ identity }) => identity)).toEqual(
-      [...Array(12).keys()]
-        .reverse()
-        .map((index) => identityOf("named", index)),
-    );
-
-    // The newest three, as a reader would name them from the catalog.
-    const named = catalog.records.slice(0, 3).map(({ fileName }) => fileName);
-    before = server.github.calls.length;
-    const bodies = await bodiesAt(revision, named);
-    expect(bodies.status).toBe(200);
-    expect(answerOf(bodies)).toEqual({
-      revision,
-      records: named.map((file) => {
-        const path = `${doneDirectory}/${file}`;
-        return { path, text: files[path] };
-      }),
-    });
-    expect(contentAsked(before).sort()).toEqual(
-      named
-        .map((file) => `content ${doneDirectory}/${file}@${revision}`)
-        .sort(),
-    );
-
-    // Asked again, with the next one: only that one reaches GitHub.
-    const next = catalog.records[3]?.fileName ?? "";
-    before = server.github.calls.length;
-    expect((await catalogAt(revision)).status).toBe(200);
-    expect((await bodiesAt(revision, [...named, next])).status).toBe(200);
-    expect(asked(before)).toEqual([
-      `content ${doneDirectory}/${next}@${revision}`,
-    ]);
+function holdingBodies() {
+  let resolve = () => {};
+  const promise = new Promise<void>((release) => {
+    resolve = release;
   });
+  return { promise, resolve };
+}
 
-  test("a later revision reads its own catalog and asks only for changed records named", async () => {
-    const records = doneRecords("later", 4);
-    const changedIdentity = identityOf("later", 1);
-    const removedIdentity = identityOf("later", 0);
-    const added = identityOf("later", 9);
-    const laterRecords = [
-      ...records.filter(
-        ({ identity }) =>
-          identity !== removedIdentity && identity !== changedIdentity,
+test("reads just the requested catalogued records and reuses the same blobs", async () => {
+  const files = publishedDone({ doneRecords: doneRecords("named", 12) });
+  serve({ [first]: files });
+  await expect(catalog(first)).resolves.toEqual(catalogAnswer(first, files));
+  expect(contentPaths()).toEqual([catalogPath]);
+  const named = recordsIn(files).slice(0, 3);
+  const next = fileOf(identityOf("named", 8));
+  upstream.mockClear();
+  await expect(bodies(first, named)).resolves.toEqual(
+    bodyAnswer(first, files, named),
+  );
+  expect(contentPaths()).toEqual(
+    named.map((name) => `${doneDirectory}/${name}`),
+  );
+  upstream.mockClear();
+  await expect(bodies(first, [...named, next])).resolves.toEqual(
+    bodyAnswer(first, files, [...named, next]),
+  );
+  expect(contentPaths()).toEqual([`${doneDirectory}/${next}`]);
+});
+
+test("a later catalog fetches only new or changed bodies and keeps the earlier pin", async () => {
+  const done = doneRecords("changed", 4);
+  const removed = identityOf("changed", 0);
+  const changed = identityOf("changed", 1);
+  const added = identityOf("changed", 9);
+  const oldFiles = publishedDone({ doneRecords: done });
+  const newFiles = publishedDone({
+    doneRecords: [
+      ...done.filter(
+        ({ identity }) => identity !== changed && identity !== removed,
       ),
       makeMe.aDoneRecord
-        .with({
-          identity: changedIdentity,
-          title: "Finish later 1, retitled",
-          completedAt: "2026-10-01T01:00:00.000Z",
-          developer: "Terry Yin",
-        })
+        .completed({ identity: changed, title: "Retitled" })
         .please(),
       makeMe.aDoneRecord
-        .with({
-          identity: added,
-          title: "Finish later 9",
-          completedAt: "2026-10-02T00:00:00.000Z",
-          developer: "Terry Yin",
-        })
+        .completed({ identity: added, title: "Newly done" })
         .please(),
-    ];
-    const files = publishedDone({ doneRecords: records });
-    const later = publishedDone({ doneRecords: laterRecords });
-    const everyFile = (published: Readonly<Record<string, string>>) =>
-      catalogOf(published).records.map(({ fileName }) => fileName);
-    const firstPublished = publishes({ files });
-    const secondPublished = publishes({ files: later });
-    const first = firstPublished.revision;
-    const second = secondPublished.revision;
-
-    server.github.serve(everyRepository, firstPublished);
-    expect((await catalogAt(first)).status).toBe(200);
-    expect((await bodiesAt(first, everyFile(files))).status).toBe(200);
-
-    server.github.serve(everyRepository, secondPublished);
-    let before = server.github.calls.length;
-    const catalog = await catalogAt(second);
-    expect(answerOf(catalog)).toEqual({
-      revision: second,
-      catalog: later[catalogPath],
-    });
-    const bodies = await bodiesAt(second, everyFile(later));
-    expect(answerOf(bodies)).toMatchObject({ revision: second });
-    expect(contentAsked(before).sort()).toEqual(
-      [catalogPath, pathOf(added), pathOf(changedIdentity)]
-        .map((path) => `content ${path}@${second}`)
-        .sort(),
-    );
-
-    // The record the later revision no longer has is read only at the
-    // revision that lists it.
-    before = server.github.calls.length;
-    const removed = await bodiesAt(second, [fileOf(removedIdentity)]);
-    expect(removed.status).toBe(404);
-    expect(contentAsked(before)).toEqual([]);
-    const earlier = await bodiesAt(first, [fileOf(changedIdentity)]);
-    expect(answerOf(earlier)).toEqual({
-      revision: first,
-      records: [
-        {
-          path: pathOf(changedIdentity),
-          text: files[pathOf(changedIdentity)],
-        },
-      ],
-    });
-    expect(contentAsked(before)).toEqual([]);
+    ],
   });
-
-  test("another project at the same revision is answered from its own catalog", async () => {
-    const revision = revisionOf("d4");
-    const ours = publishedDone({ doneRecords: doneRecords("ours", 2) });
-    const theirs = publishedDone({ doneRecords: doneRecords("theirs", 3) });
-    server.github.serve(everyRepository, publishes({ revision, files: ours }));
-    server.github.serve(
-      "nerds-odd-e/doughnut",
-      publishes({ revision, files: theirs }),
-    );
-    expect(answerOf(await catalogAt(revision))).toEqual({
-      revision,
-      catalog: ours[catalogPath],
-    });
-    expect(answerOf(await catalogAt(revision, "doughnut"))).toEqual({
-      revision,
-      catalog: theirs[catalogPath],
-    });
+  serve({ [first]: oldFiles, [later]: newFiles });
+  const oldNames = recordsIn(oldFiles);
+  await expect(bodies(first, oldNames)).resolves.toEqual(
+    bodyAnswer(first, oldFiles, oldNames),
+  );
+  upstream.mockClear();
+  await expect(catalog(later)).resolves.toEqual(catalogAnswer(later, newFiles));
+  const newNames = recordsIn(newFiles);
+  await expect(bodies(later, newNames)).resolves.toEqual(
+    bodyAnswer(later, newFiles, newNames),
+  );
+  expect(contentPaths().sort()).toEqual(
+    [catalogPath, pathOf(added), pathOf(changed)].sort(),
+  );
+  upstream.mockClear();
+  await expect(bodies(later, [fileOf(removed)])).resolves.toMatchObject({
+    kind: "refused",
+    status: 404,
   });
-
-  test("a record file the catalog could not read is listed by name and read as published", async () => {
-    const malformed = `${doneDirectory}/SEED-200_malformed.json`;
-    // A record in a later format: its exact bytes are what the catalog
-    // cannot read.
-    const files = publishedDone({
-      doneRecords: doneRecords("malformed", 2),
-      files: { [malformed]: '{"schemaVersion":2}\n' },
-    });
-    const published = publishes({ files });
-    const { revision } = published;
-    server.github.serve(everyRepository, published);
-    expect(catalogOf(files).unreadable.map(({ fileName }) => fileName)).toEqual(
-      ["SEED-200_malformed.json"],
-    );
-    expect((await catalogAt(revision)).status).toBe(200);
-    const bodies = await bodiesAt(revision, ["SEED-200_malformed.json"]);
-    expect(answerOf(bodies)).toEqual({
-      revision,
-      records: [{ path: malformed, text: files[malformed] }],
-    });
-    expect(
-      parseDoneRecordFile("SEED-200_malformed.json", files[malformed] ?? ""),
-    ).toMatchObject({ ok: false });
-  });
+  await expect(bodies(first, [fileOf(changed)])).resolves.toEqual(
+    bodyAnswer(first, oldFiles, [fileOf(changed)]),
+  );
+  expect(upstream).not.toHaveBeenCalled();
 });
+
+test("returns a catalogued unreadable body as published", async () => {
+  const name = "SEED-200_malformed.json";
+  const path = `${doneDirectory}/${name}`;
+  const text = '{"schemaVersion":2}\n';
+  const files = publishedDone({
+    doneRecords: doneRecords("malformed", 2),
+    files: { [path]: text },
+  });
+  serve({ [first]: files });
+  await expect(bodies(first, [name])).resolves.toEqual({
+    kind: "answered",
+    answer: { revision: first, records: [{ path, text }] },
+  });
+  expect(contentPaths()).toEqual([catalogPath, path]);
+});
+
+test("reads independent record blobs together with at most four outstanding", async () => {
+  const files = publishedDone({ doneRecords: doneRecords("parallel", 6) });
+  const names = recordsIn(files);
+  const { promise: held, resolve: release } = holdingBodies();
+  let active = 0;
+  let highWater = 0;
+  serve({ [first]: files }, async (...[, text]) => {
+    active += 1;
+    highWater = Math.max(active, highWater);
+    await held;
+    active -= 1;
+    return text;
+  });
+  const answer = bodies(first, names);
+  try {
+    await expect.poll(() => active).toBe(4);
+  } finally {
+    release();
+  }
+  await expect(answer).resolves.toEqual(bodyAnswer(first, files, names));
+  expect(highWater).toBe(4);
+});
+
+test.each(["before", "after"] as const)(
+  "names the failed path when a sibling is requested %s it",
+  async (order) => {
+    const files = publishedDone({ doneRecords: doneRecords("failed", 3) });
+    const failedIdentity = identityOf("failed", 1);
+    const siblingIdentity = identityOf("failed", 2);
+    const failed = pathOf(failedIdentity);
+    const sibling = pathOf(siblingIdentity);
+    const naming = vi.fn<(reading: string) => void>();
+    const { promise: started, resolve: siblingStarted } = holdingBodies();
+    serve({ [first]: files }, async (record, text) => {
+      if (record === sibling) siblingStarted();
+      if (record === failed) {
+        await started;
+        throw new GhFailure({ kind: "unreachable" });
+      }
+      return text;
+    });
+    const names = [failedIdentity, siblingIdentity].map(fileOf);
+    if (order === "before") names.reverse();
+    const outcome = await bodies(first, names, naming).catch((error: unknown) =>
+      reportedFailure(error, source, naming.mock.lastCall?.[0] ?? ""),
+    );
+    expect(outcome).toMatchObject({
+      message: `The local GitHub CLI could not reach GitHub while reading ${failed} at ${first}.`,
+      recovery: "transient",
+    });
+  },
+);

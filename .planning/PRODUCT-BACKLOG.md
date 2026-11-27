@@ -28,19 +28,17 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Remove leftover unbound recovery and overlapping story-linked session tests](seeds/SEED-447-clean-up-story-linked-session-tests.md#clean-up-story-linked-session-tests) — SEED-447#clean-up-story-linked-session-tests ([plan](slice-plans/878-clean-up-story-linked-session-tests/PLAN.md))
-- [Prove Dashboard runtime behavior in fast unit cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-cases) — SEED-413#fast-runtime-unit-cases ([plan](slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md))
-- [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place ([plan](slice-plans/853-refresh-published-board-in-place/PLAN.md))
-- [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected ([plan](slice-plans/881-keep-full-frontend-runs-connected/PLAN.md))
-- [Prove published read admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-read-admission-via-vitest) — SEED-413#published-read-admission-via-vitest ([plan](slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md))
-- [Keep Intent's session review and its proof whole after the retirement](seeds/SEED-418-review-published-session-changes.md#keep-session-review-proof-after-retirement) — SEED-418#keep-session-review-proof-after-retirement ([plan](slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md))
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest ([plan](slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md))
-- [Show the selected ad hoc session on Intent Home](seeds/SEED-418-review-published-session-changes.md#show-selected-session-in-review-home) — SEED-418#show-selected-session-in-review-home ([plan](slice-plans/877-show-selected-ad-hoc-session-on-intent-home/PLAN.md))
+- [Close the preview's incident record when the watcher ends on SIGHUP](seeds/SEED-370-remove-old-dashboard-deployments.md#close-preview-incident-record-on-sighup) — SEED-370#close-preview-incident-record-on-sighup ([plan](slice-plans/889-close-preview-incident-record-on-sighup/PLAN.md))
+- [Follow published progress from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git ([plan](slice-plans/823-follow-published-progress-from-local-git/PLAN.md))
 
 ## Backlog list
 
 - [Prove GitHub request lifetime and failure evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#github-request-lifetime-and-evidence-via-vitest) — SEED-413#github-request-lifetime-and-evidence-via-vitest
-- [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
+- [Retire the held-read race step that cannot fail](seeds/SEED-418-review-published-session-changes.md#prove-or-retire-held-read-race-step) — SEED-418#prove-or-retire-held-read-race-step
+- [Correct the fast runtime cases' leftovers](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-case-cleanup) — SEED-413#fast-runtime-unit-case-cleanup
+- [Read Board records at their published pins](seeds/SEED-430-read-published-project-data-from-local-git.md#read-board-records-at-published-pins) — SEED-430#read-board-records-at-published-pins
+- [Share one project refresh across Board and Review](seeds/SEED-430-read-published-project-data-from-local-git.md#share-one-refresh-across-board-and-review) — SEED-430#share-one-refresh-across-board-and-review
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
@@ -49,6 +47,7 @@ intent introduced or affected by a newly developed story.
 - [Prove Dashboard machine observations in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#machine-observation-via-vitest) — SEED-413#machine-observation-via-vitest
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream
+- [Make Recently done setup traceable and Claude timeout proof reliable](seeds/SEED-341-simplify-session-tests.md#make-recently-done-setup-and-claude-timeout-proof-reliable) — SEED-341#make-recently-done-setup-and-claude-timeout-proof-reliable
 - [Continue a ready split story automatically after wrap-up](seeds/SEED-366-continue-split-stories-automatically.md#continue-a-ready-split-story-automatically) — SEED-366#continue-a-ready-split-story-automatically
 - [Put story actions in the comment toolbar](seeds/SEED-416-put-story-actions-in-the-comment-toolbar.md#put-story-actions-in-the-comment-toolbar) — SEED-416#put-story-actions-in-the-comment-toolbar
 - [Review the combined changes of selected sessions](seeds/SEED-418-review-published-session-changes.md#review-selected-sessions-together) — SEED-418#review-selected-sessions-together
@@ -94,3 +93,4 @@ intent introduced or affected by a newly developed story.
 - [Introduce Cucumber to E2E Test](seeds/SEED-405-introduce-cucumber-to-e2e-test.md#introduce-cucumber-to-e2e-test) — SEED-405#introduce-cucumber-to-e2e-test
 - [Recover expired session reviews from Git history](seeds/SEED-418-review-published-session-changes.md#recover-expired-session-reviews) — SEED-418#recover-expired-session-reviews
 - [Decide whether claim closure needs its own borrowed-checkout refresh rule](seeds/SEED-423-shrink-the-installed-distribution.md#decide-borrowed-checkout-refresh-rule) — SEED-423#decide-borrowed-checkout-refresh-rule
+- [Change launch records beside a running server under its lock](seeds/SEED-413-renovate-dashboard-unit-tests.md#lock-launch-store-writes-beside-server) — SEED-413#lock-launch-store-writes-beside-server

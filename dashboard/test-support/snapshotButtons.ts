@@ -1,8 +1,8 @@
 // Every button a shown snapshot offers, and nothing else: the banner's
 // Sessions, Recent stories (when a project is selected), System settings,
-// Start session, the badge legend, each Backlog card's launch actions, and
-// each card's detail toggle and Notes, plus Review changes and Follow up on
-// Taken cards without open sessions.
+// Start session, the badge legend, the Board's Refresh, each Backlog card's
+// launch actions, and each card's detail toggle and Notes, plus Review changes
+// and Follow up on Taken cards without open sessions.
 import { expect, type Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
 import {
@@ -28,6 +28,7 @@ export async function expectSnapshotButtons(
     button("System settings"),
     page.getByRole("button", { name: /^Start session in / }),
     parts(page).preparationHelp,
+    button("Refresh"),
   ];
   for (const control of fixedBannerButtons) {
     await expect(control).toHaveCount(1);

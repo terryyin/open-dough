@@ -221,3 +221,7 @@
 .intent-page-panel > :is(.intent-not-configured, .intent-settings-problem) {
   margin: 0;
 }
+
+.intent-session-instruction {
+  white-space: pre-wrap;
+}

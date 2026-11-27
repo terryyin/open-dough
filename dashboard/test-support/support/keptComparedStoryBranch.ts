@@ -1,7 +1,7 @@
 // A compared Story Branch's real-CLI history
 // (./storyCiComparisonDoneFixture.ts), completed once by a worker before its
-// first case that asks for it (./pageTest.ts registers it in the common pool)
-// and kept under its own description, so the queued slot it
+// first case that asks for it (./workerPreparationFixtures.ts declares it in
+// the common pool) and kept under its own description, so the queued slot it
 // starts from stays the ordinary queued trunk. Each case's origin, checkout,
 // HOME and server are an independent copy that already holds the history;
 // the case publishes its own GitHub answers with publishComparedHistory.

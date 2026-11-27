@@ -5,7 +5,6 @@ import {
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
-import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   startSession,
   startSessionDialog,
@@ -26,6 +25,7 @@ import {
   typeInstructionLine,
 } from "../../dashboard/test-support/touchLaunchPage.ts";
 import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 const executionCheckoutEffects =
   "Execution checkout · Automatically land Start publishes a Taken story before the session opens. The session runs in this project's execution checkout, with its existing changes; verified results land on origin without another review. Pressing Start authorizes that push.";
@@ -40,7 +40,7 @@ test.describe(`${name} touch session editing`, () => {
     origin,
     dashboard,
   }) => {
-    await openBacklog(page, origin, true);
+    await openInstalledStoryBoard(page, origin);
     const launcher = startSession(page, "Open Dough");
     await tapWhereShown(launcher);
     const dialog = startSessionDialog(page, "Open Dough");

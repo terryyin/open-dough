@@ -22,7 +22,9 @@ import {
   routeFallbackThroughServedHomes,
   routeOriginThroughServedHomes,
 } from "./fixtureOriginRoute.ts";
-import { publishedOriginOf } from "./publishedRepository.ts";
+import { publishedOriginOf, publishes } from "./publishedRepository.ts";
+import type { RepositoryDescription } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { describedFiles } from "../describedRevisions.ts";
 
 export { publishes } from "./publishedRepository.ts";
 
@@ -67,10 +69,11 @@ export type FakeGitHub = {
   // here and neither answered nor given up by their `gh`. The function it
   // returns reports the most there have been since.
   observeUnanswered(): () => number;
-  // Answers `repository` (or `everyRepository`) with `answerer` from now on.
+  // Answers `repository` (or `everyRepository`) with `answerer` from now on,
+  // or publishes a one-revision description on its trunk branch.
   serve(
     repository: string,
-    answerer: RepositoryAnswerer,
+    answerer: RepositoryAnswerer | RepositoryDescription<string>,
   ): RepositoryAnswerer | undefined;
   // Answers avatar image reads with `answerer` from now on; until then every
   // avatar is not found.
@@ -195,7 +198,14 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
       observers.add(observer);
       return () => observer.most;
     },
-    serve(repository, answerer) {
+    serve(repository, answering) {
+      const answerer =
+        typeof answering === "function"
+          ? answering
+          : publishes({
+              defaultBranch: answering.trunkBranch ?? "main",
+              files: describedFiles(answering),
+            });
       const previous = served.get(repository);
       served.set(repository, answerer);
       const published = publishedOriginOf(answerer);

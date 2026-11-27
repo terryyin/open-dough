@@ -1,51 +1,90 @@
-// Production process ownership (../../server/productionProcess.mjs): a
-// production build or preview runs as its own process group, and stopping it
-// ends that whole group.
+// Production process ownership (../../server/productionProcess.mjs): stopping
+// a build or preview signals its whole process group and succeeds once the
+// group has no live member. Real spawn and group kill are proven by
+// e2e/runtime/production-watcher.spec.ts (SIGHUP ends production).
 import { expect, test } from "vitest";
-import { spawnSync } from "node:child_process";
-import { tmpdir } from "node:os";
-import { ownedProcess, stopProcess } from "../../server/productionProcess.mjs";
+import { signalProcessGroup } from "../../server/productionProcess.mjs";
 
-// The leader forks a holder; the holder forks a member that exits at once,
-// then leaves the group without reaping it. Stopping the leader leaves only
-// that unreaped member, which macOS answers with EPERM rather than ESRCH.
-const unreapedMemberGroup = `
-$| = 1;
-my $exited = 0;
-my $holder = fork();
-if ($holder == 0) {
-  $SIG{CHLD} = sub { $exited = 1 };
-  my $member = fork();
-  exit 0 if $member == 0;
-  setpgrp(0, 0);
-  sleep 1 until $exited;
-  print "holder $$\n";
-  close STDOUT;
-  close STDERR;
-  sleep 60;
-  exit 0;
-}
-sleep 60 while 1;
-`;
-
-test("stopping a production process whose group keeps only an unreaped member succeeds", async () => {
-  const owned = ownedProcess("perl", ["-e", unreapedMemberGroup], {
-    cwd: tmpdir(),
-  });
-  await expect.poll(() => owned.output()).toMatch(/holder \d+/);
-  const holder = Number(/holder (\d+)/.exec(owned.output())?.[1]);
+// A `ps -axo pgid=,stat=` reading: one line per process.
+const psReading = (...members: [pgid: number, stat: string][]) =>
+  members.map(([pgid, stat]) => `  ${pgid} ${stat}`).join("\n");
+const refused = (code: string) => () => {
+  throw Object.assign(new Error(code), { code });
+};
+// "stopped", or the error code the stop propagated.
+const stopOutcome = (stop: () => void) => {
   try {
-    const groupStates = () =>
-      spawnSync("ps", ["-axo", "pgid=,stat="], { encoding: "utf8" })
-        .stdout.split("\n")
-        .map((line) => line.trim().split(/\s+/))
-        .filter(([pgid]) => pgid === String(owned.child.pid))
-        .map(([, stat]) => stat?.[0]);
-    await stopProcess(owned);
-    expect(await owned.exited).toEqual({ code: null, signal: "SIGTERM" });
-    // The stop ended while the group still held its unreaped member.
-    expect(groupStates()).toEqual(["Z"]);
-  } finally {
-    process.kill(holder, "SIGKILL");
+    stop();
+    return "stopped";
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code;
+  }
+};
+
+test("stopping a process group succeeds only once no member is live", () => {
+  const groups = [
+    {
+      group: "already gone",
+      ended: false,
+      refusal: "ESRCH",
+      reading: undefined,
+      outcome: "stopped",
+    },
+    {
+      group: "only an unreaped member",
+      ended: true,
+      refusal: "EPERM",
+      reading: psReading([700, "Z"]),
+      outcome: "stopped",
+    },
+    {
+      group: "an exiting member",
+      ended: true,
+      refusal: "EPERM",
+      reading: psReading([700, "?NE"]),
+      outcome: "stopped",
+    },
+    {
+      group: "only other groups' live members",
+      ended: true,
+      refusal: "EPERM",
+      reading: psReading([701, "S"]),
+      outcome: "stopped",
+    },
+    {
+      group: "a live member beside an unreaped one",
+      ended: true,
+      refusal: "EPERM",
+      reading: psReading([700, "Z"], [700, "S+"]),
+      outcome: "EPERM",
+    },
+    {
+      group: "an unreadable process list",
+      ended: true,
+      refusal: "EPERM",
+      reading: undefined,
+      outcome: "EPERM",
+    },
+    {
+      group: "the owned child still running",
+      ended: false,
+      refusal: "EPERM",
+      reading: psReading([700, "Z"]),
+      outcome: "EPERM",
+    },
+  ];
+  for (const { group, ended, refusal, reading, outcome } of groups) {
+    expect(
+      stopOutcome(() => {
+        signalProcessGroup({
+          pgid: 700,
+          ended,
+          signal: "SIGTERM",
+          kill: refused(refusal),
+          readGroups: () => reading,
+        });
+      }),
+      group,
+    ).toBe(outcome);
   }
 });

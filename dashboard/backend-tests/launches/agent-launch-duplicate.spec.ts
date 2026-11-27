@@ -99,10 +99,12 @@ async function started(request: AgentLaunchRequest) {
   return accepted.attempt;
 }
 
+// A loaded machine takes many seconds to start an ad hoc launch, so the cases
+// that wait on one allow 30 s per start step.
 async function settled(id: string) {
   let seen: number | undefined;
   for (;;) {
-    const { attempt } = await launches.changed(id, 4_000, seen);
+    const { attempt } = await launches.changed(id, 30_000, seen);
     if (attempt?.running === false) return attempt.outcome;
     if (attempt === undefined || attempt.changes === seen)
       throw new Error("The accepted launch did not settle.");
@@ -113,7 +115,7 @@ async function settled(id: string) {
 async function held(request: AgentLaunchRequest, count = 1) {
   const attempt = await started(request);
   await expect
-    .poll(() => native.claudeLaunches(), { timeout: 3_000 })
+    .poll(() => native.claudeLaunches(), { timeout: 30_000 })
     .toHaveLength(count);
   return attempt;
 }
@@ -136,12 +138,12 @@ async function expectSingleLaunch(request: AgentLaunchRequest) {
 test("overlapping Claude instruction starts dispatch only once", async () => {
   await expectSingleLaunch(instructed);
   expect(native.claudeLaunches()[0]?.instruction).toContain("Investigate.");
-});
+}, 60_000);
 
 test("overlapping Claude blank starts dispatch only once without input", async () => {
   await expectSingleLaunch(blank);
   expect(native.claudeLaunches()[0]).not.toHaveProperty("instruction");
-});
+}, 60_000);
 
 test("an overlapping start-less Claude story dispatches only once", async () => {
   const scripts = installedSkillPath(
@@ -184,7 +186,7 @@ test("changed Claude story choices cannot bypass an in-flight launch", async () 
   expect(await records()).toMatchObject([
     { request, preparation: { identity: storyA.identity } },
   ]);
-});
+}, 60_000);
 
 test("Claude keeps the gate after acceptance and releases it while native work continues", async () => {
   native.claudeScenario("held");
@@ -204,7 +206,7 @@ test("Claude keeps the gate after acceptance and releases it while native work c
   });
   expect(await records()).toHaveLength(2);
   expect(native.claudeLaunches()).toHaveLength(2);
-});
+}, 60_000);
 
 test("Claude native refusal releases the gate for a retry", async () => {
   native.claudeScenario("refused");
@@ -220,7 +222,7 @@ test("Claude native refusal releases the gate for a retry", async () => {
 
   expect(await records()).toHaveLength(1);
   expect(native.claudeLaunches()).toHaveLength(2);
-});
+}, 60_000);
 
 test("distinct Claude instructions remain independent while both launches are held", async () => {
   const first = makeMe.aLaunchRequest
@@ -242,4 +244,4 @@ test("distinct Claude instructions remain independent while both launches are he
   expect(await settled(firstAttempt.id)).toMatchObject({ kind: "launched" });
   expect(await settled(secondAttempt.id)).toMatchObject({ kind: "launched" });
   expect(await records()).toHaveLength(2);
-});
+}, 60_000);

@@ -1,5 +1,6 @@
 // Keep a story's displayed published comparison while refreshing its evidence.
 
+import type { AdHocSessionDetails } from "./storySessions.ts";
 import { useRef, useState } from "react";
 import type { LaunchRecord } from "./launchRecord.ts";
 import {
@@ -38,6 +39,8 @@ export function useStoryComparison({
   // The default review read, which owns the story's completed result.
   readonly defaultReview: StoryReview | undefined;
   readonly reading: boolean;
+  // Whether a session is the reviewed scope, even before its read answers.
+  readonly sessionChosen: boolean;
   readonly initialSync?: ReviewInitialSyncFeedback | undefined;
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
@@ -48,21 +51,23 @@ export function useStoryComparison({
   readonly refreshed: boolean;
   // Reread publication evidence, keeping the choice.
   readonly onRefresh: () => void;
+  readonly sessionDetails: AdHocSessionDetails | undefined;
 } {
   // The choice and its refreshes belong to the story in its project. A story
-  // becoming Done opens on its result.
+  // becoming Done opens on its result. An opening applies to the selection
+  // that carried it: selecting another story drops it, so the story selected
+  // again starts at Whole story.
   const opening = useStoryReviewOpening(source);
-  const sequence =
-    opening?.identity === identity ? opening.sequence : undefined;
   const [lastOpening, setLastOpening] = useState(opening);
-  if (sequence !== undefined && sequence !== lastOpening?.sequence)
-    setLastOpening(opening);
+  // The opening that applies: the story's current one, else the one kept
+  // while the story stays selected.
   const explicit =
-    sequence !== undefined
+    opening?.identity === identity
       ? opening
       : lastOpening?.identity === identity && lastOpening.project === source
         ? lastOpening
         : undefined;
+  if (explicit?.sequence !== lastOpening?.sequence) setLastOpening(explicit);
   const explicitOpening = explicit?.sequence;
   const keyedBy = JSON.stringify([
     source,
@@ -112,6 +117,8 @@ export function useStoryComparison({
     opened: explicit?.session,
   });
   const { sessions, session, onSession, scopeKey, ranges } = sessionScope;
+  // The chosen ad hoc session's details, whatever its comparison's state.
+  const sessionDetails = sessions.find(({ key }) => key === session)?.details;
   // The reviewed scope: the chosen session, otherwise the whole story.
   const subject = sessionScope.subject ?? storySubject;
   const defaultReview = storySelection.defaultReview;
@@ -133,11 +140,13 @@ export function useStoryComparison({
       review: undefined,
       defaultReview: undefined,
       reading: false,
+      sessionChosen: false,
       problem: undefined,
       shown: undefined,
       compare: undefined,
       refreshed: false,
       onRefresh,
+      sessionDetails,
     };
   const storyShown = storyComparisonShown({
     subject,
@@ -179,6 +188,7 @@ export function useStoryComparison({
     published !== undefined ||
     (completed && defaultReview?.kind === "unavailable");
   return {
+    sessionChosen: session !== undefined,
     review: reviewKept,
     defaultReview: carry ? defaultReview : undefined,
     reading: readingNow,
@@ -188,6 +198,7 @@ export function useStoryComparison({
     shown: shownKept,
     refreshed: round > 0,
     onRefresh,
+    sessionDetails,
     compare: !carry
       ? undefined
       : {

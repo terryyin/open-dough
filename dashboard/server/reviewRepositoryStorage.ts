@@ -10,11 +10,11 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { GitTargetFetches } from "./gitTargetFetch.ts";
 import {
   defaultGitOutputLimit as maxBuffer,
+  fetchGitTransport,
   gitExitedOne,
   gitProblem,
   runGit,
   runGitUntilClosed,
-  runGitWithProgressUntilClosed,
 } from "./gitRunner.ts";
 import { whileGitProgresses } from "./gitFetchProgress.ts";
 import {
@@ -53,12 +53,30 @@ export async function lastSync(
   }
 }
 
+// Concurrent first uses of one repository share its creation, so a Review
+// sync and the Board check never race `git init` or the origin config. The
+// creation is local and belongs to no one caller: a caller that departs
+// stops only its own wait, never another caller's creation.
+const creations = new Map<string, Promise<void>>();
+
 async function createIfMissing(
   repository: string,
   source: PublishedSource,
   signal: AbortSignal,
-) {
-  const call = { cwd: repository, signal, maxBuffer };
+): Promise<void> {
+  let creating = creations.get(repository);
+  if (creating === undefined) {
+    creating = create(repository, source).finally(() =>
+      creations.delete(repository),
+    );
+    creations.set(repository, creating);
+  }
+  await creating;
+  signal.throwIfAborted();
+}
+
+async function create(repository: string, source: PublishedSource) {
+  const call = { cwd: repository, maxBuffer };
   if (existsSync(path.join(repository, "HEAD"))) {
     try {
       await runGit(["config", "--local", "--get", "remote.origin.url"], call);
@@ -76,8 +94,9 @@ async function createIfMissing(
   );
 }
 
-// The verified-trunk check shares this bare repository. Review's tracking
-// fetch and sync record stay in `fetchPublishedRef`.
+// The verified-trunk check shares this bare repository but fetches into its
+// own refs. Review's tracking fetch and sync record stay in
+// `fetchPublishedRef`.
 export async function ensureReviewRepository(
   source: PublishedSource,
   signal: AbortSignal,
@@ -141,7 +160,7 @@ async function fetchPublishedRef(
       `+refs/heads/${ref}:${trackingRef(ref)}`,
     ];
     if (progress === undefined) await runGitUntilClosed(args, call);
-    else await runGitWithProgressUntilClosed(args, call, progress);
+    else await fetchGitTransport(args, call, progress);
     const revision = await verifiedRef(repository, ref, signal);
     await record(repository, { lastSyncedAt: new Date().toISOString() });
     return revision;

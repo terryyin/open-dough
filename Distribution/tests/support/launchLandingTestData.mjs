@@ -109,6 +109,15 @@ export class LandingSubmissionBuilder {
     return this;
   }
 
+  /**
+   * Landing on the trunk these facts state, unless stated `origin`'s `main`.
+   * @param {Partial<Pick<LandingSubmission, "remote" | "target">>} trunk
+   */
+  landingOnTrunk(trunk) {
+    this.#submission = { ...this.#submission, ...trunk };
+    return this;
+  }
+
   /** @param {Comparison} comparison */
   comparing({ base, revision }) {
     this.#submission = { ...this.#submission, base, revision };

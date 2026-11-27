@@ -1,17 +1,19 @@
 // One Board candidate at the Git boundary. Probe the configured ref, fetch
-// that branch (not the probed SHA), and admit the backlog only when
-// FETCH_HEAD is the probed commit. Review's tracking ref and sync record
-// stay Review's: `--refmap=` ignores `remote.origin.fetch`, including a
-// configured `+refs/heads/*:refs/remotes/origin/*`.
+// that branch (not the probed SHA) into the Board's own
+// `refs/open-dough/board/<branch>`, and admit the backlog only when that ref
+// is the probed commit. The ref keeps the confirmed objects reachable, and
+// Review's fetches, tracking ref and sync record stay Review's: `--refmap=`
+// ignores `remote.origin.fetch`, including a configured
+// `+refs/heads/*:refs/remotes/origin/*`, and no FETCH_HEAD is shared.
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { commitIdSchema } from "../src/launchLanding.ts";
 import { GhFailure } from "./ghFailure.ts";
 import { remoteBranchHead } from "./gitTargetFetch.ts";
 import {
   defaultGitOutputLimit,
+  fetchGitTransport,
   GitFailure,
   runGit,
-  runGitUntilClosed,
   type GitCall,
 } from "./gitRunner.ts";
 import {
@@ -21,17 +23,37 @@ import {
 import { observeProjectRevision } from "./observedSessionLandings.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { ensureReviewRepository } from "./reviewRepositoryStorage.ts";
+import {
+  boardConfirmation,
+  recordBoardConfirmation,
+  type BoardConfirmation,
+} from "./boardConfirmation.ts";
 
 export type VerifiedOriginTrunk =
   | {
       readonly kind: "verified";
       readonly revision: string;
       readonly backlog: string;
+      readonly confirmedAt: string;
+      // The newer confirmation could not be recorded, so the former one
+      // answers.
+      readonly unrecorded?: true;
     }
   | { readonly kind: "missing-trunk" }
   | { readonly kind: "unavailable" }
   | { readonly kind: "unreadable-backlog" }
   | { readonly kind: "rejected" };
+
+// One check's fixed context: the Review repository it reads with Git and the
+// pinned texts it publishes into.
+type BoardCheck = {
+  readonly repository: string;
+  readonly source: PublishedSource;
+  readonly pinned: PinnedTexts;
+  readonly call: GitCall;
+};
+
+type BoardRead = { readonly revision: string; readonly backlog: string };
 
 const reviewGitCall = (repository: string, signal: AbortSignal): GitCall => ({
   cwd: repository,
@@ -70,7 +92,9 @@ export async function verifiedOriginTrunk(
 ): Promise<VerifiedOriginTrunk> {
   const repository = await ensureReviewRepository(source, signal);
   const call = reviewGitCall(repository, signal);
+  const check: BoardCheck = { repository, source, pinned, call };
   const ref = `refs/heads/${source.ref}`;
+  const boardRef = `refs/open-dough/board/${source.ref}`;
   let probed: string;
   try {
     const head = await remoteBranchHead(
@@ -84,31 +108,96 @@ export async function verifiedOriginTrunk(
   } catch (error) {
     return transportOutcome(error, signal);
   }
+  const former = await boardConfirmation(repository, source.ref);
+  // Warm: origin still advertises the recorded revision, whose objects are
+  // local, so the backlog is read there without a fetch.
+  const warm =
+    former?.revision === probed ? await backlogAt(check, probed) : undefined;
+  if (warm !== undefined)
+    return confirmed(check, { revision: probed, backlog: warm }, former);
   try {
-    await runGitUntilClosed(
-      [...githubGitCredentials, "fetch", "--quiet", "--refmap=", "origin", ref],
+    // Owned through cancellation: the deadline ends Git and its transport.
+    await fetchGitTransport(
+      [
+        ...githubGitCredentials,
+        "fetch",
+        "--quiet",
+        "--no-write-fetch-head",
+        "--refmap=",
+        "origin",
+        `+${ref}:${boardRef}`,
+      ],
       call,
     );
   } catch (error) {
     return transportOutcome(error, signal);
   }
   const fetched = commitIdSchema.parse(
-    (await runGit(["rev-parse", "--verify", "FETCH_HEAD"], call)).stdout.trim(),
+    (
+      await runGit(["rev-parse", "--verify", `${boardRef}^{commit}`], call)
+    ).stdout.trim(),
   );
   if (fetched !== probed) return { kind: "rejected" };
-  let backlog: string;
+  const backlog = await backlogAt(check, probed);
+  if (backlog === undefined) return { kind: "unreadable-backlog" };
+  return confirmed(check, { revision: probed, backlog }, former);
+}
+
+async function backlogAt(
+  { source, call }: BoardCheck,
+  revision: string,
+): Promise<string | undefined> {
   try {
-    backlog = (
+    return (
       await runGit(
-        ["cat-file", "blob", `${probed}:${source.backlogPath}`],
+        ["cat-file", "blob", `${revision}:${source.backlogPath}`],
         call,
       )
     ).stdout;
   } catch (error) {
-    if (signal.aborted) throw error;
-    return { kind: "unreadable-backlog" };
+    if (call.signal?.aborted) throw error;
+    return undefined;
   }
-  pinned.remember(source, probed, source.backlogPath, backlog);
-  observeProjectRevision(pinned, source, probed);
-  return { kind: "verified", revision: probed, backlog };
+}
+
+// The commit point: the pinned backlog read is published only once its
+// confirmation is recorded. A failed record answers the former confirmation,
+// marked unrecorded, or fails when there is none.
+async function confirmed(
+  check: BoardCheck,
+  read: BoardRead,
+  former: BoardConfirmation | undefined,
+): Promise<VerifiedOriginTrunk> {
+  const confirmedAt = new Date().toISOString();
+  try {
+    await recordBoardConfirmation(check.repository, check.source.ref, {
+      revision: read.revision,
+      confirmedAt,
+    });
+  } catch (error) {
+    const formerBacklog =
+      former === undefined
+        ? undefined
+        : await backlogAt(check, former.revision);
+    if (former === undefined || formerBacklog === undefined) throw error;
+    return {
+      ...published(
+        check,
+        { revision: former.revision, backlog: formerBacklog },
+        former.confirmedAt,
+      ),
+      unrecorded: true,
+    };
+  }
+  return published(check, read, confirmedAt);
+}
+
+function published(
+  { source, pinned }: BoardCheck,
+  { revision, backlog }: BoardRead,
+  confirmedAt: string,
+) {
+  pinned.remember(source, revision, source.backlogPath, backlog);
+  observeProjectRevision(pinned, source, revision);
+  return { kind: "verified" as const, revision, backlog, confirmedAt };
 }

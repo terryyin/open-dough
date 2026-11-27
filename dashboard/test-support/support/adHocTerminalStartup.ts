@@ -6,7 +6,6 @@ import { sessionsAudienceParameter } from "../../src/machineSessionsRevision.ts"
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { parts, sessionNamedBy, sessionEntriesIn } from "../dashboardPage.ts";
-import { openCatalogLaunchBoard } from "./codexLaunch.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
 import {
   openTerminalControl,
@@ -15,6 +14,8 @@ import {
 } from "../terminalScreenPage.ts";
 import { isTerminalSocket, watchTerminalSockets } from "./terminalSockets.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { openInstalledStoryBoard } from "../installedStoryCardPage.ts";
+import { catalogOrigin } from "./catalogProjectOrigin.ts";
 
 // While withheld, the page reads every launch attempt of this machine as still
 // starting, though its session may already be listed: the window between the
@@ -81,7 +82,7 @@ export async function openWhileStarting(
     stopWithholding();
     await passOnePace();
   };
-  await openCatalogLaunchBoard(page, dashboard.home);
+  await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
   const dialog = page.getByRole("dialog", {
     name: "Start a session in Open Dough in Claude Code",
   });

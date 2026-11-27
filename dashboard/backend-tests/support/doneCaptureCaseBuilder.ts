@@ -7,6 +7,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import type { Dated, Places } from "./doneCaptureCasePlaces.ts";
 import { dashboardOrigin } from "./publisherDashboardOrigin.ts";
+import { takenStoryFiles } from "./doneCaptureCase.ts";
 import {
   type Facts,
   type Launch,
@@ -70,6 +71,11 @@ export class DoneCaptureCaseBuilder<
       ...this.facts,
       baseFiles: files,
     });
+  }
+
+  // The checkout's base, before every launch, takes `story` with its seed.
+  withTakenStory(story: Parameters<typeof takenStoryFiles>[0]) {
+    return this.withBaseFiles(takenStoryFiles(story));
   }
 
   // The checkout's history also holds these named revisions.

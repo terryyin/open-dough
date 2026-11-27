@@ -6,6 +6,7 @@ import {
   tokenColour,
 } from "../configuration/system-settings-reading.ts";
 import { textContrast } from "../navigation/board-accessibility.ts";
+import { expandButton } from "../page-objects/activateButton.ts";
 import { emulateMedia } from "../review/browser-session.ts";
 import { scopeToggle } from "./intent-browser-page.ts";
 import { fileLayout, focus, intentPage } from "./intent-file-layout-page.ts";
@@ -95,9 +96,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
 
   await story.listRevision();
   const folder = scopeToggle("folder");
-  await expect.element(folder).toBeVisible();
-  if (folder.element().getAttribute("aria-expanded") === "false")
-    await folder.click();
+  await expandButton(folder);
   const file = story.file(`Modified ${changed}`);
   await expect.element(file).toBeVisible();
   textContrast(file.element().querySelector("code") as Element);

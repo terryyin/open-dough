@@ -1,3 +1,4 @@
+import type { LocalBoundary } from "../../server/localBoundary.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import { startInProcessBoundaryHttp } from "./inProcessBoundaryHttp.ts";
 import { withRestoredEnv } from "./testEnv.ts";
@@ -41,7 +42,15 @@ export async function withMountedDashboard<
   }
 }
 
-function processOnly(member: "pid" | "output"): never {
+// The worker mounts every local boundary but the incident record lifecycle,
+// which belongs to a server process.
+export function mountedBoundaries(
+  boundaries: readonly LocalBoundary[],
+): readonly LocalBoundary[] {
+  return boundaries.filter(({ name }) => name !== "dough-incident-record");
+}
+
+export function processOnly(member: "pid" | "output"): never {
   throw new Error(
     `The mounted dashboard server has no ${member}. Use liveServer to prove a separate process.`,
   );
@@ -82,7 +91,7 @@ export async function launchMountedDashboard(
     cleanups.unshift(withRestoredEnv(overrides));
     const { localBoundaries } = await import("../../server/localBoundaries.ts");
     const boundary = await startInProcessBoundaryHttp(
-      localBoundaries.filter(({ name }) => name !== "dough-incident-record"),
+      mountedBoundaries(localBoundaries),
       options.environment,
       options.port,
     );

@@ -13,7 +13,6 @@ import { readFinalReport } from "../../dashboard/test-support/finalReportPages.t
 import type { Page } from "@playwright/test";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import { test } from "../../dashboard/test-support/support/startOriginTest.ts";
-import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import {
@@ -43,6 +42,7 @@ import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts
 import { takenAdHocSession } from "../../dashboard/test-support/support/startedAdHocSession.ts";
 import { watchTerminalSockets } from "../../dashboard/test-support/support/terminalSockets.ts";
 import { adHocDeveloperInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 const reportStory = {
   identity: "SEED-899#retained-report",
@@ -89,7 +89,7 @@ test("an instructed Start session leaves the open final report in the Side panel
     }),
   ]);
   dashboard.claudeScenario("launched");
-  await openBacklog(page, origin, true);
+  await openInstalledStoryBoard(page, origin);
   const { panel: finalReport } = await readFinalReport(
     sessionEntriesIn(
       parts(page).recentlyDone.getByRole("article", {

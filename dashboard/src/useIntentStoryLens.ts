@@ -9,6 +9,7 @@
 // and by its identity until that record says more; what is known of that
 // record also qualifies its Intent coverage (`./IntentStoryCoverage.tsx`).
 
+import type { AdHocSessionDetails } from "./storySessions.ts";
 import { useDoneDetails } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
 import { usePublishIntentStoryTitle } from "./intentStoryTitle.tsx";
@@ -103,9 +104,12 @@ export function useIntentStoryLens({
 }): {
   readonly story: LensStory | undefined;
   readonly comparison: LensComparison;
+  // Whether a session is the reviewed scope, even before its read answers.
+  readonly sessionChosen: boolean;
   // The story with its comparison, once compared.
   readonly compared: ComparedStory | undefined;
   readonly retry: () => void;
+  readonly sessionDetails: AdHocSessionDetails | undefined;
 } {
   const doneRecord = useDoneRecord(source, work, selectedIdentity);
   const story =
@@ -136,6 +140,8 @@ export function useIntentStoryLens({
     unreadable,
     refreshed,
     onRefresh,
+    sessionChosen,
+    sessionDetails,
   } = useStoryComparison({
     source: source.id,
     identity: story?.identity ?? "",
@@ -179,6 +185,7 @@ export function useIntentStoryLens({
   return {
     story,
     comparison,
+    sessionChosen,
     compared:
       story !== undefined && comparison.state === "compared"
         ? {
@@ -188,5 +195,6 @@ export function useIntentStoryLens({
           }
         : undefined,
     retry: onRefresh,
+    sessionDetails,
   };
 }

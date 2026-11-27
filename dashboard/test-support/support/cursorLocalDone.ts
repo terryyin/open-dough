@@ -1,12 +1,7 @@
 // Marking a Cursor session done locally, through the ask-first question
 // whose wording claims only a dashboard acknowledgement, never a stop.
 import { expect, type Locator, type Page } from "@playwright/test";
-import {
-  expandStoryCardDoneHistory,
-  parts,
-  sessionEntriesIn,
-} from "../dashboardParts.ts";
-import { storyCard } from "../storyCardControls.ts";
+import { shownDoneSessionEntriesOf } from "../dashboardParts.ts";
 import { expectQuestion, markAsDone, markDone } from "./markDone.ts";
 import { sessionActions } from "./sessionEntryDisclosure.ts";
 
@@ -30,9 +25,7 @@ async function answerLocalDone(
 }
 
 export async function locallyDoneOnTakenStory(page: Page, title: string) {
-  const card = storyCard(parts(page).taken, title);
-  const history = await expandStoryCardDoneHistory(card);
-  const entry = sessionEntriesIn(history);
+  const entry = await shownDoneSessionEntriesOf(page, title);
   await expect(entry).toHaveCount(1);
   return entry;
 }

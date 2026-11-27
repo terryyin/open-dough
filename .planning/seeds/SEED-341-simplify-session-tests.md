@@ -69,6 +69,11 @@ reopening or switching scopes is the behavior. Keep integrated navigation in
 a representative E2E journey, and check that an existing test proves the same
 recovery before cutting it from a longer case.
 
+#### Related correction
+
+[Make Recently done setup traceable and Claude timeout proof reliable](#make-recently-done-setup-and-claude-timeout-proof-reliable)
+covers the setup steps in the retained ad hoc selection journey.
+
 #### Starting evidence
 
 On 2026-11-13 the 112 session specs averaged 60 lines per case. The longest
@@ -91,3 +96,22 @@ retirement story still owns Intent and navigation under the interim runner.
 Refinement should target the FE/E2E/Backend homes above rather than the emptied
 interim folder, and settle overlap with any remaining cheapening of those
 homes before work starts.
+
+<a id="make-recently-done-setup-and-claude-timeout-proof-reliable"></a>
+
+### Make Recently done setup traceable and Claude timeout proof reliable
+
+**Identity:** SEED-341#make-recently-done-setup-and-claude-timeout-proof-reliable
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/886-make-session-test-proof-reliable/PLAN.md","assessment":"not-ready","reasons":["Recover the full local launch-boundary failure result or reproduce delayed fake-Claude readiness in the backend runner to confirm the timeout proof under load."],"basis":{"document":"de9d389d85abafbeb10483dfbd19b1323c5280eada4bdcd44098a72ed83a4ab4","plan":"bd1e79a5f95ecc294c64c41c5bb7edbfa38a589004935fd168feebcb6c4c03b0"}}
+```
+
+**Goal.** Dashboard maintainers can locate failures in Recently done setup
+and trust the Claude launch timeout proof under full-suite load.
+
+**Scope.** Name the setup phases of the retained ad hoc selection journey
+and wait for actual fake-Claude readiness in the launch boundary spec.
+Preserve both specs' behavioral coverage. This is a test-only correction
+related to [Simplify the remaining session tests](#simplify-remaining-session-tests).
+
+**Plan:** [Correct the two Dashboard tests](../slice-plans/886-make-session-test-proof-reliable/PLAN.md)

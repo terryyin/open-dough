@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-418#show-selected-session-in-review-home",
+  "title": "Show the selected ad hoc session on Intent Home",
+  "completedAt": "2026-11-27T13:11:39.319Z",
+  "developer": "Terry Yin",
+  "agent": "Rio-chan",
+  "host": "claude"
+}
