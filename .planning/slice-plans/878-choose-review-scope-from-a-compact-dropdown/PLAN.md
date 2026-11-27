@@ -209,3 +209,28 @@ Project behavior at the seam the next slice uses. The first Behavior
 delivers a usable picker with the supplier's names. The second adds the
 ad hoc title and missing-title behavior through that same list and
 selection. No slice-specific concerns remain.
+
+## Execution complete
+
+Local gate at `392ecc8c4`: the `intent/` and navigation mounted groups, with
+`project-keyboard-navigation`, passed 372 tests. These E2E journeys exited
+0: intent-session-scope, intent-published-range-source,
+recently-done-published-sessions, side-panel-content-switching and
+side-panel-content-replacement; backlog-preparing and preparation-legend;
+cursor-sessions-sidebar-layout and cursor-sessions-sidebar-resize-lasting;
+sessions-sidebar-touch, project-hide-sessions and project-hide. The
+dashboard typecheck passed.
+
+Product advice:
+- The closed compact dropdown names only its control ("Project", "Review
+  scope"). Its button `aria-label` overrides the chosen value and the ad hoc
+  icon, so screen readers don't hear the current scope. This was inherited
+  from the Project dropdown. A select-only combobox pattern in
+  `CompactSelect` would fix both, but it changes the established Project
+  name that several specs read. This needs a developer decision on a small
+  SEED-418 correction ahead of 877.
+- Plan 883 still describes the Sessions radio group. Refresh it against the
+  dropdown and `intent-session-review-mount.ts` when it is next prepared.
+- Plan 877 should reuse `SessionScope.adHoc`, the title derivation in
+  `followUpSessions.ts` and the exact **Title unavailable** wording.
+- Process review is deferred into wrap-up after the Intent Coverage check.
