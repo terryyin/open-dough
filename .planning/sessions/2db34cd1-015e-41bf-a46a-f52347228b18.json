@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "sessionId": "2db34cd1-015e-41bf-a46a-f52347228b18",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T02:42:06.606Z",
+  "story": "SEED-413#prove-cursor-turns-on-vitest",
+  "ranges": [
+    {
+      "base": "f44b82b4767dce6c6274fd4c427359a855942a6c",
+      "candidate": "43406cfb72d8db63f35dbac6606586277c30a973"
+    },
+    {
+      "base": "43406cfb72d8db63f35dbac6606586277c30a973",
+      "candidate": "6935f8ba79ea7e80e9ceb1e9d0a8ea3b429c3b6f"
+    },
+    {
+      "base": "6935f8ba79ea7e80e9ceb1e9d0a8ea3b429c3b6f",
+      "candidate": "d61a7c3c9c9394cff884e8b2fcb459777806edc9"
+    },
+    {
+      "base": "d61a7c3c9c9394cff884e8b2fcb459777806edc9",
+      "candidate": "a4a58e162f3fbdbc02ef925681e70bf1aeb4eec1"
+    },
+    {
+      "base": "a4a58e162f3fbdbc02ef925681e70bf1aeb4eec1",
+      "candidate": "cb5183f27564dab82eacf4a91c0d234957cc974d"
+    },
+    {
+      "base": "cb5183f27564dab82eacf4a91c0d234957cc974d",
+      "candidate": "aa6ee4483c067e5ab32541ab8e76a7e4e9968c1f"
+    },
+    {
+      "base": "54c3899ad57382bf893f524a28de04966f070aff",
+      "candidate": "43eef2721ffcda2486cc8fe063d7e034e52b74fe"
+    },
+    {
+      "base": "aa6ee4483c067e5ab32541ab8e76a7e4e9968c1f",
+      "candidate": "0152523276774ed63cf4f4c47a156bf008e5d02f"
+    }
+  ]
+}
