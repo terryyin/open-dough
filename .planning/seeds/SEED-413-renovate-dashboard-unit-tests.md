@@ -634,46 +634,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 - **Safe stopping point.** Retention, one-shot start and input admission are typed checks.
 - **Replacement trace.** Split from [native session and terminal lifecycle](https://github.com/terryyin/open-dough/blob/23c09d6e4d18b5113b45f3aed28f09e986083072/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest).
 
-<a id="prove-published-dashboard-reads-on-vitest"></a>
-
-### Prove published Follow up evidence in Node Vitest
-
-**Identity:** SEED-413#prove-published-dashboard-reads-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/859-prove-published-follow-up-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f5560aa6f588f22a7f948ed459912e9404c6c36652e87054fafc5a400399ce0e","plan":"1c3618bb542220692c137acd18c14b94a2a8b669a9a6dd7f7c63a7df1785428a"}}
-```
-
-- **Goal.** Give Dashboard maintainers fast, typed proof that Follow up
-  carries the selected published comparison, file, line, or session evidence
-  into the next agent input and preserves it when the same start resumes.
-- **Scope.** Keep the six published Follow up backend specs from the coverage
-  map. Prove admission and construction through the existing typed launch
-  and Review operations in Node, using real Git objects for history and
-  line checks and durable attempt records for Repeat and Continue. Keep
-  browser selection and actual first-input receipt in the existing Intent
-  journeys. Ordinary retained context, notes and host dispatch have their
-  own coverage. This increment changes how the proof runs. The later
-  published-read stories own the rest of the original scope.
-- **Key examples.**
-  - Given a completed or retained landed comparison, starting a whole
-    Follow up carries its exact baseline and tree. A foreign reference or
-    a mismatched endpoint is refused before any host starts.
-  - Given a renamed file, a trunk-inclusive file, or the widened historical
-    pair, starting a file or line Follow up carries its literal paths,
-    applicable endpoints, side and line. A wrong story, range, file, or
-    line is refused. A blank request still names the file.
-  - Given selected published session records and local evidence, the new
-    input includes the selected same-story facts. A record available only
-    locally supplies the retained fallback. Continue reuses the original
-    input after the source disappears. Two different lines produce two
-    attempts, and repeating one line resumes its original attempt.
-- **Replacement trace.** This identity retains the first independently
-  deliverable part of [published Dashboard reads and evidence](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
-  The following stories and the [coverage map](#backend-vitest-replacement-coverage)
-  account for the rest.
-
-**Plan.** [Prove published Follow up evidence in Node Vitest](../slice-plans/859-prove-published-follow-up-evidence-on-vitest/PLAN.md)
-
 <a id="published-read-admission-via-vitest"></a>
 
 ### Prove published read admission in Node Vitest
@@ -914,7 +874,12 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   project state directly, without a stubbed `HOME` or mounted configuration.
   A retry after interruption uses the retained attempt identity and request.
   An update drain refuses new starts and continuations and waits until the
-  accepted attempt's outcome is durably recorded.
+  accepted attempt's outcome is durably recorded. The held-gate cases in
+  `agent-launch-duplicate.spec.ts` and `agent-launch-codex-duplicate.spec.ts`
+  pass under the load other local suites create. On 2026-11-27, at a load
+  average of about 17, three of them missed their 3 s wait for the native
+  launch, while each spec passed alone, both before and after the
+  published Follow up story's continuation change.
 - **Boundary.** Extend the typed decision and persistence split used for
   session and landing state to launch attempts. Keep focused production
   adapter proof for persistence and configuration, and preserve the real
@@ -995,7 +960,7 @@ or removed once its behavior or duplicate is accounted for.
 | --- | --- |
 | Two `launch-attachment-*` specs | [Attachment admission](https://github.com/terryyin/open-dough/blob/ee8d963f593e06a2a2ca518b8c4072e888b8bae6/.planning/slice-plans/842-prove-launch-attachment-admission-on-vitest/PLAN.md), completed on Node Vitest |
 | Three `agent-launch-follow-up-notes*` specs, plus the two Vitest Story Notes pilot specs | [Story Notes](https://github.com/terryyin/open-dough/blob/dec37b6b829b7b5d20a57df4a3775e9c6a015faa/.planning/slice-plans/845-prove-story-notes-and-follow-up-delivery-on-vitest/PLAN.md), completed on Node Vitest with Cursor confirmation in E2E |
-| Six `agent-launch-follow-up-{file-admission,file,landed-comparison-admission,published-range-admission,published-sessions,selection}` specs | [Published Follow up evidence](#prove-published-dashboard-reads-on-vitest) |
+| Six `agent-launch-follow-up-{file-admission,file,landed-comparison-admission,published-range-admission,published-sessions,selection}` specs | [Published Follow up evidence](https://github.com/terryyin/open-dough/blob/c57304660d75709c648e3129d8cf175f393b1a93/.planning/slice-plans/859-prove-published-follow-up-evidence-on-vitest/PLAN.md), completed on Node Vitest; the two Intent browser journeys keep the receipt |
 | `agent-launch-options-rules.spec.ts` | [Runner cutover](#retire-legacy-dashboard-backend-runner), while it is a runner specimen |
 | Eight launch admission and settlement spec paths | [Launch admission and settlement](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest) |
 | Six launch recovery, worker, change and drain specs | [Worker recovery and drain](https://github.com/terryyin/open-dough/blob/23e911e465339f1b371fd9e36cc99a583c580ac1/.planning/slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md), completed on Node Vitest with native receipt, server death and preview replacement in E2E |

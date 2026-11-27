@@ -5,7 +5,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { acceptLaunchRequest } from "../../server/agentLaunchAccept.ts";
+import {
+  acceptLaunchRequest,
+  continueKeptAttempt,
+} from "../../server/agentLaunchAccept.ts";
 import { admittedLaunchRequest } from "../../server/agentLaunchAdmission.ts";
 import { withFollowUpContext } from "../../server/followUpAdmission.ts";
 import { recordedRequest } from "../../server/hostLaunch.ts";
@@ -16,7 +19,6 @@ import {
   keptAttempts,
   replaceAttempts,
 } from "../../server/launchAttemptStore.ts";
-import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
 import { replaceRecords } from "../../server/launchRecordDocument.ts";
 import { pendingInputOf } from "../../server/launchRecordStore.ts";
 import {
@@ -159,13 +161,7 @@ export async function arrangeRefusedFollowUp(instruction: string) {
       project,
       request,
       run,
-      (id) =>
-        owner.continueAttempt(
-          project.id,
-          id,
-          (request) => preContinuationAnswer(project, id, request, progress),
-          run,
-        ),
+      (id) => continueKeptAttempt(owner, project, id, progress, run),
       followUpInput,
     );
     await owner.drain();

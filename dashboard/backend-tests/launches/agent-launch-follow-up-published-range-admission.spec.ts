@@ -1,140 +1,69 @@
+// Start admits a file follow-up on a published session only for the exact
+// recorded range, literal path and owning story of the session record on the
+// synced trunk, before acceptance reaches the host. Whole-comparison
+// refusals: agent-launch-follow-up-landed-comparison-admission.spec.ts.
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { accept, launch } from "../../test-support/agentLaunchBoundary.ts";
-import {
-  doneStoryFiles,
-  otherStory,
-  recoverStory,
-} from "../../test-support/support/followUpStories.ts";
-import { ordinaryJourneyCompletedHistory } from "../../test-support/support/completedFollowUpHistory.ts";
-import {
-  publishedReviewOf,
-  serveDoneAtTrunk,
-} from "../../test-support/support/followUpCompletedFile.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { publishes } from "../../test-support/support/publishedRepository.ts";
-import { publishStorySession } from "../../test-support/support/storySessionPublication.ts";
-import { getReview } from "../../test-support/support/completedReviewRequests.ts";
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { originMain } from "../../test-support/support/sessionDialog.ts";
-import { answerOf, request } from "./followUpBoundaryCases.ts";
+import { otherStory } from "../../test-support/support/followUpStories.ts";
+import { aDoneStoryStart, storyA } from "../support/doneStoryStart.ts";
 
-test.use({ serverMode: "boundary" });
+const path = "[literal]*.txt";
+const otherPath = "first-range.txt";
+const foreignStory = makeMe.aDoneRecord.completed(otherStory).please();
+const notInSession =
+  "The file or comparison does not belong to this session's published changes.";
 
-test("a published file Follow up requires the exact recorded range, literal path and owning story", async ({
-  request: http,
-  dashboard,
-  origin,
-}) => {
-  const path = "[literal]*.txt";
-  const otherPath = "first-range.txt";
-  const { record, first, second, revision } = publishStorySession(
-    origin,
-    recoverStory.identity,
-    otherPath,
-    "unrelated.txt",
-    path,
-  );
-  dashboard.github.serve(
-    "terryyin/open-dough",
-    publishes({
-      revision,
-      files: doneStoryFiles(
-        [recoverStory, otherStory],
-        "2026-11-08T09:05:00.000Z",
-      ),
-    }),
-  );
-  // The follow-up starts from a file the session review open showed.
-  const opened = await getReview(http, dashboard, storyReviewEndpoint, {
-    source: "open-dough",
-    identity: recoverStory.identity,
-    published: record.sessionId,
+test("a published file Follow up requires the exact recorded range, literal path and owning story", async () => {
+  const start = await aDoneStoryStart();
+  const { tree, received, startAt, refusal, advance } = start;
+  const first = {
+    base: tree,
+    candidate: await advance({ [otherPath]: "1\n" }),
+  };
+  const secondBase = await advance({ "unrelated.txt": "between\n" });
+  const second = {
+    base: secondBase,
+    candidate: await advance({ [path]: "rewritten in range two\n" }),
+  };
+  const published = await start.publishSession(storyA.identity, first, second);
+  // The follow-up starts from a file the session's second range showed.
+  const review = await start.publishedSessionReviewOf(published, "1");
+  expect(review).toMatchObject({
+    kind: "published-session",
+    baseline: second.base,
+    tree: second.candidate,
   });
-  expect(await opened.json()).toMatchObject({ kind: "published-session" });
-  dashboard.claudeScenario("launched");
+  if (!("files" in review)) throw new Error("expected a session review");
+  expect(review.files.map((shown) => shown.path)).toContain(path);
   const file = {
-    published: record.sessionId,
+    published,
     path,
     baseline: second.base,
     tree: second.candidate,
   };
-  for (const invalid of [
+
+  for (const { change, story, message } of [
+    { change: { baseline: first.base }, story: storyA, message: notInSession },
+    { change: { path: otherPath }, story: storyA, message: notInSession },
     {
-      story: recoverStory,
-      file: { ...file, baseline: first.base },
-      reason:
-        "The file or comparison does not belong to this session's published changes.",
+      change: {},
+      story: foreignStory,
+      message: "The published session does not belong to this story.",
     },
-    {
-      story: recoverStory,
-      file: { ...file, path: otherPath },
-      reason:
-        "The file or comparison does not belong to this session's published changes.",
-    },
-    {
-      story: otherStory,
-      file,
-      reason: "The published session does not belong to this story.",
-    },
-  ]) {
-    const response = await accept(dashboard, {
-      ...request,
-      followUp: makeMe.aFollowUp
-        .ofStory(invalid.story, revision)
-        .anchoredAt(invalid.file)
-        .please(),
-    });
-    expect(response.status, response.body).toBe(409);
-    expect(response.body).toContain(invalid.reason);
-  }
-  expect(dashboard.claudeCalls()).toEqual([]);
-
-  const before = await originMain(origin);
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...request,
-      followUp: makeMe.aFollowUp
-        .ofStory(recoverStory, revision)
-        .anchoredAt(file)
-        .please(),
-    }),
-  );
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  expect(launched.record?.request).toMatchObject({
-    storyIdentity: recoverStory.identity,
-  });
-  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(await originMain(origin)).toBe(before);
-});
-
-test.describe("a published whole-story comparison", () => {
-  test.use({ originRepository: ordinaryJourneyCompletedHistory() });
-
-  test("refuses a different tree before starting a host", async ({
-    dashboard,
-    origin,
-  }) => {
-    const { revision, story } = await serveDoneAtTrunk(dashboard, origin);
-    const completion = origin.revision("completion");
-    const { baseline } = await publishedReviewOf(dashboard, completion);
-    const followUp = makeMe.aFollowUp.ofStory(story, revision).please();
-    if (!("story" in followUp)) throw new Error("Expected a story follow-up");
-    dashboard.claudeScenario("launched");
-
-    const response = await accept(dashboard, {
-      ...request,
-      followUp: {
-        story: {
-          ...followUp.story,
-          comparison: { completion, baseline, tree: completion },
-        },
-      },
-    });
-
-    expect(response.status, response.body).toBe(409);
-    expect(response.body).toContain(
-      "The comparison does not belong to this published completion.",
+  ])
+    expect(await refusal(startAt({ ...file, ...change }, story))).toMatchObject(
+      { status: 409, message },
     );
-    expect(dashboard.claudeCalls()).toEqual([]);
+
+  const before = await start.originMain();
+  expect((await startAt(file)).kind).toBe("accepted");
+  expect(received).toHaveLength(1);
+  expect(received[0]?.request).toMatchObject({
+    storyIdentity: storyA.identity,
   });
+  const input = received[0]?.input ?? "";
+  expect(input).toContain(`- Path: ${path}`);
+  expect(input).toContain(second.base);
+  expect(input).toContain(second.candidate);
+  expect(await start.originMain()).toBe(before);
 });
