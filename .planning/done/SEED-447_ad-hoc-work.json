@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-447#ad-hoc-work",
+  "title": "Cursor runner and runtime specs clean up after a timeout",
+  "completedAt": "2026-11-27T06:04:33.021Z",
+  "developer": "Terry Yin",
+  "agent": "Hibiki-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
