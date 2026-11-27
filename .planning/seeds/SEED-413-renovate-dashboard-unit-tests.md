@@ -565,7 +565,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     remove a helper only when dashboard and end-to-end tests have no
     remaining caller.
   - Terminal attach, Codex resume, and `closeServer` belong to
-    [terminal attach](#prove-terminal-attach-and-cursor-turns-on-vitest).
+    [terminal attach](https://github.com/terryyin/open-dough/blob/0f91c70c84ffdbcd0d79126cdb741b4c2879f236/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest).
     Runner start, replacement, and survival across runner death belong to
     [Cursor runner lifecycle](#prove-cursor-runner-lifecycle-on-vitest).
     Browser page journeys stay in `e2e/terminals/`.
@@ -590,7 +590,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     second socket, a dropped connection, server close, and a restarted
     server joining the same process. An unknown session and a foreign
     origin add no attach.
-- **Replacement trace.** Split from [terminal attach and Cursor turns](#prove-terminal-attach-and-cursor-turns-on-vitest)
+- **Replacement trace.** Split from [terminal attach and Cursor turns](https://github.com/terryyin/open-dough/blob/0f91c70c84ffdbcd0d79126cdb741b4c2879f236/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest)
   during this preparation, because the two outcomes do not fit one plan.
 
 **Plan.** [Prove Cursor turns in Node Vitest](../slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md)

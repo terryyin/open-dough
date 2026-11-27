@@ -109,7 +109,7 @@ timeout.
 ### 2. Prove an unsettled launch wait leaves the client
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Move `agent-terminal-cursor-launch-wait.spec.ts` (3) and
@@ -125,6 +125,7 @@ Proof: Move `agent-terminal-cursor-launch-wait.spec.ts` (3) and
   confirms the instruction in that same client.
 - A terminal joined during the framed or unframed trust wait shows that
   prompt, sends no instruction, and rejoins the same process.
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): `npm run test:dashboard:backend -- 'terminals/agent-terminal-cursor-(launch-wait|trust-join)\.spec\.ts$' --workers=1` passed 5/5 on Vitest (25.99s summed case time, 27.93s elapsed; 0 on Playwright). Vitest `expect.poll` defaults to 1000ms (vs Playwright 5000ms), so the paste-chip `endWaitAfter` poll keeps `{ timeout: launchWaitMs }`. Absorbed seed link amendment from sibling closure `e240fa876` (`terminal attach`). Refactor pass skipped (subject specs + absorbed seed link only, no refactor candidate).
 
 ### 3. Prove an exit before acceptance does not confirm
 
