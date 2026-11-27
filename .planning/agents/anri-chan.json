@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-447#clean-up-story-linked-session-tests",
+  "mode": "story-branch",
+  "branch": "claude/remove-leftover-unbound-recovery-and-overlapping",
+  "host": "claude"
+}
