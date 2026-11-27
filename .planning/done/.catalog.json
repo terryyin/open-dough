@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-446_ad-hoc-work.json",
+      "identity": "SEED-446#ad-hoc-work",
+      "completedAt": "2026-11-27T03:47:03.997Z",
+      "blob": "34a7baa056700119fc14a065cac213ee5e9e146b"
+    },
+    {
       "fileName": "SEED-413_prove-cursor-turns-on-vitest.json",
       "identity": "SEED-413#prove-cursor-turns-on-vitest",
       "completedAt": "2026-11-27T02:31:37.737Z",
