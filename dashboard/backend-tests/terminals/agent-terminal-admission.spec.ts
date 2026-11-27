@@ -9,16 +9,8 @@
 // suite proves their shared upgrade guard. What an admitted socket passes is
 // agent-terminal-boundary.spec.ts.
 
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  ensureCursorRunner,
-  stopCursorRunner,
-} from "../../server/hosts/cursor/runnerClient.ts";
-import { installAgentLaunchMiddleware } from "../../server/launchBoundary.ts";
 import { openDoughFolder } from "../../test-support/agentLaunchBoundary.ts";
 import {
   composeSession,
@@ -32,19 +24,10 @@ import {
   type RecordedSession,
   type TerminalServer,
 } from "../../test-support/agentTerminalBoundary.ts";
-import { prepareCatalogProjects } from "../../test-support/support/catalogProjectOrigin.ts";
-import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
-import {
-  startInProcessBoundaryHttp,
-  type InProcessBoundaryHttp,
-} from "../../test-support/support/inProcessBoundaryHttp.ts";
+import { startClaudeTerminalBoundary } from "../../test-support/claudeTerminalBoundaryHttp.ts";
 import { keepMoreLaunchRecordsBesideServer } from "../../test-support/support/launchStore.ts";
-import { configureDevelopmentProjects } from "../../test-support/support/projectConfiguration.ts";
-import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 
-let tempRoot: string;
-let boundary: InProcessBoundaryHttp;
-let restoreEnv: () => void;
+let stopBoundary: () => Promise<void>;
 let server: TerminalServer;
 let session: RecordedSession;
 
@@ -53,38 +36,14 @@ function attachCalls() {
 }
 
 beforeAll(async () => {
-  tempRoot = mkdtempSync(path.join(tmpdir(), "dough-terminal-admission-"));
-  const claude = installFakeClaude(
-    tempRoot,
-    { binDir: tempRoot, path: process.env["PATH"] ?? "" },
-    {},
-  );
-  await prepareCatalogProjects(claude.controls.home, [
-    "open-dough",
-    "pygardon",
-  ]);
-  configureDevelopmentProjects(claude.controls.home);
-  restoreEnv = withRestoredEnv(claude.env);
-  boundary = await startInProcessBoundaryHttp({
-    name: "dough-agent-launch",
-    install: installAgentLaunchMiddleware,
-  });
-  server = {
-    baseURL: boundary.origin,
-    origin: boundary.origin,
-    ...claude.controls,
-  };
+  const started = await startClaudeTerminalBoundary(["open-dough", "pygardon"]);
+  server = started.server;
+  stopBoundary = started.stop;
   session = await composeSession(server);
 });
 
 afterAll(async () => {
-  await boundary.closeHttp();
-  await boundary.closeBoundary();
-  // The boundary started this HOME's Cursor runner, which outlives it.
-  await ensureCursorRunner(server.home);
-  await stopCursorRunner(server.home);
-  restoreEnv();
-  rmSync(tempRoot, { recursive: true, force: true });
+  await stopBoundary();
 });
 
 describe("a session Claude Code can still open", () => {

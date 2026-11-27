@@ -3,7 +3,6 @@
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
-import { expect } from "@playwright/test";
 import {
   agentLaunchEndpoint,
   type AttemptObservation,
@@ -15,16 +14,21 @@ import {
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 
+type BoundaryAddress = Pick<DashboardServer, "baseURL" | "origin">;
+
 // The machine's sessions as the boundary answers them, or their history.
 async function sessionsAnswer<T>(
-  server: DashboardServer,
+  server: BoundaryAddress,
   query = "",
 ): Promise<T> {
   const response = await rawRequest({
     url: `${server.baseURL}${agentLaunchEndpoint}${query}`,
     headers: { Origin: server.origin },
   });
-  expect(response.status).toBe(200);
+  if (response.status !== 200)
+    throw new Error(
+      `The machine's sessions answered ${String(response.status)}: ${response.body}`,
+    );
   return JSON.parse(response.body) as T;
 }
 
@@ -36,17 +40,10 @@ export async function alertsAnswered(
   return (await sessionsAnswer<{ alerts: unknown }>(server)).alerts;
 }
 
-// Until the boundary answers the notifier as available. Alerts read as
-// checking until the server's startup diagnostic answers, which changes the
-// sessions answer, so a revision held before then may not stand.
-export async function alertsSettled(server: DashboardServer): Promise<void> {
-  await expect.poll(() => alertsAnswered(server)).toEqual({ available: true });
-}
-
 // The machine's sessions as the boundary answers them: every project's kept
 // records, each naming its project.
 export async function machineSessions(
-  server: DashboardServer,
+  server: BoundaryAddress,
 ): Promise<unknown[]> {
   return (await sessionsAnswer<{ records: unknown[] }>(server)).records;
 }
@@ -73,7 +70,7 @@ function projectRecords(
 
 // One project's records as the boundary answers the machine's sessions now.
 export async function recordsOf(
-  server: DashboardServer,
+  server: BoundaryAddress,
   source: string,
 ): Promise<unknown[]> {
   return projectRecords(await machineSessions(server), source);

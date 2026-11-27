@@ -90,7 +90,7 @@ fake-claude attach and its SIGHUP). Records: `s1-before`, `s1-after`,
 ### 2. Prove an admitted socket passes terminal messages
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Move the remaining six cases in `agent-terminal-boundary.spec.ts`
@@ -102,6 +102,12 @@ same Vitest server:
   available and no launch runs.
 - Plain text, a command, non-text input, an oversized resize, and binary
   data each close the socket and end that attach without echoing a command.
+
+Accepted proof: `agent-terminal-boundary.spec.ts` is now Node Vitest, 6
+cases. Before: Playwright 1572 ms summed, 6.48 s wall (`s1-rest`). After:
+Vitest 1173 ms summed, 5.45 s wall (`s2-after`); bad frames 92–161 ms each
+(close 1008, SIGHUP, no echo); the pass-through case 524 ms, because it waits
+for the real attach, echo, resize and SIGHUP.
 
 ### 3. Prove an unavailable PTY resize ends only that attachment
 
@@ -131,6 +137,13 @@ Proof: Move `agent-terminal-close.spec.ts` and
 - `closeServer` alone closes the admitted Codex socket and hangs up its PTY
   while the HTTP server stays listening and the native protocol receives no
   `turn/interrupt`.
+
+Slice 2's refactor composed the shared Claude terminal setup once in
+`startClaudeTerminalBoundary` (`dashboard/test-support/claudeTerminalBoundaryHttp.ts`):
+it composes the existing fake, projects and plain launch-boundary server and
+returns them unchanged, so it is not a server wrapper. The close specs reuse
+it only if it also exposes the boundary's close apart from HTTP; decide that
+here when they move.
 
 Refactor follow-up from slice 1: both close specs still build
 `{baseURL, origin, ...claude.controls} as unknown as DashboardServer`. On
