@@ -46,6 +46,7 @@ intent introduced or affected by a newly developed story.
 - [Prove Dashboard machine observations in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#machine-observation-via-vitest) — SEED-413#machine-observation-via-vitest
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream
+- [Make Recently done setup traceable and Claude timeout proof reliable](seeds/SEED-341-simplify-session-tests.md#make-recently-done-setup-and-claude-timeout-proof-reliable) — SEED-341#make-recently-done-setup-and-claude-timeout-proof-reliable
 - [Continue a ready split story automatically after wrap-up](seeds/SEED-366-continue-split-stories-automatically.md#continue-a-ready-split-story-automatically) — SEED-366#continue-a-ready-split-story-automatically
 - [Put story actions in the comment toolbar](seeds/SEED-416-put-story-actions-in-the-comment-toolbar.md#put-story-actions-in-the-comment-toolbar) — SEED-416#put-story-actions-in-the-comment-toolbar
 - [Review the combined changes of selected sessions](seeds/SEED-418-review-published-session-changes.md#review-selected-sessions-together) — SEED-418#review-selected-sessions-together
