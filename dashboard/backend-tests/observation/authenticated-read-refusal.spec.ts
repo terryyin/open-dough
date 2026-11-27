@@ -1,4 +1,4 @@
-// Pinned-path and parameter refusals through a real read request. Local-origin
+// Parameter refusals through a real read request. Local-origin
 // and method admission are observed by ./authenticated-read-http.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
@@ -27,7 +27,6 @@ const knownSourceId = "open-dough";
 const backlog = describedBacklog(makeMe.aRepository.please());
 const published = publishes({ backlog });
 const { revision } = published;
-const secretMarker = "gho_should-never-reach-a-browser-1234567890";
 
 test.describe("authenticated read boundary refusal (development environment)", () => {
   let server: DashboardServer;
@@ -59,29 +58,6 @@ test.describe("authenticated read boundary refusal (development environment)", (
     expect(server.ghCalls()).toHaveLength(callsBefore);
   }
 
-  test("refuses an arbitrary repository path that the pinned revision's records do not name", async () => {
-    const pinned = publishes({
-      backlog,
-      files: {
-        ".planning/PRODUCT-BACKLOG.md": backlog,
-      },
-    });
-    server.github.serve(everyRepository, pinned);
-    const callsBefore = server.ghCalls().length;
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${pinned.revision}&path=${encodeURIComponent(".planning/secrets/not-in-backlog.md")}`,
-      headers: { Origin: server.origin },
-    });
-    expect(response.status).toBe(404);
-    expect(response.body).not.toContain(secretMarker);
-    const calls = server.ghCalls().slice(callsBefore);
-    // Allowlist may read the backlog to decide, never the arbitrary path.
-    expect(
-      calls.every(
-        (argv) => !argv.join(" ").includes("/contents/.planning/secrets/"),
-      ),
-    ).toBe(true);
-  });
   // A listed records read, or a done catalog read, names only the pinned
   // revision: never another path, never with a revision check or the other
   // listed read, and never a branch name it would resolve itself.

@@ -182,7 +182,7 @@ remaining tests.
 ### 2. Read an admitted file and commit time at its pin
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a configured source and a revision whose backlog identifies a story
 document, ask for the document or its last committed time. Return the exact
@@ -198,6 +198,46 @@ the actual provider path encoding where it is emitted. Preserve the
 pinned cases in `authenticated-read-boundary.spec.ts` (slice 1 owns its
 failure cases), `authenticated-read-committed-last.spec.ts` (2), and the
 arbitrary-path case in `authenticated-read-refusal.spec.ts`.
+
+Accepted proof. The existing dispatcher now calls
+[performPinnedFileRead](../../../dashboard/server/performedPinnedFileRead.ts)
+with the parsed read, source and tracked signal.
+[authenticated-read-boundary.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-boundary.spec.ts)
+drives that operation with the real parser, PinnedTexts and MakeMe Git
+history. The older pin's exact bytes include a literal backslash-u escape
+and its commit time precedes the later pin's changed value. The tests
+assert one correctly encoded raw contents or commit-list call for repeated
+reads at the same pin. Three refusal rows check an unlisted file, its commit
+time and a listed profile's commit time before target lookup. A separate
+origin with the same file path but without the backlog link gets a 404
+using only its own pinned evidence. The replacement passed before retiring
+the two canonical, two commit-time and one arbitrary-path Chromium cases.
+The converted boundary spec keeps plan 823's forward proof link live.
+
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/authenticated-read-(boundary|refusal|http|revision-(backlog|reuse(-compared|-history)?))\.spec\.ts$' \
+  'review/verified-origin-trunk\.spec\.ts$' 'intent/authenticated-read-intent-selection\.spec\.ts$' --workers=1
+caffeinate -s -i npm run typecheck:dashboard
+caffeinate -s -i npm run test:e2e -- \
+  observation/authenticated-project-observation.spec.ts stories/taken-slice-clock.spec.ts --workers=1
+```
+
+All 53 backend cases passed (20 Node and 33 Chromium), including selected
+revision reuse, Intent and Git witnesses. The four Board E2E cases passed
+in 19.60 s and retain the real HTTP dispatch, canonical detail and Taken
+clock observations. Typecheck passed. After shortening the refusal table,
+all six typed cases and typecheck passed again at the final path. The six
+summed to 634 ms in that run (five at 27–81 ms, the separate origin at
+399 ms). See `s2-return.md`, the runner records and `s2-consumer-trace.md`
+in the checkout's Git proof directory.
+
+The independent refactor removed unused Intent admission re-exports and
+made their module-local helpers private. Typecheck passed after those
+visibility edits. The executed behavior and runtime proof still match.
+The final six-case selection also passed after lint repairs to the test's
+fixture cleanup, parameter binding and partial-object assertion. See
+`s2-lint-repair.log.run.json`.
 
 ### 3. Admit the recorded branch and its resolved head
 
