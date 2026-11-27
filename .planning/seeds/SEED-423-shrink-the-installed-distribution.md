@@ -137,39 +137,82 @@ Dashboard and installed scripts share.
 **Identity:** SEED-423#read-handoff-and-admitted-landing-from-dashboard-records
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/880-read-handoff-and-admitted-landing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"62e38738dba2f23a7e3f8f416288d577d79937b2beaebef5a6c732521eba3570","plan":"012b79b9f879cfe13b833e910c0f2507250456ec2de371214059121557971524"}}
 ```
 
-- **For / why.** A developer who starts a blank Dashboard session, or closes
-  a story admitted from a borrowed checkout, gets the same handoff and the
-  same published session ranges from installed scripts that read one record
-  the Dashboard wrote for them.
-- **Evaluation.** Two mechanisms from SEED-439 leave the installation:
-  - `session-landing-handoff.mjs` (4.2 KB) reads the Dashboard's private
-    `~/.open-dough/dashboard/agent-launches.json` and re-checks about thirty
-    fields of its record. The Dashboard writes a ready handoff per native
-    session when a blank Automatically land Start settles and withdraws it
-    when the launch is done or deleted. The installed script resolves the
-    session identity, confirms the workspace and branch, and prints it.
-  - `execution-session-evidence.mjs` keeps
-    `open-dough/accepted-launches/<reference>.json` in the checkout's Git
-    directory, read only by `trunk-closure-admitted-session.mjs` and never
-    removed. A range is recorded there only while the launch's first landing
-    is open, and that pair is already retained beside the landing context.
-    Claim closure takes the adopted range from the retained landing; the
-    store, its reader and the `exact`/`matchesLaunch` branch go.
+**Goal.** A developer who starts a blank Dashboard session with Automatically
+land, or who closes a story admitted from a borrowed checkout, gets the same
+handoff and the same published session ranges. The installed scripts read the
+record the Dashboard already wrote for that launch, instead of re-checking the
+private launch store or keeping a second copy of the accepted range in the
+checkout's Git directory.
 
-  The maintained specs `agent-launch-start-session-landing-policy.spec.ts`
-  and `admitted-session-shared-checkout-completion.spec.ts` still pass,
-  including two launches landing from one checkout and the held closure when
-  evidence is lost.
-- **Effort hypothesis.** M, medium confidence; about 4 KB of installed
-  script. It changes a mechanism the Dashboard and installed scripts share.
-- **Open question.** The shared-checkout uncertainty mark is stamped on the
-  range at delivery time. Removing the store needs another source for it,
-  such as the acceptance time kept with the retained landing.
-- **Depends on.** None.
-- **Safe stopping point.** Either mechanism alone.
+**Scope.**
+
+- When a blank Automatically land Start settles, the Dashboard writes one
+  ready handoff for that native session: the established-session block, the
+  taken story, the landing-context path, and the reporting context. The
+  installed handoff script resolves the session identity and prints that
+  handoff. It prints nothing when no handoff was written, including a Start
+  that is not blank or not Automatically land, and for any other conversation.
+  When the launch is done or deleted, the Dashboard withdraws the handoff, so
+  the script prints nothing. The Cursor hook returns the same text as
+  additional context, or an empty object.
+- The script prints the handoff only when the checkout is still the workspace,
+  branch, and repository the handoff names. A checkout whose Git directory was
+  replaced prints nothing, even when the workspace path and branch name still
+  match. Landing authority stays with the checkout the Dashboard settled; a
+  swapped Git directory must not inherit another launch's landing.
+- Claim closure of an admitted story takes the adopted comparison from the
+  retained landing beside that launch's landing context. That landing already
+  keeps the accepted base and candidate. It also keeps the acceptance time,
+  which it does not keep today, recorded when the comparison is retained.
+  Closure derives the shared-checkout mark with the existing rule: the mark is
+  present when the note beside the landing says the overlap had started by
+  that acceptance time, and absent when the overlap starts later. The
+  published session record carries that pair and that mark. The checkout's
+  `open-dough/accepted-launches/<reference>.json` store, its reader, and the
+  closure branch that preferred it are removed.
+- Closure is held when the retained landing is missing or its comparison does
+  not match the launch. The claim checkout stays, and no session record is
+  published. A comparison the closure cannot verify must not be published as
+  that session's accepted range. Losing the Git-directory copy is not that
+  loss once the retained landing is the source.
+
+**Scope limits.** The borrowed-checkout refresh rule stays with
+[Decide whether claim closure needs its own borrowed-checkout refresh rule](#decide-borrowed-checkout-refresh-rule).
+The live `open-dough/session-record` stays for the session that is running.
+Ordinary session close still seals its own ranges. Later trunk publications
+of the same launch still carry no landing context. This story does not merge
+files or redesign execution start.
+
+**Key examples.**
+
+- A blank Automatically land Start settles for a native session in an isolated
+  checkout. From that session, the handoff script prints Automatically land,
+  the starting revision, the taken story, the landing-context path, and the
+  reporting command. Another conversation prints nothing. After the launch is
+  done or deleted, the same session prints nothing. After the checkout's Git
+  directory is replaced, it prints nothing; restored, it prints again.
+- Two admitted launches land from one borrowed checkout, and the later launch
+  replaces that checkout's session record. Each claim then closes. Each
+  published session record contains its own accepted pair: that claim's
+  published base and its landed revision. A range whose landing was accepted
+  while the note beside it said the overlap had already started carries the
+  shared-checkout mark. A second session that opens in the checkout only after
+  that acceptance does not mark the range.
+- An admitted launch has landed, and its retained landing comparison is then
+  removed. Claim closure is held: the session record is not published, and the
+  claim checkout remains.
+
+**Effort hypothesis.** M, medium confidence. The handoff and the admitted
+landing each change a mechanism the Dashboard and the installed scripts share,
+and either one is a complete outcome.
+
+**Depends on.** None.
+
+**Safe stopping point.** Either the ready handoff or the admitted landing
+from the retained record.
 
 <a id="decide-borrowed-checkout-refresh-rule"></a>
 
