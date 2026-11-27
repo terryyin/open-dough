@@ -121,6 +121,12 @@ inline closed-control locators through `compactProject` and added
 reran and passed (12 tests). Learning: Vitest browser
 `toMatchAriaInlineSnapshot` accepts regex values for locale-formatted text.
 
+## Execution complete
+
+Product advice: no change. Both closed compact dropdowns now announce
+their chosen value; SEED-418#show-selected-session-in-review-home (plan
+877) remains the next queued work.
+
 ## Decisive premises
 
 | Premise | Consuming operation and observation |
