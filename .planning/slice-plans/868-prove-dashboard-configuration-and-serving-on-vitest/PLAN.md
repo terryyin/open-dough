@@ -346,3 +346,16 @@ locally before the change and passed after.
   assertion without adding test-support wrappers, and settle all decisive
   premises from direct observation.
 - Remaining slice-specific concerns: none.
+
+## Execution complete
+
+Product advice: no change to this story's outcome; all 22 specs (64 cases)
+left backend Playwright, and the integrated gate ran 68 Node cases in
+44–81 s against the 84.7 s baseline. Carry four conversion learnings into
+[runner cutover](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner):
+- Vitest's `expect.poll` waits 1 s by default, not 5 s.
+- Hook timeouts cannot be overridden here, so expensive shared servers start
+  lazily inside each test.
+- Shared support must assert with `node:assert`, not Playwright `expect`.
+- `dashboard-concurrent-runs.sh` now judges its Vitest sample by proof record
+  and standard error.
