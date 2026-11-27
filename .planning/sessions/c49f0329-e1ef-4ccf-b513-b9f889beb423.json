@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "c49f0329-e1ef-4ccf-b513-b9f889beb423",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-27T06:00:33.472Z",
+  "story": "SEED-413#prove-native-first-input-on-vitest",
+  "ranges": [
+    {
+      "base": "a91c8343acf7db1c9470c001912b24e8f0ddab1f",
+      "candidate": "559ebc7e70555a32a030b1ab4813e961f3424e01"
+    }
+  ]
+}
