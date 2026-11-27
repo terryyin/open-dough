@@ -4,6 +4,23 @@
 
 **Identity:** SEED-413#published-read-admission-via-vitest
 
+## Execution context
+
+Story Branch Mode in the owned worktree at
+`/Users/terryyin/git/open-dough/.worktrees/prove-published-read-admission-in-node-vitest`
+on `codex/prove-published-read-admission-in-node-vitest`. The starting
+revision is `5e2e6e3553dfe051bf2856b34c5b12b7eb69c968`. Publisher
+`dashboard-territory.local-open-dough` published the Take at
+`effa82ff28ab1ed0080f263af4e875cd60be96d6` for Tsubomi-chan.
+The integration checkout is `/Users/terryyin/git/open-dough`, with
+`origin/main` as integration target. Ordinary increments publish to
+the remote execution branch.
+
+The Codex observer for `terryyin/open-dough` watches that branch using
+GitHub Actions `ci.yml` (CI). Coordinator
+`codex-published-read-bc80104e`, directory `/tmp/dough-ci-501/watch-ZQgD5X`,
+PID 37392, shell session 42633, yielded cell `g708:11`.
+
 ## Goal and scope
 
 Give Board and Review maintainers fast, direct proof of what an admitted
@@ -78,6 +95,16 @@ time, and 39.90 s elapsed for the combined selection. See the legacy
 counts below. The same command without `review/verified-origin-trunk\.spec\.ts$`
 selects only the legacy family.
 
+At the published Take above, the same command ran under
+`/usr/bin/time -p` with the maintained `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`.
+On AC with Node 24.21.0, one worker and a launch load of 30.60/23.92/24.43
+across 16 logical CPUs, all 90 selected cases passed on their first attempt
+in 50.11 s wall time. The 84 Chromium cases summed to 10.884 s
+(33 above 100 ms, maximum 1,255 ms). The six Node cold Git cases summed
+to 4.883 s (all above 100 ms, maximum 1,876 ms). The twelve per-file
+Chromium counts match the selection below. The checkout's Git proof
+directory retains `start-baseline.json` and `start-baseline.log.run.json`.
+
 ```sh
 caffeinate -s -i npm run test:dashboard:backend -- \
   'observation/authenticated-(avatar|branch-read-boundary|read-(boundary|containment|listed-records|refusal|committed-last|done-catalog(-gaps|-refusal)?|profile-addition(-refusal)?))\.spec\.ts$' \
@@ -91,7 +118,7 @@ caffeinate -s -i npm run test:dashboard:backend -- \
 | Computation from pinned evidence | The refusal and commit-time specs distinguished unlisted paths from reachable files and their metadata. The containment group distinguished comparison direction, missing accepted commit, unavailable comparison and directed wait. Done reads distinguished an empty catalog, disagreement, a refused body and a failing or departed request. Profile and avatar cases distinguished repository selection, attribution, successful and failed image reads, reuse and refresh. | Convert the existing behavior, using each current spec's assertion as the starting obligation. Keep the checks for call avoidance, cancellation and caching where those are the behavior. |
 | Git migration boundary | The same passed cases actually observed upstream content, branch, commit-time and comparison calls for pinned variants after the Git open, including the two mixed cold/open-and-pinned specs. | Preserve the current typed operations and upstream contract in this plan. Recheck the baseline if plan 823 lands first or changes a consuming path. |
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 Legacy paths are in `dashboard/backend-tests/observation/`. The parenthetical
 counts are cases selected at the baseline, with expanded table rows counted
@@ -103,7 +130,7 @@ slice that first uses it. Apply the execution clock and split rule on overrun.
 ### 1. Admit an authenticated read from the local origin
 
 Type: Behavior
-Status: planned
+Status: done
 
 A request to the installed authenticated boundary reaches a configured
 source only from its local origin and using the accepted method. Prove the
@@ -120,6 +147,37 @@ Proof owners are the wire cases in `authenticated-read-refusal.spec.ts`
 `authenticated-read-boundary.spec.ts` (4 across slices 1–2).
 Reserve a single Node HTTP spec for genuine wire assertions. Move each
 remaining typed case when its owning slice has proof.
+
+Accepted proof. [authenticated-read-http.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-http.spec.ts)
+mounts the production middleware on a loopback listener with the two
+configured MakeMe projects and a controlled GitHub CLI. Foreign and missing
+origin and cross-site Fetch Metadata return 403. Unknown source and POST
+return 404 and 405. All five assert zero upstream requests. Same-origin
+Fetch Metadata alone returns the configured source's revision with one
+request. Missing login returns 502, no-store and actionable guidance for
+the selected repository. Generic failure returns 502 after listing and
+falling back to its ref. Both failure cases assert that raw diagnostics
+are absent. These eight cases passed before removing their legacy copies.
+
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/authenticated-read-(http|boundary|refusal)\.spec\.ts$' \
+  'review/verified-origin-trunk\.spec\.ts$' --workers=1
+caffeinate -s -i npm run typecheck:dashboard
+```
+
+The focused run passed 32 cases (18 retained Chromium and 14 Node,
+including the six cold Git cases) and typecheck passed. All passed on the
+first attempt. The Node wire cases summed to 870 ms, with five refusals
+at 12–33 ms and the three real request-owner cases at 242–286 ms. The
+focused run took 12.54 s. Evidence is in `s1-return.md`, `s1-focused.json`
+and the retained run records. All eight Node cases passed again in
+`s1-lint-repair.log` after binding the middleware call and returning a
+resolved provider fixture promise.
+`caffeinate -s -i npm run test:dashboard:backend -- 'observation/authenticated-read-http\.spec\.ts$' --workers=1`.
+The change touches only the subject specs and
+plan, with no refactor candidate in the inspected middleware, fixtures or
+remaining tests.
 
 ### 2. Read an admitted file and commit time at its pin
 

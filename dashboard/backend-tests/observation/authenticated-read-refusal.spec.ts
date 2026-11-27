@@ -1,12 +1,5 @@
-// Which requests the local authenticated read boundary
-// (../../server/authenticatedRead.ts) refuses before ever launching `gh`, and the
-// same-origin signal it accepts in place of an Origin header -- tested
-// directly against real HTTP, not through the browser. A synthetic `gh` on
-// this spec's own isolated server process's PATH records every invocation
-// through a fake GitHub, so each refusal can prove no `gh` call was made.
-// What the boundary reads and reports once a request is accepted is covered
-// in ./authenticated-read-boundary.spec.ts; malformed addition reads in
-// ./authenticated-read-profile-addition-refusal.spec.ts.
+// Pinned-path and parameter refusals through a real read request. Local-origin
+// and method admission are observed by ./authenticated-read-http.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -19,14 +12,8 @@ import {
   publishes,
 } from "../../test-support/support/fakeGitHub.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import {
-  readUrl,
-  revisionCheck,
-} from "../../test-support/support/sharedReads.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../test-support/describedRevisions.ts";
-import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
-import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 import {
   branchReadRefusals,
   listedReadRefusals,
@@ -71,75 +58,6 @@ test.describe("authenticated read boundary refusal (development environment)", (
     expect(JSON.parse(response.body)).toMatchObject({ error });
     expect(server.ghCalls()).toHaveLength(callsBefore);
   }
-
-  test("refuses a mismatched Origin before launching gh", async () => {
-    server.github.serve(everyRepository, published);
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-      headers: { Origin: "http://evil.example" },
-    });
-    expect(response.status).toBe(403);
-    expect(server.ghCalls()).toHaveLength(0);
-  });
-
-  test("refuses a request with no Origin before launching gh", async () => {
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-    });
-    expect(response.status).toBe(403);
-    expect(server.ghCalls()).toHaveLength(0);
-  });
-
-  test("refuses an unknown catalog source before launching gh", async () => {
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=not-a-real-project`,
-      headers: { Origin: server.origin },
-    });
-    expect(response.status).toBe(404);
-    expect(server.ghCalls()).toHaveLength(0);
-  });
-
-  test("refuses a non-GET method before launching gh", async () => {
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-      method: "POST",
-      headers: { Origin: server.origin },
-    });
-    expect(response.status).toBe(405);
-    expect(server.ghCalls()).toHaveLength(0);
-  });
-
-  // A real browser's own same-origin `fetch` (this endpoint's only intended
-  // caller) never carries an `Origin` header -- confirmed against this exact
-  // production middleware from a real Chromium page in
-  // ../../../e2e/observation/authenticated-project-observation.spec.ts, which this narrower case reproduces
-  // without a browser: what it does carry is `Sec-Fetch-Site: same-origin`,
-  // which `../../server/localOrigin.ts` now accepts in place of `Origin`.
-  test("accepts a same-origin request signaled by Sec-Fetch-Site with no Origin header at all", async () => {
-    server.github.serve(everyRepository, published);
-    expectServedHomesReach(server.github, defaultRepository, revision);
-    const callsBefore = server.ghCalls().length;
-    const response = await rawRequest({
-      url: readUrl(server.baseURL, {
-        source: knownSourceId,
-        query: revisionCheck,
-      }),
-      headers: { "Sec-Fetch-Site": "same-origin" },
-    });
-    expect(response.status).toBe(200);
-    expect(JSON.parse(response.body)).toMatchObject({ revision });
-    expect(server.ghCalls()).toHaveLength(callsBefore + 1);
-  });
-
-  test("still refuses Sec-Fetch-Site: cross-site even without an Origin header", async () => {
-    const callsBefore = server.ghCalls().length;
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-      headers: { "Sec-Fetch-Site": "cross-site" },
-    });
-    expect(response.status).toBe(403);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-  });
 
   test("refuses an arbitrary repository path that the pinned revision's records do not name", async () => {
     const pinned = publishes({

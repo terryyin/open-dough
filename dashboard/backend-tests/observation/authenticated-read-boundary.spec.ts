@@ -1,32 +1,6 @@
-// The local authenticated read boundary (../../server/authenticatedRead.ts) --
-// the one reader for every catalog project -- is tested here directly against
-// real HTTP and a real, but controlled, subprocess -- not through the
-// browser. A synthetic `gh` on this suite's own isolated server process's
-// PATH answers exactly as each test arranges through a fake GitHub, which
-// records every invocation, so these tests can assert what the boundary
-// refuses before ever launching `gh`, what it pins into `gh`'s arguments, and
-// what it never repeats into a failure response.
-//
-// This spec covers what the boundary reads and reports: reachable record
-// reads and failure reporting. Resolve-then-read for every catalog source
-// from the page, with pinned `gh` arguments, is covered by
-// ../../../e2e/observation/authenticated-project-observation.spec.ts; that the dev server answers a
-// read as the preview does, by ../runtime/serving-modes.spec.ts. Which requests it refuses before
-// launching `gh` is covered in ./authenticated-read-refusal.spec.ts, and
-// which commit added an agent profile in
-// ./authenticated-read-profile-addition.spec.ts; when a reachable record was
-// last committed, and refusal without asking for an unreachable path, in
-// ./authenticated-read-committed-last.spec.ts; which backlog a membership
-// read or a read at a known revision answers, and when it asks GitHub for it,
-// in ./authenticated-read-revision-backlog.spec.ts; its
-// subprocess lifecycle -- cancellation on disconnect, timeout, and shutdown
-// -- in ./authenticated-read-subprocess-lifecycle.spec.ts; reads on a story
-// branch in ./authenticated-branch-read-boundary.spec.ts. All share this
-// suite's harness (../../test-support/support/dashboardServer.ts).
-//
-// This spec's servers are separate processes, each with its own PATH and its
-// own fake `gh`, so nothing here can leak into -- or race with -- the page
-// journeys' own servers.
+// The read boundary returns allowlisted canonical records at their pin and
+// encodes provider paths. Its revision-check failure responses are observed by
+// ./authenticated-read-http.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -36,12 +10,9 @@ import {
 } from "../../test-support/support/dashboardServer.ts";
 import {
   everyRepository,
-  failsWith,
   publishes,
 } from "../../test-support/support/fakeGitHub.ts";
-import { notLoggedIn } from "../../test-support/originAnswers.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { checkedAt } from "../../test-support/support/sharedReads.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedFiles } from "../../test-support/describedRevisions.ts";
 import { backlogPath } from "../../test-support/publishedOriginBasics.ts";
@@ -51,7 +22,6 @@ test.describe.configure({ mode: "serial" });
 
 const knownSourceId = "open-dough";
 const knownRepository = "terryyin/open-dough";
-const secretMarker = "gho_should-never-reach-a-browser-1234567890";
 
 test.describe("authenticated read boundary (development environment)", () => {
   let server: DashboardServer;
@@ -62,43 +32,6 @@ test.describe("authenticated read boundary (development environment)", () => {
 
   test.afterAll(async () => {
     await server.close();
-  });
-
-  test("answers a missing gh login with the selected project's actionable failure, never gh's own words", async () => {
-    server.github.serve(
-      everyRepository,
-      failsWith(`${notLoggedIn.stderr}token file: ${secretMarker}\n`),
-    );
-    const response = await checkedAt(server, "pygardon");
-    expect(response.status).toBe(502);
-    expect(response.headers["cache-control"]).toBe("no-store");
-    expect(JSON.parse(response.body)).toEqual({
-      error:
-        "The local GitHub CLI is not logged in, so main of terryyin/pygardon could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
-    });
-    expect(response.body).not.toContain(secretMarker);
-    expect(response.body).not.toContain("GH_TOKEN");
-  });
-
-  test("never forwards gh's raw stderr or a credential-like marker into the failure response", async () => {
-    const callsBefore = server.ghCalls().length;
-    server.github.serve(everyRepository, failsWith(`fatal: ${secretMarker}\n`));
-    const response = await checkedAt(server);
-    expect(response.status).toBe(502);
-    expect(response.body).not.toContain(secretMarker);
-    expect(response.body).not.toContain("fatal:");
-    // The check's listing failed, then main alone, so nothing is read on
-    // from whatever partial/undefined revision that would imply.
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      ["api", "--include", `repos/${knownRepository}/git/matching-refs/heads/`],
-      [
-        "api",
-        "--include",
-        `repos/${knownRepository}/commits/main`,
-        "--jq",
-        ".sha",
-      ],
-    ]);
   });
 
   test("reads an allowlisted canonical path pinned to the supplied revision exactly as origin publishes it, a literal control-character escape included, reusing records already read at that revision", async () => {
