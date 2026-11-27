@@ -341,7 +341,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#published-review-comparisons-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md","assessment":"not-ready","reasons":["Slice 1: the fixed Done Review browser journey timed out before the post-checkout-move Landed run cue.","Slice 4: the mixed and attributed file rows appeared, but the merge-resolution diff response exceeded the browser assertion limit before its integration edit could render.","Slice 5: the retained landing inventory and text reached the browser, but the second story's final file text and switch assertions did not finish by the test cutoff."],"basis":{"document":"59aee6e51ae34990d90c2ab4fc40f9ccb35a4c26bc44ea6f11618bfec2405b61","plan":"7d9561ffcd9d8e811a9f8f751c9c5d6434b2c19fc0dde307a8d4be7d442a8b9f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9bb342127bb9d087d8edd1bd6ff591db199004b3934fa7f4822fea381ef1d698","plan":"646d043d11f149167a84ef6392397e90f1288da3306f1291391d48db96651ff1"}}
 ```
 
 **Goal.** Give developers changing published Review comparisons fast,

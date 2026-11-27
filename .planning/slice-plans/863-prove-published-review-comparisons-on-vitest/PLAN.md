@@ -73,7 +73,7 @@ macOS on AC, one worker, and the default case timeout.
 | Review open, literal diff/text and refusals, kept record selection, marks, and actual Git mutation | On 2026-11-27 all 55 Chromium cases in the 19-spec selection passed on the first attempt with the configured proof reporter. Wall time was 292.04 s, summed case time 283.11 s, and median 4.57 s. 53 cases exceeded 100 ms. macOS one-minute load was 19.24 at start and 36.69 at finish. | Slices 1–8 preserve the observed answers and native boundaries. The prior passing run with the line reporter took 248.46 s wall, so compare under measured load. |
 | Compare a branch completion and its widened rename through typed reads | `story-review-completed-contribution.spec.ts` passed both cases in Node Vitest. Incoming text was admitted only on the widened pair and the rename refused an unrelated old path. The real two-parent merge-side contrast also passed. | Slices 4–5 reuse the production operations and real Git histories. |
 | Read inventory and text at a named result tree | The nine Node cases in `story-review-result-{tree,admission}.spec.ts` passed in 10 ms summed case time. They observed location selection, settings recovery, literal text, absence, unavailable reads, list failure, selection of the Done/Taken/landed revision and refusal of a different tree or out-of-tree path. | These own the answer and admission rules from both historical result specs. Slice 5 owns the remaining consumer contrasts. |
-| Choose and read the result of a retained landing with advancing trunk | In `e2e/intent/intent-done-default-answer-selection.spec.ts`, the selected landing's inventory and literal text returned 200 at the accepted revision after trunk advanced. The next story's final file text was still pending at the 30 s test cutoff. | Slice 5 owns both the historical-source journey and still-distinct contrasts from the removed Git route cases. The complete browser journey remains unverified. |
+| Choose and read the result of a retained landing with advancing trunk | At `fba07a143` on 2026-11-28, `e2e/intent/intent-done-default-answer-selection.spec.ts` passed its complete journey in 5.5 s at one worker: the selected landing's inventory and text at the accepted revision after trunk advanced, then the next story's published default and final file text. | Slice 5 owns both the historical-source journey and still-distinct contrasts from the removed Git route cases. |
 | Read from two Git worktrees and end an aborted mutation | Both Chromium cases passed. The ref hook recorded one mutation with two waiters reading the new ref. The aborted child did not settle until the hold was released. The three typed fetch ownership cases and 15 verified Board trunk cases also passed in Node. | Reuse the real process and ref-transaction gates for slice 8. Plan 823 owns the later transport and cross-reader behavior. |
 
 Use the maintained backend command on the exact spec names under the slices
@@ -310,12 +310,17 @@ merged trees, retention and resource lifetime stay with their current
 production owners. Slice-plan refinement was unnecessary after separating
 claim recovery from attribution and mapping the current surviving witnesses.
 
-The 2026-11-27 one-worker browser run at `dc0c260c2` failed all three
-selected journeys. The local one-minute load reached 54.59 on 16 logical
-CPUs. The 55 backend cases passed on that revision. Browser traces showed
-successful comparison and earlier file responses, with late requests
-consuming the remaining assertion or test budget. The cause of the latency
-still needs confirmation.
+The retained browser journeys were observed at `fba07a143` on 2026-11-28,
+one worker, with the configured proof reporter. All three passed on the
+first attempt: Intent default selection in 5.5 s, Done Review after the
+checkout moves, including the Landed run cue, in 5.2 s, and merge edits,
+including the rendered integration edit diff, in 4.2 s. The macOS
+one-minute load was 8.0 at start and 7.6 at finish. Main CI passed at
+`1e7dd2db0`, `b7d3c47be` and `f60cc8dd8`. The intervening commits since
+`dc0c260c2` do not touch the Review read path. The failures at
+`dc0c260c2` occurred at a one-minute load of 54.59 on 16 logical CPUs. Each
+slice that changes a journey's production contract reruns that journey
+under the default limits.
 
 ```sh
 caffeinate -s -i npm run test:e2e -- \
@@ -323,24 +328,3 @@ caffeinate -s -i npm run test:e2e -- \
   e2e/review/story-review-completed.spec.ts \
   e2e/review/story-review-completed-merge-edits.spec.ts --workers=1
 ```
-
-- **Slice 1.** `story-review-completed.spec.ts` observed the fixed literal
-  diff and text after the checkout moved. The final Review open remained
-  pending at the 30 s test cutoff, leaving the Landed run cue unobserved.
-- **Slice 4.** `story-review-completed-merge-edits.spec.ts` listed the
-  mixed and attributed rows. The merge-resolution diff took 5.06 s to
-  answer, missing its browser assertion limit and leaving the rendered
-  integration edit unobserved.
-- **Slice 5.** `intent-done-default-answer-selection.spec.ts` reached the
-  selected landing's source and the second story's own inventory and
-  first file. The final `docs/notes.md` text read was pending at the
-  test cutoff, leaving the complete switch and final request assertions
-  unobserved.
-
-Resolve these proof gaps under the shared failure policy before clearing
-readiness. Trace the time from fixture setup through repeated
-`requirePublishedCompletion` and comparison construction for the late
-open, diff, and text requests. Repair the observed cause at the owning
-boundary and validate the three complete journeys at the existing assertion
-and test limits under representative contention. Keep both the successful
-backend contrasts and the browser assertions.
