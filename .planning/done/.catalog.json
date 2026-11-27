@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-418_show-selected-session-in-review-home.json",
+      "identity": "SEED-418#show-selected-session-in-review-home",
+      "completedAt": "2026-11-27T13:11:39.319Z",
+      "blob": "7e456695bab55704123320f87cda6bd868eb0b25"
+    },
+    {
       "fileName": "SEED-418_announce-compact-dropdown-choice.json",
       "identity": "SEED-418#announce-compact-dropdown-choice",
       "completedAt": "2026-11-27T11:59:17.278Z",
