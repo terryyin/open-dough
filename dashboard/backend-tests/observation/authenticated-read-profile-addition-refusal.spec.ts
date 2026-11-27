@@ -1,102 +1,40 @@
-// Which addition reads the local authenticated read boundary
-// (../../server/authenticatedRead.ts) refuses before launching `gh`: an
-// addition read (`committed=added`) names only a pinned revision and an agent
-// profile path of a catalog project, never an arbitrary record, a traversal,
-// a moving ref, a branch, or another repository. What it answers is
-// ./authenticated-read-profile-addition.spec.ts; the shared harness is
-// ../../test-support/support/dashboardServer.ts.
+import { expect, test } from "vitest";
+import { parseRequestedRead } from "../../server/requestedRead.ts";
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { describedBacklog } from "../../test-support/describedRevisions.ts";
+const pin = "fa".repeat(20);
+const profile = ".planning/agents/yui-chan.json";
+const onlyProfile = "An addition read names only an agent profile path.";
+const onlyPinned = "The pinned revision is not a commit sha.";
+const onlyAddition =
+  "An addition read names only a pinned revision and an agent profile path.";
 
-test.describe.configure({ mode: "serial" });
-
-const knownSourceId = "open-dough";
-const revision = "fa".repeat(20);
-// An empty project's backlog.
-const backlog = describedBacklog(makeMe.aRepository.please());
-const agents = ".planning/agents";
-
-test.describe("authenticated profile addition refusal (development environment)", () => {
-  let server: DashboardServer;
-
-  test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
-  });
-
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  // An addition read asks which commit added one agent profile, only at a
-  // pinned trunk revision and only for a path shaped as a profile: never an
-  // arbitrary record, a traversal, a moving ref, or a branch.
-  const yuiProfile = encodeURIComponent(`${agents}/yui-chan.json`);
-  const onlyProfile = "An addition read names only an agent profile path.";
-  for (const refused of [
-    {
-      read: "at a moving ref instead of a commit sha",
-      query: `revision=main&path=${yuiProfile}`,
-      error: "The pinned revision is not a commit sha.",
-    },
-    {
-      read: "without a pinned revision",
-      query: `path=${yuiProfile}`,
-      error: "The pinned revision is not a commit sha.",
-    },
-    {
-      read: "for a record that is not an agent profile",
-      query: `revision=${revision}&path=${encodeURIComponent(".planning/PRODUCT-BACKLOG.md")}`,
-      error: onlyProfile,
-    },
-    {
-      read: "for a profile-named path that leaves its directory",
-      query: `revision=${revision}&path=${encodeURIComponent(".planning/agents/../secrets/yui-chan.json")}`,
-      error: onlyProfile,
-    },
-    {
-      read: "combined with a revision check",
-      query: `since=${revision}&path=${yuiProfile}`,
-      error:
-        "An addition read names only a pinned revision and an agent profile path.",
-    },
-    {
-      read: "on a story branch",
-      query: `revision=${revision}&branch=story%2Fexample&head=${revision}&path=${yuiProfile}`,
-      error:
-        "An addition read names only a pinned revision and an agent profile path.",
-    },
-  ]) {
-    test(`refuses an addition read ${refused.read} before launching gh`, async () => {
-      server.github.serve(everyRepository, publishes({ backlog }));
-      const callsBefore = server.ghCalls().length;
-      const response = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&committed=added&${refused.query}`,
-        headers: { Origin: server.origin },
-      });
-      expect(response.status).toBe(400);
-      expect(JSON.parse(response.body)).toMatchObject({ error: refused.error });
-      expect(server.ghCalls()).toHaveLength(callsBefore);
+test.each<[string, Record<string, string>, string]>([
+  ["a moving ref", { revision: "main", path: profile }, onlyPinned],
+  ["no pinned revision", { path: profile }, onlyPinned],
+  [
+    "another kind of record",
+    { revision: pin, path: ".planning/PRODUCT-BACKLOG.md" },
+    onlyProfile,
+  ],
+  [
+    "directory traversal",
+    { revision: pin, path: ".planning/agents/../secrets/yui-chan.json" },
+    onlyProfile,
+  ],
+  ["a mixed revision check", { since: pin, path: profile }, onlyAddition],
+  [
+    "a story branch",
+    { revision: pin, branch: "story/example", head: pin, path: profile },
+    onlyAddition,
+  ],
+])(
+  "refuses an addition read with %s before dispatch",
+  (...[, query, message]) => {
+    const params = new URLSearchParams({ ...query, committed: "added" });
+    expect(parseRequestedRead(params)).toEqual({
+      kind: "refused",
+      status: 400,
+      message,
     });
-  }
-  test("refuses an addition read for another repository before launching gh", async () => {
-    const callsBefore = server.ghCalls().length;
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${encodeURIComponent("someone/elses-repo")}&committed=added&revision=${revision}&path=${yuiProfile}`,
-      headers: { Origin: server.origin },
-    });
-    expect(response.status).toBe(404);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-  });
-});
+  },
+);

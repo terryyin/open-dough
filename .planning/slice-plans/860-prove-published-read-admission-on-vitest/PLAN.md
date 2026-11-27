@@ -475,7 +475,7 @@ observations still apply. See `s6-refactor-consumer-trace.md`.
 ### 7. Attribute the currently allocated profile
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a listed profile at a pin, return the addition of its current
 allocation, the credited commit and its matched account. Distinguish
@@ -488,6 +488,36 @@ real history walk and memo. Use Git fixture history where file changes and
 pinning determine the result. Supply provider account metadata at its
 boundary. Preserve `authenticated-read-profile-addition.spec.ts` (3) and
 `authenticated-read-profile-addition-refusal.spec.ts` (7).
+
+Accepted proof. [authenticated-read-profile-addition.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-profile-addition.spec.ts)
+uses the real parser, attribution walk and PinnedTexts at MakeMe Git
+commits. Vacate, re-add, edit and removal history identifies the exact
+current allocation's SHA, date, committer and matched login. The repeated
+read makes no provider call. Blank committer and absent match keep the
+attribution with null names. A vacated pin refuses before history lookup.
+An older addition beyond ten actual later changes returns null and asks
+for exactly the ten most recent details. Changed and omitted-file
+provider replies distinguish continuing from ending the walk. Two
+profiles with a shared addition fetch that commit detail once.
+[authenticated-read-profile-addition-refusal.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-profile-addition-refusal.spec.ts)
+asserts six exact parameter refusals. The shared HTTP guard still asserts
+unknown-source 404 and zero calls before read selection. All thirteen
+Node replacements passed before the legacy copies were retired.
+
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/authenticated-read-(profile-addition(-refusal)?|listed-records|boundary|http)\.spec\.ts$' --workers=1
+caffeinate -s -i npm run typecheck:dashboard
+caffeinate -s -i npm run test:e2e -- stories/agent-roster-avatar.spec.ts --workers=1
+```
+
+All 32 focused backend cases passed in Node in 8.88 s. The 13 attribution
+and parser cases summed to 871 ms, with real-history cases at 143, 169
+and 438 ms. Typecheck passed. The retained roster journey passed in
+13.98 s wall and exercises exact visible credit, initials and gaps,
+later allocation and source isolation. See `s7-return.md`,
+`s7-consumer-trace.md` and the terminal run records. The two subject specs
+reuse the existing product and fixture owners and need no refactor pass.
 
 ### 8. Serve the credited account's bounded avatar
 
