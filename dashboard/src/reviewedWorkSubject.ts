@@ -21,29 +21,6 @@ export const isReviewedPublishedSessionSubject = (
   subject: ReviewedWorkSubject,
 ): subject is ReviewedPublishedSessionSubject => "published" in subject;
 
-function sessionId(subject: ReviewedWorkSubject) {
-  return isReviewedPublishedSessionSubject(subject)
-    ? subject.published
-    : undefined;
-}
-
-export function sameReviewedWorkSubject(
-  one: ReviewedWorkSubject,
-  other: ReviewedWorkSubject,
-): boolean {
-  return (
-    one.source === other.source &&
-    one.identity === other.identity &&
-    sessionId(one) === sessionId(other)
-  );
-}
-
-export function reviewedWorkKey(subject: ReviewedWorkSubject): string {
-  const story = `${subject.source}\n${subject.identity}`;
-  const session = sessionId(subject);
-  return session === undefined ? story : `${story}\n${session}`;
-}
-
 export function reviewedWorkQuery(subject: ReviewedWorkSubject) {
   const { source, identity } = subject;
   return {

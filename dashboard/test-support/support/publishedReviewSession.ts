@@ -11,7 +11,6 @@ import {
 import { rebuildDoneCatalog } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-complete.mjs";
 import { advanceOriginTrunk } from "../originatingMachine.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { git } from "./storyReviewWorktree.ts";
 
 export const publishedReviewStory = {
   identity: "SEED-898#published-review",
@@ -51,14 +50,4 @@ export function publishReviewSession(
       .please();
   });
   return record.sessionId;
-}
-
-export function publishWorktreeReviewSession(
-  origin: StartOrigin,
-  workspace: string,
-  base: string,
-) {
-  const candidate = git(workspace, "rev-parse", "HEAD");
-  git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
-  return publishReviewSession(origin, { base, candidate });
 }

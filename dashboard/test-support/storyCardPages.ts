@@ -35,20 +35,13 @@ export class Board extends PageObject {
     using: "mouse" | "keyboard" = "mouse",
   ) {
     return this.cue(
-      `Recently done: review the published session ${session}`,
+      `Recently done: review the published session ${session} in Intent`,
       async () => {
         await showColumn(this.page, "Recently done");
         const action = this.#publishedReview(session);
         await (using === "keyboard" ? action.press("Enter") : action.click());
       },
-      this.pages.storyReview,
-    );
-  }
-
-  expectPublishedReviewFocused(session: string) {
-    return this.cueHere(
-      `Recently done: Review changes for ${session} has focus`,
-      () => expect(this.#publishedReview(session)).toBeFocused(),
+      this.pages.intent,
     );
   }
 

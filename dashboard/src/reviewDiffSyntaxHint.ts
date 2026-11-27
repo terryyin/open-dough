@@ -13,17 +13,6 @@ import {
 import { syntaxHintOfRepositoryPath } from "./intentSelectionCoverage.ts";
 import { useIntentReads } from "./pageReads.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
-import type { StoryReview } from "./storyReviewContract.ts";
-
-// Settings revision that pins Intent locations for language fallback.
-export function reviewIntentSettingsRevision(
-  review: StoryReview | undefined,
-): string | undefined {
-  if (review?.kind === "published") return review.completion;
-  if (review?.kind === "published-taken") return review.head;
-  if (review?.kind === "landed") return review.landing.revision;
-  return undefined;
-}
 
 export function useReviewDiffSyntaxHint(
   source: PublishedSource | undefined,

@@ -10,11 +10,6 @@ export type PublishedSessionReview = Extract<
   { kind: "published-session" }
 >;
 
-export const publishedSessionDescription =
-  "Read-only: this session's published changes from its close record, from the recorded baseline to its published tree.";
-
-export const publishedSessionName = "Published changes";
-
 export function PublishedSessionContext({
   review: { session, baseline, tree },
 }: {
@@ -22,7 +17,7 @@ export function PublishedSessionContext({
 }) {
   return (
     <div>
-      <h3>{publishedSessionName}</h3>
+      <h3>Published changes</h3>
       <p>
         Published changes of this session, closed{" "}
         <time dateTime={session.closedAt}>

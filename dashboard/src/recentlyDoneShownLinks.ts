@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
 import type { DoneStories } from "./doneStories.ts";
 import { useDoneLinkReads } from "./pageReads.tsx";
+import { currentPublishedSessions } from "./publishedSessions.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import {
@@ -27,6 +28,15 @@ export const RecentlyDoneLinkSources = createContext<Sources>({
   selected: "",
   work: undefined,
 });
+
+// The project's current published session records, while its work is shown.
+export function useCurrentPublishedSessions(sourceId: string) {
+  const { work } = useContext(RecentlyDoneLinkSources);
+  return currentPublishedSessions(
+    work?.source.id === sourceId ? work.publishedSessions : undefined,
+    new Date(),
+  );
+}
 
 type LinkFacts = {
   readonly key: string;

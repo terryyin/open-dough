@@ -1,8 +1,7 @@
 // The one Side panel as a fluent page object for the Side panel journeys
 // (./sidePanelPages.ts): its frame, shared by whatever content it shows, and
-// which content that is. It reaches its content, a Session review
-// (./storyReviewPages.ts) or a Final report (./finalReportPages.ts), through
-// the phase's page-object set. Each method writes one named cue on the
+// which content that is. It reaches its content, a Final report
+// (./finalReportPages.ts), through the phase's page-object set. Each method writes one named cue on the
 // phase's cue sheet (./support/cueSheet.ts) and returns the page object the
 // reader is then at (./fluentPageObject.ts).
 
@@ -19,7 +18,7 @@ import { expect } from "./support/preparationPage.ts";
 import { sidePanelContents } from "./support/sidePanelContents.ts";
 
 // The Side panel's content kinds, by the name each region gives itself.
-type SidePanelContent = "Terminal" | "Final report" | "Session review";
+type SidePanelContent = "Terminal" | "Final report";
 
 // The Side panel's frame is its shown content's header controls, the same
 // for every content, and the room the content fills: the split beside the
@@ -74,10 +73,6 @@ export class SidePanel extends PageObject {
     return this.#frame(`${name} is a frame icon control`, () =>
       expectFrameIconControl(this.#control(name), name, tooltip),
     );
-  }
-
-  get storyReview() {
-    return this.pages.storyReview;
   }
 
   get finalReport() {

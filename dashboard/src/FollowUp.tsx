@@ -7,7 +7,6 @@
 // offers Follow up for the whole file or a line
 // (`./StoryAnchoredFollowUp.tsx`).
 
-import { useContext } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import type { DoneStory } from "./doneRecord.ts";
@@ -23,8 +22,7 @@ import {
   storyFollowUpSessions,
 } from "./followUpSessions.ts";
 import { usePageSessions } from "./pageSessions.ts";
-import { currentPublishedSessions } from "./publishedSessions.ts";
-import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
+import { useCurrentPublishedSessions } from "./recentlyDoneShownLinks.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { offersFollowUp } from "./sessionAccess.ts";
 import { StartSession, type AdHocLaunches } from "./StartSession.tsx";
@@ -65,13 +63,10 @@ export function StoryFollowUpSession({
 }) {
   const readHistory = useReadRetainedHistory();
   const { presentTerminal } = usePageSessions();
-  const { work } = useContext(RecentlyDoneLinkSources);
+  const published = useCurrentPublishedSessions(sourceId);
   const candidates = storyFollowUpSessions(
     launches.records,
-    currentPublishedSessions(
-      work?.source.id === sourceId ? work.publishedSessions : undefined,
-      new Date(),
-    ),
+    published,
     sourceId,
     story.identity,
   );

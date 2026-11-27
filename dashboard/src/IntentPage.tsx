@@ -118,7 +118,6 @@ export function IntentPage({
     intentTabPanelAttributes(tabsIdPrefix, name, project.mode);
   const filesToggle = (
     <FileBrowserToggle
-      icon
       browser={
         hasBrowser && (story !== undefined || project.mode === "ci")
           ? files

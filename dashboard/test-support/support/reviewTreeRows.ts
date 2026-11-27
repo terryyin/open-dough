@@ -7,22 +7,6 @@
 
 import { expect, type Locator } from "@playwright/test";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
-import { fileBrowser } from "./reviewContextLine.ts";
-
-// The changed-file list, named by the count the scenario expects.
-export const changedFilesList = (
-  review: Locator,
-  name: string | RegExp,
-  options: { exact?: boolean } = {},
-) => review.getByRole("list", { name, ...options });
-
-// One named file in a supplied list or file-browser pane. Matching remains
-// the caller's choice; accessibility contracts keep their exact option.
-export const listedFile = (
-  files: Locator,
-  name: string | RegExp,
-  options: { exact?: boolean } = {},
-) => files.getByRole("button", { name, ...options });
 
 export const fileLineCounts = (file: Locator) =>
   file.locator(".story-review-line-counts");
@@ -60,35 +44,6 @@ const treeRows = (list: Locator) =>
 export async function expectTreeRows(list: Locator, rows: readonly string[]) {
   await expect(list).toBeAttached({ timeout: storyReviewWaitMs });
   await expect.poll(() => treeRows(list)).toEqual(rows);
-}
-
-// A folder's disclosure in the review, by its accessible name: the folder's
-// name, followed by its count while collapsed.
-export const treeFolder = (review: Locator, name: string | RegExp) =>
-  review
-    .getByRole("listitem")
-    .getByRole("button", { name, exact: true })
-    .and(review.locator("button[aria-expanded]"));
-
-// A file's control in the review's file browser, by its accessible name: its
-// kind and name, as in “Added story.txt”.
-export const fileRow = (review: Locator, name: string | RegExp) =>
-  listedFile(fileBrowser(review), name, { exact: true });
-
-// The file's line counts as its row shows them, as in “+1 −0”.
-export const expectLineCounts = (
-  review: Locator,
-  name: string,
-  shown: string,
-) =>
-  expect(fileLineCounts(fileRow(review, name))).toHaveText(shown, {
-    useInnerText: true,
-  });
-
-// The file is the one selected: its row says so and its diff is shown.
-export async function expectFileSelected(review: Locator, name: string) {
-  await expect(fileRow(review, name)).toHaveAttribute("aria-pressed", "true");
-  await expect(fileDiff(review, name)).toBeVisible();
 }
 
 // The rows of the nested worktree's review (./storyReviewWorktree.ts) with

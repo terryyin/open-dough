@@ -1,7 +1,8 @@
-// Review changes' file row and count wording for the shared folder tree
-// (`./StoryReviewFileTree.tsx`, `./StoryReviewSnapshotView.tsx`): each file's
-// kind and path in words, optional trunk-includes flag, and added/removed
-// line counts that describe the control.
+// A changed file's words and row details for Intent's story tree
+// (`./IntentTreeFileRow.tsx`) and file heading
+// (`./StoryReviewFileHeader.tsx`): each file's kind and path in words, the
+// trunk-includes flag, the changed-file count wording, and added/removed line
+// counts that describe the file's control.
 
 import { useId } from "react";
 import type { ReviewedFile } from "./storyReviewContract.ts";
@@ -23,7 +24,7 @@ export const reviewedFileWords = (file: ReviewedFile) =>
     file.kind === "renamed" ? `${file.oldPath} → ${file.path}` : file.path
   }${file.includesTrunkFrom === undefined ? "" : `, ${includesTrunkWords}`}`;
 
-export const changedFileWords = (count: number) =>
+const changedFileWords = (count: number) =>
   count === 1 ? "changed file" : "changed files";
 
 // How many files a snapshot lists, in words.
@@ -62,35 +63,4 @@ export function useReviewFileDetails(file: ReviewedFile | undefined) {
       </>
     ),
   };
-}
-
-// A file's control: its name, and its line counts when its diff adds or
-// removes any, which describe the control in words.
-export function FileRow({
-  file,
-  name,
-  selected,
-  onSelect,
-}: {
-  readonly file: ReviewedFile;
-  readonly name: string;
-  readonly selected: boolean;
-  readonly onSelect: (path: string) => void;
-}) {
-  const { descriptionId, details } = useReviewFileDetails(file);
-  return (
-    <button
-      type="button"
-      aria-label={reviewedFileWords(file)}
-      aria-describedby={descriptionId}
-      title={reviewedFileWords(file)}
-      aria-pressed={selected}
-      onClick={() => {
-        onSelect(file.path);
-      }}
-    >
-      <code>{name}</code>
-      {details}
-    </button>
-  );
 }

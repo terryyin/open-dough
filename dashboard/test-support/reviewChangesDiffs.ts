@@ -1,12 +1,20 @@
 // The shown file's diff in Review changes (./reviewChangesPage.ts): what it
-// says, its added and removed lines, a printed line, Follow up in its header,
-// and the diff's own reading status. A
+// says, its added and removed lines, a printed line, Follow up in its header
+// or from one line, and the diff's own reading status. A
 // scenario that proves a diff's structure (hunks, line numbers, scrolling)
 // reads it through `toRead`, the one diff it names, with the diff-structure
 // helpers (./support/reviewPanes.ts).
 
 import { expect, type Locator } from "@playwright/test";
-import { fileFollowUp } from "./support/fileFollowUpPage.ts";
+import {
+  followUpFromLine,
+  type DiffLineSide,
+} from "./support/diffLineFollowUpPage.ts";
+import {
+  expectFileFollowUpDialog,
+  fileFollowUp,
+  fileFollowUpDialog,
+} from "./support/fileFollowUpPage.ts";
 import { fileDiff } from "./support/reviewTreeRows.ts";
 
 type Name = string | RegExp;
@@ -140,9 +148,38 @@ export class ReviewDiffs {
     return this;
   }
 
-  // Follows up the shown diff's file; the dialog it opens is the caller's.
-  async followUp(storyName: string) {
-    await fileFollowUp(this.#review, storyName).click();
-    return this;
+  // Opens the composer from one line of the named file's diff by keyboard;
+  // answers its dialog once it shows the story and these context lines.
+  followUpFromLine(
+    file: Name,
+    side: DiffLineSide,
+    line: number,
+    storyName: string,
+    context: readonly (string | RegExp)[],
+  ) {
+    const diff = this.#diff(file);
+    return followUpFromLine(
+      diff.page(),
+      diff,
+      side,
+      line,
+      storyName,
+      context,
+      "keyboard",
+    );
+  }
+
+  // Opens the composer from the named file's header; answers its dialog once
+  // it shows the story, these context lines and its defaults.
+  async followUpFromFile(
+    file: Name,
+    storyName: string,
+    context: readonly (string | RegExp)[],
+  ) {
+    const diff = this.#diff(file);
+    await fileFollowUp(diff, storyName).click();
+    const dialog = fileFollowUpDialog(diff.page());
+    await expectFileFollowUpDialog(dialog, storyName, context);
+    return dialog;
   }
 }

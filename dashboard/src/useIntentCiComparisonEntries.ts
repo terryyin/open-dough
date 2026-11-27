@@ -53,6 +53,8 @@ export function useSelectedComparisonEvidence(
   source: PublishedSource,
   identity: string | undefined,
   range: CiComparisonRange | undefined,
+  // Why the selection has no range; it measures nothing and reads nothing.
+  gap?: string,
 ): SelectedComparisonEvidence | undefined {
   const comparison = useSelectedIntentCiComparison(source, identity, range);
   const endpointProofs = useEndpointProofs(
@@ -61,9 +63,12 @@ export function useSelectedComparisonEvidence(
     comparison.shown,
     comparison.checkedAgain,
   );
-  return identity === undefined || range === undefined
+  if (identity === undefined) return undefined;
+  if (range !== undefined)
+    return { kind: "measured", comparison, endpointProofs };
+  return gap === undefined
     ? undefined
-    : { comparison, endpointProofs };
+    : { kind: "unmeasured", explanation: gap };
 }
 
 function useEndpointProofs<Answer, Proofs>(

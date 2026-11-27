@@ -1,6 +1,5 @@
 // The side panel's own frame icon controls, shared by whatever it shows, as
-// a terminal (`./Terminal.tsx`) or a story review
-// (`./StoryReview.tsx`): Maximize or Restore, and Close, which
+// a terminal (`./Terminal.tsx`): Maximize or Restore, and Close, which
 // Command+Shift+Escape also does page-wide, from inside a terminal too, except
 // inside an open dialog or System settings (`useCommandShortcut`). The content
 // leads them with its own operations. The final report

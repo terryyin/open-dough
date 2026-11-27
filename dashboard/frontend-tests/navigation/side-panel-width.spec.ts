@@ -8,9 +8,9 @@ import {
   keyStep,
   measured,
   minimum,
-  mountWidthReview,
+  mountWidthTerminal,
   movePointer,
-  openReview,
+  openTerminal,
   panel,
   press,
   widthIs,
@@ -19,7 +19,7 @@ import {
 
 test("mouse and keyboard choose one bounded panel width", async () => {
   withWidthStorage();
-  await mountWidthReview();
+  await mountWidthTerminal();
   await expect.element(divider).toBeVisible();
   const first = measured();
   const room = first.page.width + first.panel.width;
@@ -76,6 +76,6 @@ test("mouse and keyboard choose one bounded panel width", async () => {
   await widthIs(chosen);
   await button("Close").click();
   await expect.element(panel).not.toBeInTheDocument();
-  await openReview();
+  await openTerminal();
   await widthIs(chosen);
 });

@@ -1,5 +1,5 @@
-// Native final reports and published session reviews replace each other in
-// the Side panel. A held Git comparison must not answer a later session.
+// Review session changes opens Intent while native final reports keep the
+// Side panel. A held Git comparison must not answer a later session.
 import { publishedReviewStory } from "../../dashboard/test-support/support/publishedReviewSession.ts";
 import { expect } from "@playwright/test";
 import { keyStep } from "../../dashboard/test-support/sidePanelWidthPage.ts";
@@ -17,7 +17,7 @@ import { test } from "../../dashboard/test-support/support/sidePanelReplacement.
 
 test.use({ preparationHost: "codex" });
 
-test("a session review, another session's review, and a final report replace each other in the one side panel", async ({
+test("one session's changes, another session's changes in Intent, and a final report in the one side panel", async ({
   page,
   dashboard,
   storiesAAndB: { reviewReads, journey, storyBSession, first, second },
@@ -25,44 +25,43 @@ test("a session review, another session's review, and a final report replace eac
   const heldA = await holdPublishedReviewOf(page, dashboard.origin, first);
   try {
     await journey.phase(
-      "The first session's review opens on its held read",
-      ({ board }) => board.reviewPublishedSession(first),
+      "The first session's changes open in Intent on its held read",
+      ({ board }) =>
+        board
+          .reviewPublishedSession(first)
+          .expectSelectedStory(publishedReviewStory.identity),
     );
     await heldA.reached;
     await journey.phase(
-      "The second session's review replaces the first session's pending review",
-      ({ board, sidePanel }) => {
-        sidePanel.storyReview
-          .expectStory(`Published session ${first}`)
-          .expectFeedback("Reading the story's changes…");
+      "The second session's changes replace the first session's pending read",
+      ({ board, perspective }) => {
+        perspective.choose("Development");
         board
           .reviewPublishedSession(second)
-          .expectStory(`Published session ${second}`)
-          .expectChangedFile("1 changed file", "Added story-b.txt");
+          .expectSessionChosen("1 changed file");
       },
     );
   } finally {
     await heldA.releaseAndDrain();
   }
   await journey.phase(
-    "a held review never answers a later session's review",
-    ({ sidePanel }) =>
-      sidePanel.storyReview
-        .expectStory(`Published session ${second}`)
-        .expectSession(second)
-        .expectChangedFiles("1 changed file")
-        .expectNoChangedFiles(/2 changed files/)
-        .expectNoText("first.txt")
-        .sidePanel.expectItems(1),
+    "a held read never answers a later session's changes",
+    ({ intent, sidePanel }) => {
+      intent.expectSessionChosen("1 changed file");
+      sidePanel.expectItems(0);
+    },
   );
 
-  await journey.phase("a final report replaces the review", ({ board }) =>
-    board
-      .storyCard("Story B")
-      .readFinalReport()
-      .expectText(storyBReport)
-      .sidePanel.expectItems(1)
-      .expectNotShowing("Session review"),
+  await journey.phase(
+    "a final report opens in the Side panel",
+    ({ board, perspective }) => {
+      perspective.choose("Development");
+      board
+        .storyCard("Story B")
+        .readFinalReport()
+        .expectText(storyBReport)
+        .sidePanel.expectItems(1);
+    },
   );
   const width = await journey.shownWidth();
   await journey.phase(
@@ -77,88 +76,25 @@ test("a session review, another session's review, and a final report replace eac
     },
   );
   const readsBeforeReopening = reviewReads.length;
-  await journey.phase("a review replaces the final report", ({ board }) =>
-    board
-      .reviewPublishedSession(second)
-      .expectChangedFiles("1 changed file")
-      .sidePanel.expectNotShowing("Final report")
-      .expectItems(1),
+  await journey.phase(
+    "a session's changes open in Intent beside the final report",
+    ({ board, sidePanel }) => {
+      board
+        .reviewPublishedSession(second)
+        .expectSessionChosen("1 changed file");
+      sidePanel.finalReport.expectText(storyBReport).sidePanel.expectItems(1);
+    },
   );
   // Reopening reads a fresh snapshot.
-  expect(reviewReads.length).toBe(readsBeforeReopening + 1);
-  await journey.phase(
-    "closing the review gives the keyboard back to its session entry",
-    ({ board, sidePanel }) => {
-      sidePanel.storyReview.close().expectItems(0);
-      board.expectPublishedReviewFocused(second);
-    },
-  );
+  expect(reviewReads.length).toBeGreaterThan(readsBeforeReopening);
   expect((await keptSession(dashboard, storyBSession)).doneAt).toBe(undefined);
-
-  await journey.phase(
-    "The first session's review opens with a file chosen",
-    ({ board }) =>
-      board
-        .reviewPublishedSession(first)
-        .chooseFileByKeyboard("2 changed files", "Added second.txt")
-        .expectFileChosen("2 changed files", "Added second.txt"),
-  );
-  const readsBeforeAsking = reviewReads.length;
-  await journey.phase(
-    "Review changes for the review shown takes the keyboard to it and keeps its snapshot",
-    ({ board }) =>
-      board
-        .reviewPublishedSession(first, "keyboard")
-        .expectKeyboardInBody()
-        .expectFileChosen("2 changed files", "Added second.txt")
-        .expectFileDiff("Added second.txt")
-        .sidePanel.expectItems(1),
-  );
-  expect(reviewReads.length).toBe(readsBeforeAsking);
 });
 
-test("a review and a final report stay shown with their selection while the page changes to Intent and back", async ({
+test("a final report stays shown while the page changes to Intent and back", async ({
   page,
   dashboard,
-  storiesAAndB: { reviewReads, journey, storyBSession, first },
+  storiesAAndB: { journey, storyBSession },
 }) => {
-  await journey.phase(
-    "The first session's review opens with a file chosen",
-    ({ board }) =>
-      board
-        .reviewPublishedSession(first)
-        .chooseFile("2 changed files", "Added second.txt")
-        .expectFileChosen("2 changed files", "Added second.txt"),
-  );
-  const reads = reviewReads.length;
-  await journey.phase(
-    "the review keeps its session, chosen file and diff on Intent",
-    ({ perspective, intent }) => {
-      perspective
-        .choose("Intent")
-        .expectChosen("Intent")
-        .sidePanel.storyReview.expectStory(`Published session ${first}`)
-        .expectFileChosen("2 changed files", "Added second.txt")
-        .expectFileDiff("Added second.txt")
-        .sidePanel.expectItems(1);
-      intent.expectSelectedStory(publishedReviewStory.identity);
-    },
-  );
-  await page.goBack();
-  await journey.phase(
-    "browser Back keeps the same review on the Board",
-    ({ perspective, intent }) => {
-      perspective
-        .expectChosen("Development")
-        .sidePanel.storyReview.expectStory(`Published session ${first}`)
-        .expectFileChosen("2 changed files", "Added second.txt")
-        .expectFileDiff("Added second.txt")
-        .sidePanel.expectItems(1);
-      intent.expectNotShown();
-    },
-  );
-  expect(reviewReads.slice(reads)).toEqual([publishedReviewStory.identity]);
-
   await journey.phase(
     "the final report keeps its session's report on Intent",
     ({ board, perspective, intent }) => {

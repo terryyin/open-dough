@@ -1,8 +1,5 @@
-// Session review progress, refresh and failures, beside the shared unread explanations.
-import { RefreshedHistoricalComparison } from "./StoryReviewHistoricalOutcome.tsx";
-import { changedFiles } from "./StoryReviewFileTree.tsx";
+// A review read's unread explanations and its failed sync from origin.
 import { Moment } from "./Moment.tsx";
-import { storyChangesGapWords } from "./storyChangesGapWords.ts";
 import type { ReviewSyncFailure, StoryReview } from "./storyReviewContract.ts";
 import type { ReviewReadState } from "./useReviewRead.ts";
 
@@ -26,54 +23,6 @@ export function unreadReview(
   return read.answer?.kind === "unavailable"
     ? { failed: false, explanation: read.answer.explanation }
     : undefined;
-}
-
-export function ReviewFeedback({
-  review,
-  reading,
-  problem,
-  round,
-}: {
-  readonly review: StoryReview | undefined;
-  readonly reading: boolean;
-  readonly problem: string | undefined;
-  readonly round: number;
-}) {
-  // A review already showing changes stays shown while it is read again.
-  const showsChanges =
-    review?.kind === "landed" || review?.kind === "published-session";
-  const syncFailure = reviewSyncFailure(review);
-  return (
-    <div role="status">
-      {reading && !showsChanges && <p>{storyChangesGapWords.reading}</p>}
-      {reading && showsChanges && (
-        <p>
-          Refreshing the review… What is shown is still the snapshot taken
-          earlier.
-        </p>
-      )}
-      {!reading && round > 0 && review?.kind === "landed" && (
-        <RefreshedHistoricalComparison
-          kind={review.kind}
-          count={review.files.length}
-        />
-      )}
-      {!reading && round > 0 && review?.kind === "published-session" && (
-        <p>
-          Review refreshed: {changedFiles(review.files.length)} in the published
-          changes.
-        </p>
-      )}
-      {!reading && syncFailure !== undefined && (
-        <p>
-          <ReviewSyncNotice failure={syncFailure} />
-        </p>
-      )}
-      {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
-      {problem !== undefined && <p>{reviewReadFailure(problem)}</p>}
-      {review?.kind === "unavailable" && <p>{review.explanation}</p>}
-    </div>
-  );
 }
 
 // The failed sync from origin a review answered with, if any.

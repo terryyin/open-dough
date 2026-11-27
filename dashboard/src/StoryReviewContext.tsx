@@ -1,29 +1,10 @@
 // Context follows the comparison actually shown, while each source of
 // evidence keeps its own description and completion facts.
-import {
-  reviewTargetName,
-  reviewsLanding,
-  reviewsPublishedSession,
-  type StoryReview,
-} from "./storyReviewContract.ts";
+import { reviewTargetName, type StoryReview } from "./storyReviewContract.ts";
 import { shortRevision } from "./publishedWork.ts";
 import { LandedContext } from "./StoryReviewLandedContext.tsx";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
-import {
-  PublishedSessionContext,
-  publishedSessionDescription,
-} from "./StoryReviewPublishedSessionContext.tsx";
-
-export function reviewDescription(review: StoryReview | undefined) {
-  if (review?.kind === "published")
-    return "Read-only: this completed story's fixed changes from published completion and execution history.";
-  if (review?.kind === "published-taken")
-    return `Read-only: changes attributed to this story on ${publishedTakenScope(review)}.`;
-  if (reviewsPublishedSession(review)) return publishedSessionDescription;
-  return reviewsLanding(review)
-    ? "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision."
-    : "Read-only review of recorded changes.";
-}
+import { PublishedSessionContext } from "./StoryReviewPublishedSessionContext.tsx";
 
 export function publishedTakenScope(
   review: Extract<StoryReview, { kind: "published-taken" }>,

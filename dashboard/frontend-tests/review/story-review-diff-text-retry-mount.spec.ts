@@ -8,7 +8,6 @@ import { greetText } from "../../test-support/support/diffSyntaxFixtures.ts";
 import {
   expectGreetingHunk,
   expectPlainAndComplete,
-  greetingPath,
   openGreetingReview,
 } from "./greetingDiff.ts";
 import { reviewDiffPage } from "./reviewDiffPage.ts";
@@ -24,7 +23,7 @@ test("text that cannot be read leaves plain lines with only the context problem 
   const diff = reviewDiffPage();
   const problem = `Additional context could not be read: ${unavailable.explanation} Retry`;
   const alert = page
-    .getByRole("region", { name: `Modified ${greetingPath}` })
+    .getByRole("region", { name: "Path reading" })
     .getByRole("alert");
 
   await expect.element(alert).toHaveTextContent(problem);

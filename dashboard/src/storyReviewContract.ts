@@ -136,12 +136,3 @@ export const storyReviewSchema = z
     }),
   );
 export type StoryReview = z.infer<typeof storyReviewSchema>;
-// A published session's recorded comparison and gaps in that comparison.
-export const reviewsPublishedSession = (review: StoryReview | undefined) =>
-  review?.kind === "published-session" ||
-  (review?.kind === "landing-unavailable" &&
-    review.comparison === "published-session");
-// A landed run's review, whether its delivered change could be read or not.
-export const reviewsLanding = (review: StoryReview | undefined) =>
-  review?.kind === "landed" ||
-  (review?.kind === "landing-unavailable" && review.comparison === undefined);

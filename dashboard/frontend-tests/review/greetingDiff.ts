@@ -1,16 +1,13 @@
 // The greeting diff (../../test-support/support/diffSyntaxFixtures.ts) as a
 // reviewer reads it: its hunk's lines, read plain and complete before any
-// styling, and the same file opened in Review changes for a session.
+// styling, and the same file opened in a story's Intent changes.
 import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { greetDiff } from "../../test-support/support/diffSyntaxFixtures.ts";
 import type { reviewDiffPage } from "./reviewDiffPage.ts";
-import {
-  adHocSession,
-  mountReviewChanges,
-  reviewSourceAnswering,
-} from "./story-review-panel-page.ts";
+import { openStoryChanges } from "../intent/intent-story-changes-fixtures.ts";
+import { intentStoryCompare } from "../intent/intent-story-compare-page.ts";
 
 type ReviewDiff = ReturnType<typeof reviewDiffPage>;
 
@@ -44,22 +41,14 @@ export async function expectPlainAndComplete(diff: ReviewDiff) {
   await expect.element(diff.firstToken()).not.toBeInTheDocument();
 }
 
-// Opens Review changes on a session that modifies the greeting file, its
-// text read by `fileText`, and chooses that file.
+// Opens Intent on a story that modifies the greeting file, its text read by
+// `fileText`, and chooses that file.
 export async function openGreetingReview(fileText: ReviewSource["fileText"]) {
-  const review = await mountReviewChanges(
-    reviewSourceAnswering({
-      review: () =>
-        Promise.resolve(
-          makeMe.aStoryReview
-            .publishedSession()
-            .modifying(greetingPath)
-            .please(),
-        ),
-      fileDiff: () => Promise.resolve(greetDiff(greetingPath)),
-      fileText,
-    }),
-    adHocSession,
-  );
-  await review.chooseFile(`Modified ${greetingPath}`);
+  await openStoryChanges({
+    review: () =>
+      Promise.resolve(makeMe.aStoryReview.modifying(greetingPath).please()),
+    fileDiff: () => Promise.resolve(greetDiff(greetingPath)),
+    fileText,
+  });
+  await intentStoryCompare().file(`Modified ${greetingPath}`).click();
 }

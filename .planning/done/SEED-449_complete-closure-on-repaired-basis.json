@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-449#complete-closure-on-repaired-basis",
+  "title": "Complete a planning-only closure once trunk repairs its failed basis",
+  "completedAt": "2026-11-27T09:17:10.166Z",
+  "developer": "Terry Yin",
+  "agent": "Yuma-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5",
+  "intentCoverage": {
+    "report": "Verdict: Caught (both fault paths). Checked revision eeec1afb504b139e29111789d5c14e0ad4422435 (origin/main), story SEED-449#complete-closure-on-repaired-basis.\n\nPromise: a planning-only (not_required) closure whose failed basis is one of this execution's own registered revisions stays a failure even when a later green same-target descendant exists.\n\nCommand (scratch worktree at the revision): bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/ci-integrated-state-failed-basis.test.mjs Distribution/tests/skills/dough-execute-plan/ci-integrated-state-judge.test.mjs — baseline exit 0 (21 tests ran, all passed).\n\nFault 2: ci-mailbox-revision-coverage.mjs passed `registered: []` to the judge. Exit 1; ci-integrated-state-failed-basis.test.mjs:126 (`completion.verdict` expected \"failure\", got \"success\") on the real observe-and-await path with A registered, A failed, C green. The judge test still passed: it builds the poll directly, so only the failed-basis test guards the coverage wiring.\n\nFault 1: `otherWritersFailure` ignored `registered`. Exit 1; caught at ci-integrated-state-failed-basis.test.mjs:126 and ci-integrated-state-judge.test.mjs:210 (own failed basis gained an integrated success).\n\nRestoration: each fault reverted by a shell trap; git status matched pre-probe; the focused command exited 0 again; scratch worktree removed.\n\nWrap-up disposition: eeec1afb5, Caught, no follow-up.\n"
+  }
+}

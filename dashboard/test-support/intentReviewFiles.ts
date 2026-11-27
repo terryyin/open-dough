@@ -50,12 +50,21 @@ export class IntentReviewFiles {
   async expectChangedFiles(names: readonly string[]) {
     await this.shown();
     await this.expectChangedFileCount(names.length);
-    for (const name of names) {
-      await expect(
-        intentFile(this.#intent, name, { includeHidden: true }),
-      ).toHaveCount(1);
-    }
+    for (const name of names) await this.#expectListed(name);
     return this;
+  }
+
+  // `name` is among the changed files, even inside a collapsed folder.
+  async expectChangedFile(name: string) {
+    await this.shown();
+    await this.#expectListed(name);
+    return this;
+  }
+
+  async #expectListed(name: string) {
+    await expect(
+      intentFile(this.#intent, name, { includeHidden: true }),
+    ).toHaveCount(1);
   }
 
   async expectFileInFolder(file: string, folder: string) {

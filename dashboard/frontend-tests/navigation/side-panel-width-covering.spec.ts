@@ -9,9 +9,9 @@ import {
   drag,
   measured,
   minimum,
-  mountWidthReview,
+  mountWidthTerminal,
   narrow,
-  openReview,
+  openTerminal,
   panel,
   sessions,
   sidebar,
@@ -22,7 +22,7 @@ import {
 
 test("a narrow window covers the page and widening restores width and Maximize choice", async () => {
   withWidthStorage();
-  await mountWidthReview();
+  await mountWidthTerminal();
   const start = measured();
   const chosen = Math.floor(start.page.width + start.panel.width - minimum);
   await drag(-2000);
@@ -70,7 +70,7 @@ test("a narrow window covers the page and widening restores width and Maximize c
   await expect.element(banner).toBeVisible();
   await button("Close").click();
   await expect.element(panel).not.toBeInTheDocument();
-  await openReview();
+  await openTerminal();
   await widthIs(chosen);
 
   await button("Maximize").click();
@@ -90,7 +90,7 @@ test("a narrow window covers the page and widening restores width and Maximize c
 
 test("the open sidebar leaves too little room and the panel fills the remaining column", async () => {
   withWidthStorage();
-  await mountWidthReview();
+  await mountWidthTerminal();
   await sessions.click();
   await expect.element(sidebar).toBeVisible();
   await page.viewport(880, 900);

@@ -106,9 +106,12 @@ export type ScopeComparisonEvidence = Extract<
 >;
 
 function selectionFrom(
-  { comparison, endpointProofs }: SelectedComparisonEvidence,
+  selected: SelectedComparisonEvidence,
   story: string | undefined,
 ): ScopeEvidence {
+  if (selected.kind === "unmeasured")
+    return { kind: "none", checking: false, line: selected.explanation };
+  const { comparison, endpointProofs } = selected;
   const answer = comparison.shown;
   if (answer?.kind === "selection" && endpointProofs !== undefined) {
     return {

@@ -3,6 +3,8 @@
 // lives in IntentPage.
 
 import {
+  compareOf,
+  comparisonGapOf,
   defaultReviewOf,
   otherThanDefaultChosen,
   type LensComparison,
@@ -97,7 +99,6 @@ function settledComparisonEvidenceOf(summary: StorySummary | undefined) {
   if (comparison.state !== "compared" || comparison.reading === true) return {};
   const { compare, review } = comparison;
   if (compare === undefined) return {};
-
   if (
     !summary.story.completed ||
     review?.kind !== "landed" ||
@@ -121,9 +122,25 @@ function ciRangeEvidenceOf(
     : {};
 }
 
+// A chosen session measures its chosen recorded range; without one it
+// measures nothing and says why, rather than measuring the whole story.
+function sessionEvidenceOf(comparison: LensComparison) {
+  if (comparison.state === "reading") return {};
+  if (comparison.state === "compared")
+    return comparison.review?.kind === "published-session"
+      ? ciRangeEvidenceOf(comparison.review.baseline, comparison.review.tree)
+      : {};
+  return { selectedRangeGap: comparisonGapOf(comparison) };
+}
+
 export function storyCiEvidenceOptionsOf(summary: StorySummary | undefined) {
+  const session =
+    summary !== undefined &&
+    compareOf(summary.comparison)?.session !== undefined;
   return {
     ...publishedDoneEvidenceOf(summary),
-    ...settledComparisonEvidenceOf(summary),
+    ...(session
+      ? sessionEvidenceOf(summary.comparison)
+      : settledComparisonEvidenceOf(summary)),
   };
 }

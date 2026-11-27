@@ -1,18 +1,15 @@
 // A boundary between two areas that resizes the one it belongs to: the side
-// Panel divider (`./PanelDivider.tsx`), the dividers above optional Sessions
-// sidebar sections (`./SessionsSidebar.tsx`) and a review's Files divider
-// (`./StoryReviewWorkarea.tsx`). It is a
-// focusable separator that says its area's current size and bounds. The area
-// lies on one side of the divider along its axis: trailing (right of a
-// vertical divider, below a horizontal one; the default) or leading (left of
-// it, above it). Dragged with the pointer away from the area, or, while it
-// holds the keyboard, with the arrow key pointing away from the area (Left or
-// Up for a trailing area, Right or Down for a leading one), the area grows;
-// toward it, or with the opposite key, it shrinks. A drag ends wherever the
-// pointer is released, or when the browser cancels it. Each caller owns its
-// area's sizes: the divider only asks for one (`choose`), within the bounds the
-// caller gives. Where the room offers no range to choose from, the divider says
-// so and resizes nothing.
+// Panel divider (`./PanelDivider.tsx`) and the dividers above optional
+// Sessions sidebar sections (`./SessionsSidebar.tsx`). It is a focusable
+// separator that says its area's current size and bounds. The area lies after
+// the divider along its axis: right of a vertical divider, below a horizontal
+// one. Dragged with the pointer away from the area, or, while it holds the
+// keyboard, with the arrow key pointing away from it (Left or Up), the area
+// grows; toward it, or with the opposite key (Right or Down), it shrinks. A
+// drag ends wherever the pointer is released, or when the browser cancels it.
+// Each caller owns its area's sizes: the divider only asks for one
+// (`choose`), within the bounds the caller gives. Where the room offers no
+// range to choose from, the divider says so and resizes nothing.
 
 import { useRef, type PointerEvent } from "react";
 import "./resize-divider.css";
@@ -32,32 +29,24 @@ type Drag = {
   readonly size: number;
 };
 
-// Each axis's position and its keys toward the leading and trailing sides.
+// Each axis's position and its keys away from the area and toward it.
 const axes = {
   // Across the page.
   vertical: {
     position: (event: PointerEvent) => event.clientX,
-    leading: "ArrowLeft",
-    trailing: "ArrowRight",
+    grow: "ArrowLeft",
+    shrink: "ArrowRight",
   },
   // Down the page.
   horizontal: {
     position: (event: PointerEvent) => event.clientY,
-    leading: "ArrowUp",
-    trailing: "ArrowDown",
+    grow: "ArrowUp",
+    shrink: "ArrowDown",
   },
-} as const;
-
-// Which side of the divider the area lies on, and so which way it grows: away
-// from the area.
-const sides = {
-  trailing: { grow: "leading", shrink: "trailing", direction: -1 },
-  leading: { grow: "trailing", shrink: "leading", direction: 1 },
 } as const;
 
 export function ResizeDivider({
   orientation,
-  side = "trailing",
   label,
   title,
   valueText,
@@ -65,7 +54,6 @@ export function ResizeDivider({
   range,
 }: {
   readonly orientation: keyof typeof axes;
-  readonly side?: keyof typeof sides;
   readonly label: string;
   readonly title: string;
   readonly valueText: (size: number) => string;
@@ -75,7 +63,6 @@ export function ResizeDivider({
 }) {
   const drag = useRef<Drag | undefined>(undefined);
   const axis = axes[orientation];
-  const growth = sides[side];
   const end = (event: PointerEvent) => {
     if (drag.current?.pointerId === event.pointerId) drag.current = undefined;
   };
@@ -106,9 +93,9 @@ export function ResizeDivider({
         if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
           return;
         const change =
-          event.key === axis[growth.grow]
+          event.key === axis.grow
             ? step
-            : event.key === axis[growth.shrink]
+            : event.key === axis.shrink
               ? -step
               : undefined;
         if (change === undefined) return;
@@ -132,10 +119,9 @@ export function ResizeDivider({
       onPointerMove={(event) => {
         const dragged = drag.current;
         if (dragged?.pointerId !== event.pointerId) return;
-        choose(
-          dragged.size +
-            growth.direction * (axis.position(event) - dragged.from),
-        );
+        // The area lies after the divider, so it grows as the pointer
+        // moves back along the axis.
+        choose(dragged.size - (axis.position(event) - dragged.from));
       }}
       onPointerUp={end}
       onPointerCancel={end}

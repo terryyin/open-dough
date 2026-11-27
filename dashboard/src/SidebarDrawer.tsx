@@ -15,7 +15,7 @@ import { isInsideOpenDialog } from "./pageShortcuts.ts";
 import "./sidebar-drawer.css";
 
 // Whether the sidebar element is currently presented as a drawer: over the
-// window, or over its own panel's room (`./ReviewFilesDrawer.tsx`).
+// window, or over its own view's room.
 export const liesOverPage = (sidebar: HTMLElement | null) =>
   sidebar !== null &&
   ["fixed", "absolute"].includes(getComputedStyle(sidebar).position);
@@ -145,24 +145,17 @@ export function DrawerBackdrop({
   open,
   sidebarId,
   onDismiss,
-  overPage = false,
 }: {
   readonly open: boolean;
   readonly sidebarId: string;
   readonly onDismiss: () => void;
-  // Shown wherever it is open, for a sidebar that decides its own placement.
-  readonly overPage?: boolean;
 }) {
   const hole = useToggleHole(open, sidebarId);
   if (!open) return null;
   // The click ends the gesture its press began, so nothing beneath acts.
   return (
     <div
-      className={
-        overPage
-          ? "sidebar-drawer-backdrop sidebar-drawer-over-page"
-          : "sidebar-drawer-backdrop"
-      }
+      className="sidebar-drawer-backdrop"
       aria-hidden="true"
       style={hole === undefined ? undefined : { clipPath: hole }}
       onPointerDown={(event) => {

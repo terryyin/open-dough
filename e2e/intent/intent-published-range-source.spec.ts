@@ -2,8 +2,8 @@ import type { Page } from "@playwright/test";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { trunkAdvancedWith } from "../../dashboard/test-support/originatingMachine.ts";
-import { publishedSessionOnDoneStory } from "../../dashboard/test-support/recentlyDoneColumn.ts";
-import { openPublishedSessionReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import { followUpComposer } from "../../dashboard/test-support/support/fileFollowUpPage.ts";
 import { storyNameOf } from "../../dashboard/test-support/support/followUpStories.ts";
@@ -46,16 +46,13 @@ async function openSecondPublishedRange(page: Page, origin: StartOrigin) {
   });
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/");
-  const review = await openPublishedSessionReviewChanges(
+  const review = await openIntentReviewChanges(
     page,
-    publishedSessionOnDoneStory(
-      parts(page).recentlyDone,
-      story.title,
-      published.record.sessionId,
-    ),
+    storyCard(parts(page).recentlyDone, story.title),
   );
+  await review.comparison.chooseSession(1);
   await review.comparison.choosePublishedRange("Published range 2 of 2");
-  await review.files.chooseShown(changed);
+  await review.files.choose(changed);
   await review.diffs.expectChangedLines(changed, {
     removed: [`-${oldLine}`],
     added: [],
@@ -63,13 +60,44 @@ async function openSecondPublishedRange(page: Page, origin: StartOrigin) {
   return { review, ...published };
 }
 
+test("a second machine follows up on the exact published file", async ({
+  page,
+  origin,
+  dashboard,
+}) => {
+  const { review, record, second } =
+    await test.step("Given the second range of a story session published by another machine, chosen in Intent", () => {
+      dashboard.claudeScenario("launched");
+      return openSecondPublishedRange(page, origin);
+    });
+  const storyName = storyNameOf(story);
+  const comparison = `Published session ${record.sessionId} ${second.base} → ${second.candidate}`;
+  await test.step("When I follow up on the file from its header and start", async () => {
+    const dialog = await review.diffs.followUpFromFile(changed, storyName, [
+      `Path: ${file}`,
+      `Comparison: ${comparison}`,
+    ]);
+    await followUpComposer(dialog).start("Review the file");
+  });
+  await test.step("Then Claude's request names the session's chosen range for the file", async () => {
+    await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
+    expect(dashboard.claudeLaunches()[0]?.instruction ?? "")
+      .toContain(`<follow-up>
+- Path: ${file}
+- Comparison: ${comparison}
+Request:
+Review the file
+</follow-up>`);
+  });
+});
+
 test("a second machine follows up on the exact published file and old line", async ({
   page,
   origin,
   dashboard,
 }) => {
   const { review, record, first, second } =
-    await test.step("Given the second range of a story session published by another machine", () => {
+    await test.step("Given the second range of a story session published by another machine, chosen in Intent", () => {
       dashboard.claudeScenario("launched");
       return openSecondPublishedRange(page, origin);
     });
@@ -84,7 +112,7 @@ test("a second machine follows up on the exact published file and old line", asy
   ];
   const lineComposer =
     await test.step("When I open Follow up on the removed line", async () => {
-      const dialog = await review.followUpFromLine(
+      const dialog = await review.diffs.followUpFromLine(
         changed,
         "old",
         1,
@@ -132,7 +160,7 @@ test("a stale line Follow up explains the unavailable source and returns to the 
       openSecondPublishedRange(page, origin));
   const dialog =
     await test.step("When I open Follow up on the removed line", () =>
-      review.followUpFromLine(changed, "old", 1, storyNameOf(story), [
+      review.diffs.followUpFromLine(changed, "old", 1, storyNameOf(story), [
         `Comparison: Published session ${record.sessionId} ${second.base} → ${second.candidate}`,
       ]));
   await test.step("And the publication becomes unreadable on the project's Git tip", () => {
