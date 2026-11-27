@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "72c92ebf-e881-4243-b466-abf95801564c",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-27T04:11:34.758Z",
+  "story": "SEED-417#use-sidebars-consistently-across-the-dashboard",
+  "ranges": [
+    {
+      "base": "35da74a5a7b2e7ce462e5bae9875497b1ce70b4b",
+      "candidate": "b627f5d13518aacfc806c84b371c36544fe22ed5"
+    }
+  ]
+}
