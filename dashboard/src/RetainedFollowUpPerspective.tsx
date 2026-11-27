@@ -54,7 +54,12 @@ function RetainedStory({ source, work, records, destination }: Props) {
     records,
     selectedIdentity: destination.identity,
   });
-  const summary = useStorySummary(lens.story, lens.comparison, lens.retry);
+  const summary = useStorySummary(
+    lens.story,
+    lens.comparison,
+    lens.retry,
+    lens.sessionDetails,
+  );
   useEffect(() => {
     let current = true;
     void reads

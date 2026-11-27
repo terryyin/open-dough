@@ -219,6 +219,8 @@ export function intentStoryCompare() {
       await pressButton(refreshButton);
     },
     viewTab,
+    // The panel the named story view's tab controls.
+    viewPanel: view,
     chooseTab: async (name: View) => {
       if (pathReading.query() !== null) await goHome();
       await activateComparisonControl(viewTab(name));

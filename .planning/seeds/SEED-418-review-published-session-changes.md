@@ -40,52 +40,6 @@ kept across a refresh; the story's session list lives in Follow up's module; and
 test support and one E2E case are left over or redundant.
 [Plan](../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md).
 
-<a id="show-selected-session-in-review-home"></a>
-
-### Show the selected ad hoc session on Intent Home
-
-**Identity:** SEED-418#show-selected-session-in-review-home
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-418#show-selected-session-in-review-home","dependencies":[{"supplier":{"identity":"SEED-418#select-a-story-session-for-review","href":"seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review"},"implementation":"Single-session review scope in Intent","rationale":"Intent currently selects a story only. This story adds information about a session already selected in Intent. It needs the supplier's session selection, including the Whole story reset.","condition":"Intent can select an individually identifiable retained or published story session and return to Whole story.","state":"satisfied","resolution":{"revision":"d60293a1adee86582e595aa450738616b4954f38","path":".planning/seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review","summary":"Still waiting. Delivered: Intent selects an individually identifiable retained or published session and returns to Whole story (intent-story-compare-sessions.spec.ts, intent-session-review-opening.spec.ts). Not verified: no observation shows the chosen scope kept when the reviewer goes to the story's Intent Home and back. Next action: observe that the session scope survives Home (supplier gap), or move that clause into this story's scope when it is prepared; SEED-418#keep-session-review-proof-after-retirement also changes when a session scope resets on reselection.\nCondition remains unresolved: Intent can select an individually identifiable retained or published story session, keep that scope on Home, and return to Whole story.\nAccepted integration: 01894a4f377ddc94c51a171b6c23cd652eac0e9d on origin/refs/heads/main.\nAgreement correction using d60293a1adee86582e595aa450738616b4954f38:.planning/seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review:\nSatisfied after correcting the agreement. Delivered: Intent selects an individually identifiable retained or published session and returns to Whole story (intent-story-compare-sessions.spec.ts, intent-session-review-opening.spec.ts); trunk since adds the compact Review scope dropdown naming ad hoc sessions by title (intent-session-scope-titles.spec.ts). Removed clause: keeping the chosen scope when the reviewer returns to the story's Intent Home is consumer work. This story's scope already promises 'Returning to Home from a file shows the details for the scope still selected', and plan 877 slice 1 proves it ('Home keeps the chosen scope across file reading').\nCondition satisfied: Intent can select an individually identifiable retained or published story session and return to Whole story.\nAccepted integration: 01894a4f377ddc94c51a171b6c23cd652eac0e9d on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/877-show-selected-ad-hoc-session-on-intent-home/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"77b729aa19c7148727378c27bed2314795f6abbbb96b75e121c9173f9605f984","plan":"a1db225e676a9d4ad0d2044e2a84631b06a3dc0b4245b242a7de5cd1f6f57e39"}}
-```
-
-**Goal.** A developer reviewing an ad hoc contribution can identify the
-selected session and read what it was asked to do before interpreting its
-evidence in Intent.
-
-**Scope.**
-
-- At the top of the story's Intent Home, above the CI comparison, show the
-  selected session's title, its **Ad hoc** workflow and session identifier,
-  and the original instruction from its retained launch, when available.
-  Keep the CI comparison accessible on the same page.
-- Resolve the details from the current review scope. If the selection is a
-  published ad hoc session without a retained launch, identify it by its
-  published session ID and indicate that its title and instruction are
-  unavailable. If a retained launch has no instruction text, show its
-  available title and identity and say the instruction is unavailable.
-- Whole story and other workflows use the usual story Home. Returning to
-  Home from a file shows the details for the scope still selected.
-
-**Scope limits.** Use the existing single-session review scope and existing
-launch and published session records. The compact picker, publication of
-launch metadata, review status and comparison changes are outside this story.
-
-**Key examples.**
-
-- Two follow-ups have different titles and instructions. Choose the first
-  and open Home. Its title, Ad hoc workflow, session identifier and
-  instruction appear above CI. Switch to the second and only its details
-  appear. Choose **Whole story** and the usual story Home returns.
-- Choose a published ad hoc session on a machine with no retained launch.
-  Its published ID identifies it, the title and instruction are shown as
-  unavailable, and the CI comparison is still accessible.
-- Choose a retained ad hoc session with no instruction text. Home shows its
-  title and identity and explains that the instruction is unavailable.
-
 <a id="review-selected-sessions-together"></a>
 
 ### Review the combined changes of selected sessions

@@ -10,6 +10,7 @@ import {
   type LensComparison,
 } from "./IntentStoryComparison.tsx";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
+import type { AdHocSessionDetails } from "./followUpSessions.ts";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import type { CiComparisonRange } from "./selectedCiComparison.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
@@ -39,14 +40,19 @@ export type StorySummary = {
   readonly story: LensStory;
   readonly comparison: LensComparison;
   readonly onRetry: () => void;
+  // The ad hoc session chosen as the review scope, if any.
+  readonly session?: AdHocSessionDetails | undefined;
 };
 
 export function useStorySummary(
   story: LensStory | undefined,
   comparison: LensComparison,
   onRetry: () => void,
+  session: AdHocSessionDetails | undefined,
 ): StorySummary | undefined {
-  return story === undefined ? undefined : { story, comparison, onRetry };
+  return story === undefined
+    ? undefined
+    : { story, comparison, onRetry, session };
 }
 
 // Whether the CI views need the whole-story note beside the chosen comparison.
