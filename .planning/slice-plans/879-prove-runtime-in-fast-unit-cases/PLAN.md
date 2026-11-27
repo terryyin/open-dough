@@ -370,6 +370,10 @@ concurrent run is needed — the frontend and E2E settings come from the
 same `runDashboardGroup`/`runnerSettings` code the backend run exercises,
 differing only in data the table covers.
 
+CI repair (run 45993428532): the local-test-suite Distribution tests copy
+the runner's support files into a scratch worktree; the new
+`runnerSettings.mjs` joins that list in `local-test-suite-checkout.mjs`.
+
 ### 8. Prove page waiting helpers once and leave the folder fast
 Type: Behavior
 Status: planned

@@ -59,6 +59,7 @@ export function suiteRunnerLayer() {
       "dashboard/test-support/support/fullSuiteSelection.mjs",
       "dashboard/test-support/support/groupSelection.mjs",
       "dashboard/test-support/support/runnerConfig.mjs",
+      "dashboard/test-support/support/runnerSettings.mjs",
     ]);
     const withFramework = (config) =>
       readFileSync(path.join(source, config), "utf8").replace(
