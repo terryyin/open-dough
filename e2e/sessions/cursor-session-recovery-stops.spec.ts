@@ -29,7 +29,7 @@ import {
 } from "../../dashboard/test-support/support/cursorStart.ts";
 import { unclassifiedCursorExit } from "../../dashboard/test-support/support/fakeCursor.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
+import { changeKeptSessionsBesideServer } from "../../dashboard/test-support/support/launchStore.ts";
 
 test("missing workspace, trust, unreachable runner, and unclassified exit explain and leave no agent", async ({
   page,
@@ -45,20 +45,14 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
   }
   const missing = path.join(origin.machine, "missing-cursor-workspace");
   rmSync(missing, { recursive: true, force: true });
-  keepLaunchStore(dashboard, {
-    "open-dough": [
-      {
-        ...record,
-        session: {
-          ...record.session,
-          continuation: {
-            ...record.session.continuation,
-            workspace: missing,
-          },
-        },
-      },
-    ],
-  });
+  const { session } = record;
+  await changeKeptSessionsBesideServer(dashboard, () => ({
+    ...record,
+    session: {
+      ...session,
+      continuation: { ...session.continuation, workspace: missing },
+    },
+  }));
   // The recorded session's local Taken entry, through every reload below.
   const entry = sessionEntriesIn(parts(page).taken);
   const recover = entry.getByRole("button", { name: "Recover" });
@@ -69,7 +63,7 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
   await expect(problem).toContainText("was not found on this machine");
   expect(cursor.attaches()).toHaveLength(attachesBeforeMissing);
 
-  keepLaunchStore(dashboard, { "open-dough": [record] });
+  await changeKeptSessionsBesideServer(dashboard, () => record);
   cursor.setAttachMode("trust");
   await page.reload();
   const beforeTrust = cursor.attaches().length;

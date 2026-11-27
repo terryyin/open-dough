@@ -144,6 +144,22 @@ removed. The unmodified repaired spec also passed 4/4, and
 `typecheck:dashboard` passed. The consumer trace finds no consumers beyond
 the spec's own cases.
 
+CI repair (run `46011428917`, `e2e / shard 6/6` on `c446520f5`). A test-side
+write to `agent-launches.json` raced the page's `/reconciled` rewrite, which
+happens under the store's lock. The test's write took no lock. Two Cursor
+recovery specs now change records through the new
+`changeKeptSessionsBesideServer`, which takes that lock. See
+[diagnosis-cursor-done-no-recover.md](diagnosis-cursor-done-no-recover.md).
+Proof: `cursor-session-recovery.spec.ts --repeat-each 5` passed 30/30, the
+recovery-stops spec `--repeat-each 3` passed 3/3, and the e2e typecheck
+passed. Named follow-up from the refactor pass: other unlocked test writes
+to the launch store, made beside a running server after a page start, can
+race the same way. Representative files:
+`e2e/sessions/recently-done-sessions-sidebar-reopen.spec.ts`,
+`e2e/sessions/agent-launch-retained-history.spec.ts`,
+`e2e/launches/agent-launch-story-card-open-session.spec.ts`,
+`dashboard/test-support/runningCursorSessionsPage.ts`.
+
 Failure policy: [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 
 ## Plan review
